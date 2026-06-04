@@ -51,6 +51,15 @@ const AppGameBoundaryCounts = {
   aiClassifierResultRowCount: 1,
 } as const;
 
+const AppGameSourceStatusRow = {
+  sourceKind: 'osInstalledRecord',
+  state: 'ready',
+  rowCount: 1,
+  lastObservedAt: '2026-05-27T06:19:00Z',
+  capabilityStatus: 'available',
+  evidence: [EvidenceRef],
+} as const;
+
 const ScreenChainFields = {
   captureReason: 'nativeAppForegroundStart',
   captureScope: 'activeWindow',
@@ -397,6 +406,7 @@ function specifyActivityAppUseReadModelContracts() {
           foregroundRowCount: 1,
           dailyRollupCount: 1,
           ...AppGameBoundaryCounts,
+          sourceStatusRows: [AppGameSourceStatusRow],
           evidence: [EvidenceRef],
         },
       ],
@@ -407,10 +417,18 @@ function specifyActivityAppUseReadModelContracts() {
     expect(parsed.rows[0]?.inventoryRowCount).toBe(1);
     expect(parsed.rows[0]?.approvalAuthorityRowCount).toBe(1);
     expect(parsed.rows[0]?.aiClassifierResultRowCount).toBe(1);
+    expect(parsed.rows[0]?.sourceStatusRows[0]?.sourceKind).toBe('osInstalledRecord');
+    expect(parsed.rows[0]?.sourceStatusRows[0]?.rowCount).toBe(1);
   });
 }
 
 describe('activity browser games and network read-model contracts', () => {
+  specifyActivityBrowserReadModelContracts();
+  specifyActivityGamesReadModelContracts();
+  specifyActivityNetworkReadModelContracts();
+});
+
+function specifyActivityBrowserReadModelContracts() {
   it('ActivityBrowserReadModelSchema: accepts permission-required browser state', () => {
     expect(
       ActivityBrowserReadModelSchema.parse({
@@ -423,7 +441,9 @@ describe('activity browser games and network read-model contracts', () => {
       }).state
     ).toBe('permission-required');
   });
+}
 
+function specifyActivityGamesReadModelContracts() {
   it('ActivityGamesReadModelSchema: accepts scaffold-only games state', () => {
     expect(
       ActivityGamesReadModelSchema.parse({
@@ -464,6 +484,12 @@ describe('activity browser games and network read-model contracts', () => {
           foregroundRowCount: 0,
           dailyRollupCount: 1,
           ...AppGameBoundaryCounts,
+          sourceStatusRows: [
+            {
+              ...AppGameSourceStatusRow,
+              sourceKind: 'launcherManifest',
+            },
+          ],
           evidence: [EvidenceRef],
         },
       ],
@@ -473,8 +499,11 @@ describe('activity browser games and network read-model contracts', () => {
     expect(parsed.rows[0]?.launcherRowCount).toBe(1);
     expect(parsed.rows[0]?.platformAuthorityRowCount).toBe(1);
     expect(parsed.rows[0]?.aiClassifierResultRowCount).toBe(1);
+    expect(parsed.rows[0]?.sourceStatusRows[0]?.sourceKind).toBe('launcherManifest');
   });
+}
 
+function specifyActivityNetworkReadModelContracts() {
   it('ActivityNetworkReadModelSchema: accepts unavailable network state', () => {
     expect(
       ActivityNetworkReadModelSchema.parse({
@@ -487,4 +516,4 @@ describe('activity browser games and network read-model contracts', () => {
       }).state
     ).toBe('unavailable');
   });
-});
+}

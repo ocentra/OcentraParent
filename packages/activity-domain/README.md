@@ -13,6 +13,9 @@ Shared activity and evidence contracts for child-device observations.
   candidate AI analysis, risk/benefit signal, and route gate/action refs without
   raw content, final policy, UI, alert delivery, or enforcement claims.
 - App/game identity, inventory, and session contracts.
+- App/game activity-surface source status row contracts that expose backend
+  source-kind counts, latest observed timestamps, capability state, and
+  evidence refs without UI or policy claims.
 - Network flow summary contracts.
 - Screen evidence summary contracts.
 - Tracking location, device-status, geofence, nearby-place, and read-model
@@ -69,3 +72,6 @@ flowchart LR
 - Activity reports need complete parent-facing history, trend, and assistant
   query flows.
 - Evidence contracts must keep unknown/degraded/unavailable states explicit.
+- App/game source status rows are backend evidence summaries only; portal
+  rendering, policy consumption, and adapter execution remain separate proof
+  gates.

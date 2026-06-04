@@ -65,6 +65,9 @@ development paths and orchestrates runtime commands.
 - App/game app-use/games read-model staged boundary row counts for evidence
   claim, identity, approval authority/action-result, platform authority
   matrix/rows, and AI classifier result rows in the existing read-model payloads.
+- App/game app-use/games read-model source status rows for inventory, runtime,
+  foreground, and launcher source kinds with backend row counts, latest observed
+  timestamps, capability state, and evidence refs.
 - Dedicated app/game boundary read-model reports through
   `agent.activity.app-game.boundary.read-model.get`, backed by the same
   `AppGameServiceReadModel` and exposing staged authority/classifier row
@@ -140,3 +143,6 @@ flowchart LR
   app-use/games evidence vector, explicit count fields, and the dedicated
   backend boundary read-model event; portal rows, policy consumption, provider
   execution, and adapter proof remain separate gaps.
+- App/game source status rows are backend read-model summaries only; polished
+  portal rendering, policy consumption, richer subscriptions, adapter
+  execution, and broad blocking remain separate gaps.

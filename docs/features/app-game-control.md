@@ -213,6 +213,11 @@ control with better evidence and local audit.
   registry inventory events into the encrypted journal and ActivityStore, so the
   existing app-use/games read-model path can query registry-backed
   inventory-only rows without runtime, foreground, policy, or adapter claims.
+- The app-use and games activity-surface read-model rows now expose typed
+  `sourceStatusRows` that group inventory, runtime, foreground, and launcher
+  evidence by source kind, row count, latest observed time, capability state,
+  and evidence refs without adding portal UI, policy consumption, or adapter
+  claims.
 - The app/game final rollout/evidence gate now checks the app-game WP01-WP27
   and app-plan WP01-WP26 proof roots, writes final app-game WP28 and app-plan
   WP27/WP28 proof packs, and records the E2E/manual scenario routing,
@@ -257,8 +262,10 @@ encrypted journal/store/read-model path. Core registry crawling now maps Windows
 Uninstall registry evidence into inventory-only rows and journal events with
 hashed source/path refs, and the service capture path can append those
 registry-backed inventory rows into the same journal/store/read-model path.
-Portal evidence/classifier rendering, local model quality/provider execution,
-policy evaluator consumption, and platform enforcement remain unproved. Live
+Backend app-use/games read-model rows now include grouped source
+freshness/status rows for inventory, runtime, foreground, and launcher sources,
+but portal source rendering, local model quality/provider execution, policy
+evaluator consumption, and platform enforcement remain unproved. Live
 process snapshots now replay through the local journal/SQLite path in core and
 through the service activity-capture journal/store path for bounded runtime
 rows; recurring service capture freshness is now proved, and the service
@@ -323,8 +330,10 @@ persistence, Rust/WebSocket parity, or platform adapter execution.
       rows into the journal/store/read-model path. Core Windows registry source
       proof now maps Uninstall registry evidence into inventory-only rows with
       hashed source/path refs, and service capture can append those registry
-      rows into the journal/store/read-model path. Portal freshness polish,
-      richer source subscriptions, and policy integration remain.
+      rows into the journal/store/read-model path. App-use/games read-model
+      rows now expose grouped backend source status/freshness rows. Portal
+      freshness polish, richer source subscriptions, and policy integration
+      remain.
 - [ ] Category and unknown-state handling. Unknown approval contracts now keep
       weak app/game evidence in review/report-only/manual-required states with
       evidence refs, child status refs, expiry, and audit-backed persistence

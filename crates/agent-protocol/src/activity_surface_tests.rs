@@ -175,6 +175,10 @@ fn activity_app_use_read_model_serializes_app_game_projection_state() {
             platform_authority_matrix_count: 1,
             platform_authority_row_count: 1,
             ai_classifier_result_row_count: 1,
+            source_status_rows: vec![sample_app_game_source_status(
+                "osInstalledRecord",
+                "2026-05-27T06:19:00Z",
+            )],
             evidence: vec![sample_evidence()],
         }],
     };
@@ -184,6 +188,10 @@ fn activity_app_use_read_model_serializes_app_game_projection_state() {
     assert_eq!(app_use_json["rows"][0]["foregroundState"], "foreground");
     assert_eq!(app_use_json["rows"][0]["approvalAuthorityRowCount"], 1);
     assert_eq!(app_use_json["rows"][0]["aiClassifierResultRowCount"], 1);
+    assert_eq!(
+        app_use_json["rows"][0]["sourceStatusRows"][0]["sourceKind"],
+        "osInstalledRecord"
+    );
 }
 
 #[test]
@@ -236,6 +244,10 @@ fn activity_games_read_model_serializes_launcher_source_counts() {
             platform_authority_matrix_count: 1,
             platform_authority_row_count: 1,
             ai_classifier_result_row_count: 1,
+            source_status_rows: vec![sample_app_game_source_status(
+                "launcherManifest",
+                "2026-05-27T06:19:00Z",
+            )],
             evidence: vec![sample_evidence()],
         }],
     };
@@ -245,6 +257,10 @@ fn activity_games_read_model_serializes_launcher_source_counts() {
     assert_eq!(games_json["rows"][0]["launcherRowCount"], 1);
     assert_eq!(games_json["rows"][0]["platformAuthorityRowCount"], 1);
     assert_eq!(games_json["rows"][0]["aiClassifierResultRowCount"], 1);
+    assert_eq!(
+        games_json["rows"][0]["sourceStatusRows"][0]["sourceKind"],
+        "launcherManifest"
+    );
 }
 
 #[test]
@@ -380,5 +396,19 @@ fn sample_evidence() -> ActivityEvidenceRef {
         kind: ActivityEvidenceKind::JournalEntry,
         digest: Some("sha256:activity-surface".to_string()),
         uri: None,
+    }
+}
+
+fn sample_app_game_source_status(
+    source_kind: &str,
+    last_observed_at: &str,
+) -> super::ActivityAppGameSourceStatusRow {
+    super::ActivityAppGameSourceStatusRow {
+        source_kind: source_kind.to_string(),
+        state: ActivityReadModelState::Ready,
+        row_count: 1,
+        last_observed_at: Some(last_observed_at.to_string()),
+        capability_status: "available".to_string(),
+        evidence: vec![sample_evidence()],
     }
 }

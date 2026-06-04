@@ -31,6 +31,8 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - App/game boundary read-model structs, command/event names, payload field, and
   parity tests for the service-backed authority/classifier row-count proof
   path.
+- App/game activity-surface source status structs for backend app-use/games row
+  freshness/count/capability proof without portal, policy, or adapter claims.
 - App/game evidence claim, AI digest reference/classification digest, identity,
   identity-merge, control authority/action-result, platform authority matrix,
   and classifier boundary structs/constants mirrored from the TypeScript domain
@@ -109,7 +111,8 @@ flowchart LR
   rows, core live foreground-window source proof exists for foreground rows, and
   core Windows shortcut, Store package, and registry sources now exist for
   inventory-only rows. Agent-service owns a recurring bounded runtime capture
-  cadence, registry-backed inventory capture, and a dedicated app/game boundary
+  cadence, registry-backed inventory capture, source status rows on app-use and
+  games activity-surface read-models, and a dedicated app/game boundary
   read-model event, but policy runtime, portal
   identity/classifier/platform-authority rows, and adapter execution remain
   separate proof-gated work.

@@ -10,10 +10,14 @@ import {
   AppGameCapabilityStatusSchema,
   AppGameClassificationStateSchema,
   AppGameForegroundStateSchema,
+  AppGameObservationModeSchema,
   AppGameRuntimeStateSchema,
 } from './app-game-primitives';
 import { AppGameProductKindSchema } from './app-game-identity-primitives';
-import { AppGameInventoryDetectionStateSchema } from './app-game-inventory-primitives';
+import {
+  AppGameInventoryDetectionStateSchema,
+  AppGameInventorySourceKindSchema,
+} from './app-game-inventory-primitives';
 import {
   ScreenEvidenceConfidenceSchema,
   ScreenEvidenceImageDigestSchema,
@@ -220,6 +224,17 @@ const ActivityReadModelBaseFields = {
   summary: ActivityReportSummarySchema,
 };
 
+const ActivityAppGameSourceStatusRowSchema = withParser(
+  Schema.Struct({
+    sourceKind: Schema.Union(AppGameInventorySourceKindSchema, AppGameObservationModeSchema),
+    state: ActivityReadModelStateSchema,
+    rowCount: NonNegativeActivityCount,
+    lastObservedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
+    capabilityStatus: AppGameCapabilityStatusSchema,
+    evidence: Schema.Array(ActivityEvidenceRefSchema),
+  })
+);
+
 export const ActivityScreenReadModelSchema = withParser(
   Schema.Struct({
     ...ActivityReadModelBaseFields,
@@ -279,6 +294,7 @@ export const ActivityAppUseReadModelSchema = withParser(
         platformAuthorityMatrixCount: NonNegativeActivityCount,
         platformAuthorityRowCount: NonNegativeActivityCount,
         aiClassifierResultRowCount: NonNegativeActivityCount,
+        sourceStatusRows: Schema.Array(ActivityAppGameSourceStatusRowSchema),
         evidence: Schema.Array(ActivityEvidenceRefSchema),
       })
     ),
@@ -331,6 +347,7 @@ export const ActivityGamesReadModelSchema = withParser(
         platformAuthorityMatrixCount: NonNegativeActivityCount,
         platformAuthorityRowCount: NonNegativeActivityCount,
         aiClassifierResultRowCount: NonNegativeActivityCount,
+        sourceStatusRows: Schema.Array(ActivityAppGameSourceStatusRowSchema),
         evidence: Schema.Array(ActivityEvidenceRefSchema),
       })
     ),

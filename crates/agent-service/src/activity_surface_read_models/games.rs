@@ -14,8 +14,8 @@ use crate::activity_surface_read_model_states::{
 };
 
 use super::shared::{
-    app_game_boundary_row_counts, push_app_game_boundary_evidence, push_evidence, row_device_id,
-    row_state,
+    app_game_boundary_row_counts, app_game_source_status_rows, push_app_game_boundary_evidence,
+    push_evidence, row_device_id, row_state,
 };
 
 pub(crate) fn games_read_model(
@@ -127,6 +127,7 @@ fn game_rows(
         platform_authority_matrix_count: boundary_counts.platform_authority_matrix_count,
         platform_authority_row_count: boundary_counts.platform_authority_row_count,
         ai_classifier_result_row_count: boundary_counts.ai_classifier_result_row_count,
+        source_status_rows: game_source_status_rows(model),
         evidence: game_evidence(model),
     }]
 }
@@ -165,6 +166,18 @@ fn is_game_classification(classification: &str) -> bool {
             | APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER
             | APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE
             | APP_GAME_CLASSIFICATION_POSSIBLY_GAME
+    )
+}
+
+fn game_source_status_rows(
+    model: &AppGameServiceReadModel,
+) -> Vec<ocentra_parent_agent_protocol::ActivityAppGameSourceStatusRow> {
+    app_game_source_status_rows(
+        model,
+        is_game_inventory,
+        is_game_runtime,
+        is_game_foreground,
+        true,
     )
 }
 

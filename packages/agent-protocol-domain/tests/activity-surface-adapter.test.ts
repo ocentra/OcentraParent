@@ -444,6 +444,24 @@ function specifyAppUseReadModelEventParsing() {
               platformAuthorityMatrixCount: 1,
               platformAuthorityRowCount: 1,
               aiClassifierResultRowCount: 1,
+              sourceStatusRows: [
+                {
+                  sourceKind: 'osInstalledRecord',
+                  state: 'ready',
+                  rowCount: 1,
+                  lastObservedAt: '2026-05-27T20:08:00Z',
+                  capabilityStatus: 'available',
+                  evidence: [],
+                },
+                {
+                  sourceKind: 'foregroundWindow',
+                  state: 'ready',
+                  rowCount: 1,
+                  lastObservedAt: '2026-05-27T20:09:00Z',
+                  capabilityStatus: 'available',
+                  evidence: [],
+                },
+              ],
               evidence: [],
             },
           ],
@@ -458,6 +476,8 @@ function specifyAppUseReadModelEventParsing() {
     expect(row?.foregroundState).toBe('foreground');
     expect(row?.dailyRollupCount).toBe(1);
     expect(parsed.ok ? parsed.value.rows[0]?.aiClassifierResultRowCount : null).toBe(1);
+    expect(parsed.ok ? parsed.value.rows[0]?.sourceStatusRows[0]?.sourceKind : null).toBe('osInstalledRecord');
+    expect(parsed.ok ? parsed.value.rows[0]?.sourceStatusRows[1]?.sourceKind : null).toBe('foregroundWindow');
   });
 }
 
