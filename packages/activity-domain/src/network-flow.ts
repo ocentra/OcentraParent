@@ -11,6 +11,8 @@ import { ActivityObserverSchema } from './kinds';
 import { ActivityEventIdSchema, ActivityEvidenceIdSchema, ActivityTimestampSchema } from './primitives';
 import { ActivityQuerySchemaVersion } from './query';
 
+export * from './network-contracts';
+
 const NetworkNonEmptyText = Schema.String.pipe(Schema.minLength(1));
 const NetworkPortNumber = Schema.Number.pipe(Schema.int(), Schema.between(0, 65535));
 const NetworkNonNegativeNumber = Schema.Number.pipe(Schema.nonNegative());

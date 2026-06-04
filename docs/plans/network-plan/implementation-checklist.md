@@ -83,10 +83,12 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
 
 ## Evidence Quality Gates
 
-- [ ] Network-only evidence never claims exact URL, exact video, private
+- [x] Network-only evidence never claims exact URL, exact video, private
       messages, search query, page content, screen activity, or decrypted
-      payload.
-- [ ] Every network claim has evidence grade A/B/C/D.
+      payload. E-D added `ActivityNetworkFlowEvidenceSchema` negative tests for
+      exact URL and decrypted-payload claim attempts.
+- [x] Every network claim has evidence grade A/B/C/D.
+      `ActivityNetworkEvidenceGradeSchema` now rejects grades outside A/B/C/D.
 - [ ] Every network event that crosses Rust runtime uses reusable eventing
       contracts, not a private network bus.
 - [ ] Network event scalars use validated Rust newtypes and matching
@@ -104,9 +106,14 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       quota rotation, retention, deletion, export, and custody proof.
 - [ ] Analyzer alerts are evidence inputs, not policy authority.
 - [ ] AI audit is advisory and cites evidence refs.
-- [ ] Parent policy is the action authority.
-- [ ] Adapter action requires policy decision refs and adapter proof.
-- [ ] Dry-run and manual-required states cannot call adapters.
+- [x] Parent policy is the action authority.
+      `ActivityNetworkPolicyActionSchema` requires a policy decision ref before
+      adapter authorization.
+- [x] Adapter action requires policy decision refs and adapter proof.
+      Adapter calls are authorized only for `apply-ready` plus proved
+      capability and monitor/limit/block actions.
+- [x] Dry-run and manual-required states cannot call adapters.
+      Contract tests reject dry-run block attempts with adapter authorization.
 - [ ] Vite/TypeScript UI cannot own network business logic or publish adapter
       commands.
 - [ ] Portal source gate proves UI cannot import or instantiate the Rust
@@ -124,23 +131,31 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
 - [ ] Feature docs checked for overlap: child-agent local service,
       network/domain control, AI, policy, enforcement, browser, app/game,
       screen, LAN, reports/notifications.
-- [ ] Hub lock covers the workpack file and exact implementation/docs paths.
-- [ ] Existing source layout inspected before editing; no parallel network truth
-      created.
+- [x] Hub lock covers the workpack file and exact implementation/docs paths.
+      E-D locked the network workpack 03 activity-domain/docs/proof scope before
+      editing.
+- [x] Existing source layout inspected before editing; no parallel network truth
+      created. Existing `packages/activity-domain/src/network-flow.ts` remains
+      the public package export for this contract boundary.
 - [ ] Reusable Rust eventing is implemented before network event routing, with
       validation, live/stored envelope, request response, ownership, and no
       lock-held-await proof.
-- [ ] TypeScript Effect Schema contracts land before Rust/service/portal
-      consumers where TypeScript domain boundaries are touched.
+- [x] TypeScript Effect Schema contracts land before Rust/service/portal
+      consumers where TypeScript domain boundaries are touched. Workpack 03
+      added the `activity-domain` network contracts before Rust protocol parity.
 - [ ] Rust protocol parity exists for new protocol-facing contracts.
 - [ ] Journal/read-model/storage behavior exists before portal or policy claims
       depend on it.
 - [ ] Parent UI renders capability, degraded, stale, unsupported, unavailable,
       manual-required, limitation, audit, and risk-budget states honestly.
-- [ ] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
-      reasons for every applicable gate.
-- [ ] Feature docs, expectation docs, module READMEs, and product capability
-      checklist decisions are recorded.
+- [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
+      reasons for every applicable gate. Workpack 03 proof lives under
+      `output/network-plan-proof/03-contract-boundary-and-effect-schemas/`.
+- [x] Feature docs, expectation docs, module READMEs, and product capability
+      checklist decisions are recorded. E-D updated the network feature doc and
+      checklist rows; no expectation or module README update was needed because
+      acceptance and package ownership did not change; `docs/product-capability-checklist.md`
+      remains primary-owned.
 - [ ] `DONE` report includes workpack, touched paths, validation, proof, known
       gaps, screenshots, and documentation changes.
 
@@ -155,13 +170,13 @@ manual-required/N/A file.
 | ---- | ------------------------------------------------------------------------------------------------------------------------- | ------ | ---------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | 01   | Source index and repo reconciliation                                                                                      | [x]    | primary    | main docs pass                                  | `docs/plans/network-plan/source-index.md`                                                            | Planning only; no runtime claim.                                                                                  |
 | 02   | Current network snapshot and gap map                                                                                      | [x]    | primary    | main docs pass                                  | `docs/plans/network-plan/current-network-snapshot.md`                                                | Planning only; no runtime claim.                                                                                  |
-| 03   | Contract boundary and Effect schemas                                                                                      | [ ]    | -          | -                                               | -                                                                                                    | Open.                                                                                                             |
+| 03   | Contract boundary and Effect schemas                                                                                      | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/03-contract-boundary-and-effect-schemas/proof-summary.json`               | Activity-domain Effect Schema boundary added; Rust protocol parity remains row 04.                                |
 | 04   | Rust protocol parity for network contracts                                                                                | [ ]    | -          | -                                               | -                                                                                                    | Open.                                                                                                             |
-| 05   | NetworkFlowEvidence contract                                                                                              | [ ]    | -          | -                                               | -                                                                                                    | Open.                                                                                                             |
-| 06   | NetworkDomainEvidence contract                                                                                            | [ ]    | -          | -                                               | -                                                                                                    | Open.                                                                                                             |
-| 07   | NetworkActivityClassification contract                                                                                    | [ ]    | -          | -                                               | -                                                                                                    | Open.                                                                                                             |
-| 08   | NetworkEvidenceGrade model                                                                                                | [ ]    | -          | -                                               | -                                                                                                    | Open.                                                                                                             |
-| 09   | NetworkPolicyAction and capability contract                                                                               | [ ]    | -          | -                                               | -                                                                                                    | Open.                                                                                                             |
+| 05   | NetworkFlowEvidence contract                                                                                              | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `packages/activity-domain/src/network-contracts.ts`, proof summary                                   | Schema-backed flow evidence with supported claim scopes and unsupported-claim rejection.                          |
+| 06   | NetworkDomainEvidence contract                                                                                            | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `packages/activity-domain/src/network-contracts.ts`, proof summary                                   | DNS/SNI/HTTP/reverse/IP-only/unavailable domain attribution states are validated.                                 |
+| 07   | NetworkActivityClassification contract                                                                                    | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `packages/activity-domain/src/network-contracts.ts`, proof summary                                   | Classification confidence, evidence refs, and unknown uncertainty/grade constraints are validated.                |
+| 08   | NetworkEvidenceGrade model                                                                                                | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `packages/activity-domain/src/network-contracts.ts`, proof summary                                   | A/B/C/D grade model rejects out-of-model values.                                                                  |
+| 09   | NetworkPolicyAction and capability contract                                                                               | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `packages/activity-domain/src/network-contracts.ts`, proof summary                                   | Adapter authorization requires apply-ready mode, policy decision ref, and proved adapter capability.              |
 | 10   | NetworkActivityEvent contracts and reusable Rust eventing consumption                                                     | [~]    | E-D        | `codex/eventing-network-runtime-implementation` | `crates/agent-core/src/network_event_runtime*.rs`, `scripts/test/eventing-network-runtime-proof.mjs` | Reusable in-process eventing spine exists; full TS parity, queue/retry/request-response, and broker depth remain. |
 | 11   | Rust crate and tooling evaluation                                                                                         | [ ]    | -          | -                                               | -                                                                                                    | Open.                                                                                                             |
 | 12   | PCAP file replay harness                                                                                                  | [ ]    | -          | -                                               | -                                                                                                    | Open.                                                                                                             |

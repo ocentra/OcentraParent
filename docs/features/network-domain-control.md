@@ -63,6 +63,11 @@ compete on control while staying clear about attribution confidence and privacy.
   constants. The proof covers metadata-only flow/domain/classification,
   AI-audit, policy, enforcement dry-run/manual-required, audit, and portal
   read-model phases without host adapter execution.
+- E-D added the first `activity-domain` network contract boundary proof for
+  flow evidence, domain evidence, activity classification, A/B/C/D evidence
+  grades, and policy/action capability gating. The proof keeps network-only
+  exact URL/content claims rejected and keeps dry-run/manual-required states
+  from authorizing adapter calls.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -70,10 +75,10 @@ compete on control while staying clear about attribution confidence and privacy.
 ## Current Gap
 
 Real OS/domain blocking adapter proof, DNS/VPN/proxy handling, attribution
-quality, PCAP/analyzer fixture proof, reusable Rust eventing implementation,
-network event contracts, AI detection and audit proof, risk-budget proof,
-performance proof, and parent-facing rule UX remain. Policy dispatch does not
-upgrade network/domain blocking beyond
+quality, PCAP/analyzer fixture proof, Rust protocol parity for network
+contracts, AI detection and audit proof, risk-budget proof, performance proof,
+and parent-facing rule UX remain. Policy dispatch does not upgrade
+network/domain blocking beyond
 manual-required, and the broad-adapter proof and supported-adapter runtime proof
 keep the same manual-required host-filter boundary. The integrity runtime audit
 proves observe-only and manual-required state visibility, not DNS, VPN, packet,
@@ -84,8 +89,8 @@ apply/rollback/audit artifacts remain open.
 
 ## Checklist
 
-- [ ] Flow summary contracts.
-- [ ] Domain/IP/protocol/process attribution status.
+- [x] Flow summary and flow-evidence contracts.
+- [x] Domain/IP/protocol/process attribution status contracts.
 - [ ] VPN/proxy/tunnel indicators where available.
 - [ ] Network category/risk targets.
 - [ ] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
@@ -98,7 +103,7 @@ apply/rollback/audit artifacts remain open.
 - [ ] Adapter capability status.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.
 - [ ] Real block/terminate/unavailable result.
-- [ ] No decrypted payload/page-content claim.
+- [x] No decrypted payload/page-content claim at the network contract boundary.
 
 ## Next AI Instructions
 
