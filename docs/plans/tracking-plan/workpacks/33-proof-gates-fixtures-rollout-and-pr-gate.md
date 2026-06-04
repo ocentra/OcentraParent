@@ -40,8 +40,12 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
 - `16-validation-commands.log`
 - WP32 companion proof:
   `../32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`
+- WP32 WSL/local companion proof:
+  `../32-journal-sqlite-and-read-model-proof/19-wsl-local-replay-proof.json`
 - Pre-device aggregate proof:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
+- WSL/local replay proof:
+  `17-wsl-local-proof.json`
 
 ## Merge Blockers
 
@@ -61,7 +65,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
 
 - [x] Run the smallest useful validation while working.
 - [x] Run requested focused tests before handoff.
-- [ ] Update feature docs and capability checklist when proof changes.
+- [x] Update feature docs and queue central capability checklist delta when
+      proof changes.
 - [x] Include touched files, validation, product-doc updates, known gaps, and
       platform proof state in `DONE`.
 - [x] Do not mark product-complete from planning-only docs.
@@ -76,10 +81,10 @@ writes generated `00-run-metadata.json` with the full
 fixture proof only, including local UI proof artifact references; hosted
 CI/a11y, full live UI, child UI, platform physical-device proof, authority
 proof, and production-pilot proof remain unclaimed. WP32 now also has focused
-P2 service-command proof plus narrow portal summary consumption for the
-`trackingReadModel` payload; that proof does not upgrade the full UI, platform,
-authority, or production claims.
-This branch adds
+P2 service-command proof, retention-delete tombstone replay, and narrow portal
+summary consumption for the `trackingReadModel` payload; that proof does not
+upgrade the full UI, platform, authority, or production claims.
+The pre-device proof gate uses
 `node scripts/test/tracking-plan-pre-device-proof.mjs`, which reruns the
 tracking P0/P1/P2 stack, lower-level Android/iOS mobile scaffold proof scripts,
 Android debug package artifact gate, and mobile aggregate proof. It writes
@@ -87,6 +92,13 @@ Android debug package artifact gate, and mobile aggregate proof. It writes
 Studio, iOS simulator, WSL/local, physical-device, and authority proof plans.
 Those artifacts close the pre-device accounting gap only; they do not claim
 device, authority, full hosted UI/accessibility, or production readiness.
+This branch adds `npm run test:tracking-plan-wsl-local-proof`, which records
+P3 WSL/local replay proof for the narrow tracking read-model proof stack. It
+writes `output/tracking-plan-proof/wsl-local-replay/` plus WP32/WP33 companion
+artifacts and captures the WSL2/Ubuntu toolchain, linked-worktree Git mapping,
+contract build output, service read-model proof, and Rust core tracking
+read-model test. It does not claim Android/iOS physical behavior, authority,
+full hosted UI/accessibility, provider delivery, or production readiness.
 
 ## Where We Want To Be
 
@@ -126,3 +138,24 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Proof artifacts under `output/tracking-plan-proof/pre-device-gap-closure/`, including `proof-summary.json`, `android-studio-local-proof-plan.json`, `ios-simulator-local-proof-plan.json`, `wsl-local-proof-plan.json`, `physical-device-manual-proof-plan.json`, and `16-validation-commands.log`.
 - [x] Product doc/checklist updates: owning feature doc and tracking checklist updated; the central `docs/product-capability-checklist.md` row update is queued through the hub DOC_DELTA queue with the pre-device proof gate while keeping Android Studio/emulator, iOS simulator, WSL/local, physical-device, authority, hosted UI, and production proof as gaps.
 - [x] Known gaps/manual-required states: Android Studio/emulator runtime, iOS simulator/local, WSL/local replay, physical Android/iOS behavior, authority-enrolled proof, full hosted UI/accessibility, production pilot, and richer live UI/read-model/product claims remain proof-gated as applicable.
+- [x] Workpack id and branch: `codex/tracking-wsl-local-replay-proof`.
+- [x] Touched files: WSL proof script, root test script wiring, tracking
+      feature doc, tracking README, implementation checklist, WP32, WP33, and
+      generated WSL proof artifacts.
+- [x] Validation commands and results:
+      `npm run test:tracking-plan-wsl-local-proof` passed locally.
+- [x] Proof artifacts under `output/tracking-plan-proof/wsl-local-replay/`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/19-wsl-local-replay-proof.json`,
+      and
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/17-wsl-local-proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, tracking README,
+      implementation checklist, WP32, and WP33 updated; the central
+      `docs/product-capability-checklist.md` row update is queued through the
+      hub DOC_DELTA queue with WSL/local replay proof while keeping
+      Android/iOS physical-device, authority, hosted UI, provider-delivery, and
+      production proof as gaps.
+- [x] Known gaps/manual-required states: Android Studio/emulator runtime, iOS
+      simulator/local, physical Android/iOS behavior, authority-enrolled proof,
+      full hosted UI/accessibility, production pilot, provider delivery, and
+      richer live UI/read-model/product claims remain proof-gated as
+      applicable.

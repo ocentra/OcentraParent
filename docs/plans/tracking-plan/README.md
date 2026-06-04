@@ -149,6 +149,15 @@ flowchart TD
   proof through the existing Android artifact gate, and writes
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json` plus
   Android Studio, iOS simulator, WSL/local, and physical-device proof plans.
+- `scripts/test/tracking-plan-wsl-local-proof.mjs` now records P3 WSL/local
+  replay proof for the narrow tracking read-model proof stack. It captures the
+  WSL2/Ubuntu toolchain, the Windows-hosted linked-worktree Git mapping,
+  contract build output, service read-model proof, and Rust core tracking
+  read-model test under `output/tracking-plan-proof/wsl-local-replay/`, with
+  companion WP32/WP33 artifacts
+  `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/19-wsl-local-replay-proof.json`
+  and
+  `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/17-wsl-local-proof.json`.
 - WP33 tracked `proof-summary.json` records `minimumSeriousMvpAuditSummary`;
   the runtime proof also writes the full `minimumSeriousMvpAudit` into
   generated
@@ -208,6 +217,13 @@ tracking proof stack, mobile scaffold proof stack, Android package artifact
 gate, and manual proof plans are in order before device work starts. It does
 not prove physical Android/iOS behavior, enrolled-device authority, hosted full
 UI accessibility, or production readiness.
+
+The WSL/local replay gate is a P3 local-machine proof only. Passing
+`npm run test:tracking-plan-wsl-local-proof` proves this Windows-hosted
+linked worktree can replay the narrow tracking read-model proof stack through
+WSL with an explicit Git mapping. It does not prove Android/iOS background
+delivery, mobile permission grants, enrolled-device authority, hosted full UI
+accessibility, notification/provider delivery, or production pilot readiness.
 
 ## Parallel Coordination Rules
 
@@ -354,3 +370,9 @@ feature product-complete.
       `output/tracking-plan-proof/pre-device-gap-closure/`. This does not mark
       Android Studio/emulator, iOS simulator, physical-device, authority,
       hosted full UI accessibility, or production-pilot proof complete.
+- [x] WSL/local replay proof exists and passed locally on 2026-06-04 through
+      `npm run test:tracking-plan-wsl-local-proof`; artifact root:
+      `output/tracking-plan-proof/wsl-local-replay/`. This does not mark
+      Android/iOS physical-device behavior, enrolled-device authority, hosted
+      full UI accessibility, provider delivery, or production-pilot proof
+      complete.
