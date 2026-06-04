@@ -21,6 +21,10 @@
       "import": "./dist/app-install-purchase-approval-proof.js",
       "types": "./dist/app-install-purchase-approval-proof.d.ts"
     },
+    "./app-install-purchase-child-artifact-delivery-proof": {
+      "import": "./dist/app-install-purchase-child-artifact-delivery-proof.js",
+      "types": "./dist/app-install-purchase-child-artifact-delivery-proof.d.ts"
+    },
     "./app-install-purchase-platform-artifact-proof": {
       "import": "./dist/app-install-purchase-platform-artifact-proof.js",
       "types": "./dist/app-install-purchase-platform-artifact-proof.d.ts"
