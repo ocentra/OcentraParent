@@ -137,6 +137,11 @@ The common game-control path should be:
   OS or invent duration.
 - A parent game/category time-limit policy can consume a session summary and
   produce a dry-run decision before enforcement is enabled.
+- Category, risk, and game-context candidates can route into parent policy
+  compiler targets only when active category proof, confidence/source
+  disclosure, and supporting evidence refs exist; local-AI routes cite digest
+  refs, manual-review routes stay manual-required, and no category/risk route
+  dispatches an adapter.
 - Enforcement, when enabled, records whether the game/app was terminated, already
   exited, unavailable, blocked, or left running in observe-only mode.
 

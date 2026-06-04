@@ -34,6 +34,26 @@ before `DONE` or PR-ready reporting.
 26. Install, uninstall, purchase, and store handoffs.
 27. Performance and service health.
 28. E2E, manual proof, rollout, and PR gate.
+29. Rust protocol evidence identity parity.
+30. Rust protocol authority classifier parity.
+31. Journal/SQLite authority classifier storage.
+32. Live process snapshot source.
+33. Live process journal SQLite bridge.
+34. Service capture app/game live process bridge.
+35. Service app/game recurring freshness.
+36. Live foreground window source.
+37. Service foreground capture bridge.
+38. Service authority/classifier surface evidence.
+39. Authority/classifier read-model counts.
+40. App/game boundary read-model event.
+41. Live Windows inventory source.
+42. Service Windows inventory capture bridge.
+43. Live Windows Store package source.
+44. Service Windows Store package capture bridge.
+45. Live Windows registry inventory source.
+46. Service Windows registry capture bridge.
+47. Backend source freshness read-model rows.
+48. Category/risk policy routing.
 
 ## Standard AI Worker Checklist
 
