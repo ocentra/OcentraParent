@@ -1,4 +1,5 @@
 pub mod category;
+pub mod classifier;
 pub mod dns;
 pub mod domain;
 pub mod encrypted_dns;
@@ -17,6 +18,11 @@ pub use category::{
     CategoryMatchKind, CategorySourceCustody, CategoryUpdateDecision, DomainCategoryDatabase,
     DomainCategoryError, DomainCategoryLookup, DomainCategoryRecord, DomainCategorySource,
     NetworkCategory,
+};
+pub use classifier::{
+    classify_social_video_game_activity, BrowserClassifierConfirmation, CdnClassifierHint,
+    NetworkActivityClassification, NetworkActivityClassifierInput, NetworkClassifierBasis,
+    NetworkClassifierError, ProcessClassifierHint,
 };
 pub use dns::{
     parse_dns_message, replay_dns_observations, DnsMessage, DnsObservation, DnsQueryType,

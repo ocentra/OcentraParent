@@ -99,6 +99,11 @@ compete on control while staying clear about attribution confidence and privacy.
   source-custody category records, freshness/staleness is explicit, and signed
   snapshot update policy rejects unsigned or older inputs without claiming live
   vendor feeds, exact URLs, or decrypted content.
+- E-D added deterministic social/video/game/cloud-gaming classification in
+  `ocentra-network-evidence`: fresh domain categories classify directly,
+  CDN/process hints remain browser-confirmation-required, and matching browser
+  confirmation can promote a candidate without network-only exact URL or
+  decrypted-content claims.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -152,8 +157,9 @@ apply/rollback artifacts remain open.
 - [ ] VPN/proxy/tunnel indicators where available.
 - [ ] Network category/risk targets.
       Domain normalization, public-suffix, and source-custody category
-      intelligence proof now exist; broader social/video/game/cloud-gaming
-      classifier behavior and risk targets remain open.
+      intelligence proof now exist, along with deterministic
+      social/video/game/cloud-gaming classifier candidates. VPN/proxy/tunnel,
+      broader anomaly/risk targets, and policy handoff remain open.
 - [ ] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
       proof.
       First deterministic DNS query PCAP replay, packet/DNS parser fixtures,
