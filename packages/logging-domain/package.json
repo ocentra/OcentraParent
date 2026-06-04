@@ -21,6 +21,14 @@
       "import": "./dist/support-bundle-redaction-read-model.js",
       "types": "./dist/support-bundle-redaction-read-model.d.ts"
     },
+    "./support-incident-workflow": {
+      "import": "./dist/support-incident-workflow.js",
+      "types": "./dist/support-incident-workflow.d.ts"
+    },
+    "./support-incident-workflow-read-model": {
+      "import": "./dist/support-incident-workflow-read-model.js",
+      "types": "./dist/support-incident-workflow-read-model.d.ts"
+    },
     "./tamper-integrity-audit": {
       "import": "./dist/tamper-integrity-audit.js",
       "types": "./dist/tamper-integrity-audit.d.ts"
