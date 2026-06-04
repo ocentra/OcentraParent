@@ -197,6 +197,13 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   rejecting raw content, raw messages, raw video, screenshots, connector tokens,
   connector API calls, native app control, final policy decisions, and
   enforcement.
+- `social-video-ai-signal-aggregate-proof` now adds an activity-domain
+  aggregate contract that links the source/privacy summary ref to existing
+  bounded social AI analysis result refs, candidate risk/benefit signal-set
+  refs, and managed-browser route gate/action candidate refs. It keeps raw
+  content, raw messages, raw video, screenshots, connector tokens/API calls,
+  native app control, final policy decisions, alert delivery, rendered UI, and
+  enforcement as explicit non-claims.
 - First-class social/video product contracts and runtime proof are incomplete.
 
 ## Current Gap
@@ -212,7 +219,9 @@ settings, alert contracts, confidence handling, platform proof, or parent UI.
 - [ ] URL/video/channel/app evidence summaries. Source/privacy summary proof can
       cite URL/channel refs and existing managed-browser refs; full app/native
       and rendered explanation proof remain.
-- [ ] Local AI analysis path with confidence.
+- [ ] Local AI analysis path with confidence. AI signal aggregate proof now
+      links source/privacy, candidate AI analysis, candidate signals, and route
+      gate/action refs without claiming runtime AI execution or final policy.
 - [ ] Parent sensitivity settings.
 - [ ] Alert and report integration.
 - [ ] Policy schedule/time-budget integration.

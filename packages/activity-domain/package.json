@@ -185,6 +185,10 @@
       "import": "./dist/social-video-source-privacy.js",
       "types": "./dist/social-video-source-privacy.d.ts"
     },
+    "./social-video-ai-signal-aggregate": {
+      "import": "./dist/social-video-ai-signal-aggregate.js",
+      "types": "./dist/social-video-ai-signal-aggregate.d.ts"
+    },
     "./capture": {
       "import": "./dist/capture.js",
       "types": "./dist/capture.d.ts"
