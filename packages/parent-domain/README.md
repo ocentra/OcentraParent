@@ -66,6 +66,10 @@ mobile readiness, and control catalogs.
 - V0.9 LAN source-matrix plan-completion contracts that expose all 20 LAN
   workpacks and discovery source rows with honest proof statuses and weak-source
   fences.
+- V0.9 parent mobile controller/observer runtime proof contracts that expose
+  read-only controller lease visibility, rejected observer writes, explicit
+  local/LAN/relay/cache/storage route states, degraded and unavailable LAN AI
+  provider handoff states, and no mobile child-agent parity claims.
 - Browser/app/game/network/screen/tracking control catalogs.
 - Android/iOS/platform proof and capability status contracts where product
   meaning belongs in TypeScript first.

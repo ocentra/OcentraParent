@@ -64,6 +64,9 @@ export const V09MobileControllerObserverProofSourceSchema = withParser(
     'v0-9-mobile-controller-discovery-runtime-proof'
   )
 );
+export const V09MobileControllerObserverControllerLeaseStateSchema = withParser(
+  Schema.Literal('visible-read-only', 'manual-required', 'unavailable')
+);
 
 export const V09MobileControllerObserverProofLabelSchema = NonEmptyV09ObserverRuntimeText.pipe(
   Schema.brand('V09MobileControllerObserverProofLabel')
@@ -82,6 +85,9 @@ export const V09MobileControllerObserverClaimBoundarySchema = NonEmptyV09Observe
 );
 const V09MobileControllerObserverRouteIdSchema = NonEmptyV09ObserverRuntimeText.pipe(
   Schema.brand('V09MobileControllerObserverRouteId')
+);
+const V09MobileControllerObserverControllerLeaseIdSchema = NonEmptyV09ObserverRuntimeText.pipe(
+  Schema.brand('V09MobileControllerObserverControllerLeaseId')
 );
 
 export const V09MobileControllerObserverPackageReadinessSchema = withParser(
@@ -114,6 +120,15 @@ export const V09MobileControllerObserverRouteStatusSchema = withParser(
   })
 );
 
+export const V09MobileControllerObserverControllerLeaseProofSchema = withParser(
+  Schema.Struct({
+    leaseState: V09MobileControllerObserverControllerLeaseStateSchema,
+    controllerLeaseVisible: Schema.Boolean,
+    controllerLeaseId: Schema.Union(V09MobileControllerObserverControllerLeaseIdSchema, Schema.Null),
+    proofRequirement: V09MobileControllerObserverProofRequirementSchema,
+  })
+);
+
 export const V09MobileControllerObserverOperationProofSchema = withParser(
   Schema.Struct({
     operation: V09MobileControllerObserverOperationSchema,
@@ -135,6 +150,7 @@ export const V09MobileControllerObserverReadModelSchema = withParser(
     role: V09MobileControllerObserverRoleSchema,
     controllerState: ParentMobileControllerStateSchema,
     commandAuthorityState: ParentMobileCommandAuthorityStateSchema,
+    controllerLeaseProof: V09MobileControllerObserverControllerLeaseProofSchema,
     serviceState: ParentMobileServiceAvailabilityStateSchema,
     routeStatuses: Schema.Array(V09MobileControllerObserverRouteStatusSchema),
     packageReadiness: V09MobileControllerObserverPackageReadinessSchema,
@@ -165,6 +181,7 @@ export const V09MobileControllerObserverClaimBoundariesSchema = withParser(
     physicalHouseholdLan: V09MobileControllerObserverClaimBoundarySchema,
     cloudRelay: V09MobileControllerObserverClaimBoundarySchema,
     childAgentBehavior: V09MobileControllerObserverClaimBoundarySchema,
+    mobileChildAgentParity: V09MobileControllerObserverClaimBoundarySchema,
     signingStoresEntitlements: V09MobileControllerObserverClaimBoundarySchema,
     cUiOwnership: V09MobileControllerObserverClaimBoundarySchema,
   })
@@ -266,12 +283,6 @@ const OperationExpectations: ReadonlyMap<
     runtimeOwner: 'agent-service',
     rejectionReason: null,
   }),
-  operationExpectation('submit-lan-ai-job', {
-    operationState: 'degraded-provider',
-    responseState: 'degraded',
-    runtimeOwner: 'lan-ai-provider',
-    rejectionReason: 'lan-ai-provider-unavailable',
-  }),
 ]);
 
 function operationExpectation(
@@ -287,7 +298,8 @@ function v09MobileControllerObserverRuntimeIsHonest(
   return (
     readModel.cloudRelayState === 'not-implemented' &&
     proofHarnessIsComplete(readModel.proofHarness) &&
-    mobileReadModelsAreComplete(readModel.mobileReadModels)
+    mobileReadModelsAreComplete(readModel.mobileReadModels) &&
+    claimBoundariesAreHonest(readModel.claimBoundaries)
   );
 }
 
@@ -308,6 +320,7 @@ function mobileReadModelsAreComplete(readModels: ReadonlyArray<V09MobileControll
     readModels.length === 2 &&
     platforms.has('android') &&
     platforms.has('ios') &&
+    lanAiProviderStatesAreCovered(readModels) &&
     readModels.every((readModel) => mobileReadModelIsHonest(readModel))
   );
 }
@@ -328,7 +341,54 @@ function mobileReadModelIsHonest(readModel: V09MobileControllerObserverReadModel
     return false;
   }
 
-  return routeStatusesAreHonest(readModel) && operationProofsAreHonest(readModel.operationProofs);
+  return (
+    controllerLeaseProofIsHonest(readModel) &&
+    routeStatusesAreHonest(readModel) &&
+    operationProofsAreHonest(readModel.operationProofs)
+  );
+}
+
+function controllerLeaseProofIsHonest(readModel: V09MobileControllerObserverReadModel): boolean {
+  switch (readModel.controllerState) {
+    case 'observer':
+      return observerLeaseProofIsHonest(readModel);
+    case 'manual-required':
+      return manualRequiredLeaseProofIsHonest(readModel);
+    case 'unavailable':
+      return unavailableLeaseProofIsHonest(readModel);
+    case 'active-controller':
+      return false;
+  }
+}
+
+function observerLeaseProofIsHonest(readModel: V09MobileControllerObserverReadModel): boolean {
+  const leaseProof = readModel.controllerLeaseProof;
+  return (
+    leaseProof.leaseState === 'visible-read-only' &&
+    leaseProof.controllerLeaseVisible === true &&
+    leaseProof.controllerLeaseId !== null &&
+    readModel.commandAuthorityState === 'observer-read-only'
+  );
+}
+
+function manualRequiredLeaseProofIsHonest(readModel: V09MobileControllerObserverReadModel): boolean {
+  const leaseProof = readModel.controllerLeaseProof;
+  return (
+    leaseProof.leaseState === 'manual-required' &&
+    leaseProof.controllerLeaseVisible === false &&
+    leaseProof.controllerLeaseId === null &&
+    readModel.commandAuthorityState === 'controller-takeover-manual-required'
+  );
+}
+
+function unavailableLeaseProofIsHonest(readModel: V09MobileControllerObserverReadModel): boolean {
+  const leaseProof = readModel.controllerLeaseProof;
+  return (
+    leaseProof.leaseState === 'unavailable' &&
+    leaseProof.controllerLeaseVisible === false &&
+    leaseProof.controllerLeaseId === null &&
+    readModel.commandAuthorityState === 'unavailable'
+  );
 }
 
 function routeStatusesAreHonest(readModel: V09MobileControllerObserverReadModel): boolean {
@@ -356,6 +416,10 @@ function operationProofsAreHonest(proofs: ReadonlyArray<V09MobileControllerObser
 }
 
 function operationProofIsHonest(proof: V09MobileControllerObserverOperationProof): boolean {
+  if (proof.operation === 'submit-lan-ai-job') {
+    return lanAiProviderOperationProofIsHonest(proof);
+  }
+
   const expected = OperationExpectations.get(proof.operation);
   return (
     expected !== undefined &&
@@ -366,6 +430,36 @@ function operationProofIsHonest(proof: V09MobileControllerObserverOperationProof
   );
 }
 
+function lanAiProviderOperationProofIsHonest(proof: V09MobileControllerObserverOperationProof): boolean {
+  if (proof.runtimeOwner !== 'lan-ai-provider' || proof.rejectionReason !== 'lan-ai-provider-unavailable') {
+    return false;
+  }
+
+  return (
+    proof.responseState === 'degraded' &&
+    (proof.operationState === 'degraded-provider' || proof.operationState === 'unavailable')
+  );
+}
+
+function lanAiProviderStatesAreCovered(readModels: ReadonlyArray<V09MobileControllerObserverReadModel>): boolean {
+  const states = new Set(
+    readModels
+      .map((readModel) => readModel.operationProofs.find((proof) => proof.operation === 'submit-lan-ai-job'))
+      .filter((proof): proof is V09MobileControllerObserverOperationProof => proof !== undefined)
+      .map((proof) => proof.operationState)
+  );
+  return states.has('degraded-provider') && states.has('unavailable');
+}
+
+function claimBoundariesAreHonest(boundaries: V09MobileControllerObserverClaimBoundaries): boolean {
+  return (
+    boundaries.parentMobileWriteAuthority.includes('manual-required') &&
+    boundaries.childAgentBehavior.includes('not claimed') &&
+    boundaries.mobileChildAgentParity.includes('not claimed') &&
+    boundaries.cloudRelay.includes('not implemented')
+  );
+}
+
 export type V09MobileControllerObserverRole = Infer<typeof V09MobileControllerObserverRoleSchema>;
 export type V09MobileControllerObserverRouteKind = Infer<typeof V09MobileControllerObserverRouteKindSchema>;
 export type V09MobileControllerObserverReadinessState = Infer<typeof V09MobileControllerObserverReadinessStateSchema>;
@@ -373,11 +467,17 @@ export type V09MobileControllerObserverOperation = Infer<typeof V09MobileControl
 export type V09MobileControllerObserverOperationState = Infer<typeof V09MobileControllerObserverOperationStateSchema>;
 export type V09MobileControllerObserverRuntimeOwner = Infer<typeof V09MobileControllerObserverRuntimeOwnerSchema>;
 export type V09MobileControllerObserverProofSource = Infer<typeof V09MobileControllerObserverProofSourceSchema>;
+export type V09MobileControllerObserverControllerLeaseState = Infer<
+  typeof V09MobileControllerObserverControllerLeaseStateSchema
+>;
 export type V09MobileControllerObserverPackageReadiness = Infer<
   typeof V09MobileControllerObserverPackageReadinessSchema
 >;
 export type V09MobileControllerObserverCapabilityState = Infer<typeof V09MobileControllerObserverCapabilityStateSchema>;
 export type V09MobileControllerObserverRouteStatus = Infer<typeof V09MobileControllerObserverRouteStatusSchema>;
+export type V09MobileControllerObserverControllerLeaseProof = Infer<
+  typeof V09MobileControllerObserverControllerLeaseProofSchema
+>;
 export type V09MobileControllerObserverOperationProof = Infer<typeof V09MobileControllerObserverOperationProofSchema>;
 export type V09MobileControllerObserverReadModel = Infer<typeof V09MobileControllerObserverReadModelSchema>;
 export type V09MobileControllerObserverProofInput = Infer<typeof V09MobileControllerObserverProofInputSchema>;

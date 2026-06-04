@@ -38,6 +38,7 @@ async function main() {
     'node',
     'scripts/test/v0-9-production-lan-mobile-controller-proof.mjs',
   ]);
+  await ensureParentMobileProofArtifact();
   await ensureProofArtifact(observerProofPath, 'v0-9-mobile-controller-observer-runtime-proof', [
     'cmd',
     '/c',
@@ -399,8 +400,23 @@ function assertObserverProof(proof) {
       'manual-required-mobile-package',
       'mobile takeover gate'
     );
-    assertEqual(operations['submit-lan-ai-job'].operationState, 'degraded-provider', 'LAN AI degraded state');
+    if (
+      operations['submit-lan-ai-job'].operationState !== 'degraded-provider' &&
+      operations['submit-lan-ai-job'].operationState !== 'unavailable'
+    ) {
+      throw new Error(`${readModel.platform} LAN AI state: expected degraded-provider or unavailable`);
+    }
   }
+  const lanAiStates = new Set(
+    proof.runtimeReadModel.mobileReadModels.map(
+      (entry) =>
+        Object.fromEntries(entry.operationProofs.map((operation) => [operation.operation, operation]))[
+          'submit-lan-ai-job'
+        ].operationState
+    )
+  );
+  assertArrayIncludes([...lanAiStates], 'degraded-provider', 'observer LAN AI state coverage');
+  assertArrayIncludes([...lanAiStates], 'unavailable', 'observer LAN AI state coverage');
   proofLabels.push('observer-runtime.operation-boundaries');
 }
 
@@ -480,10 +496,27 @@ async function ensureProofArtifact(path, expectedMode, commandSpec) {
   await runCommand(commandName, args);
 }
 
+async function ensureParentMobileProofArtifact() {
+  if (await parentMobileProofArtifactMatches(parentMobileProofPath)) {
+    commands.push(`reuse-proof ${relative(repoRoot, parentMobileProofPath).replaceAll('\\', '/')}`);
+    return;
+  }
+  await runCommand('cmd', ['/c', 'node', 'scripts/test/parent-mobile-shell-runtime-proof.mjs']);
+}
+
 async function proofArtifactMatches(path, expectedMode) {
   try {
     const proof = await readJson(path);
     return proof.proofMode === expectedMode;
+  } catch {
+    return false;
+  }
+}
+
+async function parentMobileProofArtifactMatches(path) {
+  try {
+    const proof = await readJson(path);
+    return proof.runtimeProof?.childAgentBehaviorClaim === 'not-claimed';
   } catch {
     return false;
   }
@@ -503,6 +536,12 @@ async function gitHead() {
 function assertEqual(actual, expected, label) {
   if (actual !== expected) {
     throw new Error(`${label}: expected ${expected}, received ${actual}`);
+  }
+}
+
+function assertArrayIncludes(values, expected, label) {
+  if (!Array.isArray(values) || !values.includes(expected)) {
+    throw new Error(`${label}: missing ${expected}`);
   }
 }
 
