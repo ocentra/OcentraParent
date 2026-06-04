@@ -160,23 +160,22 @@ only with explicit parent settings.
   live operator gate for this feature. It prints a required nine-scenario
   manifest template, refuses to claim live proof without operator-supplied real
   URLs/apps, opens/focuses those surfaces when a manifest is supplied, captures
-  the active local window, runs the local VLM path, validates screen AI and
+  the selected browser window or active native window, runs the local VLM path, validates screen AI and
   policy dry-run contracts, deletes raw image material, and writes redacted
   proof artifacts. Browser live rows now also record page readiness evidence
   before capture: final hostname, redacted final URL, title hash/length, visible
   text hash/length, and blank-page rejection. The current harness readiness
   artifact is
   `output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.json`;
-  a four-row live operator smoke has also proved a real YouTube ordinary video
-  page through capture, local VLM `video` classification, `warn` policy dry-run,
-  and raw-image deletion; a real browser-game row through `game`
-  classification and `time-limit` dry-run; a real Notepad native-app row
-  through `productivity` classification and `allow` dry-run; and a
-  protected-surface degraded row with no raw image, AI, or policy claim at
-  `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`. Vimeo,
-  education video, social, shopping, school/productivity, and full
-  account/surface artifacts remain required before product-complete live proof
-  claims.
+  a full nine-row live operator run now proves ordinary YouTube `video`/`warn`,
+  education YouTube `school`/`allow`, Vimeo `video`/`warn`, Facebook/social
+  `chat`/`warn`, browser game `game`/`time-limit`, shopping
+  `shopping`/`ask-parent`, school/productivity `school`/`allow`, native Notepad
+  `productivity`/`allow`, and protected-surface degraded state with no raw
+  image, AI, or policy claim at
+  `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`.
+  Authenticated-account social proof remains separate from this public/live
+  surface proof.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
@@ -187,9 +186,9 @@ only with explicit parent settings.
 
 ## Current Gap
 
-Opt-in UI, the remaining live external URL/account operator proof rows from the
-new manifest-driven harness, OCR/vision quality beyond controlled fixtures and
-the partial YouTube/browser-game/native/protected live smoke, production local vision adapter quality beyond
+Opt-in UI, authenticated-account social proof beyond public/live surface proof,
+OCR/vision quality beyond controlled fixtures and the full live operator matrix,
+production local vision adapter quality beyond
 the service proof adapter, service-owned live trigger event producers beyond the
 timed cadence loop and native active-window foreground watcher, physical
 Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,

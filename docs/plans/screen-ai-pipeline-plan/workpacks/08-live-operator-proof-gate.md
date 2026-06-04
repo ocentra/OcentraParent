@@ -39,12 +39,12 @@ output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.js
 - [x] Harness readiness proof records that live proof is not claimed without a
       manifest.
 - [x] YouTube ordinary video.
-- [ ] YouTube or Vimeo education video.
-- [ ] Vimeo ordinary video.
-- [ ] Facebook/social surface.
+- [x] YouTube or Vimeo education video.
+- [x] Vimeo ordinary video.
+- [x] Facebook/social surface.
 - [x] Browser game/cloud-game surface.
-- [ ] Shopping page.
-- [ ] School/productivity page/app.
+- [x] Shopping page.
+- [x] School/productivity page/app.
 - [x] Native app.
 - [x] Protected/unsupported state.
 
@@ -55,8 +55,18 @@ output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.js
   `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`.
 - YouTube ordinary video source evidence:
   `output/screen-ai-pipeline-proof/live-operator/youtube-ordinary-video/01-redacted-source-evidence.json`.
+- YouTube education video source evidence:
+  `output/screen-ai-pipeline-proof/live-operator/youtube-education-video/01-redacted-source-evidence.json`.
+- Vimeo ordinary video source evidence:
+  `output/screen-ai-pipeline-proof/live-operator/vimeo-video/01-redacted-source-evidence.json`.
+- Facebook/social source evidence:
+  `output/screen-ai-pipeline-proof/live-operator/facebook-social-surface/01-redacted-source-evidence.json`.
 - Browser game source evidence:
   `output/screen-ai-pipeline-proof/live-operator/browser-game/01-redacted-source-evidence.json`.
+- Shopping page source evidence:
+  `output/screen-ai-pipeline-proof/live-operator/shopping-page/01-redacted-source-evidence.json`.
+- School/productivity source evidence:
+  `output/screen-ai-pipeline-proof/live-operator/school-productivity/01-redacted-source-evidence.json`.
 - Native app source evidence:
   `output/screen-ai-pipeline-proof/live-operator/native-app/01-redacted-source-evidence.json`.
 - Protected/unsupported source evidence:
@@ -69,8 +79,12 @@ output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.js
   expected hostname match, final redacted URL, title hash/length, visible text
   hash/length, and blank-page rejection. It passed with real local VLM category
   `video`, policy action `warn`, and raw image deletion proof.
+- The education video row validates `school` and `allow`; the Vimeo row
+  validates `video` and `warn`; the Facebook/social row validates `chat` and
+  `warn`; the shopping row validates `shopping` and `ask-parent`; and the
+  school/productivity row validates `school` and `allow`.
 - The browser-game live row records page readiness evidence before capture,
-  captures the active browser window, validates local VLM category `game`,
+  captures the selected browser window, validates local VLM category `game`,
   policy action `time-limit`, and raw image deletion proof.
 - The native-app live row opens a real Notepad window with operator-supplied
   text, captures the active local window, validates local VLM category
@@ -79,11 +93,12 @@ output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.js
   validates `protectedSurface`, and records no raw image, no AI analysis, and
   no policy decision claim.
 
-## Non-Claims Until Manifest Run
+## Remaining Non-Claims
 
-- The harness is not proof that any live website or account was classified.
 - The harness does not own browser-plan managed URL trigger integration.
-- The current live proof is partial: ordinary YouTube video, browser game,
-  native app, and protected/unsupported state have manifest-run artifacts. A
-  product-complete live proof claim requires all required scenario rows to
-  produce manifest-run artifacts and pass the expected category/action checks.
+- Authenticated-account social surfaces remain separate; this proof uses
+  operator-supplied public/live surfaces.
+- The current live proof covers all required manifest rows and keeps raw images
+  local and deleted after analysis. Product-complete claims still require the
+  non-operator managed-browser trigger integration and remaining production
+  adapters named in the implementation checklist.
