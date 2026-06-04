@@ -8,6 +8,9 @@ use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, SCREEN_CATEGORY_UNKNOWN,
     SCREEN_PROVIDER_SERVICE_METADATA, SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED_ENV,
+    SCREEN_SERVICE_EVENT_ID_PREFIX, SCREEN_SERVICE_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_MODEL_ID,
+    SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX, SCREEN_SERVICE_RESULT_ID_PREFIX, SCREEN_SERVICE_SOURCE_ID,
+    SCREEN_SERVICE_SUMMARY_CAPTURED, SCREEN_SERVICE_TEMPLATE_VERSION,
     SCREEN_SERVICE_TEST_QUEUE_RECORD_LINE,
 };
 use ocentra_parent_screen_capture_adapter::{
@@ -19,7 +22,10 @@ use super::{
         record_screen_ai_cadence_tick, ScreenAiCadenceRuntimeConfig, ScreenAiCadenceTickClock,
         ScreenAiCadenceTickOutcome,
     },
-    screen_ai_cadence_runtime_event::record_captured_screen_image_to_paths,
+    screen_ai_cadence_runtime_event::{
+        record_captured_screen_image_to_paths, ScreenAiServiceCapturePaths,
+        ScreenAiServiceCaptureRecord,
+    },
 };
 
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
@@ -51,10 +57,10 @@ fn screen_cadence_tick_respects_disabled_screen_analysis_setting() {
         ocentra_parent_screen_capture_adapter::trigger_scheduler::ScreenCaptureSchedulerState {
             last_capture_at_epoch_seconds: None,
         },
-        ScreenAiCadenceTickClock {
-            epoch_seconds: 1,
-            timestamp: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        },
+        ScreenAiCadenceTickClock::from_parts(
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        ),
         1,
     )
     .expect(constants::error::ACTIVITY_STORE_INGESTS);
@@ -81,15 +87,29 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
     };
     let image = captured_test_image();
 
-    let queue_job_id = record_captured_screen_image_to_paths(
-        &config,
-        &image,
-        ScreenAiCadenceTickClock {
-            epoch_seconds: 2,
-            timestamp: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+    let queue_job_id = record_captured_screen_image_to_paths(ScreenAiServiceCaptureRecord {
+        paths: ScreenAiServiceCapturePaths {
+            queue_dir: &config.queue_dir,
+            journal_path: &config.journal_path,
+            journal_key_path: &config.journal_key_path,
+            store_path: &config.store_path,
         },
-        1,
-    )
+        image: &image,
+        clock: ScreenAiCadenceTickClock::from_parts(
+            2,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        ),
+        sequence_index: 1,
+        capture_reason: constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE,
+        source_id: SCREEN_SERVICE_SOURCE_ID,
+        queue_job_id_prefix: SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX,
+        result_id_prefix: SCREEN_SERVICE_RESULT_ID_PREFIX,
+        event_id_prefix: SCREEN_SERVICE_EVENT_ID_PREFIX,
+        evidence_id_prefix: SCREEN_SERVICE_EVIDENCE_ID_PREFIX,
+        summary: SCREEN_SERVICE_SUMMARY_CAPTURED,
+        model_id: SCREEN_SERVICE_MODEL_ID,
+        template_version: SCREEN_SERVICE_TEMPLATE_VERSION,
+    })
     .expect(constants::error::ACTIVITY_STORE_INGESTS);
 
     let queue_file = config
@@ -153,10 +173,10 @@ fn screen_cadence_tick_suppresses_when_pending_queue_is_full() {
         ocentra_parent_screen_capture_adapter::trigger_scheduler::ScreenCaptureSchedulerState {
             last_capture_at_epoch_seconds: None,
         },
-        ScreenAiCadenceTickClock {
-            epoch_seconds: 3,
-            timestamp: constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string(),
-        },
+        ScreenAiCadenceTickClock::from_parts(
+            3,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string(),
+        ),
         1,
     )
     .expect(constants::error::ACTIVITY_STORE_INGESTS);
@@ -194,6 +214,7 @@ fn captured_test_image() -> CapturedScreenImage {
 fn test_path(suffix: &str) -> PathBuf {
     let mut path = std::env::temp_dir();
     path.push(constants::activity_store::TEST_FILE_PREFIX);
+    path.push(std::process::id().to_string());
     path.push(TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed).to_string());
     path.push(suffix);
     path
