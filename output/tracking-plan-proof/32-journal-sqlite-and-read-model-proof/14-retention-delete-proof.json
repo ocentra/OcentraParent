@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T17:17:43.448Z",
-  "commit": "e9b096e28525a28c4d2ae288eaf6696eb883289e",
+  "checkedAt": "2026-06-04T20:53:31.688Z",
+  "commit": "abf8f50efe808b21fe95fe7032342f0e46e04e7d",
   "workpackId": "32-journal-sqlite-and-read-model-proof",
   "proofMode": "tracking-service-retention-tombstone-replay",
   "requiredProofTier": "P2_HOSTED_CI",
@@ -66,6 +66,7 @@
     "Retention-delete rows are exposed as tombstone queryVisibility rows instead of active tracking history rows.",
     "Deleted evidence reference ids are preserved on tombstone rows and summarized on the read model.",
     "Latest tombstone event id and observed timestamp are serialized through the Rust protocol and TypeScript parser.",
+    "The portal citation surface renders deleted evidence refs only as tombstone metadata and keeps productClaimReady=false.",
     "The proof does not claim Android/iOS physical background behavior, provider delivery, complete UI, or authority enrollment."
   ],
   "artifacts": {

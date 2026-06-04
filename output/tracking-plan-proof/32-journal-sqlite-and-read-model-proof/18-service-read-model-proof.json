@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T17:17:43.448Z",
-  "commit": "e9b096e28525a28c4d2ae288eaf6696eb883289e",
+  "checkedAt": "2026-06-04T20:53:31.688Z",
+  "commit": "abf8f50efe808b21fe95fe7032342f0e46e04e7d",
   "workpackId": "32-journal-sqlite-and-read-model-proof",
   "proofMode": "tracking-service-read-model",
   "requiredProofTier": "P2_HOSTED_CI",
@@ -56,6 +56,25 @@
       "activity.tracking.retention.deleted"
     ],
     "citationField": "evidenceReferenceIds",
+    "portalCitationSurface": {
+      "consumer": "trackingStatusLiveSummary",
+      "citationRows": "TrackingStatusLiveCitation[]",
+      "citedFields": [
+        "eventId",
+        "observedAt",
+        "deviceId",
+        "platform",
+        "observer",
+        "kind",
+        "subjectKind",
+        "subjectId",
+        "queryVisibility",
+        "capabilityStatus",
+        "evidenceReferenceIds",
+        "deletedEvidenceReferenceIds"
+      ],
+      "productClaimReady": false
+    },
     "tombstoneReplay": {
       "rowVisibilityField": "queryVisibility",
       "activeRowValue": "active",
@@ -89,11 +108,11 @@
   "nonClaims": [
     "This proof does not claim Android or iOS physical background tracking behavior.",
     "This proof does not claim enrolled-device authority, production pilot readiness, or provider delivery.",
-    "This proof only claims narrow portal summary consumption of the service-backed read model, not complete parent/child tracking UI."
+    "This proof claims live service-backed portal citation rows for the tracking read model, not complete parent/child tracking UI."
   ],
   "remainingGapsBeforeProductOrPrReady": [
     "Hosted portal screenshot, accessibility, and browser-to-service proof remain pending.",
-    "Broader product tracking read-model surfaces beyond the service-backed tombstone replay/citation summary remain pending.",
+    "Broader product tracking read-model surfaces beyond the service-backed tombstone replay and portal citation rows remain pending.",
     "Child-device UI and device permission screenshots remain pending.",
     "Android/iOS physical background geofence proof remains manual-required.",
     "Authority-enrolled and production-pilot proof remain absent."
