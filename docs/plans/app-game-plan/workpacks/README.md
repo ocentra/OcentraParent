@@ -54,23 +54,24 @@ before `DONE` or PR-ready reporting.
 46. Service Windows registry capture bridge.
 47. Backend source freshness read-model rows.
 48. WP49 category/risk policy routing.
-49. WP52 policy readiness service read model.
-50. WP54 policy readiness portal renderer.
-51. WP53 app/game notification intent contract.
-52. WP56 app/game notification service read model.
-53. WP58 app/game notification local outbox bridge.
-54. WP59 app/game notification scheduler bridge.
-55. WP60 app/game notification audit-history bridge.
-56. WP61 app/game notification provider preflight.
-57. WP62 app/game notification parent preference preflight boundary.
-58. WP63 app/game source freshness source-panel intent seam.
-59. WP64 app/game notification provider status handoff.
-60. WP65 app/game notification parent preference status handoff.
-61. WP66 app/game notification parent surface intent.
-62. WP67 app/game notification parent surface renderer.
-63. WP68 app/game notification live parent surface read model.
-64. WP70 app/game policy preview handoff.
-65. WP73 app/game platform extension proof-pack readiness.
+49. WP51 app/game policy evaluator runtime breadth.
+50. WP52 policy readiness service read model.
+51. WP54 policy readiness portal renderer.
+52. WP53 app/game notification intent contract.
+53. WP56 app/game notification service read model.
+54. WP58 app/game notification local outbox bridge.
+55. WP59 app/game notification scheduler bridge.
+56. WP60 app/game notification audit-history bridge.
+57. WP61 app/game notification provider preflight.
+58. WP62 app/game notification parent preference preflight boundary.
+59. WP63 app/game source freshness source-panel intent seam.
+60. WP64 app/game notification provider status handoff.
+61. WP65 app/game notification parent preference status handoff.
+62. WP66 app/game notification parent surface intent.
+63. WP67 app/game notification parent surface renderer.
+64. WP68 app/game notification live parent surface read model.
+65. WP70 app/game policy preview handoff.
+66. WP73 app/game platform extension proof-pack readiness.
 
 ## Standard AI Worker Checklist
 
