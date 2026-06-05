@@ -40,7 +40,13 @@ Proof root: `output/tracking-plan-proof/20-google-places-and-poi-provider-adapte
 
 ## Where We Are
 
-This workpack is planning-only until its implementation branch produces the proof root below. Existing source docs describe the intended capability, but runtime/product-complete behavior is not claimed yet.
+This workpack now has focused P1 provider-adapter contract proof from
+`codex/tracking-google-poi-provider-proof`. The proof builds a bounded Google
+Places Nearby Search request with a production-safe field mask, maps
+real-shaped provider response rows into nearby-place category, distance,
+confidence, and ambiguity evidence, and records provider unavailable
+degradation. Live Google provider execution, credentials, exact-place claims,
+physical-device proof, UI, and production persistence remain unclaimed.
 
 ## Where We Want To Be
 
@@ -67,9 +73,23 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch.
-- [ ] Touched files.
-- [ ] Validation commands and results.
-- [ ] Proof artifacts under `output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/`.
-- [ ] Product doc/checklist updates or reason none were needed.
-- [ ] Known gaps/manual-required states.
+- [x] Workpack id and branch: WP20,
+      `codex/tracking-google-poi-provider-proof`.
+- [x] Touched files: `packages/parent-domain/src/tracking-poi-provider-adapter.ts`,
+      `packages/parent-domain/tests/tracking-poi-provider-adapter.test.ts`,
+      `scripts/test/tracking-poi-provider-adapter-proof.mjs`, this workpack,
+      the location/geofence feature doc, implementation checklist, and proof
+      outputs.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-poi-provider-adapter-proof.mjs` passed
+      parent-domain build plus Vitest tracking POI provider and tracking policy
+      tests.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/`.
+- [x] Product doc/checklist updates: owning feature doc and implementation
+      checklist updated. Product capability checklist update is queued because
+      another lane currently owns that file lock.
+- [x] Known gaps/manual-required states: live provider execution, credentials,
+      provider terms/runtime auth, exact-place claims, physical-device proof,
+      UI, production persistence, and Apple/OSM provider parity remain
+      unclaimed.
