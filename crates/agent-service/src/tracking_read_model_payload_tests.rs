@@ -65,34 +65,34 @@ fn tracking_read_model_fixture() -> TrackingReadModel {
 
 fn assert_latest_payload_fields(payload: &ocentra_parent_agent_protocol::LogFields) {
     assert_eq!(
-        string_payload(&payload, constants::field::EVIDENCE_REFERENCE_IDS),
+        string_payload(payload, constants::field::EVIDENCE_REFERENCE_IDS),
         constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
     );
     assert_eq!(
-        string_payload(&payload, constants::field::LATEST_EVENT_ID),
+        string_payload(payload, constants::field::LATEST_EVENT_ID),
         constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID
     );
     assert_eq!(
-        string_payload(&payload, TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_EVENT_ID),
+        string_payload(payload, TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_EVENT_ID),
         constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID
     );
     assert_eq!(
-        number_payload(&payload, TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS),
+        number_payload(payload, TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS),
         1.0
     );
     assert_eq!(
-        number_payload(&payload, TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS),
+        number_payload(payload, TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS),
         0.0
     );
     assert_eq!(
-        string_payload(&payload, constants::field::QUERY_VISIBILITY),
+        string_payload(payload, constants::field::QUERY_VISIBILITY),
         TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE
     );
 }
 
 fn assert_active_count_payloads(payload: &ocentra_parent_agent_protocol::LogFields) {
-    let kind_counts = count_payload(&payload, TRACKING_READ_MODEL_FIELD_ACTIVE_KIND_COUNTS);
-    let device_counts = count_payload(&payload, TRACKING_READ_MODEL_FIELD_ACTIVE_DEVICE_COUNTS);
+    let kind_counts = count_payload(payload, TRACKING_READ_MODEL_FIELD_ACTIVE_KIND_COUNTS);
+    let device_counts = count_payload(payload, TRACKING_READ_MODEL_FIELD_ACTIVE_DEVICE_COUNTS);
     assert_eq!(
         kind_counts[0].value,
         constants::activity_event_kind::LOCATION_OBSERVED
