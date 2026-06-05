@@ -85,6 +85,13 @@ claim needs proof, not slogans.
   `screen-image-deleted` custody/deletion state. This is context-builder replay
   proof; it does not create new captures, claim production model quality,
   portal UI, or final enforcement.
+- `ScreenSummaryParentExplanationSchema` and
+  `scripts/test/screen-summary-parent-explanation-proof.mjs` now replay the
+  same WinRT OCR screen-summary rows through a parent explanation/audit bundle.
+  The proof cites screen-summary refs, audit evidence refs, parent rule refs,
+  dry-run policy refs, local runtime refs, local-only custody, and
+  `screen-image-deleted` deletion state while keeping raw image retention,
+  remote/API AI, policy authority, portal runtime UI, and enforcement unclaimed.
 - `ScreenFamilyAiHubRouteSchema` and
   `scripts/test/screen-family-ai-hub-routing-proof.mjs` now prove the
   screen-specific family AI hub route contract for hard visual analysis:
@@ -99,11 +106,11 @@ claim needs proof, not slogans.
 
 Ocentra needs product-grade model configuration, local model artifacts,
 production screen model quality, confidence handling,
-authenticated-account social proof beyond public/live surface proof, parent
-explanations, broader enforcement handoff, production browser-trigger
-producers, real family AI hub runtime/discovery, cloud-streamed frame proof,
-mobile browser parity, and validation against production external evidence
-variants.
+authenticated-account social proof beyond public/live surface proof, production
+parent explanation UI/read models, broader enforcement handoff, production
+browser-trigger producers, real family AI hub runtime/discovery,
+cloud-streamed frame proof, mobile browser parity, and validation against
+production external evidence variants.
 
 ## Checklist
 
