@@ -7,6 +7,8 @@ Schema-backed display text tokens and shared copy values.
 - Shared text values that runtime surfaces need to render consistently.
 - Dev portal copy tokens that should not live as loose app strings.
 - Text schemas for copy that crosses packages or tests.
+- Screen child disclosure UX copy tokens for disabled, paused, ready,
+  capture-active, and protected-surface local disclosure states.
 
 ## Must Not Own
 
@@ -33,3 +35,5 @@ flowchart LR
 
 - Expand only when text is reused or contract-visible.
 - Keep parent-facing product language aligned with the README and constitution.
+- Production child app, OS notification/tray/foreground overlay, and persisted
+  disclosure state copy still need their runtime surfaces before being claimed.
