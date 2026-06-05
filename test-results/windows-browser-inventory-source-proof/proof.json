@@ -1,6 +1,6 @@
 {
   "proofId": "windows-browser-inventory-source-proof",
-  "generatedAt": "2026-06-04T23:16:37.579Z",
+  "generatedAt": "2026-06-05T21:53:09.463Z",
   "platform": "win32",
   "passed": true,
   "commands": [
@@ -9,12 +9,12 @@
       "command": "cargo test -p ocentra-parent-agent-core browser_windows_inventory --quiet",
       "status": 0,
       "signal": null,
-      "startedAt": "2026-06-04T23:16:32.323Z",
-      "completedAt": "2026-06-04T23:16:33.199Z",
+      "startedAt": "2026-06-05T21:52:13.223Z",
+      "completedAt": "2026-06-05T21:52:31.218Z",
       "stdoutTail": [
         "running 17 tests",
         ".................",
-        "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 218 filtered out; finished in 0.04s"
+        "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 232 filtered out; finished in 0.04s"
       ],
       "stderrTail": []
     },
@@ -23,12 +23,12 @@
       "command": "cargo test -p ocentra-parent-agent-service browser_inventory_read_model --quiet",
       "status": 0,
       "signal": null,
-      "startedAt": "2026-06-04T23:16:33.199Z",
-      "completedAt": "2026-06-04T23:16:35.563Z",
+      "startedAt": "2026-06-05T21:52:31.219Z",
+      "completedAt": "2026-06-05T21:53:07.496Z",
       "stdoutTail": [
         "running 6 tests",
         "......",
-        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 241 filtered out; finished in 1.40s"
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 257 filtered out; finished in 1.05s"
       ],
       "stderrTail": []
     }
