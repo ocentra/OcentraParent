@@ -79,7 +79,9 @@ compete on control while staying clear about attribution confidence and privacy.
   replay plan refs, dropped-event audit refs, and zero duplicate
   enforcement-command or adapter-action counts. This remains a proof boundary
   only; live broker/family-hub transport, policy execution, adapter execution,
-  and host filtering remain unclaimed.
+  and host filtering remain unclaimed. E-D row10 closure treats local/service
+  reusable eventing consumption as complete while keeping live broker/family-hub
+  implementation in the current gap.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,
@@ -403,7 +405,7 @@ UI rendering remain open.
       Deterministic indicator proof exists for remote desktop, torrent, and
       large-download candidates, with unattributed high-volume uncertainty and
       no file-name/content claim.
-- [ ] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.
+- [x] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.
       First E-D runtime spine exists for metadata-only flow events,
       manual-required/unavailable states, local no-subscriber queue/drain,
       local typed request-response, and Rust protocol-facing network event
@@ -452,10 +454,12 @@ UI rendering remain open.
       Row10a broker delivery semantics proof now preserves replay plan,
       dropped-event audit, and adapter-action ledger refs while proving duplicate
       idempotency rejection and zero duplicate adapter-action counts.
+      Row10 closure marks local/service reusable eventing consumption complete.
       Broker/family-hub delivery remains requirements-gated rather than
-      implemented. Service network read-model delivery now publishes stored
-      ActivityStore network rows through the local eventing runtime and exposes
-      delivery counts in the service payload; service WebSocket event-chain
+      implemented and stays in the current gap. Service network read-model
+      delivery now publishes stored ActivityStore network rows through the
+      local eventing runtime and exposes delivery counts in the service payload;
+      service WebSocket event-chain
       streaming now returns protocol-shaped local runtime entries for stored
       rows, and service/query-store tombstones now hide deleted active rows
       while preserving local deletion evidence refs and exportable-row counts.

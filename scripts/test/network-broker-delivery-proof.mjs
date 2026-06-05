@@ -1,11 +1,18 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const proofRoot = join('output', 'network-plan-proof', '10a-broker-delivery-proof');
 const testRoot = join('test-results', 'network-broker-delivery-proof');
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
+const sourceSnapshot = {
+  branch: runText('git', ['branch', '--show-current']).trim(),
+  commit: runText('git', ['rev-parse', 'HEAD']).trim(),
+  originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
+  mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
+  sourceStatusShort: sourceStatusShort(),
+};
 
 const commands = [
   {
@@ -51,6 +58,7 @@ const commands = [
   },
 ];
 const commandResults = commands.map(runCommand);
+assertSourceContracts();
 
 const brokerDeliveryLog = [
   'network row10a broker delivery semantics',
@@ -71,9 +79,11 @@ writeFileSync(join(proofRoot, '10a-broker-delivery-proof.log'), brokerDeliveryLo
 const proof = {
   proof: 'network-broker-delivery',
   checkedAt: new Date().toISOString(),
-  branch: runText('git', ['branch', '--show-current']).trim(),
-  commit: runText('git', ['rev-parse', 'HEAD']).trim(),
-  sourceStatusShort: sourceStatusShort(),
+  branch: sourceSnapshot.branch,
+  commit: sourceSnapshot.commit,
+  originMain: sourceSnapshot.originMain,
+  mergeBase: sourceSnapshot.mergeBase,
+  sourceStatusShort: sourceSnapshot.sourceStatusShort,
   proofRoot,
   testRoot,
   commands: commandResults,
@@ -82,8 +92,9 @@ const proof = {
     proofSummary: join(proofRoot, 'proof-summary.json'),
     testProof: join(testRoot, 'proof.json'),
   },
-  provenRows: ['10a Broker delivery semantics proof'],
+  provenRows: ['network-plan row 10 eventing consumption closure', '10a Broker delivery semantics proof'],
   provenBehavior: [
+    'row 10 is complete for reusable local and service network runtime eventing consumption',
     'broker route requirements can be satisfied while live broker delivery remains false',
     'local network queue idempotency rejects queued and completed duplicate events',
     'queue overflow creates dropped-event dead-letter audit evidence',
@@ -124,6 +135,75 @@ function runText(command, args) {
     throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}`);
   }
   return `${result.stdout ?? ''}${result.stderr ?? ''}`;
+}
+
+function assertSourceContracts() {
+  const brokerDelivery = readText('crates/agent-core/src/network_event_runtime/broker_delivery.rs');
+  const brokerDeliveryTests = readText('crates/agent-core/src/network_event_runtime_broker_delivery_tests.rs');
+  const eventingReadme = readText('crates/ocentra-eventing/README.md');
+  const checklist = readText('docs/plans/network-plan/implementation-checklist.md');
+  const featureDoc = readText('docs/features/network-domain-control.md');
+
+  assertIncludes(
+    brokerDelivery,
+    'EventDeliveryRouteKind::ExternalTransport',
+    'network broker proof uses the generic external transport decision'
+  );
+  assertIncludes(
+    brokerDelivery,
+    'queue_network_runtime_flow_rejects_duplicate_idempotency',
+    'network broker proof composes reusable queue idempotency'
+  );
+  assertIncludes(
+    brokerDelivery,
+    'enforcement_command_event_count',
+    'network broker proof counts enforcement command events'
+  );
+  assertIncludes(
+    brokerDeliveryTests,
+    'network_runtime_broker_delivery_semantics_preserve_refs_without_live_broker',
+    'broker delivery test names the no live broker boundary'
+  );
+  assertIncludes(
+    brokerDeliveryTests,
+    'assert!(!report.external_transport_delivery_implemented)',
+    'broker delivery test rejects live external transport implementation claim'
+  );
+  assertIncludes(
+    eventingReadme,
+    'Network-only bus, external queue, request broker, or platform transport',
+    'reusable eventing crate does not own network transport machinery'
+  );
+  assertIncludes(
+    checklist,
+    '| 10   | NetworkActivityEvent contracts and reusable Rust eventing consumption                                                     | [x]',
+    'network checklist row 10 is closed'
+  );
+  assertIncludes(
+    checklist,
+    'Live broker/family-hub delivery and cross-process transport remain explicit non-claims',
+    'network checklist preserves broker family-hub non-claim'
+  );
+  assertIncludes(
+    featureDoc,
+    '- [x] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.',
+    'network feature checklist closes reusable eventing line'
+  );
+  assertIncludes(
+    featureDoc,
+    'Broker/family-hub delivery implementation',
+    'network feature doc keeps broker family-hub implementation in current gap'
+  );
+}
+
+function readText(path) {
+  return readFileSync(path, 'utf8');
+}
+
+function assertIncludes(text, expected, label) {
+  if (!text.includes(expected)) {
+    throw new Error(`${label}: missing ${expected}`);
+  }
 }
 
 function sourceStatusShort() {
