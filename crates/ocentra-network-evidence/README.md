@@ -41,7 +41,12 @@ clean-stop, quota-rotation, retention/delete/export, custody, and
 private-traffic-exclusion refs. Missing artifacts stay manual-required,
 platform gaps stay unavailable/degraded, and the proof rejects live driver
 invocation, unbounded capture, raw PCAP without custody, exact content,
-policy/adapter authority, and enforcement-command claims. Category lookup
+policy/adapter authority, and enforcement-command claims. Unmanaged-browser
+correlation records known or portable browser processes as process-only bypass
+evidence, keeps browser-like process names candidate-only, preserves managed
+browser boundary and adapter-unavailable states, and rejects exact URL,
+active-tab, page-title, page-content, decrypted-payload, policy, adapter, and
+enforcement-command claims. Category lookup
 matches exact or registrable domains against source-custody records, reports
 freshness/staleness, and rejects unsigned or older category snapshot updates. The
 social/video/game classifier uses fresh domain categories directly, keeps
@@ -166,13 +171,14 @@ ref, and default remote upload, raw PCAP without custody, exact content,
 policy/adapter authority, and enforcement-command claims are rejected.
 
 Live Npcap/libpcap driver invocation and packet capture, full vendor category
-feeds, production CDN intelligence, unmanaged browser URL correlation,
-foreground session correlation, live network adapter enforcement, file/content
-inspection, local-AI model execution/worker runtime, production model-quality
-monitoring, production SLO validation, full policy engine execution,
-notification provider delivery, portal AI audit UI, risk-budget, or performance
-rendering, live WFP driver/callout proof, live adapter execution, Android
-physical-device behavior, Apple entitlement/device behavior, Linux distro/kernel
-adapter behavior, live Zeek/TShark/Wireshark/Suricata/Snort execution, full
-support-material authoring, external audit execution, production deployment, and
-portal rendering remain separate proof-gated workpacks.
+feeds, production CDN intelligence, unmanaged browser exact URL or active-tab
+correlation, unmanaged browser adapter action or process termination, foreground
+session correlation, live network adapter enforcement, file/content inspection,
+local-AI model execution/worker runtime, production model-quality monitoring,
+production SLO validation, full policy engine execution, notification provider
+delivery, portal AI audit UI, risk-budget, or performance rendering, live WFP
+driver/callout proof, live adapter execution, Android physical-device behavior,
+Apple entitlement/device behavior, Linux distro/kernel adapter behavior, live
+Zeek/TShark/Wireshark/Suricata/Snort execution, full support-material authoring,
+external audit execution, production deployment, and portal rendering remain
+separate proof-gated workpacks.

@@ -136,6 +136,12 @@ compete on control while staying clear about attribution confidence and privacy.
   `ocentra-network-evidence`: exact URLs are attached only from matching managed
   browser page evidence, while network-only domains and mismatched browser
   evidence stay non-exact and no decrypted/page-content claim is made.
+- E-D added deterministic unmanaged-browser correlation in
+  `ocentra-network-evidence`: known or portable browser processes become
+  process-only bypass evidence, browser-like process names stay candidate-only,
+  managed-browser boundary and adapter-unavailable states remain explicit, and
+  exact URL, active-tab, title, page-content, decrypted-payload, policy,
+  adapter, and enforcement-command claims are rejected.
 - E-D added a deterministic evidence cascade router in
   `ocentra-network-evidence`: confirmed/candidate/weak signals are ranked,
   weak hints route to managed-browser/process/screen/local-AI next checks, and
@@ -424,6 +430,9 @@ execution, and platform adapter execution remain open.
 - [x] No decrypted payload/page-content claim at the network contract boundary.
       Managed-browser correlation can attach exact URLs only from matching
       browser evidence, not from network metadata.
+- [x] Unmanaged browser correlation remains process-only bypass/candidate
+      evidence and cannot upgrade to exact URL, active-tab, title, page-content,
+      policy, adapter, or enforcement-command claims.
 
 ## Next AI Instructions
 

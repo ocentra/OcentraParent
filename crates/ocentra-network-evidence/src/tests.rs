@@ -30,6 +30,7 @@ mod risk_budget;
 mod signature_alert;
 mod transfer;
 mod tunnel;
+mod unmanaged_browser;
 mod visibility;
 mod windows_firewall_adapter;
 mod windows_wfp_gate;

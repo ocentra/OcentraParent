@@ -29,6 +29,7 @@ pub mod signature_alert;
 pub mod tls;
 pub mod transfer;
 pub mod tunnel;
+pub mod unmanaged_browser;
 pub mod windows_firewall_adapter;
 pub mod windows_wfp_gate;
 pub mod zeek;
@@ -193,6 +194,12 @@ pub use tunnel::{
     classify_vpn_proxy_tunnel_activity, NetworkTunnelBasis, NetworkTunnelClassification,
     NetworkTunnelClassifierError, NetworkTunnelClassifierInput, NetworkTunnelIndicator,
     NetworkTunnelIndicatorEvidence, NetworkTunnelKind,
+};
+pub use unmanaged_browser::{
+    correlate_unmanaged_browser_activity, UnmanagedBrowserCorrelation,
+    UnmanagedBrowserCorrelationBasis, UnmanagedBrowserCorrelationError,
+    UnmanagedBrowserCorrelationInput, UnmanagedBrowserCorrelationState,
+    UnmanagedBrowserProcessKind,
 };
 pub use windows_firewall_adapter::{
     plan_network_windows_firewall_adapter_proof, NetworkWindowsFirewallAdapterAction,
