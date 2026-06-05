@@ -123,6 +123,14 @@ dev-only repo when it claims consumer readiness.
   override runtime, refund/credit runtime, support backend upload, and portal
   admin UI unimplemented, and excludes child activity custody while retaining
   evidence export and local safety behavior.
+- `billing-entitlement-runtime-proof` adds parent-domain runtime/status
+  consumption rows for account entitlement snapshots, device-limit decisions,
+  and billing failure states. It proves local status consumption of active,
+  stale, payment-required, and provider-unavailable entitlement snapshots,
+  blocks over-limit new-device activation, carries parent-visible failure state
+  into runtime rows, retains evidence export/local safety, and keeps Stripe/live
+  provider execution, provider contact, refund/credit execution, child activity
+  custody, portal UI, and production billing support unclaimed.
 - Billing/support/public website/store distribution are planned or incomplete.
 
 ## Current Gap
@@ -183,6 +191,11 @@ package/runtime proof.
       entitlement override manual-required, and refund/credit manual-required
       states without adding provider contact, account backend admin runtime,
       portal admin UI, support upload, or child-activity custody.
+      `billing-entitlement-runtime-proof` adds runtime/status consumption proof
+      for account entitlement snapshots, device-limit decisions, and billing
+      failure states while keeping live provider execution, provider contact,
+      refund/credit execution, child custody, portal UI, and production billing
+      support unclaimed.
 - [ ] Privacy, retention, export/delete, and support docs.
 - [ ] Support bundle redaction proof scaffold and incident process. Current
       release-support proof requires parent consent, incident/status metadata,

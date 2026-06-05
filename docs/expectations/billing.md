@@ -126,6 +126,17 @@ portal admin UI, and child activity custody unimplemented or unsupported while
 retaining evidence export and local safety behavior in parent-visible support
 states.
 
+Current entitlement runtime proof:
+`billing-entitlement-runtime-proof` adds parent-domain runtime/status
+consumption rows for account entitlement snapshots, device-limit decisions, and
+billing failure states. It proves active, stale, payment-required, and
+provider-unavailable entitlement snapshots can be consumed by local status
+runtime rows, over-limit new-device activation is blocked, degraded states carry
+failure context, evidence export and existing local safety continue, and
+Stripe/live provider execution, provider contact, refund/credit execution,
+child activity custody, portal UI, and production billing support remain
+unimplemented or unclaimed.
+
 ## Entitlement Boundaries
 
 Entitlements may gate:
@@ -193,6 +204,12 @@ Any feature that can be disabled for billing must define its degraded local beha
   account runtime rows require failure state, entitlement signing runtime gaps
   stay manual-required, and Stripe/provider secrets, portal UI, child-device
   consumption, and child-activity custody remain non-claims.
+- `billing-entitlement-runtime-proof` proves account entitlement snapshot
+  runtime rows consume active/stale/payment-required/provider-unavailable states,
+  device-limit decisions block over-limit new-device activation, billing failure
+  state consumption retains evidence export and local safety continuation, and
+  provider execution/contact, refund/credit, child custody, portal UI, and
+  production billing support remain non-claims.
 - `support-bundle-redaction-proof` proves billing support escalation and account
   lookup remain support-safe manual-required states before provider/backend
   support workflows exist, and that support bundles do not contain billing
