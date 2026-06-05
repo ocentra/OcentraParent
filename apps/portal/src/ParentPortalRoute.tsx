@@ -18,6 +18,10 @@ import {
 } from './NetworkEvidenceDrawerRoutePanel';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
+import {
+  AppGameNotificationParentSurfaceRoutePanel,
+  shouldRenderAppGameNotificationParentSurfaceRoute,
+} from './AppGameNotificationParentSurfaceRoutePanel';
 import { ScreenSettingsRoutePanel, shouldRenderScreenSettingsRoute } from './ScreenSettingsRoutePanel';
 import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
 import './styles/parent-portal-route.css';
@@ -82,6 +86,11 @@ export function ParentPortalRoute({
       ) : null}
       {shouldRenderNetworkEvidenceDrawerRoute(route) ? (
         <NetworkEvidenceDrawerRoutePanel liveActivity={activityState} />
+      ) : null}
+      {shouldRenderAppGameNotificationParentSurfaceRoute(route) ? (
+        <AppGameNotificationParentSurfaceRoutePanel
+          readModel={activityState.appGameNotificationParentSurfaceIntentReadModel}
+        />
       ) : null}
       {shouldRenderScreenSettingsRoute(route) ? <ScreenSettingsRoutePanel /> : null}
     </div>

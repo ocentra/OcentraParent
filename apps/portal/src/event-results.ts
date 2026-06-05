@@ -19,6 +19,7 @@ const CommandResultEvents = new Set<AgentEventName>([
   AgentEvent.ActivityAppUseReadModelReported,
   AgentEvent.ActivityBrowserReadModelReported,
   AgentEvent.ActivityGamesReadModelReported,
+  AgentEvent.ActivityAppGameNotificationReadinessReadModelReported,
   AgentEvent.ActivityNetworkReadModelReported,
   AgentEvent.BrowserEvidenceRecentReported,
   AgentEvent.BrowserManagedStatusReported,

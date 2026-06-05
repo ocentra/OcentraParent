@@ -47,11 +47,13 @@ import {
   type AgentLanBrowserAddDeviceReadModel,
   type AgentProtocolLogFields,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { parseAgentAppGameNotificationReadinessEvent } from '@ocentra-parent/agent-protocol-domain/app-game-notification-readiness';
 import {
   parseAgentActivityTrackingReadModelEvent,
   type AgentActivityTrackingReadModelResult,
 } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
 import {
+  createAppGameNotificationParentSurfaceReadModelFromReadiness,
   parseActivityMemoryGraphReadModel,
   PortalBrowserInventoryFields,
   type PortalActivityMemoryGraphReadModel,
@@ -93,6 +95,8 @@ export interface PortalLiveActivityState {
   readonly activityBrowserReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly activityGamesReadModelEvent: AgentEventEnvelope | null;
   readonly activityGamesReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly appGameNotificationReadinessEvent: AgentEventEnvelope | null;
+  readonly appGameNotificationParentSurfaceIntentReadModel: unknown | null;
   readonly activityNetworkReadModelEvent: AgentEventEnvelope | null;
   readonly activityNetworkReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly browserInterventionEvent: AgentEventEnvelope | null;
@@ -120,6 +124,10 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
   const activityAppUseReadModelEvent = latestEvent(events, AgentEvent.ActivityAppUseReadModelReported);
   const activityBrowserReadModelEvent = latestEvent(events, AgentEvent.ActivityBrowserReadModelReported);
   const activityGamesReadModelEvent = latestEvent(events, AgentEvent.ActivityGamesReadModelReported);
+  const appGameNotificationReadinessEvent = latestEvent(
+    events,
+    AgentEvent.ActivityAppGameNotificationReadinessReadModelReported
+  );
   const activityNetworkReadModelEvent = latestEvent(events, AgentEvent.ActivityNetworkReadModelReported);
   const browserInterventionEvent = latestEvent(events, AgentEvent.BrowserInterventionReadModelReported);
   const networkFlowEvent = latestEvent(events, AgentEvent.NetworkFlowReadModelReported);
@@ -157,6 +165,10 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
       activityBrowserReadModelEvent,
       activityGamesReadModelEvent,
       activityNetworkReadModelEvent
+    ),
+    appGameNotificationReadinessEvent,
+    appGameNotificationParentSurfaceIntentReadModel: parseNullableAppGameNotificationParentSurfaceReadModel(
+      appGameNotificationReadinessEvent
     ),
     browserInterventionEvent,
     browserInterventionReadModel:
@@ -273,6 +285,15 @@ function parseNullableActivityReadModelEvent(
     return null;
   }
   return parseActivityReadModelEvent(kind, event);
+}
+
+function parseNullableAppGameNotificationParentSurfaceReadModel(event: AgentEventEnvelope | null): unknown | null {
+  if (event === null) {
+    return null;
+  }
+
+  const parsed = parseAgentAppGameNotificationReadinessEvent(event);
+  return parsed.ok ? createAppGameNotificationParentSurfaceReadModelFromReadiness(parsed.value) : null;
 }
 
 function parseLanAddDeviceReadModel(payload: AgentProtocolLogFields): AgentLanBrowserAddDeviceReadModel | null {

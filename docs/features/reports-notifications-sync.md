@@ -120,6 +120,24 @@ custody.
   manual-required and unavailable states, preserving scheduler/outbox/provider
   refs while keeping delivery, receipt, credential, runtime, UI, child delivery,
   adapter dispatch, broad-blocking, and platform claims false.
+- App/game notification preference-status handoff proof now maps preference
+  preflight rows into V3 notification preference and quiet-hours status entries,
+  preserving scheduler/outbox/provider/reason/preference/quiet-hours refs while
+  keeping parent preference UI, notification UI, delivery, receipt, credential,
+  runtime, child delivery, adapter dispatch, broad-blocking, and platform claims
+  false.
+- App/game notification parent-surface intent proof now combines provider-status
+  and preference-status rows into redacted history/preference intent rows for a
+  future parent surface, preserving drill-in, audit, scheduler/outbox, provider,
+  preference, quiet-hours, and manual-proof refs while keeping rendered UI,
+  provider delivery, receipt ingestion, credentials, runtime, child delivery,
+  adapter dispatch, broad-blocking, and platform claims false.
+- App/game notification parent-surface route proof now renders those
+  schema-backed intent rows in the App/Game Sessions portal route when a
+  read-model is supplied, while the live route shows an explicit missing-service
+  state and still makes no provider delivery, receipt, credential, parent
+  preference mutation, child delivery, production runtime, adapter dispatch,
+  broad-blocking, or platform claim.
 - Tracking provider-notification proof now maps tracking location/geofence alert
   intents from the tracking policy read model into existing V0.8 provider-status
   boundary rows. It preserves tracking evidence refs, policy decision refs,
@@ -226,6 +244,20 @@ claim provider delivery, receipt ingestion, credentials, production retry
 workers, production quiet-hours timer execution, durable production outbox
 storage, parent UI/history/preferences, child delivery, adapter dispatch, broad
 blocking, or platform support.
+The app/game notification preference-status handoff proof adds deterministic
+preference-preflight-to-V3 preference/quiet-hours status rows for app/game
+alerts, but does not claim parent preference UI, frequency controls, parent
+notification UI/history/preferences, provider delivery, receipt ingestion,
+credentials, production retry workers, production quiet-hours timer execution,
+durable production outbox storage, child delivery, adapter dispatch, broad
+blocking, or platform support.
+The app/game notification parent-surface intent proof adds redacted future
+history/preference intent rows over provider/preference status handoffs, and
+the App/Game Sessions route now has a route-level renderer for those rows when
+the read model is supplied. It still does not claim product notification
+delivery, parent preference mutation, provider delivery, provider receipts,
+credentials, production runtime, child delivery, adapter dispatch, broad
+blocking, mobile UI, or platform support.
 The tracking provider-notification proof adds deterministic
 tracking-alert-to-provider-status rows for location/geofence alerts, but does
 not claim provider delivery, receipt ingestion, credentials, cloud routing,
@@ -340,6 +372,21 @@ delivery, policy writes, or child-device enforcement.
       preflight rows becoming V0.8 provider-status manual-required/unavailable
       rows, while delivery, receipts, credentials, runtime, UI, child delivery,
       adapter dispatch, broad blocking, and platform claims remain false.
+- [x] App/game notification preference-status handoff proof exists with
+      preference preflight rows becoming V3 parent preference/quiet-hours status
+      entries, while parent preference UI, delivery, receipts, credentials,
+      runtime, UI, child delivery, adapter dispatch, broad blocking, and
+      platform claims remain false.
+- [x] App/game notification parent-surface intent proof exists with provider and
+      preference status rows becoming redacted parent history/preference intent
+      rows, while rendered UI, parent preference mutation, provider delivery,
+      receipts, credentials, runtime, child delivery, adapter dispatch, broad
+      blocking, and platform claims remain false.
+- [x] App/game notification parent-surface route renderer exists for the
+      App/Game Sessions route and consumes schema-backed intent read models
+      without inventing rows when the service event is absent, while provider
+      delivery, parent preference mutation, child delivery, runtime dispatch,
+      broad blocking, and platform claims remain false.
 - [x] Tracking provider-notification proof exists with tracking alert intents
       becoming V0.8 provider-status manual-required/unavailable rows, while
       provider delivery, receipts, credentials, runtime, parent UI,
@@ -408,6 +455,25 @@ adapters, credentials and secret review, production send/retry workers,
 production quiet-hours timers, receipt ingestion, durable production storage,
 child delivery proof, and provider smoke proof before claiming app/game
 notification delivery or product notification runtime. Treat
+`scripts/test/app-game-notification-preference-status-handoff-proof.mjs` as
+parent-domain app/game notification preference/quiet-hours status handoff proof
+only; require parent-visible history/preferences UI, frequency controls, real
+provider adapters, credentials and secret review, production send/retry workers,
+production quiet-hours timers, receipt ingestion, durable production storage,
+child delivery proof, and provider smoke proof before claiming app/game
+notification delivery or product notification runtime. Treat
+`scripts/test/app-game-notification-parent-surface-intent-proof.mjs` as
+parent-domain app/game notification parent-surface intent proof only; require
+product notification history controls, parent preference mutation controls,
+real provider adapters, credentials and secret review, production send/retry
+workers, production quiet-hours timers, receipt ingestion, durable production
+storage, child delivery proof, mobile UI proof, and provider smoke proof before
+claiming parent-facing app/game notification delivery or product notification
+runtime. Treat
+`apps/portal/tests/app-game-notification-parent-surface-panel.test.ts` as
+portal route rendering proof for schema-backed parent-surface intent rows only;
+it does not prove a live service event, preference mutation, provider delivery,
+child delivery, or production notification runtime. Treat
 `scripts/test/parent-owned-sync-export-manifest-proof.mjs` as parent-domain
 sync/export manifest and connector-status contract proof only; require real
 transfer runtime, connector OAuth/provider artifacts, parent-visible controls,

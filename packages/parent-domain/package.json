@@ -17,6 +17,14 @@
       "import": "./dist/app-game-notification-intent.js",
       "types": "./dist/app-game-notification-intent.d.ts"
     },
+    "./app-game-notification-preference-status-handoff": {
+      "import": "./dist/app-game-notification-preference-status-handoff.js",
+      "types": "./dist/app-game-notification-preference-status-handoff.d.ts"
+    },
+    "./app-game-notification-parent-surface-intent": {
+      "import": "./dist/app-game-notification-parent-surface-intent.js",
+      "types": "./dist/app-game-notification-parent-surface-intent.d.ts"
+    },
     "./app-game-policy-preview-handoff": {
       "import": "./dist/app-game-policy-preview-handoff.js",
       "types": "./dist/app-game-policy-preview-handoff.d.ts"

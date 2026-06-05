@@ -235,6 +235,23 @@ control with better evidence and local audit.
   manual-required and unavailable rows, preserving scheduler/outbox/provider
   refs and keeping delivery, receipt, credential, UI, child delivery, runtime,
   adapter, broad-blocking, and platform claims false.
+- The app/game notification preference-status handoff now maps preference
+  preflight rows into V3 notification preference and quiet-hours status entries,
+  preserving scheduler/outbox/provider/reason/preference/quiet-hours refs while
+  keeping parent preference UI, notification UI, delivery, receipt, credential,
+  child delivery, runtime, adapter, broad-blocking, and platform claims false.
+- The app/game notification parent-surface intent proof now combines provider
+  status and preference status rows into redacted parent-visible history and
+  preference intent rows with drill-in/audit/manual-proof refs, while keeping
+  rendered UI, provider delivery, receipts, credentials, child delivery,
+  production runtime, adapter dispatch, broad-blocking, and platform claims
+  false.
+- The App/Game Sessions portal route now has a route-level app/game
+  notification parent-surface panel that projects the live service
+  notification-readiness read-model event into schema-backed manual/unavailable
+  setup rows and otherwise shows a missing-service state, while keeping
+  provider delivery, preference mutation, child delivery, scheduler/outbox
+  runtime, adapter dispatch, broad-blocking, and platform claims false.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -424,6 +441,20 @@ does not provide provider delivery, provider receipt ingestion, credentials,
 production retry workers, quiet-hours timer runtime, durable production outbox
 storage, parent notification UI/history/preferences, child delivery, policy
 evaluator execution, adapter dispatch, broad blocking, or platform support.
+The app/game notification preference-status handoff proof maps preference
+preflight rows into V3 notification preference/quiet-hours status entries, but
+it does not provide parent preference UI, frequency controls, parent
+notification UI, provider delivery, provider receipt ingestion, credentials,
+production retry workers, quiet-hours timer runtime, durable production outbox
+storage, child delivery, policy evaluator execution, adapter dispatch, broad
+blocking, or platform support.
+The app/game notification parent-surface intent proof combines provider and
+preference status rows into future parent history/preference intent rows, and
+the App/Game Sessions route can now project the live service readiness event
+into redacted parent setup rows. It still does not mutate parent preferences,
+send or receive provider notifications, run scheduler/outbox or production
+retry/quiet-hours workers, deliver to child devices, execute adapters, prove
+mobile UI, or prove platform support.
 
 ## Checklist
 
@@ -512,6 +543,21 @@ evaluator execution, adapter dispatch, broad blocking, or platform support.
       manual-required/unavailable boundary rows while provider delivery,
       receipts, credentials, UI, child delivery, runtime, adapter dispatch,
       broad blocking, and platform claims remain false.
+      The preference-status handoff maps preference preflight rows into V3
+      notification preference/quiet-hours manual-required or disabled status
+      entries while parent preference UI, parent notification UI, delivery,
+      receipts, credentials, child delivery, runtime, adapter dispatch, broad
+      blocking, and platform claims remain false.
+      The parent-surface intent maps provider-status and preference-status rows
+      into redacted future history/preference cards with drill-in, audit, and
+      manual-proof refs while rendered UI, provider delivery, receipts,
+      credentials, child delivery, runtime, adapter dispatch, broad blocking,
+      and platform claims remain false.
+      The App/Game Sessions route panel now projects the live service
+      notification-readiness event into schema-backed parent setup rows and
+      shows missing-service state otherwise, while provider delivery, parent
+      preference mutation, child delivery, scheduler/outbox runtime, adapter
+      dispatch, broad blocking, mobile UI, and platform claims remain false.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
