@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-notification-parent-surface-ui",
-  "checkedAt": "2026-06-05T12:38:42.831Z",
-  "implementationCommit": "59a62661b8a419fc9f60f96074f36139e6cfac27",
+  "checkedAt": "2026-06-05T17:14:48.155Z",
+  "implementationCommit": "365f7e68739dfc78ee0406fa4df59e6dcb444f4f",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",

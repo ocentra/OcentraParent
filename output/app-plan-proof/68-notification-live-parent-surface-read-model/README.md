@@ -1,7 +1,7 @@
 # app WP68 Notification Live Parent Surface Read Model
 
-Checked at: 2026-06-05T13:52:06.997Z
-Implementation commit: ee216cd07a74ed18a5850946ec8e309ef2192562
+Checked at: 2026-06-05T17:15:01.191Z
+Implementation commit: 365f7e68739dfc78ee0406fa4df59e6dcb444f4f
 
 ## Claims Proved
 - Portal overview commands request the existing app/game notification readiness service read model

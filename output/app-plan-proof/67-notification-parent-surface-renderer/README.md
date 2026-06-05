@@ -1,7 +1,7 @@
 # app WP67 Notification Parent Surface Renderer
 
-Checked at: 2026-06-05T12:38:42.831Z
-Implementation commit: 59a62661b8a419fc9f60f96074f36139e6cfac27
+Checked at: 2026-06-05T17:14:48.155Z
+Implementation commit: 365f7e68739dfc78ee0406fa4df59e6dcb444f4f
 
 ## Claims Proved
 - Portal App/Game Sessions route renders schema-backed app/game notification parent-surface intent rows
