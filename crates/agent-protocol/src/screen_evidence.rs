@@ -129,8 +129,12 @@ pub const SCREEN_SERVICE_TEST_QUEUE_RECORD_LINE: &str = "{}\n";
 pub const SCREEN_CATEGORY_UNKNOWN: &str = "unknown";
 pub const SCREEN_CATEGORY_SCHOOL: &str = "school";
 pub const SCREEN_PROVIDER_SERVICE_METADATA: &str = "serviceCaptureMetadata";
+pub const SCREEN_PROVIDER_LOCAL_OCR: &str = "localOcr";
 pub const SCREEN_PROVIDER_LOCAL_VISION: &str = "localVision";
 pub const SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE: &str = "localVisionUnavailable";
+pub const SCREEN_WINRT_OCR_RUNTIME_REF: &str = "windows-winrt-ocr-local-runtime";
+pub const SCREEN_WINRT_OCR_MODEL_ID: &str = "windows-winrt-ocr";
+pub const SCREEN_WINRT_OCR_TEMPLATE_VERSION: &str = "screen-ocr-worker-winrt-v1";
 pub const SCREEN_IMAGE_FORMAT_PNG: &str = "png";
 pub const SCREEN_POLICY_CONFIDENCE_READY: f64 = 0.88;
 pub const SCREEN_SERVICE_METADATA_CONFIDENCE: f64 = 0.2;
@@ -217,6 +221,20 @@ pub struct ScreenAnalysisResult {
     pub image_deletion_state: String,
     pub custody_state: String,
     pub policy_eligible: bool,
+    pub policy_decision_ref: Option<String>,
+    pub policy_action: Option<String>,
+    #[serde(default)]
+    pub policy_reason_codes: Vec<String>,
+    #[serde(default)]
+    pub parent_rule_refs: Vec<String>,
+    #[serde(default)]
+    pub local_model_runtime_refs: Vec<String>,
+    #[serde(default)]
+    pub parent_explanation_refs: Vec<String>,
+    #[serde(default)]
+    pub explanation_reasons: Vec<String>,
+    #[serde(default)]
+    pub deletion_reasons: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

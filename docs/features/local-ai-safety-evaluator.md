@@ -48,9 +48,11 @@ claim needs proof, not slogans.
   `output/ai-plan-proof/local-ai-provider-scheduler-proof`.
 - The screen service analysis runtime now consumes an encrypted screen queue job,
   runs through the local provider scheduler and service-owned local adapter
-  command boundary, records `localVision` or explicit unavailable/invalid output
-  Activity Screen rows, and drains processed queue records. The current proof
-  adapter validates runtime plumbing and custody, not production model quality.
+  command boundary, records `localVision`, `localOcr`, or explicit
+  unavailable/invalid output Activity Screen rows, and drains processed queue
+  records. The service proof adapter validates runtime plumbing and custody; the
+  Windows WinRT OCR proof validates local OCR over live public Wikipedia pixels,
+  but neither proof claims production model/OCR quality.
 - `local-ai-parent-assistant-runtime-proof` now ties the provider scheduler
   proof to Parent Assistant answer/status/action contracts, including cited
   local answer, queued/degraded/unavailable lifecycle, child-safety priority,
@@ -78,6 +80,43 @@ claim needs proof, not slogans.
   unavailable cloud-game context, all without remote AI, direct policy
   authority, enforcement, authenticated-account, cloud-frame, or mobile parity
   claims.
+- The screen summary context-builder replay proof now feeds the real WinRT OCR
+  worker proof rows into `buildLocalAiEvidenceContext`. It proves deleted
+  child-device query-store screen summaries become selected `screen-summary`
+  evidence with local runtime refs, parent-rule refs, audit refs, and
+  `screen-image-deleted` custody/deletion state. This is context-builder replay
+  proof; it does not create new captures, claim production model quality,
+  portal UI, or final enforcement.
+- `ScreenSummaryParentExplanationSchema` and
+  `scripts/test/screen-summary-parent-explanation-proof.mjs` now replay the
+  same WinRT OCR screen-summary rows through a parent explanation/audit bundle.
+  The proof cites screen-summary refs, audit evidence refs, parent rule refs,
+  dry-run policy refs, local runtime refs, local-only custody, and
+  `screen-image-deleted` deletion state while keeping raw image retention,
+  remote/API AI, policy authority, portal runtime UI, and enforcement unclaimed.
+- `ScreenSummaryParentExplanationReadModelSnapshotSchema` and
+  `scripts/test/screen-summary-parent-explanation-read-model-proof.mjs` now
+  convert those parent explanation rows into parent-visible read-model rows. The
+  proof preserves screen-summary refs, audit evidence refs, parent rule refs,
+  dry-run policy refs, local runtime refs, custody labels, and deleted-image
+  reasons while still not claiming raw image display, remote/API AI, production
+  portal runtime rendering, policy authority, or enforcement.
+- `scripts/test/screen-summary-parent-explanation-service-read-model-proof.mjs`
+  now starts the real Rust service against a seeded local ActivityStore and
+  requests the Activity Screen read model over WebSocket. The service-backed row
+  preserves the screen policy decision ref, policy action/reason refs, parent
+  rule refs, local runtime refs, parent explanation refs, deletion reasons,
+  deleted-image state, and child-device custody. This closes service/query
+  read-model custody for screen-summary parent explanations, but still does not
+  claim production portal rendering, new capture/model inference, remote/API AI,
+  or enforcement.
+- `scripts/test/screen-ai-final-product-path-proof.mjs` now verifies the
+  retained final screen-AI path artifacts: real live/operator trigger rows,
+  local VLM analysis rows, dry-run policy decisions, Windows action handoff
+  proofs, portal/read-model proof, retention/deletion custody, and
+  protected-surface non-claims. The verifier writes
+  `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json` and
+  does not rerun live capture/model inference or claim remote/API AI.
 - `ScreenFamilyAiHubRouteSchema` and
   `scripts/test/screen-family-ai-hub-routing-proof.mjs` now prove the
   screen-specific family AI hub route contract for hard visual analysis:
@@ -91,12 +130,12 @@ claim needs proof, not slogans.
 ## Current Gap
 
 Ocentra needs product-grade model configuration, local model artifacts,
-production screen model quality, confidence handling,
-authenticated-account social proof beyond public/live surface proof, parent
-explanations, broader enforcement handoff, production browser-trigger
-producers, real family AI hub runtime/discovery, cloud-streamed frame proof,
-mobile browser parity, and validation against production external evidence
-variants.
+production screen model/OCR quality beyond current local proof, confidence handling,
+authenticated-account social proof beyond public/live surface proof, production
+parent explanation portal rendering, broader enforcement handoff,
+production browser-trigger producers, real family AI hub runtime/discovery,
+cloud-streamed frame proof, mobile browser parity, and validation against
+production external evidence variants.
 
 ## Checklist
 
@@ -109,13 +148,17 @@ variants.
 - [x] Deterministic policy integration.
 - [x] Social/video and screen summary handling proof path.
 - [x] Parent explanation and audit proof path.
+- [x] Parent explanation read-model proof path.
+- [x] Screen parent explanation service read-model proof path.
+- [x] Screen service WinRT OCR local adapter proof path.
+- [x] Final screen-AI product path artifact gate.
 - [x] Tests with real stored evidence.
 - [x] Screen hard-visual routing prefers child-local then household family hub
       before remote/API fallback.
 
-Product-grade model configuration, model artifacts, production model quality,
-authenticated-account social proof, and broad enforcement handoff remain in the
-Current Gap section above.
+Product-grade model configuration, model artifacts, production model/OCR
+quality, authenticated-account social proof, and broad enforcement handoff
+remain in the Current Gap section above.
 
 ## Next AI Instructions
 

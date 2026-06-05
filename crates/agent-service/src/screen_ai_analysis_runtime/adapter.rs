@@ -10,10 +10,10 @@ use ocentra_parent_agent_protocol::{
     LocalAiDegradedState, LocalAiExecutionState, LocalAiGenerationState, LocalAiModelLoadState,
     LocalAiProviderPrivacyMode, LocalAiProviderSource, LocalAiResourceClass,
     LocalModelRuntimeStatus, ScreenAnalysisResult, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
-    SCREEN_EVIDENCE_SCHEMA_VERSION, SCREEN_SERVICE_ANALYSIS_FIELD_IMAGE_BASE64,
-    SCREEN_SERVICE_ANALYSIS_MODEL_ID, SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE,
-    SCREEN_SERVICE_ANALYSIS_PROVIDER_ID, SCREEN_SERVICE_ANALYSIS_RUNTIME_REF,
-    SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION,
+    SCREEN_EVIDENCE_SCHEMA_VERSION, SCREEN_PROVIDER_LOCAL_OCR, SCREEN_PROVIDER_LOCAL_VISION,
+    SCREEN_SERVICE_ANALYSIS_FIELD_IMAGE_BASE64, SCREEN_SERVICE_ANALYSIS_MODEL_ID,
+    SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE, SCREEN_SERVICE_ANALYSIS_PROVIDER_ID,
+    SCREEN_SERVICE_ANALYSIS_RUNTIME_REF, SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION,
 };
 use serde_json::{Map, Value};
 use tokio::{io::AsyncWriteExt, process::Command, time::timeout};
@@ -26,6 +26,10 @@ pub(super) struct ScreenAiAnalysisAdapterOutput {
     pub(super) primary_category: String,
     pub(super) confidence: f64,
     pub(super) policy_eligible: bool,
+    pub(super) provider_kind: String,
+    pub(super) model_runtime_ref: String,
+    pub(super) model_id: String,
+    pub(super) prompt_or_template_version: String,
 }
 
 pub(super) async fn run_adapter(
@@ -152,12 +156,33 @@ pub(super) fn parsed_generation_output(
     if !(0.0..=1.0).contains(&confidence) {
         return None;
     }
+    let provider_kind = output_provider_kind(&parsed)?;
     Some(ScreenAiAnalysisAdapterOutput {
         summary,
         primary_category,
         confidence,
         policy_eligible: required_bool(&parsed, constants::field::SCREEN_POLICY_ELIGIBLE)?,
+        provider_kind,
+        model_runtime_ref: optional_string(&parsed, constants::field::SCREEN_MODEL_RUNTIME_REF)
+            .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string()),
+        model_id: optional_string(&parsed, constants::field::SCREEN_MODEL_ID)
+            .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string()),
+        prompt_or_template_version: optional_string(
+            &parsed,
+            constants::field::SCREEN_TEMPLATE_VERSION,
+        )
+        .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION.to_string()),
     })
+}
+
+fn output_provider_kind(value: &Value) -> Option<String> {
+    let provider_kind = optional_string(value, constants::field::SCREEN_PROVIDER_KIND)
+        .unwrap_or_else(|| SCREEN_PROVIDER_LOCAL_VISION.to_string());
+    if provider_kind == SCREEN_PROVIDER_LOCAL_VISION || provider_kind == SCREEN_PROVIDER_LOCAL_OCR {
+        Some(provider_kind)
+    } else {
+        None
+    }
 }
 
 fn adapter_request(image: &QueuedScreenImage, metadata: Option<&ScreenAnalysisResult>) -> Value {
@@ -326,6 +351,17 @@ fn required_string(value: &Value, field: &str) -> Option<String> {
     } else {
         Some(value.to_string())
     }
+}
+
+fn optional_string(value: &Value, field: &str) -> Option<String> {
+    value.get(field).and_then(|field_value| {
+        let text = field_value.as_str()?.trim();
+        if text.is_empty() {
+            None
+        } else {
+            Some(text.to_string())
+        }
+    })
 }
 
 fn required_f64(value: &Value, field: &str) -> Option<f64> {

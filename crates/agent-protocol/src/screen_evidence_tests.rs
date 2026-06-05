@@ -147,6 +147,20 @@ pub(crate) fn analysis_result(evidence: Vec<ActivityEvidenceRef>) -> ScreenAnaly
         image_deletion_state: SCREEN_DELETION_DELETED.to_string(),
         custody_state: SCREEN_CUSTODY_JOURNAL.to_string(),
         policy_eligible: true,
+        policy_decision_ref: Some("screen-policy-decision-1".to_string()),
+        policy_action: Some("allow".to_string()),
+        policy_reason_codes: vec![
+            "screen-summary-linked".to_string(),
+            "parent-rule-linked".to_string(),
+        ],
+        parent_rule_refs: vec!["screen-parent-rule-school".to_string()],
+        local_model_runtime_refs: vec!["screen-local-runtime-1".to_string()],
+        parent_explanation_refs: vec!["screen-parent-explanation-1".to_string()],
+        explanation_reasons: vec![
+            "screen-summary-cited".to_string(),
+            "policy-decision-cited".to_string(),
+        ],
+        deletion_reasons: vec!["screen-image-deleted".to_string()],
     }
 }
 

@@ -321,9 +321,49 @@ only with explicit parent settings.
   runs Windows `Windows.Media.Ocr`, converts the OCR result into
   `ScreenAnalysisResult` evidence, creates allow dry-run policy decisions, and
   deletes the raw temp images. This is Windows OCR worker execution proof only;
-  production OCR quality tuning, service runtime integration, cross-platform
-  OCR parity, authenticated-account surfaces, enforcement, live view, and raw
-  retention remain separate gates.
+  production OCR quality tuning, cross-platform OCR parity,
+  authenticated-account surfaces, enforcement, live view, and raw retention
+  remain separate gates.
+- `scripts/test/screen-ai-service-winrt-ocr-proof.mjs` now proves the
+  service-owned Windows WinRT OCR analysis path over real live Chrome/Wikipedia
+  pixels: the Rust service cadence loop captures an active-window frame into
+  the encrypted queue, a local Windows `Windows.Media.Ocr` adapter reads the
+  queued image, the service records a `localOcr` Activity Screen row with
+  runtime/model/template metadata and a `school`/policy-eligible result, the
+  WebSocket read model exposes the row, the queue drains, and adapter temp image
+  material is deleted. It does not claim production OCR quality,
+  authenticated-account/social coverage, cross-platform OCR parity,
+  enforcement, live view, or raw retention.
+- `ScreenSummaryParentExplanationSchema` and
+  `scripts/test/screen-summary-parent-explanation-proof.mjs` now prove the
+  parent explanation/audit context can consume those deleted local
+  screen-summary refs. The proof cites screen-summary refs, parent rule refs,
+  dry-run policy refs, local runtime refs, audit evidence refs, and
+  `screen-image-deleted` custody while keeping raw image retention, remote/API
+  AI, portal runtime UI, policy authority, and enforcement unclaimed.
+- `ScreenSummaryParentExplanationReadModelSnapshotSchema` and
+  `scripts/test/screen-summary-parent-explanation-read-model-proof.mjs` now turn
+  those local-only parent explanation rows into a parent-visible read model that
+  preserves screen-summary refs, audit refs, parent rules, dry-run policy refs,
+  runtime refs, custody, and deletion state without showing raw screenshots or
+  claiming production portal runtime rendering.
+- `scripts/test/screen-summary-parent-explanation-service-read-model-proof.mjs`
+  now proves those screen-summary parent explanation refs survive the
+  child-device query-store/service read-model boundary. The script starts the
+  real Rust service against a seeded ActivityStore, requests the Activity Screen
+  read model over WebSocket, and verifies policy refs, parent rule refs, local
+  runtime refs, parent explanation refs, deletion reasons, deleted-image state,
+  and child-device custody. It does not claim production portal rendering, new
+  capture/model inference, remote/API AI, or enforcement.
+- `scripts/test/screen-ai-final-product-path-proof.mjs` now validates the
+  retained final path evidence across real live/operator trigger artifacts,
+  capture metadata, local VLM analysis, policy dry-runs, Windows action handoff
+  proofs, portal/read-model proof, retention/deletion custody, and protected
+  surface non-claims at
+  `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`. This
+  is a stacked artifact gate; it does not rerun the live operator session or
+  claim managed-browser trigger ownership, authenticated-account social proof,
+  or broad browser/network/mobile adapters.
 - Service-persisted product settings, retention controls, and quality proof are
   incomplete.
 - Raw screen control settings are preserved as design inputs, not
@@ -334,18 +374,18 @@ only with explicit parent settings.
 Service persistence for parent setting changes, parent retention controls,
 optional raw-retention runtime enablement, live-view transport/relay/cache,
 platform permission prompt proof, privacy/legal approval, authenticated-account
-social proof beyond public/live surface proof, OCR/vision quality beyond
-controlled fixtures and the full live operator matrix, production local vision
-adapter quality beyond the service proof adapter, service-owned live trigger
-event producers beyond the timed cadence loop and native active-window
-foreground watcher, physical Android/iOS proof, live macOS capture proof, Linux
-root/Wayland portal proof, browser-trigger artifact closure,
-browser/network/mobile/broad block action adapters from screen-derived
-decisions, real family AI hub runtime/discovery, and production parent
-explanation UX remain. Browser-trigger proof now covers contract flow into
-screen evidence and local-AI context only; live trigger producers,
-authenticated surfaces, cloud-streamed frames, mobile parity, and UI remain
-separate proof gates.
+social proof beyond public/live surface proof, production OCR/VLM quality beyond
+the WinRT OCR service proof, controlled fixtures, and the full live operator
+matrix, production local vision adapter quality beyond the service proof
+adapter, service-owned live trigger event producers beyond the timed cadence
+loop and native active-window foreground watcher, physical Android/iOS proof,
+live macOS capture proof, Linux root/Wayland portal proof, browser-trigger
+artifact closure, browser/network/mobile/broad block action adapters from
+screen-derived decisions, real family AI hub runtime/discovery, and production
+parent explanation portal rendering remain. Browser-trigger proof now covers
+contract flow into screen evidence and local-AI context only; live trigger
+producers, authenticated surfaces, cloud-streamed frames, mobile parity, and UI
+remain separate proof gates.
 
 ## Checklist
 
@@ -377,10 +417,25 @@ separate proof gates.
 - [x] Windows WinRT OCR worker analyzes real browser/native captured pixels,
       emits schema-valid screen analysis evidence, feeds policy dry-run, and
       deletes raw temp images.
+- [x] Service WinRT OCR proof analyzes live public browser pixels through the
+      encrypted service queue, records a `localOcr` Activity Screen row, drains
+      the queue, and deletes adapter temp image material.
+- [x] Screen-summary parent explanation/audit context cites local OCR replay
+      refs, parent rules, dry-run policy refs, and deleted-image custody without
+      remote AI or enforcement claims.
+- [x] Screen-summary parent explanation read-model proof preserves refs,
+      custody, and deleted-image state without raw screenshot display or portal
+      runtime claims.
+- [x] Parent explanation refs preserved through the service-backed Activity
+      Screen read-model projection.
+- [x] Final screen-AI product path artifact gate validates retained real-run
+      trigger, capture, AI, policy, action/read-model, and deletion/custody
+      artifacts without raw screenshot retention.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof, broad
-adapters, and production explanation UX remain in the Current Gap section above.
+adapters, and production explanation portal rendering remain in the Current Gap
+section above.
 
 ## Next AI Instructions
 
