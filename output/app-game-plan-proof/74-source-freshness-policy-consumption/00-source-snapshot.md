@@ -1,7 +1,7 @@
 # Source Snapshot
 
 Branch: codex/app-game-source-freshness-policy-consumption-v2
-Commit: 4b3d5474dd78bfd6a13425f7b9f43b86e75e426b
+Commit: 8a2f13e4c9f712c12195e17cf984c7e0f7a889b8
 
 Inspected source inputs:
 
