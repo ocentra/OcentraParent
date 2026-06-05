@@ -1,5 +1,6 @@
-checkedAt=2026-06-04T23:39:43.227Z
+checkedAt=2026-06-05T00:32:51.992Z
 asserted=no browser console or page errors
 asserted=no product-ready or physical-device-proved route copy
 asserted=manual proof required and physical device proof required labels visible
+asserted=child check-in copy and actions visible without child-device delivery claim
 asserted=productClaimReady=false

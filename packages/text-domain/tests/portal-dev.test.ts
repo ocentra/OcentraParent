@@ -42,6 +42,18 @@ describe('portal dev text', () => {
     expect(PortalDevText[PortalDevTextToken.GetActivityBrowserReadModel]).toBe('Refresh activity browser');
     expect(PortalDevText[PortalDevTextToken.GetActivityGamesReadModel]).toBe('Refresh activity games');
     expect(PortalDevText[PortalDevTextToken.GetActivityNetworkReadModel]).toBe('Refresh activity network');
+    expect(PortalDevText[PortalDevTextToken.TrackingChildCheckInProofTitle]).toBe('Child check-in request');
+    expect(PortalDevText[PortalDevTextToken.TrackingChildCheckInProofBody]).toBe(
+      'Your parent is asking you to check in. Are you safe?'
+    );
+    expect(PortalDevText[PortalDevTextToken.TrackingChildCheckInSafeAction]).toBe("I'm safe");
+    expect(PortalDevText[PortalDevTextToken.TrackingChildCheckInHelpAction]).toBe('Need help');
+    expect(PortalDevText[PortalDevTextToken.TrackingChildCheckInShareLocationAction]).toBe('Share current location');
+    expect(PortalDevText[PortalDevTextToken.TrackingChildCheckInCallParentAction]).toBe('Call parent');
+    expect(PortalDevText[PortalDevTextToken.TrackingChildCheckInDeliveryBoundary]).toBe(
+      'Child-device delivery not proved'
+    );
+    expect(PortalDevText[PortalDevTextToken.TrackingChildCheckInCopyBoundary]).toBe('Calm copy, no accusation');
     expect(PortalDevText[PortalDevTextToken.CommandResult]).toBe('Command result');
     expect(PortalDevText[PortalDevTextToken.CopyResult]).toBe('Copy result');
   });

@@ -12,6 +12,7 @@ const proofRoot = path.join(repoRoot, 'output', 'tracking-plan-proof', '30-paren
 const screenshotDir = path.join(proofRoot, '11-ui-snapshots');
 const desktopScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary.png');
 const mobileScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary-mobile.png');
+const childCheckInScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-check-in.png');
 const accessibilitySummaryPath = path.join(
   repoRoot,
   'test-results',
@@ -32,8 +33,10 @@ test('hosted policy tracking route renders real-service proof without product cl
 async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await page.goto('/#/policy-tracking');
   const trackingProofRegion = page.getByRole('region', { name: 'Tracking status proof' });
-  await expect(trackingProofRegion).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Tracking status proof' })).toBeVisible();
+  await expect(trackingProofRegion).toBeVisible({ timeout: portalShellReadyTimeoutMs });
+  await expect(page.getByRole('heading', { name: 'Tracking status proof' })).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
 
   await refreshHostedTrackingStatus(page, trackingProofRegion);
 
@@ -50,9 +53,17 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await expect(trackingProofRegion.getByText('Manual proof required').first()).toBeVisible();
   await expect(trackingProofRegion.getByText('Physical device proof required').first()).toBeVisible();
   await expect(trackingProofRegion.getByText('No product claim').first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Child check-in request' })).toBeVisible();
+  await expect(trackingProofRegion.getByText('Your parent is asking you to check in. Are you safe?')).toBeVisible();
+  await expect(trackingProofRegion.getByText("I'm safe")).toBeVisible();
+  await expect(trackingProofRegion.getByText('Need help')).toBeVisible();
+  await expect(trackingProofRegion.getByText('Share current location')).toBeVisible();
+  await expect(trackingProofRegion.getByText('Call parent', { exact: true })).toBeVisible();
+  await expect(trackingProofRegion.getByText('Child-device delivery not proved')).toBeVisible();
 
   const routeText = await trackingProofRegion.textContent();
   expect(routeText ?? '').not.toMatch(/(?:product ready|physical device proved|background geofence proved)/iu);
+  expect(routeText ?? '').not.toMatch(/(?:trouble|lying|bad place|delivered to child device)/iu);
 }
 
 async function refreshHostedTrackingStatus(page: Page, trackingProofRegion: Locator): Promise<void> {
@@ -83,6 +94,20 @@ async function refreshHostedTrackingStatus(page: Page, trackingProofRegion: Loca
 async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   await mkdir(screenshotDir, { recursive: true });
   await page.screenshot({ fullPage: true, path: desktopScreenshotPath });
+  await page.setViewportSize({ width: 1280, height: 960 });
+  const trackingProofRegion = page.getByRole('region', { name: 'Tracking status proof' });
+  await expect(trackingProofRegion).toBeVisible();
+  const childCheckInCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="child-check-in"]').first();
+  await page.evaluate(() => {
+    const grid = document.querySelector('.tracking-status-overlay-grid');
+    const childCheckIn = document.querySelector('[data-ocentra-tracking-proof="child-check-in"]');
+    if (grid instanceof HTMLElement && childCheckIn instanceof HTMLElement) {
+      grid.scrollTop = Math.max(0, childCheckIn.offsetTop - 48);
+    }
+  });
+  await page.waitForTimeout(250);
+  await expect(childCheckInCard).toBeVisible();
+  await childCheckInCard.screenshot({ path: childCheckInScreenshotPath });
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole('region', { name: 'Tracking status proof' })).toBeVisible();
@@ -92,6 +117,7 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
 async function collectAccessibilitySummary(page: Page): Promise<{
   readonly hasNamedRegion: boolean;
   readonly headings: readonly string[];
+  readonly paragraphs: readonly string[];
   readonly labels: readonly string[];
   readonly values: readonly string[];
   readonly buttons: readonly { readonly text: string; readonly disabled: boolean }[];
@@ -107,6 +133,7 @@ async function collectAccessibilitySummary(page: Page): Promise<{
     return {
       hasNamedRegion: region !== null,
       headings: Array.from(region?.querySelectorAll('h2') ?? []).map(text),
+      paragraphs: Array.from(region?.querySelectorAll('p') ?? []).map(text),
       labels: Array.from(region?.querySelectorAll('dt') ?? []).map(text),
       values: Array.from(region?.querySelectorAll('dd') ?? []).map(text),
       buttons,
@@ -122,8 +149,17 @@ async function writeAccessibilitySummary(
   expect(summary.unlabeledButtons).toBe(0);
   expect(summary.headings).toContain('Tracking status proof');
   expect(summary.headings).toContain('Service read model');
+  expect(summary.headings).toContain('Child check-in request');
+  expect(summary.paragraphs).toContain('Your parent is asking you to check in. Are you safe?');
   expect(summary.labels).toContain('Evidence references');
+  expect(summary.labels).toContain('Child copy');
+  expect(summary.labels).toContain('Child delivery');
   expect(summary.labels).toContain('Product claim');
+  expect(summary.values).toContain("I'm safe");
+  expect(summary.values).toContain('Need help');
+  expect(summary.values).toContain('Share current location');
+  expect(summary.values).toContain('Call parent');
+  expect(summary.values).toContain('Child-device delivery not proved');
   expect(summary.values).toContain('No product claim');
 
   await mkdir(path.dirname(accessibilitySummaryPath), { recursive: true });
@@ -140,13 +176,18 @@ async function writeAccessibilitySummary(
           'manual-required-visible',
           'physical-device-required-visible',
           'no-product-claim-visible',
+          'child-check-in-copy-visible',
+          'child-check-in-actions-visible',
+          'child-device-delivery-not-claimed',
           'no-unlabeled-buttons',
           'desktop-screenshot',
+          'child-check-in-screenshot',
           'mobile-screenshot',
         ],
         summary,
         screenshots: {
           desktop: path.relative(repoRoot, desktopScreenshotPath).replace(/\\/gu, '/'),
+          childCheckIn: path.relative(repoRoot, childCheckInScreenshotPath).replace(/\\/gu, '/'),
           mobile: path.relative(repoRoot, mobileScreenshotPath).replace(/\\/gu, '/'),
         },
       },

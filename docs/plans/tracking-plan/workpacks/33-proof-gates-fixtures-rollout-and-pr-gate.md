@@ -50,6 +50,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `test-results/tracking-plan-ios-simulator-proof/proof.json`
 - Hosted parent route screenshot/accessibility proof:
   `18-hosted-ui-accessibility-proof.json`
+- Hosted child-safe check-in screenshot:
+  `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 
 ## Merge Blockers
 
@@ -83,8 +85,8 @@ under the proof root below. Tracked `proof-summary.json` records
 writes generated `00-run-metadata.json` with the full
 `minimumSeriousMvpAudit` for the first checkpoint. These audits record P1
 fixture proof only, including local UI proof artifact references; hosted
-CI/a11y, full live UI, child UI, platform physical-device proof, authority
-proof, and production-pilot proof remain unclaimed. WP32 now also has focused
+CI/a11y, full live UI, child-device runtime UI, platform physical-device proof,
+authority proof, and production-pilot proof remain unclaimed. WP32 now also has focused
 P2 service-command proof, retention-delete tombstone replay, and narrow portal
 summary consumption for the `trackingReadModel` payload; that proof does not
 upgrade the full UI, platform, authority, or production claims.
@@ -115,11 +117,12 @@ authority claims.
 This branch adds `npm run test:tracking-plan-hosted-ui-proof`, which starts the
 real Rust service against a seeded temporary ActivityStore SQLite database and
 drives the hosted parent `policy-tracking` route through Playwright. It writes
-desktop/mobile screenshots, an accessibility summary, WP30 hosted UI proof, and
-WP33 hosted UI gate proof while keeping `productClaimReady=false`. It is a
-hosted parent-route proof only and does not claim child UI, full service-data
-UI, Android/iOS physical-device behavior, authority, provider delivery, or
-production readiness.
+desktop/mobile screenshots, a hosted child-safe check-in screenshot, an
+accessibility summary, WP30 hosted UI proof, and WP33 hosted UI gate proof while
+keeping `productClaimReady=false`. It is a hosted route proof only and does not
+claim child-device delivery/runtime UI, full service-data UI, Android/iOS
+physical-device behavior, authority, provider delivery, or production
+readiness.
 
 ## Where We Want To Be
 
@@ -136,6 +139,8 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md
 - docs/plans/tracking-plan/implementation-checklist.md
+- apps/portal/e2e/tracking-hosted-ui-proof.spec.ts
+- scripts/test/tracking-plan-hosted-ui-proof.mjs
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
 - `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`
 - Implementation paths listed by the worker before editing.
@@ -233,6 +238,28 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and WP33 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: child UI, full service-data UI beyond
-      the hosted parent route, Android/iOS physical-device proof, authority,
-      provider delivery, notifications, and production proof remain proof-gated.
+- [x] Known gaps/manual-required states: child-device delivery/runtime UI, full
+      service-data UI beyond the hosted parent route, Android/iOS
+      physical-device proof, authority, provider delivery, notifications, and
+      production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-child-check-in-ui-proof`.
+- [x] Touched files: hosted child check-in proof model, portal tracking status
+      renderer/tests, hosted Playwright proof spec, hosted proof script,
+      portal/text domain constants, tracking feature doc, implementation
+      checklist, WP30, WP33, and generated hosted proof artifacts.
+- [x] Validation commands and results: `npm run test:tracking-plan-hosted-ui-proof`
+      passes locally after focused portal/text tests.
+- [x] Proof artifacts under
+      `test-results/tracking-plan-hosted-ui-proof/`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`, and
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`,
+      including
+      `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, and WP33 updated; central capability row delta queued
+      through the hub instead of editing `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: child-device delivery/runtime UI, full
+      parent/child UI beyond the hosted route, Android/iOS physical-device
+      proof, authority, provider delivery, notifications, and production proof
+      remain proof-gated.
