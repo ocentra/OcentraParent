@@ -1,6 +1,6 @@
 # AI-25 URL/Video AI Proof Gate
 
-Generated: 2026-06-05T16:04:16.168Z
+Generated: 2026-06-05T17:45:55.635Z
 
 Rows checked: 24
 Contract-proof rows: 24
