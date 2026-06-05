@@ -116,28 +116,29 @@ async function assertTabbedCommandResults(page: Page): Promise<void> {
   const commandResult = page.locator('.command-result-panel');
   await clickCommandControl(page, 'Check health');
   await clickCommandControl(page, 'Check health');
-  await expect(commandResult.getByText('agent.health.reported')).toHaveCount(1);
+  await expectCommandResultEvent(commandResult, 'agent.health.reported');
   await expect(commandResult.locator('.log')).toHaveCount(1);
   await clickCommandControl(page, 'Get log snapshot');
   await clickCommandControl(page, 'Get log snapshot');
-  await expect(commandResult.getByText('agent.log.snapshot.reported')).toHaveCount(1);
+  await expectCommandResultEvent(commandResult, 'agent.log.snapshot.reported');
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(0);
   await expect(commandResult.locator('.log')).toHaveCount(1);
   await clickCommandControl(page, 'Send connectivity check');
+  await expectCommandResultEvent(commandResult, 'agent.dev.echoed');
   await clickCommandControl(page, 'Send connectivity check');
-  await expect(commandResult.getByText('agent.dev.echoed')).toHaveCount(1);
+  await expectCommandResultEvent(commandResult, 'agent.dev.echoed');
   await expect(commandResult.locator('.log')).toHaveCount(1);
   await clickCommandControl(page, 'Refresh browser watcher');
   await clickCommandControl(page, 'Refresh browser watcher');
-  await expect(commandResult.getByText('agent.watch.status.reported')).toHaveCount(1);
+  await expectCommandResultEvent(commandResult, 'agent.watch.status.reported');
   await expect(commandResult.locator('.log')).toHaveCount(1);
   await clickCommandControl(page, 'Refresh activity ingest');
   await clickCommandControl(page, 'Refresh activity ingest');
-  await expect(commandResult.getByText('agent.activity.ingest.status.reported')).toHaveCount(1);
+  await expectCommandResultEvent(commandResult, 'agent.activity.ingest.status.reported');
   await expect(commandResult.locator('.log')).toHaveCount(1);
   await clickCommandControl(page, 'Refresh recent activity');
   await clickCommandControl(page, 'Refresh recent activity');
-  await expect(commandResult.getByText('agent.activity.recent.summary.reported')).toHaveCount(1);
+  await expectCommandResultEvent(commandResult, 'agent.activity.recent.summary.reported');
   await expect(commandResult.locator('.log')).toHaveCount(1);
   await assertActivityReadModelResults(page, commandResult);
   await assertCommandResult(
@@ -156,14 +157,14 @@ async function assertTabbedCommandResults(page: Page): Promise<void> {
 
 async function assertHealthResultForCopy(page: Page, commandResult: Locator): Promise<void> {
   await clickCommandControl(page, 'Check health');
-  await expect(commandResult.getByText('agent.health.reported')).toHaveCount(1);
+  await expectCommandResultEvent(commandResult, 'agent.health.reported');
   await expect(commandResult.locator('.log')).toHaveCount(1);
 }
 
 async function assertNetworkFlowResult(page: Page, commandResult: Locator): Promise<void> {
   await clickCommandControl(page, 'Refresh network activity');
   await clickCommandControl(page, 'Refresh network activity');
-  await expect(commandResult.getByText('agent.network.flow.read-model.reported')).toHaveCount(1);
+  await expectCommandResultEvent(commandResult, 'agent.network.flow.read-model.reported');
   await expect(commandResult.locator('.log')).toHaveCount(1);
 }
 
@@ -252,9 +253,16 @@ async function assertCommandResult(
   eventName: string
 ): Promise<void> {
   await clickCommandControl(page, commandName);
+  await expectCommandResultEvent(commandResult, eventName);
   await clickCommandControl(page, commandName);
-  await expect(commandResult.getByText(eventName)).toHaveCount(1);
+  await expectCommandResultEvent(commandResult, eventName);
   await expect(commandResult.locator('.log')).toHaveCount(1);
+}
+
+async function expectCommandResultEvent(commandResult: Locator, eventName: string): Promise<void> {
+  await expect(commandResult.getByText(eventName)).toHaveCount(1, {
+    timeout: portalShellReadyTimeoutMs,
+  });
 }
 
 async function assertActivityCommandResult(

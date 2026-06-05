@@ -47,6 +47,12 @@ describe('portal dev text', () => {
         PortalDevTextToken.AppGameNotificationParentSurfaceNoRuntimeClaim,
         'Portal renders intent rows only; provider delivery, preference mutation, child delivery, and runtime dispatch remain unclaimed.',
       ],
+      [PortalDevTextToken.AppGamePolicyReadiness, 'App/game policy readiness'],
+      [
+        PortalDevTextToken.AppGamePolicyReadinessNoProductClaim,
+        'Readiness rendering only; policy execution and adapter dispatch are not proved.',
+      ],
+      [PortalDevTextToken.GetActivityAppGamePolicyReadinessReadModel, 'Refresh policy readiness'],
       [PortalDevTextToken.GetPolicyPreviewReadModel, 'Refresh policy decision'],
       [PortalDevTextToken.GetBrowserInterventionReadModel, 'Refresh browser protection'],
       [PortalDevTextToken.GetActivityReportDaily, 'Build daily activity report'],

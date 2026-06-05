@@ -195,6 +195,10 @@ control with better evidence and local audit.
   app/game dry-run policy decisions into read-only preview rows, separating
   native app versus native game target meaning while keeping evaluator runtime,
   timers, adapter dispatch, child delivery, and platform enforcement unclaimed.
+- The portal App/Game Sessions route now renders that service-backed policy
+  readiness read model as route cards with summary rows, readiness-kind rows,
+  evidence refs, parser-failure visibility, and explicit no policy
+  execution/no adapter dispatch product-claim copy.
 - App/game notification intent contracts now represent parent notification
   readiness for time-limit, approval request, suspicious unknown,
   manual-required, and unavailable app/game states with evidence, policy, audit,
@@ -506,7 +510,9 @@ mobile UI, or prove platform support.
       policy readiness read-model command/event for required app/game policy
       input row availability, and a parent-domain policy preview handoff now
       maps compiled dry-run decisions into read-only native app/game preview
-      rows. Live evaluator, authoring UI, persistence, timers, and enforcement
+      rows, while the App/Game Sessions portal route renders those readiness
+      rows with no policy execution or adapter dispatch claim. Live evaluator,
+      authoring UI, persistence, timers, and enforcement
       remain. Rust protocol
       parity now exists for approval authority/action-result, platform
       authority matrix, and classifier boundary shapes, and staged

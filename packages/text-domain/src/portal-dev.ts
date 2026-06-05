@@ -24,6 +24,11 @@ export const PortalDevTextToken = {
   AppGameNotificationParentSurfaceNoRuntimeClaim: decodeTextTokenId(
     'portal.dev.appGameNotificationParentSurfaceNoRuntimeClaim'
   ),
+  AppGamePolicyReadiness: decodeTextTokenId('portal.dev.appGamePolicyReadiness'),
+  AppGamePolicyReadinessBody: decodeTextTokenId('portal.dev.appGamePolicyReadinessBody'),
+  AppGamePolicyReadinessNoData: decodeTextTokenId('portal.dev.appGamePolicyReadinessNoData'),
+  AppGamePolicyReadinessNoProductClaim: decodeTextTokenId('portal.dev.appGamePolicyReadinessNoProductClaim'),
+  AppGamePolicyReadinessParserRejected: decodeTextTokenId('portal.dev.appGamePolicyReadinessParserRejected'),
   TrackingStatusSurface: decodeTextTokenId('portal.dev.trackingStatusSurface'),
   TrackingStatusSurfaceBody: decodeTextTokenId('portal.dev.trackingStatusSurfaceBody'),
   TrackingServiceReadModel: decodeTextTokenId('portal.dev.trackingServiceReadModel'),
@@ -110,6 +115,9 @@ export const PortalDevTextToken = {
   PollManagedBrowserBridge: decodeTextTokenId('portal.dev.command.pollManagedBrowserBridge'),
   GetNetworkFlowReadModel: decodeTextTokenId('portal.dev.command.getNetworkFlowReadModel'),
   GetActivityTrackingReadModel: decodeTextTokenId('portal.dev.command.getActivityTrackingReadModel'),
+  GetActivityAppGamePolicyReadinessReadModel: decodeTextTokenId(
+    'portal.dev.command.getActivityAppGamePolicyReadinessReadModel'
+  ),
   GetLocalAiRuntimeStatus: decodeTextTokenId('portal.dev.command.getLocalAiRuntimeStatus'),
   GetPolicyPreviewReadModel: decodeTextTokenId('portal.dev.command.getPolicyPreviewReadModel'),
   RootMissing: decodeTextTokenId('portal.dev.rootMissing'),
@@ -143,6 +151,19 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   ),
   [PortalDevTextToken.AppGameNotificationParentSurfaceNoRuntimeClaim]: decodeDisplayText(
     'Portal renders intent rows only; provider delivery, preference mutation, child delivery, and runtime dispatch remain unclaimed.'
+  ),
+  [PortalDevTextToken.AppGamePolicyReadiness]: decodeDisplayText('App/game policy readiness'),
+  [PortalDevTextToken.AppGamePolicyReadinessBody]: decodeDisplayText(
+    'Service-backed readiness only; no policy execution or adapter dispatch is claimed.'
+  ),
+  [PortalDevTextToken.AppGamePolicyReadinessNoData]: decodeDisplayText(
+    'No app/game policy readiness read model has been reported yet.'
+  ),
+  [PortalDevTextToken.AppGamePolicyReadinessNoProductClaim]: decodeDisplayText(
+    'Readiness rendering only; policy execution and adapter dispatch are not proved.'
+  ),
+  [PortalDevTextToken.AppGamePolicyReadinessParserRejected]: decodeDisplayText(
+    'Latest policy readiness event did not match the shared parser.'
   ),
   [PortalDevTextToken.TrackingStatusSurface]: decodeDisplayText('Tracking status proof'),
   [PortalDevTextToken.TrackingStatusSurfaceBody]: decodeDisplayText('Location states are fixture proof only.'),
@@ -234,6 +255,7 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.PollManagedBrowserBridge]: decodeDisplayText('Refresh managed browser'),
   [PortalDevTextToken.GetNetworkFlowReadModel]: decodeDisplayText('Refresh network activity'),
   [PortalDevTextToken.GetActivityTrackingReadModel]: decodeDisplayText('Refresh tracking status'),
+  [PortalDevTextToken.GetActivityAppGamePolicyReadinessReadModel]: decodeDisplayText('Refresh policy readiness'),
   [PortalDevTextToken.GetLocalAiRuntimeStatus]: decodeDisplayText('Refresh local AI'),
   [PortalDevTextToken.GetPolicyPreviewReadModel]: decodeDisplayText('Refresh policy decision'),
   [PortalDevTextToken.RootMissing]: decodeDisplayText('Portal root element is missing.'),
