@@ -1,0 +1,5 @@
+# Event Topology Manifest
+
+| Event Type | Schema Version | Publishers | Subscribers | Families | Status | Rust Type |
+| --- | --- | --- | --- | --- | --- | --- |
+| eventing.dead_letter.recorded | 1 | eventing-topology-example-publisher | eventing-topology-example-subscriber -> eventing-topology-example-target | eventing.topology.example-family | covered | ocentra_eventing::bus::reports::DeadLetterEvent |

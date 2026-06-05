@@ -17,11 +17,11 @@ async fn network_runtime_broker_delivery_semantics_preserve_refs_without_live_br
 
     assert_eq!(
         report.delivery_decision.decision_state,
-        EventDeliveryDecisionState::BrokerRouteRequirementsSatisfied
+        EventDeliveryDecisionState::ExternalTransportRouteRequirementsSatisfied
     );
     assert_eq!(
         report.delivery_semantics,
-        NetworkRuntimeBrokerDeliverySemantics::EffectivelyOnceThroughIdempotency
+        NetworkRuntimeBrokerDeliverySemantics::LocalIdempotencyQueueProof
     );
     assert_eq!(
         report
@@ -50,8 +50,8 @@ async fn network_runtime_broker_delivery_semantics_preserve_refs_without_live_br
     assert_eq!(report.dropped_event_dead_letter_count, 1);
     assert_eq!(report.enforcement_command_event_count, 0);
     assert_eq!(report.adapter_action_executed_count, 0);
-    assert!(!report.broker_delivery_implemented);
-    assert!(!report.family_hub_delivery_implemented);
+    assert!(!report.external_transport_delivery_implemented);
+    assert!(!report.external_relay_delivery_implemented);
     assert!(report
         .delivery_decision
         .required_artifacts
@@ -63,5 +63,5 @@ async fn network_runtime_broker_delivery_semantics_preserve_refs_without_live_br
     assert!(report
         .delivery_decision
         .required_artifacts
-        .contains(&EventDeliveryRequiredArtifact::BrokerConfig));
+        .contains(&EventDeliveryRequiredArtifact::TransportConfig));
 }

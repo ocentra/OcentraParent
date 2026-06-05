@@ -102,19 +102,23 @@ impl NetworkRuntimePhase {
     }
 
     pub(crate) fn runtime_role(self) -> RuntimeRole {
-        match self {
+        let value = match self {
             Self::FlowObserved | Self::DomainObserved | Self::ActivityClassified => {
-                RuntimeRole::ChildAgent
+                constants::eventing_source::ROLE_AGENT
             }
-            Self::AiAnalysisRequested | Self::AiAnalysisCompleted => RuntimeRole::Analyzer,
+            Self::AiAnalysisRequested | Self::AiAnalysisCompleted => {
+                constants::eventing_source::ROLE_ANALYZER
+            }
             Self::PolicyEvaluationRequested | Self::PolicyDecisionCompleted => {
-                RuntimeRole::PolicyEngine
+                constants::eventing_source::ROLE_DECISION_ENGINE
             }
             Self::EnforcementCommandIssued | Self::EnforcementResultObserved => {
-                RuntimeRole::EnforcementAdapter
+                constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER
             }
-            Self::AuditEntryCommitted => RuntimeRole::AuditWriter,
-            Self::PortalReadModelUpdated => RuntimeRole::PortalReadModel,
-        }
+            Self::AuditEntryCommitted => constants::eventing_source::ROLE_AUDIT_WRITER,
+            Self::PortalReadModelUpdated => constants::eventing_source::ROLE_READ_MODEL,
+        };
+        RuntimeRole::parse(value)
+            .expect(constants::eventing_source::ERROR_RUNTIME_ROLE_CONSTANT_PARSES)
     }
 }

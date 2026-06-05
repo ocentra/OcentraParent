@@ -67,7 +67,7 @@ const proof = {
     'network enforcement result parsing rejects adapter-action execution claims',
   ],
   claimsNotProved: [
-    'broker-backed delivery, family-hub delivery, or service WebSocket streaming of runtime event chains',
+    'broker-backed delivery, relay-hub delivery, or service WebSocket streaming of runtime event chains',
     'host DNS/filter mutation, firewall mutation, WFP/NetworkExtension/VpnService/nftables adapter execution, or enforcement-command execution',
     'portal UI rendering of network runtime event-chain payloads',
     'production retention, replay, delete/export, offset, dedupe, or cross-process durable event delivery',

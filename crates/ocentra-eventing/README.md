@@ -2,6 +2,24 @@
 
 Reusable Rust eventing primitives for Ocentra Parent runtime code.
 
+## Phase 1 Proof
+
+The reusable event bus merge gate is `scripts/test/eventing-runtime-proof.mjs`.
+It writes
+`output/eventing-plan-proof/reusable-eventing-runtime/proof-summary.json` and
+proves the generic crate runtime, delivery-decision helper, metrics/testkit,
+queue/retry/timeout, request/response, journal/replay, lifecycle, source-safety,
+topology, registry, fixture-parity, and compatibility rows without running
+network, portal, service, product runtime, external transport, external relay,
+decision-engine, AI, enforcement, or platform-adapter consumer proofs.
+
+The full event-plan merge readiness gate is
+`scripts/test/eventing-full-plan-proof.mjs`. That aggregate plan proof runs this
+generic crate proof plus consumer proofs that show parent/controller,
+child-agent, network, service, UI, command-boundary, and enforcement journal
+paths consume the eventing contracts without moving product behavior into this
+crate.
+
 ## Owns
 
 - Validated event identifiers, correlation ids, aggregate keys, idempotency
@@ -47,11 +65,12 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
   accepted one-sided states.
 - Generic `EventDeliveryDecisionProof` support for local-first delivery routes,
   typed subscriber filtering, bounded queue/TTL/dead-letter/idempotency
-  backpressure metadata, retention policy refs, and broker/family-hub
-  requirements without implementing broker transport.
+  backpressure metadata, retention policy refs, and external transport/relay
+  requirements without implementing consumer transport.
 - Executable `EventCompatibilityMatrix` proof docs that map Ocentra
   Games/TypeScript eventing lineage semantics to compatible Rust surfaces,
-  intentional deviations, and manual-required broker delivery scope.
+  intentional deviations, and manual-required external transport delivery
+  scope.
 - Shared TypeScript/Rust branded scalar fixture parity for eventing identifiers:
   Effect Schema brands and Rust newtypes accept and reject the same canonical
   fixture values.
@@ -76,11 +95,11 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 
 ## Current Gap
 
-This crate does not yet implement broker-backed delivery, family-hub delivery,
-Parent-specific event contracts, cross-process transport shutdown, platform
-adapter rollback execution, production retention/delete/export behavior, or
-whole-repo source scanning for topology discovery. Consumers can compose
-delivery decision proof with their own queue/idempotency/drop-audit proof, as
-the network runtime does for row10a, but must keep live broker and family-hub
-transport claims manual-required until the matching eventing workpacks are
-implemented and validated.
+This crate does not yet implement external transport delivery, external relay
+delivery, Parent-specific event contracts, cross-process transport shutdown,
+platform adapter rollback execution, production retention/delete/export
+behavior, or whole-repo source scanning for topology discovery. Consumers can
+compose delivery decision proof with their own queue/idempotency/drop-audit
+proof, as the network runtime does for row10a, but must keep live transport,
+relay, and other consumer runtime claims manual-required until the matching
+eventing workpacks are implemented and validated on top of the reusable bus.

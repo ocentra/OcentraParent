@@ -266,11 +266,13 @@ fn network_event_source(
 }
 
 fn event_custody(observation: &NetworkObservation) -> EventCustody {
-    if observation.status == ActivityCaptureCapabilityStatus::Available {
-        EventCustody::ChildDeviceQueryStore
+    let value = if observation.status == ActivityCaptureCapabilityStatus::Available {
+        constants::eventing_source::CUSTODY_LOCAL_QUERY_STORE
     } else {
-        EventCustody::Unavailable
-    }
+        constants::eventing_source::CUSTODY_UNAVAILABLE
+    };
+    EventCustody::parse(value)
+        .expect(constants::eventing_source::ERROR_EVENT_CUSTODY_CONSTANT_PARSES)
 }
 
 fn network_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {

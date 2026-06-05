@@ -1,20 +1,17 @@
-use std::{sync::Arc, time::Duration};
+use std::{future, sync::Arc, time::Duration};
 
-use serde::{Deserialize, Serialize};
 use tokio::sync::Mutex;
 
-use super::fixtures::{metadata, subscriber_for_event, TEST_TARGET};
-use crate::{
-    AggregateKey, DomainEvent, EventContract, EventResponseContract, EventingError, IdempotencyKey,
-    RequestCompletionOutcome, RequestEvent, RequestId, RequestOptions, SchemaVersion,
+use super::{
+    fixtures::{metadata, metadata_with_event_id, subscriber_for_event, TEST_TARGET},
+    request_response_support::{
+        test_request, test_result_event, InvalidContractRequestEvent, TestRequestEvent,
+        TestResponse, REQUEST_EVENT_TYPE, REQUEST_ID, RESULT_EVENT_TYPE,
+    },
 };
+use crate::{EventingError, RequestCompletionOutcome, RequestId, RequestOptions, RequestRegistry};
 
-const REQUEST_EVENT_TYPE: &str = "eventing.test.requested";
-const RESULT_EVENT_TYPE: &str = "eventing.test.completed";
-const REQUEST_AGGREGATE: &str = "request-aggregate";
-const REQUEST_ID: &str = "request-response-id";
-const REQUEST_IDEMPOTENCY: &str = "request-idempotency";
-const RESULT_IDEMPOTENCY: &str = "request-result-idempotency";
+const REQUEST_TERMINAL_RETENTION_PROBE_COUNT: usize = 4097;
 
 #[tokio::test]
 async fn publish_request_resolves_associated_response_type() {
@@ -41,6 +38,46 @@ async fn publish_request_resolves_associated_response_type() {
     assert_eq!(report.request_id.as_str(), REQUEST_ID);
     assert_eq!(report.response.decision, "approved");
     assert_eq!(report.publish_report.handled_count, 1);
+}
+
+#[test]
+fn request_terminal_retention_uses_completion_order_not_request_id_sort_order() {
+    let registry = RequestRegistry::default();
+    let oldest = RequestId::parse("request-z-oldest").expect("oldest request id parses");
+    registry
+        .register(oldest.clone())
+        .expect("oldest request registers");
+    registry
+        .complete(oldest.clone(), TestResponse::approved())
+        .expect("oldest request completes");
+
+    let first_new = RequestId::parse("request-a-0000").expect("first new request id parses");
+    for index in 0..(REQUEST_TERMINAL_RETENTION_PROBE_COUNT - 1) {
+        let request_id =
+            RequestId::parse(format!("request-a-{index:04}")).expect("new request id parses");
+        registry
+            .register(request_id.clone())
+            .expect("new request registers");
+        registry
+            .complete(request_id, TestResponse::approved())
+            .expect("new request completes");
+    }
+
+    assert_eq!(
+        registry
+            .complete(oldest, TestResponse::approved())
+            .expect("evicted oldest reports late")
+            .outcome,
+        RequestCompletionOutcome::Late
+    );
+    assert_eq!(
+        registry
+            .complete(first_new, TestResponse::approved())
+            .expect("newer low-sorted request remains retained")
+            .outcome,
+        RequestCompletionOutcome::Duplicate
+    );
+    assert_eq!(registry.metrics().completed_request_count, 4096);
 }
 
 #[tokio::test]
@@ -118,6 +155,101 @@ async fn request_timeout_reports_late_response_without_mutating_result() {
 }
 
 #[tokio::test]
+async fn request_timeout_covers_slow_handler_dispatch() {
+    let bus = crate::EventBus::new();
+    let outcomes = Arc::new(Mutex::new(Vec::new()));
+    let outcomes_clone = Arc::clone(&outcomes);
+    bus.subscribe::<TestRequestEvent, _, _>(
+        subscriber_for_event("request-subscriber", TEST_TARGET, REQUEST_EVENT_TYPE),
+        move |context| {
+            let outcomes = Arc::clone(&outcomes_clone);
+            async move {
+                tokio::time::sleep(Duration::from_millis(50)).await;
+                let report = context.complete_request(TestResponse::approved()).await?;
+                outcomes.lock().await.push(report.outcome);
+                Ok(())
+            }
+        },
+    )
+    .await
+    .expect("request subscriber registers");
+
+    let result = bus
+        .publish_request(
+            test_request("slow-handler-timeout"),
+            metadata(TEST_TARGET),
+            RequestOptions::with_timeout(Duration::from_millis(5)).expect("request options valid"),
+        )
+        .await;
+    tokio::time::sleep(Duration::from_millis(75)).await;
+
+    assert!(matches!(result, Err(EventingError::RequestTimedOut { .. })));
+    assert!(outcomes.lock().await.is_empty());
+    let metrics = bus.metrics_snapshot().await;
+    assert_eq!(metrics.queue.in_flight_event_id_count, 0);
+    assert_eq!(metrics.queue.in_flight_idempotency_key_count, 0);
+    assert_eq!(metrics.requests.timed_out_request_count, 1);
+}
+
+#[tokio::test]
+async fn request_timeout_aborts_never_completing_publish_and_releases_in_flight() {
+    let bus = crate::EventBus::new();
+    bus.subscribe::<TestRequestEvent, _, _>(
+        subscriber_for_event("request-subscriber", TEST_TARGET, REQUEST_EVENT_TYPE),
+        |_context| async move { future::pending::<Result<(), EventingError>>().await },
+    )
+    .await
+    .expect("request subscriber registers");
+
+    let result = bus
+        .publish_request(
+            test_request("never-completing-handler-timeout"),
+            metadata_with_event_id(TEST_TARGET, "request-never-completing-event"),
+            RequestOptions::with_timeout(Duration::from_millis(5)).expect("request options valid"),
+        )
+        .await;
+
+    assert!(matches!(result, Err(EventingError::RequestTimedOut { .. })));
+    let metrics = bus.metrics_snapshot().await;
+    assert_eq!(metrics.queue.in_flight_event_id_count, 0);
+    assert_eq!(metrics.queue.in_flight_idempotency_key_count, 0);
+    assert_eq!(metrics.requests.timed_out_request_count, 1);
+}
+
+#[tokio::test]
+async fn publish_request_cancels_registry_entry_when_publish_fails() {
+    let bus = crate::EventBus::new();
+    let failed = bus
+        .publish_request(
+            InvalidContractRequestEvent::new(),
+            metadata(TEST_TARGET),
+            RequestOptions::with_timeout(Duration::from_millis(50)).expect("request options valid"),
+        )
+        .await;
+    assert!(matches!(failed, Err(EventingError::InvalidVersion)));
+
+    bus.subscribe::<TestRequestEvent, _, _>(
+        subscriber_for_event("request-subscriber", TEST_TARGET, REQUEST_EVENT_TYPE),
+        |context| async move {
+            context.complete_request(TestResponse::approved()).await?;
+            Ok(())
+        },
+    )
+    .await
+    .expect("request subscriber registers");
+    let report = bus
+        .publish_request(
+            test_request("retry-after-publish-failure"),
+            metadata(TEST_TARGET),
+            RequestOptions::with_timeout(Duration::from_millis(50)).expect("request options valid"),
+        )
+        .await
+        .expect("request id can be reused after failed publish");
+
+    assert_eq!(report.response.decision, "approved");
+}
+
+#[tokio::test]
 async fn double_completion_is_ignored_and_reported() {
     let bus = crate::EventBus::new();
     let outcomes = Arc::new(Mutex::new(Vec::new()));
@@ -167,7 +299,10 @@ async fn durable_result_event_pattern_remains_separate_from_local_completion() {
         move |context| async move {
             context
                 .publisher()
-                .publish(test_result_event(), metadata(TEST_TARGET))
+                .publish(
+                    test_result_event(),
+                    metadata_with_event_id(TEST_TARGET, "request-result-event-1"),
+                )
                 .await?;
             context.complete_request(TestResponse::approved()).await?;
             Ok(())
@@ -190,98 +325,4 @@ async fn durable_result_event_pattern_remains_separate_from_local_completion() {
     assert_eq!(journal.len(), 2);
     assert_eq!(journal[0].contract.event_type.as_str(), REQUEST_EVENT_TYPE);
     assert_eq!(journal[1].contract.event_type.as_str(), RESULT_EVENT_TYPE);
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-struct TestRequestEvent {
-    label: String,
-    request_id: RequestId,
-}
-
-impl DomainEvent for TestRequestEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        Ok(EventContract::new(
-            crate::EventType::parse(REQUEST_EVENT_TYPE)?,
-            SchemaVersion::new(1)?,
-        ))
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(REQUEST_AGGREGATE)
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        IdempotencyKey::parse(REQUEST_IDEMPOTENCY)
-    }
-}
-
-impl RequestEvent for TestRequestEvent {
-    type Response = TestResponse;
-
-    fn request_id(&self) -> Result<RequestId, EventingError> {
-        Ok(self.request_id.clone())
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-struct TestResponse {
-    decision: String,
-}
-
-impl TestResponse {
-    fn approved() -> Self {
-        Self {
-            decision: String::from("approved"),
-        }
-    }
-
-    fn invalid() -> Self {
-        Self {
-            decision: String::from(" "),
-        }
-    }
-}
-
-impl EventResponseContract for TestResponse {
-    fn validate(&self) -> Result<(), EventingError> {
-        if self.decision.trim().is_empty() {
-            return Err(EventingError::empty_value("test_response_decision"));
-        }
-        Ok(())
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-struct TestResultEvent {
-    label: String,
-}
-
-impl DomainEvent for TestResultEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        Ok(EventContract::new(
-            crate::EventType::parse(RESULT_EVENT_TYPE)?,
-            SchemaVersion::new(1)?,
-        ))
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(REQUEST_AGGREGATE)
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        IdempotencyKey::parse(RESULT_IDEMPOTENCY)
-    }
-}
-
-fn test_request(label: &str) -> TestRequestEvent {
-    TestRequestEvent {
-        label: label.to_string(),
-        request_id: RequestId::parse(REQUEST_ID).expect("request id parses"),
-    }
-}
-
-fn test_result_event() -> TestResultEvent {
-    TestResultEvent {
-        label: String::from("durable-result"),
-    }
 }

@@ -70,9 +70,9 @@ async fn manual_clock_expires_queued_ttl_without_wall_clock_sleep() {
     let drain = bus
         .drain_queued(DispatchMode::Sequential)
         .await
-        .expect("queued drain runs");
+        .expect("queue is already drained");
 
-    assert_eq!(drain.expired_count, 1);
+    assert_eq!(drain.expired_count, 0);
     assert_eq!(drain.dispatched_count, 0);
     assert_eq!(bus.dead_letters().await.len(), 1);
 }

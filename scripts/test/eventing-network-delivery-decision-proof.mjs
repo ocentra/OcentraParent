@@ -15,7 +15,7 @@ writeFileSync(
     {
       namespace: 'network',
       localRoutes: ['local-in-process', 'local-service'],
-      brokerRoutes: ['broker-backed', 'family-hub'],
+      brokerRoutes: ['broker-backed', 'relay-hub'],
       localBackpressure: {
         boundedQueueCapacity: 32,
         ttlMillis: 30000,
@@ -35,10 +35,10 @@ writeFileSync(
         'dedupe policy',
         'broker config',
       ],
-      familyHubAdditionalArtifacts: ['family hub identity', 'family hub relay policy'],
+      relayHubAdditionalArtifacts: ['relay hub identity', 'relay hub policy'],
       notImplementedByThisProof: [
         'broker delivery',
-        'family-hub delivery',
+        'relay-hub delivery',
         'cross-process transport',
         'production retention/delete/export',
         'policy or adapter execution',
@@ -88,17 +88,17 @@ const proof = {
     testProof: join(testRoot, 'proof.json'),
   },
   provenRows: [
-    'network row45 event topic namespace, publisher SDK, subscriber filtering, backpressure, retention, and broker/family-hub decision proof',
+    'network row45 event topic namespace, publisher SDK, subscriber filtering, backpressure, retention, and broker/relay-hub decision proof',
   ],
   provenBehavior: [
     'local-first network routes remain ready with typed subscriber filtering and bounded backpressure metadata',
     'broker-backed route decisions enumerate custody, auth, encryption, retention, replay, deletion, offset, dedupe, and broker config artifacts',
-    'family-hub route decisions add family identity and relay policy artifacts',
+    'relay-hub route decisions add relay identity and relay policy artifacts',
     'requirements-satisfied broker decisions still do not implement live broker delivery',
   ],
   notClaimed: [
     'live broker delivery',
-    'family-hub delivery',
+    'relay-hub delivery',
     'cross-process transport implementation',
     'production retention/delete/export behavior',
     'policy, adapter, or enforcement authority',

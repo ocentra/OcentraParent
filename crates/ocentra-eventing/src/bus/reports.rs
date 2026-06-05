@@ -225,6 +225,33 @@ pub struct QueueDrainReport {
     pub dispatch_reports: Vec<PublishReport>,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct EventMetricsSnapshot {
+    pub subscription_count: usize,
+    pub stored_event_count: usize,
+    pub dead_letter_count: usize,
+    pub queue: EventQueueMetrics,
+    pub requests: EventRequestMetrics,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct EventQueueMetrics {
+    pub queued_event_count: usize,
+    pub queued_event_id_count: usize,
+    pub queued_idempotency_key_count: usize,
+    pub in_flight_event_id_count: usize,
+    pub in_flight_idempotency_key_count: usize,
+    pub completed_idempotency_key_count: usize,
+    pub capacity: Option<usize>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct EventRequestMetrics {
+    pub pending_request_count: usize,
+    pub completed_request_count: usize,
+    pub timed_out_request_count: usize,
+}
+
 pub(super) fn dead_letters_for(
     stored: &StoredEventEnvelope,
     reports: &[HandlerReport],

@@ -7,18 +7,18 @@ use crate::{EventNamespace, EventType, SourceComponent, SubscriberId, TargetHand
 pub enum EventDeliveryRouteKind {
     LocalInProcess,
     LocalService,
-    BrokerBacked,
-    FamilyHub,
+    ExternalTransport,
+    ExternalRelay,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum EventDeliveryDecisionState {
     LocalRouteReady,
-    BrokerRouteManualRequired,
-    FamilyHubRouteManualRequired,
-    BrokerRouteRequirementsSatisfied,
-    FamilyHubRouteRequirementsSatisfied,
+    ExternalTransportRouteManualRequired,
+    ExternalRelayRouteManualRequired,
+    ExternalTransportRouteRequirementsSatisfied,
+    ExternalRelayRouteRequirementsSatisfied,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -34,9 +34,9 @@ pub enum EventDeliveryRequiredArtifact {
     BackpressurePolicy,
     OffsetPolicy,
     DedupePolicy,
-    BrokerConfig,
-    FamilyHubIdentity,
-    FamilyHubRelayPolicy,
+    TransportConfig,
+    ExternalRelayIdentity,
+    ExternalRelayPolicy,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -71,13 +71,13 @@ pub struct EventDeliveryDecisionInput {
     pub deletion_plan_ref: Option<SourceComponent>,
     pub offset_policy_ref: Option<SourceComponent>,
     pub dedupe_policy_ref: Option<SourceComponent>,
-    pub broker_config_ref: Option<SourceComponent>,
-    pub family_hub_identity_ref: Option<SourceComponent>,
-    pub family_hub_relay_policy_ref: Option<SourceComponent>,
-    pub broker_delivery_claimed: bool,
-    pub family_hub_delivery_claimed: bool,
-    pub policy_authority_claimed: bool,
-    pub adapter_authority_claimed: bool,
+    pub transport_config_ref: Option<SourceComponent>,
+    pub relay_identity_ref: Option<SourceComponent>,
+    pub relay_policy_ref: Option<SourceComponent>,
+    pub external_transport_delivery_claimed: bool,
+    pub external_relay_delivery_claimed: bool,
+    pub decision_authority_claimed: bool,
+    pub side_effect_authority_claimed: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -92,11 +92,11 @@ pub struct EventDeliveryDecisionProof {
     pub backpressure_policy: EventDeliveryBackpressurePolicy,
     pub retention_policy_ref: Option<SourceComponent>,
     pub local_delivery_ready: bool,
-    pub broker_delivery_implemented: bool,
-    pub family_hub_delivery_implemented: bool,
+    pub external_transport_delivery_implemented: bool,
+    pub external_relay_delivery_implemented: bool,
     pub subscriber_filtering_enabled: bool,
-    pub policy_authority: bool,
-    pub adapter_authority: bool,
+    pub decision_authority: bool,
+    pub side_effect_authority: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -105,10 +105,10 @@ pub enum EventDeliveryDecisionError {
     SubscriberFilterOutsideNamespace,
     InvalidBackpressureCapacity,
     InvalidBackpressureTtl,
-    LiveBrokerDeliveryClaimRejected,
-    LiveFamilyHubDeliveryClaimRejected,
-    PolicyAuthorityClaimRejected,
-    AdapterAuthorityClaimRejected,
+    LiveExternalTransportDeliveryClaimRejected,
+    LiveExternalRelayDeliveryClaimRejected,
+    DecisionAuthorityClaimRejected,
+    SideEffectAuthorityClaimRejected,
 }
 
 pub fn decide_event_delivery_route(
@@ -124,8 +124,8 @@ pub fn decide_event_delivery_route(
     let local_delivery_ready = matches!(
         decision_state,
         EventDeliveryDecisionState::LocalRouteReady
-            | EventDeliveryDecisionState::BrokerRouteRequirementsSatisfied
-            | EventDeliveryDecisionState::FamilyHubRouteRequirementsSatisfied
+            | EventDeliveryDecisionState::ExternalTransportRouteRequirementsSatisfied
+            | EventDeliveryDecisionState::ExternalRelayRouteRequirementsSatisfied
     );
 
     Ok(EventDeliveryDecisionProof {
@@ -139,26 +139,26 @@ pub fn decide_event_delivery_route(
         backpressure_policy: input.backpressure_policy,
         retention_policy_ref: input.retention_policy_ref,
         local_delivery_ready,
-        broker_delivery_implemented: false,
-        family_hub_delivery_implemented: false,
+        external_transport_delivery_implemented: false,
+        external_relay_delivery_implemented: false,
         subscriber_filtering_enabled: true,
-        policy_authority: false,
-        adapter_authority: false,
+        decision_authority: false,
+        side_effect_authority: false,
     })
 }
 
 fn reject_claims(input: &EventDeliveryDecisionInput) -> Result<(), EventDeliveryDecisionError> {
-    if input.broker_delivery_claimed {
-        return Err(EventDeliveryDecisionError::LiveBrokerDeliveryClaimRejected);
+    if input.external_transport_delivery_claimed {
+        return Err(EventDeliveryDecisionError::LiveExternalTransportDeliveryClaimRejected);
     }
-    if input.family_hub_delivery_claimed {
-        return Err(EventDeliveryDecisionError::LiveFamilyHubDeliveryClaimRejected);
+    if input.external_relay_delivery_claimed {
+        return Err(EventDeliveryDecisionError::LiveExternalRelayDeliveryClaimRejected);
     }
-    if input.policy_authority_claimed {
-        return Err(EventDeliveryDecisionError::PolicyAuthorityClaimRejected);
+    if input.decision_authority_claimed {
+        return Err(EventDeliveryDecisionError::DecisionAuthorityClaimRejected);
     }
-    if input.adapter_authority_claimed {
-        return Err(EventDeliveryDecisionError::AdapterAuthorityClaimRejected);
+    if input.side_effect_authority_claimed {
+        return Err(EventDeliveryDecisionError::SideEffectAuthorityClaimRejected);
     }
     Ok(())
 }
@@ -198,17 +198,17 @@ fn validate_backpressure(
 fn required_artifacts(route_kind: EventDeliveryRouteKind) -> Vec<EventDeliveryRequiredArtifact> {
     match route_kind {
         EventDeliveryRouteKind::LocalInProcess | EventDeliveryRouteKind::LocalService => Vec::new(),
-        EventDeliveryRouteKind::BrokerBacked => broker_required_artifacts(),
-        EventDeliveryRouteKind::FamilyHub => {
-            let mut requirements = broker_required_artifacts();
-            requirements.push(EventDeliveryRequiredArtifact::FamilyHubIdentity);
-            requirements.push(EventDeliveryRequiredArtifact::FamilyHubRelayPolicy);
+        EventDeliveryRouteKind::ExternalTransport => external_transport_required_artifacts(),
+        EventDeliveryRouteKind::ExternalRelay => {
+            let mut requirements = external_transport_required_artifacts();
+            requirements.push(EventDeliveryRequiredArtifact::ExternalRelayIdentity);
+            requirements.push(EventDeliveryRequiredArtifact::ExternalRelayPolicy);
             requirements
         }
     }
 }
 
-fn broker_required_artifacts() -> Vec<EventDeliveryRequiredArtifact> {
+fn external_transport_required_artifacts() -> Vec<EventDeliveryRequiredArtifact> {
     vec![
         EventDeliveryRequiredArtifact::CustodyProof,
         EventDeliveryRequiredArtifact::PublisherAuthProof,
@@ -220,7 +220,7 @@ fn broker_required_artifacts() -> Vec<EventDeliveryRequiredArtifact> {
         EventDeliveryRequiredArtifact::BackpressurePolicy,
         EventDeliveryRequiredArtifact::OffsetPolicy,
         EventDeliveryRequiredArtifact::DedupePolicy,
-        EventDeliveryRequiredArtifact::BrokerConfig,
+        EventDeliveryRequiredArtifact::TransportConfig,
     ]
 }
 
@@ -250,11 +250,9 @@ fn artifact_ref(
         EventDeliveryRequiredArtifact::BackpressurePolicy => Some(&input.publisher_component),
         EventDeliveryRequiredArtifact::OffsetPolicy => input.offset_policy_ref.as_ref(),
         EventDeliveryRequiredArtifact::DedupePolicy => input.dedupe_policy_ref.as_ref(),
-        EventDeliveryRequiredArtifact::BrokerConfig => input.broker_config_ref.as_ref(),
-        EventDeliveryRequiredArtifact::FamilyHubIdentity => input.family_hub_identity_ref.as_ref(),
-        EventDeliveryRequiredArtifact::FamilyHubRelayPolicy => {
-            input.family_hub_relay_policy_ref.as_ref()
-        }
+        EventDeliveryRequiredArtifact::TransportConfig => input.transport_config_ref.as_ref(),
+        EventDeliveryRequiredArtifact::ExternalRelayIdentity => input.relay_identity_ref.as_ref(),
+        EventDeliveryRequiredArtifact::ExternalRelayPolicy => input.relay_policy_ref.as_ref(),
     }
 }
 
@@ -266,17 +264,17 @@ fn decision_state(
         (EventDeliveryRouteKind::LocalInProcess | EventDeliveryRouteKind::LocalService, _) => {
             EventDeliveryDecisionState::LocalRouteReady
         }
-        (EventDeliveryRouteKind::BrokerBacked, true) => {
-            EventDeliveryDecisionState::BrokerRouteRequirementsSatisfied
+        (EventDeliveryRouteKind::ExternalTransport, true) => {
+            EventDeliveryDecisionState::ExternalTransportRouteRequirementsSatisfied
         }
-        (EventDeliveryRouteKind::BrokerBacked, false) => {
-            EventDeliveryDecisionState::BrokerRouteManualRequired
+        (EventDeliveryRouteKind::ExternalTransport, false) => {
+            EventDeliveryDecisionState::ExternalTransportRouteManualRequired
         }
-        (EventDeliveryRouteKind::FamilyHub, true) => {
-            EventDeliveryDecisionState::FamilyHubRouteRequirementsSatisfied
+        (EventDeliveryRouteKind::ExternalRelay, true) => {
+            EventDeliveryDecisionState::ExternalRelayRouteRequirementsSatisfied
         }
-        (EventDeliveryRouteKind::FamilyHub, false) => {
-            EventDeliveryDecisionState::FamilyHubRouteManualRequired
+        (EventDeliveryRouteKind::ExternalRelay, false) => {
+            EventDeliveryDecisionState::ExternalRelayRouteManualRequired
         }
     }
 }

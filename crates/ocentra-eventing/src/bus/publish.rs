@@ -1,18 +1,16 @@
-use std::sync::Arc;
-
-use tokio::{sync::Semaphore, task::JoinHandle};
+use tokio::task::JoinHandle;
 
 use crate::{
-    queue::NoSubscriberQueueDecision, AggregateKey, DomainEvent, EventEnvelope, EventMetadata,
-    EventingError, JournalDispatchPhase, QueueDisposition, RequestCompletionReport, RequestEvent,
-    RequestId, RequestOptions, RequestReport, StoredEventEnvelope,
+    queue::NoSubscriberQueueDecision, DomainEvent, EventEnvelope, EventMetadata, EventingError,
+    JournalDispatchPhase, QueueDisposition, RequestCompletionReport, RequestEvent, RequestId,
+    RequestOptions, RequestReport, StoredEventEnvelope,
 };
 
 use super::{
     dispatch::{dispatch_concurrent, dispatch_sequential},
     reports::{dead_letters_for, empty_publish_report, DeadLetter, DeadLetterReason},
     DispatchMode, EventBus, EventPublisher, HandlerOutcome, HandlerReport, PublishReport,
-    QueueDrainReport, SubscriberRecord,
+    SubscriberRecord,
 };
 
 impl EventBus {
@@ -64,21 +62,56 @@ impl EventBus {
         self.ensure_active()?;
         let request_id = event.request_id()?;
         let receiver = self.requests.register(request_id.clone())?;
-        let publish_report = self.publish(event, metadata).await?;
-        let payload = tokio::select! {
-            payload = receiver => payload.ok(),
-            _ = self.clock.sleep(options.timeout()) => None,
-        };
-        let Some(payload) = payload else {
-            self.requests.timeout(&request_id);
-            return Err(EventingError::RequestTimedOut { request_id });
-        };
-        let response = payload.decode::<E::Response>(&request_id)?;
-        Ok(RequestReport {
-            request_id,
-            response,
-            publish_report,
-        })
+        let bus = self.clone();
+        let mut publish = tokio::spawn(async move { bus.publish(event, metadata).await });
+        let timeout = self.clock.sleep(options.timeout());
+        tokio::pin!(timeout);
+        tokio::pin!(receiver);
+        let mut publish_done = false;
+        let mut receiver_done = false;
+        let mut publish_report = None;
+        let mut response_payload = None;
+        loop {
+            tokio::select! {
+                result = &mut publish, if !publish_done => {
+                    publish_done = true;
+                    match request_publish_result(result) {
+                        Ok(report) => publish_report = Some(report),
+                        Err(error) => {
+                            self.requests.cancel(&request_id);
+                            return Err(error);
+                        }
+                    }
+                }
+                payload = &mut receiver, if !receiver_done => {
+                    receiver_done = true;
+                    response_payload = payload.ok();
+                    if response_payload.is_none() {
+                        self.requests.timeout(&request_id);
+                        return Err(EventingError::RequestTimedOut { request_id });
+                    }
+                }
+                _ = &mut timeout => {
+                    self.requests.timeout(&request_id);
+                    abort_request_publish(&mut publish, publish_done).await;
+                    return Err(EventingError::RequestTimedOut { request_id });
+                }
+            }
+            if publish_report.is_some() && response_payload.is_some() {
+                let publish_report = publish_report
+                    .take()
+                    .expect("publish report was checked as present");
+                let payload = response_payload
+                    .take()
+                    .expect("response payload was checked as present");
+                let response = payload.decode::<E::Response>(&request_id)?;
+                return Ok(RequestReport {
+                    request_id,
+                    response,
+                    publish_report,
+                });
+            }
+        }
     }
 
     pub async fn publish_with_mode<E>(
@@ -113,81 +146,6 @@ impl EventBus {
         .await
     }
 
-    pub async fn drain_queued(
-        &self,
-        dispatch_mode: DispatchMode,
-    ) -> Result<QueueDrainReport, EventingError> {
-        self.ensure_active()?;
-        self.drain_queued_unchecked(dispatch_mode).await
-    }
-
-    pub(super) async fn drain_queued_unchecked(
-        &self,
-        dispatch_mode: DispatchMode,
-    ) -> Result<QueueDrainReport, EventingError> {
-        let queued = self.queue.take_queued();
-        let queued_before = queued.len();
-        let mut expired_count = 0_usize;
-        let mut dispatch_reports = Vec::new();
-
-        for queued_envelope in queued {
-            let now = self.clock.now();
-            if queued_envelope.stored.is_deadline_expired(now) {
-                expired_count += 1;
-                let dead_letter = DeadLetter::for_queue(
-                    &queued_envelope.stored,
-                    DeadLetterReason::DeadlineExpired,
-                    EventingError::EventDeadlineExpired {
-                        event_type: queued_envelope.stored.contract.event_type.clone(),
-                    },
-                );
-                self.queue
-                    .mark_completed(queued_envelope.stored.idempotency_key.clone());
-                self.dead_letters.write().await.push(dead_letter);
-                continue;
-            }
-            if queued_envelope.is_expired(now, self.queue.policy().ttl()) {
-                expired_count += 1;
-                let dead_letter = DeadLetter::for_queue(
-                    &queued_envelope.stored,
-                    DeadLetterReason::QueueExpired,
-                    EventingError::NoSubscriber {
-                        event_type: queued_envelope.stored.contract.event_type.clone(),
-                    },
-                );
-                self.queue
-                    .mark_completed(queued_envelope.stored.idempotency_key.clone());
-                self.dead_letters.write().await.push(dead_letter);
-                continue;
-            }
-
-            let subscribers = self.subscribers_for(&queued_envelope.stored);
-            if subscribers.is_empty() {
-                self.queue.requeue(queued_envelope);
-                continue;
-            }
-
-            let report = self
-                .dispatch_stored(
-                    queued_envelope.stored,
-                    subscribers,
-                    dispatch_mode,
-                    self.queue.report(QueueDisposition::Dispatched),
-                    false,
-                )
-                .await?;
-            dispatch_reports.push(report);
-        }
-
-        Ok(QueueDrainReport {
-            queued_before,
-            dispatched_count: dispatch_reports.len(),
-            expired_count,
-            remaining_count: self.queue.report(QueueDisposition::Dispatched).queued_count,
-            dispatch_reports,
-        })
-    }
-
     pub async fn journal(&self) -> Vec<StoredEventEnvelope> {
         self.stored_journal.read().await.clone()
     }
@@ -216,13 +174,8 @@ impl EventBus {
             .queue
             .enqueue_no_subscriber(stored.clone(), self.clock.now())?
         {
-            NoSubscriberQueueDecision::Dispatch(queue_report)
-            | NoSubscriberQueueDecision::Queued(queue_report) => {
+            NoSubscriberQueueDecision::Dispatch(queue_report) => {
                 self.record_stored_snapshot(&stored).await;
-                self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
-                    .await?;
-                self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
-                    .await?;
                 Ok(empty_publish_report(
                     &stored,
                     dispatch_mode,
@@ -230,15 +183,40 @@ impl EventBus {
                     0,
                 ))
             }
+            NoSubscriberQueueDecision::Queued(queue_report) => {
+                self.record_stored_snapshot(&stored).await;
+                Ok(empty_publish_report(
+                    &stored,
+                    dispatch_mode,
+                    queue_report,
+                    0,
+                ))
+            }
+            NoSubscriberQueueDecision::QueuedWithDeadLetter(
+                queue_report,
+                dropped,
+                reason,
+                error,
+            ) => {
+                let dropped = *dropped;
+                self.record_stored_snapshot(&stored).await;
+                let dead_letter = DeadLetter::for_queue(&dropped, reason, error);
+                self.queue
+                    .mark_completed(dropped.event_id.clone(), dropped.idempotency_key.clone());
+                self.record_dead_letter(dead_letter).await;
+                Ok(empty_publish_report(
+                    &stored,
+                    dispatch_mode,
+                    queue_report,
+                    1,
+                ))
+            }
             NoSubscriberQueueDecision::DeadLetter(queue_report, reason, error) => {
                 self.record_stored_snapshot(&stored).await;
-                self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
-                    .await?;
                 let dead_letter = DeadLetter::for_queue(&stored, reason, error);
-                self.queue.mark_completed(stored.idempotency_key.clone());
-                self.dead_letters.write().await.push(dead_letter);
-                self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
-                    .await?;
+                self.queue
+                    .mark_completed(stored.event_id.clone(), stored.idempotency_key.clone());
+                self.record_dead_letter(dead_letter).await;
                 Ok(empty_publish_report(
                     &stored,
                     dispatch_mode,
@@ -255,8 +233,6 @@ impl EventBus {
         dispatch_mode: DispatchMode,
     ) -> Result<PublishReport, EventingError> {
         self.record_stored_snapshot(&stored).await;
-        self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
-            .await?;
         let dead_letter = DeadLetter::for_queue(
             &stored,
             DeadLetterReason::DeadlineExpired,
@@ -264,10 +240,9 @@ impl EventBus {
                 event_type: stored.contract.event_type.clone(),
             },
         );
-        self.queue.mark_completed(stored.idempotency_key.clone());
-        self.dead_letters.write().await.push(dead_letter);
-        self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
-            .await?;
+        self.queue
+            .mark_completed(stored.event_id.clone(), stored.idempotency_key.clone());
+        self.record_dead_letter(dead_letter).await;
         Ok(empty_publish_report(
             &stored,
             dispatch_mode,
@@ -285,22 +260,44 @@ impl EventBus {
         queue_report: crate::QueueReport,
         write_journal: bool,
     ) -> Result<PublishReport, EventingError> {
+        self.dispatch_stored_checked(
+            stored,
+            subscribers,
+            dispatch_mode,
+            queue_report,
+            write_journal,
+        )
+        .await
+        .map_err(DispatchStoredError::into_error)
+    }
+
+    pub(super) async fn dispatch_stored_checked(
+        &self,
+        stored: StoredEventEnvelope,
+        subscribers: Vec<SubscriberRecord>,
+        dispatch_mode: DispatchMode,
+        queue_report: crate::QueueReport,
+        write_journal: bool,
+    ) -> Result<PublishReport, DispatchStoredError> {
         let reservation = self.queue.reserve_dispatch(&stored)?;
+        let _active_dispatch = self.active_dispatches.enter();
         if write_journal {
             self.record_stored_snapshot(&stored).await;
         }
         self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
-            .await?;
+            .await
+            .map_err(DispatchStoredError::BeforeDispatch)?;
         let handler_reports = self
             .dispatch(stored.clone(), subscribers.clone(), dispatch_mode)
             .await;
         reservation.complete();
         let dead_letters = dead_letters_for(&stored, &handler_reports);
         if !dead_letters.is_empty() {
-            self.dead_letters.write().await.extend(dead_letters.clone());
+            self.record_dead_letters(dead_letters.clone()).await;
         }
         self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
-            .await?;
+            .await
+            .map_err(DispatchStoredError::AfterDispatch)?;
         Ok(PublishReport {
             event_id: stored.event_id,
             event_type: stored.contract.event_type,
@@ -359,32 +356,62 @@ impl EventBus {
                 .await
             }
             DispatchMode::OrderedByAggregateKey => {
-                let aggregate_gate = self.aggregate_gate(&stored.aggregate_key);
-                let _aggregate_permit = aggregate_gate
+                let aggregate_key = stored.aggregate_key.clone();
+                let aggregate_gate = self.aggregate_gate(&aggregate_key);
+                let aggregate_permit = aggregate_gate
+                    .clone()
                     .acquire_owned()
                     .await
                     .expect("aggregate ordering gate remains open");
-                dispatch_sequential(
+                let reports = dispatch_sequential(
                     stored,
                     subscribers,
                     EventPublisher::new(self.clone()),
                     self.handler_policy.clone(),
                     self.clock.clone(),
                 )
-                .await
+                .await;
+                drop(aggregate_permit);
+                self.release_idle_aggregate_gate(&aggregate_key, &aggregate_gate);
+                reports
             }
         }
     }
+}
 
-    fn aggregate_gate(&self, aggregate_key: &AggregateKey) -> Arc<Semaphore> {
-        let mut gates = self
-            .aggregate_gates
-            .lock()
-            .expect("event aggregate gate map");
-        Arc::clone(
-            gates
-                .entry(aggregate_key.clone())
-                .or_insert_with(|| Arc::new(Semaphore::new(1))),
-        )
+pub(super) enum DispatchStoredError {
+    BeforeDispatch(EventingError),
+    AfterDispatch(EventingError),
+}
+
+impl DispatchStoredError {
+    fn into_error(self) -> EventingError {
+        match self {
+            Self::BeforeDispatch(error) | Self::AfterDispatch(error) => error,
+        }
     }
+}
+
+impl From<EventingError> for DispatchStoredError {
+    fn from(error: EventingError) -> Self {
+        Self::BeforeDispatch(error)
+    }
+}
+
+fn request_publish_result(
+    result: Result<Result<PublishReport, EventingError>, tokio::task::JoinError>,
+) -> Result<PublishReport, EventingError> {
+    result
+        .map_err(|error| EventingError::invalid_value("request_publish_task", error.to_string()))?
+}
+
+async fn abort_request_publish(
+    publish: &mut JoinHandle<Result<PublishReport, EventingError>>,
+    publish_done: bool,
+) {
+    if publish_done {
+        return;
+    }
+    publish.abort();
+    let _ = publish.await;
 }

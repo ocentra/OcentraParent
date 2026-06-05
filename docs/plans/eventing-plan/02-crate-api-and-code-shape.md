@@ -351,26 +351,13 @@ pub struct EventSource {
     pub device_ref: Option<DeviceRef>,
 }
 
-pub enum RuntimeRole {
-    ParentController,
-    ChildAgent,
-    LocalTool,
-    TestHarness,
-    ExternalBridge,
-}
+pub struct RuntimeRole(String);
 
-pub enum EventCustody {
-    LocalRuntime,
-    LocalJournal,
-    LocalReplay,
-    LanPeer,
-    ParentOwnedExport,
-    ExternalBridge,
-}
+pub struct EventCustody(String);
 ```
 
-The reusable crate owns only generic source/custody containers. Parent-specific
-values are constants or protocol structs in Parent crates.
+The reusable crate owns only generic validated source/custody labels.
+Parent-specific values are constants or protocol structs in Parent crates.
 
 ## Bus API
 

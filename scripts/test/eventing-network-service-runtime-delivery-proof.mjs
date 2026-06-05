@@ -53,7 +53,7 @@ const proof = {
     'empty service read models do not invent network runtime events',
   ],
   claimsNotProved: [
-    'broker-backed delivery, cross-process durable replay, production retention/delete/export, or family-hub relay delivery',
+    'broker-backed delivery, cross-process durable replay, production retention/delete/export, or relay-hub delivery',
     'live packet capture, live analyzer/model execution, policy execution, adapter execution, or host filtering',
     'TypeScript network event package parity beyond existing activity-domain read-model contracts',
     'portal UI changes or product-ready network/domain blocking',

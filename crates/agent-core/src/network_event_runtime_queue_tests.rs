@@ -51,7 +51,7 @@ async fn network_runtime_queues_flow_until_subscriber_drains() {
 }
 
 #[tokio::test]
-async fn network_runtime_queue_overflow_dead_letters_second_flow() {
+async fn network_runtime_queue_overflow_dead_letters_oldest_flow() {
     let report: NetworkRuntimeQueueOverflowReport =
         queue_network_runtime_flow_overflow_dead_letters(
             complete_domain_observation(),
@@ -78,6 +78,10 @@ async fn network_runtime_queue_overflow_dead_letters_second_flow() {
     assert_eq!(
         report.dead_letters[0].reason,
         DeadLetterReason::QueueOverflow
+    );
+    assert_eq!(
+        report.dead_letters[0].envelope.observed_at.as_str(),
+        constants::activity_store::TEST_FIRST_OBSERVED_AT
     );
     assert_eq!(report.stored_events.len(), 2);
     assert!(payloads.iter().all(|payload| {

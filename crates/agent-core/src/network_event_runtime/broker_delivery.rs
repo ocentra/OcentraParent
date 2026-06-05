@@ -17,7 +17,7 @@ use super::{
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum NetworkRuntimeBrokerDeliverySemantics {
-    EffectivelyOnceThroughIdempotency,
+    LocalIdempotencyQueueProof,
 }
 
 #[derive(Clone, Debug)]
@@ -33,8 +33,8 @@ pub struct NetworkRuntimeBrokerDeliverySemanticsReport {
     pub duplicate_stored_event_count: usize,
     pub enforcement_command_event_count: usize,
     pub adapter_action_executed_count: usize,
-    pub broker_delivery_implemented: bool,
-    pub family_hub_delivery_implemented: bool,
+    pub external_transport_delivery_implemented: bool,
+    pub external_relay_delivery_implemented: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -50,7 +50,7 @@ pub async fn prove_network_runtime_broker_delivery_semantics(
     let delivery_decision = decide_event_delivery_route(broker_delivery_input()?)
         .map_err(NetworkRuntimeBrokerDeliveryProofError::DeliveryDecision)?;
     if delivery_decision.decision_state
-        != EventDeliveryDecisionState::BrokerRouteRequirementsSatisfied
+        != EventDeliveryDecisionState::ExternalTransportRouteRequirementsSatisfied
     {
         return Err(NetworkRuntimeBrokerDeliveryProofError::BrokerRequirementsNotSatisfied);
     }
@@ -106,11 +106,11 @@ pub async fn prove_network_runtime_broker_delivery_semantics(
         duplicate_stored_event_count: duplicate_report.stored_events.len(),
         enforcement_command_event_count,
         adapter_action_executed_count,
-        broker_delivery_implemented: delivery_decision.broker_delivery_implemented,
-        family_hub_delivery_implemented: delivery_decision.family_hub_delivery_implemented,
+        external_transport_delivery_implemented: delivery_decision
+            .external_transport_delivery_implemented,
+        external_relay_delivery_implemented: delivery_decision.external_relay_delivery_implemented,
         delivery_decision,
-        delivery_semantics:
-            NetworkRuntimeBrokerDeliverySemantics::EffectivelyOnceThroughIdempotency,
+        delivery_semantics: NetworkRuntimeBrokerDeliverySemantics::LocalIdempotencyQueueProof,
     })
 }
 
@@ -118,7 +118,7 @@ fn broker_delivery_input() -> Result<EventDeliveryDecisionInput, EventingError> 
     let flow_event_type = EventType::parse(constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED)?;
     let event_namespace = EventNamespace::from_event_type(&flow_event_type)?;
     Ok(EventDeliveryDecisionInput {
-        route_kind: EventDeliveryRouteKind::BrokerBacked,
+        route_kind: EventDeliveryRouteKind::ExternalTransport,
         event_namespace: event_namespace.clone(),
         publisher_component: source_component(
             constants::network_flow::RUNTIME_COMPONENT_NETWORK_SPINE,
@@ -156,13 +156,13 @@ fn broker_delivery_input() -> Result<EventDeliveryDecisionInput, EventingError> 
         deletion_plan_ref: component_ref(constants::network_flow::TEST_BROKER_DELETION_PLAN_REF)?,
         offset_policy_ref: component_ref(constants::network_flow::TEST_BROKER_OFFSET_POLICY_REF)?,
         dedupe_policy_ref: component_ref(constants::network_flow::TEST_BROKER_DEDUPE_POLICY_REF)?,
-        broker_config_ref: component_ref(constants::network_flow::TEST_BROKER_CONFIG_REF)?,
-        family_hub_identity_ref: None,
-        family_hub_relay_policy_ref: None,
-        broker_delivery_claimed: false,
-        family_hub_delivery_claimed: false,
-        policy_authority_claimed: false,
-        adapter_authority_claimed: false,
+        transport_config_ref: component_ref(constants::network_flow::TEST_BROKER_CONFIG_REF)?,
+        relay_identity_ref: None,
+        relay_policy_ref: None,
+        external_transport_delivery_claimed: false,
+        external_relay_delivery_claimed: false,
+        decision_authority_claimed: false,
+        side_effect_authority_claimed: false,
     })
 }
 

@@ -28,7 +28,7 @@ const commands = [
   {
     name: 'network-queue-overflow-tests',
     command: 'cargo',
-    args: ['test', '-p', 'ocentra-parent-agent-core', 'network_runtime_queue_overflow_dead_letters_second_flow'],
+    args: ['test', '-p', 'ocentra-parent-agent-core', 'network_runtime_queue_overflow_dead_letters_oldest_flow'],
     log: join(proofRoot, 'queue-overflow-tests.log'),
   },
   {
@@ -55,9 +55,9 @@ const commandResults = commands.map(runCommand);
 const brokerDeliveryLog = [
   'network row10a broker delivery semantics',
   '',
-  'semantic=effectively-once-through-idempotency',
+  'semantic=local-idempotency-queue-proof',
   'brokerDeliveryImplemented=false',
-  'familyHubDeliveryImplemented=false',
+  'relayHubDeliveryImplemented=false',
   'duplicateDetection=queued-and-completed-idempotency-rejection',
   'replay=broker-replay-plan-ref-preserved',
   'droppedEventAudit=queue-overflow-dead-letter-count-preserved',
@@ -85,14 +85,14 @@ const proof = {
   provenRows: ['10a Broker delivery semantics proof'],
   provenBehavior: [
     'broker route requirements can be satisfied while live broker delivery remains false',
-    'network queue idempotency rejects queued and completed duplicate events',
+    'local network queue idempotency rejects queued and completed duplicate events',
     'queue overflow creates dropped-event dead-letter audit evidence',
     'broker replay, dropped-event audit, and adapter-action ledger refs are preserved',
     'duplicate broker routes do not create duplicate enforcement command events or adapter actions',
   ],
   notClaimed: [
     'live broker delivery',
-    'family-hub delivery',
+    'relay-hub delivery',
     'cross-process broker transport',
     'production retention/delete/export propagation',
     'adapter execution',
