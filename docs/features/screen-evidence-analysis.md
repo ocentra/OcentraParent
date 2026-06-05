@@ -227,6 +227,17 @@ only with explicit parent settings.
   fallback, and Ocentra-hosted processing are rejected. This is contract proof;
   real LAN hub runtime/discovery, production model quality, policy decisions,
   UI, and enforcement remain separate gates.
+- `ScreenRawScreenshotRetentionOptInSettingSchema`,
+  `ScreenLiveViewOptInSettingSchema`, and
+  `scripts/test/screen-optional-retention-live-preflight-proof.mjs` now prove
+  the separate optional raw-retention/live-view preflight contract: raw
+  retention requires explicit parent approval, audit ref, custody label, TTL,
+  delete proof, and no raw remote upload; live view requires explicit parent
+  approval, viewer audit, platform proof ref, LAN or relay transport label, no
+  frame retention, no session recording, and no remote input. The proof writes
+  `output/screen-plan-proof/27-28-optional-retention-live-preflight/proof-summary.json`.
+  This is not runtime retention enablement, live transport, relay/cache,
+  platform permission prompt proof, or privacy/legal approval.
 - `scripts/test/screen-ai-service-disabled-suppression-proof.mjs` now proves the
   service-owned disabled setting against the real Rust service on Windows: an
   enabled phase creates one encrypted cadence queue record, then a disabled
@@ -294,12 +305,14 @@ only with explicit parent settings.
 ## Current Gap
 
 Service persistence for parent setting changes, parent retention controls,
-authenticated-account social proof beyond public/live surface proof, OCR/vision
-quality beyond controlled fixtures and the full live operator matrix, production
-local vision adapter quality beyond the service proof adapter, service-owned
-live trigger event producers beyond the timed cadence loop and native
-active-window foreground watcher, physical Android/iOS proof, live macOS capture
-proof, Linux root/Wayland portal proof, browser-trigger artifact closure,
+optional raw-retention runtime enablement, live-view transport/relay/cache,
+platform permission prompt proof, privacy/legal approval, authenticated-account
+social proof beyond public/live surface proof, OCR/vision quality beyond
+controlled fixtures and the full live operator matrix, production local vision
+adapter quality beyond the service proof adapter, service-owned live trigger
+event producers beyond the timed cadence loop and native active-window
+foreground watcher, physical Android/iOS proof, live macOS capture proof, Linux
+root/Wayland portal proof, browser-trigger artifact closure,
 browser/network/mobile/broad block action adapters from screen-derived
 decisions, real family AI hub runtime/discovery, and production parent
 explanation UX remain. Browser-trigger proof now covers contract flow into
@@ -322,6 +335,8 @@ separate proof gates.
       proof.
 - [x] Raw-retention/live-view/remote boundary rejects raw screenshot retention,
       live view, and raw remote upload by default.
+- [x] Optional raw-retention/live-view preflight contract requires explicit
+      opt-in, custody, audit, deletion/no-retention, and platform-proof gates.
 - [x] Local AI resource scheduler prevents multiple heavy OCR/VLM jobs and
       prioritizes policy-blocking screen analysis.
 - [x] Detector-specific prompt packs replace open-ended screen descriptions and

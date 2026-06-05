@@ -50,25 +50,34 @@ alternative.
 - The Settings route writable-intent proof now shows that enabling local
   screen-summary drafts still keeps raw screenshot retention, live view, and raw
   remote upload disabled in the rendered parent UI.
+- Optional raw screenshot retention and live view now have separate preflight
+  contracts and proof in `@ocentra-parent/activity-domain`
+  (`ScreenRawScreenshotRetentionOptInSettingSchema`,
+  `ScreenLiveViewOptInSettingSchema`, and
+  `scripts/test/screen-optional-retention-live-preflight-proof.mjs`). Raw
+  retention modes require explicit parent approval, audit ref, custody, TTL,
+  delete proof, and no raw remote upload. Live-view modes require explicit
+  parent approval, viewer audit, platform proof ref, LAN or relay transport
+  label, no frame retention, no session recording, and no remote input.
 - Raw screen control settings are preserved as design inputs for both summary
   and live-view decisions.
 
 ## Current Gap
 
-Need an explicit product decision: local summaries only, optional screenshots,
-or live view. If screenshots/live view are built, Ocentra needs capture
-permission, transport, custody, retention, audit, parent settings, and platform
-proof.
+Need runtime product implementation for optional screenshots or live view. The
+contract preflight exists, but service persistence, parent retention/live-view
+UI, capture permission prompts, live transport, relay/cache execution, platform
+proof, and privacy/legal approval remain before any product-complete claim.
 
 ## Checklist
 
 - [x] Product decision: summaries only, screenshots, live view, or tiered modes.
 - [ ] Parent opt-in and child/device capability status.
-- [ ] Source label: local summary, screenshot, live, relay, cache,
+- [x] Source label: local summary, screenshot, live, relay, cache,
       unavailable.
-- [ ] Retention and deletion controls.
-- [ ] Audit for capture/view/export.
-- [ ] Remote route/custody model if away-from-home.
+- [x] Retention and deletion controls.
+- [x] Audit for capture/view/export.
+- [x] Remote route/custody model if away-from-home.
 - [ ] Platform permission proof.
 - [ ] Privacy/legal review before public claim.
 
