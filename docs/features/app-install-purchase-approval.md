@@ -98,21 +98,32 @@ generic app blocking covers this concern.
 - `scripts/test/app-install-purchase-report-runtime-proof.mjs` records that
   report-runtime status proof under
   `test-results/app-install-purchase-report-runtime-proof/proof.json` when run.
+- `packages/parent-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts`
+  now links approved API/entitlement evidence rows and report-runtime refs to
+  platform adapter readiness/manual/unavailable boundary rows while preserving
+  no platform adapter implementation, no provider/store execution, no
+  child-device delivery, no runtime report delivery, no interception, no child
+  activity data, no app blocking, and no Ocentra-hosted family data custody
+  claims.
+- `scripts/test/app-install-purchase-platform-adapter-boundary-proof.mjs`
+  records that platform adapter boundary proof under
+  `test-results/app-install-purchase-platform-adapter-boundary-proof/proof.json`
+  when run.
 
 ## Current Gap
 
-Ocentra still needs platform adapters, approved provider/store API execution
-proof, production child-device package-source artifact capture, real
+Ocentra still needs implemented platform adapters, approved provider/store API
+execution proof, production child-device package-source artifact capture, real
 child-device delivery for pending/result state, portal UX, runtime report
 writer/delivery, and proof for each store/platform path. The current
 parent-domain proofs attach parent-owned platform/report artifact refs, child
-package-source artifact refs, approved API/entitlement evidence refs, and
-stateless report compiler status/result refs to runtime boundary rows but do
-not implement Google Play, Apple App Store, Microsoft Store, billing
-entitlement, provider/store execution, platform interception, portal,
-child-device runtime capture, child-device delivery, runtime report delivery,
-runtime app-blocking behavior, or production child-device package-source
-artifact capture.
+package-source artifact refs, approved API/entitlement evidence refs, stateless
+report compiler status/result refs, and platform adapter readiness refs to
+runtime boundary rows but do not implement Google Play, Apple App Store,
+Microsoft Store, billing entitlement, provider/store execution, platform
+interception, portal, child-device runtime capture, child-device delivery,
+runtime report delivery, runtime app-blocking behavior, or production
+child-device package-source artifact capture.
 
 ## Checklist
 
@@ -149,13 +160,18 @@ artifact capture.
       portal report UI, runtime report delivery, provider/store execution,
       platform adapters, child delivery, child activity data, app blocking, or
       Ocentra-hosted family data custody claims.
+- [x] Platform adapter boundary proof linking approved API/entitlement evidence
+      and report-runtime refs to adapter readiness/manual/unavailable rows
+      without platform adapter implementation, provider/store execution, child
+      delivery, report delivery, interception, child activity data, app
+      blocking, or Ocentra-hosted family data custody claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
 
 Do not fold this into generic app blocking. The next proof should add production
 child-device package-source capture, real portal report UI/runtime writer
-delivery, real child delivery, provider/store API execution proof, or platform
-adapters before upgrading manual-required source rows, child delivery, or report
-status. If the OS/store does not allow interception, document the limitation and
-offer the closest safe parent workflow.
+delivery, real child delivery, provider/store API execution proof, or actual
+platform adapters before upgrading manual-required source rows, child delivery,
+or report status. If the OS/store does not allow interception, document the
+limitation and offer the closest safe parent workflow.

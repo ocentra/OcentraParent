@@ -79,6 +79,12 @@ Expected contract families:
   portal report UI, runtime report delivery, provider/store execution, platform
   adapters, child-device delivery, child activity data custody, app blocking, or
   Ocentra-hosted family data custody.
+- Platform adapter boundary proof rows link approved API/entitlement evidence
+  and report-runtime refs to adapter readiness/manual/unavailable rows without
+  claiming platform adapter implementation, provider API execution, store
+  integration, child-device delivery, runtime report delivery, real
+  interception, child activity data custody, app blocking, or Ocentra-hosted
+  family data custody.
 
 ## Validation Gates
 
@@ -109,6 +115,10 @@ Expected contract families:
   missing report surface rejection, missing report compiler lifecycle coverage,
   portal/provider/store/adapter/delivery/custody/app-blocking overclaim
   rejection, public package export visibility, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for platform adapter boundary
+  rows, missing platform/evidence-state coverage rejection, adapter/provider/
+  store/delivery/report/interception/custody/app-blocking overclaim rejection,
+  public package export visibility, and required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -137,6 +147,10 @@ Expected contract families:
 - Do not treat report-runtime status proof refs as portal report UI, runtime
   report writer/delivery, provider/store execution, platform adapters,
   child-device delivery, child activity custody, app blocking, or
+  Ocentra-hosted family data custody.
+- Do not treat platform adapter boundary refs as implemented platform adapters,
+  provider API execution, store integration, child-device delivery, runtime
+  report delivery, interception, child activity custody, app blocking, or
   Ocentra-hosted family data custody.
 
 ## Done Signal
