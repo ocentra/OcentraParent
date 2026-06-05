@@ -2,8 +2,8 @@
   "proofMode": "tracking-unsupported-platform-manual-proof",
   "generatedAt": "2026-06-05T19:55:00.000Z",
   "branch": "codex/tracking-unsupported-platform-manual-proof",
-  "baseCommitAtGeneration": "460d7fecb0c151bbf054b55ff33053fcf2a50ed6",
-  "gitStatusShort": "M  docs/features/location-geofence-device-status.md\nMM docs/plans/tracking-plan/implementation-checklist.md\nA  output/tracking-plan-proof/unsupported-platform-manual-proof/manual-proof-plan.md\nA  output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json\nAM packages/parent-domain/src/tracking-unsupported-platform-manual-proof.ts\nA  packages/parent-domain/tests/tracking-unsupported-platform-manual-proof.test.ts\nAM scripts/test/tracking-unsupported-platform-manual-proof.mjs\nA  test-results/tracking-unsupported-platform-manual-proof/proof.json\nA  test-results/tracking-unsupported-platform-manual-proof/unsupported-platform-manual-read-model.json",
+  "baseCommitAtGeneration": "0b69b836af4f1adc6d09f6e34e027ada2f16cc28",
+  "gitStatusShort": "",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -14,7 +14,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-unsupported-platform-manual-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-unsupported-platform-manual-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  4 passed (4)\n   Start at  16:08:48\n   Duration  922ms (transform 106ms, setup 0ms, import 641ms, tests 20ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-unsupported-platform-manual-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  4 passed (4)\n   Start at  17:06:34\n   Duration  1.04s (transform 108ms, setup 0ms, import 706ms, tests 20ms, environment 0ms)",
       "stderr": ""
     }
   ],
