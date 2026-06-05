@@ -208,6 +208,11 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   content, raw messages, raw video, screenshots, connector tokens/API calls,
   native app control, final policy decisions, alert delivery, rendered UI, and
   enforcement as explicit non-claims.
+- Browser-plan AI-22 now has live Vimeo and generic VideoObject metadata proof
+  for the managed-browser URL/video evidence boundary. The proof uses real
+  public Vimeo and TED pages, stores only redacted hashes/lengths/statuses, and
+  keeps runtime AI execution, policy authority, UI, connector/native behavior,
+  and enforcement unclaimed.
 - First-class social/video product contracts and runtime proof are incomplete.
 
 ## Current Gap

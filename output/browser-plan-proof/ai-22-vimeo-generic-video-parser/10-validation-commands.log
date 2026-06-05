@@ -1,0 +1,67 @@
+AI-22 validation commands
+
+Base: origin/main 1d2a625f0dfa88457eca1842b3443a8c9ecff50b after PR311/313/314.
+
+PASS cmd /c node --check scripts/test/vimeo-generic-live-metadata-proof.mjs
+PASS cmd /c npm run build:contracts
+PASS cmd /c node scripts/test/vimeo-generic-live-metadata-proof.mjs
+  live surfaces: https://vimeo.com/76979871, https://player.vimeo.com/video/76979871, https://www.ted.com/talks/sir_ken_robinson_do_schools_kill_creativity
+  proof: test-results/vimeo-generic-live-metadata-proof/proof.json
+  output proof: output/browser-plan-proof/ai-22-vimeo-generic-video-parser/11-live-vimeo-generic-metadata-proof.json
+PASS cmd /c npm run test --workspace @ocentra-parent/activity-domain -- browser-video-metadata.test.ts
+PASS cmd /c npm run test:integration
+  websocket-local-smoke-ok
+  websocket-lan-smoke-ok
+PASS cmd /c npm run test:e2e
+  portal-local-smoke-ok
+  portal-ui.spec.ts passed; assistant-chat-ui-proof passed; tracking-hosted-ui-proof skipped
+
+npm run validate attempts before PR310 sync:
+FAIL cmd /c npm run validate
+  Failed in validate:rust on activity_store_app_game::app_game_windows_inventory_source_tests::live_inventory_journal_event_replays_into_sqlite_read_model with Io(NotFound).
+PASS cmd /c cargo test -p ocentra-parent-agent-core activity_store_app_game::app_game_windows_inventory_source_tests::live_inventory_journal_event_replays_into_sqlite_read_model -- --exact
+FAIL cmd /c npm run validate
+  Failed in test:integration on scripts/test/websocket-lan-smoke.mjs timeout waiting for agent.lan-pairing.proof.submit after events=agent.connection.ready.
+PASS cmd /c npm run test:integration
+FAIL cmd /c npm run validate
+  Failed in test:e2e on apps/portal/e2e/portal-ui.spec.ts waiting for agent.activity.browser.read-model.reported.
+PASS cmd /c npm run test:e2e
+
+PASS cmd /c npm run test --workspace @ocentra-parent/activity-domain -- browser-video-metadata.test.ts
+PASS cmd /c npm run build:contracts
+PASS cmd /c node --check scripts/test/vimeo-generic-live-metadata-proof.mjs
+PASS cmd /c node scripts/test/vimeo-generic-live-metadata-proof.mjs
+PASS cmd /c npm run format:check
+PASS cmd /c npm run lint:schema-boundaries
+PASS git diff --check
+PASS git status --short -- docs/product-capability-checklist.md
+
+Latest PR311/313/314 sync validation:
+
+PASS git fetch origin --prune
+PASS git rev-list --left-right --count HEAD...origin/main
+  0 0 at 1d2a625f0dfa88457eca1842b3443a8c9ecff50b
+PASS cmd /c node --check scripts/test/vimeo-generic-live-metadata-proof.mjs
+PASS cmd /c npm run build:contracts
+PASS cmd /c node scripts/test/vimeo-generic-live-metadata-proof.mjs
+  live surfaces: https://vimeo.com/76979871, https://player.vimeo.com/video/76979871, https://www.ted.com/talks/sir_ken_robinson_do_schools_kill_creativity
+  proof: test-results/vimeo-generic-live-metadata-proof/proof.json
+  output proof: output/browser-plan-proof/ai-22-vimeo-generic-video-parser/11-live-vimeo-generic-metadata-proof.json
+PASS cmd /c npm run test --workspace @ocentra-parent/activity-domain -- browser-video-metadata.test.ts
+PASS cmd /c npm run format:check
+PASS cmd /c npm run lint:schema-boundaries
+PASS git diff --check
+PASS git status --short -- docs/product-capability-checklist.md
+PASS cmd /c npm run lanes:guard
+PASS cmd /c npm run hub:guard
+FAIL cmd /c npm run validate
+  Failed in test:integration on scripts/test/websocket-lan-smoke.mjs timeout waiting for agent.lan-pairing.proof.submit after events=agent.connection.ready.
+PASS cmd /c npm run test:integration
+  websocket-local-smoke-ok
+  websocket-lan-smoke-ok
+PASS cmd /c npm run validate
+  release:version aligned 20 sources
+  test:pre-ai-proof checked 48 claims and 44 checkpoint scenarios
+  lint, test, validate:rust, test:integration, and test:e2e passed
+  portal-local-smoke-ok
+  portal e2e: assistant-chat-ui-proof passed, portal-ui.spec.ts passed, tracking-hosted-ui-proof skipped
