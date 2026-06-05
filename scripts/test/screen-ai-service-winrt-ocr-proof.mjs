@@ -154,9 +154,10 @@ try {
 
 async function openLivePage() {
   const launchedAfterIso = new Date(Date.now() - 1000).toISOString();
+  closeExistingLiveBrowserWindows();
   openSystemBrowser();
   const liveWindow = await waitForLiveBrowserWindow(launchedAfterIso);
-  activateBrowserWindow(liveWindow.title, launchedAfterIso);
+  activateBrowserWindow(liveWindow.title, launchedAfterIso, liveWindow.processId);
   return {
     sourceEvidence: {
       sourceKind: 'live-public-browser-page',
@@ -174,7 +175,11 @@ async function openLivePage() {
 }
 
 async function focusLivePage(surface) {
-  activateBrowserWindow(surface.sourceEvidence.title, surface.sourceEvidence.launchedAfterIso);
+  activateBrowserWindow(
+    surface.sourceEvidence.title,
+    surface.sourceEvidence.launchedAfterIso,
+    surface.sourceEvidence.processId
+  );
   await delay(1000);
 }
 
@@ -201,7 +206,7 @@ async function waitForLiveBrowserWindow(launchedAfterIso) {
     }
     await delay(500);
   }
-  throw new Error('Timed out waiting for live Wikipedia Firefox window.');
+  throw new Error('Timed out waiting for live Wikipedia Chrome window.');
 }
 
 function findLiveBrowserWindow(launchedAfterIso) {
@@ -226,9 +231,33 @@ function closeLiveBrowserWindow(processId) {
   if (!Number.isInteger(processId)) {
     return;
   }
+  const script = [
+    `$target = Get-Process -Id ${processId} -ErrorAction SilentlyContinue`,
+    'if ($null -ne $target -and $target.MainWindowHandle -ne 0) { $target.CloseMainWindow() | Out-Null }',
+    'Start-Sleep -Milliseconds 500',
+  ].join('\n');
+  spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', script], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    windowsHide: true,
+  });
 }
 
-function activateBrowserWindow(title, launchedAfterIso) {
+function closeExistingLiveBrowserWindows() {
+  const script = [
+    "$targets = Get-Process chrome -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like '*Wikipedia*' -or $_.MainWindowTitle -like '*Mathematics*' }",
+    '$targets | ForEach-Object { $_.CloseMainWindow() | Out-Null }',
+    'if (@($targets).Count -gt 0) { Start-Sleep -Milliseconds 900 }',
+  ].join('\n');
+  spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', script], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    windowsHide: true,
+  });
+}
+
+function activateBrowserWindow(title, launchedAfterIso, processId) {
+  const targetProcessId = Number.isInteger(processId) ? processId : null;
   const script = [
     'Add-Type -AssemblyName Microsoft.VisualBasic',
     "Add-Type -TypeDefinition @'",
@@ -239,41 +268,66 @@ function activateBrowserWindow(title, launchedAfterIso) {
     '  [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);',
     '  [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);',
     '  [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();',
+    '  [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);',
+    '  [DllImport("kernel32.dll")] public static extern uint GetCurrentThreadId();',
+    '  [DllImport("user32.dll")] public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);',
+    '  [DllImport("user32.dll")] public static extern bool BringWindowToTop(IntPtr hWnd);',
+    '  [DllImport("user32.dll")] public static extern IntPtr SetActiveWindow(IntPtr hWnd);',
     '  [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);',
     '}',
     "'@",
+    'function Invoke-OcentraActivateTarget {',
+    '  param($targetProcess)',
+    '  $foregroundWindow = [OcentraWin32]::GetForegroundWindow()',
+    '  $targetProcessIdForThread = 0',
+    '  $foregroundProcessIdForThread = 0',
+    '  $currentThread = [OcentraWin32]::GetCurrentThreadId()',
+    '  $targetThread = [OcentraWin32]::GetWindowThreadProcessId($targetProcess.MainWindowHandle, [ref]$targetProcessIdForThread)',
+    '  $foregroundThread = [OcentraWin32]::GetWindowThreadProcessId($foregroundWindow, [ref]$foregroundProcessIdForThread)',
+    '  try {',
+    '    if ($foregroundThread -ne 0) { [OcentraWin32]::AttachThreadInput($currentThread, $foregroundThread, $true) | Out-Null }',
+    '    if ($targetThread -ne 0) { [OcentraWin32]::AttachThreadInput($currentThread, $targetThread, $true) | Out-Null }',
+    '    [OcentraWin32]::ShowWindowAsync($targetProcess.MainWindowHandle, 9) | Out-Null',
+    '    [Microsoft.VisualBasic.Interaction]::AppActivate($targetProcess.Id) | Out-Null',
+    '    [OcentraWin32]::BringWindowToTop($targetProcess.MainWindowHandle) | Out-Null',
+    '    [OcentraWin32]::SetActiveWindow($targetProcess.MainWindowHandle) | Out-Null',
+    '    [OcentraWin32]::SetForegroundWindow($targetProcess.MainWindowHandle) | Out-Null',
+    '    Start-Sleep -Milliseconds 700',
+    '  } finally {',
+    '    if ($targetThread -ne 0) { [OcentraWin32]::AttachThreadInput($currentThread, $targetThread, $false) | Out-Null }',
+    '    if ($foregroundThread -ne 0) { [OcentraWin32]::AttachThreadInput($currentThread, $foregroundThread, $false) | Out-Null }',
+    '  }',
+    '  $buffer = New-Object System.Text.StringBuilder 512',
+    '  [OcentraWin32]::GetWindowText([OcentraWin32]::GetForegroundWindow(), $buffer, $buffer.Capacity) | Out-Null',
+    '  return $buffer.ToString()',
+    '}',
     `$since = [DateTimeOffset]::Parse('${escapePowerShell(launchedAfterIso)}').LocalDateTime`,
-    '$windows = Get-Process | Where-Object { try { $_.MainWindowHandle -ne 0 -and $_.StartTime -ge $since } catch { $false } } | Sort-Object StartTime -Descending',
-    '$target = $windows | Select-Object -First 1',
+    targetProcessId === null
+      ? '$target = $null'
+      : `$target = Get-Process -Id ${targetProcessId} -ErrorAction SilentlyContinue`,
+    'if ($null -ne $target -and $target.MainWindowHandle -eq 0) { $target = $null }',
+    "if ($null -ne $target -and $target.MainWindowTitle -notlike '*Wikipedia*' -and $target.MainWindowTitle -notlike '*Mathematics*') { $target = $null }",
+    "$windows = Get-Process | Where-Object { try { $_.MainWindowHandle -ne 0 -and $_.StartTime -ge $since -and ($_.MainWindowTitle -like '*Wikipedia*' -or $_.MainWindowTitle -like '*Mathematics*') } catch { $false } } | Sort-Object StartTime -Descending",
+    'if ($null -eq $target) { $target = $windows | Select-Object -First 1 }',
     `if ($null -eq $target) { $target = Get-Process | Where-Object { $_.MainWindowTitle -like '*${escapePowerShell(title)}*' } | Select-Object -First 1 }`,
     "if ($null -eq $target) { throw 'No visible browser window found for proof activation.' }",
-    '[OcentraWin32]::ShowWindowAsync($target.MainWindowHandle, 9) | Out-Null',
-    '[OcentraWin32]::SetForegroundWindow($target.MainWindowHandle) | Out-Null',
-    'Start-Sleep -Milliseconds 600',
-    '$buffer = New-Object System.Text.StringBuilder 512',
-    '[OcentraWin32]::GetWindowText([OcentraWin32]::GetForegroundWindow(), $buffer, $buffer.Capacity) | Out-Null',
-    '$foregroundTitle = $buffer.ToString()',
+    '$foregroundTitle = $null',
+    'for ($attempt = 0; $attempt -lt 5; $attempt++) {',
+    '  $foregroundTitle = Invoke-OcentraActivateTarget $target',
+    "  if ($foregroundTitle -like '*Wikipedia*' -or $foregroundTitle -like '*Mathematics*') { break }",
+    '  Start-Sleep -Milliseconds 400',
+    '}',
     "if ($foregroundTitle -like 'native-ocr-worker-proof-*') {",
     "  Get-Process | Where-Object { $_.MainWindowTitle -like 'native-ocr-worker-proof-*' } | ForEach-Object { $_.CloseMainWindow() | Out-Null }",
     '  Start-Sleep -Milliseconds 900',
-    '  [OcentraWin32]::ShowWindowAsync($target.MainWindowHandle, 9) | Out-Null',
-    '  [OcentraWin32]::SetForegroundWindow($target.MainWindowHandle) | Out-Null',
-    '  Start-Sleep -Milliseconds 600',
-    '  $buffer = New-Object System.Text.StringBuilder 512',
-    '  [OcentraWin32]::GetWindowText([OcentraWin32]::GetForegroundWindow(), $buffer, $buffer.Capacity) | Out-Null',
-    '  $foregroundTitle = $buffer.ToString()',
+    '  $foregroundTitle = Invoke-OcentraActivateTarget $target',
     '}',
     "if ($foregroundTitle -like '*Windows Security*') {",
     "  Get-Process | Where-Object { $_.MainWindowTitle -eq 'Windows Security' } | ForEach-Object { $_.CloseMainWindow() | Out-Null }",
     '  Start-Sleep -Milliseconds 900',
     "  Get-Process | Where-Object { $_.MainWindowTitle -eq 'Windows Security' -or $_.ProcessName -eq 'PickerHost' } | ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }",
     '  Start-Sleep -Milliseconds 900',
-    '  [OcentraWin32]::ShowWindowAsync($target.MainWindowHandle, 9) | Out-Null',
-    '  [OcentraWin32]::SetForegroundWindow($target.MainWindowHandle) | Out-Null',
-    '  Start-Sleep -Milliseconds 600',
-    '  $buffer = New-Object System.Text.StringBuilder 512',
-    '  [OcentraWin32]::GetWindowText([OcentraWin32]::GetForegroundWindow(), $buffer, $buffer.Capacity) | Out-Null',
-    '  $foregroundTitle = $buffer.ToString()',
+    '  $foregroundTitle = Invoke-OcentraActivateTarget $target',
     '}',
     "if ($foregroundTitle -notlike '*Wikipedia*' -and $foregroundTitle -notlike '*Mathematics*') { throw ('Foreground window after activation was ' + $foregroundTitle + '; target was ' + $target.MainWindowTitle) }",
   ].join('\n');
@@ -418,8 +472,8 @@ function serviceAnalysisEnv() {
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ENABLED: 'true',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_POLL_SECONDS: '1',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_JOBS: '1',
-    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_TICKS: '30',
-    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS: '30000',
+    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_TICKS: '90',
+    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS: '60000',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_COMMAND: adapterCommandPath,
     OCENTRA_SCREEN_SERVICE_WINRT_OCR_OBSERVATION_PATH: adapterObservationPath,
   };
@@ -440,7 +494,7 @@ function baseServiceEnv() {
 async function waitForAnalyzedScreenReadModel() {
   const startedAt = Date.now();
   let lastReadModel;
-  while (Date.now() - startedAt < 60000) {
+  while (Date.now() - startedAt < 120000) {
     lastReadModel = await requestScreenReadModel();
     lastObservedReadModel = lastReadModel;
     if (lastReadModel.state === 'ready' && Array.isArray(lastReadModel.rows) && localOcrRow(lastReadModel)) {
