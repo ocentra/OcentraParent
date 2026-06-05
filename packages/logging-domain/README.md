@@ -125,22 +125,22 @@ execution, account lookup execution, billing provider contact execution, remote
 support session execution, production SLA, or default Ocentra-hosted family
 data.
 
-## Support Backend Upload Custody Audit Contract
+## Support Case Resolution Status Contract
 
-`src/support-backend-upload-custody-audit.ts` owns the logging-domain schema
-proof for production support backend upload custody, retention, delete, and
-audit-export boundary rows, while
-`src/support-backend-upload-custody-audit-read-model.ts` owns the current
-fixture rows. They record parent-consented custody boundary refs, retention
-manual-required refs, delete request/manual-required refs, support-safe audit
-export refs, status refs, runtime refs, redaction refs, and manual proof
-requirements.
+`src/support-case-resolution-status.ts` owns the logging-domain schema proof
+for production support case resolution/status rows, while
+`src/support-case-resolution-status-read-model.ts` owns the current fixture
+rows. They record parent-consented case opened, triage-ready,
+parent-update-ready, escalation manual-required, operator response
+manual-required, closure-ready, and SLA manual-required states with incident,
+redaction, audit, publication, backend-upload status/execution, escalation,
+response, closure, SLA, and manual proof refs.
 
-This contract is metadata-only. It does not claim raw child activity custody,
-provider secrets, remote support transcripts, real support backend upload
-execution, support backend payload retention, support backend payload deletion,
-account lookup execution, billing provider contact execution, remote support
-session execution, production SLA, or default Ocentra-hosted family data.
+This contract is metadata-only. It does not claim real support backend upload
+execution, provider contact, account lookup, billing provider contact, remote
+support sessions, production SLA execution, raw child activity custody,
+provider secrets, remote support transcripts, or default Ocentra-hosted family
+data.
 
 ## Gaps To Fill
 
