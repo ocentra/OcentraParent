@@ -18,6 +18,9 @@ Shared activity and evidence contracts for child-device observations.
   evidence refs without UI or policy claims.
 - Network flow summary contracts.
 - Screen evidence summary contracts.
+- Screen intelligence router contracts that check existing structured evidence
+  families before screenshot routing and require managed browser structured
+  extraction before managed-browser screenshots.
 - Screen evidence remote/retention/live-view boundary contracts that keep raw
   screenshot retention, live view, and raw remote upload outside the default
   local summary path.
@@ -79,6 +82,9 @@ flowchart LR
   `screen-ai-browser-trigger-proof`; live trigger producers, authenticated
   social surfaces, cloud-streamed frame analysis, mobile browser parity, UI,
   final policy, and enforcement proof remain open.
+- Screen intelligence router proof now has `screen-intelligence-router-proof`;
+  live CDP capture, browser/provider producers, network runtime integration,
+  OCR/VLM quality, policy action, and enforcement remain separate proof gates.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime, local parent-defined place store proof, and Rust ActivityStore ingest
   proof; platform adapters, provider runtime, and live service-backed UI proof

@@ -36,6 +36,7 @@ trigger ownership unless the row explicitly says so.
 | Settings route screen catalog proof      | P3 proved                | `output/screen-plan-proof/settings-ui/proof-summary.json`                                          | Proves the real portal Settings route renders read-only Screen settings/capability catalog proof; writable opt-in and retention controls remain.                                                   |
 | Settings route writable intent proof     | P3 proved                | `output/screen-plan-proof/settings-writable-controls/proof-summary.json`                           | Proves the real portal Settings route controls build schema-valid disabled, observe-only, and strict dry-run local screen-summary drafts; service persistence remains.                             |
 | Remote/retention/live boundary proof     | P2 contract proved       | `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`                            | Proves raw screenshot retention, live view, and raw remote upload are disabled in the local-summary boundary; no live transport or writable retention UI claimed.                                  |
+| Screen intelligence router proof         | P2 contract proved       | `output/screen-plan-proof/31-screen-intelligence-router/proof-summary.json`                        | Proves existing structured evidence family checks and managed-browser structured-extraction-first routing; no live CDP/browser/provider/network runtime, policy action, or enforcement claim.      |
 
 ## Main Gates
 
@@ -49,8 +50,8 @@ trigger ownership unless the row explicitly says so.
 - [x] Timed cadence proof captures multiple bounded frames and stops after disable.
 - [x] Capability status exists before capture.
 - [x] Screen evidence is treated as cross-slice, not browser-only.
-- [ ] Existing browser/app/game/network/session evidence is checked before capture.
-- [ ] Managed browser structured extraction runs before managed-browser screenshots.
+- [x] Existing browser/app/game/network/session evidence is checked before capture.
+- [x] Managed browser structured extraction runs before managed-browser screenshots.
 - [x] OCR runs before VLM when text can answer the question.
 - [x] Guided detector prompts replace open-ended screen descriptions.
 - [x] A capable configured local model may be used after route/cost/privacy proof.

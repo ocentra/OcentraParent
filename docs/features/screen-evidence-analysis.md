@@ -248,6 +248,18 @@ only with explicit parent settings.
   remains a D/browser-lane handoff item. The social row is manual-required and
   the cloud-game row is unavailable/scaffold-only, so this does not claim
   authenticated social, cloud-frame, mobile parity, UI, or enforcement support.
+- `ScreenIntelligenceRouteDecisionSchema`,
+  `planScreenIntelligenceRoute`, and
+  `scripts/test/screen-intelligence-router-proof.mjs` now prove a
+  contract-level screen intelligence router: existing browser/app/game/network
+  and session evidence families are recorded before screenshot routing, managed
+  browser surfaces route to structured extraction before screenshot capture,
+  native game/launcher/unknown-process surfaces route to active-window or
+  selected-window capture only after the evidence-family check, and disabled or
+  protected surfaces degrade without queueing screenshots. This is contract
+  proof only; live CDP capture, live browser/provider/runtime producers,
+  network runtime integration, OCR/VLM quality, policy action, and enforcement
+  remain separate.
 - Service-persisted product settings, retention controls, and quality proof are
   incomplete.
 - Raw screen control settings are preserved as design inputs, not
@@ -283,6 +295,9 @@ and UI remain separate proof gates.
       proof.
 - [x] Raw-retention/live-view/remote boundary rejects raw screenshot retention,
       live view, and raw remote upload by default.
+- [x] Screen intelligence router checks existing structured evidence families
+      and routes managed browser surfaces to structured extraction before
+      screenshot capture.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof, broad
