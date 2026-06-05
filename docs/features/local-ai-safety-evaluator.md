@@ -71,6 +71,13 @@ claim needs proof, not slogans.
   owned-process adapter handoff proof. Model quality, video/social live
   coverage, and browser/category/network/mobile/broad enforcement handoff remain
   incomplete.
+- `scripts/test/screen-ai-adapter-readiness-proof.mjs` now proves
+  screen-derived adapter readiness stays contract-first: Windows owned-process
+  actions retain real execution proof, while broad installed-app, host
+  network/domain, exact active-tab, Android/iOS mobile, and Linux host adapter
+  rows remain manual-required, not-claimed, or unavailable with deleted-image
+  and no-raw-retention custody. It does not implement broad adapters or rerun
+  live capture.
 - The live operator harness now has a full nine-row public/live surface proof:
   ordinary YouTube validates `video`/`warn`, education YouTube validates
   `school`/`allow`, Vimeo validates `video`/`warn`, Facebook/social validates
@@ -158,6 +165,8 @@ production external evidence variants.
 - [x] Parent explanation read-model proof path.
 - [x] Screen parent explanation service read-model proof path.
 - [x] Screen service WinRT OCR local adapter proof path.
+- [x] Screen-derived adapter readiness keeps unsupported/broad adapters
+      manual-required, not-claimed, or unavailable without claim upgrades.
 - [x] Final screen-AI product path artifact gate.
 - [x] Tests with real stored evidence.
 - [x] Screen hard-visual routing prefers child-local then household family hub

@@ -342,6 +342,16 @@ only with explicit parent settings.
   refs on the Activity Screen read-model row, deleted-image custody, and
   `rawImageRetained:false`. It does not claim final enforcement, broad adapter
   dispatch, production OCR quality, live view, or raw retention.
+- `ScreenAiAdapterReadinessReadModelSchema` and
+  `scripts/test/screen-ai-adapter-readiness-proof.mjs` now prove the
+  screen-derived adapter-readiness handoff stays honest after policy: real
+  Windows owned-process time-limit and owned-process block decisions keep their
+  retained adapter execution proof, while broad installed-app, host
+  network/domain, managed exact active-tab, Android/iOS mobile, and Linux host
+  targets remain manual-required, not-claimed, or unavailable. The proof keeps
+  source evidence refs, deleted-image custody, and `rawImageRetained:false`; it
+  does not rerun live capture or implement broad/browser/network/mobile
+  adapters.
 - `ScreenSummaryParentExplanationSchema` and
   `scripts/test/screen-summary-parent-explanation-proof.mjs` now prove the
   parent explanation/audit context can consume those deleted local
@@ -430,6 +440,10 @@ remain separate proof gates.
 - [x] Service WinRT OCR proof analyzes live public browser pixels through the
       encrypted service queue, records a `localOcr` Activity Screen row, drains
       the queue, and deletes adapter temp image material.
+- [x] Screen-derived adapter readiness preserves real owned-process adapter
+      proof while keeping broad/browser/network/mobile/Linux targets
+      manual-required, not-claimed, or unavailable without raw retention or
+      claim upgrades.
 - [x] Screen-summary parent explanation/audit context cites local OCR replay
       refs, parent rules, dry-run policy refs, and deleted-image custody without
       remote AI or enforcement claims.
