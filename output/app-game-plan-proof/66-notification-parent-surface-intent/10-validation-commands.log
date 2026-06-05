@@ -17,5 +17,5 @@ exit=0
 
  Test Files  3 passed (3)
       Tests  9 passed (9)
-   Start at  05:39:48
-   Duration  1.25s (transform 809ms, setup 0ms, import 2.82s, tests 54ms, environment 1ms)
+   Start at  05:50:26
+   Duration  1.10s (transform 857ms, setup 0ms, import 2.45s, tests 61ms, environment 0ms)
