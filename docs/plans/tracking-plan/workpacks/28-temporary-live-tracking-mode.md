@@ -27,15 +27,22 @@ Proof root: `output/tracking-plan-proof/28-temporary-live-tracking-mode/`
 
 ## AI Worker Checklist
 
-- [ ] Require parent authorization and duration.
-- [ ] Model cadence, max duration, and auto-stop reason.
-- [ ] Preserve battery/permission degraded states.
-- [ ] Audit start/update/degrade/stop.
-- [ ] Test expiry and deletion/retention behavior.
+- [x] Require parent authorization and duration.
+- [x] Model cadence, max duration, and auto-stop reason.
+- [x] Preserve battery/permission degraded states.
+- [x] Audit start/update/degrade/stop.
+- [x] Test expiry and deletion/retention behavior.
 
 ## Where We Are
 
-This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+This workpack now has focused P1 parent-domain fixture proof from
+`codex/tracking-temporary-live-mode-proof` under the proof root below. The proof
+derives active-authorized, battery-degraded, permission-degraded,
+expired-auto-stopped, retention-delete-ready, and manual-required rows from the
+existing temporary live tracking grants. Runtime, platform, provider, parent
+portal live-map, child-device delivery, physical-device, and production worker
+behavior is not claimed beyond the proof state recorded in `proof.json` and the
+implementation checklist.
 
 ## Where We Want To Be
 
@@ -57,14 +64,28 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Platform, provider, UI, retention, or runtime claims remain manual-required until the assigned proof artifacts exist.
+- Platform, provider, UI, live/current/background runtime, relay, child-device
+  delivery, physical-device, and production worker claims remain
+  manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/28-temporary-live-tracking-mode/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Workpack id and branch:
+      `codex/tracking-temporary-live-mode-proof`.
+- [x] Touched files: `packages/parent-domain/src/tracking-temporary-live-mode-proof.ts`,
+      `packages/parent-domain/tests/tracking-temporary-live-mode-proof.test.ts`,
+      `scripts/test/tracking-temporary-live-mode-proof.mjs`, product docs,
+      checklist, package README, and this workpack doc.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-temporary-live-mode-proof.mjs` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/28-temporary-live-tracking-mode/` and
+      `test-results/tracking-temporary-live-mode-proof/`.
+- [x] Product doc/checklist updates: owning feature doc, capability checklist,
+      implementation checklist, package README, and this workpack doc updated.
+- [x] Known gaps/manual-required states: live/current/background location
+      runtime, parent portal live-map runtime, provider delivery, relay runtime,
+      child-device delivery/runtime execution, Android/iOS physical-device
+      proof, production temporary-live workers, and production proof remain
+      proof-gated.
