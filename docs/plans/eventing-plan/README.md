@@ -129,6 +129,21 @@ in-process event bus is not a cross-process broker. Cross-process parent-to-chil
 traffic must use typed local API, WebSocket, LAN, relay, or journal/replay
 boundaries, then publish into each runtime's local bus.
 
+## Completion Proofs
+
+Use `scripts/test/eventing-runtime-proof.mjs` for the reusable bus merge gate.
+It proves the generic `crates/ocentra-eventing` runtime without running
+network, service, portal, AI, policy, enforcement, broker, relay-hub, or
+platform-adapter consumer proofs.
+
+Use `scripts/test/eventing-full-plan-proof.mjs` for full event-plan completion.
+It runs the reusable bus proof plus parent/controller, child-agent,
+network-consumer, service runtime delivery, service event-chain streaming,
+TypeScript parity, UI typed-intent boundary, command-boundary, and enforcement
+journal/action eventing proofs. Its network-consumer proof must stay outside
+`crates/ocentra-eventing`: it proves network consumes the generic bus, not that
+the generic bus owns network behavior.
+
 ## Quality Bar
 
 The event bus is ready for Parent network work only when:

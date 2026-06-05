@@ -65,7 +65,7 @@ async function main() {
       'agent-service WebSocket wiring for these event contracts',
       'journal-before-action enforcement integration',
       'real DNS/firewall/WFP/VPN/nftables/NetworkExtension adapter execution',
-      'broker-backed delivery, family-hub delivery, or production retention',
+      'broker-backed delivery, relay-hub delivery, or production retention',
       'portal UI rendering of network event read models',
     ],
   };

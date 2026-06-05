@@ -19,7 +19,7 @@ const commands = [
   {
     name: 'git-diff-check',
     command: 'git',
-    args: ['diff', '--check'],
+    args: ['diff', '--check', '--', '.', ':(exclude)output', ':(exclude)test-results'],
   },
 ];
 

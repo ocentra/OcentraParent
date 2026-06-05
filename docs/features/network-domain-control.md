@@ -75,13 +75,14 @@ compete on control while staying clear about attribution confidence and privacy.
   requirements before any product delivery claim.
 - E-D added row10a broker delivery semantics proof in `agent-core`: the network
   runtime composes the generic delivery decision with queue idempotency and
-  overflow/dead-letter behavior to prove effectively-once-through-idempotency
-  semantics, replay plan refs, dropped-event audit refs, and zero duplicate
+  overflow/dead-letter behavior to prove local duplicate-safety semantics,
+  replay plan refs, dropped-event audit refs, and zero duplicate
   enforcement-command or adapter-action counts. This remains a proof boundary
   only; live broker/family-hub transport, policy execution, adapter execution,
   and host filtering remain unclaimed.
 - E-D added network-specific queue backpressure proof on top of the reusable
-  `ocentra-eventing` queue: bounded overflow dead-letters the rejected flow,
+  `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
+  and keeps the newest queued flow,
   TTL expiry dead-letters before dispatch through manual-clock proof, and
   queued/completed duplicate idempotency keys are rejected. Stored queued
   payloads remain metadata-only and do not claim exact URLs, decrypted content,

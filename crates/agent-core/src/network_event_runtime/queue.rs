@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    DispatchMode, EventBus, EventQueuePolicy, EventSubscriber, EventType, EventingError,
-    ManualEventClock, SubscriberId, TargetHandler,
+    EventBus, EventQueuePolicy, EventSubscriber, EventType, EventingError, ManualEventClock,
+    QueueDrainReport, SubscriberId, TargetHandler,
 };
 
 use ocentra_parent_agent_protocol::constants;
@@ -54,9 +54,7 @@ pub async fn queue_network_runtime_flow_until_subscriber(
     );
     let queued_publish_report = publish_flow_observation(&bus, &observation, observed_at).await?;
 
-    subscribe_flow_observer(&bus).await?;
-
-    let drain_report = bus.drain_queued(DispatchMode::Sequential).await?;
+    let drain_report = subscribe_flow_observer(&bus).await?;
     Ok(NetworkRuntimeQueueDrainReport {
         queued_publish_report,
         drain_report,
@@ -101,9 +99,7 @@ pub async fn queue_network_runtime_flow_expires_before_drain(
     let queued_publish_report = publish_flow_observation(&bus, &observation, observed_at).await?;
 
     clock.advance(elapsed);
-    subscribe_flow_observer(&bus).await?;
-
-    let drain_report = bus.drain_queued(DispatchMode::Sequential).await?;
+    let drain_report = subscribe_flow_observer(&bus).await?;
     Ok(NetworkRuntimeQueueTtlReport {
         queued_publish_report,
         drain_report,
@@ -123,8 +119,7 @@ pub async fn queue_network_runtime_flow_rejects_duplicate_idempotency(
     let queued_duplicate_error =
         duplicate_publish_error(publish_flow_observation(&bus, &observation, observed_at).await)?;
 
-    subscribe_flow_observer(&bus).await?;
-    let drain_report = bus.drain_queued(DispatchMode::Sequential).await?;
+    let drain_report = subscribe_flow_observer(&bus).await?;
 
     let completed_duplicate_error =
         duplicate_publish_error(publish_flow_observation(&bus, &observation, observed_at).await)?;
@@ -149,7 +144,7 @@ async fn publish_flow_observation(
     bus.publish(payload, metadata).await
 }
 
-async fn subscribe_flow_observer(bus: &EventBus) -> Result<(), EventingError> {
+async fn subscribe_flow_observer(bus: &EventBus) -> Result<QueueDrainReport, EventingError> {
     let phase = NetworkRuntimePhase::FlowObserved;
     bus.subscribe::<NetworkRuntimeEventPayload, _, _>(
         EventSubscriber::new(
@@ -160,7 +155,7 @@ async fn subscribe_flow_observer(bus: &EventBus) -> Result<(), EventingError> {
         |_| async { Ok(()) },
     )
     .await
-    .map(|_| ())
+    .map(|report| report.drain_report)
 }
 
 fn duplicate_publish_error(

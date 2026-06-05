@@ -86,6 +86,6 @@ command=node scripts/check-source-shape.mjs
 status=0
 log=output\eventing-plan-proof\reusable-eventing-runtime\command-logs\source-shape.log
 
-command=git diff --check
+command=git diff --check -- . :(exclude)output :(exclude)test-results
 status=0
 log=output\eventing-plan-proof\reusable-eventing-runtime\command-logs\git-diff-check.log

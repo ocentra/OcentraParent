@@ -1,14 +1,14 @@
 use std::sync::Arc;
 
 use crate::{
-    CorrelationId, DispatchMode, EventBus, EventJournal, EventingError, NdjsonEventJournal,
-    ReplayCursor, ReplayFilter, ReplayMode,
+    CorrelationId, DispatchMode, EventBus, EventJournal, EventQueuePolicy, EventingError,
+    JournalPolicy, JournalSelector, NdjsonEventJournal, ReplayCursor, ReplayFilter, ReplayMode,
 };
 
 use super::{
     super::fixtures::{
-        subscriber, test_event, test_event_for_type, TestEvent, OTHER_EVENT_TYPE, TEST_EVENT_TYPE,
-        TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
+        metadata, subscriber, test_event, test_event_for_type, test_event_with_idempotency,
+        TestEvent, OTHER_EVENT_TYPE, TEST_EVENT_TYPE, TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
     },
     support::{cleanup, event_type, journal_path, stored_event},
 };
@@ -58,6 +58,67 @@ async fn replay_corrupt_line_is_reported_explicitly() {
         result,
         Err(EventingError::JournalCorruptLine { line: 1, .. })
     ));
+    cleanup(&path).await;
+}
+
+#[tokio::test]
+async fn action_replay_dispatches_queued_drain_event_once() {
+    let path = journal_path("queued-drain-action-replay");
+    let journal = NdjsonEventJournal::new(&path);
+    let bus = EventBus::with_journal_and_queue_policy(
+        JournalPolicy::before_and_after_dispatch(JournalSelector::All),
+        journal.clone().shared(),
+        EventQueuePolicy::no_subscriber_queue(2).expect("queue policy is valid"),
+    );
+    bus.publish(
+        test_event_with_idempotency(TEST_LABEL, "queued-drain-replay-key"),
+        metadata(TEST_TARGET),
+    )
+    .await
+    .expect("event queues without action journal record");
+    let handled = Arc::new(tokio::sync::Mutex::new(0_usize));
+    let handled_clone = Arc::clone(&handled);
+    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |_| {
+        let handled = Arc::clone(&handled_clone);
+        async move {
+            *handled.lock().await += 1;
+            Ok(())
+        }
+    })
+    .await
+    .expect("subscriber drains queued event");
+    assert_eq!(*handled.lock().await, 1);
+
+    let action = journal
+        .replay_action_records(ReplayFilter::all())
+        .await
+        .expect("action replay reads only after-dispatch records");
+    let projection = journal
+        .replay_projection(ReplayFilter::all())
+        .await
+        .expect("projection replay reads all journal records");
+    let replay_bus = EventBus::new();
+    let replay_handled = Arc::new(tokio::sync::Mutex::new(0_usize));
+    let replay_handled_clone = Arc::clone(&replay_handled);
+    replay_bus
+        .subscribe::<TestEvent, _, _>(subscriber("replay-subscriber", TEST_TARGET), move |_| {
+            let handled = Arc::clone(&replay_handled_clone);
+            async move {
+                *handled.lock().await += 1;
+                Ok(())
+            }
+        })
+        .await
+        .expect("replay subscriber registers");
+    let reports = replay_bus
+        .replay_to_handlers(action.records, action.mode, DispatchMode::Sequential)
+        .await
+        .expect("action replay dispatches once");
+
+    assert_eq!(projection.records.len(), 2);
+    assert_eq!(reports.len(), 1);
+    assert_eq!(reports[0].handled_count, 1);
+    assert_eq!(*replay_handled.lock().await, 1);
     cleanup(&path).await;
 }
 

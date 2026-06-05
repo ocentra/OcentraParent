@@ -67,6 +67,25 @@ pub mod peer {
     pub const LOCAL_DEV_AGENT: &str = "local-dev-agent";
 }
 
+pub mod eventing_source {
+    pub const ERROR_EVENT_CUSTODY_CONSTANT_PARSES: &str = "protocol event custody constant parses";
+    pub const ERROR_EVENT_CUSTODY_PARSES: &str = "event custody parses";
+    pub const ERROR_RUNTIME_ROLE_CONSTANT_PARSES: &str = "protocol runtime role constant parses";
+    pub const ERROR_RUNTIME_ROLE_PARSES: &str = "runtime role parses";
+    pub const ROLE_CONTROLLER: &str = "controller";
+    pub const ROLE_AGENT: &str = "agent";
+    pub const ROLE_ANALYZER: &str = "analyzer";
+    pub const ROLE_DECISION_ENGINE: &str = "decision-engine";
+    pub const ROLE_SIDE_EFFECT_ADAPTER: &str = "side-effect-adapter";
+    pub const ROLE_AUDIT_WRITER: &str = "audit-writer";
+    pub const ROLE_READ_MODEL: &str = "read-model";
+    pub const CUSTODY_LOCAL_ONLY: &str = "local-only";
+    pub const CUSTODY_LOCAL_JOURNAL: &str = "local-journal";
+    pub const CUSTODY_LOCAL_QUERY_STORE: &str = "local-query-store";
+    pub const CUSTODY_COORDINATOR_CACHE: &str = "coordinator-cache";
+    pub const CUSTODY_UNAVAILABLE: &str = "unavailable";
+}
+
 pub mod event_id {
     pub const CONNECTION_READY: &str = "connection-ready";
     pub const COMMAND_REJECTED: &str = "command-rejected";

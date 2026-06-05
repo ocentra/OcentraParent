@@ -68,6 +68,9 @@ const proof = {
   policy:
     'A duplicate subscriber id for the same event type is rejected with EventingError::DuplicateSubscriber; the existing handler remains registered.',
   notClaimed: [
+    'constrained force/republish override',
+    'SubscriptionPolicy replace/allow semantics',
+    'PublishOverride or RepublishPolicy behavior',
     '69 Unity/TypeScript semantics conformance matrix',
     '70 event topology manifest',
     '72 contract registry generated docs',

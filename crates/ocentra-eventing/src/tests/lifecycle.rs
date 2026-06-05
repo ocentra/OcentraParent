@@ -1,11 +1,11 @@
-use std::{sync::Arc, time::Duration};
+use std::{sync::Arc, sync::Mutex as StdMutex, time::Duration};
 
 use tokio::sync::{Barrier, Mutex};
 
 use super::fixtures::{
-    metadata, subscriber, subscriber_for_event, test_event, test_event_for_type,
-    test_event_with_aggregate, TestEvent, OTHER_EVENT_TYPE, OTHER_SUBSCRIBER, OTHER_TARGET,
-    TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
+    metadata, metadata_with_event_id, subscriber, subscriber_for_event, test_event,
+    test_event_for_type, test_event_with_aggregate, TestEvent, OTHER_EVENT_TYPE, OTHER_SUBSCRIBER,
+    OTHER_TARGET, TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
 };
 use crate::{DispatchMode, EventBus, EventRegistrar, EventingError, HandlerOutcome};
 
@@ -34,12 +34,12 @@ async fn ordered_dispatch_serializes_same_aggregate_transitions() {
 
     let first = bus.publish_with_mode(
         test_event("first"),
-        metadata(TEST_TARGET),
+        metadata_with_event_id(TEST_TARGET, "ordered-same-aggregate-event-1"),
         DispatchMode::OrderedByAggregateKey,
     );
     let second = bus.publish_with_mode(
         test_event("second"),
-        metadata(TEST_TARGET),
+        metadata_with_event_id(TEST_TARGET, "ordered-same-aggregate-event-2"),
         DispatchMode::OrderedByAggregateKey,
     );
     let (first_report, second_report) = tokio::join!(first, second);
@@ -63,6 +63,7 @@ async fn ordered_dispatch_serializes_same_aggregate_transitions() {
             "second:end".to_string()
         ]
     );
+    assert_eq!(bus.clear_for_test().await.aggregate_gate_count, 0);
 }
 
 #[tokio::test]
@@ -82,12 +83,12 @@ async fn ordered_dispatch_allows_different_aggregates_to_run_concurrently() {
 
     let first = bus.publish_with_mode(
         test_event_with_aggregate("first", "aggregate-a"),
-        metadata(TEST_TARGET),
+        metadata_with_event_id(TEST_TARGET, "ordered-different-aggregate-event-1"),
         DispatchMode::OrderedByAggregateKey,
     );
     let second = bus.publish_with_mode(
         test_event_with_aggregate("second", "aggregate-b"),
-        metadata(TEST_TARGET),
+        metadata_with_event_id(TEST_TARGET, "ordered-different-aggregate-event-2"),
         DispatchMode::OrderedByAggregateKey,
     );
     let result = tokio::time::timeout(Duration::from_secs(1), async {
@@ -98,6 +99,7 @@ async fn ordered_dispatch_allows_different_aggregates_to_run_concurrently() {
 
     assert_eq!(result.0.expect("first publish succeeds").handled_count, 1);
     assert_eq!(result.1.expect("second publish succeeds").handled_count, 1);
+    assert_eq!(bus.clear_for_test().await.aggregate_gate_count, 0);
 }
 
 #[tokio::test]
@@ -112,7 +114,7 @@ async fn nested_publish_uses_context_publisher_without_deadlock() {
                 .publisher()
                 .publish(
                     test_event_for_type("nested", OTHER_EVENT_TYPE),
-                    metadata(OTHER_TARGET),
+                    metadata_with_event_id(OTHER_TARGET, "nested-publish-event-1"),
                 )
                 .await?;
             Ok(())
@@ -164,6 +166,39 @@ async fn detached_publish_returns_observable_report() {
 
     assert_eq!(report.subscriber_count, 1);
     assert_eq!(report.handled_count, 1);
+}
+
+#[tokio::test]
+async fn sync_subscriber_adapter_uses_typed_dispatch_path() {
+    let bus = EventBus::new();
+    let handled = Arc::new(StdMutex::new(Vec::new()));
+    let handled_clone = Arc::clone(&handled);
+    let subscription = bus
+        .subscribe_sync::<TestEvent, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |context| {
+            handled_clone
+                .lock()
+                .expect("sync handled lock")
+                .push(context.payload().label.clone());
+            Ok(())
+        })
+        .await
+        .expect("sync subscriber registers");
+
+    let report = bus
+        .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+        .await
+        .expect("publish reaches sync subscriber");
+
+    assert_eq!(
+        subscription.event_type.as_str(),
+        super::fixtures::TEST_EVENT_TYPE
+    );
+    assert_eq!(report.subscriber_count, 1);
+    assert_eq!(report.handled_count, 1);
+    assert_eq!(
+        handled.lock().expect("sync handled lock").as_slice(),
+        &[TEST_LABEL.to_string()]
+    );
 }
 
 #[tokio::test]

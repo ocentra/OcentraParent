@@ -449,7 +449,8 @@ Broker-backed routes must declare delivery semantics as one of:
 
 - at-least-once;
 - at-most-once;
-- effectively-once-through-idempotency.
+- local idempotency/queue duplicate-safety only, unless a live broker proof
+  establishes stronger semantics.
 
 Tests must prove duplicate detection, idempotency keys, replay behavior,
 dropped-event audit, and that no adapter action executes twice from duplicate

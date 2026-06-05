@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::{Mutex, Notify};
 
 use super::fixtures::{
-    metadata, subscriber, subscriber_for_event, test_event, test_event_for_type,
-    test_event_with_idempotency, OTHER_EVENT_TYPE, OTHER_TARGET, TEST_LABEL, TEST_SUBSCRIBER,
-    TEST_TARGET,
+    metadata, metadata_with_event_id, subscriber, subscriber_for_event, test_event,
+    test_event_for_type, test_event_with_idempotency, OTHER_EVENT_TYPE, OTHER_TARGET, TEST_LABEL,
+    TEST_SUBSCRIBER, TEST_TARGET,
 };
 use crate::{
     AggregateKey, DeadLetterReason, DomainEvent, EventBus, EventContract, EventQueuePolicy,
@@ -26,13 +26,13 @@ async fn production_shutdown_drain_dispatches_queue_and_dead_letters_remaining()
     );
     bus.publish(
         test_event_with_idempotency(TEST_LABEL, "shutdown-drain-dispatch"),
-        metadata(TEST_TARGET),
+        metadata_with_event_id(TEST_TARGET, "shutdown-drain-event-1"),
     )
     .await
     .expect("first queued event queues");
     bus.publish(
         test_event_for_type("unmatched", OTHER_EVENT_TYPE),
-        metadata(OTHER_TARGET),
+        metadata_with_event_id(OTHER_TARGET, "shutdown-drain-event-2"),
     )
     .await
     .expect("second queued event queues");
@@ -70,8 +70,8 @@ async fn production_shutdown_drain_dispatches_queue_and_dead_letters_remaining()
     assert_eq!(report.mode, ShutdownMode::Drain);
     assert!(!report.already_shutdown);
     assert_eq!(report.subscription_count, 1);
-    assert_eq!(report.queued_event_count, 2);
-    assert_eq!(report.queued_dispatched_count, 1);
+    assert_eq!(report.queued_event_count, 1);
+    assert_eq!(report.queued_dispatched_count, 0);
     assert_eq!(report.queued_expired_count, 0);
     assert_eq!(report.queued_dead_lettered_count, 1);
     assert_eq!(report.queued_dropped_count, 0);
@@ -111,6 +111,65 @@ async fn production_shutdown_dead_letters_queued_without_dispatch() {
     assert_eq!(report.queued_dead_lettered_count, 1);
     assert_eq!(dead_letters.len(), 1);
     assert_eq!(dead_letters[0].reason, DeadLetterReason::Shutdown);
+}
+
+#[tokio::test]
+async fn production_shutdown_waits_for_active_dispatch_before_clearing_state() {
+    let bus = EventBus::new();
+    let handler_started = Arc::new(Notify::new());
+    let release_handler = Arc::new(Notify::new());
+    let handled = Arc::new(Mutex::new(0_usize));
+    let handler_started_clone = Arc::clone(&handler_started);
+    let release_handler_clone = Arc::clone(&release_handler);
+    let handled_clone = Arc::clone(&handled);
+    bus.subscribe::<super::fixtures::TestEvent, _, _>(
+        subscriber("shutdown-active-dispatch-subscriber", TEST_TARGET),
+        move |_| {
+            let handler_started = Arc::clone(&handler_started_clone);
+            let release_handler = Arc::clone(&release_handler_clone);
+            let handled = Arc::clone(&handled_clone);
+            async move {
+                handler_started.notify_one();
+                release_handler.notified().await;
+                *handled.lock().await += 1;
+                Ok(())
+            }
+        },
+    )
+    .await
+    .expect("subscriber registers");
+
+    let publish_bus = bus.clone();
+    let publish = tokio::spawn(async move {
+        publish_bus
+            .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+            .await
+    });
+    handler_started.notified().await;
+    let shutdown_bus = bus.clone();
+    let shutdown = tokio::spawn(async move { shutdown_bus.shutdown(ShutdownMode::Drain).await });
+    tokio::time::sleep(Duration::from_millis(10)).await;
+
+    assert!(!shutdown.is_finished());
+    release_handler.notify_waiters();
+    let report = shutdown
+        .await
+        .expect("shutdown task joins")
+        .expect("shutdown succeeds after active dispatch");
+    let publish_report = publish
+        .await
+        .expect("publish task joins")
+        .expect("publish completes before shutdown cleanup");
+
+    assert_eq!(report.in_flight_dispatch_count, 1);
+    assert_eq!(report.subscription_count, 1);
+    assert_eq!(publish_report.handled_count, 1);
+    assert_eq!(*handled.lock().await, 1);
+    assert!(matches!(
+        bus.publish(test_event("after-active-shutdown"), metadata(TEST_TARGET))
+            .await,
+        Err(EventingError::BusShutdown)
+    ));
 }
 
 #[tokio::test]

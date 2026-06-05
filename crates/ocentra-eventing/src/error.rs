@@ -1,11 +1,15 @@
 use std::{error::Error, fmt};
 
-use crate::{EventType, IdempotencyKey, RequestId, SubscriberId};
+use crate::{EventId, EventType, IdempotencyKey, RequestId, SubscriberId};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum EventingError {
     EmptyValue {
         field: &'static str,
+    },
+    InvalidValue {
+        field: &'static str,
+        value: String,
     },
     InvalidVersion,
     PayloadEncode {
@@ -46,6 +50,9 @@ pub enum EventingError {
     },
     EventDeadlineExpired {
         event_type: EventType,
+    },
+    DuplicateEventId {
+        event_id: EventId,
     },
     DuplicateInFlight {
         idempotency_key: IdempotencyKey,
@@ -96,6 +103,13 @@ impl EventingError {
         Self::EmptyValue { field }
     }
 
+    pub(crate) fn invalid_value(field: &'static str, value: impl Into<String>) -> Self {
+        Self::InvalidValue {
+            field,
+            value: value.into(),
+        }
+    }
+
     pub(crate) fn payload_encode(error: serde_json::Error) -> Self {
         Self::PayloadEncode {
             reason: error.to_string(),
@@ -127,6 +141,7 @@ impl fmt::Display for EventingError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::EmptyValue { .. }
+            | Self::InvalidValue { .. }
             | Self::InvalidVersion
             | Self::PayloadEncode { .. }
             | Self::PayloadDecode { .. }
@@ -140,6 +155,7 @@ impl fmt::Display for EventingError {
             | Self::NoSubscriber { .. }
             | Self::QueueCapacityExceeded { .. }
             | Self::EventDeadlineExpired { .. }
+            | Self::DuplicateEventId { .. }
             | Self::DuplicateInFlight { .. }
             | Self::DuplicateIdempotencyKey { .. } => fmt_core_error(self, formatter),
             Self::InvalidRequestOptions { .. }
@@ -161,6 +177,7 @@ impl fmt::Display for EventingError {
 fn fmt_core_error(error: &EventingError, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
     match error {
         EventingError::EmptyValue { .. }
+        | EventingError::InvalidValue { .. }
         | EventingError::InvalidVersion
         | EventingError::PayloadEncode { .. }
         | EventingError::InvalidHandlerPolicy { .. }
@@ -174,6 +191,7 @@ fn fmt_core_error(error: &EventingError, formatter: &mut fmt::Formatter<'_>) -> 
         EventingError::NoSubscriber { .. }
         | EventingError::QueueCapacityExceeded { .. }
         | EventingError::EventDeadlineExpired { .. }
+        | EventingError::DuplicateEventId { .. }
         | EventingError::DuplicateInFlight { .. }
         | EventingError::DuplicateIdempotencyKey { .. } => fmt_queue_error(error, formatter),
         _ => unreachable!("core eventing error formatter received non-core error"),
@@ -183,6 +201,9 @@ fn fmt_core_error(error: &EventingError, formatter: &mut fmt::Formatter<'_>) -> 
 fn fmt_core_config_error(error: &EventingError, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
     match error {
         EventingError::EmptyValue { field } => write!(formatter, "empty eventing value: {field}"),
+        EventingError::InvalidValue { field, value } => {
+            write!(formatter, "invalid eventing value for {field}: {value}")
+        }
         EventingError::InvalidVersion => {
             formatter.write_str("event schema version must be nonzero")
         }
@@ -275,6 +296,9 @@ fn fmt_queue_error(error: &EventingError, formatter: &mut fmt::Formatter<'_>) ->
                 "event deadline expired for {}",
                 event_type.as_str()
             )
+        }
+        EventingError::DuplicateEventId { event_id } => {
+            write!(formatter, "duplicate event id: {}", event_id.as_str())
         }
         EventingError::DuplicateInFlight { idempotency_key } => {
             write!(

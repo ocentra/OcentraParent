@@ -180,12 +180,12 @@ fn parent_child_event_metadata(
 }
 
 fn parent_child_event_source(phase: ParentChildRuntimePhase) -> Result<EventSource, EventingError> {
-    let component = if phase.runtime_role() == ocentra_eventing::RuntimeRole::ChildAgent {
+    let component = if phase.is_child_agent_phase() {
         constants::child_agent::RUNTIME_COMPONENT_CHILD_AGENT
     } else {
         constants::parent_controller::RUNTIME_COMPONENT_PARENT_CHILD_SPINE
     };
-    let instance = if phase.runtime_role() == ocentra_eventing::RuntimeRole::ChildAgent {
+    let instance = if phase.is_child_agent_phase() {
         constants::child_agent::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT
     } else {
         constants::parent_controller::RUNTIME_INSTANCE_LOCAL_PARENT_CONTROLLER

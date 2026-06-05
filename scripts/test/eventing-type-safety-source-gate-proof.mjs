@@ -188,15 +188,13 @@ function isAllowedRawPublicString(entry) {
     );
   }
   if (normalizedPath.endsWith('compatibility.rs')) {
-    return /pub (semantic_id|source_semantic|rust_surface|proof_artifact|compatibility_note): String|pub fn entry\(&self, semantic_id: &str\)|pub fn render_markdown\(&self\) -> String/u.test(
-      entry.text
-    );
+    return /pub fn entry\(&self, semantic_id: &str\)|pub fn render_markdown\(&self\) -> String/u.test(entry.text);
   }
   if (normalizedPath.endsWith('contract_registry.rs')) {
     return /pub fn as_str\(&self\) -> &str|pub fn into_string\(self\) -> String/u.test(entry.text);
   }
   if (normalizedPath.endsWith('topology.rs')) {
-    return /pub rust_type: String|pub fn render_markdown\(&self\) -> String/u.test(entry.text);
+    return /pub fn render_markdown\(&self\) -> String/u.test(entry.text);
   }
   return false;
 }

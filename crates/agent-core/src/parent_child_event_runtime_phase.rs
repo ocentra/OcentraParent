@@ -115,24 +115,28 @@ impl ParentChildRuntimePhase {
     }
 
     pub(crate) fn runtime_role(self) -> RuntimeRole {
-        if self.is_child_agent_phase() {
-            RuntimeRole::ChildAgent
+        let value = if self.is_child_agent_phase() {
+            constants::eventing_source::ROLE_AGENT
         } else if self == Self::ParentReadModelProjected {
-            RuntimeRole::PortalReadModel
+            constants::eventing_source::ROLE_READ_MODEL
         } else {
-            RuntimeRole::ParentController
-        }
+            constants::eventing_source::ROLE_CONTROLLER
+        };
+        RuntimeRole::parse(value)
+            .expect(constants::eventing_source::ERROR_RUNTIME_ROLE_CONSTANT_PARSES)
     }
 
     pub(crate) fn custody(self) -> EventCustody {
-        if self.is_child_agent_phase() {
-            EventCustody::ChildDeviceJournal
+        let value = if self.is_child_agent_phase() {
+            constants::eventing_source::CUSTODY_LOCAL_JOURNAL
         } else {
-            EventCustody::ParentDeviceCache
-        }
+            constants::eventing_source::CUSTODY_COORDINATOR_CACHE
+        };
+        EventCustody::parse(value)
+            .expect(constants::eventing_source::ERROR_EVENT_CUSTODY_CONSTANT_PARSES)
     }
 
-    fn is_child_agent_phase(self) -> bool {
+    pub(crate) fn is_child_agent_phase(self) -> bool {
         matches!(
             self,
             Self::ChildCommandReceived

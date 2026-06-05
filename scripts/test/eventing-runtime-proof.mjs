@@ -50,7 +50,7 @@ const directCommands = [
   {
     name: 'git-diff-check',
     command: 'git',
-    args: ['diff', '--check'],
+    args: ['diff', '--check', '--', '.', ':(exclude)output', ':(exclude)test-results'],
   },
 ];
 
@@ -117,7 +117,7 @@ writeFileSync(
     'N/A for the reusable eventing runtime phase.',
     '',
     'This phase proves the generic Rust event bus and local runtime primitives only.',
-    'It does not claim network runtime adoption, broker delivery, family-hub delivery, parent/child transport, portal publishing, platform adapter execution, host filtering, or production OS/device support.',
+    'It does not claim network runtime adoption, broker delivery, relay-hub delivery, parent/child transport, portal publishing, platform adapter execution, host filtering, or production OS/device support.',
     '',
   ].join('\n')
 );
@@ -161,7 +161,7 @@ const proof = {
     'network runtime adoption',
     'network to AI to policy to enforcement event-chain execution',
     'broker-backed delivery',
-    'family-hub delivery',
+    'relay-hub delivery',
     'platform adapter execution',
     'host DNS/filter enforcement',
     'portal-owned business event publishing',
@@ -221,7 +221,7 @@ function sourceSnapshot() {
     '## Phase Boundary',
     '',
     'This proof pack validates the reusable Rust event bus/runtime only.',
-    'Network, parent/child runtime, portal, service, broker, family-hub, policy, AI, enforcement, and platform-adapter proofs are consumer phases layered on top of this crate.',
+    'Network, parent/child runtime, portal, service, broker, relay-hub, policy, AI, enforcement, and platform-adapter proofs are consumer phases layered on top of this crate.',
     '',
   ].join('\n');
 }

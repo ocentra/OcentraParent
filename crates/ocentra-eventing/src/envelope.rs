@@ -1,9 +1,9 @@
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use crate::{
-    AggregateKey, CorrelationId, EventClockInstant, EventId, EventType, EventingError,
-    IdempotencyKey, RecordedAt, RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService,
-    TargetHandler,
+    AggregateKey, CausationId, CorrelationId, EventClockInstant, EventCustody, EventId, EventType,
+    EventingError, IdempotencyKey, RecordedAt, RuntimeInstanceId, RuntimeRole, SchemaVersion,
+    SourceComponent, SourceService, TargetHandler,
 };
 
 pub trait DomainEvent: Clone + Send + Sync + Serialize + DeserializeOwned + 'static {
@@ -27,27 +27,14 @@ impl EventContract {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum RuntimeRole {
-    ParentController,
-    ChildAgent,
-    Analyzer,
-    PolicyEngine,
-    EnforcementAdapter,
-    AuditWriter,
-    PortalReadModel,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum EventCustody {
-    LocalOnly,
-    ChildDeviceJournal,
-    ChildDeviceQueryStore,
-    ParentDeviceCache,
-    ParentOwnedExport,
-    Unavailable,
+pub enum EventPriority {
+    Low,
+    #[default]
+    Normal,
+    High,
+    Critical,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -81,9 +68,13 @@ impl EventSource {
 pub struct EventMetadata {
     pub event_id: EventId,
     pub correlation_id: CorrelationId,
+    #[serde(default)]
+    pub causation_id: Option<CausationId>,
     pub source: EventSource,
     pub observed_at: RecordedAt,
     pub target_handler: Option<TargetHandler>,
+    #[serde(default)]
+    pub priority: EventPriority,
     #[serde(default)]
     pub deadline: Option<EventClockInstant>,
 }
@@ -93,9 +84,11 @@ impl EventMetadata {
         Self {
             event_id: EventId::generated(),
             correlation_id,
+            causation_id: None,
             source,
             observed_at: RecordedAt::now_utc(),
             target_handler: None,
+            priority: EventPriority::Normal,
             deadline: None,
         }
     }
@@ -110,11 +103,23 @@ impl EventMetadata {
         Self {
             event_id,
             correlation_id,
+            causation_id: None,
             source,
             observed_at,
             target_handler,
+            priority: EventPriority::Normal,
             deadline: None,
         }
+    }
+
+    pub fn with_causation_id(mut self, causation_id: CausationId) -> Self {
+        self.causation_id = Some(causation_id);
+        self
+    }
+
+    pub fn with_priority(mut self, priority: EventPriority) -> Self {
+        self.priority = priority;
+        self
     }
 
     pub fn with_deadline(mut self, deadline: EventClockInstant) -> Self {
@@ -128,11 +133,13 @@ pub struct EventEnvelope<E> {
     pub contract: EventContract,
     pub event_id: EventId,
     pub correlation_id: CorrelationId,
+    pub causation_id: Option<CausationId>,
     pub aggregate_key: AggregateKey,
     pub idempotency_key: IdempotencyKey,
     pub source: EventSource,
     pub observed_at: RecordedAt,
     pub target_handler: Option<TargetHandler>,
+    pub priority: EventPriority,
     #[serde(default)]
     pub deadline: Option<EventClockInstant>,
     pub payload: E,
@@ -147,11 +154,13 @@ where
             contract: payload.contract()?,
             event_id: metadata.event_id,
             correlation_id: metadata.correlation_id,
+            causation_id: metadata.causation_id,
             aggregate_key: payload.aggregate_key()?,
             idempotency_key: payload.idempotency_key()?,
             source: metadata.source,
             observed_at: metadata.observed_at,
             target_handler: metadata.target_handler,
+            priority: metadata.priority,
             deadline: metadata.deadline,
             payload,
         })
@@ -162,11 +171,13 @@ where
             contract: self.contract.clone(),
             event_id: self.event_id.clone(),
             correlation_id: self.correlation_id.clone(),
+            causation_id: self.causation_id.clone(),
             aggregate_key: self.aggregate_key.clone(),
             idempotency_key: self.idempotency_key.clone(),
             source: self.source.clone(),
             observed_at: self.observed_at.clone(),
             target_handler: self.target_handler.clone(),
+            priority: self.priority,
             deadline: self.deadline,
             payload: StoredEventPayload::from_event(&self.payload)?,
         })
@@ -202,11 +213,15 @@ pub struct StoredEventEnvelope {
     pub contract: EventContract,
     pub event_id: EventId,
     pub correlation_id: CorrelationId,
+    #[serde(default)]
+    pub causation_id: Option<CausationId>,
     pub aggregate_key: AggregateKey,
     pub idempotency_key: IdempotencyKey,
     pub source: EventSource,
     pub observed_at: RecordedAt,
     pub target_handler: Option<TargetHandler>,
+    #[serde(default)]
+    pub priority: EventPriority,
     #[serde(default)]
     pub deadline: Option<EventClockInstant>,
     pub payload: StoredEventPayload,
@@ -231,11 +246,13 @@ impl StoredEventEnvelope {
             contract: self.contract.clone(),
             event_id: self.event_id.clone(),
             correlation_id: self.correlation_id.clone(),
+            causation_id: self.causation_id.clone(),
             aggregate_key: self.aggregate_key.clone(),
             idempotency_key: self.idempotency_key.clone(),
             source: self.source.clone(),
             observed_at: self.observed_at.clone(),
             target_handler: self.target_handler.clone(),
+            priority: self.priority,
             deadline: self.deadline,
             payload,
         })

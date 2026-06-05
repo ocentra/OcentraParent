@@ -52,7 +52,7 @@ async function main() {
       'runtime rows consume the protocol constants and structs added for rows 42-44',
     ],
     claimsNotProved: [
-      'broker-backed or family-hub transport delivery',
+      'broker-backed or relay-hub transport delivery',
       'platform adapter execution or host enforcement',
       'portal UI publishing business events',
       'network packet capture or analyzer model execution',
