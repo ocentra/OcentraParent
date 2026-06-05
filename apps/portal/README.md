@@ -53,6 +53,9 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
 - Displays app/game source freshness counts and source-kind evidence summaries
   from the service-backed App/Game Sessions read model without adding policy or
   adapter claims.
+- Exposes grouped App/Game Sessions source-panel intent sections for existing
+  service-backed source rows; SVG rendering remains a follow-up while the
+  portal surface is owned by another lane.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own
@@ -79,5 +82,5 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   clearly.
 - Keep LAN source-matrix labels tied to service read models; do not add
   portal-only completion claims for unimplemented discovery adapters.
-- Add dedicated App/Game Sessions source panel polish after the current metric
-  and evidence drawer rendering, without promoting adapter or policy claims.
+- Render the dedicated App/Game Sessions source panel from the new intent seam,
+  without promoting adapter or policy claims.
