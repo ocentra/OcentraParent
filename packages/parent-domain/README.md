@@ -97,6 +97,19 @@ mobile readiness, and control catalogs.
   approval UI, parent action runtime delivery, provider/store execution,
   platform adapters, child-device delivery, child activity data, app blocking,
   and Ocentra-hosted family data custody unclaimed.
+- App install/purchase parent action runtime handoff proof contracts that link
+  parent review actions to runtime handoff status rows and platform adapter
+  boundary refs while keeping portal approval UI, runtime action writer
+  implementation, parent action runtime delivery, provider/store execution,
+  platform adapter implementation, child-device delivery, runtime report
+  delivery, child activity data, app blocking, and Ocentra-hosted family data
+  custody unclaimed.
+- App install/purchase store status handoff proof contracts that link parent
+  action runtime handoff rows and platform adapter boundary rows to per-store
+  status handoff states while keeping provider/store execution, platform
+  adapter implementation, parent action runtime delivery, child-device
+  delivery, runtime report delivery, interception, child activity data, app
+  blocking, and Ocentra-hosted family data custody unclaimed.
 - V0.9 signed LAN discovery/relay spine contracts that keep adapter evidence,
   signed proof rejection, route safety, relay/cache availability, parent-owned
   storage, and child-data custody claims explicit.
@@ -166,9 +179,10 @@ flowchart LR
 - Store/install approval and purchase controls now have contract, package-source
   artifact, runtime-boundary, platform-artifact, child-artifact-delivery, and
   approved API/entitlement evidence plus report-runtime status, platform
-  adapter boundary, and parent review action proof; platform/store provider
-  execution, actual platform adapters, production child-device package capture,
-  child delivery, portal UX, parent action runtime delivery, and report runtime
+  adapter boundary, parent review action, parent action runtime handoff, and
+  store status handoff proof; platform/store provider execution, actual platform adapters,
+  production child-device package capture, child delivery, portal UX, runtime
+  action writer execution, parent action runtime delivery, and report runtime
   writer/delivery remain unimplemented.
 - Billing/subscription provider integration, account backend, entitlement
   signing/delivery runtime, provider-contact execution, entitlement admin

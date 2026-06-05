@@ -91,6 +91,18 @@ Expected contract families:
   delivery, provider/store execution, platform adapters, child-device delivery,
   child activity data custody, app blocking, or Ocentra-hosted family data
   custody.
+- Parent action runtime handoff proof rows link parent review actions to
+  runtime handoff status and platform adapter boundary refs without claiming
+  portal approval UI, runtime action writer implementation, parent action
+  runtime delivery, provider/store execution, platform adapter implementation,
+  child-device delivery, runtime report delivery, child activity data custody,
+  app blocking, or Ocentra-hosted family data custody.
+- Store status handoff proof rows link parent action runtime handoff refs and
+  platform adapter readiness/manual/unavailable rows to per-store status
+  handoff states without claiming provider API execution, store integration,
+  platform adapter implementation, parent action runtime delivery,
+  child-device delivery, runtime report delivery, real interception, child
+  activity data custody, app blocking, or Ocentra-hosted family data custody.
 
 ## Validation Gates
 
@@ -130,6 +142,17 @@ Expected contract families:
   runtime refs, portal/provider/store/adapter/delivery/custody/interception/
   app-blocking overclaim rejection, public package export visibility, and
   required non-claim coverage.
+- TypeScript schema tests and a proof harness for parent action runtime handoff
+  rows, missing parent review action/platform adapter boundary/audit/report
+  coverage rejection, portal/runtime-writer/provider/store/adapter/delivery/
+  custody/interception/app-blocking overclaim rejection, public package export
+  visibility, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for store status handoff rows,
+  missing platform/status coverage rejection, missing parent action runtime
+  refs, missing platform adapter evidence/report refs, provider/store/adapter/
+  parent action delivery/child delivery/report delivery/custody/interception/
+  app-blocking overclaim rejection, public package export visibility, and
+  required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -167,6 +190,16 @@ Expected contract families:
   action runtime delivery, provider/store execution, platform adapters,
   child-device delivery, child activity custody, interception, app blocking, or
   Ocentra-hosted family data custody.
+- Do not treat parent action runtime handoff proof refs as portal approval UI,
+  runtime action writer implementation, parent action runtime delivery,
+  provider/store execution, platform adapters, child-device delivery, runtime
+  report delivery, child activity custody, interception, app blocking, or
+  Ocentra-hosted family data custody.
+- Do not treat store status handoff proof refs as provider/store status API
+  execution, store integration, platform adapter implementation, parent action
+  runtime delivery, child-device delivery, runtime report delivery,
+  interception, child activity custody, app blocking, or Ocentra-hosted family
+  data custody.
 
 ## Done Signal
 
