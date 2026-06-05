@@ -154,6 +154,13 @@ expose location or device-status features. Parents expect this category.
   explicitly rejects portal UI completion, child-device delivery, provider
   delivery, notification receipt ingestion, authority, physical-device, and
   product-complete claims.
+- Unsupported and not-yet-proved tracking platform states now have a
+  parent-domain manual-required/unavailable render-state proof through
+  `node scripts/test/tracking-unsupported-platform-manual-proof.mjs`. It proves
+  Android/iOS background and geofence rows, desktop OS location, web
+  child-agent unavailability, and authority-required hard-control rows stay
+  UI-ready without fake capability, product-ready, physical-device, authority,
+  or portal screenshot claims.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -212,15 +219,17 @@ for acknowledgement/check-in/manual escalation states, WP28 temporary live
 tracking mode proof for authorization/duration/cadence/degraded/auto-stop/
 retention states, and WP20 Google Places/POI provider request/response mapping
 proof, WP25 parent-policy compiler/evaluator runtime proof, and required
-fixture-state coverage proof, and WP29 missing-device mode parent-domain proof
-for last-known-only/offline/contact-requested/manual-required states, and WP32
-report/policy consumer-readiness proof for parent report summary, policy
-drill-in, and retention audit/export rows. It remains a tracked product gap
-until platform location and geofence adapters, broader product read models,
-actual live provider execution/delivery, notification receipt ingestion,
-physical-device proof, actual child-device delivery/runtime execution, remote
-sync runtime, OS lost-mode APIs, and full parent/child UI
-snapshots/accessibility beyond the hosted parent route are proved.
+fixture-state coverage proof, WP29 missing-device mode parent-domain proof for
+last-known-only/offline/contact-requested/manual-required states,
+manual-required/unavailable platform render-state proof, and WP32 report/policy
+consumer-readiness proof for parent report summary, policy drill-in, and
+retention audit/export rows. It remains a tracked product gap until platform
+location and geofence adapters, broader product read models, actual live
+provider execution/delivery, notification receipt ingestion, physical-device
+proof, actual child-device delivery/runtime execution, remote sync runtime, OS
+lost-mode APIs, portal screenshots for the unsupported/manual states, and full
+parent/child UI snapshots/accessibility beyond the hosted parent route are
+proved.
 
 ## Checklist
 
@@ -307,6 +316,10 @@ snapshots/accessibility beyond the hosted parent route are proved.
       physical-device proof.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
       proof plans.
+- [x] Parent-domain unsupported-platform manual-required/unavailable render-state
+      proof for Android/iOS background/geofence rows, desktop OS location, web
+      child-agent unavailability, and authority-required hard-control rows. This
+      is not a portal screenshot, physical-device, or authority proof.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence
       source refs, nearby-place context fields, AI no-final-action constraints,
       alert policy-decision refs, and retention before/after proof. This is not
