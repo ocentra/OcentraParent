@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "previewReadyRows": 1,
+  "manualRequiredRows": 1,
+  "policyEvaluatorRuntimeClaimed": false,
+  "timerRuntimeClaimed": false,
+  "adapterDispatchClaimed": false,
+  "childDeliveryClaimed": false,
+  "platformEnforcementClaimed": false
+}
