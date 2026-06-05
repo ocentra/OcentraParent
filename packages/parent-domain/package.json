@@ -37,6 +37,10 @@
       "import": "./dist/app-install-purchase-platform-artifact-proof.js",
       "types": "./dist/app-install-purchase-platform-artifact-proof.d.ts"
     },
+    "./app-install-purchase-report-runtime-proof": {
+      "import": "./dist/app-install-purchase-report-runtime-proof.js",
+      "types": "./dist/app-install-purchase-report-runtime-proof.d.ts"
+    },
     "./billing-entitlement": {
       "import": "./dist/billing-entitlement.js",
       "types": "./dist/billing-entitlement.d.ts"
