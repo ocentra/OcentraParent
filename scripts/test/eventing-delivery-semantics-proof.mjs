@@ -26,7 +26,7 @@ const commands = [
   {
     name: 'git-diff-check',
     command: 'git',
-    args: ['diff', '--check'],
+    args: ['diff', '--check', '--', '.', ':(exclude)output', ':(exclude)test-results'],
   },
 ];
 
@@ -38,23 +38,23 @@ const deliveryTests = readFileSync('crates/ocentra-eventing/src/tests/delivery.r
 const sourceAssertions = [
   ['delivery-proof-struct', deliverySource.includes('pub struct EventDeliveryDecisionProof')],
   ['local-route-ready-state', deliverySource.includes('LocalRouteReady')],
-  ['broker-manual-required-state', deliverySource.includes('BrokerRouteManualRequired')],
-  ['family-hub-manual-required-state', deliverySource.includes('FamilyHubRouteManualRequired')],
-  ['live-broker-claim-rejected', deliverySource.includes('LiveBrokerDeliveryClaimRejected')],
-  ['live-family-hub-claim-rejected', deliverySource.includes('LiveFamilyHubDeliveryClaimRejected')],
-  ['policy-authority-claim-rejected', deliverySource.includes('PolicyAuthorityClaimRejected')],
-  ['adapter-authority-claim-rejected', deliverySource.includes('AdapterAuthorityClaimRejected')],
+  ['external-transport-manual-required-state', deliverySource.includes('ExternalTransportRouteManualRequired')],
+  ['external-relay-manual-required-state', deliverySource.includes('ExternalRelayRouteManualRequired')],
+  ['live-external-transport-claim-rejected', deliverySource.includes('LiveExternalTransportDeliveryClaimRejected')],
+  ['live-external-relay-claim-rejected', deliverySource.includes('LiveExternalRelayDeliveryClaimRejected')],
+  ['decision-authority-claim-rejected', deliverySource.includes('DecisionAuthorityClaimRejected')],
+  ['side-effect-authority-claim-rejected', deliverySource.includes('SideEffectAuthorityClaimRejected')],
   [
     'local-route-test',
     deliveryTests.includes('delivery_decision_allows_local_first_route_with_filter_and_backpressure'),
   ],
   [
-    'broker-manual-required-test',
-    deliveryTests.includes('delivery_decision_marks_broker_route_manual_required_without_required_artifacts'),
+    'external-transport-manual-required-test',
+    deliveryTests.includes('delivery_decision_marks_external_transport_manual_required_without_required_artifacts'),
   ],
   [
-    'family-hub-manual-required-test',
-    deliveryTests.includes('delivery_decision_marks_family_hub_route_manual_required_for_family_artifacts'),
+    'external-relay-manual-required-test',
+    deliveryTests.includes('delivery_decision_marks_external_relay_manual_required_for_relay_artifacts'),
   ],
   ['claim-rejection-test', deliveryTests.includes('delivery_decision_rejects_live_claims_and_invalid_route_metadata')],
 ];
@@ -75,15 +75,15 @@ const proof = {
   assertions: sourceAssertions.map(([name]) => name),
   provenBehavior: [
     'local in-process and local-service routes can be marked ready with subscriber filtering and bounded backpressure metadata',
-    'broker-backed and family-hub routes enumerate required custody, auth, encryption, retention, replay, deletion, offset, dedupe, broker, and family artifacts before they can be claimed',
-    'live broker, family-hub, policy-authority, and adapter-authority claims are rejected by the reusable eventing proof helper',
+    'external transport and external relay routes enumerate required custody, auth, encryption, retention, replay, deletion, offset, dedupe, transport, and relay artifacts before they can be claimed',
+    'live external transport, external relay, decision-authority, and side-effect-authority claims are rejected by the reusable eventing proof helper',
   ],
   provenRows: ['generic delivery decision support in the reusable eventing crate'],
   notClaimed: [
-    'live broker-backed delivery',
-    'family-hub delivery',
+    'live external transport delivery',
+    'external relay delivery',
     'cross-process transport implementation',
-    'network policy, adapter, or enforcement authority',
+    'network decision, side-effect, or enforcement authority',
   ],
 };
 

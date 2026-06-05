@@ -5,8 +5,8 @@ use tokio::{
 };
 
 use crate::{
-    CorrelationId, EventType, EventingError, NdjsonEventJournal, NdjsonJournalEntry,
-    StoredEventEnvelope,
+    CorrelationId, EventType, EventingError, JournalDispatchPhase, NdjsonEventJournal,
+    NdjsonJournalEntry, StoredEventEnvelope,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -141,6 +141,12 @@ impl NdjsonEventJournal {
                     reason: error.to_string(),
                 })?;
             last_sequence = last_sequence.max(entry.append.sequence);
+            if mode == ReplayMode::ActionHandlersAllowed
+                && entry.phase != JournalDispatchPhase::AfterDispatch
+            {
+                skipped_count += 1;
+                continue;
+            }
             if filter.matches(&entry) {
                 records.push(ReplayRecord {
                     sequence: entry.append.sequence,

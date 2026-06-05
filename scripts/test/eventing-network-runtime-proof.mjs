@@ -56,6 +56,7 @@ async function main() {
       networkRuntimeRefs: 'crates/agent-core/src/network_event_runtime/refs.rs',
       networkRuntimeReview: 'crates/agent-core/src/network_event_runtime/review.rs',
       networkRuntimeTests: 'crates/agent-core/src/network_event_runtime_tests.rs',
+      networkRuntimeQueueTests: 'crates/agent-core/src/network_event_runtime_queue_tests.rs',
       networkEventConstants: 'crates/agent-protocol/src/constants/network_flow.rs',
       proofHarness: 'scripts/test/eventing-network-runtime-proof.mjs',
       reusableNetworkRuntimePlanRow: 'docs/plans/eventing-plan/implementation-checklist.md#row-57',
@@ -86,7 +87,7 @@ async function main() {
       'packet capture, raw PCAP parsing, or analyzer signature parity',
       'decrypted HTTPS payload, exact URL, search query, message, video, or page-content visibility from network metadata',
       'real DNS, firewall, WFP, VPN, nftables, or Network Extension enforcement',
-      'broker-backed delivery, cross-process durable replay/retention, or family-hub delivery for network events',
+      'broker-backed delivery, cross-process durable replay/retention, or relay-hub delivery for network events',
       'parent portal network UI or product-ready network/domain blocking',
     ],
   };
@@ -108,6 +109,7 @@ async function assertSourceContracts() {
   const workspaceCargo = await readText('Cargo.toml');
   const agentCoreCargo = await readText('crates/agent-core/Cargo.toml');
   const eventingBusSource = await readText('crates/ocentra-eventing/src/bus.rs');
+  const eventingQueueDrainSource = await readText('crates/ocentra-eventing/src/bus/queue_drain.rs');
   const eventingPublisherSource = await readText('crates/ocentra-eventing/src/bus/publisher.rs');
   const eventingEnvelopeSource = await readText('crates/ocentra-eventing/src/envelope.rs');
   const networkSource = await readText('crates/agent-core/src/network_event_runtime.rs');
@@ -115,6 +117,7 @@ async function assertSourceContracts() {
   const networkRefsSource = await readText('crates/agent-core/src/network_event_runtime/refs.rs');
   const networkReviewSource = await readText('crates/agent-core/src/network_event_runtime/review.rs');
   const networkTests = await readText('crates/agent-core/src/network_event_runtime_tests.rs');
+  const networkQueueTests = await readText('crates/agent-core/src/network_event_runtime_queue_tests.rs');
   const eventingChecklist = await readText('docs/plans/eventing-plan/implementation-checklist.md');
 
   assertIncludes(workspaceCargo, 'crates/ocentra-eventing', 'workspace includes eventing crate');
@@ -142,7 +145,16 @@ async function assertSourceContracts() {
     'EventQueuePolicy::no_subscriber_queue',
     'network runtime uses reusable no-subscriber queue policy'
   );
-  assertIncludes(networkQueueSource, 'drain_queued', 'network runtime drains queued reusable eventing records');
+  assertIncludes(
+    eventingQueueDrainSource,
+    'pub(super) async fn drain_queued',
+    'reusable eventing crate owns queued event drain'
+  );
+  assertIncludes(
+    networkQueueSource,
+    'QueueDrainReport',
+    'network runtime observes queued drain through reusable eventing reports'
+  );
   assertIncludes(networkReviewSource, 'publish_request', 'network runtime uses reusable request-response registry');
   assertIncludes(
     networkReviewSource,
@@ -157,9 +169,24 @@ async function assertSourceContracts() {
     'network tests assert exact chain refs and no direct enforcement shortcut'
   );
   assertIncludes(
-    networkTests,
+    networkQueueTests,
     'network_runtime_queues_flow_until_subscriber_drains',
     'network tests assert no-subscriber queue drains through reusable eventing'
+  );
+  assertIncludes(
+    networkQueueTests,
+    'network_runtime_queue_overflow_dead_letters_oldest_flow',
+    'network tests assert bounded queue overflow dead-letters the oldest queued flow'
+  );
+  assertIncludes(
+    networkQueueTests,
+    'network_runtime_queue_ttl_expires_before_dispatch',
+    'network tests assert queue TTL expiry dead-letters before dispatch'
+  );
+  assertIncludes(
+    networkQueueTests,
+    'network_runtime_queue_idempotency_rejects_queued_and_completed_duplicates',
+    'network tests assert queue idempotency rejects queued and completed duplicates'
   );
   assertIncludes(
     networkTests,
@@ -323,7 +350,7 @@ function reusableRuntimeProof(proof) {
       'network runtime imports and uses the reusable ocentra-eventing crate rather than a private network event bus',
       'network runtime queues an unsubscribed network flow event through EventQueuePolicy::no_subscriber_queue and drains it after subscriber registration',
       'network runtime completes a typed local review request through RequestEvent, EventResponseContract, and publish_request',
-      'network runtime request and queue proofs keep adapter_action_executed false and do not claim broker or family-hub delivery',
+      'network runtime request and queue proofs keep adapter_action_executed false and do not claim broker or relay-hub delivery',
     ],
     claimsNotProved: proof.claimsNotProved,
   };

@@ -44,6 +44,7 @@ const commandResults = commands.map((entry) => {
 const clockSource = readFileSync('crates/ocentra-eventing/src/clock.rs', 'utf8');
 const envelopeSource = readFileSync('crates/ocentra-eventing/src/envelope.rs', 'utf8');
 const publishSource = readFileSync('crates/ocentra-eventing/src/bus/publish.rs', 'utf8');
+const queueDrainSource = readFileSync('crates/ocentra-eventing/src/bus/queue_drain.rs', 'utf8');
 const dispatchSource = readFileSync('crates/ocentra-eventing/src/bus/dispatch.rs', 'utf8');
 const queueStateSource = readFileSync('crates/ocentra-eventing/src/queue/state.rs', 'utf8');
 const manualClockTests = readFileSync('crates/ocentra-eventing/src/tests/clock_manual.rs', 'utf8');
@@ -60,7 +61,10 @@ const assertions = [
   ['stored-envelope-checks-deadline', envelopeSource.includes('pub fn is_deadline_expired')],
   ['publish-request-uses-event-clock-sleep', publishSource.includes('self.clock.sleep(options.timeout())')],
   ['publish-path-dead-letters-expired-deadline', publishSource.includes('dead_letter_expired_deadline')],
-  ['queued-drain-checks-deadline', publishSource.includes('queued_envelope.stored.is_deadline_expired(now)')],
+  [
+    'queued-drain-checks-deadline',
+    queueDrainSource.includes('queued_expiration(') && queueDrainSource.includes('stored.is_deadline_expired(now)'),
+  ],
   ['dispatch-retry-checks-deadline', dispatchSource.includes('HandlerOutcome::DeadlineExpired')],
   ['dispatch-timeout-uses-event-clock-sleep', dispatchSource.includes('clock.sleep(timeout)')],
   ['dispatch-has-no-tokio-timeout', !dispatchSource.includes('tokio::time::timeout')],

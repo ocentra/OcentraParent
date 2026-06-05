@@ -16,6 +16,8 @@ const TEST_IDEMPOTENCY: &str = "idempotency-test-1";
 const TEST_SOURCE_SERVICE: &str = "eventing-test-service";
 const TEST_SOURCE_COMPONENT: &str = "eventing-test-component";
 const TEST_INSTANCE: &str = "eventing-test-instance";
+const TEST_CUSTODY: &str = "local-only";
+const TEST_RUNTIME_ROLE: &str = "agent";
 pub(super) const TEST_TARGET: &str = "eventing-test-handler";
 pub(super) const OTHER_TARGET: &str = "eventing-other-handler";
 pub(super) const TEST_SUBSCRIBER: &str = "eventing-test-subscriber";
@@ -82,7 +84,7 @@ fn test_event_for_type_with_aggregate(
     )
 }
 
-fn test_event_for_type_with_aggregate_and_idempotency(
+pub(super) fn test_event_for_type_with_aggregate_and_idempotency(
     label: &str,
     aggregate_key: &str,
     event_type: &str,
@@ -97,8 +99,12 @@ fn test_event_for_type_with_aggregate_and_idempotency(
 }
 
 pub(super) fn metadata(target: &str) -> EventMetadata {
+    metadata_with_event_id(target, TEST_EVENT_ID)
+}
+
+pub(super) fn metadata_with_event_id(target: &str, event_id: &str) -> EventMetadata {
     EventMetadata::from_parts(
-        crate::EventId::parse(TEST_EVENT_ID).expect("event id parses"),
+        crate::EventId::parse(event_id).expect("event id parses"),
         CorrelationId::parse(TEST_CORRELATION_ID).expect("correlation id parses"),
         source(),
         RecordedAt::parse(TEST_OBSERVED_AT).expect("recorded at parses"),
@@ -108,8 +114,8 @@ pub(super) fn metadata(target: &str) -> EventMetadata {
 
 fn source() -> EventSource {
     EventSource::new(
-        EventCustody::LocalOnly,
-        RuntimeRole::ChildAgent,
+        EventCustody::parse(TEST_CUSTODY).expect("event custody parses"),
+        RuntimeRole::parse(TEST_RUNTIME_ROLE).expect("runtime role parses"),
         SourceService::parse(TEST_SOURCE_SERVICE).expect("source service parses"),
         SourceComponent::parse(TEST_SOURCE_COMPONENT).expect("source component parses"),
         RuntimeInstanceId::parse(TEST_INSTANCE).expect("runtime instance parses"),

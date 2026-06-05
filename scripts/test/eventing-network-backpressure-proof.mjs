@@ -50,13 +50,13 @@ const proof = {
   ],
   claimsProved: [
     'network runtime flow events use the reusable ocentra-eventing no-subscriber queue path',
-    'bounded network queue overflow dead-letters the rejected flow instead of silently dropping it',
+    'bounded network queue overflow records an explicit queue-overflow dead letter instead of silently dropping work',
     'network queued flow TTL expiry dead-letters before dispatch through ManualEventClock proof',
     'network flow idempotency rejects duplicate queued and completed observations',
     'stored network queue payloads remain metadata-only and do not claim exact URL, decrypted payload, or adapter action execution',
   ],
   claimsNotProved: [
-    'broker-backed delivery or family-hub transport',
+    'broker-backed delivery or relay-hub transport',
     'service WebSocket streaming of the full runtime event chain',
     'production retention, replay, delete/export, offset, or dedupe behavior',
     'host DNS/filter, firewall, WFP, VpnService, NetworkExtension, nftables, eBPF, or TUN adapter execution',
@@ -93,12 +93,12 @@ function assertSourceContracts() {
   assertIncludes(queueTestsSource, 'DuplicateIdempotencyKey', 'network duplicate idempotency rejection asserted');
   assertIncludes(
     eventingQueueSource,
-    'QueueOverflowPolicy::DeadLetterRejected',
-    'generic eventing queue supports dead-letter overflow policy'
+    'QueueOverflowPolicy::DropOldestAndDeadLetter',
+    'generic eventing queue supports lineage-compatible drop-oldest dead-letter overflow policy'
   );
   assertIncludes(
     eventingQueueTests,
-    'bounded_queue_overflow_dead_letters_rejected_event',
+    'bounded_queue_overflow_dead_letters_oldest_event_and_keeps_newest',
     'generic eventing overflow test exists'
   );
   assertIncludes(

@@ -6,9 +6,13 @@ use std::{
 };
 
 use serde::{Deserialize, Serialize};
-use tokio::{fs::OpenOptions, io::AsyncWriteExt, sync::Semaphore};
+use tokio::{
+    fs::{File, OpenOptions},
+    io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
+    sync::Semaphore,
+};
 
-use crate::{EventingError, JournalHash, StoredEventEnvelope};
+use crate::{EventingError, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
 use super::{EventJournal, JournalAppend, JournalAppendFuture, SharedEventJournal};
 
@@ -83,35 +87,92 @@ impl NdjsonEventJournal {
     async fn append_entry(
         &self,
         envelope: &StoredEventEnvelope,
+        phase: JournalDispatchPhase,
     ) -> Result<JournalAppend, EventingError> {
         let _append_permit = Arc::clone(&self.append_gate)
             .acquire_owned()
             .await
             .expect("journal append gate remains open");
+        self.recover_state().await?;
         let append = {
-            let mut state = self.state.lock().expect("journal state lock");
-            state.next_sequence += 1;
+            let state = self.state.lock().expect("journal state lock");
+            let next_sequence = state.next_sequence.saturating_add(1);
             let previous_hash = previous_hash(&self.options, &state);
-            let current_hash =
-                current_hash(&self.options, state.next_sequence, &previous_hash, envelope)?;
+            let current_hash = current_hash(
+                &self.options,
+                next_sequence,
+                &previous_hash,
+                envelope,
+                phase,
+            )?;
             JournalAppend {
-                sequence: state.next_sequence,
+                sequence: next_sequence,
                 previous_hash,
                 current_hash,
             }
         };
-        self.write_entry(&append, envelope).await?;
-        self.state.lock().expect("journal state lock").previous_hash = append.current_hash.clone();
+        self.write_entry(&append, envelope, phase).await?;
+        {
+            let mut state = self.state.lock().expect("journal state lock");
+            state.next_sequence = append.sequence;
+            state.previous_hash = append.current_hash.clone();
+            state.recovered = true;
+        }
         Ok(append)
+    }
+
+    async fn recover_state(&self) -> Result<(), EventingError> {
+        if self.state.lock().expect("journal state lock").recovered {
+            return Ok(());
+        }
+        let recovered = self.read_recovered_state().await?;
+        let mut state = self.state.lock().expect("journal state lock");
+        if !state.recovered {
+            *state = recovered;
+        }
+        Ok(())
+    }
+
+    async fn read_recovered_state(&self) -> Result<NdjsonJournalState, EventingError> {
+        let file = match File::open(&self.path).await {
+            Ok(file) => file,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                return Ok(NdjsonJournalState::recovered_empty());
+            }
+            Err(error) => return Err(EventingError::journal_io(self.path_string(), error)),
+        };
+        let mut lines = BufReader::new(file).lines();
+        let mut line_number = 0_usize;
+        let mut state = NdjsonJournalState::recovered_empty();
+        while let Some(line) = lines
+            .next_line()
+            .await
+            .map_err(|error| EventingError::journal_io(self.path_string(), error))?
+        {
+            line_number += 1;
+            if line.trim().is_empty() {
+                continue;
+            }
+            let entry: NdjsonJournalEntry =
+                serde_json::from_str(&line).map_err(|error| EventingError::JournalCorruptLine {
+                    line: line_number,
+                    reason: error.to_string(),
+                })?;
+            state.next_sequence = entry.append.sequence;
+            state.previous_hash = entry.append.current_hash;
+        }
+        Ok(state)
     }
 
     async fn write_entry(
         &self,
         append: &JournalAppend,
         envelope: &StoredEventEnvelope,
+        phase: JournalDispatchPhase,
     ) -> Result<(), EventingError> {
         let entry = NdjsonJournalEntry {
             append: append.clone(),
+            phase,
             envelope: envelope.clone(),
         };
         let mut line = serde_json::to_vec(&entry).map_err(EventingError::journal_encode)?;
@@ -140,7 +201,18 @@ impl NdjsonEventJournal {
 
 impl EventJournal for NdjsonEventJournal {
     fn append<'a>(&'a self, envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
-        Box::pin(async move { self.append_entry(envelope).await })
+        Box::pin(async move {
+            self.append_entry(envelope, JournalDispatchPhase::AfterDispatch)
+                .await
+        })
+    }
+
+    fn append_phase<'a>(
+        &'a self,
+        envelope: &'a StoredEventEnvelope,
+        phase: JournalDispatchPhase,
+    ) -> JournalAppendFuture<'a> {
+        Box::pin(async move { self.append_entry(envelope, phase).await })
     }
 }
 
@@ -148,11 +220,24 @@ impl EventJournal for NdjsonEventJournal {
 struct NdjsonJournalState {
     next_sequence: u64,
     previous_hash: Option<JournalHash>,
+    recovered: bool,
+}
+
+impl NdjsonJournalState {
+    fn recovered_empty() -> Self {
+        Self {
+            next_sequence: 0,
+            previous_hash: None,
+            recovered: true,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct NdjsonJournalEntry {
     pub append: JournalAppend,
+    #[serde(default = "default_journal_phase")]
+    pub phase: JournalDispatchPhase,
     pub envelope: StoredEventEnvelope,
 }
 
@@ -160,6 +245,7 @@ pub struct NdjsonJournalEntry {
 struct JournalHashInput<'a> {
     sequence: u64,
     previous_hash: Option<&'a JournalHash>,
+    phase: JournalDispatchPhase,
     envelope: &'a StoredEventEnvelope,
 }
 
@@ -178,11 +264,12 @@ fn current_hash(
     sequence: u64,
     previous_hash: &Option<JournalHash>,
     envelope: &StoredEventEnvelope,
+    phase: JournalDispatchPhase,
 ) -> Result<Option<JournalHash>, EventingError> {
     match options.hash_chain {
         JournalHashChain::Disabled => Ok(None),
         JournalHashChain::Enabled => {
-            hash_entry(sequence, previous_hash.as_ref(), envelope).map(Some)
+            hash_entry(sequence, previous_hash.as_ref(), envelope, phase).map(Some)
         }
     }
 }
@@ -191,14 +278,20 @@ fn hash_entry(
     sequence: u64,
     previous_hash: Option<&JournalHash>,
     envelope: &StoredEventEnvelope,
+    phase: JournalDispatchPhase,
 ) -> Result<JournalHash, EventingError> {
     let input = JournalHashInput {
         sequence,
         previous_hash,
+        phase,
         envelope,
     };
     let bytes = serde_json::to_vec(&input).map_err(EventingError::journal_encode)?;
     let mut hasher = DefaultHasher::new();
     bytes.hash(&mut hasher);
     JournalHash::parse(format!("{JOURNAL_HASH_PREFIX}{:016x}", hasher.finish()))
+}
+
+fn default_journal_phase() -> JournalDispatchPhase {
+    JournalDispatchPhase::AfterDispatch
 }

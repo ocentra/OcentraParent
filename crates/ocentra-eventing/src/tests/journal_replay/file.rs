@@ -37,6 +37,30 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
 }
 
 #[tokio::test]
+async fn ndjson_journal_reopen_continues_sequence_and_hash_chain() {
+    let path = journal_path("reopen-hash-chain");
+    let first_journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let first = stored_event(test_event(TEST_LABEL));
+    let first_append = first_journal.append(&first).await.expect("first append");
+    drop(first_journal);
+
+    let reopened = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let second = stored_event(test_event_for_type("second event", OTHER_EVENT_TYPE));
+    let second_append = reopened.append(&second).await.expect("second append");
+    let lines = read_lines(&path).await;
+    let second_entry: NdjsonJournalEntry =
+        serde_json::from_str(&lines[1]).expect("second line decodes");
+
+    assert_eq!(lines.len(), 2);
+    assert_eq!(first_append.sequence, 1);
+    assert_eq!(second_append.sequence, 2);
+    assert_eq!(second_append.previous_hash, first_append.current_hash);
+    assert_eq!(second_entry.append.previous_hash, first_append.current_hash);
+    assert_eq!(second_entry.append.current_hash, second_append.current_hash);
+    cleanup(&path).await;
+}
+
+#[tokio::test]
 async fn concurrent_ndjson_appends_do_not_hold_state_lock_across_file_write() {
     let path = journal_path("concurrent-hash-chain");
     let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());

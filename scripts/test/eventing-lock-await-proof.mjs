@@ -47,6 +47,7 @@ const productionSources = sourceFiles('crates/ocentra-eventing/src')
 const sourceByPath = new Map(productionSources);
 const ndjsonSource = sourceByPath.get(join('crates', 'ocentra-eventing', 'src', 'journal', 'ndjson.rs'));
 const publishSource = sourceByPath.get(join('crates', 'ocentra-eventing', 'src', 'bus', 'publish.rs'));
+const aggregateGateSource = sourceByPath.get(join('crates', 'ocentra-eventing', 'src', 'bus', 'aggregate_gate.rs'));
 const busSource = sourceByPath.get(join('crates', 'ocentra-eventing', 'src', 'bus.rs'));
 const queueSource = sourceByPath.get(join('crates', 'ocentra-eventing', 'src', 'queue', 'state.rs'));
 const requestSource = sourceByPath.get(join('crates', 'ocentra-eventing', 'src', 'request.rs'));
@@ -60,15 +61,17 @@ const sourceAssertions = [
   ['journal-append-has-semaphore-gate', ndjsonSource.includes('append_gate: Arc<Semaphore>')],
   [
     'journal-reserves-state-before-await',
-    /let append = \{\s*let mut state = self\.state\.lock\(\)/s.test(ndjsonSource),
+    /let append = \{\s*let (?:mut )?state = self\.state\.lock\(\)/s.test(ndjsonSource),
   ],
   [
     'journal-writes-after-state-block',
-    /let append = \{[\s\S]*?\n        \};\s*self\.write_entry\(&append, envelope\)\.await\?;/s.test(ndjsonSource),
+    /let append = \{[\s\S]*?\n        \};\s*self\.write_entry\(&append, envelope, phase\)\.await\?;/s.test(
+      ndjsonSource
+    ),
   ],
   [
     'journal-commits-state-after-file-await',
-    /self\.write_entry\(&append, envelope\)\.await\?;[\s\S]*previous_hash = append\.current_hash\.clone\(\);/s.test(
+    /self\.write_entry\(&append, envelope, phase\)\.await\?;[\s\S]*previous_hash = append\.current_hash\.clone\(\);/s.test(
       ndjsonSource
     ),
   ],
@@ -80,7 +83,12 @@ const sourceAssertions = [
     'aggregate-order-uses-owned-semaphore-permit',
     publishSource.includes('acquire_owned()') && publishSource.includes('aggregate ordering gate remains open'),
   ],
-  ['aggregate-order-has-no-async-mutex', !publishSource.includes('AsyncMutex') && !busSource.includes('AsyncMutex')],
+  [
+    'aggregate-order-has-no-async-mutex',
+    !publishSource.includes('AsyncMutex') &&
+      !aggregateGateSource.includes('AsyncMutex') &&
+      !busSource.includes('AsyncMutex'),
+  ],
   ['queue-state-remains-sync-only', !queueSource.includes('async fn') && !queueSource.includes('.await')],
   ['request-registry-remains-sync-only', !requestSource.includes('async fn') && !requestSource.includes('.await')],
   ['subscriber-insert-registry-has-no-await', !insertSubscriberBlock.includes('.await')],
@@ -92,7 +100,7 @@ const sourceAssertions = [
   [
     'aggregate-map-lock-only-returns-gate',
     /fn aggregate_gate[\s\S]*Arc::clone\([\s\S]*or_insert_with\(\|\| Arc::new\(Semaphore::new\(1\)\)\)/s.test(
-      publishSource
+      aggregateGateSource
     ),
   ],
 ];

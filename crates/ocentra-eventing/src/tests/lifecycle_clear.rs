@@ -4,8 +4,9 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::Notify;
 
 use super::fixtures::{
-    metadata, subscriber, subscriber_for_event, test_event_for_type, test_event_with_idempotency,
-    OTHER_EVENT_TYPE, OTHER_SUBSCRIBER, OTHER_TARGET, TEST_SUBSCRIBER, TEST_TARGET,
+    metadata, metadata_with_event_id, subscriber, subscriber_for_event, test_event_for_type,
+    test_event_with_idempotency, OTHER_EVENT_TYPE, OTHER_SUBSCRIBER, OTHER_TARGET, TEST_SUBSCRIBER,
+    TEST_TARGET,
 };
 use crate::{
     AggregateKey, DispatchMode, DomainEvent, EventBus, EventContract, EventQueuePolicy,
@@ -36,13 +37,13 @@ async fn clear_for_test_reports_and_resets_local_bus_state() {
     .expect("failing subscriber registers");
     bus.publish(
         test_event_with_idempotency("queued", "lifecycle-clear-queued"),
-        metadata(OTHER_TARGET),
+        metadata_with_event_id(OTHER_TARGET, "lifecycle-clear-event-1"),
     )
     .await
     .expect("wrong target queues event");
     bus.publish_with_mode(
         test_event_for_type("failed", OTHER_EVENT_TYPE),
-        metadata(OTHER_TARGET),
+        metadata_with_event_id(OTHER_TARGET, "lifecycle-clear-event-2"),
         DispatchMode::OrderedByAggregateKey,
     )
     .await
@@ -68,7 +69,7 @@ async fn clear_for_test_reports_and_resets_local_bus_state() {
     assert_eq!(clear_report.subscription_count, 2);
     assert_eq!(clear_report.stored_journal_count, 2);
     assert_eq!(clear_report.dead_letter_count, 1);
-    assert_eq!(clear_report.aggregate_gate_count, 1);
+    assert_eq!(clear_report.aggregate_gate_count, 0);
     assert_eq!(clear_report.queued_event_count, 1);
     assert_eq!(clear_report.queued_idempotency_key_count, 0);
     assert_eq!(clear_report.completed_idempotency_key_count, 0);

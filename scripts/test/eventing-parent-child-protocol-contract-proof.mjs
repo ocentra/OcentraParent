@@ -56,7 +56,7 @@ async function main() {
       'parent/controller runtime publisher implementation for validated intents',
       'parent/controller to child-agent transport delivery behavior',
       'child-agent runtime receive and local publish behavior',
-      'broker-backed delivery or family-hub delivery',
+      'broker-backed delivery or relay-hub delivery',
       'adapter execution or host/platform enforcement',
       'portal UI ownership of business event publishing',
     ],

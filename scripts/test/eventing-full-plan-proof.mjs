@@ -14,6 +14,7 @@ const proofScripts = [
   'eventing-command-boundary-proof.mjs',
   'eventing-compatibility-matrix-proof.mjs',
   'eventing-contract-registry-proof.mjs',
+  'eventing-delivery-semantics-proof.mjs',
   'eventing-duplicate-subscriber-proof.mjs',
   'eventing-enforcement-journal-action-proof.mjs',
   'eventing-family-variant-proof.mjs',
@@ -23,13 +24,20 @@ const proofScripts = [
   'eventing-lock-await-proof.mjs',
   'eventing-manual-clock-proof.mjs',
   'eventing-network-protocol-contract-proof.mjs',
+  'eventing-network-backpressure-proof.mjs',
+  'eventing-network-delivery-decision-proof.mjs',
   'eventing-network-runtime-proof.mjs',
+  'eventing-network-service-event-chain-stream-proof.mjs',
+  'eventing-network-service-runtime-delivery-proof.mjs',
+  'eventing-network-ts-event-parity-proof.mjs',
   'eventing-parent-child-protocol-contract-proof.mjs',
   'eventing-parent-child-runtime-proof.mjs',
   'eventing-production-shutdown-proof.mjs',
   'eventing-queue-policy-proof.mjs',
   'eventing-request-response-proof.mjs',
+  'eventing-runtime-proof.mjs',
   'eventing-runtime-lifecycle-proof.mjs',
+  'eventing-metrics-testkit-proof.mjs',
   'eventing-source-safety-proof.mjs',
   'eventing-topology-manifest-proof.mjs',
   'eventing-type-safety-source-gate-proof.mjs',
@@ -55,7 +63,7 @@ const directCommands = [
   {
     name: 'git-diff-check',
     command: 'git',
-    args: ['diff', '--check'],
+    args: ['diff', '--check', '--', '.', ':(exclude)output', ':(exclude)test-results'],
   },
 ];
 
@@ -79,10 +87,12 @@ writeGroupedLog('01-contract-proof.log', commands, [
   'eventing-branded-fixture-parity-proof',
   'eventing-parent-child-protocol-contract-proof',
   'eventing-network-protocol-contract-proof',
+  'eventing-network-ts-event-parity-proof',
   'ocentra-eventing-tests',
 ]);
 writeGroupedLog('02-dispatch-proof.log', commands, [
   'eventing-runtime-lifecycle-proof',
+  'eventing-delivery-semantics-proof',
   'eventing-handler-policy-proof',
   'eventing-duplicate-subscriber-proof',
   'eventing-family-variant-proof',
@@ -90,6 +100,7 @@ writeGroupedLog('02-dispatch-proof.log', commands, [
 ]);
 writeGroupedLog('03-queue-retry-timeout-proof.log', commands, [
   'eventing-queue-policy-proof',
+  'eventing-network-backpressure-proof',
   'eventing-handler-policy-proof',
   'eventing-manual-clock-proof',
   'eventing-production-shutdown-proof',
@@ -108,6 +119,8 @@ writeGroupedLog('05-journal-replay-proof.log', commands, [
 writeGroupedLog('06-parent-runtime-boundary-proof.log', commands, [
   'eventing-parent-child-runtime-proof',
   'eventing-network-runtime-proof',
+  'eventing-network-service-runtime-delivery-proof',
+  'eventing-network-service-event-chain-stream-proof',
   'eventing-enforcement-journal-action-proof',
 ]);
 writeGroupedLog('07-ui-boundary-proof.log', commands, [
@@ -116,6 +129,7 @@ writeGroupedLog('07-ui-boundary-proof.log', commands, [
 ]);
 writeGroupedLog('08-security-negative-proof.log', commands, [
   'eventing-command-boundary-proof',
+  'eventing-network-delivery-decision-proof',
   'eventing-source-safety-proof',
   'eventing-lock-await-proof',
   'eventing-queue-policy-proof',
@@ -130,7 +144,7 @@ writeFileSync(
     'N/A for the reusable eventing crate proof pack.',
     '',
     'The eventing plan establishes local typed runtime/event bus behavior and protocol/runtime boundaries.',
-    'It does not claim broker delivery, family-hub delivery, platform adapter execution, host filtering, or device OS support.',
+    'It does not claim broker delivery, relay-hub delivery, platform adapter execution, host filtering, or device OS support.',
     '',
   ].join('\n')
 );
@@ -139,6 +153,15 @@ writeGroupedLog(
   commands,
   commands.map((entry) => entry.name)
 );
+writeGroupedLog('11-network-consumer-proof.log', commands, [
+  'eventing-network-protocol-contract-proof',
+  'eventing-network-ts-event-parity-proof',
+  'eventing-network-runtime-proof',
+  'eventing-network-backpressure-proof',
+  'eventing-network-service-runtime-delivery-proof',
+  'eventing-network-service-event-chain-stream-proof',
+  'eventing-network-delivery-decision-proof',
+]);
 
 const proof = {
   proof: 'eventing-full-plan',
@@ -163,11 +186,21 @@ const proof = {
     '08-security-negative-proof.log',
     '09-manual-platform-proof.md',
     '10-validation-commands.log',
+    '11-network-consumer-proof.log',
   ].map((name) => join(proofRoot, name)),
-  provenRows: ['05-78 eventing implementation rows'],
+  provenRows: [
+    '05-41 reusable eventing crate runtime rows',
+    '42-62 parent/controller, child-agent, network, UI, enforcement, and command-boundary consumer rows',
+    '63-78 reusable eventing type-safety, compatibility, lifecycle, topology, delivery, and source-safety rows',
+  ],
+  networkConsumerProof: {
+    proofLog: join(proofRoot, '11-network-consumer-proof.log'),
+    proves:
+      'network consumes ocentra-eventing for typed publish/routing, queue/drain, request-response, service read-model delivery, service event-chain streaming, TypeScript parity, and broker/relay-hub manual-required delivery decisions without adding network business logic to crates/ocentra-eventing',
+  },
   notClaimed: [
     'broker-backed delivery',
-    'family-hub delivery',
+    'relay-hub delivery',
     'platform adapter execution',
     'host DNS/filter enforcement',
     'portal-owned business event publishing',

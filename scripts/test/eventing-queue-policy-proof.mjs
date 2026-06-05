@@ -44,7 +44,7 @@ const commandResults = commands.map((entry) => {
 const queueRootSource = readFileSync('crates/ocentra-eventing/src/queue.rs', 'utf8');
 const queuePolicySource = readFileSync('crates/ocentra-eventing/src/queue/policy.rs', 'utf8');
 const queueStateSource = readFileSync('crates/ocentra-eventing/src/queue/state.rs', 'utf8');
-const publishSource = readFileSync('crates/ocentra-eventing/src/bus/publish.rs', 'utf8');
+const queueDrainSource = readFileSync('crates/ocentra-eventing/src/bus/queue_drain.rs', 'utf8');
 const reportsSource = readFileSync('crates/ocentra-eventing/src/bus/reports.rs', 'utf8');
 const queueTests = readFileSync('crates/ocentra-eventing/src/tests/queue.rs', 'utf8');
 
@@ -52,16 +52,20 @@ const sourceAssertions = [
   ['queue-module-split', queueRootSource.includes('mod policy') && queueRootSource.includes('mod state')],
   ['event-queue-policy', queuePolicySource.includes('pub struct EventQueuePolicy')],
   ['no-subscriber-queue-policy', queuePolicySource.includes('NoSubscriberQueuePolicy::Queue')],
-  ['bounded-overflow-policy', queuePolicySource.includes('QueueOverflowPolicy::DeadLetterRejected')],
-  ['queue-ttl-expiry', publishSource.includes('is_expired(now, self.queue.policy().ttl())')],
+  ['bounded-drop-oldest-overflow-policy', queuePolicySource.includes('QueueOverflowPolicy::DropOldestAndDeadLetter')],
+  ['bounded-dead-letter-rejected-policy', queuePolicySource.includes('DeadLetterRejected')],
+  ['queue-ttl-expiry', queueDrainSource.includes('is_expired(now, self.queue.policy().ttl())')],
   ['in-flight-duplicate-guard', queueStateSource.includes('DuplicateInFlight')],
   ['idempotency-registry', queueStateSource.includes('completed_keys')],
   ['queue-drain-report', reportsSource.includes('pub struct QueueDrainReport')],
   ['dead-letter-event', reportsSource.includes('pub struct DeadLetterEvent')],
   ['no-subscriber-queue-test', queueTests.includes('no_subscriber_queue_drains_after_subscriber_registers')],
-  ['overflow-dead-letter-test', queueTests.includes('bounded_queue_overflow_dead_letters_rejected_event')],
+  [
+    'overflow-drop-oldest-dead-letter-test',
+    queueTests.includes('bounded_queue_overflow_dead_letters_oldest_event_and_keeps_newest'),
+  ],
   ['queue-ttl-test', queueTests.includes('queued_event_expires_before_dispatch_when_ttl_elapsed')],
-  ['in-flight-duplicate-test', queueTests.includes('in_flight_duplicate_guard_rejects_concurrent_publish')],
+  ['in-flight-event-id-duplicate-test', queueTests.includes('in_flight_duplicate_guard_rejects_concurrent_event_id')],
   ['completed-idempotency-test', queueTests.includes('idempotency_registry_rejects_queued_and_completed_duplicates')],
 ];
 

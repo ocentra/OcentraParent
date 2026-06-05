@@ -22,6 +22,8 @@ const FAMILY_OBSERVED_AT: &str = "2026-06-04T02:45:00Z";
 const FAMILY_SOURCE_SERVICE: &str = "family-service";
 const FAMILY_SOURCE_COMPONENT: &str = "family-component";
 const FAMILY_INSTANCE: &str = "family-instance";
+const FAMILY_CUSTODY: &str = "local-only";
+const FAMILY_RUNTIME_ROLE: &str = "agent";
 const FAMILY_TARGET: &str = "family-target";
 const APPROVED_SUBSCRIBER: &str = "family-approved-subscriber";
 const REJECTED_SUBSCRIBER: &str = "family-rejected-subscriber";
@@ -189,8 +191,8 @@ fn family_metadata() -> EventMetadata {
         crate::EventId::parse(FAMILY_EVENT_ID).expect("event id parses"),
         CorrelationId::parse(FAMILY_CORRELATION).expect("correlation parses"),
         EventSource::new(
-            EventCustody::LocalOnly,
-            RuntimeRole::ChildAgent,
+            EventCustody::parse(FAMILY_CUSTODY).expect("event custody parses"),
+            RuntimeRole::parse(FAMILY_RUNTIME_ROLE).expect("runtime role parses"),
             SourceService::parse(FAMILY_SOURCE_SERVICE).expect("source service parses"),
             SourceComponent::parse(FAMILY_SOURCE_COMPONENT).expect("source component parses"),
             RuntimeInstanceId::parse(FAMILY_INSTANCE).expect("runtime instance parses"),

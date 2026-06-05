@@ -14,6 +14,11 @@ const commands = [
     args: ['test', '-p', 'ocentra-eventing', 'handler_policy'],
   },
   {
+    name: 'eventing-metrics-tests',
+    command: 'cargo',
+    args: ['test', '-p', 'ocentra-eventing', 'metrics'],
+  },
+  {
     name: 'eventing-clippy',
     command: 'cargo',
     args: ['clippy', '-p', 'ocentra-eventing', '--all-targets', '--', '-D', 'warnings'],
@@ -26,17 +31,27 @@ const commands = [
   {
     name: 'git-diff-check',
     command: 'git',
-    args: ['diff', '--check'],
+    args: ['diff', '--check', '--', '.', ':(exclude)output', ':(exclude)test-results'],
   },
 ];
 
 const commandResults = commands.map(runCommand);
 
 const reportsSource = readFileSync('crates/ocentra-eventing/src/bus/reports.rs', 'utf8');
+const busSource = readFileSync('crates/ocentra-eventing/src/bus.rs', 'utf8');
+const queueSource = readFileSync('crates/ocentra-eventing/src/queue/state.rs', 'utf8');
+const requestSource = readFileSync('crates/ocentra-eventing/src/request.rs', 'utf8');
 const testkitSource = readFileSync('crates/ocentra-eventing/src/testkit.rs', 'utf8');
 const handlerPolicyTests = readFileSync('crates/ocentra-eventing/src/tests/handler_policy.rs', 'utf8');
+const metricsTests = readFileSync('crates/ocentra-eventing/src/tests/metrics.rs', 'utf8');
 
 const sourceAssertions = [
+  ['event-metrics-snapshot-struct', reportsSource.includes('pub struct EventMetricsSnapshot')],
+  ['event-queue-metrics-struct', reportsSource.includes('pub struct EventQueueMetrics')],
+  ['event-request-metrics-struct', reportsSource.includes('pub struct EventRequestMetrics')],
+  ['metrics-snapshot-api', busSource.includes('pub async fn metrics_snapshot')],
+  ['queue-metrics-counts', queueSource.includes('pub(crate) fn metrics')],
+  ['request-metrics-counts', requestSource.includes('pub(crate) fn metrics')],
   ['event-trace-fields-struct', reportsSource.includes('pub struct EventTraceFields')],
   ['trace-event-id', reportsSource.includes('pub event_id: EventId')],
   ['trace-event-type', reportsSource.includes('pub event_type: EventType')],
@@ -50,6 +65,10 @@ const sourceAssertions = [
   [
     'event-recorder-real-subscription-test',
     handlerPolicyTests.includes('event_recorder_uses_real_subscription_and_can_unsubscribe'),
+  ],
+  [
+    'metrics-snapshot-test',
+    metricsTests.includes('metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts'),
   ],
 ];
 
@@ -67,14 +86,15 @@ const proof = {
   statusShort: runText('git', ['status', '--short']),
   commands: commandResults,
   assertions: sourceAssertions.map(([name]) => name),
-  provenRows: ['20 metrics and tracing fields', '24 testkit bus construction and event recorder'],
+  provenRows: ['20 metrics snapshot and tracing fields', '24 testkit bus construction and event recorder'],
   provenBehavior: [
+    'EventBus::metrics_snapshot exposes exact stored event, dead-letter, queue, idempotency, and request-state counts',
     'handler reports expose trace fields for event id, event type, correlation id, target handler, and outcome',
     'EventRecorder attaches through a real typed subscription and can unsubscribe without mocks, fakes, stubs, or spies',
   ],
   notClaimed: [
     'external telemetry exporter integration',
-    'broker or family-hub delivery metrics',
+    'broker or relay-hub delivery metrics',
     'portal business-event publishing',
   ],
 };

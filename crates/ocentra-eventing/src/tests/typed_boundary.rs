@@ -7,7 +7,8 @@ use super::fixtures::{
     TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
 };
 use crate::{
-    DispatchMode, EventBus, EventEnvelope, EventType, EventingError, RecordedAt, SchemaVersion,
+    CausationId, DispatchMode, EventBus, EventEnvelope, EventNamespace, EventPriority, EventType,
+    EventingError, RecordedAt, SchemaVersion,
 };
 
 #[tokio::test]
@@ -25,8 +26,11 @@ async fn event_bus_dispatches_typed_envelope_and_stores_serialized_boundary() {
     .await
     .expect("subscriber registers");
 
+    let metadata = metadata(TEST_TARGET)
+        .with_causation_id(CausationId::parse("causation-test-1").expect("causation id parses"))
+        .with_priority(EventPriority::High);
     let report = bus
-        .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+        .publish(test_event(TEST_LABEL), metadata)
         .await
         .expect("publish succeeds");
     let journal = bus.journal().await;
@@ -36,6 +40,15 @@ async fn event_bus_dispatches_typed_envelope_and_stores_serialized_boundary() {
     assert_eq!(report.handled_count, 1);
     assert_eq!(handled.lock().await.as_slice(), &[TEST_LABEL.to_string()]);
     assert_eq!(decoded.payload.label, TEST_LABEL);
+    assert_eq!(
+        decoded
+            .causation_id
+            .as_ref()
+            .expect("causation id is stored")
+            .as_str(),
+        "causation-test-1"
+    );
+    assert_eq!(decoded.priority, EventPriority::High);
     assert_eq!(journal.len(), 1);
 }
 
@@ -121,8 +134,29 @@ async fn duplicate_subscriber_ids_are_rejected() {
 #[test]
 fn eventing_newtypes_reject_empty_values_and_zero_versions() {
     assert!(EventType::parse("").is_err());
+    assert!(EventType::parse(".leading").is_err());
+    assert!(EventType::parse("trailing.").is_err());
+    assert!(EventType::parse("empty..segment").is_err());
+    assert!(EventType::parse("eventing/slash-taxonomy/observed").is_ok());
     assert!(RecordedAt::parse(" ").is_err());
     assert!(SchemaVersion::new(0).is_err());
+}
+
+#[test]
+fn event_namespaces_match_dot_and_slash_event_taxonomy() {
+    let slash_event =
+        EventType::parse("network/transport/observed").expect("slash event type parses");
+    let dot_event = EventType::parse("network.transport.observed").expect("dot event type parses");
+    let network_namespace = EventNamespace::parse("network").expect("namespace parses");
+
+    assert_eq!(
+        EventNamespace::from_event_type(&slash_event)
+            .expect("slash namespace derives")
+            .as_str(),
+        "network"
+    );
+    assert!(network_namespace.matches_event_type(&slash_event));
+    assert!(network_namespace.matches_event_type(&dot_event));
 }
 
 #[test]

@@ -20,7 +20,7 @@ impl EventQueuePolicy {
         Ok(Self {
             capacity: Some(capacity),
             no_subscriber: NoSubscriberQueuePolicy::Queue,
-            overflow: QueueOverflowPolicy::DeadLetterRejected,
+            overflow: QueueOverflowPolicy::DropOldestAndDeadLetter,
             ttl: None,
             idempotency_registry: false,
         })
@@ -103,6 +103,7 @@ pub enum NoSubscriberQueuePolicy {
 pub enum QueueOverflowPolicy {
     RejectPublish,
     DeadLetterRejected,
+    DropOldestAndDeadLetter,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

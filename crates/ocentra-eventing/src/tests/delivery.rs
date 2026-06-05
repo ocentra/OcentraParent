@@ -33,25 +33,25 @@ fn delivery_decision_allows_local_first_route_with_filter_and_backpressure() {
     assert!(proof.backpressure_policy.idempotency_required);
     assert!(proof.local_delivery_ready);
     assert!(proof.subscriber_filtering_enabled);
-    assert!(!proof.broker_delivery_implemented);
-    assert!(!proof.family_hub_delivery_implemented);
-    assert!(!proof.policy_authority);
-    assert!(!proof.adapter_authority);
+    assert!(!proof.external_transport_delivery_implemented);
+    assert!(!proof.external_relay_delivery_implemented);
+    assert!(!proof.decision_authority);
+    assert!(!proof.side_effect_authority);
 }
 
 #[test]
-fn delivery_decision_marks_broker_route_manual_required_without_required_artifacts() {
+fn delivery_decision_marks_external_transport_manual_required_without_required_artifacts() {
     let proof = decide_event_delivery_route(EventDeliveryDecisionInput {
-        route_kind: EventDeliveryRouteKind::BrokerBacked,
+        route_kind: EventDeliveryRouteKind::ExternalTransport,
         ..local_input(EventDeliveryRouteKind::LocalInProcess)
     })
-    .expect("broker route decision should be reportable when artifacts are missing");
+    .expect("external transport route decision should be reportable when artifacts are missing");
 
     assert_eq!(
         proof.decision_state,
-        EventDeliveryDecisionState::BrokerRouteManualRequired
+        EventDeliveryDecisionState::ExternalTransportRouteManualRequired
     );
-    assert_eq!(proof.required_artifacts, broker_requirements());
+    assert_eq!(proof.required_artifacts, external_transport_requirements());
     assert_eq!(
         proof.missing_artifacts,
         vec![
@@ -64,17 +64,17 @@ fn delivery_decision_marks_broker_route_manual_required_without_required_artifac
             EventDeliveryRequiredArtifact::DeletionPlan,
             EventDeliveryRequiredArtifact::OffsetPolicy,
             EventDeliveryRequiredArtifact::DedupePolicy,
-            EventDeliveryRequiredArtifact::BrokerConfig
+            EventDeliveryRequiredArtifact::TransportConfig
         ]
     );
-    assert!(!proof.broker_delivery_implemented);
-    assert!(!proof.family_hub_delivery_implemented);
+    assert!(!proof.external_transport_delivery_implemented);
+    assert!(!proof.external_relay_delivery_implemented);
 }
 
 #[test]
-fn delivery_decision_marks_family_hub_route_manual_required_for_family_artifacts() {
+fn delivery_decision_marks_external_relay_manual_required_for_relay_artifacts() {
     let proof = decide_event_delivery_route(EventDeliveryDecisionInput {
-        route_kind: EventDeliveryRouteKind::FamilyHub,
+        route_kind: EventDeliveryRouteKind::ExternalRelay,
         custody_proof_ref: component("custody-proof-45"),
         publisher_auth_ref: component("publisher-auth-proof-45"),
         subscriber_auth_ref: component("subscriber-auth-proof-45"),
@@ -84,33 +84,35 @@ fn delivery_decision_marks_family_hub_route_manual_required_for_family_artifacts
         deletion_plan_ref: component("deletion-plan-proof-45"),
         offset_policy_ref: component("offset-policy-proof-45"),
         dedupe_policy_ref: component("dedupe-policy-proof-45"),
-        broker_config_ref: component("broker-config-proof-45"),
+        transport_config_ref: component("transport-config-proof-45"),
         ..local_input(EventDeliveryRouteKind::LocalInProcess)
     })
-    .expect("family-hub route should require family-hub specific artifacts");
+    .expect("external relay route should require relay specific artifacts");
 
     assert_eq!(
         proof.decision_state,
-        EventDeliveryDecisionState::FamilyHubRouteManualRequired
+        EventDeliveryDecisionState::ExternalRelayRouteManualRequired
     );
     assert_eq!(
         proof.missing_artifacts,
         vec![
-            EventDeliveryRequiredArtifact::FamilyHubIdentity,
-            EventDeliveryRequiredArtifact::FamilyHubRelayPolicy
+            EventDeliveryRequiredArtifact::ExternalRelayIdentity,
+            EventDeliveryRequiredArtifact::ExternalRelayPolicy
         ]
     );
-    assert!(!proof.family_hub_delivery_implemented);
+    assert!(!proof.external_relay_delivery_implemented);
 }
 
 #[test]
-fn delivery_decision_preserves_satisfied_broker_requirements_without_live_broker() {
-    let proof = decide_event_delivery_route(broker_requirements_satisfied_input())
-        .expect("complete broker route requirements should be distinguishable from live delivery");
+fn delivery_decision_preserves_satisfied_external_transport_requirements_without_live_transport() {
+    let proof = decide_event_delivery_route(external_transport_requirements_satisfied_input())
+        .expect(
+            "complete external transport requirements should be distinguishable from live delivery",
+        );
 
     assert_eq!(
         proof.decision_state,
-        EventDeliveryDecisionState::BrokerRouteRequirementsSatisfied
+        EventDeliveryDecisionState::ExternalTransportRouteRequirementsSatisfied
     );
     assert_eq!(proof.missing_artifacts, Vec::new());
     assert_eq!(
@@ -121,8 +123,8 @@ fn delivery_decision_preserves_satisfied_broker_requirements_without_live_broker
             .as_str(),
         "retention-policy-proof-45"
     );
-    assert!(!proof.broker_delivery_implemented);
-    assert!(!proof.family_hub_delivery_implemented);
+    assert!(!proof.external_transport_delivery_implemented);
+    assert!(!proof.external_relay_delivery_implemented);
     assert!(proof.local_delivery_ready);
 }
 
@@ -130,31 +132,31 @@ fn delivery_decision_preserves_satisfied_broker_requirements_without_live_broker
 fn delivery_decision_rejects_live_claims_and_invalid_route_metadata() {
     assert_eq!(
         decide_event_delivery_route(EventDeliveryDecisionInput {
-            broker_delivery_claimed: true,
-            ..local_input(EventDeliveryRouteKind::BrokerBacked)
+            external_transport_delivery_claimed: true,
+            ..local_input(EventDeliveryRouteKind::ExternalTransport)
         }),
-        Err(EventDeliveryDecisionError::LiveBrokerDeliveryClaimRejected)
+        Err(EventDeliveryDecisionError::LiveExternalTransportDeliveryClaimRejected)
     );
     assert_eq!(
         decide_event_delivery_route(EventDeliveryDecisionInput {
-            family_hub_delivery_claimed: true,
-            ..local_input(EventDeliveryRouteKind::FamilyHub)
+            external_relay_delivery_claimed: true,
+            ..local_input(EventDeliveryRouteKind::ExternalRelay)
         }),
-        Err(EventDeliveryDecisionError::LiveFamilyHubDeliveryClaimRejected)
+        Err(EventDeliveryDecisionError::LiveExternalRelayDeliveryClaimRejected)
     );
     assert_eq!(
         decide_event_delivery_route(EventDeliveryDecisionInput {
-            policy_authority_claimed: true,
+            decision_authority_claimed: true,
             ..local_input(EventDeliveryRouteKind::LocalService)
         }),
-        Err(EventDeliveryDecisionError::PolicyAuthorityClaimRejected)
+        Err(EventDeliveryDecisionError::DecisionAuthorityClaimRejected)
     );
     assert_eq!(
         decide_event_delivery_route(EventDeliveryDecisionInput {
-            adapter_authority_claimed: true,
+            side_effect_authority_claimed: true,
             ..local_input(EventDeliveryRouteKind::LocalService)
         }),
-        Err(EventDeliveryDecisionError::AdapterAuthorityClaimRejected)
+        Err(EventDeliveryDecisionError::SideEffectAuthorityClaimRejected)
     );
     assert_eq!(
         decide_event_delivery_route(EventDeliveryDecisionInput {
@@ -194,19 +196,19 @@ fn local_input(route_kind: EventDeliveryRouteKind) -> EventDeliveryDecisionInput
         deletion_plan_ref: None,
         offset_policy_ref: None,
         dedupe_policy_ref: None,
-        broker_config_ref: None,
-        family_hub_identity_ref: None,
-        family_hub_relay_policy_ref: None,
-        broker_delivery_claimed: false,
-        family_hub_delivery_claimed: false,
-        policy_authority_claimed: false,
-        adapter_authority_claimed: false,
+        transport_config_ref: None,
+        relay_identity_ref: None,
+        relay_policy_ref: None,
+        external_transport_delivery_claimed: false,
+        external_relay_delivery_claimed: false,
+        decision_authority_claimed: false,
+        side_effect_authority_claimed: false,
     }
 }
 
-fn broker_requirements_satisfied_input() -> EventDeliveryDecisionInput {
+fn external_transport_requirements_satisfied_input() -> EventDeliveryDecisionInput {
     EventDeliveryDecisionInput {
-        route_kind: EventDeliveryRouteKind::BrokerBacked,
+        route_kind: EventDeliveryRouteKind::ExternalTransport,
         custody_proof_ref: component("custody-proof-45"),
         publisher_auth_ref: component("publisher-auth-proof-45"),
         subscriber_auth_ref: component("subscriber-auth-proof-45"),
@@ -216,8 +218,8 @@ fn broker_requirements_satisfied_input() -> EventDeliveryDecisionInput {
         deletion_plan_ref: component("deletion-plan-proof-45"),
         offset_policy_ref: component("offset-policy-proof-45"),
         dedupe_policy_ref: component("dedupe-policy-proof-45"),
-        broker_config_ref: component("broker-config-proof-45"),
-        ..local_input(EventDeliveryRouteKind::BrokerBacked)
+        transport_config_ref: component("transport-config-proof-45"),
+        ..local_input(EventDeliveryRouteKind::ExternalTransport)
     }
 }
 
@@ -244,7 +246,7 @@ fn backpressure_policy() -> EventDeliveryBackpressurePolicy {
     }
 }
 
-fn broker_requirements() -> Vec<EventDeliveryRequiredArtifact> {
+fn external_transport_requirements() -> Vec<EventDeliveryRequiredArtifact> {
     vec![
         EventDeliveryRequiredArtifact::CustodyProof,
         EventDeliveryRequiredArtifact::PublisherAuthProof,
@@ -256,7 +258,7 @@ fn broker_requirements() -> Vec<EventDeliveryRequiredArtifact> {
         EventDeliveryRequiredArtifact::BackpressurePolicy,
         EventDeliveryRequiredArtifact::OffsetPolicy,
         EventDeliveryRequiredArtifact::DedupePolicy,
-        EventDeliveryRequiredArtifact::BrokerConfig,
+        EventDeliveryRequiredArtifact::TransportConfig,
     ]
 }
 

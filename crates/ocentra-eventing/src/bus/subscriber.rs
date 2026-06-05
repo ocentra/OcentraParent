@@ -12,7 +12,7 @@ use crate::{
     DomainEvent, EventType, EventingError, StoredEventEnvelope, SubscriberId, TargetHandler,
 };
 
-use super::{EventContext, EventPublisher};
+use super::{EventContext, EventPublisher, QueueDrainReport};
 
 type HandlerFuture = Pin<Box<dyn Future<Output = Result<(), EventingError>> + Send>>;
 type StoredHandler = dyn Fn(StoredEventEnvelope, EventPublisher) -> HandlerFuture + Send + Sync;
@@ -47,6 +47,7 @@ pub struct SubscriptionReport {
     pub subscriber_id: SubscriberId,
     pub event_type: EventType,
     pub target_handler: TargetHandler,
+    pub drain_report: QueueDrainReport,
 }
 
 pub struct SubscriptionHandle {
@@ -144,7 +145,7 @@ pub(super) fn insert_subscriber(
     Ok(())
 }
 
-fn remove_subscriber(
+pub(super) fn remove_subscriber(
     registry: &Arc<Mutex<BTreeMap<EventType, Vec<SubscriberRecord>>>>,
     event_type: &EventType,
     subscriber_id: &SubscriberId,

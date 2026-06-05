@@ -60,7 +60,7 @@ const sourceAssertions = [
   ['context-publisher-accessor', publisherSource.includes('pub fn publisher(&self) -> &EventPublisher')],
   ['context-complete-uses-payload-accessor', publisherSource.includes('self.payload().request_id()?')],
   ['testkit-clones-envelope-through-accessor', testkitSource.includes('context.envelope().clone()')],
-  ['no-handler-mut-payload-api', !eventingSources.some(([, source]) => source.includes('&mut E'))],
+  ['no-handler-mut-payload-api', !eventingSources.some(([, source]) => /&mut\s+E\b/u.test(source))],
   ['no-payload-mut-accessor', !publisherSource.includes('payload_mut')],
   ['no-payload-carried-sender', !requestPayloadSource.includes('Sender')],
   ['no-payload-carried-receiver', !requestPayloadSource.includes('Receiver')],

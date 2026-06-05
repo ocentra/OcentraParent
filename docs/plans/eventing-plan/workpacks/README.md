@@ -90,8 +90,9 @@ validation and proof.
 
 Rows 05-41 and 63-78 are the phase-1 reusable event bus merge gate. Use
 `scripts/test/eventing-runtime-proof.mjs` for that gate; it intentionally does
-not run parent/controller, child-agent, portal, service, network, broker,
-family-hub, policy, AI, enforcement, or platform-adapter consumer proofs.
+not run parent/controller, child-agent, portal, service, network, external
+transport, external relay, policy, AI, enforcement, or platform-adapter consumer
+proofs.
 
 Rows 42-62 are consumer integration rows layered on top of the reusable bus.
 Keep those in follow-up branches so other lanes can consume the stable bus API

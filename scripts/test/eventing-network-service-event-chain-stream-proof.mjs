@@ -78,7 +78,7 @@ const proof = {
     'stream payload entries reject exact URL, decrypted payload, message content, search query, raw packet, and adapter-action claims through existing TypeScript runtime event contracts',
   ],
   claimsNotProved: [
-    'broker-backed delivery, family-hub delivery, cross-process durable replay, production retention/delete/export, or offset/dedupe management',
+    'broker-backed delivery, relay-hub delivery, cross-process durable replay, production retention/delete/export, or offset/dedupe management',
     'live packet capture, live analyzer/model execution, full policy engine execution, adapter execution, host DNS/filter mutation, firewall mutation, or enforcement-command execution',
     'portal UI rendering or product-complete network/domain blocking',
     'provider notification delivery, remote parent transport, or Ocentra-hosted child activity custody',

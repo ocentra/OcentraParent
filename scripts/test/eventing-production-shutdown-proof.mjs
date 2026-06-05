@@ -51,7 +51,12 @@ const testsSource = readFileSync('crates/ocentra-eventing/src/tests/production_s
 const assertions = [
   ['shutdown-mode-exists', busSource.includes('pub enum ShutdownMode')],
   ['shutdown-report-exists', busSource.includes('pub struct EventBusShutdownReport')],
-  ['shutdown-state-exists', busSource.includes('shutdown: Arc<Mutex<bool>>')],
+  [
+    'shutdown-state-exists',
+    busSource.includes('shutdown: Arc<Mutex<EventBusLifecycleState>>') &&
+      busSource.includes('enum EventBusLifecycleState') &&
+      busSource.includes('ShuttingDown'),
+  ],
   ['shutdown-method-exists', lifecycleSource.includes('pub async fn shutdown')],
   ['drain-mode-drains-queued', lifecycleSource.includes('drain_queued_unchecked')],
   ['shutdown-dead-letters-remaining-queued', lifecycleSource.includes('DeadLetterReason::Shutdown')],

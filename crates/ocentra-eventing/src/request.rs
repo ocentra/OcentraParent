@@ -1,5 +1,5 @@
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, VecDeque},
     sync::{Arc, Mutex},
     time::Duration,
 };
@@ -7,7 +7,9 @@ use std::{
 use serde::{de::DeserializeOwned, Serialize};
 use tokio::sync::oneshot;
 
-use crate::{DomainEvent, EventingError, PublishReport, RequestId};
+use crate::{DomainEvent, EventRequestMetrics, EventingError, PublishReport, RequestId};
+
+const TERMINAL_REQUEST_RETENTION_LIMIT: usize = 4096;
 
 pub trait EventResponseContract:
     Clone + Send + Sync + Serialize + DeserializeOwned + 'static
@@ -68,7 +70,7 @@ where
 
 #[derive(Clone, Default)]
 pub(crate) struct RequestRegistry {
-    entries: Arc<Mutex<BTreeMap<RequestId, RequestEntry>>>,
+    state: Arc<Mutex<RequestRegistryState>>,
 }
 
 impl RequestRegistry {
@@ -77,13 +79,15 @@ impl RequestRegistry {
         request_id: RequestId,
     ) -> Result<oneshot::Receiver<RequestPayload>, EventingError> {
         let (sender, receiver) = oneshot::channel();
-        let mut entries = self.entries.lock().expect("request registry lock");
-        if entries.contains_key(&request_id) {
+        let mut state = self.state.lock().expect("request registry lock");
+        if state.entries.contains_key(&request_id) {
             return Err(EventingError::DuplicateRequest {
                 request_id: request_id.clone(),
             });
         }
-        entries.insert(request_id, RequestEntry::pending(sender));
+        state
+            .entries
+            .insert(request_id, RequestEntry::pending(sender));
         Ok(receiver)
     }
 
@@ -96,8 +100,8 @@ impl RequestRegistry {
         R: EventResponseContract,
     {
         let payload = RequestPayload::from_response(&request_id, response)?;
-        let mut entries = self.entries.lock().expect("request registry lock");
-        let Some(entry) = entries.get_mut(&request_id) else {
+        let mut state = self.state.lock().expect("request registry lock");
+        let Some(entry) = state.entries.get_mut(&request_id) else {
             return Ok(completion_report(
                 request_id,
                 RequestCompletionOutcome::Late,
@@ -108,17 +112,23 @@ impl RequestRegistry {
                 entry.state = RequestState::Completed;
                 if let Some(sender) = entry.sender.take() {
                     if sender.send(payload).is_ok() {
+                        mark_terminal(&mut state, &request_id);
+                        trim_terminal_requests(&mut state);
                         Ok(completion_report(
                             request_id,
                             RequestCompletionOutcome::Completed,
                         ))
                     } else {
+                        mark_terminal(&mut state, &request_id);
+                        trim_terminal_requests(&mut state);
                         Ok(completion_report(
                             request_id,
                             RequestCompletionOutcome::Late,
                         ))
                     }
                 } else {
+                    mark_terminal(&mut state, &request_id);
+                    trim_terminal_requests(&mut state);
                     Ok(completion_report(
                         request_id,
                         RequestCompletionOutcome::Late,
@@ -137,12 +147,46 @@ impl RequestRegistry {
     }
 
     pub(crate) fn timeout(&self, request_id: &RequestId) {
-        let mut entries = self.entries.lock().expect("request registry lock");
-        if let Some(entry) = entries.get_mut(request_id) {
+        let mut state = self.state.lock().expect("request registry lock");
+        if let Some(entry) = state.entries.get_mut(request_id) {
             if entry.state == RequestState::Pending {
                 entry.state = RequestState::TimedOut;
                 entry.sender.take();
+                mark_terminal(&mut state, request_id);
             }
+        }
+        trim_terminal_requests(&mut state);
+    }
+
+    pub(crate) fn cancel(&self, request_id: &RequestId) -> bool {
+        let mut state = self.state.lock().expect("request registry lock");
+        let removed = state.entries.remove(request_id).is_some();
+        if removed {
+            state
+                .terminal_order
+                .retain(|terminal_id| terminal_id != request_id);
+        }
+        removed
+    }
+
+    pub(crate) fn metrics(&self) -> EventRequestMetrics {
+        let state = self.state.lock().expect("request registry lock");
+        EventRequestMetrics {
+            pending_request_count: state
+                .entries
+                .values()
+                .filter(|entry| entry.state == RequestState::Pending)
+                .count(),
+            completed_request_count: state
+                .entries
+                .values()
+                .filter(|entry| entry.state == RequestState::Completed)
+                .count(),
+            timed_out_request_count: state
+                .entries
+                .values()
+                .filter(|entry| entry.state == RequestState::TimedOut)
+                .count(),
         }
     }
 
@@ -155,24 +199,34 @@ impl RequestRegistry {
     }
 
     fn clear_entries(&self) -> RequestRegistryClearReport {
-        let mut entries = self.entries.lock().expect("request registry lock");
+        let mut state = self.state.lock().expect("request registry lock");
         let report = RequestRegistryClearReport {
-            pending_request_count: entries
+            pending_request_count: state
+                .entries
                 .values()
                 .filter(|entry| entry.state == RequestState::Pending)
                 .count(),
-            completed_request_count: entries
+            completed_request_count: state
+                .entries
                 .values()
                 .filter(|entry| entry.state == RequestState::Completed)
                 .count(),
-            timed_out_request_count: entries
+            timed_out_request_count: state
+                .entries
                 .values()
                 .filter(|entry| entry.state == RequestState::TimedOut)
                 .count(),
         };
-        entries.clear();
+        state.entries.clear();
+        state.terminal_order.clear();
         report
     }
+}
+
+#[derive(Default)]
+struct RequestRegistryState {
+    entries: BTreeMap<RequestId, RequestEntry>,
+    terminal_order: VecDeque<RequestId>,
 }
 
 pub(crate) struct RequestRegistryClearReport {
@@ -243,5 +297,29 @@ fn completion_report(
     RequestCompletionReport {
         request_id,
         outcome,
+    }
+}
+
+fn mark_terminal(state: &mut RequestRegistryState, request_id: &RequestId) {
+    if !state
+        .terminal_order
+        .iter()
+        .any(|terminal_id| terminal_id == request_id)
+    {
+        state.terminal_order.push_back(request_id.clone());
+    }
+}
+
+fn trim_terminal_requests(state: &mut RequestRegistryState) {
+    while state.terminal_order.len() > TERMINAL_REQUEST_RETENTION_LIMIT {
+        if let Some(request_id) = state.terminal_order.pop_front() {
+            if state
+                .entries
+                .get(&request_id)
+                .is_some_and(|entry| entry.state != RequestState::Pending)
+            {
+                state.entries.remove(&request_id);
+            }
+        }
     }
 }

@@ -36,7 +36,8 @@ async fn parent_child_runtime_publishes_validated_intent_before_child_handoff() 
     );
     assert_eq!(
         report.stored_events[0].source.role,
-        ocentra_eventing::RuntimeRole::ParentController
+        ocentra_eventing::RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)
+            .expect(constants::eventing_source::ERROR_RUNTIME_ROLE_PARSES)
     );
 
     let validated = parent_validated(&payloads);
@@ -110,7 +111,8 @@ async fn child_agent_receive_publishes_local_events_and_parent_read_model() {
     );
     assert_eq!(
         report.stored_events[4].source.custody,
-        ocentra_eventing::EventCustody::ChildDeviceJournal
+        ocentra_eventing::EventCustody::parse(constants::eventing_source::CUSTODY_LOCAL_JOURNAL)
+            .expect(constants::eventing_source::ERROR_EVENT_CUSTODY_PARSES)
     );
     assert_eq!(
         report.stored_events[8].contract.event_type.as_str(),
