@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-05T02:48:34.707Z",
+  "commit": "1d2a625f0dfa88457eca1842b3443a8c9ecff50b",
+  "proofMode": "tracking-plan-policy-escalation-runtime-proof",
+  "requiredProofTier": "P1_FIXTURE_SIMULATION",
+  "currentProofTier": "P1_FIXTURE_SIMULATION",
+  "currentStatus": "simulated",
+  "parentDomainModule": "packages/parent-domain/src/tracking-policy-escalation-runtime-proof.ts",
+  "parentDomainTest": "packages/parent-domain/tests/tracking-policy-escalation-runtime-proof.test.ts",
+  "runtimeSummary": {
+    "outcomes": 5,
+    "parentPolicyAuthorityRows": 5,
+    "aiAuthorityRows": 0,
+    "providerDeliveryRows": 0,
+    "emergencyContactRows": 0,
+    "deviceRuntimeRows": 0,
+    "escalationRows": 2,
+    "resolvedRows": 3
+  },
+  "runtimeProof": {
+    "schemaVersion": "tracking-policy-escalation-runtime-proof",
+    "generatedAt": "2026-06-05T01:30:00.000Z",
+    "evaluatedAt": "2026-06-05T01:12:00.000Z",
+    "sourcePolicyVersion": "tracking-policy-escalation-v1",
+    "outcomes": [
+      {
+        "schemaVersion": "tracking-policy-escalation-runtime-proof",
+        "outcomeId": "tracking-runtime-ai-analysis-cannot-trigger-alert-directly",
+        "outcomeKind": "ai-analysis-cannot-trigger-alert-directly",
+        "policyDecisionId": "tracking-decision-notify",
+        "alertId": "tracking-runtime-alert-warning",
+        "acknowledgementId": null,
+        "checkInId": null,
+        "escalationId": null,
+        "runtimeState": "ai-advisory-only",
+        "parentPolicyFinalAuthority": true,
+        "aiFinalAuthorityClaimed": false,
+        "aiDirectAlertClaimed": false,
+        "parentAlertSuppressed": false,
+        "escalates": false,
+        "resolved": true,
+        "providerDeliveryAttempted": false,
+        "emergencyContactClaimed": false,
+        "deviceRuntimeClaimed": false,
+        "evidenceReferenceIds": [
+          "tracking-runtime-policy-evidence"
+        ],
+        "reasonCodes": [
+          "tracking-ai-advisory-only"
+        ],
+        "auditRefs": [
+          "tracking-runtime-ai-authority-boundary"
+        ],
+        "proofRefs": [
+          "docs/plans/tracking-plan/workpacks/25-policy-compiler-for-tracking-rules.md",
+          "docs/plans/tracking-plan/workpacks/27-escalation-engine.md"
+        ],
+        "claimBoundary": "Local parent-domain runtime proof only; provider delivery, emergency automation, and child-device runtime are not claimed.",
+        "evaluatedAt": "2026-06-05T01:12:00.000Z"
+      },
+      {
+        "schemaVersion": "tracking-policy-escalation-runtime-proof",
+        "outcomeId": "tracking-runtime-parent-acknowledgement-suppresses-warning",
+        "outcomeKind": "parent-acknowledgement-suppresses-warning",
+        "policyDecisionId": "tracking-decision-notify",
+        "alertId": "tracking-runtime-alert-warning",
+        "acknowledgementId": "tracking-runtime-ack-safe",
+        "checkInId": null,
+        "escalationId": null,
+        "runtimeState": "suppressed-by-acknowledgement",
+        "parentPolicyFinalAuthority": true,
+        "aiFinalAuthorityClaimed": false,
+        "aiDirectAlertClaimed": false,
+        "parentAlertSuppressed": true,
+        "escalates": false,
+        "resolved": true,
+        "providerDeliveryAttempted": false,
+        "emergencyContactClaimed": false,
+        "deviceRuntimeClaimed": false,
+        "evidenceReferenceIds": [
+          "tracking-runtime-policy-evidence"
+        ],
+        "reasonCodes": [
+          "parent-acknowledgement-suppressed-alert"
+        ],
+        "auditRefs": [
+          "tracking-runtime-warning-ack-suppressed"
+        ],
+        "proofRefs": [
+          "docs/plans/tracking-plan/workpacks/25-policy-compiler-for-tracking-rules.md",
+          "docs/plans/tracking-plan/workpacks/27-escalation-engine.md"
+        ],
+        "claimBoundary": "Local parent-domain runtime proof only; provider delivery, emergency automation, and child-device runtime are not claimed.",
+        "evaluatedAt": "2026-06-05T01:12:00.000Z"
+      },
+      {
+        "schemaVersion": "tracking-policy-escalation-runtime-proof",
+        "outcomeId": "tracking-runtime-critical-alert-remains-visible",
+        "outcomeKind": "critical-alert-remains-visible",
+        "policyDecisionId": "tracking-decision-escalate",
+        "alertId": "tracking-runtime-alert-critical",
+        "acknowledgementId": "tracking-runtime-ack-safe",
+        "checkInId": null,
+        "escalationId": null,
+        "runtimeState": "critical-still-alert",
+        "parentPolicyFinalAuthority": true,
+        "aiFinalAuthorityClaimed": false,
+        "aiDirectAlertClaimed": false,
+        "parentAlertSuppressed": false,
+        "escalates": true,
+        "resolved": false,
+        "providerDeliveryAttempted": false,
+        "emergencyContactClaimed": false,
+        "deviceRuntimeClaimed": false,
+        "evidenceReferenceIds": [
+          "tracking-runtime-policy-evidence"
+        ],
+        "reasonCodes": [
+          "critical-alert-not-suppressed"
+        ],
+        "auditRefs": [
+          "tracking-runtime-critical-not-suppressed"
+        ],
+        "proofRefs": [
+          "docs/plans/tracking-plan/workpacks/25-policy-compiler-for-tracking-rules.md",
+          "docs/plans/tracking-plan/workpacks/27-escalation-engine.md"
+        ],
+        "claimBoundary": "Local parent-domain runtime proof only; provider delivery, emergency automation, and child-device runtime are not claimed.",
+        "evaluatedAt": "2026-06-05T01:12:00.000Z"
+      },
+      {
+        "schemaVersion": "tracking-policy-escalation-runtime-proof",
+        "outcomeId": "tracking-runtime-safe-child-check-in-resolves",
+        "outcomeKind": "safe-child-check-in-resolves",
+        "policyDecisionId": "tracking-decision-check-in",
+        "alertId": "tracking-runtime-alert-warning",
+        "acknowledgementId": null,
+        "checkInId": "tracking-runtime-checkin-safe",
+        "escalationId": null,
+        "runtimeState": "check-in-safe",
+        "parentPolicyFinalAuthority": true,
+        "aiFinalAuthorityClaimed": false,
+        "aiDirectAlertClaimed": false,
+        "parentAlertSuppressed": true,
+        "escalates": false,
+        "resolved": true,
+        "providerDeliveryAttempted": false,
+        "emergencyContactClaimed": false,
+        "deviceRuntimeClaimed": false,
+        "evidenceReferenceIds": [
+          "tracking-runtime-policy-evidence"
+        ],
+        "reasonCodes": [
+          "child-check-in-answered"
+        ],
+        "auditRefs": [
+          "tracking-runtime-safe-checkin-resolved"
+        ],
+        "proofRefs": [
+          "docs/plans/tracking-plan/workpacks/25-policy-compiler-for-tracking-rules.md",
+          "docs/plans/tracking-plan/workpacks/27-escalation-engine.md"
+        ],
+        "claimBoundary": "Local parent-domain runtime proof only; provider delivery, emergency automation, and child-device runtime are not claimed.",
+        "evaluatedAt": "2026-06-05T01:12:00.000Z"
+      },
+      {
+        "schemaVersion": "tracking-policy-escalation-runtime-proof",
+        "outcomeId": "tracking-runtime-expired-child-check-in-escalates-by-policy",
+        "outcomeKind": "expired-child-check-in-escalates-by-policy",
+        "policyDecisionId": "tracking-decision-escalate",
+        "alertId": "tracking-runtime-alert-critical",
+        "acknowledgementId": null,
+        "checkInId": "tracking-runtime-checkin-expired",
+        "escalationId": "tracking-runtime-escalation-expired-checkin",
+        "runtimeState": "policy-escalated",
+        "parentPolicyFinalAuthority": true,
+        "aiFinalAuthorityClaimed": false,
+        "aiDirectAlertClaimed": false,
+        "parentAlertSuppressed": false,
+        "escalates": true,
+        "resolved": false,
+        "providerDeliveryAttempted": false,
+        "emergencyContactClaimed": false,
+        "deviceRuntimeClaimed": false,
+        "evidenceReferenceIds": [
+          "tracking-runtime-policy-evidence"
+        ],
+        "reasonCodes": [
+          "child-check-in-expired"
+        ],
+        "auditRefs": [
+          "tracking-runtime-expired-checkin-policy-escalation"
+        ],
+        "proofRefs": [
+          "docs/plans/tracking-plan/workpacks/25-policy-compiler-for-tracking-rules.md",
+          "docs/plans/tracking-plan/workpacks/27-escalation-engine.md"
+        ],
+        "claimBoundary": "Local parent-domain runtime proof only; provider delivery, emergency automation, and child-device runtime are not claimed.",
+        "evaluatedAt": "2026-06-05T01:12:00.000Z"
+      }
+    ],
+    "nonClaims": [
+      "no-provider-delivery-attempted",
+      "no-emergency-contact-automation",
+      "no-child-device-runtime",
+      "no-background-location-claim",
+      "no-physical-device-proof",
+      "no-ai-final-authority"
+    ],
+    "knownGaps": [
+      "Provider delivery is not attempted; notification provider receipt and retry proof remain separate work.",
+      "Child-device runtime prompt delivery and physical Android/iOS background behavior remain unproved.",
+      "Emergency contact automation is not implemented or claimed; escalation remains parent-policy/manual proof only."
+    ],
+    "productClaimReady": false,
+    "providerDeliveryRuntimeClaimed": false,
+    "emergencyContactRuntimeClaimed": false,
+    "childDeviceRuntimeClaimed": false
+  },
+  "workpacks": {
+    "policyCompiler": {
+      "workpackId": "25-policy-compiler-for-tracking-rules",
+      "requiredProofTier": "P1_FIXTURE_SIMULATION",
+      "currentProofTier": "P1_FIXTURE_SIMULATION",
+      "currentStatus": "simulated",
+      "artifactPath": "test-results/tracking-plan-policy-escalation-runtime-proof/proof.json",
+      "runtimeSummary": {
+        "outcomes": 5,
+        "parentPolicyAuthorityRows": 5,
+        "aiAuthorityRows": 0,
+        "providerDeliveryRows": 0,
+        "emergencyContactRows": 0,
+        "deviceRuntimeRows": 0,
+        "escalationRows": 2,
+        "resolvedRows": 3
+      },
+      "productClaimReady": false,
+      "missingProofReason": "This is parent-domain runtime proof only. Provider delivery, emergency automation, child-device runtime, hosted UI, and physical-device proof remain pending."
+    },
+    "escalationEngine": {
+      "workpackId": "27-escalation-engine",
+      "requiredProofTier": "P1_FIXTURE_SIMULATION",
+      "currentProofTier": "P1_FIXTURE_SIMULATION",
+      "currentStatus": "simulated",
+      "artifactPath": "test-results/tracking-plan-policy-escalation-runtime-proof/proof.json",
+      "runtimeSummary": {
+        "outcomes": 5,
+        "parentPolicyAuthorityRows": 5,
+        "aiAuthorityRows": 0,
+        "providerDeliveryRows": 0,
+        "emergencyContactRows": 0,
+        "deviceRuntimeRows": 0,
+        "escalationRows": 2,
+        "resolvedRows": 3
+      },
+      "productClaimReady": false,
+      "missingProofReason": "This is parent-domain runtime proof only. Provider delivery, emergency automation, child-device runtime, hosted UI, and physical-device proof remain pending."
+    }
+  },
+  "productClaimReady": false,
+  "nonClaims": [
+    "AI risk analysis is advisory only and cannot directly trigger alerts",
+    "Provider notification delivery is not attempted",
+    "Emergency contact automation is not implemented or claimed",
+    "Child-device runtime prompt delivery is not implemented or claimed",
+    "Physical Android/iOS background behavior remains unproved",
+    "Parent policy decisions remain the final authority in this proof"
+  ],
+  "knownGaps": [
+    "Provider delivery is not attempted; notification provider receipt and retry proof remain separate work.",
+    "Child-device runtime prompt delivery and physical Android/iOS background behavior remain unproved.",
+    "Emergency contact automation is not implemented or claimed; escalation remains parent-policy/manual proof only."
+  ],
+  "commands": [
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm exec --workspace @ocentra-parent/parent-domain -- vitest run tests/tracking-policy-escalation-runtime-proof.test.ts",
+      "exitCode": 0
+    }
+  ]
+}

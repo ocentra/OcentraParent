@@ -364,4 +364,4 @@ export const PortalEnvironment = {
 export const PortalText = {
   Resolve: resolvePortalDevText,
 } as const;
-export const PortalTextToken = PortalDevTextToken;
+export const PortalTextToken: typeof PortalDevTextToken = PortalDevTextToken;
