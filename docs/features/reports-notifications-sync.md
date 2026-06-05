@@ -128,6 +128,12 @@ custody.
   parent notification UI, child-device delivery, physical-device proof,
   production retry/quiet-hours runtime, durable outbox storage, and adapter
   dispatch unclaimed.
+- Tracking escalation readiness proof now derives parent acknowledgement,
+  child check-in, urgent second-guardian, critical multi-channel, manual, and
+  unavailable readiness rows from the tracking policy read model while keeping
+  AI scheduling, emergency auto-contact, provider delivery, receipt ingestion,
+  credentials, cloud routing, parent notification UI, child-device delivery,
+  production workers, and physical-device proof unclaimed.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -226,6 +232,14 @@ not claim provider delivery, receipt ingestion, credentials, cloud routing,
 parent notification UI/history/preferences, child-device delivery,
 physical-device proof, production retry workers, production quiet-hours timers,
 durable production outbox storage, or adapter dispatch.
+The tracking escalation readiness proof adds deterministic tracking-policy
+read-model rows for acknowledgement cancellation, child check-in resolution,
+urgent second-guardian manual readiness, critical multi-channel manual
+readiness, manual-required, and unavailable states, but does not claim AI direct
+scheduling, emergency auto-contact, provider delivery, receipt ingestion,
+credentials, cloud routing, parent notification UI/history/preferences,
+child-device delivery, production escalation workers, production quiet-hours
+timers, durable storage, physical-device proof, or platform support.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
@@ -272,6 +286,13 @@ delivery, policy writes, or child-device enforcement.
       read-model proof exists without provider delivery claims.
 - [x] Quiet-hours and escalation readiness read-model proof exists without
       parent controls or provider delivery.
+- [x] Tracking escalation readiness proof exists with parent acknowledgement,
+      child check-in, urgent second-guardian, critical multi-channel,
+      manual-required, and unavailable readiness rows, without AI direct
+      scheduling, emergency auto-contact, provider delivery, receipt ingestion,
+      credentials, cloud routing, parent UI/history/preferences, child-device
+      delivery, production worker, durable storage, physical-device, or platform
+      claims.
 - [x] Notification audit/history logging contract proof exists with
       redaction-safe payload fields and child-data non-custody flags, without
       provider delivery, receipt ingestion, credentials, or history UI claims.

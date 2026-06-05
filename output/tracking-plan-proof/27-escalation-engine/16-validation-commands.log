@@ -1,5 +1,3 @@
-cmd /c npm --workspace @ocentra-parent/activity-domain run build
-cmd /c npm --workspace @ocentra-parent/activity-domain run test -- tracking
 cmd /c npm --workspace @ocentra-parent/parent-domain run build
-cmd /c npm --workspace @ocentra-parent/parent-domain run test -- tracking-location-policy
-cmd /c npm run lint:schema-boundaries
+cmd /c npm exec --workspace @ocentra-parent/parent-domain -- vitest run tests/tracking-escalation-readiness-proof.test.ts tests/tracking-location-policy.test.ts
+git rev-parse --short=8 HEAD
