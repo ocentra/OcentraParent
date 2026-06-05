@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T20:03:03.228Z",
-  "commit": "460d7fecb0c151bbf054b55ff33053fcf2a50ed6",
+  "checkedAt": "2026-06-05T21:36:37.450Z",
+  "commit": "5f46cb016313794954660dfae441ef09de81408e",
   "proofMode": "app-install-purchase-runtime-writer-execution-delivery-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-05T20:02:56.403Z",
+      "startedAt": "2026-06-05T21:36:31.280Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-runtime-writer-execution-delivery-proof.test.ts",
-      "startedAt": "2026-06-05T20:03:00.188Z",
+      "startedAt": "2026-06-05T21:36:34.237Z",
       "exitCode": 0
     }
   ],
-  "packageExportState": "blocked-by-active-packages-parent-domain-package-json-lock; direct-dist-module-validated",
+  "packageExportState": "validated-via-public-parent-domain-subpath-export",
   "evidence": {
     "runtimeWriterExecutionDeliveryContract": "packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts",
     "sourceRuntimeWriterDeliveryContract": "packages/parent-domain/src/app-install-purchase-runtime-writer-delivery-proof.ts",
@@ -24,8 +24,8 @@
     "featureDoc": "docs/features/app-install-purchase-approval.md",
     "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
     "checklistRow": "docs/product-capability-checklist.md row Install/purchase approval",
-    "packageExportGap": "packages/parent-domain/package.json export pending after codex-b lock clears",
-    "packageReadmeGap": "packages/parent-domain/README.md update pending after E-C lock clears",
+    "packageExport": "@ocentra-parent/parent-domain/app-install-purchase-runtime-writer-execution-delivery-proof",
+    "packageReadme": "packages/parent-domain/README.md",
     "output": "test-results\\app-install-purchase-runtime-writer-execution-delivery-proof\\proof.json"
   },
   "runtimeWriterExecutionDeliverySummary": {
@@ -193,8 +193,6 @@
   "knownGaps": [
     "Runtime writer execution delivery rows record deterministic parent-owned envelopes and delivery result receipts only.",
     "Provider/store execution, platform interception/adapters, child-device delivery, runtime report delivery, app blocking, child activity data, and Ocentra-hosted family custody remain unimplemented.",
-    "Review-needed remains manual-required until portal approval UI and a real parent approval action path exist.",
-    "Public package export remains pending until packages/parent-domain/package.json lock clears.",
-    "Parent-domain README update remains pending until packages/parent-domain/README.md lock clears."
+    "Review-needed remains manual-required until portal approval UI and a real parent approval action path exist."
   ]
 }

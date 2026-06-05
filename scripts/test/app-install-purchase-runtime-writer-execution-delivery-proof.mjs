@@ -26,6 +26,13 @@ async function main() {
   ]);
 
   const proofModule = await loadRuntimeWriterExecutionDeliveryProofModule();
+  const packageProofModule =
+    await import('@ocentra-parent/parent-domain/app-install-purchase-runtime-writer-execution-delivery-proof');
+  assert.equal(
+    packageProofModule.AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel.schemaVersion,
+    proofModule.AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel.schemaVersion
+  );
+
   const parsedReadModel = proofModule.AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseRuntimeWriterExecutionDeliveryProof(parsedReadModel);
 
@@ -62,7 +69,7 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-runtime-writer-execution-delivery-proof',
     commands,
-    packageExportState: 'blocked-by-active-packages-parent-domain-package-json-lock; direct-dist-module-validated',
+    packageExportState: 'validated-via-public-parent-domain-subpath-export',
     evidence: {
       runtimeWriterExecutionDeliveryContract:
         'packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts',
@@ -74,8 +81,8 @@ async function main() {
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
-      packageExportGap: 'packages/parent-domain/package.json export pending after codex-b lock clears',
-      packageReadmeGap: 'packages/parent-domain/README.md update pending after E-C lock clears',
+      packageExport: '@ocentra-parent/parent-domain/app-install-purchase-runtime-writer-execution-delivery-proof',
+      packageReadme: 'packages/parent-domain/README.md',
       output: relative(repoRoot, proofPath),
     },
     runtimeWriterExecutionDeliverySummary: summary,
@@ -105,11 +112,7 @@ async function main() {
       claimBoundary: row.claimBoundary,
     })),
     nonClaims: parsedReadModel.nonClaims,
-    knownGaps: [
-      ...parsedReadModel.knownGaps,
-      'Public package export remains pending until packages/parent-domain/package.json lock clears.',
-      'Parent-domain README update remains pending until packages/parent-domain/README.md lock clears.',
-    ],
+    knownGaps: parsedReadModel.knownGaps,
   };
 
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);

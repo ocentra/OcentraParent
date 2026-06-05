@@ -57,6 +57,10 @@
       "import": "./dist/app-install-purchase-runtime-writer-delivery-proof.js",
       "types": "./dist/app-install-purchase-runtime-writer-delivery-proof.d.ts"
     },
+    "./app-install-purchase-runtime-writer-execution-delivery-proof": {
+      "import": "./dist/app-install-purchase-runtime-writer-execution-delivery-proof.js",
+      "types": "./dist/app-install-purchase-runtime-writer-execution-delivery-proof.d.ts"
+    },
     "./app-install-purchase-child-device-delivery-runtime-writer-proof": {
       "import": "./dist/app-install-purchase-child-device-delivery-runtime-writer-proof.js",
       "types": "./dist/app-install-purchase-child-device-delivery-runtime-writer-proof.d.ts"
