@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "nativeAppPreviewRowCount": 1,
+  "nativeGamePreviewRowCount": 0,
+  "nativeGamePromotionClaimed": false,
+  "policyEvaluatorRuntimeClaimed": false,
+  "timerRuntimeClaimed": false,
+  "adapterDispatchClaimed": false,
+  "childDeliveryClaimed": false,
+  "platformEnforcementClaimed": false
+}

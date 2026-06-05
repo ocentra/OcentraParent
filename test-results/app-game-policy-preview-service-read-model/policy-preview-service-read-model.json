@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-05T18:55:00Z",
+  "custodyLabel": "activity-store",
+  "capabilityStatus": "ready",
+  "returned": 2,
+  "nativeAppPreviewRowCount": 1,
+  "nativeGamePreviewRowCount": 0,
+  "notAppGameRowCount": 1,
+  "nativeGamePromotionClaimed": false,
+  "nativeGameUnavailableReason": "source-target-kind-not-persisted",
+  "policyEvaluatorRuntimeClaimed": false,
+  "timerRuntimeClaimed": false,
+  "adapterDispatchClaimed": false,
+  "childDeliveryClaimed": false,
+  "platformEnforcementClaimed": false,
+  "rows": [
+    {
+      "schemaVersion": 1,
+      "rowId": "policy-preview-native-app-proof",
+      "sourcePreviewId": "policy-preview-native-app-proof",
+      "sourceEventId": "activity-event-native-app-proof",
+      "observedAt": "2026-06-05T18:55:00Z",
+      "targetDomain": "native-app",
+      "targetType": "app",
+      "targetValue": "opaque-app-ref-proof",
+      "policyDecisionId": "policy-decision-native-app-proof",
+      "policyAction": "time-limit",
+      "reasonCodes": [
+        "parent-rule-time-limit"
+      ],
+      "ruleIds": [
+        "parent-rule-native-app-proof"
+      ],
+      "evidenceReferenceCount": 1,
+      "parentRuleContextReferenceCount": 1,
+      "dryRun": true,
+      "enforcementHandoffState": "disabled",
+      "policyEvaluatorRuntimeClaimed": false,
+      "timerRuntimeClaimed": false,
+      "adapterDispatchClaimed": false,
+      "childDeliveryClaimed": false,
+      "platformEnforcementClaimed": false
+    },
+    {
+      "schemaVersion": 1,
+      "rowId": "policy-preview-domain-proof",
+      "sourcePreviewId": "policy-preview-domain-proof",
+      "sourceEventId": "activity-event-domain-proof",
+      "observedAt": "2026-06-05T18:55:00Z",
+      "targetDomain": "not-app-game",
+      "targetType": "domain",
+      "targetValue": "example.invalid",
+      "policyDecisionId": "policy-decision-domain-proof",
+      "policyAction": "unknown",
+      "reasonCodes": [
+        "no-matching-parent-rule"
+      ],
+      "ruleIds": [],
+      "evidenceReferenceCount": 0,
+      "parentRuleContextReferenceCount": 0,
+      "dryRun": true,
+      "enforcementHandoffState": "disabled",
+      "policyEvaluatorRuntimeClaimed": false,
+      "timerRuntimeClaimed": false,
+      "adapterDispatchClaimed": false,
+      "childDeliveryClaimed": false,
+      "platformEnforcementClaimed": false
+    }
+  ]
+}
