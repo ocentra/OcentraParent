@@ -47,6 +47,9 @@ Shared activity and evidence contracts for child-device observations.
   viewport, and crop screenshots tied to a managed browser target, URL/title
   evidence refs, encrypted temp queue custody, deletion proof, and no desktop,
   live-screencast, remote-upload, or raw-retention defaults.
+- Screen child disclosure UX contracts that require visible local status,
+  child-device custody, audit refs, no hidden active capture, no raw screenshot
+  path exposure, and no raw remote upload.
 - Screen-AI browser trigger proof rows that compose typed browser AI
   input/result contracts with screen-analysis result contracts for managed URL,
   browser-video, social-feed, and cloud-game trigger states without claiming UI,
@@ -116,6 +119,9 @@ flowchart LR
   `screen-router-structured-extraction-proof`; real managed-browser
   DOM/accessibility producer integration, portal rendering, final policy, and
   enforcement proof remain open.
+- Screen child disclosure UX now has `screen-child-disclosure-ux-proof`;
+  production child app, OS notification/tray/foreground overlay, and
+  service-persisted disclosure state remain open.
 - Optional raw-retention/live-view preflight proof now has
   `screen-optional-retention-live-preflight-proof`; runtime retention
   enablement, live transport/relay/cache, platform permission prompts, parent

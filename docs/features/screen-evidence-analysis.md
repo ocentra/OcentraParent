@@ -167,6 +167,19 @@ only with explicit parent settings.
   `output/screen-plan-proof/settings-writable-controls/proof-summary.json`.
   This is not service persistence, child-agent runtime application, raw
   retention enablement, live view, or remote screenshot upload.
+- `ScreenChildDisclosureUxProofSchema` and
+  `scripts/test/screen-child-disclosure-ux-proof.mjs` now prove child-visible
+  local disclosure states for disabled, paused, ready, capture-active, and
+  protected-surface screen checks. The proof renders shared text-domain copy in
+  the real parent Settings route with the real Rust agent and Vite portal on the
+  B-lane ports, captures
+  `output/screen-plan-proof/26-child-disclosure-ux/10-ui-snapshots/screen-child-disclosure-active-card.png`,
+  and writes
+  `output/screen-plan-proof/26-child-disclosure-ux/proof-summary.json`. The
+  contract rejects hidden capture, invisible active checks, raw screenshot path
+  exposure, missing audit refs, and raw remote upload. This is not a production
+  child app, OS notification, tray, foreground overlay, or service-persisted
+  disclosure state claim.
 - `scripts/test/screen-ai-service-cadence-proof.mjs` now proves an explicit
   opt-in Rust service cadence loop on Windows: it opens a real foreground
   browser fixture, records three timed active-window captures through the
@@ -324,11 +337,11 @@ event producers beyond the timed cadence loop and native active-window
 foreground watcher, physical Android/iOS proof, live macOS capture proof, Linux
 root/Wayland portal proof, browser-trigger artifact closure,
 browser/network/mobile/broad block action adapters from screen-derived
-decisions, real family AI hub runtime/discovery, and production parent
-explanation UX remain. Browser-trigger proof now covers contract flow into
-screen evidence and local-AI context only; live trigger producers,
-authenticated surfaces, cloud-streamed frames, mobile parity, and UI remain
-separate proof gates.
+decisions, real family AI hub runtime/discovery, production child app/OS
+notification/tray/overlay disclosure, and disclosure settings persistence
+remain. Browser-trigger proof now covers contract flow into screen evidence and
+local-AI context only; live trigger producers, authenticated surfaces,
+cloud-streamed frames, mobile parity, and UI remain separate proof gates.
 
 ## Checklist
 
@@ -357,10 +370,13 @@ separate proof gates.
       structured extraction before selecting screenshots.
 - [x] Managed-browser CDP screenshot capture is page-scoped, target-tied,
       queued, and deleted.
+- [x] Child-visible screen disclosure UX contract and parent Settings route
+      proof reject hidden capture and raw screenshot exposure.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof, broad
-adapters, and production explanation UX remain in the Current Gap section above.
+adapters, production child app/OS disclosure, and disclosure persistence remain
+in the Current Gap section above.
 
 ## Next AI Instructions
 
