@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-policy-evaluator-runtime-breadth",
-  "checkedAt": "2026-06-04T16:22:12.873Z",
-  "commit": "e9b096e28525a28c4d2ae288eaf6696eb883289e",
+  "checkedAt": "2026-06-05T21:33:00.818Z",
+  "commit": "f73d77f66d378dfaab1ede42ebcc7a2dca4c5332",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-time-budget-policy-runtime"
