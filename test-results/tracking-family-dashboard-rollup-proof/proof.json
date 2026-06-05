@@ -2,7 +2,7 @@
   "proofMode": "tracking-family-dashboard-rollup-proof",
   "generatedAt": "2026-06-05T23:10:00.000Z",
   "branch": "codex/tracking-family-dashboard-rollup-proof",
-  "baseCommitAtGeneration": "ce4f1f128fed5b7639fada947627a75714761db1",
+  "baseCommitAtGeneration": "fb784a6458bdbefd039165d73d441d57fcf10abf",
   "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
