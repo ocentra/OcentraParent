@@ -181,6 +181,12 @@ materials, staff training, staged rollout, and known-gap signoff. Production
 rollout remains blocked without an external audit or penetration-test signoff
 ref, and default remote upload, raw PCAP without custody, exact content,
 policy/adapter authority, and enforcement-command claims are rejected.
+The end-to-end pipeline proof composes the existing deterministic trigger,
+typed-event-ref, evidence bundle, local-AI refs-only queue, AI detection/audit,
+risk-budget, policy mapping, adapter proof-state, audit, portal read-model, and
+retention/delete/export refs into one product-path artifact while proving weak
+or unavailable evidence cannot authorize adapter apply, AI remains advisory, and
+UI/network surfaces cannot bypass policy.
 
 Live Npcap/libpcap driver invocation and packet capture, full vendor category
 feeds, production CDN intelligence, unmanaged browser exact URL or active-tab

@@ -89,26 +89,38 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       exact URL and decrypted-payload claim attempts.
 - [x] Every network claim has evidence grade A/B/C/D.
       `ActivityNetworkEvidenceGradeSchema` now rejects grades outside A/B/C/D.
-- [ ] Every network event that crosses Rust runtime uses reusable eventing
-      contracts, not a private network bus.
-- [ ] Network event scalars use validated Rust newtypes and matching
+- [x] Every network event that crosses Rust runtime uses reusable eventing
+      contracts, not a private network bus. E-D proves this through the
+      `agent-core` typed network runtime event chain and
+      `network-end-to-end-pipeline-proof.mjs`.
+- [x] Network event scalars use validated Rust newtypes and matching
       TypeScript Effect Schema brands where cross-language contracts exist.
-- [ ] Network live handlers receive typed `EventContext<E>`, not
-      `serde_json::Value`.
-- [ ] Network event payloads are immutable facts; handlers do not receive
-      mutable event payload references.
-- [ ] Network does not define `NetworkEventBus`, a network dispatch registry,
+      E-D proof includes Rust protocol network event contracts plus
+      TypeScript `agent-protocol-domain` parity.
+- [x] Network live handlers receive typed `EventContext<E>`, not
+      `serde_json::Value`. E-D proof covers the reusable eventing
+      `EventSubscriber` handler path in `agent-core` network runtime tests.
+- [x] Network event payloads are immutable facts; handlers do not receive
+      mutable event payload references. E-D proof uses the generic eventing
+      source-safety gate plus typed network runtime payload tests.
+- [x] Network does not define `NetworkEventBus`, a network dispatch registry,
       network queue, network retry machinery, or network request registry.
-- [ ] Broker-backed network routes declare at-least-once, at-most-once, or
+      E-D proof keeps network delivery on reusable `ocentra-eventing` and
+      static source gates reject private network bus shortcuts.
+- [x] Broker-backed network routes declare at-least-once, at-most-once, or
       effectively-once-through-idempotency semantics; no generic exactly-once
-      claim without exact broker/config proof.
+      claim without exact broker/config proof. E-D row45 proof records broker
+      and family-hub requirements while keeping implementation unclaimed.
 - [ ] Raw PCAP/live capture artifacts are encrypted at rest and governed by
       quota rotation, retention, deletion, export, and custody proof.
       E-D now proves service/query-store tombstone filtering and exportable-row
       accounting for stored metadata-only network facts; raw PCAP/live-capture
       artifact retention remains open.
-- [ ] Analyzer alerts are evidence inputs, not policy authority.
-- [ ] AI audit is advisory and cites evidence refs.
+- [x] Analyzer alerts are evidence inputs, not policy authority. E-D row44 and
+      row51 proofs keep analyzer refs advisory and non-enforcing.
+- [x] AI audit is advisory and cites evidence refs. E-D row47 and row51 proofs
+      carry detection/evidence/analyzer/parent-rule refs without policy,
+      adapter, or enforcement authority.
 - [x] Parent policy is the action authority.
       `ActivityNetworkPolicyActionSchema` requires a policy decision ref before
       adapter authorization.
@@ -134,12 +146,16 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
 
 ## Main Execution Gates
 
-- [ ] Source docs read: folder README, source index, current snapshot, full
+- [x] Source docs read: folder README, source index, current snapshot, full
       scope plan, tests/proof blueprint, UI/UX guide, coverage audit,
-      implementation checklist, eventing plan, and assigned workpack.
-- [ ] Feature docs checked for overlap: child-agent local service,
+      implementation checklist, eventing plan, and assigned workpack. E-D read
+      the focused feature/expectation/network-plan/module README path before
+      row51 edits.
+- [x] Feature docs checked for overlap: child-agent local service,
       network/domain control, AI, policy, enforcement, browser, app/game,
-      screen, LAN, reports/notifications.
+      screen, LAN, reports/notifications. Row51 touches the network-owned
+      proof path and uses existing AI/policy/enforcement expectations without
+      changing those acceptance contracts.
 - [x] Hub lock covers the workpack file and exact implementation/docs paths.
       E-D locked the network workpack 03 activity-domain/docs/proof scope before
       editing.
@@ -163,7 +179,10 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
 - [x] TypeScript Effect Schema contracts land before Rust/service/portal
       consumers where TypeScript domain boundaries are touched. Workpack 03
       added the `activity-domain` network contracts before Rust protocol parity.
-- [ ] Rust protocol parity exists for new protocol-facing contracts.
+- [x] Rust protocol parity exists for new protocol-facing contracts. E-D added
+      Rust protocol-facing network/AI/policy/enforcement/audit/portal event
+      contracts and public TypeScript parity; row51 consumes those refs in the
+      integrated proof harness.
 - [~] Journal/read-model/storage behavior exists before portal or policy claims
   depend on it. E-D now proves ActivityStore network flow read-model
   storage, replay, service payload projection, WebSocket event-chain
@@ -249,6 +268,8 @@ manual-required/N/A file.
 | 48   | Household risk budget and cascade threshold model                                                                         | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/48-risk-budget-threshold-proof/proof-summary.json`, `test-results/network-risk-budget-threshold-proof/proof.json`, `risk_budget_threshold_maps_profile_prior_events_and_adapter_proof_to_block`, `risk_budget_threshold_applies_safe_behavior_credit_only_with_policy_proof`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Deterministic household risk-budget threshold proof now consumes AI audit reports, child/profile refs, household policy refs, prior-event refs, safe-behavior credit refs, and adapter proof state to map risk pressure into ignore, monitor, ask-parent, warn-child, limit, block, or manual-required recommendations. Safe-behavior credit requires parent-rule cap, expiry, audit reason, and UI explanation refs. Signature-only hits and missing-adapter cases stay manual-required for control actions, and raw PCAP, exact URL, page content, private message, search query, decrypted payload, policy-authority, adapter-authority, enforcement-command, privilege-grant, allowance-grant, and time-grant claims are rejected. This does not claim policy execution, adapter execution, host filtering, published enforcement commands, portal risk-budget UI rendering, or production scoring.                                                                                                                                                              |
 | 49   | Performance, latency, resource, and high-concurrency benchmark proof                                                      | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/49-performance-benchmark-proof/proof-summary.json`, `test-results/network-performance-benchmark-proof/proof.json`, `performance_benchmark_records_latency_throughput_resource_and_high_concurrency_metrics`, `performance_benchmark_flags_latency_queue_resource_and_throughput_regressions`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Deterministic performance benchmark proof now aggregates fixture rows for packet-to-summary latency, packet-to-detection latency, detection-to-cascade latency, event throughput, CPU, memory, disk, queue depth, dropped events, and high-concurrency flow counts. It records dry-run, manual-required, unsupported, unavailable, and degraded path states and reports benchmark regression codes without claiming production performance. Real-time response, production SLO, raw PCAP, exact URL, page content, decrypted payload, adapter action, host filtering, and enforcement-command claims are rejected. This does not claim production SLO validation, live capture, live adapter execution, host filtering, enforcement command publication, or portal performance UI rendering.                                                                                                                                                                                                                                                                         |
 | 50   | Security, privacy, compliance, deployment, support, and staged rollout proof                                              | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/50-security-readiness-proof/proof-summary.json`, `test-results/network-security-readiness-proof/proof.json`, `readiness_proof_accepts_internal_security_privacy_support_and_rollout_gates`, `readiness_proof_blocks_production_claim_without_external_signoff`, `readiness_proof_allows_production_ready_only_with_external_signoff`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Deterministic network security readiness proof now records threat-model, privacy/compliance, retention/delete/export custody, key-rotation, secret-handling, rule/model provenance and rollback, support material, staff-training, staged-rollout, incident-response, and known-gap signoff refs. It returns internal-ready, production-blocked-pending-external-signoff, or production-ready-with-external-signoff states, so production rollout remains blocked unless external audit or penetration-test signoff is supplied. Default remote upload, raw PCAP without custody, exact URL, page content, private message, search query, decrypted payload, policy-authority, adapter-authority, and enforcement-command claims are rejected. This does not claim production deployment, external audit execution, full support-material authoring, default evidence upload, or live enforcement.                                                                                                                                                                   |
+
+| 51 | Integrated event + network product path proof | [x] | E-D | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json`, `test-results/network-end-to-end-pipeline-proof/proof.json`, `end_to_end_pipeline_carries_refs_from_trigger_to_retention_export`, `end_to_end_pipeline_keeps_weak_evidence_non_enforcing`, `end_to_end_pipeline_keeps_unavailable_evidence_non_enforcing`, `end_to_end_pipeline_rejects_ai_ui_and_network_bypass_claims`, `network_runtime_chain_carries_exact_refs_without_direct_enforcement_shortcut`, `manual_required_network_evidence_does_not_publish_enforcement_command` | Integrated proof now composes existing typed event-chain refs, evidence bundle refs, local-AI refs-only queue, AI detection/audit refs, risk-budget and policy refs, DNS adapter proof-state refs, audit refs, portal read-model refs, and retention/delete/export refs into one deterministic product path. Weak or unavailable evidence cannot authorize adapter apply or publish enforcement commands, and AI/UI/network surfaces cannot bypass policy. This does not claim live capture driver invocation, local model execution, full policy engine execution, host adapter mutation, broker/family-hub delivery, or broader portal risk-budget/performance UI rendering. |
 
 ## Worker Report Template
 

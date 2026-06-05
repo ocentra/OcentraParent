@@ -24,6 +24,7 @@ mod local_ai_queue;
 mod managed_browser;
 mod notification;
 mod performance;
+mod pipeline;
 mod policy;
 mod process;
 mod readiness;

@@ -302,6 +302,13 @@ compete on control while staying clear about attribution confidence and privacy.
   `apps/portal/src` plus `packages/portal-domain/src` do not import eventing,
   publish network/policy/enforcement events, compute evidence grades, decide
   policy, or execute adapter/enforcement commands.
+- E-D added an integrated event-plus-network product-path proof in
+  `ocentra-network-evidence`: one deterministic artifact carries trigger refs,
+  typed-event refs, evidence refs, local-AI queue refs, AI detection/audit refs,
+  policy/risk-budget refs, adapter proof refs, audit refs, portal read-model
+  refs, and retention/delete/export refs while proving weak or unavailable
+  evidence cannot authorize adapter apply and AI/UI/network surfaces cannot
+  bypass policy.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -331,7 +338,8 @@ runtime event-chain entries, service/query-store retention tombstone filtering
 with exportable-row accounting for stored network facts, service-side
 journal-before-action/final-audit ordering, typed in-process parent/controller
 to child-agent handoff, and cross-slice evidence bundle construction after
-cascade routing, plus
+cascade routing, integrated trigger-to-retention product-path ref preservation,
+plus
 network-triggered local-AI queue planning with refs-only AI inputs,
 evidence-grade policy handoff mapping, parent notification candidate mapping,
 proof-gated DNS and Windows Firewall adapter apply/result/rollback/audit

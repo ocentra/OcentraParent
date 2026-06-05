@@ -22,6 +22,7 @@ pub mod notification;
 pub mod packet;
 pub mod pcap;
 pub mod performance;
+pub mod pipeline;
 pub mod policy;
 pub mod process;
 pub mod readiness;
@@ -162,6 +163,11 @@ pub use performance::{
     NetworkPerformanceBenchmarkRow, NetworkPerformanceBenchmarkState,
     NetworkPerformanceBenchmarkThresholds, NetworkPerformancePathState,
     NetworkPerformanceRegressionCode, NetworkPerformanceScenarioType,
+};
+pub use pipeline::{
+    prove_network_end_to_end_pipeline, NetworkEndToEndPipelineError, NetworkEndToEndPipelineInput,
+    NetworkEndToEndPipelineProof, NetworkEndToEndPipelineRefs, NetworkEndToEndUnsupportedClaims,
+    NetworkRetentionDeleteExportProof,
 };
 pub use policy::{
     map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
