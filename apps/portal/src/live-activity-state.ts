@@ -53,6 +53,10 @@ import {
   type AgentActivityTrackingReadModelResult,
 } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
 import {
+  parseAgentAppGamePolicyReadinessEvent,
+  type AgentAppGamePolicyReadinessResult,
+} from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
+import {
   createAppGameNotificationParentSurfaceReadModelFromReadiness,
   parseActivityMemoryGraphReadModel,
   PortalBrowserInventoryFields,
@@ -110,6 +114,8 @@ export interface PortalLiveActivityState {
   readonly lanAddDeviceReadModel: AgentLanBrowserAddDeviceReadModel | null;
   readonly policyPreviewEvent: AgentEventEnvelope | null;
   readonly policyPreviewReadModel: PortalPolicyPreviewReadModel | null;
+  readonly appGamePolicyReadinessEvent: AgentEventEnvelope | null;
+  readonly appGamePolicyReadinessReadModel: AgentAppGamePolicyReadinessResult | null;
 }
 
 export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]): PortalLiveActivityState {
@@ -139,6 +145,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
   ]);
   const lanPairingBrowserDiscoveryEvent = latestEvent(events, AgentEvent.LanPairingBrowserDiscoveryReported);
   const policyPreviewEvent = latestEvent(events, AgentEvent.PolicyPreviewReadModelReported);
+  const appGamePolicyReadinessEvent = latestEvent(events, AgentEvent.ActivityAppGamePolicyReadinessReadModelReported);
 
   return {
     activityServiceUiSpine: parseActivityServiceUiSpineEvents(events),
@@ -185,6 +192,9 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     policyPreviewEvent,
     policyPreviewReadModel:
       policyPreviewEvent === null ? null : parsePolicyPreviewReadModel(policyPreviewEvent.payload),
+    appGamePolicyReadinessEvent,
+    appGamePolicyReadinessReadModel:
+      appGamePolicyReadinessEvent === null ? null : parseAgentAppGamePolicyReadinessEvent(appGamePolicyReadinessEvent),
   };
 }
 

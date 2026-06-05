@@ -14,6 +14,8 @@ contracts.
   parent-domain read model plus the live service notification-readiness
   projection, without claiming delivery, preference mutation, scheduler/outbox
   runtime, or adapter dispatch.
+- App/game policy readiness route intents that render service-backed readiness
+  summaries and rows without policy execution or adapter dispatch claims.
 
 ## Must Not Own
 

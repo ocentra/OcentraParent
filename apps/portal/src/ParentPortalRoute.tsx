@@ -23,6 +23,10 @@ import {
   AppGameNotificationParentSurfaceRoutePanel,
   shouldRenderAppGameNotificationParentSurfaceRoute,
 } from './AppGameNotificationParentSurfaceRoutePanel';
+import {
+  AppGamePolicyReadinessRoutePanel,
+  shouldRenderAppGamePolicyReadinessRoute,
+} from './AppGamePolicyReadinessRoutePanel';
 import { ScreenSettingsRoutePanel, shouldRenderScreenSettingsRoute } from './ScreenSettingsRoutePanel';
 import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
 
@@ -97,6 +101,13 @@ export function ParentPortalRoute({
       {shouldRenderAppGameNotificationParentSurfaceRoute(route) ? (
         <AppGameNotificationParentSurfaceRoutePanel
           readModel={activityState.appGameNotificationParentSurfaceIntentReadModel}
+        />
+      ) : null}
+      {shouldRenderAppGamePolicyReadinessRoute(route) ? (
+        <AppGamePolicyReadinessRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          readModelResult={activityState.appGamePolicyReadinessReadModel}
         />
       ) : null}
       {shouldRenderScreenSettingsRoute(route) ? <ScreenSettingsRoutePanel /> : null}

@@ -55,21 +55,21 @@ before `DONE` or PR-ready reporting.
 47. Backend source freshness read-model rows.
 48. WP49 category/risk policy routing.
 49. WP52 policy readiness service read model.
-50. WP53 app/game notification intent contract.
-51. WP56 app/game notification service read model.
-
-52. WP58 app/game notification local outbox bridge.
-53. WP59 app/game notification scheduler bridge.
-54. WP60 app/game notification audit-history bridge.
-55. WP61 app/game notification provider preflight.
-56. WP62 app/game notification parent preference preflight boundary.
-57. WP63 app/game source freshness source-panel intent seam.
-58. WP64 app/game notification provider status handoff.
-59. WP65 app/game notification parent preference status handoff.
-60. WP66 app/game notification parent surface intent.
-61. WP67 app/game notification parent surface renderer.
-62. WP68 app/game notification live parent surface read model.
-63. WP70 app/game policy preview handoff.
+50. WP54 policy readiness portal renderer.
+51. WP53 app/game notification intent contract.
+52. WP56 app/game notification service read model.
+53. WP58 app/game notification local outbox bridge.
+54. WP59 app/game notification scheduler bridge.
+55. WP60 app/game notification audit-history bridge.
+56. WP61 app/game notification provider preflight.
+57. WP62 app/game notification parent preference preflight boundary.
+58. WP63 app/game source freshness source-panel intent seam.
+59. WP64 app/game notification provider status handoff.
+60. WP65 app/game notification parent preference status handoff.
+61. WP66 app/game notification parent surface intent.
+62. WP67 app/game notification parent surface renderer.
+63. WP68 app/game notification live parent surface read model.
+64. WP70 app/game policy preview handoff.
 
 ## Standard AI Worker Checklist
 
