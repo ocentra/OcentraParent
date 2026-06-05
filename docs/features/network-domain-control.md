@@ -73,6 +73,13 @@ compete on control while staying clear about attribution confidence and privacy.
   broker/family-hub routes enumerate custody, auth, encryption, retention,
   replay, deletion, offset, dedupe, broker config, and family-hub identity/relay
   requirements before any product delivery claim.
+- E-D added network-specific queue backpressure proof on top of the reusable
+  `ocentra-eventing` queue: bounded overflow dead-letters the rejected flow,
+  TTL expiry dead-letters before dispatch through manual-clock proof, and
+  queued/completed duplicate idempotency keys are rejected. Stored queued
+  payloads remain metadata-only and do not claim exact URLs, decrypted content,
+  adapter execution, broker/family-hub transport, or service event-chain
+  streaming.
 - E-D wired the service network read-model command to local runtime delivery:
   `agent.network.flow.read-model.get` now maps stored ActivityStore network rows
   into `agent-core` network runtime observations, publishes them through the
@@ -380,12 +387,15 @@ execution, and platform adapter execution remain open.
       lab-result, and audit refs while preserving the selected adapter kind.
       Row45 eventing delivery-decision proof now keeps local network routes
       local-first with typed subscriber filters and bounded backpressure
-      metadata, and marks broker/family-hub delivery as requirements-gated rather
-      than implemented. Service network read-model delivery now publishes stored
+      metadata, and row10 backpressure-depth proof now proves network-specific
+      overflow dead-lettering, TTL expiry, and idempotency duplicate rejection.
+      Broker/family-hub delivery remains requirements-gated rather than
+      implemented. Service network read-model delivery now publishes stored
       ActivityStore network rows through the local eventing runtime and exposes
       delivery counts in the service payload while keeping broker/family-hub,
-      policy, adapter, and host-filter execution unclaimed. Row46 AI detection
-      fixture proof now measures model
+      policy, adapter, host-filter execution, and service WebSocket
+      event-chain streaming unclaimed. Row46 AI detection fixture proof now
+      measures model
       predictions against labeled structured-summary fixtures with precision,
       recall, accuracy, and confidence-drift states while rejecting raw content
       and authority claims. Row47 AI audit narrative proof now emits

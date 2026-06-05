@@ -27,7 +27,14 @@ mod refs;
 mod review;
 
 #[cfg(test)]
-pub use queue::{queue_network_runtime_flow_until_subscriber, NetworkRuntimeQueueDrainReport};
+pub use queue::{
+    queue_network_runtime_flow_expires_before_drain,
+    queue_network_runtime_flow_overflow_dead_letters,
+    queue_network_runtime_flow_rejects_duplicate_idempotency,
+    queue_network_runtime_flow_until_subscriber, NetworkRuntimeQueueDrainReport,
+    NetworkRuntimeQueueIdempotencyReport, NetworkRuntimeQueueOverflowReport,
+    NetworkRuntimeQueueTtlReport,
+};
 use refs::NetworkRuntimeChainRefs;
 #[cfg(test)]
 pub use review::{

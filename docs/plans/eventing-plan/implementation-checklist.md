@@ -180,8 +180,10 @@ Consolidated E-D proof pack:
       family-hub delivery remain not claimed.
 - [x] Network Workpack 10 consumes this crate after eventing proof exists. E-D
       added reusable `ocentra-eventing` consumption in the network runtime with
-      no-subscriber queue/drain and local typed request-response proof; broker
-      and family-hub delivery remain outside this row.
+      no-subscriber queue/drain, local typed request-response proof, and
+      network-specific overflow/TTL/idempotency backpressure proof; broker,
+      family-hub delivery, production retention/replay/delete/export, and
+      service WebSocket event-chain streaming remain outside this row.
 - [x] Required proof pack exists with logs, JSON, or explicit N/A reasons for
       every applicable gate.
 - [x] Feature docs, expectation docs, module READMEs, and product capability

@@ -3,8 +3,8 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::network_event_runtime::{
-    queue_network_runtime_flow_until_subscriber, request_network_runtime_review_for_observation,
-    NetworkRuntimeQueueDrainReport, NetworkRuntimeReviewReport, NetworkRuntimeReviewResponse,
+    request_network_runtime_review_for_observation, NetworkRuntimeReviewReport,
+    NetworkRuntimeReviewResponse,
 };
 
 use super::{
@@ -165,38 +165,6 @@ async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() {
             && !payload.claim_boundary.decrypted_https_payload_available
             && !payload.claim_boundary.adapter_action_executed
     }));
-}
-
-#[tokio::test]
-async fn network_runtime_queues_flow_until_subscriber_drains() {
-    let report: NetworkRuntimeQueueDrainReport = queue_network_runtime_flow_until_subscriber(
-        complete_domain_observation(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-    )
-    .await
-    .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_QUEUE_DRAINS);
-
-    assert_eq!(
-        report.queued_publish_report.event_type.as_str(),
-        constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED
-    );
-    assert_eq!(
-        report.queued_publish_report.queue_report.disposition,
-        ocentra_eventing::QueueDisposition::QueuedNoSubscriber
-    );
-    assert_eq!(report.queued_publish_report.queue_report.queued_count, 1);
-    assert_eq!(report.queued_publish_report.subscriber_count, 0);
-    assert_eq!(report.drain_report.queued_before, 1);
-    assert_eq!(report.drain_report.dispatched_count, 1);
-    assert_eq!(report.drain_report.expired_count, 0);
-    assert_eq!(report.drain_report.remaining_count, 0);
-    assert_eq!(report.drain_report.dispatch_reports[0].handled_count, 1);
-    assert_eq!(
-        report.drain_report.dispatch_reports[0].event_type.as_str(),
-        constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED
-    );
-    assert_eq!(report.stored_events.len(), 1);
-    assert!(report.dead_letters.is_empty());
 }
 
 #[tokio::test]

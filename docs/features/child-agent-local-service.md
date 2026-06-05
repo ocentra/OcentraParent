@@ -65,6 +65,12 @@ and clear degraded states.
   proof. This proves local in-process network runtime usage of the reusable
   crate, not broker/family-hub delivery or broad parent/child transport
   adoption.
+- E-D added network-specific backpressure-depth proof on top of the reusable
+  queue: bounded overflow becomes a dead letter, TTL expiry dead-letters before
+  dispatch under manual-clock proof, and queued/completed duplicate idempotency
+  keys are rejected. This remains local in-process network runtime proof, not
+  broker/family-hub delivery, production retention/replay, service event-chain
+  streaming, policy execution, or adapter execution.
 - E-D wired the service network read-model command to local network runtime
   delivery. Stored ActivityStore network rows now publish through the
   `agent-core` runtime spine during `agent.network.flow.read-model.get`, and
@@ -127,11 +133,12 @@ and support diagnostics. The reusable Rust eventing crate now has proof for
 queue/retry/TTL, request-response, durable journal/replay, panic isolation,
 typed envelopes, production shutdown, and runtime-owned bus lifecycle. The
 network runtime now consumes the reusable crate for typed publish,
-no-subscriber queue/drain, local typed request-response, Rust
-protocol-facing network event contracts, and service-side read-model delivery
-for stored network rows. Public TypeScript parity for the network runtime event
-contracts now exists in `agent-protocol-domain`; service streaming of the event
-chain remains separate. Parent/controller to child-agent in-process runtime
+no-subscriber queue/drain, bounded overflow/TTL/idempotency backpressure proof,
+local typed request-response, Rust protocol-facing network event contracts, and
+service-side read-model delivery for stored network rows. Public TypeScript
+parity for the network runtime event contracts now exists in
+`agent-protocol-domain`; service streaming of the event chain remains separate.
+Parent/controller to child-agent in-process runtime
 publishing and typed local transport handoff now have proof;
 the generic eventing delivery decision proof now makes broker/family-hub delivery
 requirements explicit without implementing the transport; the open eventing gap
@@ -168,8 +175,11 @@ raw JSON/string constants, `Uuid`, and raw domain identifier fields.
       projection; the eventing delivery decision proof now gates
       broker/family-hub routes on custody, auth, encryption, retention, replay,
       deletion, offset, dedupe, broker config, and family-hub identity/relay
-      artifacts. Broker/family-hub delivery, physical child-device runtime
-      installation, and broad runtime adoption remain.
+      artifacts; network-specific backpressure-depth proof now covers overflow
+      dead-lettering, TTL expiry, and idempotency duplicate rejection for queued
+      network flow events. Broker/family-hub delivery, service event-chain
+      streaming, physical child-device runtime installation, and broad runtime
+      adoption remain.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting. Current mobile capability proof

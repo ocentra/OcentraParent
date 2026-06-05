@@ -86,5 +86,11 @@ pub const ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES: &str = "network runtime chain p
 pub const ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES_DEGRADED: &str =
     "network runtime chain publishes degraded state";
 pub const ERROR_NETWORK_RUNTIME_QUEUE_DRAINS: &str = "network runtime queued flow drains";
+pub const ERROR_NETWORK_RUNTIME_QUEUE_OVERFLOW_DEAD_LETTERS: &str =
+    "network runtime queue overflow dead letters";
+pub const ERROR_NETWORK_RUNTIME_QUEUE_TTL_EXPIRES: &str =
+    "network runtime queue ttl expires before dispatch";
+pub const ERROR_NETWORK_RUNTIME_QUEUE_IDEMPOTENCY_REJECTS: &str =
+    "network runtime queue idempotency rejects duplicates";
 pub const ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES: &str = "network runtime payload decodes";
 pub const ERROR_NETWORK_RUNTIME_REVIEW_COMPLETES: &str = "network runtime review request completes";
