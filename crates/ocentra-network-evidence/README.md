@@ -130,14 +130,21 @@ and analyzer-alert-ref fixtures against model predictions, records precision,
 recall, accuracy, and average confidence drift, preserves unknown and mismatch
 uncertainty codes, and rejects model-execution, remote-AI, raw PCAP, exact URL,
 page-content, decrypted-payload, policy-authority, adapter-authority, and
-enforcement-command claims.
+enforcement-command claims. The network AI audit narrative proof consumes those
+detection results and emits parent-readable advisory narratives with cited
+detection, evidence, analyzer-alert, and parent-rule refs. High-risk true
+positives recommend parent/policy review, uncertain detections recommend
+managed-browser or screen-summary confirmation, benign cited detections stay
+monitor-only, and remote-AI, raw PCAP, exact URL, page content, private message,
+search query, decrypted payload, policy authority, adapter authority, and
+enforcement-command claims are rejected.
 
 Live Npcap/libpcap capture, full vendor category feeds,
 production CDN intelligence, unmanaged browser URL correlation, foreground
 session correlation, live network adapter enforcement, file/content inspection,
 local-AI model execution/worker runtime, production model-quality monitoring,
-full policy engine execution, notification provider delivery, live WFP
-driver/callout proof, live adapter execution, Android physical-device behavior,
-Apple entitlement/device behavior, Linux distro/kernel adapter behavior, live
-Zeek/TShark/Wireshark/Suricata/Snort execution, and portal rendering remain
-separate proof-gated workpacks.
+full policy engine execution, notification provider delivery, portal AI audit UI
+rendering, live WFP driver/callout proof, live adapter execution, Android
+physical-device behavior, Apple entitlement/device behavior, Linux distro/kernel
+adapter behavior, live Zeek/TShark/Wireshark/Suricata/Snort execution, and
+portal rendering remain separate proof-gated workpacks.

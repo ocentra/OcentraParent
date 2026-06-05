@@ -1,3 +1,4 @@
+pub mod ai_audit;
 pub mod ai_detection;
 pub mod android_vpn_service_gate;
 pub mod apple_network_extension_gate;
@@ -33,6 +34,11 @@ mod process_support;
 #[cfg(test)]
 mod tests;
 
+pub use ai_audit::{
+    build_network_ai_audit_report, NetworkAiAuditNarrativeState, NetworkAiAuditRecommendation,
+    NetworkAiAuditRecommendationKind, NetworkAiAuditReport, NetworkAiAuditReportError,
+    NetworkAiAuditReportInput, NetworkAiAuditUncertaintyCode,
+};
 pub use ai_detection::{
     evaluate_network_ai_detection_fixtures, NetworkAiDetectionDriftState,
     NetworkAiDetectionEvaluationError, NetworkAiDetectionEvaluationInput,
