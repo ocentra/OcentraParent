@@ -1,13 +1,17 @@
 import {
+  ActivityNetworkFlowDigestSchema,
   ActivityNetworkFlowReadModelSchema,
+  type ActivityNetworkFlowDigest,
   type ActivityNetworkFlowReadModel,
 } from '@ocentra-parent/activity-domain/network-flow';
+import type { ActivityEvidenceRef } from '@ocentra-parent/activity-domain/contracts';
 import { ActivityQuerySchemaVersion } from '@ocentra-parent/activity-domain/query';
 import { AgentProtocolDefaults, type AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
 
 export function parseNetworkFlowReadModel(payload: AgentProtocolLogFields): ActivityNetworkFlowReadModel | null {
   const returned = payload[AgentProtocolDefaults.Field.Returned];
-  const row = returned === 0 ? [] : [networkFlowObservation(payload)];
+  const digest = networkFlowDigest(payload);
+  const row = returned === 0 ? [] : [networkFlowObservation(payload, digest)];
   const parsed = ActivityNetworkFlowReadModelSchema.safeParse({
     schemaVersion: ActivityQuerySchemaVersion,
     generatedAt: payload[AgentProtocolDefaults.Field.GeneratedAt],
@@ -24,7 +28,7 @@ export function parseNetworkFlowReadModel(payload: AgentProtocolLogFields): Acti
   return parsed.data;
 }
 
-function networkFlowObservation(payload: AgentProtocolLogFields) {
+function networkFlowObservation(payload: AgentProtocolLogFields, digest: ActivityNetworkFlowDigest | null) {
   return {
     schemaVersion: ActivityQuerySchemaVersion,
     eventId: payload[AgentProtocolDefaults.Field.LatestEventId],
@@ -54,10 +58,40 @@ function networkFlowObservation(payload: AgentProtocolLogFields) {
       firstSeenAt: nullIfMissing(payload[AgentProtocolDefaults.Field.FirstSeenAt]),
       lastSeenAt: nullIfMissing(payload[AgentProtocolDefaults.Field.LastSeenAt]),
     },
-    evidence: [],
+    evidence: digest?.evidence ?? [],
   };
 }
 
 function nullIfMissing(value: AgentProtocolLogFields[keyof AgentProtocolLogFields] | undefined) {
   return value === undefined ? null : value;
+}
+
+function networkFlowDigest(payload: AgentProtocolLogFields): ActivityNetworkFlowDigest | null {
+  const raw = payload[AgentProtocolDefaults.Field.ActivityDigest];
+  if (typeof raw !== AgentProtocolDefaults.Primitive.String) {
+    return null;
+  }
+
+  try {
+    const decoded = JSON.parse(String(raw)) as unknown;
+    const parsed = ActivityNetworkFlowDigestSchema.safeParse(decoded);
+    if (!parsed.success) {
+      return null;
+    }
+    return normalizeDigestEvidence(parsed.data);
+  } catch {
+    return null;
+  }
+}
+
+function normalizeDigestEvidence(digest: ActivityNetworkFlowDigest): ActivityNetworkFlowDigest {
+  const evidence = digest.evidence.filter(isUsableEvidence);
+  return {
+    ...digest,
+    evidence,
+  };
+}
+
+function isUsableEvidence(evidence: ActivityEvidenceRef): boolean {
+  return evidence.evidenceId.length > 0;
 }

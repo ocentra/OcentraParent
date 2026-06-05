@@ -153,6 +153,12 @@ compete on control while staying clear about attribution confidence and privacy.
   parent rule, evidence, and optional local-AI refs. Provider delivery,
   sensitive payload transport, adapter authorization, and enforcement command
   publication are rejected.
+- E-D added a service-backed parent portal network evidence drawer on the
+  Activity product route. The drawer renders the real Rust service
+  `agent.network.flow.read-model.reported` output, cites ActivityStore evidence
+  refs from the network activity digest, shows metadata-only endpoint/domain/
+  process attribution, and keeps exact URL, AI, policy, intervention, and
+  retention facets explicitly not reported when no service refs exist.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -201,7 +207,8 @@ network-triggered local-AI queue planning with refs-only AI inputs and
 evidence-grade policy handoff mapping, plus parent notification candidate
 mapping. Analyzer fixtures, broker/family-hub delivery, local-AI model
 execution/worker runtime, full policy engine execution, notification provider
-delivery, portal UI, and adapter apply/rollback artifacts remain open.
+delivery, broader parent-facing rule UX, and adapter apply/rollback artifacts
+remain open.
 
 ## Checklist
 
@@ -239,10 +246,16 @@ delivery, portal UI, and adapter apply/rollback artifacts remain open.
       network-triggered local-AI queue planning now keeps AI inputs to refs
       only, and evidence-grade policy mapping now proves dry-run/parent-review/
       observe-only handoffs with parent rule refs. Parent notification candidate
-      mapping now preserves refs without provider delivery. Production analyzer,
-      AI model execution, broker/family-hub delivery, broader service wiring,
-      full policy engine execution, notification delivery, and risk-budget
-      fixtures remain.
+      mapping now preserves refs without provider delivery, and the Activity
+      route now renders a service-backed network evidence drawer with missing
+      exact URL/AI/policy/intervention/retention refs labeled as not reported.
+      Production analyzer, AI model execution, broker/family-hub delivery,
+      broader service wiring, full policy engine execution, notification
+      delivery, and risk-budget fixtures remain.
+- [x] Parent portal network evidence drawer.
+      The Activity route renders real Rust service network read-model output,
+      ActivityStore evidence refs, endpoint/domain/process attribution, and
+      unsupported-claim states without publishing policy or adapter commands.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.

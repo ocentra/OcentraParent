@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
 import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { shouldRenderNetworkEvidenceDrawerRoute } from '../src/NetworkEvidenceDrawerRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
+import { networkEvidenceDrawerSummary } from '../src/network-evidence-drawer';
 
 describe('portal live activity network flow state', () => {
   it('parses real service network flow read-model payload fields', () => {
@@ -10,14 +13,45 @@ describe('portal live activity network flow state', () => {
     expect(state.networkFlowReadModel?.rows[0]?.destinationDomain).toBe('example-network.test');
     expect(state.networkFlowReadModel?.rows[0]?.destinationEndpoint.port).toBe(443);
     expect(state.networkFlowReadModel?.rows[0]?.processName).toBe('notepad.exe');
+    expect(state.networkFlowReadModel?.rows[0]?.evidence.map((evidence) => evidence.evidenceId)).toEqual([
+      'network-evidence-1',
+      'network-journal-1',
+    ]);
+  });
+
+  it('projects the parent network evidence drawer without unsupported claims', () => {
+    const state = resolveLiveActivityState([networkFlowEvent()]);
+    const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel);
+
+    expect(summary.evidenceId).toBe('activity-network-flow-1');
+    expect(summary.sourceAdapter).toBe('windows-network-snapshot');
+    expect(summary.sourceQuality).toBe('available');
+    expect(summary.localEndpoint).toBe('127.0.0.1 | 4242');
+    expect(summary.remoteEndpoint).toBe('203.0.113.10 | 443');
+    expect(summary.domainEvidenceRef).toBe('example-network.test | domain-observed');
+    expect(summary.processRef).toBe('notepad.exe | 4242 | process-attributed');
+    expect(summary.evidenceReferences).toBe('network-evidence-1 | network-journal-1');
+    expect(summary.exactUrlClaim).toBe('Not reported');
+    expect(summary.aiAuditRef).toBe('Not reported');
+    expect(summary.policyDecisionRef).toBe('Not reported');
+    expect(summary.interventionResultRef).toBe('Not reported');
+    expect(summary.retentionState).toBe('Not reported');
   });
 
   it('keeps empty network flow read models visible without inventing destinations', () => {
     const state = resolveLiveActivityState([emptyNetworkFlowEvent()]);
+    const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel);
 
     expect(state.networkFlowReadModel?.returned).toBe(0);
     expect(state.networkFlowReadModel?.rows).toEqual([]);
     expect(state.networkFlowReadModel?.capabilityStatus).toBe('no-network-observations');
+    expect(summary.evidenceReferences).toBe('Not reported');
+    expect(summary.exactUrlClaim).toBe('Not reported');
+  });
+
+  it('mounts the network evidence drawer on the activity product route only', () => {
+    expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.Activity)).toBe(true);
+    expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.Overview)).toBe(false);
   });
 });
 
@@ -63,9 +97,35 @@ function networkFlowEvent() {
       bytesReceived: null,
       firstSeenAt: '2026-05-21T02:00:00Z',
       lastSeenAt: '2026-05-21T02:00:00Z',
+      activityDigest: JSON.stringify(networkFlowDigest()),
     },
     snapshot: null,
   });
+}
+
+function networkFlowDigest() {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-05-21T02:00:01Z',
+    custody: 'child-device-query-store',
+    evidence: [
+      {
+        evidenceId: 'network-evidence-1',
+        kind: 'local-db-row',
+        digest: null,
+        uri: null,
+      },
+      {
+        evidenceId: 'network-journal-1',
+        kind: 'journal-entry',
+        digest: null,
+        uri: null,
+      },
+    ],
+    topProcesses: [],
+    topDestinations: [],
+    unusualIndicators: [],
+  };
 }
 
 function emptyNetworkFlowEvent() {
