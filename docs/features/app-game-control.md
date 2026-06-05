@@ -202,6 +202,12 @@ control with better evidence and local audit.
   rows from the existing app/game service model while keeping provider
   delivery, receipt ingestion, local outbox runtime, scheduler runtime, adapter
   dispatch, parent UI, and child delivery claims false.
+- The app/game notification local outbox bridge now maps validated
+  local-outbox-eligible app/game notification intents into existing
+  parent-owned local outbox JSONL records with minimal payload refs, while
+  keeping manual-required and unavailable intents out of queued records and
+  preserving no provider, scheduler, UI, child-delivery, adapter, broad
+  blocking, or platform claims.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -337,6 +343,12 @@ command/event for local intent readiness rows, but it does not provide provider
 delivery, provider receipt ingestion, production local outbox or scheduler
 runtime, parent notification UI, child app/overlay delivery, policy evaluator
 execution, adapter dispatch, broad blocking, or platform support.
+The app/game notification local outbox bridge proof links eligible app/game
+notification intents to the existing parent-owned local outbox JSONL record
+schema, but it does not provide durable production outbox storage, provider
+delivery, provider receipt ingestion, quiet-hours/retry scheduler execution,
+parent notification UI, child delivery, policy evaluator execution, adapter
+dispatch, broad blocking, or platform support.
 
 ## Checklist
 
@@ -402,7 +414,9 @@ execution, adapter dispatch, broad blocking, or platform support.
       policy, audit, child reason/status, and minimal payload refs, and the
       service can now report notification readiness rows for those states, but
       provider delivery, production outbox/scheduler runtime, and finished
-      parent/child UX remain.
+      parent/child UX remain. The local outbox bridge can now write and reread
+      parent-owned JSONL records for eligible app/game notification intents,
+      while manual-required and unavailable intents stay out of queued records.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,

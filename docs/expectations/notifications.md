@@ -88,6 +88,17 @@ notification UI, durable production outbox storage, raw child evidence, raw
 URLs/titles/message text, screenshots, reports, or sensitive provider metadata
 storage.
 
+`scripts/test/app-game-notification-local-outbox-bridge-proof.mjs` validates a
+parent-domain app/game local outbox bridge proof that writes and rereads
+deterministic parent-owned JSONL records from validated app/game notification
+intents. It covers eligible local-outbox-only intents, minimal alert envelopes,
+app/game evidence and policy refs, manual-required and unavailable rows that do
+not queue delivery, and explicit no-provider/no-scheduler/no-UI/no-child/
+no-adapter claims. This is a bridge proof only: it does not claim durable
+production outbox storage, provider delivery, receipt ingestion, quiet-hours or
+retry worker execution, cloud routing, parent notification UI, child delivery,
+broad blocking, or platform support.
+
 ## Failure Behavior
 
 - Provider failure is visible, retryable when safe, and auditable.
@@ -141,6 +152,10 @@ storage.
   parent-owned scheduler artifact writing/parsing, deterministic next-at/retry
   window behavior, and sensitive-detail minimization without provider delivery
   claims.
+- Parent-domain app/game notification local outbox bridge proof for validated
+  app/game notification intents becoming deterministic parent-owned JSONL
+  records only when local-outbox eligible, with manual/unavailable rows kept
+  unqueued and no provider/scheduler/UI/child/adapter claims.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
 - Parent-surface coverage for notification history, preference changes, quiet hours, and sensitive-detail drill-in behind authentication.

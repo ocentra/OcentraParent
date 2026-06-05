@@ -94,6 +94,10 @@ custody.
   service read model while preserving explicit no-provider-delivery,
   no-receipt-ingestion, no-outbox-runtime, no-scheduler-runtime,
   no-parent-UI, no-child-delivery, and no-adapter-dispatch claims.
+- App/game notification local outbox bridge proof now maps validated
+  local-outbox-eligible app/game notification intents into the existing
+  parent-owned local outbox JSONL record schema, and keeps manual-required and
+  unavailable app/game intents visible without queueing them for delivery.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -151,6 +155,11 @@ local alert readiness, but does not claim provider delivery, provider receipt
 ingestion, production local outbox or scheduler runtime, child-device delivery,
 parent notification UI, policy evaluator execution, adapter dispatch, broad app
 blocking, or platform support.
+The app/game notification local outbox bridge proof adds deterministic
+intent-to-local-outbox JSONL writing/parsing for eligible app/game notification
+intents, but does not claim durable production outbox storage, provider
+delivery, receipt ingestion, quiet-hours/retry scheduler execution, parent UI,
+child delivery, adapter dispatch, broad blocking, or platform support.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
@@ -220,6 +229,10 @@ delivery, policy writes, or child-device enforcement.
       manual-required, and unavailable states, without provider delivery,
       receipts, production outbox/scheduler runtime, parent UI, child delivery,
       or adapter claims.
+- [x] App/game notification local outbox bridge proof exists with deterministic
+      parent-owned JSONL records for eligible app/game notification intents,
+      while manual-required and unavailable intents do not queue delivery and no
+      provider/scheduler/UI/child/adapter claims are made.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions

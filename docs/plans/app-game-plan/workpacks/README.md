@@ -58,6 +58,8 @@ before `DONE` or PR-ready reporting.
 50. WP53 app/game notification intent contract.
 51. WP56 app/game notification service read model.
 
+52. WP58 app/game notification local outbox bridge.
+
 ## Standard AI Worker Checklist
 
 - [ ] Confirm source docs read: folder README, source index, current snapshot,
