@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-url-video-ai-proof-gates",
-  "generatedAt": "2026-06-05T09:46:08.865Z",
+  "generatedAt": "2026-06-05T16:04:16.168Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -9,6 +9,7 @@
       "rowId": "AI-01",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": false,
       "proofDirectory": "ai-01-browser-ai-intelligence-plan-links",
       "proofFiles": [
@@ -25,6 +26,7 @@
       "rowId": "AI-02",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-02-url-shape-classification-contracts",
       "proofFiles": [
@@ -42,6 +44,7 @@
       "rowId": "AI-03",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-03-platform-video-url-parser-library",
       "proofFiles": [
@@ -59,6 +62,7 @@
       "rowId": "AI-04",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-04-browser-intelligence-memory-contracts",
       "proofFiles": [
@@ -76,6 +80,7 @@
       "rowId": "AI-05",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-05-metadata-extraction-contracts",
       "proofFiles": [
@@ -93,6 +98,7 @@
       "rowId": "AI-06",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-06-hidden-managed-analysis-profile-design",
       "proofFiles": [
@@ -110,6 +116,7 @@
       "rowId": "AI-07",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-07-hidden-analysis-loader-adapter",
       "proofFiles": [
@@ -127,6 +134,7 @@
       "rowId": "AI-08",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-08-ai-analysis-input-output-contracts",
       "proofFiles": [
@@ -144,6 +152,7 @@
       "rowId": "AI-09",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-09-local-ai-provider-routing",
       "proofFiles": [
@@ -161,6 +170,7 @@
       "rowId": "AI-10",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-10-family-ai-hub-routing",
       "proofFiles": [
@@ -178,6 +188,7 @@
       "rowId": "AI-11",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-11-parent-approved-remote-ai-boundary",
       "proofFiles": [
@@ -195,6 +206,7 @@
       "rowId": "AI-12",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-12-prompt-template-versioning",
       "proofFiles": [
@@ -212,6 +224,7 @@
       "rowId": "AI-13",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-13-structured-category-risk-benefit-model",
       "proofFiles": [
@@ -229,6 +242,7 @@
       "rowId": "AI-14",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-14-url-video-analysis-queue",
       "proofFiles": [
@@ -246,6 +260,7 @@
       "rowId": "AI-15",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-15-memory-cache-store",
       "proofFiles": [
@@ -263,6 +278,7 @@
       "rowId": "AI-16",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-16-knowledge-graph-references",
       "proofFiles": [
@@ -280,6 +296,7 @@
       "rowId": "AI-17",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-17-policy-evaluator-integration",
       "proofFiles": [
@@ -297,6 +314,7 @@
       "rowId": "AI-18",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-18-post-analysis-action-model",
       "proofFiles": [
@@ -312,35 +330,41 @@
     {
       "rowNumber": 19,
       "rowId": "AI-19",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
-      "requiresUiMarker": true,
+      "expectedStatus": "[x]",
+      "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": true,
+      "requiresUiMarker": false,
       "proofDirectory": "ai-19-child-facing-checking-warning-ux",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-child-ux-contract-proof.md",
+        "03-runtime-evidence.json",
+        "06-ui-snapshots",
+        "07-playwright-ui-proof.log",
         "08-security-negative-proof.md",
-        "10-validation-commands.log",
-        "ui-not-applicable.md"
+        "10-validation-commands.log"
       ],
-      "state": "partial-manual-required",
+      "state": "contract-proof-present",
       "failures": []
     },
     {
       "rowNumber": 20,
       "rowId": "AI-20",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
-      "requiresUiMarker": true,
+      "expectedStatus": "[x]",
+      "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": true,
+      "requiresUiMarker": false,
       "proofDirectory": "ai-20-parent-explanation-audit-ux",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-parent-explanation-contract-proof.md",
+        "03-runtime-evidence.json",
+        "06-ui-snapshots",
+        "07-playwright-ui-proof.log",
         "08-security-negative-proof.md",
-        "10-validation-commands.log",
-        "ui-not-applicable.md"
+        "10-validation-commands.log"
       ],
-      "state": "partial-manual-required",
+      "state": "contract-proof-present",
       "failures": []
     },
     {
@@ -348,6 +372,7 @@
       "rowId": "AI-21",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-21-youtube-parser-metadata-adapter",
       "proofFiles": [
@@ -366,6 +391,7 @@
       "rowId": "AI-22",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-22-vimeo-generic-video-parser",
       "proofFiles": [
@@ -385,6 +411,7 @@
       "rowId": "AI-23",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-23-dynamic-feed-social-url-handling",
       "proofFiles": [
@@ -404,6 +431,7 @@
       "rowId": "AI-24",
       "expectedStatus": "[x]",
       "expectedState": "contract-proof-present",
+      "requiresRenderedUiProof": false,
       "requiresUiMarker": true,
       "proofDirectory": "ai-24-provider-degraded-fallback-behavior",
       "proofFiles": [
@@ -419,10 +447,10 @@
   ],
   "summary": {
     "totalRows": 24,
-    "completeRows": 22,
-    "partialRows": 2,
+    "completeRows": 24,
+    "partialRows": 0,
     "failures": 0,
-    "rolloutState": "partial-manual-required",
+    "rolloutState": "proof-gate-complete-product-unclaimed",
     "productClaimed": false
   },
   "noClaimGuards": [

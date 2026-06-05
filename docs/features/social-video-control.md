@@ -225,6 +225,12 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   public Vimeo and TED pages, stores only redacted hashes/lengths/statuses, and
   keeps runtime AI execution, policy authority, UI, connector/native behavior,
   and enforcement unclaimed.
+- Browser-plan AI-25 now closes the URL/video AI proof-gate partial UI rows
+  with real managed-browser child delivery screenshots for checking, warning,
+  approval, and block states plus a real Rust-service/Vite-portal browser
+  protection audit screenshot. This is browser proof-gate/runtime evidence only:
+  runtime model execution, final policy authority, enforcement, native apps,
+  connectors, and social/video product readiness remain unclaimed.
 - First-class social/video product contracts and runtime proof are incomplete.
 
 ## Current Gap
