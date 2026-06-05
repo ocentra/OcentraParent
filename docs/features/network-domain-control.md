@@ -250,6 +250,12 @@ compete on control while staying clear about attribution confidence and privacy.
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
   enforcement commands, manual-required adapter results, audit refs, and portal
   visibility state without claiming service delivery or host filtering.
+- E-D added public TypeScript parity for the network runtime event contracts in
+  `@ocentra-parent/agent-protocol-domain/network-runtime-events`. The Effect
+  Schema contracts mirror the Rust network/AI/policy/enforcement/audit/portal
+  event chain, reject exact URL/decrypted payload/message/search/adapter-action
+  claims, and prove public package import visibility without claiming
+  broker/family-hub delivery or service WebSocket streaming of the event chain.
 - E-D added protocol-facing parent/controller and child-agent event contracts
   in `crates/agent-protocol` so the network cascade has typed parent/child
   handoff shapes available before runtime publish/transport work begins. This
@@ -275,8 +281,8 @@ compete on control while staying clear about attribution confidence and privacy.
 
 Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
 attribution quality, live capture driver invocation, live analyzer fixture
-proof, TypeScript/public export parity for network event contracts,
-broker/family-hub transport, production risk-budget service/UI wiring,
+proof, broker/family-hub transport, service WebSocket streaming of the network
+runtime event chain, production risk-budget service/UI wiring,
 production SLO validation,
 external audit/deployment execution, full support-material authoring, and
 parent-facing rule UX remain.

@@ -92,6 +92,12 @@ and clear degraded states.
   no exact URL/content/adapter-action claim boundaries. This proves protocol
   shape only; service delivery, parent/controller transport, and adapter
   execution remain separate work.
+- E-D added matching public TypeScript network runtime event contracts in
+  `@ocentra-parent/agent-protocol-domain/network-runtime-events`, with Effect
+  Schema parsing for the Rust network/AI/policy/enforcement/audit/portal chain
+  and negative checks for raw packet, content, exact URL, and adapter-action
+  claims. This proves package parity only; service streaming and transport
+  delivery remain separate work.
 - E-D added Rust protocol-facing parent/controller and child-agent event
   contracts in `crates/agent-protocol`, with namespace constants, duplicate
   checks, serde tests, required-ref negative tests, and proof artifacts for
@@ -123,7 +129,9 @@ typed envelopes, production shutdown, and runtime-owned bus lifecycle. The
 network runtime now consumes the reusable crate for typed publish,
 no-subscriber queue/drain, local typed request-response, Rust
 protocol-facing network event contracts, and service-side read-model delivery
-for stored network rows. Parent/controller to child-agent in-process runtime
+for stored network rows. Public TypeScript parity for the network runtime event
+contracts now exists in `agent-protocol-domain`; service streaming of the event
+chain remains separate. Parent/controller to child-agent in-process runtime
 publishing and typed local transport handoff now have proof;
 the generic eventing delivery decision proof now makes broker/family-hub delivery
 requirements explicit without implementing the transport; the open eventing gap

@@ -36,6 +36,9 @@ transports.
 - Activity app-use and games read-model event parsing for backend-owned
   app/game source freshness rows, while product semantics stay in
   `activity-domain`.
+- Network runtime event contracts for the local eventing spine, including
+  flow/domain/classification, AI advisory, policy, enforcement dry-run/result,
+  audit, and portal read-model update shapes mirrored from `crates/agent-protocol`.
 
 ## Must Not Own
 
@@ -111,3 +114,7 @@ flowchart LR
   parent notification UI, child delivery, policy evaluator execution, adapter
   dispatch, broad blocking, and platform support remain separate proof-gated
   work.
+- Network runtime event parsing proves public TypeScript parity for the Rust
+  protocol event chain only. Broker/family-hub delivery, service WebSocket
+  streaming of the event chain, host filtering, adapter execution, and portal UI
+  rendering remain separate proof-gated work.
