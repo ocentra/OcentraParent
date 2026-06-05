@@ -6,6 +6,7 @@
     "jsx": "react-jsx",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "noEmit": true,
+    "resolveJsonModule": true,
     "paths": {
       "@ocentra-parent/portal-assets/auth": ["../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-auth.ts"],
       "@ocentra-parent/portal-assets/avatars": [

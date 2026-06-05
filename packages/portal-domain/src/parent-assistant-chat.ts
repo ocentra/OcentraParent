@@ -1,9 +1,15 @@
 export const ParentAssistantPortalQuickActionId = {
   NewChat: 'new-chat',
+  Overview: 'overview',
+  Start: 'start',
   Report: 'report',
   BrowserState: 'browser-state',
   Rules: 'rules',
+  Memory: 'memory',
   AiSetup: 'ai-setup',
+  Private: 'private',
+  Devices: 'devices',
+  Alerts: 'alerts',
   Drives: 'drives',
   SupportApi: 'support-api',
 } as const;
@@ -15,13 +21,22 @@ type ParentAssistantPortalSourceScope =
   | 'child-local-evidence'
   | 'parent-owned-thread'
   | 'parent-owned-storage'
+  | 'device-lan-state'
+  | 'parent-notification-state'
+  | 'privacy-custody'
   | 'local-ai-runtime'
   | 'api-provider-status';
 
 type ParentAssistantPortalActionKind =
+  | 'query-overview'
+  | 'query-start'
   | 'query-report'
   | 'query-browser-state'
   | 'query-rule-context'
+  | 'query-memory-context'
+  | 'query-privacy-context'
+  | 'query-device-state'
+  | 'query-alert-context'
   | 'preview-rule-change'
   | 'provider-status'
   | 'prepare-support-message';
@@ -58,6 +73,9 @@ function sourceScopeForQuickAction(
 ): ParentAssistantPortalSourceScope {
   if (quickActionId === ParentAssistantPortalQuickActionId.AiSetup) return 'local-ai-runtime';
   if (quickActionId === ParentAssistantPortalQuickActionId.Drives) return 'parent-owned-storage';
+  if (quickActionId === ParentAssistantPortalQuickActionId.Devices) return 'device-lan-state';
+  if (quickActionId === ParentAssistantPortalQuickActionId.Alerts) return 'parent-notification-state';
+  if (quickActionId === ParentAssistantPortalQuickActionId.Private) return 'privacy-custody';
   if (quickActionId === ParentAssistantPortalQuickActionId.SupportApi) return 'api-provider-status';
   if (quickActionId === ParentAssistantPortalQuickActionId.NewChat) return 'parent-owned-thread';
   return 'child-local-evidence';
@@ -123,6 +141,84 @@ const PARENT_ASSISTANT_QUICK_ACTIONS: readonly ParentAssistantPortalQuickAction[
     'query-report',
     ['What happened today?', 'Open report', 'Explain rules', 'Check setup'],
     []
+  ),
+  quickAction(
+    ParentAssistantPortalQuickActionId.Overview,
+    'Overview',
+    'Current device state, area, runtime, browser, and activity snapshot.',
+    'Give me the overall parent overview and tell me what matters first.',
+    'Overview shortcuts. Pick status, attention, gaps, or next action.',
+    'I will turn the dashboard snapshot into parent language: what is ready, what is offline, and what should happen next.',
+    'query-overview',
+    ['Current state', 'Needs attention', 'Setup gaps', 'What next?'],
+    [
+      choice(
+        ParentAssistantPortalQuickActionId.Overview,
+        'status',
+        'Status',
+        'Summarize the current device state, runtime, browser, and activity status.',
+        'I will summarize the live overview cards and separate ready state from missing or offline areas.',
+        'query-overview',
+        ['What is offline?', 'What is ready?', 'What changed?', 'Open overview']
+      ),
+      choice(
+        ParentAssistantPortalQuickActionId.Overview,
+        'attention',
+        'Attention',
+        'Tell me which overview item needs attention first and why.',
+        'I will rank attention items by parent impact, evidence, and whether action is possible now.',
+        'query-overview',
+        ['Show evidence', 'Explain risk', 'What can I fix?', 'Ignore for now']
+      ),
+      choice(
+        ParentAssistantPortalQuickActionId.Overview,
+        'next',
+        'Next step',
+        'Tell me the next practical step from the current overview state.',
+        'I will choose the next setup or review step based on what is missing, stale, or ready.',
+        'query-overview',
+        ['Pair device', 'Check browser', 'Review rules', 'Open setup']
+      ),
+    ]
+  ),
+  quickAction(
+    ParentAssistantPortalQuickActionId.Start,
+    'Start',
+    'Setup and controls map for first-run parent guidance.',
+    'Walk me through what I should set up first and why.',
+    'Start shortcuts. Pick setup map, child device, controls, or privacy.',
+    'I will guide setup in parent order: device, browser, controls, reports, privacy, then AI.',
+    'query-start',
+    ['Setup map', 'Child device', 'Controls', 'Privacy basics'],
+    [
+      choice(
+        ParentAssistantPortalQuickActionId.Start,
+        'map',
+        'Setup map',
+        'Give me a simple setup map for Ocentra Parent from empty state to useful monitoring.',
+        'I will outline the setup sequence and call out what can be skipped until later.',
+        'query-start',
+        ['Pair a device', 'Set rules', 'Set reports', 'Explain privacy']
+      ),
+      choice(
+        ParentAssistantPortalQuickActionId.Start,
+        'device',
+        'Child device',
+        'Help me start with child device connection and explain what should happen next.',
+        'I will ask about the child device, pairing state, and what proof is needed before controls are meaningful.',
+        'query-start',
+        ['LAN pairing', 'Device not found', 'What is visible?', 'Open devices']
+      ),
+      choice(
+        ParentAssistantPortalQuickActionId.Start,
+        'controls',
+        'Controls',
+        'Help me choose the first controls to set without overblocking.',
+        'I will frame controls by parent goal: visibility, schedules, allowed apps, blocked sites, and review habits.',
+        'query-start',
+        ['Browser controls', 'App limits', 'Schedules', 'Reports']
+      ),
+    ]
   ),
   quickAction(
     ParentAssistantPortalQuickActionId.Report,
@@ -251,6 +347,45 @@ const PARENT_ASSISTANT_QUICK_ACTIONS: readonly ParentAssistantPortalQuickAction[
     ]
   ),
   quickAction(
+    ParentAssistantPortalQuickActionId.Memory,
+    'Memory',
+    'Cited local memory, chat context, evidence scope, and privacy boundaries.',
+    'Explain what MIA can remember or cite and what is not available yet.',
+    'Memory shortcuts. Pick chat context, evidence, privacy, or reset.',
+    'I will separate current chat context, local evidence, parent-owned exports, and future memory behavior.',
+    'query-memory-context',
+    ['Chat context', 'Evidence scope', 'Privacy boundary', 'Reset memory'],
+    [
+      choice(
+        ParentAssistantPortalQuickActionId.Memory,
+        'context',
+        'Chat context',
+        'Explain what this assistant thread can use from the current chat.',
+        'I will explain what is in-thread context versus what requires explicit evidence or tool access.',
+        'query-memory-context',
+        ['What can MIA see?', 'What is missing?', 'Use current page', 'Forget this']
+      ),
+      choice(
+        ParentAssistantPortalQuickActionId.Memory,
+        'evidence',
+        'Evidence',
+        'Explain what local activity or browser evidence MIA can cite.',
+        'I will distinguish reported evidence from unavailable evidence and avoid pretending missing data exists.',
+        'query-memory-context',
+        ['Show sources', 'Missing evidence', 'Report scope', 'Privacy risk']
+      ),
+      choice(
+        ParentAssistantPortalQuickActionId.Memory,
+        'reset',
+        'Reset',
+        'Help me clear or start over with assistant context.',
+        'I will frame reset choices without deleting any real evidence unless a separate confirmed action exists.',
+        'query-memory-context',
+        ['New chat', 'Clear draft', 'Keep evidence', 'Explain reset']
+      ),
+    ]
+  ),
+  quickAction(
     ParentAssistantPortalQuickActionId.AiSetup,
     'AI Setup',
     'Local AI, API provider, model, and memory prompts.',
@@ -286,6 +421,123 @@ const PARENT_ASSISTANT_QUICK_ACTIONS: readonly ParentAssistantPortalQuickAction[
         'I will distinguish chat context, parent evidence, and future memory features so expectations stay clear.',
         'provider-status',
         ['What can MIA see?', 'Clear memory', 'Explain evidence', 'Open privacy']
+      ),
+    ]
+  ),
+  quickAction(
+    ParentAssistantPortalQuickActionId.Private,
+    'Private',
+    'Privacy, data custody, local-first evidence, and parent-owned exports.',
+    'Explain privacy and data custody for the current parent setup.',
+    'Private shortcuts. Pick local data, exports, remote access, or retention.',
+    'I will explain what stays local, what parent-owned export means, and what needs parent confirmation.',
+    'query-privacy-context',
+    ['What stays local?', 'Exports', 'Remote access', 'Retention'],
+    [
+      choice(
+        ParentAssistantPortalQuickActionId.Private,
+        'local',
+        'Local data',
+        'Explain what stays local and what does not leave this setup.',
+        'I will describe local-first evidence boundaries and any feature that would require a separate connection.',
+        'query-privacy-context',
+        ['Show evidence types', 'Explain exports', 'Remote access risk', 'Open privacy']
+      ),
+      choice(
+        ParentAssistantPortalQuickActionId.Private,
+        'exports',
+        'Exports',
+        'Explain what parent-owned exports could include and what should be excluded.',
+        'I will frame export choices by report, evidence, privacy, and retention.',
+        'query-privacy-context',
+        ['Report export', 'Remove private data', 'Retention choice', 'Open drives']
+      ),
+      choice(
+        ParentAssistantPortalQuickActionId.Private,
+        'remote',
+        'Remote access',
+        'Explain remote access boundaries and what would need confirmation.',
+        'I will separate local control from remote access and call out what is not wired yet.',
+        'query-privacy-context',
+        ['Disable remote', 'Parent confirmation', 'Support access', 'Explain risk']
+      ),
+    ]
+  ),
+  quickAction(
+    ParentAssistantPortalQuickActionId.Devices,
+    'Devices',
+    'Child devices, LAN discovery, pairing, selected device, and capability state.',
+    'Help me understand device pairing and what the current child device state means.',
+    'Device shortcuts. Pick LAN scan, pairing, selected device, or capability.',
+    'I will explain the LAN/device surface as the one device truth: discovery, pairing, selected device, and capabilities.',
+    'query-device-state',
+    ['LAN scan', 'Pair device', 'Selected device', 'Capability'],
+    [
+      choice(
+        ParentAssistantPortalQuickActionId.Devices,
+        'lan',
+        'LAN scan',
+        'Explain LAN scan status and what should happen when devices are found.',
+        'I will describe scanning, available devices, unsupported devices, and why a scan may be stuck.',
+        'query-device-state',
+        ['Why scanning?', 'Device not found', 'Pair next', 'Open devices']
+      ),
+      choice(
+        ParentAssistantPortalQuickActionId.Devices,
+        'pair',
+        'Pairing',
+        'Help me pair a child device and explain each required step.',
+        'I will ask for the pairing state, selected device, and parent confirmation before any control action.',
+        'query-device-state',
+        ['Pair selected', 'Set active', 'Open capability', 'Troubleshoot']
+      ),
+      choice(
+        ParentAssistantPortalQuickActionId.Devices,
+        'capability',
+        'Capability',
+        'Explain device capability status and what controls are actually available.',
+        'I will separate available capabilities from missing, unsupported, or not-reported state.',
+        'query-device-state',
+        ['What is ready?', 'What is missing?', 'Browser capability', 'Activity capability']
+      ),
+    ]
+  ),
+  quickAction(
+    ParentAssistantPortalQuickActionId.Alerts,
+    'Alerts',
+    'Parent notifications, channels, attention triggers, and quiet hours.',
+    'Help me decide what alerts a parent should receive and when.',
+    'Alert shortcuts. Pick attention, channels, quiet hours, or digest.',
+    'I will turn alerts into parent choices: what deserves interruption, what belongs in a digest, and what channel to use.',
+    'query-alert-context',
+    ['Attention alerts', 'Channels', 'Quiet hours', 'Digest'],
+    [
+      choice(
+        ParentAssistantPortalQuickActionId.Alerts,
+        'attention',
+        'Attention',
+        'Help me choose which events should notify me immediately.',
+        'I will classify alerts by urgency, evidence confidence, and whether parent action is needed.',
+        'query-alert-context',
+        ['Blocked site', 'Unmanaged browser', 'Device offline', 'Rule change']
+      ),
+      choice(
+        ParentAssistantPortalQuickActionId.Alerts,
+        'channels',
+        'Channels',
+        'Help me choose notification channels for parent alerts.',
+        'I will separate in-app, desktop, email, and future channel options by reliability and privacy.',
+        'query-alert-context',
+        ['In-app only', 'Email', 'Desktop', 'Explain privacy']
+      ),
+      choice(
+        ParentAssistantPortalQuickActionId.Alerts,
+        'digest',
+        'Digest',
+        'Help me set a daily or weekly parent digest instead of immediate alerts.',
+        'I will frame digest options by frequency, evidence summary, and attention threshold.',
+        'query-alert-context',
+        ['Daily', 'Weekly', 'Only attention', 'Open notifications']
       ),
     ]
   ),

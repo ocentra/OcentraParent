@@ -18,6 +18,7 @@ function vendorModule(relativePath) {
 
 const savedFrameLayoutFile = fileURLToPath(new URL('./public/portal-frame-layout.json', import.meta.url));
 const draftFrameLayoutFile = fileURLToPath(new URL('../../.logs/portal-frame-layout-draft.json', import.meta.url));
+const savedBackgroundConfigFile = fileURLToPath(new URL('./public/portal-background-config.json', import.meta.url));
 
 function readRequestBody(request) {
   return new Promise((resolve, reject) => {
@@ -30,27 +31,24 @@ function readRequestBody(request) {
 
 function setupFrameLayoutMiddleware(middlewares) {
   middlewares.use('/__ocentra-parent/frame-layout-saved', async (request, response) => {
-    await handleFrameLayoutRequest(request, response, savedFrameLayoutFile, [
-      savedFrameLayoutFile,
-      draftFrameLayoutFile,
-    ]);
+    await handleJsonFileRequest(request, response, savedFrameLayoutFile, [savedFrameLayoutFile, draftFrameLayoutFile]);
   });
   middlewares.use('/__ocentra-parent/frame-layout', async (request, response) => {
-    await handleFrameLayoutRequest(
-      request,
-      response,
-      draftFrameLayoutFile,
-      [draftFrameLayoutFile],
-      savedFrameLayoutFile
-    );
+    await handleJsonFileRequest(request, response, draftFrameLayoutFile, [draftFrameLayoutFile], savedFrameLayoutFile);
   });
 }
 
-async function handleFrameLayoutRequest(request, response, readPath, writePaths, fallbackReadPath) {
+function setupBackgroundConfigMiddleware(middlewares) {
+  middlewares.use('/__ocentra-parent/background-config', async (request, response) => {
+    await handleJsonFileRequest(request, response, savedBackgroundConfigFile, [savedBackgroundConfigFile]);
+  });
+}
+
+async function handleJsonFileRequest(request, response, readPath, writePaths, defaultReadPath) {
   try {
     if (request.method === 'GET') {
       const json = await readFile(readPath, 'utf8').catch(() =>
-        fallbackReadPath === undefined ? '{}' : readFile(fallbackReadPath, 'utf8').catch(() => '{}')
+        defaultReadPath === undefined ? '{}' : readFile(defaultReadPath, 'utf8').catch(() => '{}')
       );
       response.setHeader('Content-Type', 'application/json');
       response.end(json);
@@ -104,6 +102,7 @@ export default defineConfig({
       async configureServer(server) {
         setupDevLogMiddleware(server.middlewares);
         setupFrameLayoutMiddleware(server.middlewares);
+        setupBackgroundConfigMiddleware(server.middlewares);
         await writeDevServerLog(DevLogMessage.DevServerStarted, {
           [DevLogField.Port]: resolveConfiguredPort(server),
         });
@@ -111,6 +110,7 @@ export default defineConfig({
       async configurePreviewServer(server) {
         setupDevLogMiddleware(server.middlewares);
         setupFrameLayoutMiddleware(server.middlewares);
+        setupBackgroundConfigMiddleware(server.middlewares);
         await writeDevServerLog(DevLogMessage.DevServerStarted, {
           [DevLogField.Port]: resolveConfiguredPort(server),
         });

@@ -1,7 +1,10 @@
 .portal-unified-shell {
-  background:
-    radial-gradient(circle at 18% 4%, rgb(57 178 221 / 16%), transparent 22rem),
-    radial-gradient(circle at 76% 12%, rgb(255 208 82 / 12%), transparent 20rem), var(--app-bg);
+  background: transparent;
+}
+
+.portal-unified-shell .oc-unified-shell__background {
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .portal-shell-work {
@@ -18,14 +21,15 @@
 
 .portal-outline-header {
   --portal-outline-header-action-height: 44px;
-  --portal-outline-header-action-icon-box: 30px;
-  --portal-outline-header-action-icon-image: 24px;
+  --portal-outline-header-action-icon-box: 34px;
+  --portal-outline-header-action-icon-image: var(--portal-outline-header-action-icon-box);
   --portal-outline-header-action-icon-slot: 34px;
+  --portal-outline-header-action-label-gap: 5px;
   --portal-outline-header-action-width: 112px;
 
   align-items: end;
   background: transparent;
-  color: #edf8ff;
+  color: var(--portal-outline-header-text);
   display: grid;
   gap: 0;
   grid-template-columns:
@@ -66,8 +70,40 @@
   display: block;
   height: 100%;
   overflow: visible;
+  shape-rendering: geometricPrecision;
   transition: filter 140ms ease;
   width: 100%;
+}
+
+.portal-outline-header__frame-foreign-object {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.portal-outline-header__frame-blur {
+  -webkit-backdrop-filter: var(--portal-outline-header-frame-fill-blur) saturate(1.12);
+  backdrop-filter: var(--portal-outline-header-frame-fill-blur) saturate(1.12);
+  background: var(--portal-outline-header-frame-fill);
+  height: 100%;
+  opacity: 1;
+  transform: translateZ(0);
+  width: 100%;
+}
+
+.portal-outline-header__frame-content {
+  align-items: center;
+  block-size: 100%;
+  display: grid;
+  inline-size: 100%;
+  justify-items: center;
+  padding: 0 8px;
+  pointer-events: none;
+}
+
+.portal-outline-header__frame-fill {
+  fill: transparent;
+  pointer-events: none;
+  transition: fill 140ms ease;
 }
 
 .portal-outline-header__frame-outer {
@@ -77,7 +113,7 @@
 }
 
 .portal-outline-header__frame-outer path {
-  stroke: rgb(4 88 118 / 92%);
+  stroke: var(--portal-outline-header-frame-outer-stroke);
   transition:
     filter 140ms ease,
     stroke 140ms ease,
@@ -86,8 +122,10 @@
 
 .portal-outline-header__frame-line {
   fill: none;
+  filter: var(--portal-outline-header-frame-line-filter);
   opacity: 1;
-  stroke: #2fddff;
+  shape-rendering: geometricPrecision;
+  stroke: var(--portal-outline-header-frame-line-stroke);
   transition:
     filter 140ms ease,
     stroke 140ms ease,
@@ -96,7 +134,10 @@
 
 .portal-outline-header__action {
   appearance: none;
+  align-self: center;
   block-size: var(--portal-outline-header-action-height);
+  border-radius: 0;
+  box-shadow: none;
   column-gap: 0;
   cursor: pointer;
   font: inherit;
@@ -106,19 +147,36 @@
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  grid-auto-flow: column;
-  grid-template-columns: var(--portal-outline-header-action-icon-slot) minmax(0, 1fr);
+  font-size: 14px;
+  font-weight: 760;
   inline-size: var(--portal-outline-header-action-width);
-  justify-content: stretch;
-  justify-items: stretch;
+  justify-content: center;
+  justify-items: center;
   min-height: var(--portal-outline-header-action-height);
-  padding: 0 6px 0 4px;
+  padding: 0 6px;
+  place-items: center;
 }
 
 .portal-outline-header__action:last-child {
   inline-size: var(--portal-outline-header-action-width);
+}
+
+.portal-outline-header__action-content {
+  align-items: center;
+  column-gap: var(--portal-outline-header-action-label-gap);
+  block-size: calc(var(--portal-outline-header-action-height) - 8px);
+  display: grid;
+  grid-template-columns: var(--portal-outline-header-action-icon-box) minmax(0, 1fr);
+  inline-size: 100%;
+  justify-content: stretch;
+  justify-items: stretch;
+  line-height: 1;
+  position: relative;
+  transform-origin: center;
+  transition:
+    filter 140ms ease,
+    transform 140ms ease;
+  z-index: 1;
 }
 
 .portal-outline-header__action-icon {
@@ -133,13 +191,13 @@
   justify-self: start;
   position: relative;
   width: var(--portal-outline-header-action-icon-box);
-  z-index: 1;
+  z-index: 2;
 }
 
 .portal-outline-header__action-icon-image {
   display: block;
   height: var(--portal-outline-header-action-icon-image);
-  filter: drop-shadow(0 0 3px rgb(47 221 255 / 22%));
+  filter: var(--portal-outline-header-icon-filter);
   object-fit: contain;
   transition:
     filter 140ms ease,
@@ -149,53 +207,33 @@
 
 .portal-outline-header__action-label {
   align-self: center;
+  display: flex;
+  inline-size: 100%;
+  justify-content: center;
   justify-self: stretch;
+  min-inline-size: 0;
   position: relative;
   text-align: center;
-  text-shadow: 0 0 4px rgb(47 221 255 / 18%);
+  text-shadow: var(--portal-outline-header-label-shadow);
   transition:
     color 140ms ease,
     text-shadow 140ms ease;
-  z-index: 1;
+  z-index: 2;
 }
 
 .portal-outline-header__action:hover,
 .portal-outline-header__action:focus-visible {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: inherit;
   outline: none;
 }
 
-.portal-outline-header__action:hover .portal-outline-header__frame-outer,
-.portal-outline-header__action:focus-visible .portal-outline-header__frame-outer,
-.portal-outline-header__brand:hover .portal-outline-header__frame-outer {
-  opacity: 0.78;
-}
-
-.portal-outline-header__action:hover .portal-outline-header__frame-outer path,
-.portal-outline-header__action:focus-visible .portal-outline-header__frame-outer path,
-.portal-outline-header__brand:hover .portal-outline-header__frame-outer path {
-  filter: drop-shadow(0 0 2px rgb(230 253 255 / 70%)) drop-shadow(0 0 7px rgb(47 221 255 / 46%));
-  stroke: #e6fdff;
-}
-
-.portal-outline-header__action:hover .portal-outline-header__frame-line,
-.portal-outline-header__action:focus-visible .portal-outline-header__frame-line,
-.portal-outline-header__brand:hover .portal-outline-header__frame-line {
-  filter: drop-shadow(0 0 2px rgb(230 253 255 / 88%)) drop-shadow(0 0 8px rgb(47 221 255 / 62%));
-  stroke: #a9f8ff;
-}
-
-.portal-outline-header__action:hover .portal-outline-header__action-label,
-.portal-outline-header__action:focus-visible .portal-outline-header__action-label {
-  color: #ffffff;
-  text-shadow:
-    0 0 4px rgb(255 255 255 / 78%),
-    0 0 10px rgb(47 221 255 / 68%);
-}
-
-.portal-outline-header__action:hover .portal-outline-header__action-icon-image,
-.portal-outline-header__action:focus-visible .portal-outline-header__action-icon-image {
-  filter: drop-shadow(0 0 4px rgb(255 255 255 / 78%)) drop-shadow(0 0 10px rgb(47 221 255 / 70%));
-  transform: translateY(-1px);
+.portal-outline-header__action:hover .portal-outline-header__action-content,
+.portal-outline-header__action:focus-visible .portal-outline-header__action-content {
+  filter: var(--portal-outline-header-action-content-hover-filter);
+  transform: scale(var(--portal-outline-header-action-content-hover-scale));
 }
 
 .portal-outline-header__brand {
@@ -226,13 +264,10 @@
 }
 
 .portal-outline-header__brand-logo {
-  background: rgb(2 10 18 / 78%);
-  border: 1px solid rgb(120 238 255 / 82%);
+  background: var(--portal-outline-header-brand-logo-bg);
+  border: 1px solid var(--portal-outline-header-brand-logo-border);
   border-radius: 50%;
-  box-shadow:
-    0 0 0 1px rgb(217 247 231 / 22%),
-    0 0 7px rgb(47 221 255 / 54%),
-    0 0 14px rgb(47 221 255 / 22%);
+  box-shadow: var(--portal-outline-header-brand-logo-shadow);
   display: block;
   height: var(--portal-outline-header-brand-logo-size);
   image-rendering: auto;
@@ -276,23 +311,6 @@
   --branded-loader-orbit-size: var(--portal-outline-header-brand-logo-size);
 }
 
-.portal-outline-header__brand:hover .portal-outline-header__brand-logo {
-  border-color: rgb(230 253 255 / 92%);
-  box-shadow:
-    0 0 0 1px rgb(217 247 231 / 36%),
-    0 0 8px rgb(255 255 255 / 64%),
-    0 0 16px rgb(47 221 255 / 64%),
-    0 0 24px rgb(47 221 255 / 26%);
-  filter: brightness(1.12) saturate(1.12);
-  transform: translate(-50%, -51%);
-}
-
-.portal-outline-header__brand:hover
-  .portal-outline-header__brand-logo-mount[data-oc-header-logo-loading='true']
-  .portal-outline-header__brand-logo {
-  transform: translate(-50%, -48%) scale(0.86);
-}
-
 @keyframes portal-outline-header-logo-spinner-in {
   to {
     opacity: 1;
@@ -301,11 +319,11 @@
 }
 
 .portal-outline-header__connector {
-  align-self: end;
+  align-self: center;
   display: block;
   block-size: calc(var(--portal-outline-header-action-height) / 2);
   height: calc(var(--portal-outline-header-action-height) / 2);
-  margin-block-end: calc(var(--portal-outline-header-action-height) / 4);
+  margin-block-end: 0;
   margin-inline: -4px;
   min-width: 0;
   pointer-events: none;
@@ -313,16 +331,112 @@
   z-index: 0;
 }
 
+.portal-outline-header__connector::before {
+  -webkit-backdrop-filter: var(--portal-outline-header-frame-fill-blur);
+  backdrop-filter: var(--portal-outline-header-frame-fill-blur);
+  background: var(--portal-outline-header-connector-fill);
+  content: '';
+  inset: 1px;
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+
+.portal-outline-header__connector-interactive {
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.portal-outline-header__theme {
+  display: block;
+  height: 22px;
+  pointer-events: auto;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  transform-origin: right center;
+  transition:
+    filter 140ms ease,
+    transform 140ms ease;
+  width: 70px;
+  z-index: 3;
+}
+
+.portal-outline-header__theme-visual {
+  height: 20px;
+  inset-inline: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 1px;
+  width: 70px;
+}
+
+.portal-outline-header__theme-visual svg {
+  display: block;
+}
+
+.portal-outline-header__theme-button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  clip-path: none;
+  color: transparent;
+  cursor: pointer;
+  display: block;
+  font-size: 0;
+  inset-block: 0;
+  line-height: 0;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  text-indent: -9999px;
+  width: 50%;
+  z-index: 4;
+}
+
+.portal-outline-header__theme-button:hover,
+.portal-outline-header__theme-button:focus-visible {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  outline: none;
+}
+
+.portal-outline-header__theme-button-left {
+  left: 0;
+}
+
+.portal-outline-header__theme-button-right {
+  right: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .portal-outline-header__theme:hover,
+  .portal-outline-header__theme:focus-within {
+    filter: var(--portal-outline-header-theme-hover-filter);
+    transform: translateY(-50%) scale(1.18);
+  }
+}
+
 .portal-outline-header__connector-svg {
   display: block;
   height: 100%;
   overflow: visible;
+  position: relative;
   width: 100%;
+  z-index: 1;
 }
 
 .portal-outline-header__connector-box {
   fill: none;
+  filter: var(--portal-outline-header-connector-filter);
   opacity: 1;
+  shape-rendering: geometricPrecision;
+  stroke: var(--portal-outline-header-connector-stroke);
   stroke-width: 1;
   transition:
     filter 140ms ease,
@@ -331,18 +445,10 @@
     stroke-width 140ms ease;
 }
 
-.portal-outline-header:has(.portal-outline-header__action:hover) .portal-outline-header__connector-box,
-.portal-outline-header:has(.portal-outline-header__action:focus-visible) .portal-outline-header__connector-box,
-.portal-outline-header:has(.portal-outline-header__brand:hover) .portal-outline-header__connector-box {
-  filter: drop-shadow(0 0 5px rgb(47 221 255 / 58%));
-  stroke: #a9f8ff;
-  stroke-width: 1.25;
-}
-
 .portal-outline-header__brand-part,
 .portal-outline-header__brand-part-muted {
-  -webkit-text-stroke: 0.45px rgb(0 68 255 / 92%);
-  color: #ffffff;
+  -webkit-text-stroke: 0.45px var(--portal-outline-header-brand-text-stroke);
+  color: var(--portal-outline-header-brand-text);
   font-feature-settings: 'kern' 1;
   inline-size: 100%;
   line-height: 1.3;
@@ -352,7 +458,7 @@
   position: relative;
   text-align: center;
   text-overflow: clip;
-  text-shadow: none;
+  text-shadow: var(--portal-outline-header-brand-text-shadow);
   text-transform: uppercase;
   transition:
     color 140ms ease,
@@ -375,15 +481,6 @@
 .portal-outline-header__brand-part-muted {
   font-weight: 650;
   justify-self: stretch;
-}
-
-.portal-outline-header__brand:hover .portal-outline-header__brand-part,
-.portal-outline-header__brand:hover .portal-outline-header__brand-part-muted {
-  color: #ffffff;
-  -webkit-text-stroke-color: rgb(0 98 255 / 96%);
-  text-shadow:
-    0 0 4px rgb(255 255 255 / 78%),
-    0 0 10px rgb(47 221 255 / 68%);
 }
 
 .app-frame {
@@ -462,7 +559,7 @@
   .portal-outline-header {
     --portal-outline-header-action-height: 44px;
     --portal-outline-header-action-icon-box: 32px;
-    --portal-outline-header-action-icon-image: 26px;
+    --portal-outline-header-action-icon-image: var(--portal-outline-header-action-icon-box);
     --portal-outline-header-action-width: 46px;
 
     grid-template-columns:
@@ -485,6 +582,18 @@
 
   .portal-outline-header__action:last-child {
     inline-size: var(--portal-outline-header-action-width);
+  }
+
+  .portal-outline-header__action-content {
+    column-gap: 0;
+    inline-size: var(--portal-outline-header-action-icon-box);
+    grid-template-columns: var(--portal-outline-header-action-icon-box);
+    justify-content: center;
+    justify-items: center;
+  }
+
+  .portal-outline-header__action .portal-outline-header__frame-content {
+    padding: 0;
   }
 
   .portal-outline-header__action-label {
@@ -514,7 +623,7 @@
   .portal-outline-header {
     --portal-outline-header-action-height: 42px;
     --portal-outline-header-action-icon-box: 30px;
-    --portal-outline-header-action-icon-image: 24px;
+    --portal-outline-header-action-icon-image: var(--portal-outline-header-action-icon-box);
     --portal-outline-header-action-width: 44px;
 
     grid-template-columns:
@@ -595,7 +704,7 @@
   .portal-outline-header {
     --portal-outline-header-action-height: 40px;
     --portal-outline-header-action-icon-box: 28px;
-    --portal-outline-header-action-icon-image: 22px;
+    --portal-outline-header-action-icon-image: var(--portal-outline-header-action-icon-box);
     --portal-outline-header-action-width: 40px;
 
     grid-template-columns:

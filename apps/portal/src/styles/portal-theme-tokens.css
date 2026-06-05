@@ -1,0 +1,72 @@
+:root {
+  --portal-app-background: #020814;
+  --portal-frame-body-fill: var(--portal-frame-transparent-fill);
+  --portal-frame-body-stroke-opacity: 0.72;
+  --portal-frame-footer-line-opacity: 0.42;
+  --portal-frame-glass-color: #092033;
+  --portal-frame-glass-highlight-opacity: 0.08;
+  --portal-frame-glass-opacity: 0.2;
+  --portal-frame-header-line-opacity: 0.5;
+  --portal-frame-material-blur: 13px;
+  --portal-frame-material-fill-alpha: 0.62;
+  --portal-frame-material-fill-alpha-soft: 0.52;
+  --portal-frame-material-fill-alpha-strong: 0.72;
+  --portal-frame-scrim-fill: rgb(0 6 12 / 42%);
+  --portal-frame-surface-color: #041624;
+  --portal-frame-surface-disabled-fill-opacity: 0.58;
+  --portal-frame-surface-fill: rgb(4 22 36 / var(--portal-frame-material-fill-alpha));
+  --portal-frame-surface-fill-opacity: 1;
+  --portal-frame-surface-opacity: var(--portal-frame-material-fill-alpha);
+  --portal-frame-transparent-fill: transparent;
+  --portal-outline-header-action-content-hover-filter: drop-shadow(0 0 4px rgb(255 255 255 / 54%))
+    drop-shadow(0 0 9px rgb(47 221 255 / 42%));
+  --portal-outline-header-action-content-hover-scale: 1.06;
+  --portal-outline-header-brand-logo-bg: rgb(2 10 18 / 78%);
+  --portal-outline-header-brand-logo-border: rgb(120 238 255 / 82%);
+  --portal-outline-header-brand-logo-shadow:
+    0 0 0 1px rgb(217 247 231 / 22%), 0 0 7px rgb(47 221 255 / 54%), 0 0 14px rgb(47 221 255 / 22%);
+  --portal-outline-header-brand-text: #ffffff;
+  --portal-outline-header-brand-text-shadow: none;
+  --portal-outline-header-brand-text-stroke: rgb(0 68 255 / 92%);
+  --portal-outline-header-connector-fill: var(--portal-frame-surface-fill);
+  --portal-outline-header-connector-filter: none;
+  --portal-outline-header-connector-stroke: #2fddff;
+  --portal-outline-header-frame-fill: var(--portal-frame-surface-fill);
+  --portal-outline-header-frame-fill-blur: blur(var(--portal-frame-material-blur));
+  --portal-outline-header-frame-line-filter: none;
+  --portal-outline-header-frame-line-stroke: #2fddff;
+  --portal-outline-header-frame-outer-stroke: rgb(4 88 118 / 92%);
+  --portal-outline-header-icon-filter: drop-shadow(0 0 2px rgb(255 255 255 / 34%))
+    drop-shadow(0 0 7px rgb(47 221 255 / 34%)) drop-shadow(0 0 10px rgb(255 64 180 / 14%));
+  --portal-outline-header-label-shadow: 0 0 4px rgb(47 221 255 / 18%);
+  --portal-outline-header-text: #edf8ff;
+  --portal-outline-header-theme-hover-filter: drop-shadow(0 8px 14px rgb(0 0 0 / 28%));
+}
+
+:root[data-theme='light'] {
+  --portal-app-background: #f3f7fb;
+  --portal-frame-glass-highlight-opacity: 0.1;
+  --portal-frame-glass-opacity: 0.18;
+  --portal-frame-material-blur: 14px;
+  --portal-frame-material-fill-alpha: 0.58;
+  --portal-frame-material-fill-alpha-soft: 0.5;
+  --portal-frame-material-fill-alpha-strong: 0.68;
+  --portal-outline-header-action-content-hover-filter: drop-shadow(0 1px 1px rgb(0 8 14 / 58%))
+    drop-shadow(0 0 5px rgb(255 211 106 / 32%));
+  --portal-outline-header-brand-logo-bg: rgb(2 10 18 / 78%);
+  --portal-outline-header-brand-logo-border: rgb(9 84 114 / 58%);
+  --portal-outline-header-brand-logo-shadow: 0 0 0 1px rgb(255 255 255 / 60%), 0 4px 10px rgb(9 54 78 / 18%);
+  --portal-outline-header-brand-text: #f7fcff;
+  --portal-outline-header-brand-text-shadow: 0 1px 1px rgb(0 8 14 / 72%), 0 0 5px rgb(2 23 38 / 58%);
+  --portal-outline-header-brand-text-stroke: rgb(2 23 38 / 76%);
+  --portal-outline-header-connector-filter: none;
+  --portal-outline-header-connector-stroke: #2fddff;
+  --portal-outline-header-frame-line-filter: none;
+  --portal-outline-header-frame-line-stroke: #2fddff;
+  --portal-outline-header-frame-outer-stroke: rgb(2 23 38 / 66%);
+  --portal-outline-header-icon-filter: drop-shadow(0 1px 1px rgb(0 8 14 / 42%))
+    drop-shadow(0 0 3px rgb(255 211 106 / 14%));
+  --portal-outline-header-label-shadow: 0 1px 1px rgb(0 8 14 / 52%), 0 0 3px rgb(7 53 75 / 34%);
+  --portal-outline-header-text: #f7fcff;
+  --portal-outline-header-theme-hover-filter: drop-shadow(0 6px 10px rgb(7 53 75 / 24%));
+}

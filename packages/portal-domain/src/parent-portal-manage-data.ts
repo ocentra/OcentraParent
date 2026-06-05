@@ -1,4 +1,6 @@
 import type { ParentPortalContent, ParentPortalRow } from './parent-portal-data';
+import { PARENT_PORTAL_NAV_LABELS } from './parent-portal-nav';
+import { PortalRoute } from './routes';
 
 export const PARENT_PORTAL_MANAGE_ROWS: ParentPortalRow[] = [
   {
@@ -504,17 +506,6 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     routePath: '#/platforms-install',
   },
   {
-    id: 'device-pairing',
-    name: 'DEVICE',
-    detail: 'Child device pairing',
-    icon: 'devices',
-    tone: 'cyan',
-    category: 'Devices',
-    subcategory: 'Selected child device',
-    controlCode: 7,
-    routePath: '#/devices',
-  },
-  {
     id: 'lan-pairing',
     name: 'LAN PAIRING',
     detail: 'Paired local devices only',
@@ -645,5 +636,49 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     subcategory: 'Family defaults',
     controlCode: 8,
     routePath: '#/settings-rules',
+  },
+  {
+    id: 'dev-commands',
+    name: PARENT_PORTAL_NAV_LABELS.Commands,
+    detail: 'Send typed runtime commands',
+    icon: 'portal',
+    tone: 'cyan',
+    category: 'Dev tools',
+    subcategory: 'Command lane',
+    controlCode: 9,
+    routePath: `#/${PortalRoute.Commands}`,
+  },
+  {
+    id: 'dev-events',
+    name: PARENT_PORTAL_NAV_LABELS.Events,
+    detail: 'Inspect runtime events',
+    icon: 'activity',
+    tone: 'purple',
+    category: 'Dev tools',
+    subcategory: 'Event stream',
+    controlCode: 9,
+    routePath: `#/${PortalRoute.Events}`,
+  },
+  {
+    id: 'dev-logs',
+    name: PARENT_PORTAL_NAV_LABELS.Logs,
+    detail: 'Inspect service logs',
+    icon: 'audit',
+    tone: 'gold',
+    category: 'Dev tools',
+    subcategory: 'Runtime logs',
+    controlCode: 9,
+    routePath: `#/${PortalRoute.Logs}`,
+  },
+  {
+    id: 'app-layout',
+    name: PARENT_PORTAL_NAV_LABELS.AppLayout,
+    detail: 'Tune app layout surfaces',
+    icon: 'overview',
+    tone: 'cyan',
+    category: 'Dev tools',
+    subcategory: 'Layout surface',
+    controlCode: 9,
+    routePath: `#/${PortalRoute.FrameTuner}`,
   },
 ];

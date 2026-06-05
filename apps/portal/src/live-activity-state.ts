@@ -106,6 +106,7 @@ export interface PortalLiveActivityState {
   readonly activityTrackingReadModelEvent: AgentEventEnvelope | null;
   readonly activityTrackingReadModel: AgentActivityTrackingReadModelResult | null;
   readonly lanPairingStatusEvent: AgentEventEnvelope | null;
+  readonly lanPairingBrowserDiscoveryEvent: AgentEventEnvelope | null;
   readonly lanAddDeviceReadModel: AgentLanBrowserAddDeviceReadModel | null;
   readonly policyPreviewEvent: AgentEventEnvelope | null;
   readonly policyPreviewReadModel: PortalPolicyPreviewReadModel | null;
@@ -136,6 +137,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     AgentEvent.LanPairingBrowserDiscoveryReported,
     AgentEvent.LanPairingAddDeviceReported,
   ]);
+  const lanPairingBrowserDiscoveryEvent = latestEvent(events, AgentEvent.LanPairingBrowserDiscoveryReported);
   const policyPreviewEvent = latestEvent(events, AgentEvent.PolicyPreviewReadModelReported);
 
   return {
@@ -177,6 +179,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     networkFlowReadModel: networkFlowEvent === null ? null : parseNetworkFlowReadModel(networkFlowEvent.payload),
     ...resolveActivityTrackingReadModel(events),
     lanPairingStatusEvent,
+    lanPairingBrowserDiscoveryEvent,
     lanAddDeviceReadModel:
       lanPairingStatusEvent === null ? null : parseLanAddDeviceReadModel(lanPairingStatusEvent.payload),
     policyPreviewEvent,

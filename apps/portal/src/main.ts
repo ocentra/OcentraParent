@@ -10,18 +10,22 @@ import {
   PortalText,
   PortalTextToken,
   type PortalRoute as PortalRouteValue,
+  type PortalThemeValue,
 } from '@ocentra-parent/portal-domain/contracts';
 import { DevLogField, DevLogMessage, writePortalDevLog } from './dev-logger';
+import { fadePortalBackgroundBootLayer, removePortalBackgroundBootLayer } from './portal-background-boot';
+import { PortalBackgroundDevTool } from './PortalBackgroundDevTool';
 import { PortalApp } from './PortalApp';
 import type { PortalRenderActions } from './portal-actions';
 import { createPortalRuntimeState } from './portal-state';
-import { applyTheme, resolveTheme } from './portal-theme';
+import { applyTheme, resolveTheme, selectTheme } from './portal-theme';
 import { connectWebSocket, sendCommand } from './transport';
 import './styles.css';
 import './portal-unified-chrome.css';
 import './styles/deck-frame-fit.css';
 import './styles/control-card-frame.css';
 import './styles/frame-tuner.css';
+import './styles/parent-portal-route.css';
 
 const agentWsUrl = decodeAgentWebSocketUrl(
   import.meta.env[PortalEnvironment.AgentWebSocketUrl] ?? AgentProtocolDefaults.WebSocketUrl
@@ -54,8 +58,14 @@ const actions: PortalRenderActions = {
 
 function refresh(): void {
   revision += 1;
+  const backgroundDevToolMode = isBackgroundDevToolMode();
   const theme = resolveTheme();
   applyTheme(theme);
+  if (backgroundDevToolMode) {
+    root.render(createElement(PortalBackgroundDevTool, { initialTheme: theme }));
+    hideAppLoadingAfterPaint();
+    return;
+  }
   root.render(
     createElement(PortalApp, {
       actions,
@@ -63,10 +73,20 @@ function refresh(): void {
       route: getRoute(),
       state,
       theme,
+      onThemeChange: updateTheme,
       onProductSurfaceReady: hideAppLoadingAfterPaint,
       rerender: refresh,
     })
   );
+}
+
+function isBackgroundDevToolMode(): boolean {
+  return window.location.hash.includes(PortalDom.BackgroundDevToolHashFlag);
+}
+
+function updateTheme(theme: PortalThemeValue): void {
+  selectTheme(theme);
+  refresh();
 }
 
 function getRoute(): PortalRouteValue {
@@ -100,8 +120,10 @@ function installAppLoadingHider(): void {
   (globalThis as unknown as Record<typeof PortalDom.Runtime.HideAppLoading, unknown>)[
     PortalDom.Runtime.HideAppLoading
   ] = () => {
+    fadePortalBackgroundBootLayer();
     const loader = document.getElementById(PortalDom.Ids.AppLoading);
     if (loader === null) {
+      removePortalBackgroundBootLayer();
       return;
     }
     loader.classList.add(PortalDom.Classes.AppLoadingHide);
@@ -109,6 +131,10 @@ function installAppLoadingHider(): void {
       if (!loader.classList.contains(PortalDom.Classes.AppLoadingHidden)) {
         loader.classList.add(PortalDom.Classes.AppLoadingHidden);
       }
+      if (loader.isConnected) {
+        loader.remove();
+      }
+      removePortalBackgroundBootLayer();
     };
     loader.addEventListener(
       PortalDom.Events.TransitionEnd,

@@ -28,7 +28,7 @@ export function createPortalRuntimeState(agentWsUrl: AgentWebSocketUrl): PortalR
     target: resolveAgentTarget(),
     socket: null,
     connectionState: PortalConnectionState.Disconnected,
-    selectedCommandResultEvent: AgentEvent.HealthReported,
+    selectedCommandResultEvent: AgentEvent.LogSnapshotReported,
     latestSnapshot: null,
     events: [],
   };

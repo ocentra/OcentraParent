@@ -1,12 +1,13 @@
 import type { ParentPortalIconName, ParentPortalTabId, ParentPortalTone } from './parent-portal-data';
 import type { PortalRoute as PortalRouteValue } from './routes';
 
-export type ParentPortalNavGroupId = 'quickGlance' | 'guide' | 'manage';
+export type ParentPortalNavGroupId = 'quickGlance' | 'guide' | 'manage' | 'devTools';
 
 export const PARENT_PORTAL_NAV_LABELS = {
   QuickGlance: 'QUICK GLANCE',
   Guide: 'GUIDE',
   Manage: 'MANAGE',
+  DevTools: 'DEV TOOLS',
   Policies: 'POLICY',
   Activity: 'ACTIVITY',
   Devices: 'DEVICES',
@@ -53,6 +54,11 @@ export const PARENT_PORTAL_NAV_LABELS = {
   Updates: 'UPDATES',
   Support: 'SUPPORT',
   Settings: 'SETTINGS',
+  Commands: 'COMMANDS',
+  Events: 'EVENTS',
+  Logs: 'LOGS',
+  AppLayout: 'APP LAYOUT',
+  Background: 'BG',
 } as const;
 
 export type ParentPortalHashRoutePath = `#/${PortalRouteValue}` | `#/${PortalRouteValue}?${string}`;
@@ -90,6 +96,11 @@ export const PARENT_PORTAL_NAV_GROUPS: readonly ParentPortalNavGroup[] = [
     id: 'manage',
     label: PARENT_PORTAL_NAV_LABELS.Manage,
     detail: 'Portal, device, activity, policy, data, AI, account',
+  },
+  {
+    id: 'devTools',
+    label: PARENT_PORTAL_NAV_LABELS.DevTools,
+    detail: 'Commands, events, logs, app layout, background',
   },
 ] as const;
 
@@ -289,5 +300,50 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     groupId: 'manage',
     tone: 'gold',
     routePath: '#/subscription',
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Commands,
+    detail: 'Send real service commands',
+    icon: 'portal',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'cyan',
+    routePath: '#/commands',
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Events,
+    detail: 'Inspect agent event stream',
+    icon: 'audit',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'purple',
+    routePath: '#/events',
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Logs,
+    detail: 'Inspect service logs',
+    icon: 'audit',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'gold',
+    routePath: '#/logs',
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.AppLayout,
+    detail: 'Tune portal layout',
+    icon: 'manage',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'cyan',
+    routePath: '#/app-layout',
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Background,
+    detail: 'Tune SVG background',
+    icon: 'overview',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'cyan',
+    routePath: '#/app-layout?bg-only=1',
   },
 ] as const;

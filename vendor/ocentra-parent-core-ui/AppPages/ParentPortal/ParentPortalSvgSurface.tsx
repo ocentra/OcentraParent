@@ -79,6 +79,9 @@ import {
   PARENT_PORTAL_GUIDE_QUERY,
   PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES,
   PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS,
+  PortalAssets,
+  PortalLanPairingScan,
+  PortalUnifiedChrome,
   type ParentAssistantPortalQuickActionId,
 } from '@ocentra-parent/portal-domain/contracts';
 import {
@@ -95,6 +98,7 @@ import {
   AgentCommand,
   AgentProtocolDefaults,
   type AgentCommandName,
+  type AgentEventId,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { ParentPortalPanelFrame } from './ParentPortalPanelFrame';
 import {
@@ -225,6 +229,7 @@ type ParentPortalSvgSurfaceProps = {
   assistantRoutePath?: string;
   assistantReturnRoutePath?: string;
   activityState?: ParentPortalActivityState | null;
+  lanPairingAutoScanSequence?: number;
   onRefreshParentPortal: (controlCode: number) => void;
   onMatchmaking: () => void;
   onNavigate?: (routePath: string) => void;
@@ -247,6 +252,7 @@ type ParentPortalActivityState = {
   activityMemoryGraphReadModel?: Record<string, unknown> | null;
   browserInterventionReadModel?: Record<string, unknown> | null;
   networkFlowReadModel?: Record<string, unknown> | null;
+  lanPairingBrowserDiscoveryEvent?: { eventId?: AgentEventId } | null;
   lanAddDeviceReadModel?: Record<string, unknown> | null;
   screenEvidenceRecentSummary?: Record<string, unknown> | null;
   appGameSessionReport?: Record<string, unknown> | null;
@@ -350,6 +356,12 @@ type AssistantQuickChoice = {
   readonly followUps: readonly string[];
 };
 
+type AssistantQuestionnaireOption = {
+  readonly label: string;
+  readonly prompt: string;
+  readonly choice?: AssistantQuickChoice;
+};
+
 type AssistantQuickAction = {
   readonly id: AssistantQuickActionId;
   readonly label: string;
@@ -363,6 +375,13 @@ type AssistantQuickAction = {
   readonly tone: Tone;
   readonly iconAssetUrl: AssistantQuickActionIconAssetUrl;
 };
+
+type AssistantPanelTab = 'history' | 'quickAction';
+
+const ASSISTANT_PANEL_TAB = {
+  History: 'history',
+  QuickAction: 'quickAction',
+} as const satisfies Record<string, AssistantPanelTab>;
 
 type AssistantTranscriptMessage = {
   readonly id: string;
@@ -405,17 +424,21 @@ const ASSISTANT_QUICK_ACTIONS: readonly AssistantQuickAction[] = PARENT_ASSISTAN
 );
 
 function assistantToneForQuickAction(id: AssistantQuickActionId): Tone {
-  if (id === 'report' || id === 'support-api') return 'cyan';
-  if (id === 'browser-state' || id === 'drives') return 'gold';
-  if (id === 'rules') return 'red';
+  if (id === 'overview' || id === 'start' || id === 'report' || id === 'support-api' || id === 'devices') return 'cyan';
+  if (id === 'browser-state' || id === 'drives' || id === 'alerts') return 'gold';
+  if (id === 'rules' || id === 'private') return 'red';
   return 'purple';
 }
 
 function assistantIconForQuickAction(id: AssistantQuickActionId): AssistantQuickActionIconAssetUrl {
+  if (id === 'overview' || id === 'start' || id === 'report' || id === 'memory') {
+    return parentPortalTodayReportQuickActionIconUrl;
+  }
   if (id === 'browser-state') return parentPortalBrowserStateQuickActionIconUrl;
   if (id === 'rules') return parentPortalRulesQuickActionIconUrl;
   if (id === 'ai-setup') return parentPortalAiSetupQuickActionIconUrl;
-  if (id === 'drives') return parentPortalDrivesQuickActionIconUrl;
+  if (id === 'drives' || id === 'private' || id === 'devices' || id === 'alerts')
+    return parentPortalDrivesQuickActionIconUrl;
   if (id === 'support-api') return parentPortalSupportApiQuickActionIconUrl;
   return parentPortalTodayReportQuickActionIconUrl;
 }
@@ -460,11 +483,138 @@ function assistantQuickActionById(id: AssistantQuickActionId | null): AssistantQ
   return ASSISTANT_QUICK_ACTIONS.find((action) => action.id === id) ?? null;
 }
 
+function assistantQuestionForQuickAction(action: AssistantQuickAction): string {
+  if (action.id === 'overview') return 'Overview: what should MIA summarize first?';
+  if (action.id === 'start') return 'Start: what setup path should MIA guide?';
+  if (action.id === 'report') return 'Report: what kind of report do you need?';
+  if (action.id === 'browser-state') return 'Browser: what should MIA inspect first?';
+  if (action.id === 'rules') return 'Rules: what do you want to adjust or understand?';
+  if (action.id === 'memory') return 'Memory: what context boundary should MIA explain?';
+  if (action.id === 'ai-setup') return 'AI setup: what should MIA help configure?';
+  if (action.id === 'private') return 'Private: what privacy or custody question matters?';
+  if (action.id === 'devices') return 'Devices: what device state should MIA inspect?';
+  if (action.id === 'alerts') return 'Alerts: what notification path should MIA shape?';
+  if (action.id === 'drives') return 'Data: what should MIA prepare or export?';
+  if (action.id === 'support-api') return 'Support: what should MIA check first?';
+  return `${action.label}: what should MIA help with?`;
+}
+
+function assistantQuestionnaireState(
+  action: AssistantQuickAction | null,
+  choice: AssistantQuickChoice | null
+): { question: string; options: readonly AssistantQuestionnaireOption[] } {
+  if (!action) {
+    return {
+      question: 'Ask:',
+      options: ASSISTANT_DEFAULT_FOLLOW_UPS.map((prompt) => ({ label: prompt, prompt })),
+    };
+  }
+
+  if (choice?.followUps.length) {
+    return {
+      question: `${choice.label}: what detail should MIA narrow next?`,
+      options: choice.followUps.map((prompt) => ({ label: prompt, prompt })),
+    };
+  }
+
+  return {
+    question: assistantQuestionForQuickAction(action),
+    options: action.choices.map((quickChoice) => ({
+      label: quickChoice.label,
+      prompt: quickChoice.prompt,
+      choice: quickChoice,
+    })),
+  };
+}
+
+const ASSISTANT_NAV_ROUTE_PREFIX = 'assistant-action:';
+
+const ASSISTANT_NAV_GROUP_ACTION_IDS = {
+  quickGlance: ['overview'],
+  guide: ['start', 'rules', 'memory', 'ai-setup', 'report', 'private'],
+  manage: ['browser-state', 'devices', 'alerts', 'drives', 'support-api'],
+} as const;
+
+const ASSISTANT_NEW_CHAT_NAV_ITEM = {
+  label: 'NEW CHAT',
+  detail: 'Start fresh with MIA',
+  icon: AiGuideIdeaIcon,
+  imageUrl: '',
+  tabId: 'aiStatus',
+  groupId: 'quickGlance',
+  tone: 'cyan',
+  routePath: `${ASSISTANT_NAV_ROUTE_PREFIX}new-chat`,
+};
+
+function assistantHistoryNavItem(action: AssistantQuickAction): NavItem {
+  return {
+    ...assistantQuickActionNavItem(action, ASSISTANT_PANEL_TAB.History),
+    label: `${action.label.toUpperCase()} HISTORY`,
+    detail: `Review previous ${action.label.toLowerCase()} assistant prompts.`,
+  };
+}
+
+function assistantQuickActionNavGroups(navGroups: NavGroup[]): NavGroup[] {
+  return navGroups
+    .map((group) => {
+      const actionIds = ASSISTANT_NAV_GROUP_ACTION_IDS[group.id as keyof typeof ASSISTANT_NAV_GROUP_ACTION_IDS];
+      if (!actionIds) return null;
+      return {
+        ...group,
+        items: actionIds
+          .map((actionId) => assistantQuickActionById(actionId))
+          .filter(Boolean)
+          .map((action) => assistantQuickActionNavItem(action as AssistantQuickAction, group.id)),
+      };
+    })
+    .filter((group) => group && group.items.length > 0);
+}
+
+function assistantQuickActionNavItem(action: AssistantQuickAction, groupId: string): NavItem {
+  return {
+    label: action.label.toUpperCase(),
+    detail: action.detail,
+    icon: assistantIconComponentForQuickAction(action.id),
+    imageUrl: action.iconAssetUrl,
+    tabId: 'aiStatus',
+    groupId,
+    tone: action.tone,
+    routePath: `${ASSISTANT_NAV_ROUTE_PREFIX}${action.id}`,
+  };
+}
+
+function assistantActionIdForNavItem(item: NavItem): AssistantQuickActionId | null {
+  const routePath = item.routePath ?? '';
+  if (!routePath.startsWith(ASSISTANT_NAV_ROUTE_PREFIX)) return null;
+  const actionId = routePath.slice(ASSISTANT_NAV_ROUTE_PREFIX.length);
+  return ASSISTANT_QUICK_ACTIONS.some((action) => action.id === actionId) ? (actionId as AssistantQuickActionId) : null;
+}
+
+function assistantIconComponentForQuickAction(id: AssistantQuickActionId): IconComponent {
+  if (id === 'overview') return OverviewListIcon;
+  if (id === 'start') return StartDataAnalysisIcon;
+  if (id === 'report') return ReportDocumentIcon;
+  if (id === 'browser-state') return BrowserStackIcon;
+  if (id === 'rules') return RulesGavelDocumentIcon;
+  if (id === 'memory') return AiMemoryCircuitIcon;
+  if (id === 'ai-setup') return AiMemorySetBrainIcon;
+  if (id === 'private') return DataPrivacyServerShieldIcon;
+  if (id === 'devices') return DevicesMultiScreenIcon;
+  if (id === 'alerts') return AlertNotificationBellIcon;
+  if (id === 'drives') return DrivesCloudIcon;
+  if (id === 'support-api') return AccountProfileIcon;
+  return AiGuideIdeaIcon;
+}
+
 const ASSISTANT_INCOMING_CHAT_BUBBLE_CONFIG = {
   body: {
     clampOnLeft: true,
     minHeight: 50,
     maxHeight: 150,
+  },
+  colors: {
+    aiBodyTop: '#c8f8d6',
+    aiBodyBottom: '#a9ecc1',
   },
   text: {
     fontSize: 12,
@@ -478,11 +628,32 @@ const ASSISTANT_OUTGOING_CHAT_BUBBLE_CONFIG = {
     minHeight: 42,
     maxHeight: 118,
   },
+  colors: {
+    userBodyTop: '#e5f6ff',
+    userBodyBottom: '#acdfff',
+  },
   text: {
     fontSize: 12,
     lineHeight: 1.42,
   },
 };
+
+const ASSISTANT_CHAT_SURFACE_FILL = 'rgba(2, 12, 20, 0.52)';
+const ASSISTANT_QUESTIONNAIRE_SURFACE_FILL = ASSISTANT_CHAT_SURFACE_FILL;
+const ASSISTANT_QUESTIONNAIRE_BODY_FILL = 'rgba(7, 26, 42, 0.34)';
+const PARENT_PORTAL_TAB_SURFACE_FILL = {
+  active: 'rgba(2, 12, 22, 0.74)',
+  hover: 'rgba(2, 12, 22, 0.52)',
+  idle: 'rgba(2, 12, 22, 0.38)',
+  lanActive: 'rgba(2, 12, 22, 0.78)',
+  lanIdle: 'rgba(2, 12, 22, 0.48)',
+  lanMuted: 'rgba(2, 12, 22, 0.34)',
+} as const;
+const ASSISTANT_FOLLOW_UP_PAD_X = 24;
+const ASSISTANT_FOLLOW_UP_PAD_Y = 6;
+const ASSISTANT_FOLLOW_UP_HEADER_H = 24;
+const ASSISTANT_FOLLOW_UP_ROW_H = 32;
+const ASSISTANT_FOLLOW_UP_GAP = 10;
 
 const ASSISTANT_SIDE_PANEL_ICON_CONFIG = {
   colors: {
@@ -709,6 +880,30 @@ function toneColor(tone: Tone, cfg: ParentPortalSvgControls): string {
 function colorAlpha(color: string, alphaHex: string): string {
   return color.startsWith('#') ? `${color}${alphaHex}` : color;
 }
+
+const PARENT_PORTAL_GLASS = {
+  panelFill: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  panelFillSoft: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  panelFillStrong: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  panelFillDeep: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  cardFill: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  cardFillStrong: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  controlFill: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  dialogFill: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  dialogFillStrongTop: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  dialogFillStrongBottom: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  dialogScrim: PortalUnifiedChrome.CssVarRefs.FrameScrimFill,
+} as const;
+
+const PARENT_PORTAL_FRAME_MATERIAL = {
+  bodyFill: PortalUnifiedChrome.CssVarRefs.FrameBodyFill,
+  bodyStrokeOpacity: PortalUnifiedChrome.CssVarRefs.FrameBodyStrokeOpacity,
+  disabledFillOpacity: PortalUnifiedChrome.CssVarRefs.FrameSurfaceDisabledFillOpacity,
+  fillOpacity: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFillOpacity,
+  footerLineOpacity: PortalUnifiedChrome.CssVarRefs.FrameFooterLineOpacity,
+  headerLineOpacity: PortalUnifiedChrome.CssVarRefs.FrameHeaderLineOpacity,
+  transparentFill: PortalUnifiedChrome.CssVarRefs.FrameTransparentFill,
+} as const;
 
 function assetKey(value?: string): string {
   return (value ?? '')
@@ -1260,7 +1455,7 @@ function productShellRouteKeywords(routeKey: string): readonly string[] {
   if (routeKey.includes('network')) return ['network-activity', 'network-tracking', 'enforcement-readiness'];
   if (routeKey.includes('tracking')) return ['tracking-policy', 'remote-access', 'manual-required'];
   if (routeKey.includes('device') || routeKey.includes('lan') || routeKey.includes('capability')) {
-    return ['device-pairing', 'lan-discovery', 'household-setup', 'capability-status'];
+    return ['lan-discovery', 'household-setup', 'capability-status'];
   }
   if (routeKey.includes('remote')) return ['remote-access', 'remote-screen-policy', 'backend-not-connected'];
   if (routeKey.includes('report') || routeKey.includes('activity')) {
@@ -1526,7 +1721,9 @@ function SurfacePanel({
   const color = accentColor ?? toneColor(tone, cfg);
   const interactive = Boolean(onClick) && !disabled;
   const active = selected || hovered;
-  const fill = selected ? cfg.colors.selectedFill : hovered ? `${color}20` : cfg.colors.panelFill;
+  const frameFillOpacity = disabled
+    ? PARENT_PORTAL_FRAME_MATERIAL.disabledFillOpacity
+    : PARENT_PORTAL_FRAME_MATERIAL.fillOpacity;
   const handleClick = (event: MouseEvent<SVGGElement>) => {
     if (!interactive) return;
     event.stopPropagation();
@@ -1552,7 +1749,6 @@ function SurfacePanel({
     >
       {frame === 'deckSide' ? (
         <>
-          <path d={cutRectPath(x + 5, y + 5, w - 10, h - 10, 18)} fill="#020b14" stroke="none" pointerEvents="none" />
           <ParentPortalPanelFrame
             x={x}
             y={y}
@@ -1560,6 +1756,8 @@ function SurfacePanel({
             h={h}
             color={color}
             active={active}
+            fill={PARENT_PORTAL_GLASS.panelFill}
+            fillOpacity={frameFillOpacity}
             cornerThicknessScale={frameCornerThicknessScale}
             outerTabWidth={frameOuterTabWidth ?? cfg.chrome.frameOuterBulgeWidth}
             innerTabWidth={frameInnerTabWidth ?? cfg.chrome.frameInnerBulgeWidth}
@@ -1567,52 +1765,19 @@ function SurfacePanel({
         </>
       ) : (
         <>
-          {hovered && !selected ? (
-            <path
-              d={cutRectPath(
-                x - cfg.chrome.hoverPad,
-                y - cfg.chrome.hoverPad,
-                w + cfg.chrome.hoverPad * 2,
-                h + cfg.chrome.hoverPad * 2,
-                cfg.chrome.panelCut
-              )}
-              fill="none"
-              stroke={color}
-              strokeWidth={2.2}
-              opacity={cfg.chrome.glowOpacity}
-              filter="url(#parentPortalGlow)"
-            />
-          ) : null}
-          <path
-            d={cutRectPath(x, y, w, h, active ? cfg.chrome.panelCut + 2 : cfg.chrome.panelCut)}
-            fill={fill}
-            stroke={color}
-            strokeWidth={active ? cfg.chrome.panelStrokeWidth + 0.5 : cfg.chrome.panelStrokeWidth}
-            opacity={disabled ? 0.48 : 0.97}
+          <ParentPortalPanelFrame
+            x={x}
+            y={y}
+            w={w}
+            h={h}
+            color={color}
+            active={active}
+            fill={PARENT_PORTAL_GLASS.panelFill}
+            fillOpacity={frameFillOpacity}
+            cornerThicknessScale={frameCornerThicknessScale}
+            outerTabWidth={frameOuterTabWidth ?? cfg.chrome.frameOuterBulgeWidth}
+            innerTabWidth={frameInnerTabWidth ?? cfg.chrome.frameInnerBulgeWidth}
           />
-          <path
-            d={cutRectPath(
-              x + cfg.chrome.panelInnerInset,
-              y + cfg.chrome.panelInnerInset,
-              w - cfg.chrome.panelInnerInset * 2,
-              h - cfg.chrome.panelInnerInset * 2,
-              Math.max(4, cfg.chrome.panelCut - 4)
-            )}
-            fill="none"
-            stroke={color}
-            strokeWidth={0.7}
-            opacity={active ? 0.52 : 0.25}
-          />
-          {selected ? (
-            <path
-              d={cutRectPath(x, y, w, h, cfg.chrome.panelCut + 2)}
-              fill="none"
-              stroke={color}
-              strokeWidth={5}
-              opacity={0.16}
-              filter="url(#parentPortalGlow)"
-            />
-          ) : null}
         </>
       )}
       {children}
@@ -1859,7 +2024,7 @@ function ParentPortalHeaderAction({
         width={w}
         height={h}
         rx={3}
-        fill={lit ? `${color}24` : 'rgba(4, 18, 31, 0.88)'}
+        fill={lit ? `${color}24` : PARENT_PORTAL_GLASS.panelFill}
         stroke={color}
         strokeWidth={lit ? 1.35 : 0.9}
         strokeOpacity={lit ? 0.95 : 0.64}
@@ -1984,9 +2149,9 @@ function ParentPortalSectionFrame({
   bodyInset,
   fullHeaderLine = false,
   innerStrokeOpacity = 0.6,
-  bodyStrokeOpacity = 0.72,
-  bodyFill = 'rgba(7, 30, 48, 0.38)',
-  footerLineOpacity = 0.42,
+  bodyStrokeOpacity = PARENT_PORTAL_FRAME_MATERIAL.bodyStrokeOpacity,
+  bodyFill = PARENT_PORTAL_FRAME_MATERIAL.bodyFill,
+  footerLineOpacity = PARENT_PORTAL_FRAME_MATERIAL.footerLineOpacity,
   showSideHandles = false,
   sideDisabled = false,
   onPrevious,
@@ -2017,9 +2182,9 @@ function ParentPortalSectionFrame({
   bodyInset?: number;
   fullHeaderLine?: boolean;
   innerStrokeOpacity?: number;
-  bodyStrokeOpacity?: number;
+  bodyStrokeOpacity?: number | string;
   bodyFill?: string;
-  footerLineOpacity?: number;
+  footerLineOpacity?: number | string;
   showSideHandles?: boolean;
   sideDisabled?: boolean;
   onPrevious?: () => void;
@@ -2098,6 +2263,7 @@ function ParentPortalSectionFrame({
   const sideHandleY = body.y + Math.max(12, (body.h - sideHandleH) / 2);
   const leftHandleX = x - sideHandleW + PARENT_PORTAL_SIDE_HANDLE_OVERLAP;
   const rightHandleX = x + w - PARENT_PORTAL_SIDE_HANDLE_OVERLAP;
+  const showFooterLine = footerLineOpacity !== 0 && footerLineOpacity !== '0';
   const handleSelect = (event: MouseEvent<SVGGElement>) => {
     if (!interactive) return;
     event.stopPropagation();
@@ -2133,16 +2299,10 @@ function ParentPortalSectionFrame({
         color={color}
         active={active}
         fill="url(#parentPortalFrameFill)"
-        fillOpacity={selected ? 0.98 : 0.92}
+        fillOpacity={PARENT_PORTAL_FRAME_MATERIAL.fillOpacity}
         cornerThicknessScale={0.86}
         outerTabWidth={cfg.chrome.frameOuterBulgeWidth}
         innerTabWidth={cfg.chrome.frameInnerBulgeWidth}
-      />
-      <path
-        d={cutRectPath(x + 8, y + 8, w - 16, Math.min(62, resolvedHeaderH + 10), Math.max(4, cut - 5))}
-        fill="url(#parentPortalFrameShine)"
-        opacity={active ? 0.56 : 0.42}
-        pointerEvents="none"
       />
       {headerSlot ? (
         headerSlot
@@ -2179,7 +2339,7 @@ function ParentPortalSectionFrame({
             y2={headerLineY}
             stroke={color}
             strokeWidth={1.1}
-            opacity={0.5}
+            opacity={PARENT_PORTAL_FRAME_MATERIAL.headerLineOpacity}
           />
           {headerInfoLabel && onHeaderInfoClick ? (
             <ParentPortalInfoButton
@@ -2208,7 +2368,7 @@ function ParentPortalSectionFrame({
         strokeOpacity={bodyStrokeOpacity}
       />
       {children(body)}
-      {footerLineOpacity > 0 ? (
+      {showFooterLine ? (
         <line
           x1={footerRect.x + 12}
           y1={footerRect.y + 3}
@@ -2285,7 +2445,7 @@ function ArtworkSlot({
   const primaryText = compact ? 'MISS' : 'MISSING';
   const primaryFontSize = compact ? Math.min(7, Math.max(4.5, w * 0.24)) : Math.min(11, Math.max(7.5, w * 0.09));
   const secondaryFontSize = Math.min(8.5, Math.max(6.5, w * 0.06));
-  const fill = imageUrl ? 'rgba(3, 13, 24, 0.82)' : 'rgba(48, 12, 23, 0.72)';
+  const fill = imageUrl ? PARENT_PORTAL_GLASS.panelFillDeep : 'rgba(48, 12, 23, 0.72)';
   const renderShape = (shapeFill: string, shapeStroke: string, dash = '') => {
     if (shape === 'circle') {
       return (
@@ -2409,6 +2569,7 @@ function NavRow({
   iconSize,
   nested = false,
   branchColor,
+  ariaLabel,
   onSelect,
   cfg,
 }: {
@@ -2421,6 +2582,7 @@ function NavRow({
   iconSize: number;
   nested?: boolean;
   branchColor?: string;
+  ariaLabel?: string;
   onSelect: () => void;
   cfg: ParentPortalSvgControls;
 }) {
@@ -2460,7 +2622,7 @@ function NavRow({
       }}
       role="button"
       tabIndex={0}
-      aria-label={`Open ${item.label}`}
+      aria-label={ariaLabel ?? `Open ${item.label}`}
     >
       <rect x={rowX - 6} y={y - 4} width={rowW + 28} height={rowH + 8} fill="transparent" pointerEvents="all" />
       {nested ? (
@@ -3124,12 +3286,13 @@ function NavPanel({
   };
   if (assistantOpen) {
     return (
-      <g>
+      <g className="parent-portal-study-side-pane">
         <AssistantQuickActionPanel
           x={outerPad}
           y={sideTopY}
           w={leftW}
           h={assistantPanelH}
+          navGroups={navGroups}
           selectedActionId={selectedAssistantActionId}
           onNewChat={onAssistantNewChat}
           onActionSelect={onAssistantActionSelect}
@@ -3140,7 +3303,7 @@ function NavPanel({
   }
   let cursorY = rowTop;
   return (
-    <g>
+    <g className="parent-portal-study-side-pane">
       <SurfacePanel x={outerPad} y={sideTopY} w={leftW} h={navH} tone="cyan" frame="deckSide" cfg={cfg}>
         <defs>
           <clipPath id={navClipId}>
@@ -3390,6 +3553,7 @@ function AssistantQuickActionPanel({
   y,
   w,
   h,
+  navGroups,
   selectedActionId,
   onNewChat,
   onActionSelect,
@@ -3399,92 +3563,233 @@ function AssistantQuickActionPanel({
   y: number;
   w: number;
   h: number;
+  navGroups: NavGroup[];
   selectedActionId: AssistantQuickActionId | null;
   onNewChat: () => void;
   onActionSelect: (actionId: AssistantQuickActionId) => void;
   cfg: ParentPortalSvgControls;
 }) {
-  const [activePanelTab, setActivePanelTab] = useState<'quick' | 'history'>('quick');
-  const tabY = y + 30;
-  const rowTop = y + 72;
-  const rowH = 56;
-  const rowGap = 7;
-  const tabGap = 8;
-  const tabW = (w - 44 - tabGap) / 2;
-  return (
-    <SurfacePanel x={x} y={y} w={w} h={h} tone="cyan" frame="deckSide" selected cfg={cfg}>
-      <AssistantSidePanelTab
-        x={x + 22}
+  const assistantGroups = assistantQuickActionNavGroups(navGroups);
+  const [activePanelTab, setActivePanelTab] = useState<AssistantPanelTab>(ASSISTANT_PANEL_TAB.QuickAction);
+  const [openActionGroupIds, setOpenActionGroupIds] = useState(() =>
+    Object.fromEntries(assistantGroups.map((group) => [group.id, true]))
+  );
+  const tabY = y + 24;
+  const tabH = 30;
+  const tabGap = 6;
+  const tabW = (w - 24 - tabGap) / 2;
+  const rowTop = y + 66;
+  const rowH = 38;
+  const rowStep = 40;
+  const iconSize = 34;
+  const groupH = 46;
+  const groupGap = 7;
+  const panelBottom = y + h - 18;
+  const panelRows: ReactNode[] = [];
+  let cursorY = rowTop;
+
+  const toggleActionGroup = (groupId: string) => {
+    setOpenActionGroupIds((current) => ({
+      ...current,
+      [groupId]: !(current[groupId] ?? true),
+    }));
+  };
+
+  panelRows.push(
+    <g key="assistant:panel-tabs" role="tablist" aria-label="Assistant side panel">
+      <AssistantPanelTabButton
+        x={x + 12}
         y={tabY}
         w={tabW}
-        h={28}
-        label="Quick Action"
-        selected={activePanelTab === 'quick'}
-        onSelect={() => setActivePanelTab('quick')}
-        cfg={cfg}
-      />
-      <AssistantSidePanelTab
-        x={x + 22 + tabW + tabGap}
-        y={tabY}
-        w={tabW}
-        h={28}
+        h={tabH}
         label="History"
-        selected={activePanelTab === 'history'}
-        onSelect={() => setActivePanelTab('history')}
+        active={activePanelTab === ASSISTANT_PANEL_TAB.History}
+        onSelect={() => setActivePanelTab(ASSISTANT_PANEL_TAB.History)}
         cfg={cfg}
       />
-      <path
-        d={`M ${x + 18} ${rowTop - 14} H ${x + w - 18}`}
-        stroke={cfg.colors.panelStroke}
-        strokeWidth={0.8}
-        opacity={0.72}
+      <AssistantPanelTabButton
+        x={x + 12 + tabW + tabGap}
+        y={tabY}
+        w={tabW}
+        h={tabH}
+        label="Quick Action"
+        active={activePanelTab === ASSISTANT_PANEL_TAB.QuickAction}
+        onSelect={() => setActivePanelTab(ASSISTANT_PANEL_TAB.QuickAction)}
+        cfg={cfg}
       />
-      {activePanelTab === 'quick' ? (
-        <>
-          <AssistantNewChatRow x={x + 14} y={rowTop} w={w - 28} h={rowH} onSelect={onNewChat} cfg={cfg} />
-          {ASSISTANT_QUICK_ACTIONS.map((action, index) => {
-            const rowY = rowTop + (index + 1) * (rowH + rowGap);
-            if (rowY + rowH > y + h - 18) return null;
-            const selected = action.id === selectedActionId;
-            return (
-              <AssistantQuickActionRow
-                key={action.id}
-                action={action}
-                selected={selected}
-                x={x + 14}
-                y={rowY}
-                w={w - 28}
-                h={rowH}
-                onSelect={() => onActionSelect(action.id)}
-                cfg={cfg}
-              />
-            );
-          })}
-        </>
-      ) : (
-        <AssistantHistoryPanelContent
-          x={x + 14}
-          y={rowTop}
-          w={w - 28}
-          h={Math.max(120, y + h - rowTop - 18)}
-          selectedActionId={selectedActionId}
+    </g>
+  );
+
+  if (cursorY + rowH <= panelBottom) {
+    panelRows.push(
+      <NavRow
+        key="assistant:new-chat"
+        item={ASSISTANT_NEW_CHAT_NAV_ITEM}
+        active={false}
+        x={x + 8}
+        w={w - 8}
+        y={cursorY}
+        rowH={rowH}
+        iconSize={iconSize}
+        branchColor={cfg.colors.cyan}
+        ariaLabel="Start new MIA chat"
+        onSelect={onNewChat}
+        cfg={cfg}
+      />
+    );
+    cursorY += rowStep + groupGap;
+  }
+
+  if (activePanelTab === ASSISTANT_PANEL_TAB.History) {
+    ASSISTANT_QUICK_ACTIONS.forEach((action) => {
+      if (cursorY + rowH > panelBottom) return;
+      const itemY = cursorY;
+      cursorY += rowStep;
+      panelRows.push(
+        <NavRow
+          key={`assistant:history:${action.id}`}
+          item={assistantHistoryNavItem(action)}
+          active={false}
+          x={x + 8}
+          w={w - 8}
+          y={itemY}
+          rowH={rowH}
+          iconSize={iconSize}
+          branchColor={toneColor(action.tone, cfg)}
+          ariaLabel={`${action.label} history`}
+          onSelect={() => onActionSelect(action.id)}
           cfg={cfg}
         />
-      )}
+      );
+    });
+    return (
+      <SurfacePanel x={x} y={y} w={w} h={h} tone="cyan" frame="deckSide" selected cfg={cfg}>
+        {panelRows}
+      </SurfacePanel>
+    );
+  }
+
+  assistantGroups.forEach((group) => {
+    if (cursorY + groupH > panelBottom) return;
+    const groupY = cursorY;
+    const open = openActionGroupIds[group.id] ?? true;
+    const groupAccent = navGroupThemeColor(group.id, cfg);
+    cursorY += groupH;
+
+    const itemRows: ReactNode[] = [];
+    const childStartY = cursorY;
+    if (open) {
+      for (const item of group.items) {
+        const itemY = cursorY;
+        if (itemY + rowH > panelBottom) break;
+        cursorY += rowStep;
+        const actionId = assistantActionIdForNavItem(item);
+        const actionLabel = actionId ? assistantQuickActionById(actionId)?.label : null;
+        itemRows.push(
+          <NavRow
+            key={navItemKey(item)}
+            item={item}
+            active={actionId === selectedActionId}
+            x={x + 8}
+            w={w - 8}
+            y={itemY}
+            rowH={rowH}
+            iconSize={iconSize}
+            branchColor={groupAccent}
+            ariaLabel={`Ask MIA about ${actionLabel ?? item.label}`}
+            onSelect={() => {
+              if (actionId) onActionSelect(actionId);
+            }}
+            cfg={cfg}
+          />
+        );
+      }
+    }
+
+    const childEndY = cursorY;
+    const childRailH = Math.max(0, childEndY - childStartY - 2);
+    cursorY += groupGap;
+
+    panelRows.push(
+      <g key={group.id}>
+        {open && childRailH > 0 ? (
+          <g pointerEvents="none">
+            <path
+              d={cutRectPath(x + 22, childStartY + 3, w - 35, childRailH, 9)}
+              fill="rgba(2, 12, 20, 0.34)"
+              stroke={groupAccent}
+              strokeWidth={0.85}
+              strokeOpacity={0.38}
+            />
+            <path
+              d={`M ${x + 28} ${childStartY + 9} V ${childStartY + childRailH - 6}`}
+              stroke={groupAccent}
+              strokeWidth={1.45}
+              strokeLinecap="round"
+              opacity={0.58}
+            />
+          </g>
+        ) : null}
+        {itemRows}
+        <NavGroupHeader
+          group={group}
+          open={open}
+          x={x}
+          w={w}
+          y={groupY}
+          h={groupH}
+          onToggle={() => toggleActionGroup(group.id)}
+          cfg={cfg}
+        />
+      </g>
+    );
+  });
+
+  return (
+    <SurfacePanel x={x} y={y} w={w} h={h} tone="cyan" frame="deckSide" selected cfg={cfg}>
+      {panelRows}
     </SurfacePanel>
   );
 }
 
-function AssistantSidePanelTab({ x, y, w, h, label, selected, onSelect, cfg }) {
+function AssistantPanelTabButton({
+  x,
+  y,
+  w,
+  h,
+  label,
+  active,
+  onSelect,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label: string;
+  active: boolean;
+  onSelect: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
   const [hovered, setHovered] = useState(false);
+  const fill = active
+    ? PARENT_PORTAL_TAB_SURFACE_FILL.active
+    : hovered
+      ? PARENT_PORTAL_TAB_SURFACE_FILL.hover
+      : PARENT_PORTAL_TAB_SURFACE_FILL.idle;
   return (
     <g
       className="parent-portal-svg-clickable"
       role="tab"
       tabIndex={0}
-      aria-selected={selected}
       aria-label={label}
+      aria-selected={active}
       onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        onSelect();
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
@@ -3496,185 +3801,35 @@ function AssistantSidePanelTab({ x, y, w, h, label, selected, onSelect, cfg }) {
         y={y}
         width={w}
         height={h}
-        rx={8}
-        fill={
-          selected
-            ? colorAlpha(cfg.colors.cyan, '32')
-            : hovered
-              ? colorAlpha(cfg.colors.cyan, '22')
-              : 'rgba(4, 18, 31, 0.72)'
-        }
-        stroke={selected || hovered ? cfg.colors.cyan : cfg.colors.panelStroke}
-        strokeWidth={selected ? 1.15 : 0.9}
+        rx={0}
+        fill={fill}
+        stroke={active || hovered ? cfg.colors.cyan : cfg.colors.panelStroke}
+        strokeWidth={active ? 1.15 : 0.82}
+        opacity={active ? 1 : 0.82}
+      />
+      <path
+        d={`M ${x + 8} ${y + 1.5} H ${x + w - 8}`}
+        stroke={active ? cfg.colors.cyan : cfg.colors.panelStroke}
+        strokeWidth={active ? 1.65 : 0.9}
+        strokeLinecap="round"
+        opacity={active ? 0.95 : hovered ? 0.52 : 0.28}
+      />
+      <path
+        d={`M ${x + 10} ${y + h - 3} H ${x + w - 10}`}
+        stroke={cfg.colors.cyan}
+        strokeWidth={active ? 2.05 : 1.1}
+        strokeLinecap="round"
+        opacity={active ? 0.92 : hovered ? 0.46 : 0.24}
       />
       <text
         x={x + w / 2}
-        y={y + 18}
+        y={y + h / 2 + 4}
         textAnchor="middle"
-        fontSize={10.5}
-        fontWeight={920}
-        fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+        fontSize={10.8}
+        fontWeight={960}
+        fill={cfg.colors.bodyText}
       >
-        {truncateTextForWidth(label.toUpperCase(), w - 12, 10.5, 0.58)}
-      </text>
-    </g>
-  );
-}
-
-function AssistantNewChatRow({ x, y, w, h, onSelect, cfg }) {
-  const [hovered, setHovered] = useState(false);
-  const color = cfg.colors.cyan;
-  const iconCx = x + 26;
-  const iconCy = y + h / 2;
-  const lit = hovered;
-  return (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label="Start new MIA chat"
-      onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <title>Start new MIA chat</title>
-      <rect x={x - 4} y={y - 3} width={w + 8} height={h + 6} fill="transparent" pointerEvents="all" />
-      <path
-        d={cutRectPath(x, y, w, h, 8)}
-        fill={hovered ? colorAlpha(color, '2a') : colorAlpha(color, '18')}
-        stroke={lit ? color : 'transparent'}
-        strokeWidth={lit ? 1.15 : 0}
-        filter={hovered ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <path
-        d={`M ${iconCx} ${iconCy - 11} V ${iconCy + 11} M ${iconCx - 11} ${iconCy} H ${iconCx + 11}`}
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        filter={hovered ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <text x={x + 56} y={y + h / 2 + 5} fontSize={13.4} fontWeight={950} fill={cfg.colors.bodyText}>
-        NEW CHAT
-      </text>
-    </g>
-  );
-}
-
-function AssistantQuickActionRow({ action, selected, x, y, w, h, onSelect, cfg }) {
-  const [hovered, setHovered] = useState(false);
-  const color = toneColor(action.tone, cfg);
-  const lit = selected || hovered;
-  const iconSize = 28;
-  const iconX = x + 14;
-  const iconY = y + (h - iconSize) / 2;
-  return (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label={`Ask MIA about ${action.label}`}
-      onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <title>{`${action.label}: ${action.detail}`}</title>
-      <rect x={x - 4} y={y - 3} width={w + 8} height={h + 6} fill="transparent" pointerEvents="all" />
-      <path
-        d={cutRectPath(x, y, w, h, 8)}
-        fill={selected ? colorAlpha(color, '34') : hovered ? colorAlpha(color, '1f') : 'rgba(2, 12, 20, 0.58)'}
-        stroke={lit ? color : 'transparent'}
-        strokeWidth={selected ? 1.25 : hovered ? 1.05 : 0}
-        filter={lit ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <image
-        href={action.iconAssetUrl}
-        x={iconX}
-        y={iconY}
-        width={iconSize}
-        height={iconSize}
-        preserveAspectRatio="xMidYMid meet"
-        pointerEvents="none"
-        filter={lit ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <text x={x + 56} y={y + h / 2 + 5} fontSize={13.4} fontWeight={950} fill={cfg.colors.bodyText}>
-        {truncateTextForWidth(action.label.toUpperCase(), w - 70, 13.4, 0.58)}
-      </text>
-    </g>
-  );
-}
-
-function AssistantHistoryPanelContent({ x, y, w, h, selectedActionId, cfg }) {
-  const rowGap = 8;
-  const rowH = 66;
-  return (
-    <g role="group" aria-label="Assistant chat history">
-      {ASSISTANT_QUICK_ACTIONS.map((action, index) => {
-        const rowY = y + index * (rowH + rowGap);
-        if (rowY + rowH > y + h) return null;
-        return (
-          <AssistantHistoryFolder
-            key={action.id}
-            x={x}
-            y={rowY}
-            w={w}
-            h={rowH}
-            action={action}
-            active={action.id === selectedActionId}
-            cfg={cfg}
-          />
-        );
-      })}
-    </g>
-  );
-}
-
-function AssistantHistoryFolder({ x, y, w, h, action, active, cfg }) {
-  const [hovered, setHovered] = useState(false);
-  const color = toneColor(action.tone, cfg);
-  const threadLabel = active ? 'Current chat' : 'No saved thread yet';
-  return (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label={`${action.label} history`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <title>{`${action.label} history`}</title>
-      <rect
-        x={x}
-        y={y}
-        width={w}
-        height={h}
-        rx={8}
-        fill={active ? colorAlpha(color, '34') : hovered ? colorAlpha(color, '1f') : 'rgba(2, 12, 20, 0.68)'}
-        stroke={active || hovered ? color : cfg.colors.panelStroke}
-        strokeWidth={active ? 1.15 : 0.9}
-      />
-      <path
-        d={`M ${x + 14} ${y + 22} H ${x + 25} L ${x + 31} ${y + 16} H ${x + 48} Q ${x + 53} ${y + 16} ${x + 53} ${y + 21} V ${y + 45} Q ${x + 53} ${y + 50} ${x + 48} ${y + 50} H ${x + 14} Q ${x + 9} ${y + 50} ${x + 9} ${y + 45} V ${y + 27} Q ${x + 9} ${y + 22} ${x + 14} ${y + 22} Z`}
-        fill={colorAlpha(color, active ? '34' : '18')}
-        stroke={active || hovered ? color : cfg.colors.panelStroke}
-        strokeWidth={0.85}
-      />
-      <text x={x + 66} y={y + 27} fontSize={13} fontWeight={940} fill={cfg.colors.bodyText}>
-        {truncateTextForWidth(action.label.toUpperCase(), w - 82, 13, 0.58)}
-      </text>
-      <text
-        x={x + 66}
-        y={y + 48}
-        fontSize={10.5}
-        fontWeight={760}
-        fill={active ? cfg.colors.bodyText : cfg.colors.mutedText}
-      >
-        {truncateTextForWidth(threadLabel, w - 82, 10.5, 0.58)}
+        {truncateTextForWidth(label.toUpperCase(), w - 16, 10.8, 0.58)}
       </text>
     </g>
   );
@@ -3949,7 +4104,6 @@ function manageLaneForKey(activeNavLabel: string, selectedControlName: string): 
     key.includes('platform') ||
     key.includes('update') ||
     key.includes('install') ||
-    key.includes('device-pairing') ||
     key.includes('devices')
   ) {
     return 'deviceOps';
@@ -4205,8 +4359,6 @@ const ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS = Math.max(1, LAN_PAIRING_BASIC_P
 const ACTIVITY_REPORT_MAX_CHILD_DEVICE_SEATS = 10;
 const ACTIVITY_REPORT_SELECTOR_BASE_H = 146;
 const ACTIVITY_REPORT_SELECTOR_ROW_H = MANAGE_DEVICE_GRID_CELL_H + MANAGE_DEVICE_GRID_GAP_Y;
-const LAN_PAIRING_SCAN_ICON_HREF = '/images/scan.png';
-const LAN_PAIRING_HEADER_TITLE = 'Local Area Network';
 
 type LanPairingDetailTabId = 'info' | 'pair' | 'update' | 'capability';
 
@@ -4570,7 +4722,7 @@ function LanPairingDeviceEditDialog({
   const fieldStyle: CSSProperties = {
     width: '100%',
     boxSizing: 'border-box',
-    background: 'rgba(3, 20, 33, 0.96)',
+    background: PARENT_PORTAL_GLASS.dialogFill,
     border: `1px solid ${colorAlpha(borderColor, 'AA')}`,
     borderRadius: 6,
     color: cfg.colors.bodyText,
@@ -4588,7 +4740,7 @@ function LanPairingDeviceEditDialog({
         y={overlayY}
         width={overlayW}
         height={overlayH}
-        fill="rgba(0, 6, 12, 0.48)"
+        fill={PARENT_PORTAL_GLASS.dialogScrim}
         rx={12}
         onClick={(event) => {
           event.stopPropagation();
@@ -4604,14 +4756,16 @@ function LanPairingDeviceEditDialog({
             width: '100%',
             height: '100%',
             boxSizing: 'border-box',
-            background: 'linear-gradient(180deg, rgba(4, 26, 44, 0.98), rgba(2, 13, 25, 0.98))',
+            background: `linear-gradient(180deg, ${PARENT_PORTAL_GLASS.dialogFillStrongTop}, ${PARENT_PORTAL_GLASS.dialogFillStrongBottom})`,
             border: `1px solid ${borderColor}`,
             borderRadius: 8,
-            boxShadow: `0 0 22px ${colorAlpha(borderColor, '66')}`,
+            boxShadow: `0 16px 42px rgba(0, 0, 0, 0.42), 0 0 22px ${colorAlpha(borderColor, '44')}`,
             color: cfg.colors.bodyText,
             fontFamily: dialogFontFamily,
             padding: '14px 16px 16px',
             position: 'relative',
+            WebkitBackdropFilter: 'blur(10px)',
+            backdropFilter: 'blur(10px)',
           }}
         >
           <button
@@ -4626,7 +4780,7 @@ function LanPairingDeviceEditDialog({
               height: 24,
               border: `1px solid ${colorAlpha(borderColor, 'AA')}`,
               borderRadius: 6,
-              background: 'rgba(2, 12, 22, 0.9)',
+              background: PARENT_PORTAL_GLASS.panelFillStrong,
               color: cfg.colors.bodyText,
               cursor: 'pointer',
               fontFamily: dialogFontFamily,
@@ -4691,7 +4845,7 @@ function LanPairingDeviceEditDialog({
               type="button"
               onClick={onClose}
               style={{
-                background: 'rgba(2, 12, 22, 0.9)',
+                background: PARENT_PORTAL_GLASS.panelFillStrong,
                 border: `1px solid ${colorAlpha(cfg.colors.panelStroke, 'AA')}`,
                 borderRadius: 6,
                 color: cfg.colors.mutedText,
@@ -6326,40 +6480,6 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
         { label: 'Start pairing', detail: 'Begin a trusted local pairing challenge.', tone: 'gold' },
         { label: 'Select child', detail: 'Make this device the active control target.', tone: 'cyan' },
         { label: 'Revoke trust', detail: 'Stop accepting control intents from this device.', tone: 'red' },
-      ],
-      status: baseStatus,
-    };
-  }
-
-  if (key.includes('device')) {
-    return {
-      title: 'Devices',
-      devices,
-      modes: [
-        { label: 'Selected', detail: 'Use this device as the active target.', tone: 'cyan' },
-        { label: 'Pair', detail: 'Add a child device.', tone: 'gold' },
-        { label: 'Suspend', detail: 'Stop sending commands to this device.', tone: 'red' },
-      ],
-      options: [
-        { label: 'Show offline', detail: 'Keep stale devices visible but marked.', enabled: true, tone: 'cyan' },
-        {
-          label: 'Per-device overrides',
-          detail: 'Allow this child to differ from family defaults.',
-          enabled: true,
-          tone: 'gold',
-        },
-        {
-          label: 'Require parent session',
-          detail: 'Protect device changes behind parent login.',
-          enabled: true,
-          tone: 'red',
-        },
-        { label: 'Capability badges', detail: 'Show supported, degraded, unavailable.', enabled: true, tone: 'purple' },
-      ],
-      actions: [
-        { label: 'Pair device', detail: 'Start local pairing.', tone: 'gold' },
-        { label: 'Set active', detail: 'Use selected child for controls.', tone: 'cyan' },
-        { label: 'Open capability', detail: 'Review what this device supports.', tone: 'purple' },
       ],
       status: baseStatus,
     };
@@ -8911,7 +9031,7 @@ function ManageSupportContactForm({
     <g>
       <path
         d={cutRectPath(x, y, w, h, 10)}
-        fill="rgba(3, 17, 31, 0.9)"
+        fill="rgba(3, 17, 31, 0.72)"
         stroke={color}
         strokeWidth={1.05}
         opacity={0.98}
@@ -8946,7 +9066,7 @@ function ManageSupportContactForm({
 
       <path
         d={cutRectPath(x + pad, composerY, w - pad * 2, composerH, 8)}
-        fill="rgba(4, 20, 35, 0.86)"
+        fill={PARENT_PORTAL_GLASS.controlFill}
         stroke={cyan}
         strokeWidth={0.86}
         opacity={0.94}
@@ -8984,7 +9104,7 @@ function ManageSupportContactForm({
         width={w - pad * 2}
         height={messageH}
         rx={5}
-        fill="rgba(2, 13, 24, 0.82)"
+        fill="rgba(2, 13, 24, 0.66)"
         stroke={color}
         strokeWidth={0.78}
         opacity={0.95}
@@ -9019,7 +9139,7 @@ function ManageSupportContactForm({
         width={actionW}
         height={28}
         rx={4}
-        fill="rgba(3, 18, 32, 0.9)"
+        fill="rgba(3, 18, 32, 0.72)"
         stroke={gold}
         strokeWidth={0.9}
       />
@@ -9739,7 +9859,7 @@ function BrowserPolicyMatrixShell({
         width={w}
         height={h}
         rx={5}
-        fill="rgba(2, 19, 35, 0.88)"
+        fill="rgba(2, 19, 35, 0.72)"
         stroke={cfg.colors.gold}
         strokeWidth={0.9}
       />
@@ -9809,7 +9929,13 @@ function BrowserPolicyBudgetMatrix({
       cfg={cfg}
     >
       <g transform={`translate(${tableX}, ${tableY})`}>
-        <rect width={tableW} height={tableH} rx={5} fill="rgba(4, 20, 37, 0.92)" stroke={cfg.colors.panelStroke} />
+        <rect
+          width={tableW}
+          height={tableH}
+          rx={5}
+          fill={PARENT_PORTAL_GLASS.panelFill}
+          stroke={cfg.colors.panelStroke}
+        />
         <g transform={`translate(8, ${guideY - 18})`}>
           {[
             ['Family default', 'applies first', cfg.colors.cyan],
@@ -9824,7 +9950,7 @@ function BrowserPolicyBudgetMatrix({
                   width={pillW}
                   height={26}
                   rx={4}
-                  fill="rgba(5, 27, 46, 0.86)"
+                  fill="rgba(5, 27, 46, 0.64)"
                   stroke={item[2]}
                   strokeWidth={0.72}
                   opacity={0.95}
@@ -10066,7 +10192,7 @@ function BrowserPolicyScheduleMatrix({
         width={boardW}
         height={boardH}
         rx={5}
-        fill="rgba(4, 20, 37, 0.9)"
+        fill={PARENT_PORTAL_GLASS.panelFill}
         stroke={cfg.colors.panelStroke}
         strokeWidth={0.9}
       />
@@ -10144,7 +10270,7 @@ function BrowserPolicyScheduleMatrix({
                 width={index === 1 ? 32 : 24}
                 height={20}
                 rx={5}
-                fill="rgba(5, 21, 38, 0.96)"
+                fill="rgba(5, 21, 38, 0.76)"
                 stroke={cfg.colors.cyan}
                 strokeWidth={0.8}
               />
@@ -10167,7 +10293,7 @@ function BrowserPolicyScheduleMatrix({
         y={headerY}
         width={bodyViewportW}
         height={cellSize}
-        fill="rgba(5, 22, 39, 0.94)"
+        fill="rgba(5, 22, 39, 0.72)"
         stroke={cfg.colors.panelStroke}
         strokeWidth={0.7}
       />
@@ -10176,7 +10302,7 @@ function BrowserPolicyScheduleMatrix({
         y={bodyY}
         width={labelW}
         height={bodyViewportH}
-        fill="rgba(5, 22, 39, 0.94)"
+        fill="rgba(5, 22, 39, 0.72)"
         stroke={cfg.colors.panelStroke}
         strokeWidth={0.7}
       />
@@ -10185,7 +10311,7 @@ function BrowserPolicyScheduleMatrix({
         y={bodyY}
         width={bodyViewportW}
         height={bodyViewportH}
-        fill="rgba(2, 16, 30, 0.86)"
+        fill="rgba(2, 16, 30, 0.68)"
         stroke={cfg.colors.cyan}
         strokeWidth={0.75}
       />
@@ -10199,7 +10325,7 @@ function BrowserPolicyScheduleMatrix({
                 width={cellSize - 2}
                 height={cellSize - 2}
                 rx={5}
-                fill="rgba(8, 26, 47, 0.9)"
+                fill="rgba(8, 26, 47, 0.68)"
                 stroke={cfg.colors.panelStroke}
                 strokeWidth={0.72}
               />
@@ -10228,7 +10354,7 @@ function BrowserPolicyScheduleMatrix({
                 width={labelW - 4}
                 height={cellSize - 2}
                 rx={5}
-                fill="rgba(8, 26, 47, 0.82)"
+                fill="rgba(8, 26, 47, 0.62)"
                 stroke={cfg.colors.panelStroke}
                 strokeWidth={0.68}
               />
@@ -10262,7 +10388,11 @@ function BrowserPolicyScheduleMatrix({
                       width={cellSize - 2}
                       height={cellSize - 2}
                       rx={5}
-                      fill={isDefaultMode ? 'rgba(4, 18, 32, 0.32)' : colorAlpha(color, mode === 'Block' ? '36' : '45')}
+                      fill={
+                        isDefaultMode
+                          ? PARENT_PORTAL_GLASS.panelFillSoft
+                          : colorAlpha(color, mode === 'Block' ? '36' : '45')
+                      }
                       stroke={isDefaultMode ? cfg.colors.panelStroke : color}
                       strokeWidth={isDefaultMode ? 0.7 : 0.76}
                     />
@@ -10310,7 +10440,7 @@ function BrowserPolicyScheduleMatrix({
             width={bodyViewportW}
             height={7}
             rx={3.5}
-            fill="rgba(8, 24, 42, 0.94)"
+            fill="rgba(8, 24, 42, 0.7)"
             stroke={cfg.colors.panelStroke}
             strokeWidth={0.7}
           />
@@ -10336,7 +10466,7 @@ function BrowserPolicyScheduleMatrix({
               width={22}
               height={15}
               rx={4}
-              fill="rgba(5, 21, 38, 0.96)"
+              fill="rgba(5, 21, 38, 0.76)"
               stroke={cfg.colors.cyan}
             />
             <path
@@ -10358,7 +10488,7 @@ function BrowserPolicyScheduleMatrix({
               width={22}
               height={15}
               rx={4}
-              fill="rgba(5, 21, 38, 0.96)"
+              fill="rgba(5, 21, 38, 0.76)"
               stroke={cfg.colors.cyan}
             />
             <path
@@ -10378,7 +10508,7 @@ function BrowserPolicyScheduleMatrix({
             width={7}
             height={bodyViewportH}
             rx={3.5}
-            fill="rgba(8, 24, 42, 0.94)"
+            fill="rgba(8, 24, 42, 0.7)"
             stroke={cfg.colors.panelStroke}
             strokeWidth={0.7}
           />
@@ -10404,7 +10534,7 @@ function BrowserPolicyScheduleMatrix({
               width={15}
               height={15}
               rx={4}
-              fill="rgba(5, 21, 38, 0.96)"
+              fill="rgba(5, 21, 38, 0.76)"
               stroke={cfg.colors.cyan}
             />
             <path
@@ -10426,7 +10556,7 @@ function BrowserPolicyScheduleMatrix({
               width={15}
               height={15}
               rx={4}
-              fill="rgba(5, 21, 38, 0.96)"
+              fill="rgba(5, 21, 38, 0.76)"
               stroke={cfg.colors.cyan}
             />
             <path
@@ -10481,7 +10611,13 @@ function BrowserPolicyApprovalsMatrix({
       cfg={cfg}
     >
       <g transform={`translate(${tableX}, ${tableY})`}>
-        <rect width={tableW} height={tableH} rx={5} fill="rgba(4, 20, 37, 0.92)" stroke={cfg.colors.panelStroke} />
+        <rect
+          width={tableW}
+          height={tableH}
+          rx={5}
+          fill={PARENT_PORTAL_GLASS.panelFill}
+          stroke={cfg.colors.panelStroke}
+        />
         {visibleColumns.map((column, index) => (
           <text
             key={`browser-policy-approval-column:${column}`}
@@ -10577,7 +10713,13 @@ function BrowserPolicyAuditMatrix({
       cfg={cfg}
     >
       <g transform={`translate(${tableX}, ${tableY})`}>
-        <rect width={tableW} height={tableH} rx={5} fill="rgba(4, 20, 37, 0.92)" stroke={cfg.colors.panelStroke} />
+        <rect
+          width={tableW}
+          height={tableH}
+          rx={5}
+          fill={PARENT_PORTAL_GLASS.panelFill}
+          stroke={cfg.colors.panelStroke}
+        />
         {visibleColumns.map((column, index) => (
           <text
             key={`browser-policy-audit-column:${column}`}
@@ -10857,7 +10999,7 @@ function BrowserPolicyDecisionForestPrototype({
             width={mapW - 56}
             height={74}
             rx={7}
-            fill="rgba(2, 8, 16, 0.84)"
+            fill="rgba(2, 8, 16, 0.66)"
             stroke="#ffd36a"
             strokeWidth={0.9}
           />
@@ -10929,7 +11071,11 @@ function BrowserPolicyForestNodeCard({
   onClick: () => void;
 }) {
   const stroke = active ? '#ffd36a' : disabled ? '#35616c' : '#29e6ff';
-  const fill = active ? 'rgba(14, 54, 48, 0.88)' : disabled ? 'rgba(4, 17, 28, 0.44)' : 'rgba(4, 23, 39, 0.82)';
+  const fill = active
+    ? colorAlpha(cfg.colors.cyan, '2e')
+    : disabled
+      ? PARENT_PORTAL_GLASS.panelFillSoft
+      : PARENT_PORTAL_GLASS.panelFill;
   const text = disabled ? '#6f91a0' : '#e7fbff';
   const status = disabled ? 'Disabled' : node.status;
   return (
@@ -11201,7 +11347,7 @@ function BrowserPolicyForestChipRow({
               width={chipW}
               height={chipH}
               rx={6}
-              fill={active ? '#8fe7ff' : 'rgba(8, 23, 40, 0.92)'}
+              fill={active ? '#8fe7ff' : PARENT_PORTAL_GLASS.cardFill}
               stroke={active ? '#f5fdff' : '#5c7b96'}
               strokeWidth={active ? 1.2 : 0.78}
               filter={active ? 'url(#parentPortalGlow)' : undefined}
@@ -11245,7 +11391,7 @@ function BrowserPolicyForestStaticChoices({
             width={w}
             height={26}
             rx={5}
-            fill="rgba(5, 23, 39, 0.82)"
+            fill="rgba(5, 23, 39, 0.62)"
             stroke="#426f87"
             strokeWidth={0.75}
           />
@@ -11584,9 +11730,8 @@ function ManageWorkspacePanel({
           const column = index % tabColumns;
           const row = Math.floor(index / tabColumns);
           const tabX = workspaceBodyX + tabInsetX + column * (tabW + tabGap);
-          const tabY = tabsY + row * tabH + (selected ? 0 : 7);
-          const currentTabH = selected ? tabH + 1 : tabH - 7;
-          const tabRadius = selected ? 11 : 9;
+          const tabY = tabsY + row * tabH + (selected ? 0 : 5);
+          const currentTabH = selected ? tabH + 3 : tabH - 5;
           const tabIconSize = Math.max(14, Math.min(21, currentTabH - 12));
           const tabTextSize = compact ? 10.4 : 12.4;
           const showTabGuideInfo = kind === 'policy' && Boolean(onNavigate);
@@ -11603,6 +11748,8 @@ function ManageWorkspacePanel({
           const tabGuideRoutePath = showTabGuideInfo
             ? guideRoutePathForManageTab(activeNavLabel, selectedControlName, tab.id)
             : '';
+          const tabFill = selected ? PARENT_PORTAL_TAB_SURFACE_FILL.lanActive : PARENT_PORTAL_TAB_SURFACE_FILL.lanIdle;
+          const tabStrokeOpacity = selected ? 0.94 : 0.54;
           return (
             <g
               key={`manage-workspace-tab:${kind}:${tab.id}`}
@@ -11624,33 +11771,55 @@ function ManageWorkspacePanel({
             >
               <rect x={tabX} y={tabsY + row * tabH - 4} width={tabW} height={tabH + 8} fill="transparent" />
               {selected ? (
-                <path
-                  d={topRoundedRectPath(tabX - 2, tabY - 2, tabW + 4, currentTabH + 3, tabRadius + 2)}
+                <rect
+                  x={tabX + 1}
+                  y={tabY - 2}
+                  width={tabW - 2}
+                  height={currentTabH + 5}
+                  rx={0}
                   fill="none"
                   stroke={tabColor}
-                  strokeWidth={3}
-                  opacity={0.18}
+                  strokeWidth={2.3}
+                  opacity={0.14}
                   filter="url(#parentPortalGlow)"
                 />
               ) : null}
-              <path
-                d={topRoundedRectPath(tabX, tabY, tabW, currentTabH, tabRadius)}
-                fill={selected ? colorAlpha(tabColor, '26') : 'rgba(2, 12, 22, 0.74)'}
-                stroke={selected ? tabColor : cfg.colors.panelStroke}
-                strokeWidth={selected ? 1.2 : 0.75}
+              <rect
+                x={tabX}
+                y={tabY}
+                width={tabW}
+                height={currentTabH}
+                rx={0}
+                fill={tabFill}
                 opacity={selected ? 1 : 0.82}
               />
               <path
-                d={topRoundedRectPath(tabX + 5, tabY + 4, tabW - 10, Math.max(9, currentTabH * 0.36), 5)}
-                fill={cfg.colors.bodyText}
-                opacity={selected ? 0.13 : 0.055}
+                d={`M ${tabX} ${tabY} H ${tabX + tabW}`}
+                stroke={selected ? tabColor : cfg.colors.panelStroke}
+                strokeWidth={selected ? 2.2 : 1}
+                strokeLinecap="round"
+                opacity={selected ? 0.95 : 0.34}
               />
               <path
-                d={`M ${tabX + 16} ${tabY + currentTabH - 6} H ${tabX + tabW - 16}`}
-                stroke={tabColor}
-                strokeWidth={selected ? 1.8 : 1}
+                d={`M ${tabX} ${tabY} V ${tabY + currentTabH}`}
+                stroke={cfg.colors.panelStroke}
+                strokeWidth={0.8}
                 strokeLinecap="round"
-                opacity={selected ? 0.95 : 0.38}
+                opacity={column === 0 ? tabStrokeOpacity : 0.22}
+              />
+              <path
+                d={`M ${tabX + tabW} ${tabY} V ${tabY + currentTabH}`}
+                stroke={cfg.colors.panelStroke}
+                strokeWidth={0.8}
+                strokeLinecap="round"
+                opacity={tabStrokeOpacity}
+              />
+              <path
+                d={`M ${tabX + 12} ${tabY + currentTabH - 3} H ${tabX + tabW - 12}`}
+                stroke={tabColor}
+                strokeWidth={selected ? 2.25 : 1.15}
+                strokeLinecap="round"
+                opacity={selected ? 0.95 : 0.34}
               />
               <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
               <text
@@ -11685,7 +11854,7 @@ function ManageWorkspacePanel({
                     cx={tabInfoCx}
                     cy={tabInfoCy}
                     r={tabInfoR}
-                    fill={selected ? colorAlpha(tabColor, '36') : 'rgba(2, 12, 22, 0.86)'}
+                    fill={selected ? colorAlpha(tabColor, '36') : PARENT_PORTAL_GLASS.panelFillStrong}
                     stroke={selected ? cfg.colors.bodyText : tabColor}
                     strokeWidth={selected ? 1.1 : 0.85}
                     opacity={selected ? 0.95 : 0.76}
@@ -11709,10 +11878,10 @@ function ManageWorkspacePanel({
       </g>
       <path
         d={topRoundedRectPath(workspaceBodyX, bodyY, workspaceBodyW, bodyH, 10)}
-        fill={cfg.colors.panelFill}
+        fill={PARENT_PORTAL_GLASS.panelFill}
         stroke={activeColor}
         strokeWidth={1.12}
-        opacity={0.97}
+        opacity={0.78}
       />
       <path
         d={`M ${workspaceBodyX + 10} ${bodyY} H ${workspaceBodyX + workspaceBodyW - 10}`}
@@ -11772,7 +11941,7 @@ function ManageWorkspacePanel({
             width={targetSelectorW}
             height={targetSelectorH}
             rx={7}
-            fill="rgba(6, 24, 37, 0.9)"
+            fill="rgba(6, 24, 37, 0.68)"
             stroke={cfg.colors.panelStroke}
             strokeWidth={0.72}
             opacity={0.96}
@@ -11939,7 +12108,7 @@ function ManageWorkspacePanel({
                 width={policyRowW}
                 height={policyRowH}
                 rx={4}
-                fill="rgba(3, 18, 32, 0.86)"
+                fill="rgba(3, 18, 32, 0.68)"
                 stroke={rowColor}
                 strokeWidth={0.82}
                 opacity={0.95}
@@ -12110,7 +12279,7 @@ function ManageTargetPanel({
         width={scopeTrackW}
         height={scopeTrackH}
         rx={15}
-        fill="rgba(2, 12, 22, 0.88)"
+        fill="rgba(2, 12, 22, 0.68)"
         stroke={color}
         strokeWidth={0.9}
         strokeOpacity={0.72}
@@ -12812,10 +12981,10 @@ function ManageControlPanel({
             />
             <path
               d={topRoundedRectPath(lanPairingBodyX, lanPairingBodyY, lanPairingBodyW, lanPairingBodyH, 12)}
-              fill={cfg.colors.panelFill}
+              fill={PARENT_PORTAL_GLASS.panelFill}
               stroke={lanPairingDetailColor}
               strokeWidth={1.15}
-              opacity={0.97}
+              opacity={0.78}
             />
             <path
               d={topRoundedRectPath(
@@ -13006,9 +13175,9 @@ function ManageControlPanel({
               const muted = Boolean(unavailableReason) && !selected;
               const tabColor = toneColor(tab.tone, cfg);
               const tabX = lanPairingTabsX + index * (lanPairingTabW + lanPairingTabGap);
-              const tabY = selected ? lanPairingDetailY : lanPairingDetailY + 7;
-              const tabH = selected ? lanPairingTabH + 1 : lanPairingTabH - 8;
-              const tabRadius = selected ? 10 : 8;
+              const tabY = selected ? lanPairingDetailY : lanPairingDetailY + 5;
+              const tabH = selected ? lanPairingTabH + 3 : lanPairingTabH - 5;
+              const tabRadius = 0;
               const tabIconSize = Math.max(17, Math.min(22, tabH - 12));
               const tabTextSize = selected ? 13.8 : 12.8;
               const tabText = truncateTextForWidth(tab.label, lanPairingTabW - tabIconSize - 28, tabTextSize, 0.58);
@@ -13016,8 +13185,13 @@ function ManageControlPanel({
               const tabGroupW = tabIconSize + 7 + tabTextW;
               const tabIconX = tabX + (lanPairingTabW - tabGroupW) / 2;
               const tabIconY = tabY + (tabH - tabIconSize) / 2;
-              const tabGlossH = Math.max(9, Math.min(15, Math.round(tabH * 0.38)));
               const TabIcon = tab.icon;
+              const tabFill = selected
+                ? PARENT_PORTAL_TAB_SURFACE_FILL.lanActive
+                : muted
+                  ? PARENT_PORTAL_TAB_SURFACE_FILL.lanMuted
+                  : PARENT_PORTAL_TAB_SURFACE_FILL.lanIdle;
+              const tabStrokeOpacity = selected ? 0.94 : muted ? 0.26 : 0.54;
               return (
                 <g
                   key={`lan-pairing-tab:${tab.id}`}
@@ -13054,72 +13228,55 @@ function ManageControlPanel({
                     fill="transparent"
                   />
                   {selected ? (
-                    <path
-                      d={topRoundedRectPath(tabX - 2, tabY - 2, lanPairingTabW + 4, tabH + 3, tabRadius + 2)}
+                    <rect
+                      x={tabX + 1}
+                      y={tabY - 2}
+                      width={lanPairingTabW - 2}
+                      height={tabH + 5}
+                      rx={0}
                       fill="none"
                       stroke={tabColor}
-                      strokeWidth={3}
-                      opacity={0.18}
+                      strokeWidth={2.3}
+                      opacity={0.14}
                       filter="url(#parentPortalGlow)"
                     />
                   ) : null}
-                  <path
-                    d={topRoundedRectPath(tabX, tabY, lanPairingTabW, tabH, tabRadius)}
-                    fill={selected ? colorAlpha(tabColor, '24') : 'rgba(2, 12, 22, 0.72)'}
+                  <rect
+                    x={tabX}
+                    y={tabY}
+                    width={lanPairingTabW}
+                    height={tabH}
+                    rx={tabRadius}
+                    fill={tabFill}
                     opacity={selected ? 1 : muted ? 0.42 : 0.78}
                   />
                   <path
-                    d={topRoundedRectPath(
-                      tabX + 5,
-                      tabY + 4,
-                      lanPairingTabW - 10,
-                      tabGlossH,
-                      Math.max(4, tabRadius - 4)
-                    )}
-                    fill={cfg.colors.bodyText}
-                    opacity={selected ? 0.13 : 0.055}
-                  />
-                  <path
-                    d={`M ${tabX + tabRadius + 4} ${tabY + 2.5} H ${tabX + lanPairingTabW - tabRadius - 4}`}
-                    stroke={cfg.colors.bodyText}
-                    strokeWidth={0.85}
+                    d={`M ${tabX} ${tabY} H ${tabX + lanPairingTabW}`}
+                    stroke={selected ? tabColor : cfg.colors.panelStroke}
+                    strokeWidth={selected ? 2.2 : 1}
                     strokeLinecap="round"
-                    opacity={selected ? 0.5 : 0.22}
+                    opacity={selected ? 0.95 : muted ? 0.18 : 0.34}
                   />
                   <path
-                    d={`M ${tabX + 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
-                    stroke={cfg.colors.bodyText}
-                    strokeWidth={0.65}
-                    strokeLinecap="round"
-                    opacity={selected ? 0.22 : 0.1}
-                  />
-                  <path
-                    d={`M ${tabX + lanPairingTabW - 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
+                    d={`M ${tabX} ${tabY} V ${tabY + tabH}`}
                     stroke={cfg.colors.panelStroke}
                     strokeWidth={0.8}
                     strokeLinecap="round"
-                    opacity={selected ? 0.56 : 0.32}
+                    opacity={index === 0 ? tabStrokeOpacity : 0.22}
                   />
                   <path
-                    d={`M ${tabX + 5} ${tabY + tabH - 1.5} H ${tabX + lanPairingTabW - 5}`}
+                    d={`M ${tabX + lanPairingTabW} ${tabY} V ${tabY + tabH}`}
                     stroke={cfg.colors.panelStroke}
-                    strokeWidth={0.9}
+                    strokeWidth={0.8}
                     strokeLinecap="round"
-                    opacity={selected ? 0.58 : 0.36}
+                    opacity={tabStrokeOpacity}
                   />
                   <path
-                    d={topRoundedRectPath(tabX, tabY, lanPairingTabW, tabH, tabRadius)}
-                    fill="none"
-                    stroke={selected ? tabColor : cfg.colors.panelStroke}
-                    strokeWidth={selected ? 1.25 : 0.8}
-                    opacity={selected ? 0.98 : muted ? 0.3 : 0.55}
-                  />
-                  <path
-                    d={`M ${tabX + 16} ${tabY + tabH - 6} H ${tabX + lanPairingTabW - 16}`}
+                    d={`M ${tabX + 10} ${tabY + tabH - 3} H ${tabX + lanPairingTabW - 10}`}
                     stroke={tabColor}
-                    strokeWidth={selected ? 1.8 : 1.1}
+                    strokeWidth={selected ? 2.4 : 1.2}
                     strokeLinecap="round"
-                    opacity={selected ? 0.95 : muted ? 0.2 : 0.42}
+                    opacity={selected ? 0.95 : muted ? 0.14 : 0.34}
                   />
                   <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
                   <text
@@ -13242,10 +13399,10 @@ function ManageControlPanel({
             />
             <path
               d={topRoundedRectPath(activityBodyPanelX, activityBodyPanelY, activityBodyPanelW, activityBodyPanelH, 12)}
-              fill={cfg.colors.panelFill}
+              fill={PARENT_PORTAL_GLASS.panelFill}
               stroke={activityManageTabColor}
               strokeWidth={1.15}
-              opacity={0.97}
+              opacity={0.78}
             />
             <path
               d={topRoundedRectPath(
@@ -13718,9 +13875,8 @@ function ManageControlPanel({
               const tabRow = Math.floor(index / activityTabColumns);
               const tabBaseY = activityBodyY + tabRow * activityTabH;
               const tabX = activityTabsX + tabColumn * (activityTabW + activityTabGap);
-              const tabY = selected ? tabBaseY : tabBaseY + (activityTabsCompact ? 4 : 7);
-              const tabH = selected ? activityTabH + 1 : activityTabH - (activityTabsCompact ? 5 : 8);
-              const tabRadius = selected ? 10 : 8;
+              const tabY = selected ? tabBaseY : tabBaseY + (activityTabsCompact ? 3 : 5);
+              const tabH = selected ? activityTabH + 3 : activityTabH - (activityTabsCompact ? 3 : 5);
               const tabIconSize = activityTabsCompact
                 ? Math.max(12, Math.min(16, tabH - 10))
                 : Math.max(17, Math.min(22, tabH - 12));
@@ -13732,8 +13888,13 @@ function ManageControlPanel({
               const tabGroupW = tabIconSize + tabIconGap + tabTextW;
               const tabIconX = tabX + (activityTabW - tabGroupW) / 2;
               const tabIconY = tabY + (tabH - tabIconSize) / 2;
-              const tabGlossH = Math.max(9, Math.min(15, Math.round(tabH * 0.38)));
               const TabIcon = tab.icon;
+              const tabFill = selected
+                ? PARENT_PORTAL_TAB_SURFACE_FILL.lanActive
+                : disabledTab
+                  ? PARENT_PORTAL_TAB_SURFACE_FILL.lanMuted
+                  : PARENT_PORTAL_TAB_SURFACE_FILL.lanIdle;
+              const tabStrokeOpacity = selected ? 0.94 : disabledTab ? 0.26 : 0.54;
               return (
                 <g
                   key={`activity-tab:${tab.id}`}
@@ -13768,66 +13929,55 @@ function ManageControlPanel({
                 >
                   <rect x={tabX} y={tabBaseY - 4} width={activityTabW} height={activityTabH + 8} fill="transparent" />
                   {selected ? (
-                    <path
-                      d={topRoundedRectPath(tabX - 2, tabY - 2, activityTabW + 4, tabH + 3, tabRadius + 2)}
+                    <rect
+                      x={tabX + 1}
+                      y={tabY - 2}
+                      width={activityTabW - 2}
+                      height={tabH + 5}
+                      rx={0}
                       fill="none"
                       stroke={tabPaintColor}
-                      strokeWidth={3}
-                      opacity={0.18}
+                      strokeWidth={2.3}
+                      opacity={0.14}
                       filter="url(#parentPortalGlow)"
                     />
                   ) : null}
-                  <path
-                    d={topRoundedRectPath(tabX, tabY, activityTabW, tabH, tabRadius)}
-                    fill={selected ? colorAlpha(tabPaintColor, '24') : 'rgba(2, 12, 22, 0.72)'}
+                  <rect
+                    x={tabX}
+                    y={tabY}
+                    width={activityTabW}
+                    height={tabH}
+                    rx={0}
+                    fill={tabFill}
                     opacity={disabledTab ? 0.42 : selected ? 1 : 0.78}
                   />
                   <path
-                    d={topRoundedRectPath(tabX + 5, tabY + 4, activityTabW - 10, tabGlossH, Math.max(4, tabRadius - 4))}
-                    fill={cfg.colors.bodyText}
-                    opacity={selected ? 0.13 : 0.055}
-                  />
-                  <path
-                    d={`M ${tabX + tabRadius + 4} ${tabY + 2.5} H ${tabX + activityTabW - tabRadius - 4}`}
-                    stroke={cfg.colors.bodyText}
-                    strokeWidth={0.85}
+                    d={`M ${tabX} ${tabY} H ${tabX + activityTabW}`}
+                    stroke={selected ? tabPaintColor : cfg.colors.panelStroke}
+                    strokeWidth={selected ? 2.2 : 1}
                     strokeLinecap="round"
-                    opacity={selected ? 0.5 : 0.22}
+                    opacity={selected ? 0.95 : disabledTab ? 0.18 : 0.34}
                   />
                   <path
-                    d={`M ${tabX + 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
-                    stroke={cfg.colors.bodyText}
-                    strokeWidth={0.65}
-                    strokeLinecap="round"
-                    opacity={selected ? 0.22 : 0.1}
-                  />
-                  <path
-                    d={`M ${tabX + activityTabW - 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
+                    d={`M ${tabX} ${tabY} V ${tabY + tabH}`}
                     stroke={cfg.colors.panelStroke}
                     strokeWidth={0.8}
                     strokeLinecap="round"
-                    opacity={selected ? 0.56 : 0.32}
+                    opacity={tabColumn === 0 ? tabStrokeOpacity : 0.22}
                   />
                   <path
-                    d={`M ${tabX + 5} ${tabY + tabH - 1.5} H ${tabX + activityTabW - 5}`}
+                    d={`M ${tabX + activityTabW} ${tabY} V ${tabY + tabH}`}
                     stroke={cfg.colors.panelStroke}
-                    strokeWidth={0.9}
+                    strokeWidth={0.8}
                     strokeLinecap="round"
-                    opacity={selected ? 0.58 : 0.36}
+                    opacity={tabStrokeOpacity}
                   />
                   <path
-                    d={topRoundedRectPath(tabX, tabY, activityTabW, tabH, tabRadius)}
-                    fill="none"
-                    stroke={selected ? tabPaintColor : cfg.colors.panelStroke}
-                    strokeWidth={selected ? 1.25 : 0.8}
-                    opacity={disabledTab ? 0.3 : selected ? 0.98 : 0.55}
-                  />
-                  <path
-                    d={`M ${tabX + 16} ${tabY + tabH - 6} H ${tabX + activityTabW - 16}`}
+                    d={`M ${tabX + 10} ${tabY + tabH - 3} H ${tabX + activityTabW - 10}`}
                     stroke={tabPaintColor}
-                    strokeWidth={selected ? 1.8 : 1.1}
+                    strokeWidth={selected ? 2.4 : 1.2}
                     strokeLinecap="round"
-                    opacity={disabledTab ? 0.22 : selected ? 0.95 : 0.42}
+                    opacity={disabledTab ? 0.14 : selected ? 0.95 : 0.34}
                   />
                   <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
                   <text
@@ -14110,7 +14260,9 @@ function AssistantModeBoard({
   const [currentAction, setCurrentAction] = useState<AssistantQuickAction | null>(null);
   const [currentChoice, setCurrentChoice] = useState<AssistantQuickChoice | null>(null);
   const [composerSplitOffset, setComposerSplitOffset] = useState(0);
+  const [questionnaireSplitOffset, setQuestionnaireSplitOffset] = useState(0);
   const [resizingComposer, setResizingComposer] = useState(false);
+  const [resizingQuestionnaire, setResizingQuestionnaire] = useState(false);
   const messageSequenceRef = useRef(1);
   const handledActionSequenceRef = useRef(selectedActionSequence);
   const chatClipId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
@@ -14133,6 +14285,7 @@ function AssistantModeBoard({
     setCurrentChoice(null);
     setDraftPrompt('');
     setCollapsedMessages({});
+    setQuestionnaireSplitOffset(0);
   }, [createReadyMessage, threadSequence]);
 
   useEffect(() => {
@@ -14140,42 +14293,28 @@ function AssistantModeBoard({
     handledActionSequenceRef.current = selectedActionSequence;
     setCurrentAction(selectedAction);
     setCurrentChoice(null);
-    setMessages((current) => [
-      ...current,
-      {
-        id: nextMessageId('you-action'),
-        sender: 'user',
-        text: selectedAction.label,
-        action: selectedAction,
-      },
-      {
-        id: nextMessageId('mia-action'),
-        sender: 'assistant',
-        text: `${selectedAction.label}. Choose an option below, or type your own question and I will pass it to AI with this context.`,
-        action: selectedAction,
-        choices: selectedAction.choices,
-        choiceActionLabel: selectedAction.label,
-      },
-    ]);
-  }, [nextMessageId, selectedAction, selectedActionSequence]);
+    setQuestionnaireSplitOffset(0);
+  }, [selectedAction, selectedActionSequence]);
 
   const headerH = 62;
   const pad = 18;
-  const composerH = 52;
+  const composerMinH = 52;
   const composerBottomInset = 8;
+  const composerDividerGap = 8;
   const chatX = x + pad;
   const chatY = y + headerH + 12;
   const chatW = w - pad * 2;
   const composerSideInset = clampNumber(chatW * 0.018, 24, 38);
   const composerX = chatX + composerSideInset;
   const composerW = chatW - composerSideInset * 2;
-  const composerY = y + h - composerH - composerBottomInset;
-  const defaultBottomReserve = composerH + composerBottomInset + 20;
-  const minBottomReserve = composerH + composerBottomInset + 18;
+  const defaultBottomReserve = composerMinH + composerBottomInset + composerDividerGap;
+  const minBottomReserve = composerMinH + composerBottomInset + 18;
   const maxBottomReserve = Math.max(minBottomReserve, Math.min(260, h - headerH - 190));
   const bottomReserve = clampNumber(defaultBottomReserve + composerSplitOffset, minBottomReserve, maxBottomReserve);
   const splitterY = y + h - bottomReserve;
-  const chatH = Math.max(180, splitterY - chatY - 8);
+  const composerH = Math.max(composerMinH, bottomReserve - composerBottomInset - composerDividerGap);
+  const composerY = y + h - composerH - composerBottomInset;
+  const chatH = Math.max(180, splitterY - chatY);
   const headerCenterY = y + 34;
   const headerDividerY = y + headerH - 2;
   const sideToggleSize = 36;
@@ -14194,14 +14333,24 @@ function AssistantModeBoard({
   const titleTextX = titleIconX + 42;
   const titleUnderlineX = titleIconX - 2;
   const titleUnderlineW = titleGroupW + 4;
-  const followUps = currentChoice?.followUps ?? (currentAction ? [] : ASSISTANT_DEFAULT_FOLLOW_UPS);
-  const followUpPanelH = followUps.length > 0 ? assistantFollowUpPanelHeight(chatW, followUps.length) : 0;
-  const chatStarted = messages.some((message) => message.sender === 'user');
-  const followUpLabel = chatStarted ? 'Follow Up:' : 'Ask:';
+  const questionnaire = assistantQuestionnaireState(currentAction, currentChoice);
+  const followUpPanelW = chatW;
+  const questionnaireMaxH = clampNumber(chatH * 0.3, 104, Math.max(104, chatH - 90));
+  const questionnaireBaseH =
+    questionnaire.options.length > 0
+      ? assistantFollowUpPanelHeight(followUpPanelW, questionnaire.options, questionnaireMaxH)
+      : 0;
+  const questionnaireMinH = questionnaire.options.length > 0 ? Math.min(questionnaireBaseH, 92) : 0;
+  const followUpPanelH =
+    questionnaire.options.length > 0
+      ? clampNumber(questionnaireBaseH + questionnaireSplitOffset, questionnaireMinH, questionnaireMaxH)
+      : 0;
   const followUpY = chatY + chatH - followUpPanelH;
   const firstBubbleY = chatY + 20;
   const messageGap = 16;
   const messageAvailableH = Math.max(90, followUpY - firstBubbleY - 18);
+  const messageScrollRailEndY = Math.max(chatY + 54, followUpPanelH > 0 ? followUpY - 20 : chatY + chatH - 22);
+  const messageScrollThumbEndY = Math.min(messageScrollRailEndY, chatY + 118);
   const messageLayouts = messages.map((message) => {
     const variant = message.sender === 'user' ? 'outgoing' : 'incoming';
     const config =
@@ -14222,6 +14371,7 @@ function AssistantModeBoard({
     (total, layout, index) => total + layout.bubbleH + (index === 0 ? 0 : messageGap),
     0
   );
+  const showMessageScrollRail = messageTotalH > messageAvailableH + 4;
   const messageOffsetY = Math.min(0, messageAvailableH - messageTotalH);
   let nextMessageY = firstBubbleY + messageOffsetY;
   const messagePositions = messageLayouts.map((layout) => {
@@ -14236,6 +14386,14 @@ function AssistantModeBoard({
     const svgY = (event.clientY - rect.top) * (cfg.canvas.height / rect.height);
     const nextBottomReserve = y + h - svgY;
     setComposerSplitOffset(clampNumber(nextBottomReserve, minBottomReserve, maxBottomReserve) - defaultBottomReserve);
+  };
+  const updateQuestionnaireSplitFromPointer = (event) => {
+    const svg = event.currentTarget.ownerSVGElement;
+    const rect = svg?.getBoundingClientRect();
+    if (!rect || rect.height <= 0 || questionnaire.options.length === 0) return;
+    const svgY = (event.clientY - rect.top) * (cfg.canvas.height / rect.height);
+    const nextPanelH = chatY + chatH - svgY;
+    setQuestionnaireSplitOffset(clampNumber(nextPanelH, questionnaireMinH, questionnaireMaxH) - questionnaireBaseH);
   };
   const toggleCollapsed = (messageId: string) => {
     setCollapsedMessages((current) => ({ ...current, [messageId]: !current[messageId] }));
@@ -14254,30 +14412,32 @@ function AssistantModeBoard({
     if (!cleanedPrompt) return;
     onAssistantMessage(assistantMessageCommandPayload(cleanedPrompt, action, choice, inputSource));
   };
-  const selectFollowUp = (prompt: string) => {
-    const cleanedPrompt = prompt.trim();
+  const selectFollowUp = (option: AssistantQuestionnaireOption) => {
+    const cleanedPrompt = option.prompt.trim();
     if (!cleanedPrompt) return;
+    if (option.choice) {
+      setCurrentChoice(option.choice);
+      setQuestionnaireSplitOffset(0);
+      onChoiceSelect(option.choice);
+    }
     setMessages((current) => [
       ...current,
       {
         id: nextMessageId('you-followup'),
         sender: 'user',
-        text: cleanedPrompt,
-        action: currentAction,
-      },
-      {
-        id: nextMessageId('mia-followup'),
-        sender: 'assistant',
-        text: 'I will pass this follow-up to MIA with the current chat context. The live AI runtime will fill the answer when connected.',
+        text: option.label,
         action: currentAction,
       },
     ]);
-    emitAssistantMessage(cleanedPrompt, 'typed', currentChoice, currentAction);
+    if (!option.choice) {
+      emitAssistantMessage(cleanedPrompt, 'typed', currentChoice, currentAction);
+    }
   };
   const selectMainChoice = (choice: AssistantQuickChoice, action: AssistantQuickAction | null = currentAction) => {
     const actionForChoice = action ?? currentAction;
     setCurrentAction(actionForChoice);
     setCurrentChoice(choice);
+    setQuestionnaireSplitOffset(0);
     onChoiceSelect(choice);
     setMessages((current) => [
       ...current,
@@ -14351,7 +14511,7 @@ function AssistantModeBoard({
           width={chatW}
           height={chatH}
           rx={14}
-          fill="rgba(2, 12, 20, 0.52)"
+          fill={ASSISTANT_CHAT_SURFACE_FILL}
           stroke={cfg.colors.panelStroke}
           strokeWidth={0.85}
         />
@@ -14382,37 +14542,70 @@ function AssistantModeBoard({
             />
           ))}
         </g>
-        <path
-          d={`M ${chatX + chatW - 13} ${chatY + 22} V ${chatY + chatH - 22}`}
-          stroke={cfg.colors.cyan}
-          strokeWidth={1.2}
-          strokeLinecap="round"
-          opacity={0.32}
-        />
-        <path
-          d={`M ${chatX + chatW - 13} ${chatY + 40} V ${chatY + 118}`}
-          stroke={cfg.colors.cyan}
-          strokeWidth={3.2}
-          strokeLinecap="round"
-          opacity={0.82}
-          filter="url(#parentPortalGlow)"
-        />
-        {followUps.length > 0 ? (
-          <AssistantFollowUpPanel
-            x={chatX + 14}
-            y={followUpY}
-            w={chatW - 28}
-            label={followUpLabel}
-            questions={followUps}
-            onSelect={selectFollowUp}
-            cfg={cfg}
-          />
+        {showMessageScrollRail ? (
+          <>
+            <path
+              d={`M ${chatX + chatW - 13} ${chatY + 22} V ${messageScrollRailEndY}`}
+              stroke={cfg.colors.cyan}
+              strokeWidth={1.2}
+              strokeLinecap="round"
+              opacity={0.32}
+            />
+            <path
+              d={`M ${chatX + chatW - 13} ${chatY + 40} V ${messageScrollThumbEndY}`}
+              stroke={cfg.colors.cyan}
+              strokeWidth={3.2}
+              strokeLinecap="round"
+              opacity={0.82}
+              filter="url(#parentPortalGlow)"
+            />
+          </>
+        ) : null}
+        {questionnaire.options.length > 0 ? (
+          <>
+            <g clipPath={`url(#${chatClipId}-assistantChat)`}>
+              <AssistantFollowUpPanel
+                x={chatX}
+                y={followUpY}
+                w={followUpPanelW}
+                h={followUpPanelH}
+                question={questionnaire.question}
+                options={questionnaire.options}
+                onSelect={selectFollowUp}
+                cfg={cfg}
+              />
+            </g>
+            <AssistantComposerSplitter
+              x={chatX + 6}
+              y={followUpY}
+              w={chatW - 12}
+              dragging={resizingQuestionnaire}
+              ariaLabel="Resize assistant questionnaire"
+              onPointerDown={(event) => {
+                event.preventDefault();
+                setResizingQuestionnaire(true);
+                event.currentTarget.setPointerCapture?.(event.pointerId);
+                updateQuestionnaireSplitFromPointer(event);
+              }}
+              onPointerMove={(event) => {
+                if (!resizingQuestionnaire) return;
+                updateQuestionnaireSplitFromPointer(event);
+              }}
+              onPointerUp={(event) => {
+                setResizingQuestionnaire(false);
+                event.currentTarget.releasePointerCapture?.(event.pointerId);
+              }}
+              onPointerCancel={() => setResizingQuestionnaire(false)}
+              cfg={cfg}
+            />
+          </>
         ) : null}
         <AssistantComposerSplitter
           x={composerX}
           y={splitterY}
           w={composerW}
           dragging={resizingComposer}
+          ariaLabel="Resize assistant chat composer"
           onPointerDown={(event) => {
             event.preventDefault();
             setResizingComposer(true);
@@ -14449,7 +14642,15 @@ function AssistantChatFrame({ x, y, w, h, underlineX, underlineW, children, cfg 
   const headerH = 62;
   return (
     <g>
-      <ParentPortalPanelFrame x={x} y={y} w={w} h={h} color={cfg.colors.cyan} active fill="rgba(5, 20, 34, 0.94)" />
+      <ParentPortalPanelFrame
+        x={x}
+        y={y}
+        w={w}
+        h={h}
+        color={cfg.colors.cyan}
+        active
+        fill={ASSISTANT_CHAT_SURFACE_FILL}
+      />
       <AssistantHeaderDivider
         x={x}
         y={y + headerH - 2}
@@ -14702,104 +14903,140 @@ function assistantBubbleChoiceBodyHeight(w: number, choiceCount: number): number
   return 12 + rowCount * 36;
 }
 
-function assistantFollowUpColumnCount(w: number): number {
-  if (w < 960) return 1;
-  if (w < 1100) return 2;
-  return 4;
+function assistantFollowUpQuestionWidth(option: AssistantQuestionnaireOption): number {
+  return clampNumber(option.label.length * 7.4 + 32, 132, 270);
 }
 
-function assistantFollowUpPanelHeight(w: number, questionCount = 4): number {
-  const visibleQuestionCount = Math.max(1, Math.min(4, questionCount));
-  const rowCount = Math.ceil(visibleQuestionCount / assistantFollowUpColumnCount(w));
-  return 42 + rowCount * 40;
+function assistantFollowUpLayout(w: number, options: readonly AssistantQuestionnaireOption[]) {
+  const usableW = Math.max(160, w);
+  const visibleOptions = options;
+  const items: Array<{
+    option: AssistantQuestionnaireOption;
+    x: number;
+    y: number;
+    w: number;
+    showLeftDivider: boolean;
+  }> = [];
+  let cursorX = 0;
+  let cursorY = 0;
+  let rowW = 0;
+  let maxRowW = 0;
+
+  visibleOptions.forEach((option) => {
+    const itemW = Math.min(assistantFollowUpQuestionWidth(option), usableW);
+    if (cursorX > 0 && cursorX + itemW > usableW) {
+      maxRowW = Math.max(maxRowW, rowW);
+      cursorX = 0;
+      cursorY += ASSISTANT_FOLLOW_UP_ROW_H;
+      rowW = 0;
+    }
+    items.push({
+      option,
+      x: cursorX,
+      y: cursorY,
+      w: itemW,
+      showLeftDivider: cursorX > 0,
+    });
+    rowW = cursorX + itemW;
+    cursorX = rowW + ASSISTANT_FOLLOW_UP_GAP;
+  });
+
+  maxRowW = Math.max(maxRowW, rowW);
+  const rowCount = items.length > 0 ? Math.floor(cursorY / ASSISTANT_FOLLOW_UP_ROW_H) + 1 : 0;
+  return { items, rowCount, contentW: maxRowW };
 }
 
-function AssistantFollowUpPanel({ x, y, w, label, questions, onSelect, cfg }) {
-  const visibleQuestions = questions.slice(0, 4);
-  const columnCount = Math.min(assistantFollowUpColumnCount(w), Math.max(1, visibleQuestions.length));
-  const rowCount = Math.max(1, Math.ceil(visibleQuestions.length / columnCount));
-  const labelY = y + 23;
-  const listY = y + 38;
-  const rowH = 40;
-  const h = 42 + rowCount * rowH;
-  const gap = 10;
-  const itemW = (w - gap * (columnCount - 1)) / columnCount;
-  const labelW = label.length * 8.9 + 20;
+function assistantFollowUpPanelHeight(
+  w: number,
+  options: readonly AssistantQuestionnaireOption[],
+  maxHeight: number
+): number {
+  const layout = assistantFollowUpLayout(w - ASSISTANT_FOLLOW_UP_PAD_X * 2, options);
+  const contentHeight =
+    ASSISTANT_FOLLOW_UP_PAD_Y * 2 +
+    ASSISTANT_FOLLOW_UP_HEADER_H +
+    Math.max(1, layout.rowCount) * ASSISTANT_FOLLOW_UP_ROW_H;
+  return Math.min(maxHeight, contentHeight);
+}
+
+function AssistantFollowUpPanel({ x, y, w, h, question, options, onSelect, cfg }) {
+  const layout = assistantFollowUpLayout(w - ASSISTANT_FOLLOW_UP_PAD_X * 2, options);
+  const labelY = y + ASSISTANT_FOLLOW_UP_PAD_Y + 20;
+  const listY = y + ASSISTANT_FOLLOW_UP_PAD_Y + ASSISTANT_FOLLOW_UP_HEADER_H;
+  const bodyH = Math.max(ASSISTANT_FOLLOW_UP_ROW_H, h - ASSISTANT_FOLLOW_UP_PAD_Y * 2 - ASSISTANT_FOLLOW_UP_HEADER_H);
+  const listX = x + ASSISTANT_FOLLOW_UP_PAD_X;
+  const bodyW = w - ASSISTANT_FOLLOW_UP_PAD_X * 2;
+  const questionX = x + ASSISTANT_FOLLOW_UP_PAD_X;
   return (
-    <g role="group" aria-label="Follow-up questions">
-      <rect x={x} y={y} width={w} height={h} rx={10} fill="rgba(4, 18, 31, 0.18)" opacity={0.78} />
-      <path d={`M ${x + 8} ${labelY - 4} H ${x + 34}`} stroke={cfg.colors.bodyText} strokeWidth={0.8} opacity={0.76} />
-      <text x={x + 44} y={labelY} fontSize={15.2} fontWeight={970} fill={cfg.colors.bodyText}>
-        {label}
+    <g role="group" aria-label="Questionnaire suggestions">
+      <rect x={x} y={y} width={w} height={h} rx={0} fill={ASSISTANT_QUESTIONNAIRE_SURFACE_FILL} pointerEvents="none" />
+      <path d={`M ${x} ${y + 1} H ${x + w}`} stroke={cfg.colors.panelStroke} strokeWidth={0.8} opacity={0.78} />
+      <text x={questionX} y={labelY} fontSize={14.6} fontWeight={970} fill={cfg.colors.bodyText}>
+        {truncateTextForWidth(question, w - ASSISTANT_FOLLOW_UP_PAD_X * 2 - 80, 14.6, 0.56)}
       </text>
-      <path
-        d={`M ${x + 44 + labelW} ${labelY - 4} H ${x + w - 10}`}
-        stroke={cfg.colors.bodyText}
-        strokeWidth={0.8}
-        opacity={0.48}
-      />
-      {visibleQuestions.map((question, index) => {
-        const col = index % columnCount;
-        const row = Math.floor(index / columnCount);
-        return (
-          <AssistantFollowUpQuestion
-            key={question}
-            x={x + col * (itemW + gap)}
-            y={listY + row * rowH}
-            w={itemW}
-            h={rowH}
-            label={question}
-            showLeftDivider={col > 0}
-            onSelect={() => onSelect(question)}
-            cfg={cfg}
-          />
-        );
-      })}
-    </g>
-  );
-}
-
-function AssistantFollowUpQuestion({ x, y, w, h, label, showLeftDivider, onSelect, cfg }) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label={`Ask MIA: ${label}`}
-      onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <title>{label}</title>
-      {showLeftDivider ? (
-        <path
-          d={`M ${x - 5} ${y + 5} V ${y + h - 5}`}
-          stroke={cfg.colors.panelStroke}
-          strokeWidth={0.65}
-          opacity={0.54}
-        />
-      ) : null}
       <rect
         x={x}
-        y={y + 2}
+        y={listY - 4}
         width={w}
-        height={h - 4}
-        rx={6}
-        fill={hovered ? colorAlpha(cfg.colors.cyan, '1d') : 'transparent'}
-        stroke="transparent"
+        height={bodyH + 8}
+        rx={0}
+        fill={ASSISTANT_QUESTIONNAIRE_BODY_FILL}
+        pointerEvents="none"
       />
+      <path d={`M ${x} ${listY - 4} H ${x + w}`} stroke={cfg.colors.panelStroke} strokeWidth={0.7} opacity={0.58} />
       <path
-        d={`M ${x + 2} ${y + h - 2} H ${x + w - 2}`}
+        d={`M ${x + 0.5} ${y + 0.5} H ${x + w - 0.5} V ${y + h - 0.5} H ${x + 0.5} Z`}
+        fill="none"
         stroke={cfg.colors.panelStroke}
-        strokeWidth={0.5}
-        opacity={0.34}
+        strokeWidth={0.65}
+        opacity={0.46}
+        pointerEvents="none"
       />
-      <text x={x + 10} y={y + 26} fontSize={14.2} fontWeight={940} fill={hovered ? '#ffffff' : cfg.colors.bodyText}>
-        {truncateTextForWidth(label, w - 20, 14.2, 0.56)}
-      </text>
+      <foreignObject x={listX} y={listY} width={bodyW} height={bodyH}>
+        <div
+          xmlns="http://www.w3.org/1999/xhtml"
+          style={{
+            alignContent: 'flex-start',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: `${ASSISTANT_FOLLOW_UP_GAP}px`,
+            height: '100%',
+            overflowY: 'auto',
+            padding: '0 2px 4px',
+            scrollbarColor: `${colorAlpha(cfg.colors.cyan, '88')} transparent`,
+            scrollbarWidth: 'thin',
+            width: '100%',
+          }}
+        >
+          {layout.items.map((item) => (
+            <button
+              key={item.option.label}
+              type="button"
+              aria-label={`Ask MIA: ${item.option.label}`}
+              onClick={() => onSelect(item.option)}
+              style={{
+                background: colorAlpha(cfg.colors.cyan, '14'),
+                border: `1px solid ${colorAlpha(cfg.colors.panelStroke, '66')}`,
+                borderRadius: 6,
+                color: cfg.colors.bodyText,
+                cursor: 'pointer',
+                flex: `0 0 ${item.w}px`,
+                font: 'inherit',
+                fontSize: 13,
+                fontWeight: 930,
+                minHeight: 28,
+                padding: '5px 9px',
+                textAlign: 'left',
+                textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                whiteSpace: 'normal',
+              }}
+            >
+              {item.option.label}
+            </button>
+          ))}
+        </div>
+      </foreignObject>
     </g>
   );
 }
@@ -14809,6 +15046,7 @@ function AssistantComposerSplitter({
   y,
   w,
   dragging,
+  ariaLabel,
   onPointerDown,
   onPointerMove,
   onPointerUp,
@@ -14825,7 +15063,7 @@ function AssistantComposerSplitter({
   return (
     <g
       role="separator"
-      aria-label="Resize assistant chat composer"
+      aria-label={ariaLabel}
       aria-orientation="horizontal"
       tabIndex={0}
       className="parent-portal-svg-clickable"
@@ -14868,7 +15106,7 @@ function AssistantComposerSplitter({
   );
 }
 
-function AssistantComposer({ x, y, w, h, prompt, onSend, cfg }) {
+function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }) {
   const displayPrompt = prompt || 'Ask MIA about activity, rules, reports, setup...';
   const attachSize = 30;
   const sendW = 58;
@@ -14885,7 +15123,7 @@ function AssistantComposer({ x, y, w, h, prompt, onSend, cfg }) {
     <g>
       <path
         d={topRoundedRectPath(x, y, w, h, 14)}
-        fill="rgba(2, 12, 20, 0.82)"
+        fill="rgba(2, 12, 20, 0.66)"
         stroke={cfg.colors.cyan}
         strokeWidth={0.95}
       />
@@ -14908,15 +15146,41 @@ function AssistantComposer({ x, y, w, h, prompt, onSend, cfg }) {
           strokeLinecap="round"
         />
       </g>
-      <text
-        x={inputX}
-        y={y + 30}
-        fontSize={12.5}
-        fontWeight={780}
-        fill={prompt ? cfg.colors.bodyText : cfg.colors.mutedText}
-      >
-        {truncateTextForWidth(displayPrompt, inputW, 12.5, 0.56)}
-      </text>
+      <foreignObject x={inputX} y={y + 9} width={inputW} height={Math.max(32, h - 18)}>
+        <textarea
+          xmlns="http://www.w3.org/1999/xhtml"
+          aria-label="Message MIA"
+          value={prompt}
+          placeholder={displayPrompt}
+          onChange={(event) => onPromptChange?.(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+              event.preventDefault();
+              onSend?.();
+            }
+          }}
+          style={{
+            background: 'transparent',
+            border: 0,
+            boxSizing: 'border-box',
+            color: prompt ? cfg.colors.bodyText : cfg.colors.mutedText,
+            font: 'inherit',
+            fontSize: 12.5,
+            fontWeight: 780,
+            height: '100%',
+            lineHeight: 1.45,
+            margin: 0,
+            outline: 'none',
+            overflowY: 'auto',
+            padding: '3px 0',
+            resize: 'none',
+            scrollbarColor: `${colorAlpha(cfg.colors.cyan, '88')} transparent`,
+            scrollbarWidth: 'thin',
+            textShadow: '0 1px 2px rgba(0,0,0,0.44)',
+            width: '100%',
+          }}
+        />
+      </foreignObject>
       <g role="button" tabIndex={0} aria-label="Use voice input for MIA" className="parent-portal-svg-clickable">
         <title>Use voice input for MIA</title>
         <rect
@@ -15188,7 +15452,7 @@ function ProductShellRouteReadinessStrip({
     <g aria-label="Route readiness product shell status" pointerEvents="none">
       <path
         d={cutRectPath(x, y, w, h, 9)}
-        fill={colorAlpha(cfg.colors.panelFill, 'f2')}
+        fill={PARENT_PORTAL_GLASS.panelFill}
         stroke={color}
         strokeWidth={1}
         strokeOpacity={0.58}
@@ -15443,7 +15707,12 @@ function ParentPortalDetailPanel({
       <text x={x} y={y + 24} fontSize={titleSize} fontWeight={950} fill={cfg.colors.bodyText}>
         {title}
       </text>
-      <path d={`M ${x} ${y + 39} H ${x + w}`} stroke={color} strokeWidth={1.1} opacity={0.5} />
+      <path
+        d={`M ${x} ${y + 39} H ${x + w}`}
+        stroke={color}
+        strokeWidth={1.1}
+        opacity={PARENT_PORTAL_FRAME_MATERIAL.headerLineOpacity}
+      />
       {bodyLines.map((line, index) => (
         <text
           key={`${line}:${index}`}
@@ -15549,7 +15818,7 @@ function GuideQuickTab({
       <ClickableCardHoverChrome x={x} y={y} w={w} h={h} color={color} active={active} hovered={hovered} arrow={false} />
       <path
         d={cutRectPath(x, y, w, h, 7)}
-        fill={lit ? colorAlpha(color, active ? '42' : '24') : 'rgba(5, 19, 32, 0.86)'}
+        fill={lit ? colorAlpha(color, active ? '42' : '24') : PARENT_PORTAL_GLASS.cardFillStrong}
         stroke={lit ? color : cfg.colors.panelStroke}
         strokeWidth={active ? 1.25 : 0.85}
       />
@@ -15822,7 +16091,7 @@ function GuideTopicDetailPanel({
                 >
                   <path
                     d={cutRectPath(pillX, y + mainH - 30, pillW, 18, 5)}
-                    fill={selected ? colorAlpha(color, '44') : 'rgba(3, 12, 22, 0.82)'}
+                    fill={selected ? colorAlpha(color, '44') : PARENT_PORTAL_GLASS.panelFillSoft}
                     stroke={color}
                     strokeWidth={selected ? 1.2 : 0.75}
                   />
@@ -16058,7 +16327,7 @@ function GuideOverviewDashboard({
             />
             <path
               d={cutRectPath(cardX, cardY, cardW, cardH, 10)}
-              fill={selected ? colorAlpha(color, '2e') : 'rgba(5, 18, 31, 0.86)'}
+              fill={selected ? colorAlpha(color, '2e') : PARENT_PORTAL_GLASS.cardFillStrong}
               stroke={color}
               strokeWidth={selected ? 1.7 : 0.95}
               strokeOpacity={selected ? 0.92 : 0.62}
@@ -16388,7 +16657,7 @@ function ParentPortalTopCarouselCard({
         <>
           <path
             d={cutRectPath(x, y, w, h, 12)}
-            fill={active ? colorAlpha(color, selected ? '2e' : '20') : 'rgba(5, 17, 30, 0.88)'}
+            fill={active ? colorAlpha(color, selected ? '2e' : '20') : PARENT_PORTAL_GLASS.cardFillStrong}
             stroke={color}
             strokeWidth={selected ? 2 : hovered ? 1.55 : 1.05}
             strokeOpacity={selected ? 0.92 : hovered ? 0.8 : 0.56}
@@ -16480,7 +16749,7 @@ function ParentPortalTopCarouselCard({
             <>
               <path
                 d={cutRectPath(controlX, controlY, controlW, controlH, 8)}
-                fill={selected ? colorAlpha(color, '30') : 'rgba(4, 16, 28, 0.82)'}
+                fill={selected ? colorAlpha(color, '30') : PARENT_PORTAL_GLASS.controlFill}
                 stroke={color}
                 strokeWidth={selected ? 1.65 : 0.95}
                 strokeOpacity={selected ? 0.96 : 0.7}
@@ -16562,7 +16831,7 @@ function ParentPortalTopCarouselCard({
               ) : null}
               <path
                 d={cutRectPath(controlX, controlY, controlW, controlH, 15)}
-                fill={active ? colorAlpha(color, selected ? '24' : '18') : 'rgba(6, 18, 31, 0.95)'}
+                fill={active ? colorAlpha(color, selected ? '24' : '18') : PARENT_PORTAL_GLASS.controlFill}
                 stroke={active ? color : cfg.colors.panelStroke}
                 strokeWidth={selected ? 2 : hovered ? 1.65 : 1.05}
                 strokeOpacity={active ? 0.94 : 0.68}
@@ -16643,7 +16912,7 @@ function ParentPortalTopCarouselCard({
                   20,
                   6
                 )}
-                fill="rgba(4, 11, 24, 0.72)"
+                fill={PARENT_PORTAL_GLASS.panelFillDeep}
                 stroke="rgba(255,255,255,0.16)"
                 strokeWidth={0.7}
                 pointerEvents="none"
@@ -16812,7 +17081,9 @@ function ControlCategoryCard({
       <ClickableCardHoverChrome x={x} y={y} w={w} h={h} color={color} active={selected} hovered={hovered} />
       <path
         d={cutRectPath(x, y, w, h, 8)}
-        fill={selected ? colorAlpha(color, '30') : hovered ? colorAlpha(color, '22') : 'rgba(4, 16, 28, 0.78)'}
+        fill={
+          selected ? colorAlpha(color, '30') : hovered ? colorAlpha(color, '22') : PARENT_PORTAL_GLASS.cardFillStrong
+        }
         stroke={color}
         strokeWidth={selected ? 1.65 : hovered ? 1.35 : 0.95}
         strokeOpacity={active ? 0.96 : 0.68}
@@ -16997,7 +17268,7 @@ function ControlSubcategoryGrid({
           const color = themeColor ?? toneColor(subcategory.tone, cfg);
           const style = {
             '--parent-portal-subcategory-color': color,
-            '--parent-portal-subcategory-fill': selected ? colorAlpha(color, '30') : 'rgba(5, 19, 32, 0.9)',
+            '--parent-portal-subcategory-fill': selected ? colorAlpha(color, '30') : PARENT_PORTAL_GLASS.cardFill,
             '--parent-portal-subcategory-border': color,
           } as CSSProperties;
           return (
@@ -17098,6 +17369,7 @@ function MainBoard({
   onAgentCommand,
   onSelectNavLabel,
   activityState,
+  lanPairingAutoScanSequence,
   cfg,
   mainX,
   mainW,
@@ -17132,6 +17404,7 @@ function MainBoard({
   onAgentCommand?: (command: AgentCommandName, payload: Record<string, string>) => void;
   onSelectNavLabel: (navLabel: string) => void;
   activityState?: ParentPortalActivityState | null;
+  lanPairingAutoScanSequence: number;
   cfg: ParentPortalSvgControls;
   mainX: number;
   mainW: number;
@@ -17242,6 +17515,8 @@ function MainBoard({
   const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
   const [hoveredTopControlKey, setHoveredControlAreaKey] = useState<string | null>(null);
   const [lanPairingScanRequestedAtMs, setLanPairingScanRequestedAtMs] = useState<number | null>(null);
+  const lanPairingScanStartedAfterEventIdRef = useRef<AgentEventId | null>(null);
+  const latestLanPairingScanEventIdRef = useRef<AgentEventId | null>(null);
   const manageLane = selectedQuickControl ? manageLaneForControl(selectedQuickControl) : 'childPolicy';
   const selectedControlCategoryId =
     selectedCategoryIdOverride ??
@@ -17320,7 +17595,7 @@ function MainBoard({
   const manageTargetContextKey = `${manageMode ? 'manage' : 'browse'}:${activeNavLabel}:${selectedControlName}:${
     manageCurrentSpec?.title ?? ''
   }:${manageLane}`;
-  const previousManageTargetContextKeyRef = useRef('');
+  const previousManageTargetContextKeyRef = useRef<string | null>(null);
   useEffect(() => {
     if (!manageMode || !manageCurrentSpec) return;
     const contextChanged = previousManageTargetContextKeyRef.current !== manageTargetContextKey;
@@ -17404,14 +17679,30 @@ function MainBoard({
   const activityManageGridMode =
     manageMode && manageCurrentSpec ? isReportsManageTitle(manageCurrentSpec.title) : false;
   const manageDeviceGridMode = lanPairingDeviceGridMode || activityManageGridMode;
-  const latestLanPairingEventId = activityState?.lanPairingStatusEvent?.eventId ?? '';
+  const latestLanPairingScanEventId = activityState?.lanPairingBrowserDiscoveryEvent?.eventId ?? null;
   useEffect(() => {
-    if (!latestLanPairingEventId) return;
+    latestLanPairingScanEventIdRef.current = latestLanPairingScanEventId;
+  }, [latestLanPairingScanEventId]);
+  useEffect(() => {
+    if (!lanPairingDeviceGridMode || lanPairingAutoScanSequence <= 0) return;
+    lanPairingScanStartedAfterEventIdRef.current = latestLanPairingScanEventIdRef.current;
+    setLanPairingScanRequestedAtMs(Date.now());
+  }, [lanPairingAutoScanSequence, lanPairingDeviceGridMode]);
+  useEffect(() => {
+    if (
+      latestLanPairingScanEventId === null ||
+      latestLanPairingScanEventId === lanPairingScanStartedAfterEventIdRef.current
+    ) {
+      return;
+    }
     setLanPairingScanRequestedAtMs(null);
-  }, [latestLanPairingEventId]);
+  }, [latestLanPairingScanEventId]);
   useEffect(() => {
     if (lanPairingScanRequestedAtMs === null) return;
-    const timeoutId = window.setTimeout(() => setLanPairingScanRequestedAtMs(null), 8000);
+    const timeoutId = window.setTimeout(
+      () => setLanPairingScanRequestedAtMs(null),
+      PortalLanPairingScan.PendingIndicatorMs
+    );
     return () => window.clearTimeout(timeoutId);
   }, [lanPairingScanRequestedAtMs]);
   const manageSharedWorkspaceFrameMode = manageDeviceGridMode || manageWorkspaceFullFrameMode;
@@ -17614,11 +17905,11 @@ function MainBoard({
       accentColor={activeGroupThemeColor}
       active
       label={
-        lanPairingDeviceGridMode && (lanPairingScanRequestedAtMs !== null || !activityState?.lanAddDeviceReadModel)
-          ? 'SCANNING'
-          : 'SCAN'
+        lanPairingDeviceGridMode && lanPairingScanRequestedAtMs !== null
+          ? PortalLanPairingScan.Text.Scanning
+          : PortalLanPairingScan.Text.Scan
       }
-      iconHref={LAN_PAIRING_SCAN_ICON_HREF}
+      iconHref={PortalAssets.LanPairingScanIcon}
       onClick={() => {
         if (lanPairingDeviceGridMode) {
           setLanPairingScanRequestedAtMs(Date.now());
@@ -17630,14 +17921,14 @@ function MainBoard({
           }
         );
       }}
-      ariaLabel="Scan Local Area Network"
+      ariaLabel={PortalLanPairingScan.Text.ScanLocalAreaNetwork}
       cfg={cfg}
     />
   ) : null;
   const manageHeaderInfoLabel =
     manageMode && manageCurrentSpec && manageGuideRoutePath
       ? lanPairingDeviceGridMode
-        ? 'Open Local Area Network guide'
+        ? PortalLanPairingScan.Text.OpenLocalAreaNetworkGuide
         : `Open ${manageControlDisplayTitle(manageCurrentSpec.title)} guide`
       : undefined;
   const tableHeaderAction =
@@ -17685,7 +17976,7 @@ function MainBoard({
       />
     ) : null;
   return (
-    <g>
+    <g className="parent-portal-study-main-board">
       {showTopSection ? (
         <ParentPortalSectionFrame
           x={selectorX}
@@ -17709,7 +18000,7 @@ function MainBoard({
           footerH={topFrameFooterH}
           innerStrokeOpacity={manageMode ? 0.34 : controlBrowserMode ? 0.24 : undefined}
           bodyStrokeOpacity={manageMode || controlBrowserMode ? 0 : undefined}
-          bodyFill={manageMode || controlBrowserMode ? 'transparent' : undefined}
+          bodyFill={manageMode || controlBrowserMode ? PARENT_PORTAL_FRAME_MATERIAL.transparentFill : undefined}
           footerLineOpacity={topFramePaged && !controlBrowserMode ? undefined : 0}
           headerRight={null}
           showSideHandles={topFramePaged && !controlBrowserMode}
@@ -17898,7 +18189,7 @@ function MainBoard({
           h={bottomPanelH}
           title={
             lanPairingDeviceGridMode
-              ? LAN_PAIRING_HEADER_TITLE
+              ? PortalLanPairingScan.Text.HeaderTitle
               : manageSharedWorkspaceFrameMode
                 ? manageWorkspaceHeaderTitle.toUpperCase()
                 : manageWorkspaceHeaderTitle
@@ -17916,7 +18207,7 @@ function MainBoard({
           bodyInset={manageSharedWorkspaceFrameMode ? 0 : undefined}
           fullHeaderLine={manageSharedWorkspaceFrameMode}
           bodyStrokeOpacity={0}
-          bodyFill="transparent"
+          bodyFill={PARENT_PORTAL_FRAME_MATERIAL.transparentFill}
           footerLineOpacity={manageSharedWorkspaceFrameMode ? 0 : undefined}
           selected={detailPanelCanFocus ? tableFocused : false}
           onSelect={detailPanelCanFocus ? () => setFocusedSection('table') : undefined}
@@ -18055,14 +18346,14 @@ function DetailOverlay({
     <g role="dialog" aria-label={title}>
       <path
         d={cutRectPath(x - 8, y - 8, w + 16, h + 16, 18)}
-        fill="rgba(1, 5, 12, 0.72)"
+        fill="rgba(1, 5, 12, 0.58)"
         stroke={color}
         strokeWidth={1.2}
         opacity={0.98}
       />
       <path
         d={cutRectPath(x, y, w, h, 16)}
-        fill="rgba(5, 17, 30, 0.97)"
+        fill="rgba(5, 17, 30, 0.76)"
         stroke={color}
         strokeWidth={1.4}
         filter="url(#parentPortalGlow)"
@@ -18157,20 +18448,29 @@ function Defs() {
         <stop offset="70%" stopColor="rgb(0, 50, 100)" />
         <stop offset="100%" stopColor="rgb(0, 5, 15)" />
       </radialGradient>
-      <linearGradient id="parentPortalFrameFill" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#08243a" stopOpacity="0.94" />
-        <stop offset="48%" stopColor="#041624" stopOpacity="0.96" />
-        <stop offset="100%" stopColor="#061d31" stopOpacity="0.92" />
+      <linearGradient id="parentPortalFrameFill" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop
+          offset="0%"
+          stopColor={PortalUnifiedChrome.CssVarRefs.FrameSurfaceColor}
+          stopOpacity={PortalUnifiedChrome.CssVarRefs.FrameSurfaceOpacity}
+        />
+        <stop
+          offset="100%"
+          stopColor={PortalUnifiedChrome.CssVarRefs.FrameSurfaceColor}
+          stopOpacity={PortalUnifiedChrome.CssVarRefs.FrameSurfaceOpacity}
+        />
       </linearGradient>
-      <linearGradient id="parentPortalFrameGlass" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#123f59" stopOpacity="0.32" />
-        <stop offset="52%" stopColor="#061525" stopOpacity="0.24" />
-        <stop offset="100%" stopColor="#0b2445" stopOpacity="0.28" />
-      </linearGradient>
-      <linearGradient id="parentPortalFrameShine" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.14" />
-        <stop offset="42%" stopColor="#42e8ff" stopOpacity="0.07" />
-        <stop offset="100%" stopColor="#42e8ff" stopOpacity="0" />
+      <linearGradient id="parentPortalFrameGlass" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop
+          offset="0%"
+          stopColor={PortalUnifiedChrome.CssVarRefs.FrameGlassColor}
+          stopOpacity={PortalUnifiedChrome.CssVarRefs.FrameGlassOpacity}
+        />
+        <stop
+          offset="100%"
+          stopColor={PortalUnifiedChrome.CssVarRefs.FrameGlassColor}
+          stopOpacity={PortalUnifiedChrome.CssVarRefs.FrameGlassOpacity}
+        />
       </linearGradient>
       <linearGradient id="parentPortalCardBannerShade" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stopColor="#07111f" stopOpacity="0.16" />
@@ -18210,6 +18510,7 @@ export function ParentPortalSvgSurface({
   assistantRoutePath = '#/assistant',
   assistantReturnRoutePath = '#/overview',
   activityState = null,
+  lanPairingAutoScanSequence = 0,
   onRefreshParentPortal,
   onNavigate,
   onAssistantCommand,
@@ -18702,6 +19003,7 @@ export function ParentPortalSvgSurface({
               activateNavLabel(navLabel);
             }}
             activityState={activityState}
+            lanPairingAutoScanSequence={lanPairingAutoScanSequence}
             cfg={cfg}
             mainX={mainX}
             mainW={mainW}
@@ -18717,7 +19019,7 @@ export function ParentPortalSvgSurface({
               width={mainW - 56}
               height={82}
               rx={6}
-              fill="rgba(3, 7, 18, 0.82)"
+              fill="rgba(3, 7, 18, 0.66)"
               stroke={error ? cfg.colors.red : cfg.colors.cyan}
               strokeWidth={1.2}
             />

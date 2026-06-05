@@ -1,0 +1,55 @@
+import {
+  PortalDevToolWindow,
+  PortalDom,
+  PortalRoute,
+  PortalText,
+  PortalTextToken,
+  portalDevToolUrl,
+  type PortalDevToolUrl,
+} from '@ocentra-parent/portal-domain/contracts';
+import { WebviewWindow, getAllWebviewWindows } from '@tauri-apps/api/webviewWindow';
+
+export async function openPortalFrameTunerWindow(): Promise<void> {
+  const url = portalDevToolUrl(window.location.origin, window.location.pathname, PortalRoute.FrameTuner);
+  if (!isTauriRuntime()) {
+    openBrowserFrameTunerWindow(url);
+    return;
+  }
+  try {
+    const existingWindow = (await getAllWebviewWindows()).find(
+      (webviewWindow) => webviewWindow.label === PortalDevToolWindow.FrameTunerLabel
+    );
+    if (existingWindow !== undefined) {
+      await existingWindow.show();
+      await existingWindow.unminimize();
+      await existingWindow.setFocus();
+      return;
+    }
+    const webview = new WebviewWindow(PortalDevToolWindow.FrameTunerLabel, {
+      decorations: true,
+      height: PortalDevToolWindow.FrameTunerHeight,
+      resizable: true,
+      title: PortalText.Resolve(PortalTextToken.FrameTuner),
+      url,
+      width: PortalDevToolWindow.FrameTunerWidth,
+    });
+    webview.once(PortalDevToolWindow.TauriErrorEvent, () => {
+      openBrowserFrameTunerWindow(url);
+    });
+  } catch {
+    openBrowserFrameTunerWindow(url);
+  }
+}
+
+function isTauriRuntime(): boolean {
+  return typeof window !== PortalDom.Runtime.Undefined && PortalDevToolWindow.TauriInternalKey in window;
+}
+
+function openBrowserFrameTunerWindow(url: PortalDevToolUrl): void {
+  const popup = window.open(url, PortalDevToolWindow.FrameTunerLabel, PortalDevToolWindow.PopupFeatures);
+  if (popup === null) {
+    window.location.hash = PortalDevToolWindow.FrameTunerHash;
+    return;
+  }
+  popup.focus();
+}

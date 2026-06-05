@@ -1,5 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import {
+  PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,
+  PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
   PARENT_PORTAL_NAV_LABELS,
   PortalRouteSchema,
   parentPortalRouteContext,
@@ -137,6 +139,32 @@ const productRoutes = [
 
 const lanManageRoutePaths = new Set(['/#/platforms-install', '/#/install-updates']);
 const routeSurfaceReadyTimeoutMs = 30_000;
+const assistantNewChatAction = requireAssistantNewChatAction();
+const assistantRulesAction = requireAssistantRulesAction();
+const assistantRulesExplainChoice = requireAssistantRulesExplainChoice();
+
+function requireAssistantNewChatAction() {
+  if (!PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION) {
+    throw new Error('Assistant route scaffold requires the exported New Chat quick action.');
+  }
+  return PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION;
+}
+
+function requireAssistantRulesAction() {
+  const action = PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS.find((candidate) => candidate.quickActionId === 'rules');
+  if (!action) {
+    throw new Error('Assistant route scaffold requires the exported Rules quick action.');
+  }
+  return action;
+}
+
+function requireAssistantRulesExplainChoice() {
+  const choice = assistantRulesAction.choices.find((candidate) => candidate.choiceId === 'rules-explain');
+  if (!choice) {
+    throw new Error('Assistant route scaffold requires the exported Rules Explain choice.');
+  }
+  return choice;
+}
 
 export async function assertRouteScaffolds(page: Page): Promise<void> {
   for (const route of productRoutes) {
@@ -197,12 +225,12 @@ async function assertProductRoute(
 
 async function assertAssistantRouteSurface(
   page: Page,
-  surface: ReturnType<Page['locator']>,
-  panelTitle: string
+  _surface: ReturnType<Page['locator']>,
+  _panelTitle: string
 ): Promise<void> {
   await expect(page.getByRole('button', { name: 'Close parent assistant' })).toBeVisible();
-  await expect(page.getByRole('button', { name: /^Ask MIA about Rules$/ })).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: panelTitle }).first()).toBeVisible();
+  await expectAssistantQuickAction(page, assistantRulesAction.title);
+  await expect(page.getByRole('article', { name: `MIA: ${assistantNewChatAction.starterGuide}` })).toBeVisible();
 }
 
 async function assertManageRouteSurface(surface: ReturnType<Page['locator']>, path: string): Promise<void> {
@@ -284,12 +312,18 @@ async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page
     await expect(surface.locator('text').filter({ hasText: 'Agent' }).first()).toBeVisible();
     const capabilityText = await surfaceText(surface);
     if ((await localAgentChoice.count()) > 0) {
-      expect(capabilityText).toMatch(/(?:ocentra-(?:local-service|child-agent)|agent\s+Not reported)/i);
+      expect(capabilityText).toMatch(
+        /(?:ocentra-(?:local-service|child-agent)|parent\s+local\s+service|agent\s+Not reported)/i
+      );
     } else {
       await expect(surface.locator('text').filter({ hasText: 'Not reported' }).first()).toBeVisible();
     }
-    await expect(surface.locator('text').filter({ hasText: 'CPU' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Device ID' }).first()).toBeVisible();
+    if (/ocentra-child-agent/i.test(capabilityText)) {
+      await expect(surface.locator('text').filter({ hasText: 'CPU' }).first()).toBeVisible();
+      await expect(surface.locator('text').filter({ hasText: 'Device ID' }).first()).toBeVisible();
+    } else {
+      expect(capabilityText).toMatch(/\b(?:DEVICE|ROUTE|EVIDENCE|CONTROL STATE)\b/);
+    }
     expect(capabilityText).toMatch(/(?:Signed proof|Proof state|Requirement)/i);
 
     await assertOptionalLanNeighborRouteProof(page, surface);
@@ -384,7 +418,7 @@ async function assertBrowserPolicyDeviceTargets(page: Page, surface: ReturnType<
     height: Math.max(viewport?.height ?? 720, 960),
   });
   try {
-    await expect(surface.locator('text').filter({ hasText: 'Per Device' }).first()).toBeVisible();
+    await expect(page.getByText('Per Device').first()).toBeVisible();
     await expect(page.getByRole('button', { name: /^Select (?!LAN ).+/ }).first()).toBeVisible();
     await expect(surface.locator('text').filter({ hasText: /^LAN 192\.168\.2\.1$/ })).toHaveCount(0);
   } finally {
@@ -400,7 +434,7 @@ async function assertActivityManageSurface(
   path: string
 ): Promise<void> {
   await expect(surface.locator('text').filter({ hasText: 'Family' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'Per Device' }).first()).toBeVisible();
+  await expect(page.getByText('Per Device').first()).toBeVisible();
   if (path === '/#/app-game-sessions') {
     await assertAppGameDashboardRouteSurface(page, surface);
     await assertCollapsedActivitySubsurfaceRemoved(page, surface);
@@ -617,31 +651,49 @@ async function assertAssistantEntryAvailable(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Hide action panel' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Send message to MIA' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Use voice input for MIA' })).toBeVisible();
-  await expect(page.getByRole('button', { name: /^Ask MIA about Rules$/ })).toBeVisible();
+  await expectAssistantQuickAction(page, assistantRulesAction.title);
   await page.getByRole('tab', { name: 'History' }).click({ force: true });
   await expect(page.getByRole('button', { name: /^Report history$/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /^Rules history$/ })).toBeVisible();
   await page.getByRole('tab', { name: 'Quick Action' }).click({ force: true });
-  await expect(page.getByRole('button', { name: /^Ask MIA about Rules$/ })).toBeVisible();
+  await expectAssistantQuickAction(page, assistantRulesAction.title);
   await expect(page.getByRole('button', { name: /^Ask MIA: Give me the overall report$/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /^Copy MIA message$/ }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'AI assisted view' })).toHaveCount(0);
   await expect(surface.locator('text').filter({ hasText: 'Ask AI Assistant to update a setting' })).toHaveCount(0);
-  await page.getByRole('button', { name: /^Ask MIA about Rules$/ }).click({ force: true });
-  await expect(page.getByRole('button', { name: /^Ask MIA about Rules: Explain$/ })).toBeVisible();
-  await page.getByRole('button', { name: /^Ask MIA about Rules: Explain$/ }).click({ force: true });
+  await assistantQuickActionButton(page, assistantRulesAction.title).click({ force: true });
+  await expectAssistantQuickActionChoice(page, assistantRulesAction.title, assistantRulesExplainChoice.label);
+  await assistantQuickActionChoiceButton(page, assistantRulesAction.title, assistantRulesExplainChoice.label).click({
+    force: true,
+  });
   await expect(page).toHaveURL(/#\/assistant$/);
   await expect(page.getByRole('button', { name: /^Copy YOU message$/ }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: /^Ask MIA: Change a rule$/ })).toBeVisible();
-  await expect(page.getByRole('article', { name: /YOU: Explain the current house rules/ })).toBeVisible();
+  await expect(page.getByRole('article', { name: `YOU: ${assistantRulesExplainChoice.label}` })).toBeVisible();
   await page.getByRole('button', { name: 'Hide action panel' }).click({ force: true });
   await expect(page.getByRole('button', { name: 'Show action panel' })).toBeVisible();
-  await expect(page.getByRole('button', { name: /^Ask MIA about Rules$/ })).toHaveCount(0);
+  await expect(assistantQuickActionButton(page, assistantRulesAction.title)).toHaveCount(0);
   await page.getByRole('button', { name: 'Show action panel' }).click({ force: true });
-  await expect(page.getByRole('button', { name: /^Ask MIA about Rules$/ })).toBeVisible();
+  await expectAssistantQuickAction(page, assistantRulesAction.title);
   await page.getByRole('button', { name: 'Close parent assistant' }).click({ force: true });
   await expect(page).toHaveURL(/#\/overview$/);
   await expect(page.getByRole('button', { name: 'Open AI assistant' })).toBeVisible();
+}
+
+function assistantQuickActionButton(page: Page, actionTitle: string) {
+  return page.getByRole('button', { exact: true, name: `Ask MIA about ${actionTitle}` });
+}
+
+async function expectAssistantQuickAction(page: Page, actionTitle: string): Promise<void> {
+  await expect(assistantQuickActionButton(page, actionTitle)).toBeVisible();
+}
+
+function assistantQuickActionChoiceButton(page: Page, _actionTitle: string, choiceLabel: string) {
+  return page.getByRole('button', { exact: true, name: `Ask MIA: ${choiceLabel}` });
+}
+
+async function expectAssistantQuickActionChoice(page: Page, actionTitle: string, choiceLabel: string): Promise<void> {
+  await expect(assistantQuickActionChoiceButton(page, actionTitle, choiceLabel)).toBeVisible();
 }
 
 async function assertFrameTunerRoute(page: Page): Promise<void> {

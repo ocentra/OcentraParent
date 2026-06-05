@@ -6,7 +6,7 @@ const shellReadyTimeoutMs = 90_000;
 
 test('network evidence drawer renders service-backed refs without unsupported claims', async ({ page }) => {
   await page.goto('/#/commands');
-  await expect(page.getByRole('heading', { name: 'Controls' })).toBeVisible({
+  await expect(page.getByRole('heading', { exact: true, name: 'Controls' })).toBeVisible({
     timeout: shellReadyTimeoutMs,
   });
   const networkCommand = page.getByRole('button', { exact: true, name: 'Refresh network activity' });

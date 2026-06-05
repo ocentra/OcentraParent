@@ -18,7 +18,7 @@ type ParentPortalPanelFrameProps = {
   color: string;
   active?: boolean;
   fill?: string;
-  fillOpacity?: number;
+  fillOpacity?: number | string;
   cornerThicknessScale?: number;
   outerTabWidth?: number | undefined;
   innerTabWidth?: number | undefined;
@@ -350,6 +350,7 @@ export function ParentPortalPanelFrame({
   );
   const outerSegments = useMemo(() => pictureViewerFrameSegments(outerFrame), [outerFrame]);
   const innerSegments = useMemo(() => pictureViewerFrameSegments(innerFrame), [innerFrame]);
+  const outerFramePath = useMemo(() => framePath(outerFrame), [outerFrame]);
   const outerGlowId = `parentPortalPanelFrameOuterGlow-${rawId}`;
   const innerGlowId = `parentPortalPanelFrameInnerGlow-${rawId}`;
 
@@ -363,7 +364,7 @@ export function ParentPortalPanelFrame({
           <feGaussianBlur stdDeviation={innerFrame.glowBlur} />
         </filter>
       </defs>
-      {fill ? <path d={framePath(outerFrame)} fill={fill} opacity={fillOpacity} /> : null}
+      {fill ? <path d={outerFramePath} fill={fill} opacity={fillOpacity} pointerEvents="none" /> : null}
       <ParentPortalPanelFrameLines frame={outerFrame} segments={outerSegments} filterId={outerGlowId} />
       <ParentPortalPanelFrameLines frame={innerFrame} segments={innerSegments} filterId={innerGlowId} />
     </g>

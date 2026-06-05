@@ -242,6 +242,10 @@ export const PARENT_PORTAL_ROUTE_CONTEXT: Readonly<Partial<Record<PortalRouteVal
   [PortalRoute.InstallUpdates]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
   [PortalRoute.Diagnostics]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Account, 'support-api-status'),
   [PortalRoute.SettingsRules]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Portal, 'family-settings'),
+  [PortalRoute.Commands]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Commands, 'dev-commands'),
+  [PortalRoute.Events]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Events, 'dev-events'),
+  [PortalRoute.Logs]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Logs, 'dev-logs'),
+  [PortalRoute.FrameTuner]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.AppLayout, 'app-layout'),
 } as const;
 
 export function parentPortalRouteContext(route: PortalRouteValue): ParentPortalRouteContext {
@@ -531,18 +535,6 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       subcategory: 'External AI setup',
       controlCode: 10,
       routePath: '#/api-providers',
-    },
-    {
-      id: 'device-pairing',
-      order: 11,
-      name: 'Device Pairing',
-      matches: 'Trusted',
-      growth: 'Per child',
-      tone: 'cyan',
-      category: 'Devices',
-      subcategory: 'Pairing and status',
-      controlCode: 11,
-      routePath: '#/devices',
     },
   ],
   quickControls: [
