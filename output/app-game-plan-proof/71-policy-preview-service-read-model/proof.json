@@ -2,9 +2,10 @@
   "proofMode": "app-game-policy-preview-service-read-model",
   "generatedAt": "2026-06-05T18:55:00Z",
   "branch": "codex/app-game-policy-preview-service-read-model",
-  "commit": "daab7d3cf81d9f6dc0bc419624718be84f6a78c9",
+  "commit": "145219a10738286546e833e956aad9361e5e723b",
   "gitStatusShort": "",
   "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/activity-domain",
     "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
     "cmd /c npm exec --workspace @ocentra-parent/agent-protocol-domain -- vitest run tests/app-game-policy-preview-read-model.test.ts tests/contracts.test.ts",
     "cargo test -p ocentra-parent-agent-service policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement",
