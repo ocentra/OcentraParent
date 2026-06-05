@@ -188,6 +188,18 @@ cloud routing, parent notification UI/history/preferences, child delivery,
 production retry workers, production quiet-hours timers, durable production
 outbox storage, adapter dispatch, broad blocking, or platform support.
 
+`scripts/test/app-game-notification-preference-status-handoff-proof.mjs`
+validates a parent-domain app/game preference-status handoff proof that maps
+preference preflight rows into V3 notification preference and quiet-hours status
+entries for manual-required and disabled/unavailable states. It preserves
+scheduler, outbox, provider-channel, reason, parent preference, quiet-hours, and
+manual proof refs. This is a handoff boundary proof only: it does not claim
+parent preference UI, frequency controls, parent notification UI/history/
+preferences, provider delivery, receipt ingestion, credentials, cloud routing,
+child delivery, production retry workers, production quiet-hours timers, durable
+production outbox storage, adapter dispatch, broad blocking, or platform
+support.
+
 ## Validation Gates
 
 - Contract tests for alert rules, reason codes, delivery status, retry state, quiet hours, and preferences.
@@ -231,6 +243,11 @@ outbox storage, adapter dispatch, broad blocking, or platform support.
   manual-required/unavailable rows, with no delivery, receipt, credential, UI,
   child, production runtime, adapter-dispatch, broad-blocking, or platform
   claims.
+- Parent-domain app/game notification preference-status handoff proof for
+  preference preflight rows becoming V3 notification preference/quiet-hours
+  status entries, with no parent preference UI, notification UI, delivery,
+  receipt, credential, child, production runtime, adapter-dispatch,
+  broad-blocking, or platform claims.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
 - Parent-surface coverage for notification history, preference changes, quiet hours, and sensitive-detail drill-in behind authentication.
