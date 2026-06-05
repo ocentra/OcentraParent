@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "explanationId": "browser-parent-explanation-social-short-video-warning",
-  "createdAt": "2026-06-05T20:53:28.713Z",
+  "createdAt": "2026-06-05T21:43:35.274Z",
   "state": "ready",
   "titleTextToken": "browser.parent.explanation.title",
   "summaryTextToken": "browser.parent.explanation.summary",
@@ -24,8 +24,8 @@
     "schemaVersion": 1,
     "analysisId": "browser-ai-analysis-result-social-short-video-warning",
     "requestId": "browser-ai-analysis-request-social-short-video-warning",
-    "analyzedAt": "2026-06-05T20:53:28.713Z",
-    "expiresAt": "2026-06-05T21:53:28.713Z",
+    "analyzedAt": "2026-06-05T21:43:35.274Z",
+    "expiresAt": "2026-06-05T22:43:35.274Z",
     "sourceEvidenceIds": [
       "browser-evidence-social-short-video-warning"
     ],
@@ -81,7 +81,7 @@
     "schemaVersion": 1,
     "decisionId": "browser-policy-decision-social-short-video-warning",
     "requestId": "browser-policy-evaluator-request-social-short-video-warning",
-    "decidedAt": "2026-06-05T20:53:28.713Z",
+    "decidedAt": "2026-06-05T21:43:35.274Z",
     "policyVersionRef": "browser-policy-version-2026-06-05",
     "sourceEvidenceIds": [
       "browser-evidence-social-short-video-warning"
@@ -121,7 +121,7 @@
   "postAnalysisActionPlan": {
     "schemaVersion": 1,
     "actionPlanId": "browser-post-analysis-action-plan-social-short-video-warning",
-    "createdAt": "2026-06-05T20:53:28.713Z",
+    "createdAt": "2026-06-05T21:43:35.274Z",
     "sourceEvidenceIds": [
       "browser-evidence-social-short-video-warning"
     ],
@@ -130,7 +130,7 @@
       "schemaVersion": 1,
       "decisionId": "browser-policy-decision-social-short-video-warning",
       "requestId": "browser-policy-evaluator-request-social-short-video-warning",
-      "decidedAt": "2026-06-05T20:53:28.713Z",
+      "decidedAt": "2026-06-05T21:43:35.274Z",
       "policyVersionRef": "browser-policy-version-2026-06-05",
       "sourceEvidenceIds": [
         "browser-evidence-social-short-video-warning"
@@ -192,7 +192,7 @@
   "childUxSnapshot": {
     "schemaVersion": 1,
     "snapshotId": "browser-child-ux-social-short-video-warning",
-    "createdAt": "2026-06-05T20:53:28.713Z",
+    "createdAt": "2026-06-05T21:43:35.274Z",
     "sourceEvidenceIds": [
       "browser-evidence-social-short-video-warning"
     ],
@@ -206,7 +206,7 @@
     "postAnalysisActionPlan": {
       "schemaVersion": 1,
       "actionPlanId": "browser-post-analysis-action-plan-social-short-video-warning",
-      "createdAt": "2026-06-05T20:53:28.713Z",
+      "createdAt": "2026-06-05T21:43:35.274Z",
       "sourceEvidenceIds": [
         "browser-evidence-social-short-video-warning"
       ],
@@ -215,7 +215,7 @@
         "schemaVersion": 1,
         "decisionId": "browser-policy-decision-social-short-video-warning",
         "requestId": "browser-policy-evaluator-request-social-short-video-warning",
-        "decidedAt": "2026-06-05T20:53:28.713Z",
+        "decidedAt": "2026-06-05T21:43:35.274Z",
         "policyVersionRef": "browser-policy-version-2026-06-05",
         "sourceEvidenceIds": [
           "browser-evidence-social-short-video-warning"
