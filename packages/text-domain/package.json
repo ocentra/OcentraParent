@@ -17,6 +17,10 @@
       "import": "./dist/browser-parent-explanation.js",
       "types": "./dist/browser-parent-explanation.d.ts"
     },
+    "./screen-child-disclosure-ux-text": {
+      "import": "./dist/screen-child-disclosure-ux-text.js",
+      "types": "./dist/screen-child-disclosure-ux-text.d.ts"
+    },
     "./social-dashboard-ux-text": {
       "import": "./dist/social-dashboard-ux-text.js",
       "types": "./dist/social-dashboard-ux-text.d.ts"
