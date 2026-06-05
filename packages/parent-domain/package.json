@@ -649,6 +649,10 @@
       "import": "./dist/screen-ai-adapter-readiness-proof.js",
       "types": "./dist/screen-ai-adapter-readiness-proof.d.ts"
     },
+    "./screen-ai-confidence-policy-proof": {
+      "import": "./dist/screen-ai-confidence-policy-proof.js",
+      "types": "./dist/screen-ai-confidence-policy-proof.d.ts"
+    },
     "./tamper-uninstall-artifact-status": {
       "import": "./dist/tamper-uninstall-artifact-status.js",
       "types": "./dist/tamper-uninstall-artifact-status.d.ts"

@@ -1,0 +1,170 @@
+{
+  "proof": "screen-ai-confidence-policy-proof",
+  "proofTier": "P3_CONTRACT_REAL_SOURCE_REPLAY",
+  "generatedAt": "2026-06-05T20:37:53.659Z",
+  "sourceProof": "output/screen-ai-pipeline-proof/service-winrt-ocr-policy/proof-summary.json",
+  "sourceLiveSurface": {
+    "kind": "live-public-browser-page",
+    "url": "https://en.wikipedia.org/wiki/Mathematics",
+    "title": "Mathematics - Wikipedia - Google Chrome",
+    "expectedTerms": [
+      "wikipedia",
+      "mathematics"
+    ]
+  },
+  "sourceAnalysisRow": {
+    "rowId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1",
+    "providerKind": "localOcr",
+    "primaryCategory": "school",
+    "confidence": 0.91,
+    "imageDeletionState": "deleted",
+    "rawImageRetained": false,
+    "custodyState": "child-device-journal"
+  },
+  "trustedConfidencePolicyProof": {
+    "schemaVersion": "v0.6",
+    "proofId": "screen-ai-confidence-policy-proof",
+    "evaluatedAt": "2026-06-05T15:59:33.027Z",
+    "confidenceState": "trusted-confidence",
+    "minimumConfidence": 0.7,
+    "observedConfidence": 0.91,
+    "aiSuggestedAction": "allow",
+    "parentRuleAction": "block",
+    "selectedPolicyAction": "block",
+    "policyDecision": {
+      "schemaVersion": "v0.6",
+      "decisionId": "screen-ai-confidence-policy-proof-policy-dry-run",
+      "action": "block",
+      "reasonCodes": [
+        "parent-explicit-screen-category-block"
+      ],
+      "evidenceReferences": [
+        {
+          "evidenceReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-activity-row",
+          "kind": "activity-event",
+          "observedAt": "2026-06-05T15:59:33.027Z"
+        },
+        {
+          "evidenceReferenceId": "screen-service-queue-job-1780675160-1-encrypted-queue",
+          "kind": "activity-event",
+          "observedAt": "2026-06-05T15:59:33.027Z"
+        },
+        {
+          "evidenceReferenceId": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I-screen-summary",
+          "kind": "activity-event",
+          "observedAt": "2026-06-05T15:59:33.027Z"
+        },
+        {
+          "evidenceReferenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1-journal",
+          "kind": "journal-event",
+          "observedAt": "2026-06-05T15:59:33.027Z"
+        }
+      ],
+      "ruleIds": [
+        "screen-service-winrt-ocr-school-rule"
+      ],
+      "localAiResultId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-local-ocr-result",
+      "dryRun": true,
+      "enforcementHandoffState": "disabled",
+      "expiresAt": null
+    },
+    "proofReasons": [
+      "local-ai-result-schema-valid",
+      "confidence-threshold-applied",
+      "parent-rule-cited",
+      "dry-run-policy-only",
+      "remote-ai-not-used",
+      "raw-evidence-not-embedded",
+      "stricter-parent-rule-preserved"
+    ],
+    "claimBoundaries": {
+      "remoteAiUsed": false,
+      "apiAiUsed": false,
+      "policyAuthorityClaimed": false,
+      "enforcementClaimed": false,
+      "rawEvidenceEmbedded": false,
+      "modelQualityClaimed": false
+    }
+  },
+  "lowConfidenceFallbackProof": {
+    "schemaVersion": "v0.6",
+    "proofId": "screen-ai-confidence-policy-proof-low-confidence",
+    "evaluatedAt": "2026-06-05T15:59:33.027Z",
+    "confidenceState": "low-confidence-fallback",
+    "minimumConfidence": 0.7,
+    "observedConfidence": 0.31,
+    "aiSuggestedAction": "allow",
+    "parentRuleAction": "allow",
+    "selectedPolicyAction": "unknown",
+    "policyDecision": {
+      "schemaVersion": "v0.6",
+      "decisionId": "screen-ai-confidence-policy-proof-low-confidence-policy-dry-run",
+      "action": "unknown",
+      "reasonCodes": [
+        "parent-explicit-screen-category-allow",
+        "screen-ai-low-confidence-fallback"
+      ],
+      "evidenceReferences": [
+        {
+          "evidenceReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-activity-row",
+          "kind": "activity-event",
+          "observedAt": "2026-06-05T15:59:33.027Z"
+        },
+        {
+          "evidenceReferenceId": "screen-service-queue-job-1780675160-1-encrypted-queue",
+          "kind": "activity-event",
+          "observedAt": "2026-06-05T15:59:33.027Z"
+        },
+        {
+          "evidenceReferenceId": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I-screen-summary",
+          "kind": "activity-event",
+          "observedAt": "2026-06-05T15:59:33.027Z"
+        },
+        {
+          "evidenceReferenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1-journal",
+          "kind": "journal-event",
+          "observedAt": "2026-06-05T15:59:33.027Z"
+        }
+      ],
+      "ruleIds": [
+        "screen-ai-confidence-allow-rule"
+      ],
+      "localAiResultId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-local-ocr-result",
+      "dryRun": true,
+      "enforcementHandoffState": "disabled",
+      "expiresAt": null
+    },
+    "proofReasons": [
+      "local-ai-result-schema-valid",
+      "confidence-threshold-applied",
+      "parent-rule-cited",
+      "dry-run-policy-only",
+      "remote-ai-not-used",
+      "raw-evidence-not-embedded",
+      "low-confidence-cannot-allow"
+    ],
+    "claimBoundaries": {
+      "remoteAiUsed": false,
+      "apiAiUsed": false,
+      "policyAuthorityClaimed": false,
+      "enforcementClaimed": false,
+      "rawEvidenceEmbedded": false,
+      "modelQualityClaimed": false
+    }
+  },
+  "assertions": {
+    "sourceUsedRealLivePublicPixels": true,
+    "sourceRanWindowsWinRtOcr": true,
+    "sourceTempImageDeleted": true,
+    "sourceRawImageNotRetained": true,
+    "stricterParentRulePreserved": true,
+    "lowConfidenceCannotAllow": true,
+    "dryRunOnly": true,
+    "enforcementNotClaimed": true
+  },
+  "nonClaims": [
+    "This proof replays the existing real service WinRT OCR policy artifact through a confidence/degraded policy contract.",
+    "It proves deterministic policy handling of confidence and stricter parent rules; it does not rerun live capture, download or run a production model, prove model quality, or claim enforcement.",
+    "Raw screenshots remain deleted and are not embedded in this proof output."
+  ]
+}

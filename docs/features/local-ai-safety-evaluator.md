@@ -139,11 +139,19 @@ claim needs proof, not slogans.
   child-safety decisions. This is route/custody contract proof; it does not
   claim real hub runtime discovery, production model quality, policy authority,
   UI, or enforcement.
+- `ScreenAiConfidencePolicyProofSchema` and
+  `scripts/test/screen-ai-confidence-policy-proof.mjs` now replay the real
+  service WinRT OCR policy artifact through a confidence/degraded policy proof.
+  The proof validates schema-valid local AI output, applies a minimum confidence
+  threshold, preserves stricter parent rules over AI suggestions, converts
+  low-confidence output into a safe unknown dry-run state, and keeps remote/API
+  AI, model-quality, raw-evidence, policy-authority, and enforcement claims out
+  of scope.
 
 ## Current Gap
 
 Ocentra needs product-grade model configuration, local model artifacts,
-production screen model/OCR quality beyond current local proof, confidence handling,
+production screen model/OCR quality beyond current local proof,
 authenticated-account social proof beyond public/live surface proof, production
 parent explanation portal rendering, broader enforcement handoff,
 production browser-trigger producers, real family AI hub runtime/discovery,
@@ -171,6 +179,7 @@ production external evidence variants.
 - [x] Tests with real stored evidence.
 - [x] Screen hard-visual routing prefers child-local then household family hub
       before remote/API fallback.
+- [x] Screen AI confidence/degraded policy proof path.
 
 Product-grade model configuration, model artifacts, production model/OCR
 quality, authenticated-account social proof, and broad enforcement handoff

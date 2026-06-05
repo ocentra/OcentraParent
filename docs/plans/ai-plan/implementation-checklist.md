@@ -24,6 +24,7 @@ consumes the same results.
 | Screen summary parent explanation/audit context   | P3 replay proved    | `output/ai-plan-proof/screen-summary-parent-explanation/proof-summary.json`                                                            | Replays the real WinRT OCR worker proof rows through local AI context plus parent explanation/audit contracts, proving screen-summary refs, audit refs, parent-rule refs, dry-run policy refs, runtime refs, and deleted-image custody stay cited without raw retention, remote/API AI, portal UI, policy authority, or enforcement claims.                                                                                                                                                 |
 | Screen summary parent explanation read model      | P3 replay proved    | `output/ai-plan-proof/screen-summary-parent-explanation-read-model/proof-summary.json`                                                 | Converts the screen-summary parent explanation proof rows into parent-visible read-model rows that preserve screen-summary refs, audit refs, policy refs, parent rules, runtime refs, custody, and deleted-image state without raw image display, production portal runtime UI, policy authority, or enforcement claims.                                                                                                                                                                    |
 | Screen parent explanation service read model      | P3 service proved   | `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json`                                         | Starts the real Rust service against a seeded ActivityStore and requests the Activity Screen read model over WebSocket, proving policy refs, parent rules, local runtime refs, parent explanation refs, deletion reasons, deleted-image state, and child-device custody survive service/query projection. It does not claim production portal rendering, new capture/model inference, remote/API AI, policy authority, or enforcement.                                                      |
+| Screen AI confidence policy proof                 | P3 replay proved    | `output/ai-plan-proof/screen-ai-confidence-policy-proof/proof-summary.json`                                                            | Replays the real service WinRT OCR policy artifact through a confidence/degraded policy contract, proving schema-valid local AI output, minimum-confidence handling, stricter parent-rule preservation, low-confidence unknown fallback, dry-run-only policy output, and deleted-image/no-raw-retention source custody. It does not rerun live capture, download or run a production model, prove model quality, use remote/API AI, or claim enforcement.                                   |
 
 ## Contract And Source Truth
 
@@ -112,7 +113,7 @@ consumes the same results.
 
 - [x] Deterministic policy consumes valid AI results only.
 - [x] Service WinRT OCR Activity Screen row feeds typed parent policy dry-run.
-- [ ] AI cannot override stricter parent rules.
+- [x] AI cannot override stricter parent rules.
 - [x] Policy decisions are journaled.
 - [ ] Enforcement consumes policy decision only.
 - [x] Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination tested from a screen-derived policy decision.
@@ -137,7 +138,7 @@ consumes the same results.
 - [ ] Stored-evidence integration tests.
 - [x] Provider route/status tests.
 - [ ] Model output parser tests.
-- [ ] Policy integration tests.
+- [x] Policy integration tests.
 - [ ] Memory/graph source guard tests.
 - [ ] Remote boundary tests.
 - [x] Playwright UI proof.
@@ -162,4 +163,6 @@ consumes the same results.
       `output/ai-plan-proof/screen-summary-parent-explanation-read-model`.
 - [x] screen summary parent explanation service read-model proof artifacts under
       `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model`.
+- [x] screen AI confidence policy proof artifacts under
+      `output/ai-plan-proof/screen-ai-confidence-policy-proof`.
 - [ ] `npm run validate` or explicit approved omission.
