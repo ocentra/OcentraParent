@@ -1,0 +1,78 @@
+{
+  "proof": "screen-ai-policy-integration-proof",
+  "proofTier": "P3_CONTRACT_POLICY_INTEGRATION",
+  "generatedAt": "2026-06-05T22:02:05.462Z",
+  "validationCommands": "output/ai-plan-proof/screen-ai-policy-integration-proof/validation-commands.log",
+  "sourceArtifacts": [
+    "packages/parent-domain/src/local-ai.ts",
+    "packages/parent-domain/src/policy.ts",
+    "packages/parent-domain/tests/screen-ai-policy-integration-proof.test.ts"
+  ],
+  "decisions": {
+    "blockDecision": {
+      "schemaVersion": "v0.6",
+      "decisionId": "policy-decision-screen-parent-rule-wins",
+      "action": "block",
+      "reasonCodes": [
+        "parent-rule-block-wins",
+        "screen-ai-school-content"
+      ],
+      "evidenceReferences": [
+        {
+          "evidenceReferenceId": "screen-summary-evidence-wikipedia-school",
+          "kind": "activity-event",
+          "observedAt": "2026-06-05T22:00:00.000Z"
+        }
+      ],
+      "ruleIds": [
+        "parent-rule-screen-block"
+      ],
+      "localAiResultId": "screen-ai-result-school-allow",
+      "dryRun": true,
+      "enforcementHandoffState": "disabled",
+      "expiresAt": null
+    },
+    "timeLimitDecision": {
+      "schemaVersion": "v0.6",
+      "decisionId": "policy-decision-screen-low-confidence-time-limit",
+      "action": "time-limit",
+      "reasonCodes": [
+        "parent-rule-time-limit-wins",
+        "screen-ai-low-confidence-school"
+      ],
+      "evidenceReferences": [
+        {
+          "evidenceReferenceId": "screen-summary-evidence-wikipedia-school",
+          "kind": "activity-event",
+          "observedAt": "2026-06-05T22:00:00.000Z"
+        }
+      ],
+      "ruleIds": [
+        "parent-rule-screen-time-limit"
+      ],
+      "localAiResultId": "screen-ai-result-low-confidence-allow",
+      "dryRun": true,
+      "enforcementHandoffState": "disabled",
+      "expiresAt": "2026-06-05T23:00:00.000Z"
+    }
+  },
+  "assertions": {
+    "schemaValidLocalAiResults": true,
+    "parentBlockOverridesAiAllow": true,
+    "parentTimeLimitOverridesLowConfidenceAiAllow": true,
+    "policyDecisionReferencesAiResult": true,
+    "policyDecisionReferencesEvidence": true,
+    "enforcementRemainsDisabled": true
+  },
+  "claimsProved": [
+    "Schema-valid local screen AI output is evidence input to policy, not authority.",
+    "A stricter parent block rule overrides local screen AI allow output.",
+    "A stricter parent time-limit rule overrides low-confidence local screen AI allow output.",
+    "Policy decisions retain evidence refs, local AI result refs, parent rule refs, dry-run state, and disabled enforcement handoff."
+  ],
+  "nonClaims": [
+    "This proof does not execute a model, rerun screen capture, render portal UI, or dispatch enforcement.",
+    "This proof uses existing local AI and policy contracts and does not add a new package export.",
+    "This proof does not complete production model quality, broad adapter support, or product settings UI."
+  ]
+}

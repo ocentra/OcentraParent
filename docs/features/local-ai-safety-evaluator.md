@@ -147,6 +147,13 @@ claim needs proof, not slogans.
   status, and the screen safety capability, while rejecting
   remote/API/Ocentra-hosted processing, model-quality, execution, and
   raw-evidence claims.
+- `scripts/test/screen-ai-policy-integration-proof.mjs` now proves existing
+  local AI safety result and policy contracts keep screen AI as evidence input:
+  stricter parent block and time-limit rules override schema-valid local screen
+  AI allow and low-confidence allow outputs, while decisions preserve AI result
+  refs, evidence refs, rule refs, dry-run state, and disabled enforcement
+  handoff. This does not execute a model, rerun capture, render portal UI, or
+  dispatch enforcement.
 
 ## Current Gap
 
@@ -181,6 +188,8 @@ production external evidence variants.
 - [x] Screen hard-visual routing prefers child-local then household family hub
       before remote/API fallback.
 - [x] Screen AI model artifact manifest/config contract boundary.
+- [x] Screen AI policy integration proof keeps stricter parent block/time-limit
+      rules above local AI allow or low-confidence allow outputs.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, and broad enforcement handoff remain in the
