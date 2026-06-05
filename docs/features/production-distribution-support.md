@@ -117,6 +117,13 @@ dev-only repo when it claims consumer readiness.
   public runtime, account backend, billing provider runtime, production
   publishing, signing/store proof, updater execution, support upload, real
   device/store evidence, and child-activity custody remain non-claims.
+- `production-release-public-docs-status-proof` adds parent-domain document
+  status rows for the public privacy policy, retention policy, export/delete
+  process, support runbook, incident status disclosure, and legal disclosure.
+  It proves only source-contract readiness plus manual publication requirements:
+  public website publication, support backend upload, account lookup execution,
+  billing provider contact, remote support sessions, production SLA, legal
+  disclosure execution, and child-activity custody remain non-claims.
 - `billing-entitlement-contract-proof` defines parent-domain contracts for
   plan entitlement rows, entitlement snapshots, subscription status sync events,
   device-limit decisions, parent-visible failure states, local-safety fallback,
@@ -224,7 +231,14 @@ package/runtime proof.
       failure states while keeping live provider execution, provider contact,
       refund/credit execution, child custody, portal UI, and production billing
       support unclaimed.
-- [ ] Privacy, retention, export/delete, and support docs.
+- [ ] Privacy, retention, export/delete, and support docs. Current
+      `production-release-public-docs-status-proof` records privacy policy,
+      retention policy, export/delete process, support runbook, incident status
+      disclosure, and legal disclosure rows as source-contract-ready with
+      manual publication required. Public website publication, support backend
+      upload, account lookup execution, billing provider contact, remote
+      support sessions, production SLA, legal disclosure execution, and
+      child-activity custody remain unimplemented or unclaimed.
 - [ ] Support bundle redaction proof scaffold and incident process. Current
       release-support proof requires parent consent, incident/status metadata,
       visible support-bundle data-class disclosure, support-safe diagnostic

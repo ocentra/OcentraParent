@@ -35,6 +35,12 @@ Release features are product features because parents need install/update paths 
   runtime, account backend, billing provider runtime, production publishing,
   signing/store proof, updater execution, support backend upload, real
   device/store evidence, and child-activity custody unclaimed.
+- V8 public privacy/legal/support-docs status proof that names privacy policy,
+  retention policy, export/delete process, support runbook, incident status
+  disclosure, and legal disclosure separately while keeping public publication,
+  support backend upload, account lookup execution, billing provider contact,
+  remote support, production SLA, legal disclosure execution, and
+  child-activity custody unclaimed.
 
 ## Acceptance
 
@@ -98,6 +104,12 @@ Release features are product features because parents need install/update paths 
   billing provider runtime, production publishing, signing/store proof, updater
   execution, support backend upload, real device/store proof, or child-activity
   custody.
+- `production-release-public-docs-status-proof` may prove source-contract and
+  manual-publication status rows for public privacy, retention, export/delete,
+  support, incident, and legal docs, but it must not claim public website
+  publication, support backend upload, account lookup execution, billing
+  provider contact, remote support sessions, production SLA, legal disclosure
+  execution, or child-activity custody.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play
