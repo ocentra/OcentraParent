@@ -193,6 +193,13 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   browser-plan docs to stop treating package exports as the remaining blocker.
   Runtime connector behavior, native app control, rendered UI, final policy
   execution, enforcement, and product checklist completion remain unclaimed.
+- Browser-plan AI-23 now adds live dynamic social URL proof for real public
+  Instagram, TikTok, Facebook, Twitch, X/Twitter, Reddit, and Discord route
+  surfaces. The proof stores only response statuses, content types, lengths,
+  hashes, redirect host/path hashes, typed route ids, and no-claim flags while
+  rejecting account/content capture, AI decisions, policy decisions, native app
+  control, connector access, UI delivery, enforcement, and product checklist
+  completion claims.
 - `social-video-source-privacy-proof` now adds an activity-domain source/privacy
   evidence-summary contract for first-class social/video source refs. It can
   cite managed-browser social route refs, bounded social/video metadata refs,

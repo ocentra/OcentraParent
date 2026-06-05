@@ -605,18 +605,22 @@ decisions, or policy authority. Activity-domain package subpath exports are now
 present; no production network fetcher, transcript parser, hidden page load, AI
 execution, policy evaluator, UI, enforcement, or product checklist upgrade is
 claimed.
-AI-23 now extends deterministic dynamic feed/social URL handling. The URL shape
-contract can represent social post, messaging, upload/post, and livestream route
-targets alongside social feed, and the parser recognizes visible route shapes
-for Instagram, TikTok, Facebook, Twitch, X/Twitter, Reddit, and Discord only
-from managed exact URL evidence. Dynamic feeds and social route rows carry
-dynamic-feed or social-route reasons with medium/low confidence; exact
-reels/status/posts carry post ids where visible. Unmanaged social rows remain
-unknown/non-exact, dynamic-feed TTL stale memory rows cannot drive policy input,
-and parser rows keep content semantics, AI decisions, and policy decisions
-false. Activity-domain package subpath exports are now present; no account identity proof, feed recommendation analysis,
-messaging/contact analysis, upload monitoring, livestream content analysis, UI,
-enforcement, or product checklist upgrade is claimed.
+AI-23 now extends deterministic dynamic feed/social URL handling with live route
+proof. The URL shape contract can represent social post, messaging,
+upload/post, and livestream route targets alongside social feed, and the parser
+recognizes visible route shapes for Instagram, TikTok, Facebook, Twitch,
+X/Twitter, Reddit, and Discord only from managed exact URL evidence. The live
+proof fetches real public route surfaces for those platforms and persists only
+response statuses, content types, lengths, route/path/query/body hashes, title
+hashes/lengths, redirect host/path hashes, typed classifications, and no-claim
+flags. Dynamic feeds and social route rows carry dynamic-feed or social-route
+reasons with medium/low confidence; exact reels/status/posts carry post ids
+where visible. Unmanaged social rows remain unknown/non-exact, dynamic-feed TTL
+stale memory rows cannot drive policy input, and parser rows keep content
+semantics, AI decisions, and policy decisions false. Activity-domain package
+subpath exports are now present; no account identity proof, feed recommendation
+analysis, messaging/contact analysis, upload monitoring, livestream content
+analysis, UI, enforcement, or product checklist upgrade is claimed.
 AI-24 now adds provider degraded/fallback decision contracts for the browser AI
 route chain. Decisions can select child-device local AI, family AI hub, or
 parent-approved remote AI only when the selected route and runtime match the
