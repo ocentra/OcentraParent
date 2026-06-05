@@ -120,6 +120,14 @@ custody.
   manual-required and unavailable states, preserving scheduler/outbox/provider
   refs while keeping delivery, receipt, credential, runtime, UI, child delivery,
   adapter dispatch, broad-blocking, and platform claims false.
+- Tracking provider-notification proof now maps tracking location/geofence alert
+  intents from the tracking policy read model into existing V0.8 provider-status
+  boundary rows. It preserves tracking evidence refs, policy decision refs,
+  notification status refs, reason refs, and sensitive-detail modes while
+  keeping provider delivery, receipt ingestion, credentials, cloud routing,
+  parent notification UI, child-device delivery, physical-device proof,
+  production retry/quiet-hours runtime, durable outbox storage, and adapter
+  dispatch unclaimed.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -212,6 +220,12 @@ claim provider delivery, receipt ingestion, credentials, production retry
 workers, production quiet-hours timer execution, durable production outbox
 storage, parent UI/history/preferences, child delivery, adapter dispatch, broad
 blocking, or platform support.
+The tracking provider-notification proof adds deterministic
+tracking-alert-to-provider-status rows for location/geofence alerts, but does
+not claim provider delivery, receipt ingestion, credentials, cloud routing,
+parent notification UI/history/preferences, child-device delivery,
+physical-device proof, production retry workers, production quiet-hours timers,
+durable production outbox storage, or adapter dispatch.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
@@ -305,6 +319,11 @@ delivery, policy writes, or child-device enforcement.
       preflight rows becoming V0.8 provider-status manual-required/unavailable
       rows, while delivery, receipts, credentials, runtime, UI, child delivery,
       adapter dispatch, broad blocking, and platform claims remain false.
+- [x] Tracking provider-notification proof exists with tracking alert intents
+      becoming V0.8 provider-status manual-required/unavailable rows, while
+      provider delivery, receipts, credentials, runtime, parent UI,
+      child-device delivery, physical-device proof, durable outbox storage, and
+      adapter dispatch remain false.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
@@ -373,6 +392,12 @@ sync/export manifest and connector-status contract proof only; require real
 transfer runtime, connector OAuth/provider artifacts, parent-visible controls,
 retention/delete execution, and import/rebuild proof before claiming product
 sync/export.
+Treat `scripts/test/tracking-provider-notification-proof.mjs` as tracking alert
+intent to provider-status boundary proof only; require real provider adapters,
+receipt ingestion, credentials, parent notification UI/history/preferences,
+child-device delivery, physical-device proof, production retry and quiet-hours
+runtimes, durable outbox storage, and adapter dispatch before claiming tracking
+notification delivery.
 Treat `scripts/test/parent-owned-local-export-runtime-proof.mjs` as
 parent-domain local export/delete runtime-state proof only; require a real
 filesystem writer, retention scheduler, delete executor, durable audit
