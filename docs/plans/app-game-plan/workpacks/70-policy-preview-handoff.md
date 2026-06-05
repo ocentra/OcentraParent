@@ -38,6 +38,8 @@ notifications, or dispatching adapters.
 
 - `packages/parent-domain/src/app-game-policy-preview-handoff.ts`
 - `packages/parent-domain/src/app-game-policy-preview-handoff-rules.ts`
+- `packages/parent-domain/package.json`
+- `packages/parent-domain/README.md`
 - `packages/parent-domain/tests/app-game-policy-preview-handoff.test.ts`
 - `packages/parent-domain/tests/app-game-policy-preview-handoff-fixtures.ts`
 - `scripts/test/app-game-policy-preview-handoff-proof.mjs`
@@ -47,18 +49,16 @@ notifications, or dispatching adapters.
 
 ## Coordination Notes
 
-- `packages/parent-domain/package.json` export is intentionally deferred while
-  E-B owns the shared package export for follow-on app-install adapter proof
-  work. PR364 has merged, so before WP70 PR-ready add the
-  `./app-game-policy-preview-handoff` export after E-B releases the current
-  package export lock or primary assigns a combined package export slot.
+- `packages/parent-domain/package.json` exports
+  `./app-game-policy-preview-handoff`, preserving the merged PR364 app-install
+  child-device delivery runtime writer proof export.
 - `docs/product-capability-checklist.md` is unchanged because this is a
   contract handoff proof and does not move feature status.
 
 ## DONE Checklist
 
-- [x] Hub lock covers implementation, test, docs, and proof paths that are not
-      shared with E-B's PR364 package export.
+- [x] Hub lock covers implementation, test, package export, README, docs, and
+      proof paths.
 - [x] Existing app/game policy compiler and parent-domain policy primitives
       inspected.
 - [x] TypeScript contract parses compiled decisions before building preview
