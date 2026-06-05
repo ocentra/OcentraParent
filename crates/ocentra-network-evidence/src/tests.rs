@@ -7,6 +7,7 @@ use crate::{
 };
 
 mod android_vpn_service_gate;
+mod apple_network_extension_gate;
 mod bundle;
 mod cascade;
 mod category;

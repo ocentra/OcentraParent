@@ -1,4 +1,5 @@
 pub mod android_vpn_service_gate;
+pub mod apple_network_extension_gate;
 pub mod bundle;
 pub mod cascade;
 pub mod category;
@@ -33,6 +34,13 @@ pub use android_vpn_service_gate::{
     NetworkAndroidVpnServiceGateBoundaryReason, NetworkAndroidVpnServiceGateError,
     NetworkAndroidVpnServiceGateInput, NetworkAndroidVpnServiceGateProof,
     NetworkAndroidVpnServiceGateState, NetworkAndroidVpnServiceRequiredArtifact,
+};
+pub use apple_network_extension_gate::{
+    plan_network_apple_network_extension_gate, NetworkAppleNetworkExtensionCapabilityState,
+    NetworkAppleNetworkExtensionGateBoundaryReason, NetworkAppleNetworkExtensionGateError,
+    NetworkAppleNetworkExtensionGateInput, NetworkAppleNetworkExtensionGateProof,
+    NetworkAppleNetworkExtensionGateState, NetworkAppleNetworkExtensionPlatform,
+    NetworkAppleNetworkExtensionRequiredArtifact,
 };
 pub use bundle::{
     build_network_cross_slice_evidence_bundle, NetworkCrossSliceEvidenceBundle,

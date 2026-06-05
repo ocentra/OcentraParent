@@ -213,12 +213,13 @@ network-triggered local-AI queue planning with refs-only AI inputs,
 evidence-grade policy handoff mapping, parent notification candidate mapping,
 proof-gated DNS and Windows Firewall adapter apply/result/rollback/audit
 boundaries, a Windows WFP signed/permissioned lab-proof gate, and an Android
-VpnService physical-device proof gate. Analyzer fixtures, broker/family-hub
-delivery, local-AI model execution/worker runtime, full policy engine execution,
+VpnService physical-device proof gate, and an Apple Network Extension
+entitlement/device proof gate. Analyzer fixtures, broker/family-hub delivery,
+local-AI model execution/worker runtime, full policy engine execution,
 notification provider delivery, broader parent-facing rule UX, live host DNS
 mutation/proxy installation, live Windows Firewall mutation, live WFP
-driver/callout/packet blocking, live Android VpnService filtering, and platform
-adapter execution remain open.
+driver/callout/packet blocking, live Android VpnService filtering, live Apple
+Network Extension behavior, and platform adapter execution remain open.
 
 ## Checklist
 
@@ -274,9 +275,13 @@ adapter execution remain open.
       physical-device readiness from VpnService declaration, user consent,
       package identity, virtual-interface, traffic-observation, rollback, and
       audit refs, with Device Owner proof required only when claimed. Production
-      analyzer, AI model execution, broker/family-hub delivery, broader service
-      wiring, full policy engine execution, notification delivery, and
-      risk-budget fixtures remain.
+      Row41 Apple Network Extension proof gate now models entitlement/device
+      readiness from developer team, entitlement approval, provisioning,
+      signing, device/TestFlight, extension declaration/configuration, rollback,
+      and audit refs, with supervision/MDM proof required only when claimed.
+      Production analyzer, AI model execution, broker/family-hub delivery,
+      broader service wiring, full policy engine execution, notification
+      delivery, and risk-budget fixtures remain.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
@@ -284,10 +289,11 @@ adapter execution remain open.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
       Row37 DNS adapter, Row38 Windows Firewall, Row39 WFP, and Row40 Android
-      VpnService proof gates model supported/lab-ready/physical-device-ready,
+      VpnService plus Row41 Apple Network Extension proof gates model
+      supported/lab-ready/physical-device-ready/Apple-device-ready,
       manual-required, and unavailable capability states for their adapter
-      boundaries, but broader platform capability status and parent UI
-      surfacing remain open.
+      boundaries, but broader platform capability status and parent UI surfacing
+      remain open.
 - [x] DNS proxy/block/redirect adapter proof boundary.
       The Rust proof accepts apply-ready only with grade-A policy, parent-rule
       refs, evidence refs, supported capability, adapter authorization,
@@ -315,6 +321,14 @@ adapter execution remain open.
       identity, virtual-interface, traffic-observation, rollback, and audit refs;
       Device Owner proof is required only when claimed, and live tunnel,
       filtering, packet block, or app/package correlation is not claimed.
+- [x] Apple Network Extension adapter/proof gate.
+      The Rust proof gate accepts entitlement/device readiness only with grade-A
+      block policy, parent-rule refs, evidence refs, bundle/extension refs,
+      developer team, entitlement approval, provisioning, signing,
+      device/TestFlight, extension declaration/configuration, rollback, and
+      audit refs; supervision/MDM proof is required only when claimed, and live
+      Network Extension behavior, packet block, or app-level control is not
+      claimed.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.
 - [ ] Real block/terminate/unavailable result.
 - [x] No decrypted payload/page-content claim at the network contract boundary.
