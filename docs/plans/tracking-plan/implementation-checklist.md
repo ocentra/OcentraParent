@@ -421,10 +421,11 @@ Every implementation workpack must update, or explicitly justify not updating:
 
 ## Fixture And Manual Gates
 
-- [ ] Fixtures cover fresh, stale, offline, denied, low accuracy, ambiguous,
+- [x] Fixtures cover fresh, stale, offline, denied, low accuracy, ambiguous,
       exception, acknowledged, check-in, temporary-live-expired,
       missing-device, retention-deleted, remote-sync-disabled, and
-      remote-AI-disabled states.
+      remote-AI-disabled states. Proof:
+      `output/tracking-plan-proof/fixture-coverage-proof/proof.json`.
 - [ ] Android/iOS/manual desktop claims include real-device or explicitly
       approved manual proof.
 - [x] Pre-device proof records unsupported or not-yet-proved platform states as

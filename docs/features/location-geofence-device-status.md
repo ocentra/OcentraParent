@@ -128,6 +128,14 @@ expose location or device-status features. Parents expect this category.
   suppress/no-action, and manual-required outcomes, keeps AI as evidence rather
   than final authority, and records no runtime enforcement, provider delivery,
   platform adapter, production worker, UI-complete, or physical-device claims.
+- Required fixture-state coverage proof now exists through
+  `node scripts/test/tracking-fixture-coverage-proof.mjs`. It records fresh,
+  stale, offline, permission-denied, low-accuracy, ambiguous nearby place,
+  exception, parent-acknowledged, child check-in, temporary-live-expired,
+  missing-device, retention-deleted, remote-sync-disabled, and
+  remote-AI-disabled coverage with artifact refs while keeping live-device,
+  provider-delivery, child-runtime, physical-device, production-worker, and
+  product-ready claims false.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -185,12 +193,12 @@ tracking alert-to-provider-status handoff proof, P1 escalation readiness proof
 for acknowledgement/check-in/manual escalation states, WP28 temporary live
 tracking mode proof for authorization/duration/cadence/degraded/auto-stop/
 retention states, and WP20 Google Places/POI provider request/response mapping
-proof, and WP25 parent-policy compiler/evaluator runtime proof. It remains a tracked
-product gap until platform location and geofence adapters, broader product read
-models, actual live provider execution/delivery, notification receipt ingestion,
-physical-device proof, actual child-device delivery/runtime execution, and full
-parent/child UI snapshots/accessibility beyond the hosted parent route are
-proved.
+proof, WP25 parent-policy compiler/evaluator runtime proof, and required
+fixture-state coverage proof. It remains a tracked product gap until platform
+location and geofence adapters, broader product read models, actual live
+provider execution/delivery, notification receipt ingestion, physical-device
+proof, actual child-device delivery/runtime execution, and full parent/child UI
+snapshots/accessibility beyond the hosted parent route are proved.
 
 ## Checklist
 
@@ -218,6 +226,13 @@ proved.
       manual-required fallback, and dry-run/preview output. This is not runtime
       enforcement, provider delivery, platform adapter, production worker,
       product UI, or physical-device proof.
+- [x] Required fixture coverage proof for fresh, stale, offline,
+      permission-denied, low-accuracy, ambiguous nearby place, exception,
+      parent acknowledgement, child check-in, temporary-live-expired,
+      missing-device, retention-deleted, remote-sync-disabled, and
+      remote-AI-disabled states. This is fixture/read-model coverage only; it is
+      not live-device, child-runtime, provider-delivery, physical-device, or
+      product-ready proof.
 - [x] Tracking alert intents map to provider-status boundary evidence with
       evidence refs, policy decision refs, notification status refs, reason refs,
       and minimal/authenticated-drill-in payload boundaries. This is not
