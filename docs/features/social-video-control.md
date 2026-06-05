@@ -116,7 +116,11 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   policy/approval refs. They model candidate holds, blocks, manual review, and
   unknown warning states while rejecting browser runtime pause/block claims,
   UI delivery, final policy decisions, credentials, form submission, account
-  creation, connector/native claims, and enforcement.
+  creation, connector/native claims, and enforcement. The refreshed proof uses
+  real public browser captures for Facebook signup, Pinterest login, Reddit
+  register, and Instagram signup and persists only route-only URLs, screenshots,
+  title hashes, sanitized visible control kinds, parsed plan summaries, and
+  no-claim negative checks.
 - Browser-plan SOCIAL-14 now adds managed-browser feed/short/video route
   gate-plan contracts from typed feed classification, bounded metadata, and
   policy/approval/time-limit refs. They model route action candidates while
