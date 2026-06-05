@@ -35,6 +35,7 @@ claims.
 | Policy dry-run decision                  | P3 contract proved       | `output/ai-plan-proof/real-analysis/browser-game/07-policy-decision.json`                      | Covers allow, warn, ask-parent, time-limit, and block dry-run actions; real enforcement adapter dispatch is still required in this pipeline scope before product-complete action claims.                                                                                                                                                                                                                                                                                                                                                         |
 | Screen-to-action adapter dispatch        | P3 Windows proved        | `output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json`                           | Proves screen-derived native owned-process time-limit decision handoff into the real Windows Rust service adapter path; does not claim browser, network, mobile, or broad block enforcement.                                                                                                                                                                                                                                                                                                                                                     |
 | Screen-to-block adapter dispatch         | P3 Windows proved        | `output/screen-ai-pipeline-proof/block-action-dispatch/proof-summary.json`                     | Proves a screen-derived block decision can hand off into the real Windows Rust service owned-process block adapter and terminate a controlled owned process; category/browser/network/mobile/broad block adapters remain separate.                                                                                                                                                                                                                                                                                                               |
+| Screen-derived adapter readiness         | P3 readiness proved      | `output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json`                         | Keeps screen-derived Windows owned-process time-limit/block rows tied to real adapter execution proof, and records broad installed-app, host network/domain, managed exact active-tab, Android/iOS mobile, and Linux host rows as manual-required, not-claimed, or unavailable; it does not implement broad/browser/network/mobile adapters.                                                                                                                                                                                                     |
 | Parent portal screen chain               | P3 proved                | `output/screen-ai-pipeline-proof/portal-chain/proof-summary.json`                              | Proves real service-to-portal Activity Screen read-model rendering of trigger, capture, AI, policy, deletion, custody, queue, digest, and evidence refs; live external account proof remains.                                                                                                                                                                                                                                                                                                                                                    |
 | Live operator proof harness readiness    | P2 executable gate       | `output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.json`           | Proves the live operator harness exists, covers the required nine scenario ids, and refuses to claim live proof without an operator manifest. It does not claim real YouTube/Vimeo/social/shopping/game/account proof until manifest-run artifacts exist.                                                                                                                                                                                                                                                                                        |
 | Live operator full matrix                | P3 local operator proved | `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`                             | Proves all nine required operator-supplied rows: ordinary YouTube `video`/`warn`, education YouTube `school`/`allow`, Vimeo `video`/`warn`, Facebook/social `chat`/`warn`, browser game `game`/`time-limit`, shopping `shopping`/`ask-parent`, school/productivity `school`/`allow`, native Notepad `productivity`/`allow`, and protected-surface degraded state with no raw image, AI, or policy claim. Browser rows use selected browser-window capture to avoid foreground contamination; raw image material is deleted after local analysis. |
@@ -100,6 +101,9 @@ claims.
 - [x] AI cannot override stricter parent rule.
 - [x] Service WinRT OCR Activity Screen row feeds a typed parent policy dry-run.
 - [x] Real Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination proof.
+- [x] Screen-derived broad/browser/network/mobile adapter readiness states
+      remain manual-required, not-claimed, or unavailable without claim
+      upgrades.
 - [ ] Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.
 
 ## Portal And Proof Gates
@@ -130,6 +134,8 @@ claims.
       `output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json`.
 - [x] Service WinRT OCR policy dry-run proof completed:
       `output/screen-ai-pipeline-proof/service-winrt-ocr-policy/proof-summary.json`.
+- [x] Screen-derived adapter readiness proof completed:
+      `output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json`.
 - [x] Operator live proof completed before product-complete claim.
 - [x] Live external URL/surface proof completed for real YouTube/Vimeo/social/shopping/school surfaces; controlled fixture rows are harness proof only.
 
@@ -154,6 +160,9 @@ claims.
 - [x] Service WinRT OCR policy proof run:
       `node --check scripts/test/screen-ai-service-winrt-ocr-policy-proof.mjs` and
       `node scripts/test/screen-ai-service-winrt-ocr-policy-proof.mjs`.
+- [x] Screen-derived adapter readiness proof run:
+      `node --check scripts/test/screen-ai-adapter-readiness-proof.mjs` and
+      `node scripts/test/screen-ai-adapter-readiness-proof.mjs`.
 - [x] Service native game analysis proof run:
       `node --check scripts/test/screen-ai-service-native-game-analysis-proof.mjs` and
       `node scripts/test/screen-ai-service-native-game-analysis-proof.mjs`.
