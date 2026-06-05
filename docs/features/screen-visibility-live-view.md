@@ -41,6 +41,12 @@ alternative.
 - Temporary local image queue/deletion expectations exist.
 - Remote screenshot/live view is not product-complete and has not been accepted
   as a default feature.
+- The local screen-summary boundary now has a contract/proof
+  (`ScreenEvidenceRemoteBoundarySettingSchema` plus
+  `scripts/test/screen-evidence-settings-retention-proof.mjs`) that keeps
+  raw screenshot retention, live view, and raw remote upload disabled. Parent
+  approved redacted summary export is the only accepted remote mode, and it must
+  use parent-owned-export custody.
 - Raw screen control settings are preserved as design inputs for both summary
   and live-view decisions.
 
@@ -53,7 +59,7 @@ proof.
 
 ## Checklist
 
-- [ ] Product decision: summaries only, screenshots, live view, or tiered modes.
+- [x] Product decision: summaries only, screenshots, live view, or tiered modes.
 - [ ] Parent opt-in and child/device capability status.
 - [ ] Source label: local summary, screenshot, live, relay, cache,
       unavailable.

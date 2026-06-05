@@ -32,6 +32,9 @@ export const ScreenEvidenceTemplateVersionSchema = NonEmptyScreenText.pipe(
 export const ScreenEvidenceDeletionProofRefSchema = NonEmptyScreenText.pipe(
   Schema.brand('ScreenEvidenceDeletionProofRef')
 );
+export const ScreenEvidenceRemoteApprovalRefSchema = NonEmptyScreenText.pipe(
+  Schema.brand('ScreenEvidenceRemoteApprovalRef')
+);
 export const ScreenEvidenceReasonSchema = BoundedSummaryText.pipe(Schema.brand('ScreenEvidenceReason'));
 export const ScreenEvidenceSummaryTextSchema = BoundedSummaryText.pipe(Schema.brand('ScreenEvidenceSummaryText'));
 export const ScreenEvidenceOcrSnippetTextSchema = BoundedSnippetText.pipe(Schema.brand('ScreenEvidenceOcrSnippetText'));
@@ -51,3 +54,4 @@ export type ScreenEvidenceQueueJobId = Infer<typeof ScreenEvidenceQueueJobIdSche
 export type ScreenEvidenceResultId = Infer<typeof ScreenEvidenceResultIdSchema>;
 export type ScreenEvidenceParentSettingRef = Infer<typeof ScreenEvidenceParentSettingRefSchema>;
 export type ScreenEvidenceImageDigest = Infer<typeof ScreenEvidenceImageDigestSchema>;
+export type ScreenEvidenceRemoteApprovalRef = Infer<typeof ScreenEvidenceRemoteApprovalRefSchema>;

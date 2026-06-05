@@ -533,6 +533,10 @@
       "import": "./dist/screen-control-catalog.js",
       "types": "./dist/screen-control-catalog.d.ts"
     },
+    "./screen-control-settings-portal-proof": {
+      "import": "./dist/screen-control-settings-portal-proof.js",
+      "types": "./dist/screen-control-settings-portal-proof.d.ts"
+    },
     "./tamper-uninstall-artifact-status": {
       "import": "./dist/tamper-uninstall-artifact-status.js",
       "types": "./dist/tamper-uninstall-artifact-status.d.ts"

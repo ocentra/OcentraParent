@@ -10,9 +10,10 @@ output/screen-plan-proof/<workpack-id>/
 
 ## Current Branch Proof Snapshot
 
-These entries summarize proof already produced on the current stacked branch.
-They do not claim service-owned background watchers, disable suppression, portal
-UI, or D-lane managed-browser integration.
+These entries summarize proof already produced on `main` or the current
+screen-AI stack. They do not claim product-complete UI, authenticated-account
+social proof, production VLM quality, broad adapters, or D-lane managed-browser
+trigger ownership unless the row explicitly says so.
 
 | Proof                                    | Status                   | Artifact                                                                                           | Non-claim                                                                                                                                                                                          |
 | ---------------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -26,44 +27,52 @@ UI, or D-lane managed-browser integration.
 | Browser-window scheduler trigger         | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                          | Runs the Rust trigger scheduler before capture; does not claim D-lane managed browser URL-change integration.                                                                                      |
 | Native app foreground scheduler trigger  | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                          | Proves a real Windows Notepad foreground-window capture through the scheduler; service-owned foreground watcher wiring remains.                                                                    |
 | Timed two-frame scheduler cadence        | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                          | Proves cadence-due scheduler decisions and two real selected-window captures; service timer loop and disabled-setting stop remain.                                                                 |
+| Service disabled-setting suppression     | P3 proved                | `output/screen-ai-pipeline-proof/service-disabled-suppression/proof-summary.json`                  | Proves no new captures, queue jobs, or local vision rows while disabled; product settings UI remains.                                                                                              |
+| Service cadence/read-model loop          | P3 proved                | `output/screen-ai-pipeline-proof/service-cadence/proof-summary.json`                               | Proves three real Windows cadence captures and Activity Screen rows over WebSocket; provider is service metadata, not VLM quality.                                                                 |
+| Service analysis queue drain             | P3 proved                | `output/screen-ai-pipeline-proof/service-analysis/proof-summary.json`                              | Proves service capture-to-analysis plumbing with a proof adapter; production VLM quality remains.                                                                                                  |
+| Retention sweeper deletion visibility    | P3 proved                | `output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json`                     | Proves expired queue removal and visible `expiredDeleted` rows; parent retention-duration UI and cloud retention policy remain.                                                                    |
+| Live operator capture-to-AI matrix       | P3 proved                | `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`                                 | Proves nine real URL/app scenarios through capture, local VLM, schema validation, policy dry-run, and deletion; authenticated-account social proof remains.                                        |
+| Portal screen read-model proof           | P3 proved                | `output/screen-ai-pipeline-proof/portal-chain/proof-summary.json`                                  | Proves service-backed screen rows render in the portal; product-complete UX and broad adapters remain.                                                                                             |
+| Settings route screen catalog proof      | P3 proved                | `output/screen-plan-proof/settings-ui/proof-summary.json`                                          | Proves the real portal Settings route renders read-only Screen settings/capability catalog proof; writable opt-in and retention controls remain.                                                   |
+| Remote/retention/live boundary proof     | P2 contract proved       | `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`                            | Proves raw screenshot retention, live view, and raw remote upload are disabled in the local-summary boundary; no live transport or writable retention UI claimed.                                  |
 
 ## Main Gates
 
-- [ ] Screen analysis starts disabled.
-- [ ] Parent opt-in setting exists and is auditable.
-- [ ] MVP scope is capture/routing first, AI model-quality proof second.
-- [ ] Capture cadence and triggers are parent-controlled.
-- [ ] Capture scope is parent-controlled and platform-gated.
+- [x] Screen analysis starts disabled.
+- [x] Parent opt-in setting exists and is auditable.
+- [x] MVP scope is capture/routing first, AI model-quality proof second.
+- [x] Capture cadence and triggers are parent-controlled.
+- [x] Capture scope is parent-controlled and platform-gated.
 - [x] Real browser-use trigger proof exists, not only contract tests.
 - [x] Real app-use trigger proof exists, not only contract tests.
-- [ ] Timed cadence proof captures multiple bounded frames and stops after disable.
-- [ ] Capability status exists before capture.
-- [ ] Screen evidence is treated as cross-slice, not browser-only.
+- [x] Timed cadence proof captures multiple bounded frames and stops after disable.
+- [x] Capability status exists before capture.
+- [x] Screen evidence is treated as cross-slice, not browser-only.
 - [ ] Existing browser/app/game/network/session evidence is checked before capture.
 - [ ] Managed browser structured extraction runs before managed-browser screenshots.
-- [ ] OCR runs before VLM when text can answer the question.
-- [ ] Guided detector prompts replace open-ended screen descriptions.
-- [ ] A capable configured local model may be used after route/cost/privacy proof.
-- [ ] Protected surfaces are skipped.
+- [x] OCR runs before VLM when text can answer the question.
+- [x] Guided detector prompts replace open-ended screen descriptions.
+- [x] A capable configured local model may be used after route/cost/privacy proof.
+- [x] Protected surfaces are skipped.
 - [x] Temporary image queue is encrypted.
-- [ ] Raw image path is redacted outside child agent.
-- [ ] Local OCR/vision returns schema-valid JSON only.
-- [ ] Invalid model output cannot drive policy.
-- [ ] Summary writes to journal/SQLite.
+- [x] Raw image path is redacted outside child agent.
+- [x] Local OCR/vision returns schema-valid JSON only.
+- [x] Invalid model output cannot drive policy.
+- [x] Summary writes to journal/SQLite.
 - [x] Raw image deleted after success.
-- [ ] Raw image deleted after expiry.
-- [ ] Deletion state visible.
-- [ ] Policy consumes summary/evidence refs only.
-- [ ] Portal does not show raw screenshots by default.
+- [x] Raw image deleted after expiry.
+- [x] Deletion state visible.
+- [x] Policy consumes summary/evidence refs only.
+- [x] Portal does not show raw screenshots by default.
 - [ ] Screenshot retention is separate opt-in mode.
 - [ ] Live view is separate opt-in mode.
-- [ ] Remote/cloud screenshot upload disabled by default.
-- [ ] Remote/API path accepts only parent-approved redacted summaries by default.
+- [x] Remote/cloud screenshot upload disabled by default.
+- [x] Remote/API path accepts only parent-approved redacted summaries by default.
 - [ ] Local AI resource scheduler prevents multiple heavy jobs on normal PCs.
 - [ ] Family AI hub is used before remote/API for hard visual cases.
-- [ ] Platform capture proof exists before platform claim.
-- [ ] Operator live URL/app proof is recorded before product-complete claim.
-- [ ] Playwright UI proof exists.
+- [x] Platform capture proof exists before platform claim.
+- [x] Operator live URL/app proof is recorded before product-complete claim.
+- [x] Playwright UI proof exists.
 - [ ] Final product-complete pipeline proof is completed in `docs/plans/screen-ai-pipeline-plan` after screen and AI prerequisites are merged or explicitly stacked.
 
 ## Required Proof Pack
@@ -126,43 +135,43 @@ local heavy OCR/VLM jobs run without priority/resource guard
 
 | Status | Workpack                                           |
 | ------ | -------------------------------------------------- |
-| [ ]    | 01 Source index and doc reconciliation             |
-| [ ]    | 02 Current screen snapshot and gap map             |
-| [~]    | 03 Contract boundary and Effect schemas            |
-| [ ]    | 04 Parent opt-in settings contract                 |
-| [ ]    | 05 Capability/status contract                      |
-| [~]    | 06 Capture scope model                             |
-| [~]    | 07 Capture trigger model                           |
-| [ ]    | 08 Platform adapter abstraction                    |
-| [~]    | 09 Windows capture adapter plan/proof              |
+| [x]    | 01 Source index and doc reconciliation             |
+| [x]    | 02 Current screen snapshot and gap map             |
+| [x]    | 03 Contract boundary and Effect schemas            |
+| [x]    | 04 Parent opt-in settings contract                 |
+| [x]    | 05 Capability/status contract                      |
+| [x]    | 06 Capture scope model                             |
+| [x]    | 07 Capture trigger model                           |
+| [x]    | 08 Platform adapter abstraction                    |
+| [x]    | 09 Windows capture adapter plan/proof              |
 | [~]    | 10 macOS capture adapter plan/proof                |
 | [~]    | 11 Linux capture adapter plan/proof                |
 | [~]    | 12 Android MediaProjection adapter plan/proof      |
 | [ ]    | 13 iOS ReplayKit adapter plan/proof                |
-| [ ]    | 14 Protected surface detector                      |
-| [~]    | 15 Encrypted temporary image queue                 |
-| [~]    | 16 Queue scheduler and debouncer                   |
-| [ ]    | 17 Local OCR/vision runtime model                  |
-| [~]    | 18 Screen analysis result schema                   |
-| [ ]    | 19 Sensitive text and redaction model              |
-| [ ]    | 20 Result validator and invalid-output handling    |
-| [~]    | 21 Journal and SQLite ingest                       |
-| [~]    | 22 Deletion and retention proof                    |
-| [~]    | 23 Policy compiler for screen-derived evidence     |
+| [x]    | 14 Protected surface detector                      |
+| [x]    | 15 Encrypted temporary image queue                 |
+| [x]    | 16 Queue scheduler and debouncer                   |
+| [~]    | 17 Local OCR/vision runtime model                  |
+| [x]    | 18 Screen analysis result schema                   |
+| [~]    | 19 Sensitive text and redaction model              |
+| [x]    | 20 Result validator and invalid-output handling    |
+| [x]    | 21 Journal and SQLite ingest                       |
+| [x]    | 22 Deletion and retention proof                    |
+| [x]    | 23 Policy compiler for screen-derived evidence     |
 | [~]    | 24 Enforcement handoff guard                       |
-| [ ]    | 25 Parent portal summary UI                        |
+| [~]    | 25 Parent portal summary UI                        |
 | [ ]    | 26 Child disclosure UX                             |
-| [ ]    | 27 Screenshot retention optional mode              |
-| [ ]    | 28 Live view optional mode                         |
-| [ ]    | 29 Proof tiers and proof packs                     |
-| [ ]    | 30 Test suite, Playwright, rollout, PR gate        |
-| [ ]    | 31 Screen intelligence router                      |
+| [~]    | 27 Screenshot retention optional mode              |
+| [~]    | 28 Live view optional mode                         |
+| [x]    | 29 Proof tiers and proof packs                     |
+| [~]    | 30 Test suite, Playwright, rollout, PR gate        |
+| [~]    | 31 Screen intelligence router                      |
 | [ ]    | 32 Browser structured extraction before screenshot |
 | [ ]    | 33 Managed browser CDP screenshot capture path     |
-| [ ]    | 34 OCR Tesseract baseline                          |
+| [~]    | 34 OCR Tesseract baseline                          |
 | [ ]    | 35 OCR PaddleOCR/PP-OCR evaluation                 |
 | [~]    | 36 Small VLM guided classifier evaluation          |
 | [ ]    | 37 Family AI hub screen-analysis queue             |
 | [ ]    | 38 Local AI resource scheduler/priority queue      |
-| [ ]    | 39 Redacted summary-only remote boundary           |
-| [ ]    | 40 Detector prompt packs and schema tests          |
+| [x]    | 39 Redacted summary-only remote boundary           |
+| [~]    | 40 Detector prompt packs and schema tests          |

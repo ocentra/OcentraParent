@@ -14,33 +14,53 @@ Screen evidence analysis has real foundation but is not product-complete. The cu
 
 ## Existing Foundation
 
-| Area                            | Existing Evidence                                                                                                                                    | Status              |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| Feature docs                    | `docs/features/screen-evidence-analysis.md`, `docs/features/screen-visibility-live-view.md`                                                          | Existing.           |
-| Expectation docs                | `docs/expectations/screen-evidence.md`                                                                                                               | Existing.           |
-| Architecture                    | `docs/architecture/local-screen-evidence-analysis-queue.md`                                                                                          | Existing.           |
-| Schema/capability/settings docs | `docs/screen-evidence-analysis-schema-proposal.md`, `docs/screen-evidence-analysis-capability-guide.md`, `docs/screen-control-settings-inventory.md` | Existing inputs.    |
-| TS contracts                    | `packages/activity-domain/src/screen-evidence*.ts`                                                                                                   | Partial foundation. |
-| Rust protocol                   | `crates/agent-protocol/src/screen_evidence.rs`                                                                                                       | Partial foundation. |
-| Queue                           | `crates/agent-core/src/screen_evidence_queue.rs`                                                                                                     | Partial foundation. |
-| SQLite/journal summary store    | `crates/agent-core/src/activity_store_screen_evidence.rs`                                                                                            | Partial foundation. |
-| Portal/read-model plumbing      | `crates/agent-service/src/activity_surface_*`, `packages/portal-domain`, `apps/portal/src/live-activity-state.ts`                                    | Partial foundation. |
+| Area                            | Existing Evidence                                                                                                                                    | Status                                            |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Feature docs                    | `docs/features/screen-evidence-analysis.md`, `docs/features/screen-visibility-live-view.md`                                                          | Existing.                                         |
+| Expectation docs                | `docs/expectations/screen-evidence.md`                                                                                                               | Existing.                                         |
+| Architecture                    | `docs/architecture/local-screen-evidence-analysis-queue.md`                                                                                          | Existing.                                         |
+| Schema/capability/settings docs | `docs/screen-evidence-analysis-schema-proposal.md`, `docs/screen-evidence-analysis-capability-guide.md`, `docs/screen-control-settings-inventory.md` | Existing inputs.                                  |
+| TS contracts                    | `packages/activity-domain/src/screen-evidence*.ts`                                                                                                   | Implemented foundation with focused proof.        |
+| Rust protocol                   | `crates/agent-protocol/src/screen_evidence.rs`                                                                                                       | Implemented foundation with service proof.        |
+| Queue                           | `crates/agent-core/src/screen_evidence_queue.rs`                                                                                                     | Encrypted temp custody and deletion proof exists. |
+| SQLite/journal summary store    | `crates/agent-core/src/activity_store_screen_evidence.rs`                                                                                            | Summary/read-model proof exists.                  |
+| Portal/read-model plumbing      | `crates/agent-service/src/activity_surface_*`, `packages/portal-domain`, `apps/portal/src/live-activity-state.ts`                                    | Service-to-portal proof exists.                   |
+
+## Real Proof Already Present
+
+These are current proof artifacts on `main`; they are not fabricated pages,
+static JSON-only claims, or fixture screenshots used as final proof.
+
+| Proof                                         | Artifact                                                                                                                                                             | What it proves                                                                                                                                                                    | Explicit non-claim                                                                                         |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Windows active/selected/parent opt-in capture | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json`, `output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json` | Real Windows pixels enter the adapter path, encrypted temporary queue metadata is produced, and raw image material is deleted.                                                    | Does not prove macOS, Linux Wayland/root, physical Android, or iOS parity.                                 |
+| Trigger scheduler capture                     | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                                                                                            | Managed-browser trigger input, native foreground input, and two timed cadence inputs enqueue real selected-window captures and delete raw images.                                 | Browser URL ownership remains browser-plan scope; service-owned browser trigger producers remain separate. |
+| Linux WSLg selected-window capture            | `output/screen-plan-proof/linux-wslg/proof-summary.json`                                                                                                             | Real X11 selected-window capture with encrypted custody and deletion.                                                                                                             | Does not prove native Wayland portal or root-display capture.                                              |
+| Android MediaProjection emulator capture      | `output/screen-plan-proof/android-mediaprojection/proof-summary.json`                                                                                                | Explicit OS-consent emulator capture, foreground service, frame digest, and raw temp deletion.                                                                                    | Does not prove silent background capture or physical Android parity.                                       |
+| Disabled setting suppression                  | `output/screen-ai-pipeline-proof/service-disabled-suppression/proof-summary.json`                                                                                    | Real Windows service path creates no new capture rows, no new queue jobs, and no local vision row while parent setting is disabled.                                               | Product settings UI remains separate.                                                                      |
+| Service cadence/read-model loop               | `output/screen-ai-pipeline-proof/service-cadence/proof-summary.json`                                                                                                 | Opt-in Rust service cadence records three timed active-window captures and reads Activity Screen rows over the real WebSocket path.                                               | Provider is service metadata; this is not VLM quality proof.                                               |
+| Service analysis loop                         | `output/screen-ai-pipeline-proof/service-analysis/proof-summary.json`                                                                                                | Service capture can run a local adapter command, record a `localVision` Activity Screen row, and drain the encrypted queue record.                                                | Adapter command is a proof adapter, not production VLM quality.                                            |
+| Retention sweeper                             | `output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json`                                                                                       | Expired encrypted queue records are removed and visible as `expiredDeleted` screen rows over WebSocket.                                                                           | Parent retention-duration UI and cloud retention policy remain separate.                                   |
+| Live operator matrix                          | `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`                                                                                                   | Nine real operator-supplied URL/app scenarios passed through real capture, local VLM, schema validation, policy dry-run, and raw image deletion.                                  | Authenticated-account social proof and managed-browser trigger ownership remain separate.                  |
+| Parent portal rendering                       | `output/screen-ai-pipeline-proof/portal-chain/proof-summary.json`                                                                                                    | Service-backed screen read model renders trigger, scope, AI/provider/category/confidence, policy eligibility, deletion, custody, queue, digest, and evidence refs in the portal.  | Does not prove product-complete background watcher or broad adapters.                                      |
+| Parent Settings catalog proof                 | `output/screen-plan-proof/settings-ui/proof-summary.json`                                                                                                            | Real Rust agent plus Vite portal render the Settings route with the 474-setting Screen catalog, proof-required controls, unavailable sensitive modes, and fail-closed gates.      | Read-only catalog proof; writable opt-in/retention controls remain separate.                               |
+| Remote/retention/live boundary                | `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`                                                                                              | Contract proof keeps raw screenshot retention, live view, and raw remote upload disabled for local summaries; parent-approved redacted summary export requires audit and custody. | Does not prove live-view transport, writable retention UI, or privacy/legal approval.                      |
 
 ## Known Gaps
 
-- Parent opt-in UI.
-- Capability/status UI.
-- Real platform capture adapters.
-- Capture cadence proof.
-- OCR/vision runtime quality proof.
-- Encrypted queue proof.
-- Deletion proof.
-- Confidence threshold policy.
-- Parent explanation UX.
-- Raw screenshot retention mode decision.
-- Live view mode decision.
-- Platform proof.
-- Playwright proof.
+- Writable parent opt-in and retention controls.
+- Live capability/status UI beyond the read-only Screen catalog proof.
+- Production OCR/VLM quality beyond controlled fixtures, proof adapters, and the
+  live operator matrix.
+- Authenticated-account social proof beyond public/live surface proof.
+- Service-owned browser live trigger producers beyond consumed scheduler inputs.
+- macOS live capture proof, Linux Wayland/root proof, physical Android proof,
+  and iOS ReplayKit proof.
+- Writable raw screenshot retention mode UI and privacy/legal approval.
+- Live view transport/platform proof and explicit UI.
+- Browser/network/mobile/broad block action adapters from screen-derived
+  decisions.
+- Production parent explanation UX.
 - Privacy/legal review.
 
 ## Product Boundary

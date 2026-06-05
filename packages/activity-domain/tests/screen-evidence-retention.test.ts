@@ -4,6 +4,7 @@ import {
   ScreenAnalysisParentSettingSchema,
   ScreenAnalysisQueueJobSchema,
   ScreenAnalysisResultSchema,
+  ScreenEvidenceRemoteBoundarySettingSchema,
   ScreenEvidenceSchemaVersion,
 } from '../src/screen-evidence';
 
@@ -139,7 +140,43 @@ const UnknownAnalysisResult = {
   policyEligible: false,
 } as const;
 
+const DisabledRemoteBoundarySetting = {
+  schemaVersion: ScreenEvidenceSchemaVersion,
+  parentSettingRef: 'parent-setting-screen-retention-1',
+  settingVersion: 2,
+  rawScreenshotRetentionMode: 'disabled',
+  liveViewMode: 'disabled',
+  rawScreenshotRemoteUploadEnabled: false,
+  remoteSummaryMode: 'disabled',
+  remoteSummaryRedactedOnly: true,
+  parentApprovedRemoteSummary: false,
+  remoteSummaryApprovalRef: null,
+  remoteSummaryDestinationCustodyState: 'unavailable',
+  changedByParentRef: 'parent-setting-screen-retention-1',
+  changedAt: '2026-05-21T06:50:00Z',
+  reason: 'default local screen evidence boundary',
+} as const;
+
+const ParentApprovedSummaryBoundarySetting = {
+  ...DisabledRemoteBoundarySetting,
+  settingVersion: 3,
+  remoteSummaryMode: 'parentApprovedRedactedSummary',
+  parentApprovedRemoteSummary: true,
+  remoteSummaryApprovalRef: 'screen-remote-summary-approval-1',
+  remoteSummaryDestinationCustodyState: 'parent-owned-export',
+  reason: 'parent approved redacted screen summary export',
+} as const;
+
 describe('screen evidence retention contracts', () => {
+  specifyParentOptInSettings();
+  specifyQueueDeletionStates();
+  specifyLowConfidenceEvidence();
+  specifyUnsafeRetentionRejections();
+  specifyRemoteBoundaryDefaults();
+  specifyRemoteBoundaryRejections();
+});
+
+function specifyParentOptInSettings() {
   it('parses parent opt-in, strict cadence, trigger capture, and policy dry-run intent', () => {
     const setting = ScreenAnalysisParentSettingSchema.parse(StrictPolicyParentSetting);
 
@@ -150,7 +187,9 @@ describe('screen evidence retention contracts', () => {
     expect(setting.policyUseEnabled).toBe(true);
     expect(setting.retainRawImage).toBe(false);
   });
+}
 
+function specifyQueueDeletionStates() {
   it('parses deleted, expired-deleted, and delete-failed queue states', () => {
     const deleted = ScreenAnalysisQueueJobSchema.parse(DeletedQueueJob);
     const expired = ScreenAnalysisQueueJobSchema.parse(ExpiredQueueJob);
@@ -161,7 +200,9 @@ describe('screen evidence retention contracts', () => {
     expect(deleteFailed.deletionStatus).toBe('deleteFailed');
     expect(deleteFailed.deletedAt).toBeNull();
   });
+}
 
+function specifyLowConfidenceEvidence() {
   it('parses unknown low-confidence summaries as policy-ineligible evidence', () => {
     const result = ScreenAnalysisResultSchema.parse(UnknownAnalysisResult);
 
@@ -171,7 +212,9 @@ describe('screen evidence retention contracts', () => {
     expect(result.policyEligible).toBe(false);
     expect(result.rawImageRetained).toBe(false);
   });
+}
 
+function specifyUnsafeRetentionRejections() {
   it('rejects unsafe settings, queue bounds, deletion proof, and policy eligibility', () => {
     expect(
       ScreenAnalysisParentSettingSchema.safeParse({ ...StrictPolicyParentSetting, analysisMode: 'observeOnly' }).success
@@ -207,4 +250,61 @@ describe('screen evidence retention contracts', () => {
       false
     );
   });
-});
+}
+
+function specifyRemoteBoundaryDefaults() {
+  it('keeps raw screenshot retention, live view, and raw remote upload outside the default summary boundary', () => {
+    const disabled = ScreenEvidenceRemoteBoundarySettingSchema.parse(DisabledRemoteBoundarySetting);
+    const approvedSummary = ScreenEvidenceRemoteBoundarySettingSchema.parse(ParentApprovedSummaryBoundarySetting);
+
+    expect(disabled.rawScreenshotRetentionMode).toBe('disabled');
+    expect(disabled.liveViewMode).toBe('disabled');
+    expect(disabled.rawScreenshotRemoteUploadEnabled).toBe(false);
+    expect(disabled.remoteSummaryMode).toBe('disabled');
+    expect(approvedSummary.remoteSummaryMode).toBe('parentApprovedRedactedSummary');
+    expect(approvedSummary.remoteSummaryDestinationCustodyState).toBe('parent-owned-export');
+    expect(approvedSummary.remoteSummaryRedactedOnly).toBe(true);
+  });
+}
+
+function specifyRemoteBoundaryRejections() {
+  it('rejects remote screen boundary settings without parent approval and redacted-summary custody', () => {
+    expect(
+      ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+        ...DisabledRemoteBoundarySetting,
+        rawScreenshotRetentionMode: 'retainRawScreenshot',
+      }).success
+    ).toBe(false);
+    expect(
+      ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+        ...DisabledRemoteBoundarySetting,
+        liveViewMode: 'relayBackedLiveView',
+      }).success
+    ).toBe(false);
+    expect(
+      ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+        ...DisabledRemoteBoundarySetting,
+        rawScreenshotRemoteUploadEnabled: true,
+      }).success
+    ).toBe(false);
+    expect(
+      ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+        ...ParentApprovedSummaryBoundarySetting,
+        remoteSummaryApprovalRef: null,
+      }).success
+    ).toBe(false);
+    expect(
+      ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+        ...ParentApprovedSummaryBoundarySetting,
+        remoteSummaryDestinationCustodyState: 'ocentra-hosted-non-activity',
+      }).success
+    ).toBe(false);
+    expect(
+      ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+        ...DisabledRemoteBoundarySetting,
+        remoteSummaryMode: 'disabled',
+        parentApprovedRemoteSummary: true,
+      }).success
+    ).toBe(false);
+  });
+}

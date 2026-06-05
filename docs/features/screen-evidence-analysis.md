@@ -129,6 +129,15 @@ only with explicit parent settings.
   raw image deletion, custody, queue, digest, and evidence refs. This is
   service-to-portal chain proof from a seeded local activity event, not live
   external-account trigger proof.
+- `screenControlSettingsPortalProof` and
+  `scripts/test/screen-settings-portal-proof.mjs` now prove the real parent
+  portal Settings route renders the Screen control catalog as read-only
+  settings/capability proof. The proof starts the real Rust agent plus Vite
+  portal, opens `#/settings-rules`, verifies the 474-setting catalog, 11 tabs,
+  68 proof-required controls, 9 unavailable sensitive modes, and fail-closed
+  screen gates, then captures
+  `output/screen-plan-proof/settings-ui/parent-settings-screen-catalog.png`.
+  This is not writable opt-in or retention-control UX.
 - `scripts/test/screen-ai-service-cadence-proof.mjs` now proves an explicit
   opt-in Rust service cadence loop on Windows: it opens a real foreground
   browser fixture, records three timed active-window captures through the
@@ -171,6 +180,15 @@ only with explicit parent settings.
   remains visible in queue health, retry bounds are enforced, and unsupported raw
   screenshot retention is rejected. This is contract proof; production TTL
   sweeper execution and parent retention UI remain separate.
+- `ScreenEvidenceRemoteBoundarySettingSchema` and
+  `scripts/test/screen-evidence-settings-retention-proof.mjs` now prove the
+  explicit raw-retention/live-view/remote boundary for local screen summaries:
+  raw screenshot retention and live view are disabled in this mode, raw
+  screenshot remote upload is schema-forced false, and the only accepted remote
+  path is a parent-approved redacted summary with an audit ref and
+  parent-owned-export custody. The proof writes
+  `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`.
+  This is not live-view transport, retention UI, or privacy/legal approval.
 - `scripts/test/screen-ai-service-disabled-suppression-proof.mjs` now proves the
   service-owned disabled setting against the real Rust service on Windows: an
   enabled phase creates one encrypted cadence queue record, then a disabled
@@ -209,30 +227,31 @@ only with explicit parent settings.
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
   claimed.
-- The screen-AI browser trigger proof now validates managed-browser URL,
+- The screen-AI browser trigger proof validates managed-browser URL,
   browser-video, social-feed, and cloud-game trigger rows through
   activity-domain browser AI and screen-analysis schemas, then proves local-AI
-  context builder consumption via
-  `test-results/screen-ai-browser-trigger-proof/proof.json`. The social row is
-  manual-required and the cloud-game row is unavailable/scaffold-only, so this
-  does not claim authenticated social, cloud-frame, mobile parity, UI, or
-  enforcement support.
+  context builder consumption through the executable proof path. The previously
+  referenced `test-results/screen-ai-browser-trigger-proof/proof.json` artifact
+  is not present in the current checkout, so browser-trigger artifact closure
+  remains a D/browser-lane handoff item. The social row is manual-required and
+  the cloud-game row is unavailable/scaffold-only, so this does not claim
+  authenticated social, cloud-frame, mobile parity, UI, or enforcement support.
 - Product settings and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
 
 ## Current Gap
 
-Opt-in UI, parent retention controls, authenticated-account social proof beyond
-public/live surface proof, OCR/vision quality beyond controlled fixtures and the
-full live operator matrix, production local vision adapter quality beyond the
-service proof adapter, service-owned live trigger event producers beyond the
-timed cadence loop and native active-window foreground watcher, parent-facing
-settings UX for disabled capture/analysis, physical Android/iOS proof, live
-macOS capture proof, Linux root/Wayland portal proof,
-browser/network/mobile/broad block action adapters from screen-derived
-decisions, checklist status movement, and production parent explanation UX
-remain. Browser-trigger proof now covers contract flow into screen evidence and
+Writable opt-in UI, parent retention controls, authenticated-account social
+proof beyond public/live surface proof, OCR/vision quality beyond controlled
+fixtures and the full live operator matrix, production local vision adapter
+quality beyond the service proof adapter, service-owned live trigger event
+producers beyond the timed cadence loop and native active-window foreground
+watcher, writable parent-facing settings UX for disabled capture/analysis,
+physical Android/iOS proof, live macOS capture proof, Linux root/Wayland portal
+proof, browser-trigger artifact closure, browser/network/mobile/broad block
+action adapters from screen-derived decisions, and production parent explanation
+UX remain. Browser-trigger proof now covers contract flow into screen evidence and
 local-AI context only; live trigger producers, authenticated surfaces,
 cloud-streamed frames, mobile parity, and UI remain separate proof gates.
 
@@ -246,10 +265,13 @@ cloud-streamed frames, mobile parity, and UI remain separate proof gates.
 - [x] Confidence and unknown handling.
 - [x] Policy decision references summary evidence.
 - [x] Portal read-model explanation and audit proof.
+- [x] Parent Settings route renders read-only Screen settings/capability proof.
+- [x] Raw-retention/live-view/remote boundary rejects raw screenshot retention,
+      live view, and raw remote upload by default.
 
-Product-facing opt-in UI, retention controls, production OCR/VLM quality,
-authenticated-account social proof, broad adapters, and production explanation
-UX remain in the Current Gap section above.
+Product-facing writable opt-in UI, retention controls, production OCR/VLM
+quality, authenticated-account social proof, broad adapters, and production
+explanation UX remain in the Current Gap section above.
 
 ## Next AI Instructions
 

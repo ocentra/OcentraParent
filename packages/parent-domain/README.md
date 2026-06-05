@@ -81,6 +81,9 @@ mobile readiness, and control catalogs.
   local/LAN/relay/cache/storage route states, degraded and unavailable LAN AI
   provider handoff states, and no mobile child-agent parity claims.
 - Browser/app/game/network/screen/tracking control catalogs.
+- Screen settings portal proof contracts that summarize the Screen control
+  catalog for read-only parent Settings rendering without claiming writable
+  opt-in or retention controls.
 - Android/iOS/platform proof and capability status contracts where product
   meaning belongs in TypeScript first.
 - Tracking location policy, AI routing, acknowledgement, child check-in, alert
