@@ -107,6 +107,13 @@ unimplemented, child-device entitlement consumption unimplemented,
 child-activity custody excluded, and parent-visible local-safety fallback
 required when backend/provider state is unavailable.
 
+Current public release/status proof: `production-release-public-status-proof`
+adds parent-domain readiness rows for public account status and subscription
+status surfaces as route-contract/manual readiness only. It keeps account
+backend runtime, billing provider runtime, public website runtime, provider
+secrets, child-device consumption, child-activity custody, production
+publishing, and support backend upload unimplemented or unclaimed.
+
 Current support escalation boundary proof:
 `support-bundle-redaction-proof` adds logging-domain support incident rows for
 billing escalation manual-required state and account lookup manual-required
@@ -225,6 +232,10 @@ Any feature that can be disabled for billing must define its degraded local beha
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   prove account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries before provider/backend code exists.
+- Parent-domain contract tests and `production-release-public-status-proof`
+  prove public account/subscription status surfaces stay route-contract or
+  manual-required before account backend, provider runtime, public website, or
+  production support execution exists.
 - Backend tests prove Stripe references are isolated behind the billing boundary before provider code exists.
 - Child-device tests prove safety modules consume typed entitlement snapshots only and do not import billing provider code.
 - Failure tests cover unavailable provider, stale snapshot, expired trial, grace mode, payment required, and device-limit denial.

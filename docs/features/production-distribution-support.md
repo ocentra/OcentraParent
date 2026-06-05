@@ -101,6 +101,13 @@ dev-only repo when it claims consumer readiness.
   and account download/update/status surfaces. It is route contract proof only:
   no Stripe SDK, billing provider backend, account backend, portal UI, updater
   runtime, or child-activity custody is implemented.
+- `production-release-public-status-proof` defines parent-domain public
+  release/download/account/status readiness rows for `family.ocentra.ca`,
+  public download, release status, update status, account status, subscription
+  status, and support status. It keeps the public website runtime, account
+  backend, billing provider runtime, production publishing, signing/store proof,
+  updater execution, support backend upload, and child-activity custody
+  unimplemented or manual-required.
 - `billing-entitlement-contract-proof` defines parent-domain contracts for
   plan entitlement rows, entitlement snapshots, subscription status sync events,
   device-limit decisions, parent-visible failure states, local-safety fallback,
@@ -229,6 +236,14 @@ package/runtime proof.
       billing provider contact, remote support sessions, production SLA, public
       privacy policy publication, and Ocentra-hosted child activity custody
       remain unimplemented/unclaimed.
+- [ ] Public website/download/account/status surfaces. Current
+      `production-release-public-status-proof` records public download, release
+      status, update status, account status, subscription status, and support
+      status surfaces as route-contract/manual readiness only. The
+      `family.ocentra.ca` runtime, account backend, billing provider runtime,
+      production publishing, signing/store proof, updater execution, support
+      backend upload, and child-activity custody remain unimplemented or
+      manual-required.
 
 ## Next AI Instructions
 

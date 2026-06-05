@@ -40,6 +40,11 @@ Use GitHub Actions and package-preview jobs to catch cross-platform drift early:
   separately. CI/package preview may prove mechanics, but rollback execution,
   rollback failure handling, signed channel proof, and production support
   runbook publication stay manual-required until real platform evidence exists.
+- For `production-release-public-status-proof`, require public download,
+  release status, update status, account status, subscription status, and
+  support status surfaces to stay route-contract or manual-required until real
+  public runtime, backend, signing/store, updater execution, publishing
+  promotion, and support backend evidence exists.
 
 CI is not enough for:
 
