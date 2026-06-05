@@ -38,6 +38,14 @@ Proof root: `output/tracking-plan-proof/26-alert-severity-and-notification-model
 ## Where We Are
 
 This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+Tracking provider-notification proof now maps tracking alert intents from the
+tracking policy read model into existing V0.8 notification provider-status
+boundary rows through `node scripts/test/tracking-provider-notification-proof.mjs`.
+The proof preserves evidence refs, policy decision refs, notification status
+refs, reason refs, and minimal/authenticated-drill-in provider payload
+boundaries while keeping provider delivery, receipts, credentials, parent
+notification UI, child-device delivery, physical-device proof, production
+runtime, durable outbox storage, and adapter dispatch unclaimed.
 
 ## Where We Want To Be
 
@@ -64,9 +72,22 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/26-alert-severity-and-notification-model/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Workpack id and branch: `codex/tracking-provider-notification-proof`.
+- [x] Touched files: parent-domain tracking provider-notification proof contract,
+      focused tests, proof script, feature docs, checklist, and this workpack doc.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-provider-notification-proof.mjs` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/26-alert-severity-and-notification-model/`
+      and `test-results/tracking-provider-notification-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, reports/notifications
+      feature doc, implementation checklist, and this workpack doc updated.
+      Product capability checklist update is queued through hub doc delta
+      because `docs/product-capability-checklist.md` remains sequenced by the
+      hub. Package README update is blocked by E-C lock on
+      `packages/parent-domain/README.md`.
+- [x] Known gaps/manual-required states: Android/iOS, precise desktop, actual
+      provider delivery, receipt ingestion, credentials, parent notification UI,
+      child-device delivery, physical-device proof, runtime engines,
+      retention/delete/export, Rust journal/SQLite, production outbox/runtime,
+      and full UI remain proof-gated as applicable.

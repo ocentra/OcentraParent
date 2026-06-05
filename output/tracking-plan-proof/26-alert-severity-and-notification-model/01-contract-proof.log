@@ -1,6 +1,6 @@
-workpack=26-alert-severity-and-notification-model
-proofState=contract-proof-complete
-activity-domain tracking tests passed
-parent-domain tracking-location-policy tests passed
-schema-boundary guard passed
-Tracking alert intents cite policy decisions, evidence refs, severity, minimal detail mode, and notification refs.
+Contract proof:
+
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-provider-notification-proof tracking-location-policy v0-8-notification-provider-status-boundary: PASS
+- Tracking alert rows preserve evidence refs, policy decision refs, notification status refs, reason refs, and sensitive-detail modes.
+- Tracking rows map into existing V0.8 provider-status boundary rows while provider delivery remains unclaimed.
