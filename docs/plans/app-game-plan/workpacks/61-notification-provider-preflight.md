@@ -1,0 +1,53 @@
+# 61. Notification Provider Preflight
+
+## Goal
+
+Bridge app/game notification scheduler rows into an explicit provider-adapter
+preflight read model so scheduled alerts expose the provider work still required
+before any delivery can be claimed.
+
+## Scope
+
+- Reuse WP59 `AppGameNotificationSchedulerBridgeReadModel` rows.
+- Convert scheduled local scheduler rows into `provider-adapter-required`
+  preflight rows with scheduler, outbox, decision, provider-channel, and reason
+  refs preserved.
+- Keep manual-required and unavailable app/game notification rows blocked before
+  provider preflight with manual proof requirements.
+- Preserve explicit false claims for provider delivery, receipt ingestion,
+  credentials, cloud routing, parent notification UI, child delivery,
+  retry-worker execution, quiet-hours timer execution, production durable
+  outbox storage, and adapter dispatch.
+
+## Non-Goals
+
+- Provider push, email, SMS, WhatsApp, or in-app delivery execution.
+- Provider credentials, provider templates, webhooks, delivery receipts, or
+  receipt ingestion.
+- Production retry workers, production quiet-hours timers, durable production
+  outbox storage, or cloud routing.
+- Parent notification history/preferences UI.
+- Child-device delivery, policy evaluator execution, adapter dispatch, broad
+  app/game blocking, or platform support.
+
+## Proof
+
+- `packages/parent-domain/src/app-game-notification-provider-preflight.ts`
+- `packages/parent-domain/tests/app-game-notification-provider-preflight.test.ts`
+- `scripts/test/app-game-notification-provider-preflight-proof.mjs`
+- `test-results/app-game-notification-provider-preflight-proof/proof.json`
+- `output/app-game-plan-proof/61-notification-provider-preflight/`
+- `output/app-plan-proof/61-notification-provider-preflight/`
+
+## Validation
+
+- [x] Provider preflight parses the WP59 app/game scheduler bridge read model
+      before mapping rows.
+- [x] Scheduled local rows become provider-adapter-required preflight rows with
+      source scheduler/outbox/decision/provider/reason refs.
+- [x] Manual-required and unavailable rows remain blocked before provider
+      preflight.
+- [x] Proof pack records no provider delivery, no receipt ingestion, no
+      credentials, no retry-worker/quiet-hours timer runtime, no parent UI, no
+      child delivery, no adapter dispatch, and no durable production outbox
+      claim.
