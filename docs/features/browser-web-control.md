@@ -573,17 +573,22 @@ policy rule, action, child experience, child-saw-page, degraded/manual fallback,
 and audit visibility explicit. They reject raw page content, raw prompt text,
 portal evaluation, policy authority, direct enforcement, hidden fallback, hidden
 child engagement, missing audit sections, and mismatched source evidence. Activity-domain and text-domain package subpath exports are now present; no parent UI component, portal visual rendering, runtime delivery, enforcement, or product checklist upgrade is claimed.
-AI-21 now extends deterministic YouTube parser coverage and adds a YouTube
-metadata adapter. Managed exact YouTube watch, Shorts, embed, live, channel, and
-playlist URLs can produce schema-backed shape rows, and exact YouTube video,
-short, channel, or playlist classifications can produce metadata evidence with
-title, description, platform ids, channel name, thumbnail refs, duration, publish
-date, captions/transcript availability, category/rating/restricted signals, and
-degraded reasons. Unmanaged or non-YouTube classifications are rejected, and the
-adapter does not capture page body, transcript text, content semantics authority,
-AI decisions, policy decisions, or policy authority. Activity-domain package subpath exports are now present; no network fetcher,
-transcript parser, hidden page load, AI execution, policy evaluator,
-enforcement, or product checklist upgrade is claimed.
+AI-21 now extends deterministic YouTube parser coverage, adds a YouTube metadata
+adapter, and has a live proof harness against a real public YouTube watch page
+plus YouTube oEmbed metadata. Managed exact YouTube watch, Shorts, embed, live,
+channel, and playlist URLs can produce schema-backed shape rows, and exact
+YouTube video, short, channel, or playlist classifications can produce metadata
+evidence with title, description, platform ids, channel name, thumbnail refs,
+duration, publish date, captions/transcript availability, category/rating/
+restricted signals, and degraded reasons. The live proof persists only status
+codes, marker booleans, public platform id, hashes, lengths, and no-claim flags;
+it does not persist raw watch-page HTML, raw page body, transcript text, cookies,
+tokens, local storage, or raw title/description strings. Unmanaged or
+non-YouTube classifications are rejected, and the adapter does not claim content
+semantics authority, AI decisions, policy decisions, or policy authority.
+Activity-domain package subpath exports are now present; no production metadata
+fetcher/scheduler, transcript parser, hidden page load, AI execution, policy
+evaluator, UI, enforcement, or product checklist upgrade is claimed.
 AI-22 now extends deterministic Vimeo parser coverage and adds a Vimeo/generic
 video metadata adapter. Managed exact Vimeo page and player URLs with numeric
 video ids can produce schema-backed shape rows, and exact managed Vimeo video or
