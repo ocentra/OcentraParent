@@ -9,6 +9,7 @@ const testOutputDir = join(repoRoot, 'test-results', proofName);
 const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '63-notification-payload-preflight');
 const appProofDir = join(repoRoot, 'output', 'app-plan-proof', '63-notification-payload-preflight');
 const timestamp = '2026-06-05T03:18:00Z';
+const initialGitStatusShort = capture('git', ['status', '--short']);
 
 for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await rm(path, { recursive: true, force: true });
@@ -95,7 +96,7 @@ const proof = {
     appGameProofPack: 'output/app-game-plan-proof/63-notification-payload-preflight',
     appProofPack: 'output/app-plan-proof/63-notification-payload-preflight',
   },
-  gitStatusShort: capture('git', ['status', '--short']),
+  gitStatusShort: initialGitStatusShort,
 };
 
 assertProof(proof);

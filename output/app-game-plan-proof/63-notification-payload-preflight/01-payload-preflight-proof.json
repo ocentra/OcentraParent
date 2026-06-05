@@ -57,5 +57,5 @@
     "appGameProofPack": "output/app-game-plan-proof/63-notification-payload-preflight",
     "appProofPack": "output/app-plan-proof/63-notification-payload-preflight"
   },
-  "gitStatusShort": "M docs/expectations/notifications.md\n M docs/features/app-game-control.md\n M docs/features/reports-notifications-sync.md\n M docs/plans/app-game-plan/implementation-checklist.md\n M docs/plans/app-game-plan/workpacks/README.md\n M docs/plans/app-plan/implementation-checklist.md\n M docs/product-capability-checklist.md\n?? docs/plans/app-game-plan/workpacks/63-notification-payload-preflight.md\n?? docs/plans/app-plan/workpacks/63-notification-payload-preflight.md\n?? packages/parent-domain/src/app-game-notification-payload-preflight.ts\n?? packages/parent-domain/tests/app-game-notification-payload-preflight.test.ts\n?? scripts/test/app-game-notification-payload-preflight-proof.mjs"
+  "gitStatusShort": "M scripts/test/app-game-notification-payload-preflight-proof.mjs"
 }
