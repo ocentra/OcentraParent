@@ -29,6 +29,9 @@ transports.
 - App/game boundary read-model command/event names and the
   `appGameBoundaryReadModel` payload field for the service-backed
   authority/classifier row-count proof path.
+- App/game notification readiness read-model command/event names, payload
+  field, parser, and no-claim booleans for service-backed local notification
+  intent readiness rows.
 - Activity app-use and games read-model event parsing for backend-owned
   app/game source freshness rows, while product semantics stay in
   `activity-domain`.
@@ -102,3 +105,8 @@ flowchart LR
 - App/game source freshness row parsing proves service payload shape only; portal
   rendering, policy decisions, provider execution, and broad OS adapter support
   remain separate proof-gated work.
+- App/game notification readiness parsing proves service payload shape only;
+  provider delivery, receipt ingestion, local outbox runtime, scheduler runtime,
+  parent notification UI, child delivery, policy evaluator execution, adapter
+  dispatch, broad blocking, and platform support remain separate proof-gated
+  work.

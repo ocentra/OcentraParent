@@ -108,6 +108,8 @@ pub enum AgentCommandName {
     AgentActivityAppGameBoundaryReadModelGet,
     #[serde(rename = "agent.activity.app-game.policy-readiness.read-model.get")]
     AgentActivityAppGamePolicyReadinessReadModelGet,
+    #[serde(rename = "agent.activity.app-game.notification-readiness.read-model.get")]
+    AgentActivityAppGameNotificationReadinessReadModelGet,
     #[serde(rename = "agent.activity.network.read-model.get")]
     AgentActivityNetworkReadModelGet,
     #[serde(rename = "agent.activity.tracking.read-model.get")]
@@ -238,6 +240,8 @@ pub enum AgentEventName {
     AgentActivityAppGameBoundaryReadModelReported,
     #[serde(rename = "agent.activity.app-game.policy-readiness.read-model.reported")]
     AgentActivityAppGamePolicyReadinessReadModelReported,
+    #[serde(rename = "agent.activity.app-game.notification-readiness.read-model.reported")]
+    AgentActivityAppGameNotificationReadinessReadModelReported,
     #[serde(rename = "agent.activity.network.read-model.reported")]
     AgentActivityNetworkReadModelReported,
     #[serde(rename = "agent.activity.tracking.read-model.reported")]

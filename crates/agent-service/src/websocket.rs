@@ -7,6 +7,7 @@ use ocentra_parent_agent_protocol::{
 use crate::{
     activity_api::{
         build_activity_app_game_boundary_read_model_report,
+        build_activity_app_game_notification_readiness_report,
         build_activity_app_game_policy_readiness_report, build_activity_ingest_status_report,
         build_activity_memory_graph_report, build_activity_recent_summary_report,
         build_activity_tracking_read_model_report, build_browser_evidence_recent_report,
@@ -184,6 +185,7 @@ async fn build_command_event(
         | AgentCommandName::AgentActivityGamesReadModelGet
         | AgentCommandName::AgentActivityAppGameBoundaryReadModelGet
         | AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet
+        | AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet
         | AgentCommandName::AgentActivityNetworkReadModelGet
         | AgentCommandName::AgentActivityTrackingReadModelGet => {
             build_activity_command_report(command).await
@@ -319,6 +321,9 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         }
         AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet => {
             build_activity_app_game_policy_readiness_report(command).await
+        }
+        AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet => {
+            build_activity_app_game_notification_readiness_report(command).await
         }
         AgentCommandName::AgentActivityNetworkReadModelGet => {
             build_activity_network_read_model(command).await

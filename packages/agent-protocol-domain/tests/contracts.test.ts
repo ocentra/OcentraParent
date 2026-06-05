@@ -23,6 +23,8 @@ const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['ActivityBrowserReadModelGet', 'agent.activity.browser.read-model.get'],
   ['ActivityGamesReadModelGet', 'agent.activity.games.read-model.get'],
   ['ActivityAppGameBoundaryReadModelGet', 'agent.activity.app-game.boundary.read-model.get'],
+  ['ActivityAppGamePolicyReadinessReadModelGet', 'agent.activity.app-game.policy-readiness.read-model.get'],
+  ['ActivityAppGameNotificationReadinessReadModelGet', 'agent.activity.app-game.notification-readiness.read-model.get'],
   ['ActivityNetworkReadModelGet', 'agent.activity.network.read-model.get'],
   ['ActivityTrackingReadModelGet', 'agent.activity.tracking.read-model.get'],
   ['BrowserEvidenceRecentGet', 'agent.browser.evidence.recent.get'],
@@ -82,6 +84,11 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
   ['ActivityBrowserReadModelReported', 'agent.activity.browser.read-model.reported'],
   ['ActivityGamesReadModelReported', 'agent.activity.games.read-model.reported'],
   ['ActivityAppGameBoundaryReadModelReported', 'agent.activity.app-game.boundary.read-model.reported'],
+  ['ActivityAppGamePolicyReadinessReadModelReported', 'agent.activity.app-game.policy-readiness.read-model.reported'],
+  [
+    'ActivityAppGameNotificationReadinessReadModelReported',
+    'agent.activity.app-game.notification-readiness.read-model.reported',
+  ],
   ['ActivityNetworkReadModelReported', 'agent.activity.network.read-model.reported'],
   ['ActivityTrackingReadModelReported', 'agent.activity.tracking.read-model.reported'],
   ['BrowserEvidenceRecentReported', 'agent.browser.evidence.recent.reported'],
@@ -329,6 +336,9 @@ function expectReadModelBridgeAndActivityFields() {
   expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
   expect(AgentProtocolDefaults.Field.ActivityDigest).toBe('activityDigest');
   expect(AgentProtocolDefaults.Field.ActivityTrackingReadModel).toBe('trackingReadModel');
+  expect(AgentProtocolDefaults.Field.ActivityAppGameNotificationReadinessReadModel).toBe(
+    'appGameNotificationReadinessReadModel'
+  );
   expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
   expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');
   expect(AgentProtocolDefaults.Field.BrowserInterventionId).toBe('browserInterventionId');
