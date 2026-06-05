@@ -47,6 +47,9 @@ alternative.
   raw screenshot retention, live view, and raw remote upload disabled. Parent
   approved redacted summary export is the only accepted remote mode, and it must
   use parent-owned-export custody.
+- The Settings route writable-intent proof now shows that enabling local
+  screen-summary drafts still keeps raw screenshot retention, live view, and raw
+  remote upload disabled in the rendered parent UI.
 - Raw screen control settings are preserved as design inputs for both summary
   and live-view decisions.
 

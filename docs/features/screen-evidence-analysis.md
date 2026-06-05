@@ -138,6 +138,18 @@ only with explicit parent settings.
   screen gates, then captures
   `output/screen-plan-proof/settings-ui/parent-settings-screen-catalog.png`.
   This is not writable opt-in or retention-control UX.
+- `screenEvidenceSettingsWritableUiProof` and
+  `scripts/test/screen-settings-writable-controls-proof.mjs` now prove the real
+  parent portal Settings route can build typed local screen-summary setting
+  drafts from the real `ScreenAnalysisParentSettingSchema`: disabled,
+  observe-only five-minute summaries, and strict one-minute policy dry-run with
+  explicit triggers. The proof runs the real Rust agent plus Vite portal on the
+  B-lane ports, clicks the Settings controls in Playwright, captures
+  `output/screen-plan-proof/settings-writable-controls/parent-settings-writable-controls.png`,
+  and writes
+  `output/screen-plan-proof/settings-writable-controls/proof-summary.json`.
+  This is not service persistence, child-agent runtime application, raw
+  retention enablement, live view, or remote screenshot upload.
 - `scripts/test/screen-ai-service-cadence-proof.mjs` now proves an explicit
   opt-in Rust service cadence loop on Windows: it opens a real foreground
   browser fixture, records three timed active-window captures through the
@@ -236,24 +248,25 @@ only with explicit parent settings.
   remains a D/browser-lane handoff item. The social row is manual-required and
   the cloud-game row is unavailable/scaffold-only, so this does not claim
   authenticated social, cloud-frame, mobile parity, UI, or enforcement support.
-- Product settings and quality proof are incomplete.
+- Service-persisted product settings, retention controls, and quality proof are
+  incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
 
 ## Current Gap
 
-Writable opt-in UI, parent retention controls, authenticated-account social
-proof beyond public/live surface proof, OCR/vision quality beyond controlled
-fixtures and the full live operator matrix, production local vision adapter
-quality beyond the service proof adapter, service-owned live trigger event
-producers beyond the timed cadence loop and native active-window foreground
-watcher, writable parent-facing settings UX for disabled capture/analysis,
-physical Android/iOS proof, live macOS capture proof, Linux root/Wayland portal
-proof, browser-trigger artifact closure, browser/network/mobile/broad block
-action adapters from screen-derived decisions, and production parent explanation
-UX remain. Browser-trigger proof now covers contract flow into screen evidence and
-local-AI context only; live trigger producers, authenticated surfaces,
-cloud-streamed frames, mobile parity, and UI remain separate proof gates.
+Service persistence for parent setting changes, parent retention controls,
+authenticated-account social proof beyond public/live surface proof, OCR/vision
+quality beyond controlled fixtures and the full live operator matrix, production
+local vision adapter quality beyond the service proof adapter, service-owned
+live trigger event producers beyond the timed cadence loop and native
+active-window foreground watcher, physical Android/iOS proof, live macOS capture
+proof, Linux root/Wayland portal proof, browser-trigger artifact closure,
+browser/network/mobile/broad block action adapters from screen-derived
+decisions, and production parent explanation UX remain. Browser-trigger proof
+now covers contract flow into screen evidence and local-AI context only; live
+trigger producers, authenticated surfaces, cloud-streamed frames, mobile parity,
+and UI remain separate proof gates.
 
 ## Checklist
 
@@ -266,12 +279,14 @@ cloud-streamed frames, mobile parity, and UI remain separate proof gates.
 - [x] Policy decision references summary evidence.
 - [x] Portal read-model explanation and audit proof.
 - [x] Parent Settings route renders read-only Screen settings/capability proof.
+- [x] Parent Settings route renders writable local screen-summary intent draft
+      proof.
 - [x] Raw-retention/live-view/remote boundary rejects raw screenshot retention,
       live view, and raw remote upload by default.
 
-Product-facing writable opt-in UI, retention controls, production OCR/VLM
-quality, authenticated-account social proof, broad adapters, and production
-explanation UX remain in the Current Gap section above.
+Service persistence for parent setting changes, product-complete retention
+controls, production OCR/VLM quality, authenticated-account social proof, broad
+adapters, and production explanation UX remain in the Current Gap section above.
 
 ## Next AI Instructions
 

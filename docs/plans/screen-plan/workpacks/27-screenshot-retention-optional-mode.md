@@ -11,6 +11,8 @@ Raw screenshot retention is not default and not product-complete.
 decision as disabled for raw screenshot retention, and
 `scripts/test/screen-evidence-settings-retention-proof.mjs` proves the schema
 rejects any raw-retention mode outside that disabled state.
+The Settings writable-intent proof renders the same disabled retention/live-view
+boundary while local screen-summary drafts are enabled.
 
 ## Checklist
 
