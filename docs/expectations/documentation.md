@@ -29,6 +29,10 @@ replace the constitution, roadmap, or capability checklist.
 - Parent-visible behavior.
 - Module README ownership and gap notes when an app, package, crate, or platform
   area changes responsibility.
+- `production-release-public-docs-status-proof` may prove source-contract
+  status for public privacy, retention, export/delete, support, incident, and
+  legal docs, but docs must not claim public publication until a public route,
+  legal review, and publication proof exist.
 
 ## Required Structure
 
