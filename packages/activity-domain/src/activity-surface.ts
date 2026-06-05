@@ -21,8 +21,10 @@ import {
 import {
   ScreenEvidenceConfidenceSchema,
   ScreenEvidenceImageDigestSchema,
+  ScreenEvidenceModelIdSchema,
   ScreenEvidenceModelRuntimeRefSchema,
   ScreenEvidenceQueueJobIdSchema,
+  ScreenEvidenceTemplateVersionSchema,
 } from './screen-evidence-primitives';
 import {
   ScreenCapabilityStatusSchema,
@@ -38,6 +40,9 @@ const NonEmptyActivitySurfaceText = Schema.String.pipe(Schema.minLength(1));
 const NonNegativeActivityCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const NonNegativeActivityDuration = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const ActivitySurfaceReferenceListSchema = Schema.Array(NonEmptyActivitySurfaceText);
+const ActivityScreenRawImageRetainedSchema = Schema.optionalWith(Schema.Literal(false), {
+  default: () => false as const,
+});
 
 export const ActivitySurfaceSchemaVersion = 1;
 
@@ -253,10 +258,13 @@ export const ActivityScreenReadModelSchema = withParser(
         capabilityStatus: ScreenCapabilityStatusSchema,
         queueJobId: ScreenEvidenceQueueJobIdSchema,
         modelRuntimeRef: ScreenEvidenceModelRuntimeRefSchema,
+        modelId: ScreenEvidenceModelIdSchema,
         providerKind: ScreenLocalModelProviderKindSchema,
+        promptOrTemplateVersion: ScreenEvidenceTemplateVersionSchema,
         primaryCategory: Schema.Union(ScreenVisibleCategorySchema, Schema.Null),
         confidence: ScreenEvidenceConfidenceSchema,
         imageDeletionState: ScreenDeletionStateSchema,
+        rawImageRetained: ActivityScreenRawImageRetainedSchema,
         policyEligible: Schema.Boolean,
         imageDigest: ScreenEvidenceImageDigestSchema,
         custodyState: ScreenEvidenceCustodyStateSchema,

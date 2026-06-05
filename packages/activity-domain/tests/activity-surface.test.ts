@@ -66,10 +66,13 @@ const ScreenChainFields = {
   capabilityStatus: 'ready',
   queueJobId: 'screen-queue-job-1',
   modelRuntimeRef: 'local-vision-runtime-1',
+  modelId: 'local-vision-model-1',
   providerKind: 'localVision',
+  promptOrTemplateVersion: 'screen-template-v1',
   primaryCategory: 'productivity',
   confidence: 0.91,
   imageDeletionState: 'deleted',
+  rawImageRetained: false,
   policyEligible: true,
   imageDigest: 'sha256:screen-image-digest',
   custodyState: 'child-device-journal',
@@ -82,6 +85,32 @@ const ScreenChainFields = {
   explanationReasons: ['screen-summary-cited', 'policy-decision-cited'],
   deletionReasons: ['screen-image-deleted'],
 } as const;
+
+function screenReadModelRow(overrides = {}) {
+  return {
+    rowId: 'screen-row-1',
+    label: 'Visible productivity window',
+    deviceId: 'child-device-1',
+    state: 'ready',
+    totalMs: 0,
+    foregroundMs: 0,
+    backgroundMs: 0,
+    ...ScreenChainFields,
+    evidence: [EvidenceRef],
+    ...overrides,
+  } as const;
+}
+
+function screenReadModel(row = screenReadModelRow()) {
+  return {
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    request: ActivityRequest,
+    state: 'ready',
+    generatedAt: '2026-05-27T06:21:00Z',
+    summary: 'Screen use ready',
+    rows: [row],
+  } as const;
+}
 
 const ReportDocument = {
   schemaVersion: ActivitySurfaceSchemaVersion,
@@ -321,81 +350,42 @@ describe('activity screen and app-use read-model contracts', () => {
 function specifyActivityScreenReadModelContracts() {
   it('ActivityScreenReadModelSchema: accepts foreground and background screen rows', () => {
     expect(
-      ActivityScreenReadModelSchema.parse({
-        schemaVersion: ActivitySurfaceSchemaVersion,
-        request: ActivityRequest,
-        state: 'ready',
-        generatedAt: '2026-05-27T06:21:00Z',
-        summary: 'Screen use ready',
-        rows: [
-          {
-            rowId: 'screen-row-1',
+      ActivityScreenReadModelSchema.parse(
+        screenReadModel(
+          screenReadModelRow({
             label: 'Foreground use',
-            deviceId: 'child-device-1',
-            state: 'ready',
             totalMs: 3600000,
             foregroundMs: 2400000,
             backgroundMs: 1200000,
-            ...ScreenChainFields,
-            evidence: [EvidenceRef],
-          },
-        ],
-      }).rows[0]?.foregroundMs
+          })
+        )
+      ).rows[0]?.foregroundMs
     ).toBe(2400000);
   });
 
   it('ActivityScreenReadModelSchema: carries capture AI policy and deletion chain fields', () => {
-    const parsed = ActivityScreenReadModelSchema.parse({
-      schemaVersion: ActivitySurfaceSchemaVersion,
-      request: ActivityRequest,
-      state: 'ready',
-      generatedAt: '2026-05-27T06:21:00Z',
-      summary: 'Screen use ready',
-      rows: [
-        {
-          rowId: 'screen-row-1',
-          label: 'Visible productivity window',
-          deviceId: 'child-device-1',
-          state: 'ready',
-          totalMs: 0,
-          foregroundMs: 0,
-          backgroundMs: 0,
-          ...ScreenChainFields,
-          evidence: [EvidenceRef],
-        },
-      ],
-    });
+    const parsed = ActivityScreenReadModelSchema.parse(screenReadModel());
+    const row = parsed.rows[0];
 
-    expect(parsed.rows[0]?.captureReason).toBe('nativeAppForegroundStart');
-    expect(parsed.rows[0]?.providerKind).toBe('localVision');
-    expect(parsed.rows[0]?.primaryCategory).toBe('productivity');
-    expect(parsed.rows[0]?.imageDeletionState).toBe('deleted');
-    expect(parsed.rows[0]?.policyEligible).toBe(true);
-    expect(parsed.rows[0]?.policyDecisionRef).toBe('screen-policy-decision-1');
-    expect(parsed.rows[0]?.parentRuleRefs).toEqual(['screen-parent-rule-school']);
-    expect(parsed.rows[0]?.parentExplanationRefs).toEqual(['screen-parent-explanation-1']);
-    expect(parsed.rows[0]?.explanationReasons).toEqual(['screen-summary-cited', 'policy-decision-cited']);
+    if (row === undefined) throw new Error('Expected parsed screen row');
+
+    expect(row.captureReason).toBe('nativeAppForegroundStart');
+    expect(row.modelId).toBe('local-vision-model-1');
+    expect(row.providerKind).toBe('localVision');
+    expect(row.promptOrTemplateVersion).toBe('screen-template-v1');
+    expect(row.primaryCategory).toBe('productivity');
+    expect(row.rawImageRetained).toBe(false);
+    expect(row.policyDecisionRef).toBe('screen-policy-decision-1');
+    expect(row.parentExplanationRefs).toEqual(['screen-parent-explanation-1']);
   });
 }
 
 function specifyActivityScreenLegacyReadModelContracts() {
   it('ActivityScreenReadModelSchema: defaults parent explanation refs for older rows', () => {
-    const parsed = ActivityScreenReadModelSchema.parse({
-      schemaVersion: ActivitySurfaceSchemaVersion,
-      request: ActivityRequest,
-      state: 'ready',
-      generatedAt: '2026-05-27T06:21:00Z',
-      summary: 'Screen use ready',
-      rows: [
-        {
+    const parsed = ActivityScreenReadModelSchema.parse(
+      screenReadModel(
+        screenReadModelRow({
           rowId: 'screen-row-legacy',
-          label: 'Visible productivity window',
-          deviceId: 'child-device-1',
-          state: 'ready',
-          totalMs: 0,
-          foregroundMs: 0,
-          backgroundMs: 0,
-          ...ScreenChainFields,
           policyDecisionRef: undefined,
           policyAction: undefined,
           policyReasonCodes: undefined,
@@ -404,14 +394,31 @@ function specifyActivityScreenLegacyReadModelContracts() {
           parentExplanationRefs: undefined,
           explanationReasons: undefined,
           deletionReasons: undefined,
-          evidence: [EvidenceRef],
-        },
-      ],
-    });
+        })
+      )
+    );
 
     expect(parsed.rows[0]?.policyDecisionRef).toBeNull();
     expect(parsed.rows[0]?.parentRuleRefs).toEqual([]);
     expect(parsed.rows[0]?.parentExplanationRefs).toEqual([]);
+  });
+
+  it('ActivityScreenReadModelSchema: defaults raw image retention to false for older rows', () => {
+    const parsed = ActivityScreenReadModelSchema.parse(
+      screenReadModel(screenReadModelRow({ rowId: 'screen-row-legacy-retention', rawImageRetained: undefined }))
+    );
+
+    expect(parsed.rows[0]?.modelId).toBe('local-vision-model-1');
+    expect(parsed.rows[0]?.promptOrTemplateVersion).toBe('screen-template-v1');
+    expect(parsed.rows[0]?.rawImageRetained).toBe(false);
+  });
+
+  it('ActivityScreenReadModelSchema: rejects retained raw image rows', () => {
+    expect(
+      ActivityScreenReadModelSchema.safeParse(
+        screenReadModel(screenReadModelRow({ rowId: 'screen-row-retained-image', rawImageRetained: true }))
+      ).success
+    ).toBe(false);
   });
 }
 
