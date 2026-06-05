@@ -79,6 +79,7 @@ function expectPopulatedDashboard(dashboard: ActivityUiIntent['appGameDashboard'
   expect(dashboard.rows.some((row) => row.label.includes('<script>alert(1)</script>'))).toBe(true);
   expect(dashboard.capabilityRows.map((row) => row.label)).toContain('manual-required');
   expectSourceStatusRows(dashboard);
+  expectSourcePanelSections(dashboard);
 }
 
 function expectSourceStatusRows(dashboard: ActivityUiIntent['appGameDashboard']) {
@@ -91,6 +92,45 @@ function expectSourceStatusRows(dashboard: ActivityUiIntent['appGameDashboard'])
   ]);
   expect(dashboard.evidenceRows.map((row) => row.value).join(' ')).toContain('refs');
   expect(dashboard.evidenceRows.map((row) => row.value).join(' ')).toContain('source rows');
+}
+
+function expectSourcePanelSections(dashboard: ActivityUiIntent['appGameDashboard']) {
+  expect(
+    dashboard.sourcePanelSections.map((section) => [
+      section.title,
+      section.rowCount,
+      section.freshCount,
+      section.manualRequiredCount,
+      section.evidenceCount,
+    ])
+  ).toEqual([
+    ['App use sources', 4, 3, 1, 4],
+    ['Game sources', 2, 1, 1, 2],
+  ]);
+  expect(dashboard.sourcePanelSections.map((section) => section.subtitle)).toEqual([
+    '3 fresh of 4 source rows; 1 manual-required',
+    '1 fresh of 2 source rows; 1 manual-required',
+  ]);
+  expect(
+    dashboard.sourcePanelSections.flatMap((section) =>
+      section.rows.map((row) => [section.title, row.parentLabel, row.sourceStatusLabel, row.freshnessLabel])
+    )
+  ).toContainEqual(['App use sources', 'Study Timer', 'Foreground Window', 'Fresh source']);
+  expect(
+    dashboard.sourcePanelSections.flatMap((section) =>
+      section.rows.map((row) => [section.title, row.parentLabel, row.sourceStatusLabel, row.freshnessLabel])
+    )
+  ).toContainEqual(['Game sources', 'Steam Launcher', 'Launcher Manifest', 'Needs review']);
+  expect(dashboard.sourcePanelSections.flatMap((section) => section.metrics.map((metric) => metric.label))).toEqual([
+    'Fresh',
+    'Rows',
+    'Manual',
+    'Evidence',
+    'Fresh',
+    'Rows',
+    'Manual',
+    'Evidence',
+  ]);
 }
 
 function appUseReadModel() {
