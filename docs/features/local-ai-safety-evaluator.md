@@ -145,6 +145,13 @@ claim needs proof, not slogans.
   protected-surface non-claims. The verifier writes
   `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json` and
   does not rerun live capture/model inference or claim remote/API AI.
+- `ScreenAiStricterParentRuleProofSchema` and
+  `scripts/test/screen-ai-stricter-parent-rule-proof.mjs` now consume the real
+  service WinRT OCR policy decision and prove a stricter parent-authored screen
+  category rule wins over local AI output. The proof preserves the local AI
+  result ref, evidence refs, dry-run policy shape, and disabled enforcement
+  handoff while keeping local AI authority, remote/API AI, raw image retention,
+  and enforcement unclaimed.
 - `ScreenFamilyAiHubRouteSchema` and
   `scripts/test/screen-family-ai-hub-routing-proof.mjs` now prove the
   screen-specific family AI hub route contract for hard visual analysis:
@@ -220,6 +227,8 @@ production external evidence variants.
 - [x] Parent explanation and audit proof path.
 - [x] Parent explanation read-model proof path.
 - [x] Screen parent explanation service read-model proof path.
+- [x] Screen AI stricter parent-rule proof over the real service WinRT OCR
+      policy decision.
 - [x] Screen service WinRT OCR local adapter proof path.
 - [x] Screen guided VLM worker contract proof path.
 - [x] Screen VLM execution readiness/status handoff proof path.
