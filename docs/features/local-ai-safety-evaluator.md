@@ -147,6 +147,12 @@ claim needs proof, not slogans.
   status, and the screen safety capability, while rejecting
   remote/API/Ocentra-hosted processing, model-quality, execution, and
   raw-evidence claims.
+- `ScreenAiRemoteBoundaryProofSchema` and
+  `scripts/test/screen-ai-remote-boundary-proof.mjs` now prove the screen AI
+  remote/API boundary: child-safety screen AI must route local-only, while
+  parent-assistant and parent-report remote states stay parent-only,
+  unavailable/degraded, and non-authoritative. Remote/API results cannot set
+  policy, cannot enforce, and cannot retain raw screen images in this proof.
 
 ## Current Gap
 
@@ -181,6 +187,8 @@ production external evidence variants.
 - [x] Screen hard-visual routing prefers child-local then household family hub
       before remote/API fallback.
 - [x] Screen AI model artifact manifest/config contract boundary.
+- [x] Screen AI remote/API boundary tests keep child safety local-only and
+      parent remote states non-authoritative.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, and broad enforcement handoff remain in the

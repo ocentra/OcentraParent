@@ -140,7 +140,7 @@ consumes the same results.
 - [ ] Model output parser tests.
 - [ ] Policy integration tests.
 - [ ] Memory/graph source guard tests.
-- [ ] Remote boundary tests.
+- [x] Remote boundary tests.
 - [x] Playwright UI proof.
 - [x] `git diff --check`.
 - [x] lane/hub guards.
@@ -165,4 +165,9 @@ consumes the same results.
       `output/ai-plan-proof/screen-summary-parent-explanation-read-model`.
 - [x] screen summary parent explanation service read-model proof artifacts under
       `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model`.
+- [x] screen AI remote boundary proof artifacts under
+      `output/ai-plan-proof/screen-ai-remote-boundary-proof`.
+- [x] screen AI remote boundary proof run:
+      `node --check scripts/test/screen-ai-remote-boundary-proof.mjs` and
+      `node scripts/test/screen-ai-remote-boundary-proof.mjs`.
 - [ ] `npm run validate` or explicit approved omission.

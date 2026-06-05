@@ -1,0 +1,39 @@
+{
+  "proof": "screen-ai-remote-boundary-proof",
+  "proofTier": "P3_CONTRACT_REMOTE_BOUNDARY",
+  "generatedAt": "2026-06-05T21:35:00.705Z",
+  "summary": {
+    "rowCount": 3,
+    "childSafetyLocalOnlyRows": 1,
+    "parentOnlyRemoteStateRows": 2,
+    "childSafetyRemoteClaimRows": 0,
+    "remotePolicyAuthorityRows": 0,
+    "remoteEnforcementRows": 0,
+    "rawImageRetainedRows": 0
+  },
+  "assertions": {
+    "requiredRowsPresent": true,
+    "childSafetyStaysLocalOnly": true,
+    "parentRemoteStatesAreParentOnly": true,
+    "remoteCannotSetPolicy": true,
+    "remoteCannotEnforce": true,
+    "rawImagesNotRetained": true
+  },
+  "sourceArtifacts": [
+    "output/ai-plan-proof/screen-summary-ai-context/proof-summary.json",
+    "output/ai-plan-proof/screen-ai-memory-graph-source-guard-proof/proof-summary.json",
+    "output/ai-plan-proof/local-ai-parent-assistant-runtime-proof/proof-summary.json",
+    "output/ai-plan-proof/screen-summary-parent-explanation-read-model/proof-summary.json"
+  ],
+  "validationCommands": "output/ai-plan-proof/screen-ai-remote-boundary-proof/validation-commands.log",
+  "claimsProved": [
+    "Child-safety screen AI rows require local-only routing and reject remote/API authorization or execution.",
+    "Parent assistant and parent report remote/API states are explicit parent-only unavailable/degraded surfaces.",
+    "Remote/API results cannot set policy, cannot enforce, and cannot retain raw screen images in this boundary proof."
+  ],
+  "nonClaims": [
+    "This proof does not execute a remote API provider or local model.",
+    "This proof does not implement portal rendering, SQLite journal ingest, production model quality, or enforcement.",
+    "This proof does not replace the existing local AI provider scheduler or screen evidence context builder."
+  ]
+}
