@@ -223,6 +223,47 @@ export const ParentDesktopReleaseSupportManualRunbookEntrySchema = withParser(
   })
 );
 
+const ParentDesktopReleaseSupportRunbookSectionSchema = withParser(
+  Schema.Literal(
+    'rollback-triage',
+    'rollback-failure-status',
+    'diagnostics-redaction',
+    'manual-platform-proof',
+    'support-escalation-boundary'
+  )
+);
+
+const ParentDesktopReleaseSupportUpdaterRollbackRowSchema = withParser(
+  Schema.Struct({
+    channel: ParentDesktopReleaseSupportUpdateChannelSchema,
+    rollbackState: ParentDesktopReleaseSupportStateSchema,
+    failureStatusState: ParentDesktopReleaseSupportStateSchema,
+    manualRequiredState: ParentDesktopReleaseSupportStateSchema,
+    proofRequirement: ReleaseSupportRequirementSchema,
+  })
+);
+
+const ParentDesktopReleaseSupportRunbookStatusSchema = withParser(
+  Schema.Struct({
+    draftRunbookState: ParentDesktopReleaseSupportStateSchema,
+    productionRunbookState: ParentDesktopReleaseSupportStateSchema,
+    rollbackTriageState: ParentDesktopReleaseSupportStateSchema,
+    requiredSections: Schema.Array(ParentDesktopReleaseSupportRunbookSectionSchema),
+    proofReferences: Schema.Array(ReleaseSupportProofPathSchema),
+    nonClaim: ReleaseSupportLabelSchema,
+  })
+);
+
+const ParentDesktopReleaseSupportUpdaterRollbackRunbookProofSchema = withParser(
+  Schema.Struct({
+    proof: Schema.Literal('v8-updater-rollback-runbook-status'),
+    updaterRows: Schema.Array(ParentDesktopReleaseSupportUpdaterRollbackRowSchema),
+    runbookStatus: ParentDesktopReleaseSupportRunbookStatusSchema,
+    claimBoundary: ReleaseSupportLabelSchema,
+    manualRequiredGaps: Schema.Array(ReleaseSupportLabelSchema),
+  })
+);
+
 export const ParentDesktopReleaseSupportReadinessGateSchema = withParser(
   Schema.Struct({
     gate: Schema.Literal('v8-production-release-support-readiness'),
@@ -251,6 +292,7 @@ const ParentDesktopReleaseSupportReadModelBaseSchema = Schema.Struct({
   supportIncidentHandoff: ParentDesktopReleaseSupportIncidentHandoffSchema,
   manualRunbook: Schema.Array(ParentDesktopReleaseSupportManualRunbookEntrySchema),
   productionReadinessGate: ParentDesktopReleaseSupportReadinessGateSchema,
+  updaterRollbackRunbookProof: ParentDesktopReleaseSupportUpdaterRollbackRunbookProofSchema,
   updatedAt: ParentTimestampSchema,
 });
 

@@ -55,6 +55,12 @@ dev-only repo when it claims consumer readiness.
   service-manager launch ownership, fixed loopback process ownership,
   connect-or-degrade behavior, signed-channel update posture, and explicit
   not-signing/not-production/non-upload non-claims.
+- `v8-updater-rollback-runbook-proof` adds explicit updater rollback and
+  release-support runbook status rows for scaffold, unsigned-preview,
+  signature-required, and production channels. It proves rollback execution is
+  still unavailable, rollback failure status remains manual-required, the
+  support runbook is preview-only until published, and signed production update
+  channel proof is required before any rollback execution claim.
 - `support-bundle-redaction-proof` adds logging-domain production-support
   incident rows for parent consent, support bundle readiness, manual review,
   backend-upload manual-required state, billing escalation manual-required
@@ -149,6 +155,12 @@ package/runtime proof.
       runtime evidence and CI/manual-required release posture; signed
       installer/update smoke remains a production gap.
 - [ ] Updater channel, rollback, and failure status.
+      Current `v8-updater-rollback-runbook-proof` records updater channel,
+      rollback, failure-status, and manual-required rows for scaffold,
+      unsigned-preview, signature-required, and production update channels.
+      Production rollback execution, signed update channel evidence, rollback
+      failure smoke, published support runbook, and support escalation execution
+      remain manual-required.
 - [ ] macOS signing/notarization if shipped.
 - [ ] Android Play signing/store proof if shipped. Current
       `mobile-child-agent-capability-proof` row keeps Play signing planned and

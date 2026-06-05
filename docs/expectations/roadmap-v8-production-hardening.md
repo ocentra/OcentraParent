@@ -13,6 +13,11 @@ Supporting expectation files: [release installer](release-installer.md), [sync a
 ## Acceptance
 
 - Production release claims match actual signing, packaging, installer, store, and entitlement state.
+- Updater rollback and rollback-failure claims name the update channel and
+  remain manual-required until signed-channel execution and rollback smoke proof
+  exist.
+- Release-support runbook claims distinguish preview-only draft readiness from
+  published production support execution.
 - Parents can export or delete family data according to documented custody and retention behavior.
 - Source shape, tests, docs, and validation remain maintainable under production scale.
 

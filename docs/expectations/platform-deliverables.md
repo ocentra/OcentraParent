@@ -35,6 +35,11 @@ Use GitHub Actions and package-preview jobs to catch cross-platform drift early:
   simulator artifacts separately while keeping signing, store, real-device,
   updater rollback, and production publishing claims manual-required or
   promotion-required.
+- For V8 updater rollback and release-support runbook proof, require scaffold,
+  unsigned-preview, signature-required, and production update-channel rows
+  separately. CI/package preview may prove mechanics, but rollback execution,
+  rollback failure handling, signed channel proof, and production support
+  runbook publication stay manual-required until real platform evidence exists.
 
 CI is not enough for:
 
@@ -80,6 +85,10 @@ deliverables planning pass:
   and support redaction, but signing, production updater rollback, store
   distribution, and production support remain manual-required until real
   artifacts and credentials prove them.
+- Updater rollback/runbook status proof may show Windows package-preview and
+  runbook mechanics, but it must keep signed-channel execution, rollback
+  execution smoke, rollback failure smoke, and production support escalation
+  manual-required.
 - Run Windows local tests before product checkpoint signoff. CI may supplement
   but must not replace the local PC proof.
 

@@ -19,6 +19,9 @@ import { parentDesktopReleaseSupportIncidentHandoffIsHonest } from './parent-des
 type ProductionReadinessGate = ParentDesktopReleaseSupportReadModel['productionReadinessGate'];
 type PackagePreviewArtifact = ProductionReadinessGate['packagePreviewArtifacts'][number];
 type PackagePreviewArtifactName = PackagePreviewArtifact['artifactName'];
+type UpdaterRollbackRunbookProof = ParentDesktopReleaseSupportReadModel['updaterRollbackRunbookProof'];
+type UpdaterRollbackRow = UpdaterRollbackRunbookProof['updaterRows'][number];
+type RunbookSection = UpdaterRollbackRunbookProof['runbookStatus']['requiredSections'][number];
 
 const RequiredOperations = [
   'read-service-state',
@@ -75,6 +78,19 @@ const RequiredPackagePreviewArtifacts = [
   'ocentra-parent-android-preview',
   'ocentra-parent-ios-simulator-preview',
 ] as const satisfies ReadonlyArray<PackagePreviewArtifactName>;
+const RequiredUpdaterChannels = [
+  'scaffold',
+  'unsigned-preview',
+  'signature-required',
+  'production',
+] as const satisfies ReadonlyArray<UpdaterRollbackRow['channel']>;
+const RequiredRunbookSections = [
+  'rollback-triage',
+  'rollback-failure-status',
+  'diagnostics-redaction',
+  'manual-platform-proof',
+  'support-escalation-boundary',
+] as const satisfies ReadonlyArray<RunbookSection>;
 const RequiredReadinessManualGaps = [
   'windows signing',
   'macOS notarization',
@@ -83,6 +99,13 @@ const RequiredReadinessManualGaps = [
   'App Store proof',
   'production updater rollback',
   'production support runbook',
+] as const;
+const RequiredUpdaterRunbookManualGaps = [
+  'signed update channel',
+  'production rollback execution',
+  'rollback failure smoke',
+  'published support runbook',
+  'support escalation execution',
 ] as const;
 
 export function parentDesktopReleaseSupportReadModelIsHonest(readModel: ParentDesktopReleaseSupportReadModel): boolean {
@@ -97,7 +120,8 @@ export function parentDesktopReleaseSupportReadModelIsHonest(readModel: ParentDe
     supportDiagnosticsAreRedacted(readModel.supportDiagnostics) &&
     parentDesktopReleaseSupportIncidentHandoffIsHonest(readModel.supportIncidentHandoff) &&
     manualRunbookCoversRequiredTargets(readModel.manualRunbook) &&
-    readinessGateIsHonest(readModel.productionReadinessGate)
+    readinessGateIsHonest(readModel.productionReadinessGate) &&
+    updaterRollbackRunbookProofIsHonest(readModel.updaterRollbackRunbookProof)
   );
 }
 
@@ -315,4 +339,46 @@ function readinessGateBoundaryIsHonest(gate: ProductionReadinessGate): boolean {
 
 function readinessGateGapsAreComplete(gaps: ProductionReadinessGate['manualRequiredGaps']): boolean {
   return RequiredReadinessManualGaps.every((gap) => gaps.some((entry) => entry === gap));
+}
+
+function updaterRollbackRunbookProofIsHonest(proof: UpdaterRollbackRunbookProof): boolean {
+  return (
+    proof.proof === 'v8-updater-rollback-runbook-status' &&
+    updaterRollbackRowsAreHonest(proof.updaterRows) &&
+    runbookStatusIsHonest(proof.runbookStatus) &&
+    proof.claimBoundary.includes('not production update execution') &&
+    proof.claimBoundary.includes('not signing') &&
+    proof.claimBoundary.includes('not store') &&
+    RequiredUpdaterRunbookManualGaps.every((gap) => proof.manualRequiredGaps.some((entry) => entry === gap))
+  );
+}
+
+function updaterRollbackRowsAreHonest(rows: ReadonlyArray<UpdaterRollbackRow>): boolean {
+  const byChannel = new Map(rows.map((entry) => [entry.channel, entry] as const));
+  return (
+    byChannel.size === rows.length &&
+    RequiredUpdaterChannels.every((channel) => byChannel.has(channel)) &&
+    rows.every(
+      (entry) =>
+        entry.rollbackState === 'rollback-unavailable' &&
+        entry.failureStatusState === 'manual-required' &&
+        entry.manualRequiredState === 'manual-required' &&
+        entry.proofRequirement.includes('manual proof')
+    ) &&
+    byChannel.get('production')?.proofRequirement.includes('signed production update channel') === true
+  );
+}
+
+function runbookStatusIsHonest(status: UpdaterRollbackRunbookProof['runbookStatus']): boolean {
+  const sections = new Set(status.requiredSections);
+  return (
+    status.draftRunbookState === 'preview-only' &&
+    status.productionRunbookState === 'manual-required' &&
+    status.rollbackTriageState === 'manual-required' &&
+    RequiredRunbookSections.every((section) => sections.has(section)) &&
+    status.proofReferences.some((reference) => reference === 'docs/expectations/release-installer.md') &&
+    status.proofReferences.some((reference) => reference === 'docs/expectations/roadmap-v8-production-hardening.md') &&
+    status.nonClaim.includes('not production support execution') &&
+    status.nonClaim.includes('not update execution')
+  );
 }

@@ -46,6 +46,7 @@ async function main() {
       output: relative(repoRoot, proofPath),
       packagePreviewWorkflow: '.github/workflows/package-preview.yml',
       readinessGate: 'v8-production-release-support-readiness',
+      updaterRollbackRunbookProof: 'v8-updater-rollback-runbook-status',
       featureDocs: [
         'docs/features/production-distribution-support.md',
         'docs/features/child-agent-local-service.md',
@@ -67,6 +68,7 @@ async function main() {
       'Production support incident handoff requires parent consent, support incident status metadata, explicit safe support-bundle data classes, support-safe diagnostic references, and manual-required production support states.',
       'Package preview CI artifact status is recorded as pending/manual-required unless a real Actions artifact context proves readiness.',
       'V8 production release/support readiness gate summarizes Windows, Linux, macOS, Android, and iOS package-preview artifacts while keeping signing, stores, updater rollback execution, support runbook, and production publishing manual-required or promotion-required.',
+      'V8 updater rollback and release-support runbook proof covers scaffold, unsigned preview, signature-required, and production channels with rollback execution unavailable, failure status manual-required, draft runbook preview-only, and production runbook manual-required.',
     ],
     claimsNotProved: [
       'signed release publishing',
@@ -151,6 +153,18 @@ function assertReadModel(readModel) {
   assert.equal(readModel.productionReadinessGate.packagePreviewArtifacts.length, 5);
   assert.equal(readModel.productionReadinessGate.updaterRollbackExecutionState, 'rollback-unavailable');
   assert.equal(readModel.productionReadinessGate.productionPublishingState, 'production-promotion-required');
+  assert.deepEqual(
+    readModel.updaterRollbackRunbookProof.updaterRows.map((entry) => entry.channel),
+    ['scaffold', 'unsigned-preview', 'signature-required', 'production']
+  );
+  assert.equal(
+    readModel.updaterRollbackRunbookProof.updaterRows.find((entry) => entry.channel === 'production')
+      .failureStatusState,
+    'manual-required'
+  );
+  assert.equal(readModel.updaterRollbackRunbookProof.runbookStatus.draftRunbookState, 'preview-only');
+  assert.equal(readModel.updaterRollbackRunbookProof.runbookStatus.productionRunbookState, 'manual-required');
+  assert.equal(readModel.updaterRollbackRunbookProof.runbookStatus.requiredSections.length, 5);
 }
 
 async function runCommand(commandName, args) {

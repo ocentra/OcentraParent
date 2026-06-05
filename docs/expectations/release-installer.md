@@ -19,6 +19,11 @@ Release features are product features because parents need install/update paths 
   support-safe diagnostic/runbook readiness, updater rollback execution state,
   signing/store proof state, production publishing state, and manual platform
   gaps without promoting preview artifacts to production release evidence.
+- V8 updater rollback and release-support runbook status proof that names
+  scaffold, unsigned-preview, signature-required, and production update channels
+  separately, records rollback execution as unavailable, records rollback
+  failure handling as manual-required, and keeps the production support runbook
+  manual-required until it is published and exercised.
 
 ## Acceptance
 
@@ -68,6 +73,9 @@ Release features are product features because parents need install/update paths 
   publishing, signing, store upload, and updater rollback execution
   manual-required or promotion-required until real credentials, promotion, and
   manual platform proof exist.
+- Updater rollback proof must reject rollback-available claims unless a signed
+  production update channel, rollback execution smoke, rollback failure-status
+  smoke, and published support runbook evidence are present.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play
