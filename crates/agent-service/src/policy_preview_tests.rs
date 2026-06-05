@@ -60,6 +60,15 @@ fn policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement() 
         payload.get(constants::field::POLICY_PREVIEW_ID),
         Some(&LogFieldValue::String(policy::TEST_PREVIEW_ID.to_string()))
     );
+    match payload.get(constants::field::PAYLOAD) {
+        Some(LogFieldValue::String(value)) => {
+            let decoded: PolicyPreviewReadModel =
+                serde_json::from_str(value).expect("policy preview payload decodes");
+            assert_eq!(decoded.rows.len(), 1);
+            assert_eq!(decoded.rows[0].preview_id, policy::TEST_PREVIEW_ID);
+        }
+        other => panic!("expected serialized policy preview payload, got {other:?}"),
+    }
     assert_eq!(
         payload.get(constants::field::POLICY_ACTION),
         Some(&LogFieldValue::String(policy::ACTION_UNKNOWN.to_string()))
