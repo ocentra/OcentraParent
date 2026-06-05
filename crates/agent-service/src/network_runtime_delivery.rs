@@ -30,7 +30,7 @@ pub(crate) async fn deliver_network_runtime_for_read_model(
     };
 
     for row in &read_model.rows {
-        let observation = observation_from_row(row);
+        let observation = network_runtime_observation_from_row(row);
         match publish_network_runtime_chain_for_observation(observation, &row.observed_at).await {
             Ok(report) => delivery.record_success(&report),
             Err(_) => delivery.failed_rows += 1,
@@ -56,7 +56,9 @@ impl NetworkRuntimeServiceDeliveryReport {
     }
 }
 
-fn observation_from_row(row: &ActivityNetworkFlowObservation) -> NetworkObservation {
+pub(crate) fn network_runtime_observation_from_row(
+    row: &ActivityNetworkFlowObservation,
+) -> NetworkObservation {
     let status = protocol_value::<ActivityCaptureCapabilityStatus>(&row.capability_status)
         .unwrap_or(ActivityCaptureCapabilityStatus::Unavailable);
     if status != ActivityCaptureCapabilityStatus::Available {

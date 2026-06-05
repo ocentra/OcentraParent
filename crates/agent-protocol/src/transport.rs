@@ -124,6 +124,8 @@ pub enum AgentCommandName {
     AgentBrowserInterventionReadModelGet,
     #[serde(rename = "agent.network.flow.read-model.get")]
     AgentNetworkFlowReadModelGet,
+    #[serde(rename = "agent.network.runtime.event-chain.stream.get")]
+    AgentNetworkRuntimeEventChainStreamGet,
     #[serde(rename = "agent.local-ai.runtime.status.get")]
     AgentLocalAiRuntimeStatusGet,
     #[serde(rename = "agent.local-ai.chat.generate")]
@@ -256,6 +258,8 @@ pub enum AgentEventName {
     AgentBrowserInterventionReadModelReported,
     #[serde(rename = "agent.network.flow.read-model.reported")]
     AgentNetworkFlowReadModelReported,
+    #[serde(rename = "agent.network.runtime.event-chain.stream.reported")]
+    AgentNetworkRuntimeEventChainStreamReported,
     #[serde(rename = "agent.local-ai.runtime.status.reported")]
     AgentLocalAiRuntimeStatusReported,
     #[serde(rename = "agent.local-ai.chat.generation.reported")]

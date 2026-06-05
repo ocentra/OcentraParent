@@ -306,37 +306,40 @@ function parseNetworkRuntimePayload(
 ): AgentNetworkRuntimeEventResult {
   switch (eventType) {
     case AgentNetworkRuntimeEventType.NetworkFlowObserved:
-      return payloadResult(AgentNetworkFlowObservedEventSchema.safeParse(payload));
+      return payloadResult(eventType, AgentNetworkFlowObservedEventSchema.safeParse(payload));
     case AgentNetworkRuntimeEventType.NetworkDomainObserved:
-      return payloadResult(AgentNetworkDomainObservedEventSchema.safeParse(payload));
+      return payloadResult(eventType, AgentNetworkDomainObservedEventSchema.safeParse(payload));
     case AgentNetworkRuntimeEventType.NetworkActivityClassified:
-      return payloadResult(AgentNetworkActivityClassifiedEventSchema.safeParse(payload));
+      return payloadResult(eventType, AgentNetworkActivityClassifiedEventSchema.safeParse(payload));
     case AgentNetworkRuntimeEventType.AiAnalysisRequested:
-      return payloadResult(AgentNetworkAiAnalysisRequestedEventSchema.safeParse(payload));
+      return payloadResult(eventType, AgentNetworkAiAnalysisRequestedEventSchema.safeParse(payload));
     case AgentNetworkRuntimeEventType.AiAnalysisCompleted:
-      return payloadResult(AgentNetworkAiAnalysisCompletedEventSchema.safeParse(payload));
+      return payloadResult(eventType, AgentNetworkAiAnalysisCompletedEventSchema.safeParse(payload));
     case AgentNetworkRuntimeEventType.PolicyEvaluationRequested:
-      return payloadResult(AgentNetworkPolicyEvaluationRequestedEventSchema.safeParse(payload));
+      return payloadResult(eventType, AgentNetworkPolicyEvaluationRequestedEventSchema.safeParse(payload));
     case AgentNetworkRuntimeEventType.PolicyDecisionCompleted:
-      return payloadResult(AgentNetworkPolicyDecisionCompletedEventSchema.safeParse(payload));
+      return payloadResult(eventType, AgentNetworkPolicyDecisionCompletedEventSchema.safeParse(payload));
     case AgentNetworkRuntimeEventType.EnforcementCommandIssued:
-      return payloadResult(AgentNetworkEnforcementCommandIssuedEventSchema.safeParse(payload));
+      return payloadResult(eventType, AgentNetworkEnforcementCommandIssuedEventSchema.safeParse(payload));
     case AgentNetworkRuntimeEventType.EnforcementResultObserved:
-      return payloadResult(AgentNetworkEnforcementResultObservedEventSchema.safeParse(payload));
+      return payloadResult(eventType, AgentNetworkEnforcementResultObservedEventSchema.safeParse(payload));
     case AgentNetworkRuntimeEventType.AuditEntryCommitted:
-      return payloadResult(AgentNetworkAuditEntryCommittedEventSchema.safeParse(payload));
+      return payloadResult(eventType, AgentNetworkAuditEntryCommittedEventSchema.safeParse(payload));
     case AgentNetworkRuntimeEventType.PortalReadModelUpdated:
-      return payloadResult(AgentNetworkPortalReadModelUpdatedEventSchema.safeParse(payload));
+      return payloadResult(eventType, AgentNetworkPortalReadModelUpdatedEventSchema.safeParse(payload));
   }
 }
 
-function payloadResult(parsed: SafeParseResult<AgentNetworkRuntimeEventPayload>): AgentNetworkRuntimeEventResult {
+function payloadResult(
+  eventType: AgentNetworkRuntimeEventType,
+  parsed: SafeParseResult<AgentNetworkRuntimeEventPayload>
+): AgentNetworkRuntimeEventResult {
   if (!parsed.success) {
     return parserFailure('invalid-payload');
   }
   return {
     ok: true,
-    eventType: AgentNetworkRuntimeEventType.NetworkFlowObserved,
+    eventType,
     value: parsed.data,
   };
 }

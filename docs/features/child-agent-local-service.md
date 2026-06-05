@@ -78,6 +78,12 @@ and clear degraded states.
   counts plus manual-required and enforcement-command event counts. This remains
   service-local and does not add broker/family-hub delivery, adapter execution,
   or host filtering.
+- E-D added a service WebSocket stream for the local network runtime event chain.
+  `agent.network.runtime.event-chain.stream.get` now reports stored network rows
+  as protocol-shaped network/AI/policy/enforcement/audit/portal entries through
+  `agent.network.runtime.event-chain.stream.reported`, without claiming
+  broker/family-hub delivery, production retention/replay/delete/export, live
+  analyzer/model/policy execution, adapter execution, or host filtering.
 - E-D extended `crates/ocentra-eventing` with production shutdown lifecycle
   proof: runtime-owned shutdown can drain queued work, dead-letter queued work,
   cancel pending local requests, clear subscriptions and aggregate gates, and
@@ -134,10 +140,10 @@ queue/retry/TTL, request-response, durable journal/replay, panic isolation,
 typed envelopes, production shutdown, and runtime-owned bus lifecycle. The
 network runtime now consumes the reusable crate for typed publish,
 no-subscriber queue/drain, bounded overflow/TTL/idempotency backpressure proof,
-local typed request-response, Rust protocol-facing network event contracts, and
-service-side read-model delivery for stored network rows. Public TypeScript
-parity for the network runtime event contracts now exists in
-`agent-protocol-domain`; service streaming of the event chain remains separate.
+local typed request-response, Rust protocol-facing network event contracts,
+service-side read-model delivery for stored network rows, and service WebSocket
+streaming of protocol-shaped local event-chain entries. Public TypeScript parity
+for the network runtime event contracts now exists in `agent-protocol-domain`.
 Parent/controller to child-agent in-process runtime
 publishing and typed local transport handoff now have proof;
 the generic eventing delivery decision proof now makes broker/family-hub delivery
@@ -167,7 +173,9 @@ raw JSON/string constants, `Uuid`, and raw domain identifier fields.
       weak-network-evidence command-routing guard, type-safety source gate, and
       the network runtime chain plus queue/drain, local request-response, and
       Rust protocol-facing network event contract proof; service-side network
-      read-model delivery into the local runtime; parent/controller and
+      read-model delivery into the local runtime plus service WebSocket
+      event-chain streaming of protocol-shaped stored-row entries;
+      parent/controller and
       child-agent protocol event contract proof; parent/controller validated
       intent runtime publishing, typed local child-command handoff, and
       child-agent local receive/publish proof; the service enforcement API now
@@ -177,9 +185,8 @@ raw JSON/string constants, `Uuid`, and raw domain identifier fields.
       deletion, offset, dedupe, broker config, and family-hub identity/relay
       artifacts; network-specific backpressure-depth proof now covers overflow
       dead-lettering, TTL expiry, and idempotency duplicate rejection for queued
-      network flow events. Broker/family-hub delivery, service event-chain
-      streaming, physical child-device runtime installation, and broad runtime
-      adoption remain.
+      network flow events. Broker/family-hub delivery, physical child-device
+      runtime installation, and broad runtime adoption remain.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting. Current mobile capability proof

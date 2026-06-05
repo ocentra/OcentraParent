@@ -218,6 +218,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.browser.managed.bridge.poll',
     'agent.browser.intervention.read-model.get',
     'agent.network.flow.read-model.get',
+    'agent.network.runtime.event-chain.stream.get',
     'agent.local-ai.runtime.status.get',
     'agent.local-ai.chat.generate',
     'agent.parent-assistant.answer.generate',
@@ -287,6 +288,7 @@ export const AgentEventNameSchema = withParser(
     'agent.browser.managed.status.reported',
     'agent.browser.intervention.read-model.reported',
     'agent.network.flow.read-model.reported',
+    'agent.network.runtime.event-chain.stream.reported',
     'agent.local-ai.runtime.status.reported',
     'agent.local-ai.chat.generation.reported',
     'agent.parent-assistant.answer.reported',
@@ -398,6 +400,7 @@ export const AgentCommand = {
   BrowserManagedBridgePoll: AgentCommandNameSchema.parse('agent.browser.managed.bridge.poll'),
   BrowserInterventionReadModelGet: AgentCommandNameSchema.parse('agent.browser.intervention.read-model.get'),
   NetworkFlowReadModelGet: AgentCommandNameSchema.parse('agent.network.flow.read-model.get'),
+  NetworkRuntimeEventChainStreamGet: AgentCommandNameSchema.parse('agent.network.runtime.event-chain.stream.get'),
   LocalAiRuntimeStatusGet: AgentCommandNameSchema.parse('agent.local-ai.runtime.status.get'),
   LocalAiChatGenerate: AgentCommandNameSchema.parse('agent.local-ai.chat.generate'),
   ParentAssistantAnswerGenerate: AgentCommandNameSchema.parse('agent.parent-assistant.answer.generate'),
@@ -487,6 +490,9 @@ export const AgentEvent = {
   BrowserManagedStatusReported: AgentEventNameSchema.parse('agent.browser.managed.status.reported'),
   BrowserInterventionReadModelReported: AgentEventNameSchema.parse('agent.browser.intervention.read-model.reported'),
   NetworkFlowReadModelReported: AgentEventNameSchema.parse('agent.network.flow.read-model.reported'),
+  NetworkRuntimeEventChainStreamReported: AgentEventNameSchema.parse(
+    'agent.network.runtime.event-chain.stream.reported'
+  ),
   LocalAiRuntimeStatusReported: AgentEventNameSchema.parse('agent.local-ai.runtime.status.reported'),
   LocalAiChatGenerationReported: AgentEventNameSchema.parse('agent.local-ai.chat.generation.reported'),
   ParentAssistantAnswerReported: AgentEventNameSchema.parse('agent.parent-assistant.answer.reported'),

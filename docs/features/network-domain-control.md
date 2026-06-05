@@ -88,6 +88,14 @@ compete on control while staying clear about attribution confidence and privacy.
   the read-model payload. This is service-local delivery only; broker/family-hub
   transport, production retention/replay, policy execution, adapter execution,
   and host filtering remain unclaimed.
+- E-D added service-visible network runtime event-chain streaming:
+  `agent.network.runtime.event-chain.stream.get` reads stored ActivityStore
+  network rows, republishes metadata-only observations through the local runtime,
+  and returns `agent.network.runtime.event-chain.stream.reported` with
+  protocol-shaped network/AI/policy/enforcement/audit/portal stream entries and
+  counts. This remains service-local; broker/family-hub transport, production
+  retention/replay/delete/export, live analyzer/model/policy execution, adapter
+  execution, and host filtering remain unclaimed.
 - E-D added the first `activity-domain` network contract boundary proof for
   flow evidence, domain evidence, activity classification, A/B/C/D evidence
   grades, and policy/action capability gating. The proof keeps network-only
@@ -303,7 +311,8 @@ enforcement. The E-D
 runtime spine removes the private-bus blocker for an in-process metadata-only
 chain and now proves local queue/drain plus request-response consumption of the
 reusable eventing crate, service-side network read-model delivery into the
-local eventing runtime, service-side journal-before-action/final-audit
+local eventing runtime, service WebSocket streaming of protocol-shaped network
+runtime event-chain entries, service-side journal-before-action/final-audit
 ordering, typed in-process parent/controller to child-agent handoff, and
 cross-slice evidence bundle construction after cascade routing, plus
 network-triggered local-AI queue planning with refs-only AI inputs,
@@ -392,10 +401,10 @@ execution, and platform adapter execution remain open.
       Broker/family-hub delivery remains requirements-gated rather than
       implemented. Service network read-model delivery now publishes stored
       ActivityStore network rows through the local eventing runtime and exposes
-      delivery counts in the service payload while keeping broker/family-hub,
-      policy, adapter, host-filter execution, and service WebSocket
-      event-chain streaming unclaimed. Row46 AI detection fixture proof now
-      measures model
+      delivery counts in the service payload; service WebSocket event-chain
+      streaming now returns protocol-shaped local runtime entries for stored
+      rows while broker/family-hub, policy, adapter, and host-filter execution
+      remain unclaimed. Row46 AI detection fixture proof now measures model
       predictions against labeled structured-summary fixtures with precision,
       recall, accuracy, and confidence-drift states while rejecting raw content
       and authority claims. Row47 AI audit narrative proof now emits

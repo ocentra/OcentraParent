@@ -31,6 +31,7 @@ const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['BrowserManagedBridgePoll', 'agent.browser.managed.bridge.poll'],
   ['BrowserInterventionReadModelGet', 'agent.browser.intervention.read-model.get'],
   ['NetworkFlowReadModelGet', 'agent.network.flow.read-model.get'],
+  ['NetworkRuntimeEventChainStreamGet', 'agent.network.runtime.event-chain.stream.get'],
   ['LocalAiRuntimeStatusGet', 'agent.local-ai.runtime.status.get'],
   ['LocalAiChatGenerate', 'agent.local-ai.chat.generate'],
   ['ParentAssistantAnswerGenerate', 'agent.parent-assistant.answer.generate'],
@@ -95,6 +96,7 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
   ['BrowserManagedStatusReported', 'agent.browser.managed.status.reported'],
   ['BrowserInterventionReadModelReported', 'agent.browser.intervention.read-model.reported'],
   ['NetworkFlowReadModelReported', 'agent.network.flow.read-model.reported'],
+  ['NetworkRuntimeEventChainStreamReported', 'agent.network.runtime.event-chain.stream.reported'],
   ['LocalAiRuntimeStatusReported', 'agent.local-ai.runtime.status.reported'],
   ['LocalAiChatGenerationReported', 'agent.local-ai.chat.generation.reported'],
   ['ParentAssistantAnswerReported', 'agent.parent-assistant.answer.reported'],
@@ -346,6 +348,8 @@ function expectReadModelBridgeAndActivityFields() {
   expect(AgentProtocolDefaults.Field.BrowserInterventionAuditId).toBe('browserInterventionAuditId');
   expect(AgentProtocolDefaults.Field.BrowserBoundaryState).toBe('browserBoundaryState');
   expect(AgentProtocolDefaults.Field.ChildDeliveryState).toBe('childDeliveryState');
+  expect(AgentProtocolDefaults.Field.ClaimBoundary).toBe('claimBoundary');
+  expect(AgentProtocolDefaults.Field.ExactUrlAvailable).toBe('exactUrlAvailable');
 }
 
 function expectReadModelBrowserInterventionFields() {
@@ -379,8 +383,15 @@ function expectReadModelEnforcementAndUnmanagedFields() {
   expect(AgentProtocolDefaults.Field.EnforcementProductControlSpineReadModel).toBe(
     'enforcementProductControlSpineReadModel'
   );
+  expect(AgentProtocolDefaults.Field.AdapterActionExecuted).toBe('adapterActionExecuted');
+  expect(AgentProtocolDefaults.Field.EventRef).toBe('eventRef');
+  expect(AgentProtocolDefaults.Field.EventType).toBe('eventType');
   expect(AgentProtocolDefaults.Field.EvidenceReferenceIds).toBe('evidenceReferenceIds');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
+  expect(AgentProtocolDefaults.Field.NetworkRuntimeEventChainStream).toBe('networkRuntimeEventChainStream');
+  expect(AgentProtocolDefaults.Field.NetworkRuntimeStreamedEvents).toBe('networkRuntimeStreamedEvents');
+  expect(AgentProtocolDefaults.Field.Payload).toBe('payload');
+  expect(AgentProtocolDefaults.Field.VisibleManualRequired).toBe('visibleManualRequired');
   expect(AgentProtocolDefaults.Field.UnmanagedBrowserEnforcement).toBe('unmanagedBrowserEnforcement');
   expect(AgentProtocolDefaults.Field.UnmanagedFallbackAction).toBe('unmanagedFallbackAction');
   expect(AgentProtocolDefaults.Field.UnmanagedDetectionConfidence).toBe('unmanagedDetectionConfidence');
