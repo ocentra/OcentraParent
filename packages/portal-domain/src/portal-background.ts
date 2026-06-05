@@ -69,6 +69,7 @@ export const PortalBackgroundRuntime = {
   Channel: 'ocentra-parent-background-config-channel',
   ContentType: {
     Json: 'application/json',
+    Missing: '',
   },
   FetchCache: {
     NoStore: 'no-store',
