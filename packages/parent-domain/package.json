@@ -61,6 +61,10 @@
       "import": "./dist/app-install-purchase-platform-adapter-boundary-proof.js",
       "types": "./dist/app-install-purchase-platform-adapter-boundary-proof.d.ts"
     },
+    "./app-install-purchase-package-source-capture-status-proof": {
+      "import": "./dist/app-install-purchase-package-source-capture-status-proof.js",
+      "types": "./dist/app-install-purchase-package-source-capture-status-proof.d.ts"
+    },
     "./billing-entitlement": {
       "import": "./dist/billing-entitlement.js",
       "types": "./dist/billing-entitlement.d.ts"
