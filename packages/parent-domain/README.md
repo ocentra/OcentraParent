@@ -85,6 +85,12 @@ mobile readiness, and control catalogs.
   provider/store execution, platform adapters, child-device delivery, child
   activity data, app blocking, and Ocentra-hosted family data custody
   unclaimed.
+- App install/purchase platform adapter boundary proof contracts that link
+  approved API/entitlement evidence rows and report-runtime refs to platform
+  adapter readiness/manual/unavailable rows while keeping actual adapter
+  implementation, provider execution, store integration, child delivery, report
+  delivery, interception, child activity data, app blocking, and Ocentra-hosted
+  family data custody unclaimed.
 - V0.9 signed LAN discovery/relay spine contracts that keep adapter evidence,
   signed proof rejection, route safety, relay/cache availability, parent-owned
   storage, and child-data custody claims explicit.
@@ -153,10 +159,10 @@ flowchart LR
   notification delivery, and live UI proof remain open.
 - Store/install approval and purchase controls now have contract, package-source
   artifact, runtime-boundary, platform-artifact, child-artifact-delivery, and
-  approved API/entitlement evidence plus report-runtime status proof;
-  platform/store provider execution, platform adapters, production child-device
-  package capture, child delivery, portal UX, and report runtime writer/delivery
-  remain unimplemented.
+  approved API/entitlement evidence, report-runtime status, and platform
+  adapter boundary proof; platform/store provider execution, actual platform
+  adapters, production child-device package capture, child delivery, portal UX,
+  and report runtime writer/delivery remain unimplemented.
 - Billing/subscription provider integration, account backend, entitlement
   signing/delivery runtime, provider-contact execution, entitlement admin
   override runtime, refund/credit runtime, portal billing/admin UI, support
