@@ -556,23 +556,33 @@ warning/stop/approval/future-block actions without adapter proof, remembered
 actions without expiry, and unknown decisions without manual or parent fallback
 action. No child UI, parent UI, browser runtime mutation, enforcement, or
 product checklist upgrade is claimed.
-AI-19 now adds browser AI child-facing checking/warning UX state contracts and
-text-domain copy tokens. Child snapshots use schema-known calm copy tokens for
-opening, checking, allowed, warning, approval-required, limited, blocked,
-unclassified, manual-required, and unavailable states, link evidence and
-post-analysis actions where applicable, and require adapter proof before claiming
-delivered checking, warning, block, or approval pages. They reject raw
-child-facing copy, shaming/surveillance copy claims, visual-render claims,
-state/token mismatches, rendered child pages without adapter proof, and
-warning/block/approval states without matching post-analysis actions. Activity-domain and text-domain package subpath exports are now present; no visual UI, browser page renderer, runtime delivery, enforcement, or product checklist upgrade is claimed.
-AI-20 now adds browser AI parent explanation/audit UX contracts and text-domain
-parent explanation tokens. Explanation bundles link evidence, AI analysis,
-policy decision, post-analysis action, child UX snapshot, memory/cache refs,
-graph refs, and audit refs while making evidence, model runtime, prompt version,
-policy rule, action, child experience, child-saw-page, degraded/manual fallback,
-and audit visibility explicit. They reject raw page content, raw prompt text,
-portal evaluation, policy authority, direct enforcement, hidden fallback, hidden
-child engagement, missing audit sections, and mismatched source evidence. Activity-domain and text-domain package subpath exports are now present; no parent UI component, portal visual rendering, runtime delivery, enforcement, or product checklist upgrade is claimed.
+AI-19 now adds browser AI child-facing checking/warning UX state contracts,
+text-domain copy tokens, and real managed-browser delivery proof. Child
+snapshots use schema-known calm copy tokens for opening, checking, allowed,
+warning, approval-required, limited, blocked, unclassified, manual-required, and
+unavailable states, link evidence and post-analysis actions where applicable,
+and require adapter proof before claiming delivered checking, warning, block, or
+approval pages. The AI-25 UI delivery proof consumes a fresh
+managed-browser-intervention harness run and copies real Chrome/Firefox/Edge
+screenshots for checking hold, warning page, approval hold, and blocked YouTube
+delivery states while rejecting raw child-facing copy, shaming/surveillance
+copy, render claims without adapter proof, model execution, policy authority,
+and enforcement. No C-owned visual polish or product checklist upgrade is
+claimed.
+AI-20 now adds browser AI parent explanation/audit UX contracts, text-domain
+parent explanation tokens, and real portal/runtime delivery proof. Explanation
+bundles link evidence, AI analysis, policy decision, post-analysis action, child
+UX snapshot, memory/cache refs, graph refs, and audit refs while making
+evidence, model runtime, prompt version, policy rule, action, child experience,
+child-saw-page, degraded/manual fallback, and audit visibility explicit. The
+proof starts the real Rust service plus Vite portal, clicks Refresh browser
+protection, and captures a service-backed command-result screenshot with policy
+decision, evidence, audit, child-delivery, and manual-required fallback fields.
+It rejects raw page content, raw prompt text, portal evaluation, policy
+authority, direct enforcement, hidden fallback, hidden child engagement, missing
+audit sections, and mismatched source evidence. No production intervention
+seeding, parent product UI polish, enforcement, or product checklist upgrade is
+claimed.
 AI-21 now extends deterministic YouTube parser coverage, adds a YouTube metadata
 adapter, and has a live proof harness against a real public YouTube watch page
 plus YouTube oEmbed metadata. Managed exact YouTube watch, Shorts, embed, live,
@@ -632,11 +642,13 @@ Activity-domain package subpath exports are now present; no model execution, pol
 delivery, or product checklist upgrade is claimed.
 AI-25 now adds a URL/video AI proof-gate script and rollout manifest. The gate
 checks AI-01 through AI-24 checklist rows, proof-pack directories, required
-source/security/validation/UI-not-applicable artifacts, plan checkpoint
-mentions, and no-claim rollout guard text. It emits JSON and Markdown proof
-showing 18 contract-proof rows and six partial/manual-required rows. This closes
-the AI enhancement proof index for the current D-lane slice while keeping
-runtime model execution, UI delivery, policy authority, enforcement, and product checklist completion unclaimed.
+source/security/validation/UI-not-applicable artifacts where applicable, rendered
+UI proof artifacts for AI-19 and AI-20, plan checkpoint mentions, and no-claim
+rollout guard text. It emits JSON and Markdown proof showing 24 complete proof
+rows and zero partial/manual-required rows for the AI enhancement checklist,
+while keeping runtime model execution, policy authority, enforcement, production
+intervention seeding, product UI polish, and product checklist completion
+unclaimed.
 The screen-AI browser trigger proof now adds an activity-domain contract plus
 `scripts/test/screen-ai-browser-trigger-proof.mjs` for managed-browser URL,
 browser-video, social-feed, and cloud-game trigger rows. The proof composes

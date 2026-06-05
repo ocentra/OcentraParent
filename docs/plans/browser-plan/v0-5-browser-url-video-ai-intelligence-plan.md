@@ -851,34 +851,29 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   fallback action. No child UI, parent UI, browser runtime mutation, enforcement,
   or product checklist update is claimed.
 - AI-19 now has schema-backed child-facing checking/warning UX state contracts
-  in `packages/activity-domain/src/browser-ai-child-ux-schemas.ts` and calm copy
-  tokens in `packages/text-domain/src/browser-child-ux.ts`. Snapshots label
-  opening, checking, allowed, warning, approval-required, limited, blocked,
-  unclassified, manual-required, and unavailable states with schema-known text
-  tokens, evidence refs, post-analysis action linkage where applicable, and
-  adapter proof before delivered checking, warning, block, or approval pages can
-  be claimed. The contracts reject raw copy, shaming/surveillance copy claims,
-  visual-render claims, state/token mismatches, rendered page delivery without
-  adapter proof, and warning/block/approval states without matching
-  post-analysis actions. The activity-domain package subpath export is pending
-  the A-owned `packages/activity-domain/package.json` tracking export
-  coordination; no visual component, browser page renderer, runtime delivery,
-  enforcement, or product checklist update is claimed.
-- AI-20 now has schema-backed parent explanation/audit UX contracts in
-  `packages/activity-domain/src/browser-ai-parent-explanation-schemas.ts` and
-  parent explanation text tokens in
-  `packages/text-domain/src/browser-parent-explanation.ts`. Explanation bundles
-  link evidence, AI analysis, policy decision, post-analysis action, child UX
-  snapshot, memory/cache refs, graph refs, and audit refs while requiring
-  visibility for evidence, model runtime, prompt version, policy rule, action,
-  child experience, child-saw-page, degraded/manual fallback, and audit trail
-  fields when applicable. They reject raw page content, raw prompt text, portal
-  evaluation, policy authority, direct enforcement, hidden fallback, hidden child
-  engagement, missing audit sections, and mismatched source evidence. The
-  activity-domain package subpath export is pending the A-owned
-  `packages/activity-domain/package.json` tracking export coordination; no parent
-  UI component, portal visual rendering, runtime delivery, enforcement, or
-  product checklist update is claimed.
+  plus real managed-browser delivery proof. The
+  `scripts/test/browser-ai-proof-gate-ui-delivery-proof.mjs` harness consumes a
+  fresh `scripts/test/managed-browser-intervention-proof.mjs` run and copies
+  real Chrome/Firefox/Edge managed-browser screenshots for checking hold,
+  warning page, approval hold, and blocked YouTube delivery states into
+  `output/browser-plan-proof/ai-19-child-facing-checking-warning-ux/06-ui-snapshots/`.
+  Snapshots still use schema-known child text tokens, evidence refs,
+  post-analysis action linkage where applicable, and adapter proof before
+  delivered checking, warning, block, or approval pages can be represented. The
+  proof rejects raw copy, shaming/surveillance copy claims, render claims
+  without adapter proof, state/token mismatches, model execution, policy
+  authority, and enforcement. No product checklist readiness or C-owned visual
+  polish is claimed.
+- AI-20 now has schema-backed parent explanation/audit UX contracts plus real
+  portal/runtime delivery proof. The combined proof harness validates an
+  evidence-linked parent explanation bundle and starts the real Rust service plus
+  Vite portal, clicks `Refresh browser protection`, and captures
+  `output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/parent-browser-ai-explanation-audit-real-portal.png`
+  from the service-backed command-result panel. The screenshot proves the portal
+  renders policy decision, evidence, audit, child-delivery, and manual-required
+  fallback fields from the local service; it does not claim a seeded production
+  intervention row, portal-side evaluation, final product UI polish, runtime
+  model execution, policy authority, enforcement, or product checklist readiness.
 - AI-21 now extends deterministic YouTube URL parser coverage and adds a YouTube
   metadata adapter in `packages/activity-domain/src/browser-youtube-metadata.ts`.
   The parser recognizes managed exact YouTube watch, Shorts, embed, live,
@@ -942,13 +937,13 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   `scripts/test/browser-url-video-ai-proof-gates.mjs`. The gate validates AI-01
   through AI-24 checklist status/owner/proof-directory references, required
   source/security/validation proof files, UI-not-applicable markers where
-  applicable, plan checkpoint mentions, and critical no-claim rollout guard
-  text. Its refreshed generated manifest records 22 contract-proof rows and two
-  partial/manual-required rows: AI-19 and AI-20 remain partial because rendered
-  child/parent UI delivery is still unclaimed. Product rollout remains
-  partial/manual-required. No runtime model execution, UI delivery, policy
-  authority, enforcement, package export completion, or product checklist update
-  is claimed.
+  applicable, rendered UI proof artifacts for AI-19 and AI-20, plan checkpoint
+  mentions, and critical no-claim rollout guard text. Its refreshed generated
+  manifest records 24 complete proof rows and zero partial/manual-required rows
+  for the URL/video AI enhancement checklist. Product rollout remains
+  product-unclaimed: no runtime model execution, policy authority, enforcement,
+  production intervention seeding, product UI polish, package export completion,
+  or product checklist readiness is claimed.
 
 If these become implementation assignments, create focused workpack files or
 worker messages before code changes. Do not mix all 25 into one PR.

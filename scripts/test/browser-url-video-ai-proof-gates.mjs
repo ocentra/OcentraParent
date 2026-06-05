@@ -7,7 +7,8 @@ const outputDirectory = join(root, 'output', 'browser-plan-proof', 'ai-25-proof-
 const resultDirectory = join(root, 'test-results', 'browser-url-video-ai-proof-gates');
 const proofRoot = join(root, 'output', 'browser-plan-proof');
 
-const partialRows = new Set([19, 20]);
+const partialRows = new Set([]);
+const renderedUiRows = new Set([19, 20]);
 const requiredProofFiles = ['00-source-snapshot.md', '08-security-negative-proof.md', '10-validation-commands.log'];
 const rolloutGuardTexts = [
   'AI cannot enforce directly.',
@@ -75,7 +76,8 @@ function expectedRows() {
       rowId: `AI-${String(rowNumber).padStart(2, '0')}`,
       expectedStatus: partialRows.has(rowNumber) ? '[~]' : '[x]',
       expectedState: partialRows.has(rowNumber) ? 'partial-manual-required' : 'contract-proof-present',
-      requiresUiMarker: rowNumber !== 1,
+      requiresRenderedUiProof: renderedUiRows.has(rowNumber),
+      requiresUiMarker: rowNumber !== 1 && !renderedUiRows.has(rowNumber),
     };
   });
 }
@@ -133,6 +135,14 @@ function validateProofFiles(row, proofFiles) {
   if (row.requiresUiMarker && !proofFiles.includes('ui-not-applicable.md')) {
     failures.push(`${row.rowId} proof is missing ui-not-applicable.md`);
   }
+  if (row.requiresRenderedUiProof) {
+    if (!proofFiles.includes('06-ui-snapshots')) {
+      failures.push(`${row.rowId} proof is missing 06-ui-snapshots`);
+    }
+    if (!proofFiles.includes('07-playwright-ui-proof.log')) {
+      failures.push(`${row.rowId} proof is missing 07-playwright-ui-proof.log`);
+    }
+  }
   return failures;
 }
 
@@ -158,7 +168,7 @@ function manifestFor(rows, failures) {
       completeRows: rows.filter((row) => row.expectedState === 'contract-proof-present').length,
       partialRows: rows.filter((row) => row.expectedState === 'partial-manual-required').length,
       failures: failures.length,
-      rolloutState: 'partial-manual-required',
+      rolloutState: failures.length === 0 ? 'proof-gate-complete-product-unclaimed' : 'partial-manual-required',
       productClaimed: false,
     },
     noClaimGuards: rolloutGuardTexts,
@@ -184,9 +194,10 @@ function markdownFor(manifest) {
     '| --- | --- | --- | --- |',
     rows,
     '',
-    'Rollout state: partial/manual-required. The gate proves proof-pack coverage',
-    'for AI-01 through AI-24, not runtime model execution, UI delivery, policy',
-    'authority, enforcement, or product completion.',
+    'Rollout state: proof-gate-complete/product-unclaimed. The gate proves',
+    'proof-pack coverage for AI-01 through AI-24 and rendered child/parent UI',
+    'delivery artifacts for AI-19 and AI-20. It does not claim runtime model',
+    'execution, policy authority, enforcement, or product completion.',
   ].join('\n');
 }
 
