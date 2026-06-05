@@ -49,10 +49,16 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       business-event publish path when eventing changes.
 - [ ] `03-parser-fixture-proof.json`: PCAP fixture input, parser output,
       expected JSON, TShark/Wireshark comparison, and must-not-claim records.
-- [ ] `03a-live-capture-storage-proof.json`: encryption-at-rest, quota
+- [x] `03a-live-capture-storage-proof.json`: encryption-at-rest, quota
       rotation, retention/delete/export behavior, private-family-traffic
       exclusion where possible, and manual-required custody state when live
       capture/raw PCAP artifacts are touched.
+      E-D row03a proof now writes
+      `output/network-plan-proof/03a-live-capture-storage-proof/proof-summary.json`
+      and `test-results/network-live-capture-storage-proof/proof.json` with a
+      raw capture artifact custody gate over proof-ready live-capture refs,
+      raw artifact manifest, encrypted local storage, quota, retention,
+      delete/export, custody-chain, and private-traffic-exclusion refs.
 - [ ] `04-analyzer-alert-proof.json`: Zeek-style summaries,
       Suricata/Snort-compatible alert fixtures, false-positive guards, and
       no-signature-only-enforcement proof.
@@ -117,11 +123,16 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       effectively-once-through-idempotency semantics; no generic exactly-once
       claim without exact broker/config proof. E-D row45 proof records broker
       and family-hub requirements while keeping implementation unclaimed.
-- [ ] Raw PCAP/live capture artifacts are encrypted at rest and governed by
-      quota rotation, retention, deletion, export, and custody proof.
-      E-D now proves service/query-store tombstone filtering and exportable-row
-      accounting for stored metadata-only network facts; raw PCAP/live-capture
-      artifact retention remains open.
+- [~] Raw PCAP/live capture artifacts are encrypted at rest and governed by
+  quota rotation, retention, deletion, export, and custody proof.
+  E-D now proves service/query-store tombstone filtering and exportable-row
+  accounting for stored metadata-only network facts, plus a row03a raw
+  capture storage custody gate requiring proof-ready live-capture refs, raw
+  artifact manifest, encrypted local storage, quota, retention,
+  delete/export, custody-chain, and private-traffic-exclusion refs before
+  local raw artifact storage authorization. Live driver invocation, raw
+  artifact creation, remote deletion/export propagation, and production
+  retention remain open.
 - [x] Analyzer alerts are evidence inputs, not policy authority. E-D row44 and
       row51 proofs keep analyzer refs advisory and non-enforcing.
 - [x] AI audit is advisory and cites evidence refs. E-D row47 and row51 proofs
