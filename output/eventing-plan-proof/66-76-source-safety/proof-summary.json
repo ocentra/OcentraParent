@@ -1,7 +1,7 @@
 {
   "proof": "eventing-source-safety",
   "proofRoot": "output\\eventing-plan-proof\\66-76-source-safety",
-  "checkedAt": "2026-06-05T19:10:13.678Z",
+  "checkedAt": "2026-06-05T21:08:56.642Z",
   "commands": [
     {
       "name": "eventing-tests",
