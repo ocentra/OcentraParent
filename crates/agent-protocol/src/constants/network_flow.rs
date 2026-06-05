@@ -47,6 +47,18 @@ pub const TEST_PARENT_RULE_REF: &str = "policy.rule.network-domain.1";
 pub const TEST_ADAPTER_CAPABILITY_REF: &str = "adapter.capability.network.dry-run.1";
 pub const TEST_ROLLBACK_REF: &str = "rollback.network.command.1";
 pub const TEST_PROMPT_TEMPLATE_REF: &str = "prompt.network-ai-audit.v1";
+pub const TEST_BROKER_CUSTODY_PROOF_REF: &str = "broker.network.custody-proof.1";
+pub const TEST_BROKER_PUBLISHER_AUTH_REF: &str = "broker.network.publisher-auth.1";
+pub const TEST_BROKER_SUBSCRIBER_AUTH_REF: &str = "broker.network.subscriber-auth.1";
+pub const TEST_BROKER_ENCRYPTION_REF: &str = "broker.network.encryption.1";
+pub const TEST_BROKER_RETENTION_POLICY_REF: &str = "broker.network.retention-policy.1";
+pub const TEST_BROKER_REPLAY_PLAN_REF: &str = "broker.network.replay-plan.1";
+pub const TEST_BROKER_DELETION_PLAN_REF: &str = "broker.network.deletion-plan.1";
+pub const TEST_BROKER_OFFSET_POLICY_REF: &str = "broker.network.offset-policy.1";
+pub const TEST_BROKER_DEDUPE_POLICY_REF: &str = "broker.network.dedupe-policy.1";
+pub const TEST_BROKER_CONFIG_REF: &str = "broker.network.config.1";
+pub const TEST_BROKER_DROPPED_EVENT_AUDIT_REF: &str = "broker.network.dropped-event-audit.1";
+pub const TEST_BROKER_ADAPTER_ACTION_LEDGER_REF: &str = "broker.network.adapter-action-ledger.1";
 pub const UNCERTAINTY_NETWORK_ONLY_NO_EXACT_URL: &str = "network-only-no-exact-url";
 pub const UNSUPPORTED_CLAIM_DECRYPTED_HTTPS_PAYLOAD: &str = "decrypted-https-payload";
 pub const UNAVAILABLE_REASON_MANUAL_REQUIRED: &str = "manual-required";
@@ -94,3 +106,5 @@ pub const ERROR_NETWORK_RUNTIME_QUEUE_IDEMPOTENCY_REJECTS: &str =
     "network runtime queue idempotency rejects duplicates";
 pub const ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES: &str = "network runtime payload decodes";
 pub const ERROR_NETWORK_RUNTIME_REVIEW_COMPLETES: &str = "network runtime review request completes";
+pub const ERROR_NETWORK_RUNTIME_BROKER_DELIVERY_SEMANTICS: &str =
+    "network runtime broker delivery semantics proof";
