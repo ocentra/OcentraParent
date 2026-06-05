@@ -156,6 +156,14 @@ claim needs proof, not slogans.
   remote/API provider use, and Ocentra-hosted processing. This is local
   runtime/discovery plumbing proof; physical household LAN, production model
   quality, policy authority, UI, and enforcement remain separate gates.
+- `scripts/test/screen-ai-invalid-output-degrade-proof.mjs` now proves
+  malformed, unparseable, or timed-out screen AI local model output degrades into
+  typed non-enforcing local AI safety results. Invalid model output is rejected
+  before it can become a result; unparseable output falls back to `unknown` with
+  `invalid-output` degradation, and timeout falls back to `ask-parent` with
+  overloaded runtime metadata. Both retain evidence and parent rule refs and do
+  not claim model execution, model quality, new capture, portal UI, or
+  enforcement dispatch.
 
 ## Current Gap
 
@@ -193,6 +201,8 @@ production external evidence variants.
 - [x] Screen family AI hub runtime/discovery loopback proof validates real
       endpoint discovery, route evidence, redacted job exchange, and no
       raw/remote/Ocentra-hosted processing.
+- [x] Screen AI invalid output and timeout degrade to typed non-enforcing
+      local AI safety results.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub
