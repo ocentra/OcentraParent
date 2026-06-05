@@ -124,6 +124,14 @@ dev-only repo when it claims consumer readiness.
   public website publication, support backend upload, account lookup execution,
   billing provider contact, remote support sessions, production SLA, legal
   disclosure execution, and child-activity custody remain non-claims.
+- `production-release-public-surface-publication-proof` composes the existing
+  public release/status, runtime handoff, and public docs status contracts into
+  a deterministic `family.ocentra.ca` publication/readiness proof. It proves the
+  public website/download/account/status publication rows remain manual,
+  backend-required, promotion-required, or not implemented; it does not claim
+  public runtime execution, account backend runtime, billing provider runtime,
+  signing/store proof, updater execution, support upload, production SLA, legal
+  execution, or child-activity custody.
 - `billing-entitlement-contract-proof` defines parent-domain contracts for
   plan entitlement rows, entitlement snapshots, subscription status sync events,
   device-limit decisions, parent-visible failure states, local-safety fallback,
@@ -271,7 +279,13 @@ package/runtime proof.
       adapter status rows for those surfaces while keeping public runtime,
       account/backend/provider execution, publishing/signing/store proof,
       updater execution, support upload, real-device/store evidence, and child
-      activity custody unimplemented or manual-required.
+      activity custody unimplemented or manual-required. Current
+      `production-release-public-surface-publication-proof` composes the public
+      status, runtime handoff, and docs status rows into a
+      `family.ocentra.ca` publication/readiness proof while keeping public
+      runtime execution, account backend runtime, billing provider runtime,
+      signing/store proof, updater execution, support upload, production SLA,
+      legal execution, and child-activity custody unclaimed.
 
 ## Next AI Instructions
 

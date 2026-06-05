@@ -33,6 +33,12 @@ replace the constitution, roadmap, or capability checklist.
   status for public privacy, retention, export/delete, support, incident, and
   legal docs, but docs must not claim public publication until a public route,
   legal review, and publication proof exist.
+- `production-release-public-surface-publication-proof` may prove a composed
+  publication/readiness summary for `family.ocentra.ca` public status, runtime
+  handoff, and public docs rows, but docs must still label public runtime,
+  account backend, billing provider runtime, signing/store proof, updater
+  execution, support upload, production SLA, legal execution, and child-activity
+  custody as gaps until real evidence exists.
 
 ## Required Structure
 

@@ -41,6 +41,12 @@ Release features are product features because parents need install/update paths 
   support backend upload, account lookup execution, billing provider contact,
   remote support, production SLA, legal disclosure execution, and
   child-activity custody unclaimed.
+- V8 public surface publication/status proof that composes the
+  `family.ocentra.ca` public status, runtime handoff, and public docs status
+  rows while keeping public runtime execution, account backend runtime, billing
+  provider runtime, production publishing, signing/store proof, updater
+  execution, support upload, production SLA, legal execution, and child-activity
+  custody unclaimed.
 
 ## Acceptance
 
@@ -109,6 +115,12 @@ Release features are product features because parents need install/update paths 
   support, incident, and legal docs, but it must not claim public website
   publication, support backend upload, account lookup execution, billing
   provider contact, remote support sessions, production SLA, legal disclosure
+  execution, or child-activity custody.
+- `production-release-public-surface-publication-proof` may prove a composed
+  `family.ocentra.ca` publication/readiness summary across public status,
+  runtime handoff, and public docs rows, but it must not claim live public
+  runtime execution, account backend runtime, billing provider runtime,
+  signing/store proof, updater execution, support upload, production SLA, legal
   execution, or child-activity custody.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
