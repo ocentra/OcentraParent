@@ -10,6 +10,7 @@ pub mod flow;
 pub mod http;
 pub mod local_ai_queue;
 pub mod managed_browser;
+pub mod notification;
 pub mod packet;
 pub mod pcap;
 pub mod policy;
@@ -77,6 +78,11 @@ pub use managed_browser::{
     correlate_managed_browser_activity, ManagedBrowserCorrelation, ManagedBrowserCorrelationBasis,
     ManagedBrowserCorrelationError, ManagedBrowserCorrelationInput, ManagedBrowserCorrelationState,
     ManagedBrowserPageEvidence, NetworkManagedBrowserFlowEvidence,
+};
+pub use notification::{
+    map_network_parent_notification_candidate, NetworkParentNotificationCandidate,
+    NetworkParentNotificationCandidateError, NetworkParentNotificationCandidateInput,
+    NetworkParentNotificationDeliveryState, NetworkParentNotificationSeverity,
 };
 pub use packet::{
     parse_network_packet, udp_payload_from_ethernet_ipv4, EthernetFrameMetadata, IpProtocol,

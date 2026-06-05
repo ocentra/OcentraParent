@@ -147,6 +147,12 @@ compete on control while staying clear about attribution confidence and privacy.
   observe-only handoff states. The mapper never authorizes adapter actions or
   enforcement commands; B-grade block/limit requests route to parent review, and
   C/D grades remain non-enforcing.
+- E-D added a parent notification candidate mapper in
+  `ocentra-network-evidence`: policy handoff states map to candidate-only
+  parent notification records that preserve notification, policy decision,
+  parent rule, evidence, and optional local-AI refs. Provider delivery,
+  sensitive payload transport, adapter authorization, and enforcement command
+  publication are rejected.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -192,9 +198,10 @@ reusable eventing crate, service-side journal-before-action/final-audit
 ordering, typed in-process parent/controller to child-agent handoff, and
 cross-slice evidence bundle construction after cascade routing, plus
 network-triggered local-AI queue planning with refs-only AI inputs and
-evidence-grade policy handoff mapping. Analyzer fixtures, broker/family-hub
-delivery, local-AI model execution/worker runtime, full policy engine execution,
-portal UI, and adapter apply/rollback artifacts remain open.
+evidence-grade policy handoff mapping, plus parent notification candidate
+mapping. Analyzer fixtures, broker/family-hub delivery, local-AI model
+execution/worker runtime, full policy engine execution, notification provider
+delivery, portal UI, and adapter apply/rollback artifacts remain open.
 
 ## Checklist
 
@@ -231,9 +238,11 @@ portal UI, and adapter apply/rollback artifacts remain open.
       journal-before-action and final adapter-result audit/store projection;
       network-triggered local-AI queue planning now keeps AI inputs to refs
       only, and evidence-grade policy mapping now proves dry-run/parent-review/
-      observe-only handoffs with parent rule refs. Production analyzer, AI model
-      execution, broker/family-hub delivery, broader service wiring, full policy
-      engine execution, and risk-budget fixtures remain.
+      observe-only handoffs with parent rule refs. Parent notification candidate
+      mapping now preserves refs without provider delivery. Production analyzer,
+      AI model execution, broker/family-hub delivery, broader service wiring,
+      full policy engine execution, notification delivery, and risk-budget
+      fixtures remain.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.
