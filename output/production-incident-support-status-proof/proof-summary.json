@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-05T23:56:42.143Z",
+  "commit": "f3578df8a61e1b96854416da3f6e45a2d789aafb",
+  "proofMode": "production-incident-support-status-proof",
+  "rowCount": 7,
+  "rows": [
+    "support-incident-intake",
+    "parent-consent-status",
+    "privacy-legal-disclosure-status",
+    "data-export-request-status",
+    "delete-request-status",
+    "incident-publication-status",
+    "case-resolution-handoff-status"
+  ],
+  "output": "test-results/production-incident-support-status-proof/proof.json",
+  "knownGaps": [
+    "Production incident support status rows are source-contract proof only; family.ocentra.ca publication remains unimplemented.",
+    "Legal execution, support backend upload execution, account lookup, billing provider contact, remote support sessions, and production SLA remain manual-required or not implemented.",
+    "No child activity evidence, provider secrets, raw support bundles, account lookup results, billing contact records, remote transcripts, or parent rules are included."
+  ]
+}
