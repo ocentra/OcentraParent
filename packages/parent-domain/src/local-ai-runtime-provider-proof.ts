@@ -25,6 +25,7 @@ import {
 } from './reference-primitives';
 
 const NonEmptyProviderProofText = Schema.String.pipe(Schema.minLength(1));
+const RuntimeAccessLaneCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const RuntimeLoadCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const LocalAiRuntimeProviderProofReadModelIdSchema = NonEmptyProviderProofText.pipe(
@@ -78,6 +79,7 @@ const LocalAiRuntimeProviderProofEntryBaseSchema = Schema.Struct({
   acceptedJobClasses: Schema.Array(LocalAiProviderSchedulerJobClassSchema),
   schedulerLifecycle: LocalAiProviderSchedulerLifecycleSchema,
   sourceSchedulerStatus: LocalAiProviderSchedulerStatusSchema,
+  runtimeAccessLaneCount: RuntimeAccessLaneCountSchema,
   runtimeLoadCount: RuntimeLoadCountSchema,
   duplicateRuntimeBlocked: Schema.Boolean,
   childSafetyPriorityProved: Schema.Boolean,
@@ -126,7 +128,7 @@ export const LocalAiRuntimeProviderProofReadModelSchema = withParser(
 );
 
 function localAiRuntimeProviderProofEntryIsConsistent(entry: LocalAiRuntimeProviderProofEntryCandidate): boolean {
-  if (!entryHasUniqueRoles(entry) || entry.runtimeLoadCount > 1) {
+  if (!entryHasUniqueRoles(entry) || entry.runtimeAccessLaneCount !== 1 || entry.runtimeLoadCount > 1) {
     return false;
   }
 
@@ -503,6 +505,7 @@ function providerProofEntry(entry: ProviderProofEntryInput): LocalAiRuntimeProvi
     modelId: entry.sourceSchedulerStatus.modelId,
     modelReference: entry.sourceSchedulerStatus.modelReference,
     schedulerLifecycle: entry.sourceSchedulerStatus.lifecycleState,
+    runtimeAccessLaneCount: 1,
     queue: entry.sourceSchedulerStatus.queue,
     degradedState: entry.sourceSchedulerStatus.degradedState,
     unavailableReason: entry.sourceSchedulerStatus.unavailableReason,

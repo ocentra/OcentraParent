@@ -7,8 +7,18 @@ use ocentra_parent_agent_protocol::{
 };
 
 pub(crate) fn status_unavailable(checked_at: String) -> LocalAiProviderSchedulerStatus {
+    status_unavailable_for_device(
+        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+        checked_at,
+    )
+}
+
+pub(crate) fn status_unavailable_for_device(
+    physical_device_id: &str,
+    checked_at: String,
+) -> LocalAiProviderSchedulerStatus {
     LocalAiProviderSchedulerStatus {
-        physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
+        physical_device_id: physical_device_id.to_string(),
         singleton_scope: LocalAiProviderSingletonScope::PhysicalDevice,
         provider_id: constants::local_ai_runtime::PROVIDER_ID_UNCONFIGURED.to_string(),
         runtime_reference_id: constants::local_ai_runtime::RUNTIME_REFERENCE_DEV_UNCONFIGURED
@@ -41,6 +51,7 @@ pub(crate) fn copy_runtime_fields(
 }
 
 pub(crate) fn decision_for(
+    physical_device_id: &str,
     runtime: &LocalModelRuntimeStatus,
     job_class: LocalAiProviderSchedulerJobClass,
     job_status: LocalAiProviderSchedulerJobStatus,
@@ -49,7 +60,7 @@ pub(crate) fn decision_for(
     duplicate_runtime_blocked: bool,
 ) -> LocalAiProviderSchedulerDecision {
     LocalAiProviderSchedulerDecision {
-        physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
+        physical_device_id: physical_device_id.to_string(),
         job_class,
         job_status,
         selected_runtime_reference_id: if unavailable_reason.is_some() {

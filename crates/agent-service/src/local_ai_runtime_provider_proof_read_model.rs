@@ -72,6 +72,7 @@ fn entry(
         accepted_job_classes: spec.accepted_job_classes,
         scheduler_lifecycle: source_status.lifecycle_state.clone(),
         source_scheduler_status: source_status.clone(),
+        runtime_access_lane_count: 1,
         runtime_load_count,
         duplicate_runtime_blocked: source_status.duplicate_runtime_blocked,
         child_safety_priority_proved: spec.child_safety_priority_proved,
