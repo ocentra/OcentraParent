@@ -1,7 +1,7 @@
 # Tracking Report Policy Consumer Proof Source Snapshot
 
 - Branch: codex/tracking-report-policy-consumer-proof
-- Base commit at generation: 3e8795166eb64486aa1835230c35f7bc9972938c
+- Base commit at generation: 4f29c2a3d2dc956c96e0262943acbe9cce10f0c5
 - Git status at proof generation:
 
 ```text
