@@ -139,13 +139,22 @@ claim needs proof, not slogans.
   child-safety decisions. This is route/custody contract proof; it does not
   claim real hub runtime discovery, production model quality, policy authority,
   UI, or enforcement.
+- `ScreenAiModelArtifactManifestSchema` and
+  `scripts/test/screen-ai-model-artifact-manifest-proof.mjs` now prove the
+  screen AI local model artifact manifest/config boundary. The proof reuses
+  existing local model artifact/cache/runtime/provider contracts, requires
+  opaque artifact and manifest refs, verified cache integrity, local-only runtime
+  status, and the screen safety capability, while rejecting
+  remote/API/Ocentra-hosted processing, model-quality, execution, and
+  raw-evidence claims.
 
 ## Current Gap
 
-Ocentra needs product-grade model configuration, local model artifacts,
-production screen model/OCR quality beyond current local proof, confidence handling,
-authenticated-account social proof beyond public/live surface proof, production
-parent explanation portal rendering, broader enforcement handoff,
+Ocentra needs production-installed local model artifacts behind the typed
+manifest boundary, production screen model/OCR quality beyond current local
+proof, confidence handling, authenticated-account social proof beyond
+public/live surface proof, production parent explanation portal rendering,
+broader enforcement handoff,
 production browser-trigger producers, real family AI hub runtime/discovery,
 cloud-streamed frame proof, mobile browser parity, and validation against
 production external evidence variants.
@@ -171,10 +180,11 @@ production external evidence variants.
 - [x] Tests with real stored evidence.
 - [x] Screen hard-visual routing prefers child-local then household family hub
       before remote/API fallback.
+- [x] Screen AI model artifact manifest/config contract boundary.
 
-Product-grade model configuration, model artifacts, production model/OCR
-quality, authenticated-account social proof, and broad enforcement handoff
-remain in the Current Gap section above.
+Production-installed model artifacts, production model/OCR quality,
+authenticated-account social proof, and broad enforcement handoff remain in the
+Current Gap section above.
 
 ## Next AI Instructions
 
