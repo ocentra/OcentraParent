@@ -1,3 +1,4 @@
+pub mod ai_detection;
 pub mod android_vpn_service_gate;
 pub mod apple_network_extension_gate;
 pub mod bundle;
@@ -32,6 +33,14 @@ mod process_support;
 #[cfg(test)]
 mod tests;
 
+pub use ai_detection::{
+    evaluate_network_ai_detection_fixtures, NetworkAiDetectionDriftState,
+    NetworkAiDetectionEvaluationError, NetworkAiDetectionEvaluationInput,
+    NetworkAiDetectionEvaluationProof, NetworkAiDetectionEvaluationState,
+    NetworkAiDetectionFixtureCase, NetworkAiDetectionInputKind, NetworkAiDetectionLabel,
+    NetworkAiDetectionPrecisionState, NetworkAiDetectionRecallState, NetworkAiDetectionResult,
+    NetworkAiDetectionRiskLevel, NetworkAiDetectionUncertaintyCode,
+};
 pub use android_vpn_service_gate::{
     plan_network_android_vpn_service_gate, NetworkAndroidVpnServiceCapabilityState,
     NetworkAndroidVpnServiceGateBoundaryReason, NetworkAndroidVpnServiceGateError,

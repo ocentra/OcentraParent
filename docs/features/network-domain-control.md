@@ -146,6 +146,13 @@ compete on control while staying clear about attribution confidence and privacy.
   queue-unavailable, and not-recommended states are explicit and do not carry a
   queue job, and the planner rejects raw packet payload, page content,
   decrypted payload, policy-authority, or adapter-authority claims.
+- E-D added deterministic network AI detection fixture evaluation in
+  `ocentra-network-evidence`: fixture labels, structured summary refs, evidence
+  refs, and analyzer alert refs can be compared against model predictions with
+  precision, recall, accuracy, and confidence-drift metrics. The proof is a
+  quality gate only; it rejects model-execution, remote-AI, raw PCAP, exact URL,
+  page-content, decrypted-payload, policy-authority, adapter-authority, and
+  enforcement-command claims.
 - E-D added an evidence-grade policy mapper in `ocentra-network-evidence`:
   A/B/C/D evidence plus parent rule refs, policy decision refs, evidence refs,
   and optional local-AI result refs map to dry-run, parent-review, or
@@ -200,8 +207,8 @@ compete on control while staying clear about attribution confidence and privacy.
 
 Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
 attribution quality, live PCAP/analyzer fixture proof, TypeScript/public export
-parity and service wiring for network event contracts, AI detection and audit
-proof, risk-budget proof, performance proof, and parent-facing rule UX remain.
+parity and service wiring for network event contracts, AI audit proof,
+risk-budget proof, performance proof, and parent-facing rule UX remain.
 Policy dispatch does not upgrade
 network/domain blocking beyond
 manual-required, and the broad-adapter proof and supported-adapter runtime proof
@@ -296,9 +303,12 @@ execution, and platform adapter execution remain open.
       Row45 eventing delivery-decision proof now keeps local network routes
       local-first with typed subscriber filters and bounded backpressure
       metadata, and marks broker/family-hub delivery as requirements-gated rather
-      than implemented. AI model execution, broker/family-hub delivery
-      implementation, broader service wiring, full policy engine execution,
-      notification delivery, and risk-budget fixtures remain.
+      than implemented. Row46 AI detection fixture proof now measures model
+      predictions against labeled structured-summary fixtures with precision,
+      recall, accuracy, and confidence-drift states while rejecting raw content
+      and authority claims. AI model execution, broker/family-hub delivery
+      implementation, broader service wiring, AI audit narrative, full policy
+      engine execution, notification delivery, and risk-budget fixtures remain.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
