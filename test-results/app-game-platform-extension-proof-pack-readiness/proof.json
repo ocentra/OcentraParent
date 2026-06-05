@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T20:56:40.346Z",
-  "commit": "5e091309c866e998184a6c86b927bc286855fe9f",
+  "checkedAt": "2026-06-05T21:17:37.919Z",
+  "commit": "5999a4bedfcbef2116e672dc87d29b3cc77f6ec2",
   "proofMode": "app-game-platform-extension-proof-pack-readiness",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
