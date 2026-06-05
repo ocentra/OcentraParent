@@ -26,6 +26,7 @@ pub mod pipeline;
 pub mod platform_claims;
 pub mod policy;
 pub mod process;
+pub mod raw_capture_storage;
 pub mod readiness;
 pub mod risk_budget;
 pub mod screen_summary;
@@ -188,6 +189,12 @@ pub use process::{
     NetworkProcessAppCorrelation, NetworkProcessAppCorrelationInput,
     NetworkProcessCorrelationBasis, NetworkProcessCorrelationError, NetworkProcessCorrelationState,
     NetworkProcessCorrelationUncertainty, NetworkProcessSnapshot,
+};
+pub use raw_capture_storage::{
+    evaluate_network_raw_capture_storage_proof, NetworkRawCaptureArtifactKind,
+    NetworkRawCaptureStorageProof, NetworkRawCaptureStorageProofError,
+    NetworkRawCaptureStorageProofInput, NetworkRawCaptureStorageRequiredArtifact,
+    NetworkRawCaptureStorageState,
 };
 pub use readiness::{
     evaluate_network_readiness_proof, NetworkHardeningReadinessProof, NetworkReadinessFindingCode,

@@ -41,7 +41,14 @@ clean-stop, quota-rotation, retention/delete/export, custody, and
 private-traffic-exclusion refs. Missing artifacts stay manual-required,
 platform gaps stay unavailable/degraded, and the proof rejects live driver
 invocation, unbounded capture, raw PCAP without custody, exact content,
-policy/adapter authority, and enforcement-command claims. Unmanaged-browser
+policy/adapter authority, and enforcement-command claims. The raw capture
+storage proof composes that live-capture readiness with retention readiness,
+raw artifact manifest, local storage, encryption-at-rest, quota,
+delete/export, custody chain, and private-traffic-exclusion refs; missing
+custody artifacts stay manual-required, unavailable/degraded live-capture
+states remain explicit, and remote upload, live capture execution, raw PCAP
+without custody, exact content, policy/adapter authority, and
+enforcement-command claims are rejected. Unmanaged-browser
 correlation records known or portable browser processes as process-only bypass
 evidence, keeps browser-like process names candidate-only, preserves managed
 browser boundary and adapter-unavailable states, and rejects exact URL,
@@ -196,14 +203,15 @@ artifacts while rejecting generic platform support, live adapter execution, UI
 policy authority, exact URL, page content, decrypted payload, and
 enforcement-command claims.
 
-Live Npcap/libpcap driver invocation and packet capture, full vendor category
-feeds, production CDN intelligence, unmanaged browser exact URL or active-tab
-correlation, unmanaged browser adapter action or process termination, foreground
-session live adapter implementation, app/game policy evaluation, process
-termination, time-limit execution, screen capture adapter execution, OCR/VLM
-execution, screen analysis result creation, raw image retention, remote upload,
-live network adapter enforcement, file/content inspection, local-AI model
-execution/worker runtime, production model-quality monitoring, production SLO
+Live Npcap/libpcap driver invocation and packet capture, production raw-PCAP
+storage execution, full vendor category feeds, production CDN intelligence,
+unmanaged browser exact URL or active-tab correlation, unmanaged browser adapter
+action or process termination, foreground session live adapter implementation,
+app/game policy evaluation, process termination, time-limit execution, screen
+capture adapter execution, OCR/VLM execution, screen analysis result creation,
+raw image retention, remote upload, live network adapter enforcement,
+file/content inspection, local-AI model execution/worker runtime, production
+model-quality monitoring, production SLO
 validation, full policy engine execution, notification provider delivery, portal
 AI audit UI, risk-budget, or performance rendering, live WFP driver/callout
 proof, live adapter execution, Android physical-device behavior, Apple

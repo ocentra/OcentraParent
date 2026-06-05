@@ -28,6 +28,7 @@ mod pipeline;
 mod platform_claims;
 mod policy;
 mod process;
+mod raw_capture_storage;
 mod readiness;
 mod risk_budget;
 mod screen_summary;

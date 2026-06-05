@@ -125,6 +125,15 @@ compete on control while staying clear about attribution confidence and privacy.
   live driver invocation, unbounded capture, raw PCAP without custody,
   exact-content, policy/adapter authority, and enforcement-command claims are
   rejected.
+- E-D added deterministic raw capture storage custody proof in
+  `ocentra-network-evidence`: the live-capture readiness proof and retention
+  readiness proof now compose with raw artifact manifest, local storage,
+  encryption-at-rest, quota, delete/export, custody chain, and
+  private-traffic-exclusion refs. Missing custody artifacts stay
+  manual-required, unavailable/degraded live-capture states remain visible, and
+  live capture execution, remote upload, raw PCAP without custody,
+  exact-content, policy/adapter authority, and enforcement-command claims are
+  rejected.
 - E-D added fixture-backed visibility parsers for TLS ClientHello SNI, plain
   HTTP Host, QUIC limited-visibility detection, and DoH/DoT resolver-candidate
   detection. These parsers keep exact URL, visited domain, page content, and
@@ -324,8 +333,8 @@ compete on control while staying clear about attribution confidence and privacy.
 Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
 attribution quality, live capture driver invocation, live analyzer fixture
 proof, broker/family-hub transport, remote network runtime event-chain
-delivery, raw PCAP/live-capture retention, production risk-budget service/UI
-wiring,
+delivery, production raw-PCAP storage execution, production risk-budget
+service/UI wiring,
 production SLO validation,
 external audit/deployment execution, full support-material authoring, and
 parent-facing rule UX remain.
@@ -440,8 +449,8 @@ UI rendering remain open.
       streaming now returns protocol-shaped local runtime entries for stored
       rows, and service/query-store tombstones now hide deleted active rows
       while preserving local deletion evidence refs and exportable-row counts.
-      Broker/family-hub, raw PCAP/live-capture retention, policy, adapter, and
-      host-filter execution remain unclaimed. Row46 AI detection fixture proof
+      Broker/family-hub, production raw-PCAP storage execution, policy, adapter,
+      and host-filter execution remain unclaimed. Row46 AI detection fixture proof
       now measures model
       predictions against labeled structured-summary fixtures with precision,
       recall, accuracy, and confidence-drift states while rejecting raw content
@@ -463,6 +472,11 @@ UI rendering remain open.
       Linux nftables/eBPF/TUN gates into exact OS/device/permission claim rows,
       records manual follow-ups for missing artifacts, and rejects generic
       platform support, live adapter execution, UI policy authority, and
+      enforcement-command claims. Row03a raw capture storage custody proof now
+      composes live-capture readiness and retention readiness with local raw
+      artifact manifest, storage, encryption, quota, delete/export, custody, and
+      private-traffic-exclusion refs while rejecting live capture execution,
+      remote upload, raw PCAP without custody, content, policy, adapter, and
       enforcement-command claims. AI model execution, broker/family-hub delivery
       implementation, full policy engine execution, notification delivery, external
       audit/deployment execution, full support-material authoring, and portal
