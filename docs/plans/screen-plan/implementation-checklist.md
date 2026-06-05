@@ -174,7 +174,7 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [x]    | 32 Browser structured extraction before screenshot |
 | [ ]    | 33 Managed browser CDP screenshot capture path     |
 | [~]    | 34 OCR Tesseract baseline                          |
-| [ ]    | 35 OCR PaddleOCR/PP-OCR evaluation                 |
+| [~]    | 35 OCR PaddleOCR/PP-OCR evaluation                 |
 | [~]    | 36 Small VLM guided classifier evaluation          |
 | [x]    | 37 Family AI hub screen-analysis queue             |
 | [x]    | 38 Local AI resource scheduler/priority queue      |
