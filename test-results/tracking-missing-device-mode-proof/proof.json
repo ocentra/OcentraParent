@@ -2,7 +2,7 @@
   "proofMode": "tracking-missing-device-mode-proof",
   "generatedAt": "2026-06-05T15:18:00.000Z",
   "branch": "codex/tracking-missing-device-mode-proof",
-  "commit": "e54df1f6e1868647d29cbb3483f74f7cd464aed3",
+  "commit": "df1285b356331f5574e8132bfb8b7cbd36bfd182",
   "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",

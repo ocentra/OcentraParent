@@ -1,7 +1,7 @@
 # WP29 Missing-Device Mode Source Snapshot
 
 - Branch: codex/tracking-missing-device-mode-proof
-- Commit: e54df1f6e1868647d29cbb3483f74f7cd464aed3
+- Commit: df1285b356331f5574e8132bfb8b7cbd36bfd182
 - Git status at proof generation:
 
 ```text
