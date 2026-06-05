@@ -13,6 +13,11 @@ development paths and orchestrates runtime commands.
   enforcement paths.
 - Local Activity report JSON storage/history queries and Parent Assistant
   evidence context assembly from service-owned Activity read models.
+- Screen service analysis runtime that consumes encrypted screen queue jobs,
+  invokes service-owned local adapter commands, records `localVision` or
+  `localOcr` Activity Screen read-model rows with model/provider metadata, and
+  drains processed queue records while keeping raw screenshot retention disabled
+  by default.
 - V0.8 product-control spine runtime reports through
   `agent.enforcement.product-control-spine.get` without upgrading unsupported
   broad adapter claims.
@@ -155,3 +160,6 @@ flowchart LR
 - App/game source status rows are backend read-model summaries only; polished
   portal rendering, policy consumption, richer subscriptions, adapter
   execution, and broad blocking remain separate gaps.
+- Screen service analysis proofs are backend/local proof hooks only; production
+  OCR/VLM quality, authenticated-account surfaces, broader live trigger
+  producers, retention UI, and enforcement remain separate gaps.

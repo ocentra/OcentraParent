@@ -48,9 +48,11 @@ claim needs proof, not slogans.
   `output/ai-plan-proof/local-ai-provider-scheduler-proof`.
 - The screen service analysis runtime now consumes an encrypted screen queue job,
   runs through the local provider scheduler and service-owned local adapter
-  command boundary, records `localVision` or explicit unavailable/invalid output
-  Activity Screen rows, and drains processed queue records. The current proof
-  adapter validates runtime plumbing and custody, not production model quality.
+  command boundary, records `localVision`, `localOcr`, or explicit
+  unavailable/invalid output Activity Screen rows, and drains processed queue
+  records. The service proof adapter validates runtime plumbing and custody; the
+  Windows WinRT OCR proof validates local OCR over live public Wikipedia pixels,
+  but neither proof claims production model/OCR quality.
 - `local-ai-parent-assistant-runtime-proof` now ties the provider scheduler
   proof to Parent Assistant answer/status/action contracts, including cited
   local answer, queued/degraded/unavailable lifecycle, child-safety priority,
@@ -128,7 +130,7 @@ claim needs proof, not slogans.
 ## Current Gap
 
 Ocentra needs product-grade model configuration, local model artifacts,
-production screen model quality, confidence handling,
+production screen model/OCR quality beyond current local proof, confidence handling,
 authenticated-account social proof beyond public/live surface proof, production
 parent explanation portal rendering, broader enforcement handoff,
 production browser-trigger producers, real family AI hub runtime/discovery,
@@ -148,14 +150,15 @@ production external evidence variants.
 - [x] Parent explanation and audit proof path.
 - [x] Parent explanation read-model proof path.
 - [x] Screen parent explanation service read-model proof path.
+- [x] Screen service WinRT OCR local adapter proof path.
 - [x] Final screen-AI product path artifact gate.
 - [x] Tests with real stored evidence.
 - [x] Screen hard-visual routing prefers child-local then household family hub
       before remote/API fallback.
 
-Product-grade model configuration, model artifacts, production model quality,
-authenticated-account social proof, and broad enforcement handoff remain in the
-Current Gap section above.
+Product-grade model configuration, model artifacts, production model/OCR
+quality, authenticated-account social proof, and broad enforcement handoff
+remain in the Current Gap section above.
 
 ## Next AI Instructions
 
