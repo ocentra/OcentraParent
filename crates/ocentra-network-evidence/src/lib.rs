@@ -20,6 +20,7 @@ pub mod tls;
 pub mod transfer;
 pub mod tunnel;
 pub mod windows_firewall_adapter;
+pub mod windows_wfp_gate;
 
 mod process_support;
 
@@ -125,4 +126,9 @@ pub use windows_firewall_adapter::{
     NetworkWindowsFirewallAdapterProofInput, NetworkWindowsFirewallBoundaryReason,
     NetworkWindowsFirewallCapabilityState, NetworkWindowsFirewallProofState,
     NetworkWindowsFirewallRequiredArtifact, NetworkWindowsFirewallTargetKind,
+};
+pub use windows_wfp_gate::{
+    plan_network_windows_wfp_gate, NetworkWindowsWfpGateBoundaryReason,
+    NetworkWindowsWfpGateCapabilityState, NetworkWindowsWfpGateError, NetworkWindowsWfpGateInput,
+    NetworkWindowsWfpGateProof, NetworkWindowsWfpGateState, NetworkWindowsWfpRequiredArtifact,
 };
