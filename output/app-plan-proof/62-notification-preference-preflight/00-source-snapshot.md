@@ -1,7 +1,7 @@
 # app WP62 Source Snapshot
 
 - Branch: codex/app-game-notification-preference-preflight
-- Commit: 97008d7915a9f75da6a6b9fd438172affa1faf19
+- Commit: 94393ee9fda042eaf18447805624ccd0935cfe3b
 - Git status at proof generation:
 
 ```text
