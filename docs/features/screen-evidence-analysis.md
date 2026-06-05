@@ -233,6 +233,18 @@ only with explicit parent settings.
   fallback, and Ocentra-hosted processing are rejected. This is contract proof;
   real LAN hub runtime/discovery, production model quality, policy decisions,
   UI, and enforcement remain separate gates.
+- `ScreenFamilyAiHubRuntimeDiscoveryReadModelSchema` and
+  `scripts/test/screen-family-ai-hub-runtime-discovery-proof.mjs` now prove the
+  first runtime/discovery layer for the screen-specific family AI hub route. The
+  proof starts a real loopback family-hub HTTP endpoint, discovers it, records
+  child-agent hello, heartbeat, and route evidence through existing LAN
+  discovery schemas, selects the existing screen family-hub route after a
+  child-local degraded attempt, submits a redacted-crop job payload, and writes
+  `output/screen-ai-pipeline-proof/family-ai-hub-runtime-discovery/proof-summary.json`.
+  The exchange log proves no raw full screenshot bytes are sent, no raw image is
+  retained, and remote/API or Ocentra-hosted processing is not used. Physical
+  household LAN discovery, production VLM quality, portal UI, policy authority,
+  cloud relay, and enforcement remain separate gates.
 - `scripts/test/screen-ai-service-disabled-suppression-proof.mjs` now proves the
   service-owned disabled setting against the real Rust service on Windows: an
   enabled phase creates one encrypted cadence queue record, then a disabled
@@ -399,11 +411,12 @@ adapter, service-owned live trigger event producers beyond the timed cadence
 loop and native active-window foreground watcher, physical Android/iOS proof,
 live macOS capture proof, Linux root/Wayland portal proof, browser-trigger
 artifact closure, browser/network/mobile/broad block action adapters from
-screen-derived decisions, real family AI hub runtime/discovery, and production
-parent explanation portal rendering remain. Browser-trigger proof now covers
-contract flow into screen evidence and local-AI context only; live trigger
-producers, authenticated surfaces, cloud-streamed frames, mobile parity, and UI
-remain separate proof gates.
+screen-derived decisions, physical household family AI hub discovery/runtime
+proof beyond the loopback runtime exchange, and production parent explanation
+portal rendering remain. Browser-trigger proof now covers contract flow into
+screen evidence and local-AI context only; live trigger producers,
+authenticated surfaces, cloud-streamed frames, mobile parity, and UI remain
+separate proof gates.
 
 ## Checklist
 
@@ -430,6 +443,9 @@ remain separate proof gates.
       reject private/raw output fields.
 - [x] Family AI hub route contract is used before remote/API for hard visual
       cases.
+- [x] Family AI hub runtime/discovery loopback proof starts a real local
+      endpoint, records hello/heartbeat/route evidence, submits a redacted-crop
+      job, and preserves no-raw/no-remote custody boundaries.
 - [x] Screen intelligence router checks typed evidence and managed-browser
       structured extraction before selecting screenshots.
 - [x] Managed-browser CDP screenshot capture is page-scoped, target-tied,
@@ -457,9 +473,9 @@ remain separate proof gates.
       artifacts without raw screenshot retention.
 
 Service persistence for parent setting changes, product-complete retention
-controls, production OCR/VLM quality, authenticated-account social proof, broad
-adapters, and production explanation portal rendering remain in the Current Gap
-section above.
+controls, production OCR/VLM quality, authenticated-account social proof,
+physical household family AI hub runtime/discovery, broad adapters, and
+production explanation portal rendering remain in the Current Gap section above.
 
 ## Next AI Instructions
 
