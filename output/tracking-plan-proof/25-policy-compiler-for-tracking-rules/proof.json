@@ -1,0 +1,282 @@
+{
+  "proofMode": "tracking-policy-compiler-runtime-proof",
+  "generatedAt": "2026-06-05T17:10:00.000Z",
+  "branch": "codex/tracking-policy-compiler-runtime-proof-refresh",
+  "baseCommitAtGeneration": "e64362ae0a29ce01ddf84ca3c35db250f6d3454a",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/25-policy-compiler-for-tracking-rules.md\n M docs/product-capability-checklist.md\n M output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/00-source-snapshot.md\n M output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/01-contract-proof.log\n M output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/13-security-negative-proof.log\n M output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/16-validation-commands.log\n?? packages/parent-domain/src/tracking-policy-compiler-runtime-proof.ts\n?? packages/parent-domain/tests/tracking-policy-compiler-runtime-proof.test.ts\n?? scripts/test/tracking-policy-compiler-runtime-proof.mjs",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-policy-compiler-runtime-proof tracking-location-policy"
+  ],
+  "summary": {
+    "resultCount": 10,
+    "decisionActions": {
+      "observe": 2,
+      "notify-parent": 2,
+      "ask-child-check-in": 1,
+      "request-parent-acknowledgement": 1,
+      "start-temporary-live-tracking": 1,
+      "escalate": 1,
+      "no-action": 1,
+      "manual-required": 1
+    },
+    "alertSeverities": {
+      "none": 6,
+      "watch": 2,
+      "urgent": 1,
+      "critical": 1
+    },
+    "finalActionSources": {
+      "parent-policy-rule": 9,
+      "manual-required": 1
+    },
+    "aiNonAuthorityRows": 10,
+    "runtimeClaimedRows": 0,
+    "providerClaimedRows": 0,
+    "physicalDeviceClaimedRows": 0
+  },
+  "productClaims": {
+    "aiFinalAuthorityClaimed": false,
+    "runtimeEnforcementClaimed": false,
+    "providerDeliveryClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "platformAdapterClaimed": false,
+    "physicalDeviceClaimed": false,
+    "productionWorkerClaimed": false,
+    "productUiCompleteClaimed": false
+  },
+  "proofPaths": {
+    "source": "packages/parent-domain/src/tracking-policy-compiler-runtime-proof.ts",
+    "test": "packages/parent-domain/tests/tracking-policy-compiler-runtime-proof.test.ts",
+    "harness": "scripts/test/tracking-policy-compiler-runtime-proof.mjs",
+    "evidence": "test-results/tracking-policy-compiler-runtime-proof/proof.json",
+    "trackingProofPack": "output/tracking-plan-proof/25-policy-compiler-for-tracking-rules"
+  },
+  "results": [
+    {
+      "requestedAction": "observe",
+      "decisionAction": "observe",
+      "finalActionSource": "parent-policy-rule",
+      "alertSeverity": null,
+      "childCheckInState": null,
+      "escalationState": null,
+      "liveGrantState": null,
+      "parentPolicyFinalAuthority": true,
+      "aiFinalAuthority": false,
+      "runtimeEnforcementClaimed": false,
+      "providerDeliveryClaimed": false,
+      "platformAdapterClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productionWorkerClaimed": false,
+      "reasonCodes": [
+        "tracking-rule-matched",
+        "tracking-compiler-requested",
+        "parent-policy-final-authority",
+        "tracking-policy-action-observe"
+      ]
+    },
+    {
+      "requestedAction": "notify-parent",
+      "decisionAction": "notify-parent",
+      "finalActionSource": "parent-policy-rule",
+      "alertSeverity": "watch",
+      "childCheckInState": null,
+      "escalationState": null,
+      "liveGrantState": null,
+      "parentPolicyFinalAuthority": true,
+      "aiFinalAuthority": false,
+      "runtimeEnforcementClaimed": false,
+      "providerDeliveryClaimed": false,
+      "platformAdapterClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productionWorkerClaimed": false,
+      "reasonCodes": [
+        "tracking-rule-matched",
+        "tracking-compiler-requested",
+        "parent-policy-final-authority",
+        "tracking-policy-action-notify-parent"
+      ]
+    },
+    {
+      "requestedAction": "ask-child-check-in",
+      "decisionAction": "ask-child-check-in",
+      "finalActionSource": "parent-policy-rule",
+      "alertSeverity": null,
+      "childCheckInState": "sent",
+      "escalationState": null,
+      "liveGrantState": null,
+      "parentPolicyFinalAuthority": true,
+      "aiFinalAuthority": false,
+      "runtimeEnforcementClaimed": false,
+      "providerDeliveryClaimed": false,
+      "platformAdapterClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productionWorkerClaimed": false,
+      "reasonCodes": [
+        "tracking-rule-matched",
+        "tracking-compiler-requested",
+        "parent-policy-final-authority",
+        "tracking-policy-action-ask-child-check-in"
+      ]
+    },
+    {
+      "requestedAction": "request-parent-acknowledgement",
+      "decisionAction": "request-parent-acknowledgement",
+      "finalActionSource": "parent-policy-rule",
+      "alertSeverity": "watch",
+      "childCheckInState": null,
+      "escalationState": null,
+      "liveGrantState": null,
+      "parentPolicyFinalAuthority": true,
+      "aiFinalAuthority": false,
+      "runtimeEnforcementClaimed": false,
+      "providerDeliveryClaimed": false,
+      "platformAdapterClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productionWorkerClaimed": false,
+      "reasonCodes": [
+        "tracking-rule-matched",
+        "tracking-compiler-requested",
+        "parent-policy-final-authority",
+        "tracking-policy-action-request-parent-acknowledgement"
+      ]
+    },
+    {
+      "requestedAction": "start-temporary-live-tracking",
+      "decisionAction": "start-temporary-live-tracking",
+      "finalActionSource": "parent-policy-rule",
+      "alertSeverity": null,
+      "childCheckInState": null,
+      "escalationState": null,
+      "liveGrantState": "requested",
+      "parentPolicyFinalAuthority": true,
+      "aiFinalAuthority": false,
+      "runtimeEnforcementClaimed": false,
+      "providerDeliveryClaimed": false,
+      "platformAdapterClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productionWorkerClaimed": false,
+      "reasonCodes": [
+        "tracking-rule-matched",
+        "tracking-compiler-requested",
+        "parent-policy-final-authority",
+        "tracking-policy-action-start-temporary-live-tracking"
+      ]
+    },
+    {
+      "requestedAction": "escalate",
+      "decisionAction": "escalate",
+      "finalActionSource": "parent-policy-rule",
+      "alertSeverity": "urgent",
+      "childCheckInState": null,
+      "escalationState": "waiting-for-parent",
+      "liveGrantState": null,
+      "parentPolicyFinalAuthority": true,
+      "aiFinalAuthority": false,
+      "runtimeEnforcementClaimed": false,
+      "providerDeliveryClaimed": false,
+      "platformAdapterClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productionWorkerClaimed": false,
+      "reasonCodes": [
+        "tracking-rule-matched",
+        "tracking-compiler-requested",
+        "parent-policy-final-authority",
+        "tracking-policy-action-escalate"
+      ]
+    },
+    {
+      "requestedAction": "suppress",
+      "decisionAction": "no-action",
+      "finalActionSource": "parent-policy-rule",
+      "alertSeverity": null,
+      "childCheckInState": null,
+      "escalationState": null,
+      "liveGrantState": null,
+      "parentPolicyFinalAuthority": true,
+      "aiFinalAuthority": false,
+      "runtimeEnforcementClaimed": false,
+      "providerDeliveryClaimed": false,
+      "platformAdapterClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productionWorkerClaimed": false,
+      "reasonCodes": [
+        "tracking-rule-matched",
+        "tracking-compiler-requested",
+        "parent-policy-final-authority",
+        "tracking-policy-action-no-action"
+      ]
+    },
+    {
+      "requestedAction": "manual-required",
+      "decisionAction": "manual-required",
+      "finalActionSource": "manual-required",
+      "alertSeverity": null,
+      "childCheckInState": null,
+      "escalationState": null,
+      "liveGrantState": null,
+      "parentPolicyFinalAuthority": true,
+      "aiFinalAuthority": false,
+      "runtimeEnforcementClaimed": false,
+      "providerDeliveryClaimed": false,
+      "platformAdapterClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productionWorkerClaimed": false,
+      "reasonCodes": [
+        "tracking-rule-matched",
+        "tracking-compiler-requested",
+        "parent-policy-final-authority",
+        "tracking-policy-action-manual-required",
+        "tracking-manual-required"
+      ]
+    },
+    {
+      "requestedAction": "critical-alert",
+      "decisionAction": "notify-parent",
+      "finalActionSource": "parent-policy-rule",
+      "alertSeverity": "critical",
+      "childCheckInState": null,
+      "escalationState": null,
+      "liveGrantState": null,
+      "parentPolicyFinalAuthority": true,
+      "aiFinalAuthority": false,
+      "runtimeEnforcementClaimed": false,
+      "providerDeliveryClaimed": false,
+      "platformAdapterClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productionWorkerClaimed": false,
+      "reasonCodes": [
+        "tracking-rule-matched",
+        "tracking-compiler-requested",
+        "parent-policy-final-authority",
+        "tracking-policy-action-notify-parent",
+        "ai-evidence-not-final-authority"
+      ]
+    },
+    {
+      "requestedAction": "critical-alert",
+      "decisionAction": "observe",
+      "finalActionSource": "parent-policy-rule",
+      "alertSeverity": null,
+      "childCheckInState": null,
+      "escalationState": null,
+      "liveGrantState": null,
+      "parentPolicyFinalAuthority": true,
+      "aiFinalAuthority": false,
+      "runtimeEnforcementClaimed": false,
+      "providerDeliveryClaimed": false,
+      "platformAdapterClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productionWorkerClaimed": false,
+      "reasonCodes": [
+        "tracking-rule-matched",
+        "tracking-compiler-requested",
+        "parent-policy-final-authority",
+        "tracking-policy-action-observe",
+        "parent-policy-overrode-candidate",
+        "ai-evidence-not-final-authority"
+      ]
+    }
+  ]
+}

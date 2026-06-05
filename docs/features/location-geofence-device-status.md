@@ -121,6 +121,13 @@ expose location or device-status features. Parents expect this category.
   category/distance/confidence/ambiguity evidence, and records provider
   unavailable degradation without claiming live Google execution, credentials,
   exact place, or physical-device proof.
+- WP25 tracking policy compiler runtime proof now exists through
+  `node scripts/test/tracking-policy-compiler-runtime-proof.mjs`. It compiles
+  parent-owned tracking rules for observe, notify, child check-in, parent
+  acknowledgement, temporary live tracking, escalation, critical alert,
+  suppress/no-action, and manual-required outcomes, keeps AI as evidence rather
+  than final authority, and records no runtime enforcement, provider delivery,
+  platform adapter, production worker, UI-complete, or physical-device claims.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -178,7 +185,7 @@ tracking alert-to-provider-status handoff proof, P1 escalation readiness proof
 for acknowledgement/check-in/manual escalation states, WP28 temporary live
 tracking mode proof for authorization/duration/cadence/degraded/auto-stop/
 retention states, and WP20 Google Places/POI provider request/response mapping
-proof. It remains a tracked
+proof, and WP25 parent-policy compiler/evaluator runtime proof. It remains a tracked
 product gap until platform location and geofence adapters, broader product read
 models, actual live provider execution/delivery, notification receipt ingestion,
 physical-device proof, actual child-device delivery/runtime execution, and full
@@ -206,6 +213,11 @@ proved.
 - [ ] iOS entitlement/background proof.
 - [x] Expected-place schedule and exception contracts.
 - [x] Parent acknowledgement and escalation contracts.
+- [x] WP25 P1 parent-policy compiler/evaluator runtime proof for tracking
+      rules, deterministic parent-policy final authority, AI non-authority,
+      manual-required fallback, and dry-run/preview output. This is not runtime
+      enforcement, provider delivery, platform adapter, production worker,
+      product UI, or physical-device proof.
 - [x] Tracking alert intents map to provider-status boundary evidence with
       evidence refs, policy decision refs, notification status refs, reason refs,
       and minimal/authenticated-drill-in payload boundaries. This is not
