@@ -1,0 +1,21 @@
+{
+  "actualScope": "selectedWindow",
+  "analysisTempPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\live-vimeo-browser-ocr\\capture\\capture.png.tmp",
+  "appNameDigest": "445d6290691548b5a602994dec2eea134cf7871217e14700d14f92437605e6f6",
+  "appNamePresent": true,
+  "captured": true,
+  "height": 881,
+  "imageByteSize": 967625,
+  "imageDigest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+  "monitorId": 65639,
+  "monitorNameDigest": "fc2b61e60bd49f1e7549634104eeb412b74b89cdbc3e2b6eebf6ca7ec8ac1a98",
+  "monitorNamePresent": true,
+  "pid": 17960,
+  "rawImagePersistedInProof": false,
+  "requestedScope": "selectedWindow",
+  "status": "available",
+  "titleDigest": "03829e8ade6dcfa1238c7defad287754333f2ed8b0c396ab56c0d19f484e11b0",
+  "titlePresent": true,
+  "width": 1202,
+  "windowId": 102504174
+}

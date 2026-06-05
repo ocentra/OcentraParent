@@ -1,0 +1,2176 @@
+{
+  "status": "ok",
+  "proofKind": "screen-winrt-ocr-worker-proof",
+  "artifact": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\worker-proof-summary.json",
+  "artifacts": {
+    "sourceSnapshot": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\00-source-snapshot.md",
+    "validationCommands": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\14-validation-commands.log",
+    "snapshotBoundary": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\10-ui-snapshots\\README.md",
+    "liveOcrOperatorSummary": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\proof-summary.json"
+  },
+  "proof": {
+    "schemaVersion": 1,
+    "proofId": "screen-winrt-ocr-worker-proof",
+    "proofTier": "P3_REAL_CAPTURE_LOCAL_OCR",
+    "scenarios": [
+      {
+        "schemaVersion": 1,
+        "ocrResultId": "screen-winrt-ocr-result-live-wikipedia-browser-ocr",
+        "queueJobId": "screen-winrt-ocr-job-live-wikipedia-browser-ocr",
+        "analyzedAt": "2026-06-05T23:35:46.832Z",
+        "ocrEngine": "winRtOcr",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "managedBrowserUrlChange",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "textLines": [
+          {
+            "text": "wikipedia.org",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-2"
+          },
+          {
+            "text": "WIKIPEDIA",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-3"
+          },
+          {
+            "text": "Wikipedia is hosted by the Wikimedia",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-21"
+          },
+          {
+            "text": "Read Wikipedia in your language v",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-25"
+          },
+          {
+            "text": "Wiki pedia",
+            "confidence": 0.88,
+            "boundingBoxRef": "line-1"
+          }
+        ],
+        "ocrTextSnippets": [
+          {
+            "text": "wikipedia.org",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "WIKIPEDIA",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Wikipedia is hosted by the Wikimedia",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Read Wikipedia in your language v",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Wiki pedia",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "summary": "WinRT OCR extracted school text from live-browser pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "school",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "school",
+        "riskSignals": [],
+        "redactionNotes": [],
+        "confidence": 0.88,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+            "kind": "journal-entry",
+            "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+            "uri": null
+          }
+        ],
+        "imageDigest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true,
+        "lineCount": 5
+      },
+      {
+        "schemaVersion": 1,
+        "ocrResultId": "screen-winrt-ocr-result-live-vimeo-browser-ocr",
+        "queueJobId": "screen-winrt-ocr-job-live-vimeo-browser-ocr",
+        "analyzedAt": "2026-06-05T23:35:57.428Z",
+        "ocrEngine": "winRtOcr",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "managedBrowserUrlChange",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "textLines": [
+          {
+            "text": "vimeo.com/watch",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-2"
+          },
+          {
+            "text": "Q Search all of Vimeo",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-11"
+          },
+          {
+            "text": "V Watch Free Videos, Films, arWS X +",
+            "confidence": 0.88,
+            "boundingBoxRef": "line-1"
+          },
+          {
+            "text": "Back to home",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-3"
+          },
+          {
+            "text": "Feed",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-4"
+          }
+        ],
+        "ocrTextSnippets": [
+          {
+            "text": "vimeo.com/watch",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Q Search all of Vimeo",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "V Watch Free Videos, Films, arWS X +",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Back to home",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Feed",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "summary": "WinRT OCR extracted video text from live-browser pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "video",
+            "confidence": 0.86,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "video",
+        "riskSignals": [],
+        "redactionNotes": [],
+        "confidence": 0.86,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+            "kind": "journal-entry",
+            "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+            "uri": null
+          }
+        ],
+        "imageDigest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true,
+        "lineCount": 5
+      },
+      {
+        "schemaVersion": 1,
+        "ocrResultId": "screen-winrt-ocr-result-live-browser-game-ocr",
+        "queueJobId": "screen-winrt-ocr-job-live-browser-game-ocr",
+        "analyzedAt": "2026-06-05T23:36:06.070Z",
+        "ocrEngine": "winRtOcr",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "browserGameDetected",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "textLines": [
+          {
+            "text": "2048 • Play the Free Online Gar X",
+            "confidence": 0.88,
+            "boundingBoxRef": "line-1"
+          },
+          {
+            "text": "play2048.co",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-2"
+          },
+          {
+            "text": "Consent to Cookies & Data processing",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-3"
+          },
+          {
+            "text": "On this website we use cookies and similar functions to process end",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-4"
+          },
+          {
+            "text": "device information and personal data (ag. such as IP-addresses or",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-5"
+          }
+        ],
+        "ocrTextSnippets": [
+          {
+            "text": "2048 • Play the Free Online Gar X",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "play2048.co",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Consent to Cookies & Data processing",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "On this website we use cookies and similar functions to process end",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "device information and personal data (ag. such as IP-addresses or",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "summary": "WinRT OCR extracted game text from live-browser pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "game",
+            "confidence": 0.86,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "game",
+        "riskSignals": [],
+        "redactionNotes": [],
+        "confidence": 0.86,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+            "kind": "journal-entry",
+            "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+            "uri": null
+          }
+        ],
+        "imageDigest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true,
+        "lineCount": 5
+      },
+      {
+        "schemaVersion": 1,
+        "ocrResultId": "screen-winrt-ocr-result-live-shopping-browser-ocr",
+        "queueJobId": "screen-winrt-ocr-job-live-shopping-browser-ocr",
+        "analyzedAt": "2026-06-05T23:36:12.253Z",
+        "ocrEngine": "winRtOcr",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "managedBrowserUrlChange",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "textLines": [
+          {
+            "text": "All products Books to Scrape X +",
+            "confidence": 0.88,
+            "boundingBoxRef": "line-1"
+          },
+          {
+            "text": "C books.toscrape.com",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-2"
+          },
+          {
+            "text": "Books to Scrape We love being scraped!",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-3"
+          },
+          {
+            "text": "Waming! This is a demo website for web scraping purposes. Prices and ratings here were randomly assigned and nave no",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-34"
+          },
+          {
+            "text": "Home All products",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-4"
+          }
+        ],
+        "ocrTextSnippets": [
+          {
+            "text": "All products Books to Scrape X +",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "C books.toscrape.com",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Books to Scrape We love being scraped!",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Waming! This is a demo website for web scraping purposes. Prices and ratings here were randomly assigned and nave no",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Home All products",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "summary": "WinRT OCR extracted shopping text from live-browser pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "shopping",
+            "confidence": 0.86,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "shopping",
+        "riskSignals": [],
+        "redactionNotes": [],
+        "confidence": 0.86,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+            "kind": "journal-entry",
+            "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+            "uri": null
+          }
+        ],
+        "imageDigest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true,
+        "lineCount": 5
+      },
+      {
+        "schemaVersion": 1,
+        "ocrResultId": "screen-winrt-ocr-result-native-notepad-productivity-ocr",
+        "queueJobId": "screen-winrt-ocr-job-native-notepad-productivity-ocr",
+        "analyzedAt": "2026-06-05T23:36:16.583Z",
+        "ocrEngine": "winRtOcr",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "nativeAppForegroundStart",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "textLines": [
+          {
+            "text": "Homework checklist",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-11"
+          },
+          {
+            "text": "Write report and save document",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-12"
+          },
+          {
+            "text": "native-ocr- worker-proof- 178",
+            "confidence": 0.88,
+            "boundingBoxRef": "line-1"
+          },
+          {
+            "text": "File",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-2"
+          },
+          {
+            "text": "New Text Document (6).txt",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-3"
+          }
+        ],
+        "ocrTextSnippets": [
+          {
+            "text": "Homework checklist",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Write report and save document",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "native-ocr- worker-proof- 178",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "File",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "New Text Document (6).txt",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "summary": "WinRT OCR extracted productivity text from native-app pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "productivity",
+            "confidence": 0.86,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "productivity",
+        "riskSignals": [],
+        "redactionNotes": [],
+        "confidence": 0.86,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+            "kind": "journal-entry",
+            "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+            "uri": null
+          }
+        ],
+        "imageDigest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true,
+        "lineCount": 5
+      }
+    ],
+    "localOnly": true,
+    "rawImageRetained": false,
+    "remoteAiUsed": false,
+    "rawImageRemoteUploadEnabled": false
+  },
+  "scenarioCount": 5,
+  "selectedScenarioIds": [
+    "live-wikipedia-browser-ocr",
+    "live-vimeo-browser-ocr",
+    "live-browser-game-ocr",
+    "live-shopping-browser-ocr",
+    "native-notepad-productivity-ocr"
+  ],
+  "rows": [
+    {
+      "scenarioId": "live-wikipedia-browser-ocr",
+      "surfaceKind": "live-browser",
+      "expectedCategory": "school",
+      "expectedAction": "allow",
+      "sourceEvidence": {
+        "scenarioId": "live-wikipedia-browser-ocr",
+        "sourceKind": "live-browser-page",
+        "liveExternalUrl": true,
+        "redactedUrl": "https://www.wikipedia.org/<redacted>",
+        "protocol": "https",
+        "title": "Wikipedia",
+        "visibleTextLength": 2022
+      },
+      "ocrTextDigest": "sha256:b0a546d34b6ad5209ca43098764e9a34c6d484bb43091b603f588ea3d9f93785",
+      "ocrWorkerResult": {
+        "schemaVersion": 1,
+        "ocrResultId": "screen-winrt-ocr-result-live-wikipedia-browser-ocr",
+        "queueJobId": "screen-winrt-ocr-job-live-wikipedia-browser-ocr",
+        "analyzedAt": "2026-06-05T23:35:46.832Z",
+        "ocrEngine": "winRtOcr",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "managedBrowserUrlChange",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "textLines": [
+          {
+            "text": "wikipedia.org",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-2"
+          },
+          {
+            "text": "WIKIPEDIA",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-3"
+          },
+          {
+            "text": "Wikipedia is hosted by the Wikimedia",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-21"
+          },
+          {
+            "text": "Read Wikipedia in your language v",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-25"
+          },
+          {
+            "text": "Wiki pedia",
+            "confidence": 0.88,
+            "boundingBoxRef": "line-1"
+          }
+        ],
+        "ocrTextSnippets": [
+          {
+            "text": "wikipedia.org",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "WIKIPEDIA",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Wikipedia is hosted by the Wikimedia",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Read Wikipedia in your language v",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Wiki pedia",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "summary": "WinRT OCR extracted school text from live-browser pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "school",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "school",
+        "riskSignals": [],
+        "redactionNotes": [],
+        "confidence": 0.88,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+            "kind": "journal-entry",
+            "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+            "uri": null
+          }
+        ],
+        "imageDigest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true,
+        "lineCount": 5
+      },
+      "screenAnalysisResult": {
+        "schemaVersion": 1,
+        "screenAnalysisResultId": "screen-winrt-ocr-result-live-wikipedia-browser-ocr",
+        "queueJobId": "screen-winrt-ocr-job-live-wikipedia-browser-ocr",
+        "analyzedAt": "2026-06-05T23:35:46.832Z",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "providerKind": "localOcr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "managedBrowserUrlChange",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "summary": "WinRT OCR extracted school text from live-browser pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "school",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "school",
+        "riskSignals": [],
+        "ocrTextSnippets": [
+          {
+            "text": "wikipedia.org",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "WIKIPEDIA",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Wikipedia is hosted by the Wikimedia",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Read Wikipedia in your language v",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Wiki pedia",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "redactionNotes": [],
+        "confidence": 0.88,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-live-wikipedia-browser-ocr",
+            "kind": "journal-entry",
+            "digest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+            "uri": null
+          }
+        ],
+        "imageDigest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true
+      },
+      "policyDecision": {
+        "schemaVersion": "v0.6",
+        "decisionId": "screen-winrt-ocr-policy-live-wikipedia-browser-ocr",
+        "action": "allow",
+        "reasonCodes": [
+          "screen-winrt-ocr-school"
+        ],
+        "evidenceReferences": [
+          {
+            "evidenceReferenceId": "screen-winrt-ocr-policy-evidence-live-wikipedia-browser-ocr",
+            "kind": "activity-event",
+            "observedAt": "2026-06-05T23:35:46.828Z"
+          }
+        ],
+        "ruleIds": [
+          "screen-winrt-ocr-rule-school"
+        ],
+        "localAiResultId": null,
+        "dryRun": true,
+        "enforcementHandoffState": "disabled",
+        "expiresAt": null
+      },
+      "deletionProof": {
+        "rawTempPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\live-wikipedia-browser-ocr\\capture\\capture.png.tmp",
+        "rawImageDeletedAfterOcr": true,
+        "existsAfterDelete": false,
+        "imageDigest": "7d92d5f2e039dd9eef4e077c056476a6388b2b7fa1eae24f0bf3775d781e48f6",
+        "remoteUpload": false
+      }
+    },
+    {
+      "scenarioId": "live-vimeo-browser-ocr",
+      "surfaceKind": "live-browser",
+      "expectedCategory": "video",
+      "expectedAction": "warn",
+      "sourceEvidence": {
+        "scenarioId": "live-vimeo-browser-ocr",
+        "sourceKind": "live-browser-page",
+        "liveExternalUrl": true,
+        "redactedUrl": "https://vimeo.com/<redacted>",
+        "protocol": "https",
+        "title": "Watch Free Videos, Films, and Shorts - No Ads",
+        "visibleTextLength": 2091
+      },
+      "ocrTextDigest": "sha256:384b0ad32ec459b0fd410eaf1bec66ee2251c2f4e52a1f7a910bc5d7c9b4271f",
+      "ocrWorkerResult": {
+        "schemaVersion": 1,
+        "ocrResultId": "screen-winrt-ocr-result-live-vimeo-browser-ocr",
+        "queueJobId": "screen-winrt-ocr-job-live-vimeo-browser-ocr",
+        "analyzedAt": "2026-06-05T23:35:57.428Z",
+        "ocrEngine": "winRtOcr",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "managedBrowserUrlChange",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "textLines": [
+          {
+            "text": "vimeo.com/watch",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-2"
+          },
+          {
+            "text": "Q Search all of Vimeo",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-11"
+          },
+          {
+            "text": "V Watch Free Videos, Films, arWS X +",
+            "confidence": 0.88,
+            "boundingBoxRef": "line-1"
+          },
+          {
+            "text": "Back to home",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-3"
+          },
+          {
+            "text": "Feed",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-4"
+          }
+        ],
+        "ocrTextSnippets": [
+          {
+            "text": "vimeo.com/watch",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Q Search all of Vimeo",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "V Watch Free Videos, Films, arWS X +",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Back to home",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Feed",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "summary": "WinRT OCR extracted video text from live-browser pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "video",
+            "confidence": 0.86,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "video",
+        "riskSignals": [],
+        "redactionNotes": [],
+        "confidence": 0.86,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+            "kind": "journal-entry",
+            "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+            "uri": null
+          }
+        ],
+        "imageDigest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true,
+        "lineCount": 5
+      },
+      "screenAnalysisResult": {
+        "schemaVersion": 1,
+        "screenAnalysisResultId": "screen-winrt-ocr-result-live-vimeo-browser-ocr",
+        "queueJobId": "screen-winrt-ocr-job-live-vimeo-browser-ocr",
+        "analyzedAt": "2026-06-05T23:35:57.428Z",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "providerKind": "localOcr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "managedBrowserUrlChange",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "summary": "WinRT OCR extracted video text from live-browser pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "video",
+            "confidence": 0.86,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "video",
+        "riskSignals": [],
+        "ocrTextSnippets": [
+          {
+            "text": "vimeo.com/watch",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Q Search all of Vimeo",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "V Watch Free Videos, Films, arWS X +",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Back to home",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Feed",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "redactionNotes": [],
+        "confidence": 0.86,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+            "kind": "journal-entry",
+            "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+            "uri": null
+          }
+        ],
+        "imageDigest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true
+      },
+      "policyDecision": {
+        "schemaVersion": "v0.6",
+        "decisionId": "screen-winrt-ocr-policy-live-vimeo-browser-ocr",
+        "action": "warn",
+        "reasonCodes": [
+          "screen-winrt-ocr-video"
+        ],
+        "evidenceReferences": [
+          {
+            "evidenceReferenceId": "screen-winrt-ocr-policy-evidence-live-vimeo-browser-ocr",
+            "kind": "activity-event",
+            "observedAt": "2026-06-05T23:35:57.428Z"
+          }
+        ],
+        "ruleIds": [
+          "screen-winrt-ocr-rule-video"
+        ],
+        "localAiResultId": null,
+        "dryRun": true,
+        "enforcementHandoffState": "disabled",
+        "expiresAt": null
+      },
+      "deletionProof": {
+        "rawTempPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\live-vimeo-browser-ocr\\capture\\capture.png.tmp",
+        "rawImageDeletedAfterOcr": true,
+        "existsAfterDelete": false,
+        "imageDigest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+        "remoteUpload": false
+      }
+    },
+    {
+      "scenarioId": "live-browser-game-ocr",
+      "surfaceKind": "live-browser",
+      "expectedCategory": "game",
+      "expectedAction": "time-limit",
+      "sourceEvidence": {
+        "scenarioId": "live-browser-game-ocr",
+        "sourceKind": "live-browser-page",
+        "liveExternalUrl": true,
+        "redactedUrl": "https://play2048.co/<redacted>",
+        "protocol": "https",
+        "title": "2048 • Play the Free Online Game",
+        "visibleTextLength": 172
+      },
+      "ocrTextDigest": "sha256:203c6e5cdbda93add4426f6a34853c503a793a19f2a946531684f308ec534184",
+      "ocrWorkerResult": {
+        "schemaVersion": 1,
+        "ocrResultId": "screen-winrt-ocr-result-live-browser-game-ocr",
+        "queueJobId": "screen-winrt-ocr-job-live-browser-game-ocr",
+        "analyzedAt": "2026-06-05T23:36:06.070Z",
+        "ocrEngine": "winRtOcr",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "browserGameDetected",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "textLines": [
+          {
+            "text": "2048 • Play the Free Online Gar X",
+            "confidence": 0.88,
+            "boundingBoxRef": "line-1"
+          },
+          {
+            "text": "play2048.co",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-2"
+          },
+          {
+            "text": "Consent to Cookies & Data processing",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-3"
+          },
+          {
+            "text": "On this website we use cookies and similar functions to process end",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-4"
+          },
+          {
+            "text": "device information and personal data (ag. such as IP-addresses or",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-5"
+          }
+        ],
+        "ocrTextSnippets": [
+          {
+            "text": "2048 • Play the Free Online Gar X",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "play2048.co",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Consent to Cookies & Data processing",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "On this website we use cookies and similar functions to process end",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "device information and personal data (ag. such as IP-addresses or",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "summary": "WinRT OCR extracted game text from live-browser pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "game",
+            "confidence": 0.86,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "game",
+        "riskSignals": [],
+        "redactionNotes": [],
+        "confidence": 0.86,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+            "kind": "journal-entry",
+            "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+            "uri": null
+          }
+        ],
+        "imageDigest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true,
+        "lineCount": 5
+      },
+      "screenAnalysisResult": {
+        "schemaVersion": 1,
+        "screenAnalysisResultId": "screen-winrt-ocr-result-live-browser-game-ocr",
+        "queueJobId": "screen-winrt-ocr-job-live-browser-game-ocr",
+        "analyzedAt": "2026-06-05T23:36:06.070Z",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "providerKind": "localOcr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "browserGameDetected",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "summary": "WinRT OCR extracted game text from live-browser pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "game",
+            "confidence": 0.86,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "game",
+        "riskSignals": [],
+        "ocrTextSnippets": [
+          {
+            "text": "2048 • Play the Free Online Gar X",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "play2048.co",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Consent to Cookies & Data processing",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "On this website we use cookies and similar functions to process end",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "device information and personal data (ag. such as IP-addresses or",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+                "kind": "journal-entry",
+                "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "redactionNotes": [],
+        "confidence": 0.86,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+            "kind": "journal-entry",
+            "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+            "uri": null
+          }
+        ],
+        "imageDigest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true
+      },
+      "policyDecision": {
+        "schemaVersion": "v0.6",
+        "decisionId": "screen-winrt-ocr-policy-live-browser-game-ocr",
+        "action": "time-limit",
+        "reasonCodes": [
+          "screen-winrt-ocr-game"
+        ],
+        "evidenceReferences": [
+          {
+            "evidenceReferenceId": "screen-winrt-ocr-policy-evidence-live-browser-game-ocr",
+            "kind": "activity-event",
+            "observedAt": "2026-06-05T23:36:06.070Z"
+          }
+        ],
+        "ruleIds": [
+          "screen-winrt-ocr-rule-game"
+        ],
+        "localAiResultId": null,
+        "dryRun": true,
+        "enforcementHandoffState": "disabled",
+        "expiresAt": null
+      },
+      "deletionProof": {
+        "rawTempPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\live-browser-game-ocr\\capture\\capture.png.tmp",
+        "rawImageDeletedAfterOcr": true,
+        "existsAfterDelete": false,
+        "imageDigest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+        "remoteUpload": false
+      }
+    },
+    {
+      "scenarioId": "live-shopping-browser-ocr",
+      "surfaceKind": "live-browser",
+      "expectedCategory": "shopping",
+      "expectedAction": "ask-parent",
+      "sourceEvidence": {
+        "scenarioId": "live-shopping-browser-ocr",
+        "sourceKind": "live-browser-page",
+        "liveExternalUrl": true,
+        "redactedUrl": "https://books.toscrape.com/<redacted>",
+        "protocol": "https",
+        "title": "All products | Books to Scrape - Sandbox",
+        "visibleTextLength": 2029
+      },
+      "ocrTextDigest": "sha256:3df895c3b2c6843d409d5bf02b00fc012374b51c67a4b3572a2111edac087d9b",
+      "ocrWorkerResult": {
+        "schemaVersion": 1,
+        "ocrResultId": "screen-winrt-ocr-result-live-shopping-browser-ocr",
+        "queueJobId": "screen-winrt-ocr-job-live-shopping-browser-ocr",
+        "analyzedAt": "2026-06-05T23:36:12.253Z",
+        "ocrEngine": "winRtOcr",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "managedBrowserUrlChange",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "textLines": [
+          {
+            "text": "All products Books to Scrape X +",
+            "confidence": 0.88,
+            "boundingBoxRef": "line-1"
+          },
+          {
+            "text": "C books.toscrape.com",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-2"
+          },
+          {
+            "text": "Books to Scrape We love being scraped!",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-3"
+          },
+          {
+            "text": "Waming! This is a demo website for web scraping purposes. Prices and ratings here were randomly assigned and nave no",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-34"
+          },
+          {
+            "text": "Home All products",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-4"
+          }
+        ],
+        "ocrTextSnippets": [
+          {
+            "text": "All products Books to Scrape X +",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "C books.toscrape.com",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Books to Scrape We love being scraped!",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Waming! This is a demo website for web scraping purposes. Prices and ratings here were randomly assigned and nave no",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Home All products",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "summary": "WinRT OCR extracted shopping text from live-browser pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "shopping",
+            "confidence": 0.86,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "shopping",
+        "riskSignals": [],
+        "redactionNotes": [],
+        "confidence": 0.86,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+            "kind": "journal-entry",
+            "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+            "uri": null
+          }
+        ],
+        "imageDigest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true,
+        "lineCount": 5
+      },
+      "screenAnalysisResult": {
+        "schemaVersion": 1,
+        "screenAnalysisResultId": "screen-winrt-ocr-result-live-shopping-browser-ocr",
+        "queueJobId": "screen-winrt-ocr-job-live-shopping-browser-ocr",
+        "analyzedAt": "2026-06-05T23:36:12.253Z",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "providerKind": "localOcr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "managedBrowserUrlChange",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "summary": "WinRT OCR extracted shopping text from live-browser pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "shopping",
+            "confidence": 0.86,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "shopping",
+        "riskSignals": [],
+        "ocrTextSnippets": [
+          {
+            "text": "All products Books to Scrape X +",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "C books.toscrape.com",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Books to Scrape We love being scraped!",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Waming! This is a demo website for web scraping purposes. Prices and ratings here were randomly assigned and nave no",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Home All products",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+                "kind": "journal-entry",
+                "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "redactionNotes": [],
+        "confidence": 0.86,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+            "kind": "journal-entry",
+            "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+            "uri": null
+          }
+        ],
+        "imageDigest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true
+      },
+      "policyDecision": {
+        "schemaVersion": "v0.6",
+        "decisionId": "screen-winrt-ocr-policy-live-shopping-browser-ocr",
+        "action": "ask-parent",
+        "reasonCodes": [
+          "screen-winrt-ocr-shopping"
+        ],
+        "evidenceReferences": [
+          {
+            "evidenceReferenceId": "screen-winrt-ocr-policy-evidence-live-shopping-browser-ocr",
+            "kind": "activity-event",
+            "observedAt": "2026-06-05T23:36:12.253Z"
+          }
+        ],
+        "ruleIds": [
+          "screen-winrt-ocr-rule-shopping"
+        ],
+        "localAiResultId": null,
+        "dryRun": true,
+        "enforcementHandoffState": "disabled",
+        "expiresAt": null
+      },
+      "deletionProof": {
+        "rawTempPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\live-shopping-browser-ocr\\capture\\capture.png.tmp",
+        "rawImageDeletedAfterOcr": true,
+        "existsAfterDelete": false,
+        "imageDigest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+        "remoteUpload": false
+      }
+    },
+    {
+      "scenarioId": "native-notepad-productivity-ocr",
+      "surfaceKind": "native-app",
+      "expectedCategory": "productivity",
+      "expectedAction": "allow",
+      "sourceEvidence": {
+        "scenarioId": "native-notepad-productivity-ocr",
+        "sourceKind": "native-notepad-window",
+        "liveExternalUrl": false,
+        "fileName": "native-ocr-worker-proof-1780702572513.txt"
+      },
+      "ocrTextDigest": "sha256:cfff31cb5cfe5550cbe96d1f69d7cd368df5dfde196df2f690882ddc2fb681ad",
+      "ocrWorkerResult": {
+        "schemaVersion": 1,
+        "ocrResultId": "screen-winrt-ocr-result-native-notepad-productivity-ocr",
+        "queueJobId": "screen-winrt-ocr-job-native-notepad-productivity-ocr",
+        "analyzedAt": "2026-06-05T23:36:16.583Z",
+        "ocrEngine": "winRtOcr",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "nativeAppForegroundStart",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "textLines": [
+          {
+            "text": "Homework checklist",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-11"
+          },
+          {
+            "text": "Write report and save document",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-12"
+          },
+          {
+            "text": "native-ocr- worker-proof- 178",
+            "confidence": 0.88,
+            "boundingBoxRef": "line-1"
+          },
+          {
+            "text": "File",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-2"
+          },
+          {
+            "text": "New Text Document (6).txt",
+            "confidence": 0.82,
+            "boundingBoxRef": "line-3"
+          }
+        ],
+        "ocrTextSnippets": [
+          {
+            "text": "Homework checklist",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Write report and save document",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "native-ocr- worker-proof- 178",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "File",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "New Text Document (6).txt",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "summary": "WinRT OCR extracted productivity text from native-app pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "productivity",
+            "confidence": 0.86,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "productivity",
+        "riskSignals": [],
+        "redactionNotes": [],
+        "confidence": 0.86,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+            "kind": "journal-entry",
+            "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+            "uri": null
+          }
+        ],
+        "imageDigest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true,
+        "lineCount": 5
+      },
+      "screenAnalysisResult": {
+        "schemaVersion": 1,
+        "screenAnalysisResultId": "screen-winrt-ocr-result-native-notepad-productivity-ocr",
+        "queueJobId": "screen-winrt-ocr-job-native-notepad-productivity-ocr",
+        "analyzedAt": "2026-06-05T23:36:16.583Z",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "providerKind": "localOcr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "captureReason": "nativeAppForegroundStart",
+        "captureScope": "selectedWindow",
+        "capabilityStatus": "ready",
+        "summary": "WinRT OCR extracted productivity text from native-app pixels.",
+        "visibleCategoryCandidates": [
+          {
+            "category": "productivity",
+            "confidence": 0.86,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "primaryCategory": "productivity",
+        "riskSignals": [],
+        "ocrTextSnippets": [
+          {
+            "text": "Homework checklist",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "Write report and save document",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "native-ocr- worker-proof- 178",
+            "confidence": 0.88,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "File",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          },
+          {
+            "text": "New Text Document (6).txt",
+            "confidence": 0.82,
+            "evidenceRefs": [
+              {
+                "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+                "kind": "journal-entry",
+                "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+                "uri": null
+              }
+            ]
+          }
+        ],
+        "redactionNotes": [],
+        "confidence": 0.86,
+        "uncertaintyReason": null,
+        "sourceEvidenceRefs": [
+          {
+            "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+            "kind": "journal-entry",
+            "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+            "uri": null
+          }
+        ],
+        "imageDigest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+        "rawImageRetained": false,
+        "imageDeletionState": "deleted",
+        "custodyState": "child-device-query-store",
+        "policyEligible": true
+      },
+      "policyDecision": {
+        "schemaVersion": "v0.6",
+        "decisionId": "screen-winrt-ocr-policy-native-notepad-productivity-ocr",
+        "action": "allow",
+        "reasonCodes": [
+          "screen-winrt-ocr-productivity"
+        ],
+        "evidenceReferences": [
+          {
+            "evidenceReferenceId": "screen-winrt-ocr-policy-evidence-native-notepad-productivity-ocr",
+            "kind": "activity-event",
+            "observedAt": "2026-06-05T23:36:16.582Z"
+          }
+        ],
+        "ruleIds": [
+          "screen-winrt-ocr-rule-productivity"
+        ],
+        "localAiResultId": null,
+        "dryRun": true,
+        "enforcementHandoffState": "disabled",
+        "expiresAt": null
+      },
+      "deletionProof": {
+        "rawTempPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\native-notepad-productivity-ocr\\capture\\capture.png.tmp",
+        "rawImageDeletedAfterOcr": true,
+        "existsAfterDelete": false,
+        "imageDigest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+        "remoteUpload": false
+      }
+    }
+  ],
+  "validationCommands": [
+    "node scripts/test/screen-ai-winrt-ocr-worker-proof.mjs",
+    "cmd /c npm run build --workspace @ocentra-parent/activity-domain",
+    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+    "cargo run -p ocentra-parent-screen-capture-adapter --example screen_capture_real_proof -- C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\live-wikipedia-browser-ocr\\capture (scope=selectedWindow; titleContains=Wikipedia)",
+    "cargo run -p ocentra-parent-screen-capture-adapter --example screen_capture_real_proof -- C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\live-vimeo-browser-ocr\\capture (scope=selectedWindow; titleContains=Watch Free Videos, Films, and Shorts - N)",
+    "cargo run -p ocentra-parent-screen-capture-adapter --example screen_capture_real_proof -- C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\live-browser-game-ocr\\capture (scope=selectedWindow; titleContains=2048)",
+    "cargo run -p ocentra-parent-screen-capture-adapter --example screen_capture_real_proof -- C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\live-shopping-browser-ocr\\capture (scope=selectedWindow; titleContains=Books)",
+    "cargo run -p ocentra-parent-screen-capture-adapter --example screen_capture_real_proof -- C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\native-notepad-productivity-ocr\\capture (scope=selectedWindow; titleContains=native-ocr-worker-proof-1780702572513.txt)"
+  ],
+  "assertions": [
+    "Each row uses actual Rust screen-capture adapter pixels from a real visible browser or native app window.",
+    "Windows WinRT OCR reads the retained temp image before analysis artifacts are written.",
+    "OCR output becomes schema-valid ScreenAnalysisResult evidence with providerKind localOcr.",
+    "Parent policy dry-run consumes the screen OCR result through typed evidence refs.",
+    "Raw temp images are deleted after OCR analysis and are not retained or uploaded remotely."
+  ],
+  "nonClaims": [
+    "This proof uses Windows WinRT OCR and does not claim macOS, Linux, Android, or iOS OCR parity.",
+    "The live browser rows use public pages and do not claim authenticated social/account OCR coverage.",
+    "This is OCR worker execution proof; production OCR quality tuning and broad language coverage remain separate."
+  ]
+}

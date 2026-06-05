@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "queueJobId": "screen-winrt-ocr-job-live-browser-game-ocr",
+  "createdAt": "2026-06-05T23:36:06.070Z",
+  "captureReason": "browserGameDetected",
+  "captureScope": "selectedWindow",
+  "capabilityStatus": "ready",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+      "kind": "journal-entry",
+      "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+      "uri": null
+    }
+  ],
+  "imageDigest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+  "encryptedImageRef": "encrypted-temp-live-browser-game-ocr",
+  "ocrEngine": "winRtOcr",
+  "custodyState": "child-device-temp-queue",
+  "rawImageRetained": false
+}

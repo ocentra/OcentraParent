@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "screenAnalysisResultId": "screen-winrt-ocr-result-live-shopping-browser-ocr",
+  "queueJobId": "screen-winrt-ocr-job-live-shopping-browser-ocr",
+  "analyzedAt": "2026-06-05T23:36:12.253Z",
+  "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+  "modelId": "windows-winrt-ocr",
+  "providerKind": "localOcr",
+  "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+  "captureReason": "managedBrowserUrlChange",
+  "captureScope": "selectedWindow",
+  "capabilityStatus": "ready",
+  "summary": "WinRT OCR extracted shopping text from live-browser pixels.",
+  "visibleCategoryCandidates": [
+    {
+      "category": "shopping",
+      "confidence": 0.86,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+          "kind": "journal-entry",
+          "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+          "uri": null
+        }
+      ]
+    }
+  ],
+  "primaryCategory": "shopping",
+  "riskSignals": [],
+  "ocrTextSnippets": [
+    {
+      "text": "All products Books to Scrape X +",
+      "confidence": 0.88,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+          "kind": "journal-entry",
+          "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "C books.toscrape.com",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+          "kind": "journal-entry",
+          "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "Books to Scrape We love being scraped!",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+          "kind": "journal-entry",
+          "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "Waming! This is a demo website for web scraping purposes. Prices and ratings here were randomly assigned and nave no",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+          "kind": "journal-entry",
+          "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "Home All products",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+          "kind": "journal-entry",
+          "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+          "uri": null
+        }
+      ]
+    }
+  ],
+  "redactionNotes": [],
+  "confidence": 0.86,
+  "uncertaintyReason": null,
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+      "kind": "journal-entry",
+      "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+      "uri": null
+    }
+  ],
+  "imageDigest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+  "rawImageRetained": false,
+  "imageDeletionState": "deleted",
+  "custodyState": "child-device-query-store",
+  "policyEligible": true
+}

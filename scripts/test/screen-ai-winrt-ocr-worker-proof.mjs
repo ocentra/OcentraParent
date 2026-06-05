@@ -5,7 +5,10 @@ import { basename, join, resolve } from 'node:path';
 import { chromium } from 'playwright';
 
 const repoRoot = process.cwd();
-const outputRoot = resolve(repoRoot, 'output', 'ai-plan-proof', 'screen-winrt-ocr-worker');
+const outputRoot = resolve(
+  repoRoot,
+  process.env.OCENTRA_SCREEN_WINRT_OCR_OUTPUT_ROOT ?? 'output/ai-plan-proof/screen-winrt-ocr-worker'
+);
 const sourceSnapshotPath = join(outputRoot, '00-source-snapshot.md');
 const proofSummaryPath = join(outputRoot, 'proof-summary.json');
 const validationLogPath = join(outputRoot, '14-validation-commands.log');
@@ -25,6 +28,39 @@ const scenarios = [
     expectedTerms: ['wikipedia'],
   },
   {
+    id: 'live-vimeo-browser-ocr',
+    title: 'Vimeo',
+    surfaceKind: 'live-browser',
+    liveUrl: 'https://vimeo.com/watch',
+    captureReason: 'managedBrowserUrlChange',
+    captureScope: 'selectedWindow',
+    expectedCategory: 'video',
+    expectedAction: 'warn',
+    expectedTerms: ['vimeo'],
+  },
+  {
+    id: 'live-browser-game-ocr',
+    title: '2048',
+    surfaceKind: 'live-browser',
+    liveUrl: 'https://play2048.co/',
+    captureReason: 'browserGameDetected',
+    captureScope: 'selectedWindow',
+    expectedCategory: 'game',
+    expectedAction: 'time-limit',
+    expectedTerms: ['2048'],
+  },
+  {
+    id: 'live-shopping-browser-ocr',
+    title: 'Books',
+    surfaceKind: 'live-browser',
+    liveUrl: 'https://books.toscrape.com/',
+    captureReason: 'managedBrowserUrlChange',
+    captureScope: 'selectedWindow',
+    expectedCategory: 'shopping',
+    expectedAction: 'ask-parent',
+    expectedTerms: ['books', 'price'],
+  },
+  {
     id: 'native-notepad-productivity-ocr',
     title: 'screen-winrt-ocr-native-proof',
     surfaceKind: 'native-app',
@@ -35,6 +71,16 @@ const scenarios = [
     expectedTerms: ['homework', 'report'],
   },
 ];
+const defaultScenarioIds = new Set(['live-wikipedia-browser-ocr', 'native-notepad-productivity-ocr']);
+const selectedScenarioIds = new Set(
+  (process.env.OCENTRA_SCREEN_WINRT_OCR_SCENARIOS ?? '')
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0)
+);
+const selectedScenarios = scenarios.filter((scenario) =>
+  selectedScenarioIds.size > 0 ? selectedScenarioIds.has(scenario.id) : defaultScenarioIds.has(scenario.id)
+);
 
 await main();
 
@@ -48,7 +94,7 @@ async function main() {
   const parentDomain = await import('../../packages/parent-domain/dist/policy.js');
   const rows = [];
 
-  for (const scenario of scenarios) {
+  for (const scenario of selectedScenarios) {
     const surface = await openSurface(scenario);
     try {
       await surface.ready();
@@ -80,6 +126,7 @@ async function main() {
     },
     proof,
     scenarioCount: rows.length,
+    selectedScenarioIds: rows.map((row) => row.scenarioId),
     rows,
     validationCommands: successfulCommands,
     assertions: [
@@ -91,7 +138,7 @@ async function main() {
     ],
     nonClaims: [
       'This proof uses Windows WinRT OCR and does not claim macOS, Linux, Android, or iOS OCR parity.',
-      'The live browser row uses a public Wikipedia page and does not claim authenticated social/account OCR coverage.',
+      'The live browser rows use public pages and do not claim authenticated social/account OCR coverage.',
       'This is OCR worker execution proof; production OCR quality tuning and broad language coverage remain separate.',
     ],
   };
@@ -100,7 +147,7 @@ async function main() {
     [
       '# Screen WinRT OCR Worker Source Snapshot',
       '',
-      '- Live browser surface: public Wikipedia home page opened in real Chromium.',
+      '- Live browser surface: public pages opened in real Chromium.',
       '- Native app surface: Windows Notepad opened with a generated local text file.',
       '- Pixel capture: `ocentra-parent-screen-capture-adapter` real selected-window proof example.',
       '- OCR runtime: Windows `Windows.Media.Ocr.OcrEngine` from user profile languages.',
@@ -248,15 +295,26 @@ async function openBrowserSurface(scenario) {
   });
   const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
   await page.goto(scenario.liveUrl, { waitUntil: 'domcontentloaded' });
+  await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => undefined);
   await page.bringToFront();
+  const title = await page.title();
+  const visibleTextLength = await page
+    .locator('body')
+    .innerText({ timeout: 5000 })
+    .then(
+      (text) => text.trim().length,
+      () => 0
+    );
   return {
-    windowTitleContains: scenario.title,
+    windowTitleContains: title.includes(scenario.title) ? scenario.title : title.slice(0, 40),
     sourceEvidence: {
       scenarioId: scenario.id,
       sourceKind: 'live-browser-page',
       liveExternalUrl: true,
-      url: scenario.liveUrl,
-      title: await page.title(),
+      redactedUrl: redactUrl(scenario.liveUrl),
+      protocol: new URL(scenario.liveUrl).protocol.replace(':', ''),
+      title,
+      visibleTextLength,
     },
     ready: async () => {
       await page.waitForTimeout(1800);
@@ -501,4 +559,9 @@ function sha256(value) {
 
 function escapePowerShell(value) {
   return String(value).replace(/'/g, "''");
+}
+
+function redactUrl(value) {
+  const url = new URL(value);
+  return `${url.protocol}//${url.hostname}/<redacted>`;
 }

@@ -1,0 +1,9 @@
+{
+  "scenarioId": "live-shopping-browser-ocr",
+  "sourceKind": "live-browser-page",
+  "liveExternalUrl": true,
+  "redactedUrl": "https://books.toscrape.com/<redacted>",
+  "protocol": "https",
+  "title": "All products | Books to Scrape - Sandbox",
+  "visibleTextLength": 2029
+}

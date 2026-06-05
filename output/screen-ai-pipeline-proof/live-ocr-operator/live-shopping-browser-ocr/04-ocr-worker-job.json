@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "queueJobId": "screen-winrt-ocr-job-live-shopping-browser-ocr",
+  "createdAt": "2026-06-05T23:36:12.253Z",
+  "captureReason": "managedBrowserUrlChange",
+  "captureScope": "selectedWindow",
+  "capabilityStatus": "ready",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-winrt-ocr-evidence-live-shopping-browser-ocr",
+      "kind": "journal-entry",
+      "digest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+      "uri": null
+    }
+  ],
+  "imageDigest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+  "encryptedImageRef": "encrypted-temp-live-shopping-browser-ocr",
+  "ocrEngine": "winRtOcr",
+  "custodyState": "child-device-temp-queue",
+  "rawImageRetained": false
+}

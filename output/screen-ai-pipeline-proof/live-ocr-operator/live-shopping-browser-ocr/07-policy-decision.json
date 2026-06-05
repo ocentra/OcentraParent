@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "v0.6",
+  "decisionId": "screen-winrt-ocr-policy-live-shopping-browser-ocr",
+  "action": "ask-parent",
+  "reasonCodes": [
+    "screen-winrt-ocr-shopping"
+  ],
+  "evidenceReferences": [
+    {
+      "evidenceReferenceId": "screen-winrt-ocr-policy-evidence-live-shopping-browser-ocr",
+      "kind": "activity-event",
+      "observedAt": "2026-06-05T23:36:12.253Z"
+    }
+  ],
+  "ruleIds": [
+    "screen-winrt-ocr-rule-shopping"
+  ],
+  "localAiResultId": null,
+  "dryRun": true,
+  "enforcementHandoffState": "disabled",
+  "expiresAt": null
+}

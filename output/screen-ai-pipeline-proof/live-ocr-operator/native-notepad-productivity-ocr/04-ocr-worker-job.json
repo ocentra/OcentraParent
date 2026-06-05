@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "queueJobId": "screen-winrt-ocr-job-native-notepad-productivity-ocr",
+  "createdAt": "2026-06-05T23:36:16.582Z",
+  "captureReason": "nativeAppForegroundStart",
+  "captureScope": "selectedWindow",
+  "capabilityStatus": "ready",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+      "kind": "journal-entry",
+      "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+      "uri": null
+    }
+  ],
+  "imageDigest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+  "encryptedImageRef": "encrypted-temp-native-notepad-productivity-ocr",
+  "ocrEngine": "winRtOcr",
+  "custodyState": "child-device-temp-queue",
+  "rawImageRetained": false
+}

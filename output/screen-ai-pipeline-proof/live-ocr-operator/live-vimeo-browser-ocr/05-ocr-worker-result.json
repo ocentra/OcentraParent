@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "ocrResultId": "screen-winrt-ocr-result-live-vimeo-browser-ocr",
+  "queueJobId": "screen-winrt-ocr-job-live-vimeo-browser-ocr",
+  "analyzedAt": "2026-06-05T23:35:57.428Z",
+  "ocrEngine": "winRtOcr",
+  "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+  "modelId": "windows-winrt-ocr",
+  "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+  "captureReason": "managedBrowserUrlChange",
+  "captureScope": "selectedWindow",
+  "capabilityStatus": "ready",
+  "textLines": [
+    {
+      "text": "vimeo.com/watch",
+      "confidence": 0.82,
+      "boundingBoxRef": "line-2"
+    },
+    {
+      "text": "Q Search all of Vimeo",
+      "confidence": 0.82,
+      "boundingBoxRef": "line-11"
+    },
+    {
+      "text": "V Watch Free Videos, Films, arWS X +",
+      "confidence": 0.88,
+      "boundingBoxRef": "line-1"
+    },
+    {
+      "text": "Back to home",
+      "confidence": 0.82,
+      "boundingBoxRef": "line-3"
+    },
+    {
+      "text": "Feed",
+      "confidence": 0.82,
+      "boundingBoxRef": "line-4"
+    }
+  ],
+  "ocrTextSnippets": [
+    {
+      "text": "vimeo.com/watch",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+          "kind": "journal-entry",
+          "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "Q Search all of Vimeo",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+          "kind": "journal-entry",
+          "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "V Watch Free Videos, Films, arWS X +",
+      "confidence": 0.88,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+          "kind": "journal-entry",
+          "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "Back to home",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+          "kind": "journal-entry",
+          "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "Feed",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+          "kind": "journal-entry",
+          "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+          "uri": null
+        }
+      ]
+    }
+  ],
+  "summary": "WinRT OCR extracted video text from live-browser pixels.",
+  "visibleCategoryCandidates": [
+    {
+      "category": "video",
+      "confidence": 0.86,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+          "kind": "journal-entry",
+          "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+          "uri": null
+        }
+      ]
+    }
+  ],
+  "primaryCategory": "video",
+  "riskSignals": [],
+  "redactionNotes": [],
+  "confidence": 0.86,
+  "uncertaintyReason": null,
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+      "kind": "journal-entry",
+      "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+      "uri": null
+    }
+  ],
+  "imageDigest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+  "rawImageRetained": false,
+  "imageDeletionState": "deleted",
+  "custodyState": "child-device-query-store",
+  "policyEligible": true,
+  "lineCount": 5
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "v0.6",
+  "decisionId": "screen-winrt-ocr-policy-live-vimeo-browser-ocr",
+  "action": "warn",
+  "reasonCodes": [
+    "screen-winrt-ocr-video"
+  ],
+  "evidenceReferences": [
+    {
+      "evidenceReferenceId": "screen-winrt-ocr-policy-evidence-live-vimeo-browser-ocr",
+      "kind": "activity-event",
+      "observedAt": "2026-06-05T23:35:57.428Z"
+    }
+  ],
+  "ruleIds": [
+    "screen-winrt-ocr-rule-video"
+  ],
+  "localAiResultId": null,
+  "dryRun": true,
+  "enforcementHandoffState": "disabled",
+  "expiresAt": null
+}

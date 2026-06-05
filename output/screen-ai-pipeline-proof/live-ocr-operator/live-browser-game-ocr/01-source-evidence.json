@@ -1,0 +1,9 @@
+{
+  "scenarioId": "live-browser-game-ocr",
+  "sourceKind": "live-browser-page",
+  "liveExternalUrl": true,
+  "redactedUrl": "https://play2048.co/<redacted>",
+  "protocol": "https",
+  "title": "2048 • Play the Free Online Game",
+  "visibleTextLength": 172
+}

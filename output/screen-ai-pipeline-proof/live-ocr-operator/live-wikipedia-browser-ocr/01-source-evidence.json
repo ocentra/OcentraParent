@@ -1,0 +1,9 @@
+{
+  "scenarioId": "live-wikipedia-browser-ocr",
+  "sourceKind": "live-browser-page",
+  "liveExternalUrl": true,
+  "redactedUrl": "https://www.wikipedia.org/<redacted>",
+  "protocol": "https",
+  "title": "Wikipedia",
+  "visibleTextLength": 2022
+}

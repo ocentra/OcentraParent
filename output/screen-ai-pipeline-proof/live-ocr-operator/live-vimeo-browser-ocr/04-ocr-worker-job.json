@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "queueJobId": "screen-winrt-ocr-job-live-vimeo-browser-ocr",
+  "createdAt": "2026-06-05T23:35:57.428Z",
+  "captureReason": "managedBrowserUrlChange",
+  "captureScope": "selectedWindow",
+  "capabilityStatus": "ready",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-winrt-ocr-evidence-live-vimeo-browser-ocr",
+      "kind": "journal-entry",
+      "digest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+      "uri": null
+    }
+  ],
+  "imageDigest": "22ce766d4629a18ebdee7acd12a0cd6169c22da366d8b7269d53803094733ec0",
+  "encryptedImageRef": "encrypted-temp-live-vimeo-browser-ocr",
+  "ocrEngine": "winRtOcr",
+  "custodyState": "child-device-temp-queue",
+  "rawImageRetained": false
+}

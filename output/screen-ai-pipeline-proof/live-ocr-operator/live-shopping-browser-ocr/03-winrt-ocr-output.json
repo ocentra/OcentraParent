@@ -1,0 +1,508 @@
+{
+  "text": "All products Books to Scrape X + C books.toscrape.com Books to Scrape We love being scraped! Home All products dooks Travel Mystery Historical Fiction Sequential Art Classics o Philosophy Romance Womens Fiction Fiction Childrens Religion Nonfiction Music Default Science Fiction Sports and Games Add a comment o Fantasy New Adult o Young Adult Science o Poetry Paranormal o Art o Psychology o Autobiography All products 1000 results - snowing 1 to 20. Waming! This is a demo website for web scraping purposes. Prices and ratings here were randomly assigned and nave no real meaning. A Light in the Attic A Light in the E51_77 In stock Add tn haekpt S RAH WATERS TIPPING THE VELVEI Tipping the Velvet €53 74 In stock Add tn h*Rkpt Soumission €50.10 In stock Add tn haekpt GILLIAN FLYNN Sharp Objects E47_82 In stock Add tn h*Rkpt",
+  "lineCount": 60,
+  "lines": [
+    {
+      "text": "All products Books to Scrape X +",
+      "boundingBoxRef": "line-1",
+      "words": [
+        "All",
+        "products",
+        "Books",
+        "to",
+        "Scrape",
+        "X",
+        "+"
+      ]
+    },
+    {
+      "text": "C books.toscrape.com",
+      "boundingBoxRef": "line-2",
+      "words": [
+        "C",
+        "books.toscrape.com"
+      ]
+    },
+    {
+      "text": "Books to Scrape We love being scraped!",
+      "boundingBoxRef": "line-3",
+      "words": [
+        "Books",
+        "to",
+        "Scrape",
+        "We",
+        "love",
+        "being",
+        "scraped!"
+      ]
+    },
+    {
+      "text": "Home All products",
+      "boundingBoxRef": "line-4",
+      "words": [
+        "Home",
+        "All",
+        "products"
+      ]
+    },
+    {
+      "text": "dooks",
+      "boundingBoxRef": "line-5",
+      "words": [
+        "dooks"
+      ]
+    },
+    {
+      "text": "Travel",
+      "boundingBoxRef": "line-6",
+      "words": [
+        "Travel"
+      ]
+    },
+    {
+      "text": "Mystery",
+      "boundingBoxRef": "line-7",
+      "words": [
+        "Mystery"
+      ]
+    },
+    {
+      "text": "Historical Fiction",
+      "boundingBoxRef": "line-8",
+      "words": [
+        "Historical",
+        "Fiction"
+      ]
+    },
+    {
+      "text": "Sequential Art",
+      "boundingBoxRef": "line-9",
+      "words": [
+        "Sequential",
+        "Art"
+      ]
+    },
+    {
+      "text": "Classics",
+      "boundingBoxRef": "line-10",
+      "words": [
+        "Classics"
+      ]
+    },
+    {
+      "text": "o Philosophy",
+      "boundingBoxRef": "line-11",
+      "words": [
+        "o",
+        "Philosophy"
+      ]
+    },
+    {
+      "text": "Romance",
+      "boundingBoxRef": "line-12",
+      "words": [
+        "Romance"
+      ]
+    },
+    {
+      "text": "Womens Fiction",
+      "boundingBoxRef": "line-13",
+      "words": [
+        "Womens",
+        "Fiction"
+      ]
+    },
+    {
+      "text": "Fiction",
+      "boundingBoxRef": "line-14",
+      "words": [
+        "Fiction"
+      ]
+    },
+    {
+      "text": "Childrens",
+      "boundingBoxRef": "line-15",
+      "words": [
+        "Childrens"
+      ]
+    },
+    {
+      "text": "Religion",
+      "boundingBoxRef": "line-16",
+      "words": [
+        "Religion"
+      ]
+    },
+    {
+      "text": "Nonfiction",
+      "boundingBoxRef": "line-17",
+      "words": [
+        "Nonfiction"
+      ]
+    },
+    {
+      "text": "Music",
+      "boundingBoxRef": "line-18",
+      "words": [
+        "Music"
+      ]
+    },
+    {
+      "text": "Default",
+      "boundingBoxRef": "line-19",
+      "words": [
+        "Default"
+      ]
+    },
+    {
+      "text": "Science Fiction",
+      "boundingBoxRef": "line-20",
+      "words": [
+        "Science",
+        "Fiction"
+      ]
+    },
+    {
+      "text": "Sports and Games",
+      "boundingBoxRef": "line-21",
+      "words": [
+        "Sports",
+        "and",
+        "Games"
+      ]
+    },
+    {
+      "text": "Add a comment",
+      "boundingBoxRef": "line-22",
+      "words": [
+        "Add",
+        "a",
+        "comment"
+      ]
+    },
+    {
+      "text": "o Fantasy",
+      "boundingBoxRef": "line-23",
+      "words": [
+        "o",
+        "Fantasy"
+      ]
+    },
+    {
+      "text": "New Adult",
+      "boundingBoxRef": "line-24",
+      "words": [
+        "New",
+        "Adult"
+      ]
+    },
+    {
+      "text": "o Young Adult",
+      "boundingBoxRef": "line-25",
+      "words": [
+        "o",
+        "Young",
+        "Adult"
+      ]
+    },
+    {
+      "text": "Science",
+      "boundingBoxRef": "line-26",
+      "words": [
+        "Science"
+      ]
+    },
+    {
+      "text": "o Poetry",
+      "boundingBoxRef": "line-27",
+      "words": [
+        "o",
+        "Poetry"
+      ]
+    },
+    {
+      "text": "Paranormal",
+      "boundingBoxRef": "line-28",
+      "words": [
+        "Paranormal"
+      ]
+    },
+    {
+      "text": "o Art",
+      "boundingBoxRef": "line-29",
+      "words": [
+        "o",
+        "Art"
+      ]
+    },
+    {
+      "text": "o Psychology",
+      "boundingBoxRef": "line-30",
+      "words": [
+        "o",
+        "Psychology"
+      ]
+    },
+    {
+      "text": "o Autobiography",
+      "boundingBoxRef": "line-31",
+      "words": [
+        "o",
+        "Autobiography"
+      ]
+    },
+    {
+      "text": "All products",
+      "boundingBoxRef": "line-32",
+      "words": [
+        "All",
+        "products"
+      ]
+    },
+    {
+      "text": "1000 results - snowing 1 to 20.",
+      "boundingBoxRef": "line-33",
+      "words": [
+        "1000",
+        "results",
+        "-",
+        "snowing",
+        "1",
+        "to",
+        "20."
+      ]
+    },
+    {
+      "text": "Waming! This is a demo website for web scraping purposes. Prices and ratings here were randomly assigned and nave no",
+      "boundingBoxRef": "line-34",
+      "words": [
+        "Waming!",
+        "This",
+        "is",
+        "a",
+        "demo",
+        "website",
+        "for",
+        "web",
+        "scraping",
+        "purposes.",
+        "Prices",
+        "and",
+        "ratings",
+        "here",
+        "were",
+        "randomly",
+        "assigned",
+        "and",
+        "nave",
+        "no"
+      ]
+    },
+    {
+      "text": "real meaning.",
+      "boundingBoxRef": "line-35",
+      "words": [
+        "real",
+        "meaning."
+      ]
+    },
+    {
+      "text": "A Light",
+      "boundingBoxRef": "line-36",
+      "words": [
+        "A",
+        "Light"
+      ]
+    },
+    {
+      "text": "in the",
+      "boundingBoxRef": "line-37",
+      "words": [
+        "in",
+        "the"
+      ]
+    },
+    {
+      "text": "Attic",
+      "boundingBoxRef": "line-38",
+      "words": [
+        "Attic"
+      ]
+    },
+    {
+      "text": "A Light in the",
+      "boundingBoxRef": "line-39",
+      "words": [
+        "A",
+        "Light",
+        "in",
+        "the"
+      ]
+    },
+    {
+      "text": "E51_77",
+      "boundingBoxRef": "line-40",
+      "words": [
+        "E51_77"
+      ]
+    },
+    {
+      "text": "In stock",
+      "boundingBoxRef": "line-41",
+      "words": [
+        "In",
+        "stock"
+      ]
+    },
+    {
+      "text": "Add tn haekpt",
+      "boundingBoxRef": "line-42",
+      "words": [
+        "Add",
+        "tn",
+        "haekpt"
+      ]
+    },
+    {
+      "text": "S RAH",
+      "boundingBoxRef": "line-43",
+      "words": [
+        "S",
+        "RAH"
+      ]
+    },
+    {
+      "text": "WATERS",
+      "boundingBoxRef": "line-44",
+      "words": [
+        "WATERS"
+      ]
+    },
+    {
+      "text": "TIPPING",
+      "boundingBoxRef": "line-45",
+      "words": [
+        "TIPPING"
+      ]
+    },
+    {
+      "text": "THE VELVEI",
+      "boundingBoxRef": "line-46",
+      "words": [
+        "THE",
+        "VELVEI"
+      ]
+    },
+    {
+      "text": "Tipping the Velvet",
+      "boundingBoxRef": "line-47",
+      "words": [
+        "Tipping",
+        "the",
+        "Velvet"
+      ]
+    },
+    {
+      "text": "€53 74",
+      "boundingBoxRef": "line-48",
+      "words": [
+        "€53",
+        "74"
+      ]
+    },
+    {
+      "text": "In stock",
+      "boundingBoxRef": "line-49",
+      "words": [
+        "In",
+        "stock"
+      ]
+    },
+    {
+      "text": "Add tn h*Rkpt",
+      "boundingBoxRef": "line-50",
+      "words": [
+        "Add",
+        "tn",
+        "h*Rkpt"
+      ]
+    },
+    {
+      "text": "Soumission",
+      "boundingBoxRef": "line-51",
+      "words": [
+        "Soumission"
+      ]
+    },
+    {
+      "text": "€50.10",
+      "boundingBoxRef": "line-52",
+      "words": [
+        "€50.10"
+      ]
+    },
+    {
+      "text": "In stock",
+      "boundingBoxRef": "line-53",
+      "words": [
+        "In",
+        "stock"
+      ]
+    },
+    {
+      "text": "Add tn haekpt",
+      "boundingBoxRef": "line-54",
+      "words": [
+        "Add",
+        "tn",
+        "haekpt"
+      ]
+    },
+    {
+      "text": "GILLIAN",
+      "boundingBoxRef": "line-55",
+      "words": [
+        "GILLIAN"
+      ]
+    },
+    {
+      "text": "FLYNN",
+      "boundingBoxRef": "line-56",
+      "words": [
+        "FLYNN"
+      ]
+    },
+    {
+      "text": "Sharp Objects",
+      "boundingBoxRef": "line-57",
+      "words": [
+        "Sharp",
+        "Objects"
+      ]
+    },
+    {
+      "text": "E47_82",
+      "boundingBoxRef": "line-58",
+      "words": [
+        "E47_82"
+      ]
+    },
+    {
+      "text": "In stock",
+      "boundingBoxRef": "line-59",
+      "words": [
+        "In",
+        "stock"
+      ]
+    },
+    {
+      "text": "Add tn h*Rkpt",
+      "boundingBoxRef": "line-60",
+      "words": [
+        "Add",
+        "tn",
+        "h*Rkpt"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "scenarioId": "live-vimeo-browser-ocr",
+  "sourceKind": "live-browser-page",
+  "liveExternalUrl": true,
+  "redactedUrl": "https://vimeo.com/<redacted>",
+  "protocol": "https",
+  "title": "Watch Free Videos, Films, and Shorts - No Ads",
+  "visibleTextLength": 2091
+}

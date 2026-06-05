@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "ocrResultId": "screen-winrt-ocr-result-native-notepad-productivity-ocr",
+  "queueJobId": "screen-winrt-ocr-job-native-notepad-productivity-ocr",
+  "analyzedAt": "2026-06-05T23:36:16.583Z",
+  "ocrEngine": "winRtOcr",
+  "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+  "modelId": "windows-winrt-ocr",
+  "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+  "captureReason": "nativeAppForegroundStart",
+  "captureScope": "selectedWindow",
+  "capabilityStatus": "ready",
+  "textLines": [
+    {
+      "text": "Homework checklist",
+      "confidence": 0.82,
+      "boundingBoxRef": "line-11"
+    },
+    {
+      "text": "Write report and save document",
+      "confidence": 0.82,
+      "boundingBoxRef": "line-12"
+    },
+    {
+      "text": "native-ocr- worker-proof- 178",
+      "confidence": 0.88,
+      "boundingBoxRef": "line-1"
+    },
+    {
+      "text": "File",
+      "confidence": 0.82,
+      "boundingBoxRef": "line-2"
+    },
+    {
+      "text": "New Text Document (6).txt",
+      "confidence": 0.82,
+      "boundingBoxRef": "line-3"
+    }
+  ],
+  "ocrTextSnippets": [
+    {
+      "text": "Homework checklist",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+          "kind": "journal-entry",
+          "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "Write report and save document",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+          "kind": "journal-entry",
+          "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "native-ocr- worker-proof- 178",
+      "confidence": 0.88,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+          "kind": "journal-entry",
+          "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "File",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+          "kind": "journal-entry",
+          "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "New Text Document (6).txt",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+          "kind": "journal-entry",
+          "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+          "uri": null
+        }
+      ]
+    }
+  ],
+  "summary": "WinRT OCR extracted productivity text from native-app pixels.",
+  "visibleCategoryCandidates": [
+    {
+      "category": "productivity",
+      "confidence": 0.86,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+          "kind": "journal-entry",
+          "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+          "uri": null
+        }
+      ]
+    }
+  ],
+  "primaryCategory": "productivity",
+  "riskSignals": [],
+  "redactionNotes": [],
+  "confidence": 0.86,
+  "uncertaintyReason": null,
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-winrt-ocr-evidence-native-notepad-productivity-ocr",
+      "kind": "journal-entry",
+      "digest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+      "uri": null
+    }
+  ],
+  "imageDigest": "f78205c4c94e6215c6f878b342b8397d46517faf844146235d0b45233894ef6d",
+  "rawImageRetained": false,
+  "imageDeletionState": "deleted",
+  "custodyState": "child-device-query-store",
+  "policyEligible": true,
+  "lineCount": 5
+}

@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "screenAnalysisResultId": "screen-winrt-ocr-result-live-browser-game-ocr",
+  "queueJobId": "screen-winrt-ocr-job-live-browser-game-ocr",
+  "analyzedAt": "2026-06-05T23:36:06.070Z",
+  "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+  "modelId": "windows-winrt-ocr",
+  "providerKind": "localOcr",
+  "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+  "captureReason": "browserGameDetected",
+  "captureScope": "selectedWindow",
+  "capabilityStatus": "ready",
+  "summary": "WinRT OCR extracted game text from live-browser pixels.",
+  "visibleCategoryCandidates": [
+    {
+      "category": "game",
+      "confidence": 0.86,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+          "kind": "journal-entry",
+          "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+          "uri": null
+        }
+      ]
+    }
+  ],
+  "primaryCategory": "game",
+  "riskSignals": [],
+  "ocrTextSnippets": [
+    {
+      "text": "2048 • Play the Free Online Gar X",
+      "confidence": 0.88,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+          "kind": "journal-entry",
+          "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "play2048.co",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+          "kind": "journal-entry",
+          "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "Consent to Cookies & Data processing",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+          "kind": "journal-entry",
+          "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "On this website we use cookies and similar functions to process end",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+          "kind": "journal-entry",
+          "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+          "uri": null
+        }
+      ]
+    },
+    {
+      "text": "device information and personal data (ag. such as IP-addresses or",
+      "confidence": 0.82,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+          "kind": "journal-entry",
+          "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+          "uri": null
+        }
+      ]
+    }
+  ],
+  "redactionNotes": [],
+  "confidence": 0.86,
+  "uncertaintyReason": null,
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-winrt-ocr-evidence-live-browser-game-ocr",
+      "kind": "journal-entry",
+      "digest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+      "uri": null
+    }
+  ],
+  "imageDigest": "70a76a662309581af7184f643d597232d752ee34ac0ed708159c82c7b4c10276",
+  "rawImageRetained": false,
+  "imageDeletionState": "deleted",
+  "custodyState": "child-device-query-store",
+  "policyEligible": true
+}

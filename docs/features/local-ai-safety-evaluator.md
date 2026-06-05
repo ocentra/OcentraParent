@@ -203,6 +203,10 @@ production external evidence variants.
       raw/remote/Ocentra-hosted processing.
 - [x] Screen AI invalid output and timeout degrade to typed non-enforcing
       local AI safety results.
+- [x] Live public-page OCR operator proof captures real public pages/native app
+      pixels, analyzes them locally with WinRT OCR, validates policy dry-runs,
+      and deletes raw temp images without claiming VLM or product-complete
+      coverage.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub

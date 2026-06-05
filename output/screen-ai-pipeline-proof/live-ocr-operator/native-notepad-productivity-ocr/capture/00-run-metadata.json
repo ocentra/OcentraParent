@@ -1,0 +1,10 @@
+{
+  "keepRawUntilAnalysis": true,
+  "platform": "windows",
+  "proofClaim": "real-active-window-capture-custody",
+  "proofTier": "P3_LOCAL_DEV_MACHINE",
+  "requestedScope": "selectedWindow",
+  "runId": "TEwzq45TthgAAAAAAAAAAA",
+  "status": "available",
+  "targetWindowTitleContains": "native-ocr-worker-proof-1780702572513.txt"
+}

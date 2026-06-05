@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "v0.6",
+  "decisionId": "screen-winrt-ocr-policy-live-browser-game-ocr",
+  "action": "time-limit",
+  "reasonCodes": [
+    "screen-winrt-ocr-game"
+  ],
+  "evidenceReferences": [
+    {
+      "evidenceReferenceId": "screen-winrt-ocr-policy-evidence-live-browser-game-ocr",
+      "kind": "activity-event",
+      "observedAt": "2026-06-05T23:36:06.070Z"
+    }
+  ],
+  "ruleIds": [
+    "screen-winrt-ocr-rule-game"
+  ],
+  "localAiResultId": null,
+  "dryRun": true,
+  "enforcementHandoffState": "disabled",
+  "expiresAt": null
+}

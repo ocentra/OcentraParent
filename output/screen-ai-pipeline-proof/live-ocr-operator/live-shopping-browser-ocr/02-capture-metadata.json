@@ -1,0 +1,21 @@
+{
+  "actualScope": "selectedWindow",
+  "analysisTempPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\live-ocr-operator\\live-shopping-browser-ocr\\capture\\capture.png.tmp",
+  "appNameDigest": "445d6290691548b5a602994dec2eea134cf7871217e14700d14f92437605e6f6",
+  "appNamePresent": true,
+  "captured": true,
+  "height": 881,
+  "imageByteSize": 222843,
+  "imageDigest": "ec2dad90f86c53ce437cd9b624379b12c2fe5bb68ba01bcb0cc7f6bb5eaabdfa",
+  "monitorId": 65639,
+  "monitorNameDigest": "fc2b61e60bd49f1e7549634104eeb412b74b89cdbc3e2b6eebf6ca7ec8ac1a98",
+  "monitorNamePresent": true,
+  "pid": 19236,
+  "rawImagePersistedInProof": false,
+  "requestedScope": "selectedWindow",
+  "status": "available",
+  "titleDigest": "5338ea0d9adc83080146d9109df87f4c50c3ac4817c90641fea6585db66d6483",
+  "titlePresent": true,
+  "width": 1202,
+  "windowId": 17504522
+}

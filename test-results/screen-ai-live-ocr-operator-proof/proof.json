@@ -1,0 +1,139 @@
+{
+  "proof": "screen-ai-live-ocr-operator-proof",
+  "proofTier": "P3_REAL_LIVE_PUBLIC_SURFACE_LOCAL_OCR",
+  "generatedAt": "2026-06-05T23:36:17.417Z",
+  "sourceWorkerProof": "output/screen-ai-pipeline-proof/live-ocr-operator/worker-proof-summary.json",
+  "mirroredAiProof": "output/ai-plan-proof/live-ocr-operator/proof-summary.json",
+  "scenarioCount": 5,
+  "browserLiveRows": 4,
+  "nativeRows": 1,
+  "realCaptureRows": 5,
+  "localOcrRows": 5,
+  "policyDryRunRows": 5,
+  "rawImagesDeletedAfterAnalysis": true,
+  "categories": [
+    "school",
+    "video",
+    "game",
+    "shopping",
+    "productivity"
+  ],
+  "actions": [
+    "allow",
+    "warn",
+    "time-limit",
+    "ask-parent"
+  ],
+  "assertions": {
+    "realPublicPagesCaptured": true,
+    "actualPixelsCaptured": true,
+    "ocrProducedMeaningfulCategories": true,
+    "policyConsumedOcrResults": true,
+    "rawScreenshotsNotRetainedByDefault": true
+  },
+  "nonClaims": [
+    "This proof uses real public browser pages and a real native app window, but it does not claim authenticated-account social coverage.",
+    "This proof uses Windows WinRT OCR plus deterministic category expectations; it does not claim the local VLM live-operator matrix because the configured VLM binary/model/mmproj are absent.",
+    "This proof does not claim managed-browser URL trigger ownership or broad browser/network/mobile enforcement adapters.",
+    "This proof is progress toward the final product path, not the final product-complete proof."
+  ],
+  "rows": [
+    {
+      "scenarioId": "live-wikipedia-browser-ocr",
+      "surfaceKind": "live-browser",
+      "category": "school",
+      "action": "allow",
+      "sourceEvidence": {
+        "scenarioId": "live-wikipedia-browser-ocr",
+        "sourceKind": "live-browser-page",
+        "liveExternalUrl": true,
+        "redactedUrl": "https://www.wikipedia.org/<redacted>",
+        "protocol": "https",
+        "title": "Wikipedia",
+        "visibleTextLength": 2022
+      },
+      "ocrTextDigest": "sha256:b0a546d34b6ad5209ca43098764e9a34c6d484bb43091b603f588ea3d9f93785",
+      "rawImageDeletedAfterOcr": true,
+      "rawImageExistsAfterDelete": false,
+      "providerKind": "localOcr",
+      "policyDryRun": true
+    },
+    {
+      "scenarioId": "live-vimeo-browser-ocr",
+      "surfaceKind": "live-browser",
+      "category": "video",
+      "action": "warn",
+      "sourceEvidence": {
+        "scenarioId": "live-vimeo-browser-ocr",
+        "sourceKind": "live-browser-page",
+        "liveExternalUrl": true,
+        "redactedUrl": "https://vimeo.com/<redacted>",
+        "protocol": "https",
+        "title": "Watch Free Videos, Films, and Shorts - No Ads",
+        "visibleTextLength": 2091
+      },
+      "ocrTextDigest": "sha256:384b0ad32ec459b0fd410eaf1bec66ee2251c2f4e52a1f7a910bc5d7c9b4271f",
+      "rawImageDeletedAfterOcr": true,
+      "rawImageExistsAfterDelete": false,
+      "providerKind": "localOcr",
+      "policyDryRun": true
+    },
+    {
+      "scenarioId": "live-browser-game-ocr",
+      "surfaceKind": "live-browser",
+      "category": "game",
+      "action": "time-limit",
+      "sourceEvidence": {
+        "scenarioId": "live-browser-game-ocr",
+        "sourceKind": "live-browser-page",
+        "liveExternalUrl": true,
+        "redactedUrl": "https://play2048.co/<redacted>",
+        "protocol": "https",
+        "title": "2048 • Play the Free Online Game",
+        "visibleTextLength": 172
+      },
+      "ocrTextDigest": "sha256:203c6e5cdbda93add4426f6a34853c503a793a19f2a946531684f308ec534184",
+      "rawImageDeletedAfterOcr": true,
+      "rawImageExistsAfterDelete": false,
+      "providerKind": "localOcr",
+      "policyDryRun": true
+    },
+    {
+      "scenarioId": "live-shopping-browser-ocr",
+      "surfaceKind": "live-browser",
+      "category": "shopping",
+      "action": "ask-parent",
+      "sourceEvidence": {
+        "scenarioId": "live-shopping-browser-ocr",
+        "sourceKind": "live-browser-page",
+        "liveExternalUrl": true,
+        "redactedUrl": "https://books.toscrape.com/<redacted>",
+        "protocol": "https",
+        "title": "All products | Books to Scrape - Sandbox",
+        "visibleTextLength": 2029
+      },
+      "ocrTextDigest": "sha256:3df895c3b2c6843d409d5bf02b00fc012374b51c67a4b3572a2111edac087d9b",
+      "rawImageDeletedAfterOcr": true,
+      "rawImageExistsAfterDelete": false,
+      "providerKind": "localOcr",
+      "policyDryRun": true
+    },
+    {
+      "scenarioId": "native-notepad-productivity-ocr",
+      "surfaceKind": "native-app",
+      "category": "productivity",
+      "action": "allow",
+      "sourceEvidence": {
+        "scenarioId": "native-notepad-productivity-ocr",
+        "sourceKind": "native-notepad-window",
+        "liveExternalUrl": false,
+        "fileName": "native-ocr-worker-proof-1780702572513.txt"
+      },
+      "ocrTextDigest": "sha256:cfff31cb5cfe5550cbe96d1f69d7cd368df5dfde196df2f690882ddc2fb681ad",
+      "rawImageDeletedAfterOcr": true,
+      "rawImageExistsAfterDelete": false,
+      "providerKind": "localOcr",
+      "policyDryRun": true
+    }
+  ]
+}

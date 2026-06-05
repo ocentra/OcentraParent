@@ -1,0 +1,2 @@
+node --check scripts/test/screen-ai-live-ocr-operator-proof.mjs
+node scripts/test/screen-ai-live-ocr-operator-proof.mjs
