@@ -75,6 +75,13 @@ expose location or device-status features. Parents expect this category.
   hosted child-safe check-in screenshots, writes accessibility summary output,
   proves calm child check-in copy/actions inside the hosted route only, and
   keeps `productClaimReady=false`.
+- P1 evidence-quality gate proof now exists through
+  `npm run test:tracking-plan-evidence-quality-gate-proof`. It validates
+  location UI evidence refs, geofence rule/source refs, nearby-place provider
+  context, AI evidence/no-final-action constraints, alert policy-decision refs,
+  and retention delete/export before/after proof through parser-backed fixtures,
+  retention helpers, parent-domain contracts, and the existing portal citation
+  test while keeping live device/provider behavior unclaimed.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -125,11 +132,12 @@ summary-consumption proof, live service-backed portal citation rows, hosted
 parent route screenshot/accessibility proof with hosted child-safe check-in
 copy/actions, P1 local parent-defined place store proof, pre-device proof-gate
 progress, Android emulator package/service/status scaffold proof, and P3
-WSL/local replay proof. It remains a tracked product gap until platform
-location and geofence adapters, broader product read models, provider delivery,
-notifications, physical-device proof, child-device delivery/runtime UI, full
-parent/child UI snapshots/accessibility beyond the hosted parent route, and
-broader service-backed product UI/read-model surfaces are proved.
+WSL/local replay proof, plus P1 evidence-quality gate proof. It remains a
+tracked product gap until platform location and geofence adapters, broader
+product read models, provider delivery, notifications, physical-device proof,
+child-device delivery/runtime UI, full parent/child UI snapshots/accessibility
+beyond the hosted parent route, and broader service-backed product UI/read-model
+surfaces are proved.
 
 ## Checklist
 
@@ -170,6 +178,10 @@ broader service-backed product UI/read-model surfaces are proved.
       delivery/runtime UI, full service-data UI, or physical-device proof.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
       proof plans.
+- [x] Evidence-quality gate proof for tracking UI evidence refs, geofence
+      source refs, nearby-place context fields, AI no-final-action constraints,
+      alert policy-decision refs, and retention before/after proof. This is not
+      live device/provider behavior proof.
 - [ ] Full service-data tracking UI beyond the current live citation rows.
 - [ ] Full live parent/child UI screenshots and accessibility proof beyond the
       hosted parent route.
