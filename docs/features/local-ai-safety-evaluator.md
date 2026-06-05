@@ -130,6 +130,14 @@ claim needs proof, not slogans.
   protected-surface non-claims. The verifier writes
   `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json` and
   does not rerun live capture/model inference or claim remote/API AI.
+- `ScreenAiMemoryGraphSourceProofSchema` and
+  `scripts/test/screen-ai-memory-graph-source-proof.mjs` now replay the real
+  service WinRT OCR policy proof artifact through the local AI activity-memory
+  graph reader. The proof writes a four-node, three-edge graph read where every
+  returned edge cites selected activity-row, encrypted-queue, screen-summary,
+  journal, policy, and action refs while preserving deleted-image and
+  no-raw-retention custody. It does not create new capture, infer new model
+  output, render portal UI, or claim enforcement.
 - `ScreenFamilyAiHubRouteSchema` and
   `scripts/test/screen-family-ai-hub-routing-proof.mjs` now prove the
   screen-specific family AI hub route contract for hard visual analysis:
@@ -169,12 +177,16 @@ production external evidence variants.
       manual-required, not-claimed, or unavailable without claim upgrades.
 - [x] Final screen-AI product path artifact gate.
 - [x] Tests with real stored evidence.
+- [x] Source-cited activity-memory graph proof over the real service WinRT OCR
+      policy artifact.
 - [x] Screen hard-visual routing prefers child-local then household family hub
       before remote/API fallback.
 
 Product-grade model configuration, model artifacts, production model/OCR
-quality, authenticated-account social proof, and broad enforcement handoff
-remain in the Current Gap section above.
+quality, authenticated-account social proof, production parent explanation
+portal rendering, broader enforcement handoff, production browser-trigger
+producers, real family AI hub runtime/discovery, cloud-streamed frame proof, and
+mobile browser parity remain in the Current Gap section above.
 
 ## Next AI Instructions
 

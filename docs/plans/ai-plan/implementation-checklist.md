@@ -19,6 +19,7 @@ consumes the same results.
 | Windows WinRT OCR worker over captured pixels     | P3 real OCR proved  | `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`                                                                      | Proves real selected-window browser/native captures can run through Windows WinRT OCR, become schema-valid `ScreenAnalysisResult` evidence, feed allow dry-run policy decisions, and delete raw temp images. It does not claim production OCR quality, service runtime integration, or cross-platform OCR parity.                                                                                                                                                                           |
 | Service WinRT OCR over live browser capture       | P3 service proved   | `output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json`                                                                 | Starts the real Rust service, captures a live public Wikipedia Chrome window through timed cadence into the encrypted queue, invokes a Windows WinRT OCR adapter through the service analysis runtime, records a `localOcr` Activity Screen row with runtime/model/template metadata and a `school` result, drains the queue, and deletes adapter temp image material. It does not claim production OCR quality, authenticated-account coverage, enforcement, or cross-platform OCR parity. |
 | Service WinRT OCR policy consumption              | P3 service proved   | `output/screen-ai-pipeline-proof/service-winrt-ocr-policy/proof-summary.json`                                                          | Reruns the real service WinRT OCR proof and consumes that exact `localOcr` Activity Screen row through typed parent-domain policy contracts, proving allow dry-run policy refs, evidence refs, parent rule refs, disabled enforcement handoff, and deleted-image/no-raw-retention custody. It does not claim final enforcement, broad adapters, production OCR quality, or authenticated-account coverage.                                                                                  |
+| Screen memory graph source proof                  | P3 replay proved    | `output/ai-plan-proof/screen-ai-memory-graph-source-proof/proof-summary.json`                                                          | Replays the real service WinRT OCR policy artifact through the local AI activity-memory graph reader, proving returned memory graph nodes/edges cite selected activity, encrypted-queue, screen-summary, journal, policy, and action refs while preserving deleted-image/no-raw-retention custody. It does not create new capture, infer new model output, render portal UI, or claim enforcement.                                                                                          |
 | Screen-derived adapter readiness                  | P3 readiness proved | `output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json`                                                                 | Proves screen-derived owned-process time-limit/block decisions retain real Windows adapter proof while broad installed-app, host network/domain, exact active-tab, Android/iOS mobile, and Linux host targets remain manual-required, not-claimed, or unavailable. It does not implement broad/browser/network/mobile adapters or rerun live capture.                                                                                                                                       |
 | Screen summary into local AI context builder      | P3 replay proved    | `output/ai-plan-proof/screen-summary-ai-context/proof-summary.json`                                                                    | Replays the real WinRT OCR worker proof rows through `buildLocalAiEvidenceContext`, proving deleted local screen summaries are selected as `screen-summary` evidence with custody, runtime, parent-rule, and audit refs. It does not create new captures, claim model quality, or claim portal/final enforcement.                                                                                                                                                                           |
 | Screen summary parent explanation/audit context   | P3 replay proved    | `output/ai-plan-proof/screen-summary-parent-explanation/proof-summary.json`                                                            | Replays the real WinRT OCR worker proof rows through local AI context plus parent explanation/audit contracts, proving screen-summary refs, audit refs, parent-rule refs, dry-run policy refs, runtime refs, and deleted-image custody stay cited without raw retention, remote/API AI, portal UI, policy authority, or enforcement claims.                                                                                                                                                 |
@@ -44,8 +45,10 @@ consumes the same results.
 - [ ] Provider route contract complete.
 - [ ] Context builder contracts complete.
 - [ ] Prompt/template version contract complete.
-- [ ] Memory reference contract complete.
-- [ ] Graph reference contract complete.
+- [x] Memory reference contract complete for source-cited activity-memory graph
+      reads.
+- [x] Graph reference contract complete for source-cited activity-memory graph
+      reads.
 - [ ] AI journal/read-model contract complete.
 - [ ] Remote assistant contract separated from child safety.
 
@@ -70,10 +73,13 @@ consumes the same results.
 
 - [ ] Recent memory contract implemented.
 - [ ] Short-window recent activity implemented.
-- [ ] Semantic memory source-citation guard implemented.
-- [ ] Graph reference contract implemented.
-- [ ] Minimal graph edges implemented.
-- [ ] Graph rebuild/source proof exists.
+- [x] Semantic memory source-citation guard implemented for selected evidence,
+      policy, and action refs.
+- [x] Graph reference contract implemented.
+- [x] Minimal graph edges implemented for child/device/session/source evidence
+      explanation reads.
+- [x] Graph rebuild/source proof exists for the real service WinRT OCR policy
+      artifact.
 
 ## Screen OCR/VLM
 
@@ -138,7 +144,7 @@ consumes the same results.
 - [x] Provider route/status tests.
 - [ ] Model output parser tests.
 - [ ] Policy integration tests.
-- [ ] Memory/graph source guard tests.
+- [x] Memory/graph source guard tests.
 - [ ] Remote boundary tests.
 - [x] Playwright UI proof.
 - [x] `git diff --check`.
@@ -162,4 +168,6 @@ consumes the same results.
       `output/ai-plan-proof/screen-summary-parent-explanation-read-model`.
 - [x] screen summary parent explanation service read-model proof artifacts under
       `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model`.
+- [x] screen AI memory graph source proof artifacts under
+      `output/ai-plan-proof/screen-ai-memory-graph-source-proof`.
 - [ ] `npm run validate` or explicit approved omission.

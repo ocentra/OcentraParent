@@ -1,0 +1,2 @@
+cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- screen-ai-memory-graph-source-proof: PASS

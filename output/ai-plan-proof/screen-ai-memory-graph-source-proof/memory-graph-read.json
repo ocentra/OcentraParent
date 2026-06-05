@@ -1,0 +1,408 @@
+{
+  "query": {
+    "queryId": "screen-ai-memory-graph-source-query",
+    "queryKind": "explain-evidence",
+    "childProfile": {
+      "childProfileId": "screen-ai-memory-child",
+      "displayName": "Sam"
+    },
+    "device": {
+      "deviceId": "local-dev-agent",
+      "childProfileId": "screen-ai-memory-child",
+      "label": "Sam Windows PC",
+      "platform": "windows"
+    },
+    "timeRange": {
+      "observedFrom": "2026-06-05T15:59:33.027Z",
+      "observedUntil": "2026-06-05T15:59:33.027Z"
+    },
+    "asOf": "2026-06-05T15:59:33.027Z",
+    "limit": 10
+  },
+  "readAt": "2026-06-05T15:59:33.027Z",
+  "nodes": [
+    {
+      "graphId": "screen-ai-memory-graph",
+      "nodeId": "node-child-screen-ai-memory",
+      "nodeKind": "child-profile",
+      "label": "Sam",
+      "childProfile": {
+        "childProfileId": "screen-ai-memory-child",
+        "displayName": "Sam"
+      },
+      "device": null,
+      "trace": {
+        "entryStatus": "usable",
+        "sourceEvidenceReferences": [
+          {
+            "evidenceReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-activity-row",
+            "kind": "activity-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-queue-job-1780675160-1-encrypted-queue",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I-screen-summary",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1-journal",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "sourcePolicyVersion": "screen-service-winrt-ocr-school-rule",
+        "sourceParentActionReferences": [
+          {
+            "actionReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-policy-dry-run",
+            "actor": {
+              "actorId": "system-screen-ai-policy",
+              "role": "system"
+            },
+            "policyVersion": "screen-service-winrt-ocr-school-rule",
+            "createdAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "generatedAt": "2026-06-05T15:59:33.027Z",
+        "expiresAt": null,
+        "confidence": 0.91,
+        "derivedIndexVersion": "screen-ai-memory-graph-v1",
+        "degradedReasons": []
+      }
+    },
+    {
+      "graphId": "screen-ai-memory-graph",
+      "nodeId": "node-device-local-dev-agent",
+      "nodeKind": "device",
+      "label": "Sam Windows PC",
+      "childProfile": null,
+      "device": {
+        "deviceId": "local-dev-agent",
+        "childProfileId": "screen-ai-memory-child",
+        "label": "Sam Windows PC",
+        "platform": "windows"
+      },
+      "trace": {
+        "entryStatus": "usable",
+        "sourceEvidenceReferences": [
+          {
+            "evidenceReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-activity-row",
+            "kind": "activity-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-queue-job-1780675160-1-encrypted-queue",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I-screen-summary",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1-journal",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "sourcePolicyVersion": "screen-service-winrt-ocr-school-rule",
+        "sourceParentActionReferences": [
+          {
+            "actionReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-policy-dry-run",
+            "actor": {
+              "actorId": "system-screen-ai-policy",
+              "role": "system"
+            },
+            "policyVersion": "screen-service-winrt-ocr-school-rule",
+            "createdAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "generatedAt": "2026-06-05T15:59:33.027Z",
+        "expiresAt": null,
+        "confidence": 0.91,
+        "derivedIndexVersion": "screen-ai-memory-graph-v1",
+        "degradedReasons": []
+      }
+    },
+    {
+      "graphId": "screen-ai-memory-graph",
+      "nodeId": "node-screen-session-winrt-ocr-school",
+      "nodeKind": "activity-session",
+      "label": "Windows WinRT OCR read the live Wikipedia mathematics page from the service queued capture.",
+      "childProfile": {
+        "childProfileId": "screen-ai-memory-child",
+        "displayName": "Sam"
+      },
+      "device": {
+        "deviceId": "local-dev-agent",
+        "childProfileId": "screen-ai-memory-child",
+        "label": "Sam Windows PC",
+        "platform": "windows"
+      },
+      "trace": {
+        "entryStatus": "usable",
+        "sourceEvidenceReferences": [
+          {
+            "evidenceReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-activity-row",
+            "kind": "activity-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-queue-job-1780675160-1-encrypted-queue",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I-screen-summary",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1-journal",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "sourcePolicyVersion": "screen-service-winrt-ocr-school-rule",
+        "sourceParentActionReferences": [
+          {
+            "actionReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-policy-dry-run",
+            "actor": {
+              "actorId": "system-screen-ai-policy",
+              "role": "system"
+            },
+            "policyVersion": "screen-service-winrt-ocr-school-rule",
+            "createdAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "generatedAt": "2026-06-05T15:59:33.027Z",
+        "expiresAt": null,
+        "confidence": 0.91,
+        "derivedIndexVersion": "screen-ai-memory-graph-v1",
+        "degradedReasons": []
+      }
+    },
+    {
+      "graphId": "screen-ai-memory-graph",
+      "nodeId": "node-domain-wikipedia-mathematics",
+      "nodeKind": "domain",
+      "label": "https://en.wikipedia.org/wiki/Mathematics",
+      "childProfile": null,
+      "device": {
+        "deviceId": "local-dev-agent",
+        "childProfileId": "screen-ai-memory-child",
+        "label": "Sam Windows PC",
+        "platform": "windows"
+      },
+      "trace": {
+        "entryStatus": "usable",
+        "sourceEvidenceReferences": [
+          {
+            "evidenceReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-activity-row",
+            "kind": "activity-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-queue-job-1780675160-1-encrypted-queue",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I-screen-summary",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1-journal",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "sourcePolicyVersion": "screen-service-winrt-ocr-school-rule",
+        "sourceParentActionReferences": [
+          {
+            "actionReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-policy-dry-run",
+            "actor": {
+              "actorId": "system-screen-ai-policy",
+              "role": "system"
+            },
+            "policyVersion": "screen-service-winrt-ocr-school-rule",
+            "createdAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "generatedAt": "2026-06-05T15:59:33.027Z",
+        "expiresAt": null,
+        "confidence": 0.91,
+        "derivedIndexVersion": "screen-ai-memory-graph-v1",
+        "degradedReasons": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "graphId": "screen-ai-memory-graph",
+      "edgeId": "edge-child-performed-screen-session",
+      "edgeKind": "performed-by-child",
+      "fromNodeId": "node-child-screen-ai-memory",
+      "toNodeId": "node-screen-session-winrt-ocr-school",
+      "observedFrom": "2026-06-05T15:59:33.027Z",
+      "observedUntil": "2026-06-05T15:59:33.027Z",
+      "durationMs": 0,
+      "trace": {
+        "entryStatus": "usable",
+        "sourceEvidenceReferences": [
+          {
+            "evidenceReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-activity-row",
+            "kind": "activity-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-queue-job-1780675160-1-encrypted-queue",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I-screen-summary",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1-journal",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "sourcePolicyVersion": "screen-service-winrt-ocr-school-rule",
+        "sourceParentActionReferences": [
+          {
+            "actionReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-policy-dry-run",
+            "actor": {
+              "actorId": "system-screen-ai-policy",
+              "role": "system"
+            },
+            "policyVersion": "screen-service-winrt-ocr-school-rule",
+            "createdAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "generatedAt": "2026-06-05T15:59:33.027Z",
+        "expiresAt": null,
+        "confidence": 0.91,
+        "derivedIndexVersion": "screen-ai-memory-graph-v1",
+        "degradedReasons": []
+      }
+    },
+    {
+      "graphId": "screen-ai-memory-graph",
+      "edgeId": "edge-device-active-during-screen-session",
+      "edgeKind": "active-during",
+      "fromNodeId": "node-device-local-dev-agent",
+      "toNodeId": "node-screen-session-winrt-ocr-school",
+      "observedFrom": "2026-06-05T15:59:33.027Z",
+      "observedUntil": "2026-06-05T15:59:33.027Z",
+      "durationMs": 0,
+      "trace": {
+        "entryStatus": "usable",
+        "sourceEvidenceReferences": [
+          {
+            "evidenceReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-activity-row",
+            "kind": "activity-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-queue-job-1780675160-1-encrypted-queue",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I-screen-summary",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1-journal",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "sourcePolicyVersion": "screen-service-winrt-ocr-school-rule",
+        "sourceParentActionReferences": [
+          {
+            "actionReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-policy-dry-run",
+            "actor": {
+              "actorId": "system-screen-ai-policy",
+              "role": "system"
+            },
+            "policyVersion": "screen-service-winrt-ocr-school-rule",
+            "createdAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "generatedAt": "2026-06-05T15:59:33.027Z",
+        "expiresAt": null,
+        "confidence": 0.91,
+        "derivedIndexVersion": "screen-ai-memory-graph-v1",
+        "degradedReasons": []
+      }
+    },
+    {
+      "graphId": "screen-ai-memory-graph",
+      "edgeId": "edge-session-derived-from-wikipedia-evidence",
+      "edgeKind": "derived-from-evidence",
+      "fromNodeId": "node-screen-session-winrt-ocr-school",
+      "toNodeId": "node-domain-wikipedia-mathematics",
+      "observedFrom": "2026-06-05T15:59:33.027Z",
+      "observedUntil": "2026-06-05T15:59:33.027Z",
+      "durationMs": 0,
+      "trace": {
+        "entryStatus": "usable",
+        "sourceEvidenceReferences": [
+          {
+            "evidenceReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-activity-row",
+            "kind": "activity-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-queue-job-1780675160-1-encrypted-queue",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I-screen-summary",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          },
+          {
+            "evidenceReferenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1-journal",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "sourcePolicyVersion": "screen-service-winrt-ocr-school-rule",
+        "sourceParentActionReferences": [
+          {
+            "actionReferenceId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-policy-dry-run",
+            "actor": {
+              "actorId": "system-screen-ai-policy",
+              "role": "system"
+            },
+            "policyVersion": "screen-service-winrt-ocr-school-rule",
+            "createdAt": "2026-06-05T15:59:33.027Z"
+          }
+        ],
+        "generatedAt": "2026-06-05T15:59:33.027Z",
+        "expiresAt": null,
+        "confidence": 0.91,
+        "derivedIndexVersion": "screen-ai-memory-graph-v1",
+        "degradedReasons": []
+      }
+    }
+  ],
+  "returnedNodeCount": 4,
+  "returnedEdgeCount": 3,
+  "omittedEdgeCount": 0,
+  "degradedReasons": []
+}
