@@ -24,6 +24,10 @@ Shared activity and evidence contracts for child-device observations.
 - Screen detector prompt pack and output contracts that keep local screen
   analysis detector-specific, schema-bound, and privacy-negative without
   claiming model quality or enforcement authority.
+- Optional screen raw-retention and live-view preflight contracts that require
+  explicit parent approval, audit refs, custody labels, TTL/delete or
+  no-retention behavior, platform-proof refs for live view, and no remote input
+  control before those non-default modes can be represented.
 - Screen evidence settings UI proof contracts that build disabled, observe-only,
   and strict dry-run parent intent drafts from the real settings schemas without
   claiming child-agent persistence.
@@ -112,6 +116,10 @@ flowchart LR
   `screen-router-structured-extraction-proof`; real managed-browser
   DOM/accessibility producer integration, portal rendering, final policy, and
   enforcement proof remain open.
+- Optional raw-retention/live-view preflight proof now has
+  `screen-optional-retention-live-preflight-proof`; runtime retention
+  enablement, live transport/relay/cache, platform permission prompts, parent
+  UI persistence, privacy/legal approval, and production adapters remain open.
 - Screen managed-browser CDP screenshot capture now has
   `screen-managed-browser-cdp-capture-proof`; production URL-trigger ownership,
   OCR/VLM quality, policy action, enforcement, live view, and raw retention

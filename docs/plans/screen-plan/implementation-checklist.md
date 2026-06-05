@@ -36,6 +36,7 @@ trigger ownership unless the row explicitly says so.
 | Settings route screen catalog proof      | P3 proved                | `output/screen-plan-proof/settings-ui/proof-summary.json`                                          | Proves the real portal Settings route renders read-only Screen settings/capability catalog proof; writable opt-in and retention controls remain.                                                                                        |
 | Settings route writable intent proof     | P3 proved                | `output/screen-plan-proof/settings-writable-controls/proof-summary.json`                           | Proves the real portal Settings route controls build schema-valid disabled, observe-only, and strict dry-run local screen-summary drafts; service persistence remains.                                                                  |
 | Remote/retention/live boundary proof     | P2 contract proved       | `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`                            | Proves raw screenshot retention, live view, and raw remote upload are disabled in the local-summary boundary; no live transport or writable retention UI claimed.                                                                       |
+| Optional retention/live preflight        | P2 contract proved       | `output/screen-plan-proof/27-28-optional-retention-live-preflight/proof-summary.json`              | Proves separate explicit opt-in raw-retention/live-view modes with approval, audit, custody, TTL/delete/no-retention, platform-proof gates, and no remote input; no runtime transport claimed.                                          |
 | Detector prompt pack proof               | P2 contract proved       | `output/screen-plan-proof/40-detector-prompt-packs-and-schema-tests/proof-summary.json`            | Proves guided detector prompt pack/output contracts reject open-ended prompts, raw/private fields, policy authority, and enforcement claims; no production model quality or live inference claimed.                                     |
 | Local AI resource scheduler proof        | P2 contract + runtime    | `output/screen-plan-proof/local-ai-resource-scheduler/proof-summary.json`                          | Proves screen OCR/VLM priority, singleton heavy-lane admission, timeout/skipped/degraded states, caps, and reuse of the provider scheduler proof; not a final capture-to-policy pipeline claim.                                         |
 | Family AI hub screen route proof         | P2 contract proved       | `output/screen-plan-proof/37-family-ai-hub-screen-analysis-queue/proof-summary.json`               | Proves hard screen-analysis cases route child-local first, then local household family hub with no retention and no remote/API fallback; no real LAN hub runtime or production model quality claimed.                                   |
@@ -71,8 +72,8 @@ trigger ownership unless the row explicitly says so.
 - [x] Deletion state visible.
 - [x] Policy consumes summary/evidence refs only.
 - [x] Portal does not show raw screenshots by default.
-- [ ] Screenshot retention is separate opt-in mode.
-- [ ] Live view is separate opt-in mode.
+- [x] Screenshot retention is separate opt-in mode.
+- [x] Live view is separate opt-in mode.
 - [x] Remote/cloud screenshot upload disabled by default.
 - [x] Remote/API path accepts only parent-approved redacted summaries by default.
 - [x] Local AI resource scheduler prevents multiple heavy jobs on normal PCs.
