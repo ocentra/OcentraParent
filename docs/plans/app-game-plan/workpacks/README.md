@@ -59,6 +59,7 @@ before `DONE` or PR-ready reporting.
 51. WP56 app/game notification service read model.
 
 52. WP58 app/game notification local outbox bridge.
+53. WP59 app/game notification scheduler bridge.
 
 ## Standard AI Worker Checklist
 
