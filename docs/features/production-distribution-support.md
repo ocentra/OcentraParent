@@ -102,15 +102,15 @@ dev-only repo when it claims consumer readiness.
   upload execution, account lookup execution, billing provider contact
   execution, remote support sessions, production SLA, and default
   Ocentra-hosted family data.
-- `production-support-backend-upload-custody-audit-proof` adds logging-domain
-  support backend upload custody/audit rows for custody boundary recording,
-  retention manual-required state, delete request recording, deletion
-  manual-required state, and support-safe audit export readiness. It links to
-  the prior support upload status and execution/runtime proofs with status and
-  runtime refs, proves redaction/custody/retention/delete/manual refs, and keeps
-  real backend upload execution, backend payload retention, backend payload
-  deletion, raw child activity custody, provider secrets, account lookup,
-  billing provider contact, remote support sessions, production SLA, and default
+- `production-support-case-resolution-status-proof` adds logging-domain support
+  case resolution/status rows for parent-consented case opened, triage-ready,
+  parent-update-ready, escalation manual-required, response manual-required,
+  closure-ready, and SLA manual-required states. It links to incident workflow,
+  support upload status/execution, and publication workflow refs, proves
+  support-safe parent-visible case lifecycle metadata, and keeps real support
+  backend upload execution, provider contact, account lookup, billing provider
+  contact, remote support sessions, production SLA execution, raw child activity
+  custody, provider secrets, remote support transcripts, and default
   Ocentra-hosted family data unclaimed.
 - `production-support-publication-workflow-proof` adds parent-domain source
   contract rows for public privacy policy publication, privacy/legal disclosure
@@ -327,17 +327,16 @@ package/runtime proof.
       backend upload execution, account lookup execution, billing provider
       contact execution, remote support sessions, production SLA, and default
       Ocentra-hosted family data unclaimed.
-- [ ] Production support backend upload custody/audit proof. Current
-      `production-support-backend-upload-custody-audit-proof` covers custody
-      boundary recording, retention manual-required state, delete request
-      recording, deletion manual-required state, and support-safe audit export
-      readiness for support backend upload. It proves status/runtime refs,
-      redaction refs, custody refs, retention/delete refs, and manual proof
-      requirements while keeping real backend upload execution, backend payload
-      retention, backend payload deletion, raw child activity custody, provider
-      secrets, account lookup execution, billing provider contact execution,
-      remote support sessions, production SLA, and default Ocentra-hosted
-      family data unclaimed.
+- [ ] Production support case resolution/status proof. Current
+      `production-support-case-resolution-status-proof` covers case opened,
+      triage-ready, parent-update-ready, escalation manual-required, response
+      manual-required, closure-ready, and SLA manual-required states with
+      incident, upload status/execution, publication, response, escalation,
+      closure, SLA, and manual proof refs. Real backend upload execution,
+      provider contact, account lookup, billing provider contact, remote
+      support sessions, production SLA execution, raw child activity custody,
+      provider secrets, remote transcripts, and hosted family data remain
+      unclaimed.
 - [ ] Production support public publication workflow proof. Current
       `production-support-publication-workflow-proof` covers public privacy
       policy publication, privacy/legal disclosure execution, support runbook
