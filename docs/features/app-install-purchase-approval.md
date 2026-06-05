@@ -141,6 +141,18 @@ generic app blocking covers this concern.
   that store status handoff proof under
   `test-results/app-install-purchase-store-status-handoff-proof/proof.json`
   when run.
+- `packages/parent-domain/src/app-install-purchase-runtime-writer-delivery-proof.ts`
+  now links parent action runtime handoff rows and per-store status handoff rows
+  to writer-envelope-ready/manual-required proof states while preserving no
+  runtime writer implementation, no runtime writer delivery, no parent action
+  runtime delivery, no provider/store execution, no platform adapter
+  implementation, no child-device delivery, no runtime report delivery, no
+  interception, no child activity data, no app blocking, and no Ocentra-hosted
+  family data custody claims.
+- `scripts/test/app-install-purchase-runtime-writer-delivery-proof.mjs` records
+  that runtime writer delivery boundary proof under
+  `test-results/app-install-purchase-runtime-writer-delivery-proof/proof.json`
+  when run.
 
 ## Current Gap
 
@@ -154,12 +166,14 @@ report compiler status/result refs, and platform adapter readiness refs to
 runtime boundary rows, add child-facing status runtime readiness rows, link
 parent approval actions to those evidence refs, map the actions into runtime
 handoff status rows, and link per-store status handoff rows to adapter
-readiness/manual/unavailable states, but do not implement Google Play, Apple App
-Store, Microsoft Store, billing entitlement, provider/store execution, platform
-interception, runtime status reader, portal approval/report UI, runtime action
-writer execution, parent action runtime delivery, child-device runtime capture,
-child-device delivery, runtime report delivery, runtime app-blocking behavior,
-or production child-device package-source artifact capture.
+readiness/manual/unavailable states, and attach those handoffs to runtime
+writer envelope/manual-required rows, but do not implement Google Play, Apple
+App Store, Microsoft Store, billing entitlement, provider/store execution,
+platform interception, runtime status reader, portal approval/report UI,
+runtime action writer execution, runtime writer delivery, parent action runtime
+delivery, child-device runtime capture, child-device delivery, runtime report
+delivery, runtime app-blocking behavior, or production child-device
+package-source artifact capture.
 
 ## Checklist
 
@@ -222,13 +236,19 @@ or production child-device package-source artifact capture.
       implementation, parent action runtime delivery, child delivery, report
       delivery, interception, child activity data, app blocking, or
       Ocentra-hosted family data custody claims.
+- [x] Runtime writer delivery proof linking parent action runtime handoff rows
+      and per-store status handoff rows to writer envelope/manual-required
+      states without runtime writer implementation, runtime writer delivery,
+      parent action runtime delivery, provider/store execution, platform adapter
+      implementation, child delivery, report delivery, interception, child
+      activity data, app blocking, or Ocentra-hosted family data custody claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
 
 Do not fold this into generic app blocking. The next proof should add production
 child-device package-source capture, real portal approval/report UI, parent
-action runtime delivery, runtime writer delivery, real child delivery,
+action runtime delivery, runtime writer execution, real child delivery,
 provider/store API execution proof, or actual platform adapters before
 upgrading manual-required source rows, child delivery, parent action, store
 status, or report status. If the OS/store does not allow interception, document
