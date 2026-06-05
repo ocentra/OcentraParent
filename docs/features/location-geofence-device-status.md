@@ -146,6 +146,14 @@ expose location or device-status features. Parents expect this category.
   simulator build and simctl install/launch smoke. On non-macOS hosts it writes
   explicit `manual_required` proof instead of pretending simulator execution
   happened.
+- WP31 platform manual-required capability proof now exists through
+  `node scripts/test/tracking-platform-manual-required-proof.mjs`. It records
+  Android and iOS foreground-location, background-location, geofence, and
+  device-status rows as manual-required, authority-required, simulator-package,
+  or emulator-scaffold states, keeps parent-visible and child-safe unavailable
+  copy explicit, and records non-claims for Android foreground location,
+  Android background/geofence, iOS Core Location, iOS background region,
+  physical devices, authority enrollment, and provider delivery.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, actual child-device delivery/runtime
   execution, full parent/child UI beyond the hosted parent route, and broader
@@ -166,13 +174,14 @@ disclosure/safe-help/location-share consent copy, P1 local parent-defined place
 store proof, pre-device proof-gate progress, Android emulator package/service/status
 scaffold proof, P3 WSL/local replay proof, P1 evidence-quality gate proof, WP26
 tracking alert-to-provider-status handoff proof, P1 escalation readiness proof
-for acknowledgement/check-in/manual escalation states, and WP20 Google
-Places/POI provider request/response mapping proof. It remains a tracked
-product gap until platform location and geofence adapters, broader product read
-models, actual live provider execution/delivery, notification receipt ingestion,
-physical-device proof, actual child-device delivery/runtime execution, and full
-parent/child UI snapshots/accessibility beyond the hosted parent route are
-proved.
+for acknowledgement/check-in/manual escalation states, WP20 Google Places/POI
+provider request/response mapping proof, and WP31 manual-required platform
+capability rows for Android/iOS location, background, geofence, and
+device-status states. It remains a tracked product gap until platform location
+and geofence adapters, broader product read models, actual live provider
+execution/delivery, notification receipt ingestion, physical-device proof,
+actual child-device delivery/runtime execution, and full parent/child UI
+snapshots/accessibility beyond the hosted parent route are proved.
 
 ## Checklist
 
@@ -192,6 +201,11 @@ proved.
 - [x] iOS simulator package build/install/launch proof routing. This is not
       Core Location, entitlement, background region, notification, physical-device,
       or child-agent parity proof.
+- [x] WP31 manual-required platform capability proof for Android/iOS
+      foreground-location, background-location, geofence, and device-status
+      rows, with parent-visible/child-safe unavailable copy and explicit
+      no-product-claim states for physical-device, authority, and provider
+      delivery gaps.
 - [ ] iOS entitlement/background proof.
 - [x] Expected-place schedule and exception contracts.
 - [x] Parent acknowledgement and escalation contracts.

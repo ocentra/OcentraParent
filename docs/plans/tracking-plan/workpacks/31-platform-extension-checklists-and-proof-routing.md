@@ -34,6 +34,9 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 - [ ] Keep CI/package proof separate from real device capability proof.
 - [x] Route iOS simulator package build/install/launch proof separately from
       iOS Core Location, background, entitlement, and physical-device claims.
+- [x] Add parent-domain manual-required capability rows for Android/iOS
+      foreground-location, background-location, geofence, and device-status
+      states.
 
 ## Where We Are
 
@@ -53,6 +56,15 @@ non-macOS hosts, and is wired into the macOS package-preview job after the real
 iOS simulator build/install/launch smoke. It keeps Core Location,
 background/region, notification, entitlement, signing, TestFlight/App Store,
 physical-device, and authority behavior as separate manual-required claims.
+
+Manual-required platform capability proof now exists through
+`node scripts/test/tracking-platform-manual-required-proof.mjs`. It validates
+parent-domain rows for Android and iOS foreground location, background location,
+geofence, and device-status capability states, records parent-visible and
+child-safe unavailable copy, keeps every row `productClaimReady=false`, and
+writes `proof.json`, `02-platform-permission-proof.md`,
+`15-manual-platform-proof.md`, and `16-validation-commands.log` under this
+workpack proof root.
 
 ## Where We Want To Be
 
@@ -100,3 +112,19 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Known gaps/manual-required states: Core Location, background/region,
       notifications, entitlements, signing/TestFlight/App Store, physical-device,
       authority, and production proof remain unclaimed.
+- [x] Workpack id and branch: `codex/tracking-platform-manual-required-proof`.
+- [x] Touched files: parent-domain WP31 proof source/test, focused proof
+      script, tracking feature doc, implementation checklist, product
+      capability checklist row, WP31 doc, and generated WP31 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-platform-manual-required-proof.mjs` passes
+      locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`
+      and `test-results/tracking-platform-manual-required-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, central capability
+      checklist row, implementation checklist, and this workpack doc updated.
+- [x] Known gaps/manual-required states: Android foreground/background
+      location, Android geofence, iOS Core Location, iOS background/region,
+      physical-device, authority-enrolled, provider-delivery, and production
+      proof remain unclaimed.

@@ -1,0 +1,154 @@
+{
+  "proofMode": "tracking-platform-manual-required-proof",
+  "generatedAt": "2026-06-05T15:50:00.000Z",
+  "branch": "codex/tracking-platform-manual-required-proof",
+  "commit": "246c7ac3dd7ebaa18c8562904c85cab7c8b14c62",
+  "gitStatusShort": "M  docs/features/location-geofence-device-status.md\nM  docs/plans/tracking-plan/implementation-checklist.md\nM  docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md\nM  docs/product-capability-checklist.md\nA  output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/02-platform-permission-proof.md\nM  output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/15-manual-platform-proof.md\nM  output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/16-validation-commands.log\nA  output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/proof.json\nA  packages/parent-domain/src/tracking-platform-manual-required-proof.ts\nAM packages/parent-domain/tests/tracking-platform-manual-required-proof.test.ts\nA  scripts/test/tracking-platform-manual-required-proof.mjs\nA  test-results/tracking-platform-manual-required-proof/proof.json",
+  "summary": {
+    "rowCount": 8,
+    "manualRequiredCount": 4,
+    "authorityRequiredCount": 2,
+    "productClaimReadyCount": 0,
+    "androidRows": 4,
+    "iosRows": 4,
+    "nonClaims": {
+      "noAndroidForegroundLocationClaim": true,
+      "noAndroidBackgroundGeofenceClaim": true,
+      "noIosCoreLocationClaim": true,
+      "noIosBackgroundRegionClaim": true,
+      "noPhysicalDeviceClaim": true,
+      "noAuthorityEnrolledClaim": true,
+      "noProviderDeliveryClaim": true
+    }
+  },
+  "proof": {
+    "schemaVersion": "v0.5-tracking",
+    "proofMode": "tracking-platform-manual-required-proof",
+    "generatedFrom": "docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md",
+    "rows": [
+      {
+        "capability": "foreground-location",
+        "routeState": "manual-required",
+        "claimState": "manual-required",
+        "proofLevel": "manual-required",
+        "proofArtifactRefs": [
+          "output/tracking-plan-proof/08-android-foreground-location-adapter/manual-required.md"
+        ],
+        "manualRequiredReason": "android-foreground-location-real-device-required",
+        "parentVisibleStatus": "Android foreground location needs permission and adapter evidence before product claims.",
+        "childSafeStatus": "Location sharing is not active until setup and permission proof are complete.",
+        "productClaimReady": false
+      },
+      {
+        "capability": "background-location",
+        "routeState": "background-permission-required",
+        "claimState": "manual-required",
+        "proofLevel": "manual-required",
+        "proofArtifactRefs": [
+          "output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/manual-required.md"
+        ],
+        "manualRequiredReason": "android-background-location-real-device-required",
+        "parentVisibleStatus": "Android background location remains manual-required until real background evidence exists.",
+        "childSafeStatus": "Background location is not claimed without device setup and visible permission proof.",
+        "productClaimReady": false
+      },
+      {
+        "capability": "geofence",
+        "routeState": "real-device-required",
+        "claimState": "manual-required",
+        "proofLevel": "manual-required",
+        "proofArtifactRefs": [
+          "output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/manual-required.md"
+        ],
+        "manualRequiredReason": "android-geofence-real-device-required",
+        "parentVisibleStatus": "Android geofence transitions need real-device background proof before product claims.",
+        "childSafeStatus": "Geofence alerts are not active until device permission and transition proof are complete.",
+        "productClaimReady": false
+      },
+      {
+        "capability": "device-status",
+        "routeState": "contract-proved",
+        "claimState": "proved",
+        "proofLevel": "emulator-scaffold",
+        "proofArtifactRefs": [
+          "test-results/tracking-plan-android-emulator-proof/proof.json"
+        ],
+        "manualRequiredReason": "android-device-status-emulator-scaffold-only",
+        "parentVisibleStatus": "Android package/service/battery/connectivity scaffold proof exists, not location proof.",
+        "childSafeStatus": "Device status scaffold is visible, but location tracking is not active from this proof.",
+        "productClaimReady": false
+      },
+      {
+        "capability": "foreground-location",
+        "routeState": "manual-required",
+        "claimState": "manual-required",
+        "proofLevel": "manual-required",
+        "proofArtifactRefs": [
+          "output/tracking-plan-proof/11-ios-core-location-foreground-adapter/manual-required.md"
+        ],
+        "manualRequiredReason": "ios-core-location-device-required",
+        "parentVisibleStatus": "iOS Core Location needs Mac/device, entitlement, and permission evidence before claims.",
+        "childSafeStatus": "iOS location sharing is not active until Apple-approved setup proof exists.",
+        "productClaimReady": false
+      },
+      {
+        "capability": "background-location",
+        "routeState": "background-permission-required",
+        "claimState": "authority-required",
+        "proofLevel": "authority-required",
+        "proofArtifactRefs": [
+          "output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/manual-required.md"
+        ],
+        "manualRequiredReason": "ios-background-region-entitlement-required",
+        "parentVisibleStatus": "iOS background region monitoring needs entitlement and device proof before claims.",
+        "childSafeStatus": "Background location is not claimed without Apple-approved entitlement and device proof.",
+        "productClaimReady": false
+      },
+      {
+        "capability": "geofence",
+        "routeState": "real-device-required",
+        "claimState": "authority-required",
+        "proofLevel": "authority-required",
+        "proofArtifactRefs": [
+          "output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/manual-required.md"
+        ],
+        "manualRequiredReason": "ios-region-monitoring-entitlement-required",
+        "parentVisibleStatus": "iOS region/geofence behavior remains authority-required until entitlement proof exists.",
+        "childSafeStatus": "Geofence alerts are not active on iOS until approved device proof exists.",
+        "productClaimReady": false
+      },
+      {
+        "capability": "device-status",
+        "routeState": "not-claimed",
+        "claimState": "not-claimed",
+        "proofLevel": "simulator-package",
+        "proofArtifactRefs": [
+          "test-results/tracking-plan-ios-simulator-proof/proof.json"
+        ],
+        "manualRequiredReason": "ios-simulator-package-mechanics-only",
+        "parentVisibleStatus": "iOS simulator package proof exists, but child-device status runtime is not claimed.",
+        "childSafeStatus": "The iOS package can be routed for proof, but child-device tracking is not active.",
+        "productClaimReady": false
+      }
+    ],
+    "nonClaims": {
+      "noAndroidForegroundLocationClaim": true,
+      "noAndroidBackgroundGeofenceClaim": true,
+      "noIosCoreLocationClaim": true,
+      "noIosBackgroundRegionClaim": true,
+      "noPhysicalDeviceClaim": true,
+      "noAuthorityEnrolledClaim": true,
+      "noProviderDeliveryClaim": true
+    }
+  },
+  "commands": [
+    "2026-06-05T16:14:08.445Z cmd /c npm run build --workspace @ocentra-parent/parent-domain PASS",
+    "2026-06-05T16:14:12.751Z cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-platform-manual-required-proof PASS"
+  ],
+  "knownGaps": [
+    "Android foreground location needs real permission and adapter evidence.",
+    "Android background location and geofence transition proof need real device evidence.",
+    "iOS Core Location and region monitoring need Mac/device, entitlement, and permission evidence.",
+    "Physical-device, authority-enrolled, provider-delivery, and production claims remain unproved."
+  ]
+}

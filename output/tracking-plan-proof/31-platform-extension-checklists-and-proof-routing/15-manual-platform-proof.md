@@ -1,4 +1,9 @@
-# 31-platform-extension-checklists-and-proof-routing Manual Platform Proof
+# WP31 Manual Platform Proof
 
-This focused proof does not claim Android/iOS background tracking, foreground samples, real geofence delivery, provider delivery, UI completion, or precise desktop location.
-Platform rows remain manual-required or real-device-required until real device, entitlement, permission, store/privacy, and screenshot evidence is attached.
+- Branch: codex/tracking-platform-manual-required-proof
+- Commit: 246c7ac3dd7ebaa18c8562904c85cab7c8b14c62
+- Android foreground/background/geofence tracking remains manual-required before real device proof.
+- Android device-status rows are emulator-scaffold only and do not prove location.
+- iOS Core Location and background region monitoring remain entitlement/device proof gates.
+- iOS simulator package routing is package mechanics only and does not prove child tracking runtime.
+- No physical-device, authority-enrolled, provider-delivery, or production capability is claimed.
