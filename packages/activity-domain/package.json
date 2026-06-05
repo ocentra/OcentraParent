@@ -205,6 +205,10 @@
       "import": "./dist/screen-evidence.js",
       "types": "./dist/screen-evidence.d.ts"
     },
+    "./screen-child-disclosure-ux": {
+      "import": "./dist/screen-child-disclosure-ux.js",
+      "types": "./dist/screen-child-disclosure-ux.d.ts"
+    },
     "./screen-ai-browser-trigger-proof": {
       "import": "./dist/screen-ai-browser-trigger-proof.js",
       "types": "./dist/screen-ai-browser-trigger-proof.d.ts"
