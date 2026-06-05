@@ -2,7 +2,7 @@
   "proofMode": "tracking-authority-hard-control-proof",
   "generatedAt": "2026-06-05T19:30:00.000Z",
   "branch": "codex/tracking-authority-hard-control-proof",
-  "baseCommitAtGeneration": "190941a06b59c06c6cad08a93c9dc78a79f73e39",
+  "baseCommitAtGeneration": "5ea1bcc11ba530bcf6b888ba0e614e202a059f85",
   "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
