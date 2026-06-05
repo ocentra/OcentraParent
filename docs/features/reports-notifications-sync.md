@@ -120,6 +120,12 @@ custody.
   manual-required and unavailable states, preserving scheduler/outbox/provider
   refs while keeping delivery, receipt, credential, runtime, UI, child delivery,
   adapter dispatch, broad-blocking, and platform claims false.
+- App/game notification preference-status handoff proof now maps preference
+  preflight rows into V3 notification preference and quiet-hours status entries,
+  preserving scheduler/outbox/provider/reason/preference/quiet-hours refs while
+  keeping parent preference UI, notification UI, delivery, receipt, credential,
+  runtime, child delivery, adapter dispatch, broad-blocking, and platform claims
+  false.
 - Tracking provider-notification proof now maps tracking location/geofence alert
   intents from the tracking policy read model into existing V0.8 provider-status
   boundary rows. It preserves tracking evidence refs, policy decision refs,
@@ -225,6 +231,13 @@ provider-preflight-to-provider-status rows for app/game alerts, but does not
 claim provider delivery, receipt ingestion, credentials, production retry
 workers, production quiet-hours timer execution, durable production outbox
 storage, parent UI/history/preferences, child delivery, adapter dispatch, broad
+blocking, or platform support.
+The app/game notification preference-status handoff proof adds deterministic
+preference-preflight-to-V3 preference/quiet-hours status rows for app/game
+alerts, but does not claim parent preference UI, frequency controls, parent
+notification UI/history/preferences, provider delivery, receipt ingestion,
+credentials, production retry workers, production quiet-hours timer execution,
+durable production outbox storage, child delivery, adapter dispatch, broad
 blocking, or platform support.
 The tracking provider-notification proof adds deterministic
 tracking-alert-to-provider-status rows for location/geofence alerts, but does
@@ -340,6 +353,11 @@ delivery, policy writes, or child-device enforcement.
       preflight rows becoming V0.8 provider-status manual-required/unavailable
       rows, while delivery, receipts, credentials, runtime, UI, child delivery,
       adapter dispatch, broad blocking, and platform claims remain false.
+- [x] App/game notification preference-status handoff proof exists with
+      preference preflight rows becoming V3 parent preference/quiet-hours status
+      entries, while parent preference UI, delivery, receipts, credentials,
+      runtime, UI, child delivery, adapter dispatch, broad blocking, and
+      platform claims remain false.
 - [x] Tracking provider-notification proof exists with tracking alert intents
       becoming V0.8 provider-status manual-required/unavailable rows, while
       provider delivery, receipts, credentials, runtime, parent UI,
@@ -405,6 +423,13 @@ notification runtime. Treat
 parent-domain app/game parent preference preflight proof only; require
 parent-visible history/preferences UI, frequency controls, real provider
 adapters, credentials and secret review, production send/retry workers,
+production quiet-hours timers, receipt ingestion, durable production storage,
+child delivery proof, and provider smoke proof before claiming app/game
+notification delivery or product notification runtime. Treat
+`scripts/test/app-game-notification-preference-status-handoff-proof.mjs` as
+parent-domain app/game notification preference/quiet-hours status handoff proof
+only; require parent-visible history/preferences UI, frequency controls, real
+provider adapters, credentials and secret review, production send/retry workers,
 production quiet-hours timers, receipt ingestion, durable production storage,
 child delivery proof, and provider smoke proof before claiming app/game
 notification delivery or product notification runtime. Treat

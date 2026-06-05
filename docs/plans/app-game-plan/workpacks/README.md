@@ -65,7 +65,8 @@ before `DONE` or PR-ready reporting.
 56. WP62 app/game notification parent preference preflight boundary.
 57. WP63 app/game source freshness source-panel intent seam.
 58. WP64 app/game notification provider status handoff.
-59. WP70 app/game policy preview handoff.
+59. WP65 app/game notification parent preference status handoff.
+60. WP70 app/game policy preview handoff.
 
 ## Standard AI Worker Checklist
 

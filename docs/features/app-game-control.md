@@ -235,6 +235,11 @@ control with better evidence and local audit.
   manual-required and unavailable rows, preserving scheduler/outbox/provider
   refs and keeping delivery, receipt, credential, UI, child delivery, runtime,
   adapter, broad-blocking, and platform claims false.
+- The app/game notification preference-status handoff now maps preference
+  preflight rows into V3 notification preference and quiet-hours status entries,
+  preserving scheduler/outbox/provider/reason/preference/quiet-hours refs while
+  keeping parent preference UI, notification UI, delivery, receipt, credential,
+  child delivery, runtime, adapter, broad-blocking, and platform claims false.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -424,6 +429,13 @@ does not provide provider delivery, provider receipt ingestion, credentials,
 production retry workers, quiet-hours timer runtime, durable production outbox
 storage, parent notification UI/history/preferences, child delivery, policy
 evaluator execution, adapter dispatch, broad blocking, or platform support.
+The app/game notification preference-status handoff proof maps preference
+preflight rows into V3 notification preference/quiet-hours status entries, but
+it does not provide parent preference UI, frequency controls, parent
+notification UI, provider delivery, provider receipt ingestion, credentials,
+production retry workers, quiet-hours timer runtime, durable production outbox
+storage, child delivery, policy evaluator execution, adapter dispatch, broad
+blocking, or platform support.
 
 ## Checklist
 
@@ -512,6 +524,11 @@ evaluator execution, adapter dispatch, broad blocking, or platform support.
       manual-required/unavailable boundary rows while provider delivery,
       receipts, credentials, UI, child delivery, runtime, adapter dispatch,
       broad blocking, and platform claims remain false.
+      The preference-status handoff maps preference preflight rows into V3
+      notification preference/quiet-hours manual-required or disabled status
+      entries while parent preference UI, parent notification UI, delivery,
+      receipts, credentials, child delivery, runtime, adapter dispatch, broad
+      blocking, and platform claims remain false.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
