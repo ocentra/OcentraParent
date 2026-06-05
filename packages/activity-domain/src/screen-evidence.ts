@@ -5,3 +5,5 @@ export * from './screen-evidence-settings-ui-proof';
 export * from './screen-evidence-queue';
 export * from './screen-evidence-result';
 export * from './screen-evidence-read-model';
+export * from './screen-evidence-resource-scheduler';
+export * from './screen-evidence-resource-scheduler-proof';
