@@ -35,6 +35,11 @@ const securityLogPath = path.join(workpack30, '13-security-negative-proof.log');
 const validationLogPath = path.join(workpack30, '16-validation-commands.log');
 const desktopScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-live-summary.png');
 const mobileScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-live-summary-mobile.png');
+const childCheckInScreenshot = path.join(
+  workpack30,
+  '11-ui-snapshots',
+  'hosted-policy-tracking-child-check-in.png'
+);
 const accessibilitySummaryPath = path.join(proofResultDir, 'accessibility-summary.json');
 const runRoot = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-tracking-hosted-ui-'));
 const devLogDir = path.join(runRoot, 'dev-log');
@@ -348,6 +353,7 @@ async function writeProof(playwright) {
       validationCommands: relativePath(validationLogPath),
       desktopScreenshot: relativePath(desktopScreenshot),
       mobileScreenshot: relativePath(mobileScreenshot),
+      childCheckInScreenshot: relativePath(childCheckInScreenshot),
       accessibilitySummary: relativePath(accessibilitySummaryPath),
     },
     accessibilitySummary,
@@ -356,6 +362,7 @@ async function writeProof(playwright) {
       'This proof does not claim Android or iOS physical background tracking behavior.',
       'This proof does not claim real physical-device location, geofence, provider, or notification delivery.',
       'This proof uses a seeded temporary ActivityStore SQLite database to prove hosted portal rendering against the real Rust service command.',
+      'This proof renders child-safe check-in copy but does not claim child-device delivery or child-device runtime UI.',
       'This proof does not claim full child-device UI or authority-enrolled hard-control readiness.',
     ],
     remainingGapsBeforeProductReady: [
@@ -375,6 +382,7 @@ async function writeProof(playwright) {
       'asserted=no browser console or page errors',
       'asserted=no product-ready or physical-device-proved route copy',
       'asserted=manual proof required and physical device proof required labels visible',
+      'asserted=child check-in copy and actions visible without child-device delivery claim',
       'asserted=productClaimReady=false',
     ].join('\n') + '\n'
   );
