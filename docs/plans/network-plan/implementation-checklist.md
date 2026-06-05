@@ -86,10 +86,20 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       family-hub delivery unimplemented.
 - [ ] `11-manual-platform-proof.md`: OS/device/permission details, exact manual
       steps, screenshots/logs, and manual-required labels for platform claims.
-- [ ] `11a-hardening-support-proof.md`: key rotation, secret handling,
+- [x] `11a-hardening-support-proof.md`: key rotation, secret handling,
       rule/model provenance and rollback, external audit or pen-test signoff
       for production claims, parent/user guide, FAQ, support playbook, and
       staff-training proof when release/support claims are touched.
+      E-D row11a proof now writes
+      `output/network-plan-proof/11a-hardening-support-proof/11a-hardening-support-proof.md`,
+      `output/network-plan-proof/11a-hardening-support-proof/proof-summary.json`,
+      and `test-results/network-hardening-support-proof/proof.json` by running
+      the existing network readiness tests. The proof records required
+      key/secret, rule/model provenance, rollback, guide, FAQ, support playbook,
+      staff-training, staged rollout, incident, known-gap, and external
+      audit/pen-test signoff refs while keeping production deployment, external
+      audit execution, default evidence upload, policy authority, adapter
+      authority, and enforcement commands unclaimed.
 - [ ] `12-validation-commands.log`: focused validation plus any requested
       `npm run validate`/`ci:local`/manual command output.
 
