@@ -4,7 +4,7 @@ Existing contract proof rejects precise coordinates from LAN/Wi-Fi/IP/manual/unk
 Existing contract proof keeps AI location analysis as evidence only and prevents direct alert/final-authority claims.
 Existing contract proof keeps remote AI data disabled unless the route is parent-approved remote.
 tracking policy escalation runtime negative proof
-checkedAt=2026-06-05T02:53:55.331Z
+checkedAt=2026-06-05T04:07:23.141Z
 providerDeliveryAttempted=true is rejected by TrackingPolicyEscalationRuntimeOutcomeSchema
 emergencyContactClaimed=true is rejected by TrackingPolicyEscalationRuntimeOutcomeSchema
 deviceRuntimeClaimed=true is rejected by TrackingPolicyEscalationRuntimeOutcomeSchema

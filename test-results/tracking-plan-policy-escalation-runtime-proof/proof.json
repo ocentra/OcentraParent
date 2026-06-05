@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T02:53:55.331Z",
-  "commit": "acbef887bbb083ae2d7ce524f11ae867f43e52fb",
+  "checkedAt": "2026-06-05T04:07:23.141Z",
+  "commit": "1f367a0731be53e57349401144dfa8703201d83c",
   "proofMode": "tracking-plan-policy-escalation-runtime-proof",
   "requiredProofTier": "P1_FIXTURE_SIMULATION",
   "currentProofTier": "P1_FIXTURE_SIMULATION",
