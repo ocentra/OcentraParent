@@ -16,6 +16,7 @@ const sourceMergeBase = runText('git', ['merge-base', 'HEAD', 'origin/main']).tr
 const sourceStatusShort = runText('git', ['status', '--short']);
 
 const proofScripts = [
+  'eventing-runtime-proof.mjs',
   'eventing-branded-fixture-parity-proof.mjs',
   'eventing-command-boundary-proof.mjs',
   'eventing-compatibility-matrix-proof.mjs',
@@ -41,7 +42,6 @@ const proofScripts = [
   'eventing-production-shutdown-proof.mjs',
   'eventing-queue-policy-proof.mjs',
   'eventing-request-response-proof.mjs',
-  'eventing-runtime-proof.mjs',
   'eventing-runtime-lifecycle-proof.mjs',
   'eventing-metrics-testkit-proof.mjs',
   'eventing-source-safety-proof.mjs',
