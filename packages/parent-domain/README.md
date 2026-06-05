@@ -60,9 +60,9 @@ mobile readiness, and control catalogs.
   retention for local safety, and no cloud/provider/UI/custody overclaims.
 - App install/purchase runtime proof boundary contracts that link platform/store
   metadata requirements, package-source artifact requirements, child
-  pending/result delivery rows, and report integration rows while keeping
-  provider/store, child-device delivery, runtime report delivery, and app
-  blocking unclaimed.
+  pending/result delivery rows, report integration rows, and child status
+  runtime readiness rows while keeping provider/store, runtime status reader,
+  child-device delivery, runtime report delivery, and app blocking unclaimed.
 - App install/purchase platform artifact proof contracts that attach
   parent-owned platform/store metadata artifact refs and report-runtime evidence
   refs to the existing runtime boundary while keeping provider/store APIs,
@@ -179,11 +179,12 @@ flowchart LR
 - Store/install approval and purchase controls now have contract, package-source
   artifact, runtime-boundary, platform-artifact, child-artifact-delivery, and
   approved API/entitlement evidence plus report-runtime status, platform
-  adapter boundary, parent review action, parent action runtime handoff, and
-  store status handoff proof; platform/store provider execution, actual platform adapters,
-  production child-device package capture, child delivery, portal UX, runtime
-  action writer execution, parent action runtime delivery, and report runtime
-  writer/delivery remain unimplemented.
+  adapter boundary, parent review action proof, child status runtime readiness
+  proof, parent action runtime handoff, and store status handoff proof;
+  platform/store provider execution, actual platform adapters, production
+  child-device package capture, runtime status reader, child delivery, portal
+  UX, runtime action writer execution, parent action runtime delivery, and report
+  runtime writer/delivery remain unimplemented.
 - Billing/subscription provider integration, account backend, entitlement
   signing/delivery runtime, provider-contact execution, entitlement admin
   override runtime, refund/credit runtime, portal billing/admin UI, support

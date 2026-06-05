@@ -33,8 +33,11 @@ async function main() {
     platformRows: 5,
     childDeliveryRows: 5,
     reportIntegrationRows: 4,
+    statusReadinessRows: 5,
     boundaryOnlyRows: 5,
     unavailablePlatformRows: 1,
+    statusReadinessOnlyRows: 5,
+    statusReaderImplementedRows: 0,
   });
   assert.deepEqual(
     parsedReadModel.platformRuntimeArtifacts.map(
@@ -56,8 +59,21 @@ async function main() {
     parsedReadModel.reportIntegrationBoundaries.map((row) => row.runtimeReportClaim),
     ['not-delivered', 'not-delivered', 'not-delivered', 'not-delivered']
   );
+  assert.deepEqual(
+    parsedReadModel.statusReadinessBoundaries.map(
+      (row) => `${row.childVisibleStatus}:${row.statusReadinessClaim}:${row.runtimeStatusReaderClaim}`
+    ),
+    [
+      'pending-parent-review-visible:runtime-status-readiness-only:not-implemented',
+      'approved-visible:runtime-status-readiness-only:not-implemented',
+      'denied-visible:runtime-status-readiness-only:not-implemented',
+      'time-box-visible:runtime-status-readiness-only:not-implemented',
+      'review-needed-visible:runtime-status-readiness-only:not-implemented',
+    ]
+  );
   assert.equal(parsedReadModel.nonClaims.includes('no-child-device-delivery'), true);
   assert.equal(parsedReadModel.nonClaims.includes('no-runtime-report-delivery'), true);
+  assert.equal(parsedReadModel.nonClaims.includes('no-runtime-status-reader-implementation'), true);
   assert.equal(parsedReadModel.nonClaims.includes('not-generic-app-blocking'), true);
 
   const proof = {
@@ -96,6 +112,26 @@ async function main() {
       childVisibleStatus: row.childVisibleStatus,
       deliveryState: row.deliveryState,
       runtimeDeliveryClaim: row.runtimeDeliveryClaim,
+      auditEventRefs: row.auditEventRefs,
+      reportRefs: row.reportRefs,
+      claimBoundary: row.claimBoundary,
+    })),
+    statusReadinessBoundaries: parsedReadModel.statusReadinessBoundaries.map((row) => ({
+      childVisibleStatus: row.childVisibleStatus,
+      sourceChildStateId: row.sourceChildStateId,
+      sourceRequestId: row.sourceRequestId,
+      requestKind: row.requestKind,
+      platform: row.platform,
+      sourceApprovalState: row.sourceApprovalState,
+      sourceDeliveryState: row.sourceDeliveryState,
+      sourceRuntimeDeliveryClaim: row.sourceRuntimeDeliveryClaim,
+      statusReadinessClaim: row.statusReadinessClaim,
+      runtimeStatusReaderClaim: row.runtimeStatusReaderClaim,
+      childDeliveryClaim: row.childDeliveryClaim,
+      reportRuntimeDeliveryClaim: row.reportRuntimeDeliveryClaim,
+      storeIntegrationClaim: row.storeIntegrationClaim,
+      platformAdapterClaim: row.platformAdapterClaim,
+      appBlockingClaim: row.appBlockingClaim,
       auditEventRefs: row.auditEventRefs,
       reportRefs: row.reportRefs,
       claimBoundary: row.claimBoundary,

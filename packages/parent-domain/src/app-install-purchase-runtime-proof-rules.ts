@@ -27,6 +27,7 @@ type AppInstallPurchaseRuntimeReportSurface =
 type AppInstallPurchaseRuntimeNonClaim =
   | 'no-store-integration'
   | 'no-billing-entitlement-logic'
+  | 'no-runtime-status-reader-implementation'
   | 'no-platform-adapter'
   | 'no-child-device-delivery'
   | 'no-runtime-report-delivery'
@@ -76,11 +77,28 @@ interface AppInstallPurchaseRuntimeReportIntegrationRow {
   readonly claimBoundary: AppInstallPurchaseRuntimeClaimBoundary;
 }
 
+interface AppInstallPurchaseRuntimeStatusReadinessRow {
+  readonly childVisibleStatus: AppInstallPurchaseRuntimeChildVisibleStatus;
+  readonly sourceDeliveryState: AppInstallPurchaseRuntimeDeliveryState;
+  readonly sourceRuntimeDeliveryClaim: 'not-delivered';
+  readonly statusReadinessClaim: 'runtime-status-readiness-only';
+  readonly runtimeStatusReaderClaim: 'not-implemented';
+  readonly childDeliveryClaim: 'not-delivered';
+  readonly reportRuntimeDeliveryClaim: 'not-delivered';
+  readonly storeIntegrationClaim: 'not-claimed';
+  readonly platformAdapterClaim: 'not-implemented';
+  readonly appBlockingClaim: 'not-claimed';
+  readonly auditEventRefs: readonly unknown[];
+  readonly reportRefs: readonly unknown[];
+  readonly claimBoundary: AppInstallPurchaseRuntimeClaimBoundary;
+}
+
 interface AppInstallPurchaseRuntimeProof {
   readonly sourceContractSchemaVersion: 'app-install-purchase-approval-contract-proof';
   readonly platformRuntimeArtifacts: readonly AppInstallPurchaseRuntimePlatformArtifactRow[];
   readonly childDeliveryBoundaries: readonly AppInstallPurchaseRuntimeChildDeliveryRow[];
   readonly reportIntegrationBoundaries: readonly AppInstallPurchaseRuntimeReportIntegrationRow[];
+  readonly statusReadinessBoundaries: readonly AppInstallPurchaseRuntimeStatusReadinessRow[];
   readonly nonClaims: readonly AppInstallPurchaseRuntimeNonClaim[];
   readonly knownGaps: readonly unknown[];
 }
@@ -108,6 +126,7 @@ const RequiredReportSurfaces = [
 const RequiredNonClaims = [
   'no-store-integration',
   'no-billing-entitlement-logic',
+  'no-runtime-status-reader-implementation',
   'no-platform-adapter',
   'no-child-device-delivery',
   'no-runtime-report-delivery',
@@ -122,6 +141,7 @@ export function appInstallPurchaseRuntimeProofIsHonest(proof: AppInstallPurchase
     platformRuntimeArtifactRowsAreComplete(proof.platformRuntimeArtifacts) &&
     childDeliveryRowsAreComplete(proof.childDeliveryBoundaries) &&
     reportIntegrationRowsAreComplete(proof.reportIntegrationBoundaries) &&
+    statusReadinessRowsAreComplete(proof.statusReadinessBoundaries) &&
     nonClaimsAreComplete(proof.nonClaims) &&
     proof.knownGaps.length > 0
   );
@@ -162,6 +182,25 @@ export function appInstallPurchaseRuntimeReportIntegrationRowIsHonest(
   );
 }
 
+export function appInstallPurchaseRuntimeStatusReadinessRowIsHonest(
+  row: AppInstallPurchaseRuntimeStatusReadinessRow
+): boolean {
+  return (
+    row.sourceDeliveryState === 'manual-required' &&
+    row.sourceRuntimeDeliveryClaim === 'not-delivered' &&
+    row.statusReadinessClaim === 'runtime-status-readiness-only' &&
+    row.runtimeStatusReaderClaim === 'not-implemented' &&
+    row.childDeliveryClaim === 'not-delivered' &&
+    row.reportRuntimeDeliveryClaim === 'not-delivered' &&
+    row.storeIntegrationClaim === 'not-claimed' &&
+    row.platformAdapterClaim === 'not-implemented' &&
+    row.appBlockingClaim === 'not-claimed' &&
+    row.auditEventRefs.length > 0 &&
+    row.reportRefs.length > 0 &&
+    statusReadinessBoundaryIsExplicit(row.claimBoundary)
+  );
+}
+
 function platformRuntimeArtifactRowsAreComplete(
   rows: readonly AppInstallPurchaseRuntimePlatformArtifactRow[]
 ): boolean {
@@ -189,6 +228,15 @@ function reportIntegrationRowsAreComplete(rows: readonly AppInstallPurchaseRunti
     rows.length === RequiredReportSurfaces.length &&
     RequiredReportSurfaces.every((surface) => surfaces.has(surface)) &&
     rows.every((row) => appInstallPurchaseRuntimeReportIntegrationRowIsHonest(row))
+  );
+}
+
+function statusReadinessRowsAreComplete(rows: readonly AppInstallPurchaseRuntimeStatusReadinessRow[]): boolean {
+  const statuses = new Set(rows.map((row) => row.childVisibleStatus));
+  return (
+    rows.length === RequiredChildStatuses.length &&
+    RequiredChildStatuses.every((status) => statuses.has(status)) &&
+    rows.every((row) => appInstallPurchaseRuntimeStatusReadinessRowIsHonest(row))
   );
 }
 
@@ -222,10 +270,23 @@ function availablePlatformRuntimeRowIsHonest(row: AppInstallPurchaseRuntimePlatf
 
 function runtimeBoundaryIsExplicit(boundary: AppInstallPurchaseRuntimeClaimBoundary): boolean {
   return (
+    boundary.includes('no runtime status reader implementation') &&
     boundary.includes('no store integration') &&
     boundary.includes('no platform adapter') &&
     boundary.includes('no child-device delivery') &&
     boundary.includes('no runtime report delivery') &&
+    boundary.includes('no real install or purchase interception') &&
+    boundary.includes('not generic app blocking')
+  );
+}
+
+function statusReadinessBoundaryIsExplicit(boundary: AppInstallPurchaseRuntimeClaimBoundary): boolean {
+  return (
+    boundary.includes('no runtime status reader implementation') &&
+    boundary.includes('no child-device delivery') &&
+    boundary.includes('no runtime report delivery') &&
+    boundary.includes('no store integration') &&
+    boundary.includes('no platform adapter') &&
     boundary.includes('no real install or purchase interception') &&
     boundary.includes('not generic app blocking')
   );
