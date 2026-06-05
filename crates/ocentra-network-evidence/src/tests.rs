@@ -21,6 +21,7 @@ mod process;
 mod transfer;
 mod tunnel;
 mod visibility;
+mod windows_firewall_adapter;
 
 #[test]
 fn deterministic_pcap_replay_extracts_metadata_only_dns_query() {

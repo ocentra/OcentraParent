@@ -66,11 +66,18 @@ redirect apply-readiness only when grade-A policy, parent rule, evidence,
 supported capability, adapter authorization, apply/result, rollback, and audit
 refs are all present. Dry-run, weak evidence, manual-required, and unavailable
 states are non-executable, and exact URL, decrypted payload, page content, host
-DNS mutation, and enforcement-command claims are rejected.
+DNS mutation, and enforcement-command claims are rejected. The Windows Firewall
+adapter proof boundary models block apply-readiness only when grade-A policy,
+parent rule, evidence, target/rule, supported capability, adapter authorization,
+apply/result, rollback, and audit refs are all present. Dry-run, weak evidence,
+non-block policy actions, manual-required, and unavailable states are
+non-executable, and exact URL, decrypted payload, page content, live firewall
+mutation, netsh or PowerShell invocation, and enforcement-command claims are
+rejected.
 
 Live Npcap/libpcap capture, full vendor category feeds, analyzer comparison,
 production CDN intelligence, unmanaged browser URL correlation, foreground
 session correlation, live network adapter enforcement, file/content inspection,
 local-AI model execution/worker runtime, full policy engine execution,
-notification provider delivery, live adapter execution, and portal rendering remain
-separate proof-gated workpacks.
+notification provider delivery, live adapter execution, and portal rendering
+remain separate proof-gated workpacks.

@@ -19,6 +19,7 @@ pub mod process;
 pub mod tls;
 pub mod transfer;
 pub mod tunnel;
+pub mod windows_firewall_adapter;
 
 mod process_support;
 
@@ -117,4 +118,11 @@ pub use tunnel::{
     classify_vpn_proxy_tunnel_activity, NetworkTunnelBasis, NetworkTunnelClassification,
     NetworkTunnelClassifierError, NetworkTunnelClassifierInput, NetworkTunnelIndicator,
     NetworkTunnelIndicatorEvidence, NetworkTunnelKind,
+};
+pub use windows_firewall_adapter::{
+    plan_network_windows_firewall_adapter_proof, NetworkWindowsFirewallAdapterAction,
+    NetworkWindowsFirewallAdapterProof, NetworkWindowsFirewallAdapterProofError,
+    NetworkWindowsFirewallAdapterProofInput, NetworkWindowsFirewallBoundaryReason,
+    NetworkWindowsFirewallCapabilityState, NetworkWindowsFirewallProofState,
+    NetworkWindowsFirewallRequiredArtifact, NetworkWindowsFirewallTargetKind,
 };

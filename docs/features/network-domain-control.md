@@ -211,11 +211,12 @@ ordering, typed in-process parent/controller to child-agent handoff, and
 cross-slice evidence bundle construction after cascade routing, plus
 network-triggered local-AI queue planning with refs-only AI inputs,
 evidence-grade policy handoff mapping, parent notification candidate mapping,
-and a proof-gated DNS adapter apply/result/rollback/audit boundary. Analyzer
-fixtures, broker/family-hub delivery, local-AI model execution/worker runtime,
-full policy engine execution, notification provider delivery, broader
-parent-facing rule UX, live host DNS mutation/proxy installation, and platform
-adapter execution remain open.
+and proof-gated DNS and Windows Firewall adapter apply/result/rollback/audit
+boundaries. Analyzer fixtures, broker/family-hub delivery, local-AI model
+execution/worker runtime, full policy engine execution, notification provider
+delivery, broader parent-facing rule UX, live host DNS mutation/proxy
+installation, live Windows Firewall mutation, and platform adapter execution
+remain open.
 
 ## Checklist
 
@@ -259,6 +260,10 @@ adapter execution remain open.
       Row37 DNS adapter proof now models apply-ready, dry-run,
       manual-required, and unavailable states with required apply/result/
       rollback/audit refs while refusing host mutation and enforcement command
+      claims. Row38 Windows Firewall adapter proof now models apply-ready,
+      dry-run, manual-required, and unavailable states with required
+      target/rule refs plus apply/result/rollback/audit refs while refusing
+      live firewall mutation, command invocation, and enforcement command
       claims. Production analyzer, AI model execution, broker/family-hub
       delivery, broader service wiring, full policy engine execution,
       notification delivery, and risk-budget fixtures remain.
@@ -268,15 +273,22 @@ adapter execution remain open.
       unsupported-claim states without publishing policy or adapter commands.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
-      Row37 DNS adapter proof models supported/manual-required/unavailable
-      capability states for the DNS adapter boundary, but broader platform
-      capability status and parent UI surfacing remain open.
+      Row37 DNS adapter and Row38 Windows Firewall proofs model supported/
+      manual-required/unavailable capability states for their adapter
+      boundaries, but broader platform capability status and parent UI
+      surfacing remain open.
 - [x] DNS proxy/block/redirect adapter proof boundary.
       The Rust proof accepts apply-ready only with grade-A policy, parent-rule
       refs, evidence refs, supported capability, adapter authorization,
       apply/result/rollback artifacts, and audit refs; dry-run/manual/
       unavailable states remain non-executable and host DNS mutation is not
       claimed.
+- [x] Windows Firewall adapter proof boundary.
+      The Rust proof accepts apply-ready only with grade-A block policy,
+      parent-rule refs, evidence refs, target/rule refs, supported capability,
+      adapter authorization, apply/result/rollback artifacts, and audit refs;
+      dry-run/manual/unavailable states remain non-executable and live
+      firewall mutation or command invocation is not claimed.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.
 - [ ] Real block/terminate/unavailable result.
 - [x] No decrypted payload/page-content claim at the network contract boundary.
