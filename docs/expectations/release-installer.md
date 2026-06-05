@@ -61,6 +61,14 @@ Release features are product features because parents need install/update paths 
   execution, child-activity custody, provider secrets, account lookup, billing
   provider contact, remote support sessions, production SLA, and default
   Ocentra-hosted family data unclaimed.
+- V8 production support backend upload custody/audit proof that records custody
+  boundary, retention manual-required, delete request, deletion
+  manual-required, and support-safe audit export readiness rows with status
+  refs, runtime refs, custody refs, retention/delete refs, and manual proof
+  requirements while keeping real backend execution, backend payload retention,
+  backend payload deletion, child-activity custody, provider secrets, account
+  lookup, billing provider contact, remote support sessions, production SLA, and
+  default Ocentra-hosted family data unclaimed.
 
 ## Acceptance
 
@@ -150,6 +158,14 @@ Release features are product features because parents need install/update paths 
   support backend upload execution, account lookup execution, billing provider
   contact execution, remote support session execution, default Ocentra-hosted
   family data, or production SLA.
+- `production-support-backend-upload-custody-audit-proof` may prove
+  custody/audit boundary rows for custody recording, retention manual-required,
+  delete request, deletion manual-required, and support-safe audit export
+  readiness, but it must not claim raw child activity custody, provider secrets,
+  remote support transcripts, real support backend upload execution, backend
+  payload retention, backend payload deletion, account lookup execution, billing
+  provider contact execution, remote support session execution, default
+  Ocentra-hosted family data, or production SLA.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play
