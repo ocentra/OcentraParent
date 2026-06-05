@@ -209,6 +209,15 @@ dev-only repo when it claims consumer readiness.
   override runtime, refund/credit runtime, support backend upload, and portal
   admin UI unimplemented, and excludes child activity custody while retaining
   evidence export and local safety behavior.
+- `billing-support-admin-status-proof` adds parent-domain billing support/admin
+  status rows for parent-visible case triage, account review, escalation,
+  provider-contact manual-required, entitlement-override manual-required,
+  refund-credit manual-required, and resolution-update readiness states. It links
+  the rows back to the billing support/admin boundary, entitlement,
+  device-limit, and failure-state proofs while preserving non-claims for real
+  provider contact, account lookup execution, entitlement override,
+  refund/credit runtime, portal admin UI, support backend upload, production
+  billing support execution, and child activity custody.
 - `billing-entitlement-runtime-proof` adds parent-domain runtime/status
   consumption rows for account entitlement snapshots, device-limit decisions,
   and billing failure states. It proves local status consumption of active,
@@ -283,6 +292,11 @@ package/runtime proof.
       entitlement override manual-required, and refund/credit manual-required
       states without adding provider contact, account backend admin runtime,
       portal admin UI, support upload, or child-activity custody.
+      `billing-support-admin-status-proof` adds parent-visible billing
+      support/admin status and resolution-update proof rows while preserving
+      provider contact, account lookup execution, entitlement override,
+      refund/credit runtime, portal admin UI, support backend upload, and
+      child-activity custody as explicit non-claims.
       `billing-entitlement-runtime-proof` adds runtime/status consumption proof
       for account entitlement snapshots, device-limit decisions, and billing
       failure states while keeping live provider execution, provider contact,

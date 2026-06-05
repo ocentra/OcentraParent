@@ -66,6 +66,11 @@ mobile readiness, and control catalogs.
   account-status review, billing escalation request, provider-contact/manual,
   entitlement-admin-override/manual, refund-credit/manual states, redaction
   audit refs, and no provider/backend/admin runtime claims.
+- `billing-support-admin-status-proof` contracts for parent-visible billing
+  support/admin status rows, resolution-update readiness, manual-proof refs,
+  evidence export retention, and explicit non-claims for provider contact,
+  account lookup execution, entitlement override, refund/credit runtime, portal
+  admin UI, support backend upload, and child activity custody.
 - `production-support-publication-workflow-proof` contracts for public privacy
   policy publication, privacy/legal disclosure execution, support runbook
   publication, support incident status publication, support backend upload

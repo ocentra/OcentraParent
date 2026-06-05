@@ -142,6 +142,17 @@ portal admin UI, and child activity custody unimplemented or unsupported while
 retaining evidence export and local safety behavior in parent-visible support
 states.
 
+Current billing/support admin status proof:
+`billing-support-admin-status-proof` adds parent-visible support/admin status
+rows for case triage, account review, billing escalation, provider-contact
+manual-required, entitlement-override manual-required, refund-credit
+manual-required, and resolution-update readiness. The proof requires redaction
+audit and manual-proof refs, links the rows back to the billing support/admin
+boundary and entitlement/failure/device-limit proofs, and keeps provider contact,
+account lookup execution, entitlement override, refund/credit runtime, portal
+admin UI, support backend upload, production billing support execution, and child
+activity custody as explicit non-claims.
+
 Current entitlement runtime proof:
 `billing-entitlement-runtime-proof` adds parent-domain runtime/status
 consumption rows for account entitlement snapshots, device-limit decisions, and
@@ -238,6 +249,12 @@ Any feature that can be disabled for billing must define its degraded local beha
   manual state where production admin action would be needed, and reject
   provider contact, provider secrets, support upload, portal admin UI, and child
   activity custody.
+- `billing-support-admin-status-proof` proves parent-visible billing
+  support/admin status rows and resolution-update readiness stay source-contract
+  or manual-required only, retain evidence export and redaction/manual proof
+  references, and reject provider contact execution, account lookup execution,
+  entitlement override runtime, refund/credit runtime, support backend upload,
+  portal admin UI, and child activity custody.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   prove account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries before provider/backend code exists.

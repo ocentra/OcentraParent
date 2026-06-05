@@ -93,6 +93,14 @@
       "import": "./dist/billing-entitlement-runtime-proof.js",
       "types": "./dist/billing-entitlement-runtime-proof.d.ts"
     },
+    "./billing-support-admin-status-proof": {
+      "import": "./dist/billing-support-admin-status-proof.js",
+      "types": "./dist/billing-support-admin-status-proof.d.ts"
+    },
+    "./billing-support-admin-status-values": {
+      "import": "./dist/billing-support-admin-status-values.js",
+      "types": "./dist/billing-support-admin-status-values.d.ts"
+    },
     "./browser-control-baseline-manifest": {
       "import": "./dist/browser-control-baseline-manifest.js",
       "types": "./dist/browser-control-baseline-manifest.d.ts"
