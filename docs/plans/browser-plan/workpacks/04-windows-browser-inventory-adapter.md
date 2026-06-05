@@ -77,6 +77,18 @@ does not enumerate live registry entries, Start Menu shortcuts, `.lnk` files,
 AppX/MSIX packages, signatures, hashes, UI, enforcement actions, or real Windows
 manual inventory evidence.
 
+2026-06-05 codex-d continuation:
+`scripts/test/browser-inventory-live-platform-proof.mjs` now runs a bounded
+real Windows proof gate over the local host. It completes live known-path,
+registry uninstall, Start Menu shortcut-target, AppX package, and running
+process collection, then persists only hashed evidence refs. The current proof
+captured 2 known-path browser candidates, 11 registry browser candidates, 7
+shortcut browser candidates, 0 AppX browser candidates from 7 AppX rows, and 42
+browser process candidates collapsed into 13 schema-valid inventory rows. This
+is a manual/proof gate, not a product runtime adapter: it does not add service
+live registry enumeration, `.lnk` parsing in Rust, AppX/MSIX enumeration in the
+agent, signature authority checks, UI, enforcement, or exact URL claims.
+
 ## Where We Want To Be
 
 Windows inventory can detect supported, candidate, unsupported, packaged,
@@ -129,7 +141,7 @@ Fill this before reporting `DONE` or PR-ready:
 ## Manual-Required Gaps
 
 Detecting a browser does not claim exact URL or app-control blocking.
-Remaining adapter work requires registry uninstall entry enumeration, Start Menu
-shortcut enumeration or `.lnk` parsing, live AppX/MSIX package enumeration,
-publisher/signature/hash refs, actual Windows manual capture, and
+Remaining adapter work requires implementing the live registry uninstall,
+Start Menu shortcut or `.lnk`, and AppX/MSIX package sources inside the product
+runtime boundary, plus product-grade publisher/signature/hash refs and
 portal/read-model consumption before this workpack can be marked complete.

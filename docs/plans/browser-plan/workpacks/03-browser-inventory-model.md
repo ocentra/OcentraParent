@@ -25,6 +25,19 @@ and reject empty identity refs. This is still reference-level proof only: live
 OS scanning, live publisher/signature/hash extraction, portal dashboard
 consumption, and manual platform artifacts remain outside this sub-slice.
 
+2026-06-05 codex-d progress:
+`scripts/test/browser-inventory-live-platform-proof.mjs` now captures real
+Windows host inventory evidence from known browser executable paths, uninstall
+registry entries, Start Menu shortcut targets, AppX package metadata, and
+running browser processes. The proof persists only hashed/redacted refs, parses
+13 rows through `BrowserInventoryReadModelSchema`, writes
+`test-results/browser-inventory-live-platform-proof/proof.json`, and refreshes
+`output/browser-plan-proof/03-browser-inventory-model/09-manual-platform-proof.md`.
+This upgrades the proof pack with live Windows/manual evidence only; it does
+not add a product runtime registry/shortcut/AppX scanner, portal dashboard
+rendering, exact URL evidence, active-tab proof, blocking, or product checklist
+completion.
+
 ## Where We Want To Be
 
 The service can represent installed and running browsers with support tier,
@@ -78,7 +91,7 @@ Fill this before reporting `DONE` or PR-ready:
 ## Manual-Required Gaps
 
 Inventory does not prove URL visibility or blocking capability by itself.
-Remaining inventory work requires the Windows inventory adapter, cross-platform
-inventory matrix, real installed-browser scanning, live publisher/signature/hash
-extraction artifacts, portal dashboard consumption, and manual platform proof
+Remaining inventory work requires turning live Windows/manual proof into the
+product runtime scanner boundary, adding product-grade publisher/signature/hash
+extraction, portal dashboard consumption, and non-Windows/mobile platform proof
 before this workpack can be marked complete.

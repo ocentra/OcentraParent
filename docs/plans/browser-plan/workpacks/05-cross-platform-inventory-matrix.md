@@ -23,6 +23,15 @@ Windows-only fixture-backed status, and iOS unsupported boundaries, then writes
 This is still a no-claim gate; it does not add real macOS/Linux/mobile adapters
 or product checklist status.
 
+2026-06-05 codex-d progress:
+`scripts/test/browser-inventory-live-platform-proof.mjs` adds a real Windows
+host proof gate beside the contract matrix. The proof validates live Windows
+inventory rows through `BrowserInventoryReadModelSchema` and refreshes
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/09-manual-platform-proof.md`
+while keeping macOS, Linux, Android, iOS, Safari, Firefox adapter, and mobile
+browser rows manual-required or unsupported until separate platform artifacts
+exist.
+
 ## Where We Want To Be
 
 The browser inventory/read model can show platform-specific capability states
@@ -78,8 +87,8 @@ Fill this before reporting `DONE` or PR-ready:
 
 ## Manual-Required Gaps
 
-No non-Windows browser product claim until real platform proof exists.
-Remaining work requires real macOS app bundle inventory, Linux desktop entry and
-package inventory, Android owned browser shell/device-policy proof, iOS
-FamilyControls/ManagedSettings/Safari-extension proof, and manual platform
-artifact tables before this workpack can be marked complete.
+No non-Windows browser product claim until real platform proof exists. Remaining
+work requires real macOS app bundle inventory, Linux desktop entry and package
+inventory, Android owned browser shell/device-policy proof, iOS
+FamilyControls/ManagedSettings/Safari-extension proof, and product runtime
+platform adapter artifacts before this workpack can be marked complete.

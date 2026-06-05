@@ -114,6 +114,14 @@ control while being more honest about managed versus unmanaged sources.
   observations. Fixture proof shows a default-root Edge install becomes a
   managed candidate row with exact URL still unavailable, without live registry,
   Start Menu, `.lnk`, AppX/MSIX, signature, UI, or enforcement claims.
+- Browser-plan WP03-WP05 now have a live Windows/manual inventory proof gate.
+  `scripts/test/browser-inventory-live-platform-proof.mjs` captures real
+  known-path, uninstall registry, Start Menu shortcut-target, AppX package, and
+  running browser-process evidence from the local Windows host, persists only
+  hashed refs, and validates 13 rows through the browser inventory read-model
+  schema. Product runtime live enumeration, portal UI, exact URL/active-tab
+  proof, enforcement, non-Windows/mobile adapters, and product checklist
+  completion remain unclaimed.
 - Browser-plan WP14 now surfaces the browser inventory read model in the parent
   portal route through service-backed inventory, exact URL capability, active-tab
   proof, and unmanaged fallback rows. The visible route shows inventory, exact

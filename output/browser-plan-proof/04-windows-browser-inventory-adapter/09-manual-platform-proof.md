@@ -2,7 +2,7 @@
 
 Generated: 2026-06-05T12:22:34.367Z
 Proof JSON: test-results/browser-inventory-live-platform-proof/proof.json
-Workpack proof root: output/browser-plan-proof/03-browser-inventory-model
+Workpack proof root: output/browser-plan-proof/04-windows-browser-inventory-adapter
 
 ## Live Sources
 
