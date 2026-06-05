@@ -29,15 +29,15 @@ Proof root: `output/tracking-plan-proof/29-missing-device-mode/`
 
 ## AI Worker Checklist
 
-- [ ] Prioritize last known, battery, connectivity, and last contact.
-- [ ] Avoid current-location claims when stale/offline.
-- [ ] Add parent action/audit state.
-- [ ] Test powered-off/offline copy and UI.
-- [ ] Keep remote sync optional and explicit.
+- [x] Prioritize last known, battery, connectivity, and last contact.
+- [x] Avoid current-location claims when stale/offline.
+- [x] Add parent action/audit state.
+- [x] Test powered-off/offline copy and UI.
+- [x] Keep remote sync optional and explicit.
 
 ## Where We Are
 
-This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+This workpack now has focused parent-domain proof from `codex/tracking-missing-device-mode-proof` under the proof root below. Runtime, platform, provider, and portal UI behavior is not claimed beyond the proof state recorded in `proof.json`, `03-runtime-location-evidence.json`, `04-device-status-proof.json`, `11-ui-snapshots/missing-device-ui-state-matrix.json`, and the implementation checklist.
 
 ## Where We Want To Be
 
@@ -64,9 +64,9 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
+- [x] Workpack id and branch: `codex/tracking-missing-device-mode-proof`.
+- [x] Touched files: `packages/parent-domain/src/tracking-missing-device-mode-proof.ts`, `packages/parent-domain/tests/tracking-missing-device-mode-proof.test.ts`, `scripts/test/tracking-missing-device-mode-proof.mjs`, product docs, checklist, and this workpack doc.
+- [x] Validation commands and results: `cmd /c node scripts/test/tracking-missing-device-mode-proof.mjs` passed.
 - [x] Proof artifacts under `output/tracking-plan-proof/29-missing-device-mode/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Product doc/checklist updates: owning feature doc, product capability checklist, implementation checklist, and this workpack doc updated.
+- [x] Known gaps/manual-required states: portal runtime UI/screenshots, child-device delivery/runtime execution, Android/iOS physical-device proof, provider delivery, remote sync runtime, OS lost-mode APIs, notification delivery, and production proof remain proof-gated.
