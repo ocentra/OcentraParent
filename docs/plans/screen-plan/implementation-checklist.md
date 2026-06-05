@@ -36,6 +36,7 @@ trigger ownership unless the row explicitly says so.
 | Settings route screen catalog proof      | P3 proved                | `output/screen-plan-proof/settings-ui/proof-summary.json`                                          | Proves the real portal Settings route renders read-only Screen settings/capability catalog proof; writable opt-in and retention controls remain.                                                   |
 | Settings route writable intent proof     | P3 proved                | `output/screen-plan-proof/settings-writable-controls/proof-summary.json`                           | Proves the real portal Settings route controls build schema-valid disabled, observe-only, and strict dry-run local screen-summary drafts; service persistence remains.                             |
 | Remote/retention/live boundary proof     | P2 contract proved       | `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`                            | Proves raw screenshot retention, live view, and raw remote upload are disabled in the local-summary boundary; no live transport or writable retention UI claimed.                                  |
+| Local AI resource scheduler proof        | P2 contract + runtime    | `output/screen-plan-proof/local-ai-resource-scheduler/proof-summary.json`                          | Proves screen OCR/VLM priority, singleton heavy-lane admission, timeout/skipped/degraded states, caps, and reuse of the provider scheduler proof; not a final capture-to-policy pipeline claim.    |
 
 ## Main Gates
 
@@ -69,7 +70,7 @@ trigger ownership unless the row explicitly says so.
 - [ ] Live view is separate opt-in mode.
 - [x] Remote/cloud screenshot upload disabled by default.
 - [x] Remote/API path accepts only parent-approved redacted summaries by default.
-- [ ] Local AI resource scheduler prevents multiple heavy jobs on normal PCs.
+- [x] Local AI resource scheduler prevents multiple heavy jobs on normal PCs.
 - [ ] Family AI hub is used before remote/API for hard visual cases.
 - [x] Platform capture proof exists before platform claim.
 - [x] Operator live URL/app proof is recorded before product-complete claim.
@@ -173,6 +174,6 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [ ]    | 35 OCR PaddleOCR/PP-OCR evaluation                 |
 | [~]    | 36 Small VLM guided classifier evaluation          |
 | [ ]    | 37 Family AI hub screen-analysis queue             |
-| [ ]    | 38 Local AI resource scheduler/priority queue      |
+| [x]    | 38 Local AI resource scheduler/priority queue      |
 | [x]    | 39 Redacted summary-only remote boundary           |
 | [~]    | 40 Detector prompt packs and schema tests          |
