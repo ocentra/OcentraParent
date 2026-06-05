@@ -2,8 +2,8 @@
   "proofMode": "tracking-family-dashboard-rollup-proof",
   "generatedAt": "2026-06-05T23:10:00.000Z",
   "branch": "codex/tracking-family-dashboard-rollup-proof",
-  "baseCommitAtGeneration": "bcccf90bdc882117e30fc810a88ac9f6e642c17f",
-  "gitStatusShort": "M docs/feature-list.md\n M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md\n?? packages/parent-domain/src/tracking-family-dashboard-rollup-proof.ts\n?? packages/parent-domain/tests/tracking-family-dashboard-rollup-proof.test.ts\n?? scripts/test/tracking-family-dashboard-rollup-proof.mjs",
+  "baseCommitAtGeneration": "ce4f1f128fed5b7639fada947627a75714761db1",
+  "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-family-dashboard-rollup-proof tracking-location-policy"
