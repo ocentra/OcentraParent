@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-05T23:11:43.993Z",
+  "commit": "713643e6e62fbd1cdcf4a5abcf17429c1a823339",
+  "proofMode": "app-install-purchase-runtime-report-delivery-proof",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "startedAt": "2026-06-05T23:11:38.337Z",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-runtime-report-delivery-proof.test.ts",
+      "startedAt": "2026-06-05T23:11:40.928Z",
+      "exitCode": 0
+    }
+  ],
+  "packageExportState": "validated-public-package-export",
+  "checklistState": "validated-product-capability-checklist-row",
+  "evidence": {
+    "runtimeReportDeliveryContract": "packages/parent-domain/src/app-install-purchase-runtime-report-delivery-proof.ts",
+    "sourceReportRuntimeContract": "packages/parent-domain/src/app-install-purchase-report-runtime-proof.ts",
+    "sourceReportCompilerContract": "packages/parent-domain/src/stateless-report-compiler-status.ts",
+    "contractTest": "packages/parent-domain/tests/app-install-purchase-runtime-report-delivery-proof.test.ts",
+    "featureDoc": "docs/features/app-install-purchase-approval.md",
+    "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
+    "packageExport": "COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-runtime-report-delivery-proof.",
+    "checklistRow": "COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes runtime report delivery proof.",
+    "output": "test-results\\app-install-purchase-runtime-report-delivery-proof\\proof.json"
+  },
+  "runtimeReportDeliverySummary": {
+    "runtimeReportDeliveryRows": 4,
+    "deliveredRows": 4,
+    "receiptRows": 4,
+    "portalReportUiRows": 0,
+    "childDeviceDeliveryRows": 0
+  },
+  "runtimeReportDeliveryRows": [
+    {
+      "sourceReportRuntimeRowId": "app-install-report-runtime-request-audit-history",
+      "reportSurface": "request-audit-history",
+      "compilerRequestId": "stateless-report-compiler-request-proof-1",
+      "compilerOutputReportRef": "parent-owned-storage-report-output-ref",
+      "runtimeReportReceiptRef": "runtime-report-receipt-request-audit-history",
+      "sourceChildArtifactRefs": [
+        "child-delivery-pending-parent-review-visible-artifact-ref",
+        "child-delivery-approved-visible-artifact-ref",
+        "child-delivery-denied-visible-artifact-ref",
+        "child-delivery-time-box-visible-artifact-ref",
+        "child-delivery-review-needed-visible-artifact-ref"
+      ],
+      "deliveryState": "runtime-report-delivered",
+      "parentAuthorized": true,
+      "rawEvidenceExcludedFromOutput": true,
+      "childDetailMinimized": true,
+      "tempDeletionConfirmed": true,
+      "localEvidenceMutated": false,
+      "ocentraHostedReportRetained": false,
+      "runtimeReportDeliveryClaim": "parent-runtime-delivered",
+      "portalReportUiClaim": "not-claimed",
+      "providerApiExecutionClaim": "not-claimed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "childDataCustody": "no-child-activity-data",
+      "appBlockingClaim": "not-claimed",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "runtime report delivery proof only; no portal report UI no provider API execution no store integration no platform adapter no child-device delivery no child activity data no app blocking no Ocentra-hosted family data custody"
+    },
+    {
+      "sourceReportRuntimeRowId": "app-install-report-runtime-parent-decision-audit-history",
+      "reportSurface": "parent-decision-audit-history",
+      "compilerRequestId": "stateless-report-compiler-request-proof-1",
+      "compilerOutputReportRef": "parent-owned-storage-report-output-ref",
+      "runtimeReportReceiptRef": "runtime-report-receipt-parent-decision-audit-history",
+      "sourceChildArtifactRefs": [
+        "child-delivery-pending-parent-review-visible-artifact-ref",
+        "child-delivery-approved-visible-artifact-ref",
+        "child-delivery-denied-visible-artifact-ref",
+        "child-delivery-time-box-visible-artifact-ref",
+        "child-delivery-review-needed-visible-artifact-ref"
+      ],
+      "deliveryState": "runtime-report-delivered",
+      "parentAuthorized": true,
+      "rawEvidenceExcludedFromOutput": true,
+      "childDetailMinimized": true,
+      "tempDeletionConfirmed": true,
+      "localEvidenceMutated": false,
+      "ocentraHostedReportRetained": false,
+      "runtimeReportDeliveryClaim": "parent-runtime-delivered",
+      "portalReportUiClaim": "not-claimed",
+      "providerApiExecutionClaim": "not-claimed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "childDataCustody": "no-child-activity-data",
+      "appBlockingClaim": "not-claimed",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "runtime report delivery proof only; no portal report UI no provider API execution no store integration no platform adapter no child-device delivery no child activity data no app blocking no Ocentra-hosted family data custody"
+    },
+    {
+      "sourceReportRuntimeRowId": "app-install-report-runtime-child-facing-state-report",
+      "reportSurface": "child-facing-state-report",
+      "compilerRequestId": "stateless-report-compiler-request-proof-1",
+      "compilerOutputReportRef": "parent-owned-storage-report-output-ref",
+      "runtimeReportReceiptRef": "runtime-report-receipt-child-facing-state-report",
+      "sourceChildArtifactRefs": [
+        "child-delivery-pending-parent-review-visible-artifact-ref",
+        "child-delivery-approved-visible-artifact-ref",
+        "child-delivery-denied-visible-artifact-ref",
+        "child-delivery-time-box-visible-artifact-ref",
+        "child-delivery-review-needed-visible-artifact-ref"
+      ],
+      "deliveryState": "runtime-report-delivered",
+      "parentAuthorized": true,
+      "rawEvidenceExcludedFromOutput": true,
+      "childDetailMinimized": true,
+      "tempDeletionConfirmed": true,
+      "localEvidenceMutated": false,
+      "ocentraHostedReportRetained": false,
+      "runtimeReportDeliveryClaim": "parent-runtime-delivered",
+      "portalReportUiClaim": "not-claimed",
+      "providerApiExecutionClaim": "not-claimed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "childDataCustody": "no-child-activity-data",
+      "appBlockingClaim": "not-claimed",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "runtime report delivery proof only; no portal report UI no provider API execution no store integration no platform adapter no child-device delivery no child activity data no app blocking no Ocentra-hosted family data custody"
+    },
+    {
+      "sourceReportRuntimeRowId": "app-install-report-runtime-platform-limitation-report",
+      "reportSurface": "platform-limitation-report",
+      "compilerRequestId": "stateless-report-compiler-request-proof-1",
+      "compilerOutputReportRef": "parent-owned-storage-report-output-ref",
+      "runtimeReportReceiptRef": "runtime-report-receipt-platform-limitation-report",
+      "sourceChildArtifactRefs": [
+        "child-delivery-pending-parent-review-visible-artifact-ref",
+        "child-delivery-approved-visible-artifact-ref",
+        "child-delivery-denied-visible-artifact-ref",
+        "child-delivery-time-box-visible-artifact-ref",
+        "child-delivery-review-needed-visible-artifact-ref"
+      ],
+      "deliveryState": "runtime-report-delivered",
+      "parentAuthorized": true,
+      "rawEvidenceExcludedFromOutput": true,
+      "childDetailMinimized": true,
+      "tempDeletionConfirmed": true,
+      "localEvidenceMutated": false,
+      "ocentraHostedReportRetained": false,
+      "runtimeReportDeliveryClaim": "parent-runtime-delivered",
+      "portalReportUiClaim": "not-claimed",
+      "providerApiExecutionClaim": "not-claimed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "childDataCustody": "no-child-activity-data",
+      "appBlockingClaim": "not-claimed",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "runtime report delivery proof only; no portal report UI no provider API execution no store integration no platform adapter no child-device delivery no child activity data no app blocking no Ocentra-hosted family data custody"
+    }
+  ],
+  "nonClaims": [
+    "no-portal-report-ui",
+    "no-provider-api-execution",
+    "no-store-integration",
+    "no-platform-adapter",
+    "no-child-device-delivery",
+    "no-child-activity-data",
+    "no-app-blocking",
+    "no-ocentra-hosted-family-data-custody"
+  ],
+  "knownGaps": [
+    "Runtime report delivery rows are parent-owned report receipt proof only; no portal report UI is implemented.",
+    "The proof does not execute provider APIs, store integrations, platform adapters, child-device delivery, or app blocking.",
+    "Child activity data custody and Ocentra-hosted family data custody remain unclaimed."
+  ]
+}

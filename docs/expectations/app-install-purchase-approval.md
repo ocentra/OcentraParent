@@ -83,6 +83,11 @@ Expected contract families:
   portal report UI, runtime report delivery, provider/store execution, platform
   adapters, child-device delivery, child activity data custody, app blocking, or
   Ocentra-hosted family data custody.
+- Runtime report delivery proof rows link report-runtime rows and compiler
+  output refs to parent-owned runtime report delivery receipt rows without
+  claiming portal report UI, child-device delivery, provider/store execution,
+  platform adapter implementation, real interception, app blocking, child
+  activity data custody, or Ocentra-hosted family data custody.
 - Platform adapter boundary proof rows link approved API/entitlement evidence
   and report-runtime refs to adapter readiness/manual/unavailable rows without
   claiming platform adapter implementation, provider API execution, store
@@ -189,6 +194,11 @@ Expected contract families:
   missing report surface rejection, missing report compiler lifecycle coverage,
   portal/provider/store/adapter/delivery/custody/app-blocking overclaim
   rejection, public package export visibility, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for runtime report delivery rows,
+  missing report delivery coverage rejection, missing compiler output/receipt
+  refs, portal/provider/store/adapter/child-delivery/custody/app-blocking
+  overclaim rejection, public package export visibility, and required non-claim
+  coverage.
 - TypeScript schema tests and a proof harness for platform adapter boundary
   rows, missing platform/evidence-state coverage rejection, adapter/provider/
   store/delivery/report/interception/custody/app-blocking overclaim rejection,
@@ -278,6 +288,10 @@ Expected contract families:
   report writer/delivery, provider/store execution, platform adapters,
   child-device delivery, child activity custody, app blocking, or
   Ocentra-hosted family data custody.
+- Do not treat runtime report delivery proof refs as portal report UI,
+  child-device delivery, provider/store execution, platform adapters,
+  interception, child activity custody, app blocking, or Ocentra-hosted family
+  data custody.
 - Do not treat platform adapter boundary refs as implemented platform adapters,
   provider API execution, store integration, child-device delivery, runtime
   report delivery, interception, child activity custody, app blocking, or

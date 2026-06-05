@@ -119,6 +119,11 @@ mobile readiness, and control catalogs.
   provider/store execution, platform adapters, child-device delivery, child
   activity data, app blocking, and Ocentra-hosted family data custody
   unclaimed.
+- App install/purchase runtime report delivery proof contracts that link
+  report-runtime rows and compiler output refs to parent-owned delivery receipt
+  rows while keeping portal report UI, child-device delivery, provider/store
+  execution, platform adapters, interception, app blocking, child activity
+  data, and Ocentra-hosted family data custody unclaimed.
 - App install/purchase platform adapter boundary proof contracts that link
   approved API/entitlement evidence rows and report-runtime refs to platform
   adapter readiness/manual/unavailable rows while keeping actual adapter
@@ -263,14 +268,14 @@ flowchart LR
   proof, parent action runtime handoff, store status handoff proof, and runtime
   writer delivery proof plus package-source capture status, child-device
   delivery runtime writer proof, adapter execution proof, and parent action
-  delivery readiness proof plus provider/store execution readiness and
-  approval/report domain proofs;
+  delivery readiness proof plus provider/store execution readiness,
+  approval/report domain, and runtime report delivery receipt proofs;
   platform/store provider execution, actual provider contact, actual platform
   adapters, production child-device package capture, production package-source
   capture adapter execution,
   runtime status reader, child delivery, portal UX, runtime action writer
   execution, runtime writer delivery, parent action runtime delivery, and report
-  runtime writer/delivery remain unimplemented.
+  runtime writer remain unimplemented.
 - Billing/subscription provider integration, account backend, entitlement
   signing/delivery runtime, provider-contact execution, entitlement admin
   override runtime, refund/credit runtime, portal billing/admin UI, support
