@@ -13,6 +13,10 @@ mobile readiness, and control catalogs.
 - V0.8 enforcement policy-dispatch contracts that validate parent-authored
   intents, evidence refs, adapter matrix rows, timer/approval/audit state, and
   child-facing reason codes before dispatch-ready claims.
+- App/game policy preview handoff contracts that map compiled dry-run native
+  app and native game decisions into read-only parent preview rows while
+  keeping evaluator runtime, timers, child delivery, adapter dispatch, broad
+  blocking, and platform enforcement unclaimed.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.
@@ -248,6 +252,10 @@ flowchart LR
 - Policy-dispatch proof is currently service/read-model proof; finished
   parent/child UX, notification delivery, network/domain blocking, broad app
   blocking, and tamper protection remain proof-gated gaps.
+- App/game policy preview handoff proof remains read-only contract/read-model
+  proof; portal authoring or preview UI, live evaluator execution,
+  persistence, timers, child notification delivery, adapter dispatch, broad
+  installed-app blocking, and platform enforcement remain unimplemented.
 - Supported-adapter and integrity runtime audit proof remain contract/read-model
   proof; broad app/domain/browser blocking, notification delivery, tamper
   resistance, mobile enforcement, stealth/persistence, and privilege escalation

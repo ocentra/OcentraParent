@@ -191,6 +191,10 @@ control with better evidence and local audit.
   action history, platform authority, and AI classifier readiness rows from the
   existing app/game service model, keeps missing inputs visible as
   missing/manual-required, and fixes `adapterDispatchClaimed=false`.
+- Parent-domain policy preview handoff contracts now map already-compiled
+  app/game dry-run policy decisions into read-only preview rows, separating
+  native app versus native game target meaning while keeping evaluator runtime,
+  timers, adapter dispatch, child delivery, and platform enforcement unclaimed.
 - App/game notification intent contracts now represent parent notification
   readiness for time-limit, approval request, suspicious unknown,
   manual-required, and unavailable app/game states with evidence, policy, audit,
@@ -365,6 +369,11 @@ budget notifications, or adapter execution.
 The app/game policy target compiler proof is contract-level: it does not yet
 provide runtime service evaluation, Rust/WebSocket parity, portal rule
 authoring, timer integration, notifications, rollback, or adapter execution.
+The app/game policy preview handoff proof is also contract-level: it consumes
+compiled dry-run decisions and produces parent-domain preview rows only; it
+does not run the policy evaluator, persist policy previews in the service,
+render authoring UI, start timers, deliver child notifications, dispatch
+adapters, or prove platform enforcement.
 The app/game time-budget proof is contract-level: it does not yet provide
 runtime service evaluation, Rust/WebSocket parity, portal budget authoring,
 notification delivery, child request UX, service persistence, adapter
@@ -464,8 +473,10 @@ evaluator execution, adapter dispatch, broad blocking, or platform support.
       policy-routing contracts now map category/risk candidates into matching
       compiler target kinds without adapter dispatch. The service now has a
       policy readiness read-model command/event for required app/game policy
-      input row availability, but live evaluator, authoring UI, persistence,
-      timers, and enforcement remain. Rust protocol
+      input row availability, and a parent-domain policy preview handoff now
+      maps compiled dry-run decisions into read-only native app/game preview
+      rows. Live evaluator, authoring UI, persistence, timers, and enforcement
+      remain. Rust protocol
       parity now exists for approval authority/action-result, platform
       authority matrix, and classifier boundary shapes, and staged
       journal/SQLite projection plus service read-model evidence refs/counts
