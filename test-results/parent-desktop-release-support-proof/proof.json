@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T02:44:00.226Z",
-  "commit": "1d2a625f0dfa88457eca1842b3443a8c9ecff50b",
+  "checkedAt": "2026-06-05T02:48:41.485Z",
+  "commit": "cf3482cf5b4fee6e7e76b36223975d17d704b6e2",
   "proofMode": "parent-desktop-release-support-proof",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -249,7 +249,7 @@
         },
         {
           "field": "commit",
-          "value": "1d2a625f0dfa88457eca1842b3443a8c9ecff50b",
+          "value": "cf3482cf5b4fee6e7e76b36223975d17d704b6e2",
           "redactionState": "safe"
         },
         {
@@ -304,15 +304,15 @@
         "severity": "manual-required",
         "productionSupportState": "manual-required",
         "supportBackendState": "not-implemented",
-        "createdAt": "2026-06-05T02:43:59.674Z",
-        "updatedAt": "2026-06-05T02:43:59.674Z"
+        "createdAt": "2026-06-05T02:48:40.839Z",
+        "updatedAt": "2026-06-05T02:48:40.839Z"
       },
       "parentConsent": {
         "consentState": "parent-approved",
         "capturedBy": "manual-export-action",
         "disclosureState": "shown-before-export",
         "parentActor": "parent manually exported support bundle after disclosure",
-        "consentRecordedAt": "2026-06-05T02:43:59.674Z",
+        "consentRecordedAt": "2026-06-05T02:48:40.839Z",
         "revocationState": "manual-required"
       },
       "supportBundleManifest": {
@@ -623,7 +623,7 @@
         "support escalation execution"
       ]
     },
-    "updatedAt": "2026-06-05T02:43:59.676Z"
+    "updatedAt": "2026-06-05T02:48:40.840Z"
   },
   "workpacks": {
     "completed": [
