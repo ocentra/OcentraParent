@@ -3,7 +3,7 @@ running 2 tests
 test tests::metrics::metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts ... ok
 test tests::metrics::metrics_snapshot_reports_bounded_in_memory_event_retention ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 76 filtered out; finished in 0.13s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 76 filtered out; finished in 0.12s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
      Running unittests src\lib.rs (target\debug\deps\ocentra_eventing-927d6221c7fa57e1.exe)

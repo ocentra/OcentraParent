@@ -1,7 +1,7 @@
 {
   "proof": "eventing-runtime-lifecycle",
   "proofRoot": "output\\eventing-plan-proof\\14-24-runtime-lifecycle",
-  "checkedAt": "2026-06-05T19:10:03.682Z",
+  "checkedAt": "2026-06-05T21:08:51.622Z",
   "commands": [
     {
       "name": "eventing-tests",
