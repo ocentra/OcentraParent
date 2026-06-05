@@ -19,6 +19,7 @@ pub mod managed_browser;
 pub mod notification;
 pub mod packet;
 pub mod pcap;
+pub mod performance;
 pub mod policy;
 pub mod process;
 pub mod risk_budget;
@@ -138,6 +139,13 @@ pub use packet::{
     UdpPayloadView,
 };
 pub use pcap::{parse_pcap_packets, PcapPacket, PcapReplayError};
+pub use performance::{
+    evaluate_network_performance_benchmark, NetworkPerformanceBenchmarkError,
+    NetworkPerformanceBenchmarkInput, NetworkPerformanceBenchmarkProof,
+    NetworkPerformanceBenchmarkRow, NetworkPerformanceBenchmarkState,
+    NetworkPerformanceBenchmarkThresholds, NetworkPerformancePathState,
+    NetworkPerformanceRegressionCode, NetworkPerformanceScenarioType,
+};
 pub use policy::{
     map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
     NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingError,

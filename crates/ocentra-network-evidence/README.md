@@ -144,13 +144,21 @@ monitor, ask-parent, warn-child, limit, block, or manual-required
 recommendations. Safe-behavior credit requires a parent rule cap, expiry, audit
 reason, and UI explanation, while signature-only and missing-adapter cases stay
 manual-required for control actions and no enforcement command is published.
+The performance benchmark proof aggregates deterministic fixture rows for
+packet-to-summary, packet-to-detection, detection-to-cascade latency, event
+throughput, CPU, memory, disk, queue depth, dropped events, and high-concurrency
+flow counts. It preserves dry-run/manual-required/unsupported/unavailable/
+degraded path states and rejects real-time response, production SLO, raw PCAP,
+exact URL, page content, decrypted payload, adapter action, host filtering, and
+enforcement-command claims.
 
 Live Npcap/libpcap capture, full vendor category feeds,
 production CDN intelligence, unmanaged browser URL correlation, foreground
 session correlation, live network adapter enforcement, file/content inspection,
 local-AI model execution/worker runtime, production model-quality monitoring,
-full policy engine execution, notification provider delivery, portal AI audit UI
-or risk-budget rendering, live WFP driver/callout proof, live adapter execution,
-Android physical-device behavior, Apple entitlement/device behavior, Linux
-distro/kernel adapter behavior, live Zeek/TShark/Wireshark/Suricata/Snort
-execution, and portal rendering remain separate proof-gated workpacks.
+production SLO validation, full policy engine execution, notification provider
+delivery, portal AI audit UI, risk-budget, or performance rendering, live WFP
+driver/callout proof, live adapter execution, Android physical-device behavior,
+Apple entitlement/device behavior, Linux distro/kernel adapter behavior, live
+Zeek/TShark/Wireshark/Suricata/Snort execution, and portal rendering remain
+separate proof-gated workpacks.

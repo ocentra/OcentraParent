@@ -167,6 +167,14 @@ compete on control while staying clear about attribution confidence and privacy.
   Safe-behavior credit requires parent-rule cap, expiry, audit reason, and UI
   explanation refs; signature-only or missing-adapter cases stay manual-required
   for control actions, and no policy/adapter/enforcement authority is claimed.
+- E-D added deterministic network performance benchmark proof in
+  `ocentra-network-evidence`: fixture rows aggregate packet-to-summary,
+  packet-to-detection, detection-to-cascade latency, event throughput, CPU,
+  memory, disk, queue depth, dropped-event, and high-concurrency flow metrics.
+  Dry-run/manual-required/unsupported/unavailable/degraded path states are
+  preserved, and real-time response, production SLO, raw PCAP, exact URL,
+  page-content, decrypted-payload, adapter-action, host-filtering, and
+  enforcement-command claims are rejected.
 - E-D added an evidence-grade policy mapper in `ocentra-network-evidence`:
   A/B/C/D evidence plus parent rule refs, policy decision refs, evidence refs,
   and optional local-AI result refs map to dry-run, parent-review, or
@@ -222,7 +230,7 @@ compete on control while staying clear about attribution confidence and privacy.
 Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
 attribution quality, live PCAP/analyzer fixture proof, TypeScript/public export
 parity and service wiring for network event contracts, production risk-budget
-service/UI wiring, performance proof, and parent-facing rule UX remain.
+service/UI wiring, production SLO validation, and parent-facing rule UX remain.
 Policy dispatch does not upgrade
 network/domain blocking beyond
 manual-required, and the broad-adapter proof and supported-adapter runtime proof
@@ -326,10 +334,13 @@ execution, and platform adapter execution remain open.
       threshold proof now maps AI audit reports, age/profile policy, prior
       events, safe-behavior credits, and adapter proof state into
       ignore/monitor/ask/warn/limit/block/manual-required recommendations
-      without publishing enforcement commands. AI model execution,
-      broker/family-hub delivery implementation, broader service wiring, full
-      policy engine execution, notification delivery, and portal risk-budget UI
-      rendering remain.
+      without publishing enforcement commands. Row49 performance benchmark proof
+      now aggregates latency, throughput, CPU, memory, disk, queue,
+      dropped-event, and high-concurrency fixture metrics while preserving
+      manual/unavailable/degraded path states and rejecting realtime/production
+      claims. AI model execution, broker/family-hub delivery implementation,
+      broader service wiring, full policy engine execution, notification
+      delivery, and portal risk-budget/performance UI rendering remain.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
