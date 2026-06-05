@@ -92,6 +92,8 @@ const ScreenSummaryParentExplanationInputBaseSchema = Schema.Struct({
 });
 
 type ScreenSummaryParentExplanationInputCandidate = Infer<typeof ScreenSummaryParentExplanationInputBaseSchema>;
+type ReadyScreenSummaryContext = NonNullable<ScreenSummaryParentExplanationInputCandidate['contextResult']['context']>;
+type ScreenSummaryParentExplanationPolicyDecision = ScreenSummaryParentExplanationInputCandidate['policyDecision'];
 
 export const ScreenSummaryParentExplanationInputSchema = withParser(
   ScreenSummaryParentExplanationInputBaseSchema.pipe(
@@ -182,22 +184,42 @@ function contextForReadyInput(result: LocalAiEvidenceContextBuildResult) {
 
 function screenSummaryParentExplanationInputIsReady(input: ScreenSummaryParentExplanationInputCandidate): boolean {
   const context = input.contextResult.context;
+  if (context === null || input.contextResult.state !== 'ready') {
+    return false;
+  }
   return (
-    context !== null &&
-    input.contextResult.state === 'ready' &&
-    context.screenSummaryRefs.length > 0 &&
+    screenSummaryContextIsReadyForParentExplanation(context) &&
     input.contextResult.auditEvidenceReferences.length > 0 &&
+    policyDecisionIsReadyForParentExplanation(input.policyDecision)
+  );
+}
+
+function screenSummaryContextIsReadyForParentExplanation(context: ReadyScreenSummaryContext): boolean {
+  return (
+    context.screenSummaryRefs.length > 0 &&
     context.custodyLabels.includes('child-device-query-store') &&
     !context.custodyLabels.includes('ocentra-hosted-non-activity') &&
     context.degradedReasons.includes('screen-image-deleted') &&
-    context.localModelRuntimeRefs.length > 0 &&
-    input.policyDecision.dryRun &&
-    input.policyDecision.evidenceReferences.length > 0 &&
-    input.policyDecision.ruleIds.length > 0 &&
-    input.policyDecision.reasonCodes.length > 0 &&
-    (input.policyDecision.enforcementHandoffState === 'disabled' ||
-      input.policyDecision.enforcementHandoffState === 'not-requested')
+    context.localModelRuntimeRefs.length > 0
   );
+}
+
+function policyDecisionIsReadyForParentExplanation(
+  policyDecision: ScreenSummaryParentExplanationPolicyDecision
+): boolean {
+  return (
+    policyDecision.dryRun &&
+    policyDecision.evidenceReferences.length > 0 &&
+    policyDecision.ruleIds.length > 0 &&
+    policyDecision.reasonCodes.length > 0 &&
+    policyDecisionHandoffIsNonEnforcing(policyDecision.enforcementHandoffState)
+  );
+}
+
+function policyDecisionHandoffIsNonEnforcing(
+  state: ScreenSummaryParentExplanationPolicyDecision['enforcementHandoffState']
+): boolean {
+  return state === 'disabled' || state === 'not-requested';
 }
 
 function screenSummaryParentExplanationIsHonest(explanation: ScreenSummaryParentExplanationCandidate): boolean {
