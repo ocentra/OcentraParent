@@ -2,7 +2,7 @@
   "proofMode": "app-game-notification-provider-status-handoff",
   "generatedAt": "2026-06-05T06:44:00Z",
   "branch": "codex/app-game-notification-provider-status-handoff",
-  "commit": "84c032a72518cde1c3f576bf4b2bcc0a3578e887",
+  "commit": "27fcdbbbe56850b073881dc553b33dc2cafe44ac",
   "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
