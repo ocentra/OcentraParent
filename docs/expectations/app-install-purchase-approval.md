@@ -69,6 +69,11 @@ Expected contract families:
   boundaries without claiming child-device runtime capture, child-device
   delivery, provider APIs, store integration, platform adapters, runtime report
   delivery, real interception, child activity data custody, or app blocking.
+- Approved API/entitlement proof rows attach approved store API evidence refs,
+  entitlement evidence refs, limitation report refs, and audit refs to child
+  artifact rows without claiming provider API execution, store integration,
+  platform adapters, child delivery, runtime report delivery, real
+  interception, child activity data custody, or app blocking.
 
 ## Validation Gates
 
@@ -90,6 +95,11 @@ Expected contract families:
   missing child artifact/delivery coverage rejection, runtime capture/provider/
   adapter/delivery/report/app-blocking overclaim rejection, and required
   non-claim coverage.
+- TypeScript schema tests and a proof harness for approved API/entitlement
+  evidence rows, missing platform/evidence-state coverage rejection,
+  provider-execution/adapter/delivery/report/custody/interception/app-blocking
+  overclaim rejection, public package export visibility, and required non-claim
+  coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -109,6 +119,10 @@ Expected contract families:
   app blocking.
 - Do not treat child artifact/delivery proof refs as production child-device
   package capture, provider/store integration, platform adapters, child-device
+  delivery, runtime report delivery, child activity custody, interception, or
+  app blocking.
+- Do not treat approved API/entitlement evidence refs as provider API
+  execution, store integration, platform adapter implementation, child-device
   delivery, runtime report delivery, child activity custody, interception, or
   app blocking.
 

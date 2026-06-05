@@ -70,6 +70,11 @@ mobile readiness, and control catalogs.
   production child-device capture, delivery, runtime report delivery,
   provider/store APIs, platform adapters, interception, and app blocking
   unclaimed.
+- App install/purchase approved API/entitlement proof contracts that attach
+  approved store API evidence refs, entitlement evidence refs, limitation report
+  refs, and audit refs to child artifact rows while keeping provider execution,
+  store integration, platform adapters, child delivery, runtime report delivery,
+  interception, child activity data, and app blocking unclaimed.
 - V0.9 signed LAN discovery/relay spine contracts that keep adapter evidence,
   signed proof rejection, route safety, relay/cache availability, parent-owned
   storage, and child-data custody claims explicit.
@@ -138,7 +143,8 @@ flowchart LR
   notification delivery, and live UI proof remain open.
 - Store/install approval and purchase controls now have contract, package-source
   artifact, runtime-boundary, platform-artifact, and child-artifact-delivery
-  proof; platform/store adapters, production child-device package capture, child
+  proof plus approved API/entitlement evidence proof; platform/store provider
+  execution, platform adapters, production child-device package capture, child
   delivery, portal UX, and report runtime delivery remain unimplemented.
 - Billing/subscription provider integration, account backend, entitlement
   signing/delivery runtime, provider-contact execution, entitlement admin
