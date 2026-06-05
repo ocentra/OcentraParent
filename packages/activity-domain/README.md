@@ -35,6 +35,10 @@ Shared activity and evidence contracts for child-device observations.
   analysis first, keep selected hard-visual routing inside local household LAN
   custody, and reject raw retention, remote/API fallback, and Ocentra-hosted
   processing claims.
+- Screen intelligence router and managed-browser structured extraction
+  contracts that check typed evidence before screenshot capture, skip screenshots
+  when structured evidence is enough, and fail closed for protected or
+  credential-risk surfaces.
 - Screen-AI browser trigger proof rows that compose typed browser AI
   input/result contracts with screen-analysis result contracts for managed URL,
   browser-video, social-feed, and cloud-game trigger states without claiming UI,
@@ -100,6 +104,10 @@ flowchart LR
 - Screen family AI hub routing now has
   `screen-family-ai-hub-routing-proof`; real LAN hub runtime/discovery,
   production model quality, UI, policy, and enforcement proof remain open.
+- Screen intelligence routing now has
+  `screen-router-structured-extraction-proof`; real managed-browser
+  DOM/accessibility producer integration, portal rendering, final policy, and
+  enforcement proof remain open.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime, local parent-defined place store proof, and Rust ActivityStore ingest
   proof; platform adapters, provider runtime, and live service-backed UI proof

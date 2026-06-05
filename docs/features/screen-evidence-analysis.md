@@ -274,6 +274,18 @@ only with explicit parent settings.
   remains a D/browser-lane handoff item. The social row is manual-required and
   the cloud-game row is unavailable/scaffold-only, so this does not claim
   authenticated social, cloud-frame, mobile parity, UI, or enforcement support.
+- `ScreenIntelligenceRouteRequestSchema`,
+  `ScreenManagedBrowserStructuredExtractionSchema`, and
+  `scripts/test/screen-router-structured-extraction-proof.mjs` now prove the
+  screen intelligence router contract: existing typed evidence is checked before
+  capture, managed-browser structured URL/title/metadata/bounded visible-text
+  extraction runs before screenshots, enough structured evidence produces
+  `noScreenNeeded`, native app/game/launcher/unknown-process paths route only to
+  parent-allowed active-window or selected-window scopes, and protected or
+  credential-risk surfaces return unavailable. This is contract proof only; it
+  does not claim live managed-browser producer integration, real DOM or
+  accessibility capture, portal UI, policy execution, enforcement, or final
+  pipeline closure.
 - Service-persisted product settings, retention controls, and quality proof are
   incomplete.
 - Raw screen control settings are preserved as design inputs, not
@@ -316,6 +328,8 @@ separate proof gates.
       reject private/raw output fields.
 - [x] Family AI hub route contract is used before remote/API for hard visual
       cases.
+- [x] Screen intelligence router checks typed evidence and managed-browser
+      structured extraction before selecting screenshots.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof, broad
