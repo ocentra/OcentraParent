@@ -31,6 +31,10 @@ Shared activity and evidence contracts for child-device observations.
   prioritize policy-blocking work, enforce one heavy local screen AI lane per
   child device, and keep pixel/snippet caps plus no-remote-AI/no-raw-retention
   custody explicit.
+- Screen evidence family AI hub routing contracts that require child-local
+  analysis first, keep selected hard-visual routing inside local household LAN
+  custody, and reject raw retention, remote/API fallback, and Ocentra-hosted
+  processing claims.
 - Screen-AI browser trigger proof rows that compose typed browser AI
   input/result contracts with screen-analysis result contracts for managed URL,
   browser-video, social-feed, and cloud-game trigger states without claiming UI,
@@ -93,6 +97,9 @@ flowchart LR
 - Screen detector prompts now have `screen-detector-prompt-pack-proof`;
   production model quality, live inference, policy action, and enforcement proof
   remain open.
+- Screen family AI hub routing now has
+  `screen-family-ai-hub-routing-proof`; real LAN hub runtime/discovery,
+  production model quality, UI, policy, and enforcement proof remain open.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime, local parent-defined place store proof, and Rust ActivityStore ingest
   proof; platform adapters, provider runtime, and live service-backed UI proof

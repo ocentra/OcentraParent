@@ -38,6 +38,7 @@ trigger ownership unless the row explicitly says so.
 | Remote/retention/live boundary proof     | P2 contract proved       | `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`                            | Proves raw screenshot retention, live view, and raw remote upload are disabled in the local-summary boundary; no live transport or writable retention UI claimed.                                   |
 | Detector prompt pack proof               | P2 contract proved       | `output/screen-plan-proof/40-detector-prompt-packs-and-schema-tests/proof-summary.json`            | Proves guided detector prompt pack/output contracts reject open-ended prompts, raw/private fields, policy authority, and enforcement claims; no production model quality or live inference claimed. |
 | Local AI resource scheduler proof        | P2 contract + runtime    | `output/screen-plan-proof/local-ai-resource-scheduler/proof-summary.json`                          | Proves screen OCR/VLM priority, singleton heavy-lane admission, timeout/skipped/degraded states, caps, and reuse of the provider scheduler proof; not a final capture-to-policy pipeline claim.     |
+| Family AI hub screen route proof         | P2 contract proved       | `output/screen-plan-proof/37-family-ai-hub-screen-analysis-queue/proof-summary.json`               | Proves hard screen-analysis cases route child-local first, then local household family hub with no retention and no remote/API fallback; no real LAN hub runtime or production model quality claimed. |
 
 ## Main Gates
 
@@ -72,7 +73,7 @@ trigger ownership unless the row explicitly says so.
 - [x] Remote/cloud screenshot upload disabled by default.
 - [x] Remote/API path accepts only parent-approved redacted summaries by default.
 - [x] Local AI resource scheduler prevents multiple heavy jobs on normal PCs.
-- [ ] Family AI hub is used before remote/API for hard visual cases.
+- [x] Family AI hub is used before remote/API for hard visual cases.
 - [x] Platform capture proof exists before platform claim.
 - [x] Operator live URL/app proof is recorded before product-complete claim.
 - [x] Playwright UI proof exists.
@@ -174,7 +175,7 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [~]    | 34 OCR Tesseract baseline                          |
 | [ ]    | 35 OCR PaddleOCR/PP-OCR evaluation                 |
 | [~]    | 36 Small VLM guided classifier evaluation          |
-| [ ]    | 37 Family AI hub screen-analysis queue             |
+| [x]    | 37 Family AI hub screen-analysis queue             |
 | [x]    | 38 Local AI resource scheduler/priority queue      |
 | [x]    | 39 Redacted summary-only remote boundary           |
 | [x]    | 40 Detector prompt packs and schema tests          |
