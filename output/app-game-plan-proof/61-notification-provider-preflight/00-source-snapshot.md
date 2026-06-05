@@ -1,11 +1,11 @@
 # app-game WP61 Source Snapshot
 
 - Branch: codex/app-game-notification-provider-preflight
-- Commit: fb182d7210164accf397764319d35746e410cfef
+- Commit: 0f4bf8555ceeefad28106fd26b41289fe18288a5
 - Git status at proof generation:
 
 ```text
-M scripts/test/app-game-notification-provider-preflight-proof.mjs
+clean
 ```
 
 - Scope: app/game notification scheduler rows to provider-adapter preflight rows.
