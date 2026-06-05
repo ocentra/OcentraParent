@@ -53,6 +53,14 @@ Release features are product features because parents need install/update paths 
   redaction/audit refs, retry/abandon refs, manual proof requirements, and
   package/runtime refs while keeping real backend execution and child-activity
   custody unclaimed.
+- V8 production support backend upload execution/runtime boundary proof that
+  records parent-consented request recording, redaction preflight readiness,
+  dispatch manual-required, backend/provider unavailable, retry-scheduled, and
+  operator-abandoned rows with status refs, runtime refs, redaction/audit refs,
+  retry/abandon refs, and manual proof requirements while keeping real backend
+  execution, child-activity custody, provider secrets, account lookup, billing
+  provider contact, remote support sessions, production SLA, and default
+  Ocentra-hosted family data unclaimed.
 
 ## Acceptance
 
@@ -135,6 +143,13 @@ Release features are product features because parents need install/update paths 
   transcripts, real support backend upload execution, account lookup execution,
   billing provider execution, default Ocentra-hosted family data, or production
   SLA.
+- `production-support-backend-upload-execution-runtime-proof` may prove
+  execution/runtime boundary rows for request recording, redaction preflight,
+  manual dispatch, unavailable, retry, and abandon states, but it must not claim
+  raw child activity custody, provider secrets, remote support transcripts, real
+  support backend upload execution, account lookup execution, billing provider
+  contact execution, remote support session execution, default Ocentra-hosted
+  family data, or production SLA.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play
