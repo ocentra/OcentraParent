@@ -73,6 +73,13 @@ compete on control while staying clear about attribution confidence and privacy.
   broker/family-hub routes enumerate custody, auth, encryption, retention,
   replay, deletion, offset, dedupe, broker config, and family-hub identity/relay
   requirements before any product delivery claim.
+- E-D added row10a broker delivery semantics proof in `agent-core`: the network
+  runtime composes the generic delivery decision with queue idempotency and
+  overflow/dead-letter behavior to prove effectively-once-through-idempotency
+  semantics, replay plan refs, dropped-event audit refs, and zero duplicate
+  enforcement-command or adapter-action counts. This remains a proof boundary
+  only; live broker/family-hub transport, policy execution, adapter execution,
+  and host filtering remain unclaimed.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the rejected flow,
   TTL expiry dead-letters before dispatch through manual-clock proof, and
@@ -424,6 +431,9 @@ UI rendering remain open.
       local-first with typed subscriber filters and bounded backpressure
       metadata, and row10 backpressure-depth proof now proves network-specific
       overflow dead-lettering, TTL expiry, and idempotency duplicate rejection.
+      Row10a broker delivery semantics proof now preserves replay plan,
+      dropped-event audit, and adapter-action ledger refs while proving duplicate
+      idempotency rejection and zero duplicate adapter-action counts.
       Broker/family-hub delivery remains requirements-gated rather than
       implemented. Service network read-model delivery now publishes stored
       ActivityStore network rows through the local eventing runtime and exposes

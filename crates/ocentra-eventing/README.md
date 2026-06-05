@@ -79,6 +79,8 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 This crate does not yet implement broker-backed delivery, family-hub delivery,
 Parent-specific event contracts, cross-process transport shutdown, platform
 adapter rollback execution, production retention/delete/export behavior, or
-whole-repo source scanning for topology discovery. Consumers must keep those
-claims manual-required until the matching eventing workpacks are implemented and
-validated.
+whole-repo source scanning for topology discovery. Consumers can compose
+delivery decision proof with their own queue/idempotency/drop-audit proof, as
+the network runtime does for row10a, but must keep live broker and family-hub
+transport claims manual-required until the matching eventing workpacks are
+implemented and validated.

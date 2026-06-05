@@ -21,11 +21,18 @@ use crate::{
 };
 
 #[cfg(test)]
+mod broker_delivery;
+#[cfg(test)]
 mod queue;
 mod refs;
 #[cfg(test)]
 mod review;
 
+#[cfg(test)]
+pub use broker_delivery::{
+    prove_network_runtime_broker_delivery_semantics, NetworkRuntimeBrokerDeliveryProofError,
+    NetworkRuntimeBrokerDeliverySemantics, NetworkRuntimeBrokerDeliverySemanticsReport,
+};
 #[cfg(test)]
 pub use queue::{
     queue_network_runtime_flow_expires_before_drain,
