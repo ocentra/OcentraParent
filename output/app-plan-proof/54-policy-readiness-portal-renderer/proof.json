@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-policy-readiness-portal-renderer",
-  "checkedAt": "2026-06-05T12:22:35.881Z",
-  "implementationCommit": "abf2df7411e5576fa6eec8f5d8e81d180a4ab97a",
+  "checkedAt": "2026-06-05T18:10:09.955Z",
+  "implementationCommit": "b5e94ded11e4c08254141a6845737b604c884771",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/text-domain",
