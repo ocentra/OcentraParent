@@ -91,6 +91,15 @@ dev-only repo when it claims consumer readiness.
   rejecting raw child activity custody, provider secrets, remote support
   transcripts, real backend upload execution, account lookup execution, billing
   provider execution, and default Ocentra-hosted family data.
+- `production-support-publication-workflow-proof` adds parent-domain source
+  contract rows for public privacy policy publication, privacy/legal disclosure
+  execution, support runbook publication, support incident status publication,
+  support backend upload publication handoff, and public support contact
+  publication. It proves the publication workflow remains source-contract
+  ready/manual-required while rejecting real public runtime, support backend
+  upload execution, account lookup execution, billing provider contact,
+  production SLA, legal disclosure execution, remote support sessions, and child
+  activity custody.
 - `mobile-child-agent-capability-proof` adds package/runtime hook evidence for
   Android debug APK/checksum, Android package-local status, Android device
   install/manual Play signing, iOS Xcode target, iOS simulator status, iOS
@@ -286,6 +295,15 @@ package/runtime proof.
       support transcripts, real backend upload execution, account lookup
       execution, billing provider execution, default Ocentra-hosted family data,
       and production SLA unclaimed.
+- [ ] Production support public publication workflow proof. Current
+      `production-support-publication-workflow-proof` covers public privacy
+      policy publication, privacy/legal disclosure execution, support runbook
+      publication, support incident status publication, support backend upload
+      publication handoff, and public support contact publication as
+      source-contract/manual-required rows. Real public runtime, support backend
+      upload execution, account lookup execution, billing provider contact,
+      production SLA, legal disclosure execution, remote support sessions, and
+      child activity custody remain unimplemented or unclaimed.
 - [ ] Public website/download/account/status surfaces. Current
       `production-release-public-status-proof` records public download, release
       status, update status, account status, subscription status, and support

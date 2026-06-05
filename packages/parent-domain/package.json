@@ -537,6 +537,18 @@
       "import": "./dist/production-release-public-docs-status-values.js",
       "types": "./dist/production-release-public-docs-status-values.d.ts"
     },
+    "./production-support-publication-workflow": {
+      "import": "./dist/production-support-publication-workflow.js",
+      "types": "./dist/production-support-publication-workflow.d.ts"
+    },
+    "./production-support-publication-workflow-read-model": {
+      "import": "./dist/production-support-publication-workflow-read-model.js",
+      "types": "./dist/production-support-publication-workflow-read-model.d.ts"
+    },
+    "./production-support-publication-workflow-values": {
+      "import": "./dist/production-support-publication-workflow-values.js",
+      "types": "./dist/production-support-publication-workflow-values.d.ts"
+    },
     "./parent-mobile-runtime": {
       "import": "./dist/parent-mobile-runtime.js",
       "types": "./dist/parent-mobile-runtime.d.ts"
