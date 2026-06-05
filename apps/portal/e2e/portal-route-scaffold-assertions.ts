@@ -440,6 +440,13 @@ async function assertActivityManageSurface(
     await assertCollapsedActivitySubsurfaceRemoved(page, surface);
     return;
   }
+  if (path === '/#/network-activity') {
+    await expect(surface.locator('text').filter({ hasText: 'NETWORK ACTIVITY' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Network' }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Scan Local Area Network' })).toBeVisible();
+    await assertCollapsedActivitySubsurfaceRemoved(page, surface);
+    return;
+  }
   await expect(surface.locator('text').filter({ hasText: 'Reports' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Screen' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'App Use' }).first()).toBeVisible();
@@ -569,7 +576,7 @@ async function assertSidePanelFoldouts(page: Page): Promise<void> {
 async function clickSidePanelButton(page: Page, name: string): Promise<void> {
   const button = page.getByRole('button', { exact: true, name });
   await expect(button).toBeVisible();
-  await button.click({ force: true });
+  await button.dispatchEvent('click');
 }
 
 async function expandSidePanelGroup(page: Page, label: string): Promise<void> {

@@ -1,7 +1,7 @@
 # app-game WP54 Policy Readiness Portal Renderer
 
-Checked at: 2026-06-05T19:02:12.611Z
-Implementation commit: 3c047649df7106f6df2a1e614b2d355f18382656
+Checked at: 2026-06-05T19:55:23.074Z
+Implementation commit: fe51b490b21045a13add840358e026790d37cd9d
 
 ## Claims Proved
 - portal live state parses the existing service-backed app/game policy readiness event
