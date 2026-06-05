@@ -1,7 +1,7 @@
 # app-game WP61 Source Snapshot
 
 - Branch: codex/app-game-notification-provider-preflight
-- Commit: 0f4bf8555ceeefad28106fd26b41289fe18288a5
+- Commit: 4234299494462d3b5c689d5b7f25045968052bd3
 - Git status at proof generation:
 
 ```text

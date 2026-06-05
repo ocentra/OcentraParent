@@ -2,7 +2,7 @@
   "proofMode": "app-game-notification-provider-preflight",
   "generatedAt": "2026-06-05T02:43:00Z",
   "branch": "codex/app-game-notification-provider-preflight",
-  "commit": "0f4bf8555ceeefad28106fd26b41289fe18288a5",
+  "commit": "4234299494462d3b5c689d5b7f25045968052bd3",
   "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
