@@ -3,6 +3,7 @@ pub mod cascade;
 pub mod category;
 pub mod classifier;
 pub mod dns;
+pub mod dns_adapter;
 pub mod domain;
 pub mod encrypted_dns;
 pub mod fixtures;
@@ -49,6 +50,11 @@ pub use dns::{
     parse_dns_message, replay_dns_observations, DnsMessage, DnsObservation, DnsQueryType,
     DnsQuestion, DnsRecordData, DnsResourceRecord, NetworkEvidenceGrade, NetworkReplayError,
     NetworkReplaySummary,
+};
+pub use dns_adapter::{
+    plan_network_dns_adapter_proof, NetworkDnsAdapterAction, NetworkDnsAdapterBoundaryReason,
+    NetworkDnsAdapterCapabilityState, NetworkDnsAdapterProof, NetworkDnsAdapterProofError,
+    NetworkDnsAdapterProofInput, NetworkDnsAdapterProofState, NetworkDnsAdapterRequiredArtifact,
 };
 pub use domain::{
     normalize_domain_with_public_suffix, DomainNormalizationError, NormalizedDomainEvidence,

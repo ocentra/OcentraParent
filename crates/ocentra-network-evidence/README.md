@@ -61,11 +61,16 @@ handoff states while keeping adapter and enforcement command authorization false
 The parent notification candidate mapper converts those handoff states into
 candidate-only parent notification records with policy, rule, evidence, and
 local-AI refs while rejecting provider delivery, sensitive payload, adapter, and
-enforcement-command claims.
+enforcement-command claims. The DNS adapter proof boundary models block and
+redirect apply-readiness only when grade-A policy, parent rule, evidence,
+supported capability, adapter authorization, apply/result, rollback, and audit
+refs are all present. Dry-run, weak evidence, manual-required, and unavailable
+states are non-executable, and exact URL, decrypted payload, page content, host
+DNS mutation, and enforcement-command claims are rejected.
 
 Live Npcap/libpcap capture, full vendor category feeds, analyzer comparison,
 production CDN intelligence, unmanaged browser URL correlation, foreground
-session correlation, network adapter enforcement, file/content inspection,
+session correlation, live network adapter enforcement, file/content inspection,
 local-AI model execution/worker runtime, full policy engine execution,
-notification provider delivery, adapter execution, and portal rendering remain
+notification provider delivery, live adapter execution, and portal rendering remain
 separate proof-gated workpacks.

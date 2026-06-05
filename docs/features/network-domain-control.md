@@ -159,6 +159,12 @@ compete on control while staying clear about attribution confidence and privacy.
   refs from the network activity digest, shows metadata-only endpoint/domain/
   process attribution, and keeps exact URL, AI, policy, intervention, and
   retention facets explicitly not reported when no service refs exist.
+- E-D added a deterministic DNS proxy/block/redirect adapter proof boundary in
+  `ocentra-network-evidence`: grade-A block policy plus parent-rule, evidence,
+  capability, adapter authorization, apply, result, rollback, and audit refs can
+  become apply-ready. Dry-run, weak evidence, manual-required, and unavailable
+  states stay non-executable, and exact URL, page content, decrypted payload,
+  host DNS mutation, and enforcement-command claims remain rejected.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -187,7 +193,7 @@ compete on control while staying clear about attribution confidence and privacy.
 
 ## Current Gap
 
-Real OS/domain blocking adapter proof, broader DNS/VPN/proxy handling,
+Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
 attribution quality, live PCAP/analyzer fixture proof, TypeScript/public export
 parity and service wiring for network event contracts, AI detection and audit
 proof, risk-budget proof, performance proof, and parent-facing rule UX remain.
@@ -203,12 +209,13 @@ chain and now proves local queue/drain plus request-response consumption of the
 reusable eventing crate, service-side journal-before-action/final-audit
 ordering, typed in-process parent/controller to child-agent handoff, and
 cross-slice evidence bundle construction after cascade routing, plus
-network-triggered local-AI queue planning with refs-only AI inputs and
-evidence-grade policy handoff mapping, plus parent notification candidate
-mapping. Analyzer fixtures, broker/family-hub delivery, local-AI model
-execution/worker runtime, full policy engine execution, notification provider
-delivery, broader parent-facing rule UX, and adapter apply/rollback artifacts
-remain open.
+network-triggered local-AI queue planning with refs-only AI inputs,
+evidence-grade policy handoff mapping, parent notification candidate mapping,
+and a proof-gated DNS adapter apply/result/rollback/audit boundary. Analyzer
+fixtures, broker/family-hub delivery, local-AI model execution/worker runtime,
+full policy engine execution, notification provider delivery, broader
+parent-facing rule UX, live host DNS mutation/proxy installation, and platform
+adapter execution remain open.
 
 ## Checklist
 
@@ -249,15 +256,27 @@ remain open.
       mapping now preserves refs without provider delivery, and the Activity
       route now renders a service-backed network evidence drawer with missing
       exact URL/AI/policy/intervention/retention refs labeled as not reported.
-      Production analyzer, AI model execution, broker/family-hub delivery,
-      broader service wiring, full policy engine execution, notification
-      delivery, and risk-budget fixtures remain.
+      Row37 DNS adapter proof now models apply-ready, dry-run,
+      manual-required, and unavailable states with required apply/result/
+      rollback/audit refs while refusing host mutation and enforcement command
+      claims. Production analyzer, AI model execution, broker/family-hub
+      delivery, broader service wiring, full policy engine execution,
+      notification delivery, and risk-budget fixtures remain.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
       unsupported-claim states without publishing policy or adapter commands.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
+      Row37 DNS adapter proof models supported/manual-required/unavailable
+      capability states for the DNS adapter boundary, but broader platform
+      capability status and parent UI surfacing remain open.
+- [x] DNS proxy/block/redirect adapter proof boundary.
+      The Rust proof accepts apply-ready only with grade-A policy, parent-rule
+      refs, evidence refs, supported capability, adapter authorization,
+      apply/result/rollback artifacts, and audit refs; dry-run/manual/
+      unavailable states remain non-executable and host DNS mutation is not
+      claimed.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.
 - [ ] Real block/terminate/unavailable result.
 - [x] No decrypted payload/page-content claim at the network contract boundary.

@@ -10,6 +10,7 @@ mod bundle;
 mod cascade;
 mod category;
 mod classifier;
+mod dns_adapter;
 mod domain;
 mod flow;
 mod local_ai_queue;
