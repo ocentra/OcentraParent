@@ -153,27 +153,41 @@ generic app blocking covers this concern.
   that runtime writer delivery boundary proof under
   `test-results/app-install-purchase-runtime-writer-delivery-proof/proof.json`
   when run.
+- `packages/parent-domain/src/app-install-purchase-package-source-capture-status-proof.ts`
+  now links child package-source artifact refs and store status handoff rows to
+  captured, blocked, manual-required, and unavailable package-source capture
+  status rows with artifact, audit, report, and platform limitation refs while
+  preserving no provider/store execution, no store integration, no portal
+  approval UI, no platform adapter implementation, no child-device delivery, no
+  runtime report delivery, no interception, no child activity data, no app
+  blocking, and no Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-package-source-capture-status-proof.mjs`
+  records that package-source capture status proof under
+  `test-results/app-install-purchase-package-source-capture-status-proof/proof.json`
+  when run.
 
 ## Current Gap
 
 Ocentra still needs implemented platform adapters, approved provider/store API
-execution proof, production child-device package-source artifact capture, real
-child-device delivery for pending/result state, portal UX, runtime report
-writer/delivery, and proof for each store/platform path. The current
-parent-domain proofs attach parent-owned platform/report artifact refs, child
-package-source artifact refs, approved API/entitlement evidence refs, stateless
-report compiler status/result refs, and platform adapter readiness refs to
-runtime boundary rows, add child-facing status runtime readiness rows, link
-parent approval actions to those evidence refs, map the actions into runtime
-handoff status rows, and link per-store status handoff rows to adapter
-readiness/manual/unavailable states, and attach those handoffs to runtime
-writer envelope/manual-required rows, but do not implement Google Play, Apple
-App Store, Microsoft Store, billing entitlement, provider/store execution,
-platform interception, runtime status reader, portal approval/report UI,
-runtime action writer execution, runtime writer delivery, parent action runtime
-delivery, child-device runtime capture, child-device delivery, runtime report
-delivery, runtime app-blocking behavior, or production child-device
-package-source artifact capture.
+execution proof, real child-device package-source adapter execution beyond
+proof-backed capture status rows, real child-device delivery for pending/result
+state, portal UX, runtime report writer/delivery, and proof for each
+store/platform path. The current parent-domain proofs attach parent-owned
+platform/report artifact refs, child package-source artifact refs, approved
+API/entitlement evidence refs, stateless report compiler status/result refs, and
+platform adapter readiness refs to runtime boundary rows, add child-facing
+status runtime readiness rows, classify package-source capture requests as
+captured, blocked, manual-required, or unavailable with artifact/audit/report
+refs and platform limitation states, link parent approval actions to those
+evidence refs, map the actions into runtime handoff status rows, and link
+per-store status handoff rows to adapter readiness/manual/unavailable states,
+and attach those handoffs to runtime writer envelope/manual-required rows, but
+do not implement Google Play, Apple App Store, Microsoft Store, billing
+entitlement, provider/store execution, platform interception, runtime status
+reader, portal approval/report UI, runtime action writer execution, runtime
+writer delivery, parent action runtime delivery, child-device package-source
+adapter execution, child-device delivery, runtime report delivery, runtime
+app-blocking behavior, or Ocentra-hosted family data custody.
 
 ## Checklist
 
@@ -242,14 +256,19 @@ package-source artifact capture.
       parent action runtime delivery, provider/store execution, platform adapter
       implementation, child delivery, report delivery, interception, child
       activity data, app blocking, or Ocentra-hosted family data custody claims.
+- [x] Package-source capture/status proof linking child package-source artifact
+      refs and store status handoff rows to captured, blocked, manual-required,
+      and unavailable status rows without provider/store execution, store
+      integration, portal approval UI, platform adapter implementation, child
+      delivery, report delivery, custody, interception, or app blocking claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
 
-Do not fold this into generic app blocking. The next proof should add production
-child-device package-source capture, real portal approval/report UI, parent
-action runtime delivery, runtime writer execution, real child delivery,
-provider/store API execution proof, or actual platform adapters before
-upgrading manual-required source rows, child delivery, parent action, store
-status, or report status. If the OS/store does not allow interception, document
-the limitation and offer the closest safe parent workflow.
+Do not fold this into generic app blocking. The next proof should add real
+package-source capture adapter execution, real portal approval/report UI, parent
+action runtime delivery, runtime writer execution/delivery, real child delivery,
+provider/store API execution proof, or actual platform adapters before upgrading
+manual-required source rows, child delivery, parent action, store status,
+capture status, or report status. If the OS/store does not allow interception,
+document the limitation and offer the closest safe parent workflow.

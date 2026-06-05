@@ -43,6 +43,9 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Windows cloud relay, sync/export, and notifications must preserve local-first
   operation when remote services or providers fail, and must not require
   Ocentra-hosted storage of child activity data.
+- Windows app-install package-source capture status rows may classify local
+  package-source proof refs as captured, but provider/store integration and
+  platform adapter execution remain separate proof gates.
 - Validation needs real Windows adapter tests or guarded integration/manual evidence for each claimed OS capability, plus contract tests for every event shape crossing TypeScript and Rust.
 
 ## macOS
@@ -51,6 +54,9 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Capture/enforcement claims require real permission/API proof.
 - Do not assume Windows service behavior maps to launchd behavior without tests.
 - Network/domain observation claims require approved macOS APIs, permission behavior, installer behavior, and user-visible consent or management requirements to be documented.
+- macOS app-install package-source capture remains manual-required until host,
+  signing, receipt, and store-source proof is attached behind a platform
+  boundary.
 - Do not claim process/window, network, enforcement, or background notification parity from the package scaffold alone.
 
 ## Linux
@@ -60,6 +66,8 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Service-manager package behavior must be tested separately.
 - Network/domain observation support must name the tested distro/service-manager assumptions and kernel or desktop APIs used.
 - CI package install proof is not enough to claim child-device monitoring support.
+- Linux app-install package-source capture must stay unavailable until a tested
+  distro/package-manager source path and limitation proof exists.
 
 ## Android
 
@@ -69,6 +77,8 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Foreground service, notification permission, accessibility, VPN, DNS, device-owner, or managed-profile behavior must be named separately; one capability does not imply the others.
 - Network/domain visibility, enforcement, sync, and notifications must match Play policy and OS permission limits.
 - Parent-device Android app support and child-device Android agent support are separate claims.
+- Android app-install package-source capture is blocked until device-owner or
+  managed-profile proof exists; generic parent-device app support is not enough.
 
 ## iOS
 
@@ -78,6 +88,9 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Family Controls, Screen Time APIs, Network Extension, notifications, and background execution require separate entitlement and review proof before product claims.
 - Parent-device iOS app support and child-device iOS agent support are separate claims.
 - If a capability cannot be implemented under approved APIs, document the limitation instead of implying parity.
+- iOS app-install package-source capture is blocked until Apple entitlement and
+  review proof exists; limitation rows should be explicit when APIs do not allow
+  parity.
 
 ## Web
 
