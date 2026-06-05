@@ -1,7 +1,10 @@
 use std::fs::{read, remove_file};
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
+    constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
+    ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkProtocol, ActivityNetworkTcpState,
+    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
+    LogFields, ACTIVITY_SCHEMA_VERSION,
 };
 
 use super::{
@@ -29,6 +32,9 @@ fn activity_store_reports_network_flow_read_model_from_ingested_events() {
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 1);
+    assert_eq!(read_model.active_rows, 1);
+    assert_eq!(read_model.tombstone_rows, 0);
+    assert_eq!(read_model.exportable_rows, 1);
     assert_eq!(row.event_id, event.event_id);
     assert_eq!(
         row.destination_domain,
@@ -46,6 +52,37 @@ fn activity_store_reports_network_flow_read_model_from_ingested_events() {
     assert_eq!(row.counters.connection_count, 1);
     assert_eq!(row.counters.bytes_sent, None);
     assert_eq!(row.counters.bytes_received, None);
+}
+
+#[test]
+fn activity_store_filters_network_retention_tombstones_from_read_model() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let event = network_event();
+    let deleted_event_id = event.event_id.clone();
+
+    store
+        .ingest_events(&[event, network_retention_deleted_event(&deleted_event_id)])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    let read_model = store
+        .network_flow_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert_eq!(read_model.returned, 0);
+    assert_eq!(read_model.active_rows, 0);
+    assert_eq!(read_model.tombstone_rows, 1);
+    assert_eq!(read_model.exportable_rows, 0);
+    assert_eq!(read_model.rows.len(), 0);
+    assert_eq!(
+        read_model.latest_tombstone_event_id.as_deref(),
+        Some(constants::activity_store::TEST_NETWORK_RETENTION_DELETE_EVENT_ID)
+    );
+    assert_eq!(
+        read_model.deleted_evidence_reference_ids,
+        vec![deleted_event_id]
+    );
 }
 
 #[test]
@@ -84,6 +121,7 @@ fn activity_store_replays_network_flow_read_model_from_encrypted_journal() {
 
     assert_eq!(status.events_ingested, 1);
     assert_eq!(read_model.returned, 1);
+    assert_eq!(read_model.exportable_rows, 1);
     assert!(!String::from_utf8_lossy(&journal_bytes)
         .contains(constants::activity_store::TEST_NETWORK_DOMAIN));
 }
@@ -100,6 +138,9 @@ fn activity_store_reports_empty_network_flow_without_inventing_rows() {
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 0);
+    assert_eq!(read_model.active_rows, 0);
+    assert_eq!(read_model.tombstone_rows, 0);
+    assert_eq!(read_model.exportable_rows, 0);
     assert_eq!(read_model.rows.len(), 0);
     assert_eq!(
         read_model.capability_status,
@@ -127,6 +168,46 @@ fn network_event() -> ocentra_parent_agent_protocol::ActivityEvent {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         0,
     )
+}
+
+fn network_retention_deleted_event(deleted_event_id: &str) -> ActivityEvent {
+    let mut fields = LogFields::new();
+    fields.insert(
+        constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
+        LogFieldValue::String(deleted_event_id.to_string()),
+    );
+    fields.insert(
+        constants::field::DELETED_AT.to_string(),
+        LogFieldValue::String(
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT.to_string(),
+        ),
+    );
+
+    ActivityEvent {
+        schema_version: ACTIVITY_SCHEMA_VERSION,
+        event_id: constants::activity_store::TEST_NETWORK_RETENTION_DELETE_EVENT_ID.to_string(),
+        observed_at: constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT
+            .to_string(),
+        source: ActivitySource {
+            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            platform: std::env::consts::OS.to_string(),
+            observer: ActivityObserver::AgentService,
+            source_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+        },
+        kind: ActivityEventKind::NetworkRetentionDeleted,
+        subject: ActivitySubject {
+            kind: ActivitySubjectKind::Retention,
+            subject_id: deleted_event_id.to_string(),
+            display_name: None,
+        },
+        fields,
+        evidence: vec![ActivityEvidenceRef {
+            evidence_id: deleted_event_id.to_string(),
+            kind: ActivityEvidenceKind::JournalEntry,
+            digest: None,
+            uri: None,
+        }],
+    }
 }
 
 fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {

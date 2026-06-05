@@ -84,8 +84,26 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
         custody: NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
         limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
         returned: 0,
+        active_rows: 0,
+        tombstone_rows: 1,
+        exportable_rows: 0,
         capability_status: constants::activity_capture::CAPABILITY_STATUS_NO_NETWORK_OBSERVATIONS
             .to_string(),
+        latest_event_id: Some(
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_EVENT_ID.to_string(),
+        ),
+        latest_observed_at: Some(
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT.to_string(),
+        ),
+        latest_tombstone_event_id: Some(
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_EVENT_ID.to_string(),
+        ),
+        latest_tombstone_observed_at: Some(
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT.to_string(),
+        ),
+        deleted_evidence_reference_ids: vec![
+            constants::activity_store::TEST_NETWORK_EVENT_ID.to_string()
+        ],
         rows: Vec::new(),
     };
 
@@ -100,6 +118,11 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
         serialized["capabilityStatus"],
         constants::activity_capture::CAPABILITY_STATUS_NO_NETWORK_OBSERVATIONS
     );
+    assert_eq!(
+        serialized["deletedEvidenceReferenceIds"][0],
+        constants::activity_store::TEST_NETWORK_EVENT_ID
+    );
+    assert_eq!(serialized["tombstoneRows"], 1);
     assert_eq!(serialized["rows"].as_array().map(Vec::len), Some(0));
 }
 

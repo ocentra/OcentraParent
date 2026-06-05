@@ -1,6 +1,11 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel, LogFieldValue,
-    LogFields,
+    LogFields, NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
+    NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+    NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY,
+    NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID,
+    NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT,
+    NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
 
 use crate::{
@@ -25,6 +30,7 @@ pub fn network_flow_read_model_payload_with_runtime_delivery(
 }
 
 fn read_model_pairs(read_model: &ActivityNetworkFlowReadModel) -> Vec<FieldPair> {
+    let separator = constants::delimiter::LIST.to_string();
     vec![
         (
             constants::field::GENERATED_AT,
@@ -43,8 +49,44 @@ fn read_model_pairs(read_model: &ActivityNetworkFlowReadModel) -> Vec<FieldPair>
             LogFieldValue::Number(read_model.returned as f64),
         ),
         (
+            NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
+            LogFieldValue::Number(read_model.active_rows as f64),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
+            LogFieldValue::Number(read_model.tombstone_rows as f64),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS,
+            LogFieldValue::Number(read_model.exportable_rows as f64),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY,
+            LogFieldValue::String(NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT.to_string()),
+        ),
+        (
             constants::field::CAPABILITY_STATUS,
             LogFieldValue::String(read_model.capability_status.clone()),
+        ),
+        (
+            constants::field::LATEST_EVENT_ID,
+            optional_string(read_model.latest_event_id.as_ref()),
+        ),
+        (
+            constants::field::LATEST_OBSERVED_AT,
+            optional_string(read_model.latest_observed_at.as_ref()),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID,
+            optional_string(read_model.latest_tombstone_event_id.as_ref()),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT,
+            optional_string(read_model.latest_tombstone_observed_at.as_ref()),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+            LogFieldValue::String(read_model.deleted_evidence_reference_ids.join(&separator)),
         ),
         (
             constants::field::ACTIVITY_DIGEST,
@@ -58,14 +100,6 @@ fn read_model_pairs(read_model: &ActivityNetworkFlowReadModel) -> Vec<FieldPair>
 
 fn row_identity_pairs(row: Option<&ActivityNetworkFlowObservation>) -> Vec<FieldPair> {
     vec![
-        (
-            constants::field::LATEST_EVENT_ID,
-            optional_string(row.map(|value| &value.event_id)),
-        ),
-        (
-            constants::field::LATEST_OBSERVED_AT,
-            optional_string(row.map(|value| &value.observed_at)),
-        ),
         (
             constants::field::OBSERVER,
             optional_string(row.map(|value| &value.observer)),

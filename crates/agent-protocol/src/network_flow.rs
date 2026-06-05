@@ -3,7 +3,17 @@ use serde::{Deserialize, Serialize};
 use crate::ActivityEvidenceRef;
 
 pub const NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE: &str = "child-device-query-store";
+pub const NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT: &str = "parent-owned-export";
 pub const NETWORK_FLOW_CUSTODY_UNAVAILABLE: &str = "unavailable";
+pub const NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS: &str = "activeRows";
+pub const NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS: &str = "tombstoneRows";
+pub const NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS: &str = "exportableRows";
+pub const NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY: &str = "exportCustody";
+pub const NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID: &str = "latestTombstoneEventId";
+pub const NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT: &str =
+    "latestTombstoneObservedAt";
+pub const NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS: &str =
+    "deletedEvidenceReferenceIds";
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -52,7 +62,15 @@ pub struct ActivityNetworkFlowReadModel {
     pub custody: String,
     pub limit: u64,
     pub returned: u64,
+    pub active_rows: u64,
+    pub tombstone_rows: u64,
+    pub exportable_rows: u64,
     pub capability_status: String,
+    pub latest_event_id: Option<String>,
+    pub latest_observed_at: Option<String>,
+    pub latest_tombstone_event_id: Option<String>,
+    pub latest_tombstone_observed_at: Option<String>,
+    pub deleted_evidence_reference_ids: Vec<String>,
     pub rows: Vec<ActivityNetworkFlowObservation>,
 }
 

@@ -98,7 +98,15 @@ fn read_model(rows: Vec<ActivityNetworkFlowObservation>) -> ActivityNetworkFlowR
         custody: NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
         limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
         returned: rows.len() as u64,
+        active_rows: rows.len() as u64,
+        tombstone_rows: 0,
+        exportable_rows: rows.len() as u64,
         capability_status: constants::activity_capture::CAPABILITY_STATUS_AVAILABLE.to_string(),
+        latest_event_id: rows.first().map(|row| row.event_id.clone()),
+        latest_observed_at: rows.first().map(|row| row.observed_at.clone()),
+        latest_tombstone_event_id: None,
+        latest_tombstone_observed_at: None,
+        deleted_evidence_reference_ids: Vec::new(),
         rows,
     }
 }

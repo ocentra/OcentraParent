@@ -132,13 +132,15 @@ SELECT
   event_id,
   observed_at,
   observer,
+  kind,
   fields_json,
   evidence_json
 FROM activity_events
-WHERE kind = ?1
-  AND observer = ?2
+WHERE (kind = ?1
+  AND observer = ?2)
+  OR kind = ?3
 ORDER BY observed_at DESC, event_id DESC
-LIMIT ?3;";
+LIMIT ?4;";
 
 pub const SELECT_RECENT_TRACKING_ACTIVITY: &str = "
 SELECT

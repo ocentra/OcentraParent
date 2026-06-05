@@ -4,12 +4,16 @@ use ocentra_parent_agent_core::{
     network_observation_event, ActivityStore, NetworkObservation, NetworkRuntimePhase,
 };
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants, ActivityCaptureCapabilityStatus, ActivityEvidenceKind,
-    ActivityEvidenceRef, ActivityNetworkEndpoint, ActivityNetworkFlowCounters,
-    ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel, ActivityNetworkProtocol,
-    ActivityNetworkTcpState, AgentCommandEnvelope, AgentCommandName, AgentEventName,
+    constants, policy_constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
+    ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkEndpoint,
+    ActivityNetworkFlowCounters, ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel,
+    ActivityNetworkProtocol, ActivityNetworkTcpState, ActivityObserver, ActivitySource,
+    ActivitySubject, ActivitySubjectKind, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    AGENT_PROTOCOL_SCHEMA_VERSION, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
+    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
+    NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+    NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
     NETWORK_FLOW_SCHEMA_VERSION,
 };
 use serde_json::Value;
@@ -40,17 +44,24 @@ async fn service_network_runtime_streams_protocol_event_chain_entries() {
     assert_eq!(report.failed_rows, 0);
     assert_eq!(report.manual_required_rows, 0);
     assert_eq!(report.enforcement_command_events, 1);
+    assert_eq!(report.active_rows, 1);
+    assert_eq!(report.exportable_rows, 1);
+    assert_eq!(
+        payload.get(NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS),
+        Some(&LogFieldValue::Number(1.0))
+    );
     assert_eq!(
         entries[0][constants::field::EVENT_TYPE],
         constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED
     );
-    assert_eq!(
-        entries[0][constants::field::EVENT_REF]
-            .as_str()
-            .unwrap_or_default()
-            .ends_with(constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED),
-        true
-    );
+    assert!(entries[0][constants::field::EVENT_REF]
+        .as_str()
+        .unwrap_or_default()
+        .ends_with(constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED));
     assert_eq!(
         entries[0][constants::field::PAYLOAD][constants::field::CLAIM_BOUNDARY]
             [constants::field::EXACT_URL_AVAILABLE],
@@ -137,6 +148,57 @@ async fn websocket_network_runtime_stream_command_reports_store_backed_chain() {
     );
 }
 
+#[tokio::test]
+async fn websocket_network_runtime_stream_reports_tombstone_without_streaming_deleted_row() {
+    let _guard = REPORT_ENV_LOCK.lock().await;
+    let store_path = temp_path(constants::activity_store::TEST_NETWORK_STORE_SUFFIX);
+    cleanup_path(&store_path);
+    std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
+
+    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let network_event = network_activity_event();
+    let deleted_event_id = network_event.event_id.clone();
+    store
+        .ingest_events(&[
+            network_event,
+            network_retention_deleted_event(&deleted_event_id),
+        ])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    let body =
+        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
+    let entries = stream_entries(&event.payload);
+
+    std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
+    cleanup_path(&store_path);
+
+    assert_eq!(entries.len(), 0);
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::NETWORK_RUNTIME_STREAMED_EVENTS),
+        Some(&LogFieldValue::Number(0.0))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS),
+        Some(&LogFieldValue::Number(0.0))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS),
+        Some(&LogFieldValue::String(deleted_event_id))
+    );
+}
+
 fn read_model(rows: Vec<ActivityNetworkFlowObservation>) -> ActivityNetworkFlowReadModel {
     ActivityNetworkFlowReadModel {
         schema_version: NETWORK_FLOW_SCHEMA_VERSION,
@@ -144,7 +206,15 @@ fn read_model(rows: Vec<ActivityNetworkFlowObservation>) -> ActivityNetworkFlowR
         custody: NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
         limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
         returned: rows.len() as u64,
+        active_rows: rows.len() as u64,
+        tombstone_rows: 0,
+        exportable_rows: rows.len() as u64,
         capability_status: constants::activity_capture::CAPABILITY_STATUS_AVAILABLE.to_string(),
+        latest_event_id: rows.first().map(|row| row.event_id.clone()),
+        latest_observed_at: rows.first().map(|row| row.observed_at.clone()),
+        latest_tombstone_event_id: None,
+        latest_tombstone_observed_at: None,
+        deleted_evidence_reference_ids: Vec::new(),
         rows,
     }
 }
@@ -226,6 +296,46 @@ fn network_activity_event() -> ocentra_parent_agent_protocol::ActivityEvent {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         0,
     )
+}
+
+fn network_retention_deleted_event(deleted_event_id: &str) -> ActivityEvent {
+    let mut fields = LogFields::new();
+    fields.insert(
+        constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
+        LogFieldValue::String(deleted_event_id.to_string()),
+    );
+    fields.insert(
+        constants::field::DELETED_AT.to_string(),
+        LogFieldValue::String(
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT.to_string(),
+        ),
+    );
+
+    ActivityEvent {
+        schema_version: ACTIVITY_SCHEMA_VERSION,
+        event_id: constants::activity_store::TEST_NETWORK_RETENTION_DELETE_EVENT_ID.to_string(),
+        observed_at: constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT
+            .to_string(),
+        source: ActivitySource {
+            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
+            observer: ActivityObserver::AgentService,
+            source_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+        },
+        kind: ActivityEventKind::NetworkRetentionDeleted,
+        subject: ActivitySubject {
+            kind: ActivitySubjectKind::Retention,
+            subject_id: deleted_event_id.to_string(),
+            display_name: None,
+        },
+        fields,
+        evidence: vec![ActivityEvidenceRef {
+            evidence_id: deleted_event_id.to_string(),
+            kind: ActivityEvidenceKind::JournalEntry,
+            digest: None,
+            uri: None,
+        }],
+    }
 }
 
 fn command_envelope() -> AgentCommandEnvelope {

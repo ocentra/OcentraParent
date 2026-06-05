@@ -96,6 +96,13 @@ compete on control while staying clear about attribution confidence and privacy.
   counts. This remains service-local; broker/family-hub transport, production
   retention/replay/delete/export, live analyzer/model/policy execution, adapter
   execution, and host filtering remain unclaimed.
+- E-D added service/query-store retention tombstone proof for network flow
+  facts. `activity.network.retention.deleted` rows now stay visible as local
+  deletion evidence refs while ActivityStore read models, service read-model
+  payloads, and WebSocket event-chain streams suppress deleted active rows and
+  report active, tombstone, and exportable row counts. This proves
+  service-local custody/export accounting for stored network facts, not raw
+  PCAP/live-capture retention or broker/family-hub deletion propagation.
 - E-D added the first `activity-domain` network contract boundary proof for
   flow evidence, domain evidence, activity classification, A/B/C/D evidence
   grades, and policy/action capability gating. The proof keeps network-only
@@ -296,8 +303,9 @@ compete on control while staying clear about attribution confidence and privacy.
 
 Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
 attribution quality, live capture driver invocation, live analyzer fixture
-proof, broker/family-hub transport, service WebSocket streaming of the network
-runtime event chain, production risk-budget service/UI wiring,
+proof, broker/family-hub transport, remote network runtime event-chain
+delivery, raw PCAP/live-capture retention, production risk-budget service/UI
+wiring,
 production SLO validation,
 external audit/deployment execution, full support-material authoring, and
 parent-facing rule UX remain.
@@ -312,9 +320,11 @@ runtime spine removes the private-bus blocker for an in-process metadata-only
 chain and now proves local queue/drain plus request-response consumption of the
 reusable eventing crate, service-side network read-model delivery into the
 local eventing runtime, service WebSocket streaming of protocol-shaped network
-runtime event-chain entries, service-side journal-before-action/final-audit
-ordering, typed in-process parent/controller to child-agent handoff, and
-cross-slice evidence bundle construction after cascade routing, plus
+runtime event-chain entries, service/query-store retention tombstone filtering
+with exportable-row accounting for stored network facts, service-side
+journal-before-action/final-audit ordering, typed in-process parent/controller
+to child-agent handoff, and cross-slice evidence bundle construction after
+cascade routing, plus
 network-triggered local-AI queue planning with refs-only AI inputs,
 evidence-grade policy handoff mapping, parent notification candidate mapping,
 proof-gated DNS and Windows Firewall adapter apply/result/rollback/audit
@@ -403,8 +413,11 @@ execution, and platform adapter execution remain open.
       ActivityStore network rows through the local eventing runtime and exposes
       delivery counts in the service payload; service WebSocket event-chain
       streaming now returns protocol-shaped local runtime entries for stored
-      rows while broker/family-hub, policy, adapter, and host-filter execution
-      remain unclaimed. Row46 AI detection fixture proof now measures model
+      rows, and service/query-store tombstones now hide deleted active rows
+      while preserving local deletion evidence refs and exportable-row counts.
+      Broker/family-hub, raw PCAP/live-capture retention, policy, adapter, and
+      host-filter execution remain unclaimed. Row46 AI detection fixture proof
+      now measures model
       predictions against labeled structured-summary fixtures with precision,
       recall, accuracy, and confidence-drift states while rejecting raw content
       and authority claims. Row47 AI audit narrative proof now emits

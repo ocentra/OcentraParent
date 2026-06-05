@@ -3,6 +3,10 @@ use ocentra_parent_agent_core::{
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityNetworkFlowReadModel, LogFieldValue, LogFields,
+    NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
+    NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+    NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY,
+    NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
 
 use crate::{
@@ -18,6 +22,10 @@ pub(crate) struct NetworkRuntimeServiceStreamReport {
     pub(crate) failed_rows: usize,
     pub(crate) manual_required_rows: usize,
     pub(crate) enforcement_command_events: usize,
+    pub(crate) active_rows: usize,
+    pub(crate) tombstone_rows: usize,
+    pub(crate) exportable_rows: usize,
+    pub(crate) deleted_evidence_reference_ids: Vec<String>,
     pub(crate) entries: Vec<NetworkRuntimeServiceStreamEntry>,
 }
 
@@ -26,6 +34,10 @@ pub(crate) async fn stream_network_runtime_event_chain_for_read_model(
 ) -> NetworkRuntimeServiceStreamReport {
     let mut stream = NetworkRuntimeServiceStreamReport {
         observed_rows: read_model.rows.len(),
+        active_rows: read_model.active_rows as usize,
+        tombstone_rows: read_model.tombstone_rows as usize,
+        exportable_rows: read_model.exportable_rows as usize,
+        deleted_evidence_reference_ids: read_model.deleted_evidence_reference_ids.clone(),
         ..NetworkRuntimeServiceStreamReport::default()
     };
 
@@ -43,6 +55,7 @@ pub(crate) async fn stream_network_runtime_event_chain_for_read_model(
 pub(crate) fn network_runtime_event_chain_stream_payload(
     report: &NetworkRuntimeServiceStreamReport,
 ) -> LogFields {
+    let separator = constants::delimiter::LIST.to_string();
     fields_from_pairs(vec![
         (
             constants::field::NETWORK_RUNTIME_OBSERVED_ROWS,
@@ -63,6 +76,26 @@ pub(crate) fn network_runtime_event_chain_stream_payload(
         (
             constants::field::NETWORK_RUNTIME_ENFORCEMENT_COMMAND_EVENTS,
             count_value(report.enforcement_command_events),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
+            count_value(report.active_rows),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
+            count_value(report.tombstone_rows),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS,
+            count_value(report.exportable_rows),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY,
+            LogFieldValue::String(NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT.to_string()),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+            LogFieldValue::String(report.deleted_evidence_reference_ids.join(&separator)),
         ),
         (
             constants::field::NETWORK_RUNTIME_EVENT_CHAIN_STREAM,

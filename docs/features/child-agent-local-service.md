@@ -84,6 +84,12 @@ and clear degraded states.
   `agent.network.runtime.event-chain.stream.reported`, without claiming
   broker/family-hub delivery, production retention/replay/delete/export, live
   analyzer/model/policy execution, adapter execution, or host filtering.
+- E-D added service/query-store network retention tombstone projection. Local
+  `activity.network.retention.deleted` events suppress deleted active network
+  rows from the ActivityStore read model and WebSocket event-chain stream while
+  preserving deletion evidence refs plus active, tombstone, and exportable row
+  counts in service payloads. This is local custody/export accounting only, not
+  raw PCAP/live-capture retention or remote broker/family-hub deletion delivery.
 - E-D extended `crates/ocentra-eventing` with production shutdown lifecycle
   proof: runtime-owned shutdown can drain queued work, dead-letter queued work,
   cancel pending local requests, clear subscriptions and aggregate gates, and
@@ -142,8 +148,10 @@ network runtime now consumes the reusable crate for typed publish,
 no-subscriber queue/drain, bounded overflow/TTL/idempotency backpressure proof,
 local typed request-response, Rust protocol-facing network event contracts,
 service-side read-model delivery for stored network rows, and service WebSocket
-streaming of protocol-shaped local event-chain entries. Public TypeScript parity
-for the network runtime event contracts now exists in `agent-protocol-domain`.
+streaming of protocol-shaped local event-chain entries, with local retention
+tombstones suppressing deleted rows while preserving deletion refs and
+exportable-row counts. Public TypeScript parity for the network runtime event
+contracts now exists in `agent-protocol-domain`.
 Parent/controller to child-agent in-process runtime
 publishing and typed local transport handoff now have proof;
 the generic eventing delivery decision proof now makes broker/family-hub delivery
@@ -174,7 +182,8 @@ raw JSON/string constants, `Uuid`, and raw domain identifier fields.
       the network runtime chain plus queue/drain, local request-response, and
       Rust protocol-facing network event contract proof; service-side network
       read-model delivery into the local runtime plus service WebSocket
-      event-chain streaming of protocol-shaped stored-row entries;
+      event-chain streaming of protocol-shaped stored-row entries and local
+      tombstone filtering/export-count projection for stored network facts;
       parent/controller and
       child-agent protocol event contract proof; parent/controller validated
       intent runtime publishing, typed local child-command handoff, and
