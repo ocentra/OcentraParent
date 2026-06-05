@@ -10,6 +10,8 @@ contracts.
 - Parent portal nav and section descriptors.
 - Service-state display rows and dev command descriptors, including the
   tracking read-model refresh command consumed by the Policy Tracking route.
+- App/game notification parent-surface panel intent values derived from the
+  parent-domain read model without claiming delivery or preference mutation.
 
 ## Must Not Own
 
@@ -43,3 +45,5 @@ flowchart LR
   behavior stale.
 - Add route contracts for new product areas only after the expectation docs
   define the parent outcome.
+- Wire app/game notification parent-surface intent to a real service event once
+  agent protocol and service payload support exists.

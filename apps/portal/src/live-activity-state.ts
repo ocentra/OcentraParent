@@ -93,6 +93,7 @@ export interface PortalLiveActivityState {
   readonly activityBrowserReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly activityGamesReadModelEvent: AgentEventEnvelope | null;
   readonly activityGamesReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly appGameNotificationParentSurfaceIntentReadModel: unknown | null;
   readonly activityNetworkReadModelEvent: AgentEventEnvelope | null;
   readonly activityNetworkReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly browserInterventionEvent: AgentEventEnvelope | null;
@@ -158,6 +159,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
       activityGamesReadModelEvent,
       activityNetworkReadModelEvent
     ),
+    appGameNotificationParentSurfaceIntentReadModel: null,
     browserInterventionEvent,
     browserInterventionReadModel:
       browserInterventionEvent === null ? null : parseBrowserInterventionReadModel(browserInterventionEvent.payload),

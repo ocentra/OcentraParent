@@ -18,6 +18,12 @@ export const PortalDevTextToken = {
   ActivityMemoryGraph: decodeTextTokenId('portal.dev.activityMemoryGraph'),
   NetworkFlow: decodeTextTokenId('portal.dev.networkFlow'),
   PolicyPreview: decodeTextTokenId('portal.dev.policyPreview'),
+  AppGameNotificationParentSurface: decodeTextTokenId('portal.dev.appGameNotificationParentSurface'),
+  AppGameNotificationParentSurfaceBody: decodeTextTokenId('portal.dev.appGameNotificationParentSurfaceBody'),
+  AppGameNotificationParentSurfaceNoData: decodeTextTokenId('portal.dev.appGameNotificationParentSurfaceNoData'),
+  AppGameNotificationParentSurfaceNoRuntimeClaim: decodeTextTokenId(
+    'portal.dev.appGameNotificationParentSurfaceNoRuntimeClaim'
+  ),
   TrackingStatusSurface: decodeTextTokenId('portal.dev.trackingStatusSurface'),
   TrackingStatusSurfaceBody: decodeTextTokenId('portal.dev.trackingStatusSurfaceBody'),
   TrackingServiceReadModel: decodeTextTokenId('portal.dev.trackingServiceReadModel'),
@@ -128,6 +134,16 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.ActivityMemoryGraph]: decodeDisplayText('Memory links'),
   [PortalDevTextToken.NetworkFlow]: decodeDisplayText('Network activity'),
   [PortalDevTextToken.PolicyPreview]: decodeDisplayText('Policy decision'),
+  [PortalDevTextToken.AppGameNotificationParentSurface]: decodeDisplayText('App/game notification surface'),
+  [PortalDevTextToken.AppGameNotificationParentSurfaceBody]: decodeDisplayText(
+    'Redacted app/game alert rows show setup and drill-in refs only.'
+  ),
+  [PortalDevTextToken.AppGameNotificationParentSurfaceNoData]: decodeDisplayText(
+    'No app/game notification parent-surface intent has been reported yet.'
+  ),
+  [PortalDevTextToken.AppGameNotificationParentSurfaceNoRuntimeClaim]: decodeDisplayText(
+    'Portal renders intent rows only; provider delivery, preference mutation, child delivery, and runtime dispatch remain unclaimed.'
+  ),
   [PortalDevTextToken.TrackingStatusSurface]: decodeDisplayText('Tracking status proof'),
   [PortalDevTextToken.TrackingStatusSurfaceBody]: decodeDisplayText('Location states are fixture proof only.'),
   [PortalDevTextToken.TrackingServiceReadModel]: decodeDisplayText('Service read model'),
