@@ -150,7 +150,13 @@ throughput, CPU, memory, disk, queue depth, dropped events, and high-concurrency
 flow counts. It preserves dry-run/manual-required/unsupported/unavailable/
 degraded path states and rejects real-time response, production SLO, raw PCAP,
 exact URL, page content, decrypted payload, adapter action, host filtering, and
-enforcement-command claims.
+enforcement-command claims. The security readiness proof records gate refs for
+threat model, privacy/compliance review, retention/delete/export custody, key
+rotation, secret handling, rule/model provenance and rollback, support
+materials, staff training, staged rollout, and known-gap signoff. Production
+rollout remains blocked without an external audit or penetration-test signoff
+ref, and default remote upload, raw PCAP without custody, exact content,
+policy/adapter authority, and enforcement-command claims are rejected.
 
 Live Npcap/libpcap capture, full vendor category feeds,
 production CDN intelligence, unmanaged browser URL correlation, foreground
@@ -160,5 +166,6 @@ production SLO validation, full policy engine execution, notification provider
 delivery, portal AI audit UI, risk-budget, or performance rendering, live WFP
 driver/callout proof, live adapter execution, Android physical-device behavior,
 Apple entitlement/device behavior, Linux distro/kernel adapter behavior, live
-Zeek/TShark/Wireshark/Suricata/Snort execution, and portal rendering remain
+Zeek/TShark/Wireshark/Suricata/Snort execution, full support-material authoring,
+external audit execution, production deployment, and portal rendering remain
 separate proof-gated workpacks.

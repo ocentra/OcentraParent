@@ -24,6 +24,7 @@ mod notification;
 mod performance;
 mod policy;
 mod process;
+mod readiness;
 mod risk_budget;
 mod signature_alert;
 mod transfer;

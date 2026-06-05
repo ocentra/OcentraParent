@@ -22,6 +22,7 @@ pub mod pcap;
 pub mod performance;
 pub mod policy;
 pub mod process;
+pub mod readiness;
 pub mod risk_budget;
 pub mod signature_alert;
 pub mod tls;
@@ -156,6 +157,12 @@ pub use process::{
     NetworkProcessAppCorrelation, NetworkProcessAppCorrelationInput,
     NetworkProcessCorrelationBasis, NetworkProcessCorrelationError, NetworkProcessCorrelationState,
     NetworkProcessCorrelationUncertainty, NetworkProcessSnapshot,
+};
+pub use readiness::{
+    evaluate_network_readiness_proof, NetworkHardeningReadinessProof, NetworkReadinessFindingCode,
+    NetworkReadinessGate, NetworkReadinessProof, NetworkReadinessProofError,
+    NetworkReadinessProofInput, NetworkReadinessState, NetworkRetentionReadinessProof,
+    NetworkRolloutReadinessProof, NetworkSupportReadinessProof,
 };
 pub use risk_budget::{
     evaluate_network_risk_budget_threshold, NetworkInterventionState,

@@ -175,6 +175,15 @@ compete on control while staying clear about attribution confidence and privacy.
   preserved, and real-time response, production SLO, raw PCAP, exact URL,
   page-content, decrypted-payload, adapter-action, host-filtering, and
   enforcement-command claims are rejected.
+- E-D added deterministic network security readiness proof in
+  `ocentra-network-evidence`: threat model, privacy/compliance,
+  retention/delete/export custody, key rotation, secret handling, rule/model
+  provenance and rollback, support materials, staff training, staged rollout,
+  and known-gap signoff refs produce internal-ready, production-blocked, or
+  production-ready-with-external-signoff states. Production rollout stays
+  blocked without external audit or penetration-test signoff, and default remote
+  upload, raw PCAP without custody, exact-content, policy/adapter authority, and
+  enforcement-command claims are rejected.
 - E-D added an evidence-grade policy mapper in `ocentra-network-evidence`:
   A/B/C/D evidence plus parent rule refs, policy decision refs, evidence refs,
   and optional local-AI result refs map to dry-run, parent-review, or
@@ -230,7 +239,8 @@ compete on control while staying clear about attribution confidence and privacy.
 Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
 attribution quality, live PCAP/analyzer fixture proof, TypeScript/public export
 parity and service wiring for network event contracts, production risk-budget
-service/UI wiring, production SLO validation, and parent-facing rule UX remain.
+service/UI wiring, production SLO validation, external audit/deployment
+execution, full support-material authoring, and parent-facing rule UX remain.
 Policy dispatch does not upgrade
 network/domain blocking beyond
 manual-required, and the broad-adapter proof and supported-adapter runtime proof
@@ -338,9 +348,13 @@ execution, and platform adapter execution remain open.
       now aggregates latency, throughput, CPU, memory, disk, queue,
       dropped-event, and high-concurrency fixture metrics while preserving
       manual/unavailable/degraded path states and rejecting realtime/production
-      claims. AI model execution, broker/family-hub delivery implementation,
+      claims. Row50 security readiness proof now gates production rollout on
+      threat-model/privacy/compliance/retention/hardening/support/staged-rollout
+      refs plus external audit or penetration-test signoff for production-ready
+      state. AI model execution, broker/family-hub delivery implementation,
       broader service wiring, full policy engine execution, notification
-      delivery, and portal risk-budget/performance UI rendering remain.
+      delivery, external audit/deployment execution, full support-material
+      authoring, and portal risk-budget/performance UI rendering remain.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
