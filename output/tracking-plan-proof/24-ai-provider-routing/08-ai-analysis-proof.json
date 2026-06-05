@@ -1,0 +1,607 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-05T06:30:02.947Z",
+  "commit": "8f525b20a030662b4f814b25ed3e564dd2614e19",
+  "workpackIds": [
+    "24-ai-provider-routing"
+  ],
+  "proofMode": "tracking-plan-ai-provider-readiness-proof",
+  "requiredProofTier": "P1_FIXTURE_SIMULATION",
+  "currentProofTier": "P1_FIXTURE_SIMULATION",
+  "currentStatus": "proved-locally",
+  "productClaimReady": false,
+  "routeMatrix": {
+    "childDeviceLocal": {
+      "schemaVersion": 1,
+      "routeId": "tracking-ai-route-child-local-home-arrival",
+      "routedAt": "2026-06-05T06:20:00.000Z",
+      "requestedTask": "location-safety",
+      "modelRuntimePreference": "child-local-required",
+      "providerKind": "child-device-local-ai",
+      "capability": {
+        "schemaVersion": 1,
+        "providerId": "tracking-child-local-ai",
+        "checkedAt": "2026-06-05T06:19:00.000Z",
+        "providerKind": "child-device-local-ai",
+        "capabilityState": "available",
+        "supportedTasks": [
+          "location-safety",
+          "expected-place-safety",
+          "nearby-place-context",
+          "geofence-risk"
+        ],
+        "modelRuntimeRef": "tracking-local-model-runtime-child",
+        "custodyLabel": "child-device-local",
+        "noRetention": true,
+        "localOnly": true,
+        "parentApprovedRemoteEnabled": false,
+        "canRunOnChildDevice": true,
+        "canRunOnParentDevice": false,
+        "familyHubLanOnly": false,
+        "degradedStates": [],
+        "unavailableReason": null
+      },
+      "executionState": "selected",
+      "selectedRuntimeRef": "tracking-local-model-runtime-child",
+      "degradedStates": [],
+      "deviceId": "child-device-tracking-1",
+      "childProfileRef": "child-profile-tracking-1",
+      "policyVersionRef": "tracking-policy-v1",
+      "evidenceIds": [
+        "location-evidence-1",
+        "device-status-1"
+      ],
+      "parentRuleRefs": [
+        "parent-rule-home-arrival"
+      ],
+      "custodyLabel": "child-device-local",
+      "reasonCodes": [
+        "tracking-ai-route-proof"
+      ],
+      "dataScopeVisible": true,
+      "retentionVisible": true,
+      "custodyVisible": true,
+      "providerVisible": true,
+      "noRetentionVisible": true,
+      "parentExplicitRemoteApproval": false,
+      "remoteDefaultForBlocking": false,
+      "remoteCanOverrideStricterLocalRules": false,
+      "remoteOutageDisablesLocalSafety": false,
+      "assistantCanWritePolicy": false,
+      "aiCanTriggerAlertDirectly": false,
+      "aiIsFinalAuthority": false,
+      "metadataOnly": false,
+      "noAi": false,
+      "manualRequired": false
+    },
+    "familyHubLanOnly": {
+      "schemaVersion": 1,
+      "routeId": "tracking-ai-route-family-hub",
+      "routedAt": "2026-06-05T06:20:00.000Z",
+      "requestedTask": "location-safety",
+      "modelRuntimePreference": "local-preferred",
+      "providerKind": "family-ai-hub",
+      "capability": {
+        "schemaVersion": 1,
+        "providerId": "tracking-family-ai-hub",
+        "checkedAt": "2026-06-05T06:19:00.000Z",
+        "providerKind": "family-ai-hub",
+        "capabilityState": "available",
+        "supportedTasks": [
+          "location-safety",
+          "expected-place-safety",
+          "nearby-place-context",
+          "geofence-risk"
+        ],
+        "modelRuntimeRef": "tracking-family-hub-runtime-lan",
+        "custodyLabel": "live-lan-child-agent",
+        "noRetention": true,
+        "localOnly": true,
+        "parentApprovedRemoteEnabled": false,
+        "canRunOnChildDevice": false,
+        "canRunOnParentDevice": false,
+        "familyHubLanOnly": true,
+        "degradedStates": [],
+        "unavailableReason": null
+      },
+      "executionState": "selected",
+      "selectedRuntimeRef": "tracking-family-hub-runtime-lan",
+      "degradedStates": [],
+      "deviceId": "child-device-tracking-1",
+      "childProfileRef": "child-profile-tracking-1",
+      "policyVersionRef": "tracking-policy-v1",
+      "evidenceIds": [
+        "location-evidence-1",
+        "device-status-1"
+      ],
+      "parentRuleRefs": [
+        "parent-rule-home-arrival"
+      ],
+      "custodyLabel": "live-lan-child-agent",
+      "reasonCodes": [
+        "tracking-ai-route-proof"
+      ],
+      "dataScopeVisible": true,
+      "retentionVisible": true,
+      "custodyVisible": true,
+      "providerVisible": true,
+      "noRetentionVisible": true,
+      "parentExplicitRemoteApproval": false,
+      "remoteDefaultForBlocking": false,
+      "remoteCanOverrideStricterLocalRules": false,
+      "remoteOutageDisablesLocalSafety": false,
+      "assistantCanWritePolicy": false,
+      "aiCanTriggerAlertDirectly": false,
+      "aiIsFinalAuthority": false,
+      "metadataOnly": false,
+      "noAi": false,
+      "manualRequired": false
+    },
+    "remoteApprovalMissing": {
+      "schemaVersion": 1,
+      "routeId": "tracking-ai-route-remote-missing-approval",
+      "routedAt": "2026-06-05T06:20:00.000Z",
+      "requestedTask": "location-safety",
+      "modelRuntimePreference": "parent-approved-remote-allowed",
+      "providerKind": "parent-approved-remote-ai",
+      "capability": {
+        "schemaVersion": 1,
+        "providerId": "tracking-parent-approved-remote",
+        "checkedAt": "2026-06-05T06:19:00.000Z",
+        "providerKind": "parent-approved-remote-ai",
+        "capabilityState": "available",
+        "supportedTasks": [
+          "location-safety",
+          "expected-place-safety",
+          "nearby-place-context",
+          "geofence-risk"
+        ],
+        "modelRuntimeRef": "tracking-parent-approved-remote-runtime",
+        "custodyLabel": "parent-approved-cloud",
+        "noRetention": true,
+        "localOnly": false,
+        "parentApprovedRemoteEnabled": true,
+        "canRunOnChildDevice": false,
+        "canRunOnParentDevice": false,
+        "familyHubLanOnly": false,
+        "degradedStates": [],
+        "unavailableReason": null
+      },
+      "executionState": "manual-required",
+      "selectedRuntimeRef": null,
+      "degradedStates": [
+        "parent-approval-missing"
+      ],
+      "deviceId": "child-device-tracking-1",
+      "childProfileRef": "child-profile-tracking-1",
+      "policyVersionRef": "tracking-policy-v1",
+      "evidenceIds": [
+        "location-evidence-1",
+        "device-status-1"
+      ],
+      "parentRuleRefs": [
+        "parent-rule-home-arrival"
+      ],
+      "custodyLabel": "parent-approved-cloud",
+      "reasonCodes": [
+        "tracking-ai-route-proof"
+      ],
+      "dataScopeVisible": true,
+      "retentionVisible": true,
+      "custodyVisible": true,
+      "providerVisible": true,
+      "noRetentionVisible": true,
+      "parentExplicitRemoteApproval": false,
+      "remoteDefaultForBlocking": false,
+      "remoteCanOverrideStricterLocalRules": false,
+      "remoteOutageDisablesLocalSafety": false,
+      "assistantCanWritePolicy": false,
+      "aiCanTriggerAlertDirectly": false,
+      "aiIsFinalAuthority": false,
+      "metadataOnly": false,
+      "noAi": false,
+      "manualRequired": true
+    },
+    "remoteApproved": {
+      "schemaVersion": 1,
+      "routeId": "tracking-ai-route-remote-approved",
+      "routedAt": "2026-06-05T06:20:00.000Z",
+      "requestedTask": "location-safety",
+      "modelRuntimePreference": "parent-approved-remote-allowed",
+      "providerKind": "parent-approved-remote-ai",
+      "capability": {
+        "schemaVersion": 1,
+        "providerId": "tracking-parent-approved-remote",
+        "checkedAt": "2026-06-05T06:19:00.000Z",
+        "providerKind": "parent-approved-remote-ai",
+        "capabilityState": "available",
+        "supportedTasks": [
+          "location-safety",
+          "expected-place-safety",
+          "nearby-place-context",
+          "geofence-risk"
+        ],
+        "modelRuntimeRef": "tracking-parent-approved-remote-runtime",
+        "custodyLabel": "parent-approved-cloud",
+        "noRetention": true,
+        "localOnly": false,
+        "parentApprovedRemoteEnabled": true,
+        "canRunOnChildDevice": false,
+        "canRunOnParentDevice": false,
+        "familyHubLanOnly": false,
+        "degradedStates": [],
+        "unavailableReason": null
+      },
+      "executionState": "selected",
+      "selectedRuntimeRef": "tracking-parent-approved-remote-runtime",
+      "degradedStates": [],
+      "deviceId": "child-device-tracking-1",
+      "childProfileRef": "child-profile-tracking-1",
+      "policyVersionRef": "tracking-policy-v1",
+      "evidenceIds": [
+        "location-evidence-1",
+        "device-status-1"
+      ],
+      "parentRuleRefs": [
+        "parent-rule-home-arrival"
+      ],
+      "custodyLabel": "parent-approved-cloud",
+      "reasonCodes": [
+        "tracking-ai-route-proof"
+      ],
+      "dataScopeVisible": true,
+      "retentionVisible": true,
+      "custodyVisible": true,
+      "providerVisible": true,
+      "noRetentionVisible": true,
+      "parentExplicitRemoteApproval": true,
+      "remoteDefaultForBlocking": false,
+      "remoteCanOverrideStricterLocalRules": false,
+      "remoteOutageDisablesLocalSafety": false,
+      "assistantCanWritePolicy": false,
+      "aiCanTriggerAlertDirectly": false,
+      "aiIsFinalAuthority": false,
+      "metadataOnly": false,
+      "noAi": false,
+      "manualRequired": false
+    },
+    "providerUnavailable": {
+      "schemaVersion": 1,
+      "routeId": "tracking-ai-route-provider-unavailable",
+      "routedAt": "2026-06-05T06:20:00.000Z",
+      "requestedTask": "location-safety",
+      "modelRuntimePreference": "child-local-required",
+      "providerKind": "child-device-local-ai",
+      "capability": {
+        "schemaVersion": 1,
+        "providerId": "tracking-child-local-ai",
+        "checkedAt": "2026-06-05T06:19:00.000Z",
+        "providerKind": "child-device-local-ai",
+        "capabilityState": "provider-unavailable",
+        "supportedTasks": [
+          "location-safety",
+          "expected-place-safety",
+          "nearby-place-context",
+          "geofence-risk"
+        ],
+        "modelRuntimeRef": null,
+        "custodyLabel": "child-device-local",
+        "noRetention": true,
+        "localOnly": true,
+        "parentApprovedRemoteEnabled": false,
+        "canRunOnChildDevice": true,
+        "canRunOnParentDevice": false,
+        "familyHubLanOnly": false,
+        "degradedStates": [
+          "provider-unavailable"
+        ],
+        "unavailableReason": "tracking-local-provider-unavailable"
+      },
+      "executionState": "unavailable",
+      "selectedRuntimeRef": null,
+      "degradedStates": [
+        "provider-unavailable"
+      ],
+      "deviceId": "child-device-tracking-1",
+      "childProfileRef": "child-profile-tracking-1",
+      "policyVersionRef": "tracking-policy-v1",
+      "evidenceIds": [
+        "location-evidence-1",
+        "device-status-1"
+      ],
+      "parentRuleRefs": [
+        "parent-rule-home-arrival"
+      ],
+      "custodyLabel": "child-device-local",
+      "reasonCodes": [
+        "tracking-ai-route-proof"
+      ],
+      "dataScopeVisible": true,
+      "retentionVisible": true,
+      "custodyVisible": true,
+      "providerVisible": true,
+      "noRetentionVisible": true,
+      "parentExplicitRemoteApproval": false,
+      "remoteDefaultForBlocking": false,
+      "remoteCanOverrideStricterLocalRules": false,
+      "remoteOutageDisablesLocalSafety": false,
+      "assistantCanWritePolicy": false,
+      "aiCanTriggerAlertDirectly": false,
+      "aiIsFinalAuthority": false,
+      "metadataOnly": false,
+      "noAi": false,
+      "manualRequired": false
+    },
+    "unsupportedTask": {
+      "schemaVersion": 1,
+      "routeId": "tracking-ai-route-unsupported-task",
+      "routedAt": "2026-06-05T06:20:00.000Z",
+      "requestedTask": "parent-summary",
+      "modelRuntimePreference": "child-local-required",
+      "providerKind": "child-device-local-ai",
+      "capability": {
+        "schemaVersion": 1,
+        "providerId": "tracking-child-local-ai",
+        "checkedAt": "2026-06-05T06:19:00.000Z",
+        "providerKind": "child-device-local-ai",
+        "capabilityState": "available",
+        "supportedTasks": [
+          "location-safety",
+          "expected-place-safety",
+          "nearby-place-context",
+          "geofence-risk"
+        ],
+        "modelRuntimeRef": "tracking-local-model-runtime-child",
+        "custodyLabel": "child-device-local",
+        "noRetention": true,
+        "localOnly": true,
+        "parentApprovedRemoteEnabled": false,
+        "canRunOnChildDevice": true,
+        "canRunOnParentDevice": false,
+        "familyHubLanOnly": false,
+        "degradedStates": [],
+        "unavailableReason": null
+      },
+      "executionState": "manual-required",
+      "selectedRuntimeRef": null,
+      "degradedStates": [
+        "unsupported-task"
+      ],
+      "deviceId": "child-device-tracking-1",
+      "childProfileRef": "child-profile-tracking-1",
+      "policyVersionRef": "tracking-policy-v1",
+      "evidenceIds": [
+        "location-evidence-1",
+        "device-status-1"
+      ],
+      "parentRuleRefs": [
+        "parent-rule-home-arrival"
+      ],
+      "custodyLabel": "child-device-local",
+      "reasonCodes": [
+        "tracking-ai-route-proof"
+      ],
+      "dataScopeVisible": true,
+      "retentionVisible": true,
+      "custodyVisible": true,
+      "providerVisible": true,
+      "noRetentionVisible": true,
+      "parentExplicitRemoteApproval": false,
+      "remoteDefaultForBlocking": false,
+      "remoteCanOverrideStricterLocalRules": false,
+      "remoteOutageDisablesLocalSafety": false,
+      "assistantCanWritePolicy": false,
+      "aiCanTriggerAlertDirectly": false,
+      "aiIsFinalAuthority": false,
+      "metadataOnly": false,
+      "noAi": false,
+      "manualRequired": true
+    },
+    "metadataOnly": {
+      "schemaVersion": 1,
+      "routeId": "tracking-ai-route-metadata-only",
+      "routedAt": "2026-06-05T06:20:00.000Z",
+      "requestedTask": "location-safety",
+      "modelRuntimePreference": "metadata-only",
+      "providerKind": "metadata-only",
+      "capability": {
+        "schemaVersion": 1,
+        "providerId": "tracking-metadata-only",
+        "checkedAt": "2026-06-05T06:19:00.000Z",
+        "providerKind": "metadata-only",
+        "capabilityState": "manual-required",
+        "supportedTasks": [
+          "location-safety"
+        ],
+        "modelRuntimeRef": null,
+        "custodyLabel": "child-device-local",
+        "noRetention": true,
+        "localOnly": true,
+        "parentApprovedRemoteEnabled": false,
+        "canRunOnChildDevice": false,
+        "canRunOnParentDevice": false,
+        "familyHubLanOnly": false,
+        "degradedStates": [
+          "metadata-only"
+        ],
+        "unavailableReason": "tracking-metadata-only-route"
+      },
+      "executionState": "metadata-only",
+      "selectedRuntimeRef": null,
+      "degradedStates": [
+        "metadata-only"
+      ],
+      "deviceId": "child-device-tracking-1",
+      "childProfileRef": "child-profile-tracking-1",
+      "policyVersionRef": "tracking-policy-v1",
+      "evidenceIds": [
+        "location-evidence-1",
+        "device-status-1"
+      ],
+      "parentRuleRefs": [
+        "parent-rule-home-arrival"
+      ],
+      "custodyLabel": "child-device-local",
+      "reasonCodes": [
+        "tracking-ai-route-proof"
+      ],
+      "dataScopeVisible": true,
+      "retentionVisible": true,
+      "custodyVisible": true,
+      "providerVisible": true,
+      "noRetentionVisible": true,
+      "parentExplicitRemoteApproval": false,
+      "remoteDefaultForBlocking": false,
+      "remoteCanOverrideStricterLocalRules": false,
+      "remoteOutageDisablesLocalSafety": false,
+      "assistantCanWritePolicy": false,
+      "aiCanTriggerAlertDirectly": false,
+      "aiIsFinalAuthority": false,
+      "metadataOnly": true,
+      "noAi": false,
+      "manualRequired": false
+    },
+    "noAi": {
+      "schemaVersion": 1,
+      "routeId": "tracking-ai-route-no-ai",
+      "routedAt": "2026-06-05T06:20:00.000Z",
+      "requestedTask": "location-safety",
+      "modelRuntimePreference": "no-ai",
+      "providerKind": "no-ai",
+      "capability": {
+        "schemaVersion": 1,
+        "providerId": "tracking-no-ai",
+        "checkedAt": "2026-06-05T06:19:00.000Z",
+        "providerKind": "no-ai",
+        "capabilityState": "manual-required",
+        "supportedTasks": [
+          "location-safety"
+        ],
+        "modelRuntimeRef": null,
+        "custodyLabel": "child-device-local",
+        "noRetention": true,
+        "localOnly": true,
+        "parentApprovedRemoteEnabled": false,
+        "canRunOnChildDevice": false,
+        "canRunOnParentDevice": false,
+        "familyHubLanOnly": false,
+        "degradedStates": [
+          "no-ai"
+        ],
+        "unavailableReason": "tracking-no-ai-route"
+      },
+      "executionState": "no-ai",
+      "selectedRuntimeRef": null,
+      "degradedStates": [
+        "no-ai"
+      ],
+      "deviceId": "child-device-tracking-1",
+      "childProfileRef": "child-profile-tracking-1",
+      "policyVersionRef": "tracking-policy-v1",
+      "evidenceIds": [
+        "location-evidence-1",
+        "device-status-1"
+      ],
+      "parentRuleRefs": [
+        "parent-rule-home-arrival"
+      ],
+      "custodyLabel": "child-device-local",
+      "reasonCodes": [
+        "tracking-ai-route-proof"
+      ],
+      "dataScopeVisible": true,
+      "retentionVisible": true,
+      "custodyVisible": true,
+      "providerVisible": true,
+      "noRetentionVisible": true,
+      "parentExplicitRemoteApproval": false,
+      "remoteDefaultForBlocking": false,
+      "remoteCanOverrideStricterLocalRules": false,
+      "remoteOutageDisablesLocalSafety": false,
+      "assistantCanWritePolicy": false,
+      "aiCanTriggerAlertDirectly": false,
+      "aiIsFinalAuthority": false,
+      "metadataOnly": false,
+      "noAi": true,
+      "manualRequired": false
+    }
+  },
+  "gates": {
+    "childDeviceLocalDefault": {
+      "status": "passed",
+      "executionState": "selected",
+      "providerKind": "child-device-local-ai",
+      "custodyLabel": "child-device-local",
+      "selectedRuntimeRef": "tracking-local-model-runtime-child"
+    },
+    "familyHubLanOnly": {
+      "status": "passed",
+      "executionState": "selected",
+      "providerKind": "family-ai-hub",
+      "custodyLabel": "live-lan-child-agent",
+      "selectedRuntimeRef": "tracking-family-hub-runtime-lan"
+    },
+    "remoteRequiresParentApproval": {
+      "missingApprovalState": "manual-required",
+      "approvedState": "selected",
+      "selectedOnlyAfterApproval": true
+    },
+    "unavailableAndUnsupportedAreDegraded": {
+      "unavailableState": "unavailable",
+      "unavailableReasons": [
+        "provider-unavailable"
+      ],
+      "unsupportedState": "manual-required",
+      "unsupportedReasons": [
+        "unsupported-task"
+      ]
+    },
+    "metadataOnlyAndNoAiDoNotSelectRuntime": {
+      "metadataOnlyState": "metadata-only",
+      "metadataOnlyRuntimeRef": null,
+      "noAiState": "no-ai",
+      "noAiRuntimeRef": null
+    },
+    "authorityNegative": {
+      "aiCanTriggerAlertDirectly": false,
+      "aiIsFinalAuthority": false,
+      "assistantCanWritePolicy": false,
+      "remoteDefaultForBlocking": false,
+      "remoteCanOverrideStricterLocalRules": false,
+      "remoteOutageDisablesLocalSafety": false
+    }
+  },
+  "validationCommands": [
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run test -- tracking-ai-provider-routing",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run lint:schema-boundaries",
+      "exitCode": 0
+    }
+  ],
+  "artifacts": {
+    "proof": "test-results/tracking-plan-ai-provider-readiness-proof/proof.json",
+    "workpackProof": "output/tracking-plan-proof/24-ai-provider-routing/08-ai-analysis-proof.json",
+    "contractLog": "output/tracking-plan-proof/24-ai-provider-routing/01-contract-proof.log",
+    "securityNegativeProof": "output/tracking-plan-proof/24-ai-provider-routing/13-security-negative-proof.log",
+    "validationLog": "output/tracking-plan-proof/24-ai-provider-routing/16-validation-commands.log"
+  },
+  "nonClaims": [
+    "This proof does not run a production model, local family hub, or remote/API provider.",
+    "This proof does not claim AI can trigger alerts, write policy, enforce, or become final authority.",
+    "This proof does not claim Android/iOS physical-device behavior, background location, provider delivery, notification delivery, or production readiness.",
+    "Metadata-only and no-AI states remain explicit routes without runtime refs."
+  ],
+  "remainingGapsBeforeProductReady": [
+    "Real child-device local model artifacts and quality validation remain pending.",
+    "Real family AI hub runtime discovery and LAN execution remain pending.",
+    "Parent-approved remote provider adapter, data-custody review, and UI approval flow remain pending.",
+    "Physical Android/iOS tracking runtime and provider delivery proof remain pending."
+  ]
+}

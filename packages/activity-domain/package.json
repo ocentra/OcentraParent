@@ -213,6 +213,10 @@
       "import": "./dist/tracking.js",
       "types": "./dist/tracking.d.ts"
     },
+    "./tracking-ai-provider-routing": {
+      "import": "./dist/tracking-ai-provider-routing.js",
+      "types": "./dist/tracking-ai-provider-routing.d.ts"
+    },
     "./journal": {
       "import": "./dist/journal.js",
       "types": "./dist/journal.d.ts"

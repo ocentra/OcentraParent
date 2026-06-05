@@ -1,5 +1,5 @@
 workpack=24-ai-provider-routing
-No Zod, manual brands, test doubles, app string literals, or schema-boundary violations were introduced.
-Negative tests reject precise coordinates from LAN/Wi-Fi/IP/manual/unknown hint-only tracking sources.
-AI location analysis contracts use evidence only and cannot trigger alerts directly or become final authority.
-Remote AI data is disabled unless the route is parent-approved remote.
+proofMode=tracking-plan-ai-provider-readiness-proof
+Remote AI is not selected unless parentExplicitRemoteApproval is true.
+Routes reject AI-as-authority, assistant policy writes, remote default blocking, stricter local rule override, and remote outage disabling local safety.
+No production model, provider delivery, notification delivery, or physical-device claim is made.

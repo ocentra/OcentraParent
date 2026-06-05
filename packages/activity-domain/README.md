@@ -45,8 +45,8 @@ Shared activity and evidence contracts for child-device observations.
   enforcement, remote AI, authenticated social, cloud-frame, or mobile parity.
 - Tracking location, device-status, geofence, nearby-place, and read-model
   evidence contracts plus P1 deterministic geofence, expected-place, retention
-  delete, parent-owned export, local parent-defined place store, and tracking
-  event ingest helpers.
+  delete, parent-owned export, local parent-defined place store, tracking AI
+  provider readiness routing, and tracking event ingest helpers.
 - Journal/query/read-model primitives.
 - Activity surface and family aggregation contracts.
 
@@ -109,9 +109,9 @@ flowchart LR
   DOM/accessibility producer integration, portal rendering, final policy, and
   enforcement proof remain open.
 - Tracking evidence now has focused contract proof plus P1 deterministic
-  runtime, local parent-defined place store proof, and Rust ActivityStore ingest
-  proof; platform adapters, provider runtime, and live service-backed UI proof
-  remain open.
+  runtime, local parent-defined place store proof, tracking AI provider
+  readiness proof, and Rust ActivityStore ingest proof; platform adapters, live
+  provider runtime/execution, and full service-backed UI proof remain open.
 - Activity reports need complete parent-facing history, trend, and assistant
   query flows.
 - Evidence contracts must keep unknown/degraded/unavailable states explicit.

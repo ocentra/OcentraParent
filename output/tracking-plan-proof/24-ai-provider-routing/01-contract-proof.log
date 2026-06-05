@@ -1,6 +1,5 @@
 workpack=24-ai-provider-routing
-proofState=contract-proof-complete
-activity-domain tracking tests passed
-parent-domain tracking-location-policy tests passed
-schema-boundary guard passed
-Tracking AI provider route states keep remote data disabled unless parent-approved remote is selected.
+proofMode=tracking-plan-ai-provider-readiness-proof
+currentProofTier=P1_FIXTURE_SIMULATION
+activity-domain tracking AI provider routing tests passed
+child local, family hub, explicit remote approval, unavailable, metadata-only, and no-AI routes are schema-backed

@@ -4,6 +4,7 @@ export * from './tracking-geofence';
 export * from './tracking-local-place-store-schemas';
 export * from './tracking-local-place-store';
 export * from './tracking-evidence-quality-gate';
+export * from './tracking-ai-provider-routing';
 export * from './tracking-read-model';
 export * from './tracking-retention-runtime';
 export * from './tracking-runtime';
