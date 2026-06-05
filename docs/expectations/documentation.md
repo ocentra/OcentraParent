@@ -39,6 +39,12 @@ replace the constitution, roadmap, or capability checklist.
   account backend, billing provider runtime, signing/store proof, updater
   execution, support upload, production SLA, legal execution, and child-activity
   custody as gaps until real evidence exists.
+- `public-status-surface-readiness-proof` may prove focused public
+  website/download/account/status readiness and adapter-boundary rows, but docs
+  must still label public runtime, account backend runtime, billing provider
+  runtime, signing/store proof, updater execution, support upload, production
+  SLA, legal execution, remote support sessions, and child-activity custody as
+  gaps until real evidence exists.
 - `production-support-backend-upload-status-proof` may prove support upload
   status/read-model rows, redaction/audit refs, retry/abandon refs, and manual
   proof requirements, but docs must still label raw child activity custody,

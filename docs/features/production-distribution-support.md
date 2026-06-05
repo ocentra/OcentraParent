@@ -181,6 +181,15 @@ dev-only repo when it claims consumer readiness.
   public runtime execution, account backend runtime, billing provider runtime,
   signing/store proof, updater execution, support upload, production SLA, legal
   execution, or child-activity custody.
+- `public-status-surface-readiness-proof` adds a focused parent-domain
+  readiness matrix for `family.ocentra.ca`, public download, release/update
+  status, account/subscription status, and support status surfaces. It links the
+  existing public status, runtime handoff, docs status, billing endpoint,
+  entitlement runtime, and support case proof rows while keeping real public
+  runtime, account backend runtime, billing provider runtime, production
+  publishing, signing/store proof, updater execution, support backend upload,
+  production SLA, legal execution, remote support sessions, and child activity
+  custody unclaimed.
 - `billing-entitlement-contract-proof` defines parent-domain contracts for
   plan entitlement rows, entitlement snapshots, subscription status sync events,
   device-limit decisions, parent-visible failure states, local-safety fallback,
@@ -400,6 +409,11 @@ package/runtime proof.
       runtime execution, account backend runtime, billing provider runtime,
       signing/store proof, updater execution, support upload, production SLA,
       legal execution, and child-activity custody unclaimed.
+      `public-status-surface-readiness-proof` adds a focused readiness matrix
+      for the same public website/download/account/status surfaces and links
+      them to public status, runtime handoff, public docs, billing endpoint,
+      entitlement runtime, and support case evidence while keeping the same
+      runtime/backend/provider/support/SLA/legal/custody non-claims.
 
 ## Next AI Instructions
 

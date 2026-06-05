@@ -1,0 +1,258 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-05T20:39:47.427Z",
+  "commit": "5e091309c866e998184a6c86b927bc286855fe9f",
+  "proofMode": "public-status-surface-readiness-proof",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/public-status-surface-readiness.test.ts"
+  ],
+  "evidence": {
+    "publicStatusSurfaceReadinessContract": "packages/parent-domain/src/public-status-surface-readiness.ts",
+    "publicStatusSurfaceReadinessTest": "packages/parent-domain/tests/public-status-surface-readiness.test.ts",
+    "existingPublicStatusSurfaceCount": 6,
+    "existingRuntimeHandoffCount": 6,
+    "output": "test-results/public-status-surface-readiness-proof/proof.json",
+    "summary": "output/public-status-surface-readiness-proof/proof-summary.json"
+  },
+  "rows": [
+    {
+      "schemaVersion": "public-status-surface-readiness-proof",
+      "surface": "family-public-site",
+      "publicRouteState": "not-implemented",
+      "runtimeAdapterState": "not-implemented",
+      "backendDependencyState": "not-implemented",
+      "parentVisibleState": "not-implemented",
+      "sourceProofs": [
+        "production-release-public-status-proof",
+        "production-release-public-runtime-handoff-proof",
+        "production-release-public-docs-status-proof"
+      ],
+      "supportSafeDataClasses": [
+        "public-doc-status"
+      ],
+      "forbiddenDataClasses": [
+        "child-activity-evidence",
+        "browser-url-history",
+        "screenshots",
+        "journals",
+        "sqlite-snapshots",
+        "private-paths",
+        "provider-secrets",
+        "raw-support-bundle",
+        "billing-provider-contact",
+        "remote-support-transcript"
+      ],
+      "readinessReference": "public-status-surface-readiness-family-public-site",
+      "manualRequirement": "family-public-site-requires-public-runtime-backend-and-manual-proof-before-production-claim"
+    },
+    {
+      "schemaVersion": "public-status-surface-readiness-proof",
+      "surface": "public-download",
+      "publicRouteState": "source-contract-ready",
+      "runtimeAdapterState": "adapter-boundary-ready",
+      "backendDependencyState": "backend-required",
+      "parentVisibleState": "backend-required",
+      "sourceProofs": [
+        "production-release-public-status-proof",
+        "production-release-public-runtime-handoff-proof",
+        "production-release-public-docs-status-proof"
+      ],
+      "supportSafeDataClasses": [
+        "release-version",
+        "platform",
+        "download-status"
+      ],
+      "forbiddenDataClasses": [
+        "child-activity-evidence",
+        "browser-url-history",
+        "screenshots",
+        "journals",
+        "sqlite-snapshots",
+        "private-paths",
+        "provider-secrets",
+        "raw-support-bundle",
+        "billing-provider-contact",
+        "remote-support-transcript"
+      ],
+      "readinessReference": "public-status-surface-readiness-public-download",
+      "manualRequirement": "public-download-requires-public-runtime-backend-and-manual-proof-before-production-claim"
+    },
+    {
+      "schemaVersion": "public-status-surface-readiness-proof",
+      "surface": "release-status",
+      "publicRouteState": "source-contract-ready",
+      "runtimeAdapterState": "manual-required",
+      "backendDependencyState": "production-promotion-required",
+      "parentVisibleState": "production-promotion-required",
+      "sourceProofs": [
+        "production-release-public-status-proof",
+        "production-release-public-runtime-handoff-proof",
+        "production-release-public-docs-status-proof"
+      ],
+      "supportSafeDataClasses": [
+        "release-version",
+        "platform"
+      ],
+      "forbiddenDataClasses": [
+        "child-activity-evidence",
+        "browser-url-history",
+        "screenshots",
+        "journals",
+        "sqlite-snapshots",
+        "private-paths",
+        "provider-secrets",
+        "raw-support-bundle",
+        "billing-provider-contact",
+        "remote-support-transcript"
+      ],
+      "readinessReference": "public-status-surface-readiness-release-status",
+      "manualRequirement": "release-status-requires-public-runtime-backend-and-manual-proof-before-production-claim"
+    },
+    {
+      "schemaVersion": "public-status-surface-readiness-proof",
+      "surface": "update-status",
+      "publicRouteState": "source-contract-ready",
+      "runtimeAdapterState": "manual-required",
+      "backendDependencyState": "manual-required",
+      "parentVisibleState": "manual-required",
+      "sourceProofs": [
+        "production-release-public-status-proof",
+        "production-release-public-runtime-handoff-proof",
+        "production-release-public-docs-status-proof"
+      ],
+      "supportSafeDataClasses": [
+        "update-status",
+        "platform"
+      ],
+      "forbiddenDataClasses": [
+        "child-activity-evidence",
+        "browser-url-history",
+        "screenshots",
+        "journals",
+        "sqlite-snapshots",
+        "private-paths",
+        "provider-secrets",
+        "raw-support-bundle",
+        "billing-provider-contact",
+        "remote-support-transcript"
+      ],
+      "readinessReference": "public-status-surface-readiness-update-status",
+      "manualRequirement": "update-status-requires-public-runtime-backend-and-manual-proof-before-production-claim"
+    },
+    {
+      "schemaVersion": "public-status-surface-readiness-proof",
+      "surface": "account-status",
+      "publicRouteState": "source-contract-ready",
+      "runtimeAdapterState": "adapter-boundary-ready",
+      "backendDependencyState": "backend-required",
+      "parentVisibleState": "backend-required",
+      "sourceProofs": [
+        "production-release-public-status-proof",
+        "production-release-public-runtime-handoff-proof",
+        "billing-account-endpoint-contract-proof",
+        "billing-entitlement-runtime-proof"
+      ],
+      "supportSafeDataClasses": [
+        "account-status",
+        "entitlement-summary"
+      ],
+      "forbiddenDataClasses": [
+        "child-activity-evidence",
+        "browser-url-history",
+        "screenshots",
+        "journals",
+        "sqlite-snapshots",
+        "private-paths",
+        "provider-secrets",
+        "raw-support-bundle",
+        "billing-provider-contact",
+        "remote-support-transcript"
+      ],
+      "readinessReference": "public-status-surface-readiness-account-status",
+      "manualRequirement": "account-status-requires-public-runtime-backend-and-manual-proof-before-production-claim"
+    },
+    {
+      "schemaVersion": "public-status-surface-readiness-proof",
+      "surface": "subscription-status",
+      "publicRouteState": "source-contract-ready",
+      "runtimeAdapterState": "adapter-boundary-ready",
+      "backendDependencyState": "backend-required",
+      "parentVisibleState": "backend-required",
+      "sourceProofs": [
+        "production-release-public-status-proof",
+        "production-release-public-runtime-handoff-proof",
+        "billing-account-endpoint-contract-proof",
+        "billing-entitlement-runtime-proof"
+      ],
+      "supportSafeDataClasses": [
+        "subscription-status",
+        "entitlement-summary"
+      ],
+      "forbiddenDataClasses": [
+        "child-activity-evidence",
+        "browser-url-history",
+        "screenshots",
+        "journals",
+        "sqlite-snapshots",
+        "private-paths",
+        "provider-secrets",
+        "raw-support-bundle",
+        "billing-provider-contact",
+        "remote-support-transcript"
+      ],
+      "readinessReference": "public-status-surface-readiness-subscription-status",
+      "manualRequirement": "subscription-status-requires-public-runtime-backend-and-manual-proof-before-production-claim"
+    },
+    {
+      "schemaVersion": "public-status-surface-readiness-proof",
+      "surface": "support-status",
+      "publicRouteState": "source-contract-ready",
+      "runtimeAdapterState": "manual-required",
+      "backendDependencyState": "manual-required",
+      "parentVisibleState": "manual-required",
+      "sourceProofs": [
+        "production-release-public-runtime-handoff-proof",
+        "production-release-public-docs-status-proof",
+        "production-support-case-resolution-status-proof"
+      ],
+      "supportSafeDataClasses": [
+        "support-runbook-status",
+        "incident-status"
+      ],
+      "forbiddenDataClasses": [
+        "child-activity-evidence",
+        "browser-url-history",
+        "screenshots",
+        "journals",
+        "sqlite-snapshots",
+        "private-paths",
+        "provider-secrets",
+        "raw-support-bundle",
+        "billing-provider-contact",
+        "remote-support-transcript"
+      ],
+      "readinessReference": "public-status-surface-readiness-support-status",
+      "manualRequirement": "support-status-requires-public-runtime-backend-and-manual-proof-before-production-claim"
+    }
+  ],
+  "nonClaims": [
+    "no-family-ocentra-ca-runtime",
+    "no-account-backend-runtime",
+    "no-billing-provider-runtime",
+    "no-production-publishing",
+    "no-signing-store-proof",
+    "no-updater-execution",
+    "no-support-backend-upload",
+    "no-production-sla",
+    "no-legal-execution",
+    "no-remote-support-session",
+    "no-child-activity-custody"
+  ],
+  "knownGaps": [
+    "family.ocentra.ca public runtime is not implemented.",
+    "Public download, account, subscription, release, update, and support status remain source-contract or adapter-boundary readiness only.",
+    "Account backend, billing provider runtime, support backend upload, signing/store proof, updater execution, production SLA, legal execution, and remote support sessions remain manual-required or unimplemented.",
+    "No child activity, raw support bundle payloads, provider secrets, billing-provider contact records, remote transcripts, or parent rules are hosted by this proof."
+  ]
+}

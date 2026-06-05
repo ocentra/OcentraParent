@@ -77,6 +77,13 @@ mobile readiness, and control catalogs.
   publication handoff, and public support contact publication while keeping real
   public runtime, support upload execution, account lookup, billing contact,
   production SLA, legal execution, remote support, and child custody unclaimed.
+- `public-status-surface-readiness-proof` contracts for `family.ocentra.ca`,
+  public download, release/update status, account/subscription status, and
+  support status readiness rows that link existing public status, runtime
+  handoff, docs status, billing endpoint, entitlement runtime, and support case
+  evidence while keeping public runtime, account backend runtime, billing
+  provider runtime, support upload, production SLA, legal execution, remote
+  support, and child custody unclaimed.
 - Parent-owned sync/export and stateless report compiler status contracts for
   parent-authorized remote compilation from parent-owned storage, source
   connector/cursor refs, requested data classes and time windows, temp TTL and
@@ -269,6 +276,11 @@ flowchart LR
   only; real public runtime, support backend upload execution, account lookup
   execution, billing provider contact, legal disclosure execution, production
   SLA, remote support sessions, and child activity custody remain unclaimed.
+- `public-status-surface-readiness-proof` remains readiness/status proof only;
+  real public runtime, account backend runtime, billing provider runtime,
+  signing/store proof, updater execution, support upload, production SLA, legal
+  execution, remote support sessions, and child activity custody remain
+  unclaimed.
 - Parent-owned sync/export and stateless report compiler proofs remain
   contract/status proof only; real compiler runtime/cloud worker, connector
   OAuth/provider APIs, portal controls/UI, upload/download, deletion execution,

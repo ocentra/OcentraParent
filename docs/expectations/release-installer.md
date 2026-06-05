@@ -47,6 +47,14 @@ Release features are product features because parents need install/update paths 
   provider runtime, production publishing, signing/store proof, updater
   execution, support upload, production SLA, legal execution, and child-activity
   custody unclaimed.
+- V8 public status surface readiness proof that links `family.ocentra.ca`,
+  public download, release/update status, account/subscription status, and
+  support status rows to public status, runtime handoff, public docs, billing
+  endpoint, entitlement runtime, and support case proof evidence while keeping
+  real public runtime, account backend runtime, billing provider runtime,
+  production publishing, signing/store proof, updater execution, support upload,
+  production SLA, legal execution, remote support sessions, and child-activity
+  custody unclaimed.
 - V8 production support backend upload status proof that records
   parent-initiated and parent-consented queued, running, succeeded, failed,
   manual-required, backend-unavailable, and provider-unavailable rows, with
@@ -151,6 +159,12 @@ Release features are product features because parents need install/update paths 
   runtime handoff, and public docs rows, but it must not claim live public
   runtime execution, account backend runtime, billing provider runtime,
   signing/store proof, updater execution, support upload, production SLA, legal
+  execution, or child-activity custody.
+- `public-status-surface-readiness-proof` may prove focused public
+  website/download/account/status readiness rows and adapter/backend/manual
+  boundaries, but it must not claim live public runtime, account backend
+  runtime, billing provider runtime, signing/store proof, updater execution,
+  support upload, production SLA, legal execution, remote support session
   execution, or child-activity custody.
 - `production-support-backend-upload-status-proof` may prove support upload
   status/read-model rows for queued, running, succeeded, failed,

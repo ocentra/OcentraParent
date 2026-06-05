@@ -1,0 +1,16 @@
+{
+  "proofMode": "public-status-surface-readiness-proof",
+  "commit": "5e091309c866e998184a6c86b927bc286855fe9f",
+  "publicHost": "family.ocentra.ca",
+  "rowCount": 7,
+  "accountBackendRuntimeClaim": "backend-required",
+  "billingProviderRuntimeClaim": "not-implemented",
+  "supportBackendUploadClaim": "manual-required",
+  "childActivityCustodyClaim": "not-implemented",
+  "knownGaps": [
+    "family.ocentra.ca public runtime is not implemented.",
+    "Public download, account, subscription, release, update, and support status remain source-contract or adapter-boundary readiness only.",
+    "Account backend, billing provider runtime, support backend upload, signing/store proof, updater execution, production SLA, legal execution, and remote support sessions remain manual-required or unimplemented.",
+    "No child activity, raw support bundle payloads, provider secrets, billing-provider contact records, remote transcripts, or parent rules are hosted by this proof."
+  ]
+}
