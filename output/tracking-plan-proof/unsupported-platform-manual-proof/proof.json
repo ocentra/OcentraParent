@@ -2,7 +2,7 @@
   "proofMode": "tracking-unsupported-platform-manual-proof",
   "generatedAt": "2026-06-05T19:55:00.000Z",
   "branch": "codex/tracking-unsupported-platform-manual-proof",
-  "baseCommitAtGeneration": "05558f9532d4dfc9dfdf57a2028912bc955ce819",
+  "baseCommitAtGeneration": "9606f360becdd4c374a8e6c89fca7b2e65ee21a4",
   "gitStatusShort": "",
   "commands": [
     {
@@ -14,7 +14,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-unsupported-platform-manual-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-unsupported-platform-manual-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  4 passed (4)\n   Start at  17:45:49\n   Duration  808ms (transform 81ms, setup 0ms, import 565ms, tests 14ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-unsupported-platform-manual-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  4 passed (4)\n   Start at  17:50:12\n   Duration  867ms (transform 90ms, setup 0ms, import 590ms, tests 18ms, environment 0ms)",
       "stderr": ""
     }
   ],
