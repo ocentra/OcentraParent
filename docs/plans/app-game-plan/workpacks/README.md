@@ -62,6 +62,7 @@ before `DONE` or PR-ready reporting.
 53. WP59 app/game notification scheduler bridge.
 54. WP60 app/game notification audit-history bridge.
 55. WP61 app/game notification provider preflight.
+56. WP62 app/game notification parent preference preflight boundary.
 
 ## Standard AI Worker Checklist
 

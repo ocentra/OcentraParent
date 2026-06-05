@@ -110,6 +110,11 @@ custody.
   provider-channel, reason, adapter-requirement, credential, and provider smoke
   proof refs, while keeping manual-required and unavailable rows blocked before
   provider setup.
+- App/game notification preference preflight proof now maps scheduled scheduler
+  rows into parent-preference-required rows with provider-channel, reason,
+  parent preference, frequency-control, and quiet-hours proof refs, while
+  keeping manual-required and unavailable rows blocked before parent controls or
+  delivery.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -190,6 +195,12 @@ claim provider delivery, receipt ingestion, credentials, production retry
 workers, production quiet-hours timer execution, durable production outbox
 storage, parent UI, child delivery, adapter dispatch, broad blocking, or
 platform support.
+The app/game notification preference preflight proof adds deterministic
+scheduler-to-parent-preference rows for scheduled app/game alerts, but does not
+claim parent preference UI, frequency controls, provider delivery, receipt
+ingestion, credentials, production retry workers, production quiet-hours timer
+execution, durable production outbox storage, child delivery, adapter dispatch,
+broad blocking, or platform support.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
@@ -275,6 +286,10 @@ delivery, policy writes, or child-device enforcement.
       app/game scheduler rows becoming provider-adapter-required rows, while
       manual-required and unavailable rows stay blocked and no delivery,
       receipt, credential, UI, child, or adapter-dispatch claims are made.
+- [x] App/game notification preference preflight proof exists with scheduled
+      app/game scheduler rows becoming parent-preference-required rows, while
+      manual-required and unavailable rows stay blocked and no parent UI,
+      delivery, receipt, credential, child, or adapter-dispatch claims are made.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
@@ -331,6 +346,13 @@ production quiet-hours timers, receipt ingestion, parent-visible
 history/preferences UI, durable production storage, child delivery proof, and
 provider smoke proof before claiming app/game notification delivery or product
 notification runtime. Treat
+`scripts/test/app-game-notification-preference-preflight-proof.mjs` as
+parent-domain app/game parent preference preflight proof only; require
+parent-visible history/preferences UI, frequency controls, real provider
+adapters, credentials and secret review, production send/retry workers,
+production quiet-hours timers, receipt ingestion, durable production storage,
+child delivery proof, and provider smoke proof before claiming app/game
+notification delivery or product notification runtime. Treat
 `scripts/test/parent-owned-sync-export-manifest-proof.mjs` as parent-domain
 sync/export manifest and connector-status contract proof only; require real
 transfer runtime, connector OAuth/provider artifacts, parent-visible controls,

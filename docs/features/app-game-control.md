@@ -221,6 +221,11 @@ control with better evidence and local audit.
   scheduler rows into provider-adapter-required rows with scheduler, outbox,
   decision, provider-channel, and reason refs preserved, while manual-required
   and unavailable rows stay blocked before any provider setup or delivery.
+- The app/game notification preference preflight bridge now maps scheduled
+  scheduler rows into parent-preference-required rows with provider-channel and
+  reason refs preserved, while manual-required and unavailable rows stay blocked
+  before parent preference, frequency-control, quiet-hours, UI, or delivery
+  proof.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -387,6 +392,13 @@ ingestion, credentials, production retry workers, quiet-hours timer runtime,
 durable production outbox storage, parent notification UI, child delivery,
 policy evaluator execution, adapter dispatch, broad blocking, or platform
 support.
+The app/game notification preference preflight proof turns scheduled scheduler
+rows into explicit parent preference, frequency-control, and quiet-hours proof
+requirements, but it does not provide parent preference UI, frequency controls,
+provider delivery, provider receipt ingestion, credentials, production retry
+workers, quiet-hours timer runtime, durable production outbox storage, child
+delivery, policy evaluator execution, adapter dispatch, broad blocking, or
+platform support.
 
 ## Checklist
 
@@ -464,6 +476,9 @@ support.
       The provider preflight bridge now turns scheduled rows into
       provider-adapter-required rows with adapter, credential, and provider
       smoke-proof requirements before any delivery claim.
+      The preference preflight bridge now turns scheduled rows into
+      parent-preference-required rows with preference, frequency, and
+      quiet-hours proof requirements before any delivery claim.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
