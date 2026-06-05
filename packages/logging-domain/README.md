@@ -93,6 +93,21 @@ child activity, raw URLs, screenshots, journals, SQLite snapshots, private
 paths, command lines, keystrokes, clipboard data, message contents, or
 Ocentra-hosted child activity custody.
 
+## Support Backend Upload Status Contract
+
+`src/support-backend-upload-status.ts` owns the logging-domain schema proof for
+production support backend upload status rows, while
+`src/support-backend-upload-status-read-model.ts` owns the current fixture rows.
+They record parent-initiated and parent-consented queued, running, succeeded,
+failed, manual-required, backend-unavailable, and provider-unavailable states
+with redaction refs, audit refs, retry refs, abandon refs, failure refs, manual
+proof requirements, and package/runtime refs.
+
+This contract is metadata-only. It does not claim raw child activity custody,
+provider secrets, remote support transcripts, real support backend upload
+execution, account lookup execution, billing provider execution, production SLA,
+or default Ocentra-hosted family data.
+
 ## Gaps To Fill
 
 - Keep log contracts aligned with every new remote, notification, and support

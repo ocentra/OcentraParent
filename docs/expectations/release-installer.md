@@ -47,6 +47,12 @@ Release features are product features because parents need install/update paths 
   provider runtime, production publishing, signing/store proof, updater
   execution, support upload, production SLA, legal execution, and child-activity
   custody unclaimed.
+- V8 production support backend upload status proof that records
+  parent-initiated and parent-consented queued, running, succeeded, failed,
+  manual-required, backend-unavailable, and provider-unavailable rows, with
+  redaction/audit refs, retry/abandon refs, manual proof requirements, and
+  package/runtime refs while keeping real backend execution and child-activity
+  custody unclaimed.
 
 ## Acceptance
 
@@ -122,6 +128,13 @@ Release features are product features because parents need install/update paths 
   runtime execution, account backend runtime, billing provider runtime,
   signing/store proof, updater execution, support upload, production SLA, legal
   execution, or child-activity custody.
+- `production-support-backend-upload-status-proof` may prove support upload
+  status/read-model rows for queued, running, succeeded, failed,
+  manual-required, backend-unavailable, and provider-unavailable states, but it
+  must not claim raw child activity custody, provider secrets, remote support
+  transcripts, real support backend upload execution, account lookup execution,
+  billing provider execution, default Ocentra-hosted family data, or production
+  SLA.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play

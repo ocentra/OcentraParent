@@ -39,6 +39,12 @@ replace the constitution, roadmap, or capability checklist.
   account backend, billing provider runtime, signing/store proof, updater
   execution, support upload, production SLA, legal execution, and child-activity
   custody as gaps until real evidence exists.
+- `production-support-backend-upload-status-proof` may prove support upload
+  status/read-model rows, redaction/audit refs, retry/abandon refs, and manual
+  proof requirements, but docs must still label raw child activity custody,
+  provider secrets, remote support transcripts, real backend upload execution,
+  account lookup execution, billing provider execution, default Ocentra-hosted
+  family data, and production SLA as gaps until real evidence exists.
 
 ## Required Structure
 
