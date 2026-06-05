@@ -9,6 +9,10 @@
       "import": "./dist/app-game.js",
       "types": "./dist/app-game.d.ts"
     },
+    "./app-game-source-freshness-quality-gate": {
+      "import": "./dist/app-game-source-freshness-quality-gate.js",
+      "types": "./dist/app-game-source-freshness-quality-gate.d.ts"
+    },
     "./activity-surface": {
       "import": "./dist/activity-surface.js",
       "types": "./dist/activity-surface.d.ts"

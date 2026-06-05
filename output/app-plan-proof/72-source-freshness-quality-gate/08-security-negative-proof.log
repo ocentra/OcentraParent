@@ -1,0 +1,5 @@
+PASS: stale source rows are not policy eligible.
+PASS: missing source rows are not policy eligible.
+PASS: manual-required source rows are not policy eligible.
+PASS: unavailable source rows are not policy eligible.
+PASS: adapterDispatchClaimed remains false.

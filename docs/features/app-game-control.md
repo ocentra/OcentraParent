@@ -204,6 +204,10 @@ control with better evidence and local audit.
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy
   execution/no adapter dispatch product-claim copy.
+- Activity-domain source freshness quality gate contracts now classify existing
+  app/game source status rows as fresh, stale, missing, manual-required,
+  unavailable, or empty before policy consumption, and only recent evidenced
+  rows become policy-eligible while adapter dispatch remains false.
 - App/game notification intent contracts now represent parent notification
   readiness for time-limit, approval request, suspicious unknown,
   manual-required, and unavailable app/game states with evidence, policy, audit,
@@ -355,7 +359,10 @@ registry-backed inventory rows into the same journal/store/read-model path.
 Backend app-use/games read-model rows now include grouped source
 freshness/status rows for inventory, runtime, foreground, and launcher sources,
 and the portal intent now exposes app-use and game source-panel sections for
-those rows. Parent-domain category/risk routing now turns category, risk, and
+those rows. Activity-domain source freshness quality gates now distinguish
+fresh, stale, missing, manual-required, unavailable, and empty source coverage
+before policy consumption, but this remains a contract/proof seam rather than
+live policy runtime consumption. Parent-domain category/risk routing now turns category, risk, and
 game-context candidates into soft/manual policy target inputs only when active
 category proof and supporting evidence refs exist. A service-backed policy
 readiness read model can now report whether the required evidence, approval
@@ -495,7 +502,9 @@ mobile UI, or prove platform support.
       rows now expose grouped backend source status/freshness rows, and the
       parent App/Game Sessions dashboard renders source and fresh-source counts
       plus source-kind evidence summaries. Source-panel intent sections now
-      group those rows for the next rendering seam. Dedicated source-panel SVG
+      group those rows for the next rendering seam, and source freshness quality
+      gates can keep stale, missing, manual-required, unavailable, and empty
+      source coverage out of policy eligibility. Dedicated source-panel SVG
       rendering, richer source subscriptions, and policy integration remain.
 - [ ] Category and unknown-state handling. Unknown approval contracts now keep
       weak app/game evidence in review/report-only/manual-required states with
