@@ -2,7 +2,7 @@
 
 The child UX snapshot contract remains the source of truth for calm tokenized child states. This proof now links rendered child delivery states to real managed-browser intervention screenshots instead of marking UI not applicable.
 
-Managed browser proof: `test-results/managed-browser-intervention-proof/2026-06-05T16-03-37-369Z.json`
+Managed browser proof: `test-results/managed-browser-intervention-proof/2026-06-05T17-48-49-011Z.json`
 Browser: `chrome-stable` (chrome/stable)
 
 Rendered child states proved:
