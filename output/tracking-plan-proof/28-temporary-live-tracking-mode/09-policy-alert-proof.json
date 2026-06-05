@@ -1,0 +1,16 @@
+{
+  "status": "p1-fixture-simulation",
+  "parentAuthorizationProved": true,
+  "durationAndCadencePolicyProved": true,
+  "autoStopReasonProved": true,
+  "childDisclosureRequirementProved": true,
+  "productClaimReady": false,
+  "readinessStates": {
+    "ready-to-start": 1,
+    "active-time-boxed": 1,
+    "expired-auto-stop-required": 1,
+    "revoked-by-parent": 1,
+    "platform-unavailable-manual-required": 1,
+    "duration-policy-manual-required": 1
+  }
+}

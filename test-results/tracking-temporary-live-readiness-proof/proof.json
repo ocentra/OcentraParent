@@ -1,0 +1,306 @@
+{
+  "proofMode": "tracking-temporary-live-readiness-proof",
+  "generatedAt": "2026-06-05T14:10:00.000Z",
+  "branch": "codex/tracking-temporary-live-readiness-proof",
+  "commit": "8e2a55fa04bb31965282a560e26ae06bf5c7d3aa",
+  "gitStatusShort": "M  docs/features/location-geofence-device-status.md\nM  docs/plans/tracking-plan/implementation-checklist.md\nM  docs/plans/tracking-plan/workpacks/28-temporary-live-tracking-mode.md\nM  output/tracking-plan-proof/28-temporary-live-tracking-mode/00-source-snapshot.md\nA  output/tracking-plan-proof/28-temporary-live-tracking-mode/03-runtime-location-evidence.json\nA  output/tracking-plan-proof/28-temporary-live-tracking-mode/09-policy-alert-proof.json\nA  output/tracking-plan-proof/28-temporary-live-tracking-mode/14-retention-delete-proof.json\nM  output/tracking-plan-proof/28-temporary-live-tracking-mode/16-validation-commands.log\nA  packages/parent-domain/src/tracking-temporary-live-readiness-proof.ts\nA  packages/parent-domain/tests/tracking-temporary-live-readiness-proof.test.ts\nA  scripts/test/tracking-temporary-live-readiness-proof.mjs\nA  test-results/tracking-temporary-live-readiness-proof/proof.json\nA  test-results/tracking-temporary-live-readiness-proof/tracking-temporary-live-readiness-read-model.json",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "status": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-temporary-live-readiness-proof tracking-location-policy",
+      "status": 0
+    }
+  ],
+  "summary": {
+    "rows": 6,
+    "readyToStartCount": 1,
+    "activeCount": 1,
+    "expiredAutoStopCount": 1,
+    "manualRequiredCount": 6,
+    "revokedOrDeniedCount": 1,
+    "readinessStates": {
+      "ready-to-start": 1,
+      "active-time-boxed": 1,
+      "expired-auto-stop-required": 1,
+      "revoked-by-parent": 1,
+      "platform-unavailable-manual-required": 1,
+      "duration-policy-manual-required": 1
+    },
+    "retentionActions": {
+      "retain-until-expiry": 2,
+      "delete-after-retention-window": 2,
+      "manual-review-required": 2
+    },
+    "platformRuntimeProofStates": {
+      "real-device-required": 6
+    },
+    "batteryStatusProofStates": {
+      "manual-required": 6
+    }
+  },
+  "nonClaims": {
+    "liveLocationRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "backgroundLocationClaimed": false,
+    "batteryRuntimeClaimed": false,
+    "childDisclosureUiClaimed": false,
+    "parentLiveUiClaimed": false,
+    "remoteSyncClaimed": false,
+    "providerDeliveryClaimed": false,
+    "productClaimReady": false
+  },
+  "proofPaths": {
+    "source": "packages/parent-domain/src/tracking-temporary-live-readiness-proof.ts",
+    "test": "packages/parent-domain/tests/tracking-temporary-live-readiness-proof.test.ts",
+    "harness": "scripts/test/tracking-temporary-live-readiness-proof.mjs",
+    "evidence": "test-results/tracking-temporary-live-readiness-proof/proof.json",
+    "trackingProofPack": "output/tracking-plan-proof/28-temporary-live-tracking-mode"
+  },
+  "readModel": {
+    "schemaVersion": "v0.5-tracking",
+    "generatedAt": "2026-06-05T14:10:00.000Z",
+    "proofId": "tracking-temporary-live-readiness-proof",
+    "sourceTrackingReadModelRef": "tracking-location-policy-temporary-live-proof",
+    "sourceContractRefs": [
+      "tracking-location-policy",
+      "location-geofence-device-status",
+      "temporary-live-tracking-mode"
+    ],
+    "rows": [
+      {
+        "schemaVersion": "v0.5-tracking",
+        "grantId": "tracking-live-ready",
+        "readinessState": "ready-to-start",
+        "requestedAt": "2026-06-05T14:00:00.000Z",
+        "expiresAt": "2026-06-05T14:35:00.000Z",
+        "durationSeconds": 1200,
+        "maximumDurationSeconds": 3600,
+        "cadenceSeconds": 60,
+        "parentAuthorized": true,
+        "childDisclosureRequired": true,
+        "autoStopReason": "expires-at",
+        "retentionAction": "retain-until-expiry",
+        "platformRuntimeProofState": "real-device-required",
+        "batteryStatusProofState": "manual-required",
+        "manualProofRequirements": [
+          "live-location-runtime-proof-required",
+          "battery-status-runtime-proof-required"
+        ],
+        "auditRefs": [
+          "tracking-live-ready-audit"
+        ],
+        "sourceContractRefs": [
+          "tracking-location-policy",
+          "location-geofence-device-status",
+          "temporary-live-tracking-mode"
+        ],
+        "liveLocationRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "backgroundLocationClaimed": false,
+        "batteryRuntimeClaimed": false,
+        "childDisclosureUiClaimed": false,
+        "parentLiveUiClaimed": false,
+        "remoteSyncClaimed": false,
+        "providerDeliveryClaimed": false
+      },
+      {
+        "schemaVersion": "v0.5-tracking",
+        "grantId": "tracking-live-active",
+        "readinessState": "active-time-boxed",
+        "requestedAt": "2026-06-05T14:00:00.000Z",
+        "expiresAt": "2026-06-05T14:20:00.000Z",
+        "durationSeconds": 900,
+        "maximumDurationSeconds": 3600,
+        "cadenceSeconds": 60,
+        "parentAuthorized": true,
+        "childDisclosureRequired": true,
+        "autoStopReason": "expires-at",
+        "retentionAction": "retain-until-expiry",
+        "platformRuntimeProofState": "real-device-required",
+        "batteryStatusProofState": "manual-required",
+        "manualProofRequirements": [
+          "live-location-runtime-proof-required",
+          "battery-status-runtime-proof-required"
+        ],
+        "auditRefs": [
+          "tracking-live-active-audit"
+        ],
+        "sourceContractRefs": [
+          "tracking-location-policy",
+          "location-geofence-device-status",
+          "temporary-live-tracking-mode"
+        ],
+        "liveLocationRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "backgroundLocationClaimed": false,
+        "batteryRuntimeClaimed": false,
+        "childDisclosureUiClaimed": false,
+        "parentLiveUiClaimed": false,
+        "remoteSyncClaimed": false,
+        "providerDeliveryClaimed": false
+      },
+      {
+        "schemaVersion": "v0.5-tracking",
+        "grantId": "tracking-live-expired",
+        "readinessState": "expired-auto-stop-required",
+        "requestedAt": "2026-06-05T14:00:00.000Z",
+        "expiresAt": "2026-06-05T14:05:00.000Z",
+        "durationSeconds": 300,
+        "maximumDurationSeconds": 3600,
+        "cadenceSeconds": 60,
+        "parentAuthorized": true,
+        "childDisclosureRequired": true,
+        "autoStopReason": "expired",
+        "retentionAction": "delete-after-retention-window",
+        "platformRuntimeProofState": "real-device-required",
+        "batteryStatusProofState": "manual-required",
+        "manualProofRequirements": [
+          "live-location-runtime-proof-required",
+          "battery-status-runtime-proof-required"
+        ],
+        "auditRefs": [
+          "tracking-live-expired-audit"
+        ],
+        "sourceContractRefs": [
+          "tracking-location-policy",
+          "location-geofence-device-status",
+          "temporary-live-tracking-mode"
+        ],
+        "liveLocationRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "backgroundLocationClaimed": false,
+        "batteryRuntimeClaimed": false,
+        "childDisclosureUiClaimed": false,
+        "parentLiveUiClaimed": false,
+        "remoteSyncClaimed": false,
+        "providerDeliveryClaimed": false
+      },
+      {
+        "schemaVersion": "v0.5-tracking",
+        "grantId": "tracking-live-revoked",
+        "readinessState": "revoked-by-parent",
+        "requestedAt": "2026-06-05T14:00:00.000Z",
+        "expiresAt": "2026-06-05T14:25:00.000Z",
+        "durationSeconds": 1200,
+        "maximumDurationSeconds": 3600,
+        "cadenceSeconds": 60,
+        "parentAuthorized": true,
+        "childDisclosureRequired": true,
+        "autoStopReason": "parent-revoked",
+        "retentionAction": "delete-after-retention-window",
+        "platformRuntimeProofState": "real-device-required",
+        "batteryStatusProofState": "manual-required",
+        "manualProofRequirements": [
+          "live-location-runtime-proof-required",
+          "battery-status-runtime-proof-required"
+        ],
+        "auditRefs": [
+          "tracking-live-revoked-audit"
+        ],
+        "sourceContractRefs": [
+          "tracking-location-policy",
+          "location-geofence-device-status",
+          "temporary-live-tracking-mode"
+        ],
+        "liveLocationRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "backgroundLocationClaimed": false,
+        "batteryRuntimeClaimed": false,
+        "childDisclosureUiClaimed": false,
+        "parentLiveUiClaimed": false,
+        "remoteSyncClaimed": false,
+        "providerDeliveryClaimed": false
+      },
+      {
+        "schemaVersion": "v0.5-tracking",
+        "grantId": "tracking-live-unavailable",
+        "readinessState": "platform-unavailable-manual-required",
+        "requestedAt": "2026-06-05T14:00:00.000Z",
+        "expiresAt": "2026-06-05T14:25:00.000Z",
+        "durationSeconds": 1200,
+        "maximumDurationSeconds": 3600,
+        "cadenceSeconds": 60,
+        "parentAuthorized": true,
+        "childDisclosureRequired": true,
+        "autoStopReason": "platform-unavailable",
+        "retentionAction": "manual-review-required",
+        "platformRuntimeProofState": "real-device-required",
+        "batteryStatusProofState": "manual-required",
+        "manualProofRequirements": [
+          "live-location-runtime-proof-required",
+          "battery-status-runtime-proof-required"
+        ],
+        "auditRefs": [
+          "tracking-live-unavailable-audit"
+        ],
+        "sourceContractRefs": [
+          "tracking-location-policy",
+          "location-geofence-device-status",
+          "temporary-live-tracking-mode"
+        ],
+        "liveLocationRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "backgroundLocationClaimed": false,
+        "batteryRuntimeClaimed": false,
+        "childDisclosureUiClaimed": false,
+        "parentLiveUiClaimed": false,
+        "remoteSyncClaimed": false,
+        "providerDeliveryClaimed": false
+      },
+      {
+        "schemaVersion": "v0.5-tracking",
+        "grantId": "tracking-live-too-long",
+        "readinessState": "duration-policy-manual-required",
+        "requestedAt": "2026-06-05T14:00:00.000Z",
+        "expiresAt": "2026-06-05T16:10:00.000Z",
+        "durationSeconds": 7200,
+        "maximumDurationSeconds": 3600,
+        "cadenceSeconds": 60,
+        "parentAuthorized": true,
+        "childDisclosureRequired": true,
+        "autoStopReason": "manual-required",
+        "retentionAction": "manual-review-required",
+        "platformRuntimeProofState": "real-device-required",
+        "batteryStatusProofState": "manual-required",
+        "manualProofRequirements": [
+          "temporary-live-duration-policy-review-required",
+          "live-location-runtime-proof-required",
+          "battery-status-runtime-proof-required"
+        ],
+        "auditRefs": [
+          "tracking-live-too-long-audit"
+        ],
+        "sourceContractRefs": [
+          "tracking-location-policy",
+          "location-geofence-device-status",
+          "temporary-live-tracking-mode"
+        ],
+        "liveLocationRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "backgroundLocationClaimed": false,
+        "batteryRuntimeClaimed": false,
+        "childDisclosureUiClaimed": false,
+        "parentLiveUiClaimed": false,
+        "remoteSyncClaimed": false,
+        "providerDeliveryClaimed": false
+      }
+    ],
+    "readyToStartCount": 1,
+    "activeCount": 1,
+    "expiredAutoStopCount": 1,
+    "manualRequiredCount": 6,
+    "revokedOrDeniedCount": 1,
+    "liveLocationRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "backgroundLocationClaimed": false,
+    "batteryRuntimeClaimed": false,
+    "childDisclosureUiClaimed": false,
+    "parentLiveUiClaimed": false,
+    "remoteSyncClaimed": false,
+    "providerDeliveryClaimed": false,
+    "productClaimReady": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "status": "p1-fixture-simulation",
+  "liveLocationRuntimeClaimed": false,
+  "physicalDeviceProofClaimed": false,
+  "backgroundLocationClaimed": false,
+  "rows": 6,
+  "platformRuntimeProofStates": {
+    "real-device-required": 6
+  }
+}

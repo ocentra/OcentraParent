@@ -1,0 +1,10 @@
+{
+  "status": "p1-fixture-simulation",
+  "retentionActions": {
+    "retain-until-expiry": 2,
+    "delete-after-retention-window": 2,
+    "manual-review-required": 2
+  },
+  "expiredAutoStopCount": 1,
+  "liveRetentionRuntimeClaimed": false
+}

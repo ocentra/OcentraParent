@@ -27,15 +27,22 @@ Proof root: `output/tracking-plan-proof/28-temporary-live-tracking-mode/`
 
 ## AI Worker Checklist
 
-- [ ] Require parent authorization and duration.
-- [ ] Model cadence, max duration, and auto-stop reason.
-- [ ] Preserve battery/permission degraded states.
-- [ ] Audit start/update/degrade/stop.
-- [ ] Test expiry and deletion/retention behavior.
+- [x] Require parent authorization and duration.
+- [x] Model cadence, max duration, and auto-stop reason.
+- [x] Preserve battery/permission degraded states.
+- [x] Audit lifecycle/degrade/stop refs.
+- [x] Test expiry and deletion/retention behavior.
 
 ## Where We Are
 
-This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+This workpack now has P1 fixture-simulation proof from
+`codex/tracking-temporary-live-readiness-proof` under the proof root below. The
+proof derives ready, active time-boxed, expired auto-stop, revoked,
+unavailable, and duration-policy manual states from the existing tracking
+policy read model. It preserves cadence, max duration, expiry, retention
+action, audit refs, and degraded platform/battery proof requirements while
+keeping live location runtime, background location, battery runtime, parent and
+child UI, remote sync, provider delivery, and physical-device proof unclaimed.
 
 ## Where We Want To Be
 
@@ -62,9 +69,22 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/28-temporary-live-tracking-mode/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Workpack id and branch:
+      `codex/tracking-temporary-live-readiness-proof`.
+- [x] Touched files: parent-domain temporary live readiness proof contract,
+      focused test, proof script, owning feature doc, implementation checklist,
+      this workpack doc, proof output, and queued capability-checklist doc
+      delta.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-temporary-live-readiness-proof.mjs` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/28-temporary-live-tracking-mode/` and
+      `test-results/tracking-temporary-live-readiness-proof/`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, this workpack doc, and capability-checklist delta queued while
+      the central checklist remains sequenced through hub locks.
+- [x] Known gaps/manual-required states: live location runtime, background
+      location, battery runtime, child disclosure UI, parent live UI, remote
+      sync, provider delivery, physical-device proof, production retention
+      deletion, Android/iOS physical proof, and full runtime execution remain
+      proof-gated.

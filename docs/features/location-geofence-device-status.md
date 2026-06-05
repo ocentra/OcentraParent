@@ -98,6 +98,14 @@ expose location or device-status features. Parents expect this category.
   claiming provider delivery, receipts, credentials, parent notification UI,
   child-device delivery, physical-device proof, retry/runtime workers, or
   adapter dispatch.
+- WP28 temporary live readiness proof now exists through
+  `node scripts/test/tracking-temporary-live-readiness-proof.mjs`. It derives
+  ready, active time-boxed, expired auto-stop, revoked, unavailable, and
+  duration-policy manual states from the existing tracking policy read model,
+  preserves cadence, max-duration, expiry, retention, audit, battery/status
+  degraded proof requirements, and keeps live location runtime, background
+  location, battery runtime, parent/child UI, remote sync, provider delivery,
+  and physical-device proof unclaimed.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -150,12 +158,13 @@ parent route service-data coverage, hosted parent route screenshot/accessibility
 proof with hosted child-safe check-in copy/actions and hosted child-runtime
 disclosure/safe-help/location-share consent copy, P1 local parent-defined place
 store proof, pre-device proof-gate progress, Android emulator package/service/status
-scaffold proof, P3 WSL/local replay proof, P1 evidence-quality gate proof, and
-WP26 tracking alert-to-provider-status handoff proof. It remains a tracked
-product gap until platform location and geofence adapters, broader product read
-models, actual provider delivery, notification receipt ingestion, physical-device
-proof, actual child-device delivery/runtime execution, and full parent/child UI
-snapshots/accessibility beyond the hosted parent route are proved.
+scaffold proof, P3 WSL/local replay proof, P1 evidence-quality gate proof, WP26
+tracking alert-to-provider-status handoff proof, and WP28 temporary live
+readiness proof. It remains a tracked product gap until platform location and
+geofence adapters, broader product read models, actual provider delivery,
+notification receipt ingestion, physical-device proof, actual child-device
+delivery/runtime execution, and full parent/child UI snapshots/accessibility
+beyond the hosted parent route are proved.
 
 ## Checklist
 
@@ -182,6 +191,11 @@ snapshots/accessibility beyond the hosted parent route are proved.
       evidence refs, policy decision refs, notification status refs, reason refs,
       and minimal/authenticated-drill-in payload boundaries. This is not
       provider delivery or receipt proof.
+- [x] Temporary live tracking readiness proof exists for parent authorization,
+      duration, cadence, expiry/auto-stop, retention action, audit refs, and
+      degraded platform/battery proof states. This is not live location runtime,
+      background location, battery runtime, parent/child UI, remote sync,
+      provider delivery, or physical-device proof.
 - [x] Nearby-place ambiguity and AI safety evidence contracts.
 - [x] P1 ActivityStore tracking-event SQLite ingest proof.
 - [x] P2 service-backed tracking read-model command proof for SQLite journal
