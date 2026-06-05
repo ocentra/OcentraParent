@@ -72,8 +72,7 @@ async function main() {
     proofMode: 'app-install-purchase-parent-action-delivery-readiness-proof',
     commands,
     packageExportState: 'validated-public-package-export',
-    checklistState:
-      'PENDING_LOCK: docs/product-capability-checklist.md was locked by codex-a when this proof was added.',
+    checklistState: 'validated-product-capability-checklist-row',
     evidence: {
       parentActionDeliveryReadinessContract:
         'packages/parent-domain/src/app-install-purchase-parent-action-delivery-readiness-proof.ts',
@@ -87,7 +86,7 @@ async function main() {
       packageExport:
         'COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-parent-action-delivery-readiness-proof.',
       checklistRow:
-        'PENDING: update docs/product-capability-checklist.md Install/purchase approval row after codex-a releases the checklist lock.',
+        'COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes parent-action delivery readiness proof.',
       output: relative(repoRoot, proofPath),
     },
     parentActionDeliveryReadinessSummary: summary,

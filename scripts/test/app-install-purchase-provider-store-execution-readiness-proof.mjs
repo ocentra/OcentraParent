@@ -76,8 +76,7 @@ async function main() {
     proofMode: 'app-install-purchase-provider-store-execution-readiness-proof',
     commands,
     packageExportState: 'validated-public-package-export',
-    checklistState:
-      'PENDING_LOCK: docs/product-capability-checklist.md is intentionally untouched while locked by another lane.',
+    checklistState: 'validated-product-capability-checklist-row',
     evidence: {
       providerStoreExecutionReadinessContract:
         'packages/parent-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts',
@@ -95,7 +94,7 @@ async function main() {
       packageExport:
         'COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-provider-store-execution-readiness-proof.',
       checklistRow:
-        'PENDING: update docs/product-capability-checklist.md Install/purchase approval row after the checklist lock clears.',
+        'COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes provider/store execution readiness proof.',
       output: relative(repoRoot, proofPath),
     },
     providerStoreExecutionReadinessSummary: summary,

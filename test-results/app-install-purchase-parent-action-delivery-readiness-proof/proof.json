@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T18:13:23.469Z",
-  "commit": "e0cd991352050fa74bec5f2b80b15f10be730046",
+  "checkedAt": "2026-06-05T18:31:56.487Z",
+  "commit": "d9a02c78e0b999ddca191c8a773ae1aad9542faf",
   "proofMode": "app-install-purchase-parent-action-delivery-readiness-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-05T18:13:15.274Z",
+      "startedAt": "2026-06-05T18:31:47.104Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-parent-action-delivery-readiness-proof.test.ts",
-      "startedAt": "2026-06-05T18:13:19.877Z",
+      "startedAt": "2026-06-05T18:31:52.558Z",
       "exitCode": 0
     }
   ],
   "packageExportState": "validated-public-package-export",
-  "checklistState": "PENDING_LOCK: docs/product-capability-checklist.md was locked by codex-a when this proof was added.",
+  "checklistState": "validated-product-capability-checklist-row",
   "evidence": {
     "parentActionDeliveryReadinessContract": "packages/parent-domain/src/app-install-purchase-parent-action-delivery-readiness-proof.ts",
     "sourceParentActionRuntimeHandoffContract": "packages/parent-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts",
@@ -25,7 +25,7 @@
     "featureDoc": "docs/features/app-install-purchase-approval.md",
     "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
     "packageExport": "COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-parent-action-delivery-readiness-proof.",
-    "checklistRow": "PENDING: update docs/product-capability-checklist.md Install/purchase approval row after codex-a releases the checklist lock.",
+    "checklistRow": "COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes parent-action delivery readiness proof.",
     "output": "test-results\\app-install-purchase-parent-action-delivery-readiness-proof\\proof.json"
   },
   "parentActionDeliveryReadinessSummary": {

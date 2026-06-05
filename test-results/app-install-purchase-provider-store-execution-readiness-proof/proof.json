@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T18:13:23.351Z",
-  "commit": "e0cd991352050fa74bec5f2b80b15f10be730046",
+  "checkedAt": "2026-06-05T18:31:56.562Z",
+  "commit": "d9a02c78e0b999ddca191c8a773ae1aad9542faf",
   "proofMode": "app-install-purchase-provider-store-execution-readiness-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-05T18:13:15.320Z",
+      "startedAt": "2026-06-05T18:31:47.119Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-provider-store-execution-readiness-proof.test.ts",
-      "startedAt": "2026-06-05T18:13:19.614Z",
+      "startedAt": "2026-06-05T18:31:52.558Z",
       "exitCode": 0
     }
   ],
   "packageExportState": "validated-public-package-export",
-  "checklistState": "PENDING_LOCK: docs/product-capability-checklist.md is intentionally untouched while locked by another lane.",
+  "checklistState": "validated-product-capability-checklist-row",
   "evidence": {
     "providerStoreExecutionReadinessContract": "packages/parent-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts",
     "sourceApprovedApiEntitlementContract": "packages/parent-domain/src/app-install-purchase-approved-api-entitlement-proof.ts",
@@ -27,7 +27,7 @@
     "featureDoc": "docs/features/app-install-purchase-approval.md",
     "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
     "packageExport": "COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-provider-store-execution-readiness-proof.",
-    "checklistRow": "PENDING: update docs/product-capability-checklist.md Install/purchase approval row after the checklist lock clears.",
+    "checklistRow": "COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes provider/store execution readiness proof.",
     "output": "test-results\\app-install-purchase-provider-store-execution-readiness-proof\\proof.json"
   },
   "providerStoreExecutionReadinessSummary": {
@@ -465,7 +465,6 @@
   ],
   "knownGaps": [
     "Provider/store execution readiness rows are contract/proof rows only; no Google Play Apple App Store Microsoft Store or billing provider contact is implemented.",
-    "Package-source adapter execution and parent action delivery readiness remain proof-backed source rows; runtime writer delivery, child-device delivery, provider/store execution, platform interception, app blocking, and hosted family custody remain unimplemented.",
-    "The product capability checklist row remains pending until the docs/product-capability-checklist.md lock clears."
+    "Package-source adapter execution and parent action delivery readiness remain proof-backed source rows; runtime writer delivery, child-device delivery, provider/store execution, platform interception, app blocking, and hosted family custody remain unimplemented."
   ]
 }
