@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-policy-readiness-manual-guard",
+  "checkedAt": "2026-06-07T11:41:44.863Z",
+  "commit": "db2435924a46aeea1f6f1f3c9a9744b6edc8f3ab",
+  "commands": [
+    "cargo test -p ocentra-parent-agent-service app_game_policy_readiness"
+  ],
+  "summary": {
+    "readModel": "agent.activity.app-game.policy-readiness.read-model.get",
+    "guardedStatus": "policy-partial",
+    "guardReason": "manual-required or missing policy-readiness rows prevent the service read model from reporting policy-ready",
+    "policyEvaluationReady": "kept as the base evidence and authority readiness signal; capabilityStatus carries the manual guard",
+    "adapterDispatchClaimed": false
+  },
+  "claimsProved": [
+    "Manual-required approval action history or AI classifier context keeps capabilityStatus policy-partial",
+    "The service read model still exposes policyEvaluationReady separately for base evidence and authority readiness",
+    "The proof path does not add portal UI, policy evaluator runtime, timer runtime, child delivery, adapter dispatch, broad blocking, or platform support"
+  ],
+  "claimsNotProved": [
+    "portal policy readiness rendering",
+    "runtime policy evaluator execution",
+    "timer or child delivery execution",
+    "adapter execution, broad installed-app blocking, or platform support"
+  ],
+  "evidence": {
+    "servicePayload": "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
+    "servicePayloadTest": "crates/agent-service/src/activity_api/app_game_policy_readiness_payload_tests.rs",
+    "serviceWebSocketTest": "crates/agent-service/src/activity_api/app_game_policy_readiness_service_tests.rs",
+    "proofHarness": "scripts/test/app-game-policy-readiness-manual-guard-proof.mjs",
+    "proofPack": "output/app-game-plan-proof/71-policy-readiness-manual-guard"
+  }
+}

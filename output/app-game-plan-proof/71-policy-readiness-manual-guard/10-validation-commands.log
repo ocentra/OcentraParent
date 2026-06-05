@@ -1,0 +1,4 @@
+Validation run:
+
+- cargo test -p ocentra-parent-agent-service app_game_policy_readiness: PASS
+- node scripts/test/app-game-policy-readiness-manual-guard-proof.mjs: PASS

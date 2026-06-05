@@ -30,7 +30,8 @@ pub fn app_game_policy_readiness_from_service_model(
     let manual_review_required = rows
         .iter()
         .any(|row| row.readiness_state != APP_GAME_POLICY_READINESS_STATE_READY);
-    let capability_status = policy_readiness_status(&model, policy_evaluation_ready);
+    let capability_status =
+        policy_readiness_status(&model, policy_evaluation_ready, manual_review_required);
 
     AppGamePolicyReadinessReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
@@ -163,10 +164,11 @@ fn readiness_row(
 fn policy_readiness_status(
     model: &AppGameServiceReadModel,
     policy_evaluation_ready: bool,
+    manual_review_required: bool,
 ) -> String {
     if app_game_boundary_row_count(model) == 0 {
         APP_GAME_POLICY_READINESS_STATUS_NO_ROWS.to_string()
-    } else if policy_evaluation_ready {
+    } else if policy_evaluation_ready && !manual_review_required {
         APP_GAME_POLICY_READINESS_STATUS_READY.to_string()
     } else {
         APP_GAME_POLICY_READINESS_STATUS_PARTIAL.to_string()

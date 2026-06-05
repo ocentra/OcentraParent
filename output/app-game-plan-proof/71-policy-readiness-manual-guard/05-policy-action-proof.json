@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "policyRuntimeExecuted": false,
+  "adapterDispatchClaimed": false,
+  "capabilityStatus": "policy-partial whenever any readiness row is missing or manual-required, even if policyEvaluationReady is true for base rows"
+}

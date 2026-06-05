@@ -1,0 +1,6 @@
+Security/no-claim proof:
+
+- Manual-required readiness rows cannot be collapsed into a policy-ready capability status.
+- Missing rows remain missing/manual-required and visible in the service read model.
+- adapterDispatchClaimed remains false.
+- No portal UI, policy evaluator, timer, child delivery, provider, adapter, broad blocking, or platform support claim is added.

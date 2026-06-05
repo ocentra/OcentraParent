@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "journalSqliteChanged": false,
+  "source": "existing ActivityStore app-game service read model",
+  "guard": "manual-required and missing readiness rows are derived from existing persisted row counts; no row is invented"
+}

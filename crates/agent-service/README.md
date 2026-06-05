@@ -83,6 +83,10 @@ development paths and orchestrates runtime commands.
   `AppGameServiceReadModel` and exposing staged authority/classifier row
   counts plus citation refs without portal UI, policy, provider, or adapter
   claims.
+- App/game policy readiness reports through
+  `agent.activity.app-game.policy-readiness.read-model.get`, backed by the
+  same `AppGameServiceReadModel`, with manual-required or missing readiness
+  rows keeping capability status partial instead of policy-ready.
 
 ## Must Not Own
 
@@ -160,6 +164,10 @@ flowchart LR
 - App/game source status rows are backend read-model summaries only; polished
   portal rendering, policy consumption, richer subscriptions, adapter
   execution, and broad blocking remain separate gaps.
+- App/game policy readiness rows are backend status proof only; manual-required
+  rows keep the read model partial, and live evaluator execution, timers, child
+  delivery, portal authoring UI, broad blocking, and platform adapters remain
+  separate gaps.
 - Screen service analysis proofs are backend/local proof hooks only; production
   OCR/VLM quality, authenticated-account surfaces, broader live trigger
   producers, retention UI, and enforcement remain separate gaps.

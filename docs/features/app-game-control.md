@@ -213,6 +213,10 @@ control with better evidence and local audit.
   action history, platform authority, and AI classifier readiness rows from the
   existing app/game service model, keeps missing inputs visible as
   missing/manual-required, and fixes `adapterDispatchClaimed=false`.
+- The app/game policy readiness read model now keeps capability status partial
+  when any policy-readiness row is missing or manual-required, even when the
+  base evidence and authority rows are present, so downstream consumers cannot
+  treat manual review as fully policy-ready.
 - Parent-domain policy preview handoff contracts now map already-compiled
   app/game dry-run policy decisions into read-only preview rows, separating
   native app versus native game target meaning while keeping evaluator runtime,
