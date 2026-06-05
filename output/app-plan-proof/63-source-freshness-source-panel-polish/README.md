@@ -1,7 +1,7 @@
 # app WP63 Source Freshness Source Panel Polish
 
-Checked at: 2026-06-05T06:32:30.411Z
-Commit: 8f525b20a030662b4f814b25ed3e564dd2614e19
+Checked at: 2026-06-05T08:20:25.449Z
+Commit: 7c03a8cacd06f67d743ecc5c74827cacf0092ee7
 
 ## Claims Proved
 - portal dashboard intent now exposes dedicated source-panel sections derived from service-backed sourceStatusRows
