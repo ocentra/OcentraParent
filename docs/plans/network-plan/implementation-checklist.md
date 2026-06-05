@@ -84,8 +84,17 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       dropped-event audit refs, duplicate idempotency rejection, and zero
       enforcement-command/adapter-action counts while keeping live broker and
       family-hub delivery unimplemented.
-- [ ] `11-manual-platform-proof.md`: OS/device/permission details, exact manual
+- [x] `11-manual-platform-proof.md`: OS/device/permission details, exact manual
       steps, screenshots/logs, and manual-required labels for platform claims.
+      E-D row11 proof now writes
+      `output/network-plan-proof/11-manual-platform-proof/11-manual-platform-proof.md`,
+      `output/network-plan-proof/11-manual-platform-proof/proof-summary.json`,
+      and `test-results/network-manual-platform-proof/proof.json` by running
+      the existing live-capture, DNS adapter, Windows Firewall, WFP, Android
+      VpnService, Apple Network Extension, and Linux adapter proof-gate tests.
+      The proof records required OS/device/permission artifacts and exact manual
+      steps while keeping live platform execution, screenshots, and adapter
+      action unclaimed until host/device proof is attached.
 - [x] `11a-hardening-support-proof.md`: key rotation, secret handling,
       rule/model provenance and rollback, external audit or pen-test signoff
       for production claims, parent/user guide, FAQ, support playbook, and
@@ -167,7 +176,13 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       grades, or decide policy locally. Proof:
       `output/network-plan-proof/36-portal-source-gate/proof-summary.json` and
       `test-results/network-portal-source-gate-proof/proof.json`.
-- [ ] Platform claims name exact OS/device/permission proof.
+- [x] Platform claims name exact OS/device/permission proof.
+      E-D row11 proof aggregates rows 13 and 37-42 into
+      `output/network-plan-proof/11-manual-platform-proof/11-manual-platform-proof.md`,
+      naming Windows Npcap, DNS/Firewall, WFP, Android VpnService, Apple Network
+      Extension, and Linux nftables/eBPF/TUN host/device permission artifacts,
+      logs, and manual-required labels. Live platform execution and screenshots
+      remain unclaimed until real host/device evidence is supplied.
 - [ ] Every failed, skipped, manual, or deferred test has a reason and follow-up
       owner recorded.
 

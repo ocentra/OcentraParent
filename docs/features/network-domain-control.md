@@ -362,6 +362,9 @@ proof-gated DNS and Windows Firewall adapter apply/result/rollback/audit
 boundaries, a Windows WFP signed/permissioned lab-proof gate, an Android
 VpnService physical-device proof gate, an Apple Network Extension
 entitlement/device proof gate, and a Linux nftables/eBPF/TUN distro proof gate.
+The row11 aggregate manual/platform proof pack now ties those platform gates to
+the required OS/device/permission artifacts, exact manual steps, command logs,
+and manual-required labels before any platform claim can be upgraded.
 Broker/family-hub delivery implementation, local-AI model execution/worker
 runtime, full policy engine execution, notification provider delivery, broader
 parent-facing rule UX, live host DNS mutation/proxy installation, live Windows
@@ -436,6 +439,11 @@ UI rendering remain open.
       Row42 Linux nftables/eBPF/TUN proof gate now models distro readiness from
       distro/kernel, permission, adapter API, service-manager scope, rollback,
       lab-result, and audit refs while preserving the selected adapter kind.
+      The row11 manual/platform proof pack aggregates rows 13 and 37-42 into
+      `output/network-plan-proof/11-manual-platform-proof/11-manual-platform-proof.md`
+      with host/device permission artifacts, exact manual steps, command logs,
+      and manual-required labels while leaving live adapter execution and
+      screenshots unclaimed until real host/device proof exists.
       Row45 eventing delivery-decision proof now keeps local network routes
       local-first with typed subscriber filters and bounded backpressure
       metadata, and row10 backpressure-depth proof now proves network-specific
@@ -486,8 +494,9 @@ UI rendering remain open.
       VpnService plus Row41 Apple Network Extension and Row42 Linux proof gates
       model supported/lab-ready/physical-device-ready/Apple-device-ready/
       distro-ready, manual-required, and unavailable capability states for their
-      adapter boundaries, but broader platform capability status and parent UI
-      surfacing remain open.
+      adapter boundaries. Row11 now records the aggregate manual/platform proof
+      pack for OS/device/permission artifacts and exact manual steps, but broader
+      platform capability status and parent UI surfacing remain open.
 - [x] DNS proxy/block/redirect adapter proof boundary.
       The Rust proof accepts apply-ready only with grade-A policy, parent-rule
       refs, evidence refs, supported capability, adapter authorization,
