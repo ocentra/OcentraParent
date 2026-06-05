@@ -16,6 +16,9 @@ contracts.
   runtime, or adapter dispatch.
 - App/game policy readiness route intents that render service-backed readiness
   summaries and rows without policy execution or adapter dispatch claims.
+- Social dashboard panel intents that adapt parent-domain social dashboard
+  snapshots into portal rows, or render an unavailable zero-row state when no
+  service-backed social snapshot exists.
 
 ## Must Not Own
 
@@ -52,3 +55,6 @@ flowchart LR
 - Keep app/game notification parent-surface projection aligned with future
   provider/preference/scheduler/outbox service rows before showing those refs as
   reported runtime state.
+- Keep social dashboard rows unavailable until a real service-backed social
+  snapshot path exists; do not promote connector/native/final-policy/enforcement
+  claims from portal-only rendering.

@@ -204,9 +204,11 @@ Parent social dashboard UX contracts may represent dashboard sections, sort
 order, statuses, actions, severities, source evidence refs, and manual-required
 gaps for account approval queues, feed/video gates, native app capability,
 connector boundaries, and decision memory. These contracts must not claim
-rendered portal UI, notification delivery, runtime data fetch, policy decisions,
-connector authorization, native app control, or enforcement until the actual
-portal surface and runtime data path are implemented and tested.
+notification delivery, runtime data fetch, policy decisions, connector
+authorization, native app control, or enforcement. The current rendered parent
+portal proof is limited to the Browser-route unavailable zero-row shell; it
+does not prove service-backed social snapshots, connector/native runtime,
+policy execution, or enforcement.
 
 Child approval/block UX contracts may represent child-facing states and actions
 for approval pending, blocked route candidates, warning candidates, manual
@@ -228,10 +230,11 @@ adapter proof exists.
 
 Social proof artifact gates may verify checklist ownership, proof folders,
 required source/security/validation/UI-marker files, README references, and
-feature/expectation coverage. They must not claim Playwright or screenshot proof
-when the current rows are contract-only, and they must not claim runtime
-connector behavior, native app control, final policy execution, enforcement, or
-product completion.
+feature/expectation coverage. They may cite rendered Playwright/screenshot
+proof only for the exact UI route and state actually captured. They must not
+claim runtime connector behavior, native app control, final policy execution,
+enforcement, or product completion from contract-only rows or unavailable-state
+shells.
 
 Rollout/manual-required gates may label rows as partial/manual-required only.
 They must preserve product completion as unclaimed until rendered UI,

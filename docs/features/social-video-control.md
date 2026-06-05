@@ -171,6 +171,14 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   These are section/action/status contracts only; they reject rendered portal
   UI, notifications, runtime data fetch, policy decisions, connector
   authorization, native app control, and enforcement.
+- Browser-plan SOCIAL-20 now also renders an honest parent Browser-route social
+  dashboard shell in the real portal. The proof captures desktop/mobile
+  screenshots for the unavailable zero-row state at
+  `output/browser-plan-proof/social-20-parent-social-dashboard-ux/06-ui-snapshots/`
+  and records `test-results/social-dashboard-ui-proof/proof.json`. This proves
+  the rendered parent surface only; service-backed social snapshots, runtime
+  fetch, connector authorization, native app control, final policy execution,
+  notifications, and enforcement remain unclaimed.
 - Browser-plan SOCIAL-21 now adds parent-domain child approval/block UX
   contracts for approval pending, blocked route candidates, warning candidates,
   manual review, time-limit candidates, and native-app unavailable states. These
@@ -188,11 +196,15 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
 - Browser-plan SOCIAL-23 now adds a proof artifact gate for SOCIAL-01 through
   SOCIAL-22. The generated manifest checks checklist ownership, proof directory
   references, required proof files, README references, and feature/expectation
-  coverage while keeping Playwright manual-required because no rendered social UI
-  exists in this slice.
+  coverage. SOCIAL-20 now has a rendered parent Browser-route unavailable-state
+  screenshot proof, while child UI, explanation UI, service-backed social data,
+  connector/native runtime, final policy, and enforcement proof remain
+  manual-required.
 - Browser-plan SOCIAL-24 now adds rollout/manual-required status labels for
   SOCIAL-01 through SOCIAL-23. SOCIAL rollout state: partial/manual-required.
-  Product completion remains unclaimed.
+  Product completion remains unclaimed; the new rendered SOCIAL-20 parent shell
+  proof does not upgrade connector/native runtime, child delivery, final policy,
+  enforcement, or release readiness.
 - Browser-plan package export closure now exposes the existing parent-domain
   social contract modules as public package subpaths and reconciles the
   browser-plan docs to stop treating package exports as the remaining blocker.

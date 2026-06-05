@@ -133,6 +133,12 @@ export {
   type AppGamePolicyReadinessPanelRow,
 } from './app-game-policy-readiness-panel';
 export {
+  createSocialDashboardPanelIntent,
+  type SocialDashboardPanelDetail,
+  type SocialDashboardPanelIntent,
+  type SocialDashboardPanelRow,
+} from './social-dashboard-panel';
+export {
   PortalRoute,
   PortalDevToolWindow,
   PortalRouteDescriptors,

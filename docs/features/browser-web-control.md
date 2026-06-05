@@ -778,9 +778,11 @@ native control, enforcement, or product checklist status.
 SOCIAL-20 now adds parent-domain parent social dashboard UX section contracts
 and text-domain copy tokens for account approvals, feed/video gates, native app
 capability, connector boundaries, decision memory, and manual-required gaps.
-This does not claim a rendered portal dashboard, runtime data fetch,
-notification, connector authorization, native control, enforcement, or product
-checklist status.
+The real Browser route now renders a parent social dashboard shell and captures
+desktop/mobile Playwright proof for the honest unavailable zero-row state. This
+does not claim service-backed social snapshots, runtime data fetch,
+notification, connector authorization, native control, final policy execution,
+enforcement, or product checklist status.
 SOCIAL-21 now adds parent-domain child approval/block UX state contracts and
 text-domain calm copy tokens for approval pending, blocked route candidates,
 warnings, manual review, time-limit candidates, and native-app unavailable
@@ -794,14 +796,14 @@ audit store, rendered explanation UI, notifications, raw account/video/message
 content, connector authorization, native control, final policy execution,
 enforcement, or product checklist status.
 SOCIAL-23 now adds a social proof artifact gate that checks SOCIAL-01 through
-SOCIAL-22 proof-pack coverage and marks Playwright manual-required because this
-slice does not render social UI. This does not claim screenshots, runtime
-connector behavior, native control, final policy execution, enforcement, or
-product checklist status.
+SOCIAL-22 proof-pack coverage. SOCIAL-20 now has rendered parent Browser-route
+screenshots for the unavailable state, but child UI, explanation UI, service
+social snapshots, runtime connector behavior, native control, final policy
+execution, enforcement, and product checklist status remain manual-required.
 SOCIAL-24 now labels the social track partial/manual-required through the
-rollout gate. Product checklist upgrade is not claimed. Rendered social UI,
-Playwright screenshots, connector/native runtime, final policy execution, and
-enforcement remain unclaimed.
+rollout gate. Product checklist upgrade is not claimed. Service-backed social
+data, child/explanation UI, connector/native runtime, final policy execution,
+and enforcement remain unclaimed.
 
 ## Checklist
 

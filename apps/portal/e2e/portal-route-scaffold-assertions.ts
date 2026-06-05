@@ -401,7 +401,8 @@ async function assertPolicyGuideDeepLinks(page: Page): Promise<void> {
   await page.goto('/#/browser-settings');
   await expect(surface.locator('[aria-label="Open Browser Rules guide"]')).toBeVisible();
   await assertBrowserPolicyDeviceTargets(page, surface);
-  await surface.locator('[aria-label="Open Browser Budget guide"]').click({ force: true });
+  await surface.locator('[aria-label="Open Browser Budget guide"]').focus();
+  await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/#\/policy\?guideTopic=browser-policy-guide&guidePage=2$/);
   await expect(surface.locator('text').filter({ hasText: 'BROWSER BUDGET' }).first()).toBeVisible();
   await page.getByRole('button', { name: 'Show QUICK ACTION' }).click({ force: true });
