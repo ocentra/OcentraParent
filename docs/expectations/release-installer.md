@@ -61,6 +61,14 @@ Release features are product features because parents need install/update paths 
   execution, child-activity custody, provider secrets, account lookup, billing
   provider contact, remote support sessions, production SLA, and default
   Ocentra-hosted family data unclaimed.
+- V8 production support backend upload custody/audit proof that records custody
+  boundary, retention manual-required, delete request, deletion
+  manual-required, and support-safe audit export readiness rows with status
+  refs, runtime refs, custody refs, retention/delete refs, and manual proof
+  requirements while keeping real backend execution, backend payload retention,
+  backend payload deletion, child-activity custody, provider secrets, account
+  lookup, billing provider contact, remote support sessions, production SLA, and
+  default Ocentra-hosted family data unclaimed.
 - V8 production support case resolution/status proof that records case opened,
   triage-ready, parent-update-ready, escalation manual-required, response
   manual-required, closure-ready, and SLA manual-required rows with incident,
@@ -158,6 +166,14 @@ Release features are product features because parents need install/update paths 
   support backend upload execution, account lookup execution, billing provider
   contact execution, remote support session execution, default Ocentra-hosted
   family data, or production SLA.
+- `production-support-backend-upload-custody-audit-proof` may prove
+  custody/audit boundary rows for custody recording, retention manual-required,
+  delete request, deletion manual-required, and support-safe audit export
+  readiness, but it must not claim raw child activity custody, provider secrets,
+  remote support transcripts, real support backend upload execution, backend
+  payload retention, backend payload deletion, account lookup execution, billing
+  provider contact execution, remote support session execution, default
+  Ocentra-hosted family data, or production SLA.
 - `production-support-case-resolution-status-proof` may prove support-safe
   parent-visible case resolution/status rows for opened, triage, update,
   escalation, response, closure, and SLA manual-required states, but it must not

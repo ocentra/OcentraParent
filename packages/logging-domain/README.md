@@ -125,6 +125,23 @@ execution, account lookup execution, billing provider contact execution, remote
 support session execution, production SLA, or default Ocentra-hosted family
 data.
 
+## Support Backend Upload Custody Audit Contract
+
+`src/support-backend-upload-custody-audit.ts` owns the logging-domain schema
+proof for production support backend upload custody, retention, delete, and
+audit-export boundary rows, while
+`src/support-backend-upload-custody-audit-read-model.ts` owns the current
+fixture rows. They record parent-consented custody boundary refs, retention
+manual-required refs, delete request/manual-required refs, support-safe audit
+export refs, status refs, runtime refs, redaction refs, and manual proof
+requirements.
+
+This contract is metadata-only. It does not claim raw child activity custody,
+provider secrets, remote support transcripts, real support backend upload
+execution, support backend payload retention, support backend payload deletion,
+account lookup execution, billing provider contact execution, remote support
+session execution, production SLA, or default Ocentra-hosted family data.
+
 ## Support Case Resolution Status Contract
 
 `src/support-case-resolution-status.ts` owns the logging-domain schema proof
