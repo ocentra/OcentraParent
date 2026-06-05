@@ -132,6 +132,15 @@ compete on control while staying clear about attribution confidence and privacy.
   live driver invocation, unbounded capture, raw PCAP without custody,
   exact-content, policy/adapter authority, and enforcement-command claims are
   rejected.
+- E-D added deterministic raw capture storage custody proof in
+  `ocentra-network-evidence`: local raw artifact storage is authorized only when
+  the row13 live-capture proof is proof-ready and raw artifact manifest,
+  encrypted local storage, encryption-at-rest, quota rotation, retention,
+  delete/export, custody-chain, and private-traffic-exclusion refs are present.
+  Missing refs stay manual-required, unavailable/degraded live-capture states
+  remain visible, and live capture execution, remote upload, raw PCAP without
+  custody, exact-content, policy/adapter authority, and enforcement-command
+  claims are rejected.
 - E-D added fixture-backed visibility parsers for TLS ClientHello SNI, plain
   HTTP Host, QUIC limited-visibility detection, and DoH/DoT resolver-candidate
   detection. These parsers keep exact URL, visited domain, page content, and

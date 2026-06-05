@@ -41,7 +41,15 @@ clean-stop, quota-rotation, retention/delete/export, custody, and
 private-traffic-exclusion refs. Missing artifacts stay manual-required,
 platform gaps stay unavailable/degraded, and the proof rejects live driver
 invocation, unbounded capture, raw PCAP without custody, exact content,
-policy/adapter authority, and enforcement-command claims. Unmanaged-browser
+policy/adapter authority, and enforcement-command claims.
+The raw capture storage custody proof builds on that gate: raw artifact storage
+is authorized only when the live-capture proof is proof-ready and raw artifact
+manifest, local encrypted storage, encryption-at-rest, quota, retention,
+delete/export, custody-chain, and private-traffic-exclusion refs are all
+present. Missing refs stay manual-required, unavailable/degraded live-capture
+states stay visible, and live capture execution, remote upload, raw PCAP without
+custody, content, policy, adapter, and enforcement claims are rejected.
+Unmanaged-browser
 correlation records known or portable browser processes as process-only bypass
 evidence, keeps browser-like process names candidate-only, preserves managed
 browser boundary and adapter-unavailable states, and rejects exact URL,
