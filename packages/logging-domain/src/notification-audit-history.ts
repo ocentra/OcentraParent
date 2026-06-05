@@ -62,7 +62,7 @@ export const NotificationAuditHistoryRedactionStateSchema = withParser(
   Schema.Literal('minimal-operational-fields-only')
 );
 
-const RequiredPayloadFields = [
+export const NotificationAuditHistoryRequiredPayloadFields = [
   'alert-id-ref',
   'family-scope-ref',
   'device-scope-ref',
@@ -74,6 +74,8 @@ const RequiredPayloadFields = [
   'parent-action-link-ref',
   'audit-entry-ref',
 ] as const;
+
+const RequiredPayloadFields = NotificationAuditHistoryRequiredPayloadFields;
 
 const NotificationAuditHistoryEntryBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(1),

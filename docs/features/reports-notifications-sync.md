@@ -101,6 +101,10 @@ custody.
 - App/game notification scheduler bridge proof now maps those linked local
   outbox records into existing notification scheduler JSONL rows, while keeping
   manual-required and unavailable app/game rows visible without scheduling them.
+- App/game notification audit-history bridge proof now maps linked local outbox
+  rows into existing logging-domain notification audit/history entries, while
+  keeping manual-required and unavailable app/game rows visible as
+  blocked/manual audit rows without provider sends.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -169,6 +173,12 @@ records, but does not claim production retry workers, production quiet-hours
 timer execution, durable production outbox storage, provider delivery, receipt
 ingestion, parent UI, child delivery, adapter dispatch, broad blocking, or
 platform support.
+The app/game notification audit-history bridge proof adds deterministic
+local-outbox-to-audit-history handoff rows for linked, manual-required, and
+unavailable app/game notification states, but does not claim provider delivery,
+receipt ingestion, production retry workers, production quiet-hours timers,
+durable production outbox/history storage, parent UI, child delivery, adapter
+dispatch, broad blocking, or platform support.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
@@ -246,6 +256,10 @@ delivery, policy writes, or child-device enforcement.
       scheduler JSONL rows for linked app/game local outbox records, while
       manual-required and unavailable rows stay unscheduled and no production
       runtime/provider/UI/child/adapter claims are made.
+- [x] App/game notification audit-history bridge proof exists with
+      metadata-only logging-domain audit rows for linked, manual-required, and
+      unavailable app/game notification states, without
+      runtime/provider/UI/child/adapter claims.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
@@ -289,6 +303,12 @@ production quiet-hours timers, durable production outbox storage, provider
 adapters, receipt ingestion, parent-visible history/preferences UI, child
 delivery proof, and provider smoke proof before claiming app/game notification
 delivery or product notification runtime. Treat
+`scripts/test/app-game-notification-audit-history-bridge-proof.mjs` as
+logging-domain app/game audit-history handoff proof only; require provider
+adapters, production retry workers, production quiet-hours timers, receipt
+ingestion, parent-visible history/preferences UI, durable production history or
+outbox storage, child delivery proof, and provider smoke proof before claiming
+app/game notification delivery or product notification runtime. Treat
 `scripts/test/parent-owned-sync-export-manifest-proof.mjs` as parent-domain
 sync/export manifest and connector-status contract proof only; require real
 transfer runtime, connector OAuth/provider artifacts, parent-visible controls,

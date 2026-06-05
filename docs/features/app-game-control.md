@@ -212,6 +212,11 @@ control with better evidence and local audit.
   into existing deterministic scheduler JSONL rows while leaving manual-required
   and unavailable rows unscheduled and preserving no runtime, provider, UI,
   child-delivery, adapter, broad-blocking, or platform claims.
+- The app/game notification audit-history bridge now maps linked local outbox
+  rows into existing logging-domain notification audit-history entries while
+  keeping manual-required and unavailable rows blocked/manual and preserving no
+  provider, retry runtime, UI, child-delivery, adapter, broad-blocking, or
+  platform claims.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -359,6 +364,12 @@ does not provide production retry workers, quiet-hours timer runtime, durable
 production outbox storage, provider delivery, provider receipt ingestion, parent
 notification UI, child delivery, policy evaluator execution, adapter dispatch,
 broad blocking, or platform support.
+The app/game notification audit-history bridge proof links eligible app/game
+local outbox rows to the existing logging-domain notification audit-history
+schema, but it does not provide provider delivery, provider receipt ingestion,
+production retry workers, quiet-hours timer runtime, durable outbox/history
+storage, parent notification UI, child delivery, policy evaluator execution,
+adapter dispatch, broad blocking, or platform support.
 
 ## Checklist
 
@@ -429,7 +440,9 @@ broad blocking, or platform support.
       while manual-required and unavailable intents stay out of queued records.
       The scheduler bridge can now write and reread scheduler JSONL rows for
       linked local outbox records while manual-required and unavailable rows
-      remain unscheduled.
+      remain unscheduled. The audit-history bridge can now write metadata-only
+      audit-history handoff entries for linked, manual-required, and unavailable
+      rows without claiming provider delivery, history UI, or child delivery.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
