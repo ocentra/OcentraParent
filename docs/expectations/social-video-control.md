@@ -146,7 +146,12 @@ parent approval refs, and time-limit refs to model route action candidates. They
 must not claim browser navigation block execution, redirects, CSS/DOM hiding,
 tab closing, applied time limits, UI delivery, final policy decisions, feed or
 video content capture, recommendation modeling, native app control, connector
-authority, or enforcement.
+authority, or enforcement. Current proof:
+`social-feed-video-live-route-gate-proof` captures real public social/video
+surfaces with Playwright, persists screenshots plus redacted hashes/statuses,
+and validates candidate route-gate plans without raw page-body, DOM, title,
+credential, form-submit, feed-content, video-content, UI, final-policy, or
+enforcement claims.
 
 Unmanaged social bypass detector contracts may use redacted unmanaged or
 browser-like process evidence to report bypass-only, managed-browser-required

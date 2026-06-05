@@ -1296,8 +1296,13 @@ worker messages before code changes. Do not mix all 24 into one PR.
   The contracts reject browser navigation block execution, redirects, CSS/DOM
   hiding, tab closing, applied time limits, child/parent UI, final policy
   decisions, feed/video content capture, recommendation modeling, native app
-  control, connector claims, and enforcement. Package subpath exports are now present; no runtime route gate, UI, native
-  app support, connector, or enforcement is claimed.
+  control, connector claims, and enforcement. Live proof now runs
+  `scripts/test/social-feed-video-live-route-gate-proof.mjs` against real public
+  Reddit, Twitch, TikTok, Instagram, YouTube, and Vimeo surfaces, writes
+  screenshots plus redacted proof JSON, validates five route-gate candidate
+  plans through the built contracts, and records the YouTube short redirect as a
+  non-planned live capture. Package subpath exports are now present; no runtime
+  route gate, UI, native app support, connector, or enforcement is claimed.
 - SOCIAL-15 now adds unmanaged social bypass detector contracts in
   `packages/activity-domain/src/browser-social-unmanaged-bypass-detector-values.ts`
   and `packages/activity-domain/src/browser-social-unmanaged-bypass-detector.ts`.
