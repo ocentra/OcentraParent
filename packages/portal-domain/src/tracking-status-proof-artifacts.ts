@@ -24,6 +24,9 @@ export const TrackingStatusProofArtifacts = {
     'output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/09-policy-alert-proof.json'
   ),
   ChildCheckIn: artifact('output/tracking-plan-proof/18-child-check-in-flow/09-policy-alert-proof.json'),
+  ChildRuntimeUi: artifact(
+    'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json'
+  ),
   TemporaryLiveMode: artifact('output/tracking-plan-proof/28-temporary-live-tracking-mode/proof-summary.json'),
   MissingDeviceMode: artifact('output/tracking-plan-proof/29-missing-device-mode/proof-summary.json'),
   RetentionDelete: artifact('output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json'),

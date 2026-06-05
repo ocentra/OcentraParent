@@ -15,7 +15,12 @@ import type {
   AgentActivityTrackingReadModel,
   AgentActivityTrackingReadModelRow,
 } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
-import { trackingChildCheckInProof, type TrackingChildCheckInProof } from './tracking-child-check-in-proof';
+import {
+  trackingChildCheckInProof,
+  trackingChildRuntimeUiProof,
+  type TrackingChildCheckInProof,
+  type TrackingChildRuntimeUiProof,
+} from './tracking-child-check-in-proof';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 import { renderDashboard } from './portal-dashboard';
@@ -290,6 +295,7 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
       dashboard.append(renderTrackingStatusLiveCitation(citation));
     }
     dashboard.append(renderTrackingChildCheckInProof(trackingChildCheckInProof()));
+    dashboard.append(renderTrackingChildRuntimeUiProof(trackingChildRuntimeUiProof()));
     for (const proofRow of trackingStatusProofRows()) {
       dashboard.append(renderTrackingStatusRow(proofRow));
     }
@@ -443,6 +449,35 @@ function renderTrackingChildCheckInProof(proof: TrackingChildCheckInProof): HTML
   appendDetail(metadata, PortalDetails.ChildShareLocationAction, toDetail(proof.shareLocationAction));
   appendDetail(metadata, PortalDetails.ChildCallParentAction, toDetail(proof.callParentAction));
   appendDetail(metadata, PortalDetails.ChildDelivery, toDetail(proof.deliveryBoundary));
+  appendDetail(metadata, PortalDetails.ProofTier, toDetail(proof.proofTier));
+  appendDetail(metadata, PortalDetails.EvidenceReferences, toDetail(proof.evidence));
+  appendDetail(metadata, PortalDetails.RuntimeReference, toDetail(proof.proofArtifact));
+  appendDetail(metadata, PortalDetails.MissingProof, toDetail(proof.missingProof));
+  appendDetail(metadata, PortalDetails.ProductClaim, toDetail(proof.productClaim));
+
+  panel.append(title, body, metadata);
+  return panel;
+}
+
+function renderTrackingChildRuntimeUiProof(proof: TrackingChildRuntimeUiProof): HTMLElement {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+  panel.setAttribute(PortalDom.Attributes.DataTrackingProof, PortalDom.Attributes.TrackingProofChildRuntimeUi);
+
+  const title = document.createElement(PortalDom.Tags.HeadingTwo);
+  title.textContent = proof.title;
+
+  const body = document.createElement(PortalDom.Tags.Paragraph);
+  body.className = PortalDom.Classes.CommandResultEmpty;
+  body.textContent = proof.body;
+
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendDetail(metadata, PortalDetails.ChildCopy, toDetail(proof.disclosure));
+  appendDetail(metadata, PortalDetails.ChildSafeAction, toDetail(proof.safeResponse));
+  appendDetail(metadata, PortalDetails.ChildHelpAction, toDetail(proof.helpResponse));
+  appendDetail(metadata, PortalDetails.ChildShareLocationAction, toDetail(proof.locationShareConsent));
+  appendDetail(metadata, PortalDetails.ChildDelivery, toDetail(proof.deliveryBoundary));
+  appendDetail(metadata, PortalDetails.AdapterBoundary, toDetail(proof.runtimeBoundary));
   appendDetail(metadata, PortalDetails.ProofTier, toDetail(proof.proofTier));
   appendDetail(metadata, PortalDetails.EvidenceReferences, toDetail(proof.evidence));
   appendDetail(metadata, PortalDetails.RuntimeReference, toDetail(proof.proofArtifact));

@@ -10,7 +10,7 @@ import {
 import { PortalRoute, TrackingStatusProofArtifacts } from '@ocentra-parent/portal-domain/contracts';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
-import { trackingChildCheckInProof } from '../src/tracking-child-check-in-proof';
+import { trackingChildCheckInProof, trackingChildRuntimeUiProof } from '../src/tracking-child-check-in-proof';
 import {
   trackingStatusLiveSummary,
   trackingStatusProofRows,
@@ -234,6 +234,27 @@ describe('tracking child check-in proof surface', () => {
       productClaim: 'No product claim',
     });
     expect(JSON.stringify(proof)).not.toMatch(/(?:trouble|lying|bad place|delivered|product ready)/iu);
+  });
+
+  it('renders child runtime UI copy without delivery or product claims', () => {
+    const proof = trackingChildRuntimeUiProof();
+
+    expect(proof).toEqual({
+      title: 'Child runtime UI proof',
+      body: 'Child sees a clear tracking request, safe response, help response, and location-share consent copy.',
+      proofTier: 'P2 service proof',
+      evidence: 'UI fixture proof',
+      proofArtifact: TrackingStatusProofArtifacts.ChildRuntimeUi,
+      disclosure: 'Tracking request disclosed',
+      safeResponse: 'Safe response visible',
+      helpResponse: 'Help response visible',
+      locationShareConsent: 'Location share asks consent',
+      runtimeBoundary: 'Hosted proof only, not child-agent delivery',
+      deliveryBoundary: 'Child-device delivery not proved',
+      missingProof: 'Manual proof required',
+      productClaim: 'No product claim',
+    });
+    expect(JSON.stringify(proof)).not.toMatch(/(?:delivered|physical device proved|product ready)/iu);
   });
 });
 
