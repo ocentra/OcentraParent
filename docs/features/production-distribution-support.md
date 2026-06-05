@@ -131,6 +131,14 @@ dev-only repo when it claims consumer readiness.
   upload execution, account lookup execution, billing provider contact,
   production SLA, legal disclosure execution, remote support sessions, and child
   activity custody.
+- `public-support-contact-status-proof` adds parent-domain public support
+  contact/status boundary rows for public support contact, support status page
+  contact, support runbook contact, incident status contact, backend-upload
+  support contact, and billing-support contact. It proves only source-contract
+  readiness and manual requirements while keeping public runtime execution,
+  support backend upload execution, account lookup execution, billing provider
+  contact, remote support sessions, production SLA, legal disclosure execution,
+  provider secrets, and child activity custody unclaimed.
 - `mobile-child-agent-capability-proof` adds package/runtime hook evidence for
   Android debug APK/checksum, Android package-local status, Android device
   install/manual Play signing, iOS Xcode target, iOS simulator status, iOS
@@ -381,6 +389,15 @@ package/runtime proof.
       upload execution, account lookup execution, billing provider contact,
       production SLA, legal disclosure execution, remote support sessions, and
       child activity custody remain unimplemented or unclaimed.
+- [ ] Public support contact/status boundary proof. Current
+      `public-support-contact-status-proof` covers public support contact,
+      support status page contact, support runbook contact, incident status
+      contact, backend-upload support contact, and billing-support contact as
+      source-contract/manual-required rows. Public runtime execution, support
+      backend upload execution, account lookup execution, billing provider
+      contact, remote support sessions, production SLA, legal disclosure
+      execution, provider secrets, and child activity custody remain
+      unimplemented or unclaimed.
 - [ ] Public website/download/account/status surfaces. Current
       `production-release-public-status-proof` records public download, release
       status, update status, account status, subscription status, and support
