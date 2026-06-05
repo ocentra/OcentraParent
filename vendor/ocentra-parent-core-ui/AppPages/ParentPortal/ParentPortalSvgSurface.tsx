@@ -356,6 +356,12 @@ type AssistantQuickChoice = {
   readonly followUps: readonly string[];
 };
 
+type AssistantQuestionnaireOption = {
+  readonly label: string;
+  readonly prompt: string;
+  readonly choice?: AssistantQuickChoice;
+};
+
 type AssistantQuickAction = {
   readonly id: AssistantQuickActionId;
   readonly label: string;
@@ -418,17 +424,21 @@ const ASSISTANT_QUICK_ACTIONS: readonly AssistantQuickAction[] = PARENT_ASSISTAN
 );
 
 function assistantToneForQuickAction(id: AssistantQuickActionId): Tone {
-  if (id === 'report' || id === 'support-api') return 'cyan';
-  if (id === 'browser-state' || id === 'drives') return 'gold';
-  if (id === 'rules') return 'red';
+  if (id === 'overview' || id === 'start' || id === 'report' || id === 'support-api' || id === 'devices') return 'cyan';
+  if (id === 'browser-state' || id === 'drives' || id === 'alerts') return 'gold';
+  if (id === 'rules' || id === 'private') return 'red';
   return 'purple';
 }
 
 function assistantIconForQuickAction(id: AssistantQuickActionId): AssistantQuickActionIconAssetUrl {
+  if (id === 'overview' || id === 'start' || id === 'report' || id === 'memory') {
+    return parentPortalTodayReportQuickActionIconUrl;
+  }
   if (id === 'browser-state') return parentPortalBrowserStateQuickActionIconUrl;
   if (id === 'rules') return parentPortalRulesQuickActionIconUrl;
   if (id === 'ai-setup') return parentPortalAiSetupQuickActionIconUrl;
-  if (id === 'drives') return parentPortalDrivesQuickActionIconUrl;
+  if (id === 'drives' || id === 'private' || id === 'devices' || id === 'alerts')
+    return parentPortalDrivesQuickActionIconUrl;
   if (id === 'support-api') return parentPortalSupportApiQuickActionIconUrl;
   return parentPortalTodayReportQuickActionIconUrl;
 }
@@ -473,12 +483,56 @@ function assistantQuickActionById(id: AssistantQuickActionId | null): AssistantQ
   return ASSISTANT_QUICK_ACTIONS.find((action) => action.id === id) ?? null;
 }
 
+function assistantQuestionForQuickAction(action: AssistantQuickAction): string {
+  if (action.id === 'overview') return 'Overview: what should MIA summarize first?';
+  if (action.id === 'start') return 'Start: what setup path should MIA guide?';
+  if (action.id === 'report') return 'Report: what kind of report do you need?';
+  if (action.id === 'browser-state') return 'Browser: what should MIA inspect first?';
+  if (action.id === 'rules') return 'Rules: what do you want to adjust or understand?';
+  if (action.id === 'memory') return 'Memory: what context boundary should MIA explain?';
+  if (action.id === 'ai-setup') return 'AI setup: what should MIA help configure?';
+  if (action.id === 'private') return 'Private: what privacy or custody question matters?';
+  if (action.id === 'devices') return 'Devices: what device state should MIA inspect?';
+  if (action.id === 'alerts') return 'Alerts: what notification path should MIA shape?';
+  if (action.id === 'drives') return 'Data: what should MIA prepare or export?';
+  if (action.id === 'support-api') return 'Support: what should MIA check first?';
+  return `${action.label}: what should MIA help with?`;
+}
+
+function assistantQuestionnaireState(
+  action: AssistantQuickAction | null,
+  choice: AssistantQuickChoice | null
+): { question: string; options: readonly AssistantQuestionnaireOption[] } {
+  if (!action) {
+    return {
+      question: 'Ask:',
+      options: ASSISTANT_DEFAULT_FOLLOW_UPS.map((prompt) => ({ label: prompt, prompt })),
+    };
+  }
+
+  if (choice?.followUps.length) {
+    return {
+      question: `${choice.label}: what detail should MIA narrow next?`,
+      options: choice.followUps.map((prompt) => ({ label: prompt, prompt })),
+    };
+  }
+
+  return {
+    question: assistantQuestionForQuickAction(action),
+    options: action.choices.map((quickChoice) => ({
+      label: quickChoice.label,
+      prompt: quickChoice.prompt,
+      choice: quickChoice,
+    })),
+  };
+}
+
 const ASSISTANT_NAV_ROUTE_PREFIX = 'assistant-action:';
 
 const ASSISTANT_NAV_GROUP_ACTION_IDS = {
-  quickGlance: ['report', 'browser-state'],
-  guide: ['rules', 'ai-setup'],
-  manage: ['drives', 'support-api'],
+  quickGlance: ['overview'],
+  guide: ['start', 'rules', 'memory', 'ai-setup', 'report', 'private'],
+  manage: ['browser-state', 'devices', 'alerts', 'drives', 'support-api'],
 } as const;
 
 const ASSISTANT_NEW_CHAT_NAV_ITEM = {
@@ -537,10 +591,16 @@ function assistantActionIdForNavItem(item: NavItem): AssistantQuickActionId | nu
 }
 
 function assistantIconComponentForQuickAction(id: AssistantQuickActionId): IconComponent {
+  if (id === 'overview') return OverviewListIcon;
+  if (id === 'start') return StartDataAnalysisIcon;
   if (id === 'report') return ReportDocumentIcon;
   if (id === 'browser-state') return BrowserStackIcon;
   if (id === 'rules') return RulesGavelDocumentIcon;
+  if (id === 'memory') return AiMemoryCircuitIcon;
   if (id === 'ai-setup') return AiMemorySetBrainIcon;
+  if (id === 'private') return DataPrivacyServerShieldIcon;
+  if (id === 'devices') return DevicesMultiScreenIcon;
+  if (id === 'alerts') return AlertNotificationBellIcon;
   if (id === 'drives') return DrivesCloudIcon;
   if (id === 'support-api') return AccountProfileIcon;
   return AiGuideIdeaIcon;
@@ -551,6 +611,10 @@ const ASSISTANT_INCOMING_CHAT_BUBBLE_CONFIG = {
     clampOnLeft: true,
     minHeight: 50,
     maxHeight: 150,
+  },
+  colors: {
+    aiBodyTop: '#c8f8d6',
+    aiBodyBottom: '#a9ecc1',
   },
   text: {
     fontSize: 12,
@@ -564,11 +628,24 @@ const ASSISTANT_OUTGOING_CHAT_BUBBLE_CONFIG = {
     minHeight: 42,
     maxHeight: 118,
   },
+  colors: {
+    userBodyTop: '#e5f6ff',
+    userBodyBottom: '#acdfff',
+  },
   text: {
     fontSize: 12,
     lineHeight: 1.42,
   },
 };
+
+const ASSISTANT_CHAT_SURFACE_FILL = 'rgba(2, 12, 20, 0.52)';
+const ASSISTANT_QUESTIONNAIRE_SURFACE_FILL = ASSISTANT_CHAT_SURFACE_FILL;
+const ASSISTANT_QUESTIONNAIRE_BODY_FILL = 'rgba(7, 26, 42, 0.34)';
+const ASSISTANT_FOLLOW_UP_PAD_X = 24;
+const ASSISTANT_FOLLOW_UP_PAD_Y = 6;
+const ASSISTANT_FOLLOW_UP_HEADER_H = 24;
+const ASSISTANT_FOLLOW_UP_ROW_H = 32;
+const ASSISTANT_FOLLOW_UP_GAP = 10;
 
 const ASSISTANT_SIDE_PANEL_ICON_CONFIG = {
   colors: {
@@ -14153,7 +14230,9 @@ function AssistantModeBoard({
   const [currentAction, setCurrentAction] = useState<AssistantQuickAction | null>(null);
   const [currentChoice, setCurrentChoice] = useState<AssistantQuickChoice | null>(null);
   const [composerSplitOffset, setComposerSplitOffset] = useState(0);
+  const [questionnaireSplitOffset, setQuestionnaireSplitOffset] = useState(0);
   const [resizingComposer, setResizingComposer] = useState(false);
+  const [resizingQuestionnaire, setResizingQuestionnaire] = useState(false);
   const messageSequenceRef = useRef(1);
   const handledActionSequenceRef = useRef(selectedActionSequence);
   const chatClipId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
@@ -14176,6 +14255,7 @@ function AssistantModeBoard({
     setCurrentChoice(null);
     setDraftPrompt('');
     setCollapsedMessages({});
+    setQuestionnaireSplitOffset(0);
   }, [createReadyMessage, threadSequence]);
 
   useEffect(() => {
@@ -14183,42 +14263,28 @@ function AssistantModeBoard({
     handledActionSequenceRef.current = selectedActionSequence;
     setCurrentAction(selectedAction);
     setCurrentChoice(null);
-    setMessages((current) => [
-      ...current,
-      {
-        id: nextMessageId('you-action'),
-        sender: 'user',
-        text: selectedAction.label,
-        action: selectedAction,
-      },
-      {
-        id: nextMessageId('mia-action'),
-        sender: 'assistant',
-        text: `${selectedAction.label}. Choose an option below, or type your own question and I will pass it to AI with this context.`,
-        action: selectedAction,
-        choices: selectedAction.choices,
-        choiceActionLabel: selectedAction.label,
-      },
-    ]);
-  }, [nextMessageId, selectedAction, selectedActionSequence]);
+    setQuestionnaireSplitOffset(0);
+  }, [selectedAction, selectedActionSequence]);
 
   const headerH = 62;
   const pad = 18;
-  const composerH = 52;
+  const composerMinH = 52;
   const composerBottomInset = 8;
+  const composerDividerGap = 8;
   const chatX = x + pad;
   const chatY = y + headerH + 12;
   const chatW = w - pad * 2;
   const composerSideInset = clampNumber(chatW * 0.018, 24, 38);
   const composerX = chatX + composerSideInset;
   const composerW = chatW - composerSideInset * 2;
-  const composerY = y + h - composerH - composerBottomInset;
-  const defaultBottomReserve = composerH + composerBottomInset + 20;
-  const minBottomReserve = composerH + composerBottomInset + 18;
+  const defaultBottomReserve = composerMinH + composerBottomInset + composerDividerGap;
+  const minBottomReserve = composerMinH + composerBottomInset + 18;
   const maxBottomReserve = Math.max(minBottomReserve, Math.min(260, h - headerH - 190));
   const bottomReserve = clampNumber(defaultBottomReserve + composerSplitOffset, minBottomReserve, maxBottomReserve);
   const splitterY = y + h - bottomReserve;
-  const chatH = Math.max(180, splitterY - chatY - 8);
+  const composerH = Math.max(composerMinH, bottomReserve - composerBottomInset - composerDividerGap);
+  const composerY = y + h - composerH - composerBottomInset;
+  const chatH = Math.max(180, splitterY - chatY);
   const headerCenterY = y + 34;
   const headerDividerY = y + headerH - 2;
   const sideToggleSize = 36;
@@ -14237,14 +14303,24 @@ function AssistantModeBoard({
   const titleTextX = titleIconX + 42;
   const titleUnderlineX = titleIconX - 2;
   const titleUnderlineW = titleGroupW + 4;
-  const followUps = currentChoice?.followUps ?? (currentAction ? [] : ASSISTANT_DEFAULT_FOLLOW_UPS);
-  const followUpPanelH = followUps.length > 0 ? assistantFollowUpPanelHeight(chatW, followUps.length) : 0;
-  const chatStarted = messages.some((message) => message.sender === 'user');
-  const followUpLabel = chatStarted ? 'Follow Up:' : 'Ask:';
+  const questionnaire = assistantQuestionnaireState(currentAction, currentChoice);
+  const followUpPanelW = chatW;
+  const questionnaireMaxH = clampNumber(chatH * 0.3, 104, Math.max(104, chatH - 90));
+  const questionnaireBaseH =
+    questionnaire.options.length > 0
+      ? assistantFollowUpPanelHeight(followUpPanelW, questionnaire.options, questionnaireMaxH)
+      : 0;
+  const questionnaireMinH = questionnaire.options.length > 0 ? Math.min(questionnaireBaseH, 92) : 0;
+  const followUpPanelH =
+    questionnaire.options.length > 0
+      ? clampNumber(questionnaireBaseH + questionnaireSplitOffset, questionnaireMinH, questionnaireMaxH)
+      : 0;
   const followUpY = chatY + chatH - followUpPanelH;
   const firstBubbleY = chatY + 20;
   const messageGap = 16;
   const messageAvailableH = Math.max(90, followUpY - firstBubbleY - 18);
+  const messageScrollRailEndY = Math.max(chatY + 54, followUpPanelH > 0 ? followUpY - 20 : chatY + chatH - 22);
+  const messageScrollThumbEndY = Math.min(messageScrollRailEndY, chatY + 118);
   const messageLayouts = messages.map((message) => {
     const variant = message.sender === 'user' ? 'outgoing' : 'incoming';
     const config =
@@ -14265,6 +14341,7 @@ function AssistantModeBoard({
     (total, layout, index) => total + layout.bubbleH + (index === 0 ? 0 : messageGap),
     0
   );
+  const showMessageScrollRail = messageTotalH > messageAvailableH + 4;
   const messageOffsetY = Math.min(0, messageAvailableH - messageTotalH);
   let nextMessageY = firstBubbleY + messageOffsetY;
   const messagePositions = messageLayouts.map((layout) => {
@@ -14279,6 +14356,14 @@ function AssistantModeBoard({
     const svgY = (event.clientY - rect.top) * (cfg.canvas.height / rect.height);
     const nextBottomReserve = y + h - svgY;
     setComposerSplitOffset(clampNumber(nextBottomReserve, minBottomReserve, maxBottomReserve) - defaultBottomReserve);
+  };
+  const updateQuestionnaireSplitFromPointer = (event) => {
+    const svg = event.currentTarget.ownerSVGElement;
+    const rect = svg?.getBoundingClientRect();
+    if (!rect || rect.height <= 0 || questionnaire.options.length === 0) return;
+    const svgY = (event.clientY - rect.top) * (cfg.canvas.height / rect.height);
+    const nextPanelH = chatY + chatH - svgY;
+    setQuestionnaireSplitOffset(clampNumber(nextPanelH, questionnaireMinH, questionnaireMaxH) - questionnaireBaseH);
   };
   const toggleCollapsed = (messageId: string) => {
     setCollapsedMessages((current) => ({ ...current, [messageId]: !current[messageId] }));
@@ -14297,30 +14382,32 @@ function AssistantModeBoard({
     if (!cleanedPrompt) return;
     onAssistantMessage(assistantMessageCommandPayload(cleanedPrompt, action, choice, inputSource));
   };
-  const selectFollowUp = (prompt: string) => {
-    const cleanedPrompt = prompt.trim();
+  const selectFollowUp = (option: AssistantQuestionnaireOption) => {
+    const cleanedPrompt = option.prompt.trim();
     if (!cleanedPrompt) return;
+    if (option.choice) {
+      setCurrentChoice(option.choice);
+      setQuestionnaireSplitOffset(0);
+      onChoiceSelect(option.choice);
+    }
     setMessages((current) => [
       ...current,
       {
         id: nextMessageId('you-followup'),
         sender: 'user',
-        text: cleanedPrompt,
-        action: currentAction,
-      },
-      {
-        id: nextMessageId('mia-followup'),
-        sender: 'assistant',
-        text: 'I will pass this follow-up to MIA with the current chat context. The live AI runtime will fill the answer when connected.',
+        text: option.label,
         action: currentAction,
       },
     ]);
-    emitAssistantMessage(cleanedPrompt, 'typed', currentChoice, currentAction);
+    if (!option.choice) {
+      emitAssistantMessage(cleanedPrompt, 'typed', currentChoice, currentAction);
+    }
   };
   const selectMainChoice = (choice: AssistantQuickChoice, action: AssistantQuickAction | null = currentAction) => {
     const actionForChoice = action ?? currentAction;
     setCurrentAction(actionForChoice);
     setCurrentChoice(choice);
+    setQuestionnaireSplitOffset(0);
     onChoiceSelect(choice);
     setMessages((current) => [
       ...current,
@@ -14394,7 +14481,7 @@ function AssistantModeBoard({
           width={chatW}
           height={chatH}
           rx={14}
-          fill="rgba(2, 12, 20, 0.52)"
+          fill={ASSISTANT_CHAT_SURFACE_FILL}
           stroke={cfg.colors.panelStroke}
           strokeWidth={0.85}
         />
@@ -14425,37 +14512,70 @@ function AssistantModeBoard({
             />
           ))}
         </g>
-        <path
-          d={`M ${chatX + chatW - 13} ${chatY + 22} V ${chatY + chatH - 22}`}
-          stroke={cfg.colors.cyan}
-          strokeWidth={1.2}
-          strokeLinecap="round"
-          opacity={0.32}
-        />
-        <path
-          d={`M ${chatX + chatW - 13} ${chatY + 40} V ${chatY + 118}`}
-          stroke={cfg.colors.cyan}
-          strokeWidth={3.2}
-          strokeLinecap="round"
-          opacity={0.82}
-          filter="url(#parentPortalGlow)"
-        />
-        {followUps.length > 0 ? (
-          <AssistantFollowUpPanel
-            x={chatX + 14}
-            y={followUpY}
-            w={chatW - 28}
-            label={followUpLabel}
-            questions={followUps}
-            onSelect={selectFollowUp}
-            cfg={cfg}
-          />
+        {showMessageScrollRail ? (
+          <>
+            <path
+              d={`M ${chatX + chatW - 13} ${chatY + 22} V ${messageScrollRailEndY}`}
+              stroke={cfg.colors.cyan}
+              strokeWidth={1.2}
+              strokeLinecap="round"
+              opacity={0.32}
+            />
+            <path
+              d={`M ${chatX + chatW - 13} ${chatY + 40} V ${messageScrollThumbEndY}`}
+              stroke={cfg.colors.cyan}
+              strokeWidth={3.2}
+              strokeLinecap="round"
+              opacity={0.82}
+              filter="url(#parentPortalGlow)"
+            />
+          </>
+        ) : null}
+        {questionnaire.options.length > 0 ? (
+          <>
+            <g clipPath={`url(#${chatClipId}-assistantChat)`}>
+              <AssistantFollowUpPanel
+                x={chatX}
+                y={followUpY}
+                w={followUpPanelW}
+                h={followUpPanelH}
+                question={questionnaire.question}
+                options={questionnaire.options}
+                onSelect={selectFollowUp}
+                cfg={cfg}
+              />
+            </g>
+            <AssistantComposerSplitter
+              x={chatX + 6}
+              y={followUpY}
+              w={chatW - 12}
+              dragging={resizingQuestionnaire}
+              ariaLabel="Resize assistant questionnaire"
+              onPointerDown={(event) => {
+                event.preventDefault();
+                setResizingQuestionnaire(true);
+                event.currentTarget.setPointerCapture?.(event.pointerId);
+                updateQuestionnaireSplitFromPointer(event);
+              }}
+              onPointerMove={(event) => {
+                if (!resizingQuestionnaire) return;
+                updateQuestionnaireSplitFromPointer(event);
+              }}
+              onPointerUp={(event) => {
+                setResizingQuestionnaire(false);
+                event.currentTarget.releasePointerCapture?.(event.pointerId);
+              }}
+              onPointerCancel={() => setResizingQuestionnaire(false)}
+              cfg={cfg}
+            />
+          </>
         ) : null}
         <AssistantComposerSplitter
           x={composerX}
           y={splitterY}
           w={composerW}
           dragging={resizingComposer}
+          ariaLabel="Resize assistant chat composer"
           onPointerDown={(event) => {
             event.preventDefault();
             setResizingComposer(true);
@@ -14492,7 +14612,15 @@ function AssistantChatFrame({ x, y, w, h, underlineX, underlineW, children, cfg 
   const headerH = 62;
   return (
     <g>
-      <ParentPortalPanelFrame x={x} y={y} w={w} h={h} color={cfg.colors.cyan} active fill="rgba(5, 20, 34, 0.72)" />
+      <ParentPortalPanelFrame
+        x={x}
+        y={y}
+        w={w}
+        h={h}
+        color={cfg.colors.cyan}
+        active
+        fill={ASSISTANT_CHAT_SURFACE_FILL}
+      />
       <AssistantHeaderDivider
         x={x}
         y={y + headerH - 2}
@@ -14745,104 +14873,140 @@ function assistantBubbleChoiceBodyHeight(w: number, choiceCount: number): number
   return 12 + rowCount * 36;
 }
 
-function assistantFollowUpColumnCount(w: number): number {
-  if (w < 960) return 1;
-  if (w < 1100) return 2;
-  return 4;
+function assistantFollowUpQuestionWidth(option: AssistantQuestionnaireOption): number {
+  return clampNumber(option.label.length * 7.4 + 32, 132, 270);
 }
 
-function assistantFollowUpPanelHeight(w: number, questionCount = 4): number {
-  const visibleQuestionCount = Math.max(1, Math.min(4, questionCount));
-  const rowCount = Math.ceil(visibleQuestionCount / assistantFollowUpColumnCount(w));
-  return 42 + rowCount * 40;
+function assistantFollowUpLayout(w: number, options: readonly AssistantQuestionnaireOption[]) {
+  const usableW = Math.max(160, w);
+  const visibleOptions = options;
+  const items: Array<{
+    option: AssistantQuestionnaireOption;
+    x: number;
+    y: number;
+    w: number;
+    showLeftDivider: boolean;
+  }> = [];
+  let cursorX = 0;
+  let cursorY = 0;
+  let rowW = 0;
+  let maxRowW = 0;
+
+  visibleOptions.forEach((option) => {
+    const itemW = Math.min(assistantFollowUpQuestionWidth(option), usableW);
+    if (cursorX > 0 && cursorX + itemW > usableW) {
+      maxRowW = Math.max(maxRowW, rowW);
+      cursorX = 0;
+      cursorY += ASSISTANT_FOLLOW_UP_ROW_H;
+      rowW = 0;
+    }
+    items.push({
+      option,
+      x: cursorX,
+      y: cursorY,
+      w: itemW,
+      showLeftDivider: cursorX > 0,
+    });
+    rowW = cursorX + itemW;
+    cursorX = rowW + ASSISTANT_FOLLOW_UP_GAP;
+  });
+
+  maxRowW = Math.max(maxRowW, rowW);
+  const rowCount = items.length > 0 ? Math.floor(cursorY / ASSISTANT_FOLLOW_UP_ROW_H) + 1 : 0;
+  return { items, rowCount, contentW: maxRowW };
 }
 
-function AssistantFollowUpPanel({ x, y, w, label, questions, onSelect, cfg }) {
-  const visibleQuestions = questions.slice(0, 4);
-  const columnCount = Math.min(assistantFollowUpColumnCount(w), Math.max(1, visibleQuestions.length));
-  const rowCount = Math.max(1, Math.ceil(visibleQuestions.length / columnCount));
-  const labelY = y + 23;
-  const listY = y + 38;
-  const rowH = 40;
-  const h = 42 + rowCount * rowH;
-  const gap = 10;
-  const itemW = (w - gap * (columnCount - 1)) / columnCount;
-  const labelW = label.length * 8.9 + 20;
+function assistantFollowUpPanelHeight(
+  w: number,
+  options: readonly AssistantQuestionnaireOption[],
+  maxHeight: number
+): number {
+  const layout = assistantFollowUpLayout(w - ASSISTANT_FOLLOW_UP_PAD_X * 2, options);
+  const contentHeight =
+    ASSISTANT_FOLLOW_UP_PAD_Y * 2 +
+    ASSISTANT_FOLLOW_UP_HEADER_H +
+    Math.max(1, layout.rowCount) * ASSISTANT_FOLLOW_UP_ROW_H;
+  return Math.min(maxHeight, contentHeight);
+}
+
+function AssistantFollowUpPanel({ x, y, w, h, question, options, onSelect, cfg }) {
+  const layout = assistantFollowUpLayout(w - ASSISTANT_FOLLOW_UP_PAD_X * 2, options);
+  const labelY = y + ASSISTANT_FOLLOW_UP_PAD_Y + 20;
+  const listY = y + ASSISTANT_FOLLOW_UP_PAD_Y + ASSISTANT_FOLLOW_UP_HEADER_H;
+  const bodyH = Math.max(ASSISTANT_FOLLOW_UP_ROW_H, h - ASSISTANT_FOLLOW_UP_PAD_Y * 2 - ASSISTANT_FOLLOW_UP_HEADER_H);
+  const listX = x + ASSISTANT_FOLLOW_UP_PAD_X;
+  const bodyW = w - ASSISTANT_FOLLOW_UP_PAD_X * 2;
+  const questionX = x + ASSISTANT_FOLLOW_UP_PAD_X;
   return (
-    <g role="group" aria-label="Follow-up questions">
-      <rect x={x} y={y} width={w} height={h} rx={10} fill={PARENT_PORTAL_GLASS.panelFillSoft} opacity={0.78} />
-      <path d={`M ${x + 8} ${labelY - 4} H ${x + 34}`} stroke={cfg.colors.bodyText} strokeWidth={0.8} opacity={0.76} />
-      <text x={x + 44} y={labelY} fontSize={15.2} fontWeight={970} fill={cfg.colors.bodyText}>
-        {label}
+    <g role="group" aria-label="Questionnaire suggestions">
+      <rect x={x} y={y} width={w} height={h} rx={0} fill={ASSISTANT_QUESTIONNAIRE_SURFACE_FILL} pointerEvents="none" />
+      <path d={`M ${x} ${y + 1} H ${x + w}`} stroke={cfg.colors.panelStroke} strokeWidth={0.8} opacity={0.78} />
+      <text x={questionX} y={labelY} fontSize={14.6} fontWeight={970} fill={cfg.colors.bodyText}>
+        {truncateTextForWidth(question, w - ASSISTANT_FOLLOW_UP_PAD_X * 2 - 80, 14.6, 0.56)}
       </text>
-      <path
-        d={`M ${x + 44 + labelW} ${labelY - 4} H ${x + w - 10}`}
-        stroke={cfg.colors.bodyText}
-        strokeWidth={0.8}
-        opacity={0.48}
-      />
-      {visibleQuestions.map((question, index) => {
-        const col = index % columnCount;
-        const row = Math.floor(index / columnCount);
-        return (
-          <AssistantFollowUpQuestion
-            key={question}
-            x={x + col * (itemW + gap)}
-            y={listY + row * rowH}
-            w={itemW}
-            h={rowH}
-            label={question}
-            showLeftDivider={col > 0}
-            onSelect={() => onSelect(question)}
-            cfg={cfg}
-          />
-        );
-      })}
-    </g>
-  );
-}
-
-function AssistantFollowUpQuestion({ x, y, w, h, label, showLeftDivider, onSelect, cfg }) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label={`Ask MIA: ${label}`}
-      onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <title>{label}</title>
-      {showLeftDivider ? (
-        <path
-          d={`M ${x - 5} ${y + 5} V ${y + h - 5}`}
-          stroke={cfg.colors.panelStroke}
-          strokeWidth={0.65}
-          opacity={0.54}
-        />
-      ) : null}
       <rect
         x={x}
-        y={y + 2}
+        y={listY - 4}
         width={w}
-        height={h - 4}
-        rx={6}
-        fill={hovered ? colorAlpha(cfg.colors.cyan, '1d') : 'transparent'}
-        stroke="transparent"
+        height={bodyH + 8}
+        rx={0}
+        fill={ASSISTANT_QUESTIONNAIRE_BODY_FILL}
+        pointerEvents="none"
       />
+      <path d={`M ${x} ${listY - 4} H ${x + w}`} stroke={cfg.colors.panelStroke} strokeWidth={0.7} opacity={0.58} />
       <path
-        d={`M ${x + 2} ${y + h - 2} H ${x + w - 2}`}
+        d={`M ${x + 0.5} ${y + 0.5} H ${x + w - 0.5} V ${y + h - 0.5} H ${x + 0.5} Z`}
+        fill="none"
         stroke={cfg.colors.panelStroke}
-        strokeWidth={0.5}
-        opacity={0.34}
+        strokeWidth={0.65}
+        opacity={0.46}
+        pointerEvents="none"
       />
-      <text x={x + 10} y={y + 26} fontSize={14.2} fontWeight={940} fill={hovered ? '#ffffff' : cfg.colors.bodyText}>
-        {truncateTextForWidth(label, w - 20, 14.2, 0.56)}
-      </text>
+      <foreignObject x={listX} y={listY} width={bodyW} height={bodyH}>
+        <div
+          xmlns="http://www.w3.org/1999/xhtml"
+          style={{
+            alignContent: 'flex-start',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: `${ASSISTANT_FOLLOW_UP_GAP}px`,
+            height: '100%',
+            overflowY: 'auto',
+            padding: '0 2px 4px',
+            scrollbarColor: `${colorAlpha(cfg.colors.cyan, '88')} transparent`,
+            scrollbarWidth: 'thin',
+            width: '100%',
+          }}
+        >
+          {layout.items.map((item) => (
+            <button
+              key={item.option.label}
+              type="button"
+              aria-label={`Ask MIA: ${item.option.label}`}
+              onClick={() => onSelect(item.option)}
+              style={{
+                background: colorAlpha(cfg.colors.cyan, '14'),
+                border: `1px solid ${colorAlpha(cfg.colors.panelStroke, '66')}`,
+                borderRadius: 6,
+                color: cfg.colors.bodyText,
+                cursor: 'pointer',
+                flex: `0 0 ${item.w}px`,
+                font: 'inherit',
+                fontSize: 13,
+                fontWeight: 930,
+                minHeight: 28,
+                padding: '5px 9px',
+                textAlign: 'left',
+                textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                whiteSpace: 'normal',
+              }}
+            >
+              {item.option.label}
+            </button>
+          ))}
+        </div>
+      </foreignObject>
     </g>
   );
 }
@@ -14852,6 +15016,7 @@ function AssistantComposerSplitter({
   y,
   w,
   dragging,
+  ariaLabel,
   onPointerDown,
   onPointerMove,
   onPointerUp,
@@ -14868,7 +15033,7 @@ function AssistantComposerSplitter({
   return (
     <g
       role="separator"
-      aria-label="Resize assistant chat composer"
+      aria-label={ariaLabel}
       aria-orientation="horizontal"
       tabIndex={0}
       className="parent-portal-svg-clickable"
@@ -14911,7 +15076,7 @@ function AssistantComposerSplitter({
   );
 }
 
-function AssistantComposer({ x, y, w, h, prompt, onSend, cfg }) {
+function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }) {
   const displayPrompt = prompt || 'Ask MIA about activity, rules, reports, setup...';
   const attachSize = 30;
   const sendW = 58;
@@ -14951,15 +15116,41 @@ function AssistantComposer({ x, y, w, h, prompt, onSend, cfg }) {
           strokeLinecap="round"
         />
       </g>
-      <text
-        x={inputX}
-        y={y + 30}
-        fontSize={12.5}
-        fontWeight={780}
-        fill={prompt ? cfg.colors.bodyText : cfg.colors.mutedText}
-      >
-        {truncateTextForWidth(displayPrompt, inputW, 12.5, 0.56)}
-      </text>
+      <foreignObject x={inputX} y={y + 9} width={inputW} height={Math.max(32, h - 18)}>
+        <textarea
+          xmlns="http://www.w3.org/1999/xhtml"
+          aria-label="Message MIA"
+          value={prompt}
+          placeholder={displayPrompt}
+          onChange={(event) => onPromptChange?.(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+              event.preventDefault();
+              onSend?.();
+            }
+          }}
+          style={{
+            background: 'transparent',
+            border: 0,
+            boxSizing: 'border-box',
+            color: prompt ? cfg.colors.bodyText : cfg.colors.mutedText,
+            font: 'inherit',
+            fontSize: 12.5,
+            fontWeight: 780,
+            height: '100%',
+            lineHeight: 1.45,
+            margin: 0,
+            outline: 'none',
+            overflowY: 'auto',
+            padding: '3px 0',
+            resize: 'none',
+            scrollbarColor: `${colorAlpha(cfg.colors.cyan, '88')} transparent`,
+            scrollbarWidth: 'thin',
+            textShadow: '0 1px 2px rgba(0,0,0,0.44)',
+            width: '100%',
+          }}
+        />
+      </foreignObject>
       <g role="button" tabIndex={0} aria-label="Use voice input for MIA" className="parent-portal-svg-clickable">
         <title>Use voice input for MIA</title>
         <rect

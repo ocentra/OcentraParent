@@ -420,14 +420,23 @@ describe('portal parent assistant contracts', () => {
   it('parent assistant quick actions: expose the typed assistant categories used by the chat side panel', () => {
     expect(PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION?.quickActionId).toBe('new-chat');
     expect(PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS.map((action) => action.quickActionId)).toEqual([
+      'overview',
+      'start',
       'report',
       'browser-state',
       'rules',
+      'memory',
       'ai-setup',
+      'private',
+      'devices',
+      'alerts',
       'drives',
       'support-api',
     ]);
-    expect(PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS[2]?.choices[1]?.nextActionKind).toBe('preview-rule-change');
+    expect(
+      PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS.find((action) => action.quickActionId === 'rules')?.choices[1]
+        ?.nextActionKind
+    ).toBe('preview-rule-change');
   });
 });
 
