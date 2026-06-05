@@ -33,6 +33,14 @@
       "import": "./dist/app-install-purchase-parent-review-action-proof.js",
       "types": "./dist/app-install-purchase-parent-review-action-proof.d.ts"
     },
+    "./app-install-purchase-parent-action-runtime-handoff-proof": {
+      "import": "./dist/app-install-purchase-parent-action-runtime-handoff-proof.js",
+      "types": "./dist/app-install-purchase-parent-action-runtime-handoff-proof.d.ts"
+    },
+    "./app-install-purchase-store-status-handoff-proof": {
+      "import": "./dist/app-install-purchase-store-status-handoff-proof.js",
+      "types": "./dist/app-install-purchase-store-status-handoff-proof.d.ts"
+    },
     "./app-install-purchase-child-artifact-delivery-proof": {
       "import": "./dist/app-install-purchase-child-artifact-delivery-proof.js",
       "types": "./dist/app-install-purchase-child-artifact-delivery-proof.d.ts"
