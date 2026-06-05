@@ -18,6 +18,7 @@ mod dns_adapter;
 mod domain;
 mod flow;
 mod linux_adapter_gate;
+mod live_capture;
 mod local_ai_queue;
 mod managed_browser;
 mod notification;

@@ -86,6 +86,15 @@ compete on control while staying clear about attribution confidence and privacy.
 - E-D extended `ocentra-network-evidence` with fixture-backed packet parsing
   for Ethernet/IPv4 UDP, TCP, and ICMP plus DNS query/response parsing,
   including compressed response answer names and malformed-packet rejection.
+- E-D added deterministic live-capture proof gate in
+  `ocentra-network-evidence`: Windows Npcap, Linux libpcap, and macOS
+  BPF/libpcap capture readiness is represented from driver, interface,
+  permission, bounded-capture, clean-stop, quota-rotation,
+  retention/delete/export, custody, and private-traffic-exclusion refs. Missing
+  artifacts stay manual-required, unavailable/degraded states are explicit, and
+  live driver invocation, unbounded capture, raw PCAP without custody,
+  exact-content, policy/adapter authority, and enforcement-command claims are
+  rejected.
 - E-D added fixture-backed visibility parsers for TLS ClientHello SNI, plain
   HTTP Host, QUIC limited-visibility detection, and DoH/DoT resolver-candidate
   detection. These parsers keep exact URL, visited domain, page content, and
@@ -237,10 +246,11 @@ compete on control while staying clear about attribution confidence and privacy.
 ## Current Gap
 
 Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
-attribution quality, live PCAP/analyzer fixture proof, TypeScript/public export
-parity and service wiring for network event contracts, production risk-budget
-service/UI wiring, production SLO validation, external audit/deployment
-execution, full support-material authoring, and parent-facing rule UX remain.
+attribution quality, live capture driver invocation, live analyzer fixture
+proof, TypeScript/public export parity and service wiring for network event
+contracts, production risk-budget service/UI wiring, production SLO validation,
+external audit/deployment execution, full support-material authoring, and
+parent-facing rule UX remain.
 Policy dispatch does not upgrade
 network/domain blocking beyond
 manual-required, and the broad-adapter proof and supported-adapter runtime proof
