@@ -67,7 +67,12 @@ compete on control while staying clear about attribution confidence and privacy.
   `ocentra-eventing` no-subscriber queue/drain path and local typed
   request-response registry for a network review request. The proof remains
   in-process and does not claim broker/family-hub delivery, production
-  retention, or host filtering.
+  retention, or host filtering. E-D also added the generic eventing delivery
+  decision proof for network routes: local routes carry typed subscriber filters,
+  bounded queue/TTL/dead-letter/idempotency backpressure metadata, while
+  broker/family-hub routes enumerate custody, auth, encryption, retention,
+  replay, deletion, offset, dedupe, broker config, and family-hub identity/relay
+  requirements before any product delivery claim.
 - E-D added the first `activity-domain` network contract boundary proof for
   flow evidence, domain evidence, activity classification, A/B/C/D evidence
   grades, and policy/action capability gating. The proof keeps network-only
@@ -215,7 +220,7 @@ proof-gated DNS and Windows Firewall adapter apply/result/rollback/audit
 boundaries, a Windows WFP signed/permissioned lab-proof gate, an Android
 VpnService physical-device proof gate, an Apple Network Extension
 entitlement/device proof gate, and a Linux nftables/eBPF/TUN distro proof gate.
-Analyzer fixtures, broker/family-hub delivery, local-AI model execution/worker
+Broker/family-hub delivery implementation, local-AI model execution/worker
 runtime, full policy engine execution, notification provider delivery, broader
 parent-facing rule UX, live host DNS mutation/proxy installation, live Windows
 Firewall mutation, live WFP driver/callout/packet blocking, live Android
@@ -288,9 +293,12 @@ execution, and platform adapter execution remain open.
       Row42 Linux nftables/eBPF/TUN proof gate now models distro readiness from
       distro/kernel, permission, adapter API, service-manager scope, rollback,
       lab-result, and audit refs while preserving the selected adapter kind.
-      Production analyzer, AI model execution, broker/family-hub delivery,
-      broader service wiring, full policy engine execution, notification
-      delivery, and risk-budget fixtures remain.
+      Row45 eventing delivery-decision proof now keeps local network routes
+      local-first with typed subscriber filters and bounded backpressure
+      metadata, and marks broker/family-hub delivery as requirements-gated rather
+      than implemented. AI model execution, broker/family-hub delivery
+      implementation, broader service wiring, full policy engine execution,
+      notification delivery, and risk-budget fixtures remain.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and

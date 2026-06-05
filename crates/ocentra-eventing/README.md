@@ -45,6 +45,10 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 - Generated `EventTopologyManifest` proof docs for registered event contracts,
   explicit publishers, subscribers, family variants, orphan states, and
   accepted one-sided states.
+- Generic `EventDeliveryDecisionProof` support for local-first delivery routes,
+  typed subscriber filtering, bounded queue/TTL/dead-letter/idempotency
+  backpressure metadata, retention policy refs, and broker/family-hub
+  requirements without implementing broker transport.
 - Executable `EventCompatibilityMatrix` proof docs that map Ocentra
   Games/TypeScript eventing lineage semantics to compatible Rust surfaces,
   intentional deviations, and manual-required broker delivery scope.
@@ -72,8 +76,9 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 
 ## Current Gap
 
-This crate does not yet implement broker-backed delivery, Parent-specific event
-contracts, cross-process transport shutdown, platform adapter rollback
-execution, or whole-repo source scanning for topology discovery. Consumers must
-keep those claims manual-required until the matching eventing workpacks are
-implemented and validated.
+This crate does not yet implement broker-backed delivery, family-hub delivery,
+Parent-specific event contracts, cross-process transport shutdown, platform
+adapter rollback execution, production retention/delete/export behavior, or
+whole-repo source scanning for topology discovery. Consumers must keep those
+claims manual-required until the matching eventing workpacks are implemented and
+validated.

@@ -117,8 +117,10 @@ network runtime now consumes the reusable crate for typed publish,
 no-subscriber queue/drain, local typed request-response, and Rust
 protocol-facing network event contracts. Parent/controller to child-agent
 in-process runtime publishing and typed local transport handoff now have proof;
-the open eventing gap is broker-backed/family-hub delivery, physical
-child-device runtime installation, and broad runtime adoption. The
+the generic eventing delivery decision proof now makes broker/family-hub delivery
+requirements explicit without implementing the transport; the open eventing gap
+is broker-backed/family-hub delivery, physical child-device runtime
+installation, and broad runtime adoption. The
 initial UI typed-intent proof keeps the Vite/TypeScript portal as a view/input
 surface while Rust remains the business event publisher. The initial AI and
 portal direct-enforcement negative proof now rejects portal-side enforcement
@@ -146,7 +148,10 @@ raw JSON/string constants, `Uuid`, and raw domain identifier fields.
       intent runtime publishing, typed local child-command handoff, and
       child-agent local receive/publish proof; the service enforcement API now
       proves journal-before-action plus final adapter-result audit/store
-      projection. Broker/family-hub delivery, physical child-device runtime
+      projection; the eventing delivery decision proof now gates
+      broker/family-hub routes on custody, auth, encryption, retention, replay,
+      deletion, offset, dedupe, broker config, and family-hub identity/relay
+      artifacts. Broker/family-hub delivery, physical child-device runtime
       installation, and broad runtime adoption remain.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.

@@ -4,6 +4,7 @@ mod bus;
 mod clock;
 mod compatibility;
 mod contract_registry;
+mod delivery;
 mod envelope;
 mod error;
 mod execution;
@@ -31,6 +32,11 @@ pub use compatibility::{
 };
 pub use contract_registry::{
     EventContractDescriptor, EventContractRegistry, EventContractRegistryDocumentation,
+};
+pub use delivery::{
+    decide_event_delivery_route, EventDeliveryBackpressurePolicy, EventDeliveryDecisionError,
+    EventDeliveryDecisionInput, EventDeliveryDecisionProof, EventDeliveryDecisionState,
+    EventDeliveryRequiredArtifact, EventDeliveryRouteKind, EventDeliverySubscriberFilter,
 };
 pub use envelope::{
     DomainEvent, EventContract, EventCustody, EventEnvelope, EventMetadata, EventSource,

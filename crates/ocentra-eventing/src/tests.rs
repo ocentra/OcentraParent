@@ -1,6 +1,7 @@
 mod clock_manual;
 mod compatibility_matrix;
 mod contract_registry;
+mod delivery;
 mod family_variants;
 mod fixture_parity;
 mod fixtures;
