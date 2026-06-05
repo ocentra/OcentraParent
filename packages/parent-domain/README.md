@@ -110,6 +110,13 @@ mobile readiness, and control catalogs.
   adapter implementation, parent action runtime delivery, child-device
   delivery, runtime report delivery, interception, child activity data, app
   blocking, and Ocentra-hosted family data custody unclaimed.
+- App install/purchase runtime writer delivery proof contracts that link parent
+  action runtime handoff rows and per-store status handoff rows to writer
+  envelope/manual-required states while keeping runtime writer implementation,
+  runtime writer delivery, parent action runtime delivery, provider/store
+  execution, platform adapter implementation, child-device delivery, runtime
+  report delivery, interception, child activity data, app blocking, and
+  Ocentra-hosted family data custody unclaimed.
 - V0.9 signed LAN discovery/relay spine contracts that keep adapter evidence,
   signed proof rejection, route safety, relay/cache availability, parent-owned
   storage, and child-data custody claims explicit.
@@ -180,11 +187,12 @@ flowchart LR
   artifact, runtime-boundary, platform-artifact, child-artifact-delivery, and
   approved API/entitlement evidence plus report-runtime status, platform
   adapter boundary, parent review action proof, child status runtime readiness
-  proof, parent action runtime handoff, and store status handoff proof;
+  proof, parent action runtime handoff, store status handoff proof, and runtime
+  writer delivery proof;
   platform/store provider execution, actual platform adapters, production
   child-device package capture, runtime status reader, child delivery, portal
-  UX, runtime action writer execution, parent action runtime delivery, and report
-  runtime writer/delivery remain unimplemented.
+  UX, runtime action writer execution, runtime writer delivery, parent action
+  runtime delivery, and report runtime writer/delivery remain unimplemented.
 - Billing/subscription provider integration, account backend, entitlement
   signing/delivery runtime, provider-contact execution, entitlement admin
   override runtime, refund/credit runtime, portal billing/admin UI, support

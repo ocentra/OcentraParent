@@ -41,6 +41,10 @@
       "import": "./dist/app-install-purchase-store-status-handoff-proof.js",
       "types": "./dist/app-install-purchase-store-status-handoff-proof.d.ts"
     },
+    "./app-install-purchase-runtime-writer-delivery-proof": {
+      "import": "./dist/app-install-purchase-runtime-writer-delivery-proof.js",
+      "types": "./dist/app-install-purchase-runtime-writer-delivery-proof.d.ts"
+    },
     "./app-install-purchase-child-artifact-delivery-proof": {
       "import": "./dist/app-install-purchase-child-artifact-delivery-proof.js",
       "types": "./dist/app-install-purchase-child-artifact-delivery-proof.d.ts"
