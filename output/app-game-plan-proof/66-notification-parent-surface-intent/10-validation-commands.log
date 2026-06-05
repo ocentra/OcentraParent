@@ -1,0 +1,21 @@
+cmd /c npm run build --workspace @ocentra-parent/parent-domain
+exit=0
+
+> @ocentra-parent/parent-domain@0.1.1 build
+> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist
+
+
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-parent-surface-intent app-game-notification-provider-status-handoff app-game-notification-preference-status-handoff
+exit=0
+
+> @ocentra-parent/parent-domain@0.1.1 test
+> vitest run app-game-notification-parent-surface-intent app-game-notification-provider-status-handoff app-game-notification-preference-status-handoff
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain
+
+
+ Test Files  3 passed (3)
+      Tests  9 passed (9)
+   Start at  05:23:23
+   Duration  1.04s (transform 813ms, setup 0ms, import 2.36s, tests 57ms, environment 0ms)
