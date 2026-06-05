@@ -249,6 +249,11 @@ control with better evidence and local audit.
   evidence by source kind, row count, latest observed time, capability state,
   and evidence refs without adding portal UI, policy consumption, or adapter
   claims.
+- The parent App/Game Sessions dashboard now consumes those service-backed
+  `sourceStatusRows` and renders source row counts, fresh source counts,
+  source-kind capability state, latest observed timestamps, and evidence ref
+  counts through the existing metric/evidence surfaces without adding backend,
+  policy, or adapter claims.
 - Parent-domain category/risk policy-routing contracts now map native app
   categories, risk candidates, native game categories, and game context signals
   into matching app/game policy target kinds with active category proof,
@@ -306,17 +311,18 @@ game-context candidates into soft/manual policy target inputs only when active
 category proof and supporting evidence refs exist. A service-backed policy
 readiness read model can now report whether the required evidence, approval
 authority, and platform authority rows are available before evaluator
-consumption, while action history/classifier gaps remain manual-required. Portal
-source/category/readiness rendering, local model quality/provider execution,
-policy evaluator consumption, runtime service policy evaluation, and platform
-enforcement remain unproved. Live
+consumption, while action history/classifier gaps remain manual-required. Richer
+source panel polish, category/readiness rendering, local model quality/provider
+execution, policy evaluator consumption, runtime service policy evaluation, and
+platform enforcement remain unproved. Live
 process snapshots now replay through the local journal/SQLite path in core and
 through the service activity-capture journal/store path for bounded runtime
 rows; recurring service capture freshness is now proved, and the service
 capture bridge can also append optional app/game foreground rows from the core
 active-window source with opaque window/title refs. Richer process start/exit
-and foreground transition subscriptions, portal source freshness polish,
-policy/runtime consumers, and adapter execution remain separate gaps.
+and foreground transition subscriptions, richer source subscriptions,
+policy/runtime consumers, dedicated source panel polish, and adapter execution
+remain separate gaps.
 The install/store handoff proof is contract-only: it does not prove live store
 integration, Google Play, Apple App Store, Microsoft Store, package-manager
 interception, billing entitlement logic, portal approval UI, platform adapter
@@ -398,9 +404,10 @@ adapter dispatch, broad blocking, or platform support.
       proof now maps Uninstall registry evidence into inventory-only rows with
       hashed source/path refs, and service capture can append those registry
       rows into the journal/store/read-model path. App-use/games read-model
-      rows now expose grouped backend source status/freshness rows. Portal
-      freshness polish, richer source subscriptions, and policy integration
-      remain.
+      rows now expose grouped backend source status/freshness rows, and the
+      parent App/Game Sessions dashboard renders source and fresh-source counts
+      plus source-kind evidence summaries. Dedicated source panel polish, richer
+      source subscriptions, and policy integration remain.
 - [ ] Category and unknown-state handling. Unknown approval contracts now keep
       weak app/game evidence in review/report-only/manual-required states with
       evidence refs, child status refs, expiry, and audit-backed persistence

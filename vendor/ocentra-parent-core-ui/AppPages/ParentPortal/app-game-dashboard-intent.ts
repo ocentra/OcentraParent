@@ -35,12 +35,28 @@ export type ParentPortalAppGameDashboardRow = {
   readonly tone: ParentPortalAppGameDashboardTone;
 };
 
+export type ParentPortalAppGameSourceStatusRow = {
+  readonly readModelKind: ParentPortalAppGameDashboardRow['sourceKind'];
+  readonly sourceLabel: string;
+  readonly parentRowId: string;
+  readonly parentLabel: string;
+  readonly sourceStatusKind: string;
+  readonly sourceStatusLabel: string;
+  readonly state: string;
+  readonly rowCount: number;
+  readonly lastObservedLabel: string;
+  readonly capabilityStatus: string;
+  readonly evidenceCount: number;
+  readonly tone: ParentPortalAppGameDashboardTone;
+};
+
 export type ParentPortalAppGameDashboardIntent = {
   readonly state: string;
   readonly summary: string;
   readonly appRows: readonly ParentPortalAppGameDashboardRow[];
   readonly gameRows: readonly ParentPortalAppGameDashboardRow[];
   readonly rows: readonly ParentPortalAppGameDashboardRow[];
+  readonly sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[];
   readonly metrics: readonly ParentPortalAppGameDashboardMetric[];
   readonly capabilityRows: readonly ParentPortalAppGameDashboardMetric[];
   readonly evidenceRows: readonly ParentPortalAppGameDashboardMetric[];
@@ -54,7 +70,11 @@ export function createParentPortalAppGameDashboardIntent(
   const appRows = appDashboardRows(appUseReadModel);
   const gameRows = gameDashboardRows(gamesReadModel);
   const rows = [...appRows, ...gameRows].sort(dashboardRowSort);
-  const metrics = appGameDashboardMetrics(appRows, gameRows, rows);
+  const sourceStatusRows = [
+    ...appGameSourceStatusRows(appUseReadModel, 'app-use', 'App use', 'appName'),
+    ...appGameSourceStatusRows(gamesReadModel, 'games', 'Game', 'displayName'),
+  ].sort(sourceStatusRowSort);
+  const metrics = appGameDashboardMetrics(appRows, gameRows, rows, sourceStatusRows);
   const state = dashboardState(appUseReadModel, gamesReadModel, rows);
 
   return {
@@ -63,9 +83,10 @@ export function createParentPortalAppGameDashboardIntent(
     appRows,
     gameRows,
     rows,
+    sourceStatusRows,
     metrics,
     capabilityRows: capabilityRows(rows),
-    evidenceRows: evidenceRows(rows),
+    evidenceRows: evidenceRows(rows, sourceStatusRows),
     emptyMessage: 'No app/game read model rows reported by the local service.',
   };
 }
@@ -164,15 +185,20 @@ function dashboardRowFromRecord(
 function appGameDashboardMetrics(
   appRows: readonly ParentPortalAppGameDashboardRow[],
   gameRows: readonly ParentPortalAppGameDashboardRow[],
-  rows: readonly ParentPortalAppGameDashboardRow[]
+  rows: readonly ParentPortalAppGameDashboardRow[],
+  sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[]
 ): readonly ParentPortalAppGameDashboardMetric[] {
   return [
-    { label: 'App rows', value: String(appRows.length), tone: appRows.length > 0 ? 'cyan' : 'gold' },
-    { label: 'Game rows', value: String(gameRows.length), tone: gameRows.length > 0 ? 'purple' : 'gold' },
     { label: 'Inventory', value: String(sumRows(rows, (row) => row.inventoryCount)), tone: 'cyan' },
     { label: 'Running', value: String(sumRows(rows, (row) => row.runningCount)), tone: 'gold' },
     { label: 'Foreground', value: String(sumRows(rows, (row) => row.foregroundCount)), tone: 'purple' },
     { label: 'Launcher', value: String(sumRows(rows, (row) => row.launcherCount)), tone: 'purple' },
+    { label: 'Source rows', value: String(sumRows(sourceStatusRows, (row) => row.rowCount)), tone: 'cyan' },
+    {
+      label: 'Fresh sources',
+      value: String(sourceStatusRows.filter(sourceStatusRowFresh).length),
+      tone: sourceStatusRows.some((row) => row.tone === 'red') ? 'red' : 'cyan',
+    },
     { label: 'Unknown review', value: String(rows.filter((row) => row.unknownApproval).length), tone: 'gold' },
     { label: 'Manual required', value: String(rows.filter((row) => row.manualRequired).length), tone: 'gold' },
     { label: 'Evidence refs', value: String(sumRows(rows, (row) => row.evidenceCount)), tone: 'cyan' },
@@ -231,15 +257,23 @@ function capabilityRows(
     }));
 }
 
-function evidenceRows(rows: readonly ParentPortalAppGameDashboardRow[]): readonly ParentPortalAppGameDashboardMetric[] {
-  const visibleRows = rows
+function evidenceRows(
+  rows: readonly ParentPortalAppGameDashboardRow[],
+  sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[]
+): readonly ParentPortalAppGameDashboardMetric[] {
+  const sourceRows = sourceStatusRows.slice(0, 3).map((row) => ({
+    label: `${row.sourceLabel} ${row.sourceStatusLabel}`,
+    value: `${row.rowCount} source rows; ${row.capabilityStatus}; ${row.lastObservedLabel}; ${row.evidenceCount} refs`,
+    tone: row.tone,
+  }));
+  const serviceRows = rows
     .filter((row) => row.evidenceCount > 0 || row.lastObservedLabel !== 'not observed')
-    .slice(0, 6)
     .map((row) => ({
       label: row.label,
       value: `${row.evidenceCount} refs; ${row.lastObservedLabel}`,
       tone: row.tone,
     }));
+  const visibleRows = [...sourceRows, ...serviceRows].slice(0, 6);
   return visibleRows.length > 0
     ? visibleRows
     : [{ label: 'Evidence drawer', value: 'No evidence refs reported', tone: 'gold' }];
@@ -299,6 +333,96 @@ function appGameLauncherOnly(...values: readonly string[]): boolean {
   return values.some((value) => /launcher/u.test(value.toLowerCase()));
 }
 
+function appGameSourceStatusRows(
+  readModel: Record<string, unknown> | null,
+  readModelKind: ParentPortalAppGameDashboardRow['sourceKind'],
+  sourceLabel: string,
+  labelField: string
+): readonly ParentPortalAppGameSourceStatusRow[] {
+  return readModelRows(readModel).flatMap((row, index) => {
+    const sourceRows = row['sourceStatusRows'];
+    if (!Array.isArray(sourceRows)) return [];
+    const parentRowId = stringValue(row['rowId']) || `${readModelKind}-${index + 1}`;
+    const parentLabel = stringValue(row[labelField]) || 'Unlabeled app/game row';
+    return sourceRows
+      .filter(isRecord)
+      .map((sourceRow) => appGameSourceStatusRow(readModelKind, sourceLabel, parentRowId, parentLabel, sourceRow));
+  });
+}
+
+function appGameSourceStatusRow(
+  readModelKind: ParentPortalAppGameDashboardRow['sourceKind'],
+  sourceLabel: string,
+  parentRowId: string,
+  parentLabel: string,
+  row: Record<string, unknown>
+): ParentPortalAppGameSourceStatusRow {
+  const sourceStatusKind = stringValue(row['sourceKind']) || 'not-reported';
+  const state = stringValue(row['state']) || 'not-reported';
+  const rowCount = numberValue(row['rowCount']);
+  const lastObservedLabel = stringValue(row['lastObservedAt']) || 'not observed';
+  const capabilityStatus = stringValue(row['capabilityStatus']) || 'not-reported';
+  const evidenceCount = arrayCount(row['evidence']);
+  return {
+    readModelKind,
+    sourceLabel,
+    parentRowId,
+    parentLabel,
+    sourceStatusKind,
+    sourceStatusLabel: sourceKindLabel(sourceStatusKind),
+    state,
+    rowCount,
+    lastObservedLabel,
+    capabilityStatus,
+    evidenceCount,
+    tone: sourceStatusTone(sourceStatusKind, state, capabilityStatus, rowCount),
+  };
+}
+
+function sourceStatusTone(
+  sourceStatusKind: string,
+  state: string,
+  capabilityStatus: string,
+  rowCount: number
+): ParentPortalAppGameDashboardTone {
+  if (appGameManualRequired(state, capabilityStatus)) return 'gold';
+  if (rowCount <= 0 || /error|missing|failed/u.test(`${state} ${capabilityStatus}`.toLowerCase())) return 'red';
+  if (/foreground|launcher/u.test(sourceStatusKind.toLowerCase())) return 'purple';
+  if (/process|runtime|start|exit/u.test(sourceStatusKind.toLowerCase())) return 'gold';
+  return 'cyan';
+}
+
+function sourceStatusRowFresh(row: ParentPortalAppGameSourceStatusRow): boolean {
+  return (
+    row.rowCount > 0 &&
+    row.lastObservedLabel !== 'not observed' &&
+    !appGameManualRequired(row.state, row.capabilityStatus)
+  );
+}
+
+function sourceStatusRowSort(
+  left: ParentPortalAppGameSourceStatusRow,
+  right: ParentPortalAppGameSourceStatusRow
+): number {
+  return (
+    Number(appGameManualRequired(right.state, right.capabilityStatus)) -
+      Number(appGameManualRequired(left.state, left.capabilityStatus)) ||
+    right.rowCount - left.rowCount ||
+    right.evidenceCount - left.evidenceCount ||
+    left.sourceStatusLabel.localeCompare(right.sourceStatusLabel) ||
+    left.parentLabel.localeCompare(right.parentLabel)
+  );
+}
+
+function sourceKindLabel(value: string): string {
+  const label = value
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/[-_]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return label ? label.toLowerCase().replace(/\b[a-z]/g, (character) => character.toUpperCase()) : 'Not reported';
+}
+
 function positiveState(value: string): boolean {
   return /ready|detected|installed|running|foreground|known|observed/u.test(value.toLowerCase());
 }
@@ -326,10 +450,7 @@ function readModelRows(readModel: Record<string, unknown> | null): readonly Reco
   return rows.filter(isRecord);
 }
 
-function sumRows(
-  rows: readonly ParentPortalAppGameDashboardRow[],
-  selector: (row: ParentPortalAppGameDashboardRow) => number
-): number {
+function sumRows<Row>(rows: readonly Row[], selector: (row: Row) => number): number {
   return rows.reduce((sum, row) => sum + selector(row), 0);
 }
 

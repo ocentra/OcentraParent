@@ -48,6 +48,9 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   Activity/Network review.
 - Displays the tracking service read-model event as a narrow Policy Tracking
   route summary; this is not full parent/child tracking UI proof.
+- Displays app/game source freshness counts and source-kind evidence summaries
+  from the service-backed App/Game Sessions read model without adding policy or
+  adapter claims.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own
@@ -74,3 +77,5 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   clearly.
 - Keep LAN source-matrix labels tied to service read models; do not add
   portal-only completion claims for unimplemented discovery adapters.
+- Add dedicated App/Game Sessions source panel polish after the current metric
+  and evidence drawer rendering, without promoting adapter or policy claims.
