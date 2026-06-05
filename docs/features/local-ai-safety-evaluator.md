@@ -130,6 +130,14 @@ claim needs proof, not slogans.
   protected-surface non-claims. The verifier writes
   `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json` and
   does not rerun live capture/model inference or claim remote/API AI.
+- `ScreenAiJournalReadModelSnapshotSchema` and
+  `scripts/test/screen-ai-journal-read-model-proof.mjs` now consume the real
+  service WinRT OCR policy artifact into a local AI journal/read-model
+  projection contract. The proof preserves analysis refs, encrypted queue refs,
+  local AI result refs, model/template metadata, policy refs, journal refs,
+  SQLite projection refs, and deleted-image/no-raw-retention custody. It does
+  not rerun live capture, add a production SQLite writer, render portal UI, use
+  remote/API AI, claim policy authority, or claim enforcement.
 - `ScreenFamilyAiHubRouteSchema` and
   `scripts/test/screen-family-ai-hub-routing-proof.mjs` now prove the
   screen-specific family AI hub route contract for hard visual analysis:
@@ -164,6 +172,8 @@ production external evidence variants.
 - [x] Parent explanation and audit proof path.
 - [x] Parent explanation read-model proof path.
 - [x] Screen parent explanation service read-model proof path.
+- [x] Screen AI journal/read-model projection contract proof over the real
+      service WinRT OCR policy artifact.
 - [x] Screen service WinRT OCR local adapter proof path.
 - [x] Screen-derived adapter readiness keeps unsupported/broad adapters
       manual-required, not-claimed, or unavailable without claim upgrades.

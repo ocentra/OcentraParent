@@ -1,0 +1,142 @@
+{
+  "status": "ok",
+  "proofKind": "screen-ai-journal-read-model-proof",
+  "generatedAt": "2026-06-05T19:18:13.819Z",
+  "sourceProof": "output/screen-ai-pipeline-proof/service-winrt-ocr-policy/proof-summary.json",
+  "sourceProofKind": "screen-ai-service-winrt-ocr-policy-proof",
+  "sourceLiveSurface": {
+    "kind": "live-public-browser-page",
+    "url": "https://en.wikipedia.org/wiki/Mathematics",
+    "title": "Mathematics - Wikipedia - Google Chrome",
+    "expectedTerms": [
+      "wikipedia",
+      "mathematics"
+    ]
+  },
+  "output": "output/ai-plan-proof/screen-ai-journal-read-model-proof/proof-summary.json",
+  "snapshot": {
+    "schemaVersion": "v0.6",
+    "snapshotId": "screen-ai-journal-read-model-snapshot",
+    "generatedAt": "2026-06-05T19:18:13.819Z",
+    "sourceProof": "output/screen-ai-pipeline-proof/service-winrt-ocr-policy/proof-summary.json",
+    "sourceRows": [
+      {
+        "analysisRowId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1",
+        "queueJobId": "screen-service-queue-job-1780675160-1",
+        "localAiResultId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-local-ocr-result",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "primaryCategory": "school",
+        "confidence": 0.91,
+        "imageDigest": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I",
+        "imageDeletionState": "deleted",
+        "rawImageRetained": false,
+        "custodyState": "child-device-journal",
+        "evidenceReferenceIds": [
+          "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-activity-row",
+          "screen-service-queue-job-1780675160-1-encrypted-queue",
+          "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I-screen-summary",
+          "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1-journal"
+        ],
+        "policyDecisionRef": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-policy-dry-run",
+        "policyAction": "allow",
+        "policyReasonCodes": [
+          "screen-service-winrt-ocr-school-allow"
+        ],
+        "policyDryRun": true,
+        "enforcementHandoffState": "disabled",
+        "parentRuleRefs": [
+          "screen-service-winrt-ocr-school-rule"
+        ],
+        "readModelRowId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1",
+        "readModelRawImageRetained": false,
+        "readModelImageDeletionState": "deleted"
+      }
+    ],
+    "rows": [
+      {
+        "rowId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-screen-ai-journal-read-model",
+        "analysisRowRef": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1",
+        "queueJobRef": "screen-service-queue-job-1780675160-1",
+        "localAiResultRef": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-local-ocr-result",
+        "journalEntryRef": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-journal",
+        "sqliteRowRef": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-sqlite-read-model",
+        "journalState": "journaled",
+        "sqliteProjectionState": "read-model-present",
+        "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+        "modelId": "windows-winrt-ocr",
+        "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+        "primaryCategory": "school",
+        "confidence": 0.91,
+        "imageDigest": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I",
+        "imageDeletionState": "deleted",
+        "rawImageRetained": false,
+        "custodyState": "child-device-journal",
+        "evidenceReferenceIds": [
+          "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-activity-row",
+          "screen-service-queue-job-1780675160-1-encrypted-queue",
+          "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I-screen-summary",
+          "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1-journal"
+        ],
+        "policyDecisionRef": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-policy-dry-run",
+        "policyAction": "allow",
+        "policyReasonCodes": [
+          "screen-service-winrt-ocr-school-allow"
+        ],
+        "policyDryRun": true,
+        "enforcementHandoffState": "disabled",
+        "parentRuleRefs": [
+          "screen-service-winrt-ocr-school-rule"
+        ],
+        "claimBoundaries": {
+          "rawImageRetained": false,
+          "remoteAiUsed": false,
+          "apiAiUsed": false,
+          "policyAuthorityClaimed": false,
+          "portalRuntimeClaimed": false,
+          "enforcementClaimed": false,
+          "runtimeSqliteWriterClaimed": false
+        }
+      }
+    ],
+    "summary": {
+      "rowCount": 1,
+      "journaledRowCount": 1,
+      "sqliteProjectedRowCount": 1,
+      "deletedImageRowCount": 1,
+      "dryRunPolicyRowCount": 1,
+      "rawImageRetained": false,
+      "remoteAiUsed": false,
+      "apiAiUsed": false,
+      "enforcementClaimed": false
+    },
+    "claimBoundaries": {
+      "rawImageRetained": false,
+      "remoteAiUsed": false,
+      "apiAiUsed": false,
+      "policyAuthorityClaimed": false,
+      "portalRuntimeClaimed": false,
+      "enforcementClaimed": false,
+      "runtimeSqliteWriterClaimed": false
+    }
+  },
+  "assertions": {
+    "consumedRealServiceOcrPolicyArtifact": true,
+    "sourceRanWindowsWinRtOcr": true,
+    "sourcePolicyDecisionParsedByParentDomain": true,
+    "sourceActivityReadModelCarriesPolicyRefs": true,
+    "journalEntryRefsPresent": true,
+    "sqliteProjectionRefsPresent": true,
+    "modelMetadataPreserved": true,
+    "policyRefsPreserved": true,
+    "deletedImageNoRawRetentionPreserved": true,
+    "noRemoteOrApiAiClaimed": true,
+    "noRuntimeSqliteWriterClaimed": true
+  },
+  "nonClaims": [
+    "This proof consumes the existing real service WinRT OCR policy artifact and validates local AI journal/read-model projection contracts.",
+    "It does not rerun live capture, add a production SQLite writer, render portal UI, use remote/API AI, claim policy authority, or claim enforcement.",
+    "Raw screenshot custody remains deleted/no-retention; only refs, model metadata, policy refs, and projection refs are retained in this proof artifact."
+  ]
+}
