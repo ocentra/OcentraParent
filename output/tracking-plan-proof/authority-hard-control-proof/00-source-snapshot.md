@@ -1,7 +1,7 @@
 # Tracking Authority Hard-Control Proof Source Snapshot
 
 - Branch: codex/tracking-authority-hard-control-proof
-- Base commit at generation: ca0d311a0813a1e2287eed2a6f9c4f35c53ee79f
+- Base commit at generation: 84852ca750b7520fd26a2650618332a4cfd8ed43
 - Git status at proof generation:
 
 ```text
