@@ -242,6 +242,11 @@ control with better evidence and local audit.
   rendered UI, provider delivery, receipts, credentials, child delivery,
   production runtime, adapter dispatch, broad-blocking, and platform claims
   false.
+- The App/Game Sessions portal route now has a route-level app/game
+  notification parent-surface panel that consumes the schema-backed intent read
+  model when supplied and otherwise shows a missing-service state, while
+  keeping provider delivery, preference mutation, child delivery, production
+  runtime, adapter dispatch, broad-blocking, and platform claims false.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -429,10 +434,11 @@ production retry workers, quiet-hours timer runtime, durable production outbox
 storage, child delivery, policy evaluator execution, adapter dispatch, broad
 blocking, or platform support.
 The app/game notification parent-surface intent proof combines provider and
-preference status rows into future parent history/preference intent rows, but
-it still does not render portal/mobile UI, mutate parent preferences, send or
-receive provider notifications, run production retry/quiet-hours workers,
-deliver to child devices, execute adapters, or prove platform support.
+preference status rows into future parent history/preference intent rows, and
+the App/Game Sessions route can now render those rows when a schema-backed read
+model is supplied. It still does not mutate parent preferences, send or receive
+provider notifications, run production retry/quiet-hours workers, deliver to
+child devices, execute adapters, prove mobile UI, or prove platform support.
 
 ## Checklist
 
@@ -528,6 +534,10 @@ deliver to child devices, execute adapters, or prove platform support.
       manual-proof refs while rendered UI, provider delivery, receipts,
       credentials, child delivery, runtime, adapter dispatch, broad blocking,
       and platform claims remain false.
+      The App/Game Sessions route panel renders those schema-backed intent rows
+      when supplied and shows missing-service state otherwise, while provider
+      delivery, parent preference mutation, child delivery, runtime dispatch,
+      broad blocking, mobile UI, and platform claims remain false.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,

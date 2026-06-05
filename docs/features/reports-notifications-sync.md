@@ -132,6 +132,12 @@ custody.
   preference, quiet-hours, and manual-proof refs while keeping rendered UI,
   provider delivery, receipt ingestion, credentials, runtime, child delivery,
   adapter dispatch, broad-blocking, and platform claims false.
+- App/game notification parent-surface route proof now renders those
+  schema-backed intent rows in the App/Game Sessions portal route when a
+  read-model is supplied, while the live route shows an explicit missing-service
+  state and still makes no provider delivery, receipt, credential, parent
+  preference mutation, child delivery, production runtime, adapter dispatch,
+  broad-blocking, or platform claim.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -232,10 +238,12 @@ credentials, production retry workers, production quiet-hours timer execution,
 durable production outbox storage, child delivery, adapter dispatch, broad
 blocking, or platform support.
 The app/game notification parent-surface intent proof adds redacted future
-history/preference intent rows over provider/preference status handoffs, but it
-does not claim portal/mobile UI rendering, parent preference mutation, provider
-delivery, provider receipts, credentials, production runtime, child delivery,
-adapter dispatch, broad blocking, or platform support.
+history/preference intent rows over provider/preference status handoffs, and
+the App/Game Sessions route now has a route-level renderer for those rows when
+the read model is supplied. It still does not claim product notification
+delivery, parent preference mutation, provider delivery, provider receipts,
+credentials, production runtime, child delivery, adapter dispatch, broad
+blocking, mobile UI, or platform support.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
@@ -339,6 +347,11 @@ delivery, policy writes, or child-device enforcement.
       rows, while rendered UI, parent preference mutation, provider delivery,
       receipts, credentials, runtime, child delivery, adapter dispatch, broad
       blocking, and platform claims remain false.
+- [x] App/game notification parent-surface route renderer exists for the
+      App/Game Sessions route and consumes schema-backed intent read models
+      without inventing rows when the service event is absent, while provider
+      delivery, parent preference mutation, child delivery, runtime dispatch,
+      broad blocking, and platform claims remain false.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
@@ -411,11 +424,16 @@ child delivery proof, and provider smoke proof before claiming app/game
 notification delivery or product notification runtime. Treat
 `scripts/test/app-game-notification-parent-surface-intent-proof.mjs` as
 parent-domain app/game notification parent-surface intent proof only; require
-actual portal/mobile UI rendering, parent preference mutation controls, real
-provider adapters, credentials and secret review, production send/retry workers,
-production quiet-hours timers, receipt ingestion, durable production storage,
-child delivery proof, and provider smoke proof before claiming parent-facing
-app/game notification UI or product notification runtime. Treat
+product notification history controls, parent preference mutation controls,
+real provider adapters, credentials and secret review, production send/retry
+workers, production quiet-hours timers, receipt ingestion, durable production
+storage, child delivery proof, mobile UI proof, and provider smoke proof before
+claiming parent-facing app/game notification delivery or product notification
+runtime. Treat
+`apps/portal/tests/app-game-notification-parent-surface-panel.test.ts` as
+portal route rendering proof for schema-backed parent-surface intent rows only;
+it does not prove a live service event, preference mutation, provider delivery,
+child delivery, or production notification runtime. Treat
 `scripts/test/parent-owned-sync-export-manifest-proof.mjs` as parent-domain
 sync/export manifest and connector-status contract proof only; require real
 transfer runtime, connector OAuth/provider artifacts, parent-visible controls,

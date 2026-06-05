@@ -53,6 +53,10 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
 - Displays app/game source freshness counts and source-kind evidence summaries
   from the service-backed App/Game Sessions read model without adding policy or
   adapter claims.
+- Displays an App/Game Sessions route overlay for app/game notification
+  parent-surface intent rows when that schema-backed read model is available,
+  and otherwise shows the missing service event without claiming provider
+  delivery, preference mutation, child delivery, or runtime dispatch.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own

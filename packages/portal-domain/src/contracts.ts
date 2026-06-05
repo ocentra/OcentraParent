@@ -1,9 +1,23 @@
 import { type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+export {
+  decodePortalClipboardText,
+  decodePortalDetailValue,
+  PortalClipboardTextSchema,
+  PortalDetailValueSchema,
+  type PortalClipboardText,
+  type PortalDetailValue,
+} from './detail-values';
 export { PortalCommandButtons, PortalOverviewCommands } from './commands';
 export { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
 export { PortalDiagnostics } from './diagnostics';
+export {
+  createAppGameNotificationParentSurfacePanelIntent,
+  type AppGameNotificationParentSurfaceDetail,
+  type AppGameNotificationParentSurfacePanelIntent,
+  type AppGameNotificationParentSurfacePanelRow,
+} from './app-game-notification-parent-surface-panel';
 export {
   PortalFrameChromeNumberFields,
   PortalCarouselContentNumberFields,
@@ -122,16 +136,7 @@ export {
   type PortalRouteGroupValue,
 } from './routes';
 
-const NonEmptyPortalText = Schema.String.pipe(Schema.minLength(1));
-
-export const PortalDetailValueSchema = withParser(NonEmptyPortalText.pipe(Schema.brand('PortalDetailValue')));
-export const PortalClipboardTextSchema = withParser(NonEmptyPortalText.pipe(Schema.brand('PortalClipboardText')));
-export type PortalDetailValue = Infer<typeof PortalDetailValueSchema>;
-export type PortalClipboardText = Infer<typeof PortalClipboardTextSchema>;
 export type PortalDisplayText = DisplayText;
-
-export const decodePortalDetailValue = PortalDetailValueSchema.parse;
-export const decodePortalClipboardText = PortalClipboardTextSchema.parse;
 
 export const PortalConnectionStateSchema = withParser(
   Schema.Literal('disconnected', 'connecting', 'connected', 'error')

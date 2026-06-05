@@ -211,6 +211,16 @@ ingestion, credentials, cloud routing, child delivery, production retry workers,
 production quiet-hours timers, durable production outbox/history storage,
 adapter dispatch, broad blocking, or platform support.
 
+`apps/portal/tests/app-game-notification-parent-surface-panel.test.ts` validates
+an App/Game Sessions route renderer for schema-backed app/game parent-surface
+intent rows. It proves the portal can display status, drill-in refs, source
+scheduler/outbox refs, manual proof requirements, and explicit no-runtime
+claims when a parsed parent-domain read model is supplied, and that absent
+service input stays empty instead of inventing rows. It does not claim a live
+service event, parent preference mutation, provider delivery, receipt ingestion,
+credentials, child delivery, production runtime, adapter dispatch, broad
+blocking, mobile UI, or platform support.
+
 ## Validation Gates
 
 - Contract tests for alert rules, reason codes, delivery status, retry state, quiet hours, and preferences.
@@ -264,6 +274,11 @@ adapter dispatch, broad blocking, or platform support.
   rows, with no rendered UI, parent preference mutation, provider delivery,
   receipt, credential, child, production runtime, adapter-dispatch,
   broad-blocking, or platform claims.
+- Portal App/Game Sessions parent-surface renderer proof for schema-backed
+  parent-surface intent rows, with absent service input rendered as no-data and
+  no parent preference mutation, provider delivery, receipt, credential, child,
+  production runtime, adapter-dispatch, broad-blocking, mobile UI, or platform
+  claim.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
 - Parent-surface coverage for notification history, preference changes, quiet hours, and sensitive-detail drill-in behind authentication.

@@ -34,6 +34,19 @@ describe('portal dev text', () => {
       [PortalDevTextToken.BrowserIntervention, 'Browser protection'],
       [PortalDevTextToken.PolicyPreview, 'Policy decision'],
       [PortalDevTextToken.PolicyPreviewNoEnforcement, 'Protection mode: advisory.'],
+      [PortalDevTextToken.AppGameNotificationParentSurface, 'App/game notification surface'],
+      [
+        PortalDevTextToken.AppGameNotificationParentSurfaceBody,
+        'Redacted app/game alert rows show setup and drill-in refs only.',
+      ],
+      [
+        PortalDevTextToken.AppGameNotificationParentSurfaceNoData,
+        'No app/game notification parent-surface intent has been reported yet.',
+      ],
+      [
+        PortalDevTextToken.AppGameNotificationParentSurfaceNoRuntimeClaim,
+        'Portal renders intent rows only; provider delivery, preference mutation, child delivery, and runtime dispatch remain unclaimed.',
+      ],
       [PortalDevTextToken.GetPolicyPreviewReadModel, 'Refresh policy decision'],
       [PortalDevTextToken.GetBrowserInterventionReadModel, 'Refresh browser protection'],
       [PortalDevTextToken.GetActivityReportDaily, 'Build daily activity report'],
