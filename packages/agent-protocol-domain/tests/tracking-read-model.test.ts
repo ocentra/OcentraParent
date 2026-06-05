@@ -28,6 +28,38 @@ const TrackingReadModel = {
   latestTombstoneEventId: 'tracking-delete-1',
   latestTombstoneObservedAt: '2026-06-03T07:20:00Z',
   deletedEvidenceReferenceIds: ['tracking-evidence-1'],
+  coverageRows: [
+    {
+      schemaVersion: ActivityQuerySchemaVersion,
+      surface: 'expected-place',
+      activeRows: 1,
+      tombstoneRows: 0,
+      citationCount: 1,
+      latestEventId: 'tracking-event-1',
+      latestObservedAt: '2026-06-03T07:19:00Z',
+      readyForProductClaim: false,
+      missingProof: 'platform-replay-proof-required',
+    },
+    {
+      schemaVersion: ActivityQuerySchemaVersion,
+      surface: 'retention',
+      activeRows: 0,
+      tombstoneRows: 1,
+      citationCount: 1,
+      latestEventId: 'tracking-delete-1',
+      latestObservedAt: '2026-06-03T07:20:00Z',
+      readyForProductClaim: false,
+      missingProof: 'broader-product-ui-proof-required',
+    },
+  ],
+  productClaimState: {
+    physicalDeviceClaimed: false,
+    providerDeliveryClaimed: false,
+    notificationDeliveryClaimed: false,
+    childDeviceRuntimeClaimed: false,
+    ocentraHostedStorageClaimed: false,
+    productCompleteClaimed: false,
+  },
   rows: [
     {
       schemaVersion: ActivityQuerySchemaVersion,

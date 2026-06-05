@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T20:53:31.688Z",
-  "commit": "abf8f50efe808b21fe95fe7032342f0e46e04e7d",
+  "checkedAt": "2026-06-05T03:22:05.874Z",
+  "commit": "df0b8ee7a36f8814d06d6294b87bb52a5622dfbf",
   "workpackId": "32-journal-sqlite-and-read-model-proof",
   "proofMode": "tracking-service-read-model",
   "requiredProofTier": "P2_HOSTED_CI",
@@ -90,6 +90,34 @@
       ],
       "retentionEventKind": "activity.tracking.retention.deleted",
       "sourceOfTruth": "ActivityStore SQLite rows replayed from journaled ActivityEvent records"
+    },
+    "productCoverage": {
+      "field": "coverageRows",
+      "surfaces": [
+        "location",
+        "geofence",
+        "expected-place",
+        "child-check-in",
+        "retention"
+      ],
+      "provedFields": [
+        "activeRows",
+        "tombstoneRows",
+        "citationCount",
+        "latestEventId",
+        "latestObservedAt",
+        "readyForProductClaim",
+        "missingProof"
+      ],
+      "productClaimStateField": "productClaimState",
+      "assertedFalseClaims": [
+        "physicalDeviceClaimed",
+        "providerDeliveryClaimed",
+        "notificationDeliveryClaimed",
+        "childDeviceRuntimeClaimed",
+        "ocentraHostedStorageClaimed",
+        "productCompleteClaimed"
+      ]
     }
   },
   "proofArtifacts": {
@@ -108,11 +136,11 @@
   "nonClaims": [
     "This proof does not claim Android or iOS physical background tracking behavior.",
     "This proof does not claim enrolled-device authority, production pilot readiness, or provider delivery.",
-    "This proof claims live service-backed portal citation rows for the tracking read model, not complete parent/child tracking UI."
+    "This proof claims live service-backed portal coverage and citation rows for the tracking read model, not complete parent/child tracking UI."
   ],
   "remainingGapsBeforeProductOrPrReady": [
     "Hosted portal screenshot, accessibility, and browser-to-service proof remain pending.",
-    "Broader product tracking read-model surfaces beyond the service-backed tombstone replay and portal citation rows remain pending.",
+    "Full parent/child tracking UI beyond service-backed coverage and citation rows remains pending.",
     "Child-device UI and device permission screenshots remain pending.",
     "Android/iOS physical background geofence proof remains manual-required.",
     "Authority-enrolled and production-pilot proof remain absent."

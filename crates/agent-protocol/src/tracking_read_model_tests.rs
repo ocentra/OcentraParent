@@ -1,7 +1,9 @@
 use super::{
-    constants, TrackingReadModel, TrackingReadModelRow, ACTIVITY_QUERY_SCHEMA_VERSION,
+    constants, TrackingReadModel, TrackingReadModelCoverageRow, TrackingReadModelProductClaimState,
+    TrackingReadModelRow, ACTIVITY_QUERY_SCHEMA_VERSION,
     TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE, TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
+    TRACKING_READ_MODEL_MISSING_PROOF_PLATFORM_REPLAY, TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE,
+    TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS, TRACKING_READ_MODEL_SURFACE_LOCATION,
 };
 
 #[test]
@@ -21,6 +23,8 @@ fn tracking_read_model_serializes_without_product_completion_claims() {
         latest_tombstone_event_id: None,
         latest_tombstone_observed_at: None,
         deleted_evidence_reference_ids: Vec::new(),
+        coverage_rows: vec![coverage_row()],
+        product_claim_state: product_claim_state(),
         rows: Vec::new(),
     };
 
@@ -39,6 +43,15 @@ fn tracking_read_model_serializes_without_product_completion_claims() {
     assert_eq!(serialized["rows"].as_array().map(Vec::len), Some(0));
     assert_eq!(serialized["activeRows"], 0);
     assert_eq!(serialized["tombstoneRows"], 0);
+    assert_eq!(
+        serialized["coverageRows"][0]["surface"],
+        TRACKING_READ_MODEL_SURFACE_LOCATION
+    );
+    assert_eq!(serialized["coverageRows"][0]["readyForProductClaim"], false);
+    assert_eq!(
+        serialized["productClaimState"]["productCompleteClaimed"],
+        false
+    );
 }
 
 #[test]
@@ -83,4 +96,29 @@ fn tracking_read_model_row_serializes_journal_citation_ids_and_visibility() {
         TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE
     );
     assert!(serialized["deletedAt"].is_null());
+}
+
+fn coverage_row() -> TrackingReadModelCoverageRow {
+    TrackingReadModelCoverageRow {
+        schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
+        surface: TRACKING_READ_MODEL_SURFACE_LOCATION.to_string(),
+        active_rows: 0,
+        tombstone_rows: 0,
+        citation_count: 0,
+        latest_event_id: None,
+        latest_observed_at: None,
+        ready_for_product_claim: false,
+        missing_proof: TRACKING_READ_MODEL_MISSING_PROOF_PLATFORM_REPLAY.to_string(),
+    }
+}
+
+fn product_claim_state() -> TrackingReadModelProductClaimState {
+    TrackingReadModelProductClaimState {
+        physical_device_claimed: false,
+        provider_delivery_claimed: false,
+        notification_delivery_claimed: false,
+        child_device_runtime_claimed: false,
+        ocentra_hosted_storage_claimed: false,
+        product_complete_claimed: false,
+    }
 }

@@ -1,8 +1,9 @@
 use ocentra_parent_agent_protocol::{
-    constants, LogFieldValue, TrackingReadModel, TrackingReadModelRow,
-    ACTIVITY_QUERY_SCHEMA_VERSION, TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS, TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS,
-    TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE,
+    constants, LogFieldValue, TrackingReadModel, TrackingReadModelCoverageRow,
+    TrackingReadModelProductClaimState, TrackingReadModelRow, ACTIVITY_QUERY_SCHEMA_VERSION,
+    TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE, TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS,
+    TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS, TRACKING_READ_MODEL_MISSING_PROOF_PLATFORM_REPLAY,
+    TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE, TRACKING_READ_MODEL_SURFACE_LOCATION,
 };
 
 use super::tracking_read_model_payload::tracking_read_model_payload;
@@ -29,6 +30,8 @@ fn tracking_read_model_payload_contains_contract_json_and_latest_citations() {
         latest_tombstone_event_id: None,
         latest_tombstone_observed_at: None,
         deleted_evidence_reference_ids: Vec::new(),
+        coverage_rows: vec![tracking_coverage_row()],
+        product_claim_state: product_claim_state(),
         rows: vec![tracking_row()],
     };
 
@@ -58,6 +61,12 @@ fn tracking_read_model_payload_contains_contract_json_and_latest_citations() {
         string_payload(&payload, constants::field::QUERY_VISIBILITY),
         TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE
     );
+    assert_eq!(
+        decoded.coverage_rows[0].surface,
+        TRACKING_READ_MODEL_SURFACE_LOCATION
+    );
+    assert!(!decoded.coverage_rows[0].ready_for_product_claim);
+    assert!(!decoded.product_claim_state.product_complete_claimed);
 }
 
 fn tracking_row() -> TrackingReadModelRow {
@@ -84,6 +93,35 @@ fn tracking_row() -> TrackingReadModelRow {
         ],
         deleted_evidence_reference_ids: Vec::new(),
         evidence: Vec::new(),
+    }
+}
+
+fn tracking_coverage_row() -> TrackingReadModelCoverageRow {
+    TrackingReadModelCoverageRow {
+        schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
+        surface: TRACKING_READ_MODEL_SURFACE_LOCATION.to_string(),
+        active_rows: 1,
+        tombstone_rows: 0,
+        citation_count: 1,
+        latest_event_id: Some(
+            constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID.to_string(),
+        ),
+        latest_observed_at: Some(
+            constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT.to_string(),
+        ),
+        ready_for_product_claim: false,
+        missing_proof: TRACKING_READ_MODEL_MISSING_PROOF_PLATFORM_REPLAY.to_string(),
+    }
+}
+
+fn product_claim_state() -> TrackingReadModelProductClaimState {
+    TrackingReadModelProductClaimState {
+        physical_device_claimed: false,
+        provider_delivery_claimed: false,
+        notification_delivery_claimed: false,
+        child_device_runtime_claimed: false,
+        ocentra_hosted_storage_claimed: false,
+        product_complete_claimed: false,
     }
 }
 

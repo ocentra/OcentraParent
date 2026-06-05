@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
-    TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
+    ActivitySubjectKind, LogFieldValue, LogFields, TrackingReadModel, ACTIVITY_SCHEMA_VERSION,
+    TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS, TRACKING_READ_MODEL_SURFACE_CHILD_CHECK_IN,
+    TRACKING_READ_MODEL_SURFACE_LOCATION, TRACKING_READ_MODEL_SURFACE_RETENTION,
 };
 
 use super::{tracking_read_model_for_store, ActivityStore};
@@ -9,37 +10,8 @@ use super::{tracking_read_model_for_store, ActivityStore};
 #[test]
 fn activity_store_reports_tracking_read_model_from_ingested_events() {
     let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
-    let location = tracking_activity_event(
-        constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
-        constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
-        ActivityEventKind::LocationObserved,
-        ActivityObserver::AndroidLocation,
-        ActivitySubjectKind::Location,
-    );
-    let geofence = tracking_activity_event(
-        constants::activity_store::TEST_TRACKING_GEOFENCE_EVENT_ID,
-        constants::activity_store::TEST_TRACKING_GEOFENCE_OBSERVED_AT,
-        ActivityEventKind::TrackingGeofenceTransitionEvaluated,
-        ActivityObserver::TrackingEngine,
-        ActivitySubjectKind::TrackingRule,
-    );
-    let expected_place = tracking_activity_event(
-        constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_EVENT_ID,
-        constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_OBSERVED_AT,
-        ActivityEventKind::TrackingExpectedPlaceEvaluated,
-        ActivityObserver::TrackingEngine,
-        ActivitySubjectKind::TrackingRule,
-    );
-    let retention_delete = tracking_activity_event(
-        constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID,
-        constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
-        ActivityEventKind::TrackingRetentionDeleted,
-        ActivityObserver::TrackingEngine,
-        ActivitySubjectKind::Retention,
-    );
-
     store
-        .ingest_events(&[location, geofence, expected_place, retention_delete])
+        .ingest_events(&tracking_activity_events())
         .expect(constants::error::ACTIVITY_STORE_INGESTS);
     let read_model = tracking_read_model_for_store(
         &store,
@@ -48,8 +20,12 @@ fn activity_store_reports_tracking_read_model_from_ingested_events() {
     )
     .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
-    assert_eq!(read_model.returned, 4);
-    assert_eq!(read_model.active_rows, 3);
+    assert_tracking_read_model(&read_model);
+}
+
+fn assert_tracking_read_model(read_model: &TrackingReadModel) {
+    assert_eq!(read_model.returned, 5);
+    assert_eq!(read_model.active_rows, 4);
     assert_eq!(read_model.tombstone_rows, 1);
     assert_eq!(
         read_model.latest_event_id.as_deref(),
@@ -83,6 +59,20 @@ fn activity_store_reports_tracking_read_model_from_ingested_events() {
         read_model.rows[0].deleted_at.as_deref(),
         Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT)
     );
+    assert_eq!(
+        coverage(read_model, TRACKING_READ_MODEL_SURFACE_LOCATION).active_rows,
+        1
+    );
+    assert_eq!(
+        coverage(read_model, TRACKING_READ_MODEL_SURFACE_CHILD_CHECK_IN).active_rows,
+        1
+    );
+    assert_eq!(
+        coverage(read_model, TRACKING_READ_MODEL_SURFACE_RETENTION).tombstone_rows,
+        1
+    );
+    assert!(!read_model.product_claim_state.physical_device_claimed);
+    assert!(!read_model.product_claim_state.product_complete_claimed);
 }
 
 #[test]
@@ -105,6 +95,51 @@ fn activity_store_reports_empty_tracking_read_model_without_inventing_rows() {
         read_model.capability_status,
         TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS
     );
+    assert_eq!(read_model.coverage_rows.len(), 5);
+    assert!(read_model
+        .coverage_rows
+        .iter()
+        .all(|coverage| !coverage.ready_for_product_claim));
+}
+
+fn tracking_activity_events() -> Vec<ActivityEvent> {
+    vec![
+        tracking_activity_event(
+            constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
+            constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
+            ActivityEventKind::LocationObserved,
+            ActivityObserver::AndroidLocation,
+            ActivitySubjectKind::Location,
+        ),
+        tracking_activity_event(
+            constants::activity_store::TEST_TRACKING_GEOFENCE_EVENT_ID,
+            constants::activity_store::TEST_TRACKING_GEOFENCE_OBSERVED_AT,
+            ActivityEventKind::TrackingGeofenceTransitionEvaluated,
+            ActivityObserver::TrackingEngine,
+            ActivitySubjectKind::TrackingRule,
+        ),
+        tracking_activity_event(
+            constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_EVENT_ID,
+            constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_OBSERVED_AT,
+            ActivityEventKind::TrackingExpectedPlaceEvaluated,
+            ActivityObserver::TrackingEngine,
+            ActivitySubjectKind::TrackingRule,
+        ),
+        tracking_activity_event(
+            constants::activity_store::TEST_TRACKING_CHECK_IN_EVENT_ID,
+            constants::activity_store::TEST_TRACKING_CHECK_IN_OBSERVED_AT,
+            ActivityEventKind::TrackingChildCheckInResponded,
+            ActivityObserver::TrackingEngine,
+            ActivitySubjectKind::CheckIn,
+        ),
+        tracking_activity_event(
+            constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID,
+            constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
+            ActivityEventKind::TrackingRetentionDeleted,
+            ActivityObserver::TrackingEngine,
+            ActivitySubjectKind::Retention,
+        ),
+    ]
 }
 
 fn tracking_activity_event(
@@ -147,4 +182,15 @@ fn tracking_activity_event(
         fields,
         evidence: Vec::new(),
     }
+}
+
+fn coverage<'a>(
+    read_model: &'a TrackingReadModel,
+    surface: &str,
+) -> &'a ocentra_parent_agent_protocol::TrackingReadModelCoverageRow {
+    read_model
+        .coverage_rows
+        .iter()
+        .find(|coverage| coverage.surface == surface)
+        .expect(constants::error::ACTIVITY_STORE_QUERIES)
 }

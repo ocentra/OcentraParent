@@ -1,9 +1,14 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceRef, LogFieldValue, LogFields, TrackingReadModel,
-    TrackingReadModelRow, ACTIVITY_QUERY_SCHEMA_VERSION,
-    TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE, TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE,
-    TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
+    TrackingReadModelCoverageRow, TrackingReadModelProductClaimState, TrackingReadModelRow,
+    ACTIVITY_QUERY_SCHEMA_VERSION, TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    TRACKING_READ_MODEL_MISSING_PROOF_CHILD_RUNTIME,
+    TRACKING_READ_MODEL_MISSING_PROOF_PLATFORM_REPLAY,
+    TRACKING_READ_MODEL_MISSING_PROOF_PRODUCT_UI, TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE,
+    TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE, TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
+    TRACKING_READ_MODEL_SURFACE_CHILD_CHECK_IN, TRACKING_READ_MODEL_SURFACE_EXPECTED_PLACE,
+    TRACKING_READ_MODEL_SURFACE_GEOFENCE, TRACKING_READ_MODEL_SURFACE_LOCATION,
+    TRACKING_READ_MODEL_SURFACE_RETENTION,
 };
 use rusqlite::Connection;
 
@@ -55,6 +60,8 @@ fn tracking_read_model(
         latest_tombstone_event_id: latest_tombstone.map(|row| row.event_id.clone()),
         latest_tombstone_observed_at: latest_tombstone.map(|row| row.observed_at.clone()),
         deleted_evidence_reference_ids,
+        coverage_rows: coverage_rows(&read_rows),
+        product_claim_state: product_claim_state(),
         rows: read_rows,
     })
 }
@@ -117,6 +124,104 @@ fn deleted_evidence_reference_ids(rows: &[TrackingReadModelRow]) -> Vec<String> 
         }
     }
     ids
+}
+
+fn coverage_rows(rows: &[TrackingReadModelRow]) -> Vec<TrackingReadModelCoverageRow> {
+    vec![
+        coverage_row(
+            rows,
+            TRACKING_READ_MODEL_SURFACE_LOCATION,
+            &[constants::activity_event_kind::LOCATION_OBSERVED],
+            TRACKING_READ_MODEL_MISSING_PROOF_PLATFORM_REPLAY,
+        ),
+        coverage_row(
+            rows,
+            TRACKING_READ_MODEL_SURFACE_GEOFENCE,
+            &[constants::activity_event_kind::TRACKING_GEOFENCE_TRANSITION_EVALUATED],
+            TRACKING_READ_MODEL_MISSING_PROOF_PLATFORM_REPLAY,
+        ),
+        coverage_row(
+            rows,
+            TRACKING_READ_MODEL_SURFACE_EXPECTED_PLACE,
+            &[constants::activity_event_kind::TRACKING_EXPECTED_PLACE_EVALUATED],
+            TRACKING_READ_MODEL_MISSING_PROOF_PLATFORM_REPLAY,
+        ),
+        coverage_row(
+            rows,
+            TRACKING_READ_MODEL_SURFACE_CHILD_CHECK_IN,
+            &[constants::activity_event_kind::TRACKING_CHILD_CHECK_IN_RESPONDED],
+            TRACKING_READ_MODEL_MISSING_PROOF_CHILD_RUNTIME,
+        ),
+        coverage_row(
+            rows,
+            TRACKING_READ_MODEL_SURFACE_RETENTION,
+            &[constants::activity_event_kind::TRACKING_RETENTION_DELETED],
+            TRACKING_READ_MODEL_MISSING_PROOF_PRODUCT_UI,
+        ),
+    ]
+}
+
+fn coverage_row(
+    rows: &[TrackingReadModelRow],
+    surface: &str,
+    event_kinds: &[&str],
+    missing_proof: &str,
+) -> TrackingReadModelCoverageRow {
+    let matching = rows
+        .iter()
+        .filter(|row| event_kinds.iter().any(|kind| kind == &row.kind))
+        .collect::<Vec<_>>();
+    let active_rows = matching
+        .iter()
+        .filter(|row| row.query_visibility == TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE)
+        .count() as u64;
+    let tombstone_rows = matching
+        .iter()
+        .filter(|row| row.query_visibility == TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE)
+        .count() as u64;
+    let latest = matching.first();
+
+    TrackingReadModelCoverageRow {
+        schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
+        surface: surface.to_string(),
+        active_rows,
+        tombstone_rows,
+        citation_count: coverage_citation_count(&matching),
+        latest_event_id: latest.map(|row| row.event_id.clone()),
+        latest_observed_at: latest.map(|row| row.observed_at.clone()),
+        ready_for_product_claim: false,
+        missing_proof: missing_proof.to_string(),
+    }
+}
+
+fn coverage_citation_count(rows: &[&TrackingReadModelRow]) -> u64 {
+    let mut ids = Vec::new();
+    for row in rows {
+        for id in &row.evidence_reference_ids {
+            push_unique(&mut ids, id);
+        }
+        for id in &row.deleted_evidence_reference_ids {
+            push_unique(&mut ids, id);
+        }
+    }
+    ids.len() as u64
+}
+
+fn push_unique(ids: &mut Vec<String>, value: &str) {
+    if !ids.iter().any(|existing| existing == value) {
+        ids.push(value.to_string());
+    }
+}
+
+fn product_claim_state() -> TrackingReadModelProductClaimState {
+    TrackingReadModelProductClaimState {
+        physical_device_claimed: false,
+        provider_delivery_claimed: false,
+        notification_delivery_claimed: false,
+        child_device_runtime_claimed: false,
+        ocentra_hosted_storage_claimed: false,
+        product_complete_claimed: false,
+    }
 }
 
 fn evidence_reference_ids(fields: &LogFields, evidence: &[ActivityEvidenceRef]) -> Vec<String> {

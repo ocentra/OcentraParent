@@ -28,6 +28,31 @@ export const AgentActivityTrackingReadModelRowSchema = withParser(
   })
 );
 
+export const AgentActivityTrackingReadModelCoverageRowSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(ActivityQuerySchemaVersion),
+    surface: TrackingProtocolText,
+    activeRows: TrackingProtocolCount,
+    tombstoneRows: TrackingProtocolCount,
+    citationCount: TrackingProtocolCount,
+    latestEventId: NullableTrackingProtocolText,
+    latestObservedAt: NullableTrackingProtocolText,
+    readyForProductClaim: Schema.Boolean,
+    missingProof: TrackingProtocolText,
+  })
+);
+
+export const AgentActivityTrackingReadModelProductClaimStateSchema = withParser(
+  Schema.Struct({
+    physicalDeviceClaimed: Schema.Boolean,
+    providerDeliveryClaimed: Schema.Boolean,
+    notificationDeliveryClaimed: Schema.Boolean,
+    childDeviceRuntimeClaimed: Schema.Boolean,
+    ocentraHostedStorageClaimed: Schema.Boolean,
+    productCompleteClaimed: Schema.Boolean,
+  })
+);
+
 export const AgentActivityTrackingReadModelSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ActivityQuerySchemaVersion),
@@ -43,11 +68,17 @@ export const AgentActivityTrackingReadModelSchema = withParser(
     latestTombstoneEventId: NullableTrackingProtocolText,
     latestTombstoneObservedAt: NullableTrackingProtocolText,
     deletedEvidenceReferenceIds: Schema.Array(TrackingProtocolText),
+    coverageRows: Schema.Array(AgentActivityTrackingReadModelCoverageRowSchema),
+    productClaimState: AgentActivityTrackingReadModelProductClaimStateSchema,
     rows: Schema.Array(AgentActivityTrackingReadModelRowSchema),
   })
 );
 
 export type AgentActivityTrackingReadModelRow = Infer<typeof AgentActivityTrackingReadModelRowSchema>;
+export type AgentActivityTrackingReadModelCoverageRow = Infer<typeof AgentActivityTrackingReadModelCoverageRowSchema>;
+export type AgentActivityTrackingReadModelProductClaimState = Infer<
+  typeof AgentActivityTrackingReadModelProductClaimStateSchema
+>;
 export type AgentActivityTrackingReadModel = Infer<typeof AgentActivityTrackingReadModelSchema>;
 export type AgentActivityTrackingEvidenceReferenceIds = AgentActivityTrackingReadModelRow['evidenceReferenceIds'];
 

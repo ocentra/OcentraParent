@@ -90,6 +90,28 @@ async function main() {
         retentionEventKind: 'activity.tracking.retention.deleted',
         sourceOfTruth: 'ActivityStore SQLite rows replayed from journaled ActivityEvent records',
       },
+      productCoverage: {
+        field: 'coverageRows',
+        surfaces: ['location', 'geofence', 'expected-place', 'child-check-in', 'retention'],
+        provedFields: [
+          'activeRows',
+          'tombstoneRows',
+          'citationCount',
+          'latestEventId',
+          'latestObservedAt',
+          'readyForProductClaim',
+          'missingProof',
+        ],
+        productClaimStateField: 'productClaimState',
+        assertedFalseClaims: [
+          'physicalDeviceClaimed',
+          'providerDeliveryClaimed',
+          'notificationDeliveryClaimed',
+          'childDeviceRuntimeClaimed',
+          'ocentraHostedStorageClaimed',
+          'productCompleteClaimed',
+        ],
+      },
     },
     proofArtifacts: {
       typescriptProtocolDomain: 'packages/agent-protocol-domain/src/contracts.ts',
@@ -107,11 +129,11 @@ async function main() {
     nonClaims: [
       'This proof does not claim Android or iOS physical background tracking behavior.',
       'This proof does not claim enrolled-device authority, production pilot readiness, or provider delivery.',
-      'This proof claims live service-backed portal citation rows for the tracking read model, not complete parent/child tracking UI.',
+      'This proof claims live service-backed portal coverage and citation rows for the tracking read model, not complete parent/child tracking UI.',
     ],
     remainingGapsBeforeProductOrPrReady: [
       'Hosted portal screenshot, accessibility, and browser-to-service proof remain pending.',
-      'Broader product tracking read-model surfaces beyond the service-backed tombstone replay and portal citation rows remain pending.',
+      'Full parent/child tracking UI beyond service-backed coverage and citation rows remains pending.',
       'Child-device UI and device permission screenshots remain pending.',
       'Android/iOS physical background geofence proof remains manual-required.',
       'Authority-enrolled and production-pilot proof remain absent.',
@@ -138,6 +160,8 @@ async function main() {
       'Retention-delete rows are exposed as tombstone queryVisibility rows instead of active tracking history rows.',
       'Deleted evidence reference ids are preserved on tombstone rows and summarized on the read model.',
       'Latest tombstone event id and observed timestamp are serialized through the Rust protocol and TypeScript parser.',
+      'Coverage rows group location, geofence, expected-place, child-check-in, and retention surfaces with citation counts and missing proof gates.',
+      'Product claim state keeps physical-device, provider-delivery, notification-delivery, child-runtime, hosted-storage, and product-complete claims false.',
       'The portal citation surface renders deleted evidence refs only as tombstone metadata and keeps productClaimReady=false.',
       'The proof does not claim Android/iOS physical background behavior, provider delivery, complete UI, or authority enrollment.',
     ],
@@ -163,7 +187,7 @@ async function main() {
     workpackId: '32-journal-sqlite-and-read-model-proof',
     proofState: 'p2-service-read-model-tombstone-replay-proof',
     summary:
-      'Tracking service read-model proof now includes ActivityStore SQLite retention-delete tombstone replay, active/tombstone row counts, deleted evidence citation summaries, and live portal citation rows. Hosted UI/accessibility, broader product read models, platform replay, and physical-device proof remain pending.',
+      'Tracking service read-model proof now includes ActivityStore SQLite retention-delete tombstone replay, active/tombstone row counts, deleted evidence citation summaries, grouped product coverage rows, explicit false product-claim state, and live portal citation rows. Hosted UI/accessibility, platform replay, and physical-device proof remain pending.',
     commands,
     proofArtifacts: {
       retentionDeleteProof:
@@ -177,6 +201,7 @@ async function main() {
       contractProof: true,
       serviceTombstoneReplayProof: true,
       livePortalCitationRows: true,
+      groupedCoverageRows: true,
       androidIosBackgroundLocationClaimed: false,
       preciseLocationFromLanIpWifiClaimed: false,
       uiCompleteClaimed: false,

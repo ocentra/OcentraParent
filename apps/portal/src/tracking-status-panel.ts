@@ -13,6 +13,7 @@ import {
 import type {
   AgentActivityTrackingEvidenceReferenceIds,
   AgentActivityTrackingReadModel,
+  AgentActivityTrackingReadModelCoverageRow,
   AgentActivityTrackingReadModelRow,
 } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
 import { trackingChildCheckInProof, type TrackingChildCheckInProof } from './tracking-child-check-in-proof';
@@ -47,6 +48,18 @@ export type TrackingStatusLiveSummary = {
   readonly parserReason: PortalDetailValue | null;
   readonly productClaim: PortalDisplayText;
   readonly citations: readonly TrackingStatusLiveCitation[];
+  readonly coverage: readonly TrackingStatusLiveCoverage[];
+};
+
+export type TrackingStatusLiveCoverage = {
+  readonly title: PortalDetailValue;
+  readonly rowsReturned: PortalDetailValue;
+  readonly lastObserved: PortalDetailValue;
+  readonly eventId: PortalDetailValue;
+  readonly status: PortalDetailValue;
+  readonly evidenceReferences: PortalDetailValue;
+  readonly missingProof: PortalDetailValue;
+  readonly productClaim: PortalDisplayText;
 };
 
 export type TrackingStatusLiveCitation = {
@@ -166,6 +179,7 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
     evidenceReferences: notReported(),
     productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
     citations: [],
+    coverage: [],
   };
 
   if (event === null || readModelResult === null) {
@@ -196,6 +210,7 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
     evidenceReferences: readModelEvidenceReferences(readModel),
     parserReason: null,
     citations: readModel.rows.map((readModelRow) => liveCitation(readModelRow)),
+    coverage: readModel.coverageRows.map((coverageRow) => liveCoverage(coverageRow)),
   };
 }
 
@@ -216,6 +231,9 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
   renderDashboard(container, (dashboard) => {
     const liveSummary = trackingStatusLiveSummary(liveActivity);
     dashboard.append(renderTrackingStatusLiveSummary(liveSummary));
+    for (const coverage of liveSummary.coverage) {
+      dashboard.append(renderTrackingStatusLiveCoverage(coverage));
+    }
     for (const citation of liveSummary.citations) {
       dashboard.append(renderTrackingStatusLiveCitation(citation));
     }
@@ -300,6 +318,26 @@ function renderTrackingStatusLiveSummary(summary: TrackingStatusLiveSummary): HT
   if (summary.parserReason !== null) {
     appendDetail(metadata, PortalDetails.Reason, summary.parserReason);
   }
+
+  panel.append(title, metadata);
+  return panel;
+}
+
+function renderTrackingStatusLiveCoverage(coverage: TrackingStatusLiveCoverage): HTMLElement {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+
+  const title = document.createElement(PortalDom.Tags.HeadingTwo);
+  title.textContent = coverage.title;
+
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendDetail(metadata, PortalDetails.RowsReturned, coverage.rowsReturned);
+  appendDetail(metadata, PortalDetails.LastObserved, coverage.lastObserved);
+  appendDetail(metadata, PortalDetails.EventId, coverage.eventId);
+  appendDetail(metadata, PortalDetails.Status, coverage.status);
+  appendDetail(metadata, PortalDetails.EvidenceReferences, coverage.evidenceReferences);
+  appendDetail(metadata, PortalDetails.MissingProof, coverage.missingProof);
+  appendDetail(metadata, PortalDetails.ProductClaim, toDetail(coverage.productClaim));
 
   panel.append(title, metadata);
   return panel;
@@ -411,6 +449,23 @@ function liveCitation(row: AgentActivityTrackingReadModelRow): TrackingStatusLiv
     ),
     evidenceReferences: evidenceReferenceDetail(row.evidenceReferenceIds),
     deletedEvidence: evidenceReferenceDetail(row.deletedEvidenceReferenceIds),
+    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
+  };
+}
+
+function liveCoverage(row: AgentActivityTrackingReadModelCoverageRow): TrackingStatusLiveCoverage {
+  return {
+    title: detailFromValue(row.surface),
+    rowsReturned: detailFromValue(row.activeRows + row.tombstoneRows),
+    lastObserved: detailFromValue(row.latestObservedAt),
+    eventId: detailFromValue(row.latestEventId),
+    status: toDetail(
+      PortalText.Resolve(
+        row.readyForProductClaim ? PortalTextToken.TrackingProofService : PortalTextToken.TrackingNoProductClaim
+      )
+    ),
+    evidenceReferences: detailFromValue(row.citationCount),
+    missingProof: detailFromValue(row.missingProof),
     productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
   };
 }

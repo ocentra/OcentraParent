@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T20:53:31.688Z",
-  "commit": "abf8f50efe808b21fe95fe7032342f0e46e04e7d",
+  "checkedAt": "2026-06-05T03:22:05.874Z",
+  "commit": "df0b8ee7a36f8814d06d6294b87bb52a5622dfbf",
   "workpackId": "32-journal-sqlite-and-read-model-proof",
   "proofState": "p2-service-read-model-tombstone-replay-proof",
-  "summary": "Tracking service read-model proof now includes ActivityStore SQLite retention-delete tombstone replay, active/tombstone row counts, deleted evidence citation summaries, and live portal citation rows. Hosted UI/accessibility, broader product read models, platform replay, and physical-device proof remain pending.",
+  "summary": "Tracking service read-model proof now includes ActivityStore SQLite retention-delete tombstone replay, active/tombstone row counts, deleted evidence citation summaries, grouped product coverage rows, explicit false product-claim state, and live portal citation rows. Hosted UI/accessibility, platform replay, and physical-device proof remain pending.",
   "commands": [
     {
       "command": "cmd /c npm --workspace @ocentra-parent/text-domain run build",
@@ -48,6 +48,7 @@
     "contractProof": true,
     "serviceTombstoneReplayProof": true,
     "livePortalCitationRows": true,
+    "groupedCoverageRows": true,
     "androidIosBackgroundLocationClaimed": false,
     "preciseLocationFromLanIpWifiClaimed": false,
     "uiCompleteClaimed": false,

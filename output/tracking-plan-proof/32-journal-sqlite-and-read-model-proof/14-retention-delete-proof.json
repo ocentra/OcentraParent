@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T20:53:31.688Z",
-  "commit": "abf8f50efe808b21fe95fe7032342f0e46e04e7d",
+  "checkedAt": "2026-06-05T03:22:05.874Z",
+  "commit": "df0b8ee7a36f8814d06d6294b87bb52a5622dfbf",
   "workpackId": "32-journal-sqlite-and-read-model-proof",
   "proofMode": "tracking-service-retention-tombstone-replay",
   "requiredProofTier": "P2_HOSTED_CI",
@@ -66,6 +66,8 @@
     "Retention-delete rows are exposed as tombstone queryVisibility rows instead of active tracking history rows.",
     "Deleted evidence reference ids are preserved on tombstone rows and summarized on the read model.",
     "Latest tombstone event id and observed timestamp are serialized through the Rust protocol and TypeScript parser.",
+    "Coverage rows group location, geofence, expected-place, child-check-in, and retention surfaces with citation counts and missing proof gates.",
+    "Product claim state keeps physical-device, provider-delivery, notification-delivery, child-runtime, hosted-storage, and product-complete claims false.",
     "The portal citation surface renders deleted evidence refs only as tombstone metadata and keeps productClaimReady=false.",
     "The proof does not claim Android/iOS physical background behavior, provider delivery, complete UI, or authority enrollment."
   ],

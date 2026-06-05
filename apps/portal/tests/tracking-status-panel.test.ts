@@ -71,6 +71,38 @@ const TrackingReadModel = {
   latestTombstoneEventId: 'tracking-retention-delete-1',
   latestTombstoneObservedAt: '2026-06-03T07:26:00Z',
   deletedEvidenceReferenceIds: ['location-evidence-1'],
+  coverageRows: [
+    {
+      schemaVersion: ActivityQuerySchemaVersion,
+      surface: 'expected-place',
+      activeRows: 1,
+      tombstoneRows: 0,
+      citationCount: 1,
+      latestEventId: 'tracking-event-1',
+      latestObservedAt: '2026-06-03T07:24:00Z',
+      readyForProductClaim: false,
+      missingProof: 'platform-replay-proof-required',
+    },
+    {
+      schemaVersion: ActivityQuerySchemaVersion,
+      surface: 'retention',
+      activeRows: 0,
+      tombstoneRows: 1,
+      citationCount: 1,
+      latestEventId: 'tracking-retention-delete-1',
+      latestObservedAt: '2026-06-03T07:26:00Z',
+      readyForProductClaim: false,
+      missingProof: 'broader-product-ui-proof-required',
+    },
+  ],
+  productClaimState: {
+    physicalDeviceClaimed: false,
+    providerDeliveryClaimed: false,
+    notificationDeliveryClaimed: false,
+    childDeviceRuntimeClaimed: false,
+    ocentraHostedStorageClaimed: false,
+    productCompleteClaimed: false,
+  },
   rows: [
     {
       schemaVersion: ActivityQuerySchemaVersion,
@@ -111,6 +143,72 @@ const TrackingReadModel = {
   ],
 } as const;
 
+const ExpectedLiveSummary = {
+  title: 'Service read model',
+  loadState: 'info',
+  proofTier: 'P2 service proof',
+  rowsReturned: '2',
+  lastObserved: '2026-06-03T07:24:00Z',
+  eventId: 'tracking-event-1',
+  capability: 'recent',
+  custody: 'child-device-query-store',
+  evidenceReferences: 'tracking-evidence-1 | location-evidence-1',
+  parserReason: null,
+  productClaim: 'No product claim',
+  coverage: [
+    {
+      title: 'expected-place',
+      rowsReturned: '1',
+      lastObserved: '2026-06-03T07:24:00Z',
+      eventId: 'tracking-event-1',
+      status: 'No product claim',
+      evidenceReferences: '1',
+      missingProof: 'platform-replay-proof-required',
+      productClaim: 'No product claim',
+    },
+    {
+      title: 'retention',
+      rowsReturned: '1',
+      lastObserved: '2026-06-03T07:26:00Z',
+      eventId: 'tracking-retention-delete-1',
+      status: 'No product claim',
+      evidenceReferences: '1',
+      missingProof: 'broader-product-ui-proof-required',
+      productClaim: 'No product claim',
+    },
+  ],
+  citations: [
+    {
+      title: 'School',
+      eventId: 'tracking-event-1',
+      observedAt: '2026-06-03T07:24:00Z',
+      device: 'child-device-1',
+      platform: 'android',
+      observer: 'tracking-engine',
+      activityKind: 'tracking.expected-place.evaluated',
+      subject: 'tracking-rule | expected-place-school',
+      status: 'active | recent',
+      evidenceReferences: 'tracking-evidence-1',
+      deletedEvidence: 'Not reported',
+      productClaim: 'No product claim',
+    },
+    {
+      title: 'activity.tracking.retention.deleted',
+      eventId: 'tracking-retention-delete-1',
+      observedAt: '2026-06-03T07:26:00Z',
+      device: 'child-device-1',
+      platform: 'android',
+      observer: 'tracking-retention',
+      activityKind: 'activity.tracking.retention.deleted',
+      subject: 'location-evidence | location-evidence-1',
+      status: 'tombstone | recent',
+      evidenceReferences: 'Not reported',
+      deletedEvidence: 'location-evidence-1',
+      productClaim: 'No product claim',
+    },
+  ],
+} as const;
+
 describe('tracking status proof surface', () => {
   it('lists the first-target tracking states as fixture proof without product claims', () => {
     const rows = trackingStatusProofRows();
@@ -140,49 +238,7 @@ describe('tracking status proof surface', () => {
   it('summarizes the live service-backed tracking read model without product completion claims', () => {
     const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
 
-    expect(trackingStatusLiveSummary(liveActivity)).toEqual({
-      title: 'Service read model',
-      loadState: 'info',
-      proofTier: 'P2 service proof',
-      rowsReturned: '2',
-      lastObserved: '2026-06-03T07:24:00Z',
-      eventId: 'tracking-event-1',
-      capability: 'recent',
-      custody: 'child-device-query-store',
-      evidenceReferences: 'tracking-evidence-1 | location-evidence-1',
-      parserReason: null,
-      productClaim: 'No product claim',
-      citations: [
-        {
-          title: 'School',
-          eventId: 'tracking-event-1',
-          observedAt: '2026-06-03T07:24:00Z',
-          device: 'child-device-1',
-          platform: 'android',
-          observer: 'tracking-engine',
-          activityKind: 'tracking.expected-place.evaluated',
-          subject: 'tracking-rule | expected-place-school',
-          status: 'active | recent',
-          evidenceReferences: 'tracking-evidence-1',
-          deletedEvidence: 'Not reported',
-          productClaim: 'No product claim',
-        },
-        {
-          title: 'activity.tracking.retention.deleted',
-          eventId: 'tracking-retention-delete-1',
-          observedAt: '2026-06-03T07:26:00Z',
-          device: 'child-device-1',
-          platform: 'android',
-          observer: 'tracking-retention',
-          activityKind: 'activity.tracking.retention.deleted',
-          subject: 'location-evidence | location-evidence-1',
-          status: 'tombstone | recent',
-          evidenceReferences: 'Not reported',
-          deletedEvidence: 'location-evidence-1',
-          productClaim: 'No product claim',
-        },
-      ],
-    });
+    expect(trackingStatusLiveSummary(liveActivity)).toEqual(ExpectedLiveSummary);
   });
 });
 
