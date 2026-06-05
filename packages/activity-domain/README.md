@@ -15,7 +15,8 @@ Shared activity and evidence contracts for child-device observations.
 - App/game identity, inventory, and session contracts.
 - App/game activity-surface source status row contracts that expose backend
   source-kind counts, latest observed timestamps, capability state, and
-  evidence refs without UI or policy claims.
+  evidence refs without UI or policy claims; manual-required, degraded, and
+  not-claimed source capabilities stay non-ready.
 - Network flow summary contracts.
 - Screen evidence summary contracts.
 - Screen evidence remote/retention/live-view boundary contracts that keep raw
@@ -142,6 +143,7 @@ flowchart LR
 - Activity reports need complete parent-facing history, trend, and assistant
   query flows.
 - Evidence contracts must keep unknown/degraded/unavailable states explicit.
-- App/game source status rows are backend evidence summaries only; portal
+- App/game source status rows are backend evidence summaries only; manual,
+  degraded, and not-claimed source states remain non-ready, and portal
   rendering, policy consumption, and adapter execution remain separate proof
   gates.

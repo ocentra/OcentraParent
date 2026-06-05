@@ -1,0 +1,36 @@
+{
+  "proofMode": "app-game-source-status-state",
+  "generatedAt": "2026-06-05T17:22:27.191Z",
+  "scope": "WP47 follow-up: backend app/game source status rows preserve manual-required, degraded, and not-claimed source states instead of reporting them as ready.",
+  "sourceFiles": {
+    "activityDomain": "packages/activity-domain/src/activity-surface.ts",
+    "activityDomainTest": "packages/activity-domain/tests/activity-surface.test.ts",
+    "agentProtocol": "crates/agent-protocol/src/activity_surface.rs",
+    "agentProtocolConstants": "crates/agent-protocol/src/constants/activity_surface.rs",
+    "agentProtocolTest": "crates/agent-protocol/src/activity_surface_tests.rs",
+    "agentServiceSource": "crates/agent-service/src/activity_surface_read_models/shared.rs",
+    "agentServicePayload": "crates/agent-service/src/activity_surface_payload.rs",
+    "agentServiceTest": "crates/agent-service/src/activity_surface_read_models/app_game_source_status_tests.rs",
+    "protocolAdapterTest": "packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts"
+  },
+  "checks": {
+    "activityDomainStates": true,
+    "rustProtocolStates": true,
+    "serviceManualRequiredMapping": true,
+    "serviceDegradedMapping": true,
+    "serviceNotClaimedMapping": true,
+    "protocolStateConstants": true,
+    "servicePayloadMapping": true,
+    "rustServiceBehaviorTest": true,
+    "rustProtocolBehaviorTest": true,
+    "typeScriptContractTest": true,
+    "protocolAdapterTest": true
+  },
+  "noClaimBoundaries": [
+    "source status rows summarize existing backend evidence only",
+    "manualRequired capability maps to manual-required read-model state and does not become ready",
+    "degraded capability maps to degraded read-model state and does not become ready",
+    "notClaimed capability maps to scaffold-only read-model state and does not become ready",
+    "no portal rendering, policy consumption, provider delivery, adapter execution, broad blocking, or platform support is added"
+  ]
+}

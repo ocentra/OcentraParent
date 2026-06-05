@@ -21,6 +21,9 @@ pub(super) fn row_state(capability_status: &str) -> ActivityReadModelState {
     match capability_status {
         APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED => ActivityReadModelState::PermissionRequired,
         APP_GAME_CAPABILITY_STATUS_STALE => ActivityReadModelState::Stale,
+        APP_GAME_CAPABILITY_STATUS_DEGRADED => ActivityReadModelState::Degraded,
+        APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED => ActivityReadModelState::ManualRequired,
+        APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED => ActivityReadModelState::ScaffoldOnly,
         APP_GAME_CAPABILITY_STATUS_UNAVAILABLE
         | APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM
         | APP_GAME_CAPABILITY_STATUS_ADAPTER_ERROR => ActivityReadModelState::Unavailable,

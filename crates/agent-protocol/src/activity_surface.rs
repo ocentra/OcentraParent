@@ -52,6 +52,10 @@ pub enum ActivityReadModelState {
     Offline,
     #[serde(rename = "stale")]
     Stale,
+    #[serde(rename = "degraded")]
+    Degraded,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
     #[serde(rename = "permission-required")]
     PermissionRequired,
     #[serde(rename = "scaffold-only")]

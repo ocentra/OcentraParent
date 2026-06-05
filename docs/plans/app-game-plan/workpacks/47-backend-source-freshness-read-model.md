@@ -20,12 +20,16 @@ blocking, or platform support claims.
 - Group service app/game rows by source kind, row count, latest observed time,
   capability state, and evidence refs.
 - Keep launcher source status rows in the games read-model only.
+- Preserve `manualRequired`, `degraded`, and `notClaimed` source capability
+  states as non-ready read-model states instead of collapsing them to `ready`.
 
 ## Proof
 
 - `cargo test -p ocentra-parent-agent-protocol activity_surface -- --nocapture`
 - `cargo test -p ocentra-parent-agent-service app_game_source_status -- --nocapture`
 - `cmd /c npm exec --workspace @ocentra-parent/activity-domain -- vitest run tests/activity-surface.test.ts`
+- `cmd /c npm exec --workspace @ocentra-parent/agent-protocol-domain -- vitest run tests/activity-surface-adapter.test.ts`
+- `node scripts/test/app-game-source-status-state-proof.mjs`
 - `cargo fmt --all --check`
 - `cmd /c npm run format:check`
 - `cmd /c npm run lint:schema-boundaries`
@@ -45,6 +49,8 @@ output/app-game-plan-proof/47-backend-source-freshness-read-model
 - Source status rows do not prove live portal rendering, policy decisions,
   adapter execution, broad app/game blocking, platform support, or content
   knowledge.
+- Manual-required, degraded, and not-claimed source status rows must remain
+  non-ready and cannot be counted as fresh proof by downstream consumers.
 - Inventory source status remains inventory-only and cannot become app/game
   runtime or foreground use.
 - Launcher source status remains launcher evidence unless child-game proof is
@@ -55,4 +61,6 @@ output/app-game-plan-proof/47-backend-source-freshness-read-model
 `docs/product-capability-checklist.md` is intentionally unchanged. WP47 exposes
 backend source freshness/status rows, but product status should not move until
 portal rendering, policy consumption, adapter execution, and platform proof are
-finished.
+finished. The source-status state mapping follow-up also leaves the checklist
+unchanged because it strengthens the existing backend proof without moving the
+parent-visible product status row.

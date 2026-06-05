@@ -267,6 +267,9 @@ control with better evidence and local audit.
   evidence by source kind, row count, latest observed time, capability state,
   and evidence refs without adding portal UI, policy consumption, or adapter
   claims.
+- Backend source-status rows now preserve manual-required, degraded, and
+  not-claimed capability states as non-ready read-model state, so source
+  freshness cannot look ready when a platform/source still needs proof.
 - The parent App/Game Sessions dashboard now consumes those service-backed
   `sourceStatusRows` and renders source row counts, fresh source counts,
   source-kind capability state, latest observed timestamps, and evidence ref

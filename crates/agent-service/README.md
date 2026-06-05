@@ -77,7 +77,8 @@ development paths and orchestrates runtime commands.
   matrix/rows, and AI classifier result rows in the existing read-model payloads.
 - App/game app-use/games read-model source status rows for inventory, runtime,
   foreground, and launcher source kinds with backend row counts, latest observed
-  timestamps, capability state, and evidence refs.
+  timestamps, capability state, evidence refs, and non-ready state preservation
+  for manual-required, degraded, and not-claimed source capabilities.
 - Dedicated app/game boundary read-model reports through
   `agent.activity.app-game.boundary.read-model.get`, backed by the same
   `AppGameServiceReadModel` and exposing staged authority/classifier row
@@ -157,9 +158,10 @@ flowchart LR
   app-use/games evidence vector, explicit count fields, and the dedicated
   backend boundary read-model event; portal rows, policy consumption, provider
   execution, and adapter proof remain separate gaps.
-- App/game source status rows are backend read-model summaries only; polished
-  portal rendering, policy consumption, richer subscriptions, adapter
-  execution, and broad blocking remain separate gaps.
+- App/game source status rows are backend read-model summaries only; manual,
+  degraded, and not-claimed states remain non-ready, and polished portal
+  rendering, policy consumption, richer subscriptions, adapter execution, and
+  broad blocking remain separate gaps.
 - Screen service analysis proofs are backend/local proof hooks only; production
   OCR/VLM quality, authenticated-account surfaces, broader live trigger
   producers, retention UI, and enforcement remain separate gaps.

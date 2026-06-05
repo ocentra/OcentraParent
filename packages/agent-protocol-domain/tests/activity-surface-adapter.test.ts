@@ -408,6 +408,11 @@ function specifyReadModelAdapterFailureParsing() {
 }
 
 function specifyAppUseReadModelEventParsing() {
+  specifyAppUseReadModelSourceCountParsing();
+  specifyAppUseReadModelSourceStateParsing();
+}
+
+function specifyAppUseReadModelSourceCountParsing() {
   it('parses service-backed app-use rows with app-game source counts', () => {
     const parsed = parseActivityReadModelEvent(
       'app-use',
@@ -479,6 +484,84 @@ function specifyAppUseReadModelEventParsing() {
     expect(parsed.ok ? parsed.value.rows[0]?.sourceStatusRows[0]?.sourceKind : null).toBe('osInstalledRecord');
     expect(parsed.ok ? parsed.value.rows[0]?.sourceStatusRows[1]?.sourceKind : null).toBe('foregroundWindow');
   });
+}
+
+function specifyAppUseReadModelSourceStateParsing() {
+  it('parses app-use source status rows that preserve manual-required and degraded states', () => {
+    const parsed = parseActivityReadModelEvent(
+      'app-use',
+      eventEnvelope(AgentEvent.ActivityAppUseReadModelReported, {
+        [AgentProtocolDefaults.Field.ActivityReadModel]: JSON.stringify(sourceStatusStateAppUseReadModel()),
+      })
+    );
+
+    expect(parsed.ok).toBe(true);
+    expect(parsed.ok ? parsed.value.rows[0]?.sourceStatusRows.map((row) => row.state) : null).toEqual([
+      'manual-required',
+      'degraded',
+    ]);
+  });
+}
+
+function sourceStatusStateAppUseReadModel() {
+  return {
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    request: Request,
+    state: 'ready',
+    generatedAt: '2026-05-27T20:10:01Z',
+    summary: 'Source status rows preserve backend state.',
+    rows: [
+      {
+        rowId: 'source-state-app-row',
+        appName: 'ocentra-fixture.exe',
+        deviceId: 'local-dev-agent',
+        state: 'ready',
+        productKind: 'nativeApp',
+        classificationState: 'knownApp',
+        inventoryState: 'installed',
+        runtimeState: 'running',
+        foregroundState: 'foreground',
+        capabilityStatus: 'available',
+        lastObservedAt: '2026-05-27T20:09:00Z',
+        totalMs: 60000,
+        launchCount: 1,
+        inventoryRowCount: 1,
+        runningRowCount: 1,
+        foregroundRowCount: 1,
+        dailyRollupCount: 1,
+        evidenceClaimRowCount: 1,
+        identityRowCount: 1,
+        approvalAuthorityRowCount: 1,
+        approvalActionResultRowCount: 1,
+        platformAuthorityMatrixCount: 1,
+        platformAuthorityRowCount: 1,
+        aiClassifierResultRowCount: 1,
+        sourceStatusRows: nonReadySourceStatusRows(),
+        evidence: [],
+      },
+    ],
+  } as const;
+}
+
+function nonReadySourceStatusRows() {
+  return [
+    {
+      sourceKind: 'osInstalledRecord',
+      state: 'manual-required',
+      rowCount: 1,
+      lastObservedAt: '2026-05-27T20:08:00Z',
+      capabilityStatus: 'manualRequired',
+      evidence: [],
+    },
+    {
+      sourceKind: 'processSnapshot',
+      state: 'degraded',
+      rowCount: 1,
+      lastObservedAt: '2026-05-27T20:09:00Z',
+      capabilityStatus: 'degraded',
+      evidence: [],
+    },
+  ] as const;
 }
 
 function specifyScreenReadModelEventParsing() {

@@ -64,7 +64,17 @@ export const ActivityReportSectionKindSchema = withParser(
   Schema.Literal('summary', 'screen', 'app-use', 'browser', 'games', 'network')
 );
 export const ActivityReadModelStateSchema = withParser(
-  Schema.Literal('ready', 'empty', 'unavailable', 'offline', 'stale', 'permission-required', 'scaffold-only')
+  Schema.Literal(
+    'ready',
+    'empty',
+    'unavailable',
+    'offline',
+    'stale',
+    'degraded',
+    'manual-required',
+    'permission-required',
+    'scaffold-only'
+  )
 );
 export const ActivityReportSourceReachabilityStateSchema = withParser(
   Schema.Literal('reachable', 'unreachable', 'offline', 'error')

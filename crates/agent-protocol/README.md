@@ -38,7 +38,8 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
   payload field, no-claim booleans, and parity tests for the service-backed
   local notification intent readiness proof path.
 - App/game activity-surface source status structs for backend app-use/games row
-  freshness/count/capability proof without portal, policy, or adapter claims.
+  freshness/count/capability proof, including manual-required and degraded
+  non-ready states, without portal, policy, or adapter claims.
 - App/game evidence claim, AI digest reference/classification digest, identity,
   identity-merge, control authority/action-result, platform authority matrix,
   and classifier boundary structs/constants mirrored from the TypeScript domain

@@ -34,8 +34,8 @@ transports.
   field, parser, and no-claim booleans for service-backed local notification
   intent readiness rows.
 - Activity app-use and games read-model event parsing for backend-owned
-  app/game source freshness rows, while product semantics stay in
-  `activity-domain`.
+  app/game source freshness rows, including manual-required and degraded
+  read-model states, while product semantics stay in `activity-domain`.
 - Network runtime event contracts for the local eventing spine, including
   flow/domain/classification, AI advisory, policy, enforcement dry-run/result,
   audit, and portal read-model update shapes mirrored from `crates/agent-protocol`.
@@ -106,9 +106,10 @@ flowchart LR
   service payload shape only; product semantics stay in `activity-domain` and
   `parent-domain`, and portal rows, policy consumption, provider execution, and
   adapter support remain separate proof-gated work.
-- App/game source freshness row parsing proves service payload shape only; portal
-  rendering, policy decisions, provider execution, and broad OS adapter support
-  remain separate proof-gated work.
+- App/game source freshness row parsing proves service payload shape only;
+  manual-required and degraded source rows stay non-ready, and portal rendering,
+  policy decisions, provider execution, and broad OS adapter support remain
+  separate proof-gated work.
 - App/game notification readiness parsing proves service payload shape only;
   provider delivery, receipt ingestion, local outbox runtime, scheduler runtime,
   parent notification UI, child delivery, policy evaluator execution, adapter

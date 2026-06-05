@@ -92,6 +92,10 @@ fn read_model_state_value(state: ActivityReadModelState) -> &'static str {
         ActivityReadModelState::Unavailable => constants::activity_surface::STATE_UNAVAILABLE,
         ActivityReadModelState::Offline => constants::activity_surface::STATE_OFFLINE,
         ActivityReadModelState::Stale => constants::activity_surface::STATE_STALE,
+        ActivityReadModelState::Degraded => constants::activity_surface::STATE_DEGRADED,
+        ActivityReadModelState::ManualRequired => {
+            constants::activity_surface::STATE_MANUAL_REQUIRED
+        }
         ActivityReadModelState::PermissionRequired => {
             constants::activity_surface::STATE_PERMISSION_REQUIRED
         }

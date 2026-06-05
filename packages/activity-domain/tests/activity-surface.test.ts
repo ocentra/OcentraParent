@@ -523,6 +523,64 @@ function specifyActivityAppUseReadModelContracts() {
     expect(parsed.rows[0]?.sourceStatusRows[0]?.sourceKind).toBe('osInstalledRecord');
     expect(parsed.rows[0]?.sourceStatusRows[0]?.rowCount).toBe(1);
   });
+
+  it('ActivityAppUseReadModelSchema: accepts manual and degraded source status rows without ready source claims', () => {
+    const parsed = ActivityAppUseReadModelSchema.parse(
+      appUseReadModelWithSourceStatusRows([
+        {
+          ...AppGameSourceStatusRow,
+          sourceKind: 'osInstalledRecord',
+          state: 'manual-required',
+          capabilityStatus: 'manualRequired',
+        },
+        {
+          ...AppGameSourceStatusRow,
+          sourceKind: 'processSnapshot',
+          state: 'degraded',
+          capabilityStatus: 'degraded',
+        },
+      ])
+    );
+
+    expect(parsed.rows[0]?.sourceStatusRows.map((row) => [row.sourceKind, row.state, row.capabilityStatus])).toEqual([
+      ['osInstalledRecord', 'manual-required', 'manualRequired'],
+      ['processSnapshot', 'degraded', 'degraded'],
+    ]);
+  });
+}
+
+function appUseReadModelWithSourceStatusRows(sourceStatusRows: readonly unknown[]) {
+  return {
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    request: ActivityRequest,
+    state: 'ready',
+    generatedAt: '2026-05-27T06:21:00Z',
+    summary: 'App source status rows preserve backend capability state',
+    rows: [
+      {
+        rowId: 'inventory-app-source-state-1',
+        appName: 'Ocentra Fixture App',
+        deviceId: 'child-device-1',
+        state: 'ready',
+        productKind: 'nativeApp',
+        classificationState: 'knownApp',
+        inventoryState: 'installed',
+        runtimeState: 'running',
+        foregroundState: 'foreground',
+        capabilityStatus: 'available',
+        lastObservedAt: '2026-05-27T06:19:00Z',
+        totalMs: 60000,
+        launchCount: 1,
+        inventoryRowCount: 1,
+        runningRowCount: 1,
+        foregroundRowCount: 1,
+        dailyRollupCount: 1,
+        ...AppGameBoundaryCounts,
+        sourceStatusRows,
+        evidence: [EvidenceRef],
+      },
+    ],
+  } as const;
 }
 
 describe('activity browser games and network read-model contracts', () => {

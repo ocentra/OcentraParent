@@ -7,7 +7,8 @@ use super::{
     ActivityReportSourceState, ActivityReportSourceStateSummary, ActivitySavedReportMetadata,
     ActivitySavedReportState, ActivityScreenReadModel, ActivityScreenReadModelRow,
     ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandName,
-    AgentEventName, ACTIVITY_SURFACE_SCHEMA_VERSION, SCREEN_CAPABILITY_READY,
+    AgentEventName, ACTIVITY_SURFACE_SCHEMA_VERSION, APP_GAME_CAPABILITY_STATUS_DEGRADED,
+    APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED, SCREEN_CAPABILITY_READY,
     SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
     SCREEN_CATEGORY_SCHOOL, SCREEN_CUSTODY_JOURNAL, SCREEN_DELETION_DELETED,
     SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_VISION,
@@ -222,6 +223,40 @@ fn activity_app_use_read_model_serializes_app_game_projection_state() {
     assert_eq!(
         app_use_json["rows"][0]["sourceStatusRows"][0]["sourceKind"],
         "osInstalledRecord"
+    );
+}
+
+#[test]
+fn activity_app_game_source_status_serializes_manual_required_and_degraded_states() {
+    let rows = vec![
+        super::ActivityAppGameSourceStatusRow {
+            source_kind: "osInstalledRecord".to_string(),
+            state: ActivityReadModelState::ManualRequired,
+            row_count: 1,
+            last_observed_at: Some("2026-05-27T06:19:00Z".to_string()),
+            capability_status: APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED.to_string(),
+            evidence: vec![sample_evidence()],
+        },
+        super::ActivityAppGameSourceStatusRow {
+            source_kind: "processSnapshot".to_string(),
+            state: ActivityReadModelState::Degraded,
+            row_count: 1,
+            last_observed_at: Some("2026-05-27T06:20:00Z".to_string()),
+            capability_status: APP_GAME_CAPABILITY_STATUS_DEGRADED.to_string(),
+            evidence: vec![sample_evidence()],
+        },
+    ];
+    let serialized = serde_json::to_value(rows).expect("source status serializes");
+
+    assert_eq!(serialized[0]["state"], "manual-required");
+    assert_eq!(
+        serialized[0]["capabilityStatus"],
+        APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED
+    );
+    assert_eq!(serialized[1]["state"], "degraded");
+    assert_eq!(
+        serialized[1]["capabilityStatus"],
+        APP_GAME_CAPABILITY_STATUS_DEGRADED
     );
 }
 
