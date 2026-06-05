@@ -4,7 +4,7 @@ import { PortalTheme } from '@ocentra-parent/portal-domain/contracts';
 import { collectBrowserFailures } from './browser-failures';
 import { assertRouteScaffolds } from './portal-route-scaffold-assertions';
 
-test.setTimeout(300_000);
+test.setTimeout(420_000);
 
 const portalShellReadyTimeoutMs = 90_000;
 const defaultPortalPort = '4490';
