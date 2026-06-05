@@ -468,10 +468,14 @@ UI rendering remain open.
       claims. Row50 security readiness proof now gates production rollout on
       threat-model/privacy/compliance/retention/hardening/support/staged-rollout
       refs plus external audit or penetration-test signoff for production-ready
-      state. AI model execution, broker/family-hub delivery implementation,
-      full policy engine execution, notification delivery, external
-      audit/deployment execution, full support-material authoring, and portal
-      risk-budget/performance UI rendering remain.
+      state. Row11a now records the aggregate network hardening/support proof
+      pack for key rotation, secret handling, rule/model provenance, rollback,
+      parent/user guides, FAQ, support playbook, staff training, staged rollout,
+      incident response, known-gap signoff, and external signoff refs. AI model
+      execution, broker/family-hub delivery implementation, full policy engine
+      execution, notification delivery, external audit/deployment execution,
+      full support-material authoring, and portal risk-budget/performance UI
+      rendering remain.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
