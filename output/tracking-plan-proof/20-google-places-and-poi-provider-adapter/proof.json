@@ -2,8 +2,8 @@
   "proofMode": "tracking-poi-provider-adapter-proof",
   "generatedAt": "2026-06-05T14:45:00.000Z",
   "branch": "codex/tracking-google-poi-provider-proof",
-  "commit": "e1795fdb8be06087daaa9921a68544da2d391805",
-  "gitStatusShort": "M docs/product-capability-checklist.md\n M output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/00-source-snapshot.md\n M output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/proof.json\n M test-results/tracking-poi-provider-adapter-proof/proof.json",
+  "commit": "27d8df3c37017dac94fab00ccf8348f4bc7cda68",
+  "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-poi-provider-adapter tracking-location-policy"
