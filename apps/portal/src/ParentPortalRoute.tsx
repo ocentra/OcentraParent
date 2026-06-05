@@ -19,6 +19,10 @@ import {
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
 import { ScreenSettingsRoutePanel, shouldRenderScreenSettingsRoute } from './ScreenSettingsRoutePanel';
+import {
+  ScreenParentExplanationRoutePanel,
+  shouldRenderScreenParentExplanationRoute,
+} from './ScreenParentExplanationRoutePanel';
 import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
 import './styles/parent-portal-route.css';
 
@@ -84,6 +88,9 @@ export function ParentPortalRoute({
         <NetworkEvidenceDrawerRoutePanel liveActivity={activityState} />
       ) : null}
       {shouldRenderScreenSettingsRoute(route) ? <ScreenSettingsRoutePanel /> : null}
+      {shouldRenderScreenParentExplanationRoute(route) ? (
+        <ScreenParentExplanationRoutePanel liveActivity={activityState} />
+      ) : null}
     </div>
   );
 }

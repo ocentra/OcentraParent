@@ -116,6 +116,12 @@ claim needs proof, not slogans.
   read-model custody for screen-summary parent explanations, but still does not
   claim production portal rendering, new capture/model inference, remote/API AI,
   or enforcement.
+- `scripts/test/screen-parent-explanation-portal-proof.mjs` now proves the real
+  portal Activity route consumes that service-backed Activity Screen read model
+  and renders policy refs, parent rule refs, local runtime refs, parent
+  explanation refs, deletion reasons, deleted-image custody, model/template
+  metadata, and `rawImageRetained:false`. It does not create new captures, rerun
+  model inference, use remote/API AI, or claim enforcement.
 - `scripts/test/screen-ai-final-product-path-proof.mjs` now verifies the
   retained final screen-AI path artifacts: real live/operator trigger rows,
   local VLM analysis rows, dry-run policy decisions, Windows action handoff
@@ -136,12 +142,11 @@ claim needs proof, not slogans.
 ## Current Gap
 
 Ocentra needs product-grade model configuration, local model artifacts,
-production screen model/OCR quality beyond current local proof, confidence handling,
-authenticated-account social proof beyond public/live surface proof, production
-parent explanation portal rendering, broader enforcement handoff,
-production browser-trigger producers, real family AI hub runtime/discovery,
-cloud-streamed frame proof, mobile browser parity, and validation against
-production external evidence variants.
+production screen model/OCR quality beyond current local proof, confidence
+handling, authenticated-account social proof beyond public/live surface proof,
+broader enforcement handoff, production browser-trigger producers, real family
+AI hub runtime/discovery, cloud-streamed frame proof, mobile browser parity, and
+validation against production external evidence variants.
 
 ## Checklist
 
@@ -157,6 +162,7 @@ production external evidence variants.
 - [x] Parent explanation and audit proof path.
 - [x] Parent explanation read-model proof path.
 - [x] Screen parent explanation service read-model proof path.
+- [x] Screen parent explanation portal rendering proof path.
 - [x] Screen service WinRT OCR local adapter proof path.
 - [x] Final screen-AI product path artifact gate.
 - [x] Tests with real stored evidence.

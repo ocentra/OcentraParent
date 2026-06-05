@@ -363,6 +363,14 @@ only with explicit parent settings.
   runtime refs, parent explanation refs, deletion reasons, deleted-image state,
   and child-device custody. It does not claim production portal rendering, new
   capture/model inference, remote/API AI, or enforcement.
+- `scripts/test/screen-parent-explanation-portal-proof.mjs` now proves the
+  production portal Activity route renders those service-backed screen parent
+  explanation fields. The script starts the real Rust service plus Vite portal,
+  clicks the real Activity Screen command, and verifies parent explanation refs,
+  policy refs, parent rule refs, local runtime refs, deletion reasons,
+  deleted-image custody, model/template metadata, and `rawImageRetained:false`.
+  It does not create a new capture, rerun model inference, upload raw
+  screenshots, or claim enforcement.
 - `scripts/test/screen-ai-final-product-path-proof.mjs` now validates the
   retained final path evidence across real live/operator trigger artifacts,
   capture metadata, local VLM analysis, policy dry-runs, Windows action handoff
@@ -389,11 +397,10 @@ adapter, service-owned live trigger event producers beyond the timed cadence
 loop and native active-window foreground watcher, physical Android/iOS proof,
 live macOS capture proof, Linux root/Wayland portal proof, browser-trigger
 artifact closure, browser/network/mobile/broad block action adapters from
-screen-derived decisions, real family AI hub runtime/discovery, and production
-parent explanation portal rendering remain. Browser-trigger proof now covers
-contract flow into screen evidence and local-AI context only; live trigger
-producers, authenticated surfaces, cloud-streamed frames, mobile parity, and UI
-remain separate proof gates.
+screen-derived decisions, and real family AI hub runtime/discovery remain.
+Browser-trigger proof now covers contract flow into screen evidence and
+local-AI context only; live trigger producers, authenticated surfaces,
+cloud-streamed frames, mobile parity, and UI remain separate proof gates.
 
 ## Checklist
 
@@ -438,6 +445,8 @@ remain separate proof gates.
       runtime claims.
 - [x] Parent explanation refs preserved through the service-backed Activity
       Screen read-model projection.
+- [x] Parent explanation refs rendered by the real portal Activity route from
+      the service-backed Activity Screen read model.
 - [x] Final screen-AI product path artifact gate validates retained real-run
       trigger, capture, AI, policy, action/read-model, and deletion/custody
       artifacts without raw screenshot retention.

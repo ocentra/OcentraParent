@@ -1,0 +1,42 @@
+{
+  "status": "ok",
+  "proofKind": "screen-parent-explanation-portal-proof",
+  "artifacts": {
+    "screenshot": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\parent-explanation-portal\\parent-explanation-activity-route.png",
+    "summary": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\parent-explanation-portal\\proof-summary.json",
+    "validationLog": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\parent-explanation-portal\\10-validation-commands.log"
+  },
+  "ports": {
+    "agent": 4489,
+    "portal": 4490
+  },
+  "renderedAssertions": [
+    "screen-parent-explanation-portal-row",
+    "screen-parent-explanation-portal-queue",
+    "screen-parent-explanation-portal-policy-decision",
+    "allow",
+    "screen-parent-explanation-portal-parent-rule",
+    "screen-parent-explanation-portal-local-runtime",
+    "screen-parent-explanation-portal-explanation",
+    "screen-summary-cited",
+    "screen-image-deleted",
+    "child-device-journal",
+    "localOcr",
+    "windows-winrt-ocr-local-proof",
+    "screen-parent-explanation-portal-v1"
+  ],
+  "closure": {
+    "realRustServiceReadModel": true,
+    "realPortalCommand": true,
+    "realPortalRouteRendering": true,
+    "parentExplanationRefsVisible": true,
+    "rawScreenshotsRendered": false,
+    "rawScreenshotsRetainedByDefault": false,
+    "remoteAiUsedForChildSafety": false
+  },
+  "nonClaims": [
+    "This proof starts the real Rust service and Vite portal, then clicks the real Activity Screen command.",
+    "It proves parent explanation refs render from a service-backed Activity Screen read model.",
+    "It does not create a new capture, rerun model inference, upload raw screenshots, or claim remote/API AI."
+  ]
+}

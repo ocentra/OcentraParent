@@ -1,0 +1,2 @@
+node --check scripts/test/screen-parent-explanation-portal-proof.mjs
+node scripts/test/screen-parent-explanation-portal-proof.mjs

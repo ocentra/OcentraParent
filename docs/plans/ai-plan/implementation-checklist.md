@@ -23,6 +23,7 @@ consumes the same results.
 | Screen summary parent explanation/audit context   | P3 replay proved   | `output/ai-plan-proof/screen-summary-parent-explanation/proof-summary.json`                                                            | Replays the real WinRT OCR worker proof rows through local AI context plus parent explanation/audit contracts, proving screen-summary refs, audit refs, parent-rule refs, dry-run policy refs, runtime refs, and deleted-image custody stay cited without raw retention, remote/API AI, portal UI, policy authority, or enforcement claims.                                                                                                                                                 |
 | Screen summary parent explanation read model      | P3 replay proved   | `output/ai-plan-proof/screen-summary-parent-explanation-read-model/proof-summary.json`                                                 | Converts the screen-summary parent explanation proof rows into parent-visible read-model rows that preserve screen-summary refs, audit refs, policy refs, parent rules, runtime refs, custody, and deleted-image state without raw image display, production portal runtime UI, policy authority, or enforcement claims.                                                                                                                                                                    |
 | Screen parent explanation service read model      | P3 service proved  | `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json`                                         | Starts the real Rust service against a seeded ActivityStore and requests the Activity Screen read model over WebSocket, proving policy refs, parent rules, local runtime refs, parent explanation refs, deletion reasons, deleted-image state, and child-device custody survive service/query projection. It does not claim production portal rendering, new capture/model inference, remote/API AI, policy authority, or enforcement.                                                      |
+| Screen parent explanation portal route            | P3 portal proved   | `output/screen-ai-pipeline-proof/parent-explanation-portal/proof-summary.json`                                                         | Starts the real Rust service plus Vite portal, clicks the real Activity Screen command, and proves the Activity route renders parent explanation refs, policy refs, local runtime refs, deletion reasons, child-device custody, model/template metadata, and `rawImageRetained:false`. It does not create a new capture, rerun model inference, upload raw screenshots, or claim enforcement.                                                                                               |
 
 ## Contract And Source Truth
 
@@ -60,10 +61,11 @@ consumes the same results.
 - [x] Provider queue and routing implemented.
 - [ ] Runtime status visible in service and portal.
 - [ ] AI result journal and SQLite ingest implemented.
-- [x] Parent explanation read-model proof contract implemented; production
-      portal consumption remains a UI/runtime gap.
+- [x] Parent explanation read-model proof contract implemented.
 - [x] Screen parent explanation refs preserved through service-backed Activity
       Screen query/read-model projection.
+- [x] Screen parent explanation refs rendered by the real portal Activity route
+      from the service-backed read model.
 
 ## Memory And Graph
 
@@ -121,7 +123,7 @@ consumes the same results.
 
 - [ ] AI runtime status surface.
 - [ ] AI jobs/activity surface.
-- [ ] AI decision explanation surface.
+- [x] AI decision explanation surface for service-backed Activity Screen rows.
 - [ ] Memory/graph evidence surface.
 - [ ] Remote boundary surface.
 - [ ] Screen OCR/VLM degraded states visible.
@@ -154,4 +156,6 @@ consumes the same results.
       `output/ai-plan-proof/screen-summary-parent-explanation-read-model`.
 - [x] screen summary parent explanation service read-model proof artifacts under
       `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model`.
+- [x] screen parent explanation portal proof artifacts under
+      `output/screen-ai-pipeline-proof/parent-explanation-portal`.
 - [ ] `npm run validate` or explicit approved omission.
