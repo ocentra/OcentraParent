@@ -91,6 +91,14 @@ only with explicit parent settings.
   turn typed OCR text evidence into a schema-valid `ScreenAnalysisResult` and
   parent policy dry-run without a vision model or retained raw image. This is
   a route/contract proof; production OCR adapter execution remains separate.
+- `ScreenDetectorPromptPackSchema`, `ScreenDetectorPromptOutputSchema`, and
+  `scripts/test/screen-detector-prompt-pack-proof.mjs` now prove
+  detector-specific prompt pack contracts for social/video, chat, game, school,
+  bypass, adult, violence, shopping/payment, and signup/identity screen cases.
+  The contracts reject open-ended screen descriptions, raw prompt text, private
+  messages, names, credentials, full OCR text, raw screenshot refs, policy
+  authority, and enforcement claims. This is prompt/schema proof, not production
+  model quality or live inference.
 - `scripts/test/screen-ai-local-text-route-proof.mjs` proves screen-derived
   typed activity evidence can enter `LocalAiEvaluationInput`, produce a
   schema-valid local-only `LocalAiSafetyResult`, and hand off to a dry-run
@@ -294,6 +302,8 @@ and UI remain separate proof gates.
       live view, and raw remote upload by default.
 - [x] Local AI resource scheduler prevents multiple heavy OCR/VLM jobs and
       prioritizes policy-blocking screen analysis.
+- [x] Detector-specific prompt packs replace open-ended screen descriptions and
+      reject private/raw output fields.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof, broad
