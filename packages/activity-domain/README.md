@@ -21,6 +21,9 @@ Shared activity and evidence contracts for child-device observations.
 - Screen evidence remote/retention/live-view boundary contracts that keep raw
   screenshot retention, live view, and raw remote upload outside the default
   local summary path.
+- Screen detector prompt pack and output contracts that keep local screen
+  analysis detector-specific, schema-bound, and privacy-negative without
+  claiming model quality or enforcement authority.
 - Screen evidence settings UI proof contracts that build disabled, observe-only,
   and strict dry-run parent intent drafts from the real settings schemas without
   claiming child-agent persistence.
@@ -87,6 +90,9 @@ flowchart LR
   `screen-local-ai-resource-scheduler-proof`; production OCR/VLM quality,
   broad trigger producers, and full capture-to-policy pipeline completion
   remain separate proof gates.
+- Screen detector prompts now have `screen-detector-prompt-pack-proof`;
+  production model quality, live inference, policy action, and enforcement proof
+  remain open.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime, local parent-defined place store proof, and Rust ActivityStore ingest
   proof; platform adapters, provider runtime, and live service-backed UI proof
