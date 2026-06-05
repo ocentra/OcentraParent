@@ -112,6 +112,15 @@ expose location or device-status features. Parents expect this category.
   category/distance/confidence/ambiguity evidence, and records provider
   unavailable degradation without claiming live Google execution, credentials,
   exact place, or physical-device proof.
+- WP29 missing-device mode proof now exists through
+  `node scripts/test/tracking-missing-device-mode-proof.mjs`. It proves
+  parent-domain rows for last-known-only, offline/powered-off,
+  contact-requested, and manual-required missing-device states, keeps
+  last-known location, device contact, battery, connectivity, pending upload,
+  parent action/audit refs, and UI state tokens prominent, and records explicit
+  non-claims for current location, live tracking runtime, powered-off device
+  tracking, remote sync runtime, provider delivery, portal runtime UI,
+  physical-device proof, and OS lost-mode APIs.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -166,11 +175,13 @@ disclosure/safe-help/location-share consent copy, P1 local parent-defined place
 store proof, pre-device proof-gate progress, Android emulator package/service/status
 scaffold proof, P3 WSL/local replay proof, P1 evidence-quality gate proof, WP26
 tracking alert-to-provider-status handoff proof, P1 escalation readiness proof
-for acknowledgement/check-in/manual escalation states, and WP20 Google
-Places/POI provider request/response mapping proof. It remains a tracked
-product gap until platform location and geofence adapters, broader product read
-models, actual live provider execution/delivery, notification receipt ingestion,
-physical-device proof, actual child-device delivery/runtime execution, and full
+for acknowledgement/check-in/manual escalation states, WP20 Google Places/POI
+provider request/response mapping proof, and WP29 missing-device mode
+parent-domain proof for last-known-only/offline/contact-requested/manual-required
+states. It remains a tracked product gap until platform location and geofence
+adapters, broader product read models, actual live provider execution/delivery,
+notification receipt ingestion, physical-device proof, actual child-device
+delivery/runtime execution, remote sync runtime, OS lost-mode APIs, and full
 parent/child UI snapshots/accessibility beyond the hosted parent route are
 proved.
 
@@ -208,6 +219,12 @@ proved.
       response mapping, and AI safety evidence contracts. Live provider
       execution/credentials and exact-place/physical-device proof remain
       unclaimed.
+- [x] Missing-device mode parent-domain proof for last-known-only,
+      offline/powered-off, contact-requested, and manual-required states,
+      including last-known evidence refs, contact/battery/connectivity/pending
+      upload status, parent action/audit refs, UI state tokens, and no-current
+      location copy gates. This is not portal runtime UI, child-device delivery,
+      physical-device, provider delivery, remote sync, or OS lost-mode API proof.
 - [x] P1 ActivityStore tracking-event SQLite ingest proof.
 - [x] P2 service-backed tracking read-model command proof for SQLite journal
       rows, citation IDs, retention-delete tombstone replay, and active
