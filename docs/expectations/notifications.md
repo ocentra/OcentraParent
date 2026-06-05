@@ -110,6 +110,17 @@ execution, durable production outbox storage, provider delivery, receipt
 ingestion, cloud routing, parent notification UI, child delivery, broad
 blocking, or platform support.
 
+`scripts/test/app-game-notification-audit-history-bridge-proof.mjs` validates a
+logging-domain app/game audit-history handoff proof that maps linked app/game
+local outbox rows into existing notification audit-history entries and keeps
+manual-required and unavailable rows visible as blocked/manual audit rows. It
+covers source local-outbox refs, app/game audit/evidence/policy refs,
+redaction-safe payload fields, and child-data non-custody flags. This is a
+handoff proof only: it does not claim provider delivery, retry worker execution,
+quiet-hours timer execution, webhook receipt ingestion, credentials, cloud
+routing, parent notification UI/history/preferences, child delivery, broad
+blocking, or platform support.
+
 ## Failure Behavior
 
 - Provider failure is visible, retryable when safe, and auditable.
@@ -170,6 +181,10 @@ blocking, or platform support.
 - Parent-domain app/game notification scheduler bridge proof for linked
   app/game local outbox records becoming deterministic scheduler JSONL rows,
   with manual/unavailable rows kept unscheduled and no production runtime,
+  provider/UI/child/adapter claims.
+- Logging-domain app/game notification audit-history bridge proof for linked
+  app/game local outbox rows becoming metadata-only audit-history entries, with
+  manual/unavailable rows kept blocked/manual and no production runtime,
   provider/UI/child/adapter claims.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
