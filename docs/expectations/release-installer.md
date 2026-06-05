@@ -84,6 +84,12 @@ Release features are product features because parents need install/update paths 
   account lookup, billing provider contact, remote support sessions, production
   SLA execution, child-activity custody, provider secrets, remote transcripts,
   and default Ocentra-hosted family data unclaimed.
+- V8 production incident/support status proof that records support incident
+  intake, parent consent, privacy/legal disclosure, data export request, delete
+  request, incident publication, and case resolution handoff rows while keeping
+  public publication, legal execution, support backend upload execution, account
+  lookup, billing provider contact, remote support sessions, production SLA,
+  provider secrets, and child-activity custody unclaimed.
 
 ## Acceptance
 
@@ -195,6 +201,14 @@ Release features are product features because parents need install/update paths 
   execution, raw child activity custody, provider secrets, remote support
   transcripts, default Ocentra-hosted family data, or raw support bundle
   payloads.
+- `production-incident-support-status-proof` may prove production
+  incident/support status rows for parent consent, privacy/legal disclosure,
+  export/delete request status, incident publication status, and case resolution
+  handoff, but it must not claim real public publication, legal execution,
+  support backend upload execution, account lookup execution, billing provider
+  contact, remote support session execution, production SLA, raw child activity
+  custody, provider secrets, default Ocentra-hosted family data, or raw support
+  bundle payloads.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play

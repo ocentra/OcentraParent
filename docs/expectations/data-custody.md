@@ -141,6 +141,14 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   support backend upload execution, remote support session transcripts,
   production SLA claims, default Ocentra-hosted family data, or raw support
   bundle payloads.
+- `production-incident-support-status-proof` may summarize parent-consented
+  support incident intake, parent consent, privacy/legal disclosure,
+  export/delete request status, incident publication status, and case resolution
+  handoff rows with custody refs, status refs, and manual proof refs, but it
+  must not include raw child activity, provider secrets, account lookup results,
+  billing provider contact records, real support backend upload execution,
+  legal execution, remote support session transcripts, production SLA claims,
+  default Ocentra-hosted family data, or raw support bundle payloads.
 - Any future feature that stores family activity in Ocentra infrastructure
   requires a new explicit product, privacy, security, retention, and deletion
   design before implementation.
