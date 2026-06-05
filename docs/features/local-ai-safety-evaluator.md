@@ -147,6 +147,15 @@ claim needs proof, not slogans.
   status, and the screen safety capability, while rejecting
   remote/API/Ocentra-hosted processing, model-quality, execution, and
   raw-evidence claims.
+- `ScreenFamilyAiHubRuntimeDiscoveryReadModelSchema` and
+  `scripts/test/screen-family-ai-hub-runtime-discovery-proof.mjs` now prove a
+  real loopback runtime/discovery exchange for that route. The script starts a
+  local family-hub endpoint, discovers it, validates child-agent hello,
+  heartbeat, and route evidence with existing LAN discovery schemas, submits a
+  redacted-crop job payload, and rejects raw screenshot transfer, raw retention,
+  remote/API provider use, and Ocentra-hosted processing. This is local
+  runtime/discovery plumbing proof; physical household LAN, production model
+  quality, policy authority, UI, and enforcement remain separate gates.
 
 ## Current Gap
 
@@ -154,8 +163,8 @@ Ocentra needs production-installed local model artifacts behind the typed
 manifest boundary, production screen model/OCR quality beyond current local
 proof, confidence handling, authenticated-account social proof beyond
 public/live surface proof, production parent explanation portal rendering,
-broader enforcement handoff,
-production browser-trigger producers, real family AI hub runtime/discovery,
+broader enforcement handoff, production browser-trigger producers, physical
+household family AI hub runtime/discovery beyond the loopback proof,
 cloud-streamed frame proof, mobile browser parity, and validation against
 production external evidence variants.
 
@@ -181,10 +190,14 @@ production external evidence variants.
 - [x] Screen hard-visual routing prefers child-local then household family hub
       before remote/API fallback.
 - [x] Screen AI model artifact manifest/config contract boundary.
+- [x] Screen family AI hub runtime/discovery loopback proof validates real
+      endpoint discovery, route evidence, redacted job exchange, and no
+      raw/remote/Ocentra-hosted processing.
 
 Production-installed model artifacts, production model/OCR quality,
-authenticated-account social proof, and broad enforcement handoff remain in the
-Current Gap section above.
+authenticated-account social proof, physical household family AI hub
+runtime/discovery, and broad enforcement handoff remain in the Current Gap
+section above.
 
 ## Next AI Instructions
 
