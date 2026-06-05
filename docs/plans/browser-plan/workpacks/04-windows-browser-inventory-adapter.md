@@ -77,6 +77,17 @@ does not enumerate live registry entries, Start Menu shortcuts, `.lnk` files,
 AppX/MSIX packages, signatures, hashes, UI, enforcement actions, or real Windows
 manual inventory evidence.
 
+2026-06-05 codex-d continuation: `scripts/test/browser-windows-live-inventory-proof.mjs`
+now runs against the local Windows host and records redacted live evidence for
+known-path, registry uninstall, Start Menu shortcut, and running-process browser
+inventory inputs. The proof captured real Chrome, Edge, and Firefox executable
+rows with file SHA-256 refs, Authenticode status, source counts, and hashed path
+refs while storing no raw paths, raw URLs, page titles, page bodies, cookies,
+tokens, tabs, or profile data. This improves the manual Windows platform proof,
+but it still does not apply AppLocker/App Control, parse `.lnk` files inside the
+Rust adapter, claim exact URL/tab visibility, capture browser content, or prove
+blocking/enforcement.
+
 ## Where We Want To Be
 
 Windows inventory can detect supported, candidate, unsupported, packaged,
@@ -116,12 +127,12 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Before-state source snapshot recorded in `output/browser-plan-proof/04-windows-browser-inventory-adapter/00-source-snapshot.md`.
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service parity updated only after contracts exist; portal parity remains deferred because no UI surface changed.
-- [x] Raw evidence artifacts captured or marked N/A for this fixture-backed/root-expansion slice: known-path fixtures, deduplicated candidate roots, packaged path-shape fixtures, process executable-path identity fixtures, duplicate installed/running executable collapse fixtures, caller-provided registry display-icon/install-location values, caller-provided shortcut target values including unquoted command targets with launch arguments and leading environment-variable prefixes, default-root service read-model consumption through temp `PROGRAMFILES` fixture roots, and process observations feed the adapter; no live registry enumeration, Start Menu enumeration, `.lnk` binary parsing, live AppX/MSIX enumeration, signature/hash, journal, SQLite, policy, or action behavior changed.
-- [x] Tests/proof listed in this workpack are implemented for known-path/process fixture parsing, deduplicated root expansion, packaged path-shape classification, process executable-path identity, duplicate installed/running executable collapse, registry display-icon/install-location target normalization, shortcut target normalization including unquoted command target arguments and leading environment-variable prefixes, service default-root candidate consumption, and service row conversion; live registry enumeration, Start Menu enumeration or `.lnk` parsing, live AppX/MSIX enumeration, signatures, hashes, and manual platform proof remain manual-required.
+- [x] Raw evidence artifacts captured or marked N/A for this fixture-backed/root-expansion slice: known-path fixtures, deduplicated candidate roots, packaged path-shape fixtures, process executable-path identity fixtures, duplicate installed/running executable collapse fixtures, caller-provided registry display-icon/install-location values, caller-provided shortcut target values including unquoted command targets with launch arguments and leading environment-variable prefixes, default-root service read-model consumption through temp `PROGRAMFILES` fixture roots, process observations feed the adapter, and the live Windows proof records redacted known-path, registry uninstall, Start Menu shortcut, running-process, file-hash, and signature-status evidence; no raw paths, raw URLs, page content, journal, SQLite, policy, or action behavior changed.
+- [x] Tests/proof listed in this workpack are implemented for known-path/process fixture parsing, deduplicated root expansion, packaged path-shape classification, process executable-path identity, duplicate installed/running executable collapse, registry display-icon/install-location target normalization, shortcut target normalization including unquoted command target arguments and leading environment-variable prefixes, service default-root candidate consumption, service row conversion, and a live Windows proof harness that captures redacted registry/shortcut/process/file-hash/signature evidence; live AppX/MSIX enumeration, Rust `.lnk` binary parsing, OS policy application, UI, and enforcement remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured for this slice: unmanaged running processes remain process-only, unproved Chromium forks are manual-required, unsupported browsers stay unsupported, and no URL collection path was added.
-- [x] Manual platform proof captured for real browser/OS claims; no new real OS/browser claim was made, so `09-manual-platform-proof.md` records the pending manual-required boundary.
+- [x] Manual platform proof captured for real browser/OS claims in `output/browser-plan-proof/04-windows-browser-inventory-adapter/09-manual-platform-proof.md`; the proof improves live Windows inventory evidence only and keeps exact URL/tab, browser content, AppLocker/App Control application, blocking, rollback, and enforcement unclaimed.
 - [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
 - [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
@@ -129,7 +140,7 @@ Fill this before reporting `DONE` or PR-ready:
 ## Manual-Required Gaps
 
 Detecting a browser does not claim exact URL or app-control blocking.
-Remaining adapter work requires registry uninstall entry enumeration, Start Menu
-shortcut enumeration or `.lnk` parsing, live AppX/MSIX package enumeration,
-publisher/signature/hash refs, actual Windows manual capture, and
+Remaining adapter work requires moving live registry and Start Menu shortcut
+enumeration into the Rust adapter path, `.lnk` binary parsing where needed,
+live AppX/MSIX package enumeration, OS policy apply/rollback artifacts, and
 portal/read-model consumption before this workpack can be marked complete.
