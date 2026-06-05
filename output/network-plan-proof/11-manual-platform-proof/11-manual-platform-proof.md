@@ -1,7 +1,7 @@
 # Network Manual Platform Proof
 
 Branch: codex/network-manual-platform-proof
-Source commit: f0e13c3a5b2692efe11ee2f7856122a6581a0445
+Source commit: 281854e1cfac440706126bbc9b5e8fe306614fb2
 Source status: clean
 
 This proof aggregates the existing platform-specific Rust proof gates into the required network-plan row 11 manual/platform proof pack.

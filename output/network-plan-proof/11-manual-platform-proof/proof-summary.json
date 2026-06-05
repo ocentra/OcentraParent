@@ -1,8 +1,8 @@
 {
   "proof": "network-manual-platform-proof",
-  "checkedAt": "2026-06-05T20:17:30.080Z",
+  "checkedAt": "2026-06-05T22:02:33.282Z",
   "branch": "codex/network-manual-platform-proof",
-  "commit": "f0e13c3a5b2692efe11ee2f7856122a6581a0445",
+  "commit": "281854e1cfac440706126bbc9b5e8fe306614fb2",
   "statusShort": "",
   "proofRoot": "output\\network-plan-proof\\11-manual-platform-proof",
   "testRoot": "test-results\\network-manual-platform-proof",
