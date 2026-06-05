@@ -324,6 +324,13 @@ only with explicit parent settings.
   production OCR quality tuning, service runtime integration, cross-platform
   OCR parity, authenticated-account surfaces, enforcement, live view, and raw
   retention remain separate gates.
+- `ScreenSummaryParentExplanationSchema` and
+  `scripts/test/screen-summary-parent-explanation-proof.mjs` now prove the
+  parent explanation/audit context can consume those deleted local
+  screen-summary refs. The proof cites screen-summary refs, parent rule refs,
+  dry-run policy refs, local runtime refs, audit evidence refs, and
+  `screen-image-deleted` custody while keeping raw image retention, remote/API
+  AI, portal runtime UI, policy authority, and enforcement unclaimed.
 - Service-persisted product settings, retention controls, and quality proof are
   incomplete.
 - Raw screen control settings are preserved as design inputs, not
@@ -377,6 +384,9 @@ separate proof gates.
 - [x] Windows WinRT OCR worker analyzes real browser/native captured pixels,
       emits schema-valid screen analysis evidence, feeds policy dry-run, and
       deletes raw temp images.
+- [x] Screen-summary parent explanation/audit context cites local OCR replay
+      refs, parent rules, dry-run policy refs, and deleted-image custody without
+      remote AI or enforcement claims.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof, broad
