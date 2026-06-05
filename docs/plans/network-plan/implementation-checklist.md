@@ -1,4 +1,4 @@
-﻿# Network Plan Implementation Checklist
+# Network Plan Implementation Checklist
 
 This is the fill-in checklist for network evidence, classification, cascade,
 AI audit, policy handoff, and proof-gated intervention work. Future AI workers
