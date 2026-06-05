@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -57,6 +57,18 @@ async function main() {
   assert.equal(parsedReadModel.nonClaims.includes('no-portal-approval-ui'), true);
   assert.equal(parsedReadModel.nonClaims.includes('no-child-device-delivery'), true);
   assert.equal(parsedReadModel.nonClaims.includes('no-ocentra-hosted-family-data-custody'), true);
+  const parentDomainPackageJson = JSON.parse(
+    await readFile(join(repoRoot, 'packages', 'parent-domain', 'package.json'), 'utf8')
+  );
+  assert.deepEqual(parentDomainPackageJson.exports['./app-install-purchase-package-source-capture-status-proof'], {
+    import: './dist/app-install-purchase-package-source-capture-status-proof.js',
+    types: './dist/app-install-purchase-package-source-capture-status-proof.d.ts',
+  });
+  const productCapabilityChecklist = await readFile(join(repoRoot, 'docs', 'product-capability-checklist.md'), 'utf8');
+  assert.match(
+    productCapabilityChecklist,
+    /Install\/purchase approval.*package-source capture\/status proofs.*child-device package-source capture requests/s
+  );
 
   const proof = {
     schemaVersion: 1,
@@ -74,10 +86,10 @@ async function main() {
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
-      checklistDelta:
-        'DOC_DELTA: Install/purchase approval row should add package-source capture/status proof with captured/blocked/manual/unavailable rows when central checklist lock clears.',
-      packageExportDelta:
-        'DOC_DELTA: packages/parent-domain/package.json should export ./app-install-purchase-package-source-capture-status-proof after the active E-C package.json lock clears.',
+      checklistRow:
+        'COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes package-source capture/status proof with captured/blocked/manual-required/unavailable rows.',
+      packageExport:
+        'COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-package-source-capture-status-proof.',
       output: relative(repoRoot, proofPath),
     },
     packageSourceCaptureStatusSummary: summary,

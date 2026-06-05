@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T13:24:02.295Z",
-  "commit": "afb1b8656da7c9141a240b3ecb0cc95163553c26",
+  "checkedAt": "2026-06-05T13:38:39.270Z",
+  "commit": "c965322cde04c438a6352713442198f9c65c0a30",
   "proofMode": "app-install-purchase-package-source-capture-status-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-05T13:23:55.040Z",
+      "startedAt": "2026-06-05T13:38:33.755Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-package-source-capture-status-proof.test.ts",
-      "startedAt": "2026-06-05T13:23:59.670Z",
+      "startedAt": "2026-06-05T13:38:36.678Z",
       "exitCode": 0
     }
   ],
@@ -23,8 +23,8 @@
     "featureDoc": "docs/features/app-install-purchase-approval.md",
     "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
     "platformExpectationDoc": "docs/expectations/platforms.md",
-    "checklistDelta": "DOC_DELTA: Install/purchase approval row should add package-source capture/status proof with captured/blocked/manual/unavailable rows when central checklist lock clears.",
-    "packageExportDelta": "DOC_DELTA: packages/parent-domain/package.json should export ./app-install-purchase-package-source-capture-status-proof after the active E-C package.json lock clears.",
+    "checklistRow": "COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes package-source capture/status proof with captured/blocked/manual-required/unavailable rows.",
+    "packageExport": "COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-package-source-capture-status-proof.",
     "output": "test-results\\app-install-purchase-package-source-capture-status-proof\\proof.json"
   },
   "packageSourceCaptureStatusSummary": {
