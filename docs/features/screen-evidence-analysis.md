@@ -331,6 +331,14 @@ only with explicit parent settings.
   preserves screen-summary refs, audit refs, parent rules, dry-run policy refs,
   runtime refs, custody, and deletion state without showing raw screenshots or
   claiming production portal runtime rendering.
+- `scripts/test/screen-summary-parent-explanation-service-read-model-proof.mjs`
+  now proves those screen-summary parent explanation refs survive the
+  child-device query-store/service read-model boundary. The script starts the
+  real Rust service against a seeded ActivityStore, requests the Activity Screen
+  read model over WebSocket, and verifies policy refs, parent rule refs, local
+  runtime refs, parent explanation refs, deletion reasons, deleted-image state,
+  and child-device custody. It does not claim production portal rendering, new
+  capture/model inference, remote/API AI, or enforcement.
 - `scripts/test/screen-ai-final-product-path-proof.mjs` now validates the
   retained final path evidence across real live/operator trigger artifacts,
   capture metadata, local VLM analysis, policy dry-runs, Windows action handoff
@@ -358,7 +366,7 @@ foreground watcher, physical Android/iOS proof, live macOS capture proof, Linux
 root/Wayland portal proof, browser-trigger artifact closure,
 browser/network/mobile/broad block action adapters from screen-derived
 decisions, real family AI hub runtime/discovery, and production parent
-explanation UX/runtime portal consumption remain. Browser-trigger proof now covers contract flow into
+explanation portal rendering remain. Browser-trigger proof now covers contract flow into
 screen evidence and local-AI context only; live trigger producers,
 authenticated surfaces, cloud-streamed frames, mobile parity, and UI remain
 separate proof gates.
@@ -399,13 +407,16 @@ separate proof gates.
 - [x] Screen-summary parent explanation read-model proof preserves refs,
       custody, and deleted-image state without raw screenshot display or portal
       runtime claims.
+- [x] Parent explanation refs preserved through the service-backed Activity
+      Screen read-model projection.
 - [x] Final screen-AI product path artifact gate validates retained real-run
       trigger, capture, AI, policy, action/read-model, and deletion/custody
       artifacts without raw screenshot retention.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof, broad
-adapters, and production explanation UX remain in the Current Gap section above.
+adapters, and production explanation portal rendering remain in the Current Gap
+section above.
 
 ## Next AI Instructions
 

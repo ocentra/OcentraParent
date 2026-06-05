@@ -99,6 +99,15 @@ claim needs proof, not slogans.
   dry-run policy refs, local runtime refs, custody labels, and deleted-image
   reasons while still not claiming raw image display, remote/API AI, production
   portal runtime rendering, policy authority, or enforcement.
+- `scripts/test/screen-summary-parent-explanation-service-read-model-proof.mjs`
+  now starts the real Rust service against a seeded local ActivityStore and
+  requests the Activity Screen read model over WebSocket. The service-backed row
+  preserves the screen policy decision ref, policy action/reason refs, parent
+  rule refs, local runtime refs, parent explanation refs, deletion reasons,
+  deleted-image state, and child-device custody. This closes service/query
+  read-model custody for screen-summary parent explanations, but still does not
+  claim production portal rendering, new capture/model inference, remote/API AI,
+  or enforcement.
 - `scripts/test/screen-ai-final-product-path-proof.mjs` now verifies the
   retained final screen-AI path artifacts: real live/operator trigger rows,
   local VLM analysis rows, dry-run policy decisions, Windows action handoff
@@ -121,7 +130,7 @@ claim needs proof, not slogans.
 Ocentra needs product-grade model configuration, local model artifacts,
 production screen model quality, confidence handling,
 authenticated-account social proof beyond public/live surface proof, production
-parent explanation UI/runtime portal consumption, broader enforcement handoff,
+parent explanation portal rendering, broader enforcement handoff,
 production browser-trigger producers, real family AI hub runtime/discovery,
 cloud-streamed frame proof, mobile browser parity, and validation against
 production external evidence variants.
@@ -138,6 +147,7 @@ production external evidence variants.
 - [x] Social/video and screen summary handling proof path.
 - [x] Parent explanation and audit proof path.
 - [x] Parent explanation read-model proof path.
+- [x] Screen parent explanation service read-model proof path.
 - [x] Final screen-AI product path artifact gate.
 - [x] Tests with real stored evidence.
 - [x] Screen hard-visual routing prefers child-local then household family hub

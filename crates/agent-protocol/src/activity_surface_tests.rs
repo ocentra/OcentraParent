@@ -131,6 +131,20 @@ fn activity_screen_read_model_serializes_foreground_and_background_ms() {
             image_digest: "sha256:screen-image-digest".to_string(),
             custody_state: SCREEN_CUSTODY_JOURNAL.to_string(),
             evidence: vec![sample_evidence()],
+            policy_decision_ref: Some("screen-policy-decision-1".to_string()),
+            policy_action: Some("allow".to_string()),
+            policy_reason_codes: vec![
+                "screen-summary-linked".to_string(),
+                "parent-rule-linked".to_string(),
+            ],
+            parent_rule_refs: vec!["screen-parent-rule-school".to_string()],
+            local_model_runtime_refs: vec!["local-vision-runtime-1".to_string()],
+            parent_explanation_refs: vec!["screen-parent-explanation-1".to_string()],
+            explanation_reasons: vec![
+                "screen-summary-cited".to_string(),
+                "policy-decision-cited".to_string(),
+            ],
+            deletion_reasons: vec!["screen-image-deleted".to_string()],
         }],
     };
 
@@ -139,6 +153,14 @@ fn activity_screen_read_model_serializes_foreground_and_background_ms() {
     assert_eq!(
         screen_json["rows"][0]["imageDeletionState"],
         SCREEN_DELETION_DELETED
+    );
+    assert_eq!(
+        screen_json["rows"][0]["parentExplanationRefs"][0],
+        "screen-parent-explanation-1"
+    );
+    assert_eq!(
+        screen_json["rows"][0]["parentRuleRefs"][0],
+        "screen-parent-rule-school"
     );
 }
 
