@@ -9,6 +9,12 @@ mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 mkdirSync(logRoot, { recursive: true });
 
+const sourceBranch = runText('git', ['branch', '--show-current']).trim();
+const sourceCommit = runText('git', ['rev-parse', 'HEAD']).trim();
+const sourceOriginMain = runText('git', ['rev-parse', 'origin/main']).trim();
+const sourceMergeBase = runText('git', ['merge-base', 'HEAD', 'origin/main']).trim();
+const sourceStatusShort = runText('git', ['status', '--short']);
+
 const proofScripts = [
   'eventing-branded-fixture-parity-proof.mjs',
   'eventing-compatibility-matrix-proof.mjs',
@@ -130,11 +136,11 @@ writeGroupedLog(
 const proof = {
   proof: 'eventing-runtime-phase-1',
   checkedAt: new Date().toISOString(),
-  branch: runText('git', ['branch', '--show-current']).trim(),
-  commit: runText('git', ['rev-parse', 'HEAD']).trim(),
-  originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
-  mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
-  statusShort: runText('git', ['status', '--short']),
+  branch: sourceBranch,
+  commit: sourceCommit,
+  originMain: sourceOriginMain,
+  mergeBase: sourceMergeBase,
+  statusShort: sourceStatusShort,
   proofRoot,
   testRoot,
   commands,
@@ -201,15 +207,15 @@ function sourceSnapshot() {
   return [
     '# Reusable Eventing Runtime Source Snapshot',
     '',
-    `branch: ${runText('git', ['branch', '--show-current']).trim()}`,
-    `head: ${runText('git', ['rev-parse', 'HEAD']).trim()}`,
-    `origin/main: ${runText('git', ['rev-parse', 'origin/main']).trim()}`,
-    `merge-base: ${runText('git', ['merge-base', 'HEAD', 'origin/main']).trim()}`,
+    `branch: ${sourceBranch}`,
+    `head: ${sourceCommit}`,
+    `origin/main: ${sourceOriginMain}`,
+    `merge-base: ${sourceMergeBase}`,
     '',
     '## Status',
     '',
     '```text',
-    runText('git', ['status', '--short']).trimEnd(),
+    sourceStatusShort.trimEnd(),
     '```',
     '',
     '## Inspected Paths',
