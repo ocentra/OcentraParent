@@ -1,9 +1,9 @@
 # Reusable Eventing Runtime Source Snapshot
 
-branch: codex/eventing-runtime-completion
-head: 1a1593b0575ccce969f6903d3576c081dae72117
-origin/main: 62dee64f35f8080281c90fdd9eac6c681aa28b83
-merge-base: 62dee64f35f8080281c90fdd9eac6c681aa28b83
+branch: codex/eventing-proof-refresh-after-pr376
+head: 1980158c8a56b89353d70a3d76110e6a1b525737
+origin/main: bcccf90bdc882117e30fc810a88ac9f6e642c17f
+merge-base: bcccf90bdc882117e30fc810a88ac9f6e642c17f
 
 ## Status
 

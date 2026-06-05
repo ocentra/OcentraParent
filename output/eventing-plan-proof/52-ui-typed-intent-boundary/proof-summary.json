@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "proofMode": "eventing-ui-typed-intent-boundary-proof",
-  "checkedAt": "2026-06-05T19:10:30.024Z",
-  "commit": "628fcbe10f9a13f0a09d9c7617e1900aa591ad61",
+  "checkedAt": "2026-06-05T22:47:10.578Z",
+  "commit": "1980158c8a56b89353d70a3d76110e6a1b525737",
   "commands": [
     "cmd /c npm exec --workspace @ocentra-parent/portal -- vitest run tests/transport-lan-target.test.ts",
     "cmd /c npm exec --workspace @ocentra-parent/portal -- eslint src/agent-client.ts src/transport.ts src/main.ts src/portal-actions.ts src/portal-command-controls.ts src/TrackingStatusRoutePanel.tsx ../../packages/portal-domain/src/commands.ts",
@@ -30,6 +30,7 @@
     ],
     "scannedFiles": [
       "apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx",
+      "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
       "apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx",
       "apps/portal/src/ParentPortalRoute.tsx",
       "apps/portal/src/PortalApp.tsx",
@@ -51,6 +52,7 @@
       "apps/portal/src/TrackingStatusRoutePanel.tsx",
       "apps/portal/src/agent-client.ts",
       "apps/portal/src/app-game-notification-parent-surface-panel.ts",
+      "apps/portal/src/app-game-policy-readiness-panel.ts",
       "apps/portal/src/browser-intervention-panel.ts",
       "apps/portal/src/browser-intervention-read-model.ts",
       "apps/portal/src/browser-status-panel.ts",
@@ -98,6 +100,7 @@
       "packages/portal-domain/src/activity-memory-graph.ts",
       "packages/portal-domain/src/app-game-notification-parent-surface-live-readiness.ts",
       "packages/portal-domain/src/app-game-notification-parent-surface-panel.ts",
+      "packages/portal-domain/src/app-game-policy-readiness-panel.ts",
       "packages/portal-domain/src/app-layout.ts",
       "packages/portal-domain/src/commands.ts",
       "packages/portal-domain/src/contracts.ts",

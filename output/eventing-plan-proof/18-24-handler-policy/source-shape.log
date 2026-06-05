@@ -189,6 +189,7 @@ packages/parent-domain/src/tracking-missing-device-mode-proof.ts:1 file has 427 
 packages/parent-domain/src/tracking-poi-provider-adapter.ts:1 file has 391 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-policy-compiler-runtime-proof.ts:1 file has 337 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-provider-notification-proof.ts:1 file has 315 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/tracking-report-policy-consumer-proof.ts:106 function has 66 lines; warning starts at 64 of 80
 packages/parent-domain/src/tracking-temporary-live-mode-proof.ts:1 file has 340 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/v0-8-broad-os-adapter-proof.ts:1 file has 512 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/src/v0-8-broad-os-adapter-runtime-proof.ts:1 file has 422 lines; crossed 250-line advisory band; maximum is 1000
@@ -212,6 +213,7 @@ packages/parent-domain/tests/app-control-policy-catalog.test.ts:1 file has 593 l
 packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts:17 function has 75 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-game-notification-parent-surface-intent.test.ts:1 file has 336 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/tests/app-game-notification-parent-surface-intent.test.ts:56 function has 67 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-game-time-budget-policy-runtime.test.ts:1 file has 251 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/tests/app-install-purchase-approval.test.ts:1 file has 575 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/tests/app-install-purchase-child-artifact-delivery-proof.test.ts:17 function has 76 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-install-purchase-child-artifact-delivery-proof.test.ts:18 function has 74 lines; warning starts at 64 of 80
@@ -273,6 +275,7 @@ packages/parent-domain/tests/screen-ai-adapter-readiness-proof.test.ts:1 file ha
 packages/parent-domain/tests/screen-ai-model-artifact-manifest-proof.test.ts:77 function has 70 lines; warning starts at 64 of 80
 packages/parent-domain/tests/screen-control-policy-catalog.test.ts:1 file has 562 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/tests/screen-control-policy-catalog.test.ts:163 function has 65 lines; warning starts at 64 of 80
+packages/parent-domain/tests/screen-family-ai-hub-runtime-discovery-proof.test.ts:49 function has 69 lines; warning starts at 64 of 80
 packages/parent-domain/tests/social-android-native-app-capability-matrix.test.ts:112 function has 69 lines; warning starts at 64 of 80
 packages/parent-domain/tests/social-ios-screen-time-capability-matrix.test.ts:1 file has 256 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/tests/tracking-control-catalog.test.ts:1 file has 621 lines; crossed 500-line advisory band; maximum is 1000
@@ -284,6 +287,7 @@ packages/parent-domain/tests/tracking-location-policy.test.ts:313 function has 6
 packages/parent-domain/tests/tracking-missing-device-mode-proof.test.ts:29 function has 69 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-poi-provider-adapter.test.ts:54 function has 72 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-provider-notification-proof.test.ts:29 function has 75 lines; warning starts at 64 of 80
+packages/parent-domain/tests/tracking-report-policy-consumer-proof.test.ts:12 function has 64 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-temporary-live-mode-proof.test.ts:9 function has 77 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-temporary-live-mode-proof.test.ts:87 function has 66 lines; warning starts at 64 of 80
 packages/parent-domain/tests/v0-8-browser-domain-adapter-proof.test.ts:1 file has 316 lines; crossed 250-line advisory band; maximum is 1000

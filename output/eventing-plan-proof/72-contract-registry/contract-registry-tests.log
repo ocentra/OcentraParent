@@ -6,5 +6,5 @@ test tests::contract_registry::contract_registry_generates_markdown_in_event_typ
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 75 filtered out; finished in 0.00s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.38s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
      Running unittests src\lib.rs (target\debug\deps\ocentra_eventing-927d6221c7fa57e1.exe)

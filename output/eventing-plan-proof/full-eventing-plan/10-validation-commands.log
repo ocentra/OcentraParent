@@ -1,3 +1,7 @@
+command=node scripts\test\eventing-runtime-proof.mjs
+status=0
+log=output\eventing-plan-proof\full-eventing-plan\command-logs\eventing-runtime-proof.log
+
 command=node scripts\test\eventing-branded-fixture-parity-proof.mjs
 status=0
 log=output\eventing-plan-proof\full-eventing-plan\command-logs\eventing-branded-fixture-parity-proof.log
@@ -97,10 +101,6 @@ log=output\eventing-plan-proof\full-eventing-plan\command-logs\eventing-queue-po
 command=node scripts\test\eventing-request-response-proof.mjs
 status=0
 log=output\eventing-plan-proof\full-eventing-plan\command-logs\eventing-request-response-proof.log
-
-command=node scripts\test\eventing-runtime-proof.mjs
-status=0
-log=output\eventing-plan-proof\full-eventing-plan\command-logs\eventing-runtime-proof.log
 
 command=node scripts\test\eventing-runtime-lifecycle-proof.mjs
 status=0
