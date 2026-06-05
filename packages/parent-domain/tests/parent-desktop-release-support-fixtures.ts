@@ -84,6 +84,7 @@ export const RuntimeReadModel = {
   supportIncidentHandoff: SupportIncidentHandoff,
   manualRunbook: manualRunbook(),
   productionReadinessGate: productionReadinessGate(),
+  updaterRollbackRunbookProof: updaterRollbackRunbookProof(),
   updatedAt: '2026-06-02T05:45:00.000Z',
 } as const;
 
@@ -232,6 +233,53 @@ function packagePreviewArtifacts() {
     artifactState: 'pending',
     packageReadinessClaim: 'manual-required',
     manualProofRequirement: `${artifactName} requires manual platform signing or store proof before production readiness`,
+  }));
+}
+
+function updaterRollbackRunbookProof() {
+  return {
+    proof: 'v8-updater-rollback-runbook-status',
+    updaterRows: updaterRollbackRows(),
+    runbookStatus: {
+      draftRunbookState: 'preview-only',
+      productionRunbookState: 'manual-required',
+      rollbackTriageState: 'manual-required',
+      requiredSections: [
+        'rollback-triage',
+        'rollback-failure-status',
+        'diagnostics-redaction',
+        'manual-platform-proof',
+        'support-escalation-boundary',
+      ],
+      proofReferences: [
+        'docs/expectations/release-installer.md',
+        'docs/expectations/roadmap-v8-production-hardening.md',
+        'test-results/parent-desktop-release-support-proof/proof.json',
+      ],
+      nonClaim: 'release support runbook status is preview-only not production support execution not update execution',
+    },
+    claimBoundary:
+      'updater rollback runbook proof is not production update execution not signing not store upload proof',
+    manualRequiredGaps: [
+      'signed update channel',
+      'production rollback execution',
+      'rollback failure smoke',
+      'published support runbook',
+      'support escalation execution',
+    ],
+  };
+}
+
+function updaterRollbackRows() {
+  return (['scaffold', 'unsigned-preview', 'signature-required', 'production'] as const).map((channel) => ({
+    channel,
+    rollbackState: 'rollback-unavailable',
+    failureStatusState: 'manual-required',
+    manualRequiredState: 'manual-required',
+    proofRequirement:
+      channel === 'production'
+        ? 'production channel requires signed production update channel and manual proof before rollback execution'
+        : `${channel} channel requires manual proof before rollback execution or failure status claim`,
   }));
 }
 

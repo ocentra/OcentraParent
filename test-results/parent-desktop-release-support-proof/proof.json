@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T00:51:26.749Z",
-  "commit": "01f25d56818f5a218095ff377d5b47f8660b7c2b",
+  "checkedAt": "2026-06-05T02:48:41.485Z",
+  "commit": "cf3482cf5b4fee6e7e76b36223975d17d704b6e2",
   "proofMode": "parent-desktop-release-support-proof",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -13,6 +13,7 @@
     "output": "test-results\\parent-desktop-release-support-proof\\proof.json",
     "packagePreviewWorkflow": ".github/workflows/package-preview.yml",
     "readinessGate": "v8-production-release-support-readiness",
+    "updaterRollbackRunbookProof": "v8-updater-rollback-runbook-status",
     "featureDocs": [
       "docs/features/production-distribution-support.md",
       "docs/features/child-agent-local-service.md",
@@ -248,7 +249,7 @@
         },
         {
           "field": "commit",
-          "value": "01f25d56818f5a218095ff377d5b47f8660b7c2b",
+          "value": "cf3482cf5b4fee6e7e76b36223975d17d704b6e2",
           "redactionState": "safe"
         },
         {
@@ -303,15 +304,15 @@
         "severity": "manual-required",
         "productionSupportState": "manual-required",
         "supportBackendState": "not-implemented",
-        "createdAt": "2026-06-05T00:51:26.250Z",
-        "updatedAt": "2026-06-05T00:51:26.250Z"
+        "createdAt": "2026-06-05T02:48:40.839Z",
+        "updatedAt": "2026-06-05T02:48:40.839Z"
       },
       "parentConsent": {
         "consentState": "parent-approved",
         "capturedBy": "manual-export-action",
         "disclosureState": "shown-before-export",
         "parentActor": "parent manually exported support bundle after disclosure",
-        "consentRecordedAt": "2026-06-05T00:51:26.250Z",
+        "consentRecordedAt": "2026-06-05T02:48:40.839Z",
         "revocationState": "manual-required"
       },
       "supportBundleManifest": {
@@ -563,7 +564,66 @@
         "production support runbook"
       ]
     },
-    "updatedAt": "2026-06-05T00:51:26.251Z"
+    "updaterRollbackRunbookProof": {
+      "proof": "v8-updater-rollback-runbook-status",
+      "updaterRows": [
+        {
+          "channel": "scaffold",
+          "rollbackState": "rollback-unavailable",
+          "failureStatusState": "manual-required",
+          "manualRequiredState": "manual-required",
+          "proofRequirement": "scaffold channel requires manual proof before rollback execution or failure status claim"
+        },
+        {
+          "channel": "unsigned-preview",
+          "rollbackState": "rollback-unavailable",
+          "failureStatusState": "manual-required",
+          "manualRequiredState": "manual-required",
+          "proofRequirement": "unsigned-preview channel requires manual proof before rollback execution or failure status claim"
+        },
+        {
+          "channel": "signature-required",
+          "rollbackState": "rollback-unavailable",
+          "failureStatusState": "manual-required",
+          "manualRequiredState": "manual-required",
+          "proofRequirement": "signature-required channel requires manual proof before rollback execution or failure status claim"
+        },
+        {
+          "channel": "production",
+          "rollbackState": "rollback-unavailable",
+          "failureStatusState": "manual-required",
+          "manualRequiredState": "manual-required",
+          "proofRequirement": "production channel requires signed production update channel and manual proof before rollback execution"
+        }
+      ],
+      "runbookStatus": {
+        "draftRunbookState": "preview-only",
+        "productionRunbookState": "manual-required",
+        "rollbackTriageState": "manual-required",
+        "requiredSections": [
+          "rollback-triage",
+          "rollback-failure-status",
+          "diagnostics-redaction",
+          "manual-platform-proof",
+          "support-escalation-boundary"
+        ],
+        "proofReferences": [
+          "docs/expectations/release-installer.md",
+          "docs/expectations/roadmap-v8-production-hardening.md",
+          "test-results/parent-desktop-release-support-proof/proof.json"
+        ],
+        "nonClaim": "release support runbook status is preview-only not production support execution not update execution"
+      },
+      "claimBoundary": "updater rollback runbook proof is not production update execution not signing not store upload proof",
+      "manualRequiredGaps": [
+        "signed update channel",
+        "production rollback execution",
+        "rollback failure smoke",
+        "published support runbook",
+        "support escalation execution"
+      ]
+    },
+    "updatedAt": "2026-06-05T02:48:40.840Z"
   },
   "workpacks": {
     "completed": [
@@ -591,7 +651,8 @@
     "Support diagnostics include version, commit, platform, package, service, route, capability, and degraded state without secrets, private child data, raw URLs, command lines, keystrokes, clipboard data, message contents, journals, SQLite snapshots, screenshots, or private paths.",
     "Production support incident handoff requires parent consent, support incident status metadata, explicit safe support-bundle data classes, support-safe diagnostic references, and manual-required production support states.",
     "Package preview CI artifact status is recorded as pending/manual-required unless a real Actions artifact context proves readiness.",
-    "V8 production release/support readiness gate summarizes Windows, Linux, macOS, Android, and iOS package-preview artifacts while keeping signing, stores, updater rollback execution, support runbook, and production publishing manual-required or promotion-required."
+    "V8 production release/support readiness gate summarizes Windows, Linux, macOS, Android, and iOS package-preview artifacts while keeping signing, stores, updater rollback execution, support runbook, and production publishing manual-required or promotion-required.",
+    "V8 updater rollback and release-support runbook proof covers scaffold, unsigned preview, signature-required, and production channels with rollback execution unavailable, failure status manual-required, draft runbook preview-only, and production runbook manual-required."
   ],
   "claimsNotProved": [
     "signed release publishing",

@@ -13,6 +13,7 @@ describe('parent desktop release support proof contracts', () => {
   registerMobileBridgeGuardrailTest();
   registerPackageRuntimeGuardrailTests();
   registerReleaseClaimGuardrailTests();
+  registerUpdaterRollbackRunbookGuardrailTests();
   registerSupportAndRunbookGuardrailTests();
 });
 
@@ -74,6 +75,20 @@ function registerAcceptedStateTest(): void {
     ]);
     expect(parsed.productionReadinessGate.updaterRollbackExecutionState).toBe('rollback-unavailable');
     expect(parsed.productionReadinessGate.productionPublishingState).toBe('production-promotion-required');
+    expect(parsed.updaterRollbackRunbookProof.updaterRows.map((entry) => entry.channel)).toEqual([
+      'scaffold',
+      'unsigned-preview',
+      'signature-required',
+      'production',
+    ]);
+    expect(parsed.updaterRollbackRunbookProof.runbookStatus.requiredSections).toEqual([
+      'rollback-triage',
+      'rollback-failure-status',
+      'diagnostics-redaction',
+      'manual-platform-proof',
+      'support-escalation-boundary',
+    ]);
+    expect(parsed.updaterRollbackRunbookProof.runbookStatus.productionRunbookState).toBe('manual-required');
   });
 }
 
@@ -178,6 +193,35 @@ function registerReleaseClaimGuardrailTests(): void {
   });
 }
 
+function registerUpdaterRollbackRunbookGuardrailTests(): void {
+  it('rejects updater rollback or support runbook proof that claims production execution', () => {
+    const missingProductionChannel = {
+      ...RuntimeReadModel,
+      updaterRollbackRunbookProof: {
+        ...RuntimeReadModel.updaterRollbackRunbookProof,
+        updaterRows: RuntimeReadModel.updaterRollbackRunbookProof.updaterRows.filter(
+          (entry) => entry.channel !== 'production'
+        ),
+      },
+    };
+    const rollbackExecutionClaim = withUpdaterRollbackRunbookProof({
+      updaterRows: RuntimeReadModel.updaterRollbackRunbookProof.updaterRows.map((entry) =>
+        entry.channel === 'production' ? { ...entry, rollbackState: 'rollback-available' } : entry
+      ),
+    });
+    const productionRunbookClaim = withUpdaterRollbackRunbookProof({
+      runbookStatus: {
+        ...RuntimeReadModel.updaterRollbackRunbookProof.runbookStatus,
+        productionRunbookState: 'implemented',
+      },
+    });
+
+    expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(missingProductionChannel).success).toBe(false);
+    expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(rollbackExecutionClaim).success).toBe(false);
+    expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(productionRunbookClaim).success).toBe(false);
+  });
+}
+
 function registerSupportAndRunbookGuardrailTests(): void {
   it('rejects support diagnostics that omit required fields or leak unredacted sensitive values', () => {
     const missingCommit = {
@@ -272,5 +316,12 @@ function withProductionReadinessGate(patch: object) {
   return {
     ...RuntimeReadModel,
     productionReadinessGate: { ...RuntimeReadModel.productionReadinessGate, ...patch },
+  };
+}
+
+function withUpdaterRollbackRunbookProof(patch: object) {
+  return {
+    ...RuntimeReadModel,
+    updaterRollbackRunbookProof: { ...RuntimeReadModel.updaterRollbackRunbookProof, ...patch },
   };
 }
