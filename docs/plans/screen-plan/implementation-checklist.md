@@ -35,6 +35,7 @@ trigger ownership unless the row explicitly says so.
 | Portal screen read-model proof           | P3 proved                | `output/screen-ai-pipeline-proof/portal-chain/proof-summary.json`                                  | Proves service-backed screen rows render in the portal; product-complete UX and broad adapters remain.                                                                                                |
 | Settings route screen catalog proof      | P3 proved                | `output/screen-plan-proof/settings-ui/proof-summary.json`                                          | Proves the real portal Settings route renders read-only Screen settings/capability catalog proof; writable opt-in and retention controls remain.                                                      |
 | Settings route writable intent proof     | P3 proved                | `output/screen-plan-proof/settings-writable-controls/proof-summary.json`                           | Proves the real portal Settings route controls build schema-valid disabled, observe-only, and strict dry-run local screen-summary drafts; service persistence remains.                                |
+| Child disclosure UX proof                | P3 local portal proved   | `output/screen-plan-proof/26-child-disclosure-ux/proof-summary.json`                               | Proves child-visible disabled, paused, ready, active, and protected-surface disclosure copy in the real Settings route; no production child app, OS overlay, or persistence claim.                    |
 | Remote/retention/live boundary proof     | P2 contract proved       | `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`                            | Proves raw screenshot retention, live view, and raw remote upload are disabled in the local-summary boundary; no live transport or writable retention UI claimed.                                     |
 | Optional retention/live preflight        | P2 contract proved       | `output/screen-plan-proof/27-28-optional-retention-live-preflight/proof-summary.json`              | Proves separate explicit opt-in raw-retention/live-view modes with approval, audit, custody, TTL/delete/no-retention, platform-proof gates, and no remote input; no runtime transport claimed.        |
 | Detector prompt pack proof               | P2 contract proved       | `output/screen-plan-proof/40-detector-prompt-packs-and-schema-tests/proof-summary.json`            | Proves guided detector prompt pack/output contracts reject open-ended prompts, raw/private fields, policy authority, and enforcement claims; no production model quality or live inference claimed.   |
@@ -76,6 +77,8 @@ trigger ownership unless the row explicitly says so.
 - [x] Remote/API path accepts only parent-approved redacted summaries by default.
 - [x] Local AI resource scheduler prevents multiple heavy jobs on normal PCs.
 - [x] Family AI hub is used before remote/API for hard visual cases.
+- [x] Child-visible disclosure copy exists for disabled, paused, ready,
+      capture-active, and protected-surface states.
 - [x] Platform capture proof exists before platform claim.
 - [x] Operator live URL/app proof is recorded before product-complete claim.
 - [x] Playwright UI proof exists.
@@ -166,7 +169,7 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [x]    | 23 Policy compiler for screen-derived evidence     |
 | [~]    | 24 Enforcement handoff guard                       |
 | [~]    | 25 Parent portal summary UI                        |
-| [ ]    | 26 Child disclosure UX                             |
+| [x]    | 26 Child disclosure UX                             |
 | [~]    | 27 Screenshot retention optional mode              |
 | [~]    | 28 Live view optional mode                         |
 | [x]    | 29 Proof tiers and proof packs                     |
