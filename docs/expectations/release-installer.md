@@ -30,6 +30,11 @@ Release features are product features because parents need install/update paths 
   production publishing, signing/store proof, updater execution, support backend
   upload, account backend, billing provider runtime, and child-activity custody
   unclaimed.
+- V8 public release/download/account/status runtime handoff proof that links
+  those public surfaces to route/status/backend adapter rows and keeps public
+  runtime, account backend, billing provider runtime, production publishing,
+  signing/store proof, updater execution, support backend upload, real
+  device/store evidence, and child-activity custody unclaimed.
 
 ## Acceptance
 
@@ -87,6 +92,12 @@ Release features are product features because parents need install/update paths 
   website runtime, account backend, billing provider runtime, production
   publishing, signing/store proof, updater execution, support backend upload,
   or child-activity custody.
+- `production-release-public-runtime-handoff-proof` may prove route/status and
+  backend adapter handoff rows for the public website/download/account/status
+  surfaces, but it must not claim a live public runtime, account backend,
+  billing provider runtime, production publishing, signing/store proof, updater
+  execution, support backend upload, real device/store proof, or child-activity
+  custody.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play

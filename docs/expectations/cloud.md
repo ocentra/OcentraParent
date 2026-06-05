@@ -121,6 +121,16 @@ billing provider runtime, production publishing, signing/store proof, updater
 execution, support backend upload, and child-activity custody unimplemented or
 manual-required.
 
+Current public runtime handoff proof:
+`production-release-public-runtime-handoff-proof` defines parent-domain
+route/status and backend adapter handoff rows for public download, release
+status, update status, account status, subscription status, and support status.
+The proof keeps cloud as an account/distribution/status handoff boundary only:
+public runtime, account backend, billing provider runtime, production
+publishing, signing/store proof, updater execution, support backend upload,
+real device/store proof, and child-activity custody remain unimplemented or
+manual-required.
+
 Current stateless report compiler proof:
 `stateless-report-compiler-status-proof` defines parent-domain request/status/
 result contracts for parent-authorized report compilation from parent-owned
@@ -194,6 +204,11 @@ evidence, child-device mutation, or Ocentra-hosted family-data custody.
 - Parent-domain contract tests and `production-release-public-status-proof` for
   public download, release/update status, account/subscription status, and
   support status readiness rows before public runtime or backend code exists.
+- Parent-domain contract tests and
+  `production-release-public-runtime-handoff-proof` for public route/status and
+  backend adapter handoff rows before public website runtime, account backend,
+  billing provider runtime, updater execution, support upload, or production
+  publishing exists.
 - Parent-domain contract tests and `stateless-report-compiler-status-proof`
   for parent-authorized compiler request scope, status/result states,
   temporary TTL/deletion confirmation, redaction/minimization, audit refs, and

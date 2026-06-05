@@ -108,6 +108,15 @@ dev-only repo when it claims consumer readiness.
   backend, billing provider runtime, production publishing, signing/store proof,
   updater execution, support backend upload, and child-activity custody
   unimplemented or manual-required.
+- `production-release-public-runtime-handoff-proof` adds parent-domain
+  handoff rows for public download, release status, update status, account
+  status, subscription status, and support status plus adapter rows for the
+  public website runtime, download/status backend, release publishing pipeline,
+  updater status runtime, account backend, billing provider runtime, and support
+  backend upload. It proves only the runtime handoff/status contract boundary:
+  public runtime, account backend, billing provider runtime, production
+  publishing, signing/store proof, updater execution, support upload, real
+  device/store evidence, and child-activity custody remain non-claims.
 - `billing-entitlement-contract-proof` defines parent-domain contracts for
   plan entitlement rows, entitlement snapshots, subscription status sync events,
   device-limit decisions, parent-visible failure states, local-safety fallback,
@@ -243,7 +252,12 @@ package/runtime proof.
       `family.ocentra.ca` runtime, account backend, billing provider runtime,
       production publishing, signing/store proof, updater execution, support
       backend upload, and child-activity custody remain unimplemented or
-      manual-required.
+      manual-required. Current
+      `production-release-public-runtime-handoff-proof` adds runtime handoff and
+      adapter status rows for those surfaces while keeping public runtime,
+      account/backend/provider execution, publishing/signing/store proof,
+      updater execution, support upload, real-device/store evidence, and child
+      activity custody unimplemented or manual-required.
 
 ## Next AI Instructions
 
