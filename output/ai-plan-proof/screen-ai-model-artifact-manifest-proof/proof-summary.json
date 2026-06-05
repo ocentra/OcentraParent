@@ -1,12 +1,12 @@
 {
   "status": "ok",
   "proofKind": "screen-ai-model-artifact-manifest-proof",
-  "generatedAt": "2026-06-05T20:13:43.581Z",
+  "generatedAt": "2026-06-05T20:46:14.481Z",
   "output": "output/ai-plan-proof/screen-ai-model-artifact-manifest-proof/proof-summary.json",
   "manifest": {
     "schemaVersion": "v0.6",
     "proofId": "screen-ai-model-artifact-manifest-proof",
-    "generatedAt": "2026-06-05T20:13:43.581Z",
+    "generatedAt": "2026-06-05T20:46:14.481Z",
     "purpose": "screen-child-safety-local-analysis",
     "providerId": "screen-local-provider",
     "modelId": "screen-child-safety-v1",
@@ -25,7 +25,7 @@
       "downloadEnabled": false,
       "downloadStatus": "download-disabled",
       "cacheByteSize": 524288,
-      "checkedAt": "2026-06-05T20:13:43.581Z",
+      "checkedAt": "2026-06-05T20:46:14.481Z",
       "unavailableReason": null,
       "storageError": null,
       "corruptionReason": null
@@ -46,7 +46,7 @@
       ],
       "resourceClass": "cpu",
       "degradedState": "none",
-      "lastCheckedAt": "2026-06-05T20:13:43.581Z",
+      "lastCheckedAt": "2026-06-05T20:46:14.481Z",
       "unavailableReason": null
     },
     "providerCapability": {
@@ -59,7 +59,7 @@
       "privacyMode": "local-only",
       "fallbackOrder": 1
     },
-    "manifestCheckedAt": "2026-06-05T20:13:43.581Z",
+    "manifestCheckedAt": "2026-06-05T20:46:14.481Z",
     "claimBoundaries": {
       "remoteProviderUsed": false,
       "apiProviderUsed": false,
