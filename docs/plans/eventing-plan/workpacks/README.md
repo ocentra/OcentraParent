@@ -88,6 +88,15 @@ validation and proof.
 | 77  | Selected journaling by event type, namespace/family, and allowlist             | P3                  | Journal policy selectors are deterministic and test-backed.                                                                                           |
 | 78  | Runtime-owned bus handle and no hidden global singleton proof                  | P2/P5               | Services own and pass bus handles explicitly; reusable crate exposes no hidden global singleton.                                                      |
 
+Rows 05-41 and 63-78 are the phase-1 reusable event bus merge gate. Use
+`scripts/test/eventing-runtime-proof.mjs` for that gate; it intentionally does
+not run parent/controller, child-agent, portal, service, network, broker,
+family-hub, policy, AI, enforcement, or platform-adapter consumer proofs.
+
+Rows 42-62 are consumer integration rows layered on top of the reusable bus.
+Keep those in follow-up branches so other lanes can consume the stable bus API
+without waiting on network-specific integration.
+
 ## AI Worker Checklist
 
 Each assigned workpack should fill this shape before reporting `DONE`:

@@ -158,6 +158,10 @@ the generic eventing delivery decision proof now makes broker/family-hub deliver
 requirements explicit without implementing the transport; the open eventing gap
 is broker-backed/family-hub delivery, physical child-device runtime
 installation, and broad runtime adoption. The
+reusable event bus itself is now tracked by the phase-1 proof pack
+`output/eventing-plan-proof/reusable-eventing-runtime/proof-summary.json`;
+network/service/portal/parent-child integration remains consumer work layered on
+that bus. The
 initial UI typed-intent proof keeps the Vite/TypeScript portal as a view/input
 surface while Rust remains the business event publisher. The initial AI and
 portal direct-enforcement negative proof now rejects portal-side enforcement
