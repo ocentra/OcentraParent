@@ -11,6 +11,7 @@ pub mod encrypted_dns;
 pub mod fixtures;
 pub mod flow;
 pub mod http;
+pub mod linux_adapter_gate;
 pub mod local_ai_queue;
 pub mod managed_browser;
 pub mod notification;
@@ -92,6 +93,12 @@ pub use flow::{
     NetworkFlowKey, NetworkFlowPacket, NetworkFlowProtocol, NetworkFlowSession, NetworkFlowSummary,
 };
 pub use http::{parse_http_host, HttpHostObservation, HttpHostParseError};
+pub use linux_adapter_gate::{
+    plan_network_linux_adapter_gate, NetworkLinuxAdapterCapabilityState,
+    NetworkLinuxAdapterGateBoundaryReason, NetworkLinuxAdapterGateError,
+    NetworkLinuxAdapterGateInput, NetworkLinuxAdapterGateProof, NetworkLinuxAdapterGateState,
+    NetworkLinuxAdapterKind, NetworkLinuxAdapterRequiredArtifact,
+};
 pub use local_ai_queue::{
     plan_network_local_ai_queue, NetworkLocalAiQueueError, NetworkLocalAiQueueInput,
     NetworkLocalAiQueueInputKind, NetworkLocalAiQueueJob, NetworkLocalAiQueuePlan,

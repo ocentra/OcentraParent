@@ -101,7 +101,16 @@ device authority is claimed. Research-only, weak evidence, non-block policy
 actions, manual-required, and unavailable states are non-executable, and
 simulator-only product support, exact URL, decrypted payload, page content, live
 Network Extension behavior, packet block, app-level control, adapter action, and
-enforcement-command claims are rejected.
+enforcement-command claims are rejected. The Linux nftables/eBPF/TUN proof gate
+models distro proof readiness only when grade-A block policy, parent rule,
+evidence, selected adapter kind, distro/kernel, distro-kernel proof, permission,
+adapter API capability, adapter plan, service-manager scope, rollback,
+lab-result, and audit refs are all present. Research-only, weak evidence,
+non-block policy actions, manual-required, and unavailable states are
+non-executable, and generic Linux support, exact URL, decrypted payload, page
+content, live adapter install, packet filtering, kernel hook load, TUN interface
+mutation, service-manager install, adapter action, and enforcement-command
+claims are rejected.
 
 Live Npcap/libpcap capture, full vendor category feeds, analyzer comparison,
 production CDN intelligence, unmanaged browser URL correlation, foreground
@@ -109,4 +118,5 @@ session correlation, live network adapter enforcement, file/content inspection,
 local-AI model execution/worker runtime, full policy engine execution,
 notification provider delivery, live WFP driver/callout proof, live adapter
 execution, Android physical-device behavior, Apple entitlement/device behavior,
-and portal rendering remain separate proof-gated workpacks.
+Linux distro/kernel adapter behavior, and portal rendering remain separate
+proof-gated workpacks.

@@ -15,6 +15,7 @@ mod classifier;
 mod dns_adapter;
 mod domain;
 mod flow;
+mod linux_adapter_gate;
 mod local_ai_queue;
 mod managed_browser;
 mod notification;
