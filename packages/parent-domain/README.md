@@ -39,6 +39,17 @@ mobile readiness, and control catalogs.
   artifact write/read proof, without provider delivery, receipt ingestion,
   credentials, cloud routing, parent UI, production durable storage, or
   sensitive detail storage claims.
+- App/game notification preference status handoff proof contracts that map
+  preference-preflight rows into V3 notification preference and quiet-hours
+  manual-required or disabled status entries without parent preference UI,
+  provider delivery, receipt ingestion, production quiet-hours timers, durable
+  outbox storage, child delivery, policy execution, or adapter dispatch claims.
+- App/game notification parent surface intent proof contracts that combine
+  provider-status and preference-status handoff rows into redacted future parent
+  history/preference intent rows with drill-in, audit, scheduler/outbox,
+  provider, preference, quiet-hours, and manual-proof refs without rendered UI,
+  parent preference mutation, provider delivery, receipt ingestion, durable
+  storage, child delivery, policy execution, or adapter dispatch claims.
 - Local AI runtime, provider, scheduler, context, and reference contracts,
   including screen summary context-builder replay proof from deleted local OCR
   evidence refs.
@@ -271,10 +282,13 @@ flowchart LR
   deterministic parent-owned JSONL artifact proof only; notification local
   outbox scheduler proof covers deterministic due/held/retry/dead-letter/
   receipt/manual scheduler rows and parent-owned artifact write/read proof only.
-  Provider adapters, provider receipts, delivered receipt ingestion, production
-  retry workers, production quiet-hours timers, escalation delivery, parent
-  controls, notification UI, provider credentials, cloud routing, and durable
-  production outbox storage remain unclaimed.
+  App/game preference-status handoff and parent-surface intent proofs remain
+  parent-domain status/intent proof only. Provider adapters, provider receipts,
+  delivered receipt ingestion, production retry workers, production quiet-hours
+  timers, escalation delivery, parent controls/history/preferences UI, provider
+  credentials, cloud routing, durable production outbox storage, child delivery,
+  policy execution, adapter dispatch, broad blocking, and platform support
+  remain unclaimed.
 - LAN source-matrix proof is contract/read-model proof. It does not implement
   targeted ARP, bounded ARP sweep, packet listeners, real mDNS/SSDP
   advertisements, relay/cache, or physical household validation.
