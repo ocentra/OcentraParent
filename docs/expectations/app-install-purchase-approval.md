@@ -59,6 +59,10 @@ Expected contract families:
   package-source artifact requirement, child pending/result delivery boundary,
   and report integration boundary without claiming provider/store integration,
   child-device delivery, runtime report delivery, or app blocking.
+- Status runtime readiness rows link each child-facing status to runtime status
+  reader readiness without claiming a runtime status reader, child-device
+  delivery, runtime report delivery, store integration, platform adapters, or
+  app blocking.
 - Platform artifact proof rows attach parent-owned platform/store metadata
   artifact refs and report-runtime evidence refs to the existing runtime
   boundary without claiming provider APIs, store integration, platform adapters,
@@ -116,6 +120,9 @@ Expected contract families:
 - TypeScript schema tests and a proof harness for runtime-boundary rows, missing
   platform/package artifact coverage rejection, child delivery/report runtime
   overclaim rejection, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for status runtime readiness rows,
+  missing child status coverage rejection, runtime status-reader overclaim
+  rejection, and required non-claim coverage.
 - TypeScript schema tests and a proof harness for platform artifact rows,
   missing platform/report artifact coverage rejection, provider/API/adapter/
   delivery/report/app-blocking overclaim rejection, and required non-claim
@@ -167,6 +174,9 @@ Expected contract families:
   artifacts.
 - Do not treat runtime-boundary proof rows as provider/store integration,
   child-device delivery, runtime report delivery, or app blocking.
+- Do not treat status runtime readiness rows as a runtime status reader,
+  child-device delivery, runtime report delivery, store integration, platform
+  adapter implementation, or app blocking.
 - Do not treat parent-owned platform artifact proof refs as approved store APIs,
   platform adapters, child-device package captures, runtime report delivery, or
   app blocking.

@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-03T23:30:38.097Z",
-  "commit": "5cf8244ceac6a78b3efbf10f92f52a5578a13f30",
+  "checkedAt": "2026-06-05T07:51:19.784Z",
+  "commit": "3cebd4f4fd87abf14a5498f27dbb580c9d38c649",
   "proofMode": "app-install-purchase-runtime-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-03T23:30:32.424Z",
+      "startedAt": "2026-06-05T07:51:09.553Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-runtime-proof.test.ts",
-      "startedAt": "2026-06-03T23:30:35.796Z",
+      "startedAt": "2026-06-05T07:51:15.083Z",
       "exitCode": 0
     }
   ],
@@ -29,8 +29,11 @@
     "platformRows": 5,
     "childDeliveryRows": 5,
     "reportIntegrationRows": 4,
+    "statusReadinessRows": 5,
     "boundaryOnlyRows": 5,
-    "unavailablePlatformRows": 1
+    "unavailablePlatformRows": 1,
+    "statusReadinessOnlyRows": 5,
+    "statusReaderImplementedRows": 0
   },
   "platformRuntimeArtifacts": [
     {
@@ -55,7 +58,7 @@
       "reportRefs": [
         "app-install-purchase-platform-limitation-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     },
     {
       "platform": "macos",
@@ -79,7 +82,7 @@
       "reportRefs": [
         "app-install-purchase-platform-limitation-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     },
     {
       "platform": "linux",
@@ -103,7 +106,7 @@
       "reportRefs": [
         "app-install-purchase-platform-limitation-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     },
     {
       "platform": "android",
@@ -127,7 +130,7 @@
       "reportRefs": [
         "app-install-purchase-platform-limitation-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     },
     {
       "platform": "ios",
@@ -151,7 +154,7 @@
       "reportRefs": [
         "app-install-purchase-platform-limitation-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     }
   ],
   "childDeliveryBoundaries": [
@@ -165,7 +168,7 @@
       "reportRefs": [
         "app-install-purchase-child-facing-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     },
     {
       "childVisibleStatus": "approved-visible",
@@ -177,7 +180,7 @@
       "reportRefs": [
         "app-install-purchase-child-facing-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     },
     {
       "childVisibleStatus": "denied-visible",
@@ -189,7 +192,7 @@
       "reportRefs": [
         "app-install-purchase-child-facing-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     },
     {
       "childVisibleStatus": "time-box-visible",
@@ -201,7 +204,7 @@
       "reportRefs": [
         "app-install-purchase-child-facing-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     },
     {
       "childVisibleStatus": "review-needed-visible",
@@ -213,7 +216,154 @@
       "reportRefs": [
         "app-install-purchase-child-facing-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+    }
+  ],
+  "statusReadinessBoundaries": [
+    {
+      "childVisibleStatus": "pending-parent-review-visible",
+      "sourceChildStateId": "child-state-install-pending-parent-review",
+      "sourceRequestId": "install-request-proof-1",
+      "requestKind": "install",
+      "platform": "android",
+      "sourceApprovalState": {
+        "state": "pending-parent-review",
+        "expiryState": "not-expiring",
+        "expiresAt": null,
+        "reviewReason": null
+      },
+      "sourceDeliveryState": "manual-required",
+      "sourceRuntimeDeliveryClaim": "not-delivered",
+      "statusReadinessClaim": "runtime-status-readiness-only",
+      "runtimeStatusReaderClaim": "not-implemented",
+      "childDeliveryClaim": "not-delivered",
+      "reportRuntimeDeliveryClaim": "not-delivered",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "appBlockingClaim": "not-claimed",
+      "auditEventRefs": [
+        "audit-request-recorded-1"
+      ],
+      "reportRefs": [
+        "app-install-purchase-child-facing-report-ref"
+      ],
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+    },
+    {
+      "childVisibleStatus": "approved-visible",
+      "sourceChildStateId": "child-state-install-approved",
+      "sourceRequestId": "install-request-proof-1",
+      "requestKind": "install",
+      "platform": "android",
+      "sourceApprovalState": {
+        "state": "approved",
+        "expiryState": "not-expiring",
+        "expiresAt": null,
+        "reviewReason": null
+      },
+      "sourceDeliveryState": "manual-required",
+      "sourceRuntimeDeliveryClaim": "not-delivered",
+      "statusReadinessClaim": "runtime-status-readiness-only",
+      "runtimeStatusReaderClaim": "not-implemented",
+      "childDeliveryClaim": "not-delivered",
+      "reportRuntimeDeliveryClaim": "not-delivered",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "appBlockingClaim": "not-claimed",
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1"
+      ],
+      "reportRefs": [
+        "app-install-purchase-child-facing-report-ref"
+      ],
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+    },
+    {
+      "childVisibleStatus": "denied-visible",
+      "sourceChildStateId": "child-state-purchase-denied",
+      "sourceRequestId": "purchase-request-proof-1",
+      "requestKind": "purchase",
+      "platform": "android",
+      "sourceApprovalState": {
+        "state": "denied",
+        "expiryState": "not-expiring",
+        "expiresAt": null,
+        "reviewReason": null
+      },
+      "sourceDeliveryState": "manual-required",
+      "sourceRuntimeDeliveryClaim": "not-delivered",
+      "statusReadinessClaim": "runtime-status-readiness-only",
+      "runtimeStatusReaderClaim": "not-implemented",
+      "childDeliveryClaim": "not-delivered",
+      "reportRuntimeDeliveryClaim": "not-delivered",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "appBlockingClaim": "not-claimed",
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1"
+      ],
+      "reportRefs": [
+        "app-install-purchase-child-facing-report-ref"
+      ],
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+    },
+    {
+      "childVisibleStatus": "time-box-visible",
+      "sourceChildStateId": "child-state-subscription-time-box",
+      "sourceRequestId": "subscription-request-proof-1",
+      "requestKind": "subscription",
+      "platform": "android",
+      "sourceApprovalState": {
+        "state": "time-box-active",
+        "expiryState": "time-box-active",
+        "expiresAt": "2026-06-10T07:10:00.000Z",
+        "reviewReason": null
+      },
+      "sourceDeliveryState": "manual-required",
+      "sourceRuntimeDeliveryClaim": "not-delivered",
+      "statusReadinessClaim": "runtime-status-readiness-only",
+      "runtimeStatusReaderClaim": "not-implemented",
+      "childDeliveryClaim": "not-delivered",
+      "reportRuntimeDeliveryClaim": "not-delivered",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "appBlockingClaim": "not-claimed",
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1"
+      ],
+      "reportRefs": [
+        "app-install-purchase-child-facing-report-ref"
+      ],
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+    },
+    {
+      "childVisibleStatus": "review-needed-visible",
+      "sourceChildStateId": "child-state-purchase-review-needed",
+      "sourceRequestId": "purchase-request-proof-1",
+      "requestKind": "purchase",
+      "platform": "android",
+      "sourceApprovalState": {
+        "state": "review-needed",
+        "expiryState": "review-needed",
+        "expiresAt": null,
+        "reviewReason": "age rating changed"
+      },
+      "sourceDeliveryState": "manual-required",
+      "sourceRuntimeDeliveryClaim": "not-delivered",
+      "statusReadinessClaim": "runtime-status-readiness-only",
+      "runtimeStatusReaderClaim": "not-implemented",
+      "childDeliveryClaim": "not-delivered",
+      "reportRuntimeDeliveryClaim": "not-delivered",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "appBlockingClaim": "not-claimed",
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1"
+      ],
+      "reportRefs": [
+        "app-install-purchase-child-facing-report-ref"
+      ],
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     }
   ],
   "reportIntegrationBoundaries": [
@@ -227,7 +377,7 @@
       "reportRefs": [
         "app-install-purchase-request-audit-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     },
     {
       "surface": "parent-decision-audit-history",
@@ -239,7 +389,7 @@
       "reportRefs": [
         "app-install-purchase-decision-audit-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     },
     {
       "surface": "child-facing-state-report",
@@ -252,7 +402,7 @@
       "reportRefs": [
         "app-install-purchase-child-facing-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     },
     {
       "surface": "platform-limitation-report",
@@ -264,12 +414,13 @@
       "reportRefs": [
         "app-install-purchase-platform-limitation-report-ref"
       ],
-      "claimBoundary": "runtime boundary proof only; no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
+      "claimBoundary": "runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking"
     }
   ],
   "nonClaims": [
     "no-store-integration",
     "no-billing-entitlement-logic",
+    "no-runtime-status-reader-implementation",
     "no-platform-adapter",
     "no-child-device-delivery",
     "no-runtime-report-delivery",
@@ -288,6 +439,7 @@
     "No platform adapter, store policy bypass, or real install/purchase interception is claimed.",
     "Generic runtime app blocking remains separate from install and purchase approval.",
     "Runtime proof links source metadata, package-source artifacts, child delivery, and report integration as boundary rows only.",
+    "Runtime status readiness rows expose child-facing status coverage only; no runtime status reader, delivery worker, platform adapter, or app blocking behavior is implemented.",
     "No runtime child-device delivery, report UI delivery, provider store API, platform adapter, or app blocking behavior is implemented by this proof."
   ]
 }

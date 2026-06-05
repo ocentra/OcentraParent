@@ -53,9 +53,9 @@ generic app blocking covers this concern.
 - `packages/parent-domain/src/app-install-purchase-runtime-proof.ts` now records
   a runtime-boundary proof that links platform/store metadata artifact
   requirements, package-source artifact requirements, child pending/result
-  delivery rows, and report integration rows while keeping store/provider,
-  child-device delivery, runtime report delivery, and app-blocking behavior
-  unclaimed.
+  delivery rows, report integration rows, and status runtime readiness rows
+  while keeping store/provider, runtime status reader, child-device delivery,
+  runtime report delivery, and app-blocking behavior unclaimed.
 - `scripts/test/app-install-purchase-runtime-proof.mjs` records that runtime
   boundary under `test-results/app-install-purchase-runtime-proof/proof.json`
   when run.
@@ -151,15 +151,15 @@ writer/delivery, and proof for each store/platform path. The current
 parent-domain proofs attach parent-owned platform/report artifact refs, child
 package-source artifact refs, approved API/entitlement evidence refs, stateless
 report compiler status/result refs, and platform adapter readiness refs to
-runtime boundary rows, links parent approval actions to those evidence refs,
-maps the actions into runtime handoff status rows, and links per-store status
-handoff rows to adapter readiness/manual/unavailable states, but do not
-implement Google Play, Apple App Store, Microsoft Store, billing entitlement,
-provider/store execution, platform interception, portal approval/report UI,
-runtime action writer execution, parent action runtime delivery, child-device
-runtime capture, child-device delivery, runtime report delivery, runtime
-app-blocking behavior, or production child-device package-source artifact
-capture.
+runtime boundary rows, add child-facing status runtime readiness rows, link
+parent approval actions to those evidence refs, map the actions into runtime
+handoff status rows, and link per-store status handoff rows to adapter
+readiness/manual/unavailable states, but do not implement Google Play, Apple App
+Store, Microsoft Store, billing entitlement, provider/store execution, platform
+interception, runtime status reader, portal approval/report UI, runtime action
+writer execution, parent action runtime delivery, child-device runtime capture,
+child-device delivery, runtime report delivery, runtime app-blocking behavior,
+or production child-device package-source artifact capture.
 
 ## Checklist
 
@@ -179,6 +179,10 @@ capture.
       claim.
 - [x] Runtime-boundary proof linking platform metadata, package-source artifact,
       child delivery, and report rows without provider/store/runtime overclaims.
+- [x] Status runtime readiness proof linking child-facing statuses to runtime
+      status-reader readiness rows without reader implementation, child
+      delivery, runtime report delivery, store integration, platform adapters,
+      or app-blocking claims.
 - [x] Platform/report artifact proof attaching parent-owned platform/store
       metadata artifact refs and report-runtime evidence refs without
       provider/store, adapter, child-delivery, report-delivery, interception, or
