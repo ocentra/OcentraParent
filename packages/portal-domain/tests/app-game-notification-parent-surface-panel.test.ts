@@ -5,6 +5,7 @@ import {
 } from '@ocentra-parent/parent-domain/app-game-notification-parent-surface-intent';
 import {
   createAppGameNotificationParentSurfacePanelIntent,
+  createAppGameNotificationParentSurfaceReadModelFromReadiness,
   type AppGameNotificationParentSurfacePanelIntent,
 } from '../src/contracts';
 
@@ -32,6 +33,31 @@ describe('app/game notification parent surface panel intent', () => {
       'scheduler-entry-app-game-time-limit, outbox-record-app-game-time-limit',
     ]);
     expect(rowPairs(panelRow(intent, 1))).toContainEqual(['Status', 'unavailable-visible']);
+  });
+
+  it('projects live service readiness rows into parent-surface setup rows without runtime claims', () => {
+    const readModel = createAppGameNotificationParentSurfaceReadModelFromReadiness(notificationReadinessReadModel());
+    const intent = createAppGameNotificationParentSurfacePanelIntent(readModel);
+
+    expect(readModel).not.toBeNull();
+    expect(metricPairs(intent)).toContainEqual(['Rows returned', '2']);
+    expect(metricPairs(intent)).toContainEqual(['Status', '1 manual action']);
+    expect(metricPairs(intent)).toContainEqual(['Capability', '1 preference setup']);
+    expect(intent.rows.map((row) => row.title)).toEqual([
+      'app-game-notification-live-parent-surface-time-limit',
+      'app-game-notification-live-parent-surface-provider-offline',
+    ]);
+    expect(rowPairs(panelRow(intent, 0))).toContainEqual(['Status', 'manual-action-required']);
+    expect(rowPairs(panelRow(intent, 0))).toContainEqual([
+      'Evidence references',
+      'minimal-payload-time-limit, evidence-ref-time-limit, activity-evidence-time-limit',
+    ]);
+    expect(rowPairs(panelRow(intent, 0))).toContainEqual(['Runtime reference', 'not reported']);
+    expect(rowPairs(panelRow(intent, 1))).toContainEqual(['Status', 'unavailable-visible']);
+    expect(rowPairs(panelRow(intent, 1))).toContainEqual([
+      'Missing proof',
+      'app-game-notification-provider-adapter-proof-required, app-game-notification-parent-preference-proof-required, app-game-notification-readiness-state-unavailable, app-game-notification-readiness-reason-capability-unavailable',
+    ]);
   });
 
   it('keeps missing service input explicit instead of inventing rows', () => {
@@ -109,6 +135,56 @@ function parentSurfaceReadModel() {
     productionRuntimeClaimed: false,
     productionDurableOutboxStorageClaimed: false,
     adapterDispatchClaimed: false,
+  } as const;
+}
+
+function notificationReadinessReadModel() {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-06-05T11:40:00Z',
+    custodyLabel: 'local-service-custody',
+    capabilityStatus: 'manual-required',
+    returned: 2,
+    readyIntentCount: 0,
+    manualRequiredCount: 1,
+    unavailableCount: 1,
+    providerDeliveryClaimed: false,
+    providerReceiptIngestionClaimed: false,
+    localOutboxRuntimeClaimed: false,
+    schedulerRuntimeClaimed: false,
+    adapterDispatchClaimed: false,
+    parentUiClaimed: false,
+    childDeliveryClaimed: false,
+    rows: [
+      notificationReadinessRow('time-limit', {
+        reason: 'time-limit-exceeded',
+        readinessState: 'manual-required',
+      }),
+      notificationReadinessRow('provider-offline', {
+        reason: 'capability-unavailable',
+        readinessState: 'unavailable',
+      }),
+    ],
+  } as const;
+}
+
+function notificationReadinessRow(label: string, input: { readonly reason: string; readonly readinessState: string }) {
+  return {
+    schemaVersion: 1,
+    rowId: label,
+    reason: input.reason,
+    readinessState: input.readinessState,
+    rowCount: 1,
+    minimalPayloadRef: `minimal-payload-${label}`,
+    evidenceReferenceIds: [`evidence-ref-${label}`],
+    evidence: [
+      {
+        evidenceId: `activity-evidence-${label}`,
+        kind: 'journal-entry',
+        digest: null,
+        uri: null,
+      },
+    ],
   } as const;
 }
 

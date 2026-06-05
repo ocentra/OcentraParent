@@ -18,6 +18,7 @@ export {
   type AppGameNotificationParentSurfacePanelIntent,
   type AppGameNotificationParentSurfacePanelRow,
 } from './app-game-notification-parent-surface-panel';
+export { createAppGameNotificationParentSurfaceReadModelFromReadiness } from './app-game-notification-parent-surface-live-readiness';
 export {
   PortalFrameChromeNumberFields,
   PortalCarouselContentNumberFields,

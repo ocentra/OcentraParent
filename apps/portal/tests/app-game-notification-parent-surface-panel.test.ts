@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AgentEvent,
+  AgentEventEnvelopeSchema,
+  AgentProtocolDefaults,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
   AppGameNotificationParentSurfaceIntentReadModelSchema,
   RequiredAppGameNotificationParentSurfaceIntentNonClaims,
 } from '@ocentra-parent/parent-domain/app-game-notification-parent-surface-intent';
@@ -9,6 +14,7 @@ import {
   type AppGameNotificationParentSurfacePanelIntent,
 } from '../src/app-game-notification-parent-surface-panel';
 import { shouldRenderAppGameNotificationParentSurfaceRoute } from '../src/AppGameNotificationParentSurfaceRoutePanel';
+import { resolveLiveActivityState } from '../src/live-activity-state';
 
 describe('app/game notification parent surface panel', () => {
   it('renders schema-backed parent-surface intent rows without runtime claims', () => {
@@ -33,6 +39,29 @@ describe('app/game notification parent surface panel', () => {
       'Runtime reference',
       'scheduler-entry-app-game-time-limit, outbox-record-app-game-time-limit',
     ]);
+    expect(rowPairs(panelRow(intent, 1))).toContainEqual(['Status', 'unavailable-visible']);
+  });
+
+  it('derives parent-surface rows from the live notification readiness service event', () => {
+    const state = resolveLiveActivityState([notificationReadinessEvent()]);
+    const intent = createAppGameNotificationParentSurfacePanelIntent(
+      state.appGameNotificationParentSurfaceIntentReadModel
+    );
+
+    expect(state.appGameNotificationReadinessEvent?.event).toBe(
+      AgentEvent.ActivityAppGameNotificationReadinessReadModelReported
+    );
+    expect(metricPairs(intent)).toContainEqual(['Rows returned', '2']);
+    expect(metricPairs(intent)).toContainEqual(['Status', '1 manual action']);
+    expect(intent.rows.map((row) => row.title)).toEqual([
+      'app-game-notification-live-parent-surface-time-limit',
+      'app-game-notification-live-parent-surface-provider-offline',
+    ]);
+    expect(rowPairs(panelRow(intent, 0))).toContainEqual([
+      'Evidence references',
+      'minimal-payload-time-limit, evidence-ref-time-limit, activity-evidence-time-limit',
+    ]);
+    expect(rowPairs(panelRow(intent, 0))).toContainEqual(['Runtime reference', 'not reported']);
     expect(rowPairs(panelRow(intent, 1))).toContainEqual(['Status', 'unavailable-visible']);
   });
 
@@ -116,6 +145,78 @@ function parentSurfaceReadModel() {
     productionRuntimeClaimed: false,
     productionDurableOutboxStorageClaimed: false,
     adapterDispatchClaimed: false,
+  } as const;
+}
+
+function notificationReadinessEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    eventId: 'evt-app-game-notification-readiness-parent-surface',
+    correlationId: 'corr-app-game-notification-readiness-parent-surface',
+    sentAt: '2026-06-05T11:44:00Z',
+    source: {
+      peerId: 'agent-service',
+      role: 'agent-service',
+    },
+    target: AgentProtocolDefaults.Peer.PortalDev,
+    event: AgentEvent.ActivityAppGameNotificationReadinessReadModelReported,
+    severity: 'info',
+    payload: {
+      [AgentProtocolDefaults.Field.ActivityAppGameNotificationReadinessReadModel]: JSON.stringify(
+        notificationReadinessReadModel()
+      ),
+    },
+    snapshot: null,
+  });
+}
+
+function notificationReadinessReadModel() {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-06-05T11:40:00Z',
+    custodyLabel: 'local-service-custody',
+    capabilityStatus: 'manual-required',
+    returned: 2,
+    readyIntentCount: 0,
+    manualRequiredCount: 1,
+    unavailableCount: 1,
+    providerDeliveryClaimed: false,
+    providerReceiptIngestionClaimed: false,
+    localOutboxRuntimeClaimed: false,
+    schedulerRuntimeClaimed: false,
+    adapterDispatchClaimed: false,
+    parentUiClaimed: false,
+    childDeliveryClaimed: false,
+    rows: [
+      notificationReadinessRow('time-limit', {
+        reason: 'time-limit-exceeded',
+        readinessState: 'manual-required',
+      }),
+      notificationReadinessRow('provider-offline', {
+        reason: 'capability-unavailable',
+        readinessState: 'unavailable',
+      }),
+    ],
+  } as const;
+}
+
+function notificationReadinessRow(label: string, input: { readonly reason: string; readonly readinessState: string }) {
+  return {
+    schemaVersion: 1,
+    rowId: label,
+    reason: input.reason,
+    readinessState: input.readinessState,
+    rowCount: 1,
+    minimalPayloadRef: `minimal-payload-${label}`,
+    evidenceReferenceIds: [`evidence-ref-${label}`],
+    evidence: [
+      {
+        evidenceId: `activity-evidence-${label}`,
+        kind: 'journal-entry',
+        digest: null,
+        uri: null,
+      },
+    ],
   } as const;
 }
 

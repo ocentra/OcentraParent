@@ -57,9 +57,10 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   service-backed source rows; SVG rendering remains a follow-up while the
   portal surface is owned by another lane.
 - Displays an App/Game Sessions route overlay for app/game notification
-  parent-surface intent rows when that schema-backed read model is available,
-  and otherwise shows the missing service event without claiming provider
-  delivery, preference mutation, child delivery, or runtime dispatch.
+  parent-surface rows by projecting the live service notification-readiness
+  event into manual/unavailable setup rows, and otherwise shows the missing
+  service event without claiming provider delivery, preference mutation, child
+  delivery, scheduler/outbox runtime, or adapter dispatch.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own
