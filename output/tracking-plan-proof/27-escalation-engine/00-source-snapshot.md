@@ -1,10 +1,11 @@
 # 27-escalation-engine Source Snapshot
 
-- checkedAt: 2026-06-03T17:22:17.415Z
-- commit: 8467bedfff418ab63a16d066e84bab527ec340f6
-- proofState: contract-proof-partial
-- summary: Escalation chain contract exists; runtime escalation execution remains pending.
-- activity contracts: packages/activity-domain/src/tracking.ts
-- parent contracts: packages/parent-domain/src/tracking-location-policy.ts
-- activity tests: packages/activity-domain/tests/tracking.test.ts
-- parent tests: packages/parent-domain/tests/tracking-location-policy.test.ts
+- checkedAt: 2026-06-05T14:39:12.714Z
+- commit: ee3dee58
+- requiredProofTier: P1_FIXTURE_SIMULATION
+- currentProofTier: P1_FIXTURE_SIMULATION
+- status: proved
+- proof module: packages/parent-domain/src/tracking-escalation-readiness-proof.ts
+- proof tests: packages/parent-domain/tests/tracking-escalation-readiness-proof.test.ts
+- proof harness: scripts/test/tracking-escalation-readiness-proof.mjs
+- source contracts: packages/parent-domain/src/tracking-location-policy.ts

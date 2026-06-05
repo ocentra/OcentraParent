@@ -28,16 +28,24 @@ Proof root: `output/tracking-plan-proof/27-escalation-engine/`
 
 ## AI Worker Checklist
 
-- [ ] Test warning repeat, urgent second guardian, and critical multi-channel
-      only when configured.
-- [ ] Parent acknowledgement cancels escalation where configured.
-- [ ] Child check-in resolves pending state where configured.
-- [ ] AI cannot schedule escalation directly.
-- [ ] No emergency auto-contact in MVP.
+- [x] Test warning acknowledgement/check-in resolution, urgent second
+      guardian, and critical multi-channel manual readiness.
+- [x] Parent acknowledgement cancels escalation where configured.
+- [x] Child check-in resolves pending state where configured.
+- [x] AI cannot schedule escalation directly.
+- [x] No emergency auto-contact in MVP.
 
 ## Where We Are
 
-This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+This workpack now has P1 fixture-simulation proof from
+`codex/tracking-escalation-readiness-proof` under the proof root below. The
+proof derives escalation readiness rows from the existing tracking policy read
+model, covers parent acknowledgement cancellation, child check-in resolution,
+urgent second-guardian manual readiness, critical multi-channel manual
+readiness, manual-required, and unavailable states, and rejects AI direct
+scheduling plus emergency auto-contact overclaims. Runtime workers, platform
+adapters, provider delivery, parent notification UI, child-device delivery,
+physical-device proof, and production quiet-hours timers remain unclaimed.
 
 ## Where We Want To Be
 
@@ -64,9 +72,20 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/27-escalation-engine/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Workpack id and branch: `codex/tracking-escalation-readiness-proof`.
+- [x] Touched files: parent-domain escalation readiness proof contract, focused
+      test, proof script, feature docs, implementation checklist, workpack doc,
+      proof output, and queued capability-checklist doc delta.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-escalation-readiness-proof.mjs` passed.
+- [x] Proof artifacts under `output/tracking-plan-proof/27-escalation-engine/`
+      and `test-results/tracking-escalation-readiness-proof/`.
+- [x] Product doc/checklist updates: owning feature docs, implementation
+      checklist, this workpack doc, and capability-checklist delta queued while
+      the central checklist remains sequenced through hub locks.
+- [x] Known gaps/manual-required states: provider delivery, receipt ingestion,
+      credentials, cloud routing, parent notification UI/history/preferences,
+      child-device delivery, physical-device proof, production escalation
+      workers, production quiet-hours timers, durable storage, emergency
+      auto-contact, Android/iOS physical proof, and full runtime execution
+      remain proof-gated.
