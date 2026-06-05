@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -26,9 +26,18 @@ async function main() {
   ]);
 
   const proofModule = await loadProviderStoreExecutionReadinessProofModule();
+  const packageModule =
+    await import('@ocentra-parent/parent-domain/app-install-purchase-provider-store-execution-readiness-proof');
+  const parentDomainPackageJson = await loadParentDomainPackageJson();
   const parsedReadModel = proofModule.AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseProviderStoreExecutionReadinessProof(parsedReadModel);
+  const packageExportKey = './app-install-purchase-provider-store-execution-readiness-proof';
 
+  assert.equal(packageModule.AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel, parsedReadModel);
+  assert.deepEqual(parentDomainPackageJson.exports[packageExportKey], {
+    import: './dist/app-install-purchase-provider-store-execution-readiness-proof.js',
+    types: './dist/app-install-purchase-provider-store-execution-readiness-proof.d.ts',
+  });
   assert.deepEqual(summary, {
     providerStoreExecutionReadinessRows: 5,
     executionReadyRows: 1,
@@ -66,8 +75,7 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-provider-store-execution-readiness-proof',
     commands,
-    packageExportState:
-      'PENDING_LOCK: packages/parent-domain/package.json is intentionally untouched while locked by another lane.',
+    packageExportState: 'validated-public-package-export',
     checklistState:
       'PENDING_LOCK: docs/product-capability-checklist.md is intentionally untouched while locked by another lane.',
     evidence: {
@@ -85,7 +93,7 @@ async function main() {
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       packageExport:
-        'PENDING: add packages/parent-domain package export for ./app-install-purchase-provider-store-execution-readiness-proof after the package lock clears.',
+        'COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-provider-store-execution-readiness-proof.',
       checklistRow:
         'PENDING: update docs/product-capability-checklist.md Install/purchase approval row after the checklist lock clears.',
       output: relative(repoRoot, proofPath),
@@ -143,6 +151,11 @@ async function loadProviderStoreExecutionReadinessProofModule() {
     'app-install-purchase-provider-store-execution-readiness-proof.js'
   );
   return import(pathToFileURL(modulePath).href);
+}
+
+async function loadParentDomainPackageJson() {
+  const packageJsonPath = join(repoRoot, 'packages', 'parent-domain', 'package.json');
+  return JSON.parse(await readFile(packageJsonPath, 'utf8'));
 }
 
 async function gitHead() {

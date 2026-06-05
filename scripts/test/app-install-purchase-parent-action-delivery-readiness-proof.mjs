@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -26,9 +26,18 @@ async function main() {
   ]);
 
   const proofModule = await loadParentActionDeliveryReadinessProofModule();
+  const packageModule =
+    await import('@ocentra-parent/parent-domain/app-install-purchase-parent-action-delivery-readiness-proof');
+  const parentDomainPackageJson = await loadParentDomainPackageJson();
   const parsedReadModel = proofModule.AppInstallPurchaseParentActionDeliveryReadinessProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseParentActionDeliveryReadinessProof(parsedReadModel);
+  const packageExportKey = './app-install-purchase-parent-action-delivery-readiness-proof';
 
+  assert.equal(packageModule.AppInstallPurchaseParentActionDeliveryReadinessProofReadModel, parsedReadModel);
+  assert.deepEqual(parentDomainPackageJson.exports[packageExportKey], {
+    import: './dist/app-install-purchase-parent-action-delivery-readiness-proof.js',
+    types: './dist/app-install-purchase-parent-action-delivery-readiness-proof.d.ts',
+  });
   assert.deepEqual(summary, {
     parentActionDeliveryReadinessRows: 4,
     parentActionDeliveryReadyRows: 3,
@@ -62,8 +71,7 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-parent-action-delivery-readiness-proof',
     commands,
-    packageExportState:
-      'PENDING_LOCK: packages/parent-domain/package.json was locked by codex-b when this proof was added.',
+    packageExportState: 'validated-public-package-export',
     checklistState:
       'PENDING_LOCK: docs/product-capability-checklist.md was locked by codex-a when this proof was added.',
     evidence: {
@@ -77,7 +85,7 @@ async function main() {
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       packageExport:
-        'PENDING: add packages/parent-domain package export for ./app-install-purchase-parent-action-delivery-readiness-proof after codex-b releases package.json.',
+        'COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-parent-action-delivery-readiness-proof.',
       checklistRow:
         'PENDING: update docs/product-capability-checklist.md Install/purchase approval row after codex-a releases the checklist lock.',
       output: relative(repoRoot, proofPath),
@@ -122,6 +130,11 @@ async function loadParentActionDeliveryReadinessProofModule() {
     'app-install-purchase-parent-action-delivery-readiness-proof.js'
   );
   return import(pathToFileURL(modulePath).href);
+}
+
+async function loadParentDomainPackageJson() {
+  const packageJsonPath = join(repoRoot, 'packages', 'parent-domain', 'package.json');
+  return JSON.parse(await readFile(packageJsonPath, 'utf8'));
 }
 
 async function gitHead() {

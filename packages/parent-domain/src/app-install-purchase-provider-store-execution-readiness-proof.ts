@@ -211,7 +211,7 @@ export const AppInstallPurchaseProviderStoreExecutionReadinessProofSchema = with
 export const AppInstallPurchaseProviderStoreExecutionReadinessKnownGaps = [
   'Provider/store execution readiness rows are contract/proof rows only; no Google Play Apple App Store Microsoft Store or billing provider contact is implemented.',
   'Package-source adapter execution and parent action delivery readiness remain proof-backed source rows; runtime writer delivery, child-device delivery, provider/store execution, platform interception, app blocking, and hosted family custody remain unimplemented.',
-  'The public package export and product capability checklist row remain pending until packages/parent-domain/package.json and docs/product-capability-checklist.md locks clear.',
+  'The product capability checklist row remains pending until the docs/product-capability-checklist.md lock clears.',
 ] as const;
 
 export const AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel =

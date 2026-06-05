@@ -65,6 +65,10 @@
       "import": "./dist/app-install-purchase-child-artifact-delivery-proof.js",
       "types": "./dist/app-install-purchase-child-artifact-delivery-proof.d.ts"
     },
+    "./app-install-purchase-parent-action-delivery-readiness-proof": {
+      "import": "./dist/app-install-purchase-parent-action-delivery-readiness-proof.js",
+      "types": "./dist/app-install-purchase-parent-action-delivery-readiness-proof.d.ts"
+    },
     "./app-install-purchase-platform-artifact-proof": {
       "import": "./dist/app-install-purchase-platform-artifact-proof.js",
       "types": "./dist/app-install-purchase-platform-artifact-proof.d.ts"
@@ -84,6 +88,10 @@
     "./app-install-purchase-package-source-adapter-execution-proof": {
       "import": "./dist/app-install-purchase-package-source-adapter-execution-proof.js",
       "types": "./dist/app-install-purchase-package-source-adapter-execution-proof.d.ts"
+    },
+    "./app-install-purchase-provider-store-execution-readiness-proof": {
+      "import": "./dist/app-install-purchase-provider-store-execution-readiness-proof.js",
+      "types": "./dist/app-install-purchase-provider-store-execution-readiness-proof.d.ts"
     },
     "./billing-entitlement": {
       "import": "./dist/billing-entitlement.js",
