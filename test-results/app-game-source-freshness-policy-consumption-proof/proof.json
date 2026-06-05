@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-source-freshness-policy-consumption",
-  "checkedAt": "2026-06-05T23:12:45.602Z",
-  "commit": "bcccf90bdc882117e30fc810a88ac9f6e642c17f",
+  "checkedAt": "2026-06-05T23:18:04.697Z",
+  "commit": "87932b5d2d4d808c05eb505375b6addb8944b651",
   "commands": [
     "cmd /c npm run build:contracts",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-freshness-policy-consumption"
