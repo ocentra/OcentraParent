@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T14:48:53.499Z",
-  "commit": "f4666c31b9f4e7ddca2c5ffac0e9f88d8f9db972",
+  "checkedAt": "2026-06-05T15:00:53.318Z",
+  "commit": "8b1238b9eb234001c37dea649d5c1c276169eb8b",
   "proofMode": "app-install-purchase-child-device-delivery-runtime-writer-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-05T14:48:42.141Z",
+      "startedAt": "2026-06-05T15:00:46.301Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-child-device-delivery-runtime-writer-proof.test.ts",
-      "startedAt": "2026-06-05T14:48:47.737Z",
+      "startedAt": "2026-06-05T15:00:49.689Z",
       "exitCode": 0
     }
   ],
-  "packageExportState": "blocked-by-parent-domain-package-json-lock",
+  "packageExportState": "validated-public-package-export",
   "evidence": {
     "childDeviceDeliveryRuntimeWriterContract": "packages/parent-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts",
     "sourceRuntimeWriterDeliveryContract": "packages/parent-domain/src/app-install-purchase-runtime-writer-delivery-proof.ts",
@@ -24,7 +24,7 @@
     "featureDoc": "docs/features/app-install-purchase-approval.md",
     "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
     "checklistRow": "docs/product-capability-checklist.md row Install/purchase approval",
-    "packageExport": "PENDING: packages/parent-domain/package.json is locked by E-C; add public export when released.",
+    "packageExport": "COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-child-device-delivery-runtime-writer-proof.",
     "output": "test-results\\app-install-purchase-child-device-delivery-runtime-writer-proof\\proof.json"
   },
   "childDeviceDeliveryRuntimeWriterSummary": {

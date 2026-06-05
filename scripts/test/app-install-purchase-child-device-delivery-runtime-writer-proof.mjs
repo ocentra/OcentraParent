@@ -26,6 +26,8 @@ async function main() {
   ]);
 
   const proofModule = await loadChildDeviceDeliveryRuntimeWriterProofModule();
+  const packageModule =
+    await import('@ocentra-parent/parent-domain/app-install-purchase-child-device-delivery-runtime-writer-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseChildDeviceDeliveryRuntimeWriterProof(parsedReadModel);
   const parentDomainPackageJson = JSON.parse(
@@ -40,6 +42,16 @@ async function main() {
     packageSourceCaptureLinkedRows: 4,
     runtimeWriterExecutedRows: 0,
     childDeviceDeliveredRows: 0,
+  });
+  assert.deepEqual(
+    packageModule.summarizeAppInstallPurchaseChildDeviceDeliveryRuntimeWriterProof(
+      packageModule.AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel
+    ),
+    summary
+  );
+  assert.deepEqual(parentDomainPackageJson.exports[packageExportKey], {
+    import: './dist/app-install-purchase-child-device-delivery-runtime-writer-proof.js',
+    types: './dist/app-install-purchase-child-device-delivery-runtime-writer-proof.d.ts',
   });
   assert.deepEqual(
     parsedReadModel.childDeviceDeliveryRuntimeWriterRows.map(
@@ -64,9 +76,7 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-child-device-delivery-runtime-writer-proof',
     commands,
-    packageExportState: parentDomainPackageJson.exports[packageExportKey]
-      ? 'validated-public-package-export'
-      : 'blocked-by-parent-domain-package-json-lock',
+    packageExportState: 'validated-public-package-export',
     evidence: {
       childDeviceDeliveryRuntimeWriterContract:
         'packages/parent-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
@@ -79,7 +89,8 @@ async function main() {
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
-      packageExport: 'PENDING: packages/parent-domain/package.json is locked by E-C; add public export when released.',
+      packageExport:
+        'COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-child-device-delivery-runtime-writer-proof.',
       output: relative(repoRoot, proofPath),
     },
     childDeviceDeliveryRuntimeWriterSummary: summary,
