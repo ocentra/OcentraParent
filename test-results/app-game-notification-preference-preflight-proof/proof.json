@@ -2,8 +2,8 @@
   "proofMode": "app-game-notification-preference-preflight",
   "generatedAt": "2026-06-05T03:03:00Z",
   "branch": "codex/app-game-notification-preference-preflight",
-  "commit": "2be2bb23da2b8b66195aaae35ce364559f94631a",
-  "gitStatusShort": "M scripts/test/app-game-notification-preference-preflight-proof.mjs",
+  "commit": "97008d7915a9f75da6a6b9fd438172affa1faf19",
+  "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-preference-preflight app-game-notification-scheduler-bridge app-game-notification-local-outbox-bridge"

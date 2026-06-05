@@ -1,11 +1,11 @@
 # app WP62 Source Snapshot
 
 - Branch: codex/app-game-notification-preference-preflight
-- Commit: 2be2bb23da2b8b66195aaae35ce364559f94631a
+- Commit: 97008d7915a9f75da6a6b9fd438172affa1faf19
 - Git status at proof generation:
 
 ```text
-M scripts/test/app-game-notification-preference-preflight-proof.mjs
+clean
 ```
 
 - Scope: app/game notification scheduler rows to parent-preference preflight rows.
