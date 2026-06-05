@@ -8,8 +8,8 @@
     "summary": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-plan-proof\\settings-ui\\proof-summary.json"
   },
   "ports": {
-    "agent": 4489,
-    "portal": 4490
+    "agent": 4677,
+    "portal": 4678
   },
   "renderedAssertions": [
     "Screen settings and capability proof",

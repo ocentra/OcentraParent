@@ -6,20 +6,25 @@ Disabled-by-default settings exist for enablement, cadence, triggers, scope, OCR
 
 ## Current State
 
-Screen control catalog inputs exist, but complete opt-in setting contract and UI proof are open.
+`ScreenAnalysisParentSettingSchema` validates disabled, observe-only, strict
+dry-run, cadence, trigger, OCR/redaction, TTL/retry, deletion, policy-use, and
+audit fields. `screenEvidenceSettingsWritableUiProof` now renders those setting
+intents in the real Settings route and proves disabled, observe-only, and strict
+dry-run drafts through Playwright.
 
 ## Checklist
 
-- [ ] Define disabled-by-default setting.
-- [ ] Define child/device/schedule scope.
-- [ ] Define analysis mode.
-- [ ] Define cadence/trigger settings.
-- [ ] Define capture scope.
-- [ ] Define OCR/redaction settings.
-- [ ] Define TTL/retry/deletion settings.
-- [ ] Define parent audit fields.
+- [x] Define disabled-by-default setting.
+- [x] Define child/device/schedule scope.
+- [x] Define analysis mode.
+- [x] Define cadence/trigger settings.
+- [x] Define capture scope.
+- [x] Define OCR/redaction settings.
+- [x] Define TTL/retry/deletion settings.
+- [x] Define parent audit fields.
 
 ## Proof
 
 - Contract tests.
-- Portal setting UI screenshots once UI exists.
+- `output/screen-plan-proof/settings-writable-controls/proof-summary.json`.
+- `output/screen-plan-proof/settings-writable-controls/parent-settings-writable-controls.png`.
