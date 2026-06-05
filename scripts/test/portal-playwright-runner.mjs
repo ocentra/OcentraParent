@@ -21,6 +21,7 @@ import {
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
 import { resolveDebugAgentServicePath, spawnVitePortal, stopProcessTree } from './agent-service-process.mjs';
+import { seedPortalNetworkActivityStore } from './portal-network-activity-seed.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const portalRoot = path.join(repoRoot, 'apps', 'portal');
@@ -35,6 +36,7 @@ const portalPort = resolveParentDevPort(
   ParentDevEnv.PortalPort
 );
 const devLogDir = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-e2e-log-'));
+const activityDbPath = path.join(devLogDir, 'activity.sqlite');
 const children = [];
 
 let exitCode = 1;
@@ -43,6 +45,7 @@ let stopping = false;
 try {
   await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);
   await ensurePortFree(portalPort, isLikelyParentPortalOccupant, console.log);
+  seedPortalNetworkActivityStore(activityDbPath);
 
   const agent = spawnAgent();
   trackChild(agent, 'agent');
@@ -52,6 +55,7 @@ try {
     portalPort,
     {
       ...process.env,
+      [ParentDevEnv.ActivityDbPath]: activityDbPath,
       [ParentDevEnv.DevLogDir]: devLogDir,
       [ParentDevEnv.PortalAgentWebSocketUrl]: createAgentWebSocketUrl(agentPort),
     },
@@ -80,6 +84,7 @@ function spawnAgent() {
       ...process.env,
       [ParentDevEnv.AgentAddress]: createAgentAddress(agentPort),
       [ParentDevEnv.AgentAllowedOrigins]: createHttpOrigin(ParentDevHost.Loopback, portalPort),
+      [ParentDevEnv.ActivityDbPath]: activityDbPath,
       [ParentDevEnv.DevLogDir]: devLogDir,
     },
     stdio: ['ignore', 'inherit', 'inherit'],
@@ -103,6 +108,7 @@ function runPlaywright() {
     cwd: portalRoot,
     env: {
       ...process.env,
+      [ParentDevEnv.ActivityDbPath]: activityDbPath,
       [ParentDevEnv.DevLogDir]: devLogDir,
     },
     stdio: 'inherit',
