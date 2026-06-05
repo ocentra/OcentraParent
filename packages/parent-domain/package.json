@@ -621,6 +621,10 @@
       "import": "./dist/screen-control-settings-portal-proof.js",
       "types": "./dist/screen-control-settings-portal-proof.d.ts"
     },
+    "./screen-ai-adapter-readiness-proof": {
+      "import": "./dist/screen-ai-adapter-readiness-proof.js",
+      "types": "./dist/screen-ai-adapter-readiness-proof.d.ts"
+    },
     "./tamper-uninstall-artifact-status": {
       "import": "./dist/tamper-uninstall-artifact-status.js",
       "types": "./dist/tamper-uninstall-artifact-status.d.ts"
