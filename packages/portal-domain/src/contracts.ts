@@ -317,6 +317,7 @@ export const PortalDom = {
     Tab: 'tab',
     TabList: 'tablist',
     TrackingProofChildCheckIn: 'child-check-in',
+    TrackingProofChildRuntimeUi: 'child-runtime-ui',
   },
   Events: {
     Click: 'click',

@@ -36,6 +36,12 @@ const validationLogPath = path.join(workpack30, '16-validation-commands.log');
 const desktopScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-live-summary.png');
 const mobileScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-live-summary-mobile.png');
 const childCheckInScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-child-check-in.png');
+const childRuntimeUiScreenshot = path.join(
+  workpack30,
+  '11-ui-snapshots',
+  'hosted-policy-tracking-child-runtime-ui.png'
+);
+const childRuntimeUiProofPath = path.join(workpack30, '19-child-runtime-ui-proof.json');
 const accessibilitySummaryPath = path.join(proofResultDir, 'accessibility-summary.json');
 const runRoot = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-tracking-hosted-ui-'));
 const devLogDir = path.join(runRoot, 'dev-log');
@@ -350,15 +356,30 @@ async function writeProof(playwright) {
       desktopScreenshot: relativePath(desktopScreenshot),
       mobileScreenshot: relativePath(mobileScreenshot),
       childCheckInScreenshot: relativePath(childCheckInScreenshot),
+      childRuntimeUiScreenshot: relativePath(childRuntimeUiScreenshot),
+      childRuntimeUiProof: relativePath(childRuntimeUiProofPath),
       accessibilitySummary: relativePath(accessibilitySummaryPath),
     },
     accessibilitySummary,
     commands,
+    childRuntimeUiProof: {
+      screenshot: relativePath(childRuntimeUiScreenshot),
+      assertions: [
+        'tracking-request-disclosure-visible',
+        'safe-response-visible',
+        'help-response-visible',
+        'location-share-consent-visible',
+        'hosted-proof-only-boundary-visible',
+        'child-device-delivery-not-claimed',
+        'no-product-claim-visible',
+      ],
+      productClaimReady: false,
+    },
     nonClaims: [
       'This proof does not claim Android or iOS physical background tracking behavior.',
       'This proof does not claim real physical-device location, geofence, provider, or notification delivery.',
       'This proof uses a seeded temporary ActivityStore SQLite database to prove hosted portal rendering against the real Rust service command.',
-      'This proof renders child-safe check-in copy but does not claim child-device delivery or child-device runtime UI.',
+      'This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.',
       'This proof does not claim full child-device UI or authority-enrolled hard-control readiness.',
     ],
     remainingGapsBeforeProductReady: [
@@ -371,6 +392,7 @@ async function writeProof(playwright) {
   await writeFile(proofPath, proofContent);
   await writeFile(outputProofPath, proofContent);
   await writeFile(gateProofPath, proofContent);
+  await writeFile(childRuntimeUiProofPath, proofContent);
   await writeFile(
     securityLogPath,
     [
@@ -379,6 +401,8 @@ async function writeProof(playwright) {
       'asserted=no product-ready or physical-device-proved route copy',
       'asserted=manual proof required and physical device proof required labels visible',
       'asserted=child check-in copy and actions visible without child-device delivery claim',
+      'asserted=child runtime UI disclosure, safe/help response, and location-share consent copy visible',
+      'asserted=hosted proof only boundary visible for child runtime UI',
       'asserted=productClaimReady=false',
     ].join('\n') + '\n'
   );

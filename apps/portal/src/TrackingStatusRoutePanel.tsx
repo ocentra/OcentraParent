@@ -13,7 +13,12 @@ import {
 } from '@ocentra-parent/portal-domain/contracts';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalLiveActivityState } from './live-activity-state';
-import { trackingChildCheckInProof, type TrackingChildCheckInProof } from './tracking-child-check-in-proof';
+import {
+  trackingChildCheckInProof,
+  trackingChildRuntimeUiProof,
+  type TrackingChildCheckInProof,
+  type TrackingChildRuntimeUiProof,
+} from './tracking-child-check-in-proof';
 import {
   trackingStatusLiveSummary,
   trackingStatusProofRows,
@@ -68,6 +73,7 @@ export function TrackingStatusRoutePanel({
             <TrackingStatusLiveCitationCard key={String(citation.eventId)} citation={citation} />
           ))}
           <TrackingChildCheckInProofCard proof={trackingChildCheckInProof()} />
+          <TrackingChildRuntimeUiProofCard proof={trackingChildRuntimeUiProof()} />
           {trackingStatusProofRows().map((proofRow) => (
             <TrackingStatusRouteRow key={String(proofRow.title)} proofRow={proofRow} />
           ))}
@@ -144,6 +150,34 @@ function TrackingChildCheckInProofCard({ proof }: { readonly proof: TrackingChil
         <TrackingStatusDetail label={PortalDetails.ChildShareLocationAction} value={proof.shareLocationAction} />
         <TrackingStatusDetail label={PortalDetails.ChildCallParentAction} value={proof.callParentAction} />
         <TrackingStatusDetail label={PortalDetails.ChildDelivery} value={proof.deliveryBoundary} />
+        <TrackingStatusDetail label={PortalDetails.ProofTier} value={proof.proofTier} />
+        <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={proof.evidence} />
+        <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proof.proofArtifact} />
+        <TrackingStatusDetail label={PortalDetails.MissingProof} value={proof.missingProof} />
+        <TrackingStatusDetail label={PortalDetails.ProductClaim} value={proof.productClaim} />
+      </dl>
+    </article>
+  );
+}
+
+function TrackingChildRuntimeUiProofCard({ proof }: { readonly proof: TrackingChildRuntimeUiProof }): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article
+      className={className}
+      {...{ [PortalDom.Attributes.DataTrackingProof]: PortalDom.Attributes.TrackingProofChildRuntimeUi }}
+    >
+      <h2>{proof.title}</h2>
+      <p>{proof.body}</p>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <TrackingStatusDetail label={PortalDetails.ChildCopy} value={proof.disclosure} />
+        <TrackingStatusDetail label={PortalDetails.ChildSafeAction} value={proof.safeResponse} />
+        <TrackingStatusDetail label={PortalDetails.ChildHelpAction} value={proof.helpResponse} />
+        <TrackingStatusDetail label={PortalDetails.ChildShareLocationAction} value={proof.locationShareConsent} />
+        <TrackingStatusDetail label={PortalDetails.ChildDelivery} value={proof.deliveryBoundary} />
+        <TrackingStatusDetail label={PortalDetails.AdapterBoundary} value={proof.runtimeBoundary} />
         <TrackingStatusDetail label={PortalDetails.ProofTier} value={proof.proofTier} />
         <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={proof.evidence} />
         <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proof.proofArtifact} />

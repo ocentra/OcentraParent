@@ -11,9 +11,14 @@
     "child-check-in-copy-visible",
     "child-check-in-actions-visible",
     "child-device-delivery-not-claimed",
+    "child-runtime-disclosure-visible",
+    "child-runtime-safe-help-response-visible",
+    "child-runtime-location-share-consent-visible",
+    "child-runtime-hosted-only-boundary-visible",
     "no-unlabeled-buttons",
     "desktop-screenshot",
     "child-check-in-screenshot",
+    "child-runtime-ui-screenshot",
     "mobile-screenshot"
   ],
   "summary": {
@@ -24,6 +29,7 @@
       "School",
       "School location",
       "Child check-in request",
+      "Child runtime UI proof",
       "Tracking off",
       "Permission required",
       "Stale last known",
@@ -41,7 +47,8 @@
     "paragraphs": [
       "First target",
       "Location states are fixture proof only.",
-      "Your parent is asking you to check in. Are you safe?"
+      "Your parent is asking you to check in. Are you safe?",
+      "Child sees a clear tracking request, safe response, help response, and location-share consent copy."
     ],
     "labels": [
       "Load state",
@@ -81,6 +88,17 @@
       "Share location action",
       "Call parent action",
       "Child delivery",
+      "Proof tier",
+      "Evidence references",
+      "Runtime reference",
+      "Missing proof",
+      "Product claim",
+      "Child copy",
+      "Safe action",
+      "Help action",
+      "Share location action",
+      "Child delivery",
+      "Adapter boundary",
       "Proof tier",
       "Evidence references",
       "Runtime reference",
@@ -210,6 +228,17 @@
       "output/tracking-plan-proof/18-child-check-in-flow/09-policy-alert-proof.json",
       "Manual proof required",
       "No product claim",
+      "Tracking request disclosed",
+      "Safe response visible",
+      "Help response visible",
+      "Location share asks consent",
+      "Child-device delivery not proved",
+      "Hosted proof only, not child-agent delivery",
+      "P2 service proof",
+      "UI fixture proof",
+      "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+      "Manual proof required",
+      "No product claim",
       "Tracking off",
       "P1 fixture proof",
       "Contract/runtime proof",
@@ -302,6 +331,7 @@
   "screenshots": {
     "desktop": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary.png",
     "childCheckIn": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png",
+    "childRuntimeUi": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png",
     "mobile": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png"
   }
 }

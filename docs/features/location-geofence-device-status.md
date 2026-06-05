@@ -75,10 +75,11 @@ expose location or device-status features. Parents expect this category.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
-  drives the parent route through Playwright, captures desktop, mobile, and
-  hosted child-safe check-in screenshots, writes accessibility summary output,
-  proves calm child check-in copy/actions inside the hosted route only, and
-  keeps `productClaimReady=false`.
+  drives the parent route through Playwright, captures desktop, mobile, hosted
+  child-safe check-in, and hosted child-runtime UI proof screenshots, writes
+  accessibility summary output, proves calm child check-in copy/actions plus
+  child disclosure, safe/help response, and location-share consent copy inside
+  the hosted route only, and keeps `productClaimReady=false`.
 - P1 evidence-quality gate proof now exists through
   `npm run test:tracking-plan-evidence-quality-gate-proof`. It validates
   location UI evidence refs, geofence rule/source refs, nearby-place provider
@@ -121,10 +122,10 @@ expose location or device-status features. Parents expect this category.
   explicit `manual_required` proof instead of pretending simulator execution
   happened.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
-  provider delivery, notification delivery, child-device delivery/runtime UI,
-  full parent/child UI beyond the hosted parent route, and broader read-model
-  product surfaces beyond this hosted service-data coverage remain not
-  product-complete.
+  provider delivery, notification delivery, actual child-device delivery/runtime
+  execution, full parent/child UI beyond the hosted parent route, and broader
+  read-model product surfaces beyond this hosted service-data coverage remain
+  not product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
@@ -134,14 +135,14 @@ Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
 service read-model proof with retention-delete tombstone replay, narrow portal
 summary-consumption proof, live service-backed portal citation rows, hosted
 parent route service-data coverage, hosted parent route screenshot/accessibility
-proof with hosted child-safe check-in copy/actions, P1 local parent-defined
-place store proof, pre-device proof-gate progress, Android emulator
-package/service/status scaffold proof, P3 WSL/local replay proof, and P1
-evidence-quality gate proof. It remains a tracked product gap until platform
-location and geofence adapters, broader product read models, provider delivery,
-notifications, physical-device proof, child-device delivery/runtime UI, and full
-parent/child UI snapshots/accessibility beyond the hosted parent route are
-proved.
+proof with hosted child-safe check-in copy/actions and hosted child-runtime
+disclosure/safe-help/location-share consent copy, P1 local parent-defined place
+store proof, pre-device proof-gate progress, Android emulator package/service/status
+scaffold proof, P3 WSL/local replay proof, and P1 evidence-quality gate proof.
+It remains a tracked product gap until platform location and geofence adapters,
+broader product read models, provider delivery, notifications, physical-device
+proof, actual child-device delivery/runtime execution, and full parent/child UI
+snapshots/accessibility beyond the hosted parent route are proved.
 
 ## Checklist
 
@@ -181,8 +182,10 @@ proved.
       and local proof artifact references.
 - [x] Hosted parent `policy-tracking` route screenshot and accessibility proof
       against the real Rust service and seeded ActivityStore, including a
-      hosted child-safe check-in copy/actions card. This is not child-device
-      delivery/runtime UI, full service-data UI, or physical-device proof.
+      hosted child-safe check-in copy/actions card and hosted child-runtime
+      disclosure/safe-help/location-share consent card. This is not
+      child-device delivery/runtime execution, full service-data UI, or
+      physical-device proof.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
       proof plans.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence
