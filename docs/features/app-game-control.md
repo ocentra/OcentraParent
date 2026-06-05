@@ -400,10 +400,11 @@ compiled dry-run decisions and produces parent-domain preview rows only; it
 does not run the policy evaluator, persist policy previews in the service,
 render authoring UI, start timers, deliver child notifications, dispatch
 adapters, or prove platform enforcement.
-The app/game time-budget proof is contract-level: it does not yet provide
-runtime service evaluation, Rust/WebSocket parity, portal budget authoring,
-notification delivery, child request UX, service persistence, adapter
-execution, or platform timer/rollback execution.
+The app/game time-budget proof now includes parent-domain runtime decision
+construction for dry-run, warn-only, ask-parent, manual-required, and
+approved-bonus outcomes, but it does not yet provide service persistence,
+Rust/WebSocket parity, portal budget authoring, notification delivery, child
+request UX, adapter execution, or platform timer/rollback execution.
 The child-facing UX proof is contract/text-level: it does not yet provide a
 native child app, overlay, portal preview, notification delivery, service
 persistence, Rust/WebSocket parity, or platform adapter execution.
