@@ -72,6 +72,10 @@ async function getPortalBackgroundConfig(
   if (response?.ok !== true) {
     return undefined;
   }
+  const contentType = response.headers.get(PortalBackgroundRuntime.HttpHeader.ContentType) ?? '';
+  if (!contentType.toLowerCase().includes(PortalBackgroundRuntime.ContentType.Json)) {
+    return undefined;
+  }
   return normalizePortalBackgroundConfig(await response.json());
 }
 

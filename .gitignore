@@ -3,6 +3,7 @@ dist/
 coverage/
 .turbo/
 .wix/
+.codex-temp/
 .eslintcache
 *.tsbuildinfo
 *.log
@@ -11,6 +12,8 @@ coverage/
 !.env.example
 target/
 apps/*/src-tauri/gen/
+apps/*/src-tauri/.generated/
+apps/*/src-tauri/target-*-dev/
 *.duckdb
 *.duckdb.wal
 *.duckdb.tmp

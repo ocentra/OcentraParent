@@ -641,6 +641,14 @@ const ASSISTANT_OUTGOING_CHAT_BUBBLE_CONFIG = {
 const ASSISTANT_CHAT_SURFACE_FILL = 'rgba(2, 12, 20, 0.52)';
 const ASSISTANT_QUESTIONNAIRE_SURFACE_FILL = ASSISTANT_CHAT_SURFACE_FILL;
 const ASSISTANT_QUESTIONNAIRE_BODY_FILL = 'rgba(7, 26, 42, 0.34)';
+const PARENT_PORTAL_TAB_SURFACE_FILL = {
+  active: 'rgba(2, 12, 22, 0.74)',
+  hover: 'rgba(2, 12, 22, 0.52)',
+  idle: 'rgba(2, 12, 22, 0.38)',
+  lanActive: 'rgba(2, 12, 22, 0.78)',
+  lanIdle: 'rgba(2, 12, 22, 0.48)',
+  lanMuted: 'rgba(2, 12, 22, 0.34)',
+} as const;
 const ASSISTANT_FOLLOW_UP_PAD_X = 24;
 const ASSISTANT_FOLLOW_UP_PAD_Y = 6;
 const ASSISTANT_FOLLOW_UP_HEADER_H = 24;
@@ -3765,10 +3773,10 @@ function AssistantPanelTabButton({
 }) {
   const [hovered, setHovered] = useState(false);
   const fill = active
-    ? colorAlpha(cfg.colors.cyan, '34')
+    ? PARENT_PORTAL_TAB_SURFACE_FILL.active
     : hovered
-      ? colorAlpha(cfg.colors.cyan, '20')
-      : colorAlpha(cfg.colors.cyan, '12');
+      ? PARENT_PORTAL_TAB_SURFACE_FILL.hover
+      : PARENT_PORTAL_TAB_SURFACE_FILL.idle;
   return (
     <g
       className="parent-portal-svg-clickable"
@@ -3788,12 +3796,30 @@ function AssistantPanelTabButton({
       onBlur={() => setHovered(false)}
     >
       <title>{label}</title>
-      <path
-        d={cutRectPath(x, y, w, h, 8)}
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx={0}
         fill={fill}
         stroke={active || hovered ? cfg.colors.cyan : cfg.colors.panelStroke}
         strokeWidth={active ? 1.15 : 0.82}
         opacity={active ? 1 : 0.82}
+      />
+      <path
+        d={`M ${x + 8} ${y + 1.5} H ${x + w - 8}`}
+        stroke={active ? cfg.colors.cyan : cfg.colors.panelStroke}
+        strokeWidth={active ? 1.65 : 0.9}
+        strokeLinecap="round"
+        opacity={active ? 0.95 : hovered ? 0.52 : 0.28}
+      />
+      <path
+        d={`M ${x + 10} ${y + h - 3} H ${x + w - 10}`}
+        stroke={cfg.colors.cyan}
+        strokeWidth={active ? 2.05 : 1.1}
+        strokeLinecap="round"
+        opacity={active ? 0.92 : hovered ? 0.46 : 0.24}
       />
       <text
         x={x + w / 2}
@@ -11704,9 +11730,8 @@ function ManageWorkspacePanel({
           const column = index % tabColumns;
           const row = Math.floor(index / tabColumns);
           const tabX = workspaceBodyX + tabInsetX + column * (tabW + tabGap);
-          const tabY = tabsY + row * tabH + (selected ? 0 : 7);
-          const currentTabH = selected ? tabH + 1 : tabH - 7;
-          const tabRadius = selected ? 11 : 9;
+          const tabY = tabsY + row * tabH + (selected ? 0 : 5);
+          const currentTabH = selected ? tabH + 3 : tabH - 5;
           const tabIconSize = Math.max(14, Math.min(21, currentTabH - 12));
           const tabTextSize = compact ? 10.4 : 12.4;
           const showTabGuideInfo = kind === 'policy' && Boolean(onNavigate);
@@ -11723,6 +11748,8 @@ function ManageWorkspacePanel({
           const tabGuideRoutePath = showTabGuideInfo
             ? guideRoutePathForManageTab(activeNavLabel, selectedControlName, tab.id)
             : '';
+          const tabFill = selected ? PARENT_PORTAL_TAB_SURFACE_FILL.lanActive : PARENT_PORTAL_TAB_SURFACE_FILL.lanIdle;
+          const tabStrokeOpacity = selected ? 0.94 : 0.54;
           return (
             <g
               key={`manage-workspace-tab:${kind}:${tab.id}`}
@@ -11744,33 +11771,55 @@ function ManageWorkspacePanel({
             >
               <rect x={tabX} y={tabsY + row * tabH - 4} width={tabW} height={tabH + 8} fill="transparent" />
               {selected ? (
-                <path
-                  d={topRoundedRectPath(tabX - 2, tabY - 2, tabW + 4, currentTabH + 3, tabRadius + 2)}
+                <rect
+                  x={tabX + 1}
+                  y={tabY - 2}
+                  width={tabW - 2}
+                  height={currentTabH + 5}
+                  rx={0}
                   fill="none"
                   stroke={tabColor}
-                  strokeWidth={3}
-                  opacity={0.18}
+                  strokeWidth={2.3}
+                  opacity={0.14}
                   filter="url(#parentPortalGlow)"
                 />
               ) : null}
-              <path
-                d={topRoundedRectPath(tabX, tabY, tabW, currentTabH, tabRadius)}
-                fill={selected ? colorAlpha(tabColor, '26') : PARENT_PORTAL_GLASS.panelFill}
-                stroke={selected ? tabColor : cfg.colors.panelStroke}
-                strokeWidth={selected ? 1.2 : 0.75}
+              <rect
+                x={tabX}
+                y={tabY}
+                width={tabW}
+                height={currentTabH}
+                rx={0}
+                fill={tabFill}
                 opacity={selected ? 1 : 0.82}
               />
               <path
-                d={topRoundedRectPath(tabX + 5, tabY + 4, tabW - 10, Math.max(9, currentTabH * 0.36), 5)}
-                fill={cfg.colors.bodyText}
-                opacity={selected ? 0.13 : 0.055}
+                d={`M ${tabX} ${tabY} H ${tabX + tabW}`}
+                stroke={selected ? tabColor : cfg.colors.panelStroke}
+                strokeWidth={selected ? 2.2 : 1}
+                strokeLinecap="round"
+                opacity={selected ? 0.95 : 0.34}
               />
               <path
-                d={`M ${tabX + 16} ${tabY + currentTabH - 6} H ${tabX + tabW - 16}`}
-                stroke={tabColor}
-                strokeWidth={selected ? 1.8 : 1}
+                d={`M ${tabX} ${tabY} V ${tabY + currentTabH}`}
+                stroke={cfg.colors.panelStroke}
+                strokeWidth={0.8}
                 strokeLinecap="round"
-                opacity={selected ? 0.95 : 0.38}
+                opacity={column === 0 ? tabStrokeOpacity : 0.22}
+              />
+              <path
+                d={`M ${tabX + tabW} ${tabY} V ${tabY + currentTabH}`}
+                stroke={cfg.colors.panelStroke}
+                strokeWidth={0.8}
+                strokeLinecap="round"
+                opacity={tabStrokeOpacity}
+              />
+              <path
+                d={`M ${tabX + 12} ${tabY + currentTabH - 3} H ${tabX + tabW - 12}`}
+                stroke={tabColor}
+                strokeWidth={selected ? 2.25 : 1.15}
+                strokeLinecap="round"
+                opacity={selected ? 0.95 : 0.34}
               />
               <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
               <text
@@ -13126,9 +13175,9 @@ function ManageControlPanel({
               const muted = Boolean(unavailableReason) && !selected;
               const tabColor = toneColor(tab.tone, cfg);
               const tabX = lanPairingTabsX + index * (lanPairingTabW + lanPairingTabGap);
-              const tabY = selected ? lanPairingDetailY : lanPairingDetailY + 7;
-              const tabH = selected ? lanPairingTabH + 1 : lanPairingTabH - 8;
-              const tabRadius = selected ? 10 : 8;
+              const tabY = selected ? lanPairingDetailY : lanPairingDetailY + 5;
+              const tabH = selected ? lanPairingTabH + 3 : lanPairingTabH - 5;
+              const tabRadius = 0;
               const tabIconSize = Math.max(17, Math.min(22, tabH - 12));
               const tabTextSize = selected ? 13.8 : 12.8;
               const tabText = truncateTextForWidth(tab.label, lanPairingTabW - tabIconSize - 28, tabTextSize, 0.58);
@@ -13136,8 +13185,13 @@ function ManageControlPanel({
               const tabGroupW = tabIconSize + 7 + tabTextW;
               const tabIconX = tabX + (lanPairingTabW - tabGroupW) / 2;
               const tabIconY = tabY + (tabH - tabIconSize) / 2;
-              const tabGlossH = Math.max(9, Math.min(15, Math.round(tabH * 0.38)));
               const TabIcon = tab.icon;
+              const tabFill = selected
+                ? PARENT_PORTAL_TAB_SURFACE_FILL.lanActive
+                : muted
+                  ? PARENT_PORTAL_TAB_SURFACE_FILL.lanMuted
+                  : PARENT_PORTAL_TAB_SURFACE_FILL.lanIdle;
+              const tabStrokeOpacity = selected ? 0.94 : muted ? 0.26 : 0.54;
               return (
                 <g
                   key={`lan-pairing-tab:${tab.id}`}
@@ -13174,72 +13228,55 @@ function ManageControlPanel({
                     fill="transparent"
                   />
                   {selected ? (
-                    <path
-                      d={topRoundedRectPath(tabX - 2, tabY - 2, lanPairingTabW + 4, tabH + 3, tabRadius + 2)}
+                    <rect
+                      x={tabX + 1}
+                      y={tabY - 2}
+                      width={lanPairingTabW - 2}
+                      height={tabH + 5}
+                      rx={0}
                       fill="none"
                       stroke={tabColor}
-                      strokeWidth={3}
-                      opacity={0.18}
+                      strokeWidth={2.3}
+                      opacity={0.14}
                       filter="url(#parentPortalGlow)"
                     />
                   ) : null}
-                  <path
-                    d={topRoundedRectPath(tabX, tabY, lanPairingTabW, tabH, tabRadius)}
-                    fill={selected ? colorAlpha(tabColor, '24') : 'rgba(2, 12, 22, 0.72)'}
+                  <rect
+                    x={tabX}
+                    y={tabY}
+                    width={lanPairingTabW}
+                    height={tabH}
+                    rx={tabRadius}
+                    fill={tabFill}
                     opacity={selected ? 1 : muted ? 0.42 : 0.78}
                   />
                   <path
-                    d={topRoundedRectPath(
-                      tabX + 5,
-                      tabY + 4,
-                      lanPairingTabW - 10,
-                      tabGlossH,
-                      Math.max(4, tabRadius - 4)
-                    )}
-                    fill={cfg.colors.bodyText}
-                    opacity={selected ? 0.13 : 0.055}
-                  />
-                  <path
-                    d={`M ${tabX + tabRadius + 4} ${tabY + 2.5} H ${tabX + lanPairingTabW - tabRadius - 4}`}
-                    stroke={cfg.colors.bodyText}
-                    strokeWidth={0.85}
+                    d={`M ${tabX} ${tabY} H ${tabX + lanPairingTabW}`}
+                    stroke={selected ? tabColor : cfg.colors.panelStroke}
+                    strokeWidth={selected ? 2.2 : 1}
                     strokeLinecap="round"
-                    opacity={selected ? 0.5 : 0.22}
+                    opacity={selected ? 0.95 : muted ? 0.18 : 0.34}
                   />
                   <path
-                    d={`M ${tabX + 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
-                    stroke={cfg.colors.bodyText}
-                    strokeWidth={0.65}
-                    strokeLinecap="round"
-                    opacity={selected ? 0.22 : 0.1}
-                  />
-                  <path
-                    d={`M ${tabX + lanPairingTabW - 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
+                    d={`M ${tabX} ${tabY} V ${tabY + tabH}`}
                     stroke={cfg.colors.panelStroke}
                     strokeWidth={0.8}
                     strokeLinecap="round"
-                    opacity={selected ? 0.56 : 0.32}
+                    opacity={index === 0 ? tabStrokeOpacity : 0.22}
                   />
                   <path
-                    d={`M ${tabX + 5} ${tabY + tabH - 1.5} H ${tabX + lanPairingTabW - 5}`}
+                    d={`M ${tabX + lanPairingTabW} ${tabY} V ${tabY + tabH}`}
                     stroke={cfg.colors.panelStroke}
-                    strokeWidth={0.9}
+                    strokeWidth={0.8}
                     strokeLinecap="round"
-                    opacity={selected ? 0.58 : 0.36}
+                    opacity={tabStrokeOpacity}
                   />
                   <path
-                    d={topRoundedRectPath(tabX, tabY, lanPairingTabW, tabH, tabRadius)}
-                    fill="none"
-                    stroke={selected ? tabColor : cfg.colors.panelStroke}
-                    strokeWidth={selected ? 1.25 : 0.8}
-                    opacity={selected ? 0.98 : muted ? 0.3 : 0.55}
-                  />
-                  <path
-                    d={`M ${tabX + 16} ${tabY + tabH - 6} H ${tabX + lanPairingTabW - 16}`}
+                    d={`M ${tabX + 10} ${tabY + tabH - 3} H ${tabX + lanPairingTabW - 10}`}
                     stroke={tabColor}
-                    strokeWidth={selected ? 1.8 : 1.1}
+                    strokeWidth={selected ? 2.4 : 1.2}
                     strokeLinecap="round"
-                    opacity={selected ? 0.95 : muted ? 0.2 : 0.42}
+                    opacity={selected ? 0.95 : muted ? 0.14 : 0.34}
                   />
                   <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
                   <text
@@ -13838,9 +13875,8 @@ function ManageControlPanel({
               const tabRow = Math.floor(index / activityTabColumns);
               const tabBaseY = activityBodyY + tabRow * activityTabH;
               const tabX = activityTabsX + tabColumn * (activityTabW + activityTabGap);
-              const tabY = selected ? tabBaseY : tabBaseY + (activityTabsCompact ? 4 : 7);
-              const tabH = selected ? activityTabH + 1 : activityTabH - (activityTabsCompact ? 5 : 8);
-              const tabRadius = selected ? 10 : 8;
+              const tabY = selected ? tabBaseY : tabBaseY + (activityTabsCompact ? 3 : 5);
+              const tabH = selected ? activityTabH + 3 : activityTabH - (activityTabsCompact ? 3 : 5);
               const tabIconSize = activityTabsCompact
                 ? Math.max(12, Math.min(16, tabH - 10))
                 : Math.max(17, Math.min(22, tabH - 12));
@@ -13852,8 +13888,13 @@ function ManageControlPanel({
               const tabGroupW = tabIconSize + tabIconGap + tabTextW;
               const tabIconX = tabX + (activityTabW - tabGroupW) / 2;
               const tabIconY = tabY + (tabH - tabIconSize) / 2;
-              const tabGlossH = Math.max(9, Math.min(15, Math.round(tabH * 0.38)));
               const TabIcon = tab.icon;
+              const tabFill = selected
+                ? PARENT_PORTAL_TAB_SURFACE_FILL.lanActive
+                : disabledTab
+                  ? PARENT_PORTAL_TAB_SURFACE_FILL.lanMuted
+                  : PARENT_PORTAL_TAB_SURFACE_FILL.lanIdle;
+              const tabStrokeOpacity = selected ? 0.94 : disabledTab ? 0.26 : 0.54;
               return (
                 <g
                   key={`activity-tab:${tab.id}`}
@@ -13888,66 +13929,55 @@ function ManageControlPanel({
                 >
                   <rect x={tabX} y={tabBaseY - 4} width={activityTabW} height={activityTabH + 8} fill="transparent" />
                   {selected ? (
-                    <path
-                      d={topRoundedRectPath(tabX - 2, tabY - 2, activityTabW + 4, tabH + 3, tabRadius + 2)}
+                    <rect
+                      x={tabX + 1}
+                      y={tabY - 2}
+                      width={activityTabW - 2}
+                      height={tabH + 5}
+                      rx={0}
                       fill="none"
                       stroke={tabPaintColor}
-                      strokeWidth={3}
-                      opacity={0.18}
+                      strokeWidth={2.3}
+                      opacity={0.14}
                       filter="url(#parentPortalGlow)"
                     />
                   ) : null}
-                  <path
-                    d={topRoundedRectPath(tabX, tabY, activityTabW, tabH, tabRadius)}
-                    fill={selected ? colorAlpha(tabPaintColor, '24') : 'rgba(2, 12, 22, 0.72)'}
+                  <rect
+                    x={tabX}
+                    y={tabY}
+                    width={activityTabW}
+                    height={tabH}
+                    rx={0}
+                    fill={tabFill}
                     opacity={disabledTab ? 0.42 : selected ? 1 : 0.78}
                   />
                   <path
-                    d={topRoundedRectPath(tabX + 5, tabY + 4, activityTabW - 10, tabGlossH, Math.max(4, tabRadius - 4))}
-                    fill={cfg.colors.bodyText}
-                    opacity={selected ? 0.13 : 0.055}
-                  />
-                  <path
-                    d={`M ${tabX + tabRadius + 4} ${tabY + 2.5} H ${tabX + activityTabW - tabRadius - 4}`}
-                    stroke={cfg.colors.bodyText}
-                    strokeWidth={0.85}
+                    d={`M ${tabX} ${tabY} H ${tabX + activityTabW}`}
+                    stroke={selected ? tabPaintColor : cfg.colors.panelStroke}
+                    strokeWidth={selected ? 2.2 : 1}
                     strokeLinecap="round"
-                    opacity={selected ? 0.5 : 0.22}
+                    opacity={selected ? 0.95 : disabledTab ? 0.18 : 0.34}
                   />
                   <path
-                    d={`M ${tabX + 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
-                    stroke={cfg.colors.bodyText}
-                    strokeWidth={0.65}
-                    strokeLinecap="round"
-                    opacity={selected ? 0.22 : 0.1}
-                  />
-                  <path
-                    d={`M ${tabX + activityTabW - 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
+                    d={`M ${tabX} ${tabY} V ${tabY + tabH}`}
                     stroke={cfg.colors.panelStroke}
                     strokeWidth={0.8}
                     strokeLinecap="round"
-                    opacity={selected ? 0.56 : 0.32}
+                    opacity={tabColumn === 0 ? tabStrokeOpacity : 0.22}
                   />
                   <path
-                    d={`M ${tabX + 5} ${tabY + tabH - 1.5} H ${tabX + activityTabW - 5}`}
+                    d={`M ${tabX + activityTabW} ${tabY} V ${tabY + tabH}`}
                     stroke={cfg.colors.panelStroke}
-                    strokeWidth={0.9}
+                    strokeWidth={0.8}
                     strokeLinecap="round"
-                    opacity={selected ? 0.58 : 0.36}
+                    opacity={tabStrokeOpacity}
                   />
                   <path
-                    d={topRoundedRectPath(tabX, tabY, activityTabW, tabH, tabRadius)}
-                    fill="none"
-                    stroke={selected ? tabPaintColor : cfg.colors.panelStroke}
-                    strokeWidth={selected ? 1.25 : 0.8}
-                    opacity={disabledTab ? 0.3 : selected ? 0.98 : 0.55}
-                  />
-                  <path
-                    d={`M ${tabX + 16} ${tabY + tabH - 6} H ${tabX + activityTabW - 16}`}
+                    d={`M ${tabX + 10} ${tabY + tabH - 3} H ${tabX + activityTabW - 10}`}
                     stroke={tabPaintColor}
-                    strokeWidth={selected ? 1.8 : 1.1}
+                    strokeWidth={selected ? 2.4 : 1.2}
                     strokeLinecap="round"
-                    opacity={disabledTab ? 0.22 : selected ? 0.95 : 0.42}
+                    opacity={disabledTab ? 0.14 : selected ? 0.95 : 0.34}
                   />
                   <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
                   <text
