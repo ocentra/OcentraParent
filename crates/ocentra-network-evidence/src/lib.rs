@@ -23,6 +23,7 @@ pub mod packet;
 pub mod pcap;
 pub mod performance;
 pub mod pipeline;
+pub mod platform_claims;
 pub mod policy;
 pub mod process;
 pub mod readiness;
@@ -37,6 +38,7 @@ pub mod windows_firewall_adapter;
 pub mod windows_wfp_gate;
 pub mod zeek;
 
+mod platform_claim_values;
 mod process_support;
 
 #[cfg(test)]
@@ -168,6 +170,13 @@ pub use pipeline::{
     prove_network_end_to_end_pipeline, NetworkEndToEndPipelineError, NetworkEndToEndPipelineInput,
     NetworkEndToEndPipelineProof, NetworkEndToEndPipelineRefs, NetworkEndToEndUnsupportedClaims,
     NetworkRetentionDeleteExportProof,
+};
+pub use platform_claims::{
+    build_network_platform_claim_manifest, NetworkPlatformClaimEntry,
+    NetworkPlatformClaimManifestError, NetworkPlatformClaimManifestInput,
+    NetworkPlatformClaimManifestProof, NetworkPlatformClaimManualFollowup,
+    NetworkPlatformClaimProofSource, NetworkPlatformClaimState, NetworkPlatformClaimTarget,
+    NetworkPlatformUnsupportedClaims,
 };
 pub use policy::{
     map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,

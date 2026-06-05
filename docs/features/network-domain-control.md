@@ -309,6 +309,12 @@ compete on control while staying clear about attribution confidence and privacy.
   refs, and retention/delete/export refs while proving weak or unavailable
   evidence cannot authorize adapter apply and AI/UI/network surfaces cannot
   bypass policy.
+- E-D added a platform-claim manifest proof in `ocentra-network-evidence` that
+  composes Windows Firewall/WFP, Android VpnService, Apple Network Extension
+  macOS/iOS, and Linux nftables/eBPF/TUN gates into exact OS/device/permission claim rows,
+  records missing artifacts as manual follow-ups, and rejects generic platform
+  support, live adapter execution, UI policy authority, and enforcement-command
+  claims.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -345,7 +351,10 @@ evidence-grade policy handoff mapping, parent notification candidate mapping,
 proof-gated DNS and Windows Firewall adapter apply/result/rollback/audit
 boundaries, a Windows WFP signed/permissioned lab-proof gate, an Android
 VpnService physical-device proof gate, an Apple Network Extension
-entitlement/device proof gate, and a Linux nftables/eBPF/TUN distro proof gate.
+entitlement/device proof gate, a Linux nftables/eBPF/TUN distro proof gate, and
+a platform-claim manifest that names exact Windows, Android, Apple macOS/iOS,
+and Linux nftables/eBPF/TUN OS/device/permission refs plus manual follow-ups
+for missing artifacts.
 Broker/family-hub delivery implementation, local-AI model execution/worker
 runtime, full policy engine execution, notification provider delivery, broader
 parent-facing rule UX, live host DNS mutation/proxy installation, live Windows
@@ -449,8 +458,13 @@ UI rendering remain open.
       claims. Row50 security readiness proof now gates production rollout on
       threat-model/privacy/compliance/retention/hardening/support/staged-rollout
       refs plus external audit or penetration-test signoff for production-ready
-      state. AI model execution, broker/family-hub delivery implementation,
-      full policy engine execution, notification delivery, external
+      state. Row52 platform-claim manifest proof now composes Windows
+      Firewall/WFP, Android VpnService, Apple Network Extension macOS/iOS, and
+      Linux nftables/eBPF/TUN gates into exact OS/device/permission claim rows,
+      records manual follow-ups for missing artifacts, and rejects generic
+      platform support, live adapter execution, UI policy authority, and
+      enforcement-command claims. AI model execution, broker/family-hub delivery
+      implementation, full policy engine execution, notification delivery, external
       audit/deployment execution, full support-material authoring, and portal
       risk-budget/performance UI rendering remain.
 - [x] Parent portal network evidence drawer.
@@ -463,8 +477,9 @@ UI rendering remain open.
       VpnService plus Row41 Apple Network Extension and Row42 Linux proof gates
       model supported/lab-ready/physical-device-ready/Apple-device-ready/
       distro-ready, manual-required, and unavailable capability states for their
-      adapter boundaries, but broader platform capability status and parent UI
-      surfacing remain open.
+      adapter boundaries. Row52 now accounts for those claims in one exact
+      OS/device/permission manifest with manual follow-ups, but broader
+      platform capability status and parent UI surfacing remain open.
 - [x] DNS proxy/block/redirect adapter proof boundary.
       The Rust proof accepts apply-ready only with grade-A policy, parent-rule
       refs, evidence refs, supported capability, adapter authorization,

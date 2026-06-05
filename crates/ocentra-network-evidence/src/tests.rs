@@ -25,6 +25,7 @@ mod managed_browser;
 mod notification;
 mod performance;
 mod pipeline;
+mod platform_claims;
 mod policy;
 mod process;
 mod readiness;
