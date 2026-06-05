@@ -1,3 +1,8 @@
+import {
+  createParentPortalAppGameSourcePanelSections,
+  type ParentPortalAppGameSourcePanelSection,
+} from './app-game-source-panel-intent';
+
 export type ParentPortalAppGameDashboardTone = 'cyan' | 'gold' | 'purple' | 'red';
 
 export type ParentPortalAppGameDashboardMetric = {
@@ -57,6 +62,7 @@ export type ParentPortalAppGameDashboardIntent = {
   readonly gameRows: readonly ParentPortalAppGameDashboardRow[];
   readonly rows: readonly ParentPortalAppGameDashboardRow[];
   readonly sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[];
+  readonly sourcePanelSections: readonly ParentPortalAppGameSourcePanelSection[];
   readonly metrics: readonly ParentPortalAppGameDashboardMetric[];
   readonly capabilityRows: readonly ParentPortalAppGameDashboardMetric[];
   readonly evidenceRows: readonly ParentPortalAppGameDashboardMetric[];
@@ -74,6 +80,7 @@ export function createParentPortalAppGameDashboardIntent(
     ...appGameSourceStatusRows(appUseReadModel, 'app-use', 'App use', 'appName'),
     ...appGameSourceStatusRows(gamesReadModel, 'games', 'Game', 'displayName'),
   ].sort(sourceStatusRowSort);
+  const sourcePanelSections = createParentPortalAppGameSourcePanelSections(sourceStatusRows);
   const metrics = appGameDashboardMetrics(appRows, gameRows, rows, sourceStatusRows);
   const state = dashboardState(appUseReadModel, gamesReadModel, rows);
 
@@ -84,6 +91,7 @@ export function createParentPortalAppGameDashboardIntent(
     gameRows,
     rows,
     sourceStatusRows,
+    sourcePanelSections,
     metrics,
     capabilityRows: capabilityRows(rows),
     evidenceRows: evidenceRows(rows, sourceStatusRows),

@@ -258,6 +258,10 @@ control with better evidence and local audit.
   source-kind capability state, latest observed timestamps, and evidence ref
   counts through the existing metric/evidence surfaces without adding backend,
   policy, or adapter claims.
+- The App/Game Sessions dashboard intent now also exposes grouped source-panel
+  sections for app-use and game source rows with fresh/manual/evidence counts,
+  source labels, and last-observed labels, preparing the dedicated source panel
+  seam without touching the locked SVG surface.
 - Parent-domain category/risk policy-routing contracts now map native app
   categories, risk candidates, native game categories, and game context signals
   into matching app/game policy target kinds with active category proof,
@@ -310,15 +314,16 @@ hashed source/path refs, and the service capture path can append those
 registry-backed inventory rows into the same journal/store/read-model path.
 Backend app-use/games read-model rows now include grouped source
 freshness/status rows for inventory, runtime, foreground, and launcher sources,
-and parent-domain category/risk routing now turns category, risk, and
+and the portal intent now exposes app-use and game source-panel sections for
+those rows. Parent-domain category/risk routing now turns category, risk, and
 game-context candidates into soft/manual policy target inputs only when active
 category proof and supporting evidence refs exist. A service-backed policy
 readiness read model can now report whether the required evidence, approval
 authority, and platform authority rows are available before evaluator
 consumption, while action history/classifier gaps remain manual-required. Richer
-source panel polish, category/readiness rendering, local model quality/provider
-execution, policy evaluator consumption, runtime service policy evaluation, and
-platform enforcement remain unproved. Live
+source-panel SVG rendering, category/readiness rendering, local model
+quality/provider execution, policy evaluator consumption, runtime service
+policy evaluation, and platform enforcement remain unproved. Live
 process snapshots now replay through the local journal/SQLite path in core and
 through the service activity-capture journal/store path for bounded runtime
 rows; recurring service capture freshness is now proved, and the service
@@ -417,8 +422,9 @@ support.
       rows into the journal/store/read-model path. App-use/games read-model
       rows now expose grouped backend source status/freshness rows, and the
       parent App/Game Sessions dashboard renders source and fresh-source counts
-      plus source-kind evidence summaries. Dedicated source panel polish, richer
-      source subscriptions, and policy integration remain.
+      plus source-kind evidence summaries. Source-panel intent sections now
+      group those rows for the next rendering seam. Dedicated source-panel SVG
+      rendering, richer source subscriptions, and policy integration remain.
 - [ ] Category and unknown-state handling. Unknown approval contracts now keep
       weak app/game evidence in review/report-only/manual-required states with
       evidence refs, child status refs, expiry, and audit-backed persistence
