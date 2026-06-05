@@ -25,7 +25,9 @@ const healthUrl = createAgentHealthUrl(proofPort);
 const wsUrl = createAgentWebSocketUrl(proofPort);
 const devLogDir = await mkdtemp(join(tmpdir(), 'ocentra-parent-local-ai-scheduler-proof-'));
 const proofOutputDir = join(process.cwd(), 'test-results', 'local-ai-provider-scheduler-proof');
+const trackedProofOutputDir = join(process.cwd(), 'output', 'ai-plan-proof', 'local-ai-provider-scheduler-proof');
 const proofOutputPath = join(proofOutputDir, 'proof.json');
+const trackedProofOutputPath = join(trackedProofOutputDir, 'proof.json');
 const successfulCommands = [];
 
 await runPackageCommand(['run', 'build:contracts']);
@@ -63,6 +65,7 @@ try {
   console.log(
     `local-ai-provider-scheduler-proof-ok: unavailable lifecycle, singleton scheduler, and priority queue tests passed (${proofOutputPath})`
   );
+  console.log(`trackedEvidence=${trackedProofOutputPath}`);
 } finally {
   await stopProcessTreeAndWait(service);
   await rm(devLogDir, { recursive: true, force: true });
@@ -177,6 +180,7 @@ function commandEnvelope(messageId, command, payload) {
 
 async function writeSchedulerProof() {
   await mkdir(proofOutputDir, { recursive: true });
+  await mkdir(trackedProofOutputDir, { recursive: true });
   const proof = {
     proofGeneratedAt: new Date().toISOString(),
     proofTopic: 'local-ai-provider-runtime-scheduler',
@@ -201,7 +205,9 @@ async function writeSchedulerProof() {
       },
     },
   };
-  await writeFile(proofOutputPath, `${JSON.stringify(proof, null, 2)}\n`, 'utf8');
+  const serialized = `${JSON.stringify(proof, null, 2)}\n`;
+  await writeFile(proofOutputPath, serialized, 'utf8');
+  await writeFile(trackedProofOutputPath, serialized, 'utf8');
 }
 
 async function waitForHttp(url) {

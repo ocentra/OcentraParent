@@ -39,7 +39,13 @@ claim needs proof, not slogans.
 
 ## Current Ocentra State
 
-- Local AI runtime/provider status and provider scheduler proof exist.
+- Local AI runtime/provider status and provider scheduler proof exist. The
+  provider proof now includes one runtime access lane per physical device:
+  TypeScript and Rust proof entries carry `runtimeAccessLaneCount=1`, the Rust
+  service scheduler keeps independent lanes per physical device, same-device
+  parent/child jobs still share one lane, and tracked proof artifacts live under
+  `output/ai-plan-proof/local-ai-runtime-provider-proof` and
+  `output/ai-plan-proof/local-ai-provider-scheduler-proof`.
 - The screen service analysis runtime now consumes an encrypted screen queue job,
   runs through the local provider scheduler and service-owned local adapter
   command boundary, records `localVision` or explicit unavailable/invalid output
@@ -85,7 +91,7 @@ claim needs proof, not slogans.
 ## Current Gap
 
 Ocentra needs product-grade model configuration, local model artifacts,
-production screen model quality, confidence handling, degraded states,
+production screen model quality, confidence handling,
 authenticated-account social proof beyond public/live surface proof, parent
 explanations, broader enforcement handoff, production browser-trigger
 producers, real family AI hub runtime/discovery, cloud-streamed frame proof,
@@ -95,6 +101,8 @@ variants.
 ## Checklist
 
 - [x] Runtime/provider status.
+- [x] One local AI runtime access lane per physical device, with child-safety
+      priority and no duplicate same-device model load proof.
 - [x] Evidence context builder proof path.
 - [x] Parent-rule context proof path.
 - [x] Local result contract with confidence/degraded state.

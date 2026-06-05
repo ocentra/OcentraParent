@@ -124,6 +124,7 @@ pub const DEGRADED_OVERLOADED: &str = "overloaded";
 pub const DEGRADED_INVALID_OUTPUT: &str = "invalid-output";
 pub const SINGLETON_SCOPE_PHYSICAL_DEVICE: &str = "physical-device";
 pub const PHYSICAL_DEVICE_LOCAL: &str = "physical-device-local";
+pub const PHYSICAL_DEVICE_SECOND_LOCAL: &str = "physical-device-second-local";
 pub const SCHEDULER_LIFECYCLE_IDLE: &str = "idle";
 pub const SCHEDULER_LIFECYCLE_RUNNING: &str = "running";
 pub const SCHEDULER_LIFECYCLE_QUEUED: &str = "queued";

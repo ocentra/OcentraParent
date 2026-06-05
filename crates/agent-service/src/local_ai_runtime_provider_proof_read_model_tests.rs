@@ -30,6 +30,10 @@ fn local_ai_runtime_provider_proof_read_model_captures_all_requirements() {
         .entries
         .iter()
         .all(|entry| entry.runtime_load_count <= 1));
+    assert!(read_model
+        .entries
+        .iter()
+        .all(|entry| entry.runtime_access_lane_count == 1));
     assert!(read_model.entries.iter().any(|entry| {
         entry.proof_entry_id
             == constants::local_ai_runtime_provider_proof::ENTRY_ID_SHARED_PARENT_CHILD_PROVIDER
@@ -70,6 +74,7 @@ fn local_ai_runtime_provider_proof_keeps_child_safety_priority_and_duplicate_blo
     assert_eq!(priority.queue.parent_assistant_queued, 1);
     assert!(priority.child_safety_priority_proved);
     assert!(no_duplicate.duplicate_runtime_blocked);
+    assert_eq!(no_duplicate.runtime_access_lane_count, 1);
     assert_eq!(no_duplicate.runtime_load_count, 1);
 }
 

@@ -7,14 +7,17 @@ safe under backpressure.
 
 ## Where We Are
 
-Provider scheduler proof exists, but a cross-slice AI job contract needs to own
-task scope, evidence refs, parent rule refs, provider route, timeout, and result
-journal refs.
+Provider scheduler proof exists and now proves child-safety priority,
+same-device parent/child sharing, queued/degraded/unavailable provider states,
+and one independent runtime access lane per physical device. A broader
+cross-slice AI job contract still needs to own task scope, evidence refs, parent
+rule refs, provider route, timeout, and result journal refs.
 
 ## Checklist
 
 - [ ] Define AI job input contract.
-- [ ] Define queue state and priority.
+- [x] Define provider scheduler queue state and child-safety priority for the
+      local runtime lane.
 - [ ] Add timeout, cancellation, retry, and resource class.
 - [ ] Require evidence refs and custody labels.
 - [ ] Journal queue start/finish/fail states.

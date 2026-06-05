@@ -6,15 +6,16 @@ These entries summarize proof already produced on the current stacked branch.
 They are not product-complete AI claims until the service/runtime/read-model path
 consumes the same results.
 
-| Proof                                             | Status             | Artifact                                                                                     | Non-claim                                                                                                                                                                                                                                                  |
-| ------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Controlled captured screens analyzed by local VLM | P3 harness proved  | `output/ai-plan-proof/real-analysis/proof-summary.json`                                      | Uses real window capture and local VLM execution against controlled local fixtures for video/social/game/shopping/bypass/risk text. This is plumbing/harness proof only; live operator external URL/account proof remains before a product-complete claim. |
-| Local AI safety result schema validation          | P3 contract proved | `output/ai-plan-proof/real-analysis/youtube-ordinary-video/06-ai-result.json`                | The proof validates generated safety results per scenario; service runtime/read-model consumption remains implementation work.                                                                                                                             |
-| Parent policy dry-run decision                    | P3 contract proved | `output/ai-plan-proof/real-analysis/browser-game/07-policy-decision.json`                    | The proof covers allow, warn, ask-parent, time-limit, and block dry-run decisions; browser/network/mobile/broad block enforcement remains separate proof.                                                                                                  |
-| Screen-derived action handoff                     | P3 Windows proved  | `output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json`                         | Native owned-process time-limit reaches the real Windows Rust service adapter path; this does not claim browser, network, mobile, or broad block enforcement.                                                                                              |
-| Raw image deletion after analysis                 | P3 proved          | `output/ai-plan-proof/real-analysis/proof-summary.json`                                      | Every captured row deletes the raw temp image after analysis; retention/live-view modes are separate explicit opt-in implementation work and are not claimed here.                                                                                         |
-| Disabled screen analysis suppression              | P3 proved          | `output/ai-plan-proof/real-analysis/disabled-no-capture-no-ai/01-source-evidence.json`       | Proves the proof harness creates no capture/AI/policy result when the parent setting is disabled; product UI and service-owned disable suppression remain separate runtime wiring.                                                                         |
-| Parent explanation snapshots                      | P3 artifact proved | `output/ai-plan-proof/real-analysis/youtube-ordinary-video/10-ui-snapshot.png` and peer rows | These are proof artifact snapshots rendered from scenario outputs, not the production portal runtime.                                                                                                                                                      |
+| Proof                                             | Status             | Artifact                                                                                                                               | Non-claim                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Controlled captured screens analyzed by local VLM | P3 harness proved  | `output/ai-plan-proof/real-analysis/proof-summary.json`                                                                                | Uses real window capture and local VLM execution against controlled local fixtures for video/social/game/shopping/bypass/risk text. This is plumbing/harness proof only; live operator external URL/account proof remains before a product-complete claim.                                             |
+| Local AI safety result schema validation          | P3 contract proved | `output/ai-plan-proof/real-analysis/youtube-ordinary-video/06-ai-result.json`                                                          | The proof validates generated safety results per scenario; service runtime/read-model consumption remains implementation work.                                                                                                                                                                         |
+| Parent policy dry-run decision                    | P3 contract proved | `output/ai-plan-proof/real-analysis/browser-game/07-policy-decision.json`                                                              | The proof covers allow, warn, ask-parent, time-limit, and block dry-run decisions; browser/network/mobile/broad block enforcement remains separate proof.                                                                                                                                              |
+| Screen-derived action handoff                     | P3 Windows proved  | `output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json`                                                                   | Native owned-process time-limit reaches the real Windows Rust service adapter path; this does not claim browser, network, mobile, or broad block enforcement.                                                                                                                                          |
+| Raw image deletion after analysis                 | P3 proved          | `output/ai-plan-proof/real-analysis/proof-summary.json`                                                                                | Every captured row deletes the raw temp image after analysis; retention/live-view modes are separate explicit opt-in implementation work and are not claimed here.                                                                                                                                     |
+| Disabled screen analysis suppression              | P3 proved          | `output/ai-plan-proof/real-analysis/disabled-no-capture-no-ai/01-source-evidence.json`                                                 | Proves the proof harness creates no capture/AI/policy result when the parent setting is disabled; product UI and service-owned disable suppression remain separate runtime wiring.                                                                                                                     |
+| Parent explanation snapshots                      | P3 artifact proved | `output/ai-plan-proof/real-analysis/youtube-ordinary-video/10-ui-snapshot.png` and peer rows                                           | These are proof artifact snapshots rendered from scenario outputs, not the production portal runtime.                                                                                                                                                                                                  |
+| Local AI provider per-device runtime lane         | P3 runtime proved  | `output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json`; `output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json` | Proves one provider/runtime lane per physical device, parent/child same-device sharing, child-safety priority, queued/degraded/unavailable states, and no duplicate same-device model load. It does not prove LAN cross-device routing, model quality, Portal UI, or API/remote provider availability. |
 
 ## Contract And Source Truth
 
@@ -29,7 +30,7 @@ consumes the same results.
 
 - [ ] Local AI input contract complete.
 - [ ] Local AI result contract complete.
-- [ ] Runtime status contract complete.
+- [x] Runtime status contract complete.
 - [ ] Provider capability contract complete.
 - [ ] Job queue contract complete.
 - [ ] Provider route contract complete.
@@ -49,7 +50,7 @@ consumes the same results.
 - [ ] Local text inference dry-run implemented.
 - [ ] Output parser implemented.
 - [ ] Invalid output and timeout degrade safely.
-- [ ] Provider queue and routing implemented.
+- [x] Provider queue and routing implemented.
 - [ ] Runtime status visible in service and portal.
 - [ ] AI result journal and SQLite ingest implemented.
 - [ ] Parent explanation read model implemented.
@@ -115,10 +116,10 @@ consumes the same results.
 
 ## Validation
 
-- [ ] TypeScript contract tests.
-- [ ] Rust parity tests.
+- [x] TypeScript contract tests.
+- [x] Rust parity tests.
 - [ ] Stored-evidence integration tests.
-- [ ] Provider route/status tests.
+- [x] Provider route/status tests.
 - [ ] Model output parser tests.
 - [ ] Policy integration tests.
 - [ ] Memory/graph source guard tests.

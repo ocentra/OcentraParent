@@ -3,15 +3,18 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
-const outputDir = join(repoRoot, 'test-results', 'local-ai-runtime-provider-proof');
-const proofPath = join(outputDir, 'proof.json');
+const resultOutputDir = join(repoRoot, 'test-results', 'local-ai-runtime-provider-proof');
+const trackedOutputDir = join(repoRoot, 'output', 'ai-plan-proof', 'local-ai-runtime-provider-proof');
+const proofPath = join(resultOutputDir, 'proof.json');
+const trackedProofPath = join(trackedOutputDir, 'proof.json');
 const commands = [];
 const proofLabels = [];
 
 await main();
 
 async function main() {
-  await mkdir(outputDir, { recursive: true });
+  await mkdir(resultOutputDir, { recursive: true });
+  await mkdir(trackedOutputDir, { recursive: true });
 
   await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
   await runCommand('cmd', [
@@ -85,9 +88,16 @@ async function main() {
     ],
   };
 
-  await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
+  await writeProof(proof);
   console.log(`local-ai-runtime-provider-proof-ok:${proofLabels.join(',')}`);
   console.log(`evidence=${relative(repoRoot, proofPath)}`);
+  console.log(`trackedEvidence=${relative(repoRoot, trackedProofPath)}`);
+}
+
+async function writeProof(proof) {
+  const serialized = `${JSON.stringify(proof, null, 2)}\n`;
+  await writeFile(proofPath, serialized);
+  await writeFile(trackedProofPath, serialized);
 }
 
 function summarizeReadModel(readModel) {
@@ -96,6 +106,8 @@ function summarizeReadModel(readModel) {
     requirements: readModel.entries.map((entry) => entry.requirement).sort(),
     byProofStatus: countBy(readModel.entries.map((entry) => entry.proofStatus)),
     bySchedulerLifecycle: countBy(readModel.entries.map((entry) => entry.schedulerLifecycle)),
+    maxRuntimeAccessLaneCount: Math.max(...readModel.entries.map((entry) => entry.runtimeAccessLaneCount)),
+    minRuntimeAccessLaneCount: Math.min(...readModel.entries.map((entry) => entry.runtimeAccessLaneCount)),
     maxRuntimeLoadCount: Math.max(...readModel.entries.map((entry) => entry.runtimeLoadCount)),
     duplicateRuntimeBlocked: readModel.entries.filter((entry) => entry.duplicateRuntimeBlocked).length,
     childSafetyPriorityProved: readModel.entries.filter((entry) => entry.childSafetyPriorityProved).length,
@@ -110,6 +122,8 @@ function assertReadModel(readModel, summary) {
   assertEqual(summary.byProofStatus.proved, 6, 'proved provider proof count');
   assertEqual(summary.byProofStatus.degraded, 1, 'degraded provider proof count');
   assertEqual(summary.byProofStatus.unavailable, 1, 'unavailable provider proof count');
+  assertEqual(summary.maxRuntimeAccessLaneCount, 1, 'maximum runtime access lane count');
+  assertEqual(summary.minRuntimeAccessLaneCount, 1, 'minimum runtime access lane count');
   assertEqual(summary.maxRuntimeLoadCount, 1, 'maximum runtime load count');
   assertEqual(summary.childSafetyPriorityProved, 2, 'child safety priority proof flags');
   assertEqual(summary.parentAssistantSubmissionAllowed, 3, 'parent assistant allowed proof flags');
@@ -130,6 +144,7 @@ function assertReadModel(readModel, summary) {
   }
   proofLabels.push('local-ai.provider-proof.contract-counts');
   proofLabels.push('local-ai.provider-proof.shared-runtime-singleton');
+  proofLabels.push('local-ai.provider-proof.one-runtime-access-lane-per-device');
   proofLabels.push('local-ai.provider-proof.child-safety-priority');
   proofLabels.push('local-ai.provider-proof.lifecycle-boundaries');
 }

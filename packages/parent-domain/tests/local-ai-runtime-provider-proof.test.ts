@@ -19,6 +19,7 @@ it('captures every local AI provider proof requirement with stable ids and singl
   expect(statusCounts).toEqual({ proved: 6, degraded: 1, unavailable: 1 });
   expect(lifecycleCounts).toEqual({ idle: 2, queued: 3, degraded: 1, running: 1, unavailable: 1 });
   expect(readModel.entries.every((entry) => entry.runtimeLoadCount <= 1)).toBe(true);
+  expect(readModel.entries.every((entry) => entry.runtimeAccessLaneCount === 1)).toBe(true);
   expect(readModel.entries.every((entry) => entry.singletonScope === 'physical-device')).toBe(true);
 });
 
@@ -31,6 +32,7 @@ it('proves parent and child roles share the provider instead of loading duplicat
   expect(sharedProvider.runtimeReferenceId).toBe(duplicateBlocked.runtimeReferenceId);
   expect(sharedProvider.physicalDeviceId).toBe(duplicateBlocked.physicalDeviceId);
   expect(duplicateBlocked).toMatchObject({
+    runtimeAccessLaneCount: 1,
     runtimeLoadCount: 1,
     duplicateRuntimeBlocked: true,
     childSafetyPriorityProved: true,
@@ -87,6 +89,13 @@ it('rejects duplicate model loads, invalid child priority, and unavailable statu
       ...noDuplicate,
       proofEntryId: 'invalid-duplicate-model-load',
       runtimeLoadCount: 2,
+    })
+  ).toThrow();
+  expect(() =>
+    LocalAiRuntimeProviderProofEntrySchema.parse({
+      ...noDuplicate,
+      proofEntryId: 'invalid-missing-runtime-access-lane',
+      runtimeAccessLaneCount: 0,
     })
   ).toThrow();
   expect(() =>

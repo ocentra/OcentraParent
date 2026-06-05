@@ -46,9 +46,12 @@ configure, explain, and preview rules.
   `childSafetyOrEnforcementUseAllowed=false`.
 - `local-ai-parent-assistant-runtime-proof` records the focused local AI
   assistant runtime boundary: local answers use the shared provider scheduler,
-  busy providers degrade or queue without duplicate runtime loads, unavailable
-  states remain cited and explicit, API AI stays optional, and action
-  preview/confirm cannot write policy or enforce directly.
+  busy providers degrade or queue without duplicate runtime loads on the same
+  physical device, unavailable states remain cited and explicit, API AI stays
+  optional, and action preview/confirm cannot write policy or enforce directly.
+  The provider scheduler proof now also shows independent Rust runtime lanes per
+  physical device while preserving child-safety priority over queued assistant
+  work on each device lane.
 - Parent Assistant action preview/confirm now has a service-backed boundary that
   requires a preview id before confirmation, rejects raw assistant prose as an
   executable action, preserves cited source refs and audit reason, and returns
@@ -61,8 +64,9 @@ configure, explain, and preview rules.
 Assistant threads, provider status UI, parent approval, child-agent validation,
 real API provider adapters, and rule-writing flow are incomplete as one product
 flow. Saved report citations, cited answers, action previews, and backend
-provider routing have runtime proof, and preview-before-confirm is now enforced
-at the service boundary, but the portal chat surface still needs C-owned
+provider routing have runtime proof, the per-device local provider lane is
+proved at the service boundary, and preview-before-confirm is now enforced at
+the service boundary, but the portal chat surface still needs C-owned
 integration. MIA evidence context remains read-model/report citation context
 only; it does not transfer raw child evidence, write policy, enforce on child
 devices, or validate actions through a real child-agent policy contract.

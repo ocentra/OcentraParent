@@ -109,6 +109,43 @@ async fn parent_and_child_jobs_share_one_runtime_lane() {
 }
 
 #[tokio::test]
+async fn physical_devices_use_independent_runtime_lanes_without_duplicate_loads_per_device() {
+    let scheduler = Arc::new(LocalAiProviderSchedulerRuntime::new_for_test());
+    let runtime = ready_runtime();
+    let active_jobs = Arc::new(AtomicUsize::new(0));
+    let max_active_jobs = Arc::new(AtomicUsize::new(0));
+
+    let first_device = spawn_observed_device_job(
+        Arc::clone(&scheduler),
+        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+        runtime.clone(),
+        Arc::clone(&active_jobs),
+        Arc::clone(&max_active_jobs),
+    );
+    let second_device = spawn_observed_device_job(
+        Arc::clone(&scheduler),
+        constants::local_ai_runtime::PHYSICAL_DEVICE_SECOND_LOCAL,
+        runtime,
+        Arc::clone(&active_jobs),
+        Arc::clone(&max_active_jobs),
+    );
+
+    let (first_result, second_result) = tokio::join!(first_device, second_device);
+
+    assert_completed_generation(first_result);
+    assert_completed_generation(second_result);
+    assert_eq!(max_active_jobs.load(Ordering::SeqCst), 2);
+    assert_idle_singleton_scheduler_status_for_device(
+        &scheduler,
+        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+    );
+    assert_idle_singleton_scheduler_status_for_device(
+        &scheduler,
+        constants::local_ai_runtime::PHYSICAL_DEVICE_SECOND_LOCAL,
+    );
+}
+
+#[tokio::test]
 async fn child_safety_job_preempts_queued_parent_job_after_runtime_lane_frees() {
     let scheduler = Arc::new(LocalAiProviderSchedulerRuntime::new_for_test());
     let runtime = ready_runtime();
@@ -225,7 +262,22 @@ async fn assert_observed_job_order(
 }
 
 fn assert_idle_singleton_scheduler_status(scheduler: &LocalAiProviderSchedulerRuntime) {
+    assert_idle_singleton_scheduler_status_for_device(
+        scheduler,
+        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+    );
+}
+
+fn assert_idle_singleton_scheduler_status_for_device(
+    scheduler: &LocalAiProviderSchedulerRuntime,
+    physical_device_id: &str,
+) {
     let status = scheduler.status_snapshot();
+    let status = if physical_device_id == constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL {
+        status
+    } else {
+        scheduler.status_snapshot_for_device(physical_device_id)
+    };
     assert_eq!(
         status.lifecycle_state,
         LocalAiProviderSchedulerLifecycle::Idle
@@ -234,15 +286,33 @@ fn assert_idle_singleton_scheduler_status(scheduler: &LocalAiProviderSchedulerRu
         status.singleton_scope,
         LocalAiProviderSingletonScope::PhysicalDevice
     );
-    assert_eq!(
-        status.physical_device_id,
-        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL
-    );
+    assert_eq!(status.physical_device_id, physical_device_id);
     assert_eq!(
         status.runtime_reference_id,
         constants::local_ai_runtime::RUNTIME_REFERENCE_LOCAL_LLAMA_CLI
     );
     assert!(!status.duplicate_runtime_blocked);
+}
+
+fn spawn_observed_device_job(
+    scheduler: Arc<LocalAiProviderSchedulerRuntime>,
+    physical_device_id: &'static str,
+    runtime: LocalModelRuntimeStatus,
+    active_jobs: Arc<AtomicUsize>,
+    max_active_jobs: Arc<AtomicUsize>,
+) -> tokio::task::JoinHandle<LocalAiChatGenerationResult> {
+    tokio::spawn(async move {
+        scheduler
+            .run_generation_job_for_device(
+                physical_device_id,
+                LocalAiProviderSchedulerJobClass::ParentAssistant,
+                runtime,
+                || async move {
+                    observed_job_result(physical_device_id, active_jobs, max_active_jobs).await
+                },
+            )
+            .await
+    })
 }
 
 fn spawn_observed_job(

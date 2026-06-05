@@ -89,6 +89,7 @@ pub struct LocalAiRuntimeProviderProofEntry {
     pub accepted_job_classes: Vec<LocalAiProviderSchedulerJobClass>,
     pub scheduler_lifecycle: LocalAiProviderSchedulerLifecycle,
     pub source_scheduler_status: LocalAiProviderSchedulerStatus,
+    pub runtime_access_lane_count: u16,
     pub runtime_load_count: u16,
     pub duplicate_runtime_blocked: bool,
     pub child_safety_priority_proved: bool,

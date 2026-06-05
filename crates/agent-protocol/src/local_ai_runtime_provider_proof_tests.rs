@@ -32,6 +32,7 @@ fn local_ai_runtime_provider_proof_serializes_shared_parent_child_provider() {
         constants::local_ai_runtime_provider_proof::REQUIREMENT_SHARED_PARENT_CHILD_PROVIDER
     );
     assert_eq!(serialized["entries"][0]["runtimeLoadCount"], 1);
+    assert_eq!(serialized["entries"][0]["runtimeAccessLaneCount"], 1);
     assert_eq!(serialized["entries"][0]["duplicateRuntimeBlocked"], true);
     assert_eq!(
         serialized["entries"][0]["participatingRoles"][2],
@@ -59,6 +60,7 @@ fn local_ai_runtime_provider_proof_serializes_unavailable_reason() {
         constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED
     );
     assert_eq!(serialized["runtimeLoadCount"], 0);
+    assert_eq!(serialized["runtimeAccessLaneCount"], 1);
 }
 
 fn proof_entry(
@@ -98,6 +100,7 @@ fn proof_entry(
         degraded_state: source_scheduler_status.degraded_state.clone(),
         unavailable_reason: source_scheduler_status.unavailable_reason.clone(),
         source_scheduler_status,
+        runtime_access_lane_count: 1,
         runtime_load_count,
         duplicate_runtime_blocked: runtime_load_count == 1,
         child_safety_priority_proved: false,
