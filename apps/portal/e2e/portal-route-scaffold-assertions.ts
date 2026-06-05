@@ -436,6 +436,8 @@ async function assertAppGameDashboardRouteSurface(page: Page, surface: ReturnTyp
   expect(visibleText).toMatch(/\b(?:RUNNING|Running)\b/);
   expect(visibleText).toMatch(/\b(?:FOREGROUND|Foreground)\b/);
   expect(visibleText).toMatch(/\b(?:LAUNCHER|Launcher)\b/);
+  expect(visibleText).toMatch(/\bSOURCE ROWS\b/);
+  expect(visibleText).toMatch(/\bFRESH SOURCES\b/);
   await expect(page.getByRole('button', { name: 'Select Aarav laptop' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Select Mina tablet' })).toHaveCount(0);
   await expect(surface.locator('text').filter({ hasText: 'D001' })).toHaveCount(0);
