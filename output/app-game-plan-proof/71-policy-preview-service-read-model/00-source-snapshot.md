@@ -1,7 +1,7 @@
 # app-game WP71 Source Snapshot
 
 - Branch: codex/app-game-policy-preview-service-read-model
-- Commit: ee42af5c147229305ba5eddd740e728455a5a561
+- Commit: daab7d3cf81d9f6dc0bc419624718be84f6a78c9
 - Git status at proof generation:
 
 ```text
