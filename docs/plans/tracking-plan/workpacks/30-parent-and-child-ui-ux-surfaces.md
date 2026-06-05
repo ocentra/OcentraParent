@@ -31,6 +31,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
 - `17-hosted-ui-proof.json`
+- `18-service-data-ui-proof.json`
 - Accessibility summary:
   `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`
 - Pre-device gate:
@@ -52,6 +53,9 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       proof against the real Rust service.
 - [x] Render and screenshot hosted child-safe check-in copy/actions with no
       delivery/runtime-device claim.
+- [x] Render hosted parent service-data coverage from the parsed
+      `trackingReadModel` payload without physical-device, provider, or
+      production claims.
 - [x] Ensure child copy avoids accusation.
 - [ ] Keep portal as authoring/display surface, not evaluator.
 
@@ -75,7 +79,13 @@ captures and records the local rendered screenshot at
 The same route now has a narrow live service summary and service-backed
 citation rows for the P2 `trackingReadModel` event, covered by
 `apps/portal/tests/tracking-status-panel.test.ts` and the service read-model
-proof script. `npm run test:tracking-plan-hosted-ui-proof` now starts the real
+proof script. It also renders a service-data coverage panel for the same parsed
+read model, including active/tombstone row counts, latest tombstone metadata,
+kind coverage, custody/capability, active evidence references, deleted evidence
+references, and `productClaimReady=false`. The repeatable
+`npm run test:tracking-plan-service-data-ui-proof` command records this under
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`.
+`npm run test:tracking-plan-hosted-ui-proof` now starts the real
 Rust service with a seeded temporary ActivityStore SQLite database, drives the
 hosted parent `policy-tracking` route through Playwright, captures desktop and
 mobile screenshots, writes accessibility summary output, and records
@@ -186,3 +196,23 @@ This workpack can be assigned independently, implemented against the owning doma
       parent/child UI beyond the hosted route, Android/iOS physical-device
       proof, authority, provider delivery, notifications, and production proof
       remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-service-data-ui-proof`.
+- [x] Touched files: portal tracking status renderer/tests, portal text token
+      source/tests, service-data UI proof script, root script wiring, tracking
+      feature doc, implementation checklist, WP30, WP32, and generated WP30/WP32
+      service-data UI proof artifacts.
+- [x] Validation commands and results:
+      `npm run test:tracking-plan-service-data-ui-proof` passed locally after
+      focused text-domain and portal tracking status panel tests.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json`,
+      and `test-results/tracking-plan-service-data-ui-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, and WP32 updated; central capability row delta queued
+      through the hub instead of editing `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: full parent/child UI beyond the hosted
+      parent route, child-device delivery/runtime UI, Android/iOS
+      physical-device proof, authority, provider delivery, notifications, and
+      production proof remain proof-gated.

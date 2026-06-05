@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T20:53:31.688Z",
-  "commit": "abf8f50efe808b21fe95fe7032342f0e46e04e7d",
+  "checkedAt": "2026-06-05T06:02:08.106Z",
+  "commit": "73f00c45819aaa420895523165ab38950ee6b478",
   "workpackId": "32-journal-sqlite-and-read-model-proof",
   "proofState": "p2-service-read-model-tombstone-replay-proof",
   "summary": "Tracking service read-model proof now includes ActivityStore SQLite retention-delete tombstone replay, active/tombstone row counts, deleted evidence citation summaries, and live portal citation rows. Hosted UI/accessibility, broader product read models, platform replay, and physical-device proof remain pending.",

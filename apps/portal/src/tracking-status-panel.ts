@@ -64,6 +64,22 @@ export type TrackingStatusLiveCitation = {
   readonly productClaim: PortalDisplayText;
 };
 
+export type TrackingStatusServiceDataCoverage = {
+  readonly title: PortalDisplayText;
+  readonly loadState: PortalDetailValue;
+  readonly proofTier: PortalDisplayText;
+  readonly rowsReturned: PortalDetailValue;
+  readonly rowVisibility: PortalDetailValue;
+  readonly lastObserved: PortalDetailValue;
+  readonly eventId: PortalDetailValue;
+  readonly capability: PortalDetailValue;
+  readonly custody: PortalDetailValue;
+  readonly activityKinds: PortalDetailValue;
+  readonly evidenceReferences: PortalDetailValue;
+  readonly deletedEvidence: PortalDetailValue;
+  readonly productClaim: PortalDisplayText;
+};
+
 type TrackingStatusRetentionProofDefinition = {
   readonly historyVisibility: PortalTextTokenValue;
   readonly deletedEvidence: PortalTextTokenValue;
@@ -199,6 +215,59 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
   };
 }
 
+export function trackingStatusServiceDataCoverage(
+  liveActivity: PortalLiveActivityState
+): TrackingStatusServiceDataCoverage {
+  const event = liveActivity.activityTrackingReadModelEvent;
+  const readModelResult = liveActivity.activityTrackingReadModel;
+  const baseCoverage = {
+    title: PortalText.Resolve(PortalTextToken.TrackingServiceDataCoverage),
+    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofService),
+    rowsReturned: notReported(),
+    rowVisibility: notReported(),
+    lastObserved: notReported(),
+    eventId: notReported(),
+    capability: notReported(),
+    custody: notReported(),
+    activityKinds: notReported(),
+    evidenceReferences: notReported(),
+    deletedEvidence: notReported(),
+    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
+  };
+
+  if (event === null || readModelResult === null) {
+    return {
+      ...baseCoverage,
+      loadState: notReported(),
+    };
+  }
+
+  if (!readModelResult.ok) {
+    return {
+      ...baseCoverage,
+      loadState: detailFromValue(event.severity),
+      rowVisibility: detailFromValue(readModelResult.reason),
+    };
+  }
+
+  const readModel = readModelResult.value;
+  return {
+    ...baseCoverage,
+    loadState: detailFromValue(event.severity),
+    rowsReturned: detailFromValue(readModel.returned),
+    rowVisibility: sequenceDetail([readModel.activeRows, readModel.tombstoneRows]),
+    lastObserved: detailFromValue(readModel.latestTombstoneObservedAt ?? readModel.latestObservedAt),
+    eventId: detailFromValue(readModel.latestTombstoneEventId ?? readModel.latestEventId),
+    capability: detailFromValue(readModel.capabilityStatus),
+    custody: detailFromValue(readModel.custodyLabel),
+    activityKinds: listDetail(readModel.rows.map((readModelRow) => readModelRow.kind)),
+    evidenceReferences: evidenceReferenceDetail(
+      readModel.rows.flatMap((readModelRow) => readModelRow.evidenceReferenceIds)
+    ),
+    deletedEvidence: readModelDeletedEvidenceReferences(readModel),
+  };
+}
+
 export function renderTrackingStatusSurface(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
   const intro = document.createElement(PortalDom.Tags.Section);
   intro.className = PortalDom.Classes.Summary;
@@ -216,6 +285,7 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
   renderDashboard(container, (dashboard) => {
     const liveSummary = trackingStatusLiveSummary(liveActivity);
     dashboard.append(renderTrackingStatusLiveSummary(liveSummary));
+    dashboard.append(renderTrackingStatusServiceDataCoverage(trackingStatusServiceDataCoverage(liveActivity)));
     for (const citation of liveSummary.citations) {
       dashboard.append(renderTrackingStatusLiveCitation(citation));
     }
@@ -300,6 +370,31 @@ function renderTrackingStatusLiveSummary(summary: TrackingStatusLiveSummary): HT
   if (summary.parserReason !== null) {
     appendDetail(metadata, PortalDetails.Reason, summary.parserReason);
   }
+
+  panel.append(title, metadata);
+  return panel;
+}
+
+function renderTrackingStatusServiceDataCoverage(coverage: TrackingStatusServiceDataCoverage): HTMLElement {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+
+  const title = document.createElement(PortalDom.Tags.HeadingTwo);
+  title.textContent = coverage.title;
+
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendDetail(metadata, PortalDetails.LoadState, coverage.loadState);
+  appendDetail(metadata, PortalDetails.ProofTier, toDetail(coverage.proofTier));
+  appendDetail(metadata, PortalDetails.RowsReturned, coverage.rowsReturned);
+  appendDetail(metadata, PortalDetails.HistoryVisibility, coverage.rowVisibility);
+  appendDetail(metadata, PortalDetails.LastObserved, coverage.lastObserved);
+  appendDetail(metadata, PortalDetails.EventId, coverage.eventId);
+  appendDetail(metadata, PortalDetails.Capability, coverage.capability);
+  appendDetail(metadata, PortalDetails.Custody, coverage.custody);
+  appendDetail(metadata, PortalDetails.ActivityKind, coverage.activityKinds);
+  appendDetail(metadata, PortalDetails.EvidenceReferences, coverage.evidenceReferences);
+  appendDetail(metadata, PortalDetails.DeletedEvidence, coverage.deletedEvidence);
+  appendDetail(metadata, PortalDetails.ProductClaim, toDetail(coverage.productClaim));
 
   panel.append(title, metadata);
   return panel;
@@ -394,6 +489,19 @@ function readModelEvidenceReferences(readModel: AgentActivityTrackingReadModel):
   return evidenceReferenceDetail([...references]);
 }
 
+function readModelDeletedEvidenceReferences(readModel: AgentActivityTrackingReadModel): PortalDetailValue {
+  const references = new Set<AgentActivityTrackingEvidenceReferenceIds[number]>();
+  for (const row of readModel.rows) {
+    for (const evidenceReferenceId of row.deletedEvidenceReferenceIds) {
+      references.add(evidenceReferenceId);
+    }
+  }
+  for (const evidenceReferenceId of readModel.deletedEvidenceReferenceIds) {
+    references.add(evidenceReferenceId);
+  }
+  return evidenceReferenceDetail([...references]);
+}
+
 function liveCitation(row: AgentActivityTrackingReadModelRow): TrackingStatusLiveCitation {
   return {
     title: detailFromValue(row.subjectDisplayName ?? row.kind),
@@ -417,4 +525,17 @@ function liveCitation(row: AgentActivityTrackingReadModelRow): TrackingStatusLiv
 
 function notReported(): PortalDetailValue {
   return toDetail(PortalText.Resolve(PortalTextToken.NotReported));
+}
+
+function listDetail(values: readonly unknown[]): PortalDetailValue {
+  const normalizedValues = values.map((value) => String(value)).filter((value) => value.length > 0);
+  return evidenceReferenceDetail([...new Set(normalizedValues)]);
+}
+
+function sequenceDetail(values: readonly unknown[]): PortalDetailValue {
+  const normalizedValues = values.map((value) => String(value)).filter((value) => value.length > 0);
+  if (normalizedValues.length === 0) {
+    return notReported();
+  }
+  return detailFromValue(normalizedValues.join(PortalFormatting.EventDetailSeparator));
 }
