@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T09:08:11.369Z",
-  "commit": "077596f0dbe892ba40f6c4a57e192b98a0074426",
+  "checkedAt": "2026-06-05T09:15:28.716Z",
+  "commit": "d8c3ec1111a90bab944506c3df92b0d98de90122",
   "proofMode": "production-release-public-surface-publication-proof",
   "publicHost": "family.ocentra.ca",
   "commands": [
