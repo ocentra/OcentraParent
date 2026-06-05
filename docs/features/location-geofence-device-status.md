@@ -59,10 +59,12 @@ expose location or device-status features. Parents expect this category.
   tracking event rows from the shared ActivityStore SQLite query store and
   reports citation IDs through `trackingReadModel`. That P2 proof now also
   exposes retention-delete rows as tombstone replay rows with active/tombstone
-  counts, deleted-at metadata, and deleted evidence citation IDs. The parent
-  portal `policy-tracking` route consumes that service read model as a narrow
-  live summary, service-data coverage panel, and live service-backed citation
-  rows beside the P1 fixture rows. The repeatable proof commands are
+  counts, deleted-at metadata, deleted evidence citation IDs, and an active
+  product-surface summary with kind/device/capability counts plus latest active
+  row metadata. The parent portal `policy-tracking` route consumes that service
+  read model as a narrow live summary, service-data coverage panel, and live
+  service-backed citation rows beside the P1 fixture rows. The repeatable proof
+  commands are
   `node scripts/test/tracking-plan-service-read-model-proof.mjs`, with
   artifacts
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json`
@@ -132,8 +134,9 @@ expose location or device-status features. Parents expect this category.
 ## Current Gap
 
 Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
-service read-model proof with retention-delete tombstone replay, narrow portal
-summary-consumption proof, live service-backed portal citation rows, hosted
+service read-model proof with retention-delete tombstone replay and active
+product-surface summary fields, narrow portal summary-consumption proof, live
+service-backed portal citation rows, hosted
 parent route service-data coverage, hosted parent route screenshot/accessibility
 proof with hosted child-safe check-in copy/actions and hosted child-runtime
 disclosure/safe-help/location-share consent copy, P1 local parent-defined place
@@ -168,7 +171,8 @@ snapshots/accessibility beyond the hosted parent route are proved.
 - [x] Nearby-place ambiguity and AI safety evidence contracts.
 - [x] P1 ActivityStore tracking-event SQLite ingest proof.
 - [x] P2 service-backed tracking read-model command proof for SQLite journal
-      rows, citation IDs, and retention-delete tombstone replay.
+      rows, citation IDs, retention-delete tombstone replay, and active
+      kind/device/capability product-surface summary fields.
 - [x] Narrow parent portal summary consumption and live citation rows for the
       service-backed tracking read model.
 - [x] Hosted parent route service-data coverage for the service-backed tracking

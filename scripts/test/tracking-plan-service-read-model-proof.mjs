@@ -8,6 +8,7 @@ const workpackRoot = join(proofRoot, '32-journal-sqlite-and-read-model-proof');
 const retentionDeleteProofPath = join(workpackRoot, '14-retention-delete-proof.json');
 const validationCommandsPath = join(workpackRoot, '16-validation-commands.log');
 const serviceProofPath = join(workpackRoot, '18-service-read-model-proof.json');
+const productSurfaceProofPath = join(workpackRoot, '21-product-surface-summary-proof.json');
 const proofSummaryPath = join(workpackRoot, 'proof-summary.json');
 const commands = [];
 
@@ -90,6 +91,21 @@ async function main() {
         retentionEventKind: 'activity.tracking.retention.deleted',
         sourceOfTruth: 'ActivityStore SQLite rows replayed from journaled ActivityEvent records',
       },
+      activeProductSurfaceSummary: {
+        latestActiveEventIdField: 'latestActiveEventId',
+        latestActiveObservedAtField: 'latestActiveObservedAt',
+        activeKindCountsField: 'activeKindCounts',
+        activeDeviceCountsField: 'activeDeviceCounts',
+        activeCapabilityStatusCountsField: 'activeCapabilityStatusCounts',
+        sourceRows: 'same trackingReadModel.rows payload derived from ActivityStore SQLite rows',
+        deletedHistoryBoundary:
+          'counts include active rows only; retention tombstones remain in tombstone-specific fields',
+        intendedConsumers: [
+          'parent report summaries',
+          'policy evidence drill-in',
+          'future full parent/child tracking UI',
+        ],
+      },
     },
     proofArtifacts: {
       typescriptProtocolDomain: 'packages/agent-protocol-domain/src/contracts.ts',
@@ -111,10 +127,51 @@ async function main() {
     ],
     remainingGapsBeforeProductOrPrReady: [
       'Hosted portal screenshot, accessibility, and browser-to-service proof remain pending.',
-      'Broader product tracking read-model surfaces beyond the service-backed tombstone replay and portal citation rows remain pending.',
+      'Full UI/report/policy consumers for the active product-surface summary remain pending.',
       'Child-device UI and device permission screenshots remain pending.',
       'Android/iOS physical background geofence proof remains manual-required.',
       'Authority-enrolled and production-pilot proof remain absent.',
+    ],
+  };
+
+  const productSurfaceProof = {
+    schemaVersion: 1,
+    checkedAt,
+    commit: proof.commit,
+    workpackId: '32-journal-sqlite-and-read-model-proof',
+    proofMode: 'tracking-active-product-surface-summary',
+    requiredProofTier: 'P2_HOSTED_CI',
+    currentProofTier: 'P2_HOSTED_CI',
+    currentStatus: 'proved',
+    productClaimReady: false,
+    commands,
+    serviceCommand: proof.serviceBoundary.command,
+    event: proof.serviceBoundary.event,
+    payloadField: proof.serviceBoundary.payloadField,
+    provedFields: proof.serviceBoundary.activeProductSurfaceSummary,
+    assertions: [
+      'Rust ActivityStore computes latestActiveEventId and latestActiveObservedAt from active rows only.',
+      'Rust ActivityStore computes activeKindCounts, activeDeviceCounts, and activeCapabilityStatusCounts from active rows only.',
+      'Retention-delete tombstone rows are excluded from active product-surface counts and remain visible only through tombstone metadata.',
+      'The Rust protocol serializes the active product-surface summary fields in the same trackingReadModel payload.',
+      'The TypeScript parser accepts the new fields while defaulting older events to empty/null summary values.',
+      'The proof does not claim Android/iOS physical background behavior, provider delivery, full UI, or authority enrollment.',
+    ],
+    artifacts: {
+      typescriptParser: 'packages/agent-protocol-domain/src/tracking-read-model.ts',
+      typescriptParserTest: 'packages/agent-protocol-domain/tests/tracking-read-model.test.ts',
+      rustProtocol: 'crates/agent-protocol/src/tracking_read_model.rs',
+      rustProtocolTest: 'crates/agent-protocol/src/tracking_read_model_tests.rs',
+      rustCoreReadModel: 'crates/agent-core/src/activity_store_tracking.rs',
+      rustCoreReadModelTest: 'crates/agent-core/src/activity_store_tracking_tests.rs',
+      rustServicePayload: 'crates/agent-service/src/tracking_read_model_payload.rs',
+      rustServicePayloadTest: 'crates/agent-service/src/tracking_read_model_payload_tests.rs',
+      rustServiceCommandTest: 'crates/agent-service/src/tracking_read_model_service_tests.rs',
+    },
+    manualRequiredGaps: [
+      'Parent reports, policy drill-in, and full tracking UI must consume this active summary before product UI is complete.',
+      'Android/iOS physical background geofence and authority-enrolled behavior remain manual-required.',
+      'Provider delivery, notification delivery, and production pilot proof remain absent.',
     ],
   };
 
@@ -172,10 +229,13 @@ async function main() {
         'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/16-validation-commands.log',
       serviceReadModelProof:
         'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json',
+      productSurfaceSummaryProof:
+        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json',
     },
     productClaims: {
       contractProof: true,
       serviceTombstoneReplayProof: true,
+      activeProductSurfaceSummaryProof: true,
       livePortalCitationRows: true,
       androidIosBackgroundLocationClaimed: false,
       preciseLocationFromLanIpWifiClaimed: false,
@@ -187,6 +247,7 @@ async function main() {
 
   await mkdir(workpackRoot, { recursive: true });
   await writeFile(retentionDeleteProofPath, `${JSON.stringify(retentionDeleteProof, null, 2)}\n`);
+  await writeFile(productSurfaceProofPath, `${JSON.stringify(productSurfaceProof, null, 2)}\n`);
   await writeFile(
     validationCommandsPath,
     `${commands.map(({ command, exitCode }) => `${command} # exit ${exitCode}`).join('\n')}\n`

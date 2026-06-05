@@ -1,11 +1,12 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceRef, LogFieldValue, LogFields, TrackingReadModel,
-    TrackingReadModelRow, ACTIVITY_QUERY_SCHEMA_VERSION,
+    TrackingReadModelCount, TrackingReadModelRow, ACTIVITY_QUERY_SCHEMA_VERSION,
     TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE, TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE,
     TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
 };
 use rusqlite::Connection;
+use std::collections::BTreeMap;
 
 use crate::{
     activity_store_tracking_rows::{tracking_rows, TrackingStoreRow},
@@ -31,6 +32,9 @@ fn tracking_read_model(
     let latest_tombstone = read_rows
         .iter()
         .find(|row| row.query_visibility == TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE);
+    let latest_active = read_rows
+        .iter()
+        .find(|row| row.query_visibility == TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE);
     let tombstone_rows = read_rows
         .iter()
         .filter(|row| row.query_visibility == TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE)
@@ -52,8 +56,15 @@ fn tracking_read_model(
         capability_status,
         latest_event_id: latest.map(|row| row.event_id.clone()),
         latest_observed_at: latest.map(|row| row.observed_at.clone()),
+        latest_active_event_id: latest_active.map(|row| row.event_id.clone()),
+        latest_active_observed_at: latest_active.map(|row| row.observed_at.clone()),
         latest_tombstone_event_id: latest_tombstone.map(|row| row.event_id.clone()),
         latest_tombstone_observed_at: latest_tombstone.map(|row| row.observed_at.clone()),
+        active_kind_counts: active_counts_by(&read_rows, |row| Some(row.kind.as_str())),
+        active_device_counts: active_counts_by(&read_rows, |row| Some(row.device_id.as_str())),
+        active_capability_status_counts: active_counts_by(&read_rows, |row| {
+            row.capability_status.as_deref()
+        }),
         deleted_evidence_reference_ids,
         rows: read_rows,
     })
@@ -117,6 +128,25 @@ fn deleted_evidence_reference_ids(rows: &[TrackingReadModelRow]) -> Vec<String> 
         }
     }
     ids
+}
+
+fn active_counts_by(
+    rows: &[TrackingReadModelRow],
+    value_for_row: impl Fn(&TrackingReadModelRow) -> Option<&str>,
+) -> Vec<TrackingReadModelCount> {
+    let mut counts = BTreeMap::<String, u64>::new();
+    for row in rows {
+        if row.query_visibility != TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE {
+            continue;
+        }
+        if let Some(value) = value_for_row(row) {
+            *counts.entry(value.to_string()).or_insert(0) += 1;
+        }
+    }
+    counts
+        .into_iter()
+        .map(|(value, count)| TrackingReadModelCount { value, count })
+        .collect()
 }
 
 fn evidence_reference_ids(fields: &LogFields, evidence: &[ActivityEvidenceRef]) -> Vec<String> {

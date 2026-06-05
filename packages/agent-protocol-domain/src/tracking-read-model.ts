@@ -7,6 +7,13 @@ const TrackingProtocolText = Schema.String.pipe(Schema.minLength(1));
 const TrackingProtocolCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const NullableTrackingProtocolText = Schema.Union(TrackingProtocolText, Schema.Null);
 
+export const AgentActivityTrackingReadModelCountSchema = withParser(
+  Schema.Struct({
+    value: TrackingProtocolText,
+    count: TrackingProtocolCount,
+  })
+);
+
 export const AgentActivityTrackingReadModelRowSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ActivityQuerySchemaVersion),
@@ -40,13 +47,25 @@ export const AgentActivityTrackingReadModelSchema = withParser(
     capabilityStatus: TrackingProtocolText,
     latestEventId: NullableTrackingProtocolText,
     latestObservedAt: NullableTrackingProtocolText,
+    latestActiveEventId: Schema.optionalWith(NullableTrackingProtocolText, { default: () => null }),
+    latestActiveObservedAt: Schema.optionalWith(NullableTrackingProtocolText, { default: () => null }),
     latestTombstoneEventId: NullableTrackingProtocolText,
     latestTombstoneObservedAt: NullableTrackingProtocolText,
+    activeKindCounts: Schema.optionalWith(Schema.Array(AgentActivityTrackingReadModelCountSchema), {
+      default: () => [],
+    }),
+    activeDeviceCounts: Schema.optionalWith(Schema.Array(AgentActivityTrackingReadModelCountSchema), {
+      default: () => [],
+    }),
+    activeCapabilityStatusCounts: Schema.optionalWith(Schema.Array(AgentActivityTrackingReadModelCountSchema), {
+      default: () => [],
+    }),
     deletedEvidenceReferenceIds: Schema.Array(TrackingProtocolText),
     rows: Schema.Array(AgentActivityTrackingReadModelRowSchema),
   })
 );
 
+export type AgentActivityTrackingReadModelCount = Infer<typeof AgentActivityTrackingReadModelCountSchema>;
 export type AgentActivityTrackingReadModelRow = Infer<typeof AgentActivityTrackingReadModelRowSchema>;
 export type AgentActivityTrackingReadModel = Infer<typeof AgentActivityTrackingReadModelSchema>;
 export type AgentActivityTrackingEvidenceReferenceIds = AgentActivityTrackingReadModelRow['evidenceReferenceIds'];

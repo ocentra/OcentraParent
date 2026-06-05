@@ -1,7 +1,11 @@
 use ocentra_parent_agent_protocol::{
     constants, LogFieldValue, LogFields, TrackingReadModel, TrackingReadModelRow,
+    TRACKING_READ_MODEL_FIELD_ACTIVE_CAPABILITY_STATUS_COUNTS,
+    TRACKING_READ_MODEL_FIELD_ACTIVE_DEVICE_COUNTS, TRACKING_READ_MODEL_FIELD_ACTIVE_KIND_COUNTS,
     TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS,
     TRACKING_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+    TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_EVENT_ID,
+    TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_OBSERVED_AT,
     TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID,
     TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT,
     TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS,
@@ -19,7 +23,18 @@ pub fn tracking_read_model_payload(read_model: &TrackingReadModel) -> LogFields 
 }
 
 fn read_model_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
-    let separator = constants::delimiter::LIST.to_string();
+    let mut pairs = read_model_summary_pairs(read_model);
+    pairs.extend(read_model_latest_pairs(read_model));
+    pairs.extend(read_model_retention_pairs(read_model));
+    pairs.extend(read_model_active_count_pairs(read_model));
+    pairs.push((
+        constants::field::ACTIVITY_TRACKING_READ_MODEL,
+        LogFieldValue::String(tracking_read_model_json(read_model)),
+    ));
+    pairs
+}
+
+fn read_model_summary_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
     vec![
         (
             constants::field::GENERATED_AT,
@@ -49,6 +64,11 @@ fn read_model_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
             constants::field::CAPABILITY_STATUS,
             LogFieldValue::String(read_model.capability_status.clone()),
         ),
+    ]
+}
+
+fn read_model_latest_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
+    vec![
         (
             constants::field::LATEST_EVENT_ID,
             optional_string(read_model.latest_event_id.as_ref()),
@@ -58,6 +78,14 @@ fn read_model_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
             optional_string(read_model.latest_observed_at.as_ref()),
         ),
         (
+            TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_EVENT_ID,
+            optional_string(read_model.latest_active_event_id.as_ref()),
+        ),
+        (
+            TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_OBSERVED_AT,
+            optional_string(read_model.latest_active_observed_at.as_ref()),
+        ),
+        (
             TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID,
             optional_string(read_model.latest_tombstone_event_id.as_ref()),
         ),
@@ -65,17 +93,42 @@ fn read_model_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
             TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT,
             optional_string(read_model.latest_tombstone_observed_at.as_ref()),
         ),
+    ]
+}
+
+fn read_model_retention_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
+    let separator = constants::delimiter::LIST.to_string();
+    vec![(
+        TRACKING_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+        LogFieldValue::String(read_model.deleted_evidence_reference_ids.join(&separator)),
+    )]
+}
+
+fn read_model_active_count_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
+    vec![
         (
-            TRACKING_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
-            LogFieldValue::String(read_model.deleted_evidence_reference_ids.join(&separator)),
+            TRACKING_READ_MODEL_FIELD_ACTIVE_KIND_COUNTS,
+            LogFieldValue::String(active_counts_json(&read_model.active_kind_counts)),
         ),
         (
-            constants::field::ACTIVITY_TRACKING_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            TRACKING_READ_MODEL_FIELD_ACTIVE_DEVICE_COUNTS,
+            LogFieldValue::String(active_counts_json(&read_model.active_device_counts)),
+        ),
+        (
+            TRACKING_READ_MODEL_FIELD_ACTIVE_CAPABILITY_STATUS_COUNTS,
+            LogFieldValue::String(active_counts_json(
+                &read_model.active_capability_status_counts,
+            )),
         ),
     ]
+}
+
+fn active_counts_json(counts: &[ocentra_parent_agent_protocol::TrackingReadModelCount]) -> String {
+    serde_json::to_string(counts).expect(constants::error::AGENT_EVENT_SERIALIZES)
+}
+
+fn tracking_read_model_json(read_model: &TrackingReadModel) -> String {
+    serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn latest_row_pairs(row: Option<&TrackingReadModelRow>) -> Vec<FieldPair> {
