@@ -16,7 +16,7 @@ needs worker contracts, model/tool selection, and deletion proof.
 - [x] Define OCR result contract.
 - [x] Link to screen evidence refs and image digest.
 - [x] Prove temporary image deletion.
-- [ ] Route OCR summary into context builder.
+- [x] Route OCR summary into context builder.
 - [ ] Add unavailable/permission-required states.
 - [x] Prove OCR on a real browser-use capture artifact.
 - [x] Prove OCR on a real app-use capture artifact.
@@ -29,4 +29,6 @@ needs worker contracts, model/tool selection, and deletion proof.
 - Raw image deletion proof.
 - Real capture OCR proof artifacts under
   `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`.
+- Context-builder replay proof artifacts under
+  `output/ai-plan-proof/screen-summary-ai-context/proof-summary.json`.
 - Portal screenshot if screen UI changes.
