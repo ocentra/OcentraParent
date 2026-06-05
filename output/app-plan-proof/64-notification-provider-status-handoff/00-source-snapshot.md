@@ -1,7 +1,7 @@
 # app WP64 Source Snapshot
 
 - Branch: codex/app-game-notification-provider-status-handoff
-- Commit: 27fcdbbbe56850b073881dc553b33dc2cafe44ac
+- Commit: d32e338eda9db5edfb2d9f1317c6b1f9de2e7a1d
 - Git status at proof generation:
 
 ```text
