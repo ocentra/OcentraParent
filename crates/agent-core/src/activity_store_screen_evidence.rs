@@ -92,6 +92,10 @@ fn result_from_fields(
 ) -> Option<ScreenAnalysisResult> {
     let confidence = number_field(fields, constants::field::SCREEN_CONFIDENCE)?;
     let primary_category = string_field(fields, constants::field::SCREEN_PRIMARY_CATEGORY)?;
+    let model_runtime_ref = string_field(fields, constants::field::SCREEN_MODEL_RUNTIME_REF)?;
+    let local_model_runtime_refs =
+        non_empty_string_list_field(fields, constants::field::SCREEN_LOCAL_MODEL_RUNTIME_REFS)
+            .unwrap_or_else(|| vec![model_runtime_ref.clone()]);
     Some(ScreenAnalysisResult {
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
         screen_analysis_result_id: string_field(
@@ -100,7 +104,7 @@ fn result_from_fields(
         )?,
         queue_job_id: string_field(fields, constants::field::SCREEN_QUEUE_JOB_ID)?,
         analyzed_at: observed_at,
-        model_runtime_ref: string_field(fields, constants::field::SCREEN_MODEL_RUNTIME_REF)?,
+        model_runtime_ref,
         model_id: string_field(fields, constants::field::SCREEN_MODEL_ID)?,
         provider_kind: string_field(fields, constants::field::SCREEN_PROVIDER_KIND)?,
         prompt_or_template_version: string_field(
@@ -128,6 +132,20 @@ fn result_from_fields(
         image_deletion_state: string_field(fields, constants::field::SCREEN_IMAGE_DELETION_STATE)?,
         custody_state: string_field(fields, constants::field::SCREEN_CUSTODY_STATE)?,
         policy_eligible: bool_field(fields, constants::field::SCREEN_POLICY_ELIGIBLE)?,
+        policy_decision_ref: string_field(fields, constants::field::POLICY_DECISION_ID),
+        policy_action: string_field(fields, constants::field::POLICY_ACTION),
+        policy_reason_codes: string_list_field(fields, constants::field::POLICY_REASON_CODES),
+        parent_rule_refs: string_list_field(fields, constants::field::POLICY_RULE_IDS),
+        local_model_runtime_refs,
+        parent_explanation_refs: string_list_field(
+            fields,
+            constants::field::SCREEN_PARENT_EXPLANATION_REFS,
+        ),
+        explanation_reasons: string_list_field(
+            fields,
+            constants::field::SCREEN_EXPLANATION_REASONS,
+        ),
+        deletion_reasons: string_list_field(fields, constants::field::SCREEN_DELETION_REASONS),
     })
 }
 
@@ -149,5 +167,23 @@ fn bool_field(fields: &LogFields, key: &str) -> Option<bool> {
     match fields.get(key) {
         Some(LogFieldValue::Boolean(value)) => Some(*value),
         _ => None,
+    }
+}
+
+fn string_list_field(fields: &LogFields, key: &str) -> Vec<String> {
+    non_empty_string_list_field(fields, key).unwrap_or_default()
+}
+
+fn non_empty_string_list_field(fields: &LogFields, key: &str) -> Option<Vec<String>> {
+    let values = string_field(fields, key)?
+        .split(constants::delimiter::LIST)
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(ToOwned::to_owned)
+        .collect::<Vec<_>>();
+    if values.is_empty() {
+        None
+    } else {
+        Some(values)
     }
 }

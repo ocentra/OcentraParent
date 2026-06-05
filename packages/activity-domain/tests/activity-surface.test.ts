@@ -73,6 +73,14 @@ const ScreenChainFields = {
   policyEligible: true,
   imageDigest: 'sha256:screen-image-digest',
   custodyState: 'child-device-journal',
+  policyDecisionRef: 'screen-policy-decision-1',
+  policyAction: 'allow',
+  policyReasonCodes: ['screen-summary-linked', 'parent-rule-linked'],
+  parentRuleRefs: ['screen-parent-rule-school'],
+  localModelRuntimeRefs: ['local-vision-runtime-1'],
+  parentExplanationRefs: ['screen-parent-explanation-1'],
+  explanationReasons: ['screen-summary-cited', 'policy-decision-cited'],
+  deletionReasons: ['screen-image-deleted'],
 } as const;
 
 const ReportDocument = {
@@ -306,6 +314,7 @@ describe('activity report history contracts', () => {
 
 describe('activity screen and app-use read-model contracts', () => {
   specifyActivityScreenReadModelContracts();
+  specifyActivityScreenLegacyReadModelContracts();
   specifyActivityAppUseReadModelContracts();
 });
 
@@ -362,6 +371,47 @@ function specifyActivityScreenReadModelContracts() {
     expect(parsed.rows[0]?.primaryCategory).toBe('productivity');
     expect(parsed.rows[0]?.imageDeletionState).toBe('deleted');
     expect(parsed.rows[0]?.policyEligible).toBe(true);
+    expect(parsed.rows[0]?.policyDecisionRef).toBe('screen-policy-decision-1');
+    expect(parsed.rows[0]?.parentRuleRefs).toEqual(['screen-parent-rule-school']);
+    expect(parsed.rows[0]?.parentExplanationRefs).toEqual(['screen-parent-explanation-1']);
+    expect(parsed.rows[0]?.explanationReasons).toEqual(['screen-summary-cited', 'policy-decision-cited']);
+  });
+}
+
+function specifyActivityScreenLegacyReadModelContracts() {
+  it('ActivityScreenReadModelSchema: defaults parent explanation refs for older rows', () => {
+    const parsed = ActivityScreenReadModelSchema.parse({
+      schemaVersion: ActivitySurfaceSchemaVersion,
+      request: ActivityRequest,
+      state: 'ready',
+      generatedAt: '2026-05-27T06:21:00Z',
+      summary: 'Screen use ready',
+      rows: [
+        {
+          rowId: 'screen-row-legacy',
+          label: 'Visible productivity window',
+          deviceId: 'child-device-1',
+          state: 'ready',
+          totalMs: 0,
+          foregroundMs: 0,
+          backgroundMs: 0,
+          ...ScreenChainFields,
+          policyDecisionRef: undefined,
+          policyAction: undefined,
+          policyReasonCodes: undefined,
+          parentRuleRefs: undefined,
+          localModelRuntimeRefs: undefined,
+          parentExplanationRefs: undefined,
+          explanationReasons: undefined,
+          deletionReasons: undefined,
+          evidence: [EvidenceRef],
+        },
+      ],
+    });
+
+    expect(parsed.rows[0]?.policyDecisionRef).toBeNull();
+    expect(parsed.rows[0]?.parentRuleRefs).toEqual([]);
+    expect(parsed.rows[0]?.parentExplanationRefs).toEqual([]);
   });
 }
 

@@ -297,6 +297,20 @@ pub struct ActivityScreenReadModelRow {
     pub image_digest: String,
     pub custody_state: String,
     pub evidence: Vec<ActivityEvidenceRef>,
+    pub policy_decision_ref: Option<String>,
+    pub policy_action: Option<String>,
+    #[serde(default)]
+    pub policy_reason_codes: Vec<String>,
+    #[serde(default)]
+    pub parent_rule_refs: Vec<String>,
+    #[serde(default)]
+    pub local_model_runtime_refs: Vec<String>,
+    #[serde(default)]
+    pub parent_explanation_refs: Vec<String>,
+    #[serde(default)]
+    pub explanation_reasons: Vec<String>,
+    #[serde(default)]
+    pub deletion_reasons: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
