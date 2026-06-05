@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T05:50:32.284Z",
-  "commit": "a6cc14d520c473d5cc8fd5a9c4a174d32178ab4b",
+  "checkedAt": "2026-06-05T06:03:02.617Z",
+  "commit": "549b9f124b1fce0f2efb430bfc6ae2eb520e249f",
   "proofMode": "app-install-purchase-store-status-handoff-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-05T05:50:27.514Z",
+      "startedAt": "2026-06-05T06:02:57.348Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-store-status-handoff-proof.test.ts",
-      "startedAt": "2026-06-05T05:50:29.821Z",
+      "startedAt": "2026-06-05T06:03:00.026Z",
       "exitCode": 0
     }
   ],
