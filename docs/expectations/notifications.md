@@ -200,6 +200,17 @@ child delivery, production retry workers, production quiet-hours timers, durable
 production outbox storage, adapter dispatch, broad blocking, or platform
 support.
 
+`scripts/test/app-game-notification-parent-surface-intent-proof.mjs` validates a
+parent-domain app/game parent-surface intent proof that combines provider-status
+and preference-status handoff rows into redacted future history/preference
+intent rows with drill-in, audit, scheduler/outbox, provider, preference,
+quiet-hours, and manual-proof refs. This is a parent-surface intent boundary
+proof only: it does not claim rendered parent notification UI, parent preference
+UI, frequency controls, parent preference mutation, provider delivery, receipt
+ingestion, credentials, cloud routing, child delivery, production retry workers,
+production quiet-hours timers, durable production outbox/history storage,
+adapter dispatch, broad blocking, or platform support.
+
 ## Validation Gates
 
 - Contract tests for alert rules, reason codes, delivery status, retry state, quiet hours, and preferences.
@@ -246,6 +257,11 @@ support.
 - Parent-domain app/game notification preference-status handoff proof for
   preference preflight rows becoming V3 notification preference/quiet-hours
   status entries, with no parent preference UI, notification UI, delivery,
+  receipt, credential, child, production runtime, adapter-dispatch,
+  broad-blocking, or platform claims.
+- Parent-domain app/game notification parent-surface intent proof for provider
+  and preference status rows becoming redacted parent history/preference intent
+  rows, with no rendered UI, parent preference mutation, provider delivery,
   receipt, credential, child, production runtime, adapter-dispatch,
   broad-blocking, or platform claims.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
