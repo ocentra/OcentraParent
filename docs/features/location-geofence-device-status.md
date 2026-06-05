@@ -145,6 +145,15 @@ expose location or device-status features. Parents expect this category.
   non-claims for current location, live tracking runtime, powered-off device
   tracking, remote sync runtime, provider delivery, portal runtime UI,
   physical-device proof, and OS lost-mode APIs.
+- WP32 report/policy consumer proof now exists through
+  `node scripts/test/tracking-report-policy-consumer-proof.mjs`. It derives
+  parent report summary, policy evidence drill-in, and retention audit/export
+  consumer-readiness rows from the existing tracking service read-model and
+  active product-surface summary proof, keeps source proof refs, evidence refs,
+  policy decision refs, report surface refs, and audit refs attached, and
+  explicitly rejects portal UI completion, child-device delivery, provider
+  delivery, notification receipt ingestion, authority, physical-device, and
+  product-complete claims.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -182,8 +191,8 @@ expose location or device-status features. Parents expect this category.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, actual child-device delivery/runtime
   execution, full parent/child UI beyond the hosted parent route, and broader
-  read-model product surfaces beyond this hosted service-data coverage remain
-  not product-complete.
+  read-model product surfaces beyond the report/policy consumer-readiness rows
+  and hosted service-data coverage remain not product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
@@ -204,13 +213,14 @@ tracking mode proof for authorization/duration/cadence/degraded/auto-stop/
 retention states, and WP20 Google Places/POI provider request/response mapping
 proof, WP25 parent-policy compiler/evaluator runtime proof, and required
 fixture-state coverage proof, and WP29 missing-device mode parent-domain proof
-for last-known-only/offline/contact-requested/manual-required states. It
-remains a tracked product gap until platform location and geofence adapters,
-broader product read models, actual live provider execution/delivery,
-notification receipt ingestion, physical-device proof, actual child-device
-delivery/runtime execution, remote sync runtime, OS lost-mode APIs, and full
-parent/child UI snapshots/accessibility beyond the hosted parent route are
-proved.
+for last-known-only/offline/contact-requested/manual-required states, and WP32
+report/policy consumer-readiness proof for parent report summary, policy
+drill-in, and retention audit/export rows. It remains a tracked product gap
+until platform location and geofence adapters, broader product read models,
+actual live provider execution/delivery, notification receipt ingestion,
+physical-device proof, actual child-device delivery/runtime execution, remote
+sync runtime, OS lost-mode APIs, and full parent/child UI
+snapshots/accessibility beyond the hosted parent route are proved.
 
 ## Checklist
 
@@ -278,6 +288,11 @@ proved.
 - [x] Hosted parent route service-data coverage for the service-backed tracking
       read model, including active/tombstone row counts, kind coverage, custody,
       capability, and active/deleted evidence references.
+- [x] WP32 report/policy consumer-readiness proof for parent report summary,
+      policy evidence drill-in, and retention audit/export rows. This is not
+      portal UI completion, child-device delivery, provider delivery,
+      notification receipt ingestion, authority, physical-device, or
+      product-complete proof.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
 - [x] P3 WSL/local replay proof for the tracking read-model proof stack and
