@@ -200,6 +200,10 @@ control with better evidence and local audit.
   app/game dry-run policy decisions into read-only preview rows, separating
   native app versus native game target meaning while keeping evaluator runtime,
   timers, adapter dispatch, child delivery, and platform enforcement unclaimed.
+- Parent-domain source-freshness preview gate contracts now require WP74
+  source freshness readiness before WP70 policy preview rows are accepted:
+  source-manual rows block preview before compiled decisions, and
+  source-fresh native game rows can still remain compiler-manual-required.
 - The portal App/Game Sessions route now renders that service-backed policy
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy
@@ -402,11 +406,12 @@ budget notifications, or adapter execution.
 The app/game policy target compiler proof is contract-level: it does not yet
 provide runtime service evaluation, Rust/WebSocket parity, portal rule
 authoring, timer integration, notifications, rollback, or adapter execution.
-The app/game policy preview handoff proof is also contract-level: it consumes
-compiled dry-run decisions and produces parent-domain preview rows only; it
-does not run the policy evaluator, persist policy previews in the service,
-render authoring UI, start timers, deliver child notifications, dispatch
-adapters, or prove platform enforcement.
+The app/game policy preview handoff and source-freshness preview gate proofs
+are also contract-level: they consume source readiness plus compiled dry-run
+decisions and produce parent-domain preview rows or manual-required blockers
+only; they do not run the policy evaluator, persist policy previews in the
+service, render authoring UI, start timers, deliver child notifications,
+dispatch adapters, or prove platform enforcement.
 The app/game time-budget proof now includes parent-domain runtime decision
 construction for dry-run, warn-only, ask-parent, manual-required, and
 approved-bonus outcomes, but it does not yet provide service persistence,
