@@ -11,6 +11,7 @@ import {
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import { ScreenSettingsWritableControls } from './ScreenSettingsWritableControls';
 
 type ScreenSettingsDetailValue =
   | ScreenControlSettingsPortalMetric[keyof ScreenControlSettingsPortalMetric]
@@ -35,6 +36,7 @@ export function ScreenSettingsRoutePanel(): ReactElement {
             PortalDom.Classes.ClassNameSeparator
           )}
         >
+          <ScreenSettingsWritableControls />
           {proof.metrics.map((metric) => (
             <ScreenSettingsMetricCard key={metric.label} metric={metric} />
           ))}

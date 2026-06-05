@@ -6,20 +6,23 @@ Settings, capability, queue health, summaries, confidence, source refs, deletion
 
 ## Current State
 
-Portal route/read-model plumbing exists. Complete parent UI is open.
+Portal route/read-model plumbing exists. Settings now has read-only catalog
+proof plus writable local screen-summary intent draft proof. Complete parent UI
+is still open.
 
 ## Checklist
 
-- [ ] Build disabled state.
+- [x] Build disabled state.
 - [ ] Build capability state.
 - [ ] Build queue health state.
 - [ ] Build summary cards.
 - [ ] Build confidence/unknown UI.
-- [ ] Build deletion/custody labels.
+- [~] Build deletion/custody labels.
 - [ ] Build policy/audit details.
-- [ ] Capture screenshots.
+- [x] Capture screenshots.
 
 ## Proof
 
 - Portal tests.
 - Desktop and mobile screenshots.
+- `output/screen-plan-proof/settings-writable-controls/proof-summary.json`.

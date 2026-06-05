@@ -21,6 +21,9 @@ Shared activity and evidence contracts for child-device observations.
 - Screen evidence remote/retention/live-view boundary contracts that keep raw
   screenshot retention, live view, and raw remote upload outside the default
   local summary path.
+- Screen evidence settings UI proof contracts that build disabled, observe-only,
+  and strict dry-run parent intent drafts from the real settings schemas without
+  claiming child-agent persistence.
 - Screen-AI browser trigger proof rows that compose typed browser AI
   input/result contracts with screen-analysis result contracts for managed URL,
   browser-video, social-feed, and cloud-game trigger states without claiming UI,
