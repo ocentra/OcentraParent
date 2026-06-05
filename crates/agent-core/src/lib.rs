@@ -237,6 +237,8 @@ mod journal_tests;
 #[cfg(test)]
 mod network_capture_tests;
 #[cfg(test)]
+mod network_event_runtime_broker_delivery_tests;
+#[cfg(test)]
 mod network_event_runtime_queue_tests;
 #[cfg(test)]
 mod network_event_runtime_tests;
