@@ -717,7 +717,10 @@ route-only account-flow evidence, sanitized form-shape evidence, and
 policy/approval refs. The plans keep account navigation/submission actions as
 candidates and reject runtime browser pause/block, child/parent UI, final policy,
 credential, form submission, account creation, native app, connector,
-enforcement, and product checklist claims.
+enforcement, and product checklist claims. The live proof now captures public
+Facebook signup, Pinterest login, Reddit register, and Instagram signup surfaces
+with Playwright, persists screenshots plus route-only proof JSON, and avoids raw
+DOM, field values, credentials, form submission, and account creation claims.
 SOCIAL-14 now adds managed-browser feed/short/video route gate-plan contracts
 from typed feed classification, bounded metadata evidence, and
 policy/approval/time-limit refs. The plans keep route allow/warn/parent-review/
