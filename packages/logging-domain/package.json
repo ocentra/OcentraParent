@@ -33,6 +33,14 @@
       "import": "./dist/support-backend-upload-status-read-model.js",
       "types": "./dist/support-backend-upload-status-read-model.d.ts"
     },
+    "./support-backend-upload-execution-runtime": {
+      "import": "./dist/support-backend-upload-execution-runtime.js",
+      "types": "./dist/support-backend-upload-execution-runtime.d.ts"
+    },
+    "./support-backend-upload-execution-runtime-read-model": {
+      "import": "./dist/support-backend-upload-execution-runtime-read-model.js",
+      "types": "./dist/support-backend-upload-execution-runtime-read-model.d.ts"
+    },
     "./support-incident-workflow": {
       "import": "./dist/support-incident-workflow.js",
       "types": "./dist/support-incident-workflow.d.ts"
