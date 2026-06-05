@@ -31,6 +31,8 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `19-wsl-local-replay-proof.json`
 - `20-service-data-ui-proof.json`
 - `21-product-surface-summary-proof.json`
+- `22-report-policy-consumer-proof.json`
+- `23-family-dashboard-rollup-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -51,6 +53,9 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [x] Expose active product-surface summary fields for kind/device/capability
       counts and latest active row metadata without reintroducing deleted
       history.
+- [x] Expose family dashboard rollup rows for active family summary,
+      child-attention summary, and retention-audit summary without claiming
+      portal UI completion or child-device/runtime behavior.
 
 ## Where We Are
 
@@ -75,8 +80,14 @@ export, broader product read models, and physical-device product claims are not
 claimed beyond the proof
 state recorded in `proof-summary.json`, `10-journal-sqlite-proof.json`,
 `14-retention-delete-proof.json`, `18-service-read-model-proof.json`,
-`20-service-data-ui-proof.json`, `21-product-surface-summary-proof.json`, and
-the implementation checklist.
+`20-service-data-ui-proof.json`, `21-product-surface-summary-proof.json`,
+`22-report-policy-consumer-proof.json`,
+`23-family-dashboard-rollup-proof.json`, and the implementation checklist.
+The family dashboard rollup proof derives active family summary,
+child-attention summary, and retention-audit summary rows from the existing
+service read-model/product-surface/report-consumer proof refs while keeping
+portal UI, child-device delivery, provider delivery, notification receipt,
+physical-device, authority, and product-ready claims false.
 The pre-device proof gate now reruns this service proof and records the
 remaining broader read-model, full UI, hosted accessibility, and platform replay
 gaps before device work starts.
@@ -111,7 +122,9 @@ This workpack can be assigned independently, implemented against the owning doma
 - Full UI/report/policy consumers for the active product-surface summary, full
   parent/child UI beyond the hosted parent route, platform physical-device
   replay, export, provider, authority, and production claims remain
-  manual-required until the assigned proof artifacts exist.
+  manual-required until the assigned proof artifacts exist. The family
+  dashboard rollup rows are read-model consumer proof only; they are not
+  rendered portal UI or child-device runtime proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -214,3 +227,21 @@ This workpack can be assigned independently, implemented against the owning doma
       parent/child UI beyond the hosted parent route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-family-dashboard-rollup-proof`.
+- [x] Touched files: parent-domain family dashboard rollup proof source/test,
+      proof harness, tracking feature doc, implementation checklist, WP32, and
+      generated WP32 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-family-dashboard-rollup-proof.mjs` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json`,
+      `output/tracking-plan-proof/family-dashboard-rollup-proof/`, and
+      `test-results/tracking-family-dashboard-rollup-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and WP32 updated; central capability checklist row was not
+      edited because another lane owns `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: rendered portal dashboard UI,
+      child-device delivery/runtime execution, Android/iOS physical-device
+      proof, authority, provider delivery, notifications, and production proof
+      remain proof-gated.
