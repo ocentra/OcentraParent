@@ -307,6 +307,17 @@ only with explicit parent settings.
   is deleted. This is capture-path proof only; production managed-browser
   URL-trigger ownership, OCR/VLM quality, policy action, enforcement, live view,
   and raw screenshot retention remain separate gates.
+- `ScreenOcrWorkerJobSchema`, `ScreenOcrWorkerResultSchema`, and
+  `scripts/test/screen-ai-winrt-ocr-worker-proof.mjs` now prove the Windows
+  WinRT OCR worker path over real selected-window pixels from a public live
+  Wikipedia browser page and a native Notepad window. The proof runs the Rust
+  screen-capture adapter, keeps the raw image only as an analysis temp file,
+  runs Windows `Windows.Media.Ocr`, converts the OCR result into
+  `ScreenAnalysisResult` evidence, creates allow dry-run policy decisions, and
+  deletes the raw temp images. This is Windows OCR worker execution proof only;
+  production OCR quality tuning, service runtime integration, cross-platform
+  OCR parity, authenticated-account surfaces, enforcement, live view, and raw
+  retention remain separate gates.
 - Service-persisted product settings, retention controls, and quality proof are
   incomplete.
 - Raw screen control settings are preserved as design inputs, not
@@ -357,6 +368,9 @@ separate proof gates.
       structured extraction before selecting screenshots.
 - [x] Managed-browser CDP screenshot capture is page-scoped, target-tied,
       queued, and deleted.
+- [x] Windows WinRT OCR worker analyzes real browser/native captured pixels,
+      emits schema-valid screen analysis evidence, feeds policy dry-run, and
+      deletes raw temp images.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof, broad
