@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-ai-proof-gate-ui-delivery-proof",
-  "generatedAt": "2026-06-05T19:44:06.247Z",
+  "generatedAt": "2026-06-05T20:53:55.949Z",
   "sourceProofs": {
-    "managedBrowserIntervention": "test-results/managed-browser-intervention-proof/2026-06-05T19-42-55-660Z.json",
+    "managedBrowserIntervention": "output/browser-plan-proof/ai-19-child-facing-checking-warning-ux/02-managed-intervention-source-proof.json",
     "parentPortalScreenshot": "output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/parent-browser-ai-explanation-audit-real-portal.png"
   },
   "childDeliveryProof": {
-    "sourceProof": "test-results/managed-browser-intervention-proof/2026-06-05T19-42-55-660Z.json",
+    "sourceProof": "output/browser-plan-proof/ai-19-child-facing-checking-warning-ux/02-managed-intervention-source-proof.json",
     "browserId": "chrome-stable",
     "browserFamily": "chrome",
     "browserChannel": "stable",
@@ -22,7 +22,7 @@
       {
         "schemaVersion": 1,
         "snapshotId": "browser-child-ux-browser-game-checking-hold",
-        "createdAt": "2026-06-05T19:43:29.383Z",
+        "createdAt": "2026-06-05T20:53:28.700Z",
         "sourceEvidenceIds": [
           "browser-evidence-browser-game-checking-hold"
         ],
@@ -42,7 +42,7 @@
       {
         "schemaVersion": 1,
         "snapshotId": "browser-child-ux-social-short-video-warning",
-        "createdAt": "2026-06-05T19:43:29.390Z",
+        "createdAt": "2026-06-05T20:53:28.704Z",
         "sourceEvidenceIds": [
           "browser-evidence-social-short-video-warning"
         ],
@@ -56,7 +56,7 @@
         "postAnalysisActionPlan": {
           "schemaVersion": 1,
           "actionPlanId": "browser-post-analysis-action-plan-social-short-video-warning",
-          "createdAt": "2026-06-05T19:43:29.390Z",
+          "createdAt": "2026-06-05T20:53:28.704Z",
           "sourceEvidenceIds": [
             "browser-evidence-social-short-video-warning"
           ],
@@ -65,7 +65,7 @@
             "schemaVersion": 1,
             "decisionId": "browser-policy-decision-social-short-video-warning",
             "requestId": "browser-policy-evaluator-request-social-short-video-warning",
-            "decidedAt": "2026-06-05T19:43:29.390Z",
+            "decidedAt": "2026-06-05T20:53:28.704Z",
             "policyVersionRef": "browser-policy-version-2026-06-05",
             "sourceEvidenceIds": [
               "browser-evidence-social-short-video-warning"
@@ -132,7 +132,7 @@
       {
         "schemaVersion": 1,
         "snapshotId": "browser-child-ux-social-signup-approval-hold",
-        "createdAt": "2026-06-05T19:43:29.394Z",
+        "createdAt": "2026-06-05T20:53:28.709Z",
         "sourceEvidenceIds": [
           "browser-evidence-social-signup-approval-hold"
         ],
@@ -146,7 +146,7 @@
         "postAnalysisActionPlan": {
           "schemaVersion": 1,
           "actionPlanId": "browser-post-analysis-action-plan-social-signup-approval-hold",
-          "createdAt": "2026-06-05T19:43:29.394Z",
+          "createdAt": "2026-06-05T20:53:28.709Z",
           "sourceEvidenceIds": [
             "browser-evidence-social-signup-approval-hold"
           ],
@@ -155,7 +155,7 @@
             "schemaVersion": 1,
             "decisionId": "browser-policy-decision-social-signup-approval-hold",
             "requestId": "browser-policy-evaluator-request-social-signup-approval-hold",
-            "decidedAt": "2026-06-05T19:43:29.394Z",
+            "decidedAt": "2026-06-05T20:53:28.709Z",
             "policyVersionRef": "browser-policy-version-2026-06-05",
             "sourceEvidenceIds": [
               "browser-evidence-social-signup-approval-hold"
@@ -222,7 +222,7 @@
       {
         "schemaVersion": 1,
         "snapshotId": "browser-child-ux-blocked-youtube-video-url",
-        "createdAt": "2026-06-05T19:43:29.397Z",
+        "createdAt": "2026-06-05T20:53:28.712Z",
         "sourceEvidenceIds": [
           "browser-evidence-blocked-youtube-video-url"
         ],
@@ -236,7 +236,7 @@
         "postAnalysisActionPlan": {
           "schemaVersion": 1,
           "actionPlanId": "browser-post-analysis-action-plan-blocked-youtube-video-url",
-          "createdAt": "2026-06-05T19:43:29.397Z",
+          "createdAt": "2026-06-05T20:53:28.712Z",
           "sourceEvidenceIds": [
             "browser-evidence-blocked-youtube-video-url"
           ],
@@ -245,7 +245,7 @@
             "schemaVersion": 1,
             "decisionId": "browser-policy-decision-blocked-youtube-video-url",
             "requestId": "browser-policy-evaluator-request-blocked-youtube-video-url",
-            "decidedAt": "2026-06-05T19:43:29.397Z",
+            "decidedAt": "2026-06-05T20:53:28.712Z",
             "policyVersionRef": "browser-policy-version-2026-06-05",
             "sourceEvidenceIds": [
               "browser-evidence-blocked-youtube-video-url"

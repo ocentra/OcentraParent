@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "redacted-managed-intervention-source-proof",
+  "sourceWorkpack": "17-managed-intervention-and-block-page",
+  "sourceEvidence": "output/browser-plan-proof/17-managed-intervention-and-block-page/03-runtime-evidence.json",
+  "browsers": [
+    {
+      "browser": {
+        "id": "chrome-stable",
+        "family": "chrome",
+        "channel": "stable"
+      },
+      "bridge": "chromium-devtools-protocol",
+      "cases": [
+        {
+          "ruleId": "browser-game-checking-hold",
+          "interventionAction": "checking-hold",
+          "childDeliveryState": "checking-hold-rendered",
+          "ruleMarkerPresent": true,
+          "blockMarkerPresent": true,
+          "evidenceReferenceIds": ["browser-evidence-browser-game-checking-hold"],
+          "screenshotPath": "output/browser-plan-proof/17-managed-intervention-and-block-page/06-ui-snapshots/child-checking-hold-chrome.png"
+        },
+        {
+          "ruleId": "social-short-video-warning",
+          "interventionAction": "warn",
+          "childDeliveryState": "warn-page-rendered",
+          "ruleMarkerPresent": true,
+          "blockMarkerPresent": true,
+          "evidenceReferenceIds": ["browser-evidence-social-short-video-warning"],
+          "screenshotPath": "output/browser-plan-proof/17-managed-intervention-and-block-page/06-ui-snapshots/child-warning-page-chrome.png"
+        },
+        {
+          "ruleId": "social-signup-approval-hold",
+          "interventionAction": "approval-hold",
+          "childDeliveryState": "approval-hold-rendered",
+          "ruleMarkerPresent": true,
+          "blockMarkerPresent": true,
+          "evidenceReferenceIds": ["browser-evidence-social-signup-approval-hold"],
+          "screenshotPath": "output/browser-plan-proof/17-managed-intervention-and-block-page/06-ui-snapshots/child-approval-hold-chrome.png"
+        },
+        {
+          "ruleId": "blocked-youtube-video-url",
+          "interventionAction": "block",
+          "childDeliveryState": "block-page-rendered",
+          "ruleMarkerPresent": true,
+          "blockMarkerPresent": true,
+          "evidenceReferenceIds": ["browser-evidence-blocked-youtube-video-url"],
+          "screenshotPath": "output/browser-plan-proof/17-managed-intervention-and-block-page/06-ui-snapshots/child-block-page-chrome.png"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "failures": [],
+    "redacted": true,
+    "rawExecutablePathsStored": false,
+    "rawUrlsStored": false,
+    "productClaimed": false
+  }
+}

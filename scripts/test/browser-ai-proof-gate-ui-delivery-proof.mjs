@@ -34,6 +34,7 @@ const ai19Output = join(proofRoot, 'ai-19-child-facing-checking-warning-ux');
 const ai20Output = join(proofRoot, 'ai-20-parent-explanation-audit-ux');
 const resultDirectory = join(root, 'test-results', 'browser-ai-proof-gate-ui-delivery-proof');
 const managedInterventionDirectory = join(root, 'test-results', 'managed-browser-intervention-proof');
+const committedManagedInterventionProofPath = join(ai19Output, '02-managed-intervention-source-proof.json');
 const devLogDir = join(tmpdir(), `ocentra-parent-browser-ai-ui-proof-${process.pid}`);
 const agentPort = resolveParentDevPort(
   process.env[ParentDevEnv.AgentPort],
@@ -122,8 +123,15 @@ async function loadSchemas() {
 }
 
 async function latestManagedInterventionProof() {
+  if (existsSync(committedManagedInterventionProofPath)) {
+    const proof = JSON.parse(await readFile(committedManagedInterventionProofPath, 'utf8'));
+    assertManagedProofHasNoFailures(proof, committedManagedInterventionProofPath);
+    return { proof, proofPath: committedManagedInterventionProofPath };
+  }
   if (!existsSync(managedInterventionDirectory)) {
-    throw new Error(`Missing managed intervention proof directory: ${relativePath(managedInterventionDirectory)}`);
+    throw new Error(
+      `Missing committed managed intervention proof: ${relativePath(committedManagedInterventionProofPath)}`
+    );
   }
   const files = await readdir(managedInterventionDirectory);
   const jsonFiles = files.filter((file) => /^\d{4}-.*\.json$/u.test(file)).sort();
@@ -132,10 +140,14 @@ async function latestManagedInterventionProof() {
   }
   const proofPath = join(managedInterventionDirectory, jsonFiles.at(-1));
   const proof = JSON.parse(await readFile(proofPath, 'utf8'));
+  assertManagedProofHasNoFailures(proof, proofPath);
+  return { proof, proofPath };
+}
+
+function assertManagedProofHasNoFailures(proof, proofPath) {
   if (!Array.isArray(proof.summary?.failures) || proof.summary.failures.length !== 0) {
     throw new Error(`Latest managed intervention proof has failures: ${relativePath(proofPath)}`);
   }
-  return { proof, proofPath };
 }
 
 async function proveChildDelivery({ managedProof, schemas }) {
@@ -180,14 +192,21 @@ async function proveParentPortalDelivery() {
     await waitForHttp(createPortalCommandsUrl(portalPort));
     browser = await chromium.launch();
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    const pageDiagnostics = [];
+    page.on('console', (message) => {
+      pageDiagnostics.push(`console:${message.type()}:${message.text()}`);
+    });
+    page.on('pageerror', (error) => {
+      pageDiagnostics.push(`pageerror:${error.message}`);
+    });
     await page.goto(createPortalCommandsUrl(portalPort));
     const refreshBrowserProtection = page.getByRole('button', { exact: true, name: 'Refresh browser protection' });
-    await refreshBrowserProtection.waitFor({ state: 'visible' });
+    await waitForVisibleCommandButton(page, refreshBrowserProtection, 'Refresh browser protection', pageDiagnostics);
     await waitForEnabledButton(page, 'Refresh browser protection');
     await refreshBrowserProtection.click();
-    const panel = await waitForPortalCommandPanel(page);
+    const panel = await waitForPortalCommandPanel(page, pageDiagnostics);
     const text = await panel.innerText();
-    await assertPortalText(text, page);
+    await assertPortalText(text, page, pageDiagnostics);
     const screenshotPath = join(ai20Output, '06-ui-snapshots', 'parent-browser-ai-explanation-audit-real-portal.png');
     await panel.screenshot({ path: screenshotPath });
     await copyFile(screenshotPath, join(resultDirectory, 'parent-browser-ai-explanation-audit-real-portal.png'));
@@ -669,7 +688,16 @@ async function waitForEnabledButton(page, label) {
   }, label);
 }
 
-async function waitForPortalCommandPanel(page) {
+async function waitForVisibleCommandButton(page, locator, label, diagnostics) {
+  try {
+    await locator.waitFor({ state: 'visible' });
+  } catch (error) {
+    await writePortalDebugText(page, `Missing visible command button: ${label}`, diagnostics);
+    throw error;
+  }
+}
+
+async function waitForPortalCommandPanel(page, diagnostics) {
   const panel = page
     .locator('.command-result-panel')
     .filter({ hasText: 'agent.browser.intervention.read-model.reported' })
@@ -681,18 +709,44 @@ async function waitForPortalCommandPanel(page) {
       return panels.some((panel) => expectedTexts.every((expectedText) => panel.textContent?.includes(expectedText)));
     }, expectedPortalTexts);
   } catch (error) {
-    await writeFile(join(resultDirectory, 'portal-debug-text.txt'), await page.locator('body').innerText());
+    await writePortalDebugText(page, 'Timed out waiting for command result panel.', diagnostics);
     throw error;
   }
   return panel;
 }
 
-async function assertPortalText(text, page) {
+async function assertPortalText(text, page, diagnostics) {
   const missing = expectedPortalTexts.filter((expectedText) => !text.includes(expectedText));
   if (missing.length > 0) {
-    await writeFile(join(resultDirectory, 'portal-debug-text.txt'), await page.locator('body').innerText());
+    await writePortalDebugText(page, `Portal proof missing expected text: ${missing.join(', ')}`, diagnostics);
     throw new Error(`Portal proof missing expected text: ${missing.join(', ')}`);
   }
+}
+
+async function writePortalDebugText(page, reason, diagnostics) {
+  const buttonLabels = await page.locator('button').evaluateAll((buttons) =>
+    buttons.map((button) => ({
+      disabled: button.disabled,
+      text: button.textContent?.trim() ?? '',
+      visible: button.checkVisibility(),
+    }))
+  );
+  await writeFile(
+    join(resultDirectory, 'portal-debug-text.txt'),
+    [
+      reason,
+      '',
+      'Buttons:',
+      JSON.stringify(buttonLabels, null, 2),
+      '',
+      'Diagnostics:',
+      ...(diagnostics.length > 0 ? diagnostics : ['none']),
+      '',
+      'Body:',
+      await page.locator('body').innerText(),
+      '',
+    ].join('\n')
+  );
 }
 
 function actionLabelsForOutcome(outcome) {

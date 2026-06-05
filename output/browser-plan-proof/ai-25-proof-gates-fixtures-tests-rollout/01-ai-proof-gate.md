@@ -1,6 +1,6 @@
 # AI-25 URL/Video AI Proof Gate
 
-Generated: 2026-06-05T19:44:21.888Z
+Generated: 2026-06-05T20:53:27.532Z
 
 Rows checked: 24
 Contract-proof rows: 24
@@ -27,7 +27,7 @@ Product claimed: false
 | AI-16 | contract-proof-present | `ai-16-knowledge-graph-references` | 5 |
 | AI-17 | contract-proof-present | `ai-17-policy-evaluator-integration` | 5 |
 | AI-18 | contract-proof-present | `ai-18-post-analysis-action-model` | 5 |
-| AI-19 | contract-proof-present | `ai-19-child-facing-checking-warning-ux` | 7 |
+| AI-19 | contract-proof-present | `ai-19-child-facing-checking-warning-ux` | 8 |
 | AI-20 | contract-proof-present | `ai-20-parent-explanation-audit-ux` | 7 |
 | AI-21 | contract-proof-present | `ai-21-youtube-parser-metadata-adapter` | 6 |
 | AI-22 | contract-proof-present | `ai-22-vimeo-generic-video-parser` | 7 |

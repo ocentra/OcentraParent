@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-url-video-ai-proof-gates",
-  "generatedAt": "2026-06-05T19:44:21.888Z",
+  "generatedAt": "2026-06-05T20:53:27.532Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -338,6 +338,7 @@
       "proofFiles": [
         "00-source-snapshot.md",
         "01-child-ux-contract-proof.md",
+        "02-managed-intervention-source-proof.json",
         "03-runtime-evidence.json",
         "06-ui-snapshots",
         "07-playwright-ui-proof.log",
