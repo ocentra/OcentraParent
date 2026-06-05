@@ -134,6 +134,11 @@ control with better evidence and local audit.
   LINUX extension checklist row to authority tier, setup state, manual tags,
   proof-pack paths, and cross-plan handoff while keeping all current rows
   manual-required or not-claimed.
+- Platform-extension proof-pack readiness rows now cover macOS, iOS, Android,
+  and Linux with separate native-app/native-game product meanings, checklist
+  refs, required proof refs, and explicit no live adapter/no adapter
+  dispatch/no broad blocking/no privileged mobile/no provider execution/no
+  child delivery claims.
 - Install/store handoff contracts now route new app/game inventory,
   installer/updater processes, store package install signals, game purchase
   signals, uninstall deltas, and tamper/uninstall candidates to app-game
@@ -573,8 +578,10 @@ mobile UI, or prove platform support.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps
-      every MAC, IOS, ANDROID, and LINUX row to proof packs and handoffs, but
-      runtime adapter capability/UI proof remains.
+      every MAC, IOS, ANDROID, and LINUX row to proof packs and handoffs, and
+      WP73 proof-pack readiness rows keep macOS, iOS, Android, and Linux
+      native-app/native-game proof requirements visible. Runtime adapter
+      capability/UI proof remains.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,
