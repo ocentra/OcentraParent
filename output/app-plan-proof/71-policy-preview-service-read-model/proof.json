@@ -1,0 +1,110 @@
+{
+  "proofMode": "app-game-policy-preview-service-read-model",
+  "generatedAt": "2026-06-05T18:55:00Z",
+  "branch": "codex/app-game-policy-preview-service-read-model",
+  "commit": "350a684eb6aa0f9573b33970553fed51096dda25",
+  "gitStatusShort": "",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
+    "cmd /c npm exec --workspace @ocentra-parent/agent-protocol-domain -- vitest run tests/app-game-policy-preview-read-model.test.ts tests/contracts.test.ts",
+    "cargo test -p ocentra-parent-agent-service policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement",
+    "node import @ocentra-parent/agent-protocol-domain/app-game-policy-preview-read-model"
+  ],
+  "summary": {
+    "rows": 2,
+    "nativeAppPreviewRowCount": 1,
+    "nativeGamePreviewRowCount": 0,
+    "notAppGameRowCount": 1,
+    "nativeGamePromotionClaimed": false,
+    "nativeGameUnavailableReason": "source-target-kind-not-persisted"
+  },
+  "nonClaims": {
+    "policyEvaluatorRuntimeClaimed": false,
+    "timerRuntimeClaimed": false,
+    "adapterDispatchClaimed": false,
+    "childDeliveryClaimed": false,
+    "platformEnforcementClaimed": false
+  },
+  "proofPaths": {
+    "servicePayload": "crates/agent-service/src/policy_preview_payload.rs",
+    "servicePayloadTest": "crates/agent-service/src/policy_preview_tests.rs",
+    "protocolAdapter": "packages/agent-protocol-domain/src/app-game-policy-preview-read-model.ts",
+    "protocolAdapterTest": "packages/agent-protocol-domain/tests/app-game-policy-preview-read-model.test.ts",
+    "packageExport": "packages/agent-protocol-domain/package.json",
+    "harness": "scripts/test/app-game-policy-preview-service-read-model-proof.mjs",
+    "evidence": "test-results/app-game-policy-preview-service-read-model/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/71-policy-preview-service-read-model",
+    "appProofPack": "output/app-plan-proof/71-policy-preview-service-read-model"
+  },
+  "readModel": {
+    "schemaVersion": 1,
+    "generatedAt": "2026-06-05T18:55:00Z",
+    "custodyLabel": "activity-store",
+    "capabilityStatus": "ready",
+    "returned": 2,
+    "nativeAppPreviewRowCount": 1,
+    "nativeGamePreviewRowCount": 0,
+    "notAppGameRowCount": 1,
+    "nativeGamePromotionClaimed": false,
+    "nativeGameUnavailableReason": "source-target-kind-not-persisted",
+    "policyEvaluatorRuntimeClaimed": false,
+    "timerRuntimeClaimed": false,
+    "adapterDispatchClaimed": false,
+    "childDeliveryClaimed": false,
+    "platformEnforcementClaimed": false,
+    "rows": [
+      {
+        "schemaVersion": 1,
+        "rowId": "policy-preview-native-app-proof",
+        "sourcePreviewId": "policy-preview-native-app-proof",
+        "sourceEventId": "activity-event-native-app-proof",
+        "observedAt": "2026-06-05T18:55:00Z",
+        "targetDomain": "native-app",
+        "targetType": "app",
+        "targetValue": "opaque-app-ref-proof",
+        "policyDecisionId": "policy-decision-native-app-proof",
+        "policyAction": "time-limit",
+        "reasonCodes": [
+          "parent-rule-time-limit"
+        ],
+        "ruleIds": [
+          "parent-rule-native-app-proof"
+        ],
+        "evidenceReferenceCount": 1,
+        "parentRuleContextReferenceCount": 1,
+        "dryRun": true,
+        "enforcementHandoffState": "disabled",
+        "policyEvaluatorRuntimeClaimed": false,
+        "timerRuntimeClaimed": false,
+        "adapterDispatchClaimed": false,
+        "childDeliveryClaimed": false,
+        "platformEnforcementClaimed": false
+      },
+      {
+        "schemaVersion": 1,
+        "rowId": "policy-preview-domain-proof",
+        "sourcePreviewId": "policy-preview-domain-proof",
+        "sourceEventId": "activity-event-domain-proof",
+        "observedAt": "2026-06-05T18:55:00Z",
+        "targetDomain": "not-app-game",
+        "targetType": "domain",
+        "targetValue": "example.invalid",
+        "policyDecisionId": "policy-decision-domain-proof",
+        "policyAction": "unknown",
+        "reasonCodes": [
+          "no-matching-parent-rule"
+        ],
+        "ruleIds": [],
+        "evidenceReferenceCount": 0,
+        "parentRuleContextReferenceCount": 0,
+        "dryRun": true,
+        "enforcementHandoffState": "disabled",
+        "policyEvaluatorRuntimeClaimed": false,
+        "timerRuntimeClaimed": false,
+        "adapterDispatchClaimed": false,
+        "childDeliveryClaimed": false,
+        "platformEnforcementClaimed": false
+      }
+    ]
+  }
+}

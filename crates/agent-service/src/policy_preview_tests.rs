@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, ChildProfileReference, FamilyReference,
-    LocalAiParentRuleContextRef, LogFieldValue, ParentActorReference, ParentActorRole,
+    LocalAiParentRuleContextRef, LogFieldValue, LogFields, ParentActorReference, ParentActorRole,
     ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction,
     PolicyDecision, PolicyDecisionHandoffState, PolicyPreviewReadModel, PolicyPreviewReadModelRow,
     PolicyRule, PolicyTarget, PolicyTargetType,
@@ -60,6 +60,7 @@ fn policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement() 
         payload.get(constants::field::POLICY_PREVIEW_ID),
         Some(&LogFieldValue::String(policy::TEST_PREVIEW_ID.to_string()))
     );
+    assert_payload_contains_serialized_read_model(&payload);
     assert_eq!(
         payload.get(constants::field::POLICY_ACTION),
         Some(&LogFieldValue::String(policy::ACTION_UNKNOWN.to_string()))
@@ -86,6 +87,17 @@ fn policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement() 
             policy::TEST_PARENT_RULE_CONTEXT_REF_ID.to_string()
         ))
     );
+}
+
+fn assert_payload_contains_serialized_read_model(payload: &LogFields) {
+    match payload.get(constants::field::PAYLOAD) {
+        Some(LogFieldValue::String(value)) => {
+            let decoded: PolicyPreviewReadModel = serde_json::from_str(value).unwrap();
+            assert_eq!(decoded.rows.len(), 1);
+            assert_eq!(decoded.rows[0].preview_id, policy::TEST_PREVIEW_ID);
+        }
+        _ => panic!(),
+    }
 }
 
 fn parent_rule_context() -> LocalAiParentRuleContextRef {

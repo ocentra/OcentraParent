@@ -195,6 +195,11 @@ control with better evidence and local audit.
   app/game dry-run policy decisions into read-only preview rows, separating
   native app versus native game target meaning while keeping evaluator runtime,
   timers, adapter dispatch, child delivery, and platform enforcement unclaimed.
+- The generic service policy preview event now carries its full serialized read
+  model, and agent-protocol-domain exposes an app/game parser that can surface
+  native-app preview rows from service app/process/window targets while
+  rejecting executable handoff rows. Native-game promotion remains unclaimed
+  until the service persists the WP70 source target kind.
 - The portal App/Game Sessions route now renders that service-backed policy
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy
@@ -390,11 +395,11 @@ budget notifications, or adapter execution.
 The app/game policy target compiler proof is contract-level: it does not yet
 provide runtime service evaluation, Rust/WebSocket parity, portal rule
 authoring, timer integration, notifications, rollback, or adapter execution.
-The app/game policy preview handoff proof is also contract-level: it consumes
-compiled dry-run decisions and produces parent-domain preview rows only; it
-does not run the policy evaluator, persist policy previews in the service,
-render authoring UI, start timers, deliver child notifications, dispatch
-adapters, or prove platform enforcement.
+The app/game policy preview handoff now has a service payload bridge for the
+existing generic policy preview read model, but native-game service promotion
+still waits on persisted source target kind. It does not run the policy
+evaluator, render authoring UI, start timers, deliver child notifications,
+dispatch adapters, or prove platform enforcement.
 The app/game time-budget proof is contract-level: it does not yet provide
 runtime service evaluation, Rust/WebSocket parity, portal budget authoring,
 notification delivery, child request UX, service persistence, adapter

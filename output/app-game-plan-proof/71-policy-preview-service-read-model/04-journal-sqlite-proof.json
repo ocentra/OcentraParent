@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "journalSqliteChanged": false,
+  "servicePayloadField": "payload",
+  "readModelArtifact": "test-results/app-game-policy-preview-service-read-model/policy-preview-service-read-model.json"
+}

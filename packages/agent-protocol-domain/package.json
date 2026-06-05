@@ -49,6 +49,10 @@
       "import": "./dist/app-game-policy-readiness.js",
       "types": "./dist/app-game-policy-readiness.d.ts"
     },
+    "./app-game-policy-preview-read-model": {
+      "import": "./dist/app-game-policy-preview-read-model.js",
+      "types": "./dist/app-game-policy-preview-read-model.d.ts"
+    },
     "./app-game-notification-readiness": {
       "import": "./dist/app-game-notification-readiness.js",
       "types": "./dist/app-game-notification-readiness.d.ts"

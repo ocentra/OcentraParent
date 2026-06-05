@@ -1,0 +1,1 @@
+Rust protocol proof: existing agent.policy.preview.read-model.reported payload now includes the full serialized read model under the existing payload field; no command/event constants were added.

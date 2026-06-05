@@ -1,0 +1,6 @@
+Security/no-claim proof:
+
+- Parser rejects non-dry-run service rows.
+- Parser rejects rows whose enforcement handoff state is not disabled.
+- Native-game promotion remains false because the generic service event does not yet persist WP70 sourceTargetKind.
+- Policy evaluator runtime, timers, adapter dispatch, child delivery, and platform enforcement remain false.

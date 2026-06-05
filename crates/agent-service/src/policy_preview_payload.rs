@@ -18,6 +18,10 @@ pub fn policy_preview_read_model_payload(read_model: &PolicyPreviewReadModel) ->
 fn read_model_pairs(read_model: &PolicyPreviewReadModel) -> Vec<FieldPair> {
     vec![
         (
+            constants::field::PAYLOAD,
+            LogFieldValue::String(serde_json::to_string(read_model).unwrap_or_default()),
+        ),
+        (
             constants::field::SCHEMA_VERSION,
             LogFieldValue::String(read_model.schema_version.clone()),
         ),

@@ -1,0 +1,6 @@
+Contract proof:
+
+- cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain: PASS
+- cmd /c npm exec --workspace @ocentra-parent/agent-protocol-domain -- vitest run tests/app-game-policy-preview-read-model.test.ts tests/contracts.test.ts: PASS
+- cargo test -p ocentra-parent-agent-service policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement: PASS
+- node import @ocentra-parent/agent-protocol-domain/app-game-policy-preview-read-model: PASS
