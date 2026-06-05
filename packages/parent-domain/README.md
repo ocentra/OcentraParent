@@ -35,7 +35,9 @@ mobile readiness, and control catalogs.
   artifact write/read proof, without provider delivery, receipt ingestion,
   credentials, cloud routing, parent UI, production durable storage, or
   sensitive detail storage claims.
-- Local AI runtime, provider, scheduler, context, and reference contracts.
+- Local AI runtime, provider, scheduler, context, and reference contracts,
+  including screen summary context-builder replay proof from deleted local OCR
+  evidence refs.
 - Parent assistant and action-preview contracts.
 - LAN pairing, device roles, controller/observer states, and provider routing.
 - Billing/subscription entitlement contracts for plan rows, subscription status,

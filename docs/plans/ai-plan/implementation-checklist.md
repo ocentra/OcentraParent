@@ -17,6 +17,7 @@ consumes the same results.
 | Parent explanation snapshots                      | P3 artifact proved | `output/ai-plan-proof/real-analysis/youtube-ordinary-video/10-ui-snapshot.png` and peer rows                                           | These are proof artifact snapshots rendered from scenario outputs, not the production portal runtime.                                                                                                                                                                                                             |
 | Local AI provider per-device runtime lane         | P3 runtime proved  | `output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json`; `output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json` | Proves one provider/runtime lane per physical device, parent/child same-device sharing, child-safety priority, queued/degraded/unavailable states, and no duplicate same-device model load. It does not prove LAN cross-device routing, model quality, Portal UI, or API/remote provider availability.            |
 | Windows WinRT OCR worker over captured pixels     | P3 real OCR proved | `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`                                                                      | Proves real selected-window browser/native captures can run through Windows WinRT OCR, become schema-valid `ScreenAnalysisResult` evidence, feed allow dry-run policy decisions, and delete raw temp images. It does not claim production OCR quality, service runtime integration, or cross-platform OCR parity. |
+| Screen summary into local AI context builder      | P3 replay proved   | `output/ai-plan-proof/screen-summary-ai-context/proof-summary.json`                                                                    | Replays the real WinRT OCR worker proof rows through `buildLocalAiEvidenceContext`, proving deleted local screen summaries are selected as `screen-summary` evidence with custody, runtime, parent-rule, and audit refs. It does not create new captures, claim model quality, or claim portal/final enforcement. |
 
 ## Contract And Source Truth
 
@@ -72,7 +73,7 @@ consumes the same results.
 - [ ] Guided VLM worker contract implemented.
 - [x] VLM worker execution proof exists.
 - [x] Raw image deletion proof exists.
-- [ ] Screen summary feeds AI context builder.
+- [x] Screen summary feeds AI context builder.
 - [x] Real browser-use capture artifact feeds AI analysis.
 - [x] Real app-use capture artifact feeds AI analysis.
 - [x] Timed cadence capture sequence feeds repeated AI analysis without queue flood.
@@ -132,4 +133,5 @@ consumes the same results.
 - [x] real capture proof artifacts under `output/screen-plan-proof/real-capture` when screen-derived AI is in scope.
 - [x] real AI analysis proof artifacts under `output/ai-plan-proof/real-analysis`.
 - [x] real WinRT OCR worker proof artifacts under `output/ai-plan-proof/screen-winrt-ocr-worker`.
+- [x] screen summary context-builder replay proof artifacts under `output/ai-plan-proof/screen-summary-ai-context`.
 - [ ] `npm run validate` or explicit approved omission.
