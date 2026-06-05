@@ -38,6 +38,8 @@ Proof root: `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 - [x] Document emulator device, OS version, app build, foreground service
       scaffold, and proof commands without claiming location samples.
 - [x] Generate the Android Studio/local proof artifact plan before device work.
+- [x] Record parent-domain manual-required proof rows for missing foreground
+      permission grant and foreground location sample before device/runtime work.
 
 ## Where We Are
 
@@ -56,6 +58,14 @@ logcat, device metadata, and writes
 location permission/sample evidence is still absent. This proves the package
 and service shell can be observed locally; it does not prove foreground Android
 location.
+
+`node scripts/test/tracking-android-permission-background-proof.mjs` now records
+WP08 parent-domain manual-required rows for the foreground permission grant and
+foreground location sample gaps. The proof writes
+`02-platform-permission-proof.md`, refreshes `03-runtime-location-evidence.json`,
+and keeps foreground permission/location sample, physical-device behavior,
+authority, notification/provider delivery, and product-ready Android tracking
+unclaimed.
 
 ## Where We Want To Be
 

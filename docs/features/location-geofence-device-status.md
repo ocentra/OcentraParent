@@ -190,6 +190,14 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`,
   `output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/`,
   and `test-results/tracking-plan-android-emulator-proof/`.
+- WP08/WP09 Android permission/background manual-required proof now exists
+  through `node scripts/test/tracking-android-permission-background-proof.mjs`.
+  It maps the existing emulator scaffold/manual proof plans into parent-domain
+  rows for foreground permission grant, foreground location sample, background
+  permission grant, and geofence transition gaps while keeping foreground
+  permission, foreground sample, background permission, background runtime,
+  geofence runtime, physical-device, authority, notification delivery, provider
+  delivery, and product-ready Android tracking claims false.
 - P3 WSL/local replay proof now exists through
   `npm run test:tracking-plan-wsl-local-proof`. It records WSL2/Ubuntu
   toolchain evidence, the linked-worktree Git mapping needed for this
@@ -220,7 +228,8 @@ parent route service-data coverage, hosted parent route screenshot/accessibility
 proof with hosted child-safe check-in copy/actions and hosted child-runtime
 disclosure/safe-help/location-share consent copy, P1 local parent-defined place
 store proof, pre-device proof-gate progress, Android emulator package/service/status
-scaffold proof, P3 WSL/local replay proof, P1 evidence-quality gate proof, WP26
+scaffold proof, WP08/WP09 Android permission/background manual-required proof,
+P3 WSL/local replay proof, P1 evidence-quality gate proof, WP26
 tracking alert-to-provider-status handoff proof, P1 escalation readiness proof
 for acknowledgement/check-in/manual escalation states, WP28 temporary live
 tracking mode proof for authorization/duration/cadence/degraded/auto-stop/
@@ -232,8 +241,8 @@ manual-required/unavailable platform render-state proof, and WP32 report/policy
 consumer-readiness proof for parent report summary, policy drill-in, and
 retention audit/export rows, plus WP32 family dashboard rollup proof for active
 family, child-attention, and retention-audit summary rows. It remains a tracked
-product gap until platform location and geofence adapters, broader product
-read models beyond these rollups, rendered dashboard UI for those rollups,
+product gap until platform location and geofence runtime adapters, broader
+product read models beyond these rollups, rendered dashboard UI for those rollups,
 actual live provider execution/delivery, notification receipt ingestion,
 physical-device proof, actual child-device delivery/runtime execution, remote
 sync runtime, OS lost-mode APIs, production upload workers, portal screenshots
@@ -251,7 +260,11 @@ snapshots/accessibility beyond the hosted parent route are proved.
       exist; product settings and live service-backed retention UI remain
       pending.
 - [x] Alert intent contract.
-- [ ] Android permission/background proof.
+- [ ] Android permission/background runtime proof. WP08/WP09 parent-domain
+      manual-required proof rows now exist for foreground permission,
+      foreground sample, background permission, and geofence transition gaps;
+      real permission grant/sample/transition runtime and physical-device proof
+      remain pending.
 - [x] Android emulator package launch, foreground-service scaffold, battery,
       and connectivity proof. This is not foreground location or geofence
       proof.
