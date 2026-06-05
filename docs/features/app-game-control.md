@@ -208,6 +208,10 @@ control with better evidence and local audit.
   keeping manual-required and unavailable intents out of queued records and
   preserving no provider, scheduler, UI, child-delivery, adapter, broad
   blocking, or platform claims.
+- The app/game notification scheduler bridge now maps linked local outbox rows
+  into existing deterministic scheduler JSONL rows while leaving manual-required
+  and unavailable rows unscheduled and preserving no runtime, provider, UI,
+  child-delivery, adapter, broad-blocking, or platform claims.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -349,6 +353,12 @@ schema, but it does not provide durable production outbox storage, provider
 delivery, provider receipt ingestion, quiet-hours/retry scheduler execution,
 parent notification UI, child delivery, policy evaluator execution, adapter
 dispatch, broad blocking, or platform support.
+The app/game notification scheduler bridge proof links eligible app/game local
+outbox rows to the existing notification scheduler JSONL record schema, but it
+does not provide production retry workers, quiet-hours timer runtime, durable
+production outbox storage, provider delivery, provider receipt ingestion, parent
+notification UI, child delivery, policy evaluator execution, adapter dispatch,
+broad blocking, or platform support.
 
 ## Checklist
 
@@ -417,6 +427,9 @@ dispatch, broad blocking, or platform support.
       parent/child UX remain. The local outbox bridge can now write and reread
       parent-owned JSONL records for eligible app/game notification intents,
       while manual-required and unavailable intents stay out of queued records.
+      The scheduler bridge can now write and reread scheduler JSONL rows for
+      linked local outbox records while manual-required and unavailable rows
+      remain unscheduled.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,

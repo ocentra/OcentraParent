@@ -98,6 +98,9 @@ custody.
   local-outbox-eligible app/game notification intents into the existing
   parent-owned local outbox JSONL record schema, and keeps manual-required and
   unavailable app/game intents visible without queueing them for delivery.
+- App/game notification scheduler bridge proof now maps those linked local
+  outbox records into existing notification scheduler JSONL rows, while keeping
+  manual-required and unavailable app/game rows visible without scheduling them.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -160,6 +163,12 @@ intent-to-local-outbox JSONL writing/parsing for eligible app/game notification
 intents, but does not claim durable production outbox storage, provider
 delivery, receipt ingestion, quiet-hours/retry scheduler execution, parent UI,
 child delivery, adapter dispatch, broad blocking, or platform support.
+The app/game notification scheduler bridge proof adds deterministic
+local-outbox-to-scheduler JSONL writing/parsing for linked app/game local outbox
+records, but does not claim production retry workers, production quiet-hours
+timer execution, durable production outbox storage, provider delivery, receipt
+ingestion, parent UI, child delivery, adapter dispatch, broad blocking, or
+platform support.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
@@ -233,6 +242,10 @@ delivery, policy writes, or child-device enforcement.
       parent-owned JSONL records for eligible app/game notification intents,
       while manual-required and unavailable intents do not queue delivery and no
       provider/scheduler/UI/child/adapter claims are made.
+- [x] App/game notification scheduler bridge proof exists with deterministic
+      scheduler JSONL rows for linked app/game local outbox records, while
+      manual-required and unavailable rows stay unscheduled and no production
+      runtime/provider/UI/child/adapter claims are made.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
@@ -264,6 +277,18 @@ provider adapters, production outbox/scheduler runtime, receipt ingestion,
 parent-visible history/preferences UI, child delivery proof, and provider smoke
 proof before claiming app/game notification delivery or product notification
 runtime. Treat
+`scripts/test/app-game-notification-local-outbox-bridge-proof.mjs` as
+parent-domain app/game local outbox bridge proof only; require durable
+production outbox storage, provider adapters, production retry workers,
+quiet-hours timers, receipt ingestion, parent-visible history/preferences UI,
+child delivery proof, and provider smoke proof before claiming app/game
+notification delivery or product notification runtime. Treat
+`scripts/test/app-game-notification-scheduler-bridge-proof.mjs` as parent-domain
+app/game scheduler bridge proof only; require production retry workers,
+production quiet-hours timers, durable production outbox storage, provider
+adapters, receipt ingestion, parent-visible history/preferences UI, child
+delivery proof, and provider smoke proof before claiming app/game notification
+delivery or product notification runtime. Treat
 `scripts/test/parent-owned-sync-export-manifest-proof.mjs` as parent-domain
 sync/export manifest and connector-status contract proof only; require real
 transfer runtime, connector OAuth/provider artifacts, parent-visible controls,

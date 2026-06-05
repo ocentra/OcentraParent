@@ -99,6 +99,17 @@ production outbox storage, provider delivery, receipt ingestion, quiet-hours or
 retry worker execution, cloud routing, parent notification UI, child delivery,
 broad blocking, or platform support.
 
+`scripts/test/app-game-notification-scheduler-bridge-proof.mjs` validates a
+parent-domain app/game scheduler bridge proof that writes and rereads
+deterministic scheduler JSONL rows from linked app/game local outbox records. It
+covers due-local scheduler rows, source local-outbox refs, app/game evidence and
+policy refs, manual-required and unavailable rows that remain unscheduled, and
+explicit no-runtime/no-provider/no-UI/no-child/no-adapter claims. This is a
+bridge proof only: it does not claim production retry workers, quiet-hours timer
+execution, durable production outbox storage, provider delivery, receipt
+ingestion, cloud routing, parent notification UI, child delivery, broad
+blocking, or platform support.
+
 ## Failure Behavior
 
 - Provider failure is visible, retryable when safe, and auditable.
@@ -156,6 +167,10 @@ broad blocking, or platform support.
   app/game notification intents becoming deterministic parent-owned JSONL
   records only when local-outbox eligible, with manual/unavailable rows kept
   unqueued and no provider/scheduler/UI/child/adapter claims.
+- Parent-domain app/game notification scheduler bridge proof for linked
+  app/game local outbox records becoming deterministic scheduler JSONL rows,
+  with manual/unavailable rows kept unscheduled and no production runtime,
+  provider/UI/child/adapter claims.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
 - Parent-surface coverage for notification history, preference changes, quiet hours, and sensitive-detail drill-in behind authentication.
