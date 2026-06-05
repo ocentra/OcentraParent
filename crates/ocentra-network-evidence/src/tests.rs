@@ -6,6 +6,7 @@ use crate::{
     PcapReplayError, TransportPacketMetadata,
 };
 
+mod android_vpn_service_gate;
 mod bundle;
 mod cascade;
 mod category;

@@ -1,3 +1,4 @@
+pub mod android_vpn_service_gate;
 pub mod bundle;
 pub mod cascade;
 pub mod category;
@@ -27,6 +28,12 @@ mod process_support;
 #[cfg(test)]
 mod tests;
 
+pub use android_vpn_service_gate::{
+    plan_network_android_vpn_service_gate, NetworkAndroidVpnServiceCapabilityState,
+    NetworkAndroidVpnServiceGateBoundaryReason, NetworkAndroidVpnServiceGateError,
+    NetworkAndroidVpnServiceGateInput, NetworkAndroidVpnServiceGateProof,
+    NetworkAndroidVpnServiceGateState, NetworkAndroidVpnServiceRequiredArtifact,
+};
 pub use bundle::{
     build_network_cross_slice_evidence_bundle, NetworkCrossSliceEvidenceBundle,
     NetworkCrossSliceEvidenceBundleError, NetworkCrossSliceEvidenceBundleInput,

@@ -81,11 +81,22 @@ are all present. Research-only, weak evidence, non-block policy actions,
 manual-required, and unavailable states are non-executable, and exact URL,
 decrypted payload, page content, live driver install, callout registration,
 packet block, kernel payload inspection, command invocation, adapter action,
-and enforcement-command claims are rejected.
+and enforcement-command claims are rejected. The Android VpnService proof gate
+models physical-device proof readiness only when grade-A block policy, parent
+rule, evidence, package/service, physical-device-ready capability, VpnService
+declaration, user consent, physical-device proof, package identity,
+virtual-interface, traffic-observation, rollback, and audit refs are all
+present. Device Owner proof is required only when Device Owner authority is
+claimed. Research-only, weak evidence, non-block policy actions,
+manual-required, and unavailable states are non-executable, and emulator-only
+product support, exact URL, decrypted payload, page content, live VPN tunnel,
+packet block, app/package correlation, adapter action, and enforcement-command
+claims are rejected.
 
 Live Npcap/libpcap capture, full vendor category feeds, analyzer comparison,
 production CDN intelligence, unmanaged browser URL correlation, foreground
 session correlation, live network adapter enforcement, file/content inspection,
 local-AI model execution/worker runtime, full policy engine execution,
 notification provider delivery, live WFP driver/callout proof, live adapter
-execution, and portal rendering remain separate proof-gated workpacks.
+execution, Android physical-device behavior, and portal rendering remain
+separate proof-gated workpacks.
