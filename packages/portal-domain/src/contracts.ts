@@ -307,6 +307,7 @@ export const PortalDom = {
     AriaHidden: 'aria-hidden',
     AriaSelected: 'aria-selected',
     DataRouteId: 'data-ocentra-parent-route-id',
+    DataTrackingProof: 'data-ocentra-tracking-proof',
     DataTheme: 'data-theme',
     Page: 'page',
     True: 'true',
@@ -315,6 +316,7 @@ export const PortalDom = {
     Role: 'role',
     Tab: 'tab',
     TabList: 'tablist',
+    TrackingProofChildCheckIn: 'child-check-in',
   },
   Events: {
     Click: 'click',

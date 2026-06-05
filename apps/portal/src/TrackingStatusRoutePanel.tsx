@@ -13,6 +13,7 @@ import {
 } from '@ocentra-parent/portal-domain/contracts';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalLiveActivityState } from './live-activity-state';
+import { trackingChildCheckInProof, type TrackingChildCheckInProof } from './tracking-child-check-in-proof';
 import {
   trackingStatusLiveSummary,
   trackingStatusProofRows,
@@ -66,6 +67,7 @@ export function TrackingStatusRoutePanel({
           {liveSummary.citations.map((citation) => (
             <TrackingStatusLiveCitationCard key={String(citation.eventId)} citation={citation} />
           ))}
+          <TrackingChildCheckInProofCard proof={trackingChildCheckInProof()} />
           {trackingStatusProofRows().map((proofRow) => (
             <TrackingStatusRouteRow key={String(proofRow.title)} proofRow={proofRow} />
           ))}
@@ -119,6 +121,34 @@ function TrackingStatusLiveCitationCard({ citation }: { readonly citation: Track
         <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={citation.evidenceReferences} />
         <TrackingStatusDetail label={PortalDetails.DeletedEvidence} value={citation.deletedEvidence} />
         <TrackingStatusDetail label={PortalDetails.ProductClaim} value={citation.productClaim} />
+      </dl>
+    </article>
+  );
+}
+
+function TrackingChildCheckInProofCard({ proof }: { readonly proof: TrackingChildCheckInProof }): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article
+      className={className}
+      {...{ [PortalDom.Attributes.DataTrackingProof]: PortalDom.Attributes.TrackingProofChildCheckIn }}
+    >
+      <h2>{proof.title}</h2>
+      <p>{proof.body}</p>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <TrackingStatusDetail label={PortalDetails.ChildCopy} value={proof.copyBoundary} />
+        <TrackingStatusDetail label={PortalDetails.ChildSafeAction} value={proof.safeAction} />
+        <TrackingStatusDetail label={PortalDetails.ChildHelpAction} value={proof.helpAction} />
+        <TrackingStatusDetail label={PortalDetails.ChildShareLocationAction} value={proof.shareLocationAction} />
+        <TrackingStatusDetail label={PortalDetails.ChildCallParentAction} value={proof.callParentAction} />
+        <TrackingStatusDetail label={PortalDetails.ChildDelivery} value={proof.deliveryBoundary} />
+        <TrackingStatusDetail label={PortalDetails.ProofTier} value={proof.proofTier} />
+        <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={proof.evidence} />
+        <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proof.proofArtifact} />
+        <TrackingStatusDetail label={PortalDetails.MissingProof} value={proof.missingProof} />
+        <TrackingStatusDetail label={PortalDetails.ProductClaim} value={proof.productClaim} />
       </dl>
     </article>
   );

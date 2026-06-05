@@ -10,6 +10,7 @@ import {
 import { PortalRoute, TrackingStatusProofArtifacts } from '@ocentra-parent/portal-domain/contracts';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
+import { trackingChildCheckInProof } from '../src/tracking-child-check-in-proof';
 import { trackingStatusLiveSummary, trackingStatusProofRows } from '../src/tracking-status-panel';
 
 const ExpectedTrackingStateTitles = [
@@ -182,6 +183,29 @@ describe('tracking status proof surface', () => {
         },
       ],
     });
+  });
+});
+
+describe('tracking child check-in proof surface', () => {
+  it('renders child check-in copy as calm fixture proof without delivery claims', () => {
+    const proof = trackingChildCheckInProof();
+
+    expect(proof).toEqual({
+      title: 'Child check-in request',
+      body: 'Your parent is asking you to check in. Are you safe?',
+      proofTier: 'P1 fixture proof',
+      evidence: 'UI fixture proof',
+      proofArtifact: TrackingStatusProofArtifacts.ChildCheckIn,
+      copyBoundary: 'Calm copy, no accusation',
+      safeAction: "I'm safe",
+      helpAction: 'Need help',
+      shareLocationAction: 'Share current location',
+      callParentAction: 'Call parent',
+      deliveryBoundary: 'Child-device delivery not proved',
+      missingProof: 'Manual proof required',
+      productClaim: 'No product claim',
+    });
+    expect(JSON.stringify(proof)).not.toMatch(/(?:trouble|lying|bad place|delivered|product ready)/iu);
   });
 });
 

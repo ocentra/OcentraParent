@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T23:39:43.227Z",
-  "commit": "fb6ba79534098bbbd4fb4a6572a4426eb1e5735c",
+  "checkedAt": "2026-06-05T00:50:30.885Z",
+  "commit": "87e7c8645772d624ee1e8faf31675a51622a1bf0",
   "workpackIds": [
     "30-parent-and-child-ui-ux-surfaces",
     "32-journal-sqlite-and-read-model-proof",
@@ -37,6 +37,7 @@
     "validationCommands": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/16-validation-commands.log",
     "desktopScreenshot": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary.png",
     "mobileScreenshot": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png",
+    "childCheckInScreenshot": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png",
     "accessibilitySummary": "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
   },
   "accessibilitySummary": {
@@ -49,8 +50,12 @@
       "manual-required-visible",
       "physical-device-required-visible",
       "no-product-claim-visible",
+      "child-check-in-copy-visible",
+      "child-check-in-actions-visible",
+      "child-device-delivery-not-claimed",
       "no-unlabeled-buttons",
       "desktop-screenshot",
+      "child-check-in-screenshot",
       "mobile-screenshot"
     ],
     "summary": {
@@ -60,6 +65,7 @@
         "Service read model",
         "School",
         "School location",
+        "Child check-in request",
         "Tracking off",
         "Permission required",
         "Stale last known",
@@ -73,6 +79,11 @@
         "Temporary live",
         "Missing device",
         "Retention deleted"
+      ],
+      "paragraphs": [
+        "First target",
+        "Location states are fixture proof only.",
+        "Your parent is asking you to check in. Are you safe?"
       ],
       "labels": [
         "Load state",
@@ -105,6 +116,17 @@
         "Status",
         "Evidence references",
         "Deleted evidence",
+        "Product claim",
+        "Child copy",
+        "Safe action",
+        "Help action",
+        "Share location action",
+        "Call parent action",
+        "Child delivery",
+        "Proof tier",
+        "Evidence references",
+        "Runtime reference",
+        "Missing proof",
         "Product claim",
         "Status",
         "Proof tier",
@@ -219,6 +241,17 @@
         "location-evidence-hosted-1 | location-evidence-hosted-2",
         "Not reported",
         "No product claim",
+        "Calm copy, no accusation",
+        "I'm safe",
+        "Need help",
+        "Share current location",
+        "Call parent",
+        "Child-device delivery not proved",
+        "P1 fixture proof",
+        "UI fixture proof",
+        "output/tracking-plan-proof/18-child-check-in-flow/09-policy-alert-proof.json",
+        "Manual proof required",
+        "No product claim",
         "Tracking off",
         "P1 fixture proof",
         "Contract/runtime proof",
@@ -310,12 +343,13 @@
     },
     "screenshots": {
       "desktop": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary.png",
+      "childCheckIn": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png",
       "mobile": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png"
     }
   },
   "commands": [
     {
-      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-LaGtok\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-LaGtok\\seed-tracking.sql",
+      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-mhzfgw\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-mhzfgw\\seed-tracking.sql",
       "exitCode": 0
     },
     {
@@ -339,6 +373,7 @@
     "This proof does not claim Android or iOS physical background tracking behavior.",
     "This proof does not claim real physical-device location, geofence, provider, or notification delivery.",
     "This proof uses a seeded temporary ActivityStore SQLite database to prove hosted portal rendering against the real Rust service command.",
+    "This proof renders child-safe check-in copy but does not claim child-device delivery or child-device runtime UI.",
     "This proof does not claim full child-device UI or authority-enrolled hard-control readiness."
   ],
   "remainingGapsBeforeProductReady": [
