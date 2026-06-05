@@ -1,0 +1,138 @@
+AI-24 provider degraded/fallback behavior validation - 2026-06-03
+
+Updated AI-24 provider fallback planner/proof validation - 2026-06-05
+
+PASS cmd /c npm run lanes:status
+PASS cmd /c npm run lanes:guard
+INFO cmd /c npm run hub:status
+PASS cmd /c npm run hub:guard
+  hub-guard-ok: lane=codex-d
+
+PASS cmd /c npm run test --workspace @ocentra-parent/activity-domain -- browser-ai-provider-fallback.test.ts
+  Test Files  1 passed (1)
+  Tests       6 passed (6)
+
+PASS cmd /c npm run test --workspace @ocentra-parent/activity-domain -- browser-ai-provider-fallback-planner.test.ts
+  Test Files  1 passed (1)
+  Tests       2 passed (2)
+
+PASS cmd /c npm run test --workspace @ocentra-parent/activity-domain -- browser-ai-provider-fallback.test.ts browser-ai-provider-fallback-planner.test.ts
+  Test Files  2 passed (2)
+  Tests       8 passed (8)
+
+PASS cmd /c npm run build --workspace @ocentra-parent/activity-domain
+
+PASS cmd /c npm run build:contracts
+
+PASS cmd /c node --check scripts/test/browser-ai-provider-fallback-proof.mjs
+
+PASS cmd /c node scripts/test/browser-ai-provider-fallback-proof.mjs
+  browser-ai-provider-fallback-proof-ok=true
+  decisionCount=5
+  selectedProviders=child-device-local-ai,family-ai-hub,parent-approved-remote-ai,metadata-only,no-ai
+
+PASS cmd /c npm run format:check
+  All matched files use Prettier code style.
+
+PASS cmd /c npm run lint:schema-boundaries
+  Schema boundary lint passed. Source-shape advisory output remains present,
+  including package-wide existing advisories and an advisory that the new
+  fallback test file is over the 250-line advisory band. No hard source-shape
+  limit failed.
+
+PASS git diff --check
+
+PASS git status --short -- docs/product-capability-checklist.md
+  No output; product capability checklist remains untouched by codex-d.
+
+PASS git fetch origin --prune; git rev-list --left-right --count HEAD...origin/main
+  0 0
+
+FAIL then PASS cmd /c npm run validate
+  First full validate reached workspace tests and timed out in
+  packages/parent-domain/tests/browser-control-full-catalog.test.ts:
+  "rejects invalid catalog enum values rather than accepting arbitrary UI data".
+  Exact rerun passed:
+  PASS cmd /c npm run test --workspace @ocentra-parent/parent-domain -- browser-control-full-catalog.test.ts
+    Test Files  1 passed (1)
+    Tests       7 passed (7)
+
+FAIL then PASS cmd /c npm run validate
+  Second full validate reached test:integration and failed in
+  scripts/test/websocket-lan-smoke.mjs waiting for
+  agent.lan-pairing.proof.submit after events=agent.connection.ready.
+  Exact integration rerun passed:
+  PASS cmd /c npm run test:integration
+    websocket-local-smoke-ok:agent.connection.ready,agent.health.reported,agent.activity.ingest.status.reported
+    websocket-lan-smoke-ok:agent.connection.ready,agent.lan-pairing.status.reported,agent.connection.ready,agent.lan-pairing.status.reported,agent.connection.ready,agent.health.reported,agent.connection.ready,agent.command.rejected
+
+FAIL then PASS cmd /c npm run validate
+  Third full validate reached Rust agent-service tests and failed once in
+  activity_capture_tests::freshness::recurring_capture_refreshes_app_game_runtime_and_optional_foreground_rows_without_content_claim
+  with assertion left: 1 right: 2.
+  Exact rerun passed:
+  PASS cargo test -p ocentra-parent-agent-service activity_capture_tests::freshness::recurring_capture_refreshes_app_game_runtime_and_optional_foreground_rows_without_content_claim -- --exact
+    1 passed; 0 failed; 248 filtered out
+
+PASS cmd /c npm run validate
+  release:version PASS
+  test:pre-ai-proof PASS
+  lint PASS
+  test PASS
+  validate:rust PASS
+  test:integration PASS
+  test:e2e PASS
+  Portal Playwright: 2 passed, 1 skipped.
+
+Post-PR315 rebase validation - 2026-06-05
+
+PASS cmd /c npm run hub:inbox
+  Latest message codex-d-msg-20260605T034439987Z-314:
+  main advanced to 8158d168 after PR315; continue current browser/social-video
+  proof from fresh main.
+
+PASS cmd /c npm run hub:ack -- --message codex-d-msg-20260605T034439987Z-314
+  hub-ack=codex-d-msg-20260605T034439987Z-314
+
+PASS git rebase --autostash origin/main
+  Successfully rebased and updated refs/heads/codex/browser-ai-provider-fallback-proof.
+
+PASS git rev-list --left-right --count HEAD...origin/main
+  0 0
+
+PASS cmd /c npm run test --workspace @ocentra-parent/activity-domain -- browser-ai-provider-fallback.test.ts browser-ai-provider-fallback-planner.test.ts
+  Test Files  2 passed (2)
+  Tests       8 passed (8)
+
+PASS cmd /c npm run build --workspace @ocentra-parent/activity-domain
+
+INFO cmd /c node scripts/test/browser-ai-provider-fallback-proof.mjs
+  The first post-rebase proof run failed its stale-dist guard because the
+  source file timestamp was newer than identical TypeScript output after
+  autostash reapplied the source. Refreshed generated package output by
+  removing only packages/activity-domain/tsconfig.tsbuildinfo and rerunning
+  the package build.
+
+PASS cmd /c node scripts/test/browser-ai-provider-fallback-proof.mjs
+  browser-ai-provider-fallback-proof-ok=true
+  decisionCount=5
+  selectedProviders=child-device-local-ai,family-ai-hub,parent-approved-remote-ai,metadata-only,no-ai
+
+FAIL then PASS cmd /c npm run validate
+  First post-rebase full validate reached test:integration and failed in
+  scripts/test/websocket-lan-smoke.mjs waiting for
+  agent.lan-pairing.proof.submit after events=agent.connection.ready.
+  Direct integration rerun passed:
+  PASS cmd /c npm run test:integration
+    websocket-local-smoke-ok:agent.connection.ready,agent.health.reported,agent.activity.ingest.status.reported
+    websocket-lan-smoke-ok:agent.connection.ready,agent.lan-pairing.status.reported,agent.connection.ready,agent.lan-pairing.status.reported,agent.connection.ready,agent.health.reported,agent.connection.ready,agent.command.rejected
+
+PASS cmd /c npm run validate
+  release:version PASS
+  test:pre-ai-proof PASS
+  lint PASS
+  test PASS
+  validate:rust PASS
+  test:integration PASS
+  test:e2e PASS
+  Portal Playwright: 2 passed, 1 skipped.

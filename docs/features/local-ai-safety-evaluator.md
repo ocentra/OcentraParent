@@ -52,6 +52,13 @@ claim needs proof, not slogans.
 - Parent Assistant provider routing proof now exposes local configured,
   degraded, unavailable, API authorized-unavailable, and API authorized-degraded
   states without making remote/API AI part of child safety decisions.
+- Browser-plan AI-24 now derives browser AI provider fallback decisions from
+  validated local-provider, family-hub, and parent-approved remote route proofs.
+  The proof covers local, family hub, remote, metadata-only, and no-AI fallback
+  outcomes while rejecting hidden fallback, AI/policy authority, remote default
+  blocking, remote outage disabling local safety, route conflicts, and
+  request-id mismatches. It does not run a model, call a provider, evaluate
+  policy, deliver UI, or enforce.
 - Dry-run policy evaluator and evidence context builder exist in proof form.
 - Screen-derived time-limit and block decisions now have Windows
   owned-process adapter handoff proof. Model quality, video/social live

@@ -613,15 +613,19 @@ and parser rows keep content semantics, AI decisions, and policy decisions
 false. Activity-domain package subpath exports are now present; no account identity proof, feed recommendation analysis,
 messaging/contact analysis, upload monitoring, livestream content analysis, UI,
 enforcement, or product checklist upgrade is claimed.
-AI-24 now adds provider degraded/fallback decision contracts for the browser AI
-route chain. Decisions can select child-device local AI, family AI hub, or
-parent-approved remote AI only when the selected route and runtime match the
-existing route proof. Metadata-only and no-AI fallbacks keep runtime refs null
-and expose fallback action/reason/audit refs. The contracts reject hidden
-fallback, claimed AI analysis results, claimed policy decisions, disabled local
-safety, remote default blocking, and remote outages disabling local safety.
-Activity-domain package subpath exports are now present; no model execution, policy evaluator, UI, enforcement, runtime
-delivery, or product checklist upgrade is claimed.
+AI-24 now adds provider degraded/fallback decision planning and proof for the
+browser AI route chain. Decisions are derived from validated local-provider,
+family-hub, and parent-approved remote route proofs, selecting child-device
+local AI, family AI hub, or parent-approved remote AI only when the selected
+route and runtime match the existing route proof. Metadata-only and no-AI
+fallbacks keep runtime refs null and expose fallback action/reason/audit refs.
+The proof harness records five route-derived decisions plus negative checks for
+hidden fallback, claimed AI analysis results, claimed policy decisions, disabled
+local safety, remote default blocking, remote outage disabling local safety,
+remote selected while local/family is already selected, and route request-id
+mismatch. Activity-domain package subpath exports are now present; no model or
+provider execution, policy evaluator, UI, enforcement, runtime delivery, or
+product checklist upgrade is claimed.
 AI-25 now adds a URL/video AI proof-gate script and rollout manifest. The gate
 checks AI-01 through AI-24 checklist rows, proof-pack directories, required
 source/security/validation/UI-not-applicable artifacts, plan checkpoint

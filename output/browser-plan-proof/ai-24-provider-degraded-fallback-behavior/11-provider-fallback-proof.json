@@ -1,0 +1,161 @@
+{
+  "proofName": "browser-ai-provider-fallback-proof",
+  "generatedAt": "2026-06-05T03:54:28.151Z",
+  "generatedOrFixturePageUsed": false,
+  "realProviderCalled": false,
+  "modelExecuted": false,
+  "remoteProviderCalled": false,
+  "policyEvaluated": false,
+  "uiDelivered": false,
+  "enforcementExecuted": false,
+  "routePlannerSource": "built activity-domain contracts",
+  "decisionCount": 5,
+  "decisions": [
+    {
+      "fallbackDecisionId": "fallback-local-selected",
+      "requestId": "browser-ai-analysis-request-youtube-video",
+      "selectedProviderKind": "child-device-local-ai",
+      "selectedRuntimeRef": "local-model-runtime-ref-browser-ai",
+      "localExecutionState": "selected",
+      "familyExecutionState": null,
+      "remoteExecutionState": null,
+      "fallbackAction": "continue-selected-runtime",
+      "fallbackReasons": [
+        "local-selected"
+      ],
+      "auditEvidenceIds": [
+        "browser-evidence-youtube-video"
+      ],
+      "parentFallbackVisible": true,
+      "childFallbackVisible": true,
+      "analysisResultClaimed": false,
+      "policyDecisionClaimed": false,
+      "localSafetyPreserved": true,
+      "remoteDefaultForBlocking": false,
+      "remoteOutageDisablesLocalSafety": false
+    },
+    {
+      "fallbackDecisionId": "fallback-family-selected",
+      "requestId": "browser-ai-analysis-request-youtube-video",
+      "selectedProviderKind": "family-ai-hub",
+      "selectedRuntimeRef": "family-hub-runtime-ref-browser-ai",
+      "localExecutionState": "manual-required",
+      "familyExecutionState": "selected",
+      "remoteExecutionState": null,
+      "fallbackAction": "continue-selected-runtime",
+      "fallbackReasons": [
+        "model-missing",
+        "family-hub-selected"
+      ],
+      "auditEvidenceIds": [
+        "browser-evidence-youtube-video",
+        "family-hub-route-proof"
+      ],
+      "parentFallbackVisible": true,
+      "childFallbackVisible": true,
+      "analysisResultClaimed": false,
+      "policyDecisionClaimed": false,
+      "localSafetyPreserved": true,
+      "remoteDefaultForBlocking": false,
+      "remoteOutageDisablesLocalSafety": false
+    },
+    {
+      "fallbackDecisionId": "fallback-remote-selected",
+      "requestId": "browser-ai-analysis-request-youtube-video",
+      "selectedProviderKind": "parent-approved-remote-ai",
+      "selectedRuntimeRef": "remote-runtime-ref-browser-ai",
+      "localExecutionState": "manual-required",
+      "familyExecutionState": null,
+      "remoteExecutionState": "selected",
+      "fallbackAction": "continue-selected-runtime",
+      "fallbackReasons": [
+        "model-missing",
+        "remote-selected"
+      ],
+      "auditEvidenceIds": [
+        "browser-evidence-youtube-video",
+        "remote-approval-proof"
+      ],
+      "parentFallbackVisible": true,
+      "childFallbackVisible": true,
+      "analysisResultClaimed": false,
+      "policyDecisionClaimed": false,
+      "localSafetyPreserved": true,
+      "remoteDefaultForBlocking": false,
+      "remoteOutageDisablesLocalSafety": false
+    },
+    {
+      "fallbackDecisionId": "fallback-metadata-only",
+      "requestId": "browser-ai-analysis-request-youtube-video",
+      "selectedProviderKind": "metadata-only",
+      "selectedRuntimeRef": null,
+      "localExecutionState": "manual-required",
+      "familyExecutionState": null,
+      "remoteExecutionState": null,
+      "fallbackAction": "metadata-only-review",
+      "fallbackReasons": [
+        "metadata-only",
+        "model-missing"
+      ],
+      "auditEvidenceIds": [
+        "browser-evidence-youtube-video"
+      ],
+      "parentFallbackVisible": true,
+      "childFallbackVisible": true,
+      "analysisResultClaimed": false,
+      "policyDecisionClaimed": false,
+      "localSafetyPreserved": true,
+      "remoteDefaultForBlocking": false,
+      "remoteOutageDisablesLocalSafety": false
+    },
+    {
+      "fallbackDecisionId": "fallback-no-ai",
+      "requestId": "browser-ai-analysis-request-youtube-video",
+      "selectedProviderKind": "no-ai",
+      "selectedRuntimeRef": null,
+      "localExecutionState": "unavailable",
+      "familyExecutionState": null,
+      "remoteExecutionState": null,
+      "fallbackAction": "parent-review",
+      "fallbackReasons": [
+        "provider-unavailable",
+        "parent-review"
+      ],
+      "auditEvidenceIds": [
+        "browser-evidence-youtube-video"
+      ],
+      "parentFallbackVisible": true,
+      "childFallbackVisible": true,
+      "analysisResultClaimed": false,
+      "policyDecisionClaimed": false,
+      "localSafetyPreserved": true,
+      "remoteDefaultForBlocking": false,
+      "remoteOutageDisablesLocalSafety": false
+    }
+  ],
+  "negativeChecks": {
+    "hiddenParentFallbackRejected": true,
+    "hiddenChildFallbackRejected": true,
+    "aiAnalysisResultClaimRejected": true,
+    "policyDecisionClaimRejected": true,
+    "localSafetyDisabledRejected": true,
+    "remoteDefaultBlockingRejected": true,
+    "remoteOutageDisablesLocalSafetyRejected": true,
+    "remoteSelectedWhileLocalSelectedRejected": true,
+    "remoteSelectedWhileFamilySelectedRejected": true,
+    "routeRequestMismatchRejected": true
+  },
+  "noClaimChecks": {
+    "aiAnalysisResultClaimed": false,
+    "policyDecisionClaimed": false,
+    "runtimeDeliveryClaimed": false,
+    "remoteDefaultBlockingClaimed": false,
+    "localSafetyDisabledByRemoteOutage": false,
+    "rawBrowserStatePersisted": false,
+    "rawPageBodyPersisted": false,
+    "transcriptTextPersisted": false,
+    "screenshotPersisted": false,
+    "uiClaimed": false,
+    "enforcementClaimed": false
+  }
+}
