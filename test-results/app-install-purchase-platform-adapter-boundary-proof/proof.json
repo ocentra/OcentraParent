@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T02:40:58.548Z",
-  "commit": "1d2a625f0dfa88457eca1842b3443a8c9ecff50b",
+  "checkedAt": "2026-06-05T02:46:15.313Z",
+  "commit": "e7a2bf05785b146336642b052f3ab32ee3da4870",
   "proofMode": "app-install-purchase-platform-adapter-boundary-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-05T02:40:52.116Z",
+      "startedAt": "2026-06-05T02:46:09.498Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-platform-adapter-boundary-proof.test.ts",
-      "startedAt": "2026-06-05T02:40:55.830Z",
+      "startedAt": "2026-06-05T02:46:12.273Z",
       "exitCode": 0
     }
   ],
