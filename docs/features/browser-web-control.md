@@ -595,11 +595,15 @@ video ids can produce schema-backed shape rows, and exact managed Vimeo video or
 generic web schema.org VideoObject rows can produce metadata evidence with
 title, description, platform video id, channel name, thumbnail refs, duration,
 publish date, captions/transcript availability, category/rating/restricted
-signals, and degraded reasons. Unmanaged classifications and generic
-OpenGraph-only rows are rejected, and the adapter does not capture page body,
-transcript text, content semantics authority, AI decisions, policy decisions, or
-policy authority. Activity-domain package subpath exports are now present; no network fetcher, transcript parser, hidden page load, AI
-execution, policy evaluator, enforcement, or product checklist upgrade is
+signals, and degraded reasons. Live proof now fetches real public Vimeo page
+and player surfaces plus a real public generic VideoObject page, exercises the
+built activity-domain parser/adapter, and persists only statuses, hosts, hashes,
+lengths, platform ids, and no-claim flags. Unmanaged classifications and
+generic OpenGraph-only rows are rejected, and the adapter does not capture page
+body, transcript text, content semantics authority, AI decisions, policy
+decisions, or policy authority. Activity-domain package subpath exports are now
+present; no production network fetcher, transcript parser, hidden page load, AI
+execution, policy evaluator, UI, enforcement, or product checklist upgrade is
 claimed.
 AI-23 now extends deterministic dynamic feed/social URL handling. The URL shape
 contract can represent social post, messaging, upload/post, and livestream route
