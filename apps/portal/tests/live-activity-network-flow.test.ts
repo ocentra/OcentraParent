@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/activity-domain/network-flow';
 import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
 import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { shouldRenderNetworkEvidenceDrawerRoute } from '../src/NetworkEvidenceDrawerRoutePanel';
@@ -8,15 +9,10 @@ import { networkEvidenceDrawerSummary } from '../src/network-evidence-drawer';
 describe('portal live activity network flow state', () => {
   it('parses real service network flow read-model payload fields', () => {
     const state = resolveLiveActivityState([networkFlowEvent()]);
+    const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
 
-    expect(state.networkFlowReadModel?.returned).toBe(1);
-    expect(state.networkFlowReadModel?.rows[0]?.destinationDomain).toBe('example-network.test');
-    expect(state.networkFlowReadModel?.rows[0]?.destinationEndpoint.port).toBe(443);
-    expect(state.networkFlowReadModel?.rows[0]?.processName).toBe('notepad.exe');
-    expect(state.networkFlowReadModel?.rows[0]?.evidence.map((evidence) => evidence.evidenceId)).toEqual([
-      'network-evidence-1',
-      'network-journal-1',
-    ]);
+    expectNetworkReadModelCounts(readModel, 1);
+    expectNetworkFlowRow(readModel);
   });
 
   it('projects the parent network evidence drawer without unsupported claims', () => {
@@ -40,11 +36,12 @@ describe('portal live activity network flow state', () => {
 
   it('keeps empty network flow read models visible without inventing destinations', () => {
     const state = resolveLiveActivityState([emptyNetworkFlowEvent()]);
-    const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel);
+    const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
+    const summary = networkEvidenceDrawerSummary(readModel);
 
-    expect(state.networkFlowReadModel?.returned).toBe(0);
-    expect(state.networkFlowReadModel?.rows).toEqual([]);
-    expect(state.networkFlowReadModel?.capabilityStatus).toBe('no-network-observations');
+    expectNetworkReadModelCounts(readModel, 0);
+    expect(readModel.rows).toEqual([]);
+    expect(readModel.capabilityStatus).toBe('no-network-observations');
     expect(summary.evidenceReferences).toBe('Not reported');
     expect(summary.exactUrlClaim).toBe('Not reported');
   });
@@ -54,6 +51,33 @@ describe('portal live activity network flow state', () => {
     expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.Overview)).toBe(false);
   });
 });
+
+function requireNetworkFlowReadModel(readModel: ActivityNetworkFlowReadModel | null): ActivityNetworkFlowReadModel {
+  expect(readModel).not.toBeNull();
+  if (readModel === null) {
+    throw new Error('network flow read-model missing');
+  }
+  return readModel;
+}
+
+function expectNetworkReadModelCounts(readModel: ActivityNetworkFlowReadModel, expectedRows: number): void {
+  expect(readModel.returned).toBe(expectedRows);
+  expect(readModel.activeRows).toBe(expectedRows);
+  expect(readModel.tombstoneRows).toBe(0);
+  expect(readModel.exportableRows).toBe(expectedRows);
+}
+
+function expectNetworkFlowRow(readModel: ActivityNetworkFlowReadModel): void {
+  const row = readModel.rows[0];
+  expect(row).toBeDefined();
+  if (row === undefined) {
+    throw new Error('network flow row missing');
+  }
+  expect(row.destinationDomain).toBe('example-network.test');
+  expect(row.destinationEndpoint.port).toBe(443);
+  expect(row.processName).toBe('notepad.exe');
+  expect(row.evidence.map((evidence) => evidence.evidenceId)).toEqual(['network-evidence-1', 'network-journal-1']);
+}
 
 function networkFlowEvent() {
   return AgentEventEnvelopeSchema.parse({
@@ -76,9 +100,15 @@ function networkFlowEvent() {
       custody: 'child-device-query-store',
       limit: 10,
       returned: 1,
+      activeRows: 1,
+      tombstoneRows: 0,
+      exportableRows: 1,
       capabilityStatus: 'available',
       latestEventId: 'activity-network-flow-1',
       latestObservedAt: '2026-05-21T02:00:00Z',
+      latestTombstoneEventId: null,
+      latestTombstoneObservedAt: null,
+      deletedEvidenceReferenceIds: '',
       observer: 'windows-network',
       adapterId: 'windows-network-snapshot',
       networkProtocol: 'tcp',
@@ -149,9 +179,15 @@ function emptyNetworkFlowEvent() {
       custody: 'child-device-query-store',
       limit: 10,
       returned: 0,
+      activeRows: 0,
+      tombstoneRows: 0,
+      exportableRows: 0,
       capabilityStatus: 'no-network-observations',
       latestEventId: null,
       latestObservedAt: null,
+      latestTombstoneEventId: null,
+      latestTombstoneObservedAt: null,
+      deletedEvidenceReferenceIds: '',
       observer: null,
       adapterId: null,
       networkProtocol: null,

@@ -295,6 +295,13 @@ compete on control while staying clear about attribution confidence and privacy.
   row before adapter execution, then records the final adapter-result audit row
   into the encrypted journal and SQLite store. This proves local audit/read-model
   projection ordering, not host DNS/filter execution.
+- E-D added a network-specific portal source gate proof. The portal parser now
+  consumes the service read-model active/tombstone/export counters and deletion
+  evidence refs through shared agent-protocol field constants, the network drawer
+  proof runs the real portal network read-model test, and the static gate proves
+  `apps/portal/src` plus `packages/portal-domain/src` do not import eventing,
+  publish network/policy/enforcement events, compute evidence grades, decide
+  policy, or execute adapter/enforcement commands.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -336,7 +343,8 @@ runtime, full policy engine execution, notification provider delivery, broader
 parent-facing rule UX, live host DNS mutation/proxy installation, live Windows
 Firewall mutation, live WFP driver/callout/packet blocking, live Android
 VpnService filtering, live Apple Network Extension behavior, live Linux adapter
-execution, and platform adapter execution remain open.
+execution, platform adapter execution, and broader portal risk-budget/performance
+UI rendering remain open.
 
 ## Checklist
 

@@ -117,11 +117,17 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       capability and monitor/limit/block actions.
 - [x] Dry-run and manual-required states cannot call adapters.
       Contract tests reject dry-run block attempts with adapter authorization.
-- [ ] Vite/TypeScript UI cannot own network business logic or publish adapter
-      commands.
-- [ ] Portal source gate proves UI cannot import or instantiate the Rust
+- [x] Vite/TypeScript UI cannot own network business logic or publish adapter
+      commands. E-D added `network-portal-source-gate-proof.mjs`, which runs the
+      real portal network read-model test plus targeted ESLint/source-shape and
+      scans `apps/portal/src` and `packages/portal-domain/src` for event
+      publishing, adapter execution, enforcement dispatch, local policy
+      evaluation, and local evidence-grade computation.
+- [x] Portal source gate proves UI cannot import or instantiate the Rust
       eventing bus, publish network/policy/enforcement events, compute evidence
-      grades, or decide policy locally.
+      grades, or decide policy locally. Proof:
+      `output/network-plan-proof/36-portal-source-gate/proof-summary.json` and
+      `test-results/network-portal-source-gate-proof/proof.json`.
 - [ ] Platform claims name exact OS/device/permission proof.
 - [ ] Every failed, skipped, manual, or deferred test has a reason and follow-up
       owner recorded.
@@ -166,6 +172,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   path.
 - [ ] Parent UI renders capability, degraded, stale, unsupported, unavailable,
       manual-required, limitation, audit, and risk-budget states honestly.
+      E-D now proves the existing network drawer renders service-provided
+      endpoint/domain/process/custody/evidence refs and labels exact URL, AI,
+      policy, intervention, retention, and evidence-grade facets as not reported
+      when no service refs exist; broader risk-budget/performance/manual-state UI
+      coverage remains open.
 - [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
       reasons for every applicable gate. Workpack 03 proof lives under
       `output/network-plan-proof/03-contract-boundary-and-effect-schemas/`.
@@ -173,7 +184,9 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       checklist decisions are recorded. E-D updated the network feature doc and
       checklist rows; no expectation or module README update was needed because
       acceptance and package ownership did not change; `docs/product-capability-checklist.md`
-      remains primary-owned.
+      remains primary-owned. The portal source-gate slice updated this network
+      feature doc and checklist only; expectation contracts and module README
+      ownership did not change.
 - [ ] `DONE` report includes workpack, touched paths, validation, proof, known
       gaps, screenshots, and documentation changes.
 

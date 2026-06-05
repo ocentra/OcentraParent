@@ -48,20 +48,20 @@ export type NetworkEvidenceDrawerSummary = {
 export function networkEvidenceDrawerSummary(
   readModel: ActivityNetworkFlowReadModel | null
 ): NetworkEvidenceDrawerSummary {
-  const row = readModel?.rows[0] ?? null;
+  const row = firstNetworkFlowRow(readModel);
   return {
-    evidenceId: detailFromValue(row?.eventId),
-    observedAt: detailFromValue(row?.observedAt),
-    firstSeenAt: detailFromValue(row?.counters.firstSeenAt),
-    lastSeenAt: detailFromValue(row?.counters.lastSeenAt),
+    evidenceId: detailFromRowValue(row, (value) => value.eventId),
+    observedAt: detailFromRowValue(row, (value) => value.observedAt),
+    firstSeenAt: detailFromRowValue(row, (value) => value.counters.firstSeenAt),
+    lastSeenAt: detailFromRowValue(row, (value) => value.counters.lastSeenAt),
     deviceRef: notReported(),
     childProfileRef: notReported(),
-    sourceAdapter: detailFromValue(row?.adapterId),
-    sourceQuality: detailFromValue(row?.capabilityStatus ?? readModel?.capabilityStatus),
+    sourceAdapter: detailFromRowValue(row, (value) => value.adapterId),
+    sourceQuality: sourceQualityDetail(row, readModel),
     localEndpoint: endpointDetail(row?.localEndpoint),
     remoteEndpoint: endpointDetail(row?.destinationEndpoint),
-    protocolCandidate: detailFromValue(row?.protocol),
-    applicationProtocolCandidate: detailFromValue(row?.tcpState),
+    protocolCandidate: detailFromRowValue(row, (value) => value.protocol),
+    applicationProtocolCandidate: detailFromRowValue(row, (value) => value.tcpState),
     processRef: processDetail(row),
     browserRef: notReported(),
     domainEvidenceRef: domainDetail(row),
@@ -74,13 +74,50 @@ export function networkEvidenceDrawerSummary(
     interventionResultRef: notReported(),
     eventHistoryRef: detailFromValue(row?.eventId),
     retentionState: notReported(),
-    custody: detailFromValue(readModel?.custody),
+    custody: readModelCustodyDetail(readModel),
     evidenceGrade: notReported(),
     confidence: notReported(),
     uncertaintyReasonCodes: uncertaintyReasonCodes(row),
     evidenceReferences: evidenceReferenceDetail(row),
     exactUrlClaim: notReported(),
   };
+}
+
+function firstNetworkFlowRow(readModel: ActivityNetworkFlowReadModel | null): ActivityNetworkFlowObservation | null {
+  if (readModel === null) {
+    return null;
+  }
+  return readModel.rows[0] ?? null;
+}
+
+function detailFromRowValue(
+  row: ActivityNetworkFlowObservation | null,
+  getValue: (row: ActivityNetworkFlowObservation) => LogFieldValue | undefined
+): PortalDetailValue {
+  if (row === null) {
+    return notReported();
+  }
+  return detailFromValue(getValue(row));
+}
+
+function sourceQualityDetail(
+  row: ActivityNetworkFlowObservation | null,
+  readModel: ActivityNetworkFlowReadModel | null
+): PortalDetailValue {
+  if (row !== null) {
+    return detailFromValue(row.capabilityStatus);
+  }
+  if (readModel !== null) {
+    return detailFromValue(readModel.capabilityStatus);
+  }
+  return notReported();
+}
+
+function readModelCustodyDetail(readModel: ActivityNetworkFlowReadModel | null): PortalDetailValue {
+  if (readModel === null) {
+    return notReported();
+  }
+  return detailFromValue(readModel.custody);
 }
 
 function domainDetail(row: ActivityNetworkFlowObservation | null): PortalDetailValue {

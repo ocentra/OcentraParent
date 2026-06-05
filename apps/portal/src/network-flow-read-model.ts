@@ -5,6 +5,7 @@ import {
   type ActivityNetworkFlowReadModel,
 } from '@ocentra-parent/activity-domain/network-flow';
 import type { ActivityEvidenceRef } from '@ocentra-parent/activity-domain/contracts';
+import { decodeActivityEvidenceId, type ActivityEvidenceId } from '@ocentra-parent/activity-domain/primitives';
 import { ActivityQuerySchemaVersion } from '@ocentra-parent/activity-domain/query';
 import { AgentProtocolDefaults, type AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
 
@@ -18,7 +19,15 @@ export function parseNetworkFlowReadModel(payload: AgentProtocolLogFields): Acti
     custody: payload[AgentProtocolDefaults.Field.Custody],
     limit: payload[AgentProtocolDefaults.Field.Limit],
     returned,
+    activeRows: payload[AgentProtocolDefaults.Field.ActiveRows],
+    tombstoneRows: payload[AgentProtocolDefaults.Field.TombstoneRows],
+    exportableRows: payload[AgentProtocolDefaults.Field.ExportableRows],
     capabilityStatus: payload[AgentProtocolDefaults.Field.CapabilityStatus],
+    latestEventId: nullIfMissing(payload[AgentProtocolDefaults.Field.LatestEventId]),
+    latestObservedAt: nullIfMissing(payload[AgentProtocolDefaults.Field.LatestObservedAt]),
+    latestTombstoneEventId: nullIfMissing(payload[AgentProtocolDefaults.Field.LatestTombstoneEventId]),
+    latestTombstoneObservedAt: nullIfMissing(payload[AgentProtocolDefaults.Field.LatestTombstoneObservedAt]),
+    deletedEvidenceReferenceIds: evidenceReferenceIds(payload[AgentProtocolDefaults.Field.DeletedEvidenceReferenceIds]),
     rows: row,
   });
 
@@ -94,4 +103,17 @@ function normalizeDigestEvidence(digest: ActivityNetworkFlowDigest): ActivityNet
 
 function isUsableEvidence(evidence: ActivityEvidenceRef): boolean {
   return evidence.evidenceId.length > 0;
+}
+
+function evidenceReferenceIds(
+  value: AgentProtocolLogFields[keyof AgentProtocolLogFields] | undefined
+): ActivityEvidenceId[] {
+  if (typeof value !== AgentProtocolDefaults.Primitive.String) {
+    return [];
+  }
+  return String(value)
+    .split(AgentProtocolDefaults.Delimiter.List)
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0)
+    .map((entry) => decodeActivityEvidenceId(entry));
 }
