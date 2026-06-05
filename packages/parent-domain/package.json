@@ -505,6 +505,18 @@
       "import": "./dist/parent-desktop-release-support.js",
       "types": "./dist/parent-desktop-release-support.d.ts"
     },
+    "./production-release-public-runtime-handoff": {
+      "import": "./dist/production-release-public-runtime-handoff.js",
+      "types": "./dist/production-release-public-runtime-handoff.d.ts"
+    },
+    "./production-release-public-runtime-handoff-read-model": {
+      "import": "./dist/production-release-public-runtime-handoff-read-model.js",
+      "types": "./dist/production-release-public-runtime-handoff-read-model.d.ts"
+    },
+    "./production-release-public-runtime-handoff-values": {
+      "import": "./dist/production-release-public-runtime-handoff-values.js",
+      "types": "./dist/production-release-public-runtime-handoff-values.d.ts"
+    },
     "./parent-mobile-runtime": {
       "import": "./dist/parent-mobile-runtime.js",
       "types": "./dist/parent-mobile-runtime.d.ts"

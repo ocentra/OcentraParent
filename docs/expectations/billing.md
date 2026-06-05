@@ -114,6 +114,15 @@ backend runtime, billing provider runtime, public website runtime, provider
 secrets, child-device consumption, child-activity custody, production
 publishing, and support backend upload unimplemented or unclaimed.
 
+Current public runtime handoff proof:
+`production-release-public-runtime-handoff-proof` adds parent-domain handoff rows
+for public account status and subscription status plus backend adapter rows for
+account backend and billing provider runtime. It keeps account backend runtime,
+billing provider runtime, provider secrets, child-device consumption,
+child-activity custody, public website runtime, production publishing,
+signing/store proof, updater execution, and support backend upload
+unimplemented or unclaimed.
+
 Current support escalation boundary proof:
 `support-bundle-redaction-proof` adds logging-domain support incident rows for
 billing escalation manual-required state and account lookup manual-required
@@ -236,6 +245,12 @@ Any feature that can be disabled for billing must define its degraded local beha
   prove public account/subscription status surfaces stay route-contract or
   manual-required before account backend, provider runtime, public website, or
   production support execution exists.
+- Parent-domain contract tests and
+  `production-release-public-runtime-handoff-proof` prove public account and
+  subscription status handoff rows plus account/backend provider adapter rows
+  stay backend-required, manual-required, or not-implemented before account
+  backend, billing provider runtime, public website runtime, production
+  publishing, updater execution, support upload, or child custody exists.
 - Backend tests prove Stripe references are isolated behind the billing boundary before provider code exists.
 - Child-device tests prove safety modules consume typed entitlement snapshots only and do not import billing provider code.
 - Failure tests cover unavailable provider, stale snapshot, expired trial, grace mode, payment required, and device-limit denial.

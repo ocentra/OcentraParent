@@ -45,6 +45,13 @@ Use GitHub Actions and package-preview jobs to catch cross-platform drift early:
   support status surfaces to stay route-contract or manual-required until real
   public runtime, backend, signing/store, updater execution, publishing
   promotion, and support backend evidence exists.
+- For `production-release-public-runtime-handoff-proof`, require route/status
+  and backend adapter rows for public download, release status, update status,
+  account status, subscription status, support status, and their runtime
+  handoff destinations while keeping real public runtime, account/backend/
+  provider execution, signing/store proof, updater execution, production
+  publishing, support backend upload, and real device/store proof
+  manual-required or unimplemented.
 
 CI is not enough for:
 
