@@ -1,0 +1,107 @@
+{
+  "readiness": {
+    "host": "one.one.one.one",
+    "requestedLiveUrlHash": "sha256:727685d45a1ce370acbad201a88b8862a1851d02c21523786f44e2aa63b43a11",
+    "finalUrlHash": "sha256:4598422e7b567765993e45f855dd58fdaabcf3b050f066799413863b40d2f84d",
+    "finalUrlLength": 24,
+    "titleHash": "sha256:f58b14a5f7b898cff8cb4877deae304a8b0b50a9e82a3e966ceae7e0e9f2ed73",
+    "titleLength": 55,
+    "visibleTextHash": "sha256:42cc4cf1c4c80012de8ef024262fbe192351532cd3e6edf0e25db2c6ce4f94a0",
+    "visibleTextLength": 2175
+  },
+  "captures": [
+    {
+      "captureMode": "page",
+      "requestId": "managed-browser-cdp-page-request",
+      "captureId": "managed-browser-cdp-page-capture",
+      "targetIdHash": "sha256:91519355c87468cd4f7cc8ae6b8bbed1bd16f7adc78ba40efad7fca75d5b159e",
+      "cdpMethod": "Page.captureScreenshot",
+      "captureScope": "managedBrowserWindow",
+      "captureBeyondViewport": true,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 3125,
+        "scale": 1
+      },
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "imageWidth": 1280,
+      "imageHeight": 3125,
+      "imagePixelCount": 4000000,
+      "imageByteSize": 393780,
+      "imageDigest": "sha256:af63889f8181ce637509a8411c8b8563358f85aa0a5dcd957f8a05694185da84",
+      "queueJobId": "managed-browser-cdp-page-queue",
+      "custodyState": "child-device-temp-queue",
+      "deletionStatus": "deleted",
+      "rawImageRetained": false,
+      "liveScreencastStarted": false,
+      "desktopCaptureAttempted": false,
+      "remoteUploadAllowed": false
+    },
+    {
+      "captureMode": "viewport",
+      "requestId": "managed-browser-cdp-viewport-request",
+      "captureId": "managed-browser-cdp-viewport-capture",
+      "targetIdHash": "sha256:91519355c87468cd4f7cc8ae6b8bbed1bd16f7adc78ba40efad7fca75d5b159e",
+      "cdpMethod": "Page.captureScreenshot",
+      "captureScope": "managedBrowserWindow",
+      "captureBeyondViewport": false,
+      "clip": null,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "imageWidth": 1280,
+      "imageHeight": 720,
+      "imagePixelCount": 921600,
+      "imageByteSize": 66492,
+      "imageDigest": "sha256:e7daf374b204d18aaf21d0e3d8d1a1bc451ec4d1e6dc29dab12f52cd8638925b",
+      "queueJobId": "managed-browser-cdp-viewport-queue",
+      "custodyState": "child-device-temp-queue",
+      "deletionStatus": "deleted",
+      "rawImageRetained": false,
+      "liveScreencastStarted": false,
+      "desktopCaptureAttempted": false,
+      "remoteUploadAllowed": false
+    },
+    {
+      "captureMode": "crop",
+      "requestId": "managed-browser-cdp-crop-request",
+      "captureId": "managed-browser-cdp-crop-capture",
+      "targetIdHash": "sha256:91519355c87468cd4f7cc8ae6b8bbed1bd16f7adc78ba40efad7fca75d5b159e",
+      "cdpMethod": "Page.captureScreenshot",
+      "captureScope": "managedBrowserWindow",
+      "captureBeyondViewport": false,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "width": 480,
+        "height": 320,
+        "scale": 1
+      },
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "deviceScaleFactor": 1
+      },
+      "imageWidth": 480,
+      "imageHeight": 320,
+      "imagePixelCount": 153600,
+      "imageByteSize": 9068,
+      "imageDigest": "sha256:49c7f4820406f04c22d0391ce405f61f14a6cfbd624a5949547f090faa15c533",
+      "queueJobId": "managed-browser-cdp-crop-queue",
+      "custodyState": "child-device-temp-queue",
+      "deletionStatus": "deleted",
+      "rawImageRetained": false,
+      "liveScreencastStarted": false,
+      "desktopCaptureAttempted": false,
+      "remoteUploadAllowed": false
+    }
+  ]
+}

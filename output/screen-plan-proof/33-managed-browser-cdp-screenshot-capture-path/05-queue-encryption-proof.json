@@ -1,0 +1,39 @@
+{
+  "algorithm": "aes-256-gcm",
+  "queueProofs": [
+    {
+      "captureMode": "page",
+      "algorithm": "aes-256-gcm",
+      "encryptedByteSize": 393808,
+      "encryptedDigest": "sha256:6f940083a8f48c61aa42f7d64529cc217ffaef3b0a99d2b77817a13cd587b80f",
+      "rawTempPathHash": "sha256:73b809378c292fc5ce89f820aad9d512b16142d812f302317c3510b9f43aa0bc",
+      "encryptedTempPathHash": "sha256:bc89835ef935788b08323c3787e6b529471b243a2a8cee9fd0fd7182b5e21281",
+      "keyMaterialRetained": false,
+      "rawTempDeleted": true,
+      "encryptedTempDeleted": true
+    },
+    {
+      "captureMode": "viewport",
+      "algorithm": "aes-256-gcm",
+      "encryptedByteSize": 66520,
+      "encryptedDigest": "sha256:7757bdcb407fdcf5f502d088c3d77c6eb3cfa4b33798b9e7b14c59482689cde5",
+      "rawTempPathHash": "sha256:65f1ef1b6b3e4af9833c8eec7f5b4bbb4628b17283d6e63ba00cc54a76e48adc",
+      "encryptedTempPathHash": "sha256:9747c73114f5ebba49bee15d5c4b32adbf71054d5527ba90ee1aa90ec4259539",
+      "keyMaterialRetained": false,
+      "rawTempDeleted": true,
+      "encryptedTempDeleted": true
+    },
+    {
+      "captureMode": "crop",
+      "algorithm": "aes-256-gcm",
+      "encryptedByteSize": 9096,
+      "encryptedDigest": "sha256:5cd79953019ebb445bf2e9f0287b269cbf464e9f7796113e58652f2e0b9e287a",
+      "rawTempPathHash": "sha256:43f31d6bff4fae8fdeaa18ade95a695e196852f7a5e41786a6383bff16326ce4",
+      "encryptedTempPathHash": "sha256:0c7e1c33b443a11a2ec8b7d9a50d38d5c9bbb99f903e6b8038da013e7315bfe3",
+      "keyMaterialRetained": false,
+      "rawTempDeleted": true,
+      "encryptedTempDeleted": true
+    }
+  ],
+  "keyMaterialRetained": false
+}
