@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const proofMode = 'production-support-publication-workflow-proof';
@@ -68,18 +67,23 @@ async function main() {
 }
 
 async function assertBuiltContract() {
-  const contractModulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'production-support-publication-workflow.js')
-  );
-  const readModelPath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'production-support-publication-workflow-read-model.js')
-  );
-  const contractModule = await import(contractModulePath.href);
-  const readModelModule = await import(readModelPath.href);
+  const contractModule = await import('@ocentra-parent/parent-domain/production-support-publication-workflow');
+  const readModelModule =
+    await import('@ocentra-parent/parent-domain/production-support-publication-workflow-read-model');
+  const valuesModule = await import('@ocentra-parent/parent-domain/production-support-publication-workflow-values');
   const proof = contractModule.ProductionSupportPublicationWorkflowProofSchema.parse(
     readModelModule.ProductionSupportPublicationWorkflowReadModel
   );
 
+  assert.equal(typeof contractModule.decodeProductionSupportPublicationWorkflowProof, 'function');
+  assert.deepEqual(valuesModule.RequiredPublicationWorkflowItems, [
+    'public-privacy-policy-publication',
+    'privacy-legal-disclosure-execution',
+    'support-runbook-publication',
+    'support-incident-status-publication',
+    'support-backend-upload-publication-handoff',
+    'public-support-contact-publication',
+  ]);
   assert.deepEqual(contractModule.summarizeProductionSupportPublicationWorkflowRows(proof.rows), {
     'public-privacy-policy-publication': 1,
     'privacy-legal-disclosure-execution': 1,
