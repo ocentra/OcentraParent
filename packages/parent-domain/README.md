@@ -77,6 +77,12 @@ mobile readiness, and control catalogs.
   publication handoff, and public support contact publication while keeping real
   public runtime, support upload execution, account lookup, billing contact,
   production SLA, legal execution, remote support, and child custody unclaimed.
+- `public-support-contact-status-proof` contracts for public support contact,
+  support status page contact, support runbook contact, incident status contact,
+  backend-upload support contact, and billing-support contact while keeping
+  public runtime execution, support backend upload execution, account lookup,
+  billing provider contact, remote support sessions, production SLA, legal
+  disclosure execution, provider secrets, and child custody unclaimed.
 - Parent-owned sync/export and stateless report compiler status contracts for
   parent-authorized remote compilation from parent-owned storage, source
   connector/cursor refs, requested data classes and time windows, temp TTL and
@@ -269,6 +275,11 @@ flowchart LR
   only; real public runtime, support backend upload execution, account lookup
   execution, billing provider contact, legal disclosure execution, production
   SLA, remote support sessions, and child activity custody remain unclaimed.
+- `public-support-contact-status-proof` remains source-contract proof only;
+  public runtime execution, support backend upload execution, account lookup
+  execution, billing provider contact, legal disclosure execution, remote
+  support sessions, production SLA, provider secrets, and child activity custody
+  remain unclaimed.
 - Parent-owned sync/export and stateless report compiler proofs remain
   contract/status proof only; real compiler runtime/cloud worker, connector
   OAuth/provider APIs, portal controls/UI, upload/download, deletion execution,
