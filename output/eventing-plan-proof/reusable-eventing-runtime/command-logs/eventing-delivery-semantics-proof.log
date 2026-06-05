@@ -1,0 +1,2 @@
+eventing-delivery-semantics-proof-ok:delivery-proof-struct,local-route-ready-state,broker-manual-required-state,family-hub-manual-required-state,live-broker-claim-rejected,live-family-hub-claim-rejected,policy-authority-claim-rejected,adapter-authority-claim-rejected,local-route-test,broker-manual-required-test,family-hub-manual-required-test,claim-rejection-test
+proof=output\eventing-plan-proof\delivery-semantics\proof-summary.json
