@@ -1,0 +1,2 @@
+eventing-metrics-testkit-proof-ok:event-trace-fields-struct,trace-event-id,trace-event-type,trace-correlation-id,trace-target-handler,trace-outcome,event-recorder-struct,event-recorder-attach,event-recorder-unsubscribe,trace-field-test,event-recorder-real-subscription-test
+proof=output\eventing-plan-proof\20-24-metrics-testkit\proof-summary.json
