@@ -45,6 +45,7 @@ async function main() {
       contractTest: 'packages/parent-domain/tests/parent-desktop-release-support.test.ts',
       output: relative(repoRoot, proofPath),
       packagePreviewWorkflow: '.github/workflows/package-preview.yml',
+      readinessGate: 'v8-production-release-support-readiness',
       featureDocs: [
         'docs/features/production-distribution-support.md',
         'docs/features/child-agent-local-service.md',
@@ -65,12 +66,14 @@ async function main() {
       'Support diagnostics include version, commit, platform, package, service, route, capability, and degraded state without secrets, private child data, raw URLs, command lines, keystrokes, clipboard data, message contents, journals, SQLite snapshots, screenshots, or private paths.',
       'Production support incident handoff requires parent consent, support incident status metadata, explicit safe support-bundle data classes, support-safe diagnostic references, and manual-required production support states.',
       'Package preview CI artifact status is recorded as pending/manual-required unless a real Actions artifact context proves readiness.',
+      'V8 production release/support readiness gate summarizes Windows, Linux, macOS, Android, and iOS package-preview artifacts while keeping signing, stores, updater rollback execution, support runbook, and production publishing manual-required or promotion-required.',
     ],
     claimsNotProved: [
       'signed release publishing',
       'store distribution',
       'macOS notarization',
       'production updater rollback',
+      'production package-preview promotion',
       'production support workflow',
       'support backend upload',
       'billing or public account support',
@@ -87,6 +90,8 @@ async function buildCiArtifactProof() {
   const workflow = await readFile(join(repoRoot, '.github', 'workflows', 'package-preview.yml'), 'utf8');
   assert.match(workflow, /uses: actions\/upload-artifact@v6/u);
   assert.match(workflow, /ocentra-parent-windows-x64-preview/u);
+  assert.match(workflow, /ocentra-parent-linux-amd64-preview/u);
+  assert.match(workflow, /ocentra-parent-macos-preview/u);
   assert.match(workflow, /ocentra-parent-android-preview/u);
   assert.match(workflow, /ocentra-parent-ios-simulator-preview/u);
 
@@ -142,6 +147,10 @@ function assertReadModel(readModel) {
     'not-implemented'
   );
   assert.equal(readModel.manualRunbook.length, 9);
+  assert.equal(readModel.productionReadinessGate.gate, 'v8-production-release-support-readiness');
+  assert.equal(readModel.productionReadinessGate.packagePreviewArtifacts.length, 5);
+  assert.equal(readModel.productionReadinessGate.updaterRollbackExecutionState, 'rollback-unavailable');
+  assert.equal(readModel.productionReadinessGate.productionPublishingState, 'production-promotion-required');
 }
 
 async function runCommand(commandName, args) {

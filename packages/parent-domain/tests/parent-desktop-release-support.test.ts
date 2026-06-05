@@ -65,6 +65,15 @@ function registerAcceptedStateTest(): void {
       'store',
       'support',
     ]);
+    expect(parsed.productionReadinessGate.packagePreviewArtifacts.map((entry) => entry.artifactName)).toEqual([
+      'ocentra-parent-windows-x64-preview',
+      'ocentra-parent-linux-amd64-preview',
+      'ocentra-parent-macos-preview',
+      'ocentra-parent-android-preview',
+      'ocentra-parent-ios-simulator-preview',
+    ]);
+    expect(parsed.productionReadinessGate.updaterRollbackExecutionState).toBe('rollback-unavailable');
+    expect(parsed.productionReadinessGate.productionPublishingState).toBe('production-promotion-required');
   });
 }
 
@@ -144,6 +153,28 @@ function registerReleaseClaimGuardrailTests(): void {
     };
 
     expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(readyWithoutArtifacts).success).toBe(false);
+  });
+
+  it('rejects production readiness gates that omit artifacts or promote release claims', () => {
+    const missingLinuxPreview = {
+      ...RuntimeReadModel,
+      productionReadinessGate: {
+        ...RuntimeReadModel.productionReadinessGate,
+        packagePreviewArtifacts: RuntimeReadModel.productionReadinessGate.packagePreviewArtifacts.filter(
+          (entry) => entry.artifactName !== 'ocentra-parent-linux-amd64-preview'
+        ),
+      },
+    };
+    const productionPublishingClaim = withProductionReadinessGate({
+      productionPublishingState: 'implemented',
+    });
+    const signingClaim = withProductionReadinessGate({
+      signingStoreProofState: 'implemented',
+    });
+
+    expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(missingLinuxPreview).success).toBe(false);
+    expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(productionPublishingClaim).success).toBe(false);
+    expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(signingClaim).success).toBe(false);
   });
 }
 
@@ -234,5 +265,12 @@ function withDiagnostic(field: ParentDesktopReleaseSupportDiagnosticField, patch
         entry.field === field ? { ...entry, ...patch } : entry
       ),
     },
+  };
+}
+
+function withProductionReadinessGate(patch: object) {
+  return {
+    ...RuntimeReadModel,
+    productionReadinessGate: { ...RuntimeReadModel.productionReadinessGate, ...patch },
   };
 }

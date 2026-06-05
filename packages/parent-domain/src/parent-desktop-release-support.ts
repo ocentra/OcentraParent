@@ -175,6 +175,26 @@ export const ParentDesktopReleaseSupportCiArtifactProofSchema = withParser(
   })
 );
 
+export const ParentDesktopReleaseSupportPackagePreviewArtifactNameSchema = withParser(
+  Schema.Literal(
+    'ocentra-parent-windows-x64-preview',
+    'ocentra-parent-linux-amd64-preview',
+    'ocentra-parent-macos-preview',
+    'ocentra-parent-android-preview',
+    'ocentra-parent-ios-simulator-preview'
+  )
+);
+
+export const ParentDesktopReleaseSupportPackagePreviewArtifactSchema = withParser(
+  Schema.Struct({
+    artifactName: ParentDesktopReleaseSupportPackagePreviewArtifactNameSchema,
+    runStatus: ParentDesktopReleaseSupportCiRunStatusSchema,
+    artifactState: ParentDesktopReleaseSupportArtifactStateSchema,
+    packageReadinessClaim: ParentDesktopReleaseSupportReadinessClaimSchema,
+    manualProofRequirement: ReleaseSupportRequirementSchema,
+  })
+);
+
 export const ParentDesktopReleaseSupportDiagnosticEntrySchema = withParser(
   Schema.Struct({
     field: ParentDesktopReleaseSupportDiagnosticFieldSchema,
@@ -203,6 +223,21 @@ export const ParentDesktopReleaseSupportManualRunbookEntrySchema = withParser(
   })
 );
 
+export const ParentDesktopReleaseSupportReadinessGateSchema = withParser(
+  Schema.Struct({
+    gate: Schema.Literal('v8-production-release-support-readiness'),
+    packagePreviewArtifacts: Schema.Array(ParentDesktopReleaseSupportPackagePreviewArtifactSchema),
+    supportDiagnosticsState: ParentDesktopReleaseSupportStateSchema,
+    supportRunbookState: ParentDesktopReleaseSupportStateSchema,
+    updaterRollbackExecutionState: ParentDesktopReleaseSupportStateSchema,
+    signingStoreProofState: ParentDesktopReleaseSupportStateSchema,
+    productionPublishingState: ParentDesktopReleaseSupportStateSchema,
+    claimBoundary: ReleaseSupportLabelSchema,
+    proofReferences: Schema.Array(ReleaseSupportProofPathSchema),
+    manualRequiredGaps: Schema.Array(ReleaseSupportLabelSchema),
+  })
+);
+
 const ParentDesktopReleaseSupportReadModelBaseSchema = Schema.Struct({
   schemaVersion: ParentDesktopReleaseSupportSchemaVersionSchema,
   observerAuthority: Schema.Array(ParentDesktopReleaseSupportAuthorityOperationSchema),
@@ -215,6 +250,7 @@ const ParentDesktopReleaseSupportReadModelBaseSchema = Schema.Struct({
   supportDiagnostics: ParentDesktopReleaseSupportDiagnosticsSchema,
   supportIncidentHandoff: ParentDesktopReleaseSupportIncidentHandoffSchema,
   manualRunbook: Schema.Array(ParentDesktopReleaseSupportManualRunbookEntrySchema),
+  productionReadinessGate: ParentDesktopReleaseSupportReadinessGateSchema,
   updatedAt: ParentTimestampSchema,
 });
 

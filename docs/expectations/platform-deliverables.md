@@ -30,6 +30,11 @@ Use GitHub Actions and package-preview jobs to catch cross-platform drift early:
   Rust-service boundary, service-manager launch ownership, fixed loopback
   process ownership, connect-or-degrade state, support-safe diagnostics, and
   explicit preview/manual-required non-claims.
+- For V8 production release/support readiness proof, require the package-preview
+  matrix to name Windows MSI, Linux DEB, macOS PKG, Android APK, and iOS
+  simulator artifacts separately while keeping signing, store, real-device,
+  updater rollback, and production publishing claims manual-required or
+  promotion-required.
 
 CI is not enough for:
 
