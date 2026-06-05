@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T05:27:00.815Z",
-  "commit": "9ca83cba2de374f64a9d591968c8f147f4216be2",
+  "checkedAt": "2026-06-05T06:12:36.756Z",
+  "commit": "71e20cf4e8562a526dfd9feacac65984dd830b83",
   "proofMode": "production-release-public-runtime-handoff-proof",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -12,6 +12,11 @@
     "values": "packages/parent-domain/src/production-release-public-runtime-handoff-values.ts",
     "readModel": "packages/parent-domain/src/production-release-public-runtime-handoff-read-model.ts",
     "contractTest": "packages/parent-domain/tests/production-release-public-runtime-handoff.test.ts",
+    "packageExports": [
+      "@ocentra-parent/parent-domain/production-release-public-runtime-handoff",
+      "@ocentra-parent/parent-domain/production-release-public-runtime-handoff-read-model",
+      "@ocentra-parent/parent-domain/production-release-public-runtime-handoff-values"
+    ],
     "documentation": [
       "docs/features/production-distribution-support.md",
       "docs/expectations/release-installer.md",
