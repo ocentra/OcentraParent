@@ -189,6 +189,13 @@ dev-only repo when it claims consumer readiness.
   public runtime execution, account backend runtime, billing provider runtime,
   signing/store proof, updater execution, support upload, production SLA, legal
   execution, or child-activity custody.
+- `production-release-public-status-freshness-proof` adds parent-domain
+  freshness/status rows for public download, release status, update status,
+  account status, subscription status, and support status. It proves only the
+  source-contract freshness policy boundary and keeps public runtime execution,
+  account backend runtime, billing provider runtime, production publishing,
+  signing/store proof, updater execution, support backend upload, production
+  SLA, and child-activity custody unclaimed.
 - `billing-entitlement-contract-proof` defines parent-domain contracts for
   plan entitlement rows, entitlement snapshots, subscription status sync events,
   device-limit decisions, parent-visible failure states, local-safety fallback,
@@ -416,7 +423,13 @@ package/runtime proof.
       `family.ocentra.ca` publication/readiness proof while keeping public
       runtime execution, account backend runtime, billing provider runtime,
       signing/store proof, updater execution, support upload, production SLA,
-      legal execution, and child-activity custody unclaimed.
+      legal execution, and child-activity custody unclaimed. Current
+      `production-release-public-status-freshness-proof` adds a source-contract
+      freshness policy boundary for the same public download/account/status
+      surfaces while keeping public runtime execution, account backend runtime,
+      billing provider runtime, production publishing, signing/store proof,
+      updater execution, support backend upload, production SLA, and
+      child-activity custody unclaimed.
 
 ## Next AI Instructions
 
