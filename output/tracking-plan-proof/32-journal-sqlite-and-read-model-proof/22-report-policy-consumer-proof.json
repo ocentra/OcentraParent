@@ -2,7 +2,7 @@
   "proofMode": "tracking-report-policy-consumer-proof",
   "generatedAt": "2026-06-05T20:25:00.000Z",
   "branch": "codex/tracking-report-policy-consumer-proof",
-  "baseCommitAtGeneration": "4f29c2a3d2dc956c96e0262943acbe9cce10f0c5",
+  "baseCommitAtGeneration": "42ab73366b775922ecec88655eab97070a630305",
   "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
