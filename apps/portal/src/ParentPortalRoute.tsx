@@ -12,6 +12,10 @@ import {
 import { ParentPortalSvgSurface } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface';
 import type { ParentPortalSvgControls } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
 import { resolveLiveActivityState } from './live-activity-state';
+import {
+  NetworkEvidenceDrawerRoutePanel,
+  shouldRenderNetworkEvidenceDrawerRoute,
+} from './NetworkEvidenceDrawerRoutePanel';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
 import { ScreenSettingsRoutePanel, shouldRenderScreenSettingsRoute } from './ScreenSettingsRoutePanel';
@@ -75,6 +79,9 @@ export function ParentPortalRoute({
           commandEnabled={state.socket?.readyState === WebSocket.OPEN}
           liveActivity={activityState}
         />
+      ) : null}
+      {shouldRenderNetworkEvidenceDrawerRoute(route) ? (
+        <NetworkEvidenceDrawerRoutePanel liveActivity={activityState} />
       ) : null}
       {shouldRenderScreenSettingsRoute(route) ? <ScreenSettingsRoutePanel /> : null}
     </div>

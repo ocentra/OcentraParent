@@ -8,7 +8,7 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
-    activity_network_flow_payload::network_flow_read_model_payload,
+    activity_network_flow_payload::network_flow_read_model_payload_with_runtime_delivery,
     activity_payload::{
         activity_store_error_payload, ingest_status_payload, recent_summary_payload,
     },
@@ -19,6 +19,11 @@ use crate::{
     browser_payload::browser_inventory_read_model_payload,
     browser_runtime_paths::system_browser_candidate_paths,
     event_builder::build_event,
+    network_runtime_delivery::deliver_network_runtime_for_read_model,
+    network_runtime_stream_payload::{
+        network_runtime_event_chain_stream_payload,
+        stream_network_runtime_event_chain_for_read_model,
+    },
     time::timestamp_now,
     tracking_read_model_payload::tracking_read_model_payload,
 };
@@ -137,19 +142,46 @@ pub async fn build_network_flow_read_model_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     match load_network_flow_read_model().await {
-        Some(read_model) => build_event(
-            constants::event_id::NETWORK_FLOW_READ_MODEL_REPORTED,
-            &command.message_id,
-            command.source,
-            AgentEventName::AgentNetworkFlowReadModelReported,
-            LogLevel::Info,
-            network_flow_read_model_payload(&read_model),
-            None,
-        ),
+        Some(read_model) => {
+            let delivery = deliver_network_runtime_for_read_model(&read_model).await;
+            build_event(
+                constants::event_id::NETWORK_FLOW_READ_MODEL_REPORTED,
+                &command.message_id,
+                command.source,
+                AgentEventName::AgentNetworkFlowReadModelReported,
+                LogLevel::Info,
+                network_flow_read_model_payload_with_runtime_delivery(&read_model, Some(&delivery)),
+                None,
+            )
+        }
         None => activity_store_error_event(
             command,
             constants::event_id::NETWORK_FLOW_READ_MODEL_REPORTED,
             AgentEventName::AgentNetworkFlowReadModelReported,
+        ),
+    }
+}
+
+pub async fn build_network_runtime_event_chain_stream_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    match load_network_flow_read_model().await {
+        Some(read_model) => {
+            let stream = stream_network_runtime_event_chain_for_read_model(&read_model).await;
+            build_event(
+                constants::event_id::NETWORK_RUNTIME_EVENT_CHAIN_STREAM_REPORTED,
+                &command.message_id,
+                command.source,
+                AgentEventName::AgentNetworkRuntimeEventChainStreamReported,
+                LogLevel::Info,
+                network_runtime_event_chain_stream_payload(&stream),
+                None,
+            )
+        }
+        None => activity_store_error_event(
+            command,
+            constants::event_id::NETWORK_RUNTIME_EVENT_CHAIN_STREAM_REPORTED,
+            AgentEventName::AgentNetworkRuntimeEventChainStreamReported,
         ),
     }
 }
@@ -312,7 +344,7 @@ async fn load_browser_evidence_read_model(
     .flatten()
 }
 
-async fn load_network_flow_read_model(
+pub(crate) async fn load_network_flow_read_model(
 ) -> Option<ocentra_parent_agent_protocol::ActivityNetworkFlowReadModel> {
     let path = activity_db_path();
     tokio::task::spawn_blocking(move || {

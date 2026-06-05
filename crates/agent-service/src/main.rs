@@ -192,6 +192,15 @@ mod network_flow_digest_rollups;
 mod network_flow_digest_tests;
 #[cfg(test)]
 mod network_flow_payload_tests;
+mod network_runtime_delivery;
+#[cfg(test)]
+mod network_runtime_delivery_tests;
+mod network_runtime_stream_event_payloads;
+mod network_runtime_stream_event_values;
+mod network_runtime_stream_events;
+mod network_runtime_stream_payload;
+#[cfg(test)]
+mod network_runtime_stream_tests;
 mod parent_assistant_api;
 #[cfg(test)]
 mod parent_assistant_api_tests;

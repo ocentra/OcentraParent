@@ -14,6 +14,7 @@ flowchart LR
 
   Protocol --> Core
   Protocol --> Service
+  Network["ocentra-network-evidence\nreusable metadata parsers"]
   Core --> Service
   Service --> Portal
   Updater --> Service
@@ -21,12 +22,14 @@ flowchart LR
 
 ## Crate Ownership
 
-| Crate            | Owns                                                                                                                      | Does not own                                              |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `agent-core`     | Local runtime helpers, evidence/journal/query core, and platform-adapter logic that should not live in the service shell. | WebSocket transport or TypeScript contract definitions.   |
-| `agent-protocol` | Rust serde structs, constants, and enums that mirror Rust-crossing TypeScript contracts.                                  | Product logic or platform behavior.                       |
-| `agent-service`  | Local/LAN HTTP and WebSocket service, command handling, runtime orchestration, and parent portal read paths.              | Product contracts, UI rendering, or hidden cloud custody. |
-| `agent-updater`  | Signed-manifest/update maintenance tools and updater binaries.                                                            | Safety policy, capture, or enforcement.                   |
+| Crate                      | Owns                                                                                                                      | Does not own                                                                               |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `agent-core`               | Local runtime helpers, evidence/journal/query core, and platform-adapter logic that should not live in the service shell. | WebSocket transport or TypeScript contract definitions.                                    |
+| `agent-protocol`           | Rust serde structs, constants, and enums that mirror Rust-crossing TypeScript contracts.                                  | Product logic or platform behavior.                                                        |
+| `agent-service`            | Local/LAN HTTP and WebSocket service, command handling, runtime orchestration, and parent portal read paths.              | Product contracts, UI rendering, or hidden cloud custody.                                  |
+| `agent-updater`            | Signed-manifest/update maintenance tools and updater binaries.                                                            | Safety policy, capture, or enforcement.                                                    |
+| `ocentra-eventing`         | Reusable local eventing, queueing, request/response, journal, replay, and proof helpers.                                  | Parent-specific event taxonomy or platform behavior.                                       |
+| `ocentra-network-evidence` | Reusable network metadata parsers and replay helpers for proof fixtures.                                                  | Live capture, platform adapters, policy, enforcement, UI, or decrypted payload inspection. |
 
 ## Connected Docs
 

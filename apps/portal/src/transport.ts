@@ -1,4 +1,5 @@
 import {
+  AgentCommand,
   AgentLanPairingSupportedWebSocketCommand,
   AgentProtocolDefaults,
   decodeAgentDeviceId,
@@ -67,6 +68,9 @@ export function sendCommand(
   command: AgentCommandName,
   payload: AgentProtocolLogFields
 ): void {
+  if (isPortalDirectEnforcementActionCommand(command)) {
+    return;
+  }
   if (state.socket?.readyState !== WebSocket.OPEN) {
     state.connectionState = PortalConnectionState.Disconnected;
     refresh();
@@ -88,11 +92,23 @@ function sendSocketCommand(
   command: AgentCommandName,
   payload: AgentProtocolLogFields
 ): void {
+  if (isPortalDirectEnforcementActionCommand(command)) {
+    return;
+  }
   const target = resolvePortalCommandTarget(state.target, command, payload);
   socket.send(serializeAgentCommand(createAgentCommand(command, payload, target)));
   writePortalDevLog(DevLogMessage.PortalCommandSent, {
     [DevLogField.Command]: command,
   });
+}
+
+export function isPortalDirectEnforcementActionCommand(command: AgentCommandName): boolean {
+  return (
+    command === AgentCommand.EnforcementExecute ||
+    command === AgentCommand.EnforcementTimerRecover ||
+    command === AgentCommand.EnforcementTimerExpire ||
+    command === AgentCommand.EnforcementOverrideCancel
+  );
 }
 
 export function resolvePortalCommandTarget(

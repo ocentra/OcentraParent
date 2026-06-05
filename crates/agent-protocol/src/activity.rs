@@ -70,6 +70,8 @@ pub enum ActivityEventKind {
     TrackingChildCheckInResponded,
     #[serde(rename = "activity.tracking.retention.deleted")]
     TrackingRetentionDeleted,
+    #[serde(rename = "activity.network.retention.deleted")]
+    NetworkRetentionDeleted,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

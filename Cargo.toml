@@ -5,6 +5,8 @@ members = [
   "crates/agent-protocol",
   "crates/agent-service",
   "crates/agent-updater",
+  "crates/ocentra-eventing",
+  "crates/ocentra-network-evidence",
   "crates/screen-capture-adapter"
 ]
 

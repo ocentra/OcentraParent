@@ -38,6 +38,10 @@ development paths and orchestrates runtime commands.
   `agent.activity.tracking.read-model.get`, backed by ActivityStore SQLite rows
   and citation IDs in the `trackingReadModel` payload field, with active
   kind/device/capability count summaries derived from the same rows.
+- Network flow read-model reports through
+  `agent.network.flow.read-model.get`, backed by ActivityStore SQLite rows and
+  local `ocentra-eventing` runtime delivery counts for stored network rows
+  without broker, family-hub, adapter, or host-filter claims.
 - App/game live process capture bridge rows through the existing activity
   capture journal/store path, exposing runtime-only app/game rows to the
   existing app-use/games read models without foreground, policy, or adapter
@@ -136,6 +140,9 @@ flowchart LR
   the service also exposes active summary fields for future report/policy/full
   UI consumers, while child UI, physical-device proof, and
   provider/notification delivery remain separate gaps.
+- Network runtime delivery output is service-local and read-model-count only;
+  broker/family-hub delivery, cross-process durable replay/retention, policy
+  execution, adapter execution, and host filtering remain separate gaps.
 - App/game live process, optional foreground, Windows shortcut inventory,
   Windows packaged-app manifest capture, and Windows registry inventory capture
   have bounded service proof; subscribed foreground transitions, policy

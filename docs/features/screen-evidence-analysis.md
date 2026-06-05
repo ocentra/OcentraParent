@@ -91,6 +91,12 @@ only with explicit parent settings.
   turn typed OCR text evidence into a schema-valid `ScreenAnalysisResult` and
   parent policy dry-run without a vision model or retained raw image. This is
   a route/contract proof; production OCR adapter execution remains separate.
+- E-D added a network row30 trigger planner in `ocentra-network-evidence` that
+  can request screen-summary confirmation only when the network cascade
+  recommends it and parent settings, encrypted local queue, deletion, local
+  runtime, debounce, and protected-surface guards allow it. This is trigger-plan
+  proof only; it does not execute capture, OCR/VLM, policy, portal, adapter, or
+  enforcement behavior.
 - `ScreenDetectorPromptPackSchema`, `ScreenDetectorPromptOutputSchema`, and
   `scripts/test/screen-detector-prompt-pack-proof.mjs` now prove
   detector-specific prompt pack contracts for social/video, chat, game, school,

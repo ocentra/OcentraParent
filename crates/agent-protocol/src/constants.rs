@@ -96,6 +96,8 @@ pub mod event_id {
     pub const BROWSER_EVIDENCE_RECENT_REPORTED: &str = "browser-evidence-recent-reported";
     pub const BROWSER_MANAGED_STATUS_REPORTED: &str = "browser-managed-status-reported";
     pub const NETWORK_FLOW_READ_MODEL_REPORTED: &str = "network-flow-read-model-reported";
+    pub const NETWORK_RUNTIME_EVENT_CHAIN_STREAM_REPORTED: &str =
+        "network-runtime-event-chain-stream-reported";
     pub const LOCAL_AI_RUNTIME_STATUS_REPORTED: &str = "local-ai-runtime-status-reported";
     pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
     pub const PARENT_ASSISTANT_ANSWER_REPORTED: &str = "parent-assistant-answer-reported";
@@ -179,6 +181,8 @@ pub mod activity_subject_kind;
 pub mod activity_surface;
 #[path = "constants/browser.rs"]
 pub mod browser;
+#[path = "constants/child_agent.rs"]
+pub mod child_agent;
 #[path = "constants/enforcement_broad_adapter_proof.rs"]
 pub mod enforcement_broad_adapter_proof;
 #[path = "constants/host_identity.rs"]
@@ -502,6 +506,8 @@ pub mod local_ai_runtime;
 pub mod local_ai_runtime_provider_proof;
 #[path = "constants/parent_assistant.rs"]
 pub mod parent_assistant;
+#[path = "constants/parent_controller.rs"]
+pub mod parent_controller;
 
 pub mod delimiter {
     pub const BANG: char = '!';

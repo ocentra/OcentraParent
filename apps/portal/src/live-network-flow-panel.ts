@@ -17,6 +17,7 @@ import {
 } from '@ocentra-parent/portal-domain/contracts';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
+import { networkEvidenceDrawerSummary } from './network-evidence-drawer';
 
 export function renderNetworkFlow(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
   const panel = panelWithTitle(PortalText.Resolve(PortalTextToken.NetworkFlow));
@@ -32,6 +33,7 @@ export function renderNetworkFlow(container: HTMLElement, liveActivity: PortalLi
 
   appendNetworkFlowDetails(metadata, liveActivity.networkFlowReadModel);
   panel.append(metadata);
+  appendNetworkEvidenceDrawer(panel, liveActivity.networkFlowReadModel);
   appendEmptyNetworkFlow(panel, liveActivity.networkFlowReadModel);
   container.append(panel);
 }
@@ -67,6 +69,47 @@ function appendNetworkCounterDetails(metadata: HTMLDListElement, row: ActivityNe
   appendDetail(metadata, PortalDetails.Connections, detailFromValue(row?.counters.connectionCount));
   appendDetail(metadata, PortalDetails.BytesSent, detailFromValue(row?.counters.bytesSent));
   appendDetail(metadata, PortalDetails.BytesReceived, detailFromValue(row?.counters.bytesReceived));
+}
+
+function appendNetworkEvidenceDrawer(panel: HTMLElement, readModel: ActivityNetworkFlowReadModel): void {
+  const summary = networkEvidenceDrawerSummary(readModel);
+  const drawer = document.createElement(PortalDom.Tags.Details);
+  const title = document.createElement(PortalDom.Tags.SummaryTag);
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+
+  drawer.open = true;
+  title.textContent = PortalText.Resolve(PortalTextToken.NetworkFlow);
+
+  appendDetail(metadata, PortalDetails.EventId, summary.evidenceId);
+  appendDetail(metadata, PortalDetails.LastObserved, summary.observedAt);
+  appendDetail(metadata, PortalDetails.FirstObserved, summary.firstSeenAt);
+  appendDetail(metadata, PortalDetails.LastChecked, summary.lastSeenAt);
+  appendDetail(metadata, PortalDetails.Device, summary.deviceRef);
+  appendDetail(metadata, PortalDetails.Profile, summary.childProfileRef);
+  appendDetail(metadata, PortalDetails.Source, summary.sourceAdapter);
+  appendDetail(metadata, PortalDetails.Capability, summary.sourceQuality);
+  appendDetail(metadata, PortalDetails.Source, summary.localEndpoint);
+  appendDetail(metadata, PortalDetails.Destination, summary.remoteEndpoint);
+  appendDetail(metadata, PortalDetails.NetworkProtocol, summary.protocolCandidate);
+  appendDetail(metadata, PortalDetails.TcpState, summary.applicationProtocolCandidate);
+  appendDetail(metadata, PortalDetails.Process, summary.processRef);
+  appendDetail(metadata, PortalDetails.BrowserEvidence, summary.browserRef);
+  appendDetail(metadata, PortalDetails.Domain, summary.domainEvidenceRef);
+  appendDetail(metadata, PortalDetails.Connections, summary.byteSummary);
+  appendDetail(metadata, PortalDetails.EvidenceReferences, summary.evidenceReferences);
+  appendDetail(metadata, PortalDetails.Level, summary.evidenceGrade);
+  appendDetail(metadata, PortalDetails.ReasonCodes, summary.uncertaintyReasonCodes);
+  appendDetail(metadata, PortalDetails.ExactUrlClaim, summary.exactUrlClaim);
+  appendDetail(metadata, PortalDetails.LocalAiResult, summary.aiAuditRef);
+  appendDetail(metadata, PortalDetails.UnknownState, summary.riskBudgetRef);
+  appendDetail(metadata, PortalDetails.PolicyPreview, summary.policyDecisionRef);
+  appendDetail(metadata, PortalDetails.EnforcementHandoff, summary.interventionResultRef);
+  appendDetail(metadata, PortalDetails.EventId, summary.eventHistoryRef);
+  appendDetail(metadata, PortalDetails.DeletedEvidence, summary.retentionState);
+  appendDetail(metadata, PortalDetails.Custody, summary.custody);
+
+  drawer.append(title, metadata);
+  panel.append(drawer);
 }
 
 function appendEmptyNetworkFlow(panel: HTMLElement, readModel: ActivityNetworkFlowReadModel): void {

@@ -66,6 +66,9 @@ impl ActivityEventKind {
             Self::TrackingRetentionDeleted => {
                 constants::activity_event_kind::TRACKING_RETENTION_DELETED
             }
+            Self::NetworkRetentionDeleted => {
+                constants::activity_event_kind::NETWORK_RETENTION_DELETED
+            }
         }
     }
 
@@ -100,6 +103,9 @@ impl ActivityEventKind {
             }
             constants::activity_event_kind::TRACKING_RETENTION_DELETED => {
                 Some(Self::TrackingRetentionDeleted)
+            }
+            constants::activity_event_kind::NETWORK_RETENTION_DELETED => {
+                Some(Self::NetworkRetentionDeleted)
             }
             _ => None,
         }

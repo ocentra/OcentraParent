@@ -151,6 +151,16 @@ fn browser_evidence_values_serialize_to_typescript_contract_shape() {
         constants::activity_event_kind::ENFORCEMENT_AUDIT_RECORDED
     );
     assert_eq!(
+        ActivityEventKind::NetworkRetentionDeleted.as_protocol_str(),
+        constants::activity_event_kind::NETWORK_RETENTION_DELETED
+    );
+    assert_eq!(
+        ActivityEventKind::from_protocol_str(
+            constants::activity_event_kind::NETWORK_RETENTION_DELETED
+        ),
+        Some(ActivityEventKind::NetworkRetentionDeleted)
+    );
+    assert_eq!(
         ActivitySubjectKind::Intervention.as_protocol_str(),
         constants::activity_subject_kind::INTERVENTION
     );

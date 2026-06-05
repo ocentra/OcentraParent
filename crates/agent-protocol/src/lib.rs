@@ -25,6 +25,7 @@ mod browser_policy_values;
 mod browser_read_model;
 mod browser_unmanaged_enforcement;
 mod browser_values;
+mod child_agent;
 pub mod constants;
 mod enforcement;
 mod enforcement_broad_adapter_proof;
@@ -52,6 +53,7 @@ mod logging;
 mod network_flow;
 mod notification_provider_status_boundary;
 mod parent_assistant;
+mod parent_controller;
 mod screen_evidence;
 mod tracking_read_model;
 mod transport;
@@ -81,6 +83,7 @@ pub use browser_policy_sections::*;
 pub use browser_policy_values::*;
 pub use browser_read_model::*;
 pub use browser_unmanaged_enforcement::*;
+pub use child_agent::*;
 pub use enforcement::*;
 pub use enforcement_broad_adapter_proof::*;
 pub use enforcement_browser_domain_adapter_proof::*;
@@ -107,6 +110,7 @@ pub use logging::*;
 pub use network_flow::*;
 pub use notification_provider_status_boundary::*;
 pub use parent_assistant::*;
+pub use parent_controller::*;
 pub use screen_evidence::*;
 pub use tracking_read_model::*;
 pub use transport::*;
@@ -163,6 +167,8 @@ mod browser_managed_tests;
 mod browser_policy_tests;
 #[cfg(test)]
 mod browser_read_model_tests;
+#[cfg(test)]
+mod child_agent_event_tests;
 #[cfg(test)]
 mod enforcement_audit_boundary_tests;
 #[cfg(test)]
@@ -221,6 +227,8 @@ mod network_flow_tests;
 mod notification_provider_status_boundary_tests;
 #[cfg(test)]
 mod parent_assistant_tests;
+#[cfg(test)]
+mod parent_controller_event_tests;
 #[cfg(test)]
 mod policy_preview_tests;
 #[cfg(test)]

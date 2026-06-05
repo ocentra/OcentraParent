@@ -1,6 +1,8 @@
-use std::fs::{read_to_string, remove_file};
+use std::fs::{read, read_to_string, remove_file};
 
-use ocentra_parent_agent_core::{broad_os_adapter_readiness, ActivityStore};
+use ocentra_parent_agent_core::{
+    broad_os_adapter_readiness, ActivityJournal, ActivityStore, JournalKey, JOURNAL_KEY_BYTES,
+};
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope,
     AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
@@ -19,6 +21,7 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
     let status = store
         .status()
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let journal_event_ids = journal_event_ids(&paths);
     let journal_text = read_to_string(&paths.journal_path).expect(constants::error::JOURNAL_READS);
     cleanup_paths(&paths);
 
@@ -35,7 +38,17 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
             constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()
         ))
     );
-    assert_eq!(status.events_stored, 1);
+    assert_eq!(status.events_stored, 2);
+    assert_eq!(
+        journal_event_ids,
+        vec![
+            prefixed(
+                constants::enforcement::JOURNAL_BEFORE_ACTION_ID_PREFIX,
+                constants::enforcement::TEST_AUDIT_EVENT_ID
+            ),
+            constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()
+        ]
+    );
     assert!(!journal_text.contains(policy_constants::TEST_DECISION_ID));
 
     #[cfg(windows)]
@@ -73,6 +86,54 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
             ))
         );
     }
+}
+
+#[tokio::test]
+async fn enforcement_execute_reports_final_adapter_result_after_before_action_journal() {
+    let paths = temp_paths(constants::enforcement::TEST_RESULT_ID);
+    cleanup_paths(&paths);
+    let event = build_enforcement_audit_report_with_paths(command(false), paths.clone()).await;
+    let store =
+        ActivityStore::open(&paths.store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let summary = store
+        .recent_summary(2)
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    cleanup_paths(&paths);
+
+    assert_eq!(event.event, AgentEventName::AgentEnforcementAuditReported);
+    assert_eq!(
+        event.payload.get(constants::field::EVENTS_INGESTED),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::EVENTS_STORED),
+        Some(&LogFieldValue::Number(2.0))
+    );
+    assert_eq!(
+        summary.last_event_id,
+        Some(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string())
+    );
+    assert_eq!(summary.returned, 2);
+
+    #[cfg(windows)]
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
+        Some(&LogFieldValue::String(
+            constants::enforcement::ADAPTER_PROCESS_ALREADY_EXITED.to_string()
+        ))
+    );
+
+    #[cfg(not(windows))]
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
+        Some(&LogFieldValue::String(
+            constants::enforcement::ADAPTER_UNSUPPORTED_PLATFORM.to_string()
+        ))
+    );
 }
 
 #[tokio::test]
@@ -350,6 +411,25 @@ fn payload_string<'a>(payload: &'a LogFields, field: &str) -> Option<&'a str> {
         Some(LogFieldValue::String(value)) => Some(value.as_str()),
         _ => None,
     }
+}
+
+fn journal_event_ids(paths: &EnforcementJournalPaths) -> Vec<String> {
+    let key_bytes = read(&paths.key_path).expect(constants::error::JOURNAL_READS);
+    let key: [u8; JOURNAL_KEY_BYTES] = key_bytes.try_into().expect(constants::error::JOURNAL_READS);
+    let journal = ActivityJournal::open(paths.journal_path.clone(), JournalKey::from_bytes(key))
+        .expect(constants::error::JOURNAL_OPENS);
+    journal
+        .lines()
+        .expect(constants::error::JOURNAL_READS)
+        .into_iter()
+        .map(|line| line.event_id)
+        .collect()
+}
+
+fn prefixed(prefix: &str, value: &str) -> String {
+    let mut output = String::from(prefix);
+    output.push_str(value);
+    output
 }
 
 fn temp_paths(suffix: &str) -> EnforcementJournalPaths {

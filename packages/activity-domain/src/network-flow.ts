@@ -11,6 +11,8 @@ import { ActivityObserverSchema } from './kinds';
 import { ActivityEventIdSchema, ActivityEvidenceIdSchema, ActivityTimestampSchema } from './primitives';
 import { ActivityQuerySchemaVersion } from './query';
 
+export * from './network-contracts';
+
 const NetworkNonEmptyText = Schema.String.pipe(Schema.minLength(1));
 const NetworkPortNumber = Schema.Number.pipe(Schema.int(), Schema.between(0, 65535));
 const NetworkNonNegativeNumber = Schema.Number.pipe(Schema.nonNegative());
@@ -56,6 +58,8 @@ export const ActivityNetworkFlowIndicatorKindSchema = withParser(
     'encrypted-content-unavailable'
   )
 );
+
+export const ActivityNetworkFlowRowVisibilitySchema = withParser(Schema.Literal('active', 'tombstone'));
 
 export const ActivityNetworkEndpointSchema = withParser(
   Schema.Struct({
@@ -103,7 +107,15 @@ export const ActivityNetworkFlowReadModelSchema = withParser(
     custody: ActivityNetworkCustodyStateSchema,
     limit: NetworkNonNegativeInteger,
     returned: NetworkNonNegativeInteger,
+    activeRows: NetworkNonNegativeInteger,
+    tombstoneRows: NetworkNonNegativeInteger,
+    exportableRows: NetworkNonNegativeInteger,
     capabilityStatus: ActivityCaptureCapabilityStatusSchema,
+    latestEventId: Schema.Union(ActivityEventIdSchema, Schema.Null),
+    latestObservedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
+    latestTombstoneEventId: Schema.Union(ActivityEventIdSchema, Schema.Null),
+    latestTombstoneObservedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
+    deletedEvidenceReferenceIds: Schema.Array(ActivityEvidenceIdSchema),
     rows: Schema.Array(ActivityNetworkFlowObservationSchema),
   })
 );
@@ -146,6 +158,7 @@ export type ActivityNetworkProcessName = Infer<typeof ActivityNetworkProcessName
 export type ActivityNetworkAdapterId = Infer<typeof ActivityNetworkAdapterIdSchema>;
 export type ActivityNetworkCustodyState = Infer<typeof ActivityNetworkCustodyStateSchema>;
 export type ActivityNetworkFlowIndicatorKind = Infer<typeof ActivityNetworkFlowIndicatorKindSchema>;
+export type ActivityNetworkFlowRowVisibility = Infer<typeof ActivityNetworkFlowRowVisibilitySchema>;
 export type ActivityNetworkEndpoint = Infer<typeof ActivityNetworkEndpointSchema>;
 export type ActivityNetworkFlowCounters = Infer<typeof ActivityNetworkFlowCountersSchema>;
 export type ActivityNetworkFlowObservation = Infer<typeof ActivityNetworkFlowObservationSchema>;

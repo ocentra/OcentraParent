@@ -14,3 +14,83 @@ pub const INDICATOR_LABEL_UNUSUAL_UNKNOWN_PROCESS: &str = "Unknown process attri
 pub const INDICATOR_LABEL_VPN_PROXY_TUNNEL: &str = "VPN, proxy, or tunnel likely in use";
 pub const LABEL_DESTINATION_UNKNOWN: &str = "Unknown destination";
 pub const LABEL_PROCESS_UNKNOWN: &str = "Unknown process";
+
+pub const EVENT_SCHEMA_VERSION: u16 = 1;
+pub const EVENT_NETWORK_FLOW_OBSERVED: &str = "network.flow.observed";
+pub const EVENT_NETWORK_DOMAIN_OBSERVED: &str = "network.domain.observed";
+pub const EVENT_NETWORK_ACTIVITY_CLASSIFIED: &str = "network.activity.classified";
+pub const EVENT_NETWORK_REVIEW_REQUESTED: &str = "network.review.requested";
+pub const EVENT_AI_ANALYSIS_REQUESTED: &str = "ai.analysis.requested";
+pub const EVENT_AI_ANALYSIS_COMPLETED: &str = "ai.analysis.completed";
+pub const EVENT_POLICY_EVALUATION_REQUESTED: &str = "policy.evaluation.requested";
+pub const EVENT_POLICY_DECISION_COMPLETED: &str = "policy.decision.completed";
+pub const EVENT_ENFORCEMENT_COMMAND_ISSUED: &str = "enforcement.command.issued";
+pub const EVENT_ENFORCEMENT_RESULT_OBSERVED: &str = "enforcement.result.observed";
+pub const EVENT_AUDIT_ENTRY_COMMITTED: &str = "audit.entry.committed";
+pub const EVENT_PORTAL_READ_MODEL_UPDATED: &str = "portal.read_model.updated";
+
+pub const TEST_DEVICE_REF: &str = "device.child.windows-1";
+pub const TEST_FLOW_EVENT_REF: &str = "event.network.flow.observed.1";
+pub const TEST_DOMAIN_EVENT_REF: &str = "event.network.domain.observed.1";
+pub const TEST_CLASSIFICATION_EVENT_REF: &str = "event.network.activity.classified.1";
+pub const TEST_AI_REQUEST_REF: &str = "event.ai.analysis.requested.1";
+pub const TEST_AI_ANALYSIS_REF: &str = "event.ai.analysis.completed.1";
+pub const TEST_POLICY_EVALUATION_REF: &str = "event.policy.evaluation.requested.1";
+pub const TEST_POLICY_DECISION_REF: &str = "event.policy.decision.completed.1";
+pub const TEST_ENFORCEMENT_COMMAND_REF: &str = "event.enforcement.command.issued.1";
+pub const TEST_ENFORCEMENT_RESULT_REF: &str = "event.enforcement.result.observed.1";
+pub const TEST_AUDIT_ENTRY_REF: &str = "event.audit.entry.committed.1";
+pub const TEST_PORTAL_READ_MODEL_REF: &str = "event.portal.read-model.updated.1";
+pub const TEST_FLOW_EVIDENCE_REF: &str = "evidence.network.flow.1";
+pub const TEST_DOMAIN_EVIDENCE_REF: &str = "evidence.network.domain.1";
+pub const TEST_PARENT_RULE_REF: &str = "policy.rule.network-domain.1";
+pub const TEST_ADAPTER_CAPABILITY_REF: &str = "adapter.capability.network.dry-run.1";
+pub const TEST_ROLLBACK_REF: &str = "rollback.network.command.1";
+pub const TEST_PROMPT_TEMPLATE_REF: &str = "prompt.network-ai-audit.v1";
+pub const UNCERTAINTY_NETWORK_ONLY_NO_EXACT_URL: &str = "network-only-no-exact-url";
+pub const UNSUPPORTED_CLAIM_DECRYPTED_HTTPS_PAYLOAD: &str = "decrypted-https-payload";
+pub const UNAVAILABLE_REASON_MANUAL_REQUIRED: &str = "manual-required";
+
+pub const TARGET_NETWORK_OBSERVER: &str = "network-observer";
+pub const TARGET_DOMAIN_OBSERVER: &str = "network-domain-observer";
+pub const TARGET_ACTIVITY_CLASSIFIER: &str = "network-activity-classifier";
+pub const TARGET_NETWORK_REVIEW: &str = "network-review-request";
+pub const TARGET_AI_ANALYZER: &str = "network-ai-analyzer";
+pub const TARGET_POLICY_ENGINE: &str = "network-policy-engine";
+pub const TARGET_ENFORCEMENT_DRY_RUN: &str = "network-enforcement-dry-run";
+pub const TARGET_AUDIT_WRITER: &str = "network-audit-writer";
+pub const TARGET_PORTAL_READ_MODEL: &str = "network-portal-read-model";
+
+pub const SUBSCRIBER_NETWORK_OBSERVER: &str = "network-runtime-observer-subscriber";
+pub const SUBSCRIBER_DOMAIN_OBSERVER: &str = "network-runtime-domain-subscriber";
+pub const SUBSCRIBER_ACTIVITY_CLASSIFIER: &str = "network-runtime-classifier-subscriber";
+pub const SUBSCRIBER_NETWORK_REVIEW: &str = "network-runtime-review-subscriber";
+pub const SUBSCRIBER_AI_REQUEST: &str = "network-runtime-ai-request-subscriber";
+pub const SUBSCRIBER_AI_COMPLETE: &str = "network-runtime-ai-complete-subscriber";
+pub const SUBSCRIBER_POLICY_REQUEST: &str = "network-runtime-policy-request-subscriber";
+pub const SUBSCRIBER_POLICY_DECISION: &str = "network-runtime-policy-decision-subscriber";
+pub const SUBSCRIBER_ENFORCEMENT_COMMAND: &str = "network-runtime-enforcement-command-subscriber";
+pub const SUBSCRIBER_ENFORCEMENT_RESULT: &str = "network-runtime-enforcement-result-subscriber";
+pub const SUBSCRIBER_AUDIT_ENTRY: &str = "network-runtime-audit-entry-subscriber";
+pub const SUBSCRIBER_PORTAL_READ_MODEL: &str = "network-runtime-portal-read-model-subscriber";
+
+pub const RUNTIME_COMPONENT_NETWORK_SPINE: &str = "network-runtime-spine";
+pub const RUNTIME_INSTANCE_LOCAL_CHILD_AGENT: &str = "local-child-agent";
+pub const AGGREGATE_NETWORK_FLOW_PREFIX: &str = "network-flow-";
+pub const CORRELATION_NETWORK_RUNTIME_PREFIX: &str = "network-runtime-correlation-";
+pub const IDEMPOTENCY_NETWORK_RUNTIME_PREFIX: &str = "network-runtime-idempotency-";
+pub const IDEMPOTENCY_NETWORK_REVIEW_PREFIX: &str = "network-review-idempotency-";
+pub const REQUEST_NETWORK_REVIEW_PREFIX: &str = "network-review-request-";
+pub const REQUEST_NETWORK_REVIEW_TIMEOUT_MS: u64 = 50;
+pub const ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES: &str = "network runtime chain publishes";
+pub const ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES_DEGRADED: &str =
+    "network runtime chain publishes degraded state";
+pub const ERROR_NETWORK_RUNTIME_QUEUE_DRAINS: &str = "network runtime queued flow drains";
+pub const ERROR_NETWORK_RUNTIME_QUEUE_OVERFLOW_DEAD_LETTERS: &str =
+    "network runtime queue overflow dead letters";
+pub const ERROR_NETWORK_RUNTIME_QUEUE_TTL_EXPIRES: &str =
+    "network runtime queue ttl expires before dispatch";
+pub const ERROR_NETWORK_RUNTIME_QUEUE_IDEMPOTENCY_REJECTS: &str =
+    "network runtime queue idempotency rejects duplicates";
+pub const ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES: &str = "network runtime payload decodes";
+pub const ERROR_NETWORK_RUNTIME_REVIEW_COMPLETES: &str = "network runtime review request completes";

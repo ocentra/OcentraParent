@@ -52,8 +52,30 @@ const NetworkFlowReadModelSample = {
   custody: 'child-device-query-store',
   limit: 25,
   returned: 1,
+  activeRows: 1,
+  tombstoneRows: 0,
+  exportableRows: 1,
   capabilityStatus: 'available',
+  latestEventId: 'activity-event-network-1',
+  latestObservedAt: '2026-05-21T02:40:00Z',
+  latestTombstoneEventId: null,
+  latestTombstoneObservedAt: null,
+  deletedEvidenceReferenceIds: [],
   rows: [NetworkFlowObservationSample],
+} as const;
+
+const NetworkFlowDeletedReadModelSample = {
+  ...NetworkFlowReadModelSample,
+  returned: 0,
+  activeRows: 0,
+  tombstoneRows: 1,
+  exportableRows: 0,
+  latestEventId: 'activity-event-network-retention-delete-1',
+  latestObservedAt: '2026-05-21T02:41:00Z',
+  latestTombstoneEventId: 'activity-event-network-retention-delete-1',
+  latestTombstoneObservedAt: '2026-05-21T02:41:00Z',
+  deletedEvidenceReferenceIds: ['activity-event-network-1'],
+  rows: [],
 } as const;
 
 const NetworkFlowDigestSample = {
@@ -98,6 +120,16 @@ describe('network flow query contracts', () => {
 
     expect(observation.destinationDomain).toBe('example.com');
     expect(readModel.rows[0]?.processName).toBe('chrome.exe');
+    expect(readModel.activeRows).toBe(1);
+    expect(readModel.exportableRows).toBe(1);
+  });
+
+  it('parses network retention tombstone state without exposing deleted rows', () => {
+    const readModel = ActivityNetworkFlowReadModelSchema.parse(NetworkFlowDeletedReadModelSample);
+
+    expect(readModel.rows).toHaveLength(0);
+    expect(readModel.tombstoneRows).toBe(1);
+    expect(readModel.deletedEvidenceReferenceIds).toEqual(['activity-event-network-1']);
   });
 
   it('parses local AI digest references without packet or URL claims', () => {
@@ -165,6 +197,10 @@ describe('network flow numeric bounds', () => {
       ...NetworkFlowReadModelSample,
       returned: -1,
     });
+    const negativeActiveRows = ActivityNetworkFlowReadModelSchema.safeParse({
+      ...NetworkFlowReadModelSample,
+      activeRows: -1,
+    });
     const negativeProcessId = ActivityNetworkFlowObservationSchema.safeParse({
       ...NetworkFlowObservationSample,
       processId: -1,
@@ -172,6 +208,7 @@ describe('network flow numeric bounds', () => {
 
     expect(negativeLimit.success).toBe(false);
     expect(negativeReturned.success).toBe(false);
+    expect(negativeActiveRows.success).toBe(false);
     expect(negativeProcessId.success).toBe(false);
   });
 });

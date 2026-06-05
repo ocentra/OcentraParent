@@ -1,15 +1,27 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel, LogFieldValue,
-    LogFields,
+    LogFields, NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
+    NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+    NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY,
+    NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID,
+    NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT,
+    NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
 
-use crate::{fields::fields_from_pairs, network_flow_digest::network_flow_digest};
+use crate::{
+    fields::fields_from_pairs, network_flow_digest::network_flow_digest,
+    network_runtime_delivery::NetworkRuntimeServiceDeliveryReport,
+};
 
 type FieldPair = (&'static str, LogFieldValue);
 
-pub fn network_flow_read_model_payload(read_model: &ActivityNetworkFlowReadModel) -> LogFields {
+pub fn network_flow_read_model_payload_with_runtime_delivery(
+    read_model: &ActivityNetworkFlowReadModel,
+    delivery: Option<&NetworkRuntimeServiceDeliveryReport>,
+) -> LogFields {
     let latest = read_model.rows.first();
     let mut pairs = read_model_pairs(read_model);
+    pairs.extend(runtime_delivery_pairs(delivery));
     pairs.extend(row_identity_pairs(latest));
     pairs.extend(endpoint_pairs(latest));
     pairs.extend(process_pairs(latest));
@@ -18,6 +30,7 @@ pub fn network_flow_read_model_payload(read_model: &ActivityNetworkFlowReadModel
 }
 
 fn read_model_pairs(read_model: &ActivityNetworkFlowReadModel) -> Vec<FieldPair> {
+    let separator = constants::delimiter::LIST.to_string();
     vec![
         (
             constants::field::GENERATED_AT,
@@ -36,8 +49,44 @@ fn read_model_pairs(read_model: &ActivityNetworkFlowReadModel) -> Vec<FieldPair>
             LogFieldValue::Number(read_model.returned as f64),
         ),
         (
+            NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
+            LogFieldValue::Number(read_model.active_rows as f64),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
+            LogFieldValue::Number(read_model.tombstone_rows as f64),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS,
+            LogFieldValue::Number(read_model.exportable_rows as f64),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY,
+            LogFieldValue::String(NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT.to_string()),
+        ),
+        (
             constants::field::CAPABILITY_STATUS,
             LogFieldValue::String(read_model.capability_status.clone()),
+        ),
+        (
+            constants::field::LATEST_EVENT_ID,
+            optional_string(read_model.latest_event_id.as_ref()),
+        ),
+        (
+            constants::field::LATEST_OBSERVED_AT,
+            optional_string(read_model.latest_observed_at.as_ref()),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID,
+            optional_string(read_model.latest_tombstone_event_id.as_ref()),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT,
+            optional_string(read_model.latest_tombstone_observed_at.as_ref()),
+        ),
+        (
+            NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+            LogFieldValue::String(read_model.deleted_evidence_reference_ids.join(&separator)),
         ),
         (
             constants::field::ACTIVITY_DIGEST,
@@ -51,14 +100,6 @@ fn read_model_pairs(read_model: &ActivityNetworkFlowReadModel) -> Vec<FieldPair>
 
 fn row_identity_pairs(row: Option<&ActivityNetworkFlowObservation>) -> Vec<FieldPair> {
     vec![
-        (
-            constants::field::LATEST_EVENT_ID,
-            optional_string(row.map(|value| &value.event_id)),
-        ),
-        (
-            constants::field::LATEST_OBSERVED_AT,
-            optional_string(row.map(|value| &value.observed_at)),
-        ),
         (
             constants::field::OBSERVER,
             optional_string(row.map(|value| &value.observer)),
@@ -149,6 +190,45 @@ fn counter_pairs(row: Option<&ActivityNetworkFlowObservation>) -> Vec<FieldPair>
     ]
 }
 
+fn runtime_delivery_pairs(
+    delivery: Option<&NetworkRuntimeServiceDeliveryReport>,
+) -> Vec<FieldPair> {
+    vec![
+        (
+            constants::field::NETWORK_RUNTIME_OBSERVED_ROWS,
+            optional_usize(delivery.map(|value| value.observed_rows)),
+        ),
+        (
+            constants::field::NETWORK_RUNTIME_DELIVERED_ROWS,
+            optional_usize(delivery.map(|value| value.delivered_rows)),
+        ),
+        (
+            constants::field::NETWORK_RUNTIME_FAILED_ROWS,
+            optional_usize(delivery.map(|value| value.failed_rows)),
+        ),
+        (
+            constants::field::NETWORK_RUNTIME_PUBLISH_REPORTS,
+            optional_usize(delivery.map(|value| value.publish_reports)),
+        ),
+        (
+            constants::field::NETWORK_RUNTIME_STORED_EVENTS,
+            optional_usize(delivery.map(|value| value.stored_events)),
+        ),
+        (
+            constants::field::NETWORK_RUNTIME_DEAD_LETTERS,
+            optional_usize(delivery.map(|value| value.dead_letters)),
+        ),
+        (
+            constants::field::NETWORK_RUNTIME_MANUAL_REQUIRED_ROWS,
+            optional_usize(delivery.map(|value| value.manual_required_rows)),
+        ),
+        (
+            constants::field::NETWORK_RUNTIME_ENFORCEMENT_COMMAND_EVENTS,
+            optional_usize(delivery.map(|value| value.enforcement_command_events)),
+        ),
+    ]
+}
+
 fn optional_string(value: Option<&String>) -> LogFieldValue {
     match value {
         Some(text) => LogFieldValue::String(text.clone()),
@@ -165,4 +245,8 @@ fn optional_u64(value: Option<u64>) -> LogFieldValue {
         Some(number) => LogFieldValue::Number(number as f64),
         None => LogFieldValue::Null(()),
     }
+}
+
+fn optional_usize(value: Option<usize>) -> LogFieldValue {
+    optional_u64(value.map(|number| number as u64))
 }

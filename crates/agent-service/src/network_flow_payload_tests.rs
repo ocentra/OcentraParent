@@ -1,24 +1,23 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkEndpoint,
     ActivityNetworkFlowCounters, ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel,
-    LogFieldValue, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
+    LogFieldValue, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
+    NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+    NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY,
+    NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS, NETWORK_FLOW_SCHEMA_VERSION,
 };
 
-use super::activity_network_flow_payload::network_flow_read_model_payload;
+use super::{
+    activity_network_flow_payload::network_flow_read_model_payload_with_runtime_delivery,
+    network_runtime_delivery::NetworkRuntimeServiceDeliveryReport,
+};
 
 #[test]
 fn network_flow_payload_contains_contract_shaped_digest_json() {
-    let read_model = ActivityNetworkFlowReadModel {
-        schema_version: NETWORK_FLOW_SCHEMA_VERSION,
-        generated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
-        custody: NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
-        limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
-        returned: 1,
-        capability_status: constants::activity_capture::CAPABILITY_STATUS_AVAILABLE.to_string(),
-        rows: vec![observation()],
-    };
+    let read_model = read_model();
 
-    let payload = network_flow_read_model_payload(&read_model);
+    let payload = network_flow_read_model_payload_with_runtime_delivery(&read_model, None);
     let digest_json = payload
         .get(constants::field::ACTIVITY_DIGEST)
         .and_then(|value| match value {
@@ -34,6 +33,115 @@ fn network_flow_payload_contains_contract_shaped_digest_json() {
         constants::activity_store::TEST_NETWORK_DOMAIN
     );
     assert_eq!(digest.unusual_indicators.len(), 0);
+    assert_eq!(
+        payload.get(NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY),
+        Some(&LogFieldValue::String(
+            NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT.to_string()
+        ))
+    );
+}
+
+#[test]
+fn network_flow_payload_reports_tombstone_refs_without_active_rows() {
+    let read_model = ActivityNetworkFlowReadModel {
+        returned: 0,
+        active_rows: 0,
+        tombstone_rows: 1,
+        exportable_rows: 0,
+        latest_event_id: Some(
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_EVENT_ID.to_string(),
+        ),
+        latest_observed_at: Some(
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT.to_string(),
+        ),
+        latest_tombstone_event_id: Some(
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_EVENT_ID.to_string(),
+        ),
+        latest_tombstone_observed_at: Some(
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT.to_string(),
+        ),
+        deleted_evidence_reference_ids: vec![
+            constants::activity_store::TEST_NETWORK_EVENT_ID.to_string()
+        ],
+        rows: Vec::new(),
+        ..read_model()
+    };
+
+    let payload = network_flow_read_model_payload_with_runtime_delivery(&read_model, None);
+
+    assert_eq!(
+        payload.get(NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS),
+        Some(&LogFieldValue::Number(0.0))
+    );
+    assert_eq!(
+        payload.get(NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS),
+        Some(&LogFieldValue::String(
+            constants::activity_store::TEST_NETWORK_EVENT_ID.to_string()
+        ))
+    );
+}
+
+#[test]
+fn network_flow_payload_includes_runtime_delivery_counts_when_supplied() {
+    let read_model = read_model();
+    let delivery = NetworkRuntimeServiceDeliveryReport {
+        observed_rows: 1,
+        delivered_rows: 1,
+        failed_rows: 0,
+        publish_reports: 11,
+        stored_events: 11,
+        dead_letters: 0,
+        manual_required_rows: 0,
+        enforcement_command_events: 1,
+    };
+
+    let payload =
+        network_flow_read_model_payload_with_runtime_delivery(&read_model, Some(&delivery));
+
+    assert_eq!(
+        payload.get(constants::field::NETWORK_RUNTIME_OBSERVED_ROWS),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::NETWORK_RUNTIME_DELIVERED_ROWS),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::NETWORK_RUNTIME_ENFORCEMENT_COMMAND_EVENTS),
+        Some(&LogFieldValue::Number(1.0))
+    );
+}
+
+fn read_model() -> ActivityNetworkFlowReadModel {
+    ActivityNetworkFlowReadModel {
+        schema_version: NETWORK_FLOW_SCHEMA_VERSION,
+        generated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        custody: NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
+        limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
+        returned: 1,
+        active_rows: 1,
+        tombstone_rows: 0,
+        exportable_rows: 1,
+        capability_status: constants::activity_capture::CAPABILITY_STATUS_AVAILABLE.to_string(),
+        latest_event_id: Some(constants::activity_store::TEST_NETWORK_EVENT_ID.to_string()),
+        latest_observed_at: Some(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        latest_tombstone_event_id: None,
+        latest_tombstone_observed_at: None,
+        deleted_evidence_reference_ids: Vec::new(),
+        rows: vec![observation()],
+    }
 }
 
 fn observation() -> ActivityNetworkFlowObservation {

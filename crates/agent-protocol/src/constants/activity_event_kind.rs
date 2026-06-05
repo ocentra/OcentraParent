@@ -13,3 +13,4 @@ pub const TRACKING_GEOFENCE_TRANSITION_EVALUATED: &str =
 pub const TRACKING_EXPECTED_PLACE_EVALUATED: &str = "activity.tracking.expected-place.evaluated";
 pub const TRACKING_CHILD_CHECK_IN_RESPONDED: &str = "activity.tracking.child-check-in.responded";
 pub const TRACKING_RETENTION_DELETED: &str = "activity.tracking.retention.deleted";
+pub const NETWORK_RETENTION_DELETED: &str = "activity.network.retention.deleted";
