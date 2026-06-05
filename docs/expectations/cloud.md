@@ -113,6 +113,14 @@ surfaces. The proof keeps cloud as an account/distribution status boundary only;
 it does not implement Stripe SDK code, billing provider logic, an account
 backend, portal UI, updater runtime, or child-activity custody.
 
+Current public release/status proof: `production-release-public-status-proof`
+defines parent-domain readiness rows for `family.ocentra.ca` public download,
+release status, update status, account status, subscription status, and support
+status surfaces. The proof keeps the public website runtime, account backend,
+billing provider runtime, production publishing, signing/store proof, updater
+execution, support backend upload, and child-activity custody unimplemented or
+manual-required.
+
 Current stateless report compiler proof:
 `stateless-report-compiler-status-proof` defines parent-domain request/status/
 result contracts for parent-authorized report compilation from parent-owned
@@ -183,6 +191,9 @@ evidence, child-device mutation, or Ocentra-hosted family-data custody.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   for account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries.
+- Parent-domain contract tests and `production-release-public-status-proof` for
+  public download, release/update status, account/subscription status, and
+  support status readiness rows before public runtime or backend code exists.
 - Parent-domain contract tests and `stateless-report-compiler-status-proof`
   for parent-authorized compiler request scope, status/result states,
   temporary TTL/deletion confirmation, redaction/minimization, audit refs, and

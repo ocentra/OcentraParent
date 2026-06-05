@@ -24,6 +24,12 @@ Release features are product features because parents need install/update paths 
   separately, records rollback execution as unavailable, records rollback
   failure handling as manual-required, and keeps the production support runbook
   manual-required until it is published and exercised.
+- V8 public release/download/account/status readiness proof that names public
+  download, release status, update status, account status, subscription status,
+  and support status separately while keeping `family.ocentra.ca` runtime,
+  production publishing, signing/store proof, updater execution, support backend
+  upload, account backend, billing provider runtime, and child-activity custody
+  unclaimed.
 
 ## Acceptance
 
@@ -76,6 +82,11 @@ Release features are product features because parents need install/update paths 
 - Updater rollback proof must reject rollback-available claims unless a signed
   production update channel, rollback execution smoke, rollback failure-status
   smoke, and published support runbook evidence are present.
+- `production-release-public-status-proof` may prove public-surface readiness
+  rows and support-safe data-class boundaries, but it must not claim the public
+  website runtime, account backend, billing provider runtime, production
+  publishing, signing/store proof, updater execution, support backend upload,
+  or child-activity custody.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play
