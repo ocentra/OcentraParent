@@ -104,6 +104,12 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   support bundle payloads, account lookup results, billing provider contact
   records, remote support session transcripts, provider secrets, or parent
   rules as public documentation data.
+- `production-release-public-surface-publication-proof` may summarize
+  `family.ocentra.ca` publication/readiness rows for public release, download,
+  update, account, subscription, support, privacy, retention, export/delete,
+  incident, and legal surfaces, but it must not include child evidence, raw
+  support bundle payloads, provider secrets, account lookup results, billing
+  provider contact records, remote support transcripts, or parent rules.
 - Any future feature that stores family activity in Ocentra infrastructure
   requires a new explicit product, privacy, security, retention, and deletion
   design before implementation.
