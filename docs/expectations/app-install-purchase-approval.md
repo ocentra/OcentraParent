@@ -128,6 +128,13 @@ Expected contract families:
   execution, store integration, platform adapter implementation, child-device
   delivery, runtime report delivery, real interception, child activity data
   custody, app blocking, or Ocentra-hosted family data custody.
+- Package-source adapter execution proof rows link package-source capture/
+  status rows to local Windows, manual macOS, unavailable Linux, and blocked
+  Android/iOS adapter execution states with artifact, audit, report, and
+  required-proof refs without claiming provider API execution, store
+  integration, portal approval UI, production platform adapters, child-device
+  delivery, runtime report delivery, real interception, child activity data
+  custody, app blocking, or Ocentra-hosted family data custody.
 
 ## Validation Gates
 
@@ -196,6 +203,12 @@ Expected contract families:
   rejection, runtime writer/provider/store/adapter/parent action/child
   delivery/report delivery/custody/interception/app-blocking overclaim
   rejection, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for package-source adapter
+  execution rows, missing adapter state coverage rejection, missing capture
+  status/artifact/audit/attempt/report refs, provider/store/portal/production
+  adapter/child delivery/report delivery/custody/interception/app-blocking
+  overclaim rejection, public package export visibility, and required non-claim
+  coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -262,6 +275,10 @@ Expected contract families:
   implementation, child-device delivery, runtime report delivery, child
   activity custody, interception, app blocking, or Ocentra-hosted family data
   custody.
+- Do not treat package-source adapter execution proof refs as provider/store
+  API execution, store integration, portal approval UI, production platform
+  adapters, child-device delivery, runtime report delivery, child activity
+  custody, interception, app blocking, or Ocentra-hosted family data custody.
 
 ## Done Signal
 

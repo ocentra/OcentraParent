@@ -138,6 +138,12 @@ mobile readiness, and control catalogs.
   writer delivery, parent action runtime delivery, provider/store execution,
   platform adapters, child-device delivery, report delivery, custody,
   interception, app blocking, and Ocentra-hosted family data custody unclaimed.
+- App install/purchase package-source adapter execution proof contracts that
+  link package-source capture/status rows to local Windows, manual macOS,
+  unavailable Linux, and blocked Android/iOS adapter execution states while
+  keeping provider/store execution, portal approval UI, production platform
+  adapters, child-device delivery, report delivery, custody, interception, app
+  blocking, and Ocentra-hosted family data custody unclaimed.
 - V0.9 signed LAN discovery/relay spine contracts that keep adapter evidence,
   signed proof rejection, route safety, relay/cache availability, parent-owned
   storage, and child-data custody claims explicit.
@@ -209,10 +215,11 @@ flowchart LR
   approved API/entitlement evidence plus report-runtime status, platform
   adapter boundary, parent review action proof, child status runtime readiness
   proof, parent action runtime handoff, store status handoff proof, and runtime
-  writer delivery proof plus package-source capture status and child-device
-  delivery runtime writer proof;
+  writer delivery proof plus package-source capture status, child-device
+  delivery runtime writer proof, and adapter execution proof;
   platform/store provider execution, actual platform adapters, production
-  child-device package capture, package-source capture adapter execution,
+  child-device package capture, production package-source capture adapter
+  execution,
   runtime status reader, child delivery, portal UX, runtime action writer
   execution, runtime writer delivery, parent action runtime delivery, and report
   runtime writer/delivery remain unimplemented.

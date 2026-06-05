@@ -69,6 +69,10 @@
       "import": "./dist/app-install-purchase-package-source-capture-status-proof.js",
       "types": "./dist/app-install-purchase-package-source-capture-status-proof.d.ts"
     },
+    "./app-install-purchase-package-source-adapter-execution-proof": {
+      "import": "./dist/app-install-purchase-package-source-adapter-execution-proof.js",
+      "types": "./dist/app-install-purchase-package-source-adapter-execution-proof.d.ts"
+    },
     "./billing-entitlement": {
       "import": "./dist/billing-entitlement.js",
       "types": "./dist/billing-entitlement.d.ts"
