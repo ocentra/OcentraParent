@@ -19,6 +19,7 @@ consumes the same results.
 | Windows WinRT OCR worker over captured pixels     | P3 real OCR proved | `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`                                                                      | Proves real selected-window browser/native captures can run through Windows WinRT OCR, become schema-valid `ScreenAnalysisResult` evidence, feed allow dry-run policy decisions, and delete raw temp images. It does not claim production OCR quality, service runtime integration, or cross-platform OCR parity.                           |
 | Screen summary into local AI context builder      | P3 replay proved   | `output/ai-plan-proof/screen-summary-ai-context/proof-summary.json`                                                                    | Replays the real WinRT OCR worker proof rows through `buildLocalAiEvidenceContext`, proving deleted local screen summaries are selected as `screen-summary` evidence with custody, runtime, parent-rule, and audit refs. It does not create new captures, claim model quality, or claim portal/final enforcement.                           |
 | Screen summary parent explanation/audit context   | P3 replay proved   | `output/ai-plan-proof/screen-summary-parent-explanation/proof-summary.json`                                                            | Replays the real WinRT OCR worker proof rows through local AI context plus parent explanation/audit contracts, proving screen-summary refs, audit refs, parent-rule refs, dry-run policy refs, runtime refs, and deleted-image custody stay cited without raw retention, remote/API AI, portal UI, policy authority, or enforcement claims. |
+| Screen summary parent explanation read model      | P3 replay proved   | `output/ai-plan-proof/screen-summary-parent-explanation-read-model/proof-summary.json`                                                 | Converts the screen-summary parent explanation proof rows into parent-visible read-model rows that preserve screen-summary refs, audit refs, policy refs, parent rules, runtime refs, custody, and deleted-image state without raw image display, production portal runtime UI, policy authority, or enforcement claims.                    |
 
 ## Contract And Source Truth
 
@@ -56,7 +57,8 @@ consumes the same results.
 - [x] Provider queue and routing implemented.
 - [ ] Runtime status visible in service and portal.
 - [ ] AI result journal and SQLite ingest implemented.
-- [ ] Parent explanation read model implemented.
+- [x] Parent explanation read-model proof contract implemented; production
+      portal consumption remains a UI/runtime gap.
 
 ## Memory And Graph
 
@@ -136,4 +138,6 @@ consumes the same results.
 - [x] real WinRT OCR worker proof artifacts under `output/ai-plan-proof/screen-winrt-ocr-worker`.
 - [x] screen summary context-builder replay proof artifacts under `output/ai-plan-proof/screen-summary-ai-context`.
 - [x] screen summary parent explanation/audit replay proof artifacts under `output/ai-plan-proof/screen-summary-parent-explanation`.
+- [x] screen summary parent explanation read-model replay proof artifacts under
+      `output/ai-plan-proof/screen-summary-parent-explanation-read-model`.
 - [ ] `npm run validate` or explicit approved omission.

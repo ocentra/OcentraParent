@@ -92,6 +92,13 @@ claim needs proof, not slogans.
   dry-run policy refs, local runtime refs, local-only custody, and
   `screen-image-deleted` deletion state while keeping raw image retention,
   remote/API AI, policy authority, portal runtime UI, and enforcement unclaimed.
+- `ScreenSummaryParentExplanationReadModelSnapshotSchema` and
+  `scripts/test/screen-summary-parent-explanation-read-model-proof.mjs` now
+  convert those parent explanation rows into parent-visible read-model rows. The
+  proof preserves screen-summary refs, audit evidence refs, parent rule refs,
+  dry-run policy refs, local runtime refs, custody labels, and deleted-image
+  reasons while still not claiming raw image display, remote/API AI, production
+  portal runtime rendering, policy authority, or enforcement.
 - `ScreenFamilyAiHubRouteSchema` and
   `scripts/test/screen-family-ai-hub-routing-proof.mjs` now prove the
   screen-specific family AI hub route contract for hard visual analysis:
@@ -107,8 +114,8 @@ claim needs proof, not slogans.
 Ocentra needs product-grade model configuration, local model artifacts,
 production screen model quality, confidence handling,
 authenticated-account social proof beyond public/live surface proof, production
-parent explanation UI/read models, broader enforcement handoff, production
-browser-trigger producers, real family AI hub runtime/discovery,
+parent explanation UI/runtime portal consumption, broader enforcement handoff,
+production browser-trigger producers, real family AI hub runtime/discovery,
 cloud-streamed frame proof, mobile browser parity, and validation against
 production external evidence variants.
 
@@ -123,6 +130,7 @@ production external evidence variants.
 - [x] Deterministic policy integration.
 - [x] Social/video and screen summary handling proof path.
 - [x] Parent explanation and audit proof path.
+- [x] Parent explanation read-model proof path.
 - [x] Tests with real stored evidence.
 - [x] Screen hard-visual routing prefers child-local then household family hub
       before remote/API fallback.
