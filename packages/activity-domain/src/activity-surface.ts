@@ -37,6 +37,7 @@ import {
 const NonEmptyActivitySurfaceText = Schema.String.pipe(Schema.minLength(1));
 const NonNegativeActivityCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const NonNegativeActivityDuration = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
+const ActivitySurfaceReferenceListSchema = Schema.Array(NonEmptyActivitySurfaceText);
 
 export const ActivitySurfaceSchemaVersion = 1;
 
@@ -260,6 +261,18 @@ export const ActivityScreenReadModelSchema = withParser(
         imageDigest: ScreenEvidenceImageDigestSchema,
         custodyState: ScreenEvidenceCustodyStateSchema,
         evidence: Schema.Array(ActivityEvidenceRefSchema),
+        policyDecisionRef: Schema.optionalWith(Schema.Union(NonEmptyActivitySurfaceText, Schema.Null), {
+          default: () => null,
+        }),
+        policyAction: Schema.optionalWith(Schema.Union(NonEmptyActivitySurfaceText, Schema.Null), {
+          default: () => null,
+        }),
+        policyReasonCodes: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
+        parentRuleRefs: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
+        localModelRuntimeRefs: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
+        parentExplanationRefs: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
+        explanationReasons: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
+        deletionReasons: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
       })
     ),
   })

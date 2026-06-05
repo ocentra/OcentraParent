@@ -44,6 +44,30 @@ fn activity_store_reports_screen_summary_from_local_ai_events() {
         Some(SCREEN_DELETION_DELETED.to_string())
     );
     assert_eq!(summary.latest_policy_eligible, Some(true));
+    let result = summary
+        .results
+        .first()
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    assert_eq!(
+        result.policy_decision_ref,
+        Some(constants::activity_store::TEST_POLICY_DECISION_ID.to_string())
+    );
+    assert_eq!(
+        result.policy_action,
+        Some(constants::activity_store::TEST_POLICY_ACTION_ALLOW.to_string())
+    );
+    assert_eq!(
+        result.parent_rule_refs,
+        vec![constants::activity_store::TEST_POLICY_RULE_ID.to_string()]
+    );
+    assert_eq!(
+        result.parent_explanation_refs,
+        vec![constants::activity_store::TEST_PARENT_EXPLANATION_ID.to_string()]
+    );
+    assert_eq!(
+        result.local_model_runtime_refs,
+        vec![constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string()]
+    );
 }
 
 #[test]
@@ -88,72 +112,141 @@ fn activity_store_skips_incomplete_screen_summary_rows() {
 
 fn screen_summary_event() -> ActivityEvent {
     let mut fields = LogFields::new();
-    fields.insert(
-        constants::field::SCREEN_ANALYSIS_RESULT_ID.to_string(),
-        LogFieldValue::String(constants::activity_store::TEST_SCREEN_RESULT_ID.to_string()),
-    );
-    fields.insert(
-        constants::field::SCREEN_QUEUE_JOB_ID.to_string(),
-        LogFieldValue::String(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string()),
-    );
-    fields.insert(
-        constants::field::SCREEN_SUMMARY.to_string(),
-        LogFieldValue::String(constants::activity_store::TEST_SCREEN_SUMMARY.to_string()),
-    );
-    fields.insert(
-        constants::field::SCREEN_PRIMARY_CATEGORY.to_string(),
-        LogFieldValue::String(SCREEN_CATEGORY_SCHOOL.to_string()),
-    );
-    fields.insert(
-        constants::field::SCREEN_CONFIDENCE.to_string(),
-        LogFieldValue::Number(SCREEN_POLICY_CONFIDENCE_READY),
-    );
-    fields.insert(
-        constants::field::SCREEN_IMAGE_DELETION_STATE.to_string(),
-        LogFieldValue::String(SCREEN_DELETION_DELETED.to_string()),
-    );
-    fields.insert(
-        constants::field::SCREEN_POLICY_ELIGIBLE.to_string(),
-        LogFieldValue::Boolean(true),
-    );
-    fields.insert(
-        constants::field::SCREEN_MODEL_RUNTIME_REF.to_string(),
-        LogFieldValue::String(constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string()),
-    );
-    fields.insert(
-        constants::field::SCREEN_MODEL_ID.to_string(),
-        LogFieldValue::String(constants::activity_store::TEST_SCREEN_MODEL_ID.to_string()),
-    );
-    fields.insert(
-        constants::field::SCREEN_PROVIDER_KIND.to_string(),
-        LogFieldValue::String(SCREEN_PROVIDER_LOCAL_VISION.to_string()),
-    );
-    fields.insert(
-        constants::field::SCREEN_TEMPLATE_VERSION.to_string(),
-        LogFieldValue::String(constants::activity_store::TEST_SCREEN_TEMPLATE_VERSION.to_string()),
-    );
-    fields.insert(
-        constants::field::SCREEN_CAPTURE_REASON.to_string(),
-        LogFieldValue::String(SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST.to_string()),
-    );
-    fields.insert(
-        constants::field::SCREEN_CAPTURE_SCOPE.to_string(),
-        LogFieldValue::String(SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW.to_string()),
-    );
-    fields.insert(
-        constants::field::CAPABILITY_STATUS.to_string(),
-        LogFieldValue::String(SCREEN_CAPABILITY_READY.to_string()),
-    );
-    fields.insert(
-        constants::field::SCREEN_IMAGE_DIGEST.to_string(),
-        LogFieldValue::String(constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string()),
-    );
-    fields.insert(
-        constants::field::SCREEN_CUSTODY_STATE.to_string(),
-        LogFieldValue::String(SCREEN_CUSTODY_JOURNAL.to_string()),
-    );
+    insert_screen_summary_core_fields(&mut fields);
+    insert_screen_summary_capture_fields(&mut fields);
+    insert_screen_summary_policy_fields(&mut fields);
 
     screen_event(fields)
+}
+
+fn insert_screen_summary_core_fields(fields: &mut LogFields) {
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_ANALYSIS_RESULT_ID,
+        LogFieldValue::String(constants::activity_store::TEST_SCREEN_RESULT_ID.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_QUEUE_JOB_ID,
+        LogFieldValue::String(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_SUMMARY,
+        LogFieldValue::String(constants::activity_store::TEST_SCREEN_SUMMARY.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_PRIMARY_CATEGORY,
+        LogFieldValue::String(SCREEN_CATEGORY_SCHOOL.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_CONFIDENCE,
+        LogFieldValue::Number(SCREEN_POLICY_CONFIDENCE_READY),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_IMAGE_DELETION_STATE,
+        LogFieldValue::String(SCREEN_DELETION_DELETED.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_POLICY_ELIGIBLE,
+        LogFieldValue::Boolean(true),
+    );
+}
+
+fn insert_screen_summary_capture_fields(fields: &mut LogFields) {
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_MODEL_RUNTIME_REF,
+        LogFieldValue::String(constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_MODEL_ID,
+        LogFieldValue::String(constants::activity_store::TEST_SCREEN_MODEL_ID.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_PROVIDER_KIND,
+        LogFieldValue::String(SCREEN_PROVIDER_LOCAL_VISION.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_TEMPLATE_VERSION,
+        LogFieldValue::String(constants::activity_store::TEST_SCREEN_TEMPLATE_VERSION.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_CAPTURE_REASON,
+        LogFieldValue::String(SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_CAPTURE_SCOPE,
+        LogFieldValue::String(SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::CAPABILITY_STATUS,
+        LogFieldValue::String(SCREEN_CAPABILITY_READY.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_IMAGE_DIGEST,
+        LogFieldValue::String(constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_CUSTODY_STATE,
+        LogFieldValue::String(SCREEN_CUSTODY_JOURNAL.to_string()),
+    );
+}
+
+fn insert_screen_summary_policy_fields(fields: &mut LogFields) {
+    insert_log_field(
+        fields,
+        constants::field::POLICY_DECISION_ID,
+        LogFieldValue::String(constants::activity_store::TEST_POLICY_DECISION_ID.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::POLICY_ACTION,
+        LogFieldValue::String(constants::activity_store::TEST_POLICY_ACTION_ALLOW.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::POLICY_REASON_CODES,
+        LogFieldValue::String(constants::activity_store::TEST_POLICY_REASON_CODES.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::POLICY_RULE_IDS,
+        LogFieldValue::String(constants::activity_store::TEST_POLICY_RULE_ID.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_PARENT_EXPLANATION_REFS,
+        LogFieldValue::String(constants::activity_store::TEST_PARENT_EXPLANATION_ID.to_string()),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_EXPLANATION_REASONS,
+        LogFieldValue::String(
+            constants::activity_store::TEST_SCREEN_EXPLANATION_REASONS.to_string(),
+        ),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_DELETION_REASONS,
+        LogFieldValue::String(constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string()),
+    );
+}
+
+fn insert_log_field(fields: &mut LogFields, name: &str, value: LogFieldValue) {
+    fields.insert(name.to_string(), value);
 }
 
 fn incomplete_screen_summary_event() -> ActivityEvent {

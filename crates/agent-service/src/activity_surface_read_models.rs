@@ -136,6 +136,14 @@ fn screen_row(
         image_digest: result.image_digest,
         custody_state: result.custody_state,
         evidence: result.source_evidence_refs,
+        policy_decision_ref: result.policy_decision_ref,
+        policy_action: result.policy_action,
+        policy_reason_codes: result.policy_reason_codes,
+        parent_rule_refs: result.parent_rule_refs,
+        local_model_runtime_refs: result.local_model_runtime_refs,
+        parent_explanation_refs: result.parent_explanation_refs,
+        explanation_reasons: result.explanation_reasons,
+        deletion_reasons: result.deletion_reasons,
     }
 }
 
