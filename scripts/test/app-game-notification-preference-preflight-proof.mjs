@@ -9,6 +9,7 @@ const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '62-noti
 const appProofDir = join(repoRoot, 'output', 'app-plan-proof', '62-notification-preference-preflight');
 const timestamp = '2026-06-05T03:03:00Z';
 const commands = [];
+const initialGitStatusShort = gitOutput(['status', '--short']);
 
 for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await rm(path, { recursive: true, force: true });
@@ -57,7 +58,7 @@ const proof = {
   generatedAt: timestamp,
   branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
   commit: gitOutput(['rev-parse', 'HEAD']),
-  gitStatusShort: gitOutput(['status', '--short']),
+  gitStatusShort: initialGitStatusShort,
   commands,
   summary,
   nonClaims: {
