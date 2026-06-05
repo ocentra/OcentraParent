@@ -34,6 +34,11 @@ mod app_game_notification_readiness_payload;
 mod app_game_notification_readiness_payload_tests;
 #[cfg(test)]
 mod app_game_notification_readiness_service_tests;
+mod app_game_policy_evaluation_payload;
+#[cfg(test)]
+mod app_game_policy_evaluation_payload_tests;
+#[cfg(test)]
+mod app_game_policy_evaluation_service_tests;
 mod app_game_policy_readiness_payload;
 #[cfg(test)]
 mod app_game_policy_readiness_payload_tests;
@@ -47,6 +52,9 @@ use self::app_game_boundary_read_model_payload::{
 };
 use self::app_game_notification_readiness_payload::{
     app_game_notification_readiness_from_service_model, app_game_notification_readiness_payload,
+};
+use self::app_game_policy_evaluation_payload::{
+    app_game_policy_evaluation_from_service_model, app_game_policy_evaluation_payload,
 };
 use self::app_game_policy_readiness_payload::{
     app_game_policy_readiness_from_service_model, app_game_policy_readiness_payload,
@@ -219,6 +227,30 @@ pub async fn build_activity_app_game_policy_readiness_report(
             command,
             constants::event_id::ACTIVITY_APP_GAME_POLICY_READINESS_READ_MODEL_REPORTED,
             AgentEventName::AgentActivityAppGamePolicyReadinessReadModelReported,
+        ),
+    }
+}
+
+pub async fn build_activity_app_game_policy_evaluation_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    match load_app_game_model().await {
+        Some(model) => {
+            let read_model = app_game_policy_evaluation_from_service_model(model);
+            build_event(
+                constants::event_id::ACTIVITY_APP_GAME_POLICY_EVALUATION_READ_MODEL_REPORTED,
+                &command.message_id,
+                command.source,
+                AgentEventName::AgentActivityAppGamePolicyEvaluationReadModelReported,
+                LogLevel::Info,
+                app_game_policy_evaluation_payload(&read_model),
+                None,
+            )
+        }
+        None => activity_store_error_event(
+            command,
+            constants::event_id::ACTIVITY_APP_GAME_POLICY_EVALUATION_READ_MODEL_REPORTED,
+            AgentEventName::AgentActivityAppGamePolicyEvaluationReadModelReported,
         ),
     }
 }

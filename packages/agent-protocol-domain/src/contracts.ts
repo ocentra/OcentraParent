@@ -210,6 +210,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.activity.games.read-model.get',
     'agent.activity.app-game.boundary.read-model.get',
     'agent.activity.app-game.policy-readiness.read-model.get',
+    'agent.activity.app-game.policy-evaluation.read-model.get',
     'agent.activity.app-game.notification-readiness.read-model.get',
     'agent.activity.network.read-model.get',
     'agent.activity.tracking.read-model.get',
@@ -279,6 +280,7 @@ export const AgentEventNameSchema = withParser(
     'agent.activity.games.read-model.reported',
     'agent.activity.app-game.boundary.read-model.reported',
     'agent.activity.app-game.policy-readiness.read-model.reported',
+    'agent.activity.app-game.policy-evaluation.read-model.reported',
     'agent.activity.app-game.notification-readiness.read-model.reported',
     'agent.activity.network.read-model.reported',
     'agent.activity.tracking.read-model.reported',
@@ -388,6 +390,9 @@ export const AgentCommand = {
   ActivityAppGamePolicyReadinessReadModelGet: AgentCommandNameSchema.parse(
     'agent.activity.app-game.policy-readiness.read-model.get'
   ),
+  ActivityAppGamePolicyEvaluationReadModelGet: AgentCommandNameSchema.parse(
+    'agent.activity.app-game.policy-evaluation.read-model.get'
+  ),
   ActivityAppGameNotificationReadinessReadModelGet: AgentCommandNameSchema.parse(
     'agent.activity.app-game.notification-readiness.read-model.get'
   ),
@@ -476,6 +481,9 @@ export const AgentEvent = {
   ),
   ActivityAppGamePolicyReadinessReadModelReported: AgentEventNameSchema.parse(
     'agent.activity.app-game.policy-readiness.read-model.reported'
+  ),
+  ActivityAppGamePolicyEvaluationReadModelReported: AgentEventNameSchema.parse(
+    'agent.activity.app-game.policy-evaluation.read-model.reported'
   ),
   ActivityAppGameNotificationReadinessReadModelReported: AgentEventNameSchema.parse(
     'agent.activity.app-game.notification-readiness.read-model.reported'

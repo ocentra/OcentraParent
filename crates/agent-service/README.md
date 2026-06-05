@@ -73,6 +73,12 @@ development paths and orchestrates runtime commands.
   `AppGameServiceReadModel` and exposing staged authority/classifier row
   counts plus citation refs without portal UI, policy, provider, or adapter
   claims.
+- Dedicated app/game policy evaluation reports through
+  `agent.activity.app-game.policy-evaluation.read-model.get`, backed by the
+  existing policy readiness read model and exposing dry-run time-limit,
+  approval-request, category/risk-review, and block-launch rows without parent
+  rule persistence, notification delivery, timers, enforcement handoff, adapter
+  dispatch, or platform claims.
 
 ## Must Not Own
 
@@ -143,6 +149,10 @@ flowchart LR
   app-use/games evidence vector, explicit count fields, and the dedicated
   backend boundary read-model event; portal rows, policy consumption, provider
   execution, and adapter proof remain separate gaps.
+- App/game policy evaluation output is dry-run read-model proof only; parent
+  rule authoring/persistence, portal rendering, notification delivery, timers,
+  child UX, adapter execution, broad blocking, and platform proof remain
+  separate gaps.
 - App/game source status rows are backend read-model summaries only; polished
   portal rendering, policy consumption, richer subscriptions, adapter
   execution, and broad blocking remain separate gaps.

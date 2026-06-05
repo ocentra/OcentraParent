@@ -191,6 +191,11 @@ control with better evidence and local audit.
   action history, platform authority, and AI classifier readiness rows from the
   existing app/game service model, keeps missing inputs visible as
   missing/manual-required, and fixes `adapterDispatchClaimed=false`.
+- The service now exposes a dedicated app/game policy evaluation read-model
+  command/event that consumes the existing policy readiness rows, reports
+  dry-run time-limit, approval-request, category/risk-review, and block-launch
+  rows, and fixes `dryRun=true`, `enforcementHandoffState=disabled`, and
+  `adapterDispatchClaimed=false`.
 - App/game notification intent contracts now represent parent notification
   readiness for time-limit, approval request, suspicious unknown,
   manual-required, and unavailable app/game states with evidence, policy, audit,
@@ -291,10 +296,14 @@ game-context candidates into soft/manual policy target inputs only when active
 category proof and supporting evidence refs exist. A service-backed policy
 readiness read model can now report whether the required evidence, approval
 authority, and platform authority rows are available before evaluator
-consumption, while action history/classifier gaps remain manual-required. Portal
-source/category/readiness rendering, local model quality/provider execution,
-policy evaluator consumption, runtime service policy evaluation, and platform
-enforcement remain unproved. Live
+consumption, while action history/classifier gaps remain manual-required. A
+service-backed policy evaluation read model now consumes those readiness rows
+for dry-run-only time-limit, approval-request, category/risk-review, and
+block-launch decisions while preserving disabled enforcement handoff and no
+adapter dispatch. Portal source/category/readiness/evaluation rendering, parent
+rule authoring/persistence, notification/child UX integration, local model
+quality/provider execution, timers, and platform enforcement remain unproved.
+Live
 process snapshots now replay through the local journal/SQLite path in core and
 through the service activity-capture journal/store path for bounded runtime
 rows; recurring service capture freshness is now proved, and the service
@@ -322,9 +331,10 @@ blocking.
 The native game budget proof is also contract-level: it does not yet provide a
 policy target compiler, live game budget authoring UI, service persistence,
 budget notifications, or adapter execution.
-The app/game policy target compiler proof is contract-level: it does not yet
-provide runtime service evaluation, Rust/WebSocket parity, portal rule
-authoring, timer integration, notifications, rollback, or adapter execution.
+The app/game policy target compiler proof is contract-level, and the
+service-backed evaluator read model is dry-run read-model proof only: together
+they still do not provide parent rule authoring, durable policy persistence,
+timer integration, notifications, rollback, or adapter execution.
 The app/game time-budget proof is contract-level: it does not yet provide
 runtime service evaluation, Rust/WebSocket parity, portal budget authoring,
 notification delivery, child request UX, service persistence, adapter
@@ -384,8 +394,10 @@ execution, adapter dispatch, broad blocking, or platform support.
       policy-routing contracts now map category/risk candidates into matching
       compiler target kinds without adapter dispatch. The service now has a
       policy readiness read-model command/event for required app/game policy
-      input row availability, but live evaluator, authoring UI, persistence,
-      timers, and enforcement remain. Rust protocol
+      input row availability plus a policy evaluation read-model command/event
+      for dry-run-only time-limit, approval-request, category/risk-review, and
+      block-launch rows, but authoring UI, persistence, timers, notification
+      integration, child UX, and enforcement remain. Rust protocol
       parity now exists for approval authority/action-result, platform
       authority matrix, and classifier boundary shapes, and staged
       journal/SQLite projection plus service read-model evidence refs/counts

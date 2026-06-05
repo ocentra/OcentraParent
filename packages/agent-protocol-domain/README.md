@@ -32,6 +32,10 @@ transports.
 - App/game notification readiness read-model command/event names, payload
   field, parser, and no-claim booleans for service-backed local notification
   intent readiness rows.
+- App/game policy readiness and policy evaluation read-model command/event
+  names plus `appGamePolicyReadinessReadModel` and
+  `appGamePolicyEvaluationReadModel` payload fields for service-backed dry-run
+  proof paths.
 - Activity app-use and games read-model event parsing for backend-owned
   app/game source freshness rows, while product semantics stay in
   `activity-domain`.
@@ -110,3 +114,7 @@ flowchart LR
   parent notification UI, child delivery, policy evaluator execution, adapter
   dispatch, broad blocking, and platform support remain separate proof-gated
   work.
+- App/game policy evaluation parsing proves dry-run service payload shape only;
+  parent rule authoring/persistence, portal rendering, notification delivery,
+  timers, adapter execution, broad blocking, and platform support remain
+  separate proof-gated work.

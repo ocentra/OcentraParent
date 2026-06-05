@@ -57,6 +57,7 @@ before `DONE` or PR-ready reporting.
 49. WP52 policy readiness service read model.
 50. WP53 app/game notification intent contract.
 51. WP56 app/game notification service read model.
+52. WP57 policy evaluator service read model.
 
 ## Standard AI Worker Checklist
 

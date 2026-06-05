@@ -24,6 +24,7 @@ const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['ActivityGamesReadModelGet', 'agent.activity.games.read-model.get'],
   ['ActivityAppGameBoundaryReadModelGet', 'agent.activity.app-game.boundary.read-model.get'],
   ['ActivityAppGamePolicyReadinessReadModelGet', 'agent.activity.app-game.policy-readiness.read-model.get'],
+  ['ActivityAppGamePolicyEvaluationReadModelGet', 'agent.activity.app-game.policy-evaluation.read-model.get'],
   ['ActivityAppGameNotificationReadinessReadModelGet', 'agent.activity.app-game.notification-readiness.read-model.get'],
   ['ActivityNetworkReadModelGet', 'agent.activity.network.read-model.get'],
   ['ActivityTrackingReadModelGet', 'agent.activity.tracking.read-model.get'],
@@ -85,6 +86,7 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
   ['ActivityGamesReadModelReported', 'agent.activity.games.read-model.reported'],
   ['ActivityAppGameBoundaryReadModelReported', 'agent.activity.app-game.boundary.read-model.reported'],
   ['ActivityAppGamePolicyReadinessReadModelReported', 'agent.activity.app-game.policy-readiness.read-model.reported'],
+  ['ActivityAppGamePolicyEvaluationReadModelReported', 'agent.activity.app-game.policy-evaluation.read-model.reported'],
   [
     'ActivityAppGameNotificationReadinessReadModelReported',
     'agent.activity.app-game.notification-readiness.read-model.reported',
@@ -336,6 +338,7 @@ function expectReadModelBridgeAndActivityFields() {
   expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
   expect(AgentProtocolDefaults.Field.ActivityDigest).toBe('activityDigest');
   expect(AgentProtocolDefaults.Field.ActivityTrackingReadModel).toBe('trackingReadModel');
+  expect(AgentProtocolDefaults.Field.ActivityAppGamePolicyEvaluationReadModel).toBe('appGamePolicyEvaluationReadModel');
   expect(AgentProtocolDefaults.Field.ActivityAppGameNotificationReadinessReadModel).toBe(
     'appGameNotificationReadinessReadModel'
   );

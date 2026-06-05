@@ -45,6 +45,10 @@
       "import": "./dist/app-game-policy-readiness.js",
       "types": "./dist/app-game-policy-readiness.d.ts"
     },
+    "./app-game-policy-evaluation": {
+      "import": "./dist/app-game-policy-evaluation.js",
+      "types": "./dist/app-game-policy-evaluation.d.ts"
+    },
     "./app-game-notification-readiness": {
       "import": "./dist/app-game-notification-readiness.js",
       "types": "./dist/app-game-notification-readiness.d.ts"
