@@ -128,6 +128,13 @@ Expected contract families:
   execution, store integration, platform adapter implementation, child-device
   delivery, runtime report delivery, real interception, child activity data
   custody, app blocking, or Ocentra-hosted family data custody.
+- Parent action delivery readiness proof rows link parent action runtime handoff
+  rows to child-device delivery runtime-writer envelope rows without claiming
+  parent action runtime delivery, runtime writer execution, runtime writer
+  delivery, provider API execution, store integration, platform adapter
+  implementation, child-device delivery, runtime report delivery, real
+  interception, child activity data custody, app blocking, or Ocentra-hosted
+  family data custody.
 
 ## Validation Gates
 
@@ -196,6 +203,11 @@ Expected contract families:
   rejection, runtime writer/provider/store/adapter/parent action/child
   delivery/report delivery/custody/interception/app-blocking overclaim
   rejection, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for parent action delivery
+  readiness rows, missing parent action handoff/child envelope/audit/report
+  coverage rejection, parent action delivery/runtime writer/provider/store/
+  adapter/child delivery/report delivery/custody/interception/app-blocking
+  overclaim rejection, and required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -258,6 +270,12 @@ Expected contract families:
   custody.
 - Do not treat child-device delivery runtime writer proof refs as runtime
   writer execution, runtime writer delivery, parent action runtime delivery,
+  provider/store API execution, store integration, platform adapter
+  implementation, child-device delivery, runtime report delivery, child
+  activity custody, interception, app blocking, or Ocentra-hosted family data
+  custody.
+- Do not treat parent action delivery readiness proof refs as parent action
+  runtime delivery, runtime writer execution, runtime writer delivery,
   provider/store API execution, store integration, platform adapter
   implementation, child-device delivery, runtime report delivery, child
   activity custody, interception, app blocking, or Ocentra-hosted family data
