@@ -105,6 +105,15 @@ expose location or device-status features. Parents expect this category.
   model, keeps AI as non-authoritative evidence, and explicitly rejects
   emergency auto-contact, provider delivery, child-device delivery, parent UI,
   production worker, and physical-device claims.
+- WP28 temporary live tracking mode proof now exists through
+  `node scripts/test/tracking-temporary-live-mode-proof.mjs`. It derives
+  parent-authorized active, battery-degraded, permission-degraded, expired
+  auto-stop, retention-delete-ready, and manual-required rows from the existing
+  temporary live tracking grants, keeps duration/cadence, audit, policy,
+  evidence, degraded-state, and retention refs attached, and explicitly rejects
+  live/current/background location runtime, provider delivery, remote relay,
+  parent portal live-map runtime, child-device delivery, production worker, and
+  physical-device claims.
 - WP20 Google Places/POI provider adapter proof now exists through
   `node scripts/test/tracking-poi-provider-adapter-proof.mjs`. It builds a
   bounded Google Places Nearby Search request contract with a production-safe
@@ -166,8 +175,10 @@ disclosure/safe-help/location-share consent copy, P1 local parent-defined place
 store proof, pre-device proof-gate progress, Android emulator package/service/status
 scaffold proof, P3 WSL/local replay proof, P1 evidence-quality gate proof, WP26
 tracking alert-to-provider-status handoff proof, P1 escalation readiness proof
-for acknowledgement/check-in/manual escalation states, and WP20 Google
-Places/POI provider request/response mapping proof. It remains a tracked
+for acknowledgement/check-in/manual escalation states, WP28 temporary live
+tracking mode proof for authorization/duration/cadence/degraded/auto-stop/
+retention states, and WP20 Google Places/POI provider request/response mapping
+proof. It remains a tracked
 product gap until platform location and geofence adapters, broader product read
 models, actual live provider execution/delivery, notification receipt ingestion,
 physical-device proof, actual child-device delivery/runtime execution, and full
@@ -204,6 +215,11 @@ proved.
       check-in resolution, urgent second-guardian manual readiness, critical
       multi-channel manual readiness, AI non-authority, and no emergency
       auto-contact.
+- [x] WP28 P1 temporary live tracking mode proof for parent authorization,
+      child disclosure, bounded duration/cadence, battery/permission degraded
+      states, auto-stop, retention-delete readiness, and no live runtime,
+      provider, relay, parent live-map, child-device, production worker, or
+      physical-device claims.
 - [x] Nearby-place ambiguity, Google Places/POI provider adapter request/
       response mapping, and AI safety evidence contracts. Live provider
       execution/credentials and exact-place/physical-device proof remain

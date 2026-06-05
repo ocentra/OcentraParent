@@ -166,7 +166,10 @@ mobile readiness, and control catalogs.
   meaning belongs in TypeScript first.
 - Tracking location policy, AI routing, acknowledgement, child check-in, alert
   intent, escalation, temporary live, and missing-device product contracts plus
-  P1 acknowledgement/check-in runtime helper proof.
+  P1 acknowledgement/check-in runtime helper proof and P1 temporary live mode
+  proof for parent authorization, duration/cadence, degraded states,
+  auto-stop, retention readiness, and explicit runtime/device/provider
+  non-claims.
 
 ## Must Not Own
 
@@ -212,8 +215,10 @@ flowchart LR
 - Social/message/video controls need explicit product contracts, privacy
   boundaries, and platform source rules.
 - Location/geofence/SOS/battery now has tracking contract proof plus P1
-  acknowledgement/check-in helper proof; platform adapters, provider delivery,
-  notification delivery, and live UI proof remain open.
+  acknowledgement/check-in helper proof and temporary live mode proof; platform
+  adapters, provider delivery, notification delivery, child-device delivery,
+  physical-device proof, production temporary-live workers, and live UI proof
+  remain open.
 - Store/install approval and purchase controls now have contract, package-source
   artifact, runtime-boundary, platform-artifact, child-artifact-delivery, and
   approved API/entitlement evidence plus report-runtime status, platform
