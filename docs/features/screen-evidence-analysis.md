@@ -325,6 +325,12 @@ only with explicit parent settings.
   dry-run policy refs, local runtime refs, audit evidence refs, and
   `screen-image-deleted` custody while keeping raw image retention, remote/API
   AI, portal runtime UI, policy authority, and enforcement unclaimed.
+- `ScreenSummaryParentExplanationReadModelSnapshotSchema` and
+  `scripts/test/screen-summary-parent-explanation-read-model-proof.mjs` now turn
+  those local-only parent explanation rows into a parent-visible read model that
+  preserves screen-summary refs, audit refs, parent rules, dry-run policy refs,
+  runtime refs, custody, and deletion state without showing raw screenshots or
+  claiming production portal runtime rendering.
 - Service-persisted product settings, retention controls, and quality proof are
   incomplete.
 - Raw screen control settings are preserved as design inputs, not
@@ -343,7 +349,7 @@ foreground watcher, physical Android/iOS proof, live macOS capture proof, Linux
 root/Wayland portal proof, browser-trigger artifact closure,
 browser/network/mobile/broad block action adapters from screen-derived
 decisions, real family AI hub runtime/discovery, and production parent
-explanation UX remain. Browser-trigger proof now covers contract flow into
+explanation UX/runtime portal consumption remain. Browser-trigger proof now covers contract flow into
 screen evidence and local-AI context only; live trigger producers,
 authenticated surfaces, cloud-streamed frames, mobile parity, and UI remain
 separate proof gates.
@@ -381,6 +387,9 @@ separate proof gates.
 - [x] Screen-summary parent explanation/audit context cites local OCR replay
       refs, parent rules, dry-run policy refs, and deleted-image custody without
       remote AI or enforcement claims.
+- [x] Screen-summary parent explanation read-model proof preserves refs,
+      custody, and deleted-image state without raw screenshot display or portal
+      runtime claims.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof, broad
