@@ -51,7 +51,14 @@ stored app/game evidence, session-summary, foreground, process-correlation, and
 launcher refs to confirm foreground or running sessions, keeps launcher-only
 rows guarded, keeps candidates review-only, preserves missing/unavailable
 states, and rejects exact URL, screen-content, AI-device-scanner, policy,
-adapter, and enforcement-command claims. Category lookup
+adapter, and enforcement-command claims. Screen-summary trigger planning queues
+a screen-summary job only when the evidence cascade recommends screen
+confirmation and parent settings, local encrypted queue, delete-after-analysis,
+local runtime, debounce, and protected-surface guards allow it. Disabled,
+queue-unavailable, custody-manual-required, protected-surface, debounced, and
+not-recommended states remain explicit, and raw-image retention, remote upload,
+screen content, policy, adapter, and enforcement-command claims are rejected.
+Category lookup
 matches exact or registrable domains against source-custody records, reports
 freshness/staleness, and rejects unsigned or older category snapshot updates. The
 social/video/game classifier uses fresh domain categories directly, keeps
@@ -179,12 +186,14 @@ Live Npcap/libpcap driver invocation and packet capture, full vendor category
 feeds, production CDN intelligence, unmanaged browser exact URL or active-tab
 correlation, unmanaged browser adapter action or process termination, foreground
 session live adapter implementation, app/game policy evaluation, process
-termination, time-limit execution, live network adapter enforcement,
-file/content inspection, local-AI model execution/worker runtime, production
-model-quality monitoring, production SLO validation, full policy engine
-execution, notification provider delivery, portal AI audit UI, risk-budget, or
-performance rendering, live WFP driver/callout proof, live adapter execution,
-Android physical-device behavior, Apple entitlement/device behavior, Linux
-distro/kernel adapter behavior, live Zeek/TShark/Wireshark/Suricata/Snort
-execution, full support-material authoring, external audit execution, production
-deployment, and portal rendering remain separate proof-gated workpacks.
+termination, time-limit execution, screen capture adapter execution, OCR/VLM
+execution, screen analysis result creation, raw image retention, remote upload,
+live network adapter enforcement, file/content inspection, local-AI model
+execution/worker runtime, production model-quality monitoring, production SLO
+validation, full policy engine execution, notification provider delivery, portal
+AI audit UI, risk-budget, or performance rendering, live WFP driver/callout
+proof, live adapter execution, Android physical-device behavior, Apple
+entitlement/device behavior, Linux distro/kernel adapter behavior, live
+Zeek/TShark/Wireshark/Suricata/Snort execution, full support-material authoring,
+external audit execution, production deployment, and portal rendering remain
+separate proof-gated workpacks.

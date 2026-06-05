@@ -149,6 +149,13 @@ compete on control while staying clear about attribution confidence and privacy.
   review-only, missing/unavailable states stay explicit, and exact URL,
   screen-content, AI-device-scanner, policy, adapter, and enforcement-command
   claims are rejected.
+- E-D added deterministic screen-summary trigger planning in
+  `ocentra-network-evidence`: a network cascade can queue a screen-summary job
+  only when screen confirmation is recommended and parent settings, local
+  encrypted queue, deletion, local runtime, debounce, and protected-surface
+  guards allow it. Disabled/unavailable/manual-required states stay explicit,
+  and raw-image retention, remote upload, screen content, policy, adapter, and
+  enforcement-command claims are rejected.
 - E-D added a deterministic evidence cascade router in
   `ocentra-network-evidence`: confirmed/candidate/weak signals are ranked,
   weak hints route to managed-browser/process/screen/local-AI next checks, and
@@ -443,6 +450,9 @@ execution, and platform adapter execution remain open.
 - [x] App/game foreground/session correlation consumes stored evidence refs and
       keeps launcher-only and candidate rows non-authoritative before any policy,
       adapter, service, or portal claim.
+- [x] Screen-summary trigger integration is parent-enabled and local-custody
+      gated, with no raw-image retention, remote upload, policy, adapter, or
+      enforcement authority.
 
 ## Next AI Instructions
 
