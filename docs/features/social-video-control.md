@@ -126,7 +126,12 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   policy/approval/time-limit refs. They model route action candidates while
   rejecting browser block/redirect/CSS hide/tab close execution, applied time
   limits, UI delivery, final policy, content capture, recommendation modeling,
-  connector/native claims, and enforcement.
+  connector/native claims, and enforcement. Live proof now uses Playwright
+  against real public Reddit, Twitch, TikTok, Instagram, YouTube, and Vimeo
+  surfaces, stores screenshots plus redacted hashes/statuses, and validates five
+  route-gate candidate plans through the built contracts without storing raw
+  page bodies, DOM, titles, credentials, form submissions, feed semantics, or
+  video content.
 - Browser-plan SOCIAL-15 now adds unmanaged social bypass detector contracts.
   They turn redacted unmanaged/browser-like process evidence into bypass-only
   managed-browser-required social evidence while rejecting exact URLs, route

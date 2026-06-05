@@ -735,7 +735,11 @@ policy/approval/time-limit refs. The plans keep route allow/warn/parent-review/
 block/limit/manual/unknown actions as candidates and reject browser block,
 redirect, CSS/DOM hide, tab close, applied time limit, UI, final policy,
 content capture, recommendation modeling, native app, connector, enforcement,
-and product checklist claims.
+and product checklist claims. SOCIAL-14 live proof now drives Playwright against
+real public Reddit, Twitch, TikTok, Instagram, YouTube, and Vimeo surfaces,
+persists screenshots plus hashes/statuses only, and validates five route-gate
+plans through the built activity-domain contracts while keeping the YouTube
+redirect/non-match as an explicit non-planned live capture.
 SOCIAL-15 now adds unmanaged social bypass detector contracts from redacted
 unmanaged/browser-like process evidence. The evidence is bypass-only and
 managed-browser-required, rejecting exact URLs, social route/account/feed/video/
