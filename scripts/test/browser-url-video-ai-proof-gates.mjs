@@ -7,7 +7,7 @@ const outputDirectory = join(root, 'output', 'browser-plan-proof', 'ai-25-proof-
 const resultDirectory = join(root, 'test-results', 'browser-url-video-ai-proof-gates');
 const proofRoot = join(root, 'output', 'browser-plan-proof');
 
-const partialRows = new Set([19, 20, 21, 22, 23, 24]);
+const partialRows = new Set([19, 20]);
 const requiredProofFiles = ['00-source-snapshot.md', '08-security-negative-proof.md', '10-validation-commands.log'];
 const rolloutGuardTexts = [
   'AI cannot enforce directly.',

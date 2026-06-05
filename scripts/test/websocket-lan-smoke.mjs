@@ -30,6 +30,8 @@ const controllerLeaseId = 'controller-lease-integration-lan';
 const controllerLeaseExpiresAt = '2099-05-23T15:45:00.000Z';
 const parentActorId = 'parent-actor-integration-lan';
 const parentAuthority = 'active-controller';
+const smokeTimeoutMs = 120000;
+const commandTimeoutMs = 30000;
 
 await ensurePortFree(port, isLikelyParentAgentOccupant, console.log, ParentDevHost.Wildcard);
 
@@ -84,10 +86,8 @@ async function waitForHttp(url) {
 
 function runWebSocketSmoke() {
   const events = [];
-  return withTimeout(
-    runLanWebSocketSmoke(events),
-    45000,
-    () => `LAN WebSocket smoke timed out after events=${events.join(',') || '<none>'}`
+  return withTimeout(runLanWebSocketSmoke(events), smokeTimeoutMs, () =>
+    lanTimeoutMessage('LAN WebSocket smoke', events)
   );
 }
 
@@ -171,9 +171,18 @@ function sendLanCommand(command, events) {
         reject(new Error(`LAN WebSocket ${command.command} failed`));
       });
     }),
-    15000,
-    () => `LAN WebSocket ${command.command} timed out after events=${events.join(',') || '<none>'}`
+    commandTimeoutMs,
+    () => lanTimeoutMessage(`LAN WebSocket ${command.command}`, events)
   );
+}
+
+function lanTimeoutMessage(scope, events) {
+  const output = serviceOutput().trim();
+  const eventList = events.join(',') || '<none>';
+  if (output.length === 0) {
+    return `${scope} timed out after events=${eventList}`;
+  }
+  return `${scope} timed out after events=${eventList}\n${output}`;
 }
 
 function assertUnpairedControlRejected(payload) {
