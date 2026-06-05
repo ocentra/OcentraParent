@@ -91,7 +91,7 @@
     "test": "npm run test:tooling && npm run test:unit && npm run test:contract",
     "format:rust": "cargo fmt --all --check",
     "lint:rust": "cargo clippy --workspace --all-targets -- -D warnings",
-    "validate:rust": "npm run format:rust && npm run lint:rust && cargo check --workspace && cargo test --workspace",
+    "validate:rust": "npm run format:rust && npm run lint:rust && cargo check --workspace && cargo test --workspace -- --test-threads=1",
     "validate": "npm run release:version && npm run test:pre-ai-proof && npm run lint && npm run test && npm run validate:rust && npm run test:integration && npm run test:e2e",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

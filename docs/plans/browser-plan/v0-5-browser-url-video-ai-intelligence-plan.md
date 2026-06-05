@@ -929,20 +929,23 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   parent-approved remote route proofs with one visible/auditable result. Local,
   family-hub, and remote selections must match the selected route runtime;
   remote selections also require explicit parent approval and local safety
-  fallback. Metadata-only and no-AI fallbacks keep runtime refs null and expose
-  fallback action/reason labels. Decisions reject hidden fallback, claimed AI
-  analysis results, claimed policy decisions, disabled local safety, remote
-  default blocking, and remote outage disables local safety. Public
-  package/barrel exports remain pending source/package coordination; no model
-  execution, policy evaluator, UI, enforcement, runtime delivery, or product
+  fallback, and no selected local or family-hub route. Metadata-only and no-AI
+  fallbacks keep runtime refs null and expose fallback action/reason labels.
+  Decisions reject hidden fallback, claimed AI analysis results, claimed policy
+  decisions, disabled local safety, remote default blocking, remote outage
+  disables local safety, selected remote fallback while local or family hub is
+  already selected, and selected runtime mismatches. Activity-domain package
+  subpath exports and the AI-24 proof pack are present; no model execution,
+  provider call, policy evaluator, UI, enforcement, runtime delivery, or product
   checklist update is claimed.
 - AI-25 now adds a deterministic proof-gate script in
   `scripts/test/browser-url-video-ai-proof-gates.mjs`. The gate validates AI-01
   through AI-24 checklist status/owner/proof-directory references, required
   source/security/validation proof files, UI-not-applicable markers where
   applicable, plan checkpoint mentions, and critical no-claim rollout guard
-  text. Its generated manifest records 18 contract-proof rows and six
-  partial/manual-required rows, with product rollout still
+  text. Its refreshed generated manifest records 22 contract-proof rows and two
+  partial/manual-required rows: AI-19 and AI-20 remain partial because rendered
+  child/parent UI delivery is still unclaimed. Product rollout remains
   partial/manual-required. No runtime model execution, UI delivery, policy
   authority, enforcement, package export completion, or product checklist update
   is claimed.

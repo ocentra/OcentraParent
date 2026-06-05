@@ -159,6 +159,8 @@ function familyHubFallbackIsConsistent(value: Infer<typeof BrowserAiProviderFall
 function remoteFallbackIsConsistent(value: Infer<typeof BrowserAiProviderFallbackDecisionBaseSchema>) {
   return (
     value.remoteRoute !== null &&
+    value.localProviderRoute.executionState !== 'selected' &&
+    !familyHubRouteIsSelected(value.familyHubRoute) &&
     value.remoteRoute.executionState === 'selected' &&
     value.remoteRoute.parentExplicitRemoteApproval &&
     value.remoteRoute.localSafetyFallbackAvailable &&
