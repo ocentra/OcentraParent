@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-05T07:57:01.149Z",
+  "workpackId": "28-temporary-live-tracking-mode",
+  "requiredProofTier": "P1_FIXTURE_SIMULATION",
+  "currentProofTier": "P1_FIXTURE_SIMULATION",
+  "currentStatus": "simulated",
+  "productClaimReady": false,
+  "missingProofReason": "P1 proof covers bounded runtime state transitions only; Android/iOS live sampling and physical-device behavior remain unclaimed.",
+  "payload": {
+    "active": {
+      "schemaVersion": 1,
+      "sessionId": "temporary-live-session-1",
+      "childDeviceId": "child-device-1",
+      "evaluatedAt": "2026-06-03T02:05:00.000Z",
+      "expiresAt": "2026-06-03T03:00:00.000Z",
+      "parentAuthorizationRef": "parent-approved-live-session",
+      "parentStopRequestedAt": null,
+      "state": "active",
+      "capabilityStatus": "live",
+      "permissionState": "granted-foreground",
+      "stopReason": "none",
+      "cadenceSeconds": 60,
+      "nextSampleDueAt": "2026-06-03T02:06:00.000Z",
+      "locationEvidenceId": "location-evidence-1",
+      "deviceStatusEvidenceId": "device-status-1",
+      "retentionMode": "delete-on-resolution",
+      "disclosureRequired": true,
+      "productClaimReady": false,
+      "reasonCodes": [
+        "temporary-live-active-parent-authorized"
+      ],
+      "auditRefs": [
+        "temporary-live-parent-approved"
+      ],
+      "evidence": [
+        {
+          "evidenceId": "tracking-journal-row-1",
+          "kind": "journal-entry",
+          "digest": "sha256:tracking-proof",
+          "uri": null
+        },
+        {
+          "evidenceId": "tracking-journal-row-1",
+          "kind": "journal-entry",
+          "digest": "sha256:tracking-proof",
+          "uri": null
+        }
+      ]
+    },
+    "expired": {
+      "schemaVersion": 1,
+      "sessionId": "temporary-live-session-1",
+      "childDeviceId": "child-device-1",
+      "evaluatedAt": "2026-06-03T03:00:00.000Z",
+      "expiresAt": "2026-06-03T03:00:00.000Z",
+      "parentAuthorizationRef": "parent-approved-live-session",
+      "parentStopRequestedAt": null,
+      "state": "expired",
+      "capabilityStatus": "stale",
+      "permissionState": "granted-foreground",
+      "stopReason": "duration-expired",
+      "cadenceSeconds": 60,
+      "nextSampleDueAt": null,
+      "locationEvidenceId": "location-evidence-1",
+      "deviceStatusEvidenceId": "device-status-1",
+      "retentionMode": "delete-on-resolution",
+      "disclosureRequired": true,
+      "productClaimReady": false,
+      "reasonCodes": [
+        "temporary-live-duration-expired"
+      ],
+      "auditRefs": [
+        "temporary-live-parent-approved"
+      ],
+      "evidence": [
+        {
+          "evidenceId": "tracking-journal-row-1",
+          "kind": "journal-entry",
+          "digest": "sha256:tracking-proof",
+          "uri": null
+        },
+        {
+          "evidenceId": "tracking-journal-row-1",
+          "kind": "journal-entry",
+          "digest": "sha256:tracking-proof",
+          "uri": null
+        }
+      ]
+    },
+    "stopped": {
+      "schemaVersion": 1,
+      "sessionId": "temporary-live-session-1",
+      "childDeviceId": "child-device-1",
+      "evaluatedAt": "2026-06-03T02:10:00.000Z",
+      "expiresAt": "2026-06-03T03:00:00.000Z",
+      "parentAuthorizationRef": "parent-approved-live-session",
+      "parentStopRequestedAt": "2026-06-03T02:09:00.000Z",
+      "state": "stopped",
+      "capabilityStatus": "disabled-by-parent",
+      "permissionState": "granted-foreground",
+      "stopReason": "parent-stopped",
+      "cadenceSeconds": 60,
+      "nextSampleDueAt": null,
+      "locationEvidenceId": "location-evidence-1",
+      "deviceStatusEvidenceId": "device-status-1",
+      "retentionMode": "delete-on-resolution",
+      "disclosureRequired": true,
+      "productClaimReady": false,
+      "reasonCodes": [
+        "temporary-live-parent-stopped"
+      ],
+      "auditRefs": [
+        "temporary-live-parent-approved"
+      ],
+      "evidence": [
+        {
+          "evidenceId": "tracking-journal-row-1",
+          "kind": "journal-entry",
+          "digest": "sha256:tracking-proof",
+          "uri": null
+        },
+        {
+          "evidenceId": "tracking-journal-row-1",
+          "kind": "journal-entry",
+          "digest": "sha256:tracking-proof",
+          "uri": null
+        }
+      ]
+    },
+    "lowPower": {
+      "schemaVersion": 1,
+      "sessionId": "temporary-live-session-1",
+      "childDeviceId": "child-device-1",
+      "evaluatedAt": "2026-06-03T02:06:00.000Z",
+      "expiresAt": "2026-06-03T03:00:00.000Z",
+      "parentAuthorizationRef": "parent-approved-live-session",
+      "parentStopRequestedAt": null,
+      "state": "degraded",
+      "capabilityStatus": "battery-throttled",
+      "permissionState": "granted-foreground",
+      "stopReason": "battery-throttled",
+      "cadenceSeconds": 60,
+      "nextSampleDueAt": null,
+      "locationEvidenceId": "location-evidence-1",
+      "deviceStatusEvidenceId": "device-status-low-power",
+      "retentionMode": "delete-on-resolution",
+      "disclosureRequired": true,
+      "productClaimReady": false,
+      "reasonCodes": [
+        "temporary-live-battery-throttled"
+      ],
+      "auditRefs": [
+        "temporary-live-parent-approved"
+      ],
+      "evidence": [
+        {
+          "evidenceId": "tracking-journal-row-1",
+          "kind": "journal-entry",
+          "digest": "sha256:tracking-proof",
+          "uri": null
+        },
+        {
+          "evidenceId": "tracking-journal-row-1",
+          "kind": "journal-entry",
+          "digest": "sha256:tracking-proof",
+          "uri": null
+        }
+      ]
+    },
+    "unboundedAuthorizationRejected": true
+  }
+}

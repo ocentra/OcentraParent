@@ -1,10 +1,7 @@
 # 28-temporary-live-tracking-mode Source Snapshot
 
-- checkedAt: 2026-06-03T17:22:17.415Z
-- commit: 8467bedfff418ab63a16d066e84bab527ec340f6
-- proofState: contract-proof-partial
-- summary: Temporary live grant state contract exists; live adapter, expiry runtime, and UI proof remain pending.
-- activity contracts: packages/activity-domain/src/tracking.ts
-- parent contracts: packages/parent-domain/src/tracking-location-policy.ts
-- activity tests: packages/activity-domain/tests/tracking.test.ts
-- parent tests: packages/parent-domain/tests/tracking-location-policy.test.ts
+- checkedAt: 2026-06-05T07:57:01.149Z
+- commit: f384d39a594bbbc43c9271c92645e724638d3f6d
+- source: packages/activity-domain/src/tracking-temporary-live.ts
+- test: packages/activity-domain/tests/tracking-temporary-live.test.ts
+- command: npm run test:tracking-plan-temporary-live-runtime-proof

@@ -100,6 +100,15 @@ expose location or device-status features. Parents expect this category.
   parent-defined safe and restricted places, keeps default storage
   parent-device-local with remote sync disabled, and writes artifacts under
   `output/tracking-plan-proof/22-local-parent-defined-place-database/`.
+- P1 temporary live tracking runtime proof now exists through
+  `npm run test:tracking-plan-temporary-live-runtime-proof`. It proves
+  parent authorization refs, bounded duration and cadence, expiry stop state,
+  parent stop state, low-power degraded state, retention mode, and
+  `productClaimReady=false` through real activity-domain contracts and runtime
+  helpers. Artifacts are under
+  `output/tracking-plan-proof/28-temporary-live-tracking-mode/`. This is not
+  Android/iOS live sampling, child-device delivery/runtime UI, notification
+  delivery, provider delivery, or physical-device proof.
 - Android emulator package/service/status proof now exists through
   `npm run test:tracking-plan-android-emulator-proof`. It builds the Android
   debug APK, installs and launches it on an emulator, captures foreground
@@ -137,8 +146,9 @@ summary-consumption proof, live service-backed portal citation rows, hosted
 parent route service-data coverage, hosted parent route screenshot/accessibility
 proof with hosted child-safe check-in copy/actions and hosted child-runtime
 disclosure/safe-help/location-share consent copy, P1 local parent-defined place
-store proof, pre-device proof-gate progress, Android emulator package/service/status
-scaffold proof, P3 WSL/local replay proof, and P1 evidence-quality gate proof.
+store proof, P1 temporary live runtime proof, pre-device proof-gate progress,
+Android emulator package/service/status scaffold proof, P3 WSL/local replay
+proof, and P1 evidence-quality gate proof.
 It remains a tracked product gap until platform location and geofence adapters,
 broader product read models, provider delivery, notifications, physical-device
 proof, actual child-device delivery/runtime execution, and full parent/child UI
@@ -176,6 +186,9 @@ snapshots/accessibility beyond the hosted parent route are proved.
       capability, and active/deleted evidence references.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
+- [x] P1 temporary live tracking runtime proof for parent authorization,
+      bounded duration/cadence, expiry, parent stop, low-power degradation,
+      and no product claim.
 - [x] P3 WSL/local replay proof for the tracking read-model proof stack and
       linked-worktree toolchain mapping.
 - [x] P1 parent portal tracking-state fixture surface, local parent-route screenshot,

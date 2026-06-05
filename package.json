@@ -67,6 +67,7 @@
     "test:tracking-plan-hosted-ui-proof": "node scripts/test/tracking-plan-hosted-ui-proof.mjs",
     "test:tracking-plan-evidence-quality-gate-proof": "node scripts/test/tracking-plan-evidence-quality-gate-proof.mjs",
     "test:tracking-plan-service-data-ui-proof": "node scripts/test/tracking-plan-service-data-ui-proof.mjs",
+    "test:tracking-plan-temporary-live-runtime-proof": "node scripts/test/tracking-plan-temporary-live-runtime-proof.mjs",
     "test:child-android-protocol-package-lifecycle-proof": "node scripts/test/child-android-protocol-package-lifecycle-proof.mjs",
     "test:child-android-permission-capability-proof": "node scripts/test/child-android-permission-capability-proof.mjs",
     "test:child-android-privileged-capability-proof": "node scripts/test/child-android-privileged-capability-proof.mjs",

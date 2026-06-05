@@ -27,15 +27,27 @@ Proof root: `output/tracking-plan-proof/28-temporary-live-tracking-mode/`
 
 ## AI Worker Checklist
 
-- [ ] Require parent authorization and duration.
-- [ ] Model cadence, max duration, and auto-stop reason.
-- [ ] Preserve battery/permission degraded states.
-- [ ] Audit start/update/degrade/stop.
-- [ ] Test expiry and deletion/retention behavior.
+- [x] Require parent authorization and duration.
+- [x] Model cadence, max duration, and auto-stop reason.
+- [x] Preserve battery/permission degraded states.
+- [ ] Audit start/update/degrade/stop. P1 runtime state now carries parent
+      approval/stop audit refs and degradation reason codes; live update
+      delivery audit remains pending.
+- [ ] Test expiry and deletion/retention behavior. P1 expiry and retention-mode
+      state proof exists; platform deletion and live retention settings UI
+      remain pending.
 
 ## Where We Are
 
-This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+This workpack has focused contract proof from `codex/tracking-plan-full-scope`
+under the proof root below. Branch
+`codex/tracking-temporary-live-runtime-proof` adds P1 runtime proof through
+`npm run test:tracking-plan-temporary-live-runtime-proof`: parent authorization
+refs, bounded duration/cadence, expiry, parent stop, low-power degraded state,
+retention mode, and `productClaimReady=false` are proved with real
+activity-domain contracts and runtime helpers. Platform live sampling, provider
+delivery, notification delivery, child-device runtime UI, full product UI, and
+physical-device behavior are not claimed.
 
 ## Where We Want To Be
 
@@ -68,3 +80,19 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Proof artifacts under `output/tracking-plan-proof/28-temporary-live-tracking-mode/`.
 - [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
 - [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Workpack id and branch:
+      `codex/tracking-temporary-live-runtime-proof`.
+- [x] Touched files: activity-domain temporary-live runtime contracts/tests,
+      proof script, root script wiring, tracking feature doc, implementation
+      checklist, this workpack doc, and generated WP28 proof artifacts.
+- [x] Validation commands and results:
+      `npm run test:tracking-plan-temporary-live-runtime-proof` passed locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/28-temporary-live-tracking-mode/`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and this workpack updated; central capability row delta queued
+      through the hub instead of editing `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: Android/iOS live sampling,
+      child-device runtime UI, full product UI, provider delivery,
+      notification delivery, physical-device proof, authority, and production
+      proof remain proof-gated.

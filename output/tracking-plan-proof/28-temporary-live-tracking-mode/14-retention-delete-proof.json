@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-05T07:57:01.149Z",
+  "workpackId": "28-temporary-live-tracking-mode",
+  "requiredProofTier": "P1_FIXTURE_SIMULATION",
+  "currentProofTier": "P1_FIXTURE_SIMULATION",
+  "currentStatus": "simulated",
+  "productClaimReady": false,
+  "missingProofReason": "Expiry stops local sampling in the runtime state; live-service retention settings UI and platform deletion proof remain pending.",
+  "payload": {
+    "retentionMode": "delete-on-resolution",
+    "expiresAt": "2026-06-03T03:00:00.000Z",
+    "expiredState": "expired",
+    "expiredStopReason": "duration-expired",
+    "expiredNextSampleDueAt": null
+  }
+}

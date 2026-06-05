@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-05T07:57:01.149Z",
+  "workpackId": "28-temporary-live-tracking-mode",
+  "requiredProofTier": "P1_FIXTURE_SIMULATION",
+  "currentProofTier": "P1_FIXTURE_SIMULATION",
+  "currentStatus": "simulated",
+  "productClaimReady": false,
+  "missingProofReason": "Parent authorization and stop audit refs are proved as local runtime state; notification delivery and emergency escalation remain unclaimed.",
+  "payload": {
+    "parentAuthorizationRef": "parent-approved-live-session",
+    "activeReasonCodes": [
+      "temporary-live-active-parent-authorized"
+    ],
+    "stoppedReasonCodes": [
+      "temporary-live-parent-stopped"
+    ],
+    "productClaimReady": false
+  }
+}

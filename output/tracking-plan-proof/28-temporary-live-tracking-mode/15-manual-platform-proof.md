@@ -1,4 +1,4 @@
-# 28-temporary-live-tracking-mode Manual Platform Proof
+# WP28 Manual Platform Boundary
 
-This focused proof does not claim Android/iOS background tracking, foreground samples, real geofence delivery, provider delivery, UI completion, or precise desktop location.
-Platform rows remain manual-required or real-device-required until real device, entitlement, permission, store/privacy, and screenshot evidence is attached.
+This proof does not claim Android/iOS location sampling, background geofence behavior, provider delivery, notification delivery, child-device runtime UI, or physical-device authority.
+It proves only local domain/runtime state transitions for a parent-authorized temporary live tracking session.
