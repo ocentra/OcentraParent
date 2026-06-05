@@ -1,7 +1,7 @@
 {
   "status": "ok",
   "proofKind": "screen-summary-parent-explanation-proof",
-  "generatedAt": "2026-06-05T11:15:26.116Z",
+  "generatedAt": "2026-06-05T13:53:56.952Z",
   "sourceProof": "output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json",
   "output": "output/ai-plan-proof/screen-summary-parent-explanation/proof-summary.json",
   "rows": [
