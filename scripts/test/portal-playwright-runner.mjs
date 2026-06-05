@@ -104,15 +104,19 @@ function trackChild(child, label) {
 
 function runPlaywright() {
   const cliPath = path.join(repoRoot, 'node_modules', '@playwright', 'test', 'cli.js');
-  const child = spawn(process.execPath, [cliPath, 'test', '--config', path.join(portalRoot, 'playwright.config.ts')], {
-    cwd: portalRoot,
-    env: {
-      ...process.env,
-      [ParentDevEnv.ActivityDbPath]: activityDbPath,
-      [ParentDevEnv.DevLogDir]: devLogDir,
-    },
-    stdio: 'inherit',
-  });
+  const child = spawn(
+    process.execPath,
+    [cliPath, 'test', '--config', path.join(portalRoot, 'playwright.config.ts'), '--workers=1'],
+    {
+      cwd: portalRoot,
+      env: {
+        ...process.env,
+        [ParentDevEnv.ActivityDbPath]: activityDbPath,
+        [ParentDevEnv.DevLogDir]: devLogDir,
+      },
+      stdio: 'inherit',
+    }
+  );
 
   return once(child, 'exit').then(([code, signal]) => {
     if (signal !== null) {

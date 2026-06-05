@@ -30,8 +30,8 @@ function commandButton(
   button.className = activeCommandButtonClass(command.resultEvent === state.selectedCommandResultEvent);
   button.disabled = state.socket?.readyState !== WebSocket.OPEN;
   button.addEventListener(PortalDom.Events.Click, () => {
-    actions.selectCommandResult(command.resultEvent);
     actions.sendCommand(command.command, command.payload);
+    actions.selectCommandResult(command.resultEvent);
   });
   return button;
 }
