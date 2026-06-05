@@ -2,8 +2,8 @@
   "proofMode": "tracking-authority-hard-control-proof",
   "generatedAt": "2026-06-05T19:30:00.000Z",
   "branch": "codex/tracking-authority-hard-control-proof",
-  "baseCommitAtGeneration": "6059f53673ca8e7c95180a1fe7f92bce9d3fbb05",
-  "gitStatusShort": "M  docs/features/location-geofence-device-status.md\nMM docs/plans/tracking-plan/implementation-checklist.md\nM  docs/product-capability-checklist.md\nA  output/tracking-plan-proof/authority-hard-control-proof/00-source-snapshot.md\nA  output/tracking-plan-proof/authority-hard-control-proof/01-authority-gate-proof.log\nA  output/tracking-plan-proof/authority-hard-control-proof/09-authority-surface-summary.json\nA  output/tracking-plan-proof/authority-hard-control-proof/13-security-negative-proof.log\nA  output/tracking-plan-proof/authority-hard-control-proof/16-validation-commands.log\nA  output/tracking-plan-proof/authority-hard-control-proof/README.md\nA  output/tracking-plan-proof/authority-hard-control-proof/proof.json\nAM packages/parent-domain/src/tracking-authority-hard-control-proof.ts\nA  packages/parent-domain/tests/tracking-authority-hard-control-proof.test.ts\nA  scripts/test/tracking-authority-hard-control-proof.mjs\nA  test-results/tracking-authority-hard-control-proof/authority-hard-control-read-model.json\nA  test-results/tracking-authority-hard-control-proof/proof.json",
+  "baseCommitAtGeneration": "190941a06b59c06c6cad08a93c9dc78a79f73e39",
+  "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-authority-hard-control-proof"
