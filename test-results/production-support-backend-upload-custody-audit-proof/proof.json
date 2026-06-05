@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T15:50:16.536Z",
-  "commit": "f49466c8962847d2c3ee79a890c5670b6bce6af9",
+  "checkedAt": "2026-06-05T16:09:06.684Z",
+  "commit": "9cacc07b3e74964f6c15d54c83888b791655f91f",
   "proofMode": "production-support-backend-upload-custody-audit-proof",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/logging-domain",
