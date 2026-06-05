@@ -49,6 +49,14 @@
       "import": "./dist/support-backend-upload-custody-audit-read-model.js",
       "types": "./dist/support-backend-upload-custody-audit-read-model.d.ts"
     },
+    "./support-case-resolution-status": {
+      "import": "./dist/support-case-resolution-status.js",
+      "types": "./dist/support-case-resolution-status.d.ts"
+    },
+    "./support-case-resolution-status-read-model": {
+      "import": "./dist/support-case-resolution-status-read-model.js",
+      "types": "./dist/support-case-resolution-status-read-model.d.ts"
+    },
     "./support-incident-workflow": {
       "import": "./dist/support-incident-workflow.js",
       "types": "./dist/support-incident-workflow.d.ts"

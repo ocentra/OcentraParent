@@ -112,6 +112,16 @@ dev-only repo when it claims consumer readiness.
   deletion, raw child activity custody, provider secrets, account lookup,
   billing provider contact, remote support sessions, production SLA, and default
   Ocentra-hosted family data unclaimed.
+- `production-support-case-resolution-status-proof` adds logging-domain support
+  case resolution/status rows for parent-consented case opened, triage-ready,
+  parent-update-ready, escalation manual-required, response manual-required,
+  closure-ready, and SLA manual-required states. It links to incident workflow,
+  support upload status/execution, and publication workflow refs, proves
+  support-safe parent-visible case lifecycle metadata, and keeps real support
+  backend upload execution, provider contact, account lookup, billing provider
+  contact, remote support sessions, production SLA execution, raw child activity
+  custody, provider secrets, remote support transcripts, and default
+  Ocentra-hosted family data unclaimed.
 - `production-support-publication-workflow-proof` adds parent-domain source
   contract rows for public privacy policy publication, privacy/legal disclosure
   execution, support runbook publication, support incident status publication,
@@ -338,6 +348,16 @@ package/runtime proof.
       secrets, account lookup execution, billing provider contact execution,
       remote support sessions, production SLA, and default Ocentra-hosted
       family data unclaimed.
+- [ ] Production support case resolution/status proof. Current
+      `production-support-case-resolution-status-proof` covers case opened,
+      triage-ready, parent-update-ready, escalation manual-required, response
+      manual-required, closure-ready, and SLA manual-required states with
+      incident, upload status/execution, publication, response, escalation,
+      closure, SLA, and manual proof refs. Real backend upload execution,
+      provider contact, account lookup, billing provider contact, remote
+      support sessions, production SLA execution, raw child activity custody,
+      provider secrets, remote transcripts, and hosted family data remain
+      unclaimed.
 - [ ] Production support public publication workflow proof. Current
       `production-support-publication-workflow-proof` covers public privacy
       policy publication, privacy/legal disclosure execution, support runbook
