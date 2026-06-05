@@ -185,6 +185,7 @@ packages/parent-domain/src/tracking-control-catalog.ts:1 file has 549 lines; cro
 packages/parent-domain/src/tracking-control-catalog.ts:312 function has 66 lines; warning starts at 64 of 80
 packages/parent-domain/src/tracking-escalation-readiness-proof.ts:1 file has 423 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-location-policy.ts:1 file has 282 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/tracking-missing-device-mode-proof.ts:1 file has 427 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-poi-provider-adapter.ts:1 file has 391 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-policy-compiler-runtime-proof.ts:1 file has 337 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-provider-notification-proof.ts:1 file has 315 lines; crossed 250-line advisory band; maximum is 1000
@@ -269,6 +270,7 @@ packages/parent-domain/tests/parent-mobile-runtime-fixtures.ts:1 file has 278 li
 packages/parent-domain/tests/parent-mobile-runtime.test.ts:19 function has 70 lines; warning starts at 64 of 80
 packages/parent-domain/tests/parent-mobile-service-bridge-runtime.test.ts:1 file has 568 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/tests/screen-ai-adapter-readiness-proof.test.ts:1 file has 283 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/tests/screen-ai-model-artifact-manifest-proof.test.ts:77 function has 70 lines; warning starts at 64 of 80
 packages/parent-domain/tests/screen-control-policy-catalog.test.ts:1 file has 562 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/tests/screen-control-policy-catalog.test.ts:163 function has 65 lines; warning starts at 64 of 80
 packages/parent-domain/tests/social-android-native-app-capability-matrix.test.ts:112 function has 69 lines; warning starts at 64 of 80
@@ -279,6 +281,7 @@ packages/parent-domain/tests/tracking-control-catalog.test.ts:188 function has 7
 packages/parent-domain/tests/tracking-escalation-readiness-proof.test.ts:15 function has 69 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-location-policy.test.ts:1 file has 401 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/tests/tracking-location-policy.test.ts:313 function has 69 lines; warning starts at 64 of 80
+packages/parent-domain/tests/tracking-missing-device-mode-proof.test.ts:29 function has 69 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-poi-provider-adapter.test.ts:54 function has 72 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-provider-notification-proof.test.ts:29 function has 75 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-temporary-live-mode-proof.test.ts:9 function has 77 lines; warning starts at 64 of 80

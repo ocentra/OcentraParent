@@ -1,7 +1,7 @@
 {
   "proof": "eventing-type-safety-source-gate",
   "proofRoot": "output\\eventing-plan-proof\\63-type-safety-source-gate",
-  "checkedAt": "2026-06-05T21:09:04.361Z",
+  "checkedAt": "2026-06-05T21:34:07.445Z",
   "commands": [
     {
       "name": "eventing-tests",
