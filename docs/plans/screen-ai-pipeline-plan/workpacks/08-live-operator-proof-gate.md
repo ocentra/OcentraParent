@@ -33,6 +33,18 @@ Current harness readiness proof:
 output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.json
 ```
 
+Current artifact gate:
+
+```powershell
+node scripts/test/screen-ai-live-operator-artifact-gate.mjs
+```
+
+The artifact gate rechecks the retained operator-run outputs without rerunning
+capture. It requires all nine live rows, redacted live URL/title/text readiness
+for browser rows, local VLM runtime evidence, policy dry-run handoff, parent
+explanation screenshots, protected-surface non-claims, and raw image
+deletion/no-retention custody.
+
 ## Checklist
 
 - [x] Harness manifest template covers the required live operator scenarios.
@@ -53,6 +65,8 @@ output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.js
 - Harness readiness artifact.
 - Partial live run artifact:
   `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`.
+- Artifact gate summary:
+  `output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json`.
 - YouTube ordinary video source evidence:
   `output/screen-ai-pipeline-proof/live-operator/youtube-ordinary-video/01-redacted-source-evidence.json`.
 - YouTube education video source evidence:
@@ -92,6 +106,9 @@ output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.js
 - The protected/unsupported row consumes the protected-surface proof artifact,
   validates `protectedSurface`, and records no raw image, no AI analysis, and
   no policy decision claim.
+- The artifact gate validates the live operator proof files can still support a
+  PR-ready evidence claim after later main merges, while preserving the
+  non-claim that it does not rerun the operator capture session.
 
 ## Remaining Non-Claims
 

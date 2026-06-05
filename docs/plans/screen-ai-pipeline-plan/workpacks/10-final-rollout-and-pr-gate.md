@@ -24,8 +24,12 @@ screenshots, validation logs, known gaps, and non-claims.
 - Final DONE/PR-ready report includes branch, commit, pushed state, touched
   paths, validation, proof artifacts, screenshots, known gaps, non-claims, and
   PR body outline.
-- Current branch `codex/screen-ai-service-native-game-analysis-proof` was
-  rebased on `origin/main` at `f3075625` after PR285, then passed
-  `npm run validate` locally on 2026-06-04. Focused screen queue/runtime tests
-  and proof harnesses also passed after the rebase. CI remains the PR-side
-  confirmation gate.
+- Current live-operator artifact gate branch
+  `codex/screen-live-operator-artifact-gate` starts from `origin/main`
+  `a6cc14d5` after PR326, acknowledges PR329 as fix-ready, and validates the
+  existing live operator proof set with
+  `node scripts/test/screen-ai-live-operator-artifact-gate.mjs`. The gate
+  writes
+  `output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json`
+  and preserves the non-claims that it does not rerun the operator session or
+  prove managed-browser trigger ownership.
