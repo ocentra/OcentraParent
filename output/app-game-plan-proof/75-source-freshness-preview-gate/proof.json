@@ -2,8 +2,8 @@
   "proofMode": "app-game-source-freshness-preview-gate",
   "generatedAt": "2026-06-05T23:45:00Z",
   "branch": "codex/app-game-source-freshness-preview-gate",
-  "commit": "f4952d3838fa08078e3ef03b830c5535dd0bc35c",
-  "gitStatusShort": "M docs/expectations/app-game-evidence.md\n M docs/expectations/policy.md\n M docs/features/app-game-control.md\n M docs/plans/app-game-plan/implementation-checklist.md\n M docs/plans/app-game-plan/workpacks/README.md\n M docs/plans/app-plan/implementation-checklist.md\n?? docs/plans/app-game-plan/workpacks/75-source-freshness-preview-gate.md\n?? docs/plans/app-plan/workpacks/75-source-freshness-preview-gate.md\n?? packages/parent-domain/src/app-game-source-freshness-preview-gate-rules.ts\n?? packages/parent-domain/src/app-game-source-freshness-preview-gate.ts\n?? packages/parent-domain/tests/app-game-source-freshness-preview-gate.test.ts\n?? scripts/test/app-game-source-freshness-preview-gate-proof.mjs",
+  "commit": "4bf59c71c7cda66bad7dfb76a4a8344ab70c799a",
+  "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff"
