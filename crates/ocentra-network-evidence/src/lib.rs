@@ -19,6 +19,7 @@ pub mod packet;
 pub mod pcap;
 pub mod policy;
 pub mod process;
+pub mod signature_alert;
 pub mod tls;
 pub mod transfer;
 pub mod tunnel;
@@ -131,6 +132,12 @@ pub use process::{
     NetworkProcessAppCorrelation, NetworkProcessAppCorrelationInput,
     NetworkProcessCorrelationBasis, NetworkProcessCorrelationError, NetworkProcessCorrelationState,
     NetworkProcessCorrelationUncertainty, NetworkProcessSnapshot,
+};
+pub use signature_alert::{
+    ingest_network_signature_alerts, NetworkAnalyzerAlertRecord, NetworkSignatureAlertFixtureRow,
+    NetworkSignatureAlertIngestionError, NetworkSignatureAlertIngestionInput,
+    NetworkSignatureAlertIngestionProof, NetworkSignatureAlertSeverity,
+    NetworkSignatureAlertSource, NetworkSignatureAlertState,
 };
 pub use tls::{parse_tls_client_hello_sni, TlsClientHelloError, TlsClientHelloVisibility};
 pub use transfer::{

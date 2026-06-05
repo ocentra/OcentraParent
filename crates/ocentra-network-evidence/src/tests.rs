@@ -21,6 +21,7 @@ mod managed_browser;
 mod notification;
 mod policy;
 mod process;
+mod signature_alert;
 mod transfer;
 mod tunnel;
 mod visibility;

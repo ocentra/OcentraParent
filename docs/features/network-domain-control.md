@@ -237,13 +237,16 @@ execution, and platform adapter execution remain open.
       intelligence proof now exist, along with deterministic
       social/video/game/cloud-gaming classifier candidates. Broader anomaly/risk
       targets and policy handoff remain open.
-- [ ] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
+- [x] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
       proof.
       First deterministic DNS query PCAP replay, packet/DNS parser fixtures,
       TLS/HTTP/QUIC/DoH visibility fixtures, and flow/sessionization proof
       exist. Deterministic Zeek-style connection, DNS, HTTP, TLS, and SSL summary
-      generation with approved analyzer comparison artifacts now exists; signature
-      alert ingestion remains open.
+      generation with approved analyzer comparison artifacts now exists.
+      Suricata/Snort-compatible signature alert ingestion now records typed
+      analyzer alerts with signature, rule-source, severity, timestamp, flow,
+      evidence, and custody refs, while known false positives and signature-only
+      alerts remain non-enforcing.
 - [x] Remote desktop/torrent/download candidate classifier.
       Deterministic indicator proof exists for remote desktop, torrent, and
       large-download candidates, with unattributed high-volume uncertainty and

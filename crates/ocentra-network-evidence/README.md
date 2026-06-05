@@ -27,7 +27,9 @@ indicator classification, remote/torrent/download candidate classification, and
 replay-backed process/app correlation plus a managed-browser correlation bridge.
 It also includes a deterministic evidence cascade router and Zeek-style
 connection, DNS, HTTP, TLS, and SSL analyzer-summary proof with approved
-comparison artifacts. Domain normalization
+comparison artifacts. Suricata/Snort-compatible signature alert ingestion now
+turns fixture rows into typed analyzer alert records with signature, rule-source,
+severity, timestamp, flow, evidence, and custody refs. Domain normalization
 lowercases and validates metadata-derived domains, matches a deterministic
 public suffix model, and derives registrable domains without upgrading to exact
 URL or content claims. Flow aggregation merges reverse-direction packets into a
@@ -118,6 +120,11 @@ approved comparison artifacts for each generated log kind, preserves unknown,
 missing, ambiguous, and encrypted states without guessing, and rejects exact URL,
 page content, decrypted payload, live analyzer invocation, signature-alert
 ingestion, policy authority, adapter authority, and enforcement-command claims.
+The signature alert ingestion proof records Suricata and Snort-compatible alerts
+as analyzer evidence, marks high/critical non-false-positive signatures as review
+candidates only, keeps known false positives non-enforcing, and rejects exact
+URL, page content, decrypted payload, live IDS/IPS invocation, IPS prevention,
+policy authority, adapter authority, and enforcement-command claims.
 
 Live Npcap/libpcap capture, full vendor category feeds,
 production CDN intelligence, unmanaged browser URL correlation, foreground
@@ -125,6 +132,5 @@ session correlation, live network adapter enforcement, file/content inspection,
 local-AI model execution/worker runtime, full policy engine execution,
 notification provider delivery, live WFP driver/callout proof, live adapter
 execution, Android physical-device behavior, Apple entitlement/device behavior,
-Linux distro/kernel adapter behavior, Suricata/Snort signature alert ingestion,
-live Zeek/TShark/Wireshark execution, and portal rendering remain separate
-proof-gated workpacks.
+Linux distro/kernel adapter behavior, live Zeek/TShark/Wireshark/Suricata/Snort
+execution, and portal rendering remain separate proof-gated workpacks.
