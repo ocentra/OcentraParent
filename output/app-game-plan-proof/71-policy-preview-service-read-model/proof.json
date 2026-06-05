@@ -2,7 +2,7 @@
   "proofMode": "app-game-policy-preview-service-read-model",
   "generatedAt": "2026-06-05T18:55:00Z",
   "branch": "codex/app-game-policy-preview-service-read-model",
-  "commit": "ee42af5c147229305ba5eddd740e728455a5a561",
+  "commit": "b90f30bd571dab6bb0879721eef846ae176db8cf",
   "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
