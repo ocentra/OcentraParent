@@ -128,6 +128,15 @@ expose location or device-status features. Parents expect this category.
   suppress/no-action, and manual-required outcomes, keeps AI as evidence rather
   than final authority, and records no runtime enforcement, provider delivery,
   platform adapter, production worker, UI-complete, or physical-device claims.
+- Expected-place alert policy integration proof now exists through
+  `node scripts/test/tracking-expected-place-alert-policy-proof.mjs`. It maps
+  expected-place decisions into alert-policy rows with schedule refs, place
+  refs, rule refs, evidence refs, policy decision refs, notification status
+  refs, and reason/audit refs for arrived, missed-arrival, stale-evidence
+  manual-required, and disabled-rule states while keeping provider delivery,
+  notification receipt ingestion, parent notification UI, child-device
+  delivery, platform runtime adapters, production workers, and physical-device
+  proof unclaimed.
 - Required fixture-state coverage proof now exists through
   `node scripts/test/tracking-fixture-coverage-proof.mjs`. It records fresh,
   stale, offline, permission-denied, low-accuracy, ambiguous nearby place,
@@ -211,16 +220,17 @@ tracking alert-to-provider-status handoff proof, P1 escalation readiness proof
 for acknowledgement/check-in/manual escalation states, WP28 temporary live
 tracking mode proof for authorization/duration/cadence/degraded/auto-stop/
 retention states, and WP20 Google Places/POI provider request/response mapping
-proof, WP25 parent-policy compiler/evaluator runtime proof, and required
-fixture-state coverage proof, and WP29 missing-device mode parent-domain proof
-for last-known-only/offline/contact-requested/manual-required states, and WP32
+proof, WP25 parent-policy compiler/evaluator runtime proof, expected-place
+alert-policy row proof for arrived/missed/stale/disabled states, required
+fixture-state coverage proof, WP29 missing-device mode parent-domain proof for
+last-known-only/offline/contact-requested/manual-required states, and WP32
 report/policy consumer-readiness proof for parent report summary, policy
 drill-in, and retention audit/export rows. It remains a tracked product gap
 until platform location and geofence adapters, broader product read models,
 actual live provider execution/delivery, notification receipt ingestion,
 physical-device proof, actual child-device delivery/runtime execution, remote
-sync runtime, OS lost-mode APIs, and full parent/child UI
-snapshots/accessibility beyond the hosted parent route are proved.
+sync runtime, OS lost-mode APIs, and full parent/child UI snapshots/accessibility
+beyond the hosted parent route are proved.
 
 ## Checklist
 
@@ -242,6 +252,11 @@ snapshots/accessibility beyond the hosted parent route are proved.
       or child-agent parity proof.
 - [ ] iOS entitlement/background proof.
 - [x] Expected-place schedule and exception contracts.
+- [x] Expected-place decisions map into alert-policy rows with schedule, place,
+      rule, evidence, policy decision, notification status, reason, and audit
+      refs. This is not provider delivery, receipt ingestion, parent
+      notification UI, child-device delivery, platform runtime adapter,
+      production worker, or physical-device proof.
 - [x] Parent acknowledgement and escalation contracts.
 - [x] WP25 P1 parent-policy compiler/evaluator runtime proof for tracking
       rules, deterministic parent-policy final authority, AI non-authority,

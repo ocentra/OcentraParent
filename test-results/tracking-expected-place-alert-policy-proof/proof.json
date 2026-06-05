@@ -1,0 +1,402 @@
+{
+  "proofMode": "tracking-expected-place-alert-policy-proof",
+  "generatedAt": "2026-06-05T22:00:00.000Z",
+  "branch": "codex/tracking-expected-place-alert-policy-proof",
+  "baseCommitAtGeneration": "d1c03368d6d4b95d91bf9c53c949a4aae53372ed",
+  "gitStatusShort": "",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "status": 0,
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+      "stderr": ""
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-expected-place-alert-policy-proof",
+      "status": 0,
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-expected-place-alert-policy-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  5 passed (5)\n   Start at  18:23:53\n   Duration  1.09s (transform 154ms, setup 0ms, import 711ms, tests 9ms, environment 0ms)",
+      "stderr": ""
+    }
+  ],
+  "summary": {
+    "rowCount": 4,
+    "alertReadyCount": 1,
+    "manualRequiredCount": 1,
+    "suppressedCount": 1,
+    "noAlertExpectedCount": 1,
+    "providerDeliveryClaimedRows": 0,
+    "notificationReceiptClaimedRows": 0,
+    "physicalDeviceProofClaimedRows": 0
+  },
+  "productClaims": {
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "parentNotificationUiClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "platformAdapterRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "productionWorkerClaimed": false
+  },
+  "proofPaths": {
+    "source": "packages/parent-domain/src/tracking-expected-place-alert-policy-proof.ts",
+    "test": "packages/parent-domain/tests/tracking-expected-place-alert-policy-proof.test.ts",
+    "harness": "scripts/test/tracking-expected-place-alert-policy-proof.mjs",
+    "evidence": "test-results/tracking-expected-place-alert-policy-proof/proof.json",
+    "expectedPlaceProof": "output/tracking-plan-proof/16-expected-place-schedule-engine/expected-place-alert-policy-proof.json",
+    "alertProof": "output/tracking-plan-proof/26-alert-severity-and-notification-model/expected-place-alert-policy-proof.json"
+  },
+  "readModel": {
+    "schemaVersion": "v0.6",
+    "proofId": "tracking-expected-place-alert-policy-proof",
+    "generatedAt": "2026-06-05T22:00:00.000Z",
+    "sourceExpectedPlaceProofRef": "output/tracking-plan-proof/16-expected-place-schedule-engine/06-expected-place-proof.json",
+    "sourcePolicyCompilerProofRef": "output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/proof.json",
+    "sourceNotificationBoundaryRef": "output/tracking-plan-proof/26-alert-severity-and-notification-model/proof-summary.json",
+    "rows": [
+      {
+        "rowId": "tracking-expected-alert-row-expected-place-school-arrived",
+        "sourceExpectedPlaceDecisionId": "expected-place-school-arrived",
+        "scheduleRefs": [
+          "tracking-expected-schedule-expected-place-school-arrived"
+        ],
+        "placeRefs": [
+          "tracking-expected-place-expected-place-school-arrived"
+        ],
+        "evidenceRefs": [
+          {
+            "evidenceReferenceId": "tracking-expected-evidence-expected-place-school-arrived",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T21:50:00.000Z"
+          }
+        ],
+        "rule": {
+          "schemaVersion": "v0.5-tracking",
+          "ruleId": "tracking-expected-alert-rule-expected-place-school-arrived",
+          "familyId": "family-1",
+          "childProfileId": "child-1",
+          "deviceId": "parent-device-1",
+          "policyVersion": "tracking-policy-expected-place-v1",
+          "targetKind": "expected-place",
+          "action": "observe",
+          "enabled": true,
+          "requiresFreshEvidence": true,
+          "requiresParentConfirmation": false,
+          "reasonCodes": [
+            "expected-place-arrival-confirmed"
+          ],
+          "auditRefs": [
+            "tracking-expected-alert-rule-audit-expected-place-school-arrived"
+          ]
+        },
+        "decision": {
+          "schemaVersion": "v0.5-tracking",
+          "decisionId": "tracking-expected-alert-decision-expected-place-school-arrived",
+          "decidedAt": "2026-06-05T22:00:00.000Z",
+          "ruleId": "tracking-expected-alert-rule-expected-place-school-arrived",
+          "action": "observe",
+          "dryRun": true,
+          "evidenceReferences": [
+            {
+              "evidenceReferenceId": "tracking-expected-evidence-expected-place-school-arrived",
+              "kind": "journal-event",
+              "observedAt": "2026-06-05T21:50:00.000Z"
+            }
+          ],
+          "aiAnalysisId": null,
+          "alertIntentId": null,
+          "reasonCodes": [
+            "expected-place-arrival-confirmed"
+          ],
+          "auditRefs": [
+            "tracking-expected-alert-decision-audit-expected-place-school-arrived"
+          ]
+        },
+        "alertIntent": null,
+        "alertPolicyState": "no-alert-expected",
+        "reasonCodeRefs": [
+          "expected-place-arrival-confirmed"
+        ],
+        "auditRefs": [
+          "tracking-expected-alert-proof-audit-expected-place-school-arrived"
+        ],
+        "providerDeliveryClaimed": false,
+        "notificationReceiptClaimed": false,
+        "parentNotificationUiClaimed": false,
+        "childDeviceDeliveryClaimed": false,
+        "platformAdapterRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "productionWorkerClaimed": false
+      },
+      {
+        "rowId": "tracking-expected-alert-row-expected-place-practice-missed",
+        "sourceExpectedPlaceDecisionId": "expected-place-practice-missed",
+        "scheduleRefs": [
+          "tracking-expected-schedule-expected-place-practice-missed"
+        ],
+        "placeRefs": [
+          "tracking-expected-place-expected-place-practice-missed"
+        ],
+        "evidenceRefs": [
+          {
+            "evidenceReferenceId": "tracking-expected-evidence-expected-place-practice-missed",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T21:50:00.000Z"
+          }
+        ],
+        "rule": {
+          "schemaVersion": "v0.5-tracking",
+          "ruleId": "tracking-expected-alert-rule-expected-place-practice-missed",
+          "familyId": "family-1",
+          "childProfileId": "child-1",
+          "deviceId": "parent-device-1",
+          "policyVersion": "tracking-policy-expected-place-v1",
+          "targetKind": "expected-place",
+          "action": "notify-parent",
+          "enabled": true,
+          "requiresFreshEvidence": true,
+          "requiresParentConfirmation": false,
+          "reasonCodes": [
+            "expected-place-missed-arrival",
+            "tracking-rule-matched"
+          ],
+          "auditRefs": [
+            "tracking-expected-alert-rule-audit-expected-place-practice-missed"
+          ]
+        },
+        "decision": {
+          "schemaVersion": "v0.5-tracking",
+          "decisionId": "tracking-expected-alert-decision-expected-place-practice-missed",
+          "decidedAt": "2026-06-05T22:00:00.000Z",
+          "ruleId": "tracking-expected-alert-rule-expected-place-practice-missed",
+          "action": "notify-parent",
+          "dryRun": true,
+          "evidenceReferences": [
+            {
+              "evidenceReferenceId": "tracking-expected-evidence-expected-place-practice-missed",
+              "kind": "journal-event",
+              "observedAt": "2026-06-05T21:50:00.000Z"
+            }
+          ],
+          "aiAnalysisId": null,
+          "alertIntentId": "tracking-expected-alert-expected-place-practice-missed",
+          "reasonCodes": [
+            "expected-place-missed-arrival",
+            "tracking-rule-matched"
+          ],
+          "auditRefs": [
+            "tracking-expected-alert-decision-audit-expected-place-practice-missed"
+          ]
+        },
+        "alertIntent": {
+          "schemaVersion": "v0.5-tracking",
+          "alertId": "tracking-expected-alert-expected-place-practice-missed",
+          "createdAt": "2026-06-05T22:00:00.000Z",
+          "severity": "urgent",
+          "policyDecisionId": "tracking-expected-alert-decision-expected-place-practice-missed",
+          "evidenceReferences": [
+            {
+              "evidenceReferenceId": "tracking-expected-evidence-expected-place-practice-missed",
+              "kind": "journal-event",
+              "observedAt": "2026-06-05T21:50:00.000Z"
+            }
+          ],
+          "sensitiveDetailMode": "minimal-provider-body",
+          "notificationStatusRefs": [
+            "tracking-expected-alert-provider-status-expected-place-practice-missed"
+          ],
+          "acknowledgementId": null,
+          "reasonCodes": [
+            "expected-place-missed-arrival",
+            "tracking-rule-matched"
+          ]
+        },
+        "alertPolicyState": "alert-ready",
+        "reasonCodeRefs": [
+          "expected-place-missed-arrival",
+          "tracking-rule-matched"
+        ],
+        "auditRefs": [
+          "tracking-expected-alert-proof-audit-expected-place-practice-missed"
+        ],
+        "providerDeliveryClaimed": false,
+        "notificationReceiptClaimed": false,
+        "parentNotificationUiClaimed": false,
+        "childDeviceDeliveryClaimed": false,
+        "platformAdapterRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "productionWorkerClaimed": false
+      },
+      {
+        "rowId": "tracking-expected-alert-row-expected-place-library-stale",
+        "sourceExpectedPlaceDecisionId": "expected-place-library-stale",
+        "scheduleRefs": [
+          "tracking-expected-schedule-expected-place-library-stale"
+        ],
+        "placeRefs": [
+          "tracking-expected-place-expected-place-library-stale"
+        ],
+        "evidenceRefs": [
+          {
+            "evidenceReferenceId": "tracking-expected-evidence-expected-place-library-stale",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T18:20:00.000Z"
+          }
+        ],
+        "rule": {
+          "schemaVersion": "v0.5-tracking",
+          "ruleId": "tracking-expected-alert-rule-expected-place-library-stale",
+          "familyId": "family-1",
+          "childProfileId": "child-1",
+          "deviceId": "parent-device-1",
+          "policyVersion": "tracking-policy-expected-place-v1",
+          "targetKind": "expected-place",
+          "action": "notify-parent",
+          "enabled": true,
+          "requiresFreshEvidence": true,
+          "requiresParentConfirmation": false,
+          "reasonCodes": [
+            "expected-place-evidence-stale",
+            "manual-proof-required"
+          ],
+          "auditRefs": [
+            "tracking-expected-alert-rule-audit-expected-place-library-stale"
+          ]
+        },
+        "decision": {
+          "schemaVersion": "v0.5-tracking",
+          "decisionId": "tracking-expected-alert-decision-expected-place-library-stale",
+          "decidedAt": "2026-06-05T22:00:00.000Z",
+          "ruleId": "tracking-expected-alert-rule-expected-place-library-stale",
+          "action": "manual-required",
+          "dryRun": true,
+          "evidenceReferences": [
+            {
+              "evidenceReferenceId": "tracking-expected-evidence-expected-place-library-stale",
+              "kind": "journal-event",
+              "observedAt": "2026-06-05T18:20:00.000Z"
+            }
+          ],
+          "aiAnalysisId": null,
+          "alertIntentId": null,
+          "reasonCodes": [
+            "expected-place-evidence-stale",
+            "manual-proof-required"
+          ],
+          "auditRefs": [
+            "tracking-expected-alert-decision-audit-expected-place-library-stale"
+          ]
+        },
+        "alertIntent": null,
+        "alertPolicyState": "manual-required",
+        "reasonCodeRefs": [
+          "expected-place-evidence-stale",
+          "manual-proof-required"
+        ],
+        "auditRefs": [
+          "tracking-expected-alert-proof-audit-expected-place-library-stale"
+        ],
+        "providerDeliveryClaimed": false,
+        "notificationReceiptClaimed": false,
+        "parentNotificationUiClaimed": false,
+        "childDeviceDeliveryClaimed": false,
+        "platformAdapterRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "productionWorkerClaimed": false
+      },
+      {
+        "rowId": "tracking-expected-alert-row-expected-place-home-disabled-rule",
+        "sourceExpectedPlaceDecisionId": "expected-place-home-disabled-rule",
+        "scheduleRefs": [
+          "tracking-expected-schedule-expected-place-home-disabled-rule"
+        ],
+        "placeRefs": [
+          "tracking-expected-place-expected-place-home-disabled-rule"
+        ],
+        "evidenceRefs": [
+          {
+            "evidenceReferenceId": "tracking-expected-evidence-expected-place-home-disabled-rule",
+            "kind": "journal-event",
+            "observedAt": "2026-06-05T21:50:00.000Z"
+          }
+        ],
+        "rule": {
+          "schemaVersion": "v0.5-tracking",
+          "ruleId": "tracking-expected-alert-rule-expected-place-home-disabled-rule",
+          "familyId": "family-1",
+          "childProfileId": "child-1",
+          "deviceId": "parent-device-1",
+          "policyVersion": "tracking-policy-expected-place-v1",
+          "targetKind": "expected-place",
+          "action": "notify-parent",
+          "enabled": false,
+          "requiresFreshEvidence": true,
+          "requiresParentConfirmation": false,
+          "reasonCodes": [
+            "expected-place-rule-disabled"
+          ],
+          "auditRefs": [
+            "tracking-expected-alert-rule-audit-expected-place-home-disabled-rule"
+          ]
+        },
+        "decision": {
+          "schemaVersion": "v0.5-tracking",
+          "decisionId": "tracking-expected-alert-decision-expected-place-home-disabled-rule",
+          "decidedAt": "2026-06-05T22:00:00.000Z",
+          "ruleId": "tracking-expected-alert-rule-expected-place-home-disabled-rule",
+          "action": "no-action",
+          "dryRun": true,
+          "evidenceReferences": [
+            {
+              "evidenceReferenceId": "tracking-expected-evidence-expected-place-home-disabled-rule",
+              "kind": "journal-event",
+              "observedAt": "2026-06-05T21:50:00.000Z"
+            }
+          ],
+          "aiAnalysisId": null,
+          "alertIntentId": null,
+          "reasonCodes": [
+            "expected-place-rule-disabled"
+          ],
+          "auditRefs": [
+            "tracking-expected-alert-decision-audit-expected-place-home-disabled-rule"
+          ]
+        },
+        "alertIntent": null,
+        "alertPolicyState": "suppressed-disabled-rule",
+        "reasonCodeRefs": [
+          "expected-place-rule-disabled"
+        ],
+        "auditRefs": [
+          "tracking-expected-alert-proof-audit-expected-place-home-disabled-rule"
+        ],
+        "providerDeliveryClaimed": false,
+        "notificationReceiptClaimed": false,
+        "parentNotificationUiClaimed": false,
+        "childDeviceDeliveryClaimed": false,
+        "platformAdapterRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "productionWorkerClaimed": false
+      }
+    ],
+    "alertReadyCount": 1,
+    "manualRequiredCount": 1,
+    "suppressedCount": 1,
+    "noAlertExpectedCount": 1,
+    "proofNonClaims": [
+      "no-provider-delivery",
+      "no-notification-receipt-ingestion",
+      "no-parent-notification-ui",
+      "no-child-device-delivery",
+      "no-platform-adapter-runtime",
+      "no-physical-device-proof",
+      "no-production-worker"
+    ],
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "parentNotificationUiClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "platformAdapterRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "productionWorkerClaimed": false
+  }
+}
