@@ -1,7 +1,7 @@
 # app WP69 Policy Readiness Live Parent Surface
 
-Checked at: 2026-06-05T14:26:02.783Z
-Implementation commit: a586ebfc698660b5ca5607d71494c09a71c8ed53
+Checked at: 2026-06-07T12:29:36.763Z
+Implementation commit: fdb52b5cea0150114ba7b1c7e9c191def7dc5ea3
 
 ## Claims Proved
 - portal overview commands request the existing app/game policy readiness service read model
