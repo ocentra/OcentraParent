@@ -378,6 +378,52 @@ function specifyActivityScreenReadModelContracts() {
     expect(row.policyDecisionRef).toBe('screen-policy-decision-1');
     expect(row.parentExplanationRefs).toEqual(['screen-parent-explanation-1']);
   });
+
+  it('ActivityScreenReadModelSchema: accepts service WinRT OCR and capture metadata rows', () => {
+    const parsed = ActivityScreenReadModelSchema.parse({
+      ...screenReadModel(),
+      rows: [
+        screenReadModelRow({
+          rowId: 'screen-service-adapter-analysis-result-1',
+          label: 'Windows WinRT OCR read a live page',
+          captureReason: 'timedCadence',
+          capabilityStatus: 'available',
+          queueJobId: 'screen-service-queue-job-1',
+          modelRuntimeRef: 'windows-winrt-ocr-local-runtime',
+          modelId: 'windows-winrt-ocr',
+          providerKind: 'localOcr',
+          promptOrTemplateVersion: 'screen-ocr-worker-winrt-v1',
+          primaryCategory: 'school',
+          imageDigest: 'sha256:service-winrt-ocr-digest',
+          rawImageRetained: false,
+        }),
+        screenReadModelRow({
+          rowId: 'screen-service-analysis-result-1',
+          label: 'Timed screen capture was queued by the local service cadence',
+          captureReason: 'timedCadence',
+          capabilityStatus: 'available',
+          queueJobId: 'screen-service-queue-job-1',
+          modelRuntimeRef: 'screen-service-deterministic-runtime',
+          modelId: 'screen-service-cadence-metadata-v1',
+          providerKind: 'serviceCaptureMetadata',
+          promptOrTemplateVersion: 'screen-service-cadence-summary-v1',
+          primaryCategory: 'unknown',
+          confidence: 0.2,
+          policyEligible: false,
+          imageDigest: 'sha256:service-winrt-ocr-digest',
+          rawImageRetained: false,
+        }),
+      ],
+    });
+
+    expect(parsed.rows[0]?.capabilityStatus).toBe('available');
+    expect(parsed.rows[0]?.providerKind).toBe('localOcr');
+    expect(parsed.rows[0]?.modelId).toBe('windows-winrt-ocr');
+    expect(parsed.rows[0]?.promptOrTemplateVersion).toBe('screen-ocr-worker-winrt-v1');
+    expect(parsed.rows[0]?.rawImageRetained).toBe(false);
+    expect(parsed.rows[1]?.providerKind).toBe('serviceCaptureMetadata');
+    expect(parsed.rows[1]?.policyEligible).toBe(false);
+  });
 }
 
 function specifyActivityScreenLegacyReadModelContracts() {

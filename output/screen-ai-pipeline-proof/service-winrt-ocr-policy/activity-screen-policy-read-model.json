@@ -13,7 +13,7 @@
   },
   "state": "ready",
   "generatedAt": "2026-06-05T15:59:25.662Z",
-  "summary": "Windows WinRT OCR read the live Wikipedia mathematics page from the service queued capture.",
+  "summary": "Windows WinRT OCR read the live Wikipedia mathematics page from the service queued capture. Policy dry-run consumed the local OCR school row without raw image retention.",
   "rows": [
     {
       "rowId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1",
@@ -46,17 +46,24 @@
           "uri": null
         }
       ],
-      "policyDecisionRef": null,
-      "policyAction": null,
-      "policyReasonCodes": [],
-      "parentRuleRefs": [],
+      "policyDecisionRef": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1-policy-dry-run",
+      "policyAction": "allow",
+      "policyReasonCodes": [
+        "screen-service-winrt-ocr-school-allow"
+      ],
+      "parentRuleRefs": [
+        "screen-service-winrt-ocr-school-rule"
+      ],
       "localModelRuntimeRefs": [
         "windows-winrt-ocr-local-runtime"
       ],
       "parentExplanationRefs": [],
-      "explanationReasons": [],
-      "deletionReasons": [],
-      "sourceEvidenceRefs": []
+      "explanationReasons": [
+        "service-winrt-ocr-policy-dry-run"
+      ],
+      "deletionReasons": [
+        "screen-image-deleted-after-analysis"
+      ]
     },
     {
       "rowId": "screen-service-analysis-result-1780675160-1",
@@ -98,8 +105,7 @@
       ],
       "parentExplanationRefs": [],
       "explanationReasons": [],
-      "deletionReasons": [],
-      "sourceEvidenceRefs": []
+      "deletionReasons": []
     }
   ]
 }

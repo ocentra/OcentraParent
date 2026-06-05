@@ -334,6 +334,14 @@ only with explicit parent settings.
   material is deleted. It does not claim production OCR quality,
   authenticated-account/social coverage, cross-platform OCR parity,
   enforcement, live view, or raw retention.
+- `scripts/test/screen-ai-service-winrt-ocr-policy-proof.mjs` now reruns that
+  real service WinRT OCR proof and consumes the resulting `localOcr` Activity
+  Screen row through typed parent-domain policy contracts. It proves the
+  `school`/policy-eligible OCR row produces an allow dry-run decision with
+  activity, journal, and query-store evidence refs, a parent rule ref, policy
+  refs on the Activity Screen read-model row, deleted-image custody, and
+  `rawImageRetained:false`. It does not claim final enforcement, broad adapter
+  dispatch, production OCR quality, live view, or raw retention.
 - `ScreenSummaryParentExplanationSchema` and
   `scripts/test/screen-summary-parent-explanation-proof.mjs` now prove the
   parent explanation/audit context can consume those deleted local
@@ -396,6 +404,8 @@ remain separate proof gates.
 - [x] Image deletion and retention state proof.
 - [x] Confidence and unknown handling.
 - [x] Policy decision references summary evidence.
+- [x] Service WinRT OCR row feeds a typed parent policy dry-run without raw
+      image retention.
 - [x] Portal read-model explanation and audit proof.
 - [x] Parent Settings route renders read-only Screen settings/capability proof.
 - [x] Parent Settings route renders writable local screen-summary intent draft

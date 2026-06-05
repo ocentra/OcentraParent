@@ -25,6 +25,7 @@ claims.
 | Service-owned native foreground runtime  | P3 local-machine proved  | `output/screen-ai-pipeline-proof/service-foreground/proof-summary.json`                        | Rust service opt-in foreground watcher records encrypted active-window captures across real Chromium-to-Notepad foreground activity and surfaces the latest Activity Screen row over the real WebSocket read model; it does not claim browser URL trigger ownership or VLM classification.                                                                                                                                                                                                                                                       |
 | Service-owned local adapter analysis     | P3 local-machine proved  | `output/screen-ai-pipeline-proof/service-analysis/proof-summary.json`                          | Rust service opt-in analysis loop consumes one encrypted queue record, invokes a local adapter command through the service runtime, writes a `localVision` Activity Screen row over the real WebSocket read model, and drains the processed queue; it does not claim production VLM quality.                                                                                                                                                                                                                                                     |
 | Service-owned WinRT OCR analysis         | P3 local-machine proved  | `output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json`                         | Rust service opt-in cadence captures a live public Wikipedia Chrome window into the encrypted queue, invokes a local Windows `Windows.Media.Ocr` adapter through the service analysis runtime, writes a `localOcr` `school` Activity Screen row with runtime/model/template metadata over the real WebSocket read model, drains the queue, and deletes adapter temp image material; it does not claim production OCR quality, authenticated/social coverage, enforcement, cross-platform OCR, live view, or raw retention.                       |
+| Service WinRT OCR policy dry-run         | P3 local-machine proved  | `output/screen-ai-pipeline-proof/service-winrt-ocr-policy/proof-summary.json`                  | Reruns the real service WinRT OCR proof, consumes that exact `localOcr` Activity Screen row through typed parent-domain policy contracts, writes an allow dry-run decision with activity/journal/query-store evidence refs, and preserves deleted-image/no-raw-retention custody; it does not claim final enforcement, broad adapters, production OCR quality, live view, or raw retention.                                                                                                                                                      |
 | Service-owned native game analysis       | P3 local-machine proved  | `output/screen-ai-pipeline-proof/service-native-game-analysis/proof-summary.json`              | Rust service opt-in foreground capture records a controlled native game-like window, then the opt-in analysis loop consumes that encrypted queue record, invokes a local adapter command through the service runtime, writes a `localVision` game Activity Screen row, and drains the processed queue. It does not claim installed commercial-game detection or a dedicated app/game identity producer.                                                                                                                                          |
 | Service-owned retention sweeper runtime  | P3 local-machine proved  | `output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json`                 | Rust service opt-in retention sweeper removes one expired encrypted queue record created by the service cadence runtime and surfaces an `expiredDeleted` Activity Screen row for the original queue job over the real WebSocket read model; it does not claim parent retention UI or cloud retention policy.                                                                                                                                                                                                                                     |
 | Local VLM analysis of captured screens   | P3 harness proved        | `output/ai-plan-proof/real-analysis/proof-summary.json`                                        | Covers 16 real window captures of controlled video/social/game/shopping/bypass/school/native/cadence fixture content; live external URL/account proof remains before product-complete claims.                                                                                                                                                                                                                                                                                                                                                    |
@@ -97,6 +98,7 @@ claims.
 - [x] Block real adapter result for the owned-process Windows adapter path.
 - [x] Unknown/manual-required result.
 - [x] AI cannot override stricter parent rule.
+- [x] Service WinRT OCR Activity Screen row feeds a typed parent policy dry-run.
 - [x] Real Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination proof.
 - [ ] Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.
 
@@ -126,6 +128,8 @@ claims.
       `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`.
 - [x] Service WinRT OCR proof completed:
       `output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json`.
+- [x] Service WinRT OCR policy dry-run proof completed:
+      `output/screen-ai-pipeline-proof/service-winrt-ocr-policy/proof-summary.json`.
 - [x] Operator live proof completed before product-complete claim.
 - [x] Live external URL/surface proof completed for real YouTube/Vimeo/social/shopping/school surfaces; controlled fixture rows are harness proof only.
 
@@ -147,6 +151,9 @@ claims.
 - [x] Service WinRT OCR proof run:
       `node --check scripts/test/screen-ai-service-winrt-ocr-proof.mjs` and
       `node scripts/test/screen-ai-service-winrt-ocr-proof.mjs`.
+- [x] Service WinRT OCR policy proof run:
+      `node --check scripts/test/screen-ai-service-winrt-ocr-policy-proof.mjs` and
+      `node scripts/test/screen-ai-service-winrt-ocr-policy-proof.mjs`.
 - [x] Service native game analysis proof run:
       `node --check scripts/test/screen-ai-service-native-game-analysis-proof.mjs` and
       `node scripts/test/screen-ai-service-native-game-analysis-proof.mjs`.
