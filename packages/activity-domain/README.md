@@ -129,9 +129,12 @@ flowchart LR
   OCR/VLM quality, policy action, enforcement, live view, and raw retention
   remain separate proof gates.
 - Screen WinRT OCR worker now has `screen-winrt-ocr-worker-proof`, and service
-  timed-cadence OCR now has `screen-ai-service-winrt-ocr-proof`; production OCR
-  quality, unavailable/permission-required state proof, broader trigger OCR,
-  cross-platform OCR parity, and enforcement remain separate proof gates.
+  timed-cadence OCR now has `screen-ai-service-winrt-ocr-proof`; the
+  cross-package `screen-ai-service-winrt-ocr-policy-proof` consumes that row
+  through parent-domain dry-run policy refs without making activity-domain own
+  policy authority. Production OCR quality, unavailable/permission-required
+  state proof, broader trigger OCR, cross-platform OCR parity, and enforcement
+  remain separate proof gates.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime, local parent-defined place store proof, and Rust ActivityStore ingest
   proof; platform adapters, provider runtime, and live service-backed UI proof

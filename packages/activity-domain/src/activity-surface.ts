@@ -43,6 +43,11 @@ const ActivitySurfaceReferenceListSchema = Schema.Array(NonEmptyActivitySurfaceT
 const ActivityScreenRawImageRetainedSchema = Schema.optionalWith(Schema.Literal(false), {
   default: () => false as const,
 });
+const ActivityScreenCapabilityStatusSchema = Schema.Union(ScreenCapabilityStatusSchema, Schema.Literal('available'));
+const ActivityScreenProviderKindSchema = Schema.Union(
+  ScreenLocalModelProviderKindSchema,
+  Schema.Literal('serviceCaptureMetadata')
+);
 
 export const ActivitySurfaceSchemaVersion = 1;
 
@@ -255,11 +260,11 @@ export const ActivityScreenReadModelSchema = withParser(
         backgroundMs: NonNegativeActivityDuration,
         captureReason: ScreenCaptureReasonSchema,
         captureScope: ScreenCaptureScopeSchema,
-        capabilityStatus: ScreenCapabilityStatusSchema,
+        capabilityStatus: ActivityScreenCapabilityStatusSchema,
         queueJobId: ScreenEvidenceQueueJobIdSchema,
         modelRuntimeRef: ScreenEvidenceModelRuntimeRefSchema,
         modelId: ScreenEvidenceModelIdSchema,
-        providerKind: ScreenLocalModelProviderKindSchema,
+        providerKind: ActivityScreenProviderKindSchema,
         promptOrTemplateVersion: ScreenEvidenceTemplateVersionSchema,
         primaryCategory: Schema.Union(ScreenVisibleCategorySchema, Schema.Null),
         confidence: ScreenEvidenceConfidenceSchema,

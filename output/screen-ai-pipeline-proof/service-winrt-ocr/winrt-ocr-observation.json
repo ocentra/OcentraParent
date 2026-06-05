@@ -5,31 +5,31 @@
     "wikipedia",
     "mathematics"
   ],
-  "lineCount": 22,
-  "textDigest": "sha256:dc5c6d9171c8b6649105bb4a1b791fa9c0b13cd9f6160c34be31113e233110c5",
+  "lineCount": 31,
+  "textDigest": "sha256:49c385679e911e9dddac7fbb91cac1e2ee68cab733a2fef1ae110613bde18fe1",
   "snippets": [
     {
-      "text": "Ask about page? x",
+      "text": "Mathe",
       "boundingBoxRef": "line-1"
     },
     {
-      "text": "en.wikipedia.org/wiki/...",
+      "text": "Ask Gemini",
       "boundingBoxRef": "line-2"
     },
     {
-      "text": "Bookmarks Adobe cc 2019 pre-...",
+      "text": "en.wikipedia.org/wiki/...",
       "boundingBoxRef": "line-3"
     },
     {
-      "text": "WIKIPEDIA*",
+      "text": "Bookmarks Adobe cc 2019 pre-...",
       "boundingBoxRef": "line-4"
     },
     {
-      "text": "25 yeus of the",
+      "text": "All Bookmarks",
       "boundingBoxRef": "line-5"
     },
     {
-      "text": "Mathematics",
+      "text": "e 7 age ra, an cacu USL",
       "boundingBoxRef": "line-6"
     }
   ],

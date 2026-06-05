@@ -61,6 +61,12 @@ claim needs proof, not slogans.
   degraded, unavailable, API authorized-unavailable, and API authorized-degraded
   states without making remote/API AI part of child safety decisions.
 - Dry-run policy evaluator and evidence context builder exist in proof form.
+- The service WinRT OCR policy proof now reruns the real Windows service
+  OCR path over live public Wikipedia pixels and consumes that exact
+  `localOcr` Activity Screen row through `PolicyDecisionSchema`, producing an
+  allow dry-run with evidence refs, parent rule refs, disabled enforcement
+  handoff, and deleted-image/no-raw-retention custody. It does not claim final
+  enforcement, production OCR quality, or authenticated-account coverage.
 - Screen-derived time-limit and block decisions now have Windows
   owned-process adapter handoff proof. Model quality, video/social live
   coverage, and browser/category/network/mobile/broad enforcement handoff remain
@@ -146,6 +152,7 @@ production external evidence variants.
 - [x] Parent-rule context proof path.
 - [x] Local result contract with confidence/degraded state.
 - [x] Deterministic policy integration.
+- [x] Service WinRT OCR row consumed by typed parent policy dry-run.
 - [x] Social/video and screen summary handling proof path.
 - [x] Parent explanation and audit proof path.
 - [x] Parent explanation read-model proof path.
