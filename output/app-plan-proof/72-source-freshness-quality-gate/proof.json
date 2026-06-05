@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-source-freshness-quality-gate",
-  "checkedAt": "2026-06-05T20:40:29.502Z",
+  "checkedAt": "2026-06-05T22:34:49.114Z",
   "branch": "codex/app-game-source-freshness-quality-gate",
-  "commit": "66d02f512de3394a5cdf2d8ff6f722887d1d1c55",
+  "commit": "bf120e66ad069e197accc65753be5d2582c811ea",
   "statusShort": "",
   "commands": [
     {

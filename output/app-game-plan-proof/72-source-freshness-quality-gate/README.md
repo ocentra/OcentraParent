@@ -1,7 +1,7 @@
 # app-game WP72 Source Freshness Quality Gate
 
-Checked at: 2026-06-05T20:40:29.502Z
-Commit: 66d02f512de3394a5cdf2d8ff6f722887d1d1c55
+Checked at: 2026-06-05T22:34:49.114Z
+Commit: bf120e66ad069e197accc65753be5d2582c811ea
 
 ## Claims Proved
 - activity-domain source freshness quality rows distinguish fresh, stale, missing, manual-required, unavailable, and empty source coverage

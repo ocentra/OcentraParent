@@ -1,7 +1,7 @@
 # app WP72 Source Snapshot
 
 Branch: codex/app-game-source-freshness-quality-gate
-Commit: 66d02f512de3394a5cdf2d8ff6f722887d1d1c55
+Commit: bf120e66ad069e197accc65753be5d2582c811ea
 
 ## Git Status
 ```text
