@@ -105,10 +105,12 @@ packages/parent-domain/src/app-install-purchase-child-artifact-delivery-proof.ts
 packages/parent-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts:1 file has 367 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts:1 file has 374 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-package-source-capture-status-proof.ts:1 file has 453 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-parent-action-delivery-readiness-proof.ts:1 file has 333 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts:1 file has 292 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-parent-review-action-proof.ts:1 file has 343 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts:1 file has 296 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-platform-artifact-proof.ts:1 file has 332 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts:1 file has 480 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-report-runtime-proof.ts:1 file has 310 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-runtime-proof-rules.ts:1 file has 294 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-runtime-proof.ts:1 file has 314 lines; crossed 250-line advisory band; maximum is 1000
@@ -214,6 +216,7 @@ packages/parent-domain/tests/app-install-purchase-child-artifact-delivery-proof.
 packages/parent-domain/tests/app-install-purchase-child-artifact-delivery-proof.test.ts:18 function has 74 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-install-purchase-package-source-capture-status-proof.test.ts:16 function has 68 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-install-purchase-package-source-capture-status-proof.test.ts:17 function has 66 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-install-purchase-provider-store-execution-readiness-proof.test.ts:16 function has 64 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-install-purchase-runtime-proof.test.ts:16 function has 64 lines; warning starts at 64 of 80
 packages/parent-domain/tests/billing-entitlement.test.ts:1 file has 269 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/tests/browser-control-contracts.test.ts:1 file has 700 lines; crossed 500-line advisory band; maximum is 1000

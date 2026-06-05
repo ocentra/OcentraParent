@@ -1,9 +1,9 @@
 {
   "proof": "network-live-capture-storage",
-  "checkedAt": "2026-06-05T19:39:52.036Z",
+  "checkedAt": "2026-06-05T19:56:11.255Z",
   "branch": "codex/network-live-capture-retention-proof",
-  "commit": "6059f53673ca8e7c95180a1fe7f92bce9d3fbb05",
-  "statusShort": "M  crates/ocentra-network-evidence/README.md\nM  crates/ocentra-network-evidence/src/lib.rs\nA  crates/ocentra-network-evidence/src/raw_capture_storage.rs\nA  crates/ocentra-network-evidence/src/raw_capture_storage/types.rs\nM  crates/ocentra-network-evidence/src/tests.rs\nA  crates/ocentra-network-evidence/src/tests/raw_capture_storage.rs\nM  docs/features/network-domain-control.md\nMM docs/plans/network-plan/implementation-checklist.md\nA  output/network-plan-proof/03a-live-capture-storage-proof/03a-live-capture-storage-proof.json\nA  output/network-plan-proof/03a-live-capture-storage-proof/12-validation-commands.log\nAM output/network-plan-proof/03a-live-capture-storage-proof/clippy.log\nA  output/network-plan-proof/03a-live-capture-storage-proof/proof-summary.json\nAM output/network-plan-proof/03a-live-capture-storage-proof/raw-capture-storage-tests.log\nA  output/network-plan-proof/03a-live-capture-storage-proof/source-shape.log\nAM scripts/test/network-live-capture-storage-proof.mjs\nA  test-results/network-live-capture-storage-proof/proof.json\n",
+  "commit": "ac663f192bb3ebbdd449a426f7058e793f7ac4e2",
+  "statusShort": "",
   "proofRoot": "output\\network-plan-proof\\03a-live-capture-storage-proof",
   "testRoot": "test-results\\network-live-capture-storage-proof",
   "commands": [
