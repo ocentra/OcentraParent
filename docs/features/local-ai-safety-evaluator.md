@@ -72,6 +72,15 @@ claim needs proof, not slogans.
   unavailable cloud-game context, all without remote AI, direct policy
   authority, enforcement, authenticated-account, cloud-frame, or mobile parity
   claims.
+- `ScreenFamilyAiHubRouteSchema` and
+  `scripts/test/screen-family-ai-hub-routing-proof.mjs` now prove the
+  screen-specific family AI hub route contract for hard visual analysis:
+  child-device local analysis must be attempted before household hub selection,
+  selected hub routing stays in local LAN custody with no retention,
+  redacted/cropped input is required, and remote/API fallback is rejected for
+  child-safety decisions. This is route/custody contract proof; it does not
+  claim real hub runtime discovery, production model quality, policy authority,
+  UI, or enforcement.
 
 ## Current Gap
 
@@ -79,8 +88,9 @@ Ocentra needs product-grade model configuration, local model artifacts,
 production screen model quality, confidence handling, degraded states,
 authenticated-account social proof beyond public/live surface proof, parent
 explanations, broader enforcement handoff, production browser-trigger
-producers, cloud-streamed frame proof, mobile browser parity, and validation
-against production external evidence variants.
+producers, real family AI hub runtime/discovery, cloud-streamed frame proof,
+mobile browser parity, and validation against production external evidence
+variants.
 
 ## Checklist
 
@@ -92,6 +102,8 @@ against production external evidence variants.
 - [x] Social/video and screen summary handling proof path.
 - [x] Parent explanation and audit proof path.
 - [x] Tests with real stored evidence.
+- [x] Screen hard-visual routing prefers child-local then household family hub
+      before remote/API fallback.
 
 Product-grade model configuration, model artifacts, production model quality,
 authenticated-account social proof, and broad enforcement handoff remain in the

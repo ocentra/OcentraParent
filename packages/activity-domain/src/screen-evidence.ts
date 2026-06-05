@@ -8,3 +8,5 @@ export * from './screen-evidence-read-model';
 export * from './screen-evidence-resource-scheduler';
 export * from './screen-evidence-resource-scheduler-proof';
 export * from './screen-evidence-detector-prompt-pack';
+export * from './screen-evidence-family-hub-routing';
+export * from './screen-intelligence-router';

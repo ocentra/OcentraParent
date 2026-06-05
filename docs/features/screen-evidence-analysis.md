@@ -218,6 +218,15 @@ only with explicit parent settings.
   parent-owned-export custody. The proof writes
   `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`.
   This is not live-view transport, retention UI, or privacy/legal approval.
+- `ScreenFamilyAiHubRouteSchema` and
+  `scripts/test/screen-family-ai-hub-routing-proof.mjs` now prove the
+  screen-specific family AI hub route contract for hard visual cases: the child
+  device local analysis attempt must be visible first, a selected family hub
+  route stays inside `live-lan-child-agent` custody, redacted/cropped input is
+  required, no retention is allowed, and raw screenshot transfer, remote/API
+  fallback, and Ocentra-hosted processing are rejected. This is contract proof;
+  real LAN hub runtime/discovery, production model quality, policy decisions,
+  UI, and enforcement remain separate gates.
 - `scripts/test/screen-ai-service-disabled-suppression-proof.mjs` now proves the
   service-owned disabled setting against the real Rust service on Windows: an
   enabled phase creates one encrypted cadence queue record, then a disabled
@@ -265,6 +274,18 @@ only with explicit parent settings.
   remains a D/browser-lane handoff item. The social row is manual-required and
   the cloud-game row is unavailable/scaffold-only, so this does not claim
   authenticated social, cloud-frame, mobile parity, UI, or enforcement support.
+- `ScreenIntelligenceRouteRequestSchema`,
+  `ScreenManagedBrowserStructuredExtractionSchema`, and
+  `scripts/test/screen-router-structured-extraction-proof.mjs` now prove the
+  screen intelligence router contract: existing typed evidence is checked before
+  capture, managed-browser structured URL/title/metadata/bounded visible-text
+  extraction runs before screenshots, enough structured evidence produces
+  `noScreenNeeded`, native app/game/launcher/unknown-process paths route only to
+  parent-allowed active-window or selected-window scopes, and protected or
+  credential-risk surfaces return unavailable. This is contract proof only; it
+  does not claim live managed-browser producer integration, real DOM or
+  accessibility capture, portal UI, policy execution, enforcement, or final
+  pipeline closure.
 - Service-persisted product settings, retention controls, and quality proof are
   incomplete.
 - Raw screen control settings are preserved as design inputs, not
@@ -280,10 +301,11 @@ live trigger event producers beyond the timed cadence loop and native
 active-window foreground watcher, physical Android/iOS proof, live macOS capture
 proof, Linux root/Wayland portal proof, browser-trigger artifact closure,
 browser/network/mobile/broad block action adapters from screen-derived
-decisions, and production parent explanation UX remain. Browser-trigger proof
-now covers contract flow into screen evidence and local-AI context only; live
-trigger producers, authenticated surfaces, cloud-streamed frames, mobile parity,
-and UI remain separate proof gates.
+decisions, real family AI hub runtime/discovery, and production parent
+explanation UX remain. Browser-trigger proof now covers contract flow into
+screen evidence and local-AI context only; live trigger producers,
+authenticated surfaces, cloud-streamed frames, mobile parity, and UI remain
+separate proof gates.
 
 ## Checklist
 
@@ -304,6 +326,10 @@ and UI remain separate proof gates.
       prioritizes policy-blocking screen analysis.
 - [x] Detector-specific prompt packs replace open-ended screen descriptions and
       reject private/raw output fields.
+- [x] Family AI hub route contract is used before remote/API for hard visual
+      cases.
+- [x] Screen intelligence router checks typed evidence and managed-browser
+      structured extraction before selecting screenshots.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof, broad
