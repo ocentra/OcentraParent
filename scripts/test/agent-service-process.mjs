@@ -13,8 +13,8 @@ export function spawnVitePortal(port, env, repoRoot = process.cwd()) {
   const command = process.platform === 'win32' ? 'cmd.exe' : 'npm';
   const args =
     process.platform === 'win32'
-      ? ['/c', `npm exec -- vite --host 127.0.0.1 --port ${port} --strictPort`]
-      : ['exec', '--', 'vite', '--host', '127.0.0.1', '--port', String(port), '--strictPort'];
+      ? ['/c', `npm exec -- vite --host 127.0.0.1 --port ${port} --strictPort --force`]
+      : ['exec', '--', 'vite', '--host', '127.0.0.1', '--port', String(port), '--strictPort', '--force'];
 
   return spawn(command, args, {
     cwd: join(repoRoot, 'apps', 'portal'),
