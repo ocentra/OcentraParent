@@ -331,6 +331,15 @@ only with explicit parent settings.
   preserves screen-summary refs, audit refs, parent rules, dry-run policy refs,
   runtime refs, custody, and deletion state without showing raw screenshots or
   claiming production portal runtime rendering.
+- `scripts/test/screen-ai-final-product-path-proof.mjs` now validates the
+  retained final path evidence across real live/operator trigger artifacts,
+  capture metadata, local VLM analysis, policy dry-runs, Windows action handoff
+  proofs, portal/read-model proof, retention/deletion custody, and protected
+  surface non-claims at
+  `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`. This
+  is a stacked artifact gate; it does not rerun the live operator session or
+  claim managed-browser trigger ownership, authenticated-account social proof,
+  or broad browser/network/mobile adapters.
 - Service-persisted product settings, retention controls, and quality proof are
   incomplete.
 - Raw screen control settings are preserved as design inputs, not
@@ -390,6 +399,9 @@ separate proof gates.
 - [x] Screen-summary parent explanation read-model proof preserves refs,
       custody, and deleted-image state without raw screenshot display or portal
       runtime claims.
+- [x] Final screen-AI product path artifact gate validates retained real-run
+      trigger, capture, AI, policy, action/read-model, and deletion/custody
+      artifacts without raw screenshot retention.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof, broad

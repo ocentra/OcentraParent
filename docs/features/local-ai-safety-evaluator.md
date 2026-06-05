@@ -99,6 +99,13 @@ claim needs proof, not slogans.
   dry-run policy refs, local runtime refs, custody labels, and deleted-image
   reasons while still not claiming raw image display, remote/API AI, production
   portal runtime rendering, policy authority, or enforcement.
+- `scripts/test/screen-ai-final-product-path-proof.mjs` now verifies the
+  retained final screen-AI path artifacts: real live/operator trigger rows,
+  local VLM analysis rows, dry-run policy decisions, Windows action handoff
+  proofs, portal/read-model proof, retention/deletion custody, and
+  protected-surface non-claims. The verifier writes
+  `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json` and
+  does not rerun live capture/model inference or claim remote/API AI.
 - `ScreenFamilyAiHubRouteSchema` and
   `scripts/test/screen-family-ai-hub-routing-proof.mjs` now prove the
   screen-specific family AI hub route contract for hard visual analysis:
@@ -131,6 +138,7 @@ production external evidence variants.
 - [x] Social/video and screen summary handling proof path.
 - [x] Parent explanation and audit proof path.
 - [x] Parent explanation read-model proof path.
+- [x] Final screen-AI product path artifact gate.
 - [x] Tests with real stored evidence.
 - [x] Screen hard-visual routing prefers child-local then household family hub
       before remote/API fallback.

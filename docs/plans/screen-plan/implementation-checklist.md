@@ -43,6 +43,7 @@ trigger ownership unless the row explicitly says so.
 | Router/structured extraction proof        | P2 contract proved       | `output/screen-plan-proof/31-32-screen-router-structured-extraction/proof-summary.json`            | Proves typed screen routing checks existing evidence and managed-browser structured extraction before screenshots; no live producer, portal, policy, or enforcement claim.                                                                                                                                    |
 | Managed-browser CDP screenshot capture    | P3 live local proved     | `output/screen-plan-proof/33-managed-browser-cdp-screenshot-capture-path/proof-summary.json`       | Proves real Chromium CDP page/viewport/crop screenshot capture tied to a managed page target with encrypted temp queue handoff and deletion; no URL-trigger ownership, OCR/VLM, policy, enforcement, live view, or raw retention claim.                                                                       |
 | Windows WinRT OCR worker capture analysis | P3 real OCR proved       | `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`                                  | Proves real selected-window browser/native captured pixels run through Windows WinRT OCR, become typed screen-analysis evidence, feed allow dry-run policy decisions, and delete raw temp images; no production OCR quality, service runtime, cross-platform, enforcement, live view, or raw retention claim. |
+| Final screen-AI product path gate         | P3 stacked proof proved  | `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`                            | Validates retained real-run artifacts from live/operator trigger rows through capture, local VLM/OCR analysis, policy dry-run, Windows action handoff, portal/read model, and deletion/custody proof; it does not rerun the live operator session or claim managed-browser trigger ownership/broad adapters.  |
 
 ## Main Gates
 
@@ -82,7 +83,9 @@ trigger ownership unless the row explicitly says so.
 - [x] Platform capture proof exists before platform claim.
 - [x] Operator live URL/app proof is recorded before product-complete claim.
 - [x] Playwright UI proof exists.
-- [ ] Final product-complete pipeline proof is completed in `docs/plans/screen-ai-pipeline-plan` after screen and AI prerequisites are merged or explicitly stacked.
+- [x] Final product-complete pipeline proof is completed in
+      `docs/plans/screen-ai-pipeline-plan` after screen and AI prerequisites are
+      merged or explicitly stacked.
 
 ## Required Proof Pack
 
