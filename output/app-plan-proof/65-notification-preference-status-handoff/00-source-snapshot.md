@@ -1,7 +1,7 @@
 # app WP65 Source Snapshot
 
-- Branch: codex/app-game-notification-preference-status-handoff
-- Commit: 6bb01c228488ca2abae90e3813073a43dd507c39
+- Branch: codex/app-game-notification-parent-surface-intent-wp65
+- Commit: 10cccaae9da8b24f232d67d200ca61aab00e0aea
 - Git status at proof generation:
 
 ```text
