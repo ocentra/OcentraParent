@@ -2,6 +2,17 @@
 
 Reusable Rust eventing primitives for Ocentra Parent runtime code.
 
+## Phase 1 Proof
+
+The reusable event bus merge gate is `scripts/test/eventing-runtime-proof.mjs`.
+It writes
+`output/eventing-plan-proof/reusable-eventing-runtime/proof-summary.json` and
+proves the generic crate runtime, delivery-decision helper, metrics/testkit,
+queue/retry/timeout, request/response, journal/replay, lifecycle, source-safety,
+topology, registry, fixture-parity, and compatibility rows without running
+network, portal, service, parent/controller, child-agent, broker, family-hub,
+policy, AI, enforcement, or platform-adapter consumer proofs.
+
 ## Owns
 
 - Validated event identifiers, correlation ids, aggregate keys, idempotency
@@ -82,5 +93,6 @@ adapter rollback execution, production retention/delete/export behavior, or
 whole-repo source scanning for topology discovery. Consumers can compose
 delivery decision proof with their own queue/idempotency/drop-audit proof, as
 the network runtime does for row10a, but must keep live broker and family-hub
-transport claims manual-required until the matching eventing workpacks are
-implemented and validated.
+transport claims and other consumer runtime claims manual-required until the
+matching eventing workpacks are implemented and validated on top of the reusable
+bus.

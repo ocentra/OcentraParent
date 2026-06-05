@@ -17,9 +17,9 @@ const commands = [
     args: ['clippy', '-p', 'ocentra-eventing', '--all-targets', '--', '-D', 'warnings'],
   },
   {
-    name: 'network-consumer-smoke',
-    command: 'cargo',
-    args: ['test', '-p', 'ocentra-parent-agent-core', 'network_event_runtime'],
+    name: 'git-diff-check',
+    command: 'git',
+    args: ['diff', '--check'],
   },
 ];
 
