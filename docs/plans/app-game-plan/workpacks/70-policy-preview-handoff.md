@@ -48,10 +48,10 @@ notifications, or dispatching adapters.
 ## Coordination Notes
 
 - `packages/parent-domain/package.json` export is intentionally deferred while
-  E-B's child-device delivery runtime-writer package export is pending in
-  draft PR364. Before WP70 PR-ready, add the
-  `./app-game-policy-preview-handoff` export after PR364 merges or after
-  primary assigns a combined package export slot.
+  E-B owns the shared package export for follow-on app-install adapter proof
+  work. PR364 has merged, so before WP70 PR-ready add the
+  `./app-game-policy-preview-handoff` export after E-B releases the current
+  package export lock or primary assigns a combined package export slot.
 - `docs/product-capability-checklist.md` is unchanged because this is a
   contract handoff proof and does not move feature status.
 
