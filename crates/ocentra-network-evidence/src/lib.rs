@@ -21,6 +21,7 @@ pub mod packet;
 pub mod pcap;
 pub mod policy;
 pub mod process;
+pub mod risk_budget;
 pub mod signature_alert;
 pub mod tls;
 pub mod transfer;
@@ -147,6 +148,13 @@ pub use process::{
     NetworkProcessAppCorrelation, NetworkProcessAppCorrelationInput,
     NetworkProcessCorrelationBasis, NetworkProcessCorrelationError, NetworkProcessCorrelationState,
     NetworkProcessCorrelationUncertainty, NetworkProcessSnapshot,
+};
+pub use risk_budget::{
+    evaluate_network_risk_budget_threshold, NetworkInterventionState,
+    NetworkRiskBudgetAdapterProofState, NetworkRiskBudgetAgeBand, NetworkRiskBudgetEvaluation,
+    NetworkRiskBudgetEvidenceTier, NetworkRiskBudgetHouseholdPolicy, NetworkRiskBudgetPriorEvent,
+    NetworkRiskBudgetSignal, NetworkRiskBudgetState, NetworkRiskBudgetThresholdError,
+    NetworkRiskBudgetThresholdInput, NetworkRiskBudgetThresholds,
 };
 pub use signature_alert::{
     ingest_network_signature_alerts, NetworkAnalyzerAlertRecord, NetworkSignatureAlertFixtureRow,

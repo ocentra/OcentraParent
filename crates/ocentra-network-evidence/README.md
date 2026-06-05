@@ -137,14 +137,20 @@ positives recommend parent/policy review, uncertain detections recommend
 managed-browser or screen-summary confirmation, benign cited detections stay
 monitor-only, and remote-AI, raw PCAP, exact URL, page content, private message,
 search query, decrypted payload, policy authority, adapter authority, and
-enforcement-command claims are rejected.
+enforcement-command claims are rejected. The household risk-budget threshold
+proof consumes AI audit reports, child/profile refs, household policy refs,
+prior-event refs, and adapter proof state to map risk pressure into ignore,
+monitor, ask-parent, warn-child, limit, block, or manual-required
+recommendations. Safe-behavior credit requires a parent rule cap, expiry, audit
+reason, and UI explanation, while signature-only and missing-adapter cases stay
+manual-required for control actions and no enforcement command is published.
 
 Live Npcap/libpcap capture, full vendor category feeds,
 production CDN intelligence, unmanaged browser URL correlation, foreground
 session correlation, live network adapter enforcement, file/content inspection,
 local-AI model execution/worker runtime, production model-quality monitoring,
 full policy engine execution, notification provider delivery, portal AI audit UI
-rendering, live WFP driver/callout proof, live adapter execution, Android
-physical-device behavior, Apple entitlement/device behavior, Linux distro/kernel
-adapter behavior, live Zeek/TShark/Wireshark/Suricata/Snort execution, and
-portal rendering remain separate proof-gated workpacks.
+or risk-budget rendering, live WFP driver/callout proof, live adapter execution,
+Android physical-device behavior, Apple entitlement/device behavior, Linux
+distro/kernel adapter behavior, live Zeek/TShark/Wireshark/Suricata/Snort
+execution, and portal rendering remain separate proof-gated workpacks.

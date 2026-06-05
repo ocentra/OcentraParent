@@ -23,6 +23,7 @@ mod managed_browser;
 mod notification;
 mod policy;
 mod process;
+mod risk_budget;
 mod signature_alert;
 mod transfer;
 mod tunnel;

@@ -160,6 +160,13 @@ compete on control while staying clear about attribution confidence and privacy.
   codes and rejects remote-AI, raw PCAP, exact URL, page-content, private-message,
   search-query, decrypted-payload, policy-authority, adapter-authority, and
   enforcement-command claims.
+- E-D added deterministic household risk-budget threshold proof in
+  `ocentra-network-evidence`: AI audit reports, child/profile refs, household
+  policy refs, prior-event refs, and adapter proof state map to ignore, monitor,
+  ask-parent, warn-child, limit, block, or manual-required recommendations.
+  Safe-behavior credit requires parent-rule cap, expiry, audit reason, and UI
+  explanation refs; signature-only or missing-adapter cases stay manual-required
+  for control actions, and no policy/adapter/enforcement authority is claimed.
 - E-D added an evidence-grade policy mapper in `ocentra-network-evidence`:
   A/B/C/D evidence plus parent rule refs, policy decision refs, evidence refs,
   and optional local-AI result refs map to dry-run, parent-review, or
@@ -214,8 +221,8 @@ compete on control while staying clear about attribution confidence and privacy.
 
 Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
 attribution quality, live PCAP/analyzer fixture proof, TypeScript/public export
-parity and service wiring for network event contracts, risk-budget proof,
-performance proof, and parent-facing rule UX remain.
+parity and service wiring for network event contracts, production risk-budget
+service/UI wiring, performance proof, and parent-facing rule UX remain.
 Policy dispatch does not upgrade
 network/domain blocking beyond
 manual-required, and the broad-adapter proof and supported-adapter runtime proof
@@ -315,10 +322,14 @@ execution, and platform adapter execution remain open.
       recall, accuracy, and confidence-drift states while rejecting raw content
       and authority claims. Row47 AI audit narrative proof now emits
       parent-readable advisory recommendations with detection/evidence/analyzer/
-      parent-rule citations and uncertainty states. AI model execution,
+      parent-rule citations and uncertainty states. Row48 household risk-budget
+      threshold proof now maps AI audit reports, age/profile policy, prior
+      events, safe-behavior credits, and adapter proof state into
+      ignore/monitor/ask/warn/limit/block/manual-required recommendations
+      without publishing enforcement commands. AI model execution,
       broker/family-hub delivery implementation, broader service wiring, full
-      policy engine execution, notification delivery, and risk-budget fixtures
-      remain.
+      policy engine execution, notification delivery, and portal risk-budget UI
+      rendering remain.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
