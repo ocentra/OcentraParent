@@ -102,6 +102,15 @@ only with explicit parent settings.
   analysis route and dry-run policy decision without claiming captured pixels,
   OCR, VLM, or raw-image custody. The route requires local evidence, known
   category, sufficient confidence, and `unavailableNoImage` deletion state.
+- `ScreenLocalAiResourceProofSchema` and
+  `scripts/test/screen-local-ai-resource-scheduler-proof.mjs` prove the
+  screen-specific local AI resource guard for OCR/VLM/deterministic analysis:
+  screen jobs carry type, priority, heavy/light/no-model resource weight,
+  timeout/skipped/degraded states, max image pixels, OCR snippet caps,
+  local-only custody, no remote AI, and no raw screenshot retention. The proof
+  also invokes the existing local provider singleton scheduler proof, so this
+  closes the screen scheduler/resource gate without claiming final live
+  capture-to-policy pipeline completion.
 - `scripts/test/screen-ai-observe-policy-proof.mjs` proves observe-only parent
   settings can still permit local screen analysis while rejecting policy
   handoff. The proof validates `policyUseEnabled:false`,
@@ -283,6 +292,8 @@ and UI remain separate proof gates.
       proof.
 - [x] Raw-retention/live-view/remote boundary rejects raw screenshot retention,
       live view, and raw remote upload by default.
+- [x] Local AI resource scheduler prevents multiple heavy OCR/VLM jobs and
+      prioritizes policy-blocking screen analysis.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof, broad

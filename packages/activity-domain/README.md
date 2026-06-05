@@ -24,6 +24,10 @@ Shared activity and evidence contracts for child-device observations.
 - Screen evidence settings UI proof contracts that build disabled, observe-only,
   and strict dry-run parent intent drafts from the real settings schemas without
   claiming child-agent persistence.
+- Screen local AI resource scheduler proof contracts that type OCR/VLM jobs,
+  prioritize policy-blocking work, enforce one heavy local screen AI lane per
+  child device, and keep pixel/snippet caps plus no-remote-AI/no-raw-retention
+  custody explicit.
 - Screen-AI browser trigger proof rows that compose typed browser AI
   input/result contracts with screen-analysis result contracts for managed URL,
   browser-video, social-feed, and cloud-game trigger states without claiming UI,
@@ -79,6 +83,10 @@ flowchart LR
   `screen-ai-browser-trigger-proof`; live trigger producers, authenticated
   social surfaces, cloud-streamed frame analysis, mobile browser parity, UI,
   final policy, and enforcement proof remain open.
+- Screen local AI resource scheduler proof now has
+  `screen-local-ai-resource-scheduler-proof`; production OCR/VLM quality,
+  broad trigger producers, and full capture-to-policy pipeline completion
+  remain separate proof gates.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime, local parent-defined place store proof, and Rust ActivityStore ingest
   proof; platform adapters, provider runtime, and live service-backed UI proof
