@@ -156,6 +156,17 @@ blocking, or platform support.
 - Parent preferences and quiet hours affect delivery without deleting the underlying audit event.
 - Provider adapters can be replaced or disabled without changing core policy logic.
 
+`scripts/test/app-game-notification-provider-preflight-proof.mjs` validates a
+parent-domain app/game provider preflight proof that maps scheduled app/game
+scheduler rows into provider-adapter-required rows with scheduler, outbox,
+decision, provider-channel, reason, adapter-requirement, credential, and
+provider smoke proof refs. It keeps manual-required and unavailable rows
+blocked before provider setup. This is a preflight boundary proof only: it does
+not claim provider delivery, receipt ingestion, credentials, cloud routing,
+parent notification UI, child delivery, production retry workers, production
+quiet-hours timers, durable production outbox storage, broad blocking, or
+platform support.
+
 ## Validation Gates
 
 - Contract tests for alert rules, reason codes, delivery status, retry state, quiet hours, and preferences.
@@ -186,6 +197,10 @@ blocking, or platform support.
   app/game local outbox rows becoming metadata-only audit-history entries, with
   manual/unavailable rows kept blocked/manual and no production runtime,
   provider/UI/child/adapter claims.
+- Parent-domain app/game notification provider preflight proof for scheduled
+  app/game scheduler rows becoming provider-adapter-required rows, with
+  manual/unavailable rows kept blocked and no delivery, receipt, credential,
+  UI, child, production runtime, or adapter-dispatch claims.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
 - Parent-surface coverage for notification history, preference changes, quiet hours, and sensitive-detail drill-in behind authentication.

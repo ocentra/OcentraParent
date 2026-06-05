@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "journalSqliteChanged": false,
+  "providerPreflightArtifact": "test-results/app-game-notification-provider-preflight-proof/provider-preflight-read-model.json"
+}

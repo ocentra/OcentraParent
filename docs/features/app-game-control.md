@@ -217,6 +217,10 @@ control with better evidence and local audit.
   keeping manual-required and unavailable rows blocked/manual and preserving no
   provider, retry runtime, UI, child-delivery, adapter, broad-blocking, or
   platform claims.
+- The app/game notification provider preflight bridge now maps scheduled
+  scheduler rows into provider-adapter-required rows with scheduler, outbox,
+  decision, provider-channel, and reason refs preserved, while manual-required
+  and unavailable rows stay blocked before any provider setup or delivery.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -370,6 +374,13 @@ schema, but it does not provide provider delivery, provider receipt ingestion,
 production retry workers, quiet-hours timer runtime, durable outbox/history
 storage, parent notification UI, child delivery, policy evaluator execution,
 adapter dispatch, broad blocking, or platform support.
+The app/game notification provider preflight proof turns scheduled scheduler
+rows into explicit provider-adapter, credential, and provider-smoke-proof
+requirements, but it does not provide provider delivery, provider receipt
+ingestion, credentials, production retry workers, quiet-hours timer runtime,
+durable production outbox storage, parent notification UI, child delivery,
+policy evaluator execution, adapter dispatch, broad blocking, or platform
+support.
 
 ## Checklist
 
@@ -443,6 +454,9 @@ adapter dispatch, broad blocking, or platform support.
       remain unscheduled. The audit-history bridge can now write metadata-only
       audit-history handoff entries for linked, manual-required, and unavailable
       rows without claiming provider delivery, history UI, or child delivery.
+      The provider preflight bridge now turns scheduled rows into
+      provider-adapter-required rows with adapter, credential, and provider
+      smoke-proof requirements before any delivery claim.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
