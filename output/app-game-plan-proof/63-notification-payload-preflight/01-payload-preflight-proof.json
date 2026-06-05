@@ -1,0 +1,61 @@
+{
+  "proofMode": "app-game-notification-payload-preflight-proof",
+  "generatedAt": "2026-06-05T03:18:00Z",
+  "scope": {
+    "sourceOutboxBridgeId": "app-game-notification-local-outbox-bridge-for-payload-proof",
+    "sourceSchedulerBridgeId": "app-game-notification-scheduler-bridge-for-payload-proof",
+    "payloadPreflightId": "app-game-notification-payload-preflight-proof",
+    "rowCount": 4,
+    "minimalPayloadRequiredCount": 2,
+    "manualRequiredCount": 1,
+    "unavailableCount": 1,
+    "providerChannels": [
+      "in-app",
+      "email"
+    ],
+    "minimalPayloadFieldCountByRow": [
+      7,
+      7
+    ],
+    "sensitiveExclusionCountByRow": [
+      5,
+      5
+    ],
+    "providerTemplateRequirementCountByRow": [
+      1,
+      1
+    ]
+  },
+  "statusCounts": {
+    "minimal-payload-required": 2,
+    "source-manual-required": 1,
+    "source-unavailable": 1
+  },
+  "nonClaims": {
+    "providerPayloadTemplateRuntimeClaimed": false,
+    "sensitiveProviderMetadataStored": false,
+    "rawChildEvidenceIncluded": false,
+    "rawUrlOrTitleIncluded": false,
+    "rawMessageTextIncluded": false,
+    "screenshotOrReportIncluded": false,
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "providerCredentialsClaimed": false,
+    "cloudRoutingClaimed": false,
+    "parentNotificationUiClaimed": false,
+    "childDeliveryClaimed": false,
+    "retryExecutionRuntimeClaimed": false,
+    "quietHoursTimerRuntimeClaimed": false,
+    "productionDurableOutboxStorageClaimed": false,
+    "adapterDispatchClaimed": false
+  },
+  "proofPaths": {
+    "source": "packages/parent-domain/src/app-game-notification-payload-preflight.ts",
+    "test": "packages/parent-domain/tests/app-game-notification-payload-preflight.test.ts",
+    "harness": "scripts/test/app-game-notification-payload-preflight-proof.mjs",
+    "readModel": "test-results/app-game-notification-payload-preflight-proof/payload-preflight-read-model.json",
+    "appGameProofPack": "output/app-game-plan-proof/63-notification-payload-preflight",
+    "appProofPack": "output/app-plan-proof/63-notification-payload-preflight"
+  },
+  "gitStatusShort": "M docs/expectations/notifications.md\n M docs/features/app-game-control.md\n M docs/features/reports-notifications-sync.md\n M docs/plans/app-game-plan/implementation-checklist.md\n M docs/plans/app-game-plan/workpacks/README.md\n M docs/plans/app-plan/implementation-checklist.md\n M docs/product-capability-checklist.md\n?? docs/plans/app-game-plan/workpacks/63-notification-payload-preflight.md\n?? docs/plans/app-plan/workpacks/63-notification-payload-preflight.md\n?? packages/parent-domain/src/app-game-notification-payload-preflight.ts\n?? packages/parent-domain/tests/app-game-notification-payload-preflight.test.ts\n?? scripts/test/app-game-notification-payload-preflight-proof.mjs"
+}

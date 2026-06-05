@@ -212,6 +212,11 @@ control with better evidence and local audit.
   into existing deterministic scheduler JSONL rows while leaving manual-required
   and unavailable rows unscheduled and preserving no runtime, provider, UI,
   child-delivery, adapter, broad-blocking, or platform claims.
+- The app/game notification payload preflight now maps scheduled app/game
+  scheduler rows into minimal-payload-required rows with required alert,
+  family/device, severity, reason, evidence, policy, parent-action fields and
+  sensitive-detail exclusions, while manual-required and unavailable rows remain
+  blocked and provider/runtime/UI/child/adapter claims stay false.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -359,6 +364,12 @@ does not provide production retry workers, quiet-hours timer runtime, durable
 production outbox storage, provider delivery, provider receipt ingestion, parent
 notification UI, child delivery, policy evaluator execution, adapter dispatch,
 broad blocking, or platform support.
+The app/game notification payload preflight proof requires minimal
+provider-facing payload fields and sensitive-detail exclusions after scheduling,
+but it does not provide provider template runtime, provider delivery, receipt
+ingestion, credentials, quiet-hours/retry execution, durable production outbox
+storage, parent notification UI, child delivery, policy evaluator execution,
+adapter dispatch, broad blocking, or platform support.
 
 ## Checklist
 
@@ -429,7 +440,9 @@ broad blocking, or platform support.
       while manual-required and unavailable intents stay out of queued records.
       The scheduler bridge can now write and reread scheduler JSONL rows for
       linked local outbox records while manual-required and unavailable rows
-      remain unscheduled.
+      remain unscheduled. The payload preflight now proves those scheduled rows
+      require minimal payload fields and sensitive-detail exclusions before any
+      provider template/runtime claim can be made.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,

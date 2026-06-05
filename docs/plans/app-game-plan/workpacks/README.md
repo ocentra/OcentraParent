@@ -60,6 +60,7 @@ before `DONE` or PR-ready reporting.
 
 52. WP58 app/game notification local outbox bridge.
 53. WP59 app/game notification scheduler bridge.
+54. WP63 app/game notification payload preflight boundary.
 
 ## Standard AI Worker Checklist
 

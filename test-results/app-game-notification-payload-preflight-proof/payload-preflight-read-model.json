@@ -1,0 +1,165 @@
+{
+  "schemaVersion": "v0.6",
+  "payloadPreflightId": "app-game-notification-payload-preflight-proof",
+  "generatedAt": "2026-06-05T03:18:00Z",
+  "family": {
+    "familyId": "family-app-game-payload-proof"
+  },
+  "sourceSchedulerBridgeId": "app-game-notification-scheduler-bridge-for-payload-proof",
+  "sourceContractRefs": [
+    "app-game-notification-scheduler-bridge-for-payload-proof",
+    "app-game-notification-local-outbox-bridge-for-payload-proof",
+    "parent-owned-app-game-notification-scheduler-root-for-payload-proof"
+  ],
+  "rows": [
+    {
+      "payloadPreflightRowId": "app-game-notification-payload-preflight-app-game-notification-scheduler-bridge-app-game-notification-outbox-bridge-notification-intent-time-limit-payload-proof",
+      "sourceSchedulerBridgeRecordId": "app-game-notification-scheduler-bridge-app-game-notification-outbox-bridge-notification-intent-time-limit-payload-proof",
+      "status": "minimal-payload-required",
+      "sourceSchedulerEntryRef": "app-game-notification-scheduler-local-outbox-record-app-game-time-limit-payload-proof",
+      "sourceOutboxRecordRef": "local-outbox-record-app-game-time-limit-payload-proof",
+      "providerChannel": "in-app",
+      "reasonCodeRef": "policy-violation",
+      "minimalPayloadFields": [
+        "alert-id",
+        "family-device-scope",
+        "severity",
+        "reason-code",
+        "evidence-ref",
+        "policy-ref",
+        "parent-action-link-ref"
+      ],
+      "sensitiveDetailExclusionRefs": [
+        "raw-child-evidence-excluded",
+        "raw-url-title-excluded",
+        "raw-message-text-excluded",
+        "screenshot-report-excluded",
+        "sensitive-provider-metadata-excluded"
+      ],
+      "providerTemplateRequirementRefs": [
+        "provider-template-required-in-app-app-game-notification-scheduler-local-outbox-record-app-game-time-limit-payload-proof"
+      ],
+      "payloadProofRequirements": [
+        "alert-id",
+        "family-device-scope",
+        "severity",
+        "reason-code",
+        "evidence-ref",
+        "policy-ref",
+        "parent-action-link-ref",
+        "raw-child-evidence-excluded",
+        "raw-url-title-excluded",
+        "raw-message-text-excluded",
+        "screenshot-report-excluded",
+        "sensitive-provider-metadata-excluded",
+        "provider-template-required-in-app-app-game-notification-scheduler-local-outbox-record-app-game-time-limit-payload-proof"
+      ]
+    },
+    {
+      "payloadPreflightRowId": "app-game-notification-payload-preflight-app-game-notification-scheduler-bridge-app-game-notification-outbox-bridge-notification-intent-suspicious-unknown-payload-proof",
+      "sourceSchedulerBridgeRecordId": "app-game-notification-scheduler-bridge-app-game-notification-outbox-bridge-notification-intent-suspicious-unknown-payload-proof",
+      "status": "minimal-payload-required",
+      "sourceSchedulerEntryRef": "app-game-notification-scheduler-local-outbox-record-app-game-suspicious-unknown-payload-proof",
+      "sourceOutboxRecordRef": "local-outbox-record-app-game-suspicious-unknown-payload-proof",
+      "providerChannel": "email",
+      "reasonCodeRef": "suspicious-unknown",
+      "minimalPayloadFields": [
+        "alert-id",
+        "family-device-scope",
+        "severity",
+        "reason-code",
+        "evidence-ref",
+        "policy-ref",
+        "parent-action-link-ref"
+      ],
+      "sensitiveDetailExclusionRefs": [
+        "raw-child-evidence-excluded",
+        "raw-url-title-excluded",
+        "raw-message-text-excluded",
+        "screenshot-report-excluded",
+        "sensitive-provider-metadata-excluded"
+      ],
+      "providerTemplateRequirementRefs": [
+        "provider-template-required-email-app-game-notification-scheduler-local-outbox-record-app-game-suspicious-unknown-payload-proof"
+      ],
+      "payloadProofRequirements": [
+        "alert-id",
+        "family-device-scope",
+        "severity",
+        "reason-code",
+        "evidence-ref",
+        "policy-ref",
+        "parent-action-link-ref",
+        "raw-child-evidence-excluded",
+        "raw-url-title-excluded",
+        "raw-message-text-excluded",
+        "screenshot-report-excluded",
+        "sensitive-provider-metadata-excluded",
+        "provider-template-required-email-app-game-notification-scheduler-local-outbox-record-app-game-suspicious-unknown-payload-proof"
+      ]
+    },
+    {
+      "payloadPreflightRowId": "app-game-notification-payload-preflight-app-game-notification-scheduler-bridge-app-game-notification-outbox-bridge-notification-intent-manual-required-payload-proof",
+      "sourceSchedulerBridgeRecordId": "app-game-notification-scheduler-bridge-app-game-notification-outbox-bridge-notification-intent-manual-required-payload-proof",
+      "status": "source-manual-required",
+      "sourceSchedulerEntryRef": null,
+      "sourceOutboxRecordRef": null,
+      "providerChannel": null,
+      "reasonCodeRef": null,
+      "minimalPayloadFields": [],
+      "sensitiveDetailExclusionRefs": [],
+      "providerTemplateRequirementRefs": [],
+      "payloadProofRequirements": [
+        "provider preference setup before app game notification payload can be claimed"
+      ]
+    },
+    {
+      "payloadPreflightRowId": "app-game-notification-payload-preflight-app-game-notification-scheduler-bridge-app-game-notification-outbox-bridge-notification-intent-unavailable-payload-proof",
+      "sourceSchedulerBridgeRecordId": "app-game-notification-scheduler-bridge-app-game-notification-outbox-bridge-notification-intent-unavailable-payload-proof",
+      "status": "source-unavailable",
+      "sourceSchedulerEntryRef": null,
+      "sourceOutboxRecordRef": null,
+      "providerChannel": null,
+      "reasonCodeRef": null,
+      "minimalPayloadFields": [],
+      "sensitiveDetailExclusionRefs": [],
+      "providerTemplateRequirementRefs": [],
+      "payloadProofRequirements": [
+        "local evidence and policy readiness before unavailable notification payload can be claimed"
+      ]
+    }
+  ],
+  "minimalPayloadRequiredCount": 2,
+  "manualRequiredCount": 1,
+  "unavailableCount": 1,
+  "preflightNonClaims": [
+    "no-provider-payload-template-runtime",
+    "no-sensitive-provider-metadata-storage",
+    "no-provider-delivery-execution",
+    "no-provider-receipt-ingestion",
+    "no-provider-credentials",
+    "no-cloud-routing",
+    "no-parent-notification-ui",
+    "no-child-delivery",
+    "no-retry-worker-runtime",
+    "no-quiet-hours-timer-runtime",
+    "no-production-durable-outbox-storage",
+    "no-adapter-dispatch"
+  ],
+  "providerPayloadTemplateRuntimeClaimed": false,
+  "sensitiveProviderMetadataStored": false,
+  "rawChildEvidenceIncluded": false,
+  "rawUrlOrTitleIncluded": false,
+  "rawMessageTextIncluded": false,
+  "screenshotOrReportIncluded": false,
+  "providerDeliveryRuntimeClaimed": false,
+  "providerReceiptIngestionClaimed": false,
+  "providerCredentialsClaimed": false,
+  "cloudRoutingClaimed": false,
+  "parentNotificationUiClaimed": false,
+  "childDeliveryClaimed": false,
+  "retryExecutionRuntimeClaimed": false,
+  "quietHoursTimerRuntimeClaimed": false,
+  "productionDurableOutboxStorageClaimed": false,
+  "adapterDispatchClaimed": false
+}

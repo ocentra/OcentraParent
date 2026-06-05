@@ -101,6 +101,10 @@ custody.
 - App/game notification scheduler bridge proof now maps those linked local
   outbox records into existing notification scheduler JSONL rows, while keeping
   manual-required and unavailable app/game rows visible without scheduling them.
+- App/game notification payload preflight proof now maps scheduled app/game
+  notification rows into minimal-payload-required rows with required payload
+  fields, sensitive-detail exclusions, and provider-template proof
+  requirements, while keeping manual-required and unavailable rows blocked.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -168,6 +172,13 @@ local-outbox-to-scheduler JSONL writing/parsing for linked app/game local outbox
 records, but does not claim production retry workers, production quiet-hours
 timer execution, durable production outbox storage, provider delivery, receipt
 ingestion, parent UI, child delivery, adapter dispatch, broad blocking, or
+platform support.
+The app/game notification payload preflight proof adds deterministic
+scheduler-to-payload-preflight rows that require minimal payload fields,
+sensitive-detail exclusions, and provider-template proof requirements, but does
+not claim provider template runtime, provider delivery, receipt ingestion,
+credentials, retry workers, quiet-hours timers, durable production outbox
+storage, parent UI, child delivery, adapter dispatch, broad blocking, or
 platform support.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
@@ -246,6 +257,10 @@ delivery, policy writes, or child-device enforcement.
       scheduler JSONL rows for linked app/game local outbox records, while
       manual-required and unavailable rows stay unscheduled and no production
       runtime/provider/UI/child/adapter claims are made.
+- [x] App/game notification payload preflight proof exists with minimal payload
+      fields, sensitive-detail exclusions, and provider-template proof
+      requirements for scheduled rows, while manual/unavailable rows stay
+      blocked and no provider runtime/UI/child/adapter claims are made.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
@@ -289,6 +304,13 @@ production quiet-hours timers, durable production outbox storage, provider
 adapters, receipt ingestion, parent-visible history/preferences UI, child
 delivery proof, and provider smoke proof before claiming app/game notification
 delivery or product notification runtime. Treat
+`scripts/test/app-game-notification-payload-preflight-proof.mjs` as
+parent-domain app/game payload-minimization preflight proof only; require
+provider template runtime, provider adapters, receipt ingestion, production
+retry workers, quiet-hours timers, durable production outbox storage,
+parent-visible history/preferences UI, child delivery proof, and provider smoke
+proof before claiming app/game notification delivery or product notification
+runtime. Treat
 `scripts/test/parent-owned-sync-export-manifest-proof.mjs` as parent-domain
 sync/export manifest and connector-status contract proof only; require real
 transfer runtime, connector OAuth/provider artifacts, parent-visible controls,

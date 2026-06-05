@@ -110,6 +110,17 @@ execution, durable production outbox storage, provider delivery, receipt
 ingestion, cloud routing, parent notification UI, child delivery, broad
 blocking, or platform support.
 
+`scripts/test/app-game-notification-payload-preflight-proof.mjs` validates a
+parent-domain app/game payload preflight proof that maps scheduled app/game
+scheduler rows into minimal-payload-required rows. It covers required alert id,
+family/device scope, severity, reason code, evidence ref, policy ref, parent
+action link refs, sensitive-detail exclusions, provider-template proof
+requirements, and manual-required/unavailable rows that remain blocked. This is
+a preflight proof only: it does not claim provider template runtime, provider
+delivery, receipt ingestion, credentials, retry workers, quiet-hours timers,
+durable production outbox storage, parent notification UI, child delivery,
+broad blocking, or platform support.
+
 ## Failure Behavior
 
 - Provider failure is visible, retryable when safe, and auditable.
@@ -171,6 +182,11 @@ blocking, or platform support.
   app/game local outbox records becoming deterministic scheduler JSONL rows,
   with manual/unavailable rows kept unscheduled and no production runtime,
   provider/UI/child/adapter claims.
+- Parent-domain app/game notification payload preflight proof for scheduled
+  app/game notification rows requiring minimal provider-facing payload fields,
+  sensitive-detail exclusions, and provider-template proof requirements, with
+  manual/unavailable rows kept blocked and no provider runtime/UI/child/adapter
+  claims.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
 - Parent-surface coverage for notification history, preference changes, quiet hours, and sensitive-detail drill-in behind authentication.
