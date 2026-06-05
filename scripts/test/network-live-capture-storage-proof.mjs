@@ -4,6 +4,9 @@ import { join } from 'node:path';
 
 const proofRoot = join('output', 'network-plan-proof', '03a-live-capture-storage-proof');
 const testRoot = join('test-results', 'network-live-capture-storage-proof');
+const proofBranch = runText('git', ['branch', '--show-current']).trim();
+const proofCommit = runText('git', ['rev-parse', 'HEAD']).trim();
+const proofStatusShort = runText('git', ['status', '--short']);
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 
@@ -70,9 +73,9 @@ writeFileSync(
 const proof = {
   proof: 'network-live-capture-storage',
   checkedAt: new Date().toISOString(),
-  branch: runText('git', ['branch', '--show-current']).trim(),
-  commit: runText('git', ['rev-parse', 'HEAD']).trim(),
-  statusShort: runText('git', ['status', '--short']),
+  branch: proofBranch,
+  commit: proofCommit,
+  statusShort: proofStatusShort,
   proofRoot,
   testRoot,
   commands: commandResults,
