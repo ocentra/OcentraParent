@@ -7,6 +7,9 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - Serde structs and enums for Rust-crossing command/event payloads.
 - Protocol constants used by Rust service/core code.
 - Exact field names and enum values mirrored from TypeScript contracts.
+- Screen evidence provider constants for `localOcr`/WinRT OCR service proof and
+  Activity Screen read-model fields for model id, prompt/template version, and
+  raw-image retention state.
 - V0.8 enforcement product-control read-model, command, event, and payload
   constants shared by the Rust service and TypeScript protocol adapter.
 - V0.8 enforcement policy-dispatch read-model, command, event, and payload

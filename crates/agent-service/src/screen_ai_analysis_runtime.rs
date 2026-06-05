@@ -1,4 +1,6 @@
 mod adapter;
+#[cfg(test)]
+mod adapter_tests;
 mod config;
 mod event_record;
 mod queue;

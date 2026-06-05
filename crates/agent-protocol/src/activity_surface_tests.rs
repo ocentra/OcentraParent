@@ -123,10 +123,13 @@ fn activity_screen_read_model_serializes_foreground_and_background_ms() {
             capability_status: SCREEN_CAPABILITY_READY.to_string(),
             queue_job_id: "screen-queue-job-1".to_string(),
             model_runtime_ref: "local-vision-runtime-1".to_string(),
+            model_id: "local-vision-model-1".to_string(),
             provider_kind: SCREEN_PROVIDER_LOCAL_VISION.to_string(),
+            prompt_or_template_version: "screen-template-v1".to_string(),
             primary_category: Some(SCREEN_CATEGORY_SCHOOL.to_string()),
             confidence: SCREEN_POLICY_CONFIDENCE_READY,
             image_deletion_state: SCREEN_DELETION_DELETED.to_string(),
+            raw_image_retained: false,
             policy_eligible: true,
             image_digest: "sha256:screen-image-digest".to_string(),
             custody_state: SCREEN_CUSTODY_JOURNAL.to_string(),
@@ -154,6 +157,12 @@ fn activity_screen_read_model_serializes_foreground_and_background_ms() {
         screen_json["rows"][0]["imageDeletionState"],
         SCREEN_DELETION_DELETED
     );
+    assert_eq!(screen_json["rows"][0]["modelId"], "local-vision-model-1");
+    assert_eq!(
+        screen_json["rows"][0]["promptOrTemplateVersion"],
+        "screen-template-v1"
+    );
+    assert_eq!(screen_json["rows"][0]["rawImageRetained"], false);
     assert_eq!(
         screen_json["rows"][0]["parentExplanationRefs"][0],
         "screen-parent-explanation-1"
