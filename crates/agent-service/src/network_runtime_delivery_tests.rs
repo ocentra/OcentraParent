@@ -1,80 +1,82 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkEndpoint,
     ActivityNetworkFlowCounters, ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel,
-    LogFieldValue, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
+    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
 };
 
-use super::{
-    activity_network_flow_payload::network_flow_read_model_payload_with_runtime_delivery,
-    network_runtime_delivery::NetworkRuntimeServiceDeliveryReport,
-};
+use super::network_runtime_delivery::deliver_network_runtime_for_read_model;
 
-#[test]
-fn network_flow_payload_contains_contract_shaped_digest_json() {
-    let read_model = read_model();
+#[tokio::test]
+async fn service_network_read_model_delivers_local_runtime_chain() {
+    let report =
+        deliver_network_runtime_for_read_model(&read_model(vec![full_metadata_row()])).await;
 
-    let payload = network_flow_read_model_payload_with_runtime_delivery(&read_model, None);
-    let digest_json = payload
-        .get(constants::field::ACTIVITY_DIGEST)
-        .and_then(|value| match value {
-            LogFieldValue::String(text) => Some(text),
-            _ => None,
-        })
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let digest: ocentra_parent_agent_protocol::ActivityNetworkFlowDigest =
-        serde_json::from_str(digest_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
-
-    assert_eq!(
-        digest.top_destinations[0].label,
-        constants::activity_store::TEST_NETWORK_DOMAIN
-    );
-    assert_eq!(digest.unusual_indicators.len(), 0);
+    assert_eq!(report.observed_rows, 1);
+    assert_eq!(report.delivered_rows, 1);
+    assert_eq!(report.failed_rows, 0);
+    assert_eq!(report.dead_letters, 0);
+    assert_eq!(report.manual_required_rows, 0);
+    assert_eq!(report.enforcement_command_events, 1);
+    assert!(report.publish_reports > 0);
+    assert_eq!(report.publish_reports, report.stored_events);
 }
 
-#[test]
-fn network_flow_payload_includes_runtime_delivery_counts_when_supplied() {
-    let read_model = read_model();
-    let delivery = NetworkRuntimeServiceDeliveryReport {
-        observed_rows: 1,
-        delivered_rows: 1,
-        failed_rows: 0,
-        publish_reports: 11,
-        stored_events: 11,
-        dead_letters: 0,
-        manual_required_rows: 0,
-        enforcement_command_events: 1,
-    };
+#[tokio::test]
+async fn service_network_read_model_keeps_partial_metadata_manual_required() {
+    let report =
+        deliver_network_runtime_for_read_model(&read_model(vec![partial_metadata_row()])).await;
 
-    let payload =
-        network_flow_read_model_payload_with_runtime_delivery(&read_model, Some(&delivery));
-
+    assert_eq!(report.observed_rows, 1);
+    assert_eq!(report.delivered_rows, 1);
+    assert_eq!(report.failed_rows, 0);
+    assert_eq!(report.manual_required_rows, 1);
+    assert_eq!(report.enforcement_command_events, 0);
     assert_eq!(
-        payload.get(constants::field::NETWORK_RUNTIME_OBSERVED_ROWS),
-        Some(&LogFieldValue::Number(1.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::NETWORK_RUNTIME_DELIVERED_ROWS),
-        Some(&LogFieldValue::Number(1.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::NETWORK_RUNTIME_ENFORCEMENT_COMMAND_EVENTS),
-        Some(&LogFieldValue::Number(1.0))
+        report.publish_reports,
+        ocentra_parent_agent_core::NetworkRuntimePhase::ordered_chain().len() - 2
     );
 }
 
-fn read_model() -> ActivityNetworkFlowReadModel {
+#[tokio::test]
+async fn empty_service_network_read_model_does_not_invent_runtime_events() {
+    let report = deliver_network_runtime_for_read_model(&read_model(Vec::new())).await;
+
+    assert_eq!(report.observed_rows, 0);
+    assert_eq!(report.delivered_rows, 0);
+    assert_eq!(report.failed_rows, 0);
+    assert_eq!(report.publish_reports, 0);
+    assert_eq!(report.stored_events, 0);
+}
+
+fn read_model(rows: Vec<ActivityNetworkFlowObservation>) -> ActivityNetworkFlowReadModel {
     ActivityNetworkFlowReadModel {
         schema_version: NETWORK_FLOW_SCHEMA_VERSION,
         generated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
         custody: NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
         limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
-        returned: 1,
+        returned: rows.len() as u64,
         capability_status: constants::activity_capture::CAPABILITY_STATUS_AVAILABLE.to_string(),
-        rows: vec![observation()],
+        rows,
     }
 }
 
-fn observation() -> ActivityNetworkFlowObservation {
+fn full_metadata_row() -> ActivityNetworkFlowObservation {
+    row(
+        Some(constants::activity_store::TEST_NETWORK_DOMAIN.to_string()),
+        Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
+        Some(4242),
+    )
+}
+
+fn partial_metadata_row() -> ActivityNetworkFlowObservation {
+    row(None, None, None)
+}
+
+fn row(
+    destination_domain: Option<String>,
+    process_name: Option<String>,
+    process_id: Option<u64>,
+) -> ActivityNetworkFlowObservation {
     ActivityNetworkFlowObservation {
         schema_version: NETWORK_FLOW_SCHEMA_VERSION,
         event_id: constants::activity_store::TEST_NETWORK_EVENT_ID.to_string(),
@@ -92,13 +94,13 @@ fn observation() -> ActivityNetworkFlowObservation {
             ip: Some(constants::activity_store::TEST_NETWORK_DESTINATION_IP.to_string()),
             port: Some(constants::activity_store::TEST_NETWORK_DESTINATION_PORT),
         },
-        destination_domain: Some(constants::activity_store::TEST_NETWORK_DOMAIN.to_string()),
+        destination_domain,
         domain_attribution_status:
             constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_DOMAIN_OBSERVED.to_string(),
         process_attribution_status:
             constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED.to_string(),
-        process_id: Some(4242),
-        process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
+        process_id,
+        process_name,
         counters: ActivityNetworkFlowCounters {
             connection_count: 1,
             bytes_sent: None,

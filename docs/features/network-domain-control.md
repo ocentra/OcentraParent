@@ -73,6 +73,14 @@ compete on control while staying clear about attribution confidence and privacy.
   broker/family-hub routes enumerate custody, auth, encryption, retention,
   replay, deletion, offset, dedupe, broker config, and family-hub identity/relay
   requirements before any product delivery claim.
+- E-D wired the service network read-model command to local runtime delivery:
+  `agent.network.flow.read-model.get` now maps stored ActivityStore network rows
+  into `agent-core` network runtime observations, publishes them through the
+  local `ocentra-eventing` spine, and reports observed/delivered/failed,
+  stored, dead-letter, manual-required, and enforcement-command event counts in
+  the read-model payload. This is service-local delivery only; broker/family-hub
+  transport, production retention/replay, policy execution, adapter execution,
+  and host filtering remain unclaimed.
 - E-D added the first `activity-domain` network contract boundary proof for
   flow evidence, domain evidence, activity classification, A/B/C/D evidence
   grades, and policy/action capability gating. The proof keeps network-only
@@ -267,8 +275,9 @@ compete on control while staying clear about attribution confidence and privacy.
 
 Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
 attribution quality, live capture driver invocation, live analyzer fixture
-proof, TypeScript/public export parity and service wiring for network event
-contracts, production risk-budget service/UI wiring, production SLO validation,
+proof, TypeScript/public export parity for network event contracts,
+broker/family-hub transport, production risk-budget service/UI wiring,
+production SLO validation,
 external audit/deployment execution, full support-material authoring, and
 parent-facing rule UX remain.
 Policy dispatch does not upgrade
@@ -280,7 +289,8 @@ packet capture, signature alert, production risk-budget, or host filter
 enforcement. The E-D
 runtime spine removes the private-bus blocker for an in-process metadata-only
 chain and now proves local queue/drain plus request-response consumption of the
-reusable eventing crate, service-side journal-before-action/final-audit
+reusable eventing crate, service-side network read-model delivery into the
+local eventing runtime, service-side journal-before-action/final-audit
 ordering, typed in-process parent/controller to child-agent handoff, and
 cross-slice evidence bundle construction after cascade routing, plus
 network-triggered local-AI queue planning with refs-only AI inputs,
@@ -365,7 +375,11 @@ execution, and platform adapter execution remain open.
       Row45 eventing delivery-decision proof now keeps local network routes
       local-first with typed subscriber filters and bounded backpressure
       metadata, and marks broker/family-hub delivery as requirements-gated rather
-      than implemented. Row46 AI detection fixture proof now measures model
+      than implemented. Service network read-model delivery now publishes stored
+      ActivityStore network rows through the local eventing runtime and exposes
+      delivery counts in the service payload while keeping broker/family-hub,
+      policy, adapter, and host-filter execution unclaimed. Row46 AI detection
+      fixture proof now measures model
       predictions against labeled structured-summary fixtures with precision,
       recall, accuracy, and confidence-drift states while rejecting raw content
       and authority claims. Row47 AI audit narrative proof now emits
@@ -382,9 +396,9 @@ execution, and platform adapter execution remain open.
       threat-model/privacy/compliance/retention/hardening/support/staged-rollout
       refs plus external audit or penetration-test signoff for production-ready
       state. AI model execution, broker/family-hub delivery implementation,
-      broader service wiring, full policy engine execution, notification
-      delivery, external audit/deployment execution, full support-material
-      authoring, and portal risk-budget/performance UI rendering remain.
+      full policy engine execution, notification delivery, external
+      audit/deployment execution, full support-material authoring, and portal
+      risk-budget/performance UI rendering remain.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and

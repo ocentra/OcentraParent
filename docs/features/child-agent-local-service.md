@@ -65,6 +65,13 @@ and clear degraded states.
   proof. This proves local in-process network runtime usage of the reusable
   crate, not broker/family-hub delivery or broad parent/child transport
   adoption.
+- E-D wired the service network read-model command to local network runtime
+  delivery. Stored ActivityStore network rows now publish through the
+  `agent-core` runtime spine during `agent.network.flow.read-model.get`, and
+  the service event payload exposes observed/delivered/failed/stored/dead-letter
+  counts plus manual-required and enforcement-command event counts. This remains
+  service-local and does not add broker/family-hub delivery, adapter execution,
+  or host filtering.
 - E-D extended `crates/ocentra-eventing` with production shutdown lifecycle
   proof: runtime-owned shutdown can drain queued work, dead-letter queued work,
   cancel pending local requests, clear subscriptions and aggregate gates, and
@@ -114,9 +121,10 @@ and support diagnostics. The reusable Rust eventing crate now has proof for
 queue/retry/TTL, request-response, durable journal/replay, panic isolation,
 typed envelopes, production shutdown, and runtime-owned bus lifecycle. The
 network runtime now consumes the reusable crate for typed publish,
-no-subscriber queue/drain, local typed request-response, and Rust
-protocol-facing network event contracts. Parent/controller to child-agent
-in-process runtime publishing and typed local transport handoff now have proof;
+no-subscriber queue/drain, local typed request-response, Rust
+protocol-facing network event contracts, and service-side read-model delivery
+for stored network rows. Parent/controller to child-agent in-process runtime
+publishing and typed local transport handoff now have proof;
 the generic eventing delivery decision proof now makes broker/family-hub delivery
 requirements explicit without implementing the transport; the open eventing gap
 is broker-backed/family-hub delivery, physical child-device runtime
@@ -143,7 +151,8 @@ raw JSON/string constants, `Uuid`, and raw domain identifier fields.
       portal/AI direct-enforcement negative proof,
       weak-network-evidence command-routing guard, type-safety source gate, and
       the network runtime chain plus queue/drain, local request-response, and
-      Rust protocol-facing network event contract proof; parent/controller and
+      Rust protocol-facing network event contract proof; service-side network
+      read-model delivery into the local runtime; parent/controller and
       child-agent protocol event contract proof; parent/controller validated
       intent runtime publishing, typed local child-command handoff, and
       child-agent local receive/publish proof; the service enforcement API now

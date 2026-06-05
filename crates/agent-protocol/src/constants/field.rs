@@ -241,6 +241,15 @@ pub const MOST_RECENT_SUBJECT_KIND: &str = "mostRecentSubjectKind";
 pub const MOST_RECENT_SUBJECT_NAME: &str = "mostRecentSubjectName";
 pub const NETWORK_MODE: &str = "networkMode";
 pub const NETWORK_PROTOCOL: &str = "networkProtocol";
+pub const NETWORK_RUNTIME_DEAD_LETTERS: &str = "networkRuntimeDeadLetters";
+pub const NETWORK_RUNTIME_DELIVERED_ROWS: &str = "networkRuntimeDeliveredRows";
+pub const NETWORK_RUNTIME_ENFORCEMENT_COMMAND_EVENTS: &str =
+    "networkRuntimeEnforcementCommandEvents";
+pub const NETWORK_RUNTIME_FAILED_ROWS: &str = "networkRuntimeFailedRows";
+pub const NETWORK_RUNTIME_MANUAL_REQUIRED_ROWS: &str = "networkRuntimeManualRequiredRows";
+pub const NETWORK_RUNTIME_OBSERVED_ROWS: &str = "networkRuntimeObservedRows";
+pub const NETWORK_RUNTIME_PUBLISH_REPORTS: &str = "networkRuntimePublishReports";
+pub const NETWORK_RUNTIME_STORED_EVENTS: &str = "networkRuntimeStoredEvents";
 pub const NONCE: &str = "nonce";
 pub const NOTE: &str = "note";
 pub const APP_NAME: &str = "appName";
