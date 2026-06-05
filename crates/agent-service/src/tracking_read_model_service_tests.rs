@@ -1,4 +1,5 @@
 use std::fs::remove_file;
+use std::path::Path;
 
 use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
@@ -20,7 +21,31 @@ async fn tracking_read_model_command_reports_service_backed_sqlite_rows() {
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    seed_tracking_store(&store_path);
+
+    let body =
+        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
+    let read_model =
+        tracking_read_model_payload(&event.payload[constants::field::ACTIVITY_TRACKING_READ_MODEL]);
+
+    std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
+    cleanup_path(&store_path);
+
+    assert_eq!(
+        event.event,
+        AgentEventName::AgentActivityTrackingReadModelReported
+    );
+    assert_eq!(read_model.returned, 3);
+    assert_eq!(read_model.active_rows, 2);
+    assert_eq!(read_model.tombstone_rows, 1);
+    assert_service_read_model_latest_events(&read_model);
+    assert_service_read_model_tombstone_row(&read_model);
+    assert_service_read_model_active_product_surface_counts(&read_model);
+}
+
+fn seed_tracking_store(store_path: &Path) {
+    let store = ActivityStore::open(store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
     store
         .ingest_events(&[
             tracking_activity_event(
@@ -46,23 +71,9 @@ async fn tracking_read_model_command_reports_service_backed_sqlite_rows() {
             ),
         ])
         .expect(constants::error::ACTIVITY_STORE_INGESTS);
+}
 
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
-    let read_model =
-        tracking_read_model_payload(&event.payload[constants::field::ACTIVITY_TRACKING_READ_MODEL]);
-
-    std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
-    cleanup_path(&store_path);
-
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentActivityTrackingReadModelReported
-    );
-    assert_eq!(read_model.returned, 3);
-    assert_eq!(read_model.active_rows, 2);
-    assert_eq!(read_model.tombstone_rows, 1);
+fn assert_service_read_model_latest_events(read_model: &TrackingReadModel) {
     assert_eq!(
         read_model.latest_event_id.as_deref(),
         Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
@@ -72,9 +83,16 @@ async fn tracking_read_model_command_reports_service_backed_sqlite_rows() {
         Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
     );
     assert_eq!(
+        read_model.latest_active_event_id.as_deref(),
+        Some(constants::activity_store::TEST_TRACKING_GEOFENCE_EVENT_ID)
+    );
+    assert_eq!(
         read_model.deleted_evidence_reference_ids,
         vec![constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string()]
     );
+}
+
+fn assert_service_read_model_tombstone_row(read_model: &TrackingReadModel) {
     assert_eq!(
         read_model.rows[0].evidence_reference_ids[0],
         constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
@@ -82,6 +100,29 @@ async fn tracking_read_model_command_reports_service_backed_sqlite_rows() {
     assert_eq!(
         read_model.rows[0].query_visibility,
         ocentra_parent_agent_protocol::TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE
+    );
+}
+
+fn assert_service_read_model_active_product_surface_counts(read_model: &TrackingReadModel) {
+    assert_count(
+        &read_model.active_kind_counts,
+        constants::activity_event_kind::LOCATION_OBSERVED,
+        1,
+    );
+    assert_count(
+        &read_model.active_kind_counts,
+        constants::activity_event_kind::TRACKING_GEOFENCE_TRANSITION_EVALUATED,
+        1,
+    );
+    assert_count(
+        &read_model.active_device_counts,
+        constants::activity_store::TEST_REMOTE_DEVICE_ID,
+        2,
+    );
+    assert_count(
+        &read_model.active_capability_status_counts,
+        constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT,
+        2,
     );
 }
 
@@ -155,6 +196,18 @@ fn tracking_read_model_payload(value: &LogFieldValue) -> TrackingReadModel {
         }
         _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
     }
+}
+
+fn assert_count(
+    counts: &[ocentra_parent_agent_protocol::TrackingReadModelCount],
+    value: &str,
+    count: u64,
+) {
+    let actual = counts
+        .iter()
+        .find(|entry| entry.value == value)
+        .map(|entry| entry.count);
+    assert_eq!(actual, Some(count));
 }
 
 fn temp_path(suffix: &str) -> std::path::PathBuf {

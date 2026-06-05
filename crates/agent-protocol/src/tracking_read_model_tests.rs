@@ -1,6 +1,6 @@
 use super::{
-    constants, TrackingReadModel, TrackingReadModelRow, ACTIVITY_QUERY_SCHEMA_VERSION,
-    TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    constants, TrackingReadModel, TrackingReadModelCount, TrackingReadModelRow,
+    ACTIVITY_QUERY_SCHEMA_VERSION, TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE, TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
 };
 
@@ -18,8 +18,13 @@ fn tracking_read_model_serializes_without_product_completion_claims() {
         capability_status: TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS.to_string(),
         latest_event_id: None,
         latest_observed_at: None,
+        latest_active_event_id: None,
+        latest_active_observed_at: None,
         latest_tombstone_event_id: None,
         latest_tombstone_observed_at: None,
+        active_kind_counts: Vec::new(),
+        active_device_counts: Vec::new(),
+        active_capability_status_counts: Vec::new(),
         deleted_evidence_reference_ids: Vec::new(),
         rows: Vec::new(),
     };
@@ -39,6 +44,84 @@ fn tracking_read_model_serializes_without_product_completion_claims() {
     assert_eq!(serialized["rows"].as_array().map(Vec::len), Some(0));
     assert_eq!(serialized["activeRows"], 0);
     assert_eq!(serialized["tombstoneRows"], 0);
+    assert_eq!(
+        serialized["activeKindCounts"].as_array().map(Vec::len),
+        Some(0)
+    );
+    assert_eq!(
+        serialized["activeDeviceCounts"].as_array().map(Vec::len),
+        Some(0)
+    );
+    assert_eq!(
+        serialized["activeCapabilityStatusCounts"]
+            .as_array()
+            .map(Vec::len),
+        Some(0)
+    );
+}
+
+#[test]
+fn tracking_read_model_serializes_active_product_surface_counts() {
+    let read_model = TrackingReadModel {
+        schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
+        generated_at: constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT.to_string(),
+        custody_label: TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
+        limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
+        returned: 1,
+        active_rows: 1,
+        tombstone_rows: 0,
+        capability_status: constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT
+            .to_string(),
+        latest_event_id: Some(
+            constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID.to_string(),
+        ),
+        latest_observed_at: Some(
+            constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT.to_string(),
+        ),
+        latest_active_event_id: Some(
+            constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID.to_string(),
+        ),
+        latest_active_observed_at: Some(
+            constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT.to_string(),
+        ),
+        latest_tombstone_event_id: None,
+        latest_tombstone_observed_at: None,
+        active_kind_counts: vec![TrackingReadModelCount {
+            value: constants::activity_event_kind::LOCATION_OBSERVED.to_string(),
+            count: 1,
+        }],
+        active_device_counts: vec![TrackingReadModelCount {
+            value: constants::activity_store::TEST_REMOTE_DEVICE_ID.to_string(),
+            count: 1,
+        }],
+        active_capability_status_counts: vec![TrackingReadModelCount {
+            value: constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT.to_string(),
+            count: 1,
+        }],
+        deleted_evidence_reference_ids: Vec::new(),
+        rows: Vec::new(),
+    };
+
+    let serialized =
+        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized["latestActiveEventId"],
+        constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID
+    );
+    assert_eq!(
+        serialized["activeKindCounts"][0]["value"],
+        constants::activity_event_kind::LOCATION_OBSERVED
+    );
+    assert_eq!(serialized["activeKindCounts"][0]["count"], 1);
+    assert_eq!(
+        serialized["activeDeviceCounts"][0]["value"],
+        constants::activity_store::TEST_REMOTE_DEVICE_ID
+    );
+    assert_eq!(
+        serialized["activeCapabilityStatusCounts"][0]["value"],
+        constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT
+    );
 }
 
 #[test]

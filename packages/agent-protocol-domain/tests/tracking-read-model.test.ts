@@ -25,8 +25,13 @@ const TrackingReadModel = {
   capabilityStatus: 'recent',
   latestEventId: 'tracking-delete-1',
   latestObservedAt: '2026-06-03T07:20:00Z',
+  latestActiveEventId: 'tracking-event-1',
+  latestActiveObservedAt: '2026-06-03T07:19:00Z',
   latestTombstoneEventId: 'tracking-delete-1',
   latestTombstoneObservedAt: '2026-06-03T07:20:00Z',
+  activeKindCounts: [{ value: 'tracking.expected-place.evaluated', count: 1 }],
+  activeDeviceCounts: [{ value: 'child-device-1', count: 1 }],
+  activeCapabilityStatusCounts: [{ value: 'recent', count: 1 }],
   deletedEvidenceReferenceIds: ['tracking-evidence-1'],
   rows: [
     {
@@ -78,6 +83,23 @@ describe('agent activity tracking read-model parser', () => {
     });
   });
 
+  it('defaults additive active product-surface summaries for older events', () => {
+    const legacyReadModel = legacyReadModelPayload();
+    const parsed = parseAgentActivityTrackingReadModelEvent(trackingEvent(JSON.stringify(legacyReadModel)));
+
+    expect(parsed).toEqual({
+      ok: true,
+      value: {
+        ...legacyReadModel,
+        latestActiveEventId: null,
+        latestActiveObservedAt: null,
+        activeKindCounts: [],
+        activeDeviceCounts: [],
+        activeCapabilityStatusCounts: [],
+      },
+    });
+  });
+
   it('rejects wrong events and invalid payloads without inventing rows', () => {
     expect(
       parseAgentActivityTrackingReadModelEvent({
@@ -116,4 +138,14 @@ function trackingEvent(serializedReadModel: string): AgentEventEnvelope {
     },
     snapshot: null,
   };
+}
+
+function legacyReadModelPayload(): Record<string, unknown> {
+  const payload: Record<string, unknown> = { ...TrackingReadModel };
+  delete payload.latestActiveEventId;
+  delete payload.latestActiveObservedAt;
+  delete payload.activeKindCounts;
+  delete payload.activeDeviceCounts;
+  delete payload.activeCapabilityStatusCounts;
+  return payload;
 }

@@ -36,7 +36,8 @@ development paths and orchestrates runtime commands.
   status, implemented-source proof, and weak-source fences to the parent portal.
 - Tracking service read-model reports through
   `agent.activity.tracking.read-model.get`, backed by ActivityStore SQLite rows
-  and citation IDs in the `trackingReadModel` payload field.
+  and citation IDs in the `trackingReadModel` payload field, with active
+  kind/device/capability count summaries derived from the same rows.
 - App/game live process capture bridge rows through the existing activity
   capture journal/store path, exposing runtime-only app/game rows to the
   existing app-use/games read models without foreground, policy, or adapter
@@ -132,7 +133,8 @@ flowchart LR
 - LAN source-matrix output is diagnostic/proof state only; it must not be used
   to imply missing production discovery adapters are implemented.
 - Tracking read-model output is consumed by a narrow parent portal summary only;
-  child UI, richer product read models, physical-device proof, and
+  the service also exposes active summary fields for future report/policy/full
+  UI consumers, while child UI, physical-device proof, and
   provider/notification delivery remain separate gaps.
 - App/game live process, optional foreground, Windows shortcut inventory,
   Windows packaged-app manifest capture, and Windows registry inventory capture

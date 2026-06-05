@@ -30,6 +30,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `18-service-read-model-proof.json`
 - `19-wsl-local-replay-proof.json`
 - `20-service-data-ui-proof.json`
+- `21-product-surface-summary-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -47,6 +48,9 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       retention tombstones.
 - [x] Expose hosted parent service-data coverage for service-backed read-model
       row counts, kinds, custody, capability, and active/deleted evidence refs.
+- [x] Expose active product-surface summary fields for kind/device/capability
+      counts and latest active row metadata without reintroducing deleted
+      history.
 
 ## Where We Are
 
@@ -57,9 +61,13 @@ adds a narrow `agent.activity.tracking.read-model.get` command that returns
 SQLite tracking rows and citation IDs through `trackingReadModel`; the service
 proof now also exposes retention-delete rows as tombstone replay rows with
 active/tombstone counts, deleted-at metadata, and deleted evidence citation ID
-summaries. The parent portal consumes that event as a narrow live summary plus
-live citation rows on the `policy-tracking` route. The hosted parent route now
-also exposes a service-data coverage panel backed by the parsed
+summaries. The same service read model now exposes active product-surface
+summary fields for latest active event metadata plus active kind, device, and
+capability-status counts; those counts are derived from the same SQLite rows
+and explicitly exclude retention tombstones. The parent portal consumes that
+event as a narrow live summary plus live citation rows on the `policy-tracking`
+route. The hosted parent route now also exposes a service-data coverage panel
+backed by the parsed
 `trackingReadModel` payload, including active/tombstone counts, latest tombstone
 metadata, kind coverage, custody/capability, active evidence references, deleted
 evidence references, and `productClaimReady=false`. Full UI, platform replay,
@@ -67,7 +75,8 @@ export, broader product read models, and physical-device product claims are not
 claimed beyond the proof
 state recorded in `proof-summary.json`, `10-journal-sqlite-proof.json`,
 `14-retention-delete-proof.json`, `18-service-read-model-proof.json`,
-`20-service-data-ui-proof.json`, and the implementation checklist.
+`20-service-data-ui-proof.json`, `21-product-surface-summary-proof.json`, and
+the implementation checklist.
 The pre-device proof gate now reruns this service proof and records the
 remaining broader read-model, full UI, hosted accessibility, and platform replay
 gaps before device work starts.
@@ -99,10 +108,10 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Broader product read models, full parent/child UI beyond the hosted parent
-  route, platform physical-device replay, export, provider, authority, and
-  production claims remain manual-required until the assigned proof artifacts
-  exist.
+- Full UI/report/policy consumers for the active product-surface summary, full
+  parent/child UI beyond the hosted parent route, platform physical-device
+  replay, export, provider, authority, and production claims remain
+  manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -180,6 +189,28 @@ This workpack can be assigned independently, implemented against the owning doma
       checklist, WP30, and WP32 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.
 - [x] Known gaps/manual-required states: broader product read models, full
+      parent/child UI beyond the hosted parent route, Android/iOS
+      physical-device proof, authority, provider delivery, notifications, and
+      production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-read-model-product-surface-proof`.
+- [x] Touched files: Rust protocol/core/service tracking read-model files and
+      tests, TypeScript tracking read-model parser/tests, service proof script,
+      tracking feature doc, implementation checklist, WP32, module READMEs, and
+      generated WP32 proof artifacts.
+- [x] Validation commands and results:
+      focused parser and Rust tracking read-model tests passed before proof
+      generation; `node scripts/test/tracking-plan-service-read-model-proof.mjs`
+      reruns the full focused WP32 proof stack.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json`
+      plus refreshed `14-retention-delete-proof.json`,
+      `18-service-read-model-proof.json`, and `proof-summary.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP32, and module READMEs updated; central capability row delta
+      queued through the hub instead of editing
+      `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: full UI/report/policy consumers,
       parent/child UI beyond the hosted parent route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.

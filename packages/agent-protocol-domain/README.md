@@ -25,7 +25,8 @@ transports.
   V0.8 integrity alert/status bridge and notification provider status boundary.
 - Tracking read-model command/event names and the `trackingReadModel` payload
   field for the service-backed
-  `agent.activity.tracking.read-model.get` proof path.
+  `agent.activity.tracking.read-model.get` proof path, including active
+  kind/device/capability count summaries and latest active row metadata.
 - App/game boundary read-model command/event names and the
   `appGameBoundaryReadModel` payload field for the service-backed
   authority/classifier row-count proof path.
@@ -95,9 +96,9 @@ flowchart LR
 - LAN source-matrix parsing keeps unavailable/manual source rows visible but
   does not upgrade them into production discovery adapters.
 - Tracking read-model protocol support proves command/event parity, service
-  payload shape, and the parser used by the narrow portal summary; product
-  tracking evidence schemas remain in `activity-domain`, and full UI remains
-  separate.
+  payload shape, active product-surface summary parsing, and the parser used by
+  the narrow portal summary; product tracking evidence schemas remain in
+  `activity-domain`, and full UI/report/policy consumers remain separate.
 - App/game boundary read-model parsing proves command/event parity and the
   service payload shape only; product semantics stay in `activity-domain` and
   `parent-domain`, and portal rows, policy consumption, provider execution, and

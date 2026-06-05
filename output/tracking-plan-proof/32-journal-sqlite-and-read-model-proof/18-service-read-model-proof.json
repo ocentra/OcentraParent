@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T06:02:08.106Z",
-  "commit": "73f00c45819aaa420895523165ab38950ee6b478",
+  "checkedAt": "2026-06-05T09:51:01.512Z",
+  "commit": "8111abc775a21506a1bad2082956c35154cd82e9",
   "workpackId": "32-journal-sqlite-and-read-model-proof",
   "proofMode": "tracking-service-read-model",
   "requiredProofTier": "P2_HOSTED_CI",
@@ -90,6 +90,20 @@
       ],
       "retentionEventKind": "activity.tracking.retention.deleted",
       "sourceOfTruth": "ActivityStore SQLite rows replayed from journaled ActivityEvent records"
+    },
+    "activeProductSurfaceSummary": {
+      "latestActiveEventIdField": "latestActiveEventId",
+      "latestActiveObservedAtField": "latestActiveObservedAt",
+      "activeKindCountsField": "activeKindCounts",
+      "activeDeviceCountsField": "activeDeviceCounts",
+      "activeCapabilityStatusCountsField": "activeCapabilityStatusCounts",
+      "sourceRows": "same trackingReadModel.rows payload derived from ActivityStore SQLite rows",
+      "deletedHistoryBoundary": "counts include active rows only; retention tombstones remain in tombstone-specific fields",
+      "intendedConsumers": [
+        "parent report summaries",
+        "policy evidence drill-in",
+        "future full parent/child tracking UI"
+      ]
     }
   },
   "proofArtifacts": {
@@ -112,7 +126,7 @@
   ],
   "remainingGapsBeforeProductOrPrReady": [
     "Hosted portal screenshot, accessibility, and browser-to-service proof remain pending.",
-    "Broader product tracking read-model surfaces beyond the service-backed tombstone replay and portal citation rows remain pending.",
+    "Full UI/report/policy consumers for the active product-surface summary remain pending.",
     "Child-device UI and device permission screenshots remain pending.",
     "Android/iOS physical background geofence proof remains manual-required.",
     "Authority-enrolled and production-pilot proof remain absent."
