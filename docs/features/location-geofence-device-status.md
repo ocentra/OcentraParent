@@ -68,6 +68,14 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json`
   and
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`.
+- P1 parent-policy escalation runtime proof now exists through
+  `npm run test:tracking-plan-policy-escalation-runtime-proof`. It proves, in
+  parent-domain runtime helpers, that AI analysis is advisory only, parent
+  acknowledgement suppresses warning rows but not critical rows, safe child
+  check-ins resolve pending state, and expired child check-ins create explicit
+  policy escalation rows. It keeps `productClaimReady=false` and records no
+  provider delivery, emergency-contact automation, child-device runtime,
+  background-location, physical-device, or AI-final-authority claim.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
@@ -123,13 +131,14 @@ Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
 service read-model proof with retention-delete tombstone replay, narrow portal
 summary-consumption proof, live service-backed portal citation rows, hosted
 parent route screenshot/accessibility proof with hosted child-safe check-in
-copy/actions, P1 local parent-defined place store proof, pre-device proof-gate
-progress, Android emulator package/service/status scaffold proof, and P3
-WSL/local replay proof. It remains a tracked product gap until platform
-location and geofence adapters, broader product read models, provider delivery,
-notifications, physical-device proof, child-device delivery/runtime UI, full
-parent/child UI snapshots/accessibility beyond the hosted parent route, and
-broader service-backed product UI/read-model surfaces are proved.
+copy/actions, P1 parent-policy escalation runtime proof, P1 local parent-defined
+place store proof, pre-device proof-gate progress, Android emulator
+package/service/status scaffold proof, and P3 WSL/local replay proof. It remains
+a tracked product gap until platform location and geofence adapters, broader
+product read models, provider delivery, notifications, physical-device proof,
+child-device delivery/runtime UI, full parent/child UI snapshots/accessibility
+beyond the hosted parent route, and broader service-backed product UI/read-model
+surfaces are proved.
 
 ## Checklist
 
@@ -152,6 +161,11 @@ broader service-backed product UI/read-model surfaces are proved.
 - [ ] iOS entitlement/background proof.
 - [x] Expected-place schedule and exception contracts.
 - [x] Parent acknowledgement and escalation contracts.
+- [x] P1 parent-policy escalation runtime proof for AI non-authority,
+      warning acknowledgement suppression, critical alert visibility, safe
+      child check-in resolution, and expired-check-in policy escalation. This is
+      not provider delivery, emergency-contact automation, child-device runtime,
+      background-location, physical-device, or AI-final-authority proof.
 - [x] Nearby-place ambiguity and AI safety evidence contracts.
 - [x] P1 ActivityStore tracking-event SQLite ingest proof.
 - [x] P2 service-backed tracking read-model command proof for SQLite journal

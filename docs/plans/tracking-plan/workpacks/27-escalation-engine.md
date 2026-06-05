@@ -34,10 +34,24 @@ Proof root: `output/tracking-plan-proof/27-escalation-engine/`
 - [ ] Child check-in resolves pending state where configured.
 - [ ] AI cannot schedule escalation directly.
 - [ ] No emergency auto-contact in MVP.
+- [x] Prove acknowledgement/check-in escalation boundaries through the P1
+      runtime proof gate without claiming provider delivery, emergency
+      automation, or child-device runtime.
 
 ## Where We Are
 
-This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+This workpack has focused contract proof from `codex/tracking-plan-full-scope`
+under the proof root below. It now also has P1 parent-domain runtime proof from
+`codex/tracking-policy-escalation-runtime-proof` through
+`npm run test:tracking-plan-policy-escalation-runtime-proof`, which writes
+`09-policy-alert-proof.json`, `13-security-negative-proof.log`,
+`16-validation-commands.log`, and
+`test-results/tracking-plan-policy-escalation-runtime-proof/proof.json`.
+Runtime proof currently covers warning acknowledgement suppression, critical
+alert visibility, safe child check-in resolution, and expired-child-check-in
+policy escalation. Provider delivery, emergency-contact automation,
+child-device runtime, background-location, physical-device, and full UI behavior
+are not claimed beyond the proof state recorded in the implementation checklist.
 
 ## Where We Want To Be
 
@@ -54,6 +68,9 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - docs/plans/tracking-plan/workpacks/27-escalation-engine.md
 - docs/plans/tracking-plan/implementation-checklist.md
+- packages/parent-domain/src/tracking-policy-escalation-runtime-proof.ts
+- packages/parent-domain/tests/tracking-policy-escalation-runtime-proof.test.ts
+- scripts/test/tracking-plan-policy-escalation-runtime-proof.mjs
 - `output/tracking-plan-proof/27-escalation-engine/`
 - Implementation paths listed by the worker before editing.
 
@@ -61,12 +78,26 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - Platform, provider, UI, retention, or runtime claims remain manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
+- Provider notification delivery, emergency-contact automation,
+  child-device runtime prompts, background-location behavior, physical
+  Android/iOS behavior, and AI final-authority claims remain unclaimed.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/27-escalation-engine/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Workpack id and branch: `codex/tracking-plan-full-scope` contract proof;
+      `codex/tracking-policy-escalation-runtime-proof` P1 runtime proof.
+- [x] Touched files: tracking contract files, P1 runtime proof module, focused
+      proof test, proof script, product docs, checklist, and this workpack doc.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-plan-contract-proof.mjs` passed for the
+      contract proof; `npm run test:tracking-plan-policy-escalation-runtime-proof`
+      passed for the P1 runtime proof.
+- [x] Proof artifacts under `output/tracking-plan-proof/27-escalation-engine/`
+      and `test-results/tracking-plan-policy-escalation-runtime-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, this workpack, and hub checklist delta updated. Package README
+      delta is noted in the hub handoff because `packages/parent-domain/readme.md`
+      is currently locked by another lane.
+- [x] Known gaps/manual-required states: Android/iOS physical behavior, provider
+      delivery, emergency-contact automation, child-device runtime, background
+      location, notifications, and full UI remain proof-gated as applicable.
