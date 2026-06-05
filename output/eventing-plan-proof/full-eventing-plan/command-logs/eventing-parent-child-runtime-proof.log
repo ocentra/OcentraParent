@@ -1,15 +1,15 @@
 
 running 3 tests
 test parent_child_event_runtime_tests::parent_child_runtime_publishes_validated_intent_before_child_handoff ... ok
-test parent_child_event_runtime_tests::parent_child_transport_handoff_preserves_forwarded_refs ... ok
 test parent_child_event_runtime_tests::child_agent_receive_publishes_local_events_and_parent_read_model ... ok
+test parent_child_event_runtime_tests::parent_child_transport_handoff_preserves_forwarded_refs ... ok
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 245 filtered out; finished in 0.00s
 
 
 running 4 tests
-test parent_controller_event_tests::parent_and_child_event_namespace_constants_are_unique_and_prefixed ... ok
 test parent_controller_event_tests::parent_controller_contracts_name_exact_event_types ... ok
+test parent_controller_event_tests::parent_and_child_event_namespace_constants_are_unique_and_prefixed ... ok
 test parent_controller_event_tests::parent_action_contract_rejects_missing_parent_intent_ref ... ok
 test parent_controller_event_tests::parent_controller_contracts_serialize_validation_and_transport_refs ... ok
 
@@ -18,8 +18,8 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 179 filtered out; fi
 
 running 3 tests
 test child_agent_event_tests::child_agent_contracts_name_exact_event_types ... ok
-test child_agent_event_tests::child_command_contract_rejects_missing_child_command_ref ... ok
 test child_agent_event_tests::child_agent_contracts_serialize_command_and_runtime_refs ... ok
+test child_agent_event_tests::child_command_contract_rejects_missing_child_command_ref ... ok
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 180 filtered out; finished in 0.00s
 
@@ -767,9 +767,9 @@ Source shape guard passed.
 eventing-parent-child-runtime-proof-ok:eventing.row-51.parent-controller-validated-intent-publisher,eventing.row-53.parent-child-command-transport-handoff,eventing.row-54.child-agent-local-event-publish
 evidence=test-results\eventing-parent-child-runtime-proof\proof.json
 rowProof=output\eventing-plan-proof\51-54-parent-child-runtime\proof-summary.json
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
      Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_core-98ce409322ace2ff.exe)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
      Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_protocol-8fbcfdb9341ad4a5.exe)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
      Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_protocol-8fbcfdb9341ad4a5.exe)

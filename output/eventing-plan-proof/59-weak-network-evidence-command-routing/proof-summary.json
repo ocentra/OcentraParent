@@ -1,7 +1,7 @@
 {
   "proof": "eventing-row-59-weak-network-evidence-command-routing",
-  "checkedAt": "2026-06-05T22:45:59.556Z",
-  "commit": "1980158c8a56b89353d70a3d76110e6a1b525737",
+  "checkedAt": "2026-06-05T22:54:03.472Z",
+  "commit": "21aa3b919f873d0d6091528176c14241c019af0a",
   "commands": [
     "cargo test -p ocentra-eventing",
     "cargo test -p ocentra-parent-agent-core network_event_runtime",

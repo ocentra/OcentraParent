@@ -1,20 +1,20 @@
 
 running 15 tests
 test activity_tests::network_domain_values_serialize_to_typescript_contract_shape ... ok
-test network_flow_tests::manual_required_enforcement_result_keeps_adapter_action_false ... ok
-test activity_surface_tests::activity_network_read_model_serializes_unavailable_state ... ok
-test network_flow_tests::network_flow_observation_serializes_to_contract_shape ... ok
-test lan_pairing_tests::lan_pairing_read_model_values_keep_local_network_state_explicit ... ok
-test network_flow_tests::network_ai_and_policy_contracts_serialize_chain_refs ... ok
-test network_flow_tests::network_enforcement_audit_and_portal_contracts_serialize_refs ... ok
 test lan_pairing_browser_add_device_state_tests::discovered_device_serializes_network_and_hardware_details ... ok
-test network_flow_tests::network_runtime_event_contracts_name_exact_event_types ... ok
+test activity_surface_tests::activity_network_read_model_serializes_unavailable_state ... ok
+test network_flow_tests::manual_required_enforcement_result_keeps_adapter_action_false ... ok
+test lan_pairing_tests::lan_pairing_read_model_values_keep_local_network_state_explicit ... ok
+test network_flow_tests::network_enforcement_audit_and_portal_contracts_serialize_refs ... ok
+test network_flow_tests::network_ai_and_policy_contracts_serialize_chain_refs ... ok
+test network_flow_tests::network_flow_observation_serializes_to_contract_shape ... ok
 test network_flow_tests::enforcement_command_contract_rejects_missing_policy_decision_ref ... ok
-test tests::local_network_route_serializes_to_typescript_contract_shape ... ok
-test network_flow_tests::network_observation_contracts_serialize_claim_boundaries ... ok
+test network_flow_tests::network_runtime_event_contracts_name_exact_event_types ... ok
 test network_flow_tests::network_flow_read_model_serializes_rows_without_payload_claims ... ok
-test tests::network_runtime_stream_command_and_event_names_serialize_to_contract_shape ... ok
 test tests::local_network_route_security_rejects_anonymous_control ... ok
+test network_flow_tests::network_observation_contracts_serialize_claim_boundaries ... ok
+test tests::local_network_route_serializes_to_typescript_contract_shape ... ok
+test tests::network_runtime_stream_command_and_event_names_serialize_to_contract_shape ... ok
 
 test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 168 filtered out; finished in 0.00s
 
@@ -762,5 +762,5 @@ Source shape guard passed.
 eventing-network-protocol-contract-proof-ok:eventing.rows-45-50.protocol-contracts,network.protocol-parity.rust-serde,network.protocol.no-content-claim-boundary,enforcement.protocol.requires-policy-decision-ref,enforcement.protocol.manual-required-no-adapter-action
 evidence=test-results\eventing-network-protocol-contract-proof\proof.json
 rowProof=output\eventing-plan-proof\45-50-network-protocol-contracts\proof-summary.json
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.30s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.46s
      Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_protocol-8fbcfdb9341ad4a5.exe)

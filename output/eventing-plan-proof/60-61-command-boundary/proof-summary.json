@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "proofMode": "eventing-command-boundary-proof",
-  "checkedAt": "2026-06-05T22:44:50.863Z",
-  "commit": "1980158c8a56b89353d70a3d76110e6a1b525737",
+  "checkedAt": "2026-06-05T22:52:56.151Z",
+  "commit": "21aa3b919f873d0d6091528176c14241c019af0a",
   "commands": [
     "cmd /c npm exec --workspace @ocentra-parent/portal -- vitest run tests/transport-lan-target.test.ts",
     "cmd /c npm exec --workspace @ocentra-parent/portal -- eslint src/transport.ts tests/transport-lan-target.test.ts",

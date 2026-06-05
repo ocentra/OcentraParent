@@ -1,7 +1,7 @@
 {
   "proof": "eventing-rows-51-53-54-parent-child-runtime",
-  "checkedAt": "2026-06-05T22:46:27.631Z",
-  "commit": "1980158c8a56b89353d70a3d76110e6a1b525737",
+  "checkedAt": "2026-06-05T22:54:29.698Z",
+  "commit": "21aa3b919f873d0d6091528176c14241c019af0a",
   "commands": [
     "cargo test -p ocentra-parent-agent-core parent_child",
     "cargo test -p ocentra-parent-agent-protocol parent_controller",

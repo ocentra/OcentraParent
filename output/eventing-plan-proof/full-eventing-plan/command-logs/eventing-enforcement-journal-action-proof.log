@@ -2,11 +2,11 @@
 running 5 tests
 test enforcement_tests::enforcement_execute_rejects_missing_process_id_before_adapter_execution ... ok
 test enforcement_tests::dry_run_enforcement_execute_journals_without_adapter_request ... ok
-test enforcement_tests::enforcement_execute_records_audit_event_to_journal_and_store ... ok
 test enforcement_tests::enforcement_execute_reports_final_adapter_result_after_before_action_journal ... ok
+test enforcement_tests::enforcement_execute_records_audit_event_to_journal_and_store ... ok
 test enforcement_tests::enforcement_execute_reports_manual_required_service_states_for_unwired_adapters ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 258 filtered out; finished in 0.30s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 258 filtered out; finished in 0.26s
 
 
 running 4 tests
@@ -761,7 +761,7 @@ Source shape guard passed.
 eventing-enforcement-journal-action-proof-ok:eventing.row-55.journal-before-action,eventing.row-56.adapter-result-audit-read-model,enforcement.service.pre-action-journal-line-order,enforcement.service.final-adapter-result-after-journal
 evidence=test-results\eventing-enforcement-journal-action-proof\proof.json
 rowProof=output\eventing-plan-proof\55-56-enforcement-journal-action\proof-summary.json
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.74s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s
      Running unittests src\main.rs (target\debug\deps\ocentra_parent_agent_service-f9b64d6b8709d212.exe)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.58s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.49s
      Running unittests src\main.rs (target\debug\deps\ocentra_parent_agent_service-f9b64d6b8709d212.exe)

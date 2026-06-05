@@ -1,7 +1,7 @@
 {
   "proof": "eventing-rows-45-50-network-protocol-contracts",
-  "checkedAt": "2026-06-05T22:45:48.078Z",
-  "commit": "1980158c8a56b89353d70a3d76110e6a1b525737",
+  "checkedAt": "2026-06-05T22:53:51.498Z",
+  "commit": "21aa3b919f873d0d6091528176c14241c019af0a",
   "commands": [
     "cargo test -p ocentra-parent-agent-protocol network",
     "node scripts/check-source-shape.mjs"

@@ -1,7 +1,7 @@
 {
   "proof": "eventing-branded-fixture-parity",
   "proofRoot": "output\\eventing-plan-proof\\68-fixture-parity",
-  "checkedAt": "2026-06-05T22:44:41.320Z",
+  "checkedAt": "2026-06-05T22:52:45.759Z",
   "fixturePath": "crates\\ocentra-eventing\\fixtures\\branded_scalar_parity.json",
   "commands": [
     {

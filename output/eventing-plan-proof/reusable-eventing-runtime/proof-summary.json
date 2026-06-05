@@ -1,8 +1,8 @@
 {
   "proof": "eventing-runtime-phase-1",
-  "checkedAt": "2026-06-05T22:44:37.066Z",
+  "checkedAt": "2026-06-05T22:52:40.279Z",
   "branch": "codex/eventing-proof-refresh-after-pr376",
-  "commit": "1980158c8a56b89353d70a3d76110e6a1b525737",
+  "commit": "21aa3b919f873d0d6091528176c14241c019af0a",
   "originMain": "bcccf90bdc882117e30fc810a88ac9f6e642c17f",
   "mergeBase": "bcccf90bdc882117e30fc810a88ac9f6e642c17f",
   "statusShort": "",

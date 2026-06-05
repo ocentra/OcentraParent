@@ -1,7 +1,7 @@
 
 running 4 tests
-test parent_controller_event_tests::parent_and_child_event_namespace_constants_are_unique_and_prefixed ... ok
 test parent_controller_event_tests::parent_controller_contracts_name_exact_event_types ... ok
+test parent_controller_event_tests::parent_and_child_event_namespace_constants_are_unique_and_prefixed ... ok
 test parent_controller_event_tests::parent_action_contract_rejects_missing_parent_intent_ref ... ok
 test parent_controller_event_tests::parent_controller_contracts_serialize_validation_and_transport_refs ... ok
 
@@ -10,8 +10,8 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 179 filtered out; fi
 
 running 3 tests
 test child_agent_event_tests::child_agent_contracts_name_exact_event_types ... ok
-test child_agent_event_tests::child_agent_contracts_serialize_command_and_runtime_refs ... ok
 test child_agent_event_tests::child_command_contract_rejects_missing_child_command_ref ... ok
+test child_agent_event_tests::child_agent_contracts_serialize_command_and_runtime_refs ... ok
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 180 filtered out; finished in 0.00s
 
@@ -759,7 +759,7 @@ Source shape guard passed.
 eventing-parent-child-protocol-contract-proof-ok:eventing.rows-42-44.parent-child-protocol-contracts,parent-controller.protocol.constants-and-serde,child-agent.protocol.constants-and-serde,parent-child.protocol.required-ref-negative-tests
 evidence=test-results\eventing-parent-child-protocol-contract-proof\proof.json
 rowProof=output\eventing-plan-proof\42-44-parent-child-protocol-contracts\proof-summary.json
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
      Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_protocol-8fbcfdb9341ad4a5.exe)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
      Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_protocol-8fbcfdb9341ad4a5.exe)

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "proofMode": "eventing-ui-typed-intent-boundary-proof",
-  "checkedAt": "2026-06-05T22:47:10.578Z",
-  "commit": "1980158c8a56b89353d70a3d76110e6a1b525737",
+  "checkedAt": "2026-06-05T22:55:08.799Z",
+  "commit": "21aa3b919f873d0d6091528176c14241c019af0a",
   "commands": [
     "cmd /c npm exec --workspace @ocentra-parent/portal -- vitest run tests/transport-lan-target.test.ts",
     "cmd /c npm exec --workspace @ocentra-parent/portal -- eslint src/agent-client.ts src/transport.ts src/main.ts src/portal-actions.ts src/portal-command-controls.ts src/TrackingStatusRoutePanel.tsx ../../packages/portal-domain/src/commands.ts",

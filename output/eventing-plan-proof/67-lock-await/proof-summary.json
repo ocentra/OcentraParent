@@ -1,7 +1,7 @@
 {
   "proof": "eventing-lock-await",
   "proofRoot": "output\\eventing-plan-proof\\67-lock-await",
-  "checkedAt": "2026-06-05T22:45:40.116Z",
+  "checkedAt": "2026-06-05T22:53:42.223Z",
   "commands": [
     {
       "name": "eventing-tests",
