@@ -142,6 +142,13 @@ compete on control while staying clear about attribution confidence and privacy.
   managed-browser boundary and adapter-unavailable states remain explicit, and
   exact URL, active-tab, title, page-content, decrypted-payload, policy,
   adapter, and enforcement-command claims are rejected.
+- E-D added deterministic app/game foreground/session correlation in
+  `ocentra-network-evidence`: stored app/game evidence, session-summary,
+  foreground, process-correlation, and launcher refs can confirm foreground or
+  running sessions; launcher-only rows are guarded, candidates remain
+  review-only, missing/unavailable states stay explicit, and exact URL,
+  screen-content, AI-device-scanner, policy, adapter, and enforcement-command
+  claims are rejected.
 - E-D added a deterministic evidence cascade router in
   `ocentra-network-evidence`: confirmed/candidate/weak signals are ranked,
   weak hints route to managed-browser/process/screen/local-AI next checks, and
@@ -433,6 +440,9 @@ execution, and platform adapter execution remain open.
 - [x] Unmanaged browser correlation remains process-only bypass/candidate
       evidence and cannot upgrade to exact URL, active-tab, title, page-content,
       policy, adapter, or enforcement-command claims.
+- [x] App/game foreground/session correlation consumes stored evidence refs and
+      keeps launcher-only and candidate rows non-authoritative before any policy,
+      adapter, service, or portal claim.
 
 ## Next AI Instructions
 

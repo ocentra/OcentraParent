@@ -1,6 +1,7 @@
 pub mod ai_audit;
 pub mod ai_detection;
 pub mod android_vpn_service_gate;
+pub mod app_game_session;
 pub mod apple_network_extension_gate;
 pub mod bundle;
 pub mod cascade;
@@ -57,6 +58,13 @@ pub use android_vpn_service_gate::{
     NetworkAndroidVpnServiceGateBoundaryReason, NetworkAndroidVpnServiceGateError,
     NetworkAndroidVpnServiceGateInput, NetworkAndroidVpnServiceGateProof,
     NetworkAndroidVpnServiceGateState, NetworkAndroidVpnServiceRequiredArtifact,
+};
+pub use app_game_session::{
+    correlate_app_game_foreground_session, NetworkAppGameEvidenceKind,
+    NetworkAppGameForegroundState, NetworkAppGameSessionCorrelation,
+    NetworkAppGameSessionCorrelationBasis, NetworkAppGameSessionCorrelationError,
+    NetworkAppGameSessionCorrelationInput, NetworkAppGameSessionCorrelationState,
+    NetworkAppGameStoredSessionEvidence,
 };
 pub use apple_network_extension_gate::{
     plan_network_apple_network_extension_gate, NetworkAppleNetworkExtensionCapabilityState,

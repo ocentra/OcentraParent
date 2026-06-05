@@ -9,6 +9,7 @@ use crate::{
 mod ai_audit;
 mod ai_detection;
 mod android_vpn_service_gate;
+mod app_game_session;
 mod apple_network_extension_gate;
 mod bundle;
 mod cascade;
