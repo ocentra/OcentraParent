@@ -54,6 +54,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await expect(trackingProofRegion.getByText('Manual proof required').first()).toBeVisible();
   await expect(trackingProofRegion.getByText('Physical device proof required').first()).toBeVisible();
   await expect(trackingProofRegion.getByText('No product claim').first()).toBeVisible();
+  await assertHostedManualStateRows(trackingProofRegion);
   await expect(page.getByRole('heading', { name: 'Child check-in request' })).toBeVisible();
   await expect(trackingProofRegion.getByText('Your parent is asking you to check in. Are you safe?')).toBeVisible();
   await expect(trackingProofRegion.getByText("I'm safe")).toBeVisible();
@@ -66,6 +67,14 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   const routeText = await trackingProofRegion.textContent();
   expect(routeText ?? '').not.toMatch(/(?:product ready|physical device proved|background geofence proved)/iu);
   expect(routeText ?? '').not.toMatch(/(?:trouble|lying|bad place|delivered to child device)/iu);
+}
+
+async function assertHostedManualStateRows(trackingProofRegion: Locator): Promise<void> {
+  await expect(trackingProofRegion.getByText('Fresh live', { exact: true }).first()).toBeVisible();
+  await expect(trackingProofRegion.getByText('Temporary live expired', { exact: true }).first()).toBeVisible();
+  await expect(trackingProofRegion.getByText('Remote sync disabled', { exact: true }).first()).toBeVisible();
+  await expect(trackingProofRegion.getByText('Remote AI disabled', { exact: true }).first()).toBeVisible();
+  await expect(trackingProofRegion.getByText('Unsupported manual-required', { exact: true }).first()).toBeVisible();
 }
 
 async function assertHostedChildRuntimeUiProof(trackingProofRegion: Locator): Promise<void> {
@@ -92,8 +101,11 @@ async function refreshHostedTrackingStatus(page: Page, trackingProofRegion: Loca
       return;
     } catch (error) {
       lastError = error;
-      await expect(trackingProofRegion).toBeVisible({ timeout: 5_000 });
       await page.waitForTimeout(1_000);
+      if (!(await trackingProofRegion.isVisible().catch(() => false))) {
+        await page.goto('/#/policy-tracking');
+        await expect(trackingProofRegion).toBeVisible({ timeout: portalShellReadyTimeoutMs });
+      }
     }
   }
 
@@ -182,17 +194,9 @@ async function writeAccessibilitySummary(
   expect(summary.labels).toContain('Child copy');
   expect(summary.labels).toContain('Child delivery');
   expect(summary.labels).toContain('Product claim');
-  expect(summary.values).toContain("I'm safe");
-  expect(summary.values).toContain('Need help');
-  expect(summary.values).toContain('Share current location');
-  expect(summary.values).toContain('Call parent');
-  expect(summary.values).toContain('Child-device delivery not proved');
-  expect(summary.values).toContain('Tracking request disclosed');
-  expect(summary.values).toContain('Safe response visible');
-  expect(summary.values).toContain('Help response visible');
-  expect(summary.values).toContain('Location share asks consent');
-  expect(summary.values).toContain('Hosted proof only, not child-agent delivery');
-  expect(summary.values).toContain('No product claim');
+  for (const expectedValue of ExpectedAccessibilityValues) {
+    expect(summary.values).toContain(expectedValue);
+  }
 
   await mkdir(path.dirname(accessibilitySummaryPath), { recursive: true });
   await writeFile(
@@ -207,6 +211,11 @@ async function writeAccessibilitySummary(
           'service-backed-row-citation-visible',
           'manual-required-visible',
           'physical-device-required-visible',
+          'fresh-live-state-visible',
+          'temporary-live-expired-state-visible',
+          'remote-sync-disabled-state-visible',
+          'remote-ai-disabled-state-visible',
+          'unsupported-manual-required-state-visible',
           'no-product-claim-visible',
           'child-check-in-copy-visible',
           'child-check-in-actions-visible',
@@ -234,3 +243,22 @@ async function writeAccessibilitySummary(
     )}\n`
   );
 }
+
+const ExpectedAccessibilityValues = [
+  "I'm safe",
+  'Need help',
+  'Share current location',
+  'Call parent',
+  'Child-device delivery not proved',
+  'Tracking request disclosed',
+  'Safe response visible',
+  'Help response visible',
+  'Location share asks consent',
+  'Hosted proof only, not child-agent delivery',
+  'Fresh live',
+  'Temporary live expired',
+  'Remote sync disabled',
+  'Remote AI disabled',
+  'Unsupported manual-required',
+  'No product claim',
+] as const;

@@ -81,7 +81,9 @@ expose location or device-status features. Parents expect this category.
   child-safe check-in, and hosted child-runtime UI proof screenshots, writes
   accessibility summary output, proves calm child check-in copy/actions plus
   child disclosure, safe/help response, and location-share consent copy inside
-  the hosted route only, and keeps `productClaimReady=false`.
+  the hosted route only, proves fresh-live, temporary-live-expired,
+  remote-sync-disabled, remote-AI-disabled, and unsupported manual-required
+  state rendering, and keeps `productClaimReady=false`.
 - P1 evidence-quality gate proof now exists through
   `npm run test:tracking-plan-evidence-quality-gate-proof`. It validates
   location UI evidence refs, geofence rule/source refs, nearby-place provider
@@ -178,14 +180,17 @@ product-surface summary fields, narrow portal summary-consumption proof, live
 service-backed portal citation rows, hosted
 parent route service-data coverage, hosted parent route screenshot/accessibility
 proof with hosted child-safe check-in copy/actions and hosted child-runtime
-disclosure/safe-help/location-share consent copy, P1 local parent-defined place
-store proof, pre-device proof-gate progress, Android emulator package/service/status
-scaffold proof, P3 WSL/local replay proof, P1 evidence-quality gate proof, WP26
-tracking alert-to-provider-status handoff proof, P1 escalation readiness proof
-for acknowledgement/check-in/manual escalation states, WP28 temporary live
-tracking mode proof for authorization/duration/cadence/degraded/auto-stop/
-retention states, and WP20 Google Places/POI provider request/response mapping
-proof, and WP25 parent-policy compiler/evaluator runtime proof. It remains a tracked
+disclosure/safe-help/location-share consent copy, hosted manual-state rendering
+for fresh-live, temporary-live-expired, remote-sync-disabled,
+remote-AI-disabled, and unsupported/manual-required states, P1 local
+parent-defined place store proof, pre-device proof-gate progress, Android
+emulator package/service/status scaffold proof, P3 WSL/local replay proof, P1
+evidence-quality gate proof, WP26 tracking alert-to-provider-status handoff
+proof, P1 escalation readiness proof for acknowledgement/check-in/manual
+escalation states, WP28 temporary live tracking mode proof for
+authorization/duration/cadence/degraded/auto-stop/retention states, WP20 Google
+Places/POI provider request/response mapping proof, and WP25 parent-policy
+compiler/evaluator runtime proof. It remains a tracked
 product gap until platform location and geofence adapters, broader product read
 models, actual live provider execution/delivery, notification receipt ingestion,
 physical-device proof, actual child-device delivery/runtime execution, and full
@@ -250,13 +255,16 @@ proved.
 - [x] P3 WSL/local replay proof for the tracking read-model proof stack and
       linked-worktree toolchain mapping.
 - [x] P1 parent portal tracking-state fixture surface, local parent-route screenshot,
-      and local proof artifact references.
+      scroll-reachable manual-state screenshot, and local proof artifact
+      references.
 - [x] Hosted parent `policy-tracking` route screenshot and accessibility proof
       against the real Rust service and seeded ActivityStore, including a
       hosted child-safe check-in copy/actions card and hosted child-runtime
-      disclosure/safe-help/location-share consent card. This is not
-      child-device delivery/runtime execution, full service-data UI, or
-      physical-device proof.
+      disclosure/safe-help/location-share consent card plus fresh-live,
+      temporary-live-expired, remote-sync-disabled, remote-AI-disabled, and
+      unsupported manual-required state rendering. This is not child-device
+      delivery/runtime execution, full service-data UI, or physical-device
+      proof.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
       proof plans.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence

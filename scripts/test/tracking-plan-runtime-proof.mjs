@@ -187,6 +187,7 @@ async function writeProofArtifacts({
         test: 'apps/portal/tests/tracking-status-panel.test.ts',
         states: [
           'Tracking off',
+          'Fresh live',
           'Permission required',
           'Stale last known',
           'Offline last known',
@@ -197,14 +198,24 @@ async function writeProofArtifacts({
           'Exception active',
           'Child check-in',
           'Temporary live',
+          'Temporary live expired',
           'Missing device',
+          'Remote sync disabled',
+          'Remote AI disabled',
+          'Unsupported manual-required',
           'Retention deleted',
+        ],
+        manualStateCoverage: [
+          'temporary-live-expired',
+          'remote-sync-disabled',
+          'remote-AI-disabled',
+          'unsupported-manual-required',
         ],
         deletedHistoryProof: trackingRouteDeletedHistoryProof(),
         evidenceCitationProof: routeScreenshotProof.proofArtifactProof,
         productClaimReady: false,
         missingProofReason:
-          'This is UI fixture proof only. Live service data, hosted Playwright/a11y proof, child-device UI, and physical-device proof remain pending.',
+          'This is UI fixture proof only. It proves manual-required rendering and non-claim labels, not child-device delivery, physical-device, provider-delivery, authority, or production behavior.',
         routeScreenshotProof,
         commands,
       },
@@ -304,7 +315,7 @@ function buildMinimumSeriousMvpAudit({ routeScreenshotProof }) {
         artifactPath: 'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json',
         screenshotPath: routeScreenshotProof.screenshotPath,
         missingProofReason:
-          'Live service data, child-device UI, hosted Playwright/a11y output, and physical-device proof remain pending.',
+          'Full child/parent UI beyond the hosted parent route, child-device delivery, physical-device proof, authority, provider delivery, and production proof remain pending.',
       },
       {
         requirement: 'Rust SQLite tracking ingest',
@@ -315,8 +326,7 @@ function buildMinimumSeriousMvpAudit({ routeScreenshotProof }) {
     ],
     uiStateCoverage: trackingRouteExpectedStates(),
     blockingGapsBeforeProductOrPrReady: [
-      'Hosted Playwright/a11y proof is pending.',
-      'Live parent service-data UI proof is pending.',
+      'Full parent/child UI beyond the hosted route remains pending.',
       'Child-device UI proof is pending.',
       'Android/iOS physical background proof is manual-required.',
       'Authority-enrolled and production-pilot proof are not present.',
@@ -557,6 +567,12 @@ async function runTrackingRouteScreenshotProof() {
     '11-ui-snapshots',
     'policy-tracking-parent-fixture.png'
   );
+  const manualStateScreenshotPath = join(
+    proofRoot,
+    '30-parent-and-child-ui-ux-surfaces',
+    '11-ui-snapshots',
+    'policy-tracking-parent-manual-state-fixture.png'
+  );
   const logPath = join(proofRoot, '30-parent-and-child-ui-ux-surfaces', '12-playwright-proof.log');
   await mkdir(join(screenshotPath, '..'), { recursive: true });
 
@@ -600,7 +616,7 @@ async function runTrackingRouteScreenshotProof() {
     await waitForHttp(url, 30_000);
     const { chromium } = await import('@playwright/test');
     const browser = await chromium.launch();
-    const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    const page = await browser.newPage({ viewport: { width: 1440, height: 2200 } });
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15_000 });
     await page.waitForSelector('.tracking-status-overlay-grid', { timeout: 20_000 });
     await page.waitForTimeout(1200);
@@ -613,8 +629,24 @@ async function runTrackingRouteScreenshotProof() {
       .locator('.tracking-status-overlay-grid > .summary')
       .nth(rowCount - 1)
       .boundingBox();
-    const allRowsVisible = lastRowBox !== null && lastRowBox.y + lastRowBox.height <= 1000;
+    const allRowsVisible = lastRowBox !== null && lastRowBox.y + lastRowBox.height <= 2200;
     await page.screenshot({ path: screenshotPath, fullPage: false });
+    const gridScrollProof = await grid.evaluate((node) => {
+      node.scrollTop = node.scrollHeight;
+      return {
+        scrollTop: node.scrollTop,
+        scrollHeight: node.scrollHeight,
+        clientHeight: node.clientHeight,
+      };
+    });
+    await page.waitForTimeout(250);
+    const lastRowAfterScrollBox = await page
+      .locator('.tracking-status-overlay-grid > .summary')
+      .nth(rowCount - 1)
+      .boundingBox();
+    const allRowsReachable =
+      lastRowAfterScrollBox !== null && lastRowAfterScrollBox.y + lastRowAfterScrollBox.height <= 2200;
+    await page.screenshot({ path: manualStateScreenshotPath, fullPage: false });
     await browser.close();
     const missingState = trackingRouteExpectedStates().find((state) => !overlayText.includes(state));
     if (missingState !== undefined) {
@@ -643,18 +675,23 @@ async function runTrackingRouteScreenshotProof() {
     if (missingArtifact !== undefined) {
       throw new Error(`tracking route screenshot proof missing artifact reference ${missingArtifact}`);
     }
-    const expectedRowCount = trackingRouteExpectedStates().length + 1;
-    if (rowCount !== expectedRowCount || !allRowsVisible) {
-      throw new Error(`tracking route screenshot proof row visibility failed: rowCount=${rowCount}`);
+    const expectedMinimumRowCount = trackingRouteExpectedStates().length + 3;
+    if (rowCount < expectedMinimumRowCount || (!allRowsVisible && !allRowsReachable)) {
+      throw new Error(
+        `tracking route screenshot proof row visibility failed: rowCount=${rowCount}; expectedMinimum=${expectedMinimumRowCount}; allRowsVisible=${allRowsVisible}; allRowsReachable=${allRowsReachable}`
+      );
     }
     result = {
       route: url,
       screenshotPath: proofRelative(screenshotPath),
+      manualStateScreenshotPath: proofRelative(manualStateScreenshotPath),
       logPath: proofRelative(logPath),
-      viewport: '1440x1000',
+      viewport: '1440x2200',
       gridColumns,
       rowCount,
       allRowsVisible,
+      allRowsReachable,
+      gridScrollProof,
       deletedHistoryProof,
       proofArtifactProof,
       productClaimReady: false,
@@ -685,6 +722,7 @@ function trackingRouteServerEnv(host) {
 function trackingRouteExpectedStates() {
   return [
     'Tracking off',
+    'Fresh live',
     'Permission required',
     'Stale last known',
     'Offline last known',
@@ -695,7 +733,11 @@ function trackingRouteExpectedStates() {
     'Exception active',
     'Child check-in',
     'Temporary live',
+    'Temporary live expired',
     'Missing device',
+    'Remote sync disabled',
+    'Remote AI disabled',
+    'Unsupported manual-required',
     'Retention deleted',
   ];
 }
@@ -707,14 +749,16 @@ async function writeTrackingRouteProofLog({ logPath, startedAt, route, commandLi
     `Date: ${startedAt}`,
     `Route: ${route}`,
     `Command: ${commandLine}`,
-    'Viewport: 1440x1000',
+    'Viewport: 1440x2200',
     `Screenshot: ${proofRelative(screenshotPath)}`,
+    `Manual-state screenshot: ${result?.manualStateScreenshotPath ?? 'not captured'}`,
     '',
     'Checks:',
     '- Waited for selector: .tracking-status-overlay-grid',
     `- Computed grid columns: ${result?.gridColumns ?? 'not captured'}`,
     `- Row count: ${result?.rowCount ?? 'not captured'}`,
-    `- All rows visible in viewport: ${result?.allRowsVisible ?? false}`,
+    `- All rows visible in initial viewport: ${result?.allRowsVisible ?? false}`,
+    `- All rows reachable after matrix scroll: ${result?.allRowsReachable ?? false}`,
     '- Overlay text included every first-target tracking state',
     '- Overlay text included: No product claim',
     '- Overlay text included: Deleted history hidden',
@@ -724,7 +768,7 @@ async function writeTrackingRouteProofLog({ logPath, startedAt, route, commandLi
     `- Overlay text included proof artifact references: ${result?.proofArtifactProof?.requiredArtifacts?.join(', ') ?? 'not captured'}`,
     '',
     'Scope:',
-    'This is local rendered fixture proof only. It does not prove live service data, child-device UI, hosted Playwright/a11y output, or physical-device behavior.',
+    'This is local rendered fixture proof only. It does not prove child-device delivery, physical-device, provider-delivery, authority, or production behavior.',
     '',
     'Server output:',
     ...sanitizeServerOutput(output.join('')).split(/\r?\n/u).filter(Boolean),

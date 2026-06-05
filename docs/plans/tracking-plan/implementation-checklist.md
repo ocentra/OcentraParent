@@ -328,7 +328,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       fixture, local parent-route screenshot, hosted parent `policy-tracking`
       route screenshot/accessibility proof, hosted child-safe check-in screenshot
       proof, and hosted child-runtime disclosure/safe-help/location-share consent
-      screenshot proof exist; hosted service-data coverage from the parsed
+      screenshot proof exist; the fixture and hosted route now also prove
+      fresh-live, temporary-live-expired, remote-sync-disabled,
+      remote-AI-disabled, and unsupported manual-required state rendering with
+      `productClaimReady=false`; hosted service-data coverage from the parsed
       tracking read model is proved, but live parent/child UI beyond that route,
       actual child-device delivery/runtime execution, physical-device proof,
       authority, provider delivery, and production proof remain pending.
@@ -360,18 +363,23 @@ Every implementation workpack must update, or explicitly justify not updating:
       proof, live service-backed portal citation rows, iOS simulator package
       routing, hosted parent route screenshot/accessibility proof, hosted
       child-safe check-in screenshot proof, hosted child-runtime UI proof, and
-      remaining Android foreground/background location, physical-device,
-      authority, actual child-device delivery/runtime execution, full
-      child/parent UI beyond the hosted parent route, provider-delivery, and
-      production gaps.
+      manual-state rendering for fresh-live, temporary-live-expired,
+      remote-sync-disabled, remote-AI-disabled, and unsupported
+      manual-required states; remaining Android foreground/background
+      location, physical-device, authority, actual child-device
+      delivery/runtime execution, full child/parent UI beyond the hosted parent
+      route, provider-delivery, and production gaps remain.
 
 ## UI Snapshot Gates
 
-- [x] Parent route fixture covers tracking off, permission-required, stale,
-      offline, low accuracy, ambiguous nearby place, alert, acknowledgement,
-      exception, child check-in, temporary live, missing device, and
-      retention-deleted states at P1 with local proof artifact references. The
-      runtime proof command captures a local rendered parent-route screenshot;
+- [x] Parent route fixture covers tracking off, fresh-live,
+      permission-required, stale, offline, low accuracy, ambiguous nearby
+      place, alert, acknowledgement, exception, child check-in, temporary live,
+      temporary-live-expired, missing device, remote-sync-disabled,
+      remote-AI-disabled, unsupported manual-required, and retention-deleted
+      states at P1 with local proof artifact references. The runtime proof
+      command captures a local rendered parent-route screenshot and a
+      scroll-reachable manual-state screenshot;
       hosted parent route Playwright/a11y proof now captures live service-data
       desktop/mobile screenshots plus hosted child-safe check-in and
       child-runtime UI proof screenshots; actual child-device runtime execution
@@ -382,6 +390,8 @@ Every implementation workpack must update, or explicitly justify not updating:
 - [ ] Screenshots are stored under the assigned proof root. The runtime proof
       command captures the local parent fixture screenshot at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`;
+      the local manual-state scroll screenshot is stored at
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-manual-state-fixture.png`;
       hosted parent route screenshots are stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary.png`
       and
@@ -421,15 +431,16 @@ Every implementation workpack must update, or explicitly justify not updating:
 
 ## Fixture And Manual Gates
 
-- [ ] Fixtures cover fresh, stale, offline, denied, low accuracy, ambiguous,
+- [x] Fixtures cover fresh, stale, offline, denied, low accuracy, ambiguous,
       exception, acknowledged, check-in, temporary-live-expired,
       missing-device, retention-deleted, remote-sync-disabled, and
-      remote-AI-disabled states.
+      remote-AI-disabled states. Proof:
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json`.
 - [ ] Android/iOS/manual desktop claims include real-device or explicitly
       approved manual proof.
 - [x] Pre-device proof records unsupported or not-yet-proved platform states as
       `manual_required` or `authority_required` instead of fake capability.
-- [ ] Unsupported platforms render manual-required state instead of fake
+- [x] Unsupported platforms render manual-required state instead of fake
       capability.
 
 ## Explicit Merge-Blocking Checklist

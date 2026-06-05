@@ -56,6 +56,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `20-evidence-quality-gate-validation.log`
 - Hosted child-safe check-in screenshot:
   `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
+- Manual-state fixture screenshot:
+  `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-manual-state-fixture.png`
 
 ## Merge Blockers
 
@@ -127,6 +129,11 @@ keeping `productClaimReady=false`. It is a hosted route proof only and does not
 claim child-device delivery/runtime UI, full service-data UI, Android/iOS
 physical-device behavior, authority, provider delivery, or production
 readiness.
+The hosted proof now also asserts fresh-live, temporary-live-expired,
+remote-sync-disabled, remote-AI-disabled, and unsupported manual-required state
+rows in the real-service route and accessibility summary. The runtime proof
+matrix records a scroll-reachable manual-state screenshot and keeps remote sync,
+remote AI, physical-device, and product-ready claims disabled.
 
 This branch adds `npm run test:tracking-plan-evidence-quality-gate-proof`,
 which validates location UI evidence refs, geofence rule/source refs,
@@ -170,6 +177,33 @@ This workpack can be assigned independently, implemented against the owning doma
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
+
+- [x] Workpack id and branch:
+      `codex/tracking-manual-state-ui-proof`.
+- [x] Touched files: portal tracking status renderer/tests, hosted Playwright
+      proof spec, hosted/runtime proof scripts, portal/text/domain constants,
+      tracking feature doc, implementation checklist, WP30, WP33, generated
+      hosted/runtime proof artifacts, and hub doc delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-plan-runtime-proof.mjs` passed locally after
+      proving the expanded state matrix and scroll-reachable manual-state rows;
+      `npm run test:tracking-plan-hosted-ui-proof` passed locally after focused
+      portal/text/domain tests.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`,
+      and `test-results/tracking-plan-hosted-ui-proof/`, including
+      `18-hosted-ui-accessibility-proof.json`,
+      `../30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json`,
+      and
+      `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-manual-state-fixture.png`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, and WP33 updated; central capability row delta queued
+      through the hub instead of editing `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: child-device delivery/runtime UI, full
+      parent/child UI beyond the hosted route, Android/iOS physical-device
+      proof, authority, provider delivery, notifications, and production proof
+      remain proof-gated.
 
 - [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
 - [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.

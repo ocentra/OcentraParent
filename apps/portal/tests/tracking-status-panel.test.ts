@@ -19,6 +19,7 @@ import {
 
 const ExpectedTrackingStateTitles = [
   'Tracking off',
+  'Fresh live',
   'Permission required',
   'Stale last known',
   'Offline last known',
@@ -29,12 +30,17 @@ const ExpectedTrackingStateTitles = [
   'Exception active',
   'Child check-in',
   'Temporary live',
+  'Temporary live expired',
   'Missing device',
+  'Remote sync disabled',
+  'Remote AI disabled',
+  'Unsupported manual-required',
   'Retention deleted',
 ] as const;
 
 const ExpectedTrackingProofArtifacts = [
   TrackingStatusProofArtifacts.ContractBoundary,
+  TrackingStatusProofArtifacts.RuntimeLocationEvidence,
   TrackingStatusProofArtifacts.PermissionCapability,
   TrackingStatusProofArtifacts.RuntimeLocationEvidence,
   TrackingStatusProofArtifacts.DeviceStatus,
@@ -45,7 +51,11 @@ const ExpectedTrackingProofArtifacts = [
   TrackingStatusProofArtifacts.ParentAcknowledgement,
   TrackingStatusProofArtifacts.ChildCheckIn,
   TrackingStatusProofArtifacts.TemporaryLiveMode,
+  TrackingStatusProofArtifacts.TemporaryLiveMode,
   TrackingStatusProofArtifacts.MissingDeviceMode,
+  TrackingStatusProofArtifacts.RemoteSyncDisabled,
+  TrackingStatusProofArtifacts.RemoteAiDisabled,
+  TrackingStatusProofArtifacts.PermissionCapability,
   TrackingStatusProofArtifacts.RetentionDelete,
 ] as const;
 

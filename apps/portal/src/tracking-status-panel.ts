@@ -104,6 +104,11 @@ const TrackingStatusProofRowDefinitions = [
     proofArtifact: TrackingStatusProofArtifacts.ContractBoundary,
   },
   {
+    titleToken: PortalTextToken.TrackingStateFreshLive,
+    evidenceToken: PortalTextToken.TrackingEvidenceUiFixture,
+    proofArtifact: TrackingStatusProofArtifacts.RuntimeLocationEvidence,
+  },
+  {
     titleToken: PortalTextToken.TrackingStatePermissionRequired,
     evidenceToken: PortalTextToken.TrackingEvidencePhysicalMissing,
     proofArtifact: TrackingStatusProofArtifacts.PermissionCapability,
@@ -154,9 +159,29 @@ const TrackingStatusProofRowDefinitions = [
     proofArtifact: TrackingStatusProofArtifacts.TemporaryLiveMode,
   },
   {
+    titleToken: PortalTextToken.TrackingStateTemporaryLiveExpired,
+    evidenceToken: PortalTextToken.TrackingEvidenceUiFixture,
+    proofArtifact: TrackingStatusProofArtifacts.TemporaryLiveMode,
+  },
+  {
     titleToken: PortalTextToken.TrackingStateMissingDevice,
     evidenceToken: PortalTextToken.TrackingEvidencePhysicalMissing,
     proofArtifact: TrackingStatusProofArtifacts.MissingDeviceMode,
+  },
+  {
+    titleToken: PortalTextToken.TrackingStateRemoteSyncDisabled,
+    evidenceToken: PortalTextToken.TrackingEvidenceContracts,
+    proofArtifact: TrackingStatusProofArtifacts.RemoteSyncDisabled,
+  },
+  {
+    titleToken: PortalTextToken.TrackingStateRemoteAiDisabled,
+    evidenceToken: PortalTextToken.TrackingEvidenceContracts,
+    proofArtifact: TrackingStatusProofArtifacts.RemoteAiDisabled,
+  },
+  {
+    titleToken: PortalTextToken.TrackingStateUnsupportedManualRequired,
+    evidenceToken: PortalTextToken.TrackingEvidenceUiFixture,
+    proofArtifact: TrackingStatusProofArtifacts.PermissionCapability,
   },
   {
     titleToken: PortalTextToken.TrackingStateRetentionDeleted,

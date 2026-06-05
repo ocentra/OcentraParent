@@ -346,6 +346,25 @@ async function writeProof(playwright) {
       sourceStore: 'temporary ActivityStore SQLite activity_events',
       route: '#/policy-tracking',
     },
+    manualStateCoverage: {
+      states: [
+        'Fresh live',
+        'Temporary live expired',
+        'Remote sync disabled',
+        'Remote AI disabled',
+        'Unsupported manual-required',
+      ],
+      assertions: [
+        'fresh-live-state-visible',
+        'temporary-live-expired-state-visible',
+        'remote-sync-disabled-state-visible',
+        'remote-ai-disabled-state-visible',
+        'unsupported-manual-required-state-visible',
+        'manual-required-visible',
+        'no-product-claim-visible',
+      ],
+      productClaimReady: false,
+    },
     artifacts: {
       proof: relativePath(proofPath),
       workpack30Proof: relativePath(outputProofPath),
@@ -380,6 +399,7 @@ async function writeProof(playwright) {
       'This proof does not claim real physical-device location, geofence, provider, or notification delivery.',
       'This proof uses a seeded temporary ActivityStore SQLite database to prove hosted portal rendering against the real Rust service command.',
       'This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.',
+      'This proof renders remote-sync-disabled and remote-AI-disabled states but does not enable remote sync or remote AI.',
       'This proof does not claim full child-device UI or authority-enrolled hard-control readiness.',
     ],
     remainingGapsBeforeProductReady: [
@@ -400,6 +420,8 @@ async function writeProof(playwright) {
       'asserted=no browser console or page errors',
       'asserted=no product-ready or physical-device-proved route copy',
       'asserted=manual proof required and physical device proof required labels visible',
+      'asserted=fresh live, temporary-live-expired, remote-sync-disabled, remote-AI-disabled, and unsupported-manual-required states visible',
+      'asserted=remote sync and remote AI are rendered disabled, not enabled',
       'asserted=child check-in copy and actions visible without child-device delivery claim',
       'asserted=child runtime UI disclosure, safe/help response, and location-share consent copy visible',
       'asserted=hosted proof only boundary visible for child runtime UI',

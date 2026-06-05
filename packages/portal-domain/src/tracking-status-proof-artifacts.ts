@@ -29,5 +29,7 @@ export const TrackingStatusProofArtifacts = {
   ),
   TemporaryLiveMode: artifact('output/tracking-plan-proof/28-temporary-live-tracking-mode/proof-summary.json'),
   MissingDeviceMode: artifact('output/tracking-plan-proof/29-missing-device-mode/proof-summary.json'),
+  RemoteSyncDisabled: artifact('output/tracking-plan-proof/07-retention-and-custody-model/proof-summary.json'),
+  RemoteAiDisabled: artifact('output/tracking-plan-proof/24-ai-provider-routing/proof-summary.json'),
   RetentionDelete: artifact('output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json'),
 } as const;

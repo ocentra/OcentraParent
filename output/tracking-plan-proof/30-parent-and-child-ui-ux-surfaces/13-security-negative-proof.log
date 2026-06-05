@@ -1,7 +1,9 @@
-checkedAt=2026-06-05T06:59:35.467Z
+checkedAt=2026-06-05T18:51:33.489Z
 asserted=no browser console or page errors
 asserted=no product-ready or physical-device-proved route copy
 asserted=manual proof required and physical device proof required labels visible
+asserted=fresh live, temporary-live-expired, remote-sync-disabled, remote-AI-disabled, and unsupported-manual-required states visible
+asserted=remote sync and remote AI are rendered disabled, not enabled
 asserted=child check-in copy and actions visible without child-device delivery claim
 asserted=child runtime UI disclosure, safe/help response, and location-share consent copy visible
 asserted=hosted proof only boundary visible for child runtime UI

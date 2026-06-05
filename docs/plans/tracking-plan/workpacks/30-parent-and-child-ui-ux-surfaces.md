@@ -24,6 +24,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `11-ui-snapshots/`
 - `11-ui-fixture-state-matrix.json`
 - `11-ui-snapshots/policy-tracking-parent-fixture.png`
+- `11-ui-snapshots/policy-tracking-parent-manual-state-fixture.png`
 - `11-ui-snapshots/hosted-policy-tracking-live-summary.png`
 - `11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
@@ -61,6 +62,10 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - [x] Render and screenshot hosted child-runtime disclosure, safe/help response,
       location-share consent, and delivery-boundary copy without claiming
       child-device delivery or runtime execution.
+- [x] Render fresh-live, temporary-live-expired, remote-sync-disabled,
+      remote-AI-disabled, and unsupported manual-required states in the parent
+      route fixture and hosted proof without enabling remote sync, remote AI, or
+      physical-device claims.
 - [x] Ensure child copy avoids accusation.
 - [ ] Keep portal as authoring/display surface, not evaluator.
 
@@ -69,10 +74,11 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 A P1 parent portal fixture route now renders a first-target tracking state
 matrix for tracking off, permission-required, stale, offline, low accuracy,
 ambiguous nearby place, policy alert, parent acknowledgement, exception,
-child check-in, temporary live, missing device, and retention-deleted states,
-including a retention-deleted row that marks deleted history hidden and does
-not render the deleted evidence id. Each row also renders the local proof
-artifact path that backs the fixture state.
+child check-in, temporary live, temporary-live-expired, missing device,
+remote-sync-disabled, remote-AI-disabled, unsupported manual-required, and
+retention-deleted states, including a retention-deleted row that marks deleted
+history hidden and does not render the deleted evidence id. Each row also
+renders the local proof artifact path that backs the fixture state.
 The fixture is implemented in `apps/portal/src/tracking-status-panel.ts` and
 `apps/portal/src/TrackingStatusRoutePanel.tsx`, attached to the live
 `policy-tracking` product route in `apps/portal/src/ParentPortalRoute.tsx`,
@@ -81,6 +87,10 @@ covered by `apps/portal/tests/tracking-status-panel.test.ts`, and recorded in
 The repeatable `node scripts/test/tracking-plan-runtime-proof.mjs` command now
 captures and records the local rendered screenshot at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`.
+It also captures the scroll-reachable manual-state matrix screenshot at
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-manual-state-fixture.png`
+and records `allRowsReachable=true` in
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json`.
 The same route now has a narrow live service summary and service-backed
 citation rows for the P2 `trackingReadModel` event, covered by
 `apps/portal/tests/tracking-status-panel.test.ts` and the service read-model
@@ -95,6 +105,10 @@ Rust service with a seeded temporary ActivityStore SQLite database, drives the
 hosted parent `policy-tracking` route through Playwright, captures desktop and
 mobile screenshots, writes accessibility summary output, and records
 `productClaimReady=false`.
+The hosted proof now also asserts fresh-live, temporary-live-expired,
+remote-sync-disabled, remote-AI-disabled, and unsupported manual-required state
+rows in the real-service route and accessibility summary while keeping remote
+sync, remote AI, physical-device, and product-ready claims disabled.
 The hosted route now also renders a child-safe check-in proof card with calm
 copy, safe/help/share/call actions, and an explicit "child-device delivery not
 proved" boundary. The repeatable hosted proof captures it at
@@ -151,6 +165,31 @@ This workpack can be assigned independently, implemented against the owning doma
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
+
+- [x] Workpack id and branch:
+      `codex/tracking-manual-state-ui-proof`.
+- [x] Touched files: portal tracking status renderer/tests, hosted Playwright
+      proof spec, hosted/runtime proof scripts, portal/text/domain constants,
+      tracking feature doc, implementation checklist, WP30, WP33, generated
+      hosted proof artifacts, and hub doc delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-plan-runtime-proof.mjs` passed locally after
+      proving scroll-reachable manual-state rows; `npm run test:tracking-plan-hosted-ui-proof`
+      passed locally after focused portal/text/domain tests.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`,
+      and `test-results/tracking-plan-hosted-ui-proof/`, including
+      `11-ui-fixture-state-matrix.json`,
+      `11-ui-snapshots/policy-tracking-parent-manual-state-fixture.png`, and
+      hosted manual-state accessibility assertions.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, and WP33 updated; central capability row delta queued
+      through the hub instead of editing `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: actual child-device delivery/runtime
+      execution, full parent/child UI beyond the hosted route, Android/iOS
+      physical-device proof, authority, provider delivery, notifications, and
+      production proof remain proof-gated.
 
 - [x] Workpack id and branch:
       `codex/tracking-live-service-citation-proof`.
