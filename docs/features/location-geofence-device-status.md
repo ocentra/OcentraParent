@@ -61,13 +61,17 @@ expose location or device-status features. Parents expect this category.
   exposes retention-delete rows as tombstone replay rows with active/tombstone
   counts, deleted-at metadata, and deleted evidence citation IDs. The parent
   portal `policy-tracking` route consumes that service read model as a narrow
-  live summary plus live service-backed citation rows beside the P1 fixture
-  rows. The repeatable proof command is
+  live summary, service-data coverage panel, and live service-backed citation
+  rows beside the P1 fixture rows. The repeatable proof commands are
   `node scripts/test/tracking-plan-service-read-model-proof.mjs`, with
   artifacts
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json`
   and
-  `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`.
+  `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`,
+  plus `npm run test:tracking-plan-service-data-ui-proof`, with artifacts
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
+  `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json`,
+  and `test-results/tracking-plan-service-data-ui-proof/proof.json`.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
@@ -118,8 +122,8 @@ expose location or device-status features. Parents expect this category.
   happened.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, child-device delivery/runtime UI,
-  full parent/child UI beyond the hosted parent route, and broader
-  service-backed product UI beyond the current live citation rows remain not
+  full parent/child UI beyond the hosted parent route, and broader read-model
+  product surfaces beyond this hosted service-data coverage remain not
   product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -129,15 +133,15 @@ expose location or device-status features. Parents expect this category.
 Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
 service read-model proof with retention-delete tombstone replay, narrow portal
 summary-consumption proof, live service-backed portal citation rows, hosted
-parent route screenshot/accessibility proof with hosted child-safe check-in
-copy/actions, P1 local parent-defined place store proof, pre-device proof-gate
-progress, Android emulator package/service/status scaffold proof, and P3
-WSL/local replay proof, plus P1 evidence-quality gate proof. It remains a
-tracked product gap until platform location and geofence adapters, broader
-product read models, provider delivery, notifications, physical-device proof,
-child-device delivery/runtime UI, full parent/child UI snapshots/accessibility
-beyond the hosted parent route, and broader service-backed product UI/read-model
-surfaces are proved.
+parent route service-data coverage, hosted parent route screenshot/accessibility
+proof with hosted child-safe check-in copy/actions, P1 local parent-defined
+place store proof, pre-device proof-gate progress, Android emulator
+package/service/status scaffold proof, P3 WSL/local replay proof, and P1
+evidence-quality gate proof. It remains a tracked product gap until platform
+location and geofence adapters, broader product read models, provider delivery,
+notifications, physical-device proof, child-device delivery/runtime UI, and full
+parent/child UI snapshots/accessibility beyond the hosted parent route are
+proved.
 
 ## Checklist
 
@@ -166,6 +170,9 @@ surfaces are proved.
       rows, citation IDs, and retention-delete tombstone replay.
 - [x] Narrow parent portal summary consumption and live citation rows for the
       service-backed tracking read model.
+- [x] Hosted parent route service-data coverage for the service-backed tracking
+      read model, including active/tombstone row counts, kind coverage, custody,
+      capability, and active/deleted evidence references.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
 - [x] P3 WSL/local replay proof for the tracking read-model proof stack and
@@ -182,7 +189,6 @@ surfaces are proved.
       source refs, nearby-place context fields, AI no-final-action constraints,
       alert policy-decision refs, and retention before/after proof. This is not
       live device/provider behavior proof.
-- [ ] Full service-data tracking UI beyond the current live citation rows.
 - [ ] Full live parent/child UI screenshots and accessibility proof beyond the
       hosted parent route.
 
@@ -193,8 +199,8 @@ background execution, retention, and custody as first-class requirements.
 Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
 presence as hints only. The pre-device proof gate is now repeatable; the next
-implementation layers are broader tracking journal/read-model product surfaces, full
-portal UI snapshots/accessibility beyond the hosted route and hosted
+implementation layers are broader tracking journal/read-model product surfaces,
+full portal UI snapshots/accessibility beyond the hosted route and hosted
 child-safe check-in proof, remaining Android foreground-location and
 background/geofence runtime proof, iOS Core Location/region proof beyond
 simulator package launch, then physical Android/iOS proof and authority proof

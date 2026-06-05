@@ -43,6 +43,7 @@ describe('portal dev text', () => {
       [PortalDevTextToken.GetActivityBrowserReadModel, 'Refresh activity browser'],
       [PortalDevTextToken.GetActivityGamesReadModel, 'Refresh activity games'],
       [PortalDevTextToken.GetActivityNetworkReadModel, 'Refresh activity network'],
+      [PortalDevTextToken.TrackingServiceDataCoverage, 'Service data coverage'],
       [PortalDevTextToken.TrackingChildCheckInProofTitle, 'Child check-in request'],
       [PortalDevTextToken.TrackingChildCheckInProofBody, 'Your parent is asking you to check in. Are you safe?'],
       [PortalDevTextToken.TrackingChildCheckInSafeAction, "I'm safe"],

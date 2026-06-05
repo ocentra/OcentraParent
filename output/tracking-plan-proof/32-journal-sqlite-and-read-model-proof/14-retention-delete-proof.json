@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T20:53:31.688Z",
-  "commit": "abf8f50efe808b21fe95fe7032342f0e46e04e7d",
+  "checkedAt": "2026-06-05T06:02:08.106Z",
+  "commit": "73f00c45819aaa420895523165ab38950ee6b478",
   "workpackId": "32-journal-sqlite-and-read-model-proof",
   "proofMode": "tracking-service-retention-tombstone-replay",
   "requiredProofTier": "P2_HOSTED_CI",

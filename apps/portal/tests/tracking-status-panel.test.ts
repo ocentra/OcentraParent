@@ -11,7 +11,11 @@ import { PortalRoute, TrackingStatusProofArtifacts } from '@ocentra-parent/porta
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
 import { trackingChildCheckInProof } from '../src/tracking-child-check-in-proof';
-import { trackingStatusLiveSummary, trackingStatusProofRows } from '../src/tracking-status-panel';
+import {
+  trackingStatusLiveSummary,
+  trackingStatusProofRows,
+  trackingStatusServiceDataCoverage,
+} from '../src/tracking-status-panel';
 
 const ExpectedTrackingStateTitles = [
   'Tracking off',
@@ -111,6 +115,66 @@ const TrackingReadModel = {
   ],
 } as const;
 
+const ExpectedTrackingLiveSummary = {
+  title: 'Service read model',
+  loadState: 'info',
+  proofTier: 'P2 service proof',
+  rowsReturned: '2',
+  lastObserved: '2026-06-03T07:24:00Z',
+  eventId: 'tracking-event-1',
+  capability: 'recent',
+  custody: 'child-device-query-store',
+  evidenceReferences: 'tracking-evidence-1 | location-evidence-1',
+  parserReason: null,
+  productClaim: 'No product claim',
+  citations: [
+    {
+      title: 'School',
+      eventId: 'tracking-event-1',
+      observedAt: '2026-06-03T07:24:00Z',
+      device: 'child-device-1',
+      platform: 'android',
+      observer: 'tracking-engine',
+      activityKind: 'tracking.expected-place.evaluated',
+      subject: 'tracking-rule | expected-place-school',
+      status: 'active | recent',
+      evidenceReferences: 'tracking-evidence-1',
+      deletedEvidence: 'Not reported',
+      productClaim: 'No product claim',
+    },
+    {
+      title: 'activity.tracking.retention.deleted',
+      eventId: 'tracking-retention-delete-1',
+      observedAt: '2026-06-03T07:26:00Z',
+      device: 'child-device-1',
+      platform: 'android',
+      observer: 'tracking-retention',
+      activityKind: 'activity.tracking.retention.deleted',
+      subject: 'location-evidence | location-evidence-1',
+      status: 'tombstone | recent',
+      evidenceReferences: 'Not reported',
+      deletedEvidence: 'location-evidence-1',
+      productClaim: 'No product claim',
+    },
+  ],
+} as const;
+
+const ExpectedTrackingServiceDataCoverage = {
+  title: 'Service data coverage',
+  loadState: 'info',
+  proofTier: 'P2 service proof',
+  rowsReturned: '2',
+  rowVisibility: '1 | 1',
+  lastObserved: '2026-06-03T07:26:00Z',
+  eventId: 'tracking-retention-delete-1',
+  capability: 'recent',
+  custody: 'child-device-query-store',
+  activityKinds: 'tracking.expected-place.evaluated | activity.tracking.retention.deleted',
+  evidenceReferences: 'tracking-evidence-1',
+  deletedEvidence: 'location-evidence-1',
+  productClaim: 'No product claim',
+} as const;
+
 describe('tracking status proof surface', () => {
   it('lists the first-target tracking states as fixture proof without product claims', () => {
     const rows = trackingStatusProofRows();
@@ -140,49 +204,13 @@ describe('tracking status proof surface', () => {
   it('summarizes the live service-backed tracking read model without product completion claims', () => {
     const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
 
-    expect(trackingStatusLiveSummary(liveActivity)).toEqual({
-      title: 'Service read model',
-      loadState: 'info',
-      proofTier: 'P2 service proof',
-      rowsReturned: '2',
-      lastObserved: '2026-06-03T07:24:00Z',
-      eventId: 'tracking-event-1',
-      capability: 'recent',
-      custody: 'child-device-query-store',
-      evidenceReferences: 'tracking-evidence-1 | location-evidence-1',
-      parserReason: null,
-      productClaim: 'No product claim',
-      citations: [
-        {
-          title: 'School',
-          eventId: 'tracking-event-1',
-          observedAt: '2026-06-03T07:24:00Z',
-          device: 'child-device-1',
-          platform: 'android',
-          observer: 'tracking-engine',
-          activityKind: 'tracking.expected-place.evaluated',
-          subject: 'tracking-rule | expected-place-school',
-          status: 'active | recent',
-          evidenceReferences: 'tracking-evidence-1',
-          deletedEvidence: 'Not reported',
-          productClaim: 'No product claim',
-        },
-        {
-          title: 'activity.tracking.retention.deleted',
-          eventId: 'tracking-retention-delete-1',
-          observedAt: '2026-06-03T07:26:00Z',
-          device: 'child-device-1',
-          platform: 'android',
-          observer: 'tracking-retention',
-          activityKind: 'activity.tracking.retention.deleted',
-          subject: 'location-evidence | location-evidence-1',
-          status: 'tombstone | recent',
-          evidenceReferences: 'Not reported',
-          deletedEvidence: 'location-evidence-1',
-          productClaim: 'No product claim',
-        },
-      ],
-    });
+    expect(trackingStatusLiveSummary(liveActivity)).toEqual(ExpectedTrackingLiveSummary);
+  });
+
+  it('renders service-data coverage from the live read model without device or provider claims', () => {
+    const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
+
+    expect(trackingStatusServiceDataCoverage(liveActivity)).toEqual(ExpectedTrackingServiceDataCoverage);
   });
 });
 
