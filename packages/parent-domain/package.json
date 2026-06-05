@@ -93,6 +93,10 @@
       "import": "./dist/app-install-purchase-provider-store-execution-readiness-proof.js",
       "types": "./dist/app-install-purchase-provider-store-execution-readiness-proof.d.ts"
     },
+    "./app-install-purchase-approval-report-domain-proof": {
+      "import": "./dist/app-install-purchase-approval-report-domain-proof.js",
+      "types": "./dist/app-install-purchase-approval-report-domain-proof.d.ts"
+    },
     "./billing-entitlement": {
       "import": "./dist/billing-entitlement.js",
       "types": "./dist/billing-entitlement.d.ts"

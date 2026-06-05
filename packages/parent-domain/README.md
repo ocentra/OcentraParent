@@ -184,6 +184,12 @@ mobile readiness, and control catalogs.
   platform interception, platform adapters, child-device delivery, runtime
   writer delivery, app blocking, child activity data, and Ocentra-hosted family
   data custody unclaimed.
+- App install/purchase approval/report domain proof contracts that link parent
+  review action decisions and report-runtime refs into approval/report-ready or
+  manual-review rows while keeping portal approval UI, portal report UI,
+  runtime report delivery, provider/store execution, platform adapters,
+  child-device delivery, interception, app blocking, child activity data, and
+  Ocentra-hosted family data custody unclaimed.
 - V0.9 signed LAN discovery/relay spine contracts that keep adapter evidence,
   signed proof rejection, route safety, relay/cache availability, parent-owned
   storage, and child-data custody claims explicit.
@@ -257,7 +263,8 @@ flowchart LR
   proof, parent action runtime handoff, store status handoff proof, and runtime
   writer delivery proof plus package-source capture status, child-device
   delivery runtime writer proof, adapter execution proof, and parent action
-  delivery readiness proof plus provider/store execution readiness proof;
+  delivery readiness proof plus provider/store execution readiness and
+  approval/report domain proofs;
   platform/store provider execution, actual provider contact, actual platform
   adapters, production child-device package capture, production package-source
   capture adapter execution,

@@ -215,6 +215,16 @@ generic app blocking covers this concern.
   when run. The proof records the public package export and product checklist
   row as pending lock-gated deltas because other lanes owned those files during
   this slice.
+- `packages/parent-domain/src/app-install-purchase-approval-report-domain-proof.ts`
+  now links parent review actions and report-runtime rows into approval/report
+  domain rows while preserving no portal approval UI, no portal report UI,
+  no runtime report delivery, no provider/store execution, no platform adapter,
+  no child-device delivery, no interception, no app blocking, no child activity
+  data, and no Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-approval-report-domain-proof.mjs` records
+  that approval/report domain proof under
+  `test-results/app-install-purchase-approval-report-domain-proof/proof.json`
+  when run.
 
 ## Current Gap
 
@@ -239,7 +249,8 @@ delivery envelope/manual-required rows, and classify parent action delivery
 readiness against child delivery envelope rows, and classify provider/store
 execution readiness/manual/unavailable states across approved API evidence,
 store status, package-source adapter, and parent action readiness rows, but do
-not implement Google Play, Apple App Store, Microsoft Store, billing
+link parent review actions and report-runtime rows into approval/report domain
+rows, but do not implement Google Play, Apple App Store, Microsoft Store, billing
 entitlement, provider/store execution, provider contact, platform interception,
 runtime status reader, portal approval/report UI, runtime action writer
 execution, runtime writer delivery, parent action runtime delivery, production
@@ -341,6 +352,11 @@ custody.
       Google Play, Apple App Store, Microsoft Store, billing/provider contact,
       provider/store execution, platform interception, child delivery, runtime
       writer delivery, app blocking, custody, or hosted family data claims.
+- [x] Approval/report domain proof linking parent review action decisions and
+      report-runtime refs into approval/report rows without portal approval UI,
+      portal report UI, runtime report delivery, provider/store execution,
+      platform adapters, child delivery, interception, app blocking, custody, or
+      hosted family data claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
