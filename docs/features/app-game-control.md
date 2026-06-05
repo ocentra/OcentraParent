@@ -226,6 +226,11 @@ control with better evidence and local audit.
   reason refs preserved, while manual-required and unavailable rows stay blocked
   before parent preference, frequency-control, quiet-hours, UI, or delivery
   proof.
+- The app/game notification provider-status handoff now maps those provider
+  preflight rows into existing V0.8 notification provider-status boundary
+  manual-required and unavailable rows, preserving scheduler/outbox/provider
+  refs and keeping delivery, receipt, credential, UI, child delivery, runtime,
+  adapter, broad-blocking, and platform claims false.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -399,6 +404,12 @@ provider delivery, provider receipt ingestion, credentials, production retry
 workers, quiet-hours timer runtime, durable production outbox storage, child
 delivery, policy evaluator execution, adapter dispatch, broad blocking, or
 platform support.
+The app/game notification provider-status handoff proof maps those preflight
+rows into V0.8 provider-status manual-required/unavailable boundary rows, but it
+does not provide provider delivery, provider receipt ingestion, credentials,
+production retry workers, quiet-hours timer runtime, durable production outbox
+storage, parent notification UI/history/preferences, child delivery, policy
+evaluator execution, adapter dispatch, broad blocking, or platform support.
 
 ## Checklist
 
@@ -479,6 +490,11 @@ platform support.
       The preference preflight bridge now turns scheduled rows into
       parent-preference-required rows with preference, frequency, and
       quiet-hours proof requirements before any delivery claim.
+      The provider-status
+      handoff maps those preflight rows into V0.8 provider-status
+      manual-required/unavailable boundary rows while provider delivery,
+      receipts, credentials, UI, child delivery, runtime, adapter dispatch,
+      broad blocking, and platform claims remain false.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,

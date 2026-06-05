@@ -178,6 +178,16 @@ parent notification UI, child delivery, production retry workers, production
 quiet-hours timers, durable production outbox storage, broad blocking, or
 platform support.
 
+`scripts/test/app-game-notification-provider-status-handoff-proof.mjs`
+validates a parent-domain app/game provider-status handoff proof that maps those
+provider preflight rows into existing V0.8 provider-status boundary rows for
+manual-required and unavailable states. It preserves scheduler, outbox,
+provider-channel, readiness, and manual proof refs. This is a handoff boundary
+proof only: it does not claim provider delivery, receipt ingestion, credentials,
+cloud routing, parent notification UI/history/preferences, child delivery,
+production retry workers, production quiet-hours timers, durable production
+outbox storage, adapter dispatch, broad blocking, or platform support.
+
 ## Validation Gates
 
 - Contract tests for alert rules, reason codes, delivery status, retry state, quiet hours, and preferences.
@@ -216,6 +226,11 @@ platform support.
   scheduled app/game scheduler rows becoming parent-preference-required rows,
   with manual/unavailable rows kept blocked and no parent UI, delivery, receipt,
   credential, child, production runtime, or adapter-dispatch claims.
+- Parent-domain app/game notification provider-status handoff proof for
+  provider preflight rows becoming V0.8 provider-status
+  manual-required/unavailable rows, with no delivery, receipt, credential, UI,
+  child, production runtime, adapter-dispatch, broad-blocking, or platform
+  claims.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
 - Parent-surface coverage for notification history, preference changes, quiet hours, and sensitive-detail drill-in behind authentication.
