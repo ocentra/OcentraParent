@@ -79,10 +79,10 @@ consumes the same results.
 
 - [ ] Recent memory contract implemented.
 - [ ] Short-window recent activity implemented.
-- [ ] Semantic memory source-citation guard implemented.
+- [x] Semantic memory source-citation guard implemented for screen AI context.
 - [ ] Graph reference contract implemented.
 - [ ] Minimal graph edges implemented.
-- [ ] Graph rebuild/source proof exists.
+- [x] Graph source-citation guard proof exists for screen AI context.
 
 ## Screen OCR/VLM
 
@@ -148,7 +148,7 @@ consumes the same results.
 - [x] Provider route/status tests.
 - [ ] Model output parser tests.
 - [ ] Policy integration tests.
-- [ ] Memory/graph source guard tests.
+- [x] Memory/graph source guard tests.
 - [ ] Remote boundary tests.
 - [x] Playwright UI proof.
 - [x] `git diff --check`.
@@ -199,4 +199,6 @@ consumes the same results.
       `output/ai-plan-proof/screen-summary-parent-explanation-read-model`.
 - [x] screen summary parent explanation service read-model proof artifacts under
       `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model`.
+- [x] screen AI memory/graph source guard proof artifacts under
+      `output/ai-plan-proof/screen-ai-memory-graph-source-guard-proof`.
 - [ ] `npm run validate` or explicit approved omission.
