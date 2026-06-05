@@ -78,6 +78,13 @@ claim needs proof, not slogans.
   unavailable cloud-game context, all without remote AI, direct policy
   authority, enforcement, authenticated-account, cloud-frame, or mobile parity
   claims.
+- The screen summary context-builder replay proof now feeds the real WinRT OCR
+  worker proof rows into `buildLocalAiEvidenceContext`. It proves deleted
+  child-device query-store screen summaries become selected `screen-summary`
+  evidence with local runtime refs, parent-rule refs, audit refs, and
+  `screen-image-deleted` custody/deletion state. This is context-builder replay
+  proof; it does not create new captures, claim production model quality,
+  portal UI, or final enforcement.
 - `ScreenFamilyAiHubRouteSchema` and
   `scripts/test/screen-family-ai-hub-routing-proof.mjs` now prove the
   screen-specific family AI hub route contract for hard visual analysis:
