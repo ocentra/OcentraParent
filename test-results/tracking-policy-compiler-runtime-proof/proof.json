@@ -2,8 +2,8 @@
   "proofMode": "tracking-policy-compiler-runtime-proof",
   "generatedAt": "2026-06-05T17:10:00.000Z",
   "branch": "codex/tracking-policy-compiler-runtime-proof-refresh",
-  "baseCommitAtGeneration": "e64362ae0a29ce01ddf84ca3c35db250f6d3454a",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/25-policy-compiler-for-tracking-rules.md\n M docs/product-capability-checklist.md\n M output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/00-source-snapshot.md\n M output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/01-contract-proof.log\n M output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/13-security-negative-proof.log\n M output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/16-validation-commands.log\n?? packages/parent-domain/src/tracking-policy-compiler-runtime-proof.ts\n?? packages/parent-domain/tests/tracking-policy-compiler-runtime-proof.test.ts\n?? scripts/test/tracking-policy-compiler-runtime-proof.mjs",
+  "baseCommitAtGeneration": "16b67df835da17e06a483577b06bbf86afa8cb9d",
+  "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-policy-compiler-runtime-proof tracking-location-policy"
