@@ -75,6 +75,9 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   unavailable zero-row state while service-backed social snapshots, connector
   runtime, native app control, final policy execution, notifications, and
   enforcement remain unclaimed.
+- Displays app/game policy-readiness input rows from the existing service
+  read-model event in the shared App/Game Sessions dashboard without running a
+  policy evaluator or dispatching adapters.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own
@@ -107,3 +110,5 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   service-backed social rows only after the runtime snapshot path exists.
 - Add live policy evaluator, authoring UI, persistence, notification/child UX,
   and platform adapter proof after readiness rendering.
+- Keep policy-readiness rows visible as readiness inputs only until evaluator,
+  rule authoring, persistence, timer, adapter, and platform proof exists.

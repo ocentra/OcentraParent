@@ -31,6 +31,7 @@ export type ParentPortalActivityStateLike = {
   readonly activityAppUseReadModel?: ActivityAdapterResultLike | null;
   readonly activityBrowserReadModel?: ActivityAdapterResultLike | null;
   readonly activityGamesReadModel?: ActivityAdapterResultLike | null;
+  readonly appGamePolicyReadinessReadModel?: ActivityAdapterResultLike | null;
   readonly activityNetworkReadModel?: ActivityAdapterResultLike | null;
   readonly lanAddDeviceReadModel?: Record<string, unknown> | null;
 };
@@ -83,6 +84,9 @@ export function createParentPortalActivityUiIntent(
   const appUseReadModel = parentPortalActivityAdapterRecord(activityState?.activityAppUseReadModel);
   const browserReadModel = parentPortalActivityAdapterRecord(activityState?.activityBrowserReadModel);
   const gamesReadModel = parentPortalActivityAdapterRecord(activityState?.activityGamesReadModel);
+  const appGamePolicyReadinessReadModel = parentPortalActivityAdapterRecord(
+    activityState?.appGamePolicyReadinessReadModel
+  );
   const networkReadModel = parentPortalActivityAdapterRecord(activityState?.activityNetworkReadModel);
   const serviceDeviceStates = collectActivityDeviceStates([
     reportDocument,
@@ -107,7 +111,11 @@ export function createParentPortalActivityUiIntent(
     browserReadModel,
     gamesReadModel,
     networkReadModel,
-    appGameDashboard: createParentPortalAppGameDashboardIntent(appUseReadModel, gamesReadModel),
+    appGameDashboard: createParentPortalAppGameDashboardIntent(
+      appUseReadModel,
+      gamesReadModel,
+      appGamePolicyReadinessReadModel
+    ),
   };
 }
 

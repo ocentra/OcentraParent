@@ -63,6 +63,10 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
+    command: AgentCommand.ActivityAppGamePolicyReadinessReadModelGet,
+    payload: {},
+  },
+  {
     command: AgentCommand.ActivityNetworkReadModelGet,
     payload: {},
   },

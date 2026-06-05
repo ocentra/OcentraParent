@@ -293,6 +293,11 @@ control with better evidence and local audit.
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy
   execution/no adapter dispatch product-claim copy.
+- The parent App/Game Sessions dashboard now requests that existing app/game
+  policy readiness event, parses it through the protocol parser, and renders
+  policy input readiness metrics/evidence rows through the shared dashboard
+  intent without claiming evaluator execution, adapter dispatch, broad blocking,
+  notification delivery, child delivery, or platform support.
 - App/game notification intent contracts now represent parent notification
   readiness for time-limit, approval request, suspicious unknown,
   manual-required, and unavailable app/game states with evidence, policy, audit,
@@ -509,9 +514,11 @@ game-context candidates into soft/manual policy target inputs only when active
 category proof and supporting evidence refs exist. A service-backed policy
 readiness read model can now report whether the required evidence, approval
 authority, and platform authority rows are available before evaluator
-consumption, while action history/classifier gaps remain manual-required. Richer
-source-panel SVG rendering, category/readiness rendering, local model
-quality/provider execution, policy evaluator consumption, runtime service
+consumption, and the parent App/Game Sessions dashboard now renders those
+readiness inputs as ready/missing/manual-required metrics and evidence rows
+without treating them as policy decisions. Action history/classifier gaps remain
+manual-required. Richer source-panel SVG rendering, category rendering, local
+model quality/provider execution, policy evaluator consumption, runtime service
 policy evaluation, and platform enforcement remain unproved. Live
 process snapshots now replay through the local journal/SQLite path in core and
 through the service activity-capture journal/store path for bounded runtime

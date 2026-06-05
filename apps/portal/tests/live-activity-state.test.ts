@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { AppGameSchemaVersion } from '@ocentra-parent/activity-domain/app-game';
 import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/activity-surface';
 import {
   AgentEventEnvelopeSchema,
@@ -73,6 +74,26 @@ describe('portal live activity state', () => {
     expect(state.browserEvidenceReadModel?.rows.at(0)?.url).toBe('https://latest.example/learn');
     expect(state.activityReportEvent?.eventId).toBe('evt-report-latest');
     expect(state.activityReport?.ok ? state.activityReport.value.reportId : null).toBe('activity-report-latest');
+  });
+});
+
+describe('portal app-game policy readiness live activity state', () => {
+  it('parses app-game policy readiness events for parent-visible dashboard state', () => {
+    const state = resolveLiveActivityState([appGamePolicyReadinessEvent()]);
+
+    expect(state.appGamePolicyReadinessEvent?.event).toBe(
+      'agent.activity.app-game.policy-readiness.read-model.reported'
+    );
+    expect(state.appGamePolicyReadinessReadModel?.ok).toBe(true);
+    if (state.appGamePolicyReadinessReadModel?.ok !== true) {
+      return;
+    }
+    expect(state.appGamePolicyReadinessReadModel.value.policyEvaluationReady).toBe(false);
+    expect(state.appGamePolicyReadinessReadModel.value.adapterDispatchClaimed).toBe(false);
+    expect(state.appGamePolicyReadinessReadModel.value.rows.map((row) => row.readinessState)).toEqual([
+      'ready',
+      'manual-required',
+    ]);
   });
 });
 
@@ -332,6 +353,73 @@ function browserInventoryEvent() {
     },
     snapshot: null,
   });
+}
+
+function appGamePolicyReadinessEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-app-game-policy-readiness',
+    correlationId: 'cmd-app-game-policy-readiness',
+    sentAt: '2026-06-05T12:00:00Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: 'agent.activity.app-game.policy-readiness.read-model.reported',
+    severity: 'info',
+    payload: {
+      [AgentProtocolDefaults.Field.ActivityAppGamePolicyReadinessReadModel]: JSON.stringify({
+        schemaVersion: AppGameSchemaVersion,
+        generatedAt: '2026-06-05T12:00:00Z',
+        custodyLabel: 'child-device-local',
+        capabilityStatus: 'manual-required',
+        returned: 2,
+        policyEvaluationReady: false,
+        manualReviewRequired: true,
+        adapterDispatchClaimed: false,
+        evidenceClaimRowCount: 3,
+        identityRowCount: 2,
+        approvalAuthorityRowCount: 1,
+        approvalActionResultRowCount: 0,
+        platformAuthorityRowCount: 0,
+        aiClassifierResultRowCount: 0,
+        rows: [
+          {
+            schemaVersion: AppGameSchemaVersion,
+            rowId: 'policy-evidence',
+            readinessKind: 'policyEvidence',
+            readinessState: 'ready',
+            rowCount: 3,
+            evidenceReferenceIds: ['policy-evidence-ref'],
+            evidence: [activityEvidenceRef('policy-evidence-ref')],
+          },
+          {
+            schemaVersion: AppGameSchemaVersion,
+            rowId: 'ai-classifier-context',
+            readinessKind: 'aiClassifierContext',
+            readinessState: 'manual-required',
+            rowCount: 0,
+            evidenceReferenceIds: [],
+            evidence: [],
+          },
+        ],
+      }),
+    },
+    snapshot: null,
+  });
+}
+
+function activityEvidenceRef(evidenceId: string) {
+  return {
+    evidenceId,
+    kind: 'local-db-row',
+    digest: null,
+    uri: null,
+  };
 }
 
 function emptyBrowserEvidenceEvent() {

@@ -101,6 +101,8 @@ export interface PortalLiveActivityState {
   readonly activityGamesReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly appGameNotificationReadinessEvent: AgentEventEnvelope | null;
   readonly appGameNotificationParentSurfaceIntentReadModel: unknown | null;
+  readonly appGamePolicyReadinessEvent: AgentEventEnvelope | null;
+  readonly appGamePolicyReadinessReadModel: AgentAppGamePolicyReadinessResult | null;
   readonly activityNetworkReadModelEvent: AgentEventEnvelope | null;
   readonly activityNetworkReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly browserInterventionEvent: AgentEventEnvelope | null;
@@ -135,6 +137,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     events,
     AgentEvent.ActivityAppGameNotificationReadinessReadModelReported
   );
+  const appGamePolicyReadinessEvent = latestEvent(events, AgentEvent.ActivityAppGamePolicyReadinessReadModelReported);
   const activityNetworkReadModelEvent = latestEvent(events, AgentEvent.ActivityNetworkReadModelReported);
   const browserInterventionEvent = latestEvent(events, AgentEvent.BrowserInterventionReadModelReported);
   const networkFlowEvent = latestEvent(events, AgentEvent.NetworkFlowReadModelReported);
@@ -179,6 +182,9 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     appGameNotificationParentSurfaceIntentReadModel: parseNullableAppGameNotificationParentSurfaceReadModel(
       appGameNotificationReadinessEvent
     ),
+    appGamePolicyReadinessEvent,
+    appGamePolicyReadinessReadModel:
+      appGamePolicyReadinessEvent === null ? null : parseAgentAppGamePolicyReadinessEvent(appGamePolicyReadinessEvent),
     browserInterventionEvent,
     browserInterventionReadModel:
       browserInterventionEvent === null ? null : parseBrowserInterventionReadModel(browserInterventionEvent.payload),

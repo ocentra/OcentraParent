@@ -70,38 +70,39 @@ before `DONE` or PR-ready reporting.
 62. WP66 app/game notification parent surface intent.
 63. WP67 app/game notification parent surface renderer.
 64. WP68 app/game notification live parent surface read model.
-65. WP70 app/game policy preview handoff.
-66. WP73 app/game platform extension proof-pack readiness.
-67. WP74 app/game source freshness policy consumption.
-68. WP75 app/game source freshness preview gate.
-69. WP76 app/game source-gated policy preview read model.
-70. WP78 app/game source-gated policy preview timer handoff.
-71. WP79 app/game source-gated policy preview timer status.
-72. WP81 app/game source-gated policy preview timer runtime readiness.
-73. WP82 app/game source-gated policy preview timer scheduler persistence.
-74. WP83 app/game source-gated policy preview timer audit rollback handoff.
-75. WP84 app/game source-gated policy preview timer audit rollback read model.
-76. WP85 app/game source-gated policy preview timer audit rollback parent surface intent.
-77. WP86 app/game source-gated policy preview timer service readiness handoff.
-78. WP87 app/game source-gated policy preview timer service readiness read model.
-79. WP88 app/game source-gated policy preview timer service readiness protocol handoff.
-80. WP89 app/game source-gated policy preview timer service readiness protocol read model.
-81. WP90 app/game source-gated policy preview timer service readiness protocol command handoff.
-82. WP91 app/game source-gated policy preview timer service readiness service handler handoff.
-83. WP92 app/game source-gated policy preview timer service readiness read API handoff.
-84. WP93 app/game source-gated policy preview timer service readiness read API response handoff.
-85. WP94 app/game source-gated policy preview timer service readiness read API response consumer handoff.
-86. WP95 app/game source-gated policy preview timer service readiness response consumer parent-surface handoff.
-87. WP96 app/game source-gated policy preview timer service readiness response consumer parent-surface read-model handoff.
-88. WP97 app/game source-gated policy preview timer service readiness response consumer parent-surface status handoff.
-89. WP98 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model handoff.
-90. WP99 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model parent-surface handoff.
-91. WP100 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model parent-surface read-model handoff.
-92. WP101 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model parent-surface read-model contract.
-93. WP102 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model parent-surface read-model service handoff.
-94. WP103 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model parent-surface read-model service read-model handoff.
-95. WP104 app/game source-gated policy preview timer service event handoff.
-96. WP105 app/game source-gated policy preview timer service read API handoff.
+65. WP69 app/game policy readiness live parent surface.
+66. WP70 app/game policy preview handoff.
+67. WP73 app/game platform extension proof-pack readiness.
+68. WP74 app/game source freshness policy consumption.
+69. WP75 app/game source freshness preview gate.
+70. WP76 app/game source-gated policy preview read model.
+71. WP78 app/game source-gated policy preview timer handoff.
+72. WP79 app/game source-gated policy preview timer status.
+73. WP81 app/game source-gated policy preview timer runtime readiness.
+74. WP82 app/game source-gated policy preview timer scheduler persistence.
+75. WP83 app/game source-gated policy preview timer audit rollback handoff.
+76. WP84 app/game source-gated policy preview timer audit rollback read model.
+77. WP85 app/game source-gated policy preview timer audit rollback parent surface intent.
+78. WP86 app/game source-gated policy preview timer service readiness handoff.
+79. WP87 app/game source-gated policy preview timer service readiness read model.
+80. WP88 app/game source-gated policy preview timer service readiness protocol handoff.
+81. WP89 app/game source-gated policy preview timer service readiness protocol read model.
+82. WP90 app/game source-gated policy preview timer service readiness protocol command handoff.
+83. WP91 app/game source-gated policy preview timer service readiness service handler handoff.
+84. WP92 app/game source-gated policy preview timer service readiness read API handoff.
+85. WP93 app/game source-gated policy preview timer service readiness read API response handoff.
+86. WP94 app/game source-gated policy preview timer service readiness read API response consumer handoff.
+87. WP95 app/game source-gated policy preview timer service readiness response consumer parent-surface handoff.
+88. WP96 app/game source-gated policy preview timer service readiness response consumer parent-surface read-model handoff.
+89. WP97 app/game source-gated policy preview timer service readiness response consumer parent-surface status handoff.
+90. WP98 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model handoff.
+91. WP99 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model parent-surface handoff.
+92. WP100 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model parent-surface read-model handoff.
+93. WP101 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model parent-surface read-model contract.
+94. WP102 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model parent-surface read-model service handoff.
+95. WP103 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model parent-surface read-model service read-model handoff.
+96. WP104 app/game source-gated policy preview timer service event handoff.
+97. WP105 app/game source-gated policy preview timer service read API handoff.
 
 ## Standard AI Worker Checklist
 

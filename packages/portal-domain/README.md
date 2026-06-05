@@ -9,7 +9,9 @@ contracts.
 - DOM ids/test ids that cross source/test boundaries.
 - Parent portal nav and section descriptors.
 - Service-state display rows and dev command descriptors, including the
-  tracking read-model refresh command consumed by the Policy Tracking route.
+  tracking read-model refresh command consumed by the Policy Tracking route and
+  the app/game policy-readiness overview command consumed by the App/Game
+  Sessions dashboard.
 - Tracking hosted proof DOM markers and proof artifact refs consumed by the
   Policy Tracking route and Playwright proof harness.
 - App/game notification parent-surface panel intent values derived from the

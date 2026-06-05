@@ -55,6 +55,16 @@ export type ParentPortalAppGameSourceStatusRow = {
   readonly tone: ParentPortalAppGameDashboardTone;
 };
 
+export type ParentPortalAppGamePolicyReadinessRow = {
+  readonly rowId: string;
+  readonly readinessKind: string;
+  readonly readinessLabel: string;
+  readonly readinessState: string;
+  readonly rowCount: number;
+  readonly evidenceCount: number;
+  readonly tone: ParentPortalAppGameDashboardTone;
+};
+
 export type ParentPortalAppGameDashboardIntent = {
   readonly state: string;
   readonly summary: string;
@@ -63,6 +73,7 @@ export type ParentPortalAppGameDashboardIntent = {
   readonly rows: readonly ParentPortalAppGameDashboardRow[];
   readonly sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[];
   readonly sourcePanelSections: readonly ParentPortalAppGameSourcePanelSection[];
+  readonly policyReadinessRows: readonly ParentPortalAppGamePolicyReadinessRow[];
   readonly metrics: readonly ParentPortalAppGameDashboardMetric[];
   readonly capabilityRows: readonly ParentPortalAppGameDashboardMetric[];
   readonly evidenceRows: readonly ParentPortalAppGameDashboardMetric[];
@@ -71,7 +82,8 @@ export type ParentPortalAppGameDashboardIntent = {
 
 export function createParentPortalAppGameDashboardIntent(
   appUseReadModel: Record<string, unknown> | null,
-  gamesReadModel: Record<string, unknown> | null
+  gamesReadModel: Record<string, unknown> | null,
+  policyReadinessReadModel: Record<string, unknown> | null = null
 ): ParentPortalAppGameDashboardIntent {
   const appRows = appDashboardRows(appUseReadModel);
   const gameRows = gameDashboardRows(gamesReadModel);
@@ -81,20 +93,22 @@ export function createParentPortalAppGameDashboardIntent(
     ...appGameSourceStatusRows(gamesReadModel, 'games', 'Game', 'displayName'),
   ].sort(sourceStatusRowSort);
   const sourcePanelSections = createParentPortalAppGameSourcePanelSections(sourceStatusRows);
-  const metrics = appGameDashboardMetrics(appRows, gameRows, rows, sourceStatusRows);
-  const state = dashboardState(appUseReadModel, gamesReadModel, rows);
+  const policyReadinessRows = appGamePolicyReadinessRows(policyReadinessReadModel);
+  const metrics = appGameDashboardMetrics(appRows, gameRows, rows, sourceStatusRows, policyReadinessRows);
+  const state = dashboardState(appUseReadModel, gamesReadModel, rows, policyReadinessReadModel, policyReadinessRows);
 
   return {
     state,
-    summary: dashboardSummary(appUseReadModel, gamesReadModel, rows),
+    summary: dashboardSummary(appUseReadModel, gamesReadModel, rows, policyReadinessRows),
     appRows,
     gameRows,
     rows,
     sourceStatusRows,
     sourcePanelSections,
+    policyReadinessRows,
     metrics,
-    capabilityRows: capabilityRows(rows),
-    evidenceRows: evidenceRows(rows, sourceStatusRows),
+    capabilityRows: capabilityRows(rows, policyReadinessRows),
+    evidenceRows: evidenceRows(rows, sourceStatusRows, policyReadinessRows),
     emptyMessage: 'No app/game read model rows reported by the local service.',
   };
 }
@@ -194,8 +208,10 @@ function appGameDashboardMetrics(
   appRows: readonly ParentPortalAppGameDashboardRow[],
   gameRows: readonly ParentPortalAppGameDashboardRow[],
   rows: readonly ParentPortalAppGameDashboardRow[],
-  sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[]
+  sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[],
+  policyReadinessRows: readonly ParentPortalAppGamePolicyReadinessRow[]
 ): readonly ParentPortalAppGameDashboardMetric[] {
+  const readyPolicyInputs = policyReadinessRows.filter((row) => row.readinessState === 'ready').length;
   return [
     { label: 'Inventory', value: String(sumRows(rows, (row) => row.inventoryCount)), tone: 'cyan' },
     { label: 'Running', value: String(sumRows(rows, (row) => row.runningCount)), tone: 'gold' },
@@ -209,6 +225,16 @@ function appGameDashboardMetrics(
     },
     { label: 'Unknown review', value: String(rows.filter((row) => row.unknownApproval).length), tone: 'gold' },
     { label: 'Manual required', value: String(rows.filter((row) => row.manualRequired).length), tone: 'gold' },
+    {
+      label: 'Policy inputs',
+      value:
+        policyReadinessRows.length > 0 ? `${readyPolicyInputs}/${policyReadinessRows.length} ready` : 'not reported',
+      tone: policyReadinessRows.some((row) => row.tone === 'red')
+        ? 'red'
+        : policyReadinessRows.some((row) => row.tone === 'gold')
+          ? 'gold'
+          : 'cyan',
+    },
     { label: 'Evidence refs', value: String(sumRows(rows, (row) => row.evidenceCount)), tone: 'cyan' },
     {
       label: 'Game budgets',
@@ -221,35 +247,51 @@ function appGameDashboardMetrics(
 function dashboardSummary(
   appUseReadModel: Record<string, unknown> | null,
   gamesReadModel: Record<string, unknown> | null,
-  rows: readonly ParentPortalAppGameDashboardRow[]
+  rows: readonly ParentPortalAppGameDashboardRow[],
+  policyReadinessRows: readonly ParentPortalAppGamePolicyReadinessRow[]
 ): string {
+  const policySummary =
+    policyReadinessRows.length > 0
+      ? ` Policy readiness ${policyReadinessRows.filter((row) => row.readinessState === 'ready').length}/${policyReadinessRows.length} inputs ready.`
+      : '';
   if (rows.length === 0) {
-    return 'Waiting for app-use and games read-model rows from the local service.';
+    return `Waiting for app-use and games read-model rows from the local service.${policySummary}`;
   }
   const states = [stringValue(appUseReadModel?.['state']), stringValue(gamesReadModel?.['state'])]
     .filter((state) => state.length > 0)
     .join(' / ');
   return states
-    ? `${rows.length} service-backed app/game rows; read models ${states}.`
-    : `${rows.length} service-backed app/game rows.`;
+    ? `${rows.length} service-backed app/game rows; read models ${states}.${policySummary}`
+    : `${rows.length} service-backed app/game rows.${policySummary}`;
 }
 
 function dashboardState(
   appUseReadModel: Record<string, unknown> | null,
   gamesReadModel: Record<string, unknown> | null,
-  rows: readonly ParentPortalAppGameDashboardRow[]
+  rows: readonly ParentPortalAppGameDashboardRow[],
+  policyReadinessReadModel: Record<string, unknown> | null,
+  policyReadinessRows: readonly ParentPortalAppGamePolicyReadinessRow[]
 ): string {
   if (rows.some((row) => row.manualRequired)) return 'manual-required';
+  if (!booleanValue(policyReadinessReadModel?.['policyEvaluationReady']) && policyReadinessRows.length > 0) {
+    return 'manual-required';
+  }
+  if (policyReadinessRows.some((row) => row.tone !== 'cyan')) return 'manual-required';
   if (rows.some((row) => row.riskCandidate || row.unknownApproval)) return 'review-required';
   return stringValue(appUseReadModel?.['state']) || stringValue(gamesReadModel?.['state']) || 'unavailable';
 }
 
 function capabilityRows(
-  rows: readonly ParentPortalAppGameDashboardRow[]
+  rows: readonly ParentPortalAppGameDashboardRow[],
+  policyReadinessRows: readonly ParentPortalAppGamePolicyReadinessRow[]
 ): readonly ParentPortalAppGameDashboardMetric[] {
   const counts = new Map<string, number>();
   for (const row of rows) {
     const key = row.capabilityStatus || 'not-reported';
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  for (const row of policyReadinessRows) {
+    const key = `policy ${row.readinessState}`;
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   if (counts.size === 0) {
@@ -261,17 +303,29 @@ function capabilityRows(
     .map(([label, value]) => ({
       label,
       value: `${value} rows`,
-      tone: appGameManualRequired(label) ? 'gold' : label === 'ready' ? 'cyan' : 'purple',
+      tone: appGameManualRequired(label)
+        ? 'gold'
+        : /missing/u.test(label)
+          ? 'red'
+          : /ready/u.test(label)
+            ? 'cyan'
+            : 'purple',
     }));
 }
 
 function evidenceRows(
   rows: readonly ParentPortalAppGameDashboardRow[],
-  sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[]
+  sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[],
+  policyReadinessRows: readonly ParentPortalAppGamePolicyReadinessRow[]
 ): readonly ParentPortalAppGameDashboardMetric[] {
   const sourceRows = sourceStatusRows.slice(0, 3).map((row) => ({
     label: `${row.sourceLabel} ${row.sourceStatusLabel}`,
     value: `${row.rowCount} source rows; ${row.capabilityStatus}; ${row.lastObservedLabel}; ${row.evidenceCount} refs`,
+    tone: row.tone,
+  }));
+  const policyRows = policyReadinessRows.slice(0, 3).map((row) => ({
+    label: `Policy ${row.readinessLabel}`,
+    value: `${row.rowCount} source rows; ${row.readinessState}; ${row.evidenceCount} refs`,
     tone: row.tone,
   }));
   const serviceRows = rows
@@ -281,10 +335,57 @@ function evidenceRows(
       value: `${row.evidenceCount} refs; ${row.lastObservedLabel}`,
       tone: row.tone,
     }));
-  const visibleRows = [...sourceRows, ...serviceRows].slice(0, 6);
+  const visibleRows = [...policyRows, ...sourceRows, ...serviceRows].slice(0, 6);
   return visibleRows.length > 0
     ? visibleRows
     : [{ label: 'Evidence drawer', value: 'No evidence refs reported', tone: 'gold' }];
+}
+
+function appGamePolicyReadinessRows(
+  readModel: Record<string, unknown> | null
+): readonly ParentPortalAppGamePolicyReadinessRow[] {
+  return readModelRows(readModel)
+    .map((row, index) => appGamePolicyReadinessRow(row, index))
+    .sort(policyReadinessRowSort);
+}
+
+function appGamePolicyReadinessRow(row: Record<string, unknown>, index: number): ParentPortalAppGamePolicyReadinessRow {
+  const readinessKind = stringValue(row['readinessKind']) || 'not-reported';
+  const readinessState = stringValue(row['readinessState']) || 'not-reported';
+  const rowCount = numberValue(row['rowCount']);
+  const evidenceCount = arrayCount(row['evidence']) || arrayCount(row['evidenceReferenceIds']);
+  return {
+    rowId: stringValue(row['rowId']) || `policy-readiness-${index + 1}`,
+    readinessKind,
+    readinessLabel: sourceKindLabel(readinessKind),
+    readinessState,
+    rowCount,
+    evidenceCount,
+    tone: policyReadinessTone(readinessState, rowCount),
+  };
+}
+
+function policyReadinessTone(readinessState: string, rowCount: number): ParentPortalAppGameDashboardTone {
+  if (readinessState === 'ready' && rowCount > 0) return 'cyan';
+  if (readinessState === 'missing') return 'red';
+  return 'gold';
+}
+
+function policyReadinessRowSort(
+  left: ParentPortalAppGamePolicyReadinessRow,
+  right: ParentPortalAppGamePolicyReadinessRow
+): number {
+  return (
+    policyReadinessRank(right) - policyReadinessRank(left) ||
+    right.rowCount - left.rowCount ||
+    left.readinessLabel.localeCompare(right.readinessLabel)
+  );
+}
+
+function policyReadinessRank(row: ParentPortalAppGamePolicyReadinessRow): number {
+  if (row.readinessState === 'missing') return 3;
+  if (row.readinessState === 'manual-required') return 2;
+  return row.rowCount > 0 ? 0 : 1;
 }
 
 function rowTone(input: {
@@ -464,6 +565,10 @@ function sumRows<Row>(rows: readonly Row[], selector: (row: Row) => number): num
 
 function numberValue(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+}
+
+function booleanValue(value: unknown): boolean {
+  return value === true;
 }
 
 function stringValue(value: unknown): string {

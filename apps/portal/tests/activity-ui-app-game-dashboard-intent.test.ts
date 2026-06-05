@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { AppGameSchemaVersion } from '@ocentra-parent/activity-domain/app-game';
 import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/activity-surface';
 import { createParentPortalActivityUiIntent } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
 
@@ -22,6 +23,7 @@ describe('parent portal app/game dashboard intent', () => {
       {
         activityAppUseReadModel: adapterResult(appUseReadModel()),
         activityGamesReadModel: adapterResult(gamesReadModel()),
+        appGamePolicyReadinessReadModel: adapterResult(policyReadinessReadModel()),
       },
       3
     );
@@ -39,6 +41,7 @@ describe('parent portal app/game dashboard intent', () => {
     );
 
     expect(intent.appGameDashboard.rows).toEqual([]);
+    expect(intent.appGameDashboard.policyReadinessRows).toEqual([]);
     expect(intent.appGameDashboard.emptyMessage).toContain('No app/game read model rows');
     expect(intent.appGameDashboard.metrics.map((metric) => [metric.label, metric.value])).toContainEqual([
       'Manual required',
@@ -56,6 +59,7 @@ function expectPopulatedDashboard(dashboard: ActivityUiIntent['appGameDashboard'
   expect(metricPairs).toContainEqual(['Launcher', '1']);
   expect(metricPairs).toContainEqual(['Source rows', '6']);
   expect(metricPairs).toContainEqual(['Fresh sources', '4']);
+  expect(metricPairs).toContainEqual(['Policy inputs', '1/3 ready']);
   expect(dashboard.rows.map((row) => [row.label, row.inventoryCount, row.runningCount])).toContainEqual([
     'Study Timer',
     1,
@@ -93,6 +97,12 @@ function expectPopulatedDashboard(dashboard: ActivityUiIntent['appGameDashboard'
   expect(dashboard.rows.some((row) => row.label.includes('<script>alert(1)</script>'))).toBe(true);
   expect(dashboard.capabilityRows.map((row) => row.label)).toContain('manual-required');
   expect(dashboard.capabilityRows.map((row) => row.label)).toContain('permission-required');
+  expect(dashboard.policyReadinessRows.map((row) => [row.readinessLabel, row.readinessState])).toEqual([
+    ['Platform Authority', 'missing'],
+    ['Ai Classifier Context', 'manual-required'],
+    ['Policy Evidence', 'ready'],
+  ]);
+  expect(dashboard.evidenceRows.map((row) => row.label)).toContain('Policy Platform Authority');
   expectSourceStatusRows(dashboard);
   expectSourcePanelSections(dashboard);
   expectNoRawExecutablePathLeak(dashboard);
@@ -331,6 +341,52 @@ function gamesReadModel() {
         ],
       },
     ],
+  } as const;
+}
+
+function policyReadinessReadModel() {
+  return {
+    schemaVersion: AppGameSchemaVersion,
+    generatedAt: '2026-06-01T15:00:01Z',
+    custodyLabel: 'child-device-local',
+    capabilityStatus: 'manual-required',
+    returned: 3,
+    policyEvaluationReady: false,
+    manualReviewRequired: true,
+    adapterDispatchClaimed: false,
+    evidenceClaimRowCount: 3,
+    identityRowCount: 2,
+    approvalAuthorityRowCount: 1,
+    approvalActionResultRowCount: 0,
+    platformAuthorityRowCount: 0,
+    aiClassifierResultRowCount: 0,
+    rows: [
+      policyReadinessRow('policyEvidence', 'ready', 3, ['policy-evidence-ref']),
+      policyReadinessRow('platformAuthority', 'missing', 0, []),
+      policyReadinessRow('aiClassifierContext', 'manual-required', 0, []),
+    ],
+  } as const;
+}
+
+function policyReadinessRow(
+  readinessKind: string,
+  readinessState: string,
+  rowCount: number,
+  evidenceReferenceIds: readonly string[]
+) {
+  return {
+    schemaVersion: AppGameSchemaVersion,
+    rowId: readinessKind,
+    readinessKind,
+    readinessState,
+    rowCount,
+    evidenceReferenceIds,
+    evidence: evidenceReferenceIds.map((evidenceId) => ({
+      evidenceId,
+      kind: 'local-db-row',
+      digest: null,
+      uri: null,
+    })),
   } as const;
 }
 
