@@ -1,7 +1,7 @@
 # app WP66 Source Snapshot
 
 - Branch: codex/app-game-notification-parent-surface-intent-wp65
-- Commit: 0ab133db9bd3f7d6db7f3980862488263907f9bf
+- Commit: 9cba32293481be8bd81de22b7cf835f6e6872de5
 - Git status at proof generation:
 
 ```text
