@@ -1,0 +1,9 @@
+Authority gate proof:
+
+- Android Device Owner location control: authority_required.
+- Android managed profile location control: authority_required.
+- iOS supervised/MDM location control: authority_required.
+- macOS MDM location control: authority_required.
+- Windows AppLocker/App Control location control: authority_required.
+
+No row claims enrollment, hard-control runtime behavior, child-device runtime execution, physical-device proof, or product readiness.

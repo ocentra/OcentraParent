@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "tracking-authority-hard-control-proof",
+  "updatedAt": "2026-06-05T19:30:00.000Z",
+  "surfaces": [
+    {
+      "surface": "android-device-owner-location-control",
+      "platform": "android",
+      "authorityRequirement": "authority_required",
+      "requiredArtifact": "Android Device Owner enrollment evidence with location/control authority",
+      "currentArtifactState": "missing-device-owner-proof",
+      "proofRef": "authority-hard-control:android-device-owner-location-control",
+      "authorityEnrolled": false,
+      "hardControlClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productClaimReady": false,
+      "claimBoundary": "CI proof records this row as authority_required until a real enrolled-device or managed-policy artifact is attached."
+    },
+    {
+      "surface": "android-managed-profile-location-control",
+      "platform": "android",
+      "authorityRequirement": "authority_required",
+      "requiredArtifact": "Android managed-profile owner evidence with location/control authority",
+      "currentArtifactState": "missing-managed-profile-proof",
+      "proofRef": "authority-hard-control:android-managed-profile-location-control",
+      "authorityEnrolled": false,
+      "hardControlClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productClaimReady": false,
+      "claimBoundary": "CI proof records this row as authority_required until a real enrolled-device or managed-policy artifact is attached."
+    },
+    {
+      "surface": "ios-supervised-mdm-location-control",
+      "platform": "ios",
+      "authorityRequirement": "authority_required",
+      "requiredArtifact": "iOS supervised device or MDM entitlement evidence for location/control authority",
+      "currentArtifactState": "missing-supervised-mdm-proof",
+      "proofRef": "authority-hard-control:ios-supervised-mdm-location-control",
+      "authorityEnrolled": false,
+      "hardControlClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productClaimReady": false,
+      "claimBoundary": "CI proof records this row as authority_required until a real enrolled-device or managed-policy artifact is attached."
+    },
+    {
+      "surface": "macos-mdm-location-control",
+      "platform": "macos",
+      "authorityRequirement": "authority_required",
+      "requiredArtifact": "macOS MDM profile or equivalent management evidence for location/control authority",
+      "currentArtifactState": "missing-mdm-proof",
+      "proofRef": "authority-hard-control:macos-mdm-location-control",
+      "authorityEnrolled": false,
+      "hardControlClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productClaimReady": false,
+      "claimBoundary": "CI proof records this row as authority_required until a real enrolled-device or managed-policy artifact is attached."
+    },
+    {
+      "surface": "windows-applocker-app-control-location-control",
+      "platform": "windows",
+      "authorityRequirement": "authority_required",
+      "requiredArtifact": "Windows AppLocker or App Control policy evidence with child-device authority",
+      "currentArtifactState": "missing-app-control-policy-proof",
+      "proofRef": "authority-hard-control:windows-applocker-app-control-location-control",
+      "authorityEnrolled": false,
+      "hardControlClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "physicalDeviceClaimed": false,
+      "productClaimReady": false,
+      "claimBoundary": "CI proof records this row as authority_required until a real enrolled-device or managed-policy artifact is attached."
+    }
+  ],
+  "summary": {
+    "surfaceCount": 5,
+    "authorityRequiredRows": 5,
+    "authorityEnrolledRows": 0,
+    "hardControlClaimedRows": 0,
+    "childDeviceRuntimeClaimedRows": 0,
+    "physicalDeviceClaimedRows": 0,
+    "productClaimReadyRows": 0
+  }
+}

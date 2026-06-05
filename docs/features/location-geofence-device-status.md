@@ -145,6 +145,15 @@ expose location or device-status features. Parents expect this category.
   non-claims for current location, live tracking runtime, powered-off device
   tracking, remote sync runtime, provider delivery, portal runtime UI,
   physical-device proof, and OS lost-mode APIs.
+- Authority hard-control proof now exists through
+  `node scripts/test/tracking-authority-hard-control-proof.mjs`. It records
+  Android Device Owner, Android managed profile, iOS supervised/MDM, macOS MDM,
+  and Windows AppLocker/App Control tracking-control rows as
+  `authority_required`, writes proof under
+  `output/tracking-plan-proof/authority-hard-control-proof/`, and explicitly
+  rejects enrolled-device, hard-control runtime, child-device runtime,
+  physical-device, and product-ready claims until matching managed-device
+  artifacts exist.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -207,10 +216,10 @@ fixture-state coverage proof, and WP29 missing-device mode parent-domain proof
 for last-known-only/offline/contact-requested/manual-required states. It
 remains a tracked product gap until platform location and geofence adapters,
 broader product read models, actual live provider execution/delivery,
-notification receipt ingestion, physical-device proof, actual child-device
-delivery/runtime execution, remote sync runtime, OS lost-mode APIs, and full
-parent/child UI snapshots/accessibility beyond the hosted parent route are
-proved.
+notification receipt ingestion, enrolled-device/managed-policy authority proof,
+physical-device proof, actual child-device delivery/runtime execution, remote
+sync runtime, OS lost-mode APIs, and full parent/child UI
+snapshots/accessibility beyond the hosted parent route are proved.
 
 ## Checklist
 
@@ -245,6 +254,11 @@ proved.
       remote-AI-disabled states. This is fixture/read-model coverage only; it is
       not live-device, child-runtime, provider-delivery, physical-device, or
       product-ready proof.
+- [x] Authority hard-control proof gate for Android Device Owner, Android
+      managed profile, iOS supervised/MDM, macOS MDM, and Windows AppLocker/App
+      Control rows. This is `authority_required` proof only; it is not
+      enrolled-device, hard-control runtime, child-device runtime,
+      physical-device, or product-ready proof.
 - [x] Tracking alert intents map to provider-status boundary evidence with
       evidence refs, policy decision refs, notification status refs, reason refs,
       and minimal/authenticated-drill-in payload boundaries. This is not
@@ -311,4 +325,5 @@ full portal UI snapshots/accessibility beyond the hosted route and hosted
 child-safe check-in proof, remaining Android foreground-location and
 background/geofence runtime proof, iOS Core Location/region proof beyond
 simulator package launch, then physical Android/iOS proof and authority proof
-only when matching devices are enrolled.
+only when matching devices are enrolled or managed-policy artifacts are
+attached.

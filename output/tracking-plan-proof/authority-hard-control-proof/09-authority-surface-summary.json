@@ -1,0 +1,9 @@
+{
+  "surfaceCount": 5,
+  "authorityRequiredRows": 5,
+  "authorityEnrolledRows": 0,
+  "hardControlClaimedRows": 0,
+  "childDeviceRuntimeClaimedRows": 0,
+  "physicalDeviceClaimedRows": 0,
+  "productClaimReadyRows": 0
+}

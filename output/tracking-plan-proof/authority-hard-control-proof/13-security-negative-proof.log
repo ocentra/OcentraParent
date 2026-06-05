@@ -1,0 +1,5 @@
+Security/no-claim proof:
+
+- Device Owner, managed profile, supervised/MDM, and AppLocker/App Control remain authority_required until real artifacts are attached.
+- CI rejects hard-control and product-ready overclaims through Effect Schema literal and read-model honesty filters.
+- Physical-device, child-device runtime, platform adapter execution, live/background location, and product UI claims remain false.
