@@ -91,6 +91,17 @@ dev-only repo when it claims consumer readiness.
   rejecting raw child activity custody, provider secrets, remote support
   transcripts, real backend upload execution, account lookup execution, billing
   provider execution, and default Ocentra-hosted family data.
+- `production-support-backend-upload-execution-runtime-proof` adds
+  logging-domain support backend upload execution/runtime boundary rows for
+  parent-consented request recording, redaction preflight readiness,
+  dispatch-manual-required, backend-unavailable, provider-unavailable,
+  retry-scheduled, and operator-abandoned states. It links to the prior support
+  upload status proof with status refs and proves redaction/audit/runtime refs,
+  retry/abandon refs, and manual proof requirements while rejecting child
+  activity custody, provider secrets, remote support transcripts, real backend
+  upload execution, account lookup execution, billing provider contact
+  execution, remote support sessions, production SLA, and default
+  Ocentra-hosted family data.
 - `production-support-publication-workflow-proof` adds parent-domain source
   contract rows for public privacy policy publication, privacy/legal disclosure
   execution, support runbook publication, support incident status publication,
@@ -295,6 +306,17 @@ package/runtime proof.
       support transcripts, real backend upload execution, account lookup
       execution, billing provider execution, default Ocentra-hosted family data,
       and production SLA unclaimed.
+- [ ] Production support backend upload execution/runtime proof. Current
+      `production-support-backend-upload-execution-runtime-proof` covers
+      parent-consented support upload request recording, redaction preflight
+      readiness, dispatch-manual-required, backend-unavailable,
+      provider-unavailable, retry-scheduled, and operator-abandoned runtime
+      boundary rows. It proves status refs, runtime refs, redaction/audit refs,
+      retry/abandon refs, and manual proof requirements while keeping child
+      activity custody, provider secrets, remote support transcripts, real
+      backend upload execution, account lookup execution, billing provider
+      contact execution, remote support sessions, production SLA, and default
+      Ocentra-hosted family data unclaimed.
 - [ ] Production support public publication workflow proof. Current
       `production-support-publication-workflow-proof` covers public privacy
       policy publication, privacy/legal disclosure execution, support runbook

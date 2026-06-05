@@ -108,6 +108,23 @@ provider secrets, remote support transcripts, real support backend upload
 execution, account lookup execution, billing provider execution, production SLA,
 or default Ocentra-hosted family data.
 
+## Support Backend Upload Execution Runtime Contract
+
+`src/support-backend-upload-execution-runtime.ts` owns the logging-domain schema
+proof for production support backend upload execution/runtime boundary rows,
+while `src/support-backend-upload-execution-runtime-read-model.ts` owns the
+current fixture rows. They record parent-consented request recording, redaction
+preflight readiness, manual dispatch requirements, backend/provider unavailable
+states, retry scheduling, and operator abandon states with status refs, runtime
+refs, redaction refs, audit refs, retry refs, abandon refs, and manual proof
+requirements.
+
+This contract is metadata-only. It does not claim raw child activity custody,
+provider secrets, remote support transcripts, real support backend upload
+execution, account lookup execution, billing provider contact execution, remote
+support session execution, production SLA, or default Ocentra-hosted family
+data.
+
 ## Gaps To Fill
 
 - Keep log contracts aligned with every new remote, notification, and support

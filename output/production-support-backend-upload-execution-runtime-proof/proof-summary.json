@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-05T15:24:10.532Z",
+  "commit": "91968fa97e86f1450c758b1c039336b0a6de1328",
+  "proofMode": "production-support-backend-upload-execution-runtime-proof",
+  "statesCovered": [
+    "execution-request-recorded",
+    "redaction-preflight-ready",
+    "dispatch-manual-required",
+    "backend-unavailable",
+    "provider-unavailable",
+    "retry-scheduled",
+    "operator-abandoned"
+  ],
+  "output": "test-results\\production-support-backend-upload-execution-runtime-proof\\proof.json",
+  "claimsNotProved": [
+    "raw child activity custody",
+    "provider secrets",
+    "remote support transcripts",
+    "real support backend upload execution",
+    "account lookup execution",
+    "billing provider contact execution",
+    "remote support session execution",
+    "production SLA",
+    "default Ocentra-hosted family data"
+  ]
+}
