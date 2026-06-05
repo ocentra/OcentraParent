@@ -187,6 +187,34 @@ generic app blocking covers this concern.
   records that package-source adapter execution proof under
   `test-results/app-install-purchase-package-source-adapter-execution-proof/proof.json`
   when run.
+- `packages/parent-domain/src/app-install-purchase-parent-action-delivery-readiness-proof.ts`
+  now links parent action runtime handoff rows to child-device delivery
+  runtime-writer envelope rows so parent actions can be classified as
+  delivery-ready or manual-review-required while preserving no parent action
+  runtime delivery, runtime writer execution/delivery, provider/store
+  execution, platform adapters, child-device delivery, runtime report delivery,
+  interception, child activity data, app blocking, or Ocentra-hosted family data
+  custody claims.
+- `scripts/test/app-install-purchase-parent-action-delivery-readiness-proof.mjs`
+  records that parent action delivery readiness proof under
+  `test-results/app-install-purchase-parent-action-delivery-readiness-proof/proof.json`
+  when run. The proof records the public package export and product checklist
+  row as pending lock-gated deltas because other lanes owned those files during
+  this slice.
+- `packages/parent-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts`
+  now links approved API/entitlement evidence, per-store status handoff,
+  package-source adapter execution, and parent action delivery readiness rows
+  into provider/store execution-ready, manual-required, and unavailable states
+  while preserving no Google Play, Apple App Store, Microsoft Store,
+  billing/provider contact, provider/store execution, platform interception,
+  platform adapters, child-device delivery, runtime writer delivery, app
+  blocking, child activity data, or Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-provider-store-execution-readiness-proof.mjs`
+  records that provider/store execution readiness proof under
+  `test-results/app-install-purchase-provider-store-execution-readiness-proof/proof.json`
+  when run. The proof records the public package export and product checklist
+  row as pending lock-gated deltas because other lanes owned those files during
+  this slice.
 
 ## Current Gap
 
@@ -207,13 +235,17 @@ proof states, map the actions into runtime handoff status rows, and link
 per-store status handoff rows to adapter readiness/manual/unavailable states,
 attach those handoffs to runtime writer envelope/manual-required rows, and link
 runtime writer rows plus package-source capture/status rows to child-device
-delivery envelope/manual-required rows, but do not implement Google Play, Apple
-App Store, Microsoft Store, billing entitlement, provider/store execution,
-platform interception, runtime status reader, portal approval/report UI,
-runtime action writer execution, runtime writer delivery, parent action runtime
-delivery, production child-device package-source adapter execution,
-child-device delivery, runtime report delivery, runtime app-blocking behavior,
-or Ocentra-hosted family data custody.
+delivery envelope/manual-required rows, and classify parent action delivery
+readiness against child delivery envelope rows, and classify provider/store
+execution readiness/manual/unavailable states across approved API evidence,
+store status, package-source adapter, and parent action readiness rows, but do
+not implement Google Play, Apple App Store, Microsoft Store, billing
+entitlement, provider/store execution, provider contact, platform interception,
+runtime status reader, portal approval/report UI, runtime action writer
+execution, runtime writer delivery, parent action runtime delivery, production
+child-device package-source adapter execution, child-device delivery, runtime
+report delivery, runtime app-blocking behavior, or Ocentra-hosted family data
+custody.
 
 ## Checklist
 
@@ -298,6 +330,17 @@ or Ocentra-hosted family data custody.
       blocked Android/iOS adapter execution states without provider/store
       execution, portal approval UI, production platform adapters, child
       delivery, report delivery, custody, interception, or app blocking claims.
+- [x] Parent action delivery readiness proof linking parent action runtime
+      handoff rows to child delivery runtime-writer envelope rows without
+      parent action runtime delivery, runtime writer execution/delivery,
+      provider/store execution, platform adapters, child delivery, report
+      delivery, custody, interception, or app blocking claims.
+- [x] Provider/store execution readiness proof linking approved API evidence,
+      store status handoff, package-source adapter execution, and parent action
+      delivery readiness rows into readiness/manual/unavailable states without
+      Google Play, Apple App Store, Microsoft Store, billing/provider contact,
+      provider/store execution, platform interception, child delivery, runtime
+      writer delivery, app blocking, custody, or hosted family data claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
