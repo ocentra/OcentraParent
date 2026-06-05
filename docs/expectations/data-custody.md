@@ -97,6 +97,13 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   redaction summaries, and manual proof references, but must exclude child
   activity, raw URLs, screenshots, journals, SQLite stores, private paths,
   commands, keystrokes, clipboard content, and message contents.
+- `production-release-public-docs-status-proof` may disclose only public policy
+  text, retention/export/delete process summaries, support runbook status,
+  incident/legal disclosure status, redaction summaries, contact-channel
+  status, and manual proof references; it must not include child evidence,
+  support bundle payloads, account lookup results, billing provider contact
+  records, remote support session transcripts, provider secrets, or parent
+  rules as public documentation data.
 - Any future feature that stores family activity in Ocentra infrastructure
   requires a new explicit product, privacy, security, retention, and deletion
   design before implementation.
