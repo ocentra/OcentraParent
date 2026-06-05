@@ -24,6 +24,7 @@ pub mod transfer;
 pub mod tunnel;
 pub mod windows_firewall_adapter;
 pub mod windows_wfp_gate;
+pub mod zeek;
 
 mod process_support;
 
@@ -153,4 +154,11 @@ pub use windows_wfp_gate::{
     plan_network_windows_wfp_gate, NetworkWindowsWfpGateBoundaryReason,
     NetworkWindowsWfpGateCapabilityState, NetworkWindowsWfpGateError, NetworkWindowsWfpGateInput,
     NetworkWindowsWfpGateProof, NetworkWindowsWfpGateState, NetworkWindowsWfpRequiredArtifact,
+};
+pub use zeek::{
+    generate_network_zeek_analyzer_proof, NetworkZeekAnalyzerComparisonArtifact,
+    NetworkZeekAnalyzerComparisonState, NetworkZeekAnalyzerError, NetworkZeekAnalyzerInput,
+    NetworkZeekAnalyzerProof, NetworkZeekConnectionRow, NetworkZeekDnsRow, NetworkZeekHttpEvidence,
+    NetworkZeekHttpRow, NetworkZeekLogKind, NetworkZeekTlsEvidence, NetworkZeekTlsRow,
+    NetworkZeekVisibilityState,
 };

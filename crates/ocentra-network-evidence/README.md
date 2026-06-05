@@ -25,7 +25,9 @@ flow/session summaries, deterministic domain/category metadata,
 social/video/game/cloud-gaming classifier candidates, VPN/proxy/Tor/tunnel
 indicator classification, remote/torrent/download candidate classification, and
 replay-backed process/app correlation plus a managed-browser correlation bridge.
-It also includes a deterministic evidence cascade router. Domain normalization
+It also includes a deterministic evidence cascade router and Zeek-style
+connection, DNS, HTTP, TLS, and SSL analyzer-summary proof with approved
+comparison artifacts. Domain normalization
 lowercases and validates metadata-derived domains, matches a deterministic
 public suffix model, and derives registrable domains without upgrading to exact
 URL or content claims. Flow aggregation merges reverse-direction packets into a
@@ -110,13 +112,19 @@ non-block policy actions, manual-required, and unavailable states are
 non-executable, and generic Linux support, exact URL, decrypted payload, page
 content, live adapter install, packet filtering, kernel hook load, TUN interface
 mutation, service-manager install, adapter action, and enforcement-command
-claims are rejected.
+claims are rejected. The Zeek-style analyzer proof generates deterministic
+connection, DNS, HTTP, TLS, and SSL rows from fixture-backed metadata, requires
+approved comparison artifacts for each generated log kind, preserves unknown,
+missing, ambiguous, and encrypted states without guessing, and rejects exact URL,
+page content, decrypted payload, live analyzer invocation, signature-alert
+ingestion, policy authority, adapter authority, and enforcement-command claims.
 
-Live Npcap/libpcap capture, full vendor category feeds, analyzer comparison,
+Live Npcap/libpcap capture, full vendor category feeds,
 production CDN intelligence, unmanaged browser URL correlation, foreground
 session correlation, live network adapter enforcement, file/content inspection,
 local-AI model execution/worker runtime, full policy engine execution,
 notification provider delivery, live WFP driver/callout proof, live adapter
 execution, Android physical-device behavior, Apple entitlement/device behavior,
-Linux distro/kernel adapter behavior, and portal rendering remain separate
+Linux distro/kernel adapter behavior, Suricata/Snort signature alert ingestion,
+live Zeek/TShark/Wireshark execution, and portal rendering remain separate
 proof-gated workpacks.

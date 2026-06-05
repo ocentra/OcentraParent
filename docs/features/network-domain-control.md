@@ -241,7 +241,9 @@ execution, and platform adapter execution remain open.
       proof.
       First deterministic DNS query PCAP replay, packet/DNS parser fixtures,
       TLS/HTTP/QUIC/DoH visibility fixtures, and flow/sessionization proof
-      exist; analyzer comparison and signature alerts remain open.
+      exist. Deterministic Zeek-style connection, DNS, HTTP, TLS, and SSL summary
+      generation with approved analyzer comparison artifacts now exists; signature
+      alert ingestion remains open.
 - [x] Remote desktop/torrent/download candidate classifier.
       Deterministic indicator proof exists for remote desktop, torrent, and
       large-download candidates, with unattributed high-volume uncertainty and
