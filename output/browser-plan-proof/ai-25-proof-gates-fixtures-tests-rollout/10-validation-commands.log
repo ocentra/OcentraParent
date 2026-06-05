@@ -1,11 +1,11 @@
 AI-25 proof gates, fixtures, tests, and rollout validation - 2026-06-05
 
 Branch:
-  codex/browser-ai-proof-gate-ui-delivery-proof on origin/main=246c7ac3
+  codex/browser-ai-proof-gate-ui-delivery-proof on origin/main=6059f536
 
 PASS cmd /c node scripts/test/managed-browser-intervention-proof.mjs
   managed-browser-intervention-proof-ok=true
-  evidence=test-results/managed-browser-intervention-proof/2026-06-05T16-03-37-369Z.json
+  evidence=test-results/managed-browser-intervention-proof/2026-06-05T19-07-02-212Z.json
   supportedBrowsers=3 blockedSiteProofs=3 youtubeVideoProofs=3 socialSignupApprovalProofs=3
   socialShortVideoWarningProofs=3 browserGameCheckingProofs=3 gamePurchaseApprovalProofs=3
   cloudGamingApprovalProofs=3 allowedControlProofs=3
@@ -13,7 +13,7 @@ PASS cmd /c node scripts/test/managed-browser-intervention-proof.mjs
 PASS cmd /c node scripts/test/browser-ai-proof-gate-ui-delivery-proof.mjs
   browser-ai-proof-gate-ui-delivery-proof-ok=true
   proof=test-results/browser-ai-proof-gate-ui-delivery-proof/proof.json
-  generatedAt=2026-06-05T16:04:36.727Z
+  generatedAt=2026-06-05T19:08:08.962Z
   childScreenshots=4
   parentPortalScreenshot=output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/parent-browser-ai-explanation-audit-real-portal.png
 
@@ -21,7 +21,7 @@ PASS cmd /c node scripts/test/browser-url-video-ai-proof-gates.mjs
   browser-url-video-ai-proof-gates-ok=true
   proof=test-results/browser-url-video-ai-proof-gates/proof.json
   manifest=output/browser-plan-proof/ai-25-proof-gates-fixtures-tests-rollout/01-ai-proof-gate.md
-  generatedAt=2026-06-05T16:04:16.168Z
+  generatedAt=2026-06-05T19:08:27.680Z
   complete=24 partial=0
 
 PASS cmd /c node --check scripts/test/browser-ai-proof-gate-ui-delivery-proof.mjs
@@ -51,7 +51,7 @@ PASS cmd /c npm run validate
   validate:rust passed; Rust workspace tests reported 263 agent-service tests plus
   2 screen-capture adapter tests and 6 trigger scheduler tests passing in the root output.
   test:integration passed websocket-local-smoke and websocket-lan-smoke.
-  test:e2e passed portal-local-smoke and portal Playwright: 2 passed, 1 skipped.
+  test:e2e passed portal-local-smoke and portal Playwright: 3 passed, 1 skipped.
 
 Rollout state:
   The AI-25 gate validates proof-pack coverage for AI-01 through AI-24 and

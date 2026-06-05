@@ -1,11 +1,11 @@
 AI-19 child-facing checking/warning UX validation - 2026-06-05
 
 Branch:
-  codex/browser-ai-proof-gate-ui-delivery-proof on origin/main=246c7ac3
+  codex/browser-ai-proof-gate-ui-delivery-proof on origin/main=6059f536
 
 PASS cmd /c node scripts/test/managed-browser-intervention-proof.mjs
   managed-browser-intervention-proof-ok=true
-  evidence=test-results/managed-browser-intervention-proof/2026-06-05T16-03-37-369Z.json
+  evidence=test-results/managed-browser-intervention-proof/2026-06-05T19-07-02-212Z.json
   supportedBrowsers=3 blockedSiteProofs=3 youtubeVideoProofs=3 socialSignupApprovalProofs=3
   socialShortVideoWarningProofs=3 browserGameCheckingProofs=3 gamePurchaseApprovalProofs=3
   cloudGamingApprovalProofs=3 allowedControlProofs=3
@@ -13,7 +13,7 @@ PASS cmd /c node scripts/test/managed-browser-intervention-proof.mjs
 PASS cmd /c node scripts/test/browser-ai-proof-gate-ui-delivery-proof.mjs
   browser-ai-proof-gate-ui-delivery-proof-ok=true
   proof=test-results/browser-ai-proof-gate-ui-delivery-proof/proof.json
-  generatedAt=2026-06-05T16:04:36.727Z
+  generatedAt=2026-06-05T19:08:08.962Z
   childScreenshots=4
   parentPortalScreenshot=output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/parent-browser-ai-explanation-audit-real-portal.png
 
