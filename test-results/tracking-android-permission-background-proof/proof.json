@@ -2,8 +2,8 @@
   "proofMode": "tracking-android-permission-background-proof",
   "generatedAt": "2026-06-05T23:46:00.000Z",
   "branch": "codex/tracking-android-permission-background-proof",
-  "baseCommitAtGeneration": "f3578df8a61e1b96854416da3f6e45a2d789aafb",
-  "gitStatusShort": "M docs/feature-list.md\n M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/08-android-foreground-location-adapter.md\n M docs/plans/tracking-plan/workpacks/09-android-background-location-and-geofence-adapter.md\n M output/tracking-plan-proof/08-android-foreground-location-adapter/00-source-snapshot.md\n M output/tracking-plan-proof/08-android-foreground-location-adapter/02-platform-permission-proof.md\n M output/tracking-plan-proof/08-android-foreground-location-adapter/03-runtime-location-evidence.json\n M output/tracking-plan-proof/08-android-foreground-location-adapter/15-manual-platform-proof.md\n M output/tracking-plan-proof/08-android-foreground-location-adapter/16-validation-commands.log\n M output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/00-source-snapshot.md\n M output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/02-platform-permission-proof.md\n M output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json\n M output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/15-manual-platform-proof.md\n M output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/16-validation-commands.log\n?? packages/parent-domain/src/tracking-android-permission-background-proof.ts\n?? packages/parent-domain/tests/tracking-android-permission-background-proof.test.ts\n?? scripts/test/tracking-android-permission-background-proof.mjs",
+  "baseCommitAtGeneration": "8e1d6782bbc3421b957ebb3bfc220b79e633c10a",
+  "gitStatusShort": "",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -14,7 +14,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-android-permission-background-proof",
       "status": 0,
-      "stdout": "\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-android-permission-background-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  19:52:58\n   Duration  853ms (transform 103ms, setup 0ms, import 596ms, tests 20ms, environment 0ms)\n\n",
+      "stdout": "\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-android-permission-background-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  19:56:27\n   Duration  802ms (transform 103ms, setup 0ms, import 566ms, tests 19ms, environment 0ms)\n\n",
       "stderr": ""
     }
   ],
