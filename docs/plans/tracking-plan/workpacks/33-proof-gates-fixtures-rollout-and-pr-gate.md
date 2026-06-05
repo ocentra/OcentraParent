@@ -50,6 +50,10 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `test-results/tracking-plan-ios-simulator-proof/proof.json`
 - Hosted parent route screenshot/accessibility proof:
   `18-hosted-ui-accessibility-proof.json`
+- Evidence quality gate proof:
+  `19-evidence-quality-gate-proof.json`
+- Evidence quality gate validation log:
+  `20-evidence-quality-gate-validation.log`
 - Hosted child-safe check-in screenshot:
   `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 
@@ -124,6 +128,17 @@ claim child-device delivery/runtime UI, full service-data UI, Android/iOS
 physical-device behavior, authority, provider delivery, or production
 readiness.
 
+This branch adds `npm run test:tracking-plan-evidence-quality-gate-proof`,
+which validates location UI evidence refs, geofence rule/source refs,
+nearby-place provider/radius/category/distance/confidence/ambiguity fields, AI
+source refs with no final action, alert policy-decision refs, and retention
+delete/export before/after proof through parser-backed fixtures, retention
+helpers, parent-domain contracts, and the portal citation test. It writes
+`19-evidence-quality-gate-proof.json`,
+`20-evidence-quality-gate-validation.log`, and
+`test-results/tracking-plan-evidence-quality-gate-proof/proof.json` while
+keeping live device/provider delivery and production behavior unclaimed.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.
@@ -142,6 +157,9 @@ This workpack can be assigned independently, implemented against the owning doma
 - apps/portal/e2e/tracking-hosted-ui-proof.spec.ts
 - scripts/test/tracking-plan-hosted-ui-proof.mjs
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
+- scripts/test/tracking-plan-evidence-quality-gate-proof.mjs
+- packages/activity-domain/src/tracking-evidence-quality-gate.ts
+- packages/activity-domain/tests/tracking-evidence-quality-gate.test.ts
 - `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`
 - Implementation paths listed by the worker before editing.
 
@@ -260,6 +278,29 @@ This workpack can be assigned independently, implemented against the owning doma
       checklist, WP30, and WP33 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.
 - [x] Known gaps/manual-required states: child-device delivery/runtime UI, full
+      parent/child UI beyond the hosted route, Android/iOS physical-device
+      proof, authority, provider delivery, notifications, and production proof
+      remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-evidence-quality-gate-proof`.
+- [x] Touched files: activity-domain evidence quality gate helper/test, root
+      script wiring, evidence-quality proof script, tracking feature doc,
+      implementation checklist, WP33, generated WP33 proof artifacts, and hub
+      doc delta queue.
+- [x] Validation commands and results:
+      `npm run test:tracking-plan-evidence-quality-gate-proof` is the focused
+      proof command for this slice and reruns activity-domain, parent-domain,
+      and portal citation checks.
+- [x] Proof artifacts under
+      `test-results/tracking-plan-evidence-quality-gate-proof/` and
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`,
+      including `19-evidence-quality-gate-proof.json` and
+      `20-evidence-quality-gate-validation.log`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and WP33 updated; central capability row delta queued through
+      the hub instead of editing `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: hosted CI for this gate, live
+      device/provider behavior, child-device delivery/runtime UI, full
       parent/child UI beyond the hosted route, Android/iOS physical-device
       proof, authority, provider delivery, notifications, and production proof
       remain proof-gated.
