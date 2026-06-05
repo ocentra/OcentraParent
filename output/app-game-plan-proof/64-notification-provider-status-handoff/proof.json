@@ -2,8 +2,8 @@
   "proofMode": "app-game-notification-provider-status-handoff",
   "generatedAt": "2026-06-05T06:44:00Z",
   "branch": "codex/app-game-notification-provider-status-handoff",
-  "commit": "c92f59818cf91f2daa88502dc604dadac5ac8870",
-  "gitStatusShort": "M  docs/expectations/notifications.md\nM  docs/features/app-game-control.md\nM  docs/features/reports-notifications-sync.md\nM  docs/plans/app-game-plan/implementation-checklist.md\nM  docs/plans/app-game-plan/workpacks/README.md\nM  docs/plans/app-plan/implementation-checklist.md\n?? docs/plans/app-game-plan/workpacks/64-notification-provider-status-handoff.md\n?? docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md\n?? packages/parent-domain/src/app-game-notification-provider-status-handoff.ts\n?? packages/parent-domain/tests/app-game-notification-provider-status-handoff.test.ts\n?? scripts/test/app-game-notification-provider-status-handoff-proof.mjs",
+  "commit": "84c032a72518cde1c3f576bf4b2bcc0a3578e887",
+  "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-provider-status-handoff app-game-notification-provider-preflight v0-8-notification-provider-status-boundary"

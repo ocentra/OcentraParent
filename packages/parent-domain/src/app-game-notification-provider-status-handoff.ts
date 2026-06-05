@@ -105,6 +105,27 @@ export type AppGameNotificationProviderStatusHandoffReadModel = Infer<
   typeof AppGameNotificationProviderStatusHandoffReadModelSchema
 >;
 
+type ProviderStatusHandoffRowInput = Infer<typeof AppGameNotificationProviderStatusHandoffRowBaseSchema>;
+type ProviderStatusBoundaryEntry = ProviderStatusHandoffRowInput['providerStatusBoundaryEntry'];
+type ProviderStatusBoundaryExpectation = Pick<
+  ProviderStatusBoundaryEntry,
+  'providerStatus' | 'statusProofState' | 'quietHoursReadiness' | 'escalationReadiness'
+>;
+
+const UnavailableProviderStatusBoundaryExpectation: ProviderStatusBoundaryExpectation = {
+  providerStatus: 'unavailable',
+  statusProofState: 'provider-unavailable-contract',
+  quietHoursReadiness: 'unavailable',
+  escalationReadiness: 'unavailable',
+};
+
+const ManualRequiredProviderStatusBoundaryExpectation: ProviderStatusBoundaryExpectation = {
+  providerStatus: 'manual-required',
+  statusProofState: 'manual-action-required',
+  quietHoursReadiness: 'manual-required',
+  escalationReadiness: 'manual-required',
+};
+
 export type AppGameNotificationProviderStatusHandoffOptions = {
   readonly generatedAt: string;
   readonly handoffId: string;
@@ -212,32 +233,48 @@ function providerReadinessRefsForRow(row: AppGameNotificationProviderPreflightRo
     : row.adapterRequirementRefs;
 }
 
-function providerStatusHandoffRowIsHonest(
-  row: Infer<typeof AppGameNotificationProviderStatusHandoffRowBaseSchema>
-): boolean {
+function providerStatusHandoffRowIsHonest(row: ProviderStatusHandoffRowInput): boolean {
   const entry = row.providerStatusBoundaryEntry;
-  const providerStatusMatches =
-    row.sourcePreflightStatus === AppGameNotificationProviderPreflightStatus.Unavailable
-      ? entry.providerStatus === 'unavailable' &&
-        entry.statusProofState === 'provider-unavailable-contract' &&
-        entry.quietHoursReadiness === 'unavailable' &&
-        entry.escalationReadiness === 'unavailable'
-      : entry.providerStatus === 'manual-required' &&
-        entry.statusProofState === 'manual-action-required' &&
-        entry.quietHoursReadiness === 'manual-required' &&
-        entry.escalationReadiness === 'manual-required';
 
   return (
-    providerStatusMatches &&
-    entry.providerReceiptRefs.length === 0 &&
+    providerStatusBoundaryMatchesPreflight(row) &&
+    providerStatusBoundaryKeepsDeliveryUnclaimed(entry) &&
     row.manualProofRequirements.length > 0 &&
-    entry.manualProofRequirements.length > 0 &&
-    entry.providerDeliveryImplemented === false &&
-    entry.providerDeliveryObserved === false &&
-    entry.deliveredNotificationClaimed === false &&
-    entry.sensitiveProviderPayloadClaimed === false &&
-    entry.providerStoresChildEvidenceClaimed === false
+    entry.manualProofRequirements.length > 0
   );
+}
+
+function providerStatusBoundaryMatchesPreflight(row: ProviderStatusHandoffRowInput): boolean {
+  const entry = row.providerStatusBoundaryEntry;
+  const expected = providerStatusBoundaryExpectationFor(row.sourcePreflightStatus);
+
+  return (
+    entry.providerStatus === expected.providerStatus &&
+    entry.statusProofState === expected.statusProofState &&
+    entry.quietHoursReadiness === expected.quietHoursReadiness &&
+    entry.escalationReadiness === expected.escalationReadiness
+  );
+}
+
+function providerStatusBoundaryExpectationFor(
+  status: AppGameNotificationProviderPreflightStatus
+): ProviderStatusBoundaryExpectation {
+  if (status === AppGameNotificationProviderPreflightStatus.Unavailable) {
+    return UnavailableProviderStatusBoundaryExpectation;
+  }
+  return ManualRequiredProviderStatusBoundaryExpectation;
+}
+
+function providerStatusBoundaryKeepsDeliveryUnclaimed(entry: ProviderStatusBoundaryEntry): boolean {
+  const deliveryClaims = [
+    entry.providerDeliveryImplemented,
+    entry.providerDeliveryObserved,
+    entry.deliveredNotificationClaimed,
+    entry.sensitiveProviderPayloadClaimed,
+    entry.providerStoresChildEvidenceClaimed,
+  ];
+
+  return entry.providerReceiptRefs.length === 0 && deliveryClaims.every((claim) => claim === false);
 }
 
 function providerStatusHandoffReadModelIsHonest(

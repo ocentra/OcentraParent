@@ -1,21 +1,11 @@
 # app-game WP64 Source Snapshot
 
 - Branch: codex/app-game-notification-provider-status-handoff
-- Commit: c92f59818cf91f2daa88502dc604dadac5ac8870
+- Commit: 84c032a72518cde1c3f576bf4b2bcc0a3578e887
 - Git status at proof generation:
 
 ```text
-M  docs/expectations/notifications.md
-M  docs/features/app-game-control.md
-M  docs/features/reports-notifications-sync.md
-M  docs/plans/app-game-plan/implementation-checklist.md
-M  docs/plans/app-game-plan/workpacks/README.md
-M  docs/plans/app-plan/implementation-checklist.md
-?? docs/plans/app-game-plan/workpacks/64-notification-provider-status-handoff.md
-?? docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md
-?? packages/parent-domain/src/app-game-notification-provider-status-handoff.ts
-?? packages/parent-domain/tests/app-game-notification-provider-status-handoff.test.ts
-?? scripts/test/app-game-notification-provider-status-handoff-proof.mjs
+clean
 ```
 
 - Scope: app/game provider-preflight rows to V0.8 provider-status boundary rows.
