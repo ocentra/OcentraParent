@@ -1,7 +1,7 @@
 # app WP63 Source Snapshot
 
 Branch: codex/app-game-source-freshness-source-panel
-Commit: 7c03a8cacd06f67d743ecc5c74827cacf0092ee7
+Commit: c988e492279e122a1d93e225675a07fbd41d9367
 
 ## Git Status
 ```text

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-source-panel-polish",
-  "checkedAt": "2026-06-05T08:20:25.449Z",
+  "checkedAt": "2026-06-05T08:32:15.911Z",
   "branch": "codex/app-game-source-freshness-source-panel",
-  "commit": "7c03a8cacd06f67d743ecc5c74827cacf0092ee7",
+  "commit": "c988e492279e122a1d93e225675a07fbd41d9367",
   "statusShort": "",
   "commands": [
     {
