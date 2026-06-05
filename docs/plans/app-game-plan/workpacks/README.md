@@ -70,6 +70,7 @@ before `DONE` or PR-ready reporting.
 62. WP67 app/game notification parent surface renderer.
 63. WP68 app/game notification live parent surface read model.
 64. WP70 app/game policy preview handoff.
+65. WP73 app/game platform extension proof-pack readiness.
 
 ## Standard AI Worker Checklist
 
