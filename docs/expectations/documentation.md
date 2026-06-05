@@ -39,6 +39,12 @@ replace the constitution, roadmap, or capability checklist.
   account backend, billing provider runtime, signing/store proof, updater
   execution, support upload, production SLA, legal execution, and child-activity
   custody as gaps until real evidence exists.
+- `public-support-contact-status-proof` may prove public support contact/status
+  source-contract rows, but docs must still label public runtime execution,
+  support backend upload execution, account lookup execution, billing provider
+  contact, remote support sessions, production SLA, legal disclosure execution,
+  provider secrets, and child-activity custody as gaps until real evidence
+  exists.
 - `production-support-backend-upload-status-proof` may prove support upload
   status/read-model rows, redaction/audit refs, retry/abandon refs, and manual
   proof requirements, but docs must still label raw child activity custody,
