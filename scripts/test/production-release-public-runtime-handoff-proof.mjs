@@ -27,6 +27,7 @@ async function main() {
   ]);
 
   const contract = await assertBuiltContract();
+  const packageExports = await assertPublicPackageExports();
   const documentation = await assertDocumentationProof();
   const commit = await gitHead();
   const proof = {
@@ -40,6 +41,7 @@ async function main() {
       values: 'packages/parent-domain/src/production-release-public-runtime-handoff-values.ts',
       readModel: 'packages/parent-domain/src/production-release-public-runtime-handoff-read-model.ts',
       contractTest: 'packages/parent-domain/tests/production-release-public-runtime-handoff.test.ts',
+      packageExports,
       documentation,
       output: relativePath(proofPath),
     },
@@ -109,6 +111,31 @@ async function assertBuiltContract() {
     nonClaims: proof.nonClaims,
     knownGaps: readModelModule.ProductionReleasePublicRuntimeHandoffKnownGaps,
   };
+}
+
+async function assertPublicPackageExports() {
+  const contractModule = await import('@ocentra-parent/parent-domain/production-release-public-runtime-handoff');
+  const readModelModule =
+    await import('@ocentra-parent/parent-domain/production-release-public-runtime-handoff-read-model');
+  const valuesModule = await import('@ocentra-parent/parent-domain/production-release-public-runtime-handoff-values');
+
+  assert.equal(typeof contractModule.decodeProductionReleasePublicRuntimeHandoffProof, 'function');
+  assert.ok(contractModule.ProductionReleasePublicRuntimeHandoffProofSchema);
+  assert.ok(readModelModule.ProductionReleasePublicRuntimeHandoffReadModel);
+  assert.deepEqual(valuesModule.RequiredPublicRuntimeSurfaces, [
+    'public-download',
+    'release-status',
+    'update-status',
+    'account-status',
+    'subscription-status',
+    'support-status',
+  ]);
+
+  return [
+    '@ocentra-parent/parent-domain/production-release-public-runtime-handoff',
+    '@ocentra-parent/parent-domain/production-release-public-runtime-handoff-read-model',
+    '@ocentra-parent/parent-domain/production-release-public-runtime-handoff-values',
+  ];
 }
 
 async function assertDocumentationProof() {
