@@ -66,6 +66,7 @@ before `DONE` or PR-ready reporting.
 57. WP64 app/game notification provider status handoff.
 58. WP65 app/game notification parent preference status handoff.
 59. WP66 app/game notification parent surface intent.
+60. WP67 app/game notification parent surface renderer.
 
 ## Standard AI Worker Checklist
 
