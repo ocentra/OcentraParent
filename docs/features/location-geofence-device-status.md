@@ -155,6 +155,13 @@ expose location or device-status features. Parents expect this category.
   simulator build and simctl install/launch smoke. On non-macOS hosts it writes
   explicit `manual_required` proof instead of pretending simulator execution
   happened.
+- WP31 platform manual-state proof now exists through
+  `node scripts/test/tracking-platform-manual-state-proof.mjs`. It validates
+  schema-backed Android, iOS, desktop, Linux, web, emulator-scaffold, and
+  child-runtime delivery rows that render as manual-required, unavailable,
+  not-claimed, or scaffold-only states with `productClaimReady=false`, and
+  writes proof under
+  `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, actual child-device delivery/runtime
   execution, full parent/child UI beyond the hosted parent route, and broader
@@ -178,12 +185,12 @@ tracking alert-to-provider-status handoff proof, P1 escalation readiness proof
 for acknowledgement/check-in/manual escalation states, WP28 temporary live
 tracking mode proof for authorization/duration/cadence/degraded/auto-stop/
 retention states, and WP20 Google Places/POI provider request/response mapping
-proof. It remains a tracked
-product gap until platform location and geofence adapters, broader product read
-models, actual live provider execution/delivery, notification receipt ingestion,
-physical-device proof, actual child-device delivery/runtime execution, and full
-parent/child UI snapshots/accessibility beyond the hosted parent route are
-proved.
+proof, and WP31 platform manual-state proof for unsupported/manual-required/
+not-claimed display states. It remains a tracked product gap until platform
+location and geofence adapters, broader product read models, actual live provider
+execution/delivery, notification receipt ingestion, physical-device proof,
+actual child-device delivery/runtime execution, and full parent/child UI
+snapshots/accessibility beyond the hosted parent route are proved.
 
 ## Checklist
 

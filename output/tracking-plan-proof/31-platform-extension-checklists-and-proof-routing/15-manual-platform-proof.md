@@ -1,4 +1,23 @@
-# 31-platform-extension-checklists-and-proof-routing Manual Platform Proof
+# WP31 Platform Manual State Proof
 
-This focused proof does not claim Android/iOS background tracking, foreground samples, real geofence delivery, provider delivery, UI completion, or precise desktop location.
-Platform rows remain manual-required or real-device-required until real device, entitlement, permission, store/privacy, and screenshot evidence is attached.
+- checkedAt: 2026-06-05T18:32:43.486Z
+- commit: ba88c8d8185dd55f6f8936ff9fac7bc753d40fe9
+- proofTier: P1_FIXTURE_SIMULATION
+- status: manual_required
+- productClaimReady: false
+
+## Summary
+
+- rows: 12
+- manualRequired: 6
+- unavailable: 2
+- notClaimed: 3
+- scaffoldObserved: 1
+
+## Non Claims
+
+- No Android foreground/background location sample claim
+- No Android or iOS physical-device proof claim
+- No iOS Core Location entitlement or region-monitoring claim
+- No child-device runtime delivery claim
+- No web child-agent execution claim

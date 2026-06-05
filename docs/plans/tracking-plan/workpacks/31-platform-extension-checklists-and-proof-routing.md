@@ -24,12 +24,13 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
 - `18-ios-simulator-proof.json`
+- `22-platform-manual-state-proof.json`
 
 ## AI Worker Checklist
 
-- [ ] Maintain Android extension rows.
-- [ ] Maintain iOS extension rows.
-- [ ] Maintain desktop extension rows.
+- [x] Maintain Android extension rows.
+- [x] Maintain iOS extension rows.
+- [x] Maintain desktop extension rows.
 - [ ] Add managed-device proof only when real enrollment/control exists.
 - [ ] Keep CI/package proof separate from real device capability proof.
 - [x] Route iOS simulator package build/install/launch proof separately from
@@ -54,6 +55,15 @@ iOS simulator build/install/launch smoke. It keeps Core Location,
 background/region, notification, entitlement, signing, TestFlight/App Store,
 physical-device, and authority behavior as separate manual-required claims.
 
+WP31 platform manual-state proof now exists through
+`node scripts/test/tracking-platform-manual-state-proof.mjs`. It validates
+schema-backed Android, iOS, Windows, macOS, Linux, web, emulator-scaffold, and
+child-runtime delivery rows that render as manual-required, unavailable,
+not-claimed, or scaffold-only states with `productClaimReady=false`. The proof
+is recorded in
+`output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json`
+and `test-results/tracking-platform-manual-state-proof/proof.json`.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.
@@ -69,7 +79,10 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md
 - docs/plans/tracking-plan/implementation-checklist.md
+- packages/parent-domain/src/tracking-platform-manual-state-proof.ts
+- packages/parent-domain/tests/tracking-platform-manual-state-proof.test.ts
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
+- scripts/test/tracking-platform-manual-state-proof.mjs
 - `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`
 - Implementation paths listed by the worker before editing.
 
@@ -100,3 +113,22 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Known gaps/manual-required states: Core Location, background/region,
       notifications, entitlements, signing/TestFlight/App Store, physical-device,
       authority, and production proof remain unclaimed.
+- [x] Workpack id and branch:
+      `codex/tracking-platform-manual-state-proof`.
+- [x] Touched files: tracking platform manual-state parent-domain proof module,
+      focused Vitest coverage, proof harness, tracking feature doc,
+      implementation checklist, WP31, and generated WP31 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-platform-manual-state-proof.mjs` passes
+      locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json`
+      and `test-results/tracking-platform-manual-state-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and WP31 updated; central capability checklist row delta queued
+      through the hub because another lane owns
+      `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: Android foreground/background location,
+      Android/iOS physical-device proof, iOS Core Location/region proof,
+      child-device runtime delivery, web child-agent execution, authority, and
+      production proof remain unclaimed.

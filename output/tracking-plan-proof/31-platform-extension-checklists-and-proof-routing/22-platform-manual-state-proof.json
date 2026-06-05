@@ -1,0 +1,180 @@
+{
+  "checkedAt": "2026-06-05T18:32:43.486Z",
+  "commit": "ba88c8d8185dd55f6f8936ff9fac7bc753d40fe9",
+  "workpackId": "31-platform-extension-checklists-and-proof-routing",
+  "proofTier": "P1_FIXTURE_SIMULATION",
+  "status": "manual_required",
+  "productClaimReady": false,
+  "rows": [
+    {
+      "schemaVersion": "v0.5-tracking",
+      "platform": "android",
+      "capability": "background-location",
+      "proofState": "manual-required",
+      "displayState": "show-manual-required",
+      "reason": "android-physical-background-proof-missing",
+      "proofArtifactRefs": [
+        "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "platform": "android",
+      "capability": "geofence-transition",
+      "proofState": "manual-required",
+      "displayState": "show-manual-required",
+      "reason": "android-physical-background-proof-missing",
+      "proofArtifactRefs": [
+        "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "platform": "android",
+      "capability": "device-status",
+      "proofState": "scaffold-observed",
+      "displayState": "show-scaffold-only",
+      "reason": "emulator-scaffold-not-physical-proof",
+      "proofArtifactRefs": [
+        "test-results/tracking-plan-android-emulator-proof/proof.json"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "platform": "ios",
+      "capability": "foreground-location",
+      "proofState": "manual-required",
+      "displayState": "show-manual-required",
+      "reason": "ios-core-location-entitlement-proof-missing",
+      "proofArtifactRefs": [
+        "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "platform": "ios",
+      "capability": "background-location",
+      "proofState": "manual-required",
+      "displayState": "show-manual-required",
+      "reason": "ios-core-location-entitlement-proof-missing",
+      "proofArtifactRefs": [
+        "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "platform": "ios",
+      "capability": "geofence-transition",
+      "proofState": "manual-required",
+      "displayState": "show-manual-required",
+      "reason": "ios-core-location-entitlement-proof-missing",
+      "proofArtifactRefs": [
+        "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "platform": "windows",
+      "capability": "foreground-location",
+      "proofState": "not-claimed",
+      "displayState": "show-not-claimed",
+      "reason": "desktop-precise-location-not-implemented",
+      "proofArtifactRefs": [
+        "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "platform": "macos",
+      "capability": "foreground-location",
+      "proofState": "manual-required",
+      "displayState": "show-manual-required",
+      "reason": "desktop-precise-location-not-implemented",
+      "proofArtifactRefs": [
+        "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "platform": "linux",
+      "capability": "foreground-location",
+      "proofState": "unavailable",
+      "displayState": "show-unavailable",
+      "reason": "desktop-precise-location-not-implemented",
+      "proofArtifactRefs": [
+        "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "platform": "web",
+      "capability": "child-runtime-delivery",
+      "proofState": "unavailable",
+      "displayState": "show-unavailable",
+      "reason": "web-child-agent-not-supported",
+      "proofArtifactRefs": [
+        "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "platform": "android",
+      "capability": "child-runtime-delivery",
+      "proofState": "not-claimed",
+      "displayState": "show-not-claimed",
+      "reason": "child-runtime-delivery-not-proved",
+      "proofArtifactRefs": [
+        "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "platform": "ios",
+      "capability": "child-runtime-delivery",
+      "proofState": "not-claimed",
+      "displayState": "show-not-claimed",
+      "reason": "child-runtime-delivery-not-proved",
+      "proofArtifactRefs": [
+        "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json"
+      ],
+      "productClaimReady": false
+    }
+  ],
+  "summary": {
+    "schemaVersion": "v0.5-tracking",
+    "workpackId": "31-platform-extension-checklists-and-proof-routing",
+    "productClaimReady": false,
+    "rowCount": 12,
+    "manualRequiredCount": 6,
+    "unavailableCount": 2,
+    "notClaimedCount": 3,
+    "scaffoldObservedCount": 1,
+    "fakeCapabilityRows": [],
+    "proofArtifactRefs": [
+      "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-platform-manual-state-proof.json",
+      "test-results/tracking-plan-android-emulator-proof/proof.json"
+    ]
+  },
+  "validationCommands": [
+    "cmd /c npm --workspace @ocentra-parent/parent-domain run build",
+    "cmd /c npm --workspace @ocentra-parent/parent-domain run test -- tracking-platform-manual-state-proof"
+  ],
+  "nonClaims": [
+    "No Android foreground/background location sample claim",
+    "No Android or iOS physical-device proof claim",
+    "No iOS Core Location entitlement or region-monitoring claim",
+    "No child-device runtime delivery claim",
+    "No web child-agent execution claim"
+  ]
+}
