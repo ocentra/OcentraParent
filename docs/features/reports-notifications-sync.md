@@ -115,6 +115,11 @@ custody.
   parent preference, frequency-control, and quiet-hours proof refs, while
   keeping manual-required and unavailable rows blocked before parent controls or
   delivery.
+- App/game notification provider-status handoff proof now maps those provider
+  preflight rows into existing V0.8 provider-status boundary rows for
+  manual-required and unavailable states, preserving scheduler/outbox/provider
+  refs while keeping delivery, receipt, credential, runtime, UI, child delivery,
+  adapter dispatch, broad-blocking, and platform claims false.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -201,6 +206,12 @@ claim parent preference UI, frequency controls, provider delivery, receipt
 ingestion, credentials, production retry workers, production quiet-hours timer
 execution, durable production outbox storage, child delivery, adapter dispatch,
 broad blocking, or platform support.
+The app/game notification provider-status handoff proof adds deterministic
+provider-preflight-to-provider-status rows for app/game alerts, but does not
+claim provider delivery, receipt ingestion, credentials, production retry
+workers, production quiet-hours timer execution, durable production outbox
+storage, parent UI/history/preferences, child delivery, adapter dispatch, broad
+blocking, or platform support.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
@@ -290,6 +301,10 @@ delivery, policy writes, or child-device enforcement.
       app/game scheduler rows becoming parent-preference-required rows, while
       manual-required and unavailable rows stay blocked and no parent UI,
       delivery, receipt, credential, child, or adapter-dispatch claims are made.
+- [x] App/game notification provider-status handoff proof exists with provider
+      preflight rows becoming V0.8 provider-status manual-required/unavailable
+      rows, while delivery, receipts, credentials, runtime, UI, child delivery,
+      adapter dispatch, broad blocking, and platform claims remain false.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
