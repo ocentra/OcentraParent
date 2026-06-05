@@ -15,6 +15,10 @@ import type {
   AgentActivityTrackingReadModel,
   AgentActivityTrackingReadModelRow,
 } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
+import {
+  trackingChildCheckInProof,
+  type TrackingChildCheckInProof,
+} from './tracking-child-check-in-proof';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 import { renderDashboard } from './portal-dashboard';
@@ -218,6 +222,7 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
     for (const citation of liveSummary.citations) {
       dashboard.append(renderTrackingStatusLiveCitation(citation));
     }
+    dashboard.append(renderTrackingChildCheckInProof(trackingChildCheckInProof()));
     for (const proofRow of trackingStatusProofRows()) {
       dashboard.append(renderTrackingStatusRow(proofRow));
     }
@@ -324,6 +329,35 @@ function renderTrackingStatusLiveCitation(citation: TrackingStatusLiveCitation):
   appendDetail(metadata, PortalDetails.ProductClaim, toDetail(citation.productClaim));
 
   panel.append(title, metadata);
+  return panel;
+}
+
+function renderTrackingChildCheckInProof(proof: TrackingChildCheckInProof): HTMLElement {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+  panel.setAttribute(PortalDom.Attributes.DataTrackingProof, PortalDom.Attributes.TrackingProofChildCheckIn);
+
+  const title = document.createElement(PortalDom.Tags.HeadingTwo);
+  title.textContent = proof.title;
+
+  const body = document.createElement(PortalDom.Tags.Paragraph);
+  body.className = PortalDom.Classes.CommandResultEmpty;
+  body.textContent = proof.body;
+
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendDetail(metadata, PortalDetails.ChildCopy, toDetail(proof.copyBoundary));
+  appendDetail(metadata, PortalDetails.ChildSafeAction, toDetail(proof.safeAction));
+  appendDetail(metadata, PortalDetails.ChildHelpAction, toDetail(proof.helpAction));
+  appendDetail(metadata, PortalDetails.ChildShareLocationAction, toDetail(proof.shareLocationAction));
+  appendDetail(metadata, PortalDetails.ChildCallParentAction, toDetail(proof.callParentAction));
+  appendDetail(metadata, PortalDetails.ChildDelivery, toDetail(proof.deliveryBoundary));
+  appendDetail(metadata, PortalDetails.ProofTier, toDetail(proof.proofTier));
+  appendDetail(metadata, PortalDetails.EvidenceReferences, toDetail(proof.evidence));
+  appendDetail(metadata, PortalDetails.RuntimeReference, toDetail(proof.proofArtifact));
+  appendDetail(metadata, PortalDetails.MissingProof, toDetail(proof.missingProof));
+  appendDetail(metadata, PortalDetails.ProductClaim, toDetail(proof.productClaim));
+
+  panel.append(title, body, metadata);
   return panel;
 }
 
