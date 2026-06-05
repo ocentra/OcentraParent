@@ -49,6 +49,12 @@ mobile readiness, and control catalogs.
   account-status review, billing escalation request, provider-contact/manual,
   entitlement-admin-override/manual, refund-credit/manual states, redaction
   audit refs, and no provider/backend/admin runtime claims.
+- `production-support-publication-workflow-proof` contracts for public privacy
+  policy publication, privacy/legal disclosure execution, support runbook
+  publication, support incident status publication, support backend upload
+  publication handoff, and public support contact publication while keeping real
+  public runtime, support upload execution, account lookup, billing contact,
+  production SLA, legal execution, remote support, and child custody unclaimed.
 - Parent-owned sync/export and stateless report compiler status contracts for
   parent-authorized remote compilation from parent-owned storage, source
   connector/cursor refs, requested data classes and time windows, temp TTL and
@@ -200,6 +206,10 @@ flowchart LR
   remain unimplemented; current contracts keep billing outside core safety
   decisions, prove local status consumption of entitlement/device-limit/failure
   state, and keep support/admin actions manual-required or not implemented.
+- `production-support-publication-workflow-proof` remains source-contract proof
+  only; real public runtime, support backend upload execution, account lookup
+  execution, billing provider contact, legal disclosure execution, production
+  SLA, remote support sessions, and child activity custody remain unclaimed.
 - Parent-owned sync/export and stateless report compiler proofs remain
   contract/status proof only; real compiler runtime/cloud worker, connector
   OAuth/provider APIs, portal controls/UI, upload/download, deletion execution,
