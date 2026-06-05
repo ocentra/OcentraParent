@@ -471,6 +471,7 @@ describe('portal command contracts', () => {
       'agent.activity.app-use.read-model.get',
       'agent.activity.browser.read-model.get',
       'agent.activity.games.read-model.get',
+      'agent.activity.app-game.notification-readiness.read-model.get',
       'agent.activity.network.read-model.get',
       'agent.browser.intervention.read-model.get',
       'agent.network.flow.read-model.get',
