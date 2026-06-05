@@ -82,6 +82,15 @@ dev-only repo when it claims consumer readiness.
   keystrokes, clipboard data, message contents, provider secrets, backend upload
   execution, billing provider contact, account lookup execution, remote support
   sessions, production SLA claims, and Ocentra-hosted child activity custody.
+- `production-support-backend-upload-status-proof` adds logging-domain support
+  backend upload status rows for parent-initiated and parent-consented queued,
+  running, succeeded, failed, manual-required, backend-unavailable, and
+  provider-unavailable states. It proves redaction and audit refs, retry-queued
+  and retry-exhausted rows, parent/operator abandon refs, manual proof
+  requirements, package/runtime refs, and support-safe status payloads while
+  rejecting raw child activity custody, provider secrets, remote support
+  transcripts, real backend upload execution, account lookup execution, billing
+  provider execution, and default Ocentra-hosted family data.
 - `mobile-child-agent-capability-proof` adds package/runtime hook evidence for
   Android debug APK/checksum, Android package-local status, Android device
   install/manual Play signing, iOS Xcode target, iOS simulator status, iOS
@@ -267,6 +276,16 @@ package/runtime proof.
       billing provider contact, remote support sessions, production SLA, public
       privacy policy publication, and Ocentra-hosted child activity custody
       remain unimplemented/unclaimed.
+- [ ] Production support backend upload status boundary proof. Current
+      `production-support-backend-upload-status-proof` covers parent-initiated
+      and parent-consented support upload queued, running, succeeded, failed,
+      manual-required, backend-unavailable, and provider-unavailable status
+      rows. It proves redaction/audit refs, retry-queued and retry-exhausted
+      behavior, abandon refs, manual proof requirements, and package/runtime
+      refs while keeping raw child activity custody, provider secrets, remote
+      support transcripts, real backend upload execution, account lookup
+      execution, billing provider execution, default Ocentra-hosted family data,
+      and production SLA unclaimed.
 - [ ] Public website/download/account/status surfaces. Current
       `production-release-public-status-proof` records public download, release
       status, update status, account status, subscription status, and support

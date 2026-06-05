@@ -25,6 +25,14 @@
       "import": "./dist/support-bundle-redaction-read-model.js",
       "types": "./dist/support-bundle-redaction-read-model.d.ts"
     },
+    "./support-backend-upload-status": {
+      "import": "./dist/support-backend-upload-status.js",
+      "types": "./dist/support-backend-upload-status.d.ts"
+    },
+    "./support-backend-upload-status-read-model": {
+      "import": "./dist/support-backend-upload-status-read-model.js",
+      "types": "./dist/support-backend-upload-status-read-model.d.ts"
+    },
     "./support-incident-workflow": {
       "import": "./dist/support-incident-workflow.js",
       "types": "./dist/support-incident-workflow.d.ts"
