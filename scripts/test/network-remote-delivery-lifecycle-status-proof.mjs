@@ -39,6 +39,11 @@ writeFileSync(
         'crossProcessReplayImplemented=false',
         'remoteRetentionDeleteExportPropagationImplemented=false',
       ],
+      parserInvariants: [
+        'remote lifecycle missing-artifact count matches the three manual-required blocker refs',
+        'broker and family-hub requirements-satisfied statuses cannot carry missing requirement counts',
+        'local idempotency queue and duplicate rejection proof must remain present',
+      ],
       noClaims: [
         'live broker delivery',
         'live family-hub relay delivery',
@@ -197,6 +202,7 @@ const proof = {
     'agent-core proof reports cross-process replay, remote retention/delete/export, delivery ack, and follow-up refs without implementation claims',
     'Rust service product-readiness event exposes row10d lifecycle fields through the existing typed status payload',
     'agent-protocol-domain parser requires the row10d fields and literal false/zero authority/action claims',
+    'agent-protocol-domain parser rejects row10d lifecycle count/ref mismatches and duplicate-proof regressions',
     'Activity route renders lifecycle blocker refs and manual-required state from the real Rust service WebSocket path',
   ],
   notClaimed: [
@@ -237,10 +243,14 @@ function assertSourceContracts() {
     [coreStatus, 'remote_lifecycle_missing_artifact_count: 3'],
     [servicePayload, 'TEST_REMOTE_LIFECYCLE_DELIVERY_ACK_REF'],
     [parser, 'remote_lifecycle_manual_required: Schema.Literal(true)'],
+    [parser, 'remoteDeliveryLifecycleBlockersMatch'],
+    [parser, 'NetworkRemoteLifecycleBlockerCount'],
     [portalSummary, 'remoteLifecycleBlockerRefs'],
     [portalCard, 'remoteLifecycleManualRequired'],
     [portalSpec, 'broker.network.cross-process-replay.manual-required.10d'],
     [featureDoc, 'network-remote-delivery-lifecycle-status-proof'],
+    [checklist, 'Workpack 10 rollup: row10d'],
+    [checklist, 'parser invariants that reject lifecycle missing-artifact count mismatches'],
     [checklist, '10d remote delivery lifecycle blocker status'],
     [workpacks, '10d'],
   ];

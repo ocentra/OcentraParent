@@ -16,6 +16,7 @@ const NetworkRemoteDeliveryStatusStateSchema = Schema.Literal(
   'RequirementsSatisfiedButNotImplemented',
   'ManualRequired'
 );
+const NetworkRemoteLifecycleBlockerCount = 3;
 const NetworkLocalAiRuntimeResultBridgeStateSchema = Schema.Literal(
   'ResultReady',
   'RuntimeUnavailable',
@@ -401,9 +402,9 @@ export function parseAgentNetworkProductReadinessStatusEvent(
     return parsedLocalAiRuntimeResult;
   }
 
-  const parsedRemoteDelivery = AgentNetworkRemoteDeliveryStatusSchema.safeParse(remoteDeliveryStatus.value);
-  if (!parsedRemoteDelivery.success) {
-    return parserFailure('invalid-remote-delivery-status');
+  const parsedRemoteDelivery = parseRemoteDeliveryStatus(remoteDeliveryStatus.value);
+  if (!parsedRemoteDelivery.ok) {
+    return parsedRemoteDelivery;
   }
 
   return {
@@ -492,6 +493,58 @@ function nonCompleteRuntimeShapeMatches(status: AgentNetworkLocalAiRuntimeResult
     status.output_summary_ref === null &&
     status.audit_input_ready === false &&
     status.local_model_output_available === false
+  );
+}
+
+function parseRemoteDeliveryStatus(value: unknown):
+  | {
+      readonly ok: true;
+      readonly data: AgentNetworkRemoteDeliveryStatus;
+    }
+  | Extract<AgentNetworkProductReadinessStatusParseResult, { readonly ok: false }> {
+  const parsed = AgentNetworkRemoteDeliveryStatusSchema.safeParse(value);
+  if (!parsed.success || !remoteDeliveryShapeMatches(parsed.data)) {
+    return parserFailure('invalid-remote-delivery-status');
+  }
+  return { ok: true, data: parsed.data };
+}
+
+function remoteDeliveryShapeMatches(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  return (
+    remoteDeliveryRequirementCountsMatch(status) &&
+    remoteDeliveryLifecycleBlockersMatch(status) &&
+    remoteDeliveryLocalProofMatches(status)
+  );
+}
+
+function remoteDeliveryRequirementCountsMatch(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  return (
+    (status.broker_status !== 'RequirementsSatisfiedButNotImplemented' || status.broker_missing_artifact_count === 0) &&
+    (status.family_hub_status !== 'RequirementsSatisfiedButNotImplemented' ||
+      status.family_hub_missing_artifact_count === 0)
+  );
+}
+
+function remoteDeliveryLifecycleBlockersMatch(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  const lifecycleBlockerRefs = [
+    status.cross_process_replay_ref,
+    status.remote_retention_delete_export_ref,
+    status.remote_delivery_ack_ref,
+  ];
+  return (
+    status.remote_lifecycle_missing_artifact_count === NetworkRemoteLifecycleBlockerCount &&
+    status.remote_lifecycle_missing_artifact_count === lifecycleBlockerRefs.length &&
+    lifecycleBlockerRefs.every((ref) => ref.includes('manual-required'))
+  );
+}
+
+function remoteDeliveryLocalProofMatches(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  return (
+    status.accepted_event_type_count > 0 &&
+    status.local_idempotency_queue_proved === true &&
+    status.dropped_event_dead_letter_count > 0 &&
+    status.queued_duplicate_rejected === true &&
+    status.completed_duplicate_rejected === true
   );
 }
 
