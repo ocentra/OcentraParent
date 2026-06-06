@@ -5,6 +5,7 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
+    activity_api::social_audit_explanation_read_model_payload::build_browser_social_audit_explanation_read_model_report,
     activity_api::social_dashboard_read_model_payload::build_browser_social_dashboard_read_model_report,
     activity_api::{
         build_activity_app_game_boundary_read_model_report,
@@ -189,6 +190,7 @@ async fn build_command_event(
         | AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet
         | AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet
         | AgentCommandName::AgentBrowserSocialDashboardReadModelGet
+        | AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet
         | AgentCommandName::AgentActivityNetworkReadModelGet
         | AgentCommandName::AgentActivityTrackingReadModelGet => {
             build_activity_command_report(command).await
@@ -332,6 +334,9 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         }
         AgentCommandName::AgentBrowserSocialDashboardReadModelGet => {
             build_browser_social_dashboard_read_model_report(command).await
+        }
+        AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet => {
+            build_browser_social_audit_explanation_read_model_report(command).await
         }
         AgentCommandName::AgentActivityNetworkReadModelGet => {
             build_activity_network_read_model(command).await

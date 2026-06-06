@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-audit-explanation-service-read-model",
+  "checkedAt": "2026-06-06T07:10:35.541Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "e00dbe6d035225cc874e1174a09cc75a5c7c1923",
+  "commands": [
+    {
+      "command": "cmd /c npm run build:contracts",
+      "startedAt": "2026-06-06T07:10:16.195Z",
+      "finishedAt": "2026-06-06T07:10:30.480Z",
+      "exitCode": 0,
+      "stdoutTail": [
+        "> @ocentra-parent/workspace@0.1.1 build:contracts",
+        "> npm run build --workspace @ocentra-parent/schema-domain && npm run build --workspace @ocentra-parent/logging-domain && npm run build --workspace @ocentra-parent/parent-domain && npm run build --workspace @ocentra-parent/activity-domain && npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain",
+        "> @ocentra-parent/schema-domain@0.1.1 build",
+        "> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+        "> @ocentra-parent/logging-domain@0.1.1 build",
+        "> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+        "> @ocentra-parent/parent-domain@0.1.1 build",
+        "> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+        "> @ocentra-parent/activity-domain@0.1.1 build",
+        "> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+        "> @ocentra-parent/agent-protocol-domain@0.1.1 build",
+        "> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+        "> @ocentra-parent/text-domain@0.1.1 build",
+        "> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+        "> @ocentra-parent/portal-domain@0.1.1 build",
+        "> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist"
+      ],
+      "stderrTail": []
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-audit-explanation-read-model.test.ts",
+      "startedAt": "2026-06-06T07:10:30.480Z",
+      "finishedAt": "2026-06-06T07:10:32.449Z",
+      "exitCode": 0,
+      "stdoutTail": [
+        "> @ocentra-parent/parent-domain@0.1.1 test",
+        "> vitest run social-audit-explanation-read-model.test.ts",
+        " RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-d/OcentraParent/packages/parent-domain",
+        " Test Files  1 passed (1)",
+        "      Tests  4 passed (4)",
+        "   Start at  03:10:31",
+        "   Duration  837ms (transform 104ms, setup 0ms, import 576ms, tests 24ms, environment 0ms)"
+      ],
+      "stderrTail": []
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- social-audit-explanation-read-model.test.ts contracts.test.ts",
+      "startedAt": "2026-06-06T07:10:32.450Z",
+      "finishedAt": "2026-06-06T07:10:34.544Z",
+      "exitCode": 0,
+      "stdoutTail": [
+        "> @ocentra-parent/agent-protocol-domain@0.1.1 test",
+        "> vitest run social-audit-explanation-read-model.test.ts contracts.test.ts",
+        " RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-d/OcentraParent/packages/agent-protocol-domain",
+        " Test Files  5 passed (5)",
+        "      Tests  35 passed (35)",
+        "   Start at  03:10:33",
+        "   Duration  1.08s (transform 959ms, setup 0ms, import 3.96s, tests 92ms, environment 1ms)"
+      ],
+      "stderrTail": []
+    },
+    {
+      "command": "cargo test -p ocentra-parent-agent-protocol social_audit_explanation",
+      "startedAt": "2026-06-06T07:10:34.544Z",
+      "finishedAt": "2026-06-06T07:10:34.931Z",
+      "exitCode": 0,
+      "stdoutTail": [
+        "running 1 test",
+        "test social_audit_explanation_read_model_tests::social_audit_explanation_snapshot_serializes_without_runtime_claims ... ok",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 184 filtered out; finished in 0.00s"
+      ],
+      "stderrTail": [
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s",
+        "     Running unittests src\\lib.rs (target\\debug\\deps\\ocentra_parent_agent_protocol-8fbcfdb9341ad4a5.exe)"
+      ]
+    },
+    {
+      "command": "cargo test -p ocentra-parent-agent-service social_audit_explanation",
+      "startedAt": "2026-06-06T07:10:34.931Z",
+      "finishedAt": "2026-06-06T07:10:35.541Z",
+      "exitCode": 0,
+      "stdoutTail": [
+        "running 2 tests",
+        "test activity_api::social_audit_explanation_read_model_payload_tests::social_audit_explanation_payload_reports_six_honest_service_rows ... ok",
+        "test activity_api::social_audit_explanation_read_model_service_tests::social_audit_explanation_command_reports_service_backed_snapshot_rows ... ok",
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 267 filtered out; finished in 0.00s"
+      ],
+      "stderrTail": [
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s",
+        "     Running unittests src\\main.rs (target\\debug\\deps\\ocentra_parent_agent_service-f9b64d6b8709d212.exe)"
+      ]
+    }
+  ],
+  "summary": {
+    "command": "agent.browser.social-audit-explanation.read-model.get",
+    "event": "agent.browser.social-audit-explanation.read-model.reported",
+    "payloadField": "browserSocialAuditExplanationReadModel",
+    "rowCount": 6,
+    "subjects": [
+      "account-approval",
+      "feed-video-gate",
+      "native-app-gap",
+      "connector-boundary",
+      "decision-memory",
+      "manual-required-gap"
+    ],
+    "serviceBackedExplanationDelivery": true,
+    "runtimeAuditStoreClaimed": false,
+    "notificationDeliveryClaimed": false,
+    "connectorAuthorizationClaimed": false,
+    "nativeAppControlClaimed": false,
+    "finalPolicyDecisionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "claimsProved": [
+    "TypeScript protocol exposes the dedicated social audit explanation command, event, and payload field",
+    "Parent-domain schema accepts exactly the six ref-only audit/explanation subjects and rejects hidden runtime claims",
+    "Rust protocol serializes the social audit explanation snapshot with runtime, final policy, and enforcement claims false",
+    "Agent service answers the WebSocket command with a service-built six-row snapshot payload",
+    "Portal Browser route can request the service-backed snapshot and falls back to the proof bundle when no event is present"
+  ],
+  "claimsNotProved": [
+    "runtime audit store persistence",
+    "notification delivery",
+    "raw account, video, or message content capture",
+    "connector authorization",
+    "native app control",
+    "final policy execution",
+    "enforcement",
+    "product checklist completion or release readiness"
+  ],
+  "evidence": {
+    "protocolContracts": "packages/agent-protocol-domain/src/contracts.ts",
+    "protocolDefaults": "packages/agent-protocol-domain/src/defaults.ts",
+    "protocolTest": "packages/agent-protocol-domain/tests/social-audit-explanation-read-model.test.ts",
+    "parentDomain": "packages/parent-domain/src/social-audit-explanation-read-model.ts",
+    "rustProtocol": "crates/agent-protocol/src/social_audit_explanation_read_model.rs",
+    "rustProtocolTest": "crates/agent-protocol/src/social_audit_explanation_read_model_tests.rs",
+    "servicePayload": "crates/agent-service/src/activity_api/social_audit_explanation_read_model_payload.rs",
+    "servicePayloadTest": "crates/agent-service/src/activity_api/social_audit_explanation_read_model_payload_tests.rs",
+    "serviceWebSocketTest": "crates/agent-service/src/activity_api/social_audit_explanation_read_model_service_tests.rs",
+    "portalRoute": "apps/portal/src/SocialAuditExplanationRoutePanel.tsx",
+    "harness": "scripts/test/social-audit-explanation-service-proof.mjs",
+    "proofPack": "output/browser-plan-proof/social-22-audit-explanation-read-model"
+  }
+}

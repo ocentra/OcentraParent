@@ -13,6 +13,8 @@ pub const APP_GAME_POLICY_READINESS_READ_MODEL: &str = "appGamePolicyReadinessRe
 pub const APP_GAME_NOTIFICATION_READINESS_READ_MODEL: &str =
     "appGameNotificationReadinessReadModel";
 pub const BROWSER_SOCIAL_DASHBOARD_READ_MODEL: &str = "browserSocialDashboardReadModel";
+pub const BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL: &str =
+    "browserSocialAuditExplanationReadModel";
 pub const ACTIVITY_TRACKING_READ_MODEL: &str = "trackingReadModel";
 pub const ACTIVE_TAB_CAPABILITY: &str = "activeTabCapability";
 pub const ACTIVE_PROOF_SOURCE: &str = "activeProofSource";
