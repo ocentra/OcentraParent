@@ -66,8 +66,8 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-provider-store-report-status-proof',
     commands,
-    packageExportState: 'pending-avoids-active-pr405-package-export-overlap',
-    docsState: 'pending-avoids-active-pr405-feature-checklist-readme-overlap',
+    packageExportState: 'pending-current-package-json-lock-codex-b',
+    docsState: 'feature-expectation-docs-covered-checklist-readme-sequenced-behind-current-locks',
     evidence: {
       providerStoreReportStatusContract:
         'packages/parent-domain/src/app-install-purchase-provider-store-report-status-proof.ts',
@@ -77,13 +77,14 @@ async function main() {
         'packages/parent-domain/src/app-install-purchase-approval-report-domain-proof.ts',
       contractTest: 'packages/parent-domain/tests/app-install-purchase-provider-store-report-status-proof.test.ts',
       featureDocDeferred:
-        'docs/features/app-install-purchase-approval.md deferred because PR405 owns active app-install doc deltas.',
+        'docs/features/app-install-purchase-approval.md already records provider/store report status proof coverage.',
       expectationDocDeferred:
-        'docs/expectations/app-install-purchase-approval.md deferred because PR405 owns active app-install doc deltas.',
+        'docs/expectations/app-install-purchase-approval.md already records provider/store report status proof coverage.',
       checklistRowDeferred:
-        'docs/product-capability-checklist.md Install/purchase approval row deferred because PR405 owns active checklist delta.',
+        'docs/product-capability-checklist.md Install/purchase approval row update sequenced behind current E-C checklist lock.',
       packageExportDeferred:
-        'packages/parent-domain/package.json export deferred because PR405 owns active parent-domain package export delta.',
+        'packages/parent-domain/package.json export deferred behind current codex-b package export lock.',
+      readmeDeferred: 'packages/parent-domain/README.md update sequenced behind current codex-c README lock.',
       output: relative(repoRoot, proofPath),
     },
     providerStoreReportStatusSummary: summary,

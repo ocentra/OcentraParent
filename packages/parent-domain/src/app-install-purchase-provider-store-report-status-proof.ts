@@ -143,7 +143,7 @@ export const AppInstallPurchaseProviderStoreReportStatusProofSchema = withParser
 export const AppInstallPurchaseProviderStoreReportStatusKnownGaps = [
   'Provider/store report status rows are parent-domain proof rows only; no provider API execution store integration or billing provider contact is implemented.',
   'Approval/report domain refs remain read-model proof rows only; portal approval UI portal report UI and runtime report delivery remain unimplemented.',
-  'Package export feature docs checklist and README updates are intentionally deferred to avoid widening active PR405 overlap.',
+  'Package export checklist and README updates are sequenced behind current package-json checklist and parent-domain README locks; feature and expectation docs already record provider/store report status proof coverage.',
 ] as const;
 
 export const AppInstallPurchaseProviderStoreReportStatusProofReadModel =

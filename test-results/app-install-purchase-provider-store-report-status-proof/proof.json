@@ -1,31 +1,32 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T02:03:44.675Z",
-  "commit": "cec2d5efe08af3461fd383e45f349f397d975a72",
+  "checkedAt": "2026-06-06T02:19:23.221Z",
+  "commit": "3761e5ac81e5c6ad53622c9045cd7d8c90ebdbd3",
   "proofMode": "app-install-purchase-provider-store-report-status-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-06T02:03:38.172Z",
+      "startedAt": "2026-06-06T02:19:16.802Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-provider-store-report-status-proof.test.ts",
-      "startedAt": "2026-06-06T02:03:41.965Z",
+      "startedAt": "2026-06-06T02:19:20.438Z",
       "exitCode": 0
     }
   ],
-  "packageExportState": "pending-avoids-active-pr405-package-export-overlap",
-  "docsState": "pending-avoids-active-pr405-feature-checklist-readme-overlap",
+  "packageExportState": "pending-current-package-json-lock-codex-b",
+  "docsState": "feature-expectation-docs-covered-checklist-readme-sequenced-behind-current-locks",
   "evidence": {
     "providerStoreReportStatusContract": "packages/parent-domain/src/app-install-purchase-provider-store-report-status-proof.ts",
     "sourceProviderStoreExecutionReadinessContract": "packages/parent-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts",
     "sourceApprovalReportDomainContract": "packages/parent-domain/src/app-install-purchase-approval-report-domain-proof.ts",
     "contractTest": "packages/parent-domain/tests/app-install-purchase-provider-store-report-status-proof.test.ts",
-    "featureDocDeferred": "docs/features/app-install-purchase-approval.md deferred because PR405 owns active app-install doc deltas.",
-    "expectationDocDeferred": "docs/expectations/app-install-purchase-approval.md deferred because PR405 owns active app-install doc deltas.",
-    "checklistRowDeferred": "docs/product-capability-checklist.md Install/purchase approval row deferred because PR405 owns active checklist delta.",
-    "packageExportDeferred": "packages/parent-domain/package.json export deferred because PR405 owns active parent-domain package export delta.",
+    "featureDocDeferred": "docs/features/app-install-purchase-approval.md already records provider/store report status proof coverage.",
+    "expectationDocDeferred": "docs/expectations/app-install-purchase-approval.md already records provider/store report status proof coverage.",
+    "checklistRowDeferred": "docs/product-capability-checklist.md Install/purchase approval row update sequenced behind current E-C checklist lock.",
+    "packageExportDeferred": "packages/parent-domain/package.json export deferred behind current codex-b package export lock.",
+    "readmeDeferred": "packages/parent-domain/README.md update sequenced behind current codex-c README lock.",
     "output": "test-results\\app-install-purchase-provider-store-report-status-proof\\proof.json"
   },
   "providerStoreReportStatusSummary": {
@@ -265,6 +266,6 @@
   "knownGaps": [
     "Provider/store report status rows are parent-domain proof rows only; no provider API execution store integration or billing provider contact is implemented.",
     "Approval/report domain refs remain read-model proof rows only; portal approval UI portal report UI and runtime report delivery remain unimplemented.",
-    "Package export feature docs checklist and README updates are intentionally deferred to avoid widening active PR405 overlap."
+    "Package export checklist and README updates are sequenced behind current package-json checklist and parent-domain README locks; feature and expectation docs already record provider/store report status proof coverage."
   ]
 }
