@@ -365,6 +365,14 @@ manual-required/N/A file.
 
 ## Supplemental Row Proofs
 
+- Workpack 10 rollup: row10d is part of the Workpack 10 remote-delivery
+  status proof set. The main row10 eventing/read-model summary is supplemented
+  by `output/network-plan-proof/10d-remote-delivery-lifecycle-status/proof-summary.json`,
+  `test-results/network-remote-delivery-lifecycle-status-proof/proof.json`, and
+  parser invariants that reject lifecycle missing-artifact count mismatches,
+  non-manual lifecycle blocker refs, broker/family-hub requirement count
+  mismatches, and duplicate-proof regressions.
+
 - [x] 10b broker/family-hub remote delivery status: E-D added
       `output/network-plan-proof/10b-broker-family-hub-delivery-status/proof-summary.json`
       and

@@ -5,8 +5,8 @@
 
 Running 1 test using 1 worker
 
-  ok 1 [chromium] › e2e\network-remote-delivery-status-proof.spec.ts:7:1 › network drawer renders broker and family-hub remote delivery status without live transport claims (17.5s)
+  ok 1 [chromium] › e2e\network-remote-delivery-status-proof.spec.ts:7:1 › network drawer renders broker and family-hub remote delivery status without live transport claims (24.4s)
 
-  1 passed (18.4s)
-(node:20432) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+  1 passed (25.4s)
+(node:25476) ExperimentalWarning: SQLite is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)

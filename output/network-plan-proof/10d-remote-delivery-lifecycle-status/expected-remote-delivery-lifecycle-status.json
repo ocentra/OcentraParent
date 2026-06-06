@@ -19,6 +19,11 @@
     "crossProcessReplayImplemented=false",
     "remoteRetentionDeleteExportPropagationImplemented=false"
   ],
+  "parserInvariants": [
+    "remote lifecycle missing-artifact count matches the three manual-required blocker refs",
+    "broker and family-hub requirements-satisfied statuses cannot carry missing requirement counts",
+    "local idempotency queue and duplicate rejection proof must remain present"
+  ],
   "noClaims": [
     "live broker delivery",
     "live family-hub relay delivery",

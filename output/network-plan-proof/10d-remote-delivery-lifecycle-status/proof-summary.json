@@ -1,11 +1,11 @@
 {
   "proof": "network-remote-delivery-lifecycle-status-proof",
-  "checkedAt": "2026-06-06T13:23:33.556Z",
+  "checkedAt": "2026-06-06T13:39:16.001Z",
   "branch": "codex/network-risk-target-policy-handoff-proof",
-  "commit": "68833be32d8c51136948162343af518365c4d04a",
+  "commit": "e99a33821805a839f2dafbec8600b7caf64b373d",
   "originMain": "94ada961b5a6be48c8adcf146c294059ac1c3de4",
   "mergeBase": "94ada961b5a6be48c8adcf146c294059ac1c3de4",
-  "sourceStatusShort": "M  apps/portal/README.md\nM  apps/portal/e2e/network-remote-delivery-status-proof.spec.ts\nM  apps/portal/src/network-product-readiness-status.ts\nM  apps/portal/src/network-remote-delivery-status-card.tsx\nM  apps/portal/tests/live-activity-network-flow.test.ts\nM  crates/agent-core/README.md\nMM crates/agent-core/src/network_event_runtime/remote_delivery_status.rs\nM  crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs\nM  crates/agent-protocol/README.md\nM  crates/agent-protocol/src/constants/network_flow.rs\nM  crates/agent-protocol/src/network_flow.rs\nMM crates/agent-protocol/src/network_flow_tests.rs\nM  crates/agent-service/README.md\nMM crates/agent-service/src/network_product_readiness_status_payload.rs\nM  crates/agent-service/src/network_product_readiness_status_service_tests.rs\nM  docs/features/network-domain-control.md\nM  docs/plans/network-plan/implementation-checklist.md\nM  docs/plans/network-plan/workpacks/README.md\nM  packages/agent-protocol-domain/README.md\nM  packages/agent-protocol-domain/src/network-product-readiness-status.ts\nM  packages/agent-protocol-domain/tests/network-product-readiness-status.test.ts\nA  scripts/test/network-remote-delivery-lifecycle-status-proof.mjs",
+  "sourceStatusShort": " M docs/plans/network-plan/implementation-checklist.md\n M packages/agent-protocol-domain/src/network-product-readiness-status.ts\n M packages/agent-protocol-domain/tests/network-product-readiness-status.test.ts\n M scripts/test/network-remote-delivery-lifecycle-status-proof.mjs",
   "proofRoot": "output\\network-plan-proof\\10d-remote-delivery-lifecycle-status",
   "testRoot": "test-results\\network-remote-delivery-lifecycle-status-proof",
   "commands": [
@@ -94,6 +94,7 @@
     "agent-core proof reports cross-process replay, remote retention/delete/export, delivery ack, and follow-up refs without implementation claims",
     "Rust service product-readiness event exposes row10d lifecycle fields through the existing typed status payload",
     "agent-protocol-domain parser requires the row10d fields and literal false/zero authority/action claims",
+    "agent-protocol-domain parser rejects row10d lifecycle count/ref mismatches and duplicate-proof regressions",
     "Activity route renders lifecycle blocker refs and manual-required state from the real Rust service WebSocket path"
   ],
   "notClaimed": [
