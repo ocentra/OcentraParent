@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-06T09:55:00.982Z",
+  "generatedAt": "2026-06-06T10:18:58.914Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -210,6 +210,7 @@
     "social-live-metadata-extraction-proof-present",
     "social-live-evidence-ai-boundary-proof-present",
     "social-live-evidence-risk-benefit-boundary-proof-present",
+    "social-live-evidence-policy-compiler-proof-present",
     "social-alert-report-intent-proof-present",
     "social-schedule-time-budget-compiler-proof-present",
     "social-parent-sensitivity-settings-proof-present",

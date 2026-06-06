@@ -1294,6 +1294,13 @@ worker messages before code changes. Do not mix all 24 into one PR.
   candidates. Manual-required or unavailable schedule/time-budget states remain
   non-final fallbacks; no runtime policy gate, applied schedule, applied budget,
   browser mutation, or enforcement is claimed.
+- `social-policy-live-evidence-compiler-proof` now consumes SOCIAL-11
+  live-evidence signal refs and emits non-final SOCIAL-12 parent-domain
+  manual-review candidates. It proves the compiler boundary rejects final
+  policy, runtime gate, UI, enforcement, native app, connector, raw signal
+  payload, and raw model text claims while leaving runtime policy execution,
+  applied schedules, applied budgets, browser mutation, and enforcement
+  unclaimed.
 - SOCIAL-13 now adds managed-browser account creation gate contracts in
   `packages/activity-domain/src/browser-social-account-creation-gate.ts`. Gate
   plans require matching route-only account-flow evidence and sanitized
