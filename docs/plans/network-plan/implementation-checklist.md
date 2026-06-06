@@ -250,10 +250,13 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
 - [ ] Parent UI renders capability, degraded, stale, unsupported, unavailable,
       manual-required, limitation, audit, and risk-budget states honestly.
       E-D now proves the existing network drawer renders service-provided
-      endpoint/domain/process/custody/evidence refs and labels exact URL, AI,
-      policy, intervention, retention, and evidence-grade facets as not reported
-      when no service refs exist; broader risk-budget/performance/manual-state UI
-      coverage remains open.
+      endpoint/domain/process/custody/evidence refs, and row36a now proves the
+      same Activity route consumes service `agent.network.runtime.event-chain`
+      output for AI audit, policy, enforcement handoff, audit, retention
+      counters, event history, evidence grade, confidence, and
+      manual/unavailable state refs. Exact URL/content and live adapter claims
+      remain unrendered; broader risk-budget/performance/platform UI coverage
+      remains open.
 - [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
       reasons for every applicable gate. Workpack 03 proof lives under
       `output/network-plan-proof/03-contract-boundary-and-effect-schemas/`.
@@ -341,6 +344,14 @@ manual-required/N/A file.
       refs. The proof rejects network-only exact URL, decrypted payload, live
       adapter mutation, enforcement command publication, broad platform support,
       full policy execution, and portal UI claims.
+- [x] 36a parent UI runtime event-chain drawer: E-D added
+      `output/network-plan-proof/36a-parent-ui-runtime-event-chain/proof-summary.json`
+      and `test-results/network-parent-ui-runtime-event-chain-proof/proof.json`.
+      The Activity route now requests `agent.network.flow.read-model.get` and
+      `agent.network.runtime.event-chain.stream.get`, renders typed runtime
+      AI/policy/enforcement/audit/portal refs plus retention counters and
+      manual-required state in the parent drawer, and keeps exact URL/content,
+      live adapter mutation, and enforcement-action claims out of the UI.
 
 ## Worker Report Template
 

@@ -25,6 +25,7 @@ const CommandResultEvents = new Set<AgentEventName>([
   AgentEvent.BrowserManagedStatusReported,
   AgentEvent.BrowserInterventionReadModelReported,
   AgentEvent.NetworkFlowReadModelReported,
+  AgentEvent.NetworkRuntimeEventChainStreamReported,
   AgentEvent.ActivityTrackingReadModelReported,
   AgentEvent.LocalAiRuntimeStatusReported,
   AgentEvent.PolicyPreviewReadModelReported,

@@ -174,6 +174,7 @@ export const PortalDevTextToken = {
   GetBrowserInterventionReadModel: decodeTextTokenId('portal.dev.command.getBrowserInterventionReadModel'),
   PollManagedBrowserBridge: decodeTextTokenId('portal.dev.command.pollManagedBrowserBridge'),
   GetNetworkFlowReadModel: decodeTextTokenId('portal.dev.command.getNetworkFlowReadModel'),
+  GetNetworkRuntimeEventChainStream: decodeTextTokenId('portal.dev.command.getNetworkRuntimeEventChainStream'),
   GetActivityTrackingReadModel: decodeTextTokenId('portal.dev.command.getActivityTrackingReadModel'),
   GetActivityAppGamePolicyReadinessReadModel: decodeTextTokenId(
     'portal.dev.command.getActivityAppGamePolicyReadinessReadModel'
@@ -406,6 +407,7 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.GetBrowserInterventionReadModel]: decodeDisplayText('Refresh browser protection'),
   [PortalDevTextToken.PollManagedBrowserBridge]: decodeDisplayText('Refresh managed browser'),
   [PortalDevTextToken.GetNetworkFlowReadModel]: decodeDisplayText('Refresh network activity'),
+  [PortalDevTextToken.GetNetworkRuntimeEventChainStream]: decodeDisplayText('Refresh network event chain'),
   [PortalDevTextToken.GetActivityTrackingReadModel]: decodeDisplayText('Refresh tracking status'),
   [PortalDevTextToken.GetActivityAppGamePolicyReadinessReadModel]: decodeDisplayText('Refresh policy readiness'),
   [PortalDevTextToken.GetLocalAiRuntimeStatus]: decodeDisplayText('Refresh local AI'),

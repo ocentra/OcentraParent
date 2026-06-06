@@ -5,6 +5,7 @@ import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/
 import { shouldRenderNetworkEvidenceDrawerRoute } from '../src/NetworkEvidenceDrawerRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { networkEvidenceDrawerSummary } from '../src/network-evidence-drawer';
+import type { NetworkRuntimeEventChainSummary } from '../src/network-runtime-event-chain';
 
 describe('portal live activity network flow state', () => {
   it('parses real service network flow read-model payload fields', () => {
@@ -34,6 +35,27 @@ describe('portal live activity network flow state', () => {
     expect(summary.retentionState).toBe('Not reported');
   });
 
+  it('projects service runtime event-chain refs into the parent network drawer', () => {
+    const state = resolveLiveActivityState([networkFlowEvent(), networkRuntimeEventChainEvent()]);
+    const eventChain = requireNetworkRuntimeEventChain(state.networkRuntimeEventChain);
+    const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel, eventChain);
+
+    expect(summary.eventHistoryRef).toContain('event.ai.analysis.completed.1');
+    expect(summary.eventHistoryRef).toContain('event.portal.read-model.updated.1');
+    expect(summary.aiAuditRef).toBe('event.ai.analysis.completed.1 | manual-review-required');
+    expect(summary.policyDecisionRef).toBe('event.policy.decision.completed.1 | manual-review');
+    expect(summary.interventionResultRef).toBe(
+      'event.enforcement.result.observed.1 | manual-required | manual-required'
+    );
+    expect(summary.auditRef).toBe('event.audit.entry.committed.1 | committed');
+    expect(summary.retentionState).toBe('1 | 0 | 1 | network-evidence-deleted-1');
+    expect(summary.evidenceGrade).toBe('C');
+    expect(summary.confidence).toBe('0.5');
+    expect(summary.manualRequiredState).toBe('manual-required-state');
+    expect(summary.unavailableState).toBe('manual-required');
+    expect(summary.exactUrlClaim).toBe('Not reported');
+  });
+
   it('keeps empty network flow read models visible without inventing destinations', () => {
     const state = resolveLiveActivityState([emptyNetworkFlowEvent()]);
     const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
@@ -58,6 +80,16 @@ function requireNetworkFlowReadModel(readModel: ActivityNetworkFlowReadModel | n
     throw new Error('network flow read-model missing');
   }
   return readModel;
+}
+
+function requireNetworkRuntimeEventChain(
+  eventChain: NetworkRuntimeEventChainSummary | null
+): NetworkRuntimeEventChainSummary {
+  expect(eventChain).not.toBeNull();
+  if (eventChain === null) {
+    throw new Error('network runtime event-chain missing');
+  }
+  return eventChain;
 }
 
 function expectNetworkReadModelCounts(readModel: ActivityNetworkFlowReadModel, expectedRows: number): void {
@@ -209,4 +241,147 @@ function emptyNetworkFlowEvent() {
     },
     snapshot: null,
   });
+}
+
+function networkRuntimeEventChainEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-network-runtime-chain',
+    correlationId: 'cmd-network-runtime-chain',
+    sentAt: '2026-05-21T02:00:02Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: 'agent.network.runtime.event-chain.stream.reported',
+    severity: 'info',
+    payload: {
+      networkRuntimeObservedRows: 1,
+      networkRuntimeStreamedEvents: 6,
+      networkRuntimeFailedRows: 0,
+      networkRuntimeManualRequiredRows: 1,
+      networkRuntimeEnforcementCommandEvents: 0,
+      activeRows: 1,
+      tombstoneRows: 0,
+      exportableRows: 1,
+      deletedEvidenceReferenceIds: 'network-evidence-deleted-1',
+      networkRuntimeEventChainStream: JSON.stringify(networkRuntimeEventChainEntries()),
+    },
+    snapshot: null,
+  });
+}
+
+function networkRuntimeEventChainEntries() {
+  return [
+    networkClassifiedEntry(),
+    aiAnalysisCompletedEntry(),
+    policyDecisionCompletedEntry(),
+    enforcementResultObservedEntry(),
+    auditEntryCommittedEntry(),
+    portalReadModelUpdatedEntry(),
+  ];
+}
+
+function networkClassifiedEntry() {
+  return {
+    eventType: 'network.activity.classified',
+    eventRef: 'event.network.activity.classified.1',
+    payload: {
+      schemaVersion: 1,
+      classificationEventRef: 'event.network.activity.classified.1',
+      previousEventRef: 'event.network.domain.observed.1',
+      evidenceRefs: ['network-evidence-1'],
+      activityKind: 'unknown',
+      confidence: 0.5,
+      evidenceGrade: 'C',
+      uncertaintyCodes: ['ip-only'],
+    },
+  };
+}
+
+function aiAnalysisCompletedEntry() {
+  return {
+    eventType: 'ai.analysis.completed',
+    eventRef: 'event.ai.analysis.completed.1',
+    payload: {
+      schemaVersion: 1,
+      aiAnalysisRef: 'event.ai.analysis.completed.1',
+      aiRequestRef: 'event.ai.analysis.requested.1',
+      previousEventRef: 'event.ai.analysis.requested.1',
+      advisoryState: 'manual-review-required',
+      evidenceRefs: ['network-evidence-1'],
+      unsupportedClaims: ['decrypted-https-payload'],
+    },
+  };
+}
+
+function policyDecisionCompletedEntry() {
+  return {
+    eventType: 'policy.decision.completed',
+    eventRef: 'event.policy.decision.completed.1',
+    payload: {
+      schemaVersion: 1,
+      policyDecisionRef: 'event.policy.decision.completed.1',
+      policyEvaluationRef: 'event.policy.evaluation.requested.1',
+      previousEventRef: 'event.policy.evaluation.requested.1',
+      decisionAction: 'manual-review',
+      evidenceRefs: ['network-evidence-1'],
+      parentRuleRefs: ['parent-rule.network.review.1'],
+      adapterCapabilityRequired: false,
+    },
+  };
+}
+
+function enforcementResultObservedEntry() {
+  return {
+    eventType: 'enforcement.result.observed',
+    eventRef: 'event.enforcement.result.observed.1',
+    payload: {
+      schemaVersion: 1,
+      enforcementResultRef: 'event.enforcement.result.observed.1',
+      enforcementCommandRef: 'event.enforcement.command.issued.1',
+      previousEventRef: 'event.policy.decision.completed.1',
+      resultStatus: 'manual-required',
+      adapterActionExecuted: false,
+      rollbackRef: null,
+      unavailableReasonCode: 'manual-required',
+    },
+  };
+}
+
+function auditEntryCommittedEntry() {
+  return {
+    eventType: 'audit.entry.committed',
+    eventRef: 'event.audit.entry.committed.1',
+    payload: {
+      schemaVersion: 1,
+      auditEntryRef: 'event.audit.entry.committed.1',
+      previousEventRef: 'event.enforcement.result.observed.1',
+      policyDecisionRef: 'event.policy.decision.completed.1',
+      enforcementCommandRef: null,
+      enforcementResultRef: 'event.enforcement.result.observed.1',
+      evidenceRefs: ['network-evidence-1'],
+      auditOutcome: 'committed',
+    },
+  };
+}
+
+function portalReadModelUpdatedEntry() {
+  return {
+    eventType: 'portal.read_model.updated',
+    eventRef: 'event.portal.read-model.updated.1',
+    payload: {
+      schemaVersion: 1,
+      readModelRef: 'event.portal.read-model.updated.1',
+      previousEventRef: 'event.audit.entry.committed.1',
+      auditEntryRef: 'event.audit.entry.committed.1',
+      updateKind: 'manual-required-state',
+      visibleManualRequired: true,
+      visibleUnavailable: false,
+    },
+  };
 }
