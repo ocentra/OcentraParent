@@ -86,6 +86,13 @@ replace the constitution, roadmap, or capability checklist.
   sessions, legal disclosure execution, provider secrets, raw child activity
   custody, default Ocentra-hosted family data, and production SLA as gaps until
   real evidence exists.
+- `production-support-process-runtime-status-proof` may prove support process
+  requested, parent-consent authorized, privacy/legal queued, redaction review
+  running, backend-upload failed, case-resolution succeeded, and
+  manual-required runtime status rows, but docs must still label real backend
+  upload execution, public runtime execution, provider execution, production
+  SLA, remote support sessions, provider secrets, child activity custody, and
+  default Ocentra-hosted family data as gaps until real evidence exists.
 
 ## Required Structure
 
