@@ -40,12 +40,7 @@ const contract = await importDist(
 );
 const refs = await importDist('reference-primitives.js');
 const sourceHandoff = await readJson(
-  join(
-    repoRoot,
-    'test-results',
-    'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff-proof',
-    'timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.json'
-  )
+  join(repoRoot, 'test-results', 'app-game-timer-parent-status-rm-proof', 'handoff.json')
 );
 const parentSurfaceHandoff =
   contract.buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceHandoff(

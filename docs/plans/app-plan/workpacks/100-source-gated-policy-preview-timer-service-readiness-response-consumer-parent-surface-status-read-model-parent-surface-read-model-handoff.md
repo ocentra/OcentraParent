@@ -14,7 +14,7 @@ Native app rows from the shared app/game evidence spine now have a parent-domain
 
 ## Evidence
 
-- `output/app-plan-proof/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff`
+- `output/app-plan-proof/100-timer-parent-read-model`
 - `test-results/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff-proof/proof.json`
 
 ## Product Checklist Decision
