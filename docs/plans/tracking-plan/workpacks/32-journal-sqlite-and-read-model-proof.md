@@ -49,6 +49,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `23-family-dashboard-rollup-proof.json`
 - `24-retention-settings-read-model-proof.json`
 - `25-retention-settings-writer-boundary-proof.json`
+- `26-retention-settings-mutation-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -91,6 +92,9 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       mutation, live retention UI, platform runtime, child-device delivery,
       provider delivery, authority, physical-device execution, or production
       readiness.
+- [x] Add local executed service mutation proof for the same retention settings
+      rows while preserving remote-sync disabled, remote-AI disabled, and no
+      platform/device/product-ready claims.
 
 ## Where We Are
 
@@ -140,6 +144,11 @@ the same five setting rows from the existing WP07/WP32 read-model proof refs,
 keeps remote sync and remote AI disabled, and keeps executed service mutation,
 live retention UI, platform runtime, child-device delivery, provider delivery,
 notification receipt, physical-device, authority, and product-ready claims false.
+The retention settings mutation proof applies those five authorized write
+intents to local settings rows, keeps remote sync and remote AI disabled, and
+keeps live writable UI, platform runtime, child-device delivery, provider
+delivery, notification receipt, physical-device, authority, production, and
+product-ready claims false.
 The hosted parent route now renders those retention settings read-model rows as
 a narrow proof card and captures
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
@@ -183,8 +192,8 @@ This workpack can be assigned independently, implemented against the owning doma
   manual-required until the assigned proof artifacts exist. The family
   dashboard rollup rows are read-model consumer proof only; they are not
   rendered portal UI or child-device runtime proof.
-- Retention settings read-model rows are not writable product settings, service
-  mutation, or live retention UI proof.
+- Retention settings read-model and mutation rows are not writable product UI or
+  live retention UI proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -379,3 +388,23 @@ This workpack can be assigned independently, implemented against the owning doma
       read-only citation display only; policy evaluation, action dispatch,
       child-device delivery/runtime execution, provider delivery, physical-device
       proof, authority, and product readiness remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain retention settings mutation proof source and
+      test, proof harness, tracking feature doc, implementation checklist,
+      WP07, WP32, and generated WP07/WP32/WP33 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-retention-settings-mutation-proof.mjs`
+      passed locally.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/26-retention-settings-mutation-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/32-retention-settings-mutation-proof.json`,
+      and `test-results/tracking-retention-settings-mutation-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, and WP32 updated; central product capability checklist
+      remains hub/primary sequenced.
+- [x] Known gaps/manual-required states: live service-backed writable retention
+      UI, platform runtime, child-device delivery, Android/iOS physical proof,
+      authority, provider delivery, notification receipts, production workers,
+      and product-ready retention behavior remain proof-gated.

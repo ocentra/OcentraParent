@@ -106,6 +106,13 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json`,
   and `test-results/tracking-plan-service-data-ui-proof/proof.json`.
+- WP07/WP32 local retention settings mutation proof now exists through
+  `node scripts/test/tracking-retention-settings-mutation-proof.mjs`. It
+  applies the existing retention-window, delete-after-alert, parent-export,
+  remote-sync-disabled, and remote-AI-disabled writer intents as local service
+  mutation rows while keeping remote sync and remote AI disabled and keeping
+  live writable UI, platform runtime, child-device delivery, physical-device,
+  authority, provider-delivery, production, and product-ready claims false.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
