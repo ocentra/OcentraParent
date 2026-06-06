@@ -395,6 +395,12 @@ control with better evidence and local audit.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.
+- The first merge-blocking display gate is now backed by
+  `output/app-game-plan-proof/merge-gates/inventory-display`: the portal
+  app/game dashboard intent test covers native-app, native-game, and launcher
+  rows, the core dashboard maps inventory evidence into app/game usage metrics,
+  and the App/Game Sessions route assertion requires inventory text without
+  duplicating browser-game work or rendering raw private executable paths.
 
 ## Current Gap
 
