@@ -245,6 +245,33 @@ control with better evidence and local audit.
   app/native game rows, and keep source or compiler blockers blocked without
   claiming service runtime events, service read API implementation, portal UI,
   durable audit logs, rollback execution, adapter dispatch, or enforcement.
+- Parent-domain source-gated policy preview timer service-readiness read-model
+  contracts now consume those handoff rows, keep future service-readiness and
+  service read-API proof refs visible for eligible native app/native game rows,
+  and keep source or compiler blockers blocked without claiming agent protocol,
+  service runtime events, service read API implementation, portal UI, durable
+  audit logs, rollback execution, adapter dispatch, or enforcement.
+- Parent-domain source-gated policy preview timer service-readiness protocol
+  handoff contracts now consume those read-model rows, keep future
+  agent-protocol command/event, Rust protocol mirror, service handler, and
+  service read-API proof refs visible for eligible native app/native game rows,
+  and keep source or compiler blockers blocked without claiming protocol
+  implementation, service command registration, service event emission, portal
+  UI, durable audit logs, rollback execution, adapter dispatch, or enforcement.
+- Parent-domain source-gated policy preview timer service-readiness protocol
+  read-model contracts now consume those protocol handoff rows, keep the same
+  future protocol proof refs visible for eligible native app/native game rows,
+  and keep source or compiler blockers blocked without claiming protocol
+  implementation, service event/read-model emission, read API implementation,
+  portal UI, durable audit logs, rollback execution, adapter dispatch, or
+  enforcement.
+- Parent-domain source-gated policy preview timer service-readiness read-API
+  response consumer handoff contracts now consume response handoff rows, add
+  future response-consumer proof refs for eligible native app/native game rows,
+  and keep source or compiler blockers blocked without claiming service response
+  implementation, response consumer implementation, portal response rendering,
+  durable audit logs, rollback execution, adapter dispatch, child delivery, or
+  enforcement.
 - The portal App/Game Sessions route now renders that service-backed policy
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy
@@ -660,6 +687,22 @@ mobile UI, or prove platform support.
       storage, audit runtime, durable audit logs, rollback runtime/execution,
       adapter dispatch, child delivery, broad blocking, platform enforcement,
       or raw private source rows.
+      Source-gated policy preview timer service-readiness response consumer
+      parent-surface status read-model handoff proof now consumes those
+      parent-surface status handoff rows and records that future parent-visible
+      status read-model consumption still requires parent-surface status
+      read-model proof, while source and compiler blockers remain blocked
+      before status read-model visibility. It remains parent-domain proof only
+      and does not claim service command registration, service handler
+      implementation, service event emission, service read API implementation,
+      response implementation, response consumer implementation, parent-surface
+      read-model/status/status-read-model implementation, parent-surface
+      rendering, portal UI/consumer rendering, agent-protocol implementation,
+      Rust protocol mirror, evaluator runtime, timer runtime/scheduling,
+      scheduler persistence runtime, durable scheduler storage, audit runtime,
+      durable audit logs, rollback runtime/execution, adapter dispatch, child
+      delivery, broad blocking, platform enforcement, or raw private source
+      rows.
       Source-gated policy preview timer audit/rollback read-model proof now
       consumes those audit/rollback handoff rows and records that future
       parent-visible scheduling status still requires service timer runtime,
@@ -691,6 +734,151 @@ mobile UI, or prove platform support.
       remain blocked before service/read API visibility. It remains
       parent-domain proof only and does not claim service events/read API
       implementation, portal UI, evaluator runtime, timer runtime/scheduling,
+      scheduler persistence runtime, durable scheduler storage, audit runtime,
+      durable audit logs, rollback runtime/execution, adapter dispatch, child
+      delivery, broad blocking, platform enforcement, or raw private source
+      rows.
+      Source-gated policy preview timer service-readiness read-API response
+      handoff proof now consumes those read-API handoff rows and records that
+      future response visibility still requires service read-API response proof,
+      while source and compiler blockers remain blocked before response
+      visibility. It remains parent-domain proof only and does not claim service
+      command registration, service handler implementation, service event
+      emission, service read API implementation or response implementation,
+      agent-protocol implementation, Rust protocol mirror, portal UI, evaluator
+      runtime, timer runtime/scheduling, scheduler persistence runtime, durable
+      scheduler storage, audit runtime, durable audit logs, rollback
+      runtime/execution, adapter dispatch, child delivery, broad blocking,
+      platform enforcement, or raw private source rows.
+      Source-gated policy preview timer service-readiness read-API response
+      consumer handoff proof now consumes those response handoff rows and
+      records that future parent/service consumption still requires response
+      consumer proof, while source and compiler blockers remain blocked before
+      response consumption. It remains parent-domain proof only and does not
+      claim service command registration, service handler implementation,
+      service event emission, service read API implementation, response
+      implementation, response consumer implementation, portal UI/consumer
+      rendering, agent-protocol implementation, Rust protocol mirror, evaluator
+      runtime, timer runtime/scheduling, scheduler persistence runtime, durable
+      scheduler storage, audit runtime, durable audit logs, rollback
+      runtime/execution, adapter dispatch, child delivery, broad blocking,
+      platform enforcement, or raw private source rows.
+      Source-gated policy preview timer service-readiness response consumer
+      parent-surface handoff proof now consumes those response-consumer rows and
+      records that future parent-visible consumption still requires
+      parent-surface proof, while source and compiler blockers remain blocked
+      before parent-surface visibility. It remains parent-domain proof only and
+      does not claim service command registration, service handler
+      implementation, service event emission, service read API implementation,
+      response implementation, response consumer implementation,
+      parent-surface rendering, portal UI/consumer rendering, agent-protocol
+      implementation, Rust protocol mirror, evaluator runtime, timer
+      runtime/scheduling, scheduler persistence runtime, durable scheduler
+      storage, audit runtime, durable audit logs, rollback runtime/execution,
+      adapter dispatch, child delivery, broad blocking, platform enforcement,
+      or raw private source rows.
+      Source-gated policy preview timer service-readiness response consumer
+      parent-surface read-model handoff proof now consumes those parent-surface
+      handoff rows and records that future parent-visible read-model
+      consumption still requires parent-surface read-model proof, while source
+      and compiler blockers remain blocked before read-model visibility. It
+      remains parent-domain proof only and does not claim service command
+      registration, service handler implementation, service event emission,
+      service read API implementation, response implementation, response
+      consumer implementation, parent-surface read-model implementation,
+      parent-surface rendering, portal UI/consumer rendering, agent-protocol
+      implementation, Rust protocol mirror, evaluator runtime, timer
+      runtime/scheduling, scheduler persistence runtime, durable scheduler
+      storage, audit runtime, durable audit logs, rollback runtime/execution,
+      adapter dispatch, child delivery, broad blocking, platform enforcement,
+      or raw private source rows.
+      Source-gated policy preview timer service-readiness response consumer
+      parent-surface status handoff proof now consumes those parent-surface
+      read-model handoff rows and records that future parent-visible status
+      consumption still requires parent-surface status proof, while source and
+      compiler blockers remain blocked before status visibility. It remains
+      parent-domain proof only and does not claim service command registration,
+      service handler implementation, service event emission, service read API
+      implementation, response implementation, response consumer
+      implementation, parent-surface read-model/status implementation,
+      parent-surface rendering, portal UI/consumer rendering, agent-protocol
+      implementation, Rust protocol mirror, evaluator runtime, timer
+      runtime/scheduling, scheduler persistence runtime, durable scheduler
+      storage, audit runtime, durable audit logs, rollback runtime/execution,
+      adapter dispatch, child delivery, broad blocking, platform enforcement,
+      or raw private source rows.
+      Source-gated policy preview timer service-readiness read-model proof now
+      consumes those handoff rows and records that future service read-model
+      visibility still requires service timer runtime, scheduler persistence,
+      durable scheduler state-store, audit trail, rollback plan,
+      audit/rollback read-model proof, parent-surface proof, service-readiness
+      proof, and service read-API proof, while source and compiler blockers
+      remain blocked before service/read-model visibility. It remains
+      parent-domain proof only and does not claim agent protocol, service
+      events/read API implementation, portal UI, evaluator runtime, timer
+      runtime/scheduling, scheduler persistence runtime, durable scheduler
+      storage, audit runtime, durable audit logs, rollback runtime/execution,
+      adapter dispatch, child delivery, broad blocking, platform enforcement,
+      or raw private source rows.
+      Source-gated policy preview timer service-readiness protocol handoff
+      proof now consumes those read-model rows and records that future
+      protocol/service visibility still requires agent-protocol command/event
+      proof, Rust protocol mirror proof, service handler proof, and service
+      read-API proof, while source and compiler blockers remain blocked before
+      protocol handoff. It remains parent-domain proof only and does not claim
+      agent-protocol implementation, Rust protocol mirror, service command
+      registration, service event emission, service read API implementation,
+      portal UI, evaluator runtime, timer runtime/scheduling, scheduler
+      persistence runtime, durable scheduler storage, audit runtime, durable
+      audit logs, rollback runtime/execution, adapter dispatch, child delivery,
+      broad blocking, platform enforcement, or raw private source rows.
+      Source-gated policy preview timer service-readiness protocol read-model
+      proof now consumes those protocol handoff rows and records that future
+      protocol/read-model visibility still requires agent-protocol
+      command/event proof, Rust protocol mirror proof, service handler proof,
+      and service read-API proof, while source and compiler blockers remain
+      blocked before service read-model events. It remains parent-domain proof
+      only and does not claim agent-protocol implementation, Rust protocol
+      mirror, service command registration, service event/read-model emission,
+      service read API implementation, portal UI, evaluator runtime, timer
+      runtime/scheduling, scheduler persistence runtime, durable scheduler
+      storage, audit runtime, durable audit logs, rollback runtime/execution,
+      adapter dispatch, child delivery, broad blocking, platform enforcement,
+      or raw private source rows.
+      Source-gated policy preview timer service-readiness protocol command
+      handoff proof now consumes those protocol read-model rows and records
+      that future command/service visibility still requires agent-protocol
+      command proof, reported-event proof, Rust protocol mirror proof, service
+      handler proof, and service read-API proof, while source and compiler
+      blockers remain blocked before service command registration. It remains
+      parent-domain proof only and does not claim agent-protocol
+      implementation, Rust protocol mirror, service command registration,
+      service handler implementation, service event emission, service read API
+      implementation, portal UI, evaluator runtime, timer runtime/scheduling,
+      scheduler persistence runtime, durable scheduler storage, audit runtime,
+      durable audit logs, rollback runtime/execution, adapter dispatch, child
+      delivery, broad blocking, platform enforcement, or raw private source
+      rows.
+      Source-gated policy preview timer service-readiness service-handler
+      handoff proof now consumes those protocol command-handoff rows and
+      records that future service visibility still requires service handler
+      proof and service read-API proof, while source and compiler blockers
+      remain blocked before service handler implementation. It remains
+      parent-domain proof only and does not claim service command registration,
+      service handler implementation, service event emission, service read API
+      implementation, agent-protocol implementation, Rust protocol mirror,
+      portal UI, evaluator runtime, timer runtime/scheduling, scheduler
+      persistence runtime, durable scheduler storage, audit runtime, durable
+      audit logs, rollback runtime/execution, adapter dispatch, child delivery,
+      broad blocking, platform enforcement, or raw private source rows.
+      Source-gated policy preview timer service-readiness read-API handoff proof
+      now consumes those service-handler handoff rows and records that future
+      read API visibility still requires service read-API proof, while source
+      and compiler blockers remain blocked before read API visibility. It
+      remains parent-domain proof only and does not claim service command
+      registration, service handler implementation, service event emission,
+      service read API implementation, agent-protocol implementation, Rust
+      protocol mirror, portal UI, evaluator runtime, timer runtime/scheduling,
       scheduler persistence runtime, durable scheduler storage, audit runtime,
       durable audit logs, rollback runtime/execution, adapter dispatch, child
       delivery, broad blocking, platform enforcement, or raw private source

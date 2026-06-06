@@ -83,6 +83,18 @@ before `DONE` or PR-ready reporting.
 75. WP84 app/game source-gated policy preview timer audit rollback read model.
 76. WP85 app/game source-gated policy preview timer audit rollback parent surface intent.
 77. WP86 app/game source-gated policy preview timer service readiness handoff.
+78. WP87 app/game source-gated policy preview timer service readiness read model.
+79. WP88 app/game source-gated policy preview timer service readiness protocol handoff.
+80. WP89 app/game source-gated policy preview timer service readiness protocol read model.
+81. WP90 app/game source-gated policy preview timer service readiness protocol command handoff.
+82. WP91 app/game source-gated policy preview timer service readiness service handler handoff.
+83. WP92 app/game source-gated policy preview timer service readiness read API handoff.
+84. WP93 app/game source-gated policy preview timer service readiness read API response handoff.
+85. WP94 app/game source-gated policy preview timer service readiness read API response consumer handoff.
+86. WP95 app/game source-gated policy preview timer service readiness response consumer parent-surface handoff.
+87. WP96 app/game source-gated policy preview timer service readiness response consumer parent-surface read-model handoff.
+88. WP97 app/game source-gated policy preview timer service readiness response consumer parent-surface status handoff.
+89. WP98 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model handoff.
 
 ## Standard AI Worker Checklist
 

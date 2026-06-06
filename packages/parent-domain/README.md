@@ -43,6 +43,33 @@ mobile readiness, and control catalogs.
   future service-readiness/read-API proof refs without claiming service runtime
   events, read API implementation, rendered UI, durable audit storage, rollback
   execution, or timer scheduling.
+- App/game source-gated policy preview timer service-readiness read-model
+  contracts that consume service-readiness handoff rows and keep future
+  service-readiness/read-API proof refs visible without claiming agent protocol,
+  service runtime events, read API implementation, rendered UI, durable audit
+  storage, rollback execution, or timer scheduling.
+- App/game source-gated policy preview timer service-readiness protocol handoff
+  contracts that consume service-readiness read-model rows and keep future
+  agent-protocol command/event, Rust protocol mirror, service handler, and
+  service read-API proof refs visible without claiming protocol implementation,
+  service command registration, service event emission, rendered UI, durable
+  audit storage, rollback execution, or timer scheduling.
+- App/game source-gated policy preview timer service-readiness protocol
+  read-model contracts that consume protocol handoff rows and keep future
+  protocol proof refs visible without claiming protocol implementation, service
+  command registration, service event/read-model emission, rendered UI, durable
+  audit storage, rollback execution, or timer scheduling.
+- App/game source-gated policy preview timer service-readiness read-API handoff
+  contracts that consume service-handler handoff rows and keep future read API
+  proof refs visible without claiming service command registration, handler
+  implementation, service event emission, read API implementation, rendered UI,
+  durable audit storage, rollback execution, or timer scheduling.
+- App/game source-gated policy preview timer service-readiness read-API response
+  handoff contracts that consume read-API handoff rows and keep future response
+  proof refs visible without claiming service command registration, handler
+  implementation, service event emission, read API implementation or response
+  implementation, rendered UI, durable audit storage, rollback execution, or
+  timer scheduling.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.
@@ -358,6 +385,55 @@ flowchart LR
   rollback execution, and scheduling unclaimed. Timer audit/rollback
   parent-surface intent rows add future proof and drill-in refs for the next
   UI/service seam while keeping rendered UI and service read APIs unclaimed.
+  Timer service-readiness protocol handoff rows add future agent-protocol
+  command/event, Rust protocol mirror, service handler, and service read-API
+  proof refs while keeping protocol implementation, service command
+  registration, service event emission, service read API implementation,
+  rendered UI, durable audit storage, rollback execution, and timer scheduling
+  unclaimed.
+  Timer service-readiness protocol read-model rows project those same proof
+  requirements into a future consumer-facing contract while keeping service
+  read-model event emission and read API implementation unclaimed.
+  Timer service-readiness protocol command-handoff rows consume those
+  protocol read-model rows and attach future command, reported-event, and
+  service-handler refs while keeping agent-protocol implementation, service
+  command registration, service handler implementation, service event
+  emission, and read API implementation unclaimed.
+  Timer service-readiness service-handler handoff rows consume protocol
+  command-handoff rows and attach future service handler and read API proof
+  refs while keeping service command registration, handler implementation,
+  event emission, and read API implementation unclaimed.
+  Timer service-readiness read-API handoff rows consume service-handler handoff
+  rows and keep future read API proof refs visible while keeping service command
+  registration, handler implementation, event emission, and read API
+  implementation unclaimed.
+  Timer service-readiness read-API response handoff rows consume read-API
+  handoff rows and keep future response proof refs visible while keeping service
+  command registration, handler implementation, event emission, read API
+  implementation, and response implementation unclaimed.
+  Timer service-readiness read-API response consumer handoff rows consume
+  response handoff rows and keep future response-consumer proof refs visible
+  while keeping response implementation, response consumer implementation,
+  portal response rendering, service runtime, and adapter dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface handoff rows consume
+  response-consumer handoff rows and keep future parent-surface proof refs
+  visible while keeping parent-surface rendering, portal rendering, service
+  runtime, and adapter dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface read-model handoff
+  rows consume parent-surface handoff rows and keep future parent-surface
+  read-model proof refs visible while keeping read-model implementation,
+  parent-surface rendering, portal rendering, service runtime, and adapter
+  dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface status handoff rows
+  consume parent-surface read-model handoff rows and keep future parent-surface
+  status proof refs visible while keeping status implementation, read-model
+  implementation, parent-surface rendering, portal rendering, service runtime,
+  and adapter dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface status read-model
+  handoff rows consume parent-surface status handoff rows and keep future
+  parent-surface status read-model proof refs visible while keeping status
+  read-model implementation, status implementation, parent-surface rendering,
+  portal rendering, service runtime, and adapter dispatch unclaimed.
   Portal authoring or preview UI, live evaluator execution, persistence,
   timers, child notification delivery, adapter dispatch, broad installed-app
   blocking, and platform enforcement remain unimplemented.
