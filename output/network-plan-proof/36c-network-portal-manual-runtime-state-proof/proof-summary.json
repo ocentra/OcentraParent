@@ -1,0 +1,76 @@
+{
+  "proof": "network-portal-manual-runtime-state",
+  "checkedAt": "2026-06-06T20:20:00.226Z",
+  "branch": "codex/network-portal-manual-runtime-state-proof",
+  "commit": "68db7e62701c86a2efb24501d800b92b3b1a4d03",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\36c-network-portal-manual-runtime-state-proof",
+  "testRoot": "test-results\\network-portal-manual-runtime-state-proof",
+  "commands": [
+    {
+      "name": "agent-service-network-flow-payload-tests",
+      "command": "cargo test -p ocentra-parent-agent-service network_flow_payload",
+      "status": 0,
+      "log": "output\\network-plan-proof\\36c-network-portal-manual-runtime-state-proof\\agent-service-network-flow-payload-tests.log"
+    },
+    {
+      "name": "agent-service-network-flow-digest-tests",
+      "command": "cargo test -p ocentra-parent-agent-service network_flow_digest",
+      "status": 0,
+      "log": "output\\network-plan-proof\\36c-network-portal-manual-runtime-state-proof\\agent-service-network-flow-digest-tests.log"
+    },
+    {
+      "name": "activity-domain-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/activity-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\36c-network-portal-manual-runtime-state-proof\\activity-domain-build.log"
+    },
+    {
+      "name": "activity-domain-network-flow-tests",
+      "command": "cmd /c npm run test --workspace @ocentra-parent/activity-domain -- network-flow",
+      "status": 0,
+      "log": "output\\network-plan-proof\\36c-network-portal-manual-runtime-state-proof\\activity-domain-network-flow-tests.log"
+    },
+    {
+      "name": "portal-live-activity-network-flow-tests",
+      "command": "cmd /c npm run test --workspace @ocentra-parent/portal -- live-activity-network-flow",
+      "status": 0,
+      "log": "output\\network-plan-proof\\36c-network-portal-manual-runtime-state-proof\\portal-live-activity-network-flow-tests.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\36c-network-portal-manual-runtime-state-proof\\source-shape.log"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\36c-network-portal-manual-runtime-state-proof\\diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "expectedPortalState": "output\\network-plan-proof\\36c-network-portal-manual-runtime-state-proof\\expected-portal-state.json",
+    "proofSummary": "output\\network-plan-proof\\36c-network-portal-manual-runtime-state-proof\\proof-summary.json",
+    "testProof": "test-results\\network-portal-manual-runtime-state-proof\\proof.json"
+  },
+  "provenRows": [
+    "36c Parent portal manual/runtime network state rendering proof"
+  ],
+  "provenStateFamilies": [
+    "read-model row counts",
+    "runtime delivery counts",
+    "runtime storage counts",
+    "manual-required count",
+    "enforcement-command count",
+    "retention tombstone/export/delete references"
+  ],
+  "notClaimed": [
+    "risk-budget portal rendering",
+    "performance/SLO portal rendering",
+    "live broker or family-hub transport dispatch",
+    "remote acknowledgement ingestion",
+    "exact URL, page content, decrypted payload, or private message evidence"
+  ]
+}

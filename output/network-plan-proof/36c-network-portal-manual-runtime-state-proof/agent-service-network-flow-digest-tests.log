@@ -1,0 +1,9 @@
+
+running 2 tests
+test network_flow_digest_tests::network_flow_digest_rolls_up_processes_destinations_and_evidence_refs ... ok
+test network_flow_digest_tests::network_flow_digest_reports_direct_indicators_without_new_destination_guessing ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 261 filtered out; finished in 0.00s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.30s
+     Running unittests src\main.rs (target\debug\deps\ocentra_parent_agent_service-f9b64d6b8709d212.exe)

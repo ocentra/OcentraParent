@@ -1,0 +1,10 @@
+
+running 3 tests
+test network_flow_payload_tests::network_flow_payload_reports_tombstone_refs_without_active_rows ... ok
+test network_flow_payload_tests::network_flow_payload_contains_contract_shaped_digest_json ... ok
+test network_flow_payload_tests::network_flow_payload_includes_runtime_delivery_counts_when_supplied ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 260 filtered out; finished in 0.00s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+     Running unittests src\main.rs (target\debug\deps\ocentra_parent_agent_service-f9b64d6b8709d212.exe)

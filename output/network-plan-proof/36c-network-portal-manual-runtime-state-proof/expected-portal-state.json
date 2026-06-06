@@ -1,0 +1,17 @@
+{
+  "source": "agent.network.flow.read-model.reported activityDigest",
+  "renderedStateFamilies": [
+    "read-model row counts",
+    "runtime observed/delivered/failed/publish counts",
+    "runtime stored/dead-letter counts",
+    "manual-required row count",
+    "enforcement-command event count",
+    "retention tombstone/exportable/deleted evidence state"
+  ],
+  "invariants": [
+    "missing runtime delivery stays Not reported",
+    "service digest counts are parsed through activity-domain contracts",
+    "portal does not invent risk-budget or performance state",
+    "portal does not claim exact URL, decrypted payload, page content, or browser evidence"
+  ]
+}

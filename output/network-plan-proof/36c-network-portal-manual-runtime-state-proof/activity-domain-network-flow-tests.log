@@ -1,0 +1,13 @@
+
+> @ocentra-parent/activity-domain@0.1.1 test
+> vitest run network-flow
+
+
+ RUN  v4.1.6 E:/OcentraParentWorktrees/E-D/OcentraParent/packages/activity-domain
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  16:19:52
+   Duration  702ms (transform 110ms, setup 0ms, import 497ms, tests 21ms, environment 0ms)
+
