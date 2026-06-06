@@ -101,8 +101,13 @@ Every checked item must cite one or more proof artifacts.
       `output/tracking-plan-proof/07-retention-and-custody-model/19-retention-settings-writer-boundary-proof.json`
       and
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-settings-writer-boundary-proof.json`.
+      The service transport now accepts a typed retention settings write command
+      and reports a no-product-claim write preflight result in
+      `output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json`
+      and
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json`.
       The hosted route now renders those read-model rows; actual live service
-      mutation UI and service execution remain pending.
+      mutation UI and product-ready service execution remain pending.
 - [x] Remote sync and remote AI are disabled by default. Contract proof:
       `output/tracking-plan-proof/07-retention-and-custody-model/`,
       `output/tracking-plan-proof/24-ai-provider-routing/`.
@@ -449,9 +454,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       retention settings read-model rows exist, and writer-boundary preflight
       rows now validate the intended retention setting writes. Local executed
       retention settings mutation proof now applies those five write intents
-      while preserving remote sync and remote AI disabled; live writable
-      retention UI, platform runtime, and product-ready retention behavior
-      remain pending.
+      while preserving remote sync and remote AI disabled. The service transport
+      now has a typed retention settings write command/preflight result proof;
+      live writable retention UI, platform runtime, and product-ready retention
+      behavior remain pending.
 - [x] Tracking service read-model command has P2 proof for SQLite tracking rows,
       citation IDs through `trackingReadModel`, retention-delete tombstone
       replay with deleted evidence citation summaries, and narrow parent portal

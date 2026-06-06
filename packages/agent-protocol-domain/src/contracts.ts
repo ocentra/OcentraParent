@@ -253,6 +253,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.browser.social-source-custody.mutation.apply',
     'agent.activity.network.read-model.get',
     'agent.activity.tracking.read-model.get',
+    'agent.activity.tracking.retention-settings.write',
     'agent.browser.inventory.read-model.get',
     'agent.browser.evidence.recent.get',
     'agent.browser.managed.bridge.poll',
@@ -345,6 +346,7 @@ export const AgentEventNameSchema = withParser(
     'agent.browser.social-source-custody.mutation.applied',
     'agent.activity.network.read-model.reported',
     'agent.activity.tracking.read-model.reported',
+    'agent.activity.tracking.retention-settings.write.reported',
     'agent.browser.inventory.read-model.reported',
     'agent.browser.evidence.recent.reported',
     'agent.browser.managed.status.reported',
@@ -550,6 +552,9 @@ export const AgentCommand = {
   ),
   ActivityNetworkReadModelGet: AgentCommandNameSchema.parse('agent.activity.network.read-model.get'),
   ActivityTrackingReadModelGet: AgentCommandNameSchema.parse('agent.activity.tracking.read-model.get'),
+  ActivityTrackingRetentionSettingsWrite: AgentCommandNameSchema.parse(
+    'agent.activity.tracking.retention-settings.write'
+  ),
   BrowserInventoryReadModelGet: AgentCommandNameSchema.parse('agent.browser.inventory.read-model.get'),
   BrowserEvidenceRecentGet: AgentCommandNameSchema.parse('agent.browser.evidence.recent.get'),
   BrowserManagedBridgePoll: AgentCommandNameSchema.parse('agent.browser.managed.bridge.poll'),
@@ -690,6 +695,9 @@ export const AgentEvent = {
   ),
   ActivityNetworkReadModelReported: AgentEventNameSchema.parse('agent.activity.network.read-model.reported'),
   ActivityTrackingReadModelReported: AgentEventNameSchema.parse('agent.activity.tracking.read-model.reported'),
+  ActivityTrackingRetentionSettingsWriteReported: AgentEventNameSchema.parse(
+    'agent.activity.tracking.retention-settings.write.reported'
+  ),
   BrowserInventoryReadModelReported: AgentEventNameSchema.parse('agent.browser.inventory.read-model.reported'),
   BrowserEvidenceRecentReported: AgentEventNameSchema.parse('agent.browser.evidence.recent.reported'),
   BrowserManagedStatusReported: AgentEventNameSchema.parse('agent.browser.managed.status.reported'),

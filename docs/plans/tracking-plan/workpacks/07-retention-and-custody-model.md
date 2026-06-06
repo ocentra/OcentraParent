@@ -43,6 +43,7 @@ Proof root: `output/tracking-plan-proof/07-retention-and-custody-model/`
 - `18-retention-settings-read-model-proof.json`
 - `19-retention-settings-writer-boundary-proof.json`
 - `20-retention-settings-mutation-proof.json`
+- `21-retention-settings-write-command-proof.json`
 - `16-validation-commands.log`
 
 ## AI Worker Checklist
@@ -66,13 +67,16 @@ writer-boundary preflight rows for those five setting write intents through
 `node scripts/test/tracking-retention-settings-writer-boundary-proof.mjs`.
 Local executed service mutation proof for those same five rows now exists
 through `node scripts/test/tracking-retention-settings-mutation-proof.mjs`,
-while remote sync and remote AI stay disabled. Platform behavior, actual
-writable live service-backed retention UI, and product claim readiness are not
-claimed beyond the proof state recorded in
+while remote sync and remote AI stay disabled. Typed service transport proof for
+the retention settings write command/preflight result now exists through
+`node scripts/test/tracking-retention-settings-write-command-proof.mjs`.
+Platform behavior, actual writable live service-backed retention UI, and product
+claim readiness are not claimed beyond the proof state recorded in
 `proof-summary.json`, `14-retention-delete-proof.json`,
 `17-retention-export-proof.json`, `18-retention-settings-read-model-proof.json`,
 `19-retention-settings-writer-boundary-proof.json`,
 `20-retention-settings-mutation-proof.json`,
+`21-retention-settings-write-command-proof.json`,
 the WP30 UI fixture artifact, and the implementation checklist.
 
 ## Where We Want To Be
@@ -175,3 +179,27 @@ This workpack can be assigned independently, implemented against the owning doma
       UI, platform runtime, child-device delivery, Android/iOS physical proof,
       authority, provider delivery, notification receipts, production workers,
       and product-ready retention behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: agent-protocol-domain retention settings write command
+      contract/test, Rust agent-protocol command/event/result types, Rust
+      agent-service WebSocket response test, proof harness, tracking feature
+      doc, implementation checklist, WP07, WP32, and generated WP07/WP32/WP33
+      proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-retention-settings-write-command-proof.mjs`
+      passed locally.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/33-retention-settings-write-command-proof.json`,
+      and
+      `test-results/tracking-retention-settings-write-command-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, and WP32 updated; central product capability checklist
+      remains hub/primary sequenced.
+- [x] Known gaps/manual-required states: live service-backed writable retention
+      UI, product-ready service execution, platform runtime, child-device
+      delivery, Android/iOS physical proof, authority, provider delivery,
+      notification receipts, production workers, and product-ready retention
+      behavior remain proof-gated.

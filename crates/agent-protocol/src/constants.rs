@@ -206,6 +206,8 @@ pub mod event_id {
 
 #[path = "constants/field.rs"]
 pub mod field;
+#[path = "constants/tracking_retention_settings_write.rs"]
+pub mod tracking_retention_settings_write;
 
 pub mod dev_log {
     pub const AGENT_FILE_PREFIX: &str = "agent-service";

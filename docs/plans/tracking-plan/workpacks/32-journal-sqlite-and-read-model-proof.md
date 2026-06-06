@@ -50,6 +50,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `24-retention-settings-read-model-proof.json`
 - `25-retention-settings-writer-boundary-proof.json`
 - `26-retention-settings-mutation-proof.json`
+- `27-retention-settings-write-command-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -95,6 +96,9 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [x] Add local executed service mutation proof for the same retention settings
       rows while preserving remote-sync disabled, remote-AI disabled, and no
       platform/device/product-ready claims.
+- [x] Add typed service transport proof for a retention settings write
+      command/preflight result while preserving no live UI, platform, device,
+      provider, authority, notification receipt, or product-ready claims.
 
 ## Where We Are
 
@@ -149,6 +153,13 @@ intents to local settings rows, keeps remote sync and remote AI disabled, and
 keeps live writable UI, platform runtime, child-device delivery, provider
 delivery, notification receipt, physical-device, authority, production, and
 product-ready claims false.
+The retention settings write-command proof adds a typed
+`agent.activity.tracking.retention-settings.write` command and matching service
+WebSocket response payload, validates the TypeScript parser, Rust protocol
+serialization, and Rust service response, and keeps live writable UI, executed
+product service behavior, platform runtime, child-device delivery, provider
+delivery, notification receipt, physical-device, authority, production, and
+product-ready claims false.
 The hosted parent route now renders those retention settings read-model rows as
 a narrow proof card and captures
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
@@ -194,6 +205,8 @@ This workpack can be assigned independently, implemented against the owning doma
   rendered portal UI or child-device runtime proof.
 - Retention settings read-model and mutation rows are not writable product UI or
   live retention UI proof.
+- Retention settings write-command proof is command/transport preflight proof,
+  not live writable UI or product-ready service execution proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -408,3 +421,27 @@ This workpack can be assigned independently, implemented against the owning doma
       UI, platform runtime, child-device delivery, Android/iOS physical proof,
       authority, provider delivery, notification receipts, production workers,
       and product-ready retention behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: agent-protocol-domain retention settings write command
+      contract/test, Rust agent-protocol command/event/result types, Rust
+      agent-service WebSocket response test, proof harness, tracking feature
+      doc, implementation checklist, WP07, WP32, and generated WP07/WP32/WP33
+      proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-retention-settings-write-command-proof.mjs`
+      passed locally.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/33-retention-settings-write-command-proof.json`,
+      and
+      `test-results/tracking-retention-settings-write-command-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, and WP32 updated; central product capability checklist
+      remains hub/primary sequenced.
+- [x] Known gaps/manual-required states: live service-backed writable retention
+      UI, product-ready service execution, platform runtime, child-device
+      delivery, Android/iOS physical proof, authority, provider delivery,
+      notification receipts, production workers, and product-ready retention
+      behavior remain proof-gated.

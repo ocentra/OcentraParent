@@ -46,6 +46,8 @@ pub const BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL: &str =
     "browserSocialParentNotificationDeliveryReadModel";
 pub const BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION: &str = "browserSocialSourceCustodyMutation";
 pub const ACTIVITY_TRACKING_READ_MODEL: &str = "trackingReadModel";
+pub const ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT: &str =
+    "trackingRetentionSettingsWriteResult";
 pub const ACTIVE_TAB_CAPABILITY: &str = "activeTabCapability";
 pub const ACTIVE_PROOF_SOURCE: &str = "activeProofSource";
 pub const ACTIVE_STATE: &str = "activeState";

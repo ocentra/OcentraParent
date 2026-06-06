@@ -144,6 +144,8 @@ pub enum AgentCommandName {
     AgentActivityNetworkReadModelGet,
     #[serde(rename = "agent.activity.tracking.read-model.get")]
     AgentActivityTrackingReadModelGet,
+    #[serde(rename = "agent.activity.tracking.retention-settings.write")]
+    AgentActivityTrackingRetentionSettingsWrite,
     #[serde(rename = "agent.browser.inventory.read-model.get")]
     AgentBrowserInventoryReadModelGet,
     #[serde(rename = "agent.browser.evidence.recent.get")]
@@ -326,6 +328,8 @@ pub enum AgentEventName {
     AgentActivityNetworkReadModelReported,
     #[serde(rename = "agent.activity.tracking.read-model.reported")]
     AgentActivityTrackingReadModelReported,
+    #[serde(rename = "agent.activity.tracking.retention-settings.write.reported")]
+    AgentActivityTrackingRetentionSettingsWriteReported,
     #[serde(rename = "agent.browser.inventory.read-model.reported")]
     AgentBrowserInventoryReadModelReported,
     #[serde(rename = "agent.browser.evidence.recent.reported")]
