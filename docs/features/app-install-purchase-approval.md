@@ -281,9 +281,7 @@ generic app blocking covers this concern.
 - `scripts/test/app-install-purchase-store-manual-evidence-proof.mjs` records
   that store manual evidence proof under
   `test-results/app-install-purchase-store-manual-evidence-proof/proof.json`
-  when run. The proof records the product checklist row as a pending
-  lock-gated delta because E-C currently owns
-  `docs/product-capability-checklist.md`.
+  when run, with the product checklist row updated for the same proof movement.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and

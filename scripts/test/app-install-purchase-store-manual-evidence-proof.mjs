@@ -50,7 +50,7 @@ const proof = {
     expectation:
       'docs/expectations/app-install-purchase-approval.md updated for store manual evidence acceptance coverage',
     checklist:
-      'docs/product-capability-checklist.md blocked by current E-C lock for production-support provider-secret custody status proof; checklist delta is to add app-install store manual evidence proof to the app install/purchase row evidence and keep provider/store execution gaps explicit',
+      'docs/product-capability-checklist.md updated for the app-install store manual evidence proof while keeping provider/store execution gaps explicit',
   },
   evidence: {
     source: 'packages/parent-domain/src/app-install-purchase-store-manual-evidence-proof.ts',

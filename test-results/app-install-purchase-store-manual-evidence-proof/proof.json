@@ -1,8 +1,8 @@
 {
   "proof": "app-install-purchase-store-manual-evidence-proof",
-  "commit": "b4429c9066922df57437983586d963e64c777d05",
+  "commit": "a759e43a3aabb55372e008710072c9dda899b0cf",
   "branch": "codex/e-b-app-install-store-manual-evidence-proof",
-  "generatedAt": "2026-06-06T08:52:39.454Z",
+  "generatedAt": "2026-06-06T09:32:16.684Z",
   "summary": {
     "storeRows": 5,
     "manualEvidenceRequiredRows": 2,
@@ -152,7 +152,7 @@
   "docs": {
     "feature": "docs/features/app-install-purchase-approval.md updated for store manual evidence proof movement",
     "expectation": "docs/expectations/app-install-purchase-approval.md updated for store manual evidence acceptance coverage",
-    "checklist": "docs/product-capability-checklist.md blocked by current E-C lock for production-support provider-secret custody status proof; checklist delta is to add app-install store manual evidence proof to the app install/purchase row evidence and keep provider/store execution gaps explicit"
+    "checklist": "docs/product-capability-checklist.md updated for the app-install store manual evidence proof while keeping provider/store execution gaps explicit"
   },
   "evidence": {
     "source": "packages/parent-domain/src/app-install-purchase-store-manual-evidence-proof.ts",
