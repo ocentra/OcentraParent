@@ -73,6 +73,8 @@ before `DONE` or PR-ready reporting.
 65. WP70 app/game policy preview handoff.
 66. WP73 app/game platform extension proof-pack readiness.
 67. WP74 app/game source freshness policy consumption.
+68. WP75 app/game source freshness preview gate.
+69. WP76 app/game source-gated policy preview read model.
 
 ## Standard AI Worker Checklist
 
