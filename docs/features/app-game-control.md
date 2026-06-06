@@ -406,6 +406,12 @@ control with better evidence and local audit.
   portal app/game dashboard keeps Running and Foreground as separate metrics and
   per-row counts, including running rows that are explicitly not foreground,
   without promoting runtime evidence to foreground usage.
+- The foreground/content merge-blocking display gate is now backed by
+  `output/app-game-plan-proof/merge-gates/foreground-content-boundary`: the
+  foreground evidence contract restricts content knowledge to `notClaimed`, and
+  the App/Game Sessions dashboard renders foreground state as source/read-model
+  refs and counts without exposing window title refs, raw titles, or executable
+  paths.
 
 ## Current Gap
 
