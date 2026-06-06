@@ -75,6 +75,12 @@ mobile readiness, and control catalogs.
   and keep future parent-surface proof refs visible without claiming response
   consumer implementation, parent-surface rendering, portal rendering, service
   runtime, adapter dispatch, or platform enforcement.
+- App/game source-gated policy preview timer service-readiness response
+  consumer parent-surface read-model handoff contracts that consume
+  parent-surface handoff rows and keep future parent-surface read-model proof
+  refs visible without claiming response consumer implementation,
+  parent-surface read-model runtime/persistence, parent-surface rendering,
+  portal rendering, service runtime, adapter dispatch, or platform enforcement.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.
@@ -423,6 +429,11 @@ flowchart LR
   Timer service-readiness response-consumer parent-surface handoff rows consume
   response-consumer handoff rows and keep future parent-surface proof refs
   visible while keeping parent-surface rendering, portal rendering, service
+  runtime, and adapter dispatch unclaimed.
+  Timer service-readiness response-consumer parent-surface read-model handoff
+  rows consume parent-surface handoff rows and keep future parent-surface
+  read-model proof refs visible while keeping parent-surface read-model
+  runtime/persistence, parent-surface rendering, portal rendering, service
   runtime, and adapter dispatch unclaimed.
   Timer service-readiness response consumer parent-surface handoff rows consume
   response-consumer handoff rows and keep future parent-surface proof refs
