@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-06T03:28:13.152Z",
+  "commit": "35f4b207b904a2b3a6b28a6f7ad99464b7822c17",
+  "proofMode": "production-support-runtime-gap-proof",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/production-support-runtime-gap-proof.test.ts"
+  ],
+  "evidence": {
+    "contract": "packages/parent-domain/src/production-support-runtime-gap-proof.ts",
+    "values": "packages/parent-domain/src/production-support-runtime-gap-values.ts",
+    "readModel": "packages/parent-domain/src/production-support-runtime-gap-read-model.ts",
+    "contractTest": "packages/parent-domain/tests/production-support-runtime-gap-proof.test.ts",
+    "documentation": [
+      "docs/features/production-distribution-support.md",
+      "docs/expectations/release-installer.md",
+      "docs/expectations/billing.md",
+      "docs/expectations/data-custody.md",
+      "docs/expectations/documentation.md",
+      "docs/product-capability-checklist.md"
+    ],
+    "proofOutput": "test-results/production-support-runtime-gap-proof/proof.json",
+    "summaryOutput": "output/production-support-runtime-gap-proof/proof-summary.json"
+  },
+  "rows": [
+    {
+      "item": "public-website-runtime-gap",
+      "sourceProof": "production-release-public-runtime-handoff-proof",
+      "sourceContractState": "source-contract-ready",
+      "runtimeExecutionState": "not-implemented",
+      "backendRuntimeState": "not-implemented",
+      "providerRuntimeState": "not-implemented",
+      "publicationState": "publication-required",
+      "supportSafeDataClasses": [
+        "public-route-status",
+        "manual-proof-reference",
+        "source-contract-reference"
+      ]
+    },
+    {
+      "item": "support-publication-execution-gap",
+      "sourceProof": "production-support-publication-workflow-proof",
+      "sourceContractState": "source-contract-ready",
+      "runtimeExecutionState": "manual-required",
+      "backendRuntimeState": "not-implemented",
+      "providerRuntimeState": "not-implemented",
+      "publicationState": "publication-required",
+      "supportSafeDataClasses": [
+        "publication-status",
+        "support-runbook-status",
+        "manual-proof-reference",
+        "source-contract-reference"
+      ]
+    },
+    {
+      "item": "support-backend-upload-execution-gap",
+      "sourceProof": "production-support-backend-upload-execution-runtime-proof",
+      "sourceContractState": "source-contract-ready",
+      "runtimeExecutionState": "manual-required",
+      "backendRuntimeState": "backend-required",
+      "providerRuntimeState": "not-implemented",
+      "publicationState": "manual-required",
+      "supportSafeDataClasses": [
+        "support-upload-status-summary",
+        "manual-proof-reference",
+        "source-contract-reference"
+      ]
+    },
+    {
+      "item": "account-billing-provider-runtime-gap",
+      "sourceProof": "production-support-account-sla-status-proof",
+      "sourceContractState": "source-contract-ready",
+      "runtimeExecutionState": "manual-required",
+      "backendRuntimeState": "backend-required",
+      "providerRuntimeState": "provider-required",
+      "publicationState": "manual-required",
+      "supportSafeDataClasses": [
+        "account-status-summary",
+        "billing-support-status-summary",
+        "manual-proof-reference",
+        "source-contract-reference"
+      ]
+    },
+    {
+      "item": "legal-export-delete-runtime-gap",
+      "sourceProof": "production-incident-support-status-proof",
+      "sourceContractState": "source-contract-ready",
+      "runtimeExecutionState": "manual-required",
+      "backendRuntimeState": "not-implemented",
+      "providerRuntimeState": "not-implemented",
+      "publicationState": "manual-required",
+      "supportSafeDataClasses": [
+        "legal-review-status",
+        "export-delete-status-summary",
+        "manual-proof-reference",
+        "source-contract-reference"
+      ]
+    },
+    {
+      "item": "remote-support-sla-runtime-gap",
+      "sourceProof": "production-support-account-sla-status-proof",
+      "sourceContractState": "source-contract-ready",
+      "runtimeExecutionState": "not-implemented",
+      "backendRuntimeState": "not-implemented",
+      "providerRuntimeState": "not-implemented",
+      "publicationState": "manual-required",
+      "supportSafeDataClasses": [
+        "remote-support-status-summary",
+        "manual-proof-reference",
+        "source-contract-reference"
+      ]
+    }
+  ],
+  "nonClaims": [
+    "no-real-public-runtime",
+    "no-support-publication-execution",
+    "no-support-backend-upload-execution",
+    "no-account-backend-runtime",
+    "no-account-lookup-execution",
+    "no-billing-provider-runtime",
+    "no-billing-provider-contact",
+    "no-legal-disclosure-execution",
+    "no-export-delete-runtime-execution",
+    "no-remote-support-session",
+    "no-production-sla",
+    "no-child-activity-custody",
+    "no-provider-secrets",
+    "no-hosted-family-data"
+  ],
+  "knownGaps": [
+    "Public website, download, account, subscription, and support status surfaces remain source-contract handoffs until a live family.ocentra.ca runtime is implemented and proven.",
+    "Support publication, legal disclosure, export/delete runtime, support backend upload execution, account lookup, billing provider contact, remote support sessions, and production SLA remain manual-required, backend-required, provider-required, or not implemented.",
+    "The proof contains only support-safe status summaries and source/manual references; it excludes child activity evidence, raw support bundles, provider secrets, account lookup results, billing provider contact records, hosted family data, backend payloads, private paths, screenshots, journals, and SQLite snapshots."
+  ]
+}
