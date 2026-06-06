@@ -64,6 +64,10 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
 - Displays service-backed app/game policy readiness rows on App/Game Sessions
   without adding policy execution, persistence, adapter dispatch, or broad
   blocking claims.
+- Displays the Browser-route social dashboard shell for the current
+  unavailable zero-row state while service-backed social snapshots, connector
+  runtime, native app control, final policy execution, notifications, and
+  enforcement remain unclaimed.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own
@@ -92,5 +96,7 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   portal-only completion claims for unimplemented discovery adapters.
 - Render the dedicated App/Game Sessions source panel from the new intent seam,
   without promoting adapter or policy claims.
+- Replace the Browser-route social dashboard unavailable shell with
+  service-backed social rows only after the runtime snapshot path exists.
 - Add live policy evaluator, authoring UI, persistence, notification/child UX,
   and platform adapter proof after readiness rendering.
