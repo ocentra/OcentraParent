@@ -56,6 +56,12 @@ claim needs proof, not slogans.
   should consume typed evidence events and publish typed result/degraded events
   for policy, action, audit, read-model, and deletion consumers instead of
   depending on direct capture-to-AI or AI-to-policy calls.
+- `scripts/test/screen-ai-event-driven-runtime-proof.mjs` now proves the
+  screen successful path can publish a typed AI result event from a typed screen
+  evidence event and carry that result into policy/action/read-model/deletion
+  phases without direct AI-to-policy/action shortcuts. General AI job contracts,
+  degraded-result events, live service consumers, and household mesh event
+  bridge remain planned.
 - The [Household AI Provider Mesh Plan](../plans/ai-plan/household-ai-provider-mesh-plan.md)
   now defines trusted household AI providers, the Household Mesh Bridge,
   provider advertisement/heartbeat, claim/lease, result validation, no raw
@@ -346,8 +352,9 @@ public/live surface proof, production parent explanation portal rendering,
 broader enforcement handoff, production browser-trigger producers, physical
 household family AI hub runtime/discovery beyond the loopback proof,
 production remote assistant provider execution and portal assistant UI,
-cloud-streamed frame proof, mobile browser parity, and validation against
-production external evidence variants.
+cloud-streamed frame proof, mobile browser parity, live service AI event
+consumers, degraded-result event flow, household mesh event bridge, and
+validation against production external evidence variants.
 
 ## Checklist
 
@@ -422,11 +429,14 @@ production external evidence variants.
 - [x] Screen AI model runtime flood-control/backpressure proof rejects duplicate
       active heavy runtimes, queue overflow, policy-eligible overload rows,
       remote provider fallback, and raw image retention.
+- [x] Screen successful-path AI event runtime proof publishes a typed AI result
+      event from typed screen evidence and carries it to policy/action/read-model
+      phases without direct AI-to-policy/action shortcuts.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub
-runtime/discovery, and broad enforcement handoff remain in the Current Gap
-section above.
+runtime/discovery, live service AI event consumers, degraded-result event flow,
+and broad enforcement handoff remain in the Current Gap section above.
 
 ## Next AI Instructions
 
