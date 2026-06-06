@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T09:33:21.233Z",
-  "commit": "d3d41b4b4ff5d5ec20b40c5c54d38a2d05dbecd4",
+  "checkedAt": "2026-06-06T09:48:45.219Z",
+  "commit": "85cb8b8cabf687392d812aab882538dc4f0d1f8c",
   "workpackIds": [
     "30-parent-and-child-ui-ux-surfaces",
     "31-platform-extension-checklists-and-proof-routing",
@@ -547,7 +547,7 @@
   },
   "commands": [
     {
-      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-XW284N\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-XW284N\\seed-tracking.sql",
+      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-A2IdSu\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-A2IdSu\\seed-tracking.sql",
       "exitCode": 0
     },
     {
