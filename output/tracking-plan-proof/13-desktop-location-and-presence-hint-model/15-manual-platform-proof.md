@@ -1,4 +1,5 @@
-# 13-desktop-location-and-presence-hint-model Manual Platform Proof
+# WP13 Manual Platform Proof
 
-This focused proof does not claim Android/iOS background tracking, foreground samples, real geofence delivery, provider delivery, UI completion, or precise desktop location.
-Platform rows remain manual-required or real-device-required until real device, entitlement, permission, store/privacy, and screenshot evidence is attached.
+- Windows, macOS, and Linux desktop rows are represented as hint/manual-required until an OS location runtime sample is implemented and separately proved.
+- This proof only establishes contract/read-model boundaries and negative claims for desktop presence hints.
+- It does not claim product-ready desktop tracking, physical child presence, provider delivery, device-owner controls, or background location parity with Android/iOS.

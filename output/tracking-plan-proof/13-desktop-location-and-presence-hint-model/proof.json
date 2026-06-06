@@ -1,0 +1,329 @@
+{
+  "proofMode": "tracking-desktop-presence-hint-proof",
+  "generatedAt": "2026-06-06T09:45:00.000Z",
+  "branch": "codex/tracking-desktop-presence-hint-proof",
+  "baseCommitAtGeneration": "269ce82a0f424f5b862b911345a642a056001ee6",
+  "gitStatusShort": "",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-desktop-presence-hint-proof"
+  ],
+  "summary": {
+    "rows": 7,
+    "hintOnlyCount": 3,
+    "manualCheckInCount": 1,
+    "staleOfflineCount": 1,
+    "missingDeviceCount": 1,
+    "manualRequiredCount": 1,
+    "runtimeEvidenceRefs": 7,
+    "parentVisibleStatusTokens": {
+      "tracking-desktop-presence-hint-only": 3,
+      "tracking-desktop-presence-manual-check-in": 1,
+      "tracking-desktop-presence-stale-offline-last-known": 1,
+      "tracking-desktop-presence-missing-device": 1,
+      "tracking-desktop-presence-os-location-manual-required": 1
+    },
+    "claimStates": {
+      "hint-only": 3,
+      "manual-check-in": 1,
+      "stale-offline": 1,
+      "missing-device": 1,
+      "manual-required": 1
+    }
+  },
+  "nonClaims": {
+    "preciseLocationClaimed": false,
+    "gpsClaimed": false,
+    "physicalPresenceClaimed": false,
+    "lanPairingPhysicalProofClaimed": false,
+    "wifiPhysicalPresenceClaimed": false,
+    "ipPhysicalPresenceClaimed": false,
+    "osLocationRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "productReadyDesktopTrackingClaimed": false
+  },
+  "proofPaths": {
+    "source": "packages/parent-domain/src/tracking-desktop-presence-hint-proof.ts",
+    "test": "packages/parent-domain/tests/tracking-desktop-presence-hint-proof.test.ts",
+    "harness": "scripts/test/tracking-desktop-presence-hint-proof.mjs",
+    "evidence": "test-results/tracking-desktop-presence-hint-proof/proof.json",
+    "trackingProofPack": "output/tracking-plan-proof/13-desktop-location-and-presence-hint-model"
+  },
+  "readModel": {
+    "schemaVersion": "v0.6",
+    "proofId": "tracking-desktop-presence-hint-proof",
+    "generatedAt": "2026-06-06T09:45:00.000Z",
+    "family": {
+      "familyId": "family-desktop-presence"
+    },
+    "device": {
+      "deviceId": "device-avery-laptop",
+      "childProfileId": "child-profile-avery",
+      "label": "Avery laptop",
+      "platform": "windows"
+    },
+    "sourceProofRefs": [
+      "location-geofence-device-status",
+      "workpack-13-desktop-location-and-presence-hint-model",
+      "v0-5-location-platform-deep-dive",
+      "location-geofence-expectation",
+      "platforms-expectation"
+    ],
+    "runtimeEvidenceRefs": [
+      {
+        "evidenceReferenceId": "lan-pairing-seen-on-home-network",
+        "kind": "activity-event",
+        "observedAt": "2026-06-06T09:45:00.000Z"
+      },
+      {
+        "evidenceReferenceId": "wifi-ssid-seen-home-network",
+        "kind": "activity-event",
+        "observedAt": "2026-06-06T09:45:00.000Z"
+      },
+      {
+        "evidenceReferenceId": "ip-coarse-region-home-city",
+        "kind": "activity-event",
+        "observedAt": "2026-06-06T09:45:00.000Z"
+      },
+      {
+        "evidenceReferenceId": "manual-check-in-avery-laptop-20260606",
+        "kind": "policy-decision",
+        "observedAt": "2026-06-06T09:45:00.000Z"
+      },
+      {
+        "evidenceReferenceId": "last-known-desktop-presence-stale",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T09:45:00.000Z"
+      },
+      {
+        "evidenceReferenceId": "missing-device-desktop-query-store",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T09:45:00.000Z"
+      },
+      {
+        "evidenceReferenceId": "desktop-os-location-runtime-not-proved",
+        "kind": "policy-decision",
+        "observedAt": "2026-06-06T09:45:00.000Z"
+      }
+    ],
+    "rows": [
+      {
+        "rowId": "desktop-presence-lan-hint",
+        "caseKind": "lan-presence-hint",
+        "source": "lan-pairing-presence",
+        "claimState": "hint-only",
+        "observedAt": "2026-06-06T09:45:00.000Z",
+        "platform": "windows",
+        "freshnessState": "fresh-hint",
+        "evidenceRefs": [
+          "lan-pairing-seen-on-home-network"
+        ],
+        "auditRefs": [
+          "audit-desktop-lan-hint-no-gps"
+        ],
+        "lastKnownEvidenceRef": null,
+        "manualCheckInRef": null,
+        "stale": false,
+        "offline": false,
+        "missingDevice": false,
+        "parentVisibleStatusToken": "tracking-desktop-presence-hint-only",
+        "manualRequiredReasonRefs": [],
+        "preciseLocationClaimed": false,
+        "gpsClaimed": false,
+        "physicalPresenceClaimed": false,
+        "lanPairingPhysicalProofClaimed": false,
+        "osLocationRuntimeClaimed": false
+      },
+      {
+        "rowId": "desktop-presence-wifi-hint",
+        "caseKind": "wifi-presence-hint",
+        "source": "wifi-network-hint",
+        "claimState": "hint-only",
+        "observedAt": "2026-06-06T09:45:00.000Z",
+        "platform": "windows",
+        "freshnessState": "fresh-hint",
+        "evidenceRefs": [
+          "wifi-ssid-seen-home-network"
+        ],
+        "auditRefs": [
+          "audit-desktop-wifi-hint-no-gps"
+        ],
+        "lastKnownEvidenceRef": null,
+        "manualCheckInRef": null,
+        "stale": false,
+        "offline": false,
+        "missingDevice": false,
+        "parentVisibleStatusToken": "tracking-desktop-presence-hint-only",
+        "manualRequiredReasonRefs": [],
+        "preciseLocationClaimed": false,
+        "gpsClaimed": false,
+        "physicalPresenceClaimed": false,
+        "lanPairingPhysicalProofClaimed": false,
+        "osLocationRuntimeClaimed": false
+      },
+      {
+        "rowId": "desktop-presence-ip-coarse-hint",
+        "caseKind": "ip-coarse-hint",
+        "source": "ip-coarse-hint",
+        "claimState": "hint-only",
+        "observedAt": "2026-06-06T09:45:00.000Z",
+        "platform": "windows",
+        "freshnessState": "fresh-hint",
+        "evidenceRefs": [
+          "ip-coarse-region-home-city"
+        ],
+        "auditRefs": [
+          "audit-desktop-ip-hint-no-precise-location"
+        ],
+        "lastKnownEvidenceRef": null,
+        "manualCheckInRef": null,
+        "stale": false,
+        "offline": false,
+        "missingDevice": false,
+        "parentVisibleStatusToken": "tracking-desktop-presence-hint-only",
+        "manualRequiredReasonRefs": [],
+        "preciseLocationClaimed": false,
+        "gpsClaimed": false,
+        "physicalPresenceClaimed": false,
+        "lanPairingPhysicalProofClaimed": false,
+        "osLocationRuntimeClaimed": false
+      },
+      {
+        "rowId": "desktop-presence-manual-check-in",
+        "caseKind": "manual-check-in",
+        "source": "child-manual-check-in",
+        "claimState": "manual-check-in",
+        "observedAt": "2026-06-06T09:45:00.000Z",
+        "platform": "windows",
+        "freshnessState": "manual-reported",
+        "evidenceRefs": [
+          "manual-check-in-avery-laptop-20260606"
+        ],
+        "auditRefs": [
+          "audit-desktop-manual-check-in"
+        ],
+        "lastKnownEvidenceRef": null,
+        "manualCheckInRef": "manual-check-in-avery-laptop-20260606",
+        "stale": false,
+        "offline": false,
+        "missingDevice": false,
+        "parentVisibleStatusToken": "tracking-desktop-presence-manual-check-in",
+        "manualRequiredReasonRefs": [],
+        "preciseLocationClaimed": false,
+        "gpsClaimed": false,
+        "physicalPresenceClaimed": false,
+        "lanPairingPhysicalProofClaimed": false,
+        "osLocationRuntimeClaimed": false
+      },
+      {
+        "rowId": "desktop-presence-stale-offline-last-known",
+        "caseKind": "stale-offline-last-known",
+        "source": "query-store-last-known",
+        "claimState": "stale-offline",
+        "observedAt": "2026-06-06T09:45:00.000Z",
+        "platform": "windows",
+        "freshnessState": "stale",
+        "evidenceRefs": [
+          "last-known-desktop-presence-stale"
+        ],
+        "auditRefs": [
+          "audit-desktop-stale-offline-no-current-location"
+        ],
+        "lastKnownEvidenceRef": "last-known-desktop-presence-stale",
+        "manualCheckInRef": null,
+        "stale": true,
+        "offline": true,
+        "missingDevice": false,
+        "parentVisibleStatusToken": "tracking-desktop-presence-stale-offline-last-known",
+        "manualRequiredReasonRefs": [],
+        "preciseLocationClaimed": false,
+        "gpsClaimed": false,
+        "physicalPresenceClaimed": false,
+        "lanPairingPhysicalProofClaimed": false,
+        "osLocationRuntimeClaimed": false
+      },
+      {
+        "rowId": "desktop-presence-missing-device",
+        "caseKind": "missing-device",
+        "source": "query-store-missing-device",
+        "claimState": "missing-device",
+        "observedAt": "2026-06-06T09:45:00.000Z",
+        "platform": "windows",
+        "freshnessState": "missing",
+        "evidenceRefs": [
+          "missing-device-desktop-query-store"
+        ],
+        "auditRefs": [
+          "audit-desktop-missing-device-no-current-location"
+        ],
+        "lastKnownEvidenceRef": null,
+        "manualCheckInRef": null,
+        "stale": false,
+        "offline": true,
+        "missingDevice": true,
+        "parentVisibleStatusToken": "tracking-desktop-presence-missing-device",
+        "manualRequiredReasonRefs": [],
+        "preciseLocationClaimed": false,
+        "gpsClaimed": false,
+        "physicalPresenceClaimed": false,
+        "lanPairingPhysicalProofClaimed": false,
+        "osLocationRuntimeClaimed": false
+      },
+      {
+        "rowId": "desktop-presence-os-location-manual-required",
+        "caseKind": "desktop-os-location-manual-required",
+        "source": "manual-platform-plan",
+        "claimState": "manual-required",
+        "observedAt": "2026-06-06T09:45:00.000Z",
+        "platform": "windows",
+        "freshnessState": "manual-required",
+        "evidenceRefs": [
+          "desktop-os-location-runtime-not-proved"
+        ],
+        "auditRefs": [
+          "audit-desktop-os-location-manual-required"
+        ],
+        "lastKnownEvidenceRef": null,
+        "manualCheckInRef": null,
+        "stale": false,
+        "offline": false,
+        "missingDevice": false,
+        "parentVisibleStatusToken": "tracking-desktop-presence-os-location-manual-required",
+        "manualRequiredReasonRefs": [
+          "tracking-desktop-os-location-sample-not-proved",
+          "tracking-desktop-physical-device-not-proved",
+          "tracking-desktop-product-runtime-not-proved"
+        ],
+        "preciseLocationClaimed": false,
+        "gpsClaimed": false,
+        "physicalPresenceClaimed": false,
+        "lanPairingPhysicalProofClaimed": false,
+        "osLocationRuntimeClaimed": false
+      }
+    ],
+    "hintOnlyCount": 3,
+    "manualCheckInCount": 1,
+    "staleOfflineCount": 1,
+    "missingDeviceCount": 1,
+    "manualRequiredCount": 1,
+    "proofNonClaims": [
+      "no-gps-from-lan-wifi-ip",
+      "no-precise-location-from-network-hints",
+      "no-lan-pairing-physical-presence-proof",
+      "no-wifi-physical-presence-proof",
+      "no-ip-physical-presence-proof",
+      "no-desktop-os-location-runtime",
+      "no-physical-device-proof",
+      "no-product-ready-desktop-tracking"
+    ],
+    "preciseLocationClaimed": false,
+    "gpsClaimed": false,
+    "physicalPresenceClaimed": false,
+    "lanPairingPhysicalProofClaimed": false,
+    "wifiPhysicalPresenceClaimed": false,
+    "ipPhysicalPresenceClaimed": false,
+    "osLocationRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "productReadyDesktopTrackingClaimed": false
+  }
+}

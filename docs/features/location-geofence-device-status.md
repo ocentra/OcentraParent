@@ -175,6 +175,13 @@ expose location or device-status features. Parents expect this category.
   non-claims for current location, live tracking runtime, powered-off device
   tracking, remote sync runtime, provider delivery, portal runtime UI,
   physical-device proof, and OS lost-mode APIs.
+- WP13 desktop presence hint proof now exists through
+  `node scripts/test/tracking-desktop-presence-hint-proof.mjs`. It proves
+  parent-domain rows for LAN presence hint, Wi-Fi presence hint, IP coarse hint,
+  manual check-in, stale/offline last-known state, missing-device state, and
+  desktop OS location manual-required state while rejecting GPS, precise
+  location, physical-presence, LAN-pairing physical proof, OS location runtime,
+  physical-device proof, and product-ready desktop tracking claims.
 - WP32 report/policy consumer proof now exists through
   `node scripts/test/tracking-report-policy-consumer-proof.mjs`. It derives
   parent report summary, policy evidence drill-in, and retention audit/export
@@ -368,6 +375,12 @@ snapshots/accessibility beyond the hosted parent route are proved.
       upload status, parent action/audit refs, UI state tokens, and no-current
       location copy gates. This is not portal runtime UI, child-device delivery,
       physical-device, provider delivery, remote sync, or OS lost-mode API proof.
+- [x] Desktop presence hint parent-domain proof for LAN, Wi-Fi, IP coarse hint,
+      manual check-in, stale/offline last-known, missing-device, and desktop OS
+      location manual-required rows. This is not GPS, precise-location,
+      physical-presence, OS location runtime, physical-device, provider
+      delivery, portal/runtime UI completion, or product-ready desktop tracking
+      proof.
 - [x] P1 ActivityStore tracking-event SQLite ingest proof.
 - [x] P2 service-backed tracking read-model command proof for SQLite journal
       rows, citation IDs, retention-delete tombstone replay, and active
