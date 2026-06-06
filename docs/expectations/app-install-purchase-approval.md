@@ -263,6 +263,13 @@ Expected contract families:
   interception, platform adapter implementation, runtime device delivery,
   child-device delivery, portal approval/report UI, app blocking, child
   activity custody, and Ocentra-hosted family data custody stay unclaimed.
+- Product-claim store handoff rows link safe parent workflow rows with
+  provider/store manual evidence packet rows into parent-visible store handoff
+  review-ready, manual-required, and unavailable states while product claims
+  remain unapproved and portal approval UI, portal report UI, provider API
+  execution, store integration, platform adapter implementation,
+  child-device delivery, runtime writer/report delivery, app blocking, child
+  activity custody, and Ocentra-hosted family data custody stay unclaimed.
 
 ## Validation Gates
 
@@ -434,6 +441,12 @@ Expected contract families:
   portal/provider/store/platform/child delivery/runtime/app-blocking/custody
   overclaim rejection, public package export visibility, and required non-claim
   coverage.
+- TypeScript schema tests and a proof harness for product-claim store handoff
+  rows, source safe parent workflow linkage, manual evidence packet linkage,
+  required portal, child delivery, provider/store execution, platform adapter,
+  manual evidence, audit, and report refs, product-claim approval/provider/
+  portal/delivery/app-blocking/custody overclaim rejection, and required
+  non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -585,6 +598,11 @@ Expected contract families:
   implementation, runtime device delivery, child-device delivery, portal
   approval/report UI, app blocking, child activity custody, Ocentra-hosted
   family data custody, or an approved product claim.
+- Do not treat product-claim store handoff refs as approved product claims,
+  portal approval UI, portal report UI, provider API execution, store
+  integration, platform adapter implementation, child-device delivery, runtime
+  writer delivery, runtime report delivery, app blocking, child activity
+  custody, Ocentra-hosted family data custody, or store integration proof.
 
 ## Done Signal
 
