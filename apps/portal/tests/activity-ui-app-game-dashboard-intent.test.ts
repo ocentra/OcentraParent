@@ -95,6 +95,7 @@ function expectPopulatedDashboard(dashboard: ActivityUiIntent['appGameDashboard'
   expect(dashboard.capabilityRows.map((row) => row.label)).toContain('permission-required');
   expectSourceStatusRows(dashboard);
   expectSourcePanelSections(dashboard);
+  expectNoRawExecutablePathLeak(dashboard);
 }
 
 function expectSourceStatusRows(dashboard: ActivityUiIntent['appGameDashboard']) {
@@ -148,6 +149,13 @@ function expectSourcePanelSections(dashboard: ActivityUiIntent['appGameDashboard
   ]);
 }
 
+function expectNoRawExecutablePathLeak(dashboard: ActivityUiIntent['appGameDashboard']) {
+  const serializedDashboard = JSON.stringify(dashboard);
+  expect(serializedDashboard).not.toContain('C:\\Users\\child\\AppData\\Local\\Study Timer\\study-timer.exe');
+  expect(serializedDashboard).not.toContain('C:\\Program Files\\VoxelQuest\\VoxelQuest.exe');
+  expect(serializedDashboard).not.toContain('executablePathRef');
+}
+
 function appUseReadModel() {
   return {
     schemaVersion: ActivitySurfaceSchemaVersion,
@@ -171,6 +179,7 @@ function studyTimerAppRow() {
     runtimeState: 'running',
     foregroundState: 'foreground',
     capabilityStatus: 'ready',
+    executablePathRef: 'C:\\Users\\child\\AppData\\Local\\Study Timer\\study-timer.exe',
     lastObservedAt: '2026-06-01T15:00:00Z',
     totalMs: 900000,
     launchCount: 2,
@@ -288,6 +297,7 @@ function gamesReadModel() {
         runtimeState: 'running',
         foregroundState: 'foreground',
         capabilityStatus: 'permission-required',
+        executablePathRef: 'C:\\Program Files\\VoxelQuest\\VoxelQuest.exe',
         lastObservedAt: '2026-06-01T14:56:00Z',
         totalMs: 300000,
         sessionCount: 1,

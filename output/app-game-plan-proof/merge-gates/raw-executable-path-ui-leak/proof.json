@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-raw-executable-path-ui-leak-gate-proof",
+  "generatedAt": "2026-06-06T21:30:37.708Z",
+  "branch": "codex/app-game-inventory-display-gate-proof",
+  "commit": "960c5aecd1f7bf2bfd9b8b4ff553155ae1644c07",
+  "gitStatusShort": "M apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts\n M docs/features/app-game-control.md\n M docs/plans/app-game-plan/implementation-checklist.md\n?? scripts/test/app-game-raw-executable-path-ui-leak-gate-proof.mjs",
+  "commands": [
+    "cmd /c npm run test --workspace @ocentra-parent/portal -- activity-ui-app-game-dashboard-intent.test.ts\nexit=0\n\n> @ocentra-parent/portal@0.1.1 test\n> vitest run tests activity-ui-app-game-dashboard-intent.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/apps/portal\n\n\n Test Files  16 passed (16)\n      Tests  69 passed (69)\n   Start at  17:30:34\n   Duration  3.14s (transform 16.72s, setup 0ms, import 36.56s, tests 337ms, environment 3ms)\n\n\u001b[2m5:30:34 p.m.\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `esbuild` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `oxc` instead.\u001b[39m\n\u001b[2m5:30:34 p.m.\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `optimizeDeps.esbuildOptions` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.\u001b[39m\n\u001b[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.\u001b[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`\n"
+  ],
+  "gate": "Raw private executable paths leak into parent UI.",
+  "gateState": "prevented-by-dashboard-intent-redaction-and-render-source-proof",
+  "evidence": {
+    "dashboardTest": "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts feeds Windows-looking executablePathRef values into app/game rows and proves the serialized parent dashboard omits the raw paths and executablePathRef field.",
+    "dashboardIntent": "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts maps parent-visible labels, state, counts, durations, capability, and evidence refs, but does not map executablePathRef.",
+    "dashboardSurface": "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx renders the app/game dashboard rows and metric lists without executable path fields."
+  },
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "rawPrivateExecutablePathExposed": false,
+    "executablePathRefRendered": false,
+    "evidenceRefsRendered": true,
+    "browserGameWorkDuplicated": false,
+    "adapterDispatchClaimed": false,
+    "policyExecutionClaimed": false,
+    "packageExportsChanged": false
+  },
+  "proofPaths": {
+    "proof": "test-results/app-game-raw-executable-path-ui-leak-gate-proof/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/merge-gates/raw-executable-path-ui-leak",
+    "harness": "scripts/test/app-game-raw-executable-path-ui-leak-gate-proof.mjs"
+  }
+}
