@@ -460,6 +460,13 @@ mobile readiness, and control catalogs.
 - Tracking location policy, AI routing, acknowledgement, child check-in, alert
   intent, escalation, temporary live, and missing-device product contracts plus
   P1 acknowledgement/check-in runtime helper proof.
+- Tracking report/export read-model proof contracts that compose existing
+  tracking service read-model, report/policy consumer, family dashboard rollup,
+  and retention settings proof refs into redacted report/export packet rows
+  while keeping raw location payload export, rendered report UI, service
+  mutation, platform runtime, child-device delivery, provider delivery,
+  notification receipt ingestion, physical-device behavior, authority, and
+  product-ready claims unclaimed.
 
 ## Must Not Own
 

@@ -465,8 +465,23 @@ Every implementation workpack must update, or explicitly justify not updating:
       replay with deleted evidence citation summaries, and narrow parent portal
       summary consumption plus service-data coverage and report/policy
       consumer-readiness rows plus family dashboard rollup rows; rendered
-      dashboard UI, child/full UI beyond the hosted parent route, and platform
-      replay proof remain pending.
+      dashboard UI, report/export UI delivery, child/full UI beyond the hosted
+      parent route, and platform replay proof remain pending. Redacted
+      report/export read-model packet rows now exist in
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json`,
+      but raw location payload export and product-ready report delivery remain
+      unclaimed.
+- [x] Tracking report/export read-model packet proof exists for redacted report
+      export, retention audit export, family dashboard summary, and policy
+      drill-in export packet rows. Proof:
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json`;
+      gate artifact:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/34-report-export-read-model-proof.json`.
+      This is evidence-ref packet readiness only; raw location payload export,
+      rendered report UI, service mutation, platform runtime, child-device
+      delivery/runtime execution, provider delivery, notification receipt
+      ingestion, authority, physical-device proof, production, and
+      product-ready export behavior remain pending.
 - [ ] Tracking UI/UX is not product-complete. A P1 parent portal tracking-state
       fixture, local parent-route screenshot, hosted parent `policy-tracking`
       route screenshot/accessibility proof, hosted service-backed citation detail

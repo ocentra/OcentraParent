@@ -51,6 +51,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `25-retention-settings-writer-boundary-proof.json`
 - `26-retention-settings-mutation-proof.json`
 - `27-retention-settings-write-command-proof.json`
+- `28-report-export-read-model-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -103,6 +104,11 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       portal proof from the typed command response without claiming applied
       mutation, platform, device, provider, authority, notification receipt, or
       product-ready behavior.
+- [x] Add redacted report/export read-model packet rows that compose service
+      read-model, report/policy consumer, family dashboard rollup, and
+      retention settings proof refs without claiming raw location payload
+      export, portal UI, platform runtime, device delivery, authority, provider,
+      notification receipt, or product-ready behavior.
 
 ## Where We Are
 
@@ -135,7 +141,9 @@ state recorded in `proof-summary.json`, `10-journal-sqlite-proof.json`,
 `14-retention-delete-proof.json`, `18-service-read-model-proof.json`,
 `20-service-data-ui-proof.json`, `21-product-surface-summary-proof.json`,
 `22-report-policy-consumer-proof.json`,
-`23-family-dashboard-rollup-proof.json`, `27-retention-settings-write-command-proof.json`,
+`23-family-dashboard-rollup-proof.json`,
+`27-retention-settings-write-command-proof.json`,
+`28-report-export-read-model-proof.json`,
 the hosted UI proof output, and the implementation checklist.
 The hosted parent route now consumes the typed retention settings write
 preflight response as a command/result rendering path and captures the accepted
@@ -178,6 +186,13 @@ a narrow proof card and captures
 while keeping writable settings, service mutation, platform runtime,
 child-device delivery, provider delivery, physical-device, authority, and
 product-ready claims false.
+The report/export read-model proof derives redacted report export, retention
+audit export, family dashboard summary, and policy drill-in export packet rows
+from the existing service read-model, product-surface summary, report/policy
+consumer, family dashboard rollup, and retention settings proof refs. It keeps
+raw location payload export, portal UI, service mutation, platform runtime,
+child-device delivery, provider delivery, notification receipt ingestion,
+physical-device behavior, authority, and product-ready claims false.
 The pre-device proof gate now reruns this service proof and records the
 remaining broader read-model, full UI, hosted accessibility, and platform replay
 gaps before device work starts.
@@ -219,6 +234,9 @@ This workpack can be assigned independently, implemented against the owning doma
   live retention UI proof.
 - Retention settings write-command proof is command/transport preflight proof,
   not live writable UI or product-ready service execution proof.
+- Report/export read-model proof is redacted evidence-ref packet readiness only,
+  not raw location payload export, rendered report UI, child-device/runtime
+  execution, or product-ready export delivery.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -487,3 +505,26 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
       execution, Android/iOS physical-device proof, authority, provider delivery,
       notification receipt ingestion, production workers, and full parent/child
       UI beyond the hosted route remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain report export read-model proof source and
+      test, proof harness, tracking feature doc, implementation checklist,
+      WP32, parent-domain README, and generated WP32/WP33/test-results proof
+      artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-report-export-read-model-proof.mjs` passed
+      locally.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/34-report-export-read-model-proof.json`,
+      `output/tracking-plan-proof/tracking-report-export-read-model-proof/proof.json`,
+      and `test-results/tracking-report-export-read-model-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP32, and parent-domain README updated; central product
+      capability checklist remains hub/primary sequenced.
+- [x] Known gaps/manual-required states: report/export proof is redacted
+      evidence-ref packet readiness only. Raw location payload export, rendered
+      report UI, service mutation, platform runtime, child-device
+      delivery/runtime execution, Android/iOS physical proof, authority,
+      provider delivery, notification receipt ingestion, production workers,
+      and product-ready export behavior remain proof-gated.

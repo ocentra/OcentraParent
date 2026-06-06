@@ -1,0 +1,5 @@
+Contract proof:
+
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-report-export-read-model-proof tracking-report-policy-consumer-proof tracking-family-dashboard-rollup-proof tracking-retention-settings-read-model-proof: PASS
+- Redacted report, retention audit export, family dashboard summary, and policy drill-in export packets parse through parent-domain schemas.

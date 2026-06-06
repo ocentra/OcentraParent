@@ -1,0 +1,242 @@
+[
+  {
+    "schemaVersion": "v0.5-tracking",
+    "packetId": "tracking-report-export-packet-redacted-report",
+    "packetKind": "redacted-report-export-packet",
+    "packetState": "export-read-model-ready",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-06T20:50:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "serviceReadModelProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+    ],
+    "reportConsumerProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+    ],
+    "dashboardRollupProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json"
+    ],
+    "retentionSettingsProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-report-export-evidence-redacted-report",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T20:50:00.000Z"
+      }
+    ],
+    "exportedRowCount": 6,
+    "redactedEvidenceRefCount": 6,
+    "custodyScope": "parent-owned-redacted-report",
+    "redactionState": "evidence-refs-only",
+    "remoteSyncEnabled": false,
+    "remoteAiEnabled": false,
+    "reasonCodes": [
+      "tracking-redacted-report-export-read-model-ready"
+    ],
+    "auditRefs": [
+      "tracking-report-export-audit-redacted-report"
+    ],
+    "reportExportReadModelClaimed": true,
+    "rawLocationPayloadClaimed": false,
+    "portalUiClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "packetId": "tracking-report-export-packet-retention-audit",
+    "packetKind": "retention-audit-export-packet",
+    "packetState": "export-read-model-ready",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-06T20:50:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "serviceReadModelProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+    ],
+    "reportConsumerProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+    ],
+    "dashboardRollupProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json"
+    ],
+    "retentionSettingsProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-report-export-evidence-retention-audit",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T20:50:00.000Z"
+      }
+    ],
+    "exportedRowCount": 5,
+    "redactedEvidenceRefCount": 5,
+    "custodyScope": "parent-owned-local-export",
+    "redactionState": "evidence-refs-only",
+    "remoteSyncEnabled": false,
+    "remoteAiEnabled": false,
+    "reasonCodes": [
+      "tracking-retention-audit-export-read-model-ready"
+    ],
+    "auditRefs": [
+      "tracking-report-export-audit-retention-audit"
+    ],
+    "reportExportReadModelClaimed": true,
+    "rawLocationPayloadClaimed": false,
+    "portalUiClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "packetId": "tracking-report-export-packet-family-dashboard-summary",
+    "packetKind": "family-dashboard-summary-packet",
+    "packetState": "export-read-model-ready",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-06T20:50:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "serviceReadModelProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+    ],
+    "reportConsumerProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+    ],
+    "dashboardRollupProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json"
+    ],
+    "retentionSettingsProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-report-export-evidence-family-dashboard",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T20:50:00.000Z"
+      }
+    ],
+    "exportedRowCount": 3,
+    "redactedEvidenceRefCount": 3,
+    "custodyScope": "parent-owned-redacted-report",
+    "redactionState": "evidence-refs-only",
+    "remoteSyncEnabled": false,
+    "remoteAiEnabled": false,
+    "reasonCodes": [
+      "tracking-family-dashboard-summary-export-ready"
+    ],
+    "auditRefs": [
+      "tracking-report-export-audit-family-dashboard"
+    ],
+    "reportExportReadModelClaimed": true,
+    "rawLocationPayloadClaimed": false,
+    "portalUiClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "packetId": "tracking-report-export-packet-policy-drill-in",
+    "packetKind": "policy-drill-in-export-packet",
+    "packetState": "export-read-model-ready",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-06T20:50:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "serviceReadModelProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+    ],
+    "reportConsumerProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+    ],
+    "dashboardRollupProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json"
+    ],
+    "retentionSettingsProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-report-export-evidence-policy-drill-in",
+        "kind": "policy-decision",
+        "observedAt": "2026-06-06T20:50:00.000Z"
+      }
+    ],
+    "exportedRowCount": 2,
+    "redactedEvidenceRefCount": 2,
+    "custodyScope": "parent-owned-redacted-report",
+    "redactionState": "evidence-refs-only",
+    "remoteSyncEnabled": false,
+    "remoteAiEnabled": false,
+    "reasonCodes": [
+      "tracking-policy-drill-in-export-ready"
+    ],
+    "auditRefs": [
+      "tracking-report-export-audit-policy-drill-in"
+    ],
+    "reportExportReadModelClaimed": true,
+    "rawLocationPayloadClaimed": false,
+    "portalUiClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  }
+]
