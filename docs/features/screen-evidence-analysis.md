@@ -248,6 +248,14 @@ only with explicit parent settings.
   raw image deletion, custody, queue, digest, and evidence refs. This is
   service-to-portal chain proof from a seeded local activity event, not live
   external-account trigger proof.
+- `scripts/test/screen-parent-portal-summary-ui-proof.mjs` now proves the
+  dedicated parent portal Screen Analysis route. The route uses a
+  `@ocentra-parent/portal-domain/screen-summary-panel` intent to render
+  service-backed Activity Screen read-model rows with capability, queue job,
+  summary/category, confidence, model/runtime, deletion/custody, policy,
+  audit/evidence refs, and not-claimed enforcement details. It builds the real
+  portal bundle and keeps fresh desktop/mobile screenshots for this exact route
+  as a remaining UI evidence gap.
 - `screenControlSettingsPortalProof` and
   `scripts/test/screen-settings-portal-proof.mjs` now prove the real parent
   portal Settings route renders the Screen control catalog as read-only
@@ -531,6 +539,9 @@ parity, and UI remain separate proof gates.
 - [x] Service WinRT OCR row feeds a typed parent policy dry-run without raw
       image retention.
 - [x] Portal read-model explanation and audit proof.
+- [x] Dedicated Screen Analysis route renders service-backed screen summary
+      rows with capability, queue, model, confidence, custody, policy, audit,
+      evidence refs, and not-claimed enforcement state.
 - [x] Parent Settings route renders read-only Screen settings/capability proof.
 - [x] Parent Settings route renders writable local screen-summary intent draft
       proof.

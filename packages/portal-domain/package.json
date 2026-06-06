@@ -12,6 +12,10 @@
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
+    },
+    "./screen-summary-panel": {
+      "import": "./dist/screen-summary-panel.js",
+      "types": "./dist/screen-summary-panel.d.ts"
     }
   },
   "scripts": {
