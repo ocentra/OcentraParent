@@ -82,10 +82,16 @@ export type NetworkProductReadinessStatusSummary = {
   readonly remoteLifecycleFollowupRef: PortalDetailValue;
   readonly remoteLifecycleMissingArtifactCount: PortalDetailValue;
   readonly remoteLifecycleManualRequired: PortalDetailValue;
+  readonly remoteDurableEnvelopeRefs: PortalDetailValue;
+  readonly remoteDurableEnvelopeReady: PortalDetailValue;
+  readonly remoteDurableEnvelopeMissingArtifactCount: PortalDetailValue;
   readonly remoteExternalTransportImplemented: PortalDetailValue;
   readonly remoteFamilyHubDeliveryImplemented: PortalDetailValue;
   readonly remoteCrossProcessReplayImplemented: PortalDetailValue;
   readonly remoteRetentionDeleteExportImplemented: PortalDetailValue;
+  readonly remoteProviderDeliveryImplemented: PortalDetailValue;
+  readonly remoteChildDeviceDeliveryImplemented: PortalDetailValue;
+  readonly remoteProductReadyClaimed: PortalDetailValue;
   readonly remotePolicyAuthority: PortalDetailValue;
   readonly remoteSideEffectAuthority: PortalDetailValue;
   readonly remoteEnforcementCommandEventCount: PortalDetailValue;
@@ -257,10 +263,16 @@ function emptyRemoteDeliverySummary() {
     remoteLifecycleFollowupRef: notReported(),
     remoteLifecycleMissingArtifactCount: notReported(),
     remoteLifecycleManualRequired: notReported(),
+    remoteDurableEnvelopeRefs: notReported(),
+    remoteDurableEnvelopeReady: notReported(),
+    remoteDurableEnvelopeMissingArtifactCount: notReported(),
     remoteExternalTransportImplemented: notReported(),
     remoteFamilyHubDeliveryImplemented: notReported(),
     remoteCrossProcessReplayImplemented: notReported(),
     remoteRetentionDeleteExportImplemented: notReported(),
+    remoteProviderDeliveryImplemented: notReported(),
+    remoteChildDeviceDeliveryImplemented: notReported(),
+    remoteProductReadyClaimed: notReported(),
     remotePolicyAuthority: notReported(),
     remoteSideEffectAuthority: notReported(),
     remoteEnforcementCommandEventCount: notReported(),
@@ -466,12 +478,24 @@ function remoteDeliverySummary(remote: AgentNetworkRemoteDeliveryStatus) {
     remoteLifecycleFollowupRef: detailFromValue(remote.remote_lifecycle_followup_ref),
     remoteLifecycleMissingArtifactCount: detailFromValue(remote.remote_lifecycle_missing_artifact_count),
     remoteLifecycleManualRequired: detailFromValue(remote.remote_lifecycle_manual_required),
+    remoteDurableEnvelopeRefs: joinedDetail([
+      remote.durable_envelope_schema_ref,
+      remote.durable_envelope_journal_ref,
+      remote.durable_envelope_replay_readiness_ref,
+      remote.durable_envelope_delete_export_readiness_ref,
+      remote.durable_envelope_support_status_ref,
+    ]),
+    remoteDurableEnvelopeReady: detailFromValue(remote.durable_envelope_ready),
+    remoteDurableEnvelopeMissingArtifactCount: detailFromValue(remote.durable_envelope_missing_artifact_count),
     remoteExternalTransportImplemented: detailFromValue(remote.external_transport_delivery_implemented),
     remoteFamilyHubDeliveryImplemented: detailFromValue(remote.family_hub_delivery_implemented),
     remoteCrossProcessReplayImplemented: detailFromValue(remote.cross_process_replay_implemented),
     remoteRetentionDeleteExportImplemented: detailFromValue(
       remote.remote_retention_delete_export_propagation_implemented
     ),
+    remoteProviderDeliveryImplemented: detailFromValue(remote.provider_delivery_implemented),
+    remoteChildDeviceDeliveryImplemented: detailFromValue(remote.child_device_delivery_implemented),
+    remoteProductReadyClaimed: detailFromValue(remote.product_ready_claimed),
     remotePolicyAuthority: detailFromValue(remote.policy_authority),
     remoteSideEffectAuthority: detailFromValue(remote.side_effect_authority),
     remoteEnforcementCommandEventCount: detailFromValue(remote.enforcement_command_event_count),

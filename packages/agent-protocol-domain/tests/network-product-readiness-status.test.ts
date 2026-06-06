@@ -111,6 +111,16 @@ it('rejects remote delivery lifecycle and broker proof mismatches', () => {
     ok: false,
     reason: 'invalid-remote-delivery-status',
   });
+  expect(parseAgentNetworkProductReadinessStatusEvent(remoteDeliveryDurableEnvelopeReadinessRegressionEvent())).toEqual(
+    {
+      ok: false,
+      reason: 'invalid-remote-delivery-status',
+    }
+  );
+  expect(parseAgentNetworkProductReadinessStatusEvent(remoteDeliveryDurableEnvelopeRefRegressionEvent())).toEqual({
+    ok: false,
+    reason: 'invalid-remote-delivery-status',
+  });
 });
 
 function assertLiveCaptureCustodyStatus(status: AgentNetworkLiveCaptureCustodyStatus) {
@@ -198,10 +208,24 @@ function assertRemoteDeliveryStatus(status: AgentNetworkRemoteDeliveryStatus) {
   expect(status.remote_lifecycle_followup_ref).toBe('network.remote-delivery.lifecycle-followup.10d');
   expect(status.remote_lifecycle_missing_artifact_count).toBe(3);
   expect(status.remote_lifecycle_manual_required).toBe(true);
+  expect(status.durable_envelope_schema_ref).toBe('broker.network.durable-envelope.schema.10e');
+  expect(status.durable_envelope_journal_ref).toBe('broker.network.durable-envelope.journal-readiness.10e');
+  expect(status.durable_envelope_replay_readiness_ref).toBe('broker.network.durable-envelope.replay-readiness.10e');
+  expect(status.durable_envelope_delete_export_readiness_ref).toBe(
+    'broker.network.durable-envelope.delete-export-readiness.10e'
+  );
+  expect(status.durable_envelope_support_status_ref).toBe(
+    'network.remote-delivery.durable-envelope.support-status.10e'
+  );
+  expect(status.durable_envelope_ready).toBe(true);
+  expect(status.durable_envelope_missing_artifact_count).toBe(0);
   expect(status.external_transport_delivery_implemented).toBe(false);
   expect(status.family_hub_delivery_implemented).toBe(false);
   expect(status.cross_process_replay_implemented).toBe(false);
   expect(status.remote_retention_delete_export_propagation_implemented).toBe(false);
+  expect(status.provider_delivery_implemented).toBe(false);
+  expect(status.child_device_delivery_implemented).toBe(false);
+  expect(status.product_ready_claimed).toBe(false);
   expect(status.policy_authority).toBe(false);
   expect(status.side_effect_authority).toBe(false);
   expect(status.enforcement_command_event_count).toBe(0);
@@ -447,6 +471,19 @@ function remoteDeliveryDuplicateProofRegressionEvent() {
   });
 }
 
+function remoteDeliveryDurableEnvelopeReadinessRegressionEvent() {
+  return remoteDeliveryStatusEvent({
+    durable_envelope_missing_artifact_count: 1,
+    product_ready_claimed: true,
+  });
+}
+
+function remoteDeliveryDurableEnvelopeRefRegressionEvent() {
+  return remoteDeliveryStatusEvent({
+    durable_envelope_schema_ref: 'broker.network.durable-envelope.schema.unversioned',
+  });
+}
+
 function remoteDeliveryStatusEvent(statusPatch: Partial<ReturnType<typeof remoteDeliveryStatus>>) {
   return AgentEventEnvelopeSchema.parse({
     ...productReadinessEvent(),
@@ -630,10 +667,20 @@ function remoteDeliveryStatus() {
     remote_lifecycle_followup_ref: 'network.remote-delivery.lifecycle-followup.10d',
     remote_lifecycle_missing_artifact_count: 3,
     remote_lifecycle_manual_required: true,
+    durable_envelope_schema_ref: 'broker.network.durable-envelope.schema.10e',
+    durable_envelope_journal_ref: 'broker.network.durable-envelope.journal-readiness.10e',
+    durable_envelope_replay_readiness_ref: 'broker.network.durable-envelope.replay-readiness.10e',
+    durable_envelope_delete_export_readiness_ref: 'broker.network.durable-envelope.delete-export-readiness.10e',
+    durable_envelope_support_status_ref: 'network.remote-delivery.durable-envelope.support-status.10e',
+    durable_envelope_ready: true,
+    durable_envelope_missing_artifact_count: 0,
     external_transport_delivery_implemented: false,
     family_hub_delivery_implemented: false,
     cross_process_replay_implemented: false,
     remote_retention_delete_export_propagation_implemented: false,
+    provider_delivery_implemented: false,
+    child_device_delivery_implemented: false,
+    product_ready_claimed: false,
     policy_authority: false,
     side_effect_authority: false,
     enforcement_command_event_count: 0,
