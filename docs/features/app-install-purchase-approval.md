@@ -282,6 +282,19 @@ generic app blocking covers this concern.
   that store manual evidence proof under
   `test-results/app-install-purchase-store-manual-evidence-proof/proof.json`
   when run, with the product checklist row updated for the same proof movement.
+- `packages/parent-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts`
+  now links platform proof readiness rows and provider/store preflight rows into
+  parent-owned manual evidence packet-ready, manual-review-required, and
+  provider-unavailable rows while preserving no provider/store execution, no
+  store integration, no platform adapter implementation, no runtime
+  writer/report delivery, no child-device delivery, no app blocking, no child
+  activity data, and no Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-provider-store-manual-evidence-packet-proof.mjs`
+  records that provider/store manual evidence packet proof under
+  `test-results/app-install-purchase-provider-store-manual-evidence-packet-proof/proof.json`
+  when run. The proof records the public package export as pending behind the
+  active `packages/parent-domain/package.json` lock and the parent-domain
+  README delta as pending behind the active README lock.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -542,6 +555,12 @@ Ocentra-hosted family data custody.
       store integration, platform adapters, runtime writer/report delivery,
       child delivery, app blocking, child activity data, or hosted custody
       claims.
+- [x] Provider/store manual evidence packet proof linking platform proof
+      readiness rows and provider/store preflight rows into packet-ready,
+      manual-review-required, and provider-unavailable parent-owned packet rows
+      without provider/store execution, store integration, platform adapters,
+      runtime writer/report delivery, child delivery, app blocking, child
+      activity data, or hosted custody claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
