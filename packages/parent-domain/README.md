@@ -444,6 +444,11 @@ flowchart LR
   and keep future parent-surface read-model proof refs visible while keeping
   parent-surface read-model implementation, rendering, portal rendering,
   service runtime, and adapter dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface status read-model
+  parent-surface read-model contract rows consume parent-surface read-model
+  handoff rows and produce parent-safe native app/native game read-model rows
+  while keeping package exports, runtime persistence, rendering, portal
+  rendering, service runtime, and adapter dispatch unclaimed.
   Portal authoring or preview UI, live evaluator execution, persistence,
   timers, child notification delivery, adapter dispatch, broad installed-app
   blocking, and platform enforcement remain unimplemented.
