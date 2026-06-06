@@ -388,6 +388,10 @@ flowchart LR
   service-handler refs while keeping agent-protocol implementation, service
   command registration, service handler implementation, service event
   emission, and read API implementation unclaimed.
+  Timer service-readiness service-handler handoff rows consume protocol
+  command-handoff rows and attach future service handler and read API proof
+  refs while keeping service command registration, handler implementation,
+  event emission, and read API implementation unclaimed.
   Portal authoring or preview UI, live evaluator execution, persistence,
   timers, child notification delivery, adapter dispatch, broad installed-app
   blocking, and platform enforcement remain unimplemented.
