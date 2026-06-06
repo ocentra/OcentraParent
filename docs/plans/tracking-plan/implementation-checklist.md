@@ -309,6 +309,12 @@ denied/restricted/services-disabled, Always authorization, region transition,
 significant-change/visit, and background terminated/relaunch gaps while keeping
 all Core Location runtime, entitlement, notification/provider delivery,
 physical-device, authority, and product-ready iOS tracking claims false.
+WP11/WP12 iOS manual-required rows are also wrapped by
+`node scripts/test/tracking-ios-location-wp33-gate-proof.mjs`, which writes
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/27-ios-location-manual-required-proof.json`
+and `test-results/tracking-ios-location-wp33-gate-proof/proof.json` while
+reusing the existing iOS manual-required proof and preserving every
+runtime/device/authority non-claim.
 
 ## Documentation Update Rule
 
@@ -360,6 +366,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       authorization, foreground sample, degraded state, Always/background,
       region, significant-change/visit, and background relaunch gaps through
       `node scripts/test/tracking-ios-location-manual-required-proof.mjs`.
+- [x] WP11/WP12 iOS manual-required rows are mirrored into the WP33 rollout gate
+      by `node scripts/test/tracking-ios-location-wp33-gate-proof.mjs` without
+      creating a duplicate iOS tracking contract or changing runtime/device
+      non-claims.
 - [ ] Android background permission proof is not complete. The emulator proof
       and WP08/WP09 parent-domain manual-required proof record this as
       manual-required instead of product-ready.

@@ -1,0 +1,3 @@
+$ node scripts/test/tracking-ios-location-manual-required-proof.mjs
+tracking-ios-location-manual-required-proof-ok
+evidence=test-results\tracking-ios-location-manual-required-proof\proof.json
