@@ -147,6 +147,14 @@ dev-only repo when it claims consumer readiness.
   custody, billing provider contact execution, account lookup execution, remote
   support sessions, production SLA commitments, support backend upload
   execution, public runtime execution, and child activity custody unclaimed.
+- `production-support-data-export-delete-lifecycle-proof` adds parent-domain
+  and logging-domain export/delete runtime lifecycle rows for requested,
+  authorized, queued, running, succeeded, failed, and manual-required export and
+  delete states. It proves only redaction-safe parent-authorized local runtime
+  status metadata and parent-owned local output/delete refs while preserving
+  real backend upload execution, public runtime execution, provider execution,
+  production SLA, remote support sessions, default Ocentra-hosted family data,
+  and child activity custody as explicit non-claims.
 - `production-support-publication-workflow-proof` adds parent-domain source
   contract rows for public privacy policy publication, privacy/legal disclosure
   execution, support runbook publication, support incident status publication,
@@ -470,6 +478,16 @@ package/runtime proof.
       execution, account lookup execution, remote support sessions, production
       SLA, support backend upload execution, public runtime execution, and child
       activity custody unclaimed.
+- [ ] Production support data export/delete runtime lifecycle proof. Current
+      `production-support-data-export-delete-lifecycle-proof` covers
+      parent-authorized export and delete requested, authorized, queued,
+      running, succeeded, failed, and manual-required lifecycle rows in
+      parent-domain and logging-domain contracts. It proves support-safe local
+      status metadata, local output/delete refs, redaction/audit refs, and
+      manual proof requirements while keeping real backend upload execution,
+      public runtime execution, provider execution, production SLA, remote
+      support sessions, default Ocentra-hosted family data, and child activity
+      custody unclaimed.
 - [ ] Production support public publication workflow proof. Current
       `production-support-publication-workflow-proof` covers public privacy
       policy publication, privacy/legal disclosure execution, support runbook
