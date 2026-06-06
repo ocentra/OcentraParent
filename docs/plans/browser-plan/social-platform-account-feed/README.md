@@ -309,6 +309,13 @@ feed policy input only when decision refs are present and no invalidation
 reasons exist; stale, miss, and manual-required rows cannot. It does not claim a
 runtime cache store, raw content storage, connector data storage, UI, native
 control, final policy decisions, or enforcement.
+`social-decision-memory-live-evidence-proof` consumes SOCIAL-12 live-evidence
+policy candidate refs and writes
+`test-results/social-decision-memory-live-evidence-proof/proof.json` plus
+`output/browser-plan-proof/social-19-memory-cache-account-video-channel-decisions/11-live-evidence-decision-memory-proof.json`.
+The proof emits account miss, video fresh-hit, and channel stale-hit rows while
+keeping runtime cache storage, raw content storage, connector data, UI, native
+control, final policy decisions, and enforcement unclaimed.
 
 SOCIAL-20 now adds `packages/parent-domain/src/social-dashboard-ux-values.ts`,
 `packages/parent-domain/src/social-dashboard-ux.ts`, and

@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T10:18:58.307Z
+Generated: 2026-06-06T10:33:00.542Z
 
 Rows checked: 22
 Proof-present rows: 7
@@ -28,7 +28,7 @@ Product claimed: false
 | SOCIAL-16 | partial-manual-required | `social-16-android-native-app-capability-matrix` | 6 |
 | SOCIAL-17 | partial-manual-required | `social-17-ios-screentime-managedsettings-matrix` | 6 |
 | SOCIAL-18 | partial-manual-required | `social-18-platform-connector-authorization-boundary` | 5 |
-| SOCIAL-19 | partial-manual-required | `social-19-memory-cache-account-video-channel-decisions` | 5 |
+| SOCIAL-19 | partial-manual-required | `social-19-memory-cache-account-video-channel-decisions` | 6 |
 | SOCIAL-20 | proof-present | `social-20-parent-social-dashboard-ux` | 9 |
 | SOCIAL-21 | proof-present | `social-21-child-approval-block-ux` | 7 |
 | SOCIAL-22 | proof-present | `social-22-audit-explanation-read-model` | 12 |
@@ -42,6 +42,7 @@ Live metadata extraction proof is present for SOCIAL-09 public social/video surf
 Live-evidence AI boundary proof is present for SOCIAL-10 degraded model-unavailable rows.
 Live-evidence risk/benefit boundary proof is present for SOCIAL-11 unavailable signal sets.
 Live-evidence policy compiler proof is present for SOCIAL-12 non-final manual-review candidates.
+Live-evidence decision memory proof is present for SOCIAL-19 ref-only cache snapshots.
 Ref-only social alert/report intent proof is present.
 Schedule/time-budget compiler contract proof is present.
 Parent sensitivity settings contract proof is present.

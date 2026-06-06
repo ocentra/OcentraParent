@@ -1393,6 +1393,14 @@ worker messages before code changes. Do not mix all 24 into one PR.
   account/video/message storage, connector data storage, UI, native app
   control, and enforcement. Package subpath exports are now present; no runtime cache, activity-domain export, UI,
   connector, native app control, policy execution, or enforcement is claimed.
+- `social-decision-memory-live-evidence-proof` now consumes SOCIAL-12
+  live-evidence policy candidate refs and emits a bounded ref-only SOCIAL-19
+  memory snapshot with account miss, video fresh-hit, and channel stale-hit
+  entries. It validates schema acceptance plus negative rejection for final
+  policy, runtime cache store, AI cache, raw content, connector data, UI,
+  native app, and enforcement claims while leaving runtime cache persistence,
+  activity-domain exports, connector/native runtime, policy execution, and
+  enforcement unclaimed.
 - SOCIAL-20 now adds parent-domain parent social dashboard UX contracts in
   `packages/parent-domain/src/social-dashboard-ux-values.ts` and
   `packages/parent-domain/src/social-dashboard-ux.ts`, plus text-domain copy
