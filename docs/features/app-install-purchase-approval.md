@@ -319,6 +319,20 @@ generic app blocking covers this concern.
   records that safe parent workflow proof under
   `test-results/app-install-purchase-product-claim-safe-parent-workflow-proof/proof.json`
   when run.
+- `packages/parent-domain/src/app-install-purchase-product-claim-store-handoff-proof.ts`
+  now links product-claim safe parent workflow rows with provider/store manual
+  evidence packet rows into parent-visible store handoff review-ready,
+  manual-required, and unavailable rows. It preserves no product-claim
+  approval, portal approval/report UI, provider/store execution, store
+  integration, platform adapters, child-device delivery, runtime writer/report
+  delivery, app blocking, child activity data, or hosted family data custody
+  claims.
+- `scripts/test/app-install-purchase-product-claim-store-handoff-proof.mjs`
+  records that product-claim store handoff proof under
+  `test-results/app-install-purchase-product-claim-store-handoff-proof/proof.json`
+  when run. The proof records the public package export as deferred while
+  codex-b owns `packages/parent-domain/package.json` for the local AI text LLM
+  adapter export.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -417,7 +431,9 @@ parent-visible report status read-model rows for ready/manual-required handoff,
 aggregate those rows into limitation summaries, and name platform manual
 evidence requirements before any platform product claim, and deny product claims
 through a parent-domain gate until portal tests, child delivery proof,
-provider/store API execution proof, and platform adapter proof are present,
+provider/store API execution proof, and platform adapter proof are present, and
+route those denied/manual/unsupported product-claim states through parent-visible
+store handoff rows that still require the same proof before any claim upgrade,
 but do not
 implement Google Play, Apple App Store, Microsoft Store, billing entitlement,
 provider/store execution, provider contact, platform interception, runtime
@@ -598,6 +614,12 @@ Ocentra-hosted family data custody.
       without portal approval/report UI, provider/store execution, store
       integration, platform adapters, child delivery, runtime writer/report
       delivery, app blocking, child activity data, or hosted custody claims.
+- [x] Product-claim store handoff proof linking safe parent workflow rows and
+      provider/store manual evidence packets into review-ready/manual-required/
+      unavailable store handoff rows without approving product claims or
+      claiming portal UI, provider/store execution, platform adapters, child
+      delivery, runtime writer/report delivery, app blocking, child activity
+      data, or hosted custody.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
