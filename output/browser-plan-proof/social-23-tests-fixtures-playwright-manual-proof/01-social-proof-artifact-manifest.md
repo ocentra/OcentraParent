@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T07:10:49.046Z
+Generated: 2026-06-06T07:30:08.275Z
 
 Rows checked: 22
 Proof-present rows: 6
@@ -36,6 +36,6 @@ Product claimed: false
 SOCIAL-23 proves proof-pack coverage for SOCIAL-01 through SOCIAL-22.
 Rendered proof-bundle UI exists for the parent social dashboard,
 child-agent-served social intervention page, and parent explanation panel.
-It does not prove service-backed explanation delivery, runtime connector
-behavior, native app control, final policy execution, enforcement, or
-product checklist completion.
+Service-backed dashboard and explanation read-model delivery is present.
+It does not prove runtime connector behavior, native app control, final
+policy execution, enforcement, or product checklist completion.

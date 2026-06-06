@@ -181,13 +181,14 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   UI, notifications, runtime data fetch, policy decisions, connector
   authorization, native app control, and enforcement.
 - Browser-plan SOCIAL-20 now also renders an honest parent Browser-route social
-  dashboard shell in the real portal. The proof captures desktop/mobile
-  screenshots for the unavailable zero-row state at
+  dashboard in the real portal from the service-backed Rust WebSocket
+  `agent.browser.social-dashboard.read-model.reported` event. The proof captures
+  desktop/mobile screenshots for the six-row parent social snapshot at
   `output/browser-plan-proof/social-20-parent-social-dashboard-ux/06-ui-snapshots/`
   and records `test-results/social-dashboard-ui-proof/proof.json`. This proves
-  the rendered parent surface only; service-backed social snapshots, runtime
-  fetch, connector authorization, native app control, final policy execution,
-  notifications, and enforcement remain unclaimed.
+  the rendered parent social dashboard read-model only; connector authorization,
+  native app control, final policy execution, notifications, and enforcement
+  remain unclaimed.
 - Browser-plan SOCIAL-21 now adds parent-domain child approval/block UX
   contracts for approval pending, blocked route candidates, warning candidates,
   manual review, time-limit candidates, and native-app unavailable states. These

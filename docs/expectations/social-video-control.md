@@ -204,11 +204,10 @@ Parent social dashboard UX contracts may represent dashboard sections, sort
 order, statuses, actions, severities, source evidence refs, and manual-required
 gaps for account approval queues, feed/video gates, native app capability,
 connector boundaries, and decision memory. These contracts must not claim
-notification delivery, runtime data fetch, policy decisions, connector
-authorization, native app control, or enforcement. The current rendered parent
-portal proof is limited to the Browser-route unavailable zero-row shell; it
-does not prove service-backed social snapshots, connector/native runtime,
-policy execution, or enforcement.
+notification delivery, policy decisions, connector authorization, native app
+control, or enforcement. The current rendered parent portal proof covers the
+service-backed Browser-route social dashboard snapshot only; it does not prove
+connector/native runtime, policy execution, notifications, or enforcement.
 
 Child approval/block UX contracts may represent child-facing states and actions
 for approval pending, blocked route candidates, warning candidates, manual
@@ -216,7 +215,11 @@ review, time-limit candidates, and native-app unavailable states. These
 contracts must not claim rendered child UI, notification delivery, browser
 navigation block execution, block-page rendering, applied time limits, final
 policy decisions, connector authorization, native app control, or enforcement
-until actual child surfaces and runtime actions are implemented and tested.
+from contracts alone. Current proof covers child-agent-served intervention
+pages for the mapped social states only; browser navigation block execution,
+notification delivery, applied limits, final policy execution, connector/native
+runtime, and enforcement remain unclaimed until separately implemented and
+tested.
 
 Social audit/explanation read-model contracts may represent parent-readable and
 audit-log rows for account approval, feed/video gates, native-app gaps,
@@ -225,8 +228,11 @@ evidence refs, policy refs, parent approval refs, decision-memory refs, manual
 gap refs, and audit refs. They must not claim runtime audit stores, rendered
 explanation UI, notification delivery, raw account/video/message content,
 connector authorization, native app control, final policy decisions, or
-enforcement until logging, UI, notification, policy, connector, native, and
-adapter proof exists.
+enforcement from contracts alone. Current proof covers the service-backed
+Browser-route explanation read-model and rendered explanation panel only; a
+runtime audit store, notification delivery, connector/native runtime, final
+policy execution, and enforcement remain unclaimed until separately implemented
+and tested.
 
 Social proof artifact gates may verify checklist ownership, proof folders,
 required source/security/validation/UI-marker files, README references, and
@@ -237,9 +243,9 @@ enforcement, or product completion from contract-only rows or unavailable-state
 shells.
 
 Rollout/manual-required gates may label rows as partial/manual-required only.
-They must preserve product completion as unclaimed until rendered UI,
-notification delivery, connector/native runtime, final policy execution,
-enforcement, release readiness, and product checklist upgrade proof exists.
+They must preserve product completion as unclaimed until notification delivery,
+connector/native runtime, final policy execution, enforcement, release
+readiness, and product checklist upgrade proof exists.
 
 Social AI analysis contracts may consume typed social route, metadata, feed,
 account-flow, account-identity, screen-summary, parent-rule, and memory refs to
