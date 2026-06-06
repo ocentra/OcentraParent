@@ -809,11 +809,14 @@ native control, enforcement, or product checklist status.
 SOCIAL-20 now adds parent-domain parent social dashboard UX section contracts
 and text-domain copy tokens for account approvals, feed/video gates, native app
 capability, connector boundaries, decision memory, and manual-required gaps.
-The real Browser route now renders a parent social dashboard shell and captures
-desktop/mobile Playwright proof for the honest unavailable zero-row state. This
-does not claim service-backed social snapshots, runtime data fetch,
-notification, connector authorization, native control, final policy execution,
-enforcement, or product checklist status.
+The real Browser route now requests a service-backed Rust WebSocket
+`agent.browser.social-dashboard.read-model.reported` event, parses the
+schema-backed social dashboard snapshot, renders six honest parent rows, and
+captures desktop/mobile Playwright proof. The rows remain parent-review,
+manual-required, or contract-only status only. This does not claim social
+runtime data fetch, notification delivery, connector authorization, native app
+control, final policy execution, enforcement, product checklist completion, or
+release readiness.
 SOCIAL-21 now adds parent-domain child approval/block UX state contracts and
 text-domain calm copy tokens for approval pending, blocked route candidates,
 warnings, manual review, time-limit candidates, and native-app unavailable
@@ -828,13 +831,14 @@ content, connector authorization, native control, final policy execution,
 enforcement, or product checklist status.
 SOCIAL-23 now adds a social proof artifact gate that checks SOCIAL-01 through
 SOCIAL-22 proof-pack coverage. SOCIAL-20 now has rendered parent Browser-route
-screenshots for the unavailable state, but child UI, explanation UI, service
-social snapshots, runtime connector behavior, native control, final policy
+screenshots for a service-backed six-row social dashboard snapshot, but child
+UI, explanation UI, runtime connector behavior, native control, final policy
 execution, enforcement, and product checklist status remain manual-required.
 SOCIAL-24 now labels the social track partial/manual-required through the
-rollout gate. Product checklist upgrade is not claimed. Service-backed social
-data, child/explanation UI, connector/native runtime, final policy execution,
-and enforcement remain unclaimed.
+rollout gate. Product checklist upgrade is not claimed. Parent social dashboard
+rows can now come from the local Rust service snapshot path, but child/
+explanation UI, connector/native runtime, final policy execution, enforcement,
+and product readiness remain unclaimed.
 
 ## Checklist
 
