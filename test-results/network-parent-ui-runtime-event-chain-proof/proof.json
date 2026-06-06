@@ -1,10 +1,10 @@
 {
-  "checkedAt": "2026-06-06T01:30:45.227Z",
+  "checkedAt": "2026-06-06T02:04:25.592Z",
   "planRow": "36a",
   "branch": "codex/network-risk-target-policy-handoff-proof",
-  "commit": "55144f0481359fff852e1a221a8ee67cc4e84392",
-  "originMain": "b74ae680014f90585266fa4619b4a260fb0c5ada",
-  "mergeBase": "b74ae680014f90585266fa4619b4a260fb0c5ada",
+  "commit": "08760daee988da634887e5dc25555f07d6950895",
+  "originMain": "9eb93e3398b1bebc33596e8cbfd96a72bd8f6a07",
+  "mergeBase": "9eb93e3398b1bebc33596e8cbfd96a72bd8f6a07",
   "proofMode": "service-backed-parent-network-runtime-event-chain-drawer",
   "artifacts": {
     "proof": "test-results/network-parent-ui-runtime-event-chain-proof/proof.json",
@@ -40,7 +40,7 @@
   ],
   "commands": [
     {
-      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-network-runtime-ui-S6qfDf\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-network-runtime-ui-S6qfDf\\seed-network-runtime-ui.sql",
+      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-network-runtime-ui-FbHGar\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-network-runtime-ui-FbHGar\\seed-network-runtime-ui.sql",
       "exitCode": 0
     },
     {
