@@ -779,6 +779,18 @@ mobile UI, or prove platform support.
       persistence runtime, durable scheduler storage, audit runtime, durable
       audit logs, rollback runtime/execution, adapter dispatch, child delivery,
       broad blocking, platform enforcement, or raw private source rows.
+      Source-gated policy preview timer service-readiness read-API handoff proof
+      now consumes those service-handler handoff rows and records that future
+      read API visibility still requires service read-API proof, while source
+      and compiler blockers remain blocked before read API visibility. It
+      remains parent-domain proof only and does not claim service command
+      registration, service handler implementation, service event emission,
+      service read API implementation, agent-protocol implementation, Rust
+      protocol mirror, portal UI, evaluator runtime, timer runtime/scheduling,
+      scheduler persistence runtime, durable scheduler storage, audit runtime,
+      durable audit logs, rollback runtime/execution, adapter dispatch, child
+      delivery, broad blocking, platform enforcement, or raw private source
+      rows.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
