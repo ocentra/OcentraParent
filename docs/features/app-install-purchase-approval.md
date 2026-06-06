@@ -225,6 +225,21 @@ generic app blocking covers this concern.
   that approval/report domain proof under
   `test-results/app-install-purchase-approval-report-domain-proof/proof.json`
   when run.
+- `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
+  now converts runtime writer delivery rows and parent action delivery
+  readiness rows into deterministic parent-owned runtime writer envelope and
+  delivery result receipt rows for approve, deny, and time-box decisions while
+  keeping review-needed manual-required. It preserves no provider/store
+  execution, store integration, platform interception, platform adapter
+  implementation, child-device delivery, runtime report delivery, real
+  interception, app blocking, child activity data, or Ocentra-hosted family
+  data custody claims.
+- `scripts/test/app-install-purchase-runtime-writer-execution-delivery-proof.mjs`
+  records that runtime writer execution delivery proof under
+  `test-results/app-install-purchase-runtime-writer-execution-delivery-proof/proof.json`
+  when run. The proof records the public package export as pending behind the
+  active `packages/parent-domain/package.json` lock and the parent-domain
+  README delta as pending behind the active README lock.
 
 ## Current Gap
 
@@ -232,7 +247,8 @@ Ocentra still needs implemented platform adapters, approved provider/store API
 execution proof, production child-device package-source adapter execution
 beyond proof-backed local/manual/blocked/unavailable adapter execution rows,
 real child-device delivery for pending/result state, portal UX, runtime report
-writer/delivery, and proof for each store/platform path. The current
+writer/delivery, public package export for the runtime writer execution
+delivery proof, and proof for each store/platform path. The current
 parent-domain proofs attach parent-owned
 platform/report artifact refs, child package-source artifact refs, approved
 API/entitlement evidence refs, stateless report compiler status/result refs, and
@@ -248,15 +264,16 @@ runtime writer rows plus package-source capture/status rows to child-device
 delivery envelope/manual-required rows, and classify parent action delivery
 readiness against child delivery envelope rows, and classify provider/store
 execution readiness/manual/unavailable states across approved API evidence,
-store status, package-source adapter, and parent action readiness rows, but do
+store status, package-source adapter, and parent action readiness rows, and
 link parent review actions and report-runtime rows into approval/report domain
-rows, but do not implement Google Play, Apple App Store, Microsoft Store, billing
-entitlement, provider/store execution, provider contact, platform interception,
-runtime status reader, portal approval/report UI, runtime action writer
-execution, runtime writer delivery, parent action runtime delivery, production
-child-device package-source adapter execution, child-device delivery, runtime
-report delivery, runtime app-blocking behavior, or Ocentra-hosted family data
-custody.
+rows, and
+convert parent-owned runtime writer delivery rows into deterministic envelope
+and delivery result receipt rows, but do not implement Google Play, Apple App
+Store, Microsoft Store, billing entitlement, provider/store execution, provider
+contact, platform interception, runtime status reader, portal approval/report
+UI, external runtime writer delivery, production child-device package-source
+adapter execution, child-device delivery, runtime report delivery, runtime
+app-blocking behavior, or Ocentra-hosted family data custody.
 
 ## Checklist
 
@@ -357,13 +374,19 @@ custody.
       portal report UI, runtime report delivery, provider/store execution,
       platform adapters, child delivery, interception, app blocking, custody, or
       hosted family data claims.
+- [x] Runtime writer execution delivery proof linking runtime writer delivery
+      rows and parent action delivery readiness rows into deterministic
+      parent-owned runtime writer envelope and delivery result receipt rows
+      without provider/store execution, platform interception/adapters,
+      child-device delivery, runtime report delivery, app blocking, child
+      activity data, or hosted family data custody claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
 
 Do not fold this into generic app blocking. The next proof should add real
-portal approval/report UI, parent action runtime delivery, runtime writer
-execution/delivery, real child delivery, provider/store API execution proof, or
+portal approval/report UI, external runtime writer delivery to a device, real
+child delivery, provider/store API execution proof, or
 actual platform adapters before upgrading manual-required source rows, child
 delivery, parent action, store status, capture status, adapter execution, or
 report status. If the OS/store does not allow interception, document the
