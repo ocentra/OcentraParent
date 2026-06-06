@@ -70,6 +70,12 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json`
   and
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`,
+  plus retention settings read-model proof through
+  `node scripts/test/tracking-retention-settings-read-model-proof.mjs`, with
+  artifacts
+  `output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json`
+  and
+  `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json`,
   plus `npm run test:tracking-plan-service-data-ui-proof`, with artifacts
   `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json`,
@@ -255,15 +261,16 @@ contact-requested/manual-required states, manual-required/unavailable platform
 render-state proof plus hosted unsupported/manual platform route screenshot, and
 WP32 report/policy consumer-readiness proof for parent report summary, policy
 drill-in, and retention audit/export rows, plus WP32 family dashboard rollup
-proof for active family, child-attention, and retention-audit summary rows. It
-remains a tracked
-product gap until platform location and geofence runtime adapters, broader
-product read models beyond these rollups, rendered dashboard UI for those rollups,
-actual live provider execution/delivery, notification receipt ingestion,
-physical-device proof, actual child-device delivery/runtime execution, remote
-sync runtime, OS lost-mode APIs, production upload workers, and full
-parent/child UI snapshots/accessibility beyond the hosted parent route are
-proved.
+proof for active family, child-attention, and retention-audit summary rows, and
+retention settings read-model proof for retention window, delete-after-alert,
+parent export, remote-sync disabled, and remote-AI disabled rows. It remains a
+tracked product gap until platform location and geofence runtime adapters,
+broader product read models beyond these rows, rendered dashboard UI for those
+rollups, actual writable/live retention settings UI, actual live provider
+execution/delivery, notification receipt ingestion, physical-device proof,
+actual child-device delivery/runtime execution, remote sync runtime, OS
+lost-mode APIs, production upload workers, and full parent/child UI
+snapshots/accessibility beyond the hosted parent route are proved.
 
 ## Checklist
 
@@ -272,9 +279,9 @@ proved.
 - [x] Geofence rule and transition contracts.
 - [x] Battery/connectivity status contract.
 - [ ] Retention/delete/export settings. P1 retention-delete,
-      parent-owned export, and UI-visible deleted-history hiding fixture proof
-      exist; product settings and live service-backed retention UI remain
-      pending.
+      parent-owned export, UI-visible deleted-history hiding fixture proof, and
+      P2 retention settings read-model rows now exist; actual writable product
+      settings and live service-backed retention UI remain pending.
 - [x] Alert intent contract.
 - [ ] Android permission/background runtime proof. WP08/WP09 parent-domain
       manual-required proof rows now exist for foreground permission,
