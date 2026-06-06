@@ -21,7 +21,9 @@ import {
 } from './tracking-child-check-in-proof';
 import {
   trackingStatusLiveSummary,
+  trackingStatusServiceDataCoverage,
   trackingStatusProofRows,
+  type TrackingStatusServiceDataCoverage,
   type TrackingStatusLiveCitation,
   type TrackingStatusLiveSummary,
   type TrackingStatusProofRow,
@@ -41,6 +43,7 @@ export function TrackingStatusRoutePanel({
   readonly liveActivity: PortalLiveActivityState;
 }): ReactElement {
   const liveSummary = trackingStatusLiveSummary(liveActivity);
+  const serviceDataCoverage = trackingStatusServiceDataCoverage(liveActivity);
   return (
     <section
       aria-label={PortalText.Resolve(PortalTextToken.TrackingStatusSurface)}
@@ -69,6 +72,7 @@ export function TrackingStatusRoutePanel({
           )}
         >
           <TrackingStatusLiveSummaryCard summary={liveSummary} />
+          <TrackingStatusServiceDataCoverageCard coverage={serviceDataCoverage} />
           {liveSummary.citations.map((citation) => (
             <TrackingStatusLiveCitationCard key={String(citation.eventId)} citation={citation} />
           ))}
@@ -103,6 +107,35 @@ function TrackingStatusLiveSummaryCard({ summary }: { readonly summary: Tracking
         {summary.parserReason === null ? null : (
           <TrackingStatusDetail label={PortalDetails.Reason} value={summary.parserReason} />
         )}
+      </dl>
+    </article>
+  );
+}
+
+function TrackingStatusServiceDataCoverageCard({
+  coverage,
+}: {
+  readonly coverage: TrackingStatusServiceDataCoverage;
+}): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article className={className}>
+      <h2>{coverage.title}</h2>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <TrackingStatusDetail label={PortalDetails.LoadState} value={coverage.loadState} />
+        <TrackingStatusDetail label={PortalDetails.ProofTier} value={coverage.proofTier} />
+        <TrackingStatusDetail label={PortalDetails.RowsReturned} value={coverage.rowsReturned} />
+        <TrackingStatusDetail label={PortalDetails.HistoryVisibility} value={coverage.rowVisibility} />
+        <TrackingStatusDetail label={PortalDetails.LastObserved} value={coverage.lastObserved} />
+        <TrackingStatusDetail label={PortalDetails.EventId} value={coverage.eventId} />
+        <TrackingStatusDetail label={PortalDetails.Capability} value={coverage.capability} />
+        <TrackingStatusDetail label={PortalDetails.Custody} value={coverage.custody} />
+        <TrackingStatusDetail label={PortalDetails.ActivityKind} value={coverage.activityKinds} />
+        <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={coverage.evidenceReferences} />
+        <TrackingStatusDetail label={PortalDetails.DeletedEvidence} value={coverage.deletedEvidence} />
+        <TrackingStatusDetail label={PortalDetails.ProductClaim} value={coverage.productClaim} />
       </dl>
     </article>
   );

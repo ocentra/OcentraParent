@@ -77,11 +77,12 @@ expose location or device-status features. Parents expect this category.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
-  drives the parent route through Playwright, captures desktop, mobile, hosted
-  child-safe check-in, and hosted child-runtime UI proof screenshots, writes
-  accessibility summary output, proves calm child check-in copy/actions plus
-  child disclosure, safe/help response, and location-share consent copy inside
-  the hosted route only, and keeps `productClaimReady=false`.
+  drives the React parent route through Playwright, renders the service-data
+  coverage card beside the service read-model summary, captures desktop, mobile,
+  hosted child-safe check-in, and hosted child-runtime UI proof screenshots,
+  writes accessibility summary output, proves calm child check-in copy/actions
+  plus child disclosure, safe/help response, and location-share consent copy
+  inside the hosted route only, and keeps `productClaimReady=false`.
 - P1 evidence-quality gate proof now exists through
   `npm run test:tracking-plan-evidence-quality-gate-proof`. It validates
   location UI evidence refs, geofence rule/source refs, nearby-place provider
@@ -324,8 +325,9 @@ snapshots/accessibility beyond the hosted parent route are proved.
       and local proof artifact references.
 - [x] Hosted parent `policy-tracking` route screenshot and accessibility proof
       against the real Rust service and seeded ActivityStore, including a
-      hosted child-safe check-in copy/actions card and hosted child-runtime
-      disclosure/safe-help/location-share consent card. This is not
+      rendered service-data coverage card, hosted child-safe check-in
+      copy/actions card, and hosted child-runtime disclosure/safe-help/location-share
+      consent card. This is not
       child-device delivery/runtime execution, full service-data UI, or
       physical-device proof.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual

@@ -42,6 +42,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await refreshHostedTrackingStatus(page, trackingProofRegion);
 
   await expect(page.getByRole('heading', { name: 'Service read model' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Service data coverage' })).toBeVisible();
   await expect(trackingProofRegion.getByText('tracking-hosted-expected-place-event').first()).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
@@ -172,6 +173,7 @@ async function writeAccessibilitySummary(
   expect(summary.unlabeledButtons).toBe(0);
   expect(summary.headings).toContain('Tracking status proof');
   expect(summary.headings).toContain('Service read model');
+  expect(summary.headings).toContain('Service data coverage');
   expect(summary.headings).toContain('Child check-in request');
   expect(summary.headings).toContain('Child runtime UI proof');
   expect(summary.paragraphs).toContain('Your parent is asking you to check in. Are you safe?');
@@ -205,6 +207,7 @@ async function writeAccessibilitySummary(
           'visible-heading',
           'enabled-refresh-button',
           'service-backed-row-citation-visible',
+          'service-data-coverage-visible',
           'manual-required-visible',
           'physical-device-required-visible',
           'no-product-claim-visible',

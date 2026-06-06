@@ -92,8 +92,9 @@ references, and `productClaimReady=false`. The repeatable
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`.
 `npm run test:tracking-plan-hosted-ui-proof` now starts the real
 Rust service with a seeded temporary ActivityStore SQLite database, drives the
-hosted parent `policy-tracking` route through Playwright, captures desktop and
-mobile screenshots, writes accessibility summary output, and records
+hosted React parent `policy-tracking` route through Playwright, renders the
+service-data coverage card beside the service read-model summary, captures
+desktop and mobile screenshots, writes accessibility summary output, and records
 `productClaimReady=false`.
 The hosted route now also renders a child-safe check-in proof card with calm
 copy, safe/help/share/call actions, and an explicit "child-device delivery not
@@ -205,6 +206,30 @@ This workpack can be assigned independently, implemented against the owning doma
       checklist, WP30, and WP33 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.
 - [x] Known gaps/manual-required states: actual child-device delivery/runtime
+      execution, full parent/child UI beyond the hosted route, Android/iOS
+      physical-device proof, authority, provider delivery, notifications, and
+      production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-family-dashboard-rendered-ui-proof`.
+- [x] Touched files: React portal tracking status route renderer, hosted
+      Playwright proof spec, service-data UI proof script, tracking feature doc,
+      implementation checklist, WP30, and generated hosted/service-data proof
+      artifacts.
+- [x] Validation commands and results:
+      `cmd /c npm run test --workspace @ocentra-parent/portal -- tracking-status-panel`
+      and `cmd /c npm run lint:exec --workspace @ocentra-parent/portal` passed
+      before final proof refresh.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
+      `test-results/tracking-plan-service-data-ui-proof/proof.json`, and
+      `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`
+      after final proof refresh.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and WP30 updated; central capability checklist not edited
+      because another lane owns that lock.
+- [x] Known gaps/manual-required states: parent-domain family dashboard rollup
+      rendering needs the existing rollup contract exported before portal can
+      consume it without duplicating rows; actual child-device delivery/runtime
       execution, full parent/child UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
