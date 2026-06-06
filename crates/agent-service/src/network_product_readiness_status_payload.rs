@@ -247,10 +247,25 @@ fn remote_delivery_status() -> NetworkRemoteDeliveryStatus {
             .to_owned(),
         remote_lifecycle_missing_artifact_count: 3,
         remote_lifecycle_manual_required: true,
+        durable_envelope_schema_ref:
+            constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_SCHEMA_REF.to_owned(),
+        durable_envelope_journal_ref:
+            constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_JOURNAL_REF.to_owned(),
+        durable_envelope_replay_readiness_ref:
+            constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_REPLAY_REF.to_owned(),
+        durable_envelope_delete_export_readiness_ref:
+            constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_DELETE_EXPORT_REF.to_owned(),
+        durable_envelope_support_status_ref:
+            constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_SUPPORT_STATUS_REF.to_owned(),
+        durable_envelope_ready: true,
+        durable_envelope_missing_artifact_count: 0,
         external_transport_delivery_implemented: false,
         family_hub_delivery_implemented: false,
         cross_process_replay_implemented: false,
         remote_retention_delete_export_propagation_implemented: false,
+        provider_delivery_implemented: false,
+        child_device_delivery_implemented: false,
+        product_ready_claimed: false,
         policy_authority: false,
         side_effect_authority: false,
         enforcement_command_event_count: 0,

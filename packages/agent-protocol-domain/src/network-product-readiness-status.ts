@@ -253,10 +253,20 @@ export const AgentNetworkRemoteDeliveryStatusSchema = withParser(
     remote_lifecycle_followup_ref: NetworkProductReadinessProtocolText,
     remote_lifecycle_missing_artifact_count: NetworkProductReadinessProtocolCount,
     remote_lifecycle_manual_required: Schema.Literal(true),
+    durable_envelope_schema_ref: NetworkProductReadinessProtocolText,
+    durable_envelope_journal_ref: NetworkProductReadinessProtocolText,
+    durable_envelope_replay_readiness_ref: NetworkProductReadinessProtocolText,
+    durable_envelope_delete_export_readiness_ref: NetworkProductReadinessProtocolText,
+    durable_envelope_support_status_ref: NetworkProductReadinessProtocolText,
+    durable_envelope_ready: Schema.Boolean,
+    durable_envelope_missing_artifact_count: NetworkProductReadinessProtocolCount,
     external_transport_delivery_implemented: Schema.Literal(false),
     family_hub_delivery_implemented: Schema.Literal(false),
     cross_process_replay_implemented: Schema.Literal(false),
     remote_retention_delete_export_propagation_implemented: Schema.Literal(false),
+    provider_delivery_implemented: Schema.Literal(false),
+    child_device_delivery_implemented: Schema.Literal(false),
+    product_ready_claimed: Schema.Literal(false),
     policy_authority: Schema.Literal(false),
     side_effect_authority: Schema.Literal(false),
     enforcement_command_event_count: Schema.Literal(0),
@@ -513,6 +523,7 @@ function remoteDeliveryShapeMatches(status: AgentNetworkRemoteDeliveryStatus): b
   return (
     remoteDeliveryRequirementCountsMatch(status) &&
     remoteDeliveryLifecycleBlockersMatch(status) &&
+    remoteDeliveryDurableEnvelopeShapeMatches(status) &&
     remoteDeliveryLocalProofMatches(status)
   );
 }
@@ -535,6 +546,21 @@ function remoteDeliveryLifecycleBlockersMatch(status: AgentNetworkRemoteDelivery
     status.remote_lifecycle_missing_artifact_count === NetworkRemoteLifecycleBlockerCount &&
     status.remote_lifecycle_missing_artifact_count === lifecycleBlockerRefs.length &&
     lifecycleBlockerRefs.every((ref) => ref.includes('manual-required'))
+  );
+}
+
+function remoteDeliveryDurableEnvelopeShapeMatches(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  const durableEnvelopeRefs = [
+    status.durable_envelope_schema_ref,
+    status.durable_envelope_journal_ref,
+    status.durable_envelope_replay_readiness_ref,
+    status.durable_envelope_delete_export_readiness_ref,
+    status.durable_envelope_support_status_ref,
+  ];
+  return (
+    status.durable_envelope_ready === true &&
+    status.durable_envelope_missing_artifact_count === 0 &&
+    durableEnvelopeRefs.every((ref) => ref.includes('10e'))
   );
 }
 

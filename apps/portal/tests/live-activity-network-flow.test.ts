@@ -178,10 +178,18 @@ function expectProductReadinessRemoteDeliverySummary(summary: NetworkProductRead
   expect(summary.remoteLifecycleFollowupRef).toBe('network.remote-delivery.lifecycle-followup.10d');
   expect(summary.remoteLifecycleMissingArtifactCount).toBe('3');
   expect(summary.remoteLifecycleManualRequired).toBe('true');
+  expect(summary.remoteDurableEnvelopeRefs).toBe(
+    'broker.network.durable-envelope.schema.10e | broker.network.durable-envelope.journal-readiness.10e | broker.network.durable-envelope.replay-readiness.10e | broker.network.durable-envelope.delete-export-readiness.10e | network.remote-delivery.durable-envelope.support-status.10e'
+  );
+  expect(summary.remoteDurableEnvelopeReady).toBe('true');
+  expect(summary.remoteDurableEnvelopeMissingArtifactCount).toBe('0');
   expect(summary.remoteExternalTransportImplemented).toBe('false');
   expect(summary.remoteFamilyHubDeliveryImplemented).toBe('false');
   expect(summary.remoteCrossProcessReplayImplemented).toBe('false');
   expect(summary.remoteRetentionDeleteExportImplemented).toBe('false');
+  expect(summary.remoteProviderDeliveryImplemented).toBe('false');
+  expect(summary.remoteChildDeviceDeliveryImplemented).toBe('false');
+  expect(summary.remoteProductReadyClaimed).toBe('false');
   expect(summary.remotePolicyAuthority).toBe('false');
   expect(summary.remoteSideEffectAuthority).toBe('false');
   expect(summary.remoteEnforcementCommandEventCount).toBe('0');
@@ -629,10 +637,20 @@ function remoteDeliveryStatus() {
     remote_lifecycle_followup_ref: 'network.remote-delivery.lifecycle-followup.10d',
     remote_lifecycle_missing_artifact_count: 3,
     remote_lifecycle_manual_required: true,
+    durable_envelope_schema_ref: 'broker.network.durable-envelope.schema.10e',
+    durable_envelope_journal_ref: 'broker.network.durable-envelope.journal-readiness.10e',
+    durable_envelope_replay_readiness_ref: 'broker.network.durable-envelope.replay-readiness.10e',
+    durable_envelope_delete_export_readiness_ref: 'broker.network.durable-envelope.delete-export-readiness.10e',
+    durable_envelope_support_status_ref: 'network.remote-delivery.durable-envelope.support-status.10e',
+    durable_envelope_ready: true,
+    durable_envelope_missing_artifact_count: 0,
     external_transport_delivery_implemented: false,
     family_hub_delivery_implemented: false,
     cross_process_replay_implemented: false,
     remote_retention_delete_export_propagation_implemented: false,
+    provider_delivery_implemented: false,
+    child_device_delivery_implemented: false,
+    product_ready_claimed: false,
     policy_authority: false,
     side_effect_authority: false,
     enforcement_command_event_count: 0,
