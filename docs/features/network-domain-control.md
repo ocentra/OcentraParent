@@ -370,6 +370,13 @@ compete on control while staying clear about attribution confidence and privacy.
   records missing artifacts as manual follow-ups, and rejects generic platform
   support, live adapter execution, UI policy authority, and enforcement-command
   claims.
+- E-D added a deterministic product-readiness status materializer in
+  `ocentra-network-evidence`: row48 risk-budget, row49 performance benchmark,
+  and row52 platform-claim manifest proofs compose into one portal-safe status
+  carrying risk state, performance regression state, platform manual follow-ups,
+  portal read-model refs, and retention/export refs. The proof rejects exact
+  content, production-SLO, UI policy authority, portal adapter dispatch, live
+  adapter execution, and enforcement-command claims.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -420,7 +427,8 @@ Firewall mutation, live WFP driver/callout/packet blocking, live Android
 VpnService filtering, live Apple Network Extension behavior, live Linux adapter
 execution, platform adapter execution, service WebSocket exposure for the new
 live-capture/raw-custody status materializer, and broader portal risk-budget,
-performance, and platform capability UI rendering remain open.
+performance, platform capability, and product-readiness status rendering remain
+open.
 
 ## Checklist
 
@@ -543,10 +551,13 @@ performance, and platform capability UI rendering remain open.
       gates into exact OS/device/permission claim rows, records manual
       follow-ups for missing artifacts, and rejects generic platform support,
       live adapter execution, UI policy authority, and enforcement-command
-      claims. AI model execution, broker/family-hub delivery implementation,
-      full policy engine execution, notification delivery, external
-      audit/deployment execution, full support-material authoring, and portal
-      risk-budget/performance UI rendering remain.
+      claims. Row51a product-readiness status now composes row48, row49, and
+      row52 proof objects into one portal-safe readiness artifact with
+      manual-follow-up and degraded-performance states. AI model execution,
+      broker/family-hub delivery implementation, full policy engine execution,
+      notification delivery, external audit/deployment execution, full
+      support-material authoring, and service/portal rendering of the
+      product-readiness status remain.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
@@ -591,8 +602,8 @@ performance, and platform capability UI rendering remain open.
   `output/network-plan-proof/36b-adapter-capability-status/proof-summary.json`
   and
   `test-results/network-adapter-capability-status-proof/proof.json`.
-  Broader Row52 platform-claim manifest UI and risk-budget/performance
-  platform-state rendering remain open.
+  Broader Row52 platform-claim manifest UI and service/portal rendering of the
+  row51a product-readiness status remain open.
 - [x] DNS proxy/block/redirect adapter proof boundary.
       The Rust proof accepts apply-ready only with grade-A policy, parent-rule
       refs, evidence refs, supported capability, adapter authorization,
