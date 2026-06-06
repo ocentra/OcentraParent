@@ -41,6 +41,7 @@ consumes the same results.
 | Local AI graph reference/minimal edges            | P3 contract proved  | `output/ai-plan-proof/local-ai-graph-reference-contract-proof/proof-summary.json`                                                      | Proves local AI graph refs are schema-validated, source-cited, and read through minimal activity-memory graph edges only when selected evidence, policy version, parent action refs, freshness, endpoints, and time range match. It does not claim a production graph storage/index runtime, model execution, model quality, UI, policy authority, enforcement, remote/API AI, or raw evidence retention.                                                                                                    |
 | Local AI contract completeness                    | P3 contract proved  | `output/ai-plan-proof/local-ai-contract-completeness-proof/proof-summary.json`                                                         | Proves the baseline local AI input, safety-result, provider-capability, job-queue, and provider-route contracts line up over one local-only runtime route while preserving evidence refs, parent-rule refs, memory/graph refs, prompt/runtime refs, queue position, duplicate-runtime blocking, and provider capability metadata. It does not claim model execution, model quality, portal UI, policy authority, enforcement, remote/API AI, raw prompt retention, or raw evidence retention.                |
 | Remote assistant child-safety boundary            | P3 contract proved  | `output/ai-plan-proof/local-ai-remote-assistant-boundary-proof/proof-summary.json`                                                     | Proves parent-authorized remote assistant requests must cite approved stored evidence and parent-owned report bundles, stay outside the child-safety decision path, preserve local AI and deterministic policy authority, degrade to local-only fallback, and reject raw retention, policy-authority, enforcement, and remote-override overclaims. It does not execute a remote provider, render portal UI, prove model quality, or change local safety decisions.                                           |
+| Parent-rule context builder                       | P3 contract proved  | `output/ai-plan-proof/local-ai-parent-rule-context-builder-proof/proof-summary.json`                                                   | Proves grounded parent-rule context refs are selected only when their target evidence refs are already selected by `buildLocalAiEvidenceContext`, while ungrounded parent-rule refs are omitted and degraded with `parent-rule-missing`. It rejects raw evidence retention, remote/API AI, model execution, model quality, policy authority, enforcement, and portal UI overclaims. It does not create fresh capture, execute a model, prove model quality, render portal UI, or dispatch enforcement.       |
 
 ## Contract And Source Truth
 
@@ -66,7 +67,9 @@ consumes the same results.
       route rejection.
 - [x] Provider route contract complete for selected local runtime refs and
       provider/runtime/status alignment.
-- [ ] Context builder contracts complete.
+- [x] Context builder contracts complete, including stored-evidence replay,
+      screen-summary replay, recent-memory/graph selection, and parent-rule
+      context builder proof rows.
 - [x] Prompt/template version contract complete for context-builder,
       evaluation-input, safety-result, provider/model, input-binding, output
       schema, and non-retention refs.
@@ -87,7 +90,8 @@ consumes the same results.
 
 - [x] Stored-evidence context builder implemented with replay proof over stored
       browser, app/game, network-flow, and screen-summary artifacts.
-- [ ] Parent-rule context builder implemented.
+- [x] Parent-rule context builder implemented with grounded selection and
+      ungrounded-rule degradation proof.
 - [ ] Deterministic classifier lane implemented.
 - [ ] Local text LLM adapter boundary implemented.
 - [x] Local text inference dry-run implemented without model-execution,

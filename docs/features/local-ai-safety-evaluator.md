@@ -92,6 +92,14 @@ claim needs proof, not slogans.
   partial context with explicit missing evidence kinds. It consumes existing
   proof artifacts and does not create fresh capture, execute a model, prove
   model quality, render portal UI, dispatch enforcement, or use remote/API AI.
+- `LocalAiParentRuleContextBuilderProofSchema` and
+  `scripts/test/local-ai-parent-rule-context-builder-proof.mjs` now prove the
+  parent-rule context builder path over the existing stored-evidence context
+  builder. Grounded parent-rule context refs are selected only when their target
+  evidence refs are already selected for local model input, while ungrounded
+  parent-rule refs are omitted and degraded with `parent-rule-missing`. The proof
+  rejects raw evidence retention, remote/API AI, model-execution,
+  model-quality, policy-authority, enforcement, and portal UI overclaims.
 - `LocalAiTextInferenceDryRunResultSchema` and
   `scripts/test/local-ai-text-inference-dry-run-proof.mjs` now prove the local
   text inference dry-run boundary over schema-valid local AI input and matching
@@ -306,6 +314,7 @@ production external evidence variants.
       priority and no duplicate same-device model load proof.
 - [x] Evidence context builder proof path.
 - [x] Parent-rule context proof path.
+- [x] Parent-rule context builder proof path.
 - [x] Local text inference dry-run proof path without model-execution,
       remote/API, policy-authority, enforcement, production-quality, or raw
       prompt-retention claims.
