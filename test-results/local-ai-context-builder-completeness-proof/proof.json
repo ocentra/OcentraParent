@@ -1,0 +1,897 @@
+{
+  "schemaVersion": "v0.6",
+  "proofKind": "local-ai-context-builder-completeness-proof",
+  "readyResult": {
+    "schemaVersion": "v0.6",
+    "requestId": "context-builder-complete-request",
+    "state": "ready",
+    "context": {
+      "schemaVersion": "v0.6",
+      "contextId": "context-builder-complete-context",
+      "requestId": "context-builder-complete-request",
+      "childProfile": {
+        "childProfileId": "child-context-builder-complete",
+        "displayName": "Sam"
+      },
+      "device": {
+        "deviceId": "device-context-builder-complete",
+        "childProfileId": "child-context-builder-complete",
+        "label": "Sam Windows PC",
+        "platform": "windows"
+      },
+      "evidenceReferences": [
+        {
+          "evidenceRefId": "browser-ref-context-builder",
+          "evidence": {
+            "evidenceReferenceId": "stored-browser-ref-context-builder",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-06T08:58:00.000Z"
+          },
+          "evidenceKind": "browser",
+          "sourceSchemaVersion": "v0.6",
+          "observedAt": "2026-06-06T08:58:00.000Z",
+          "ingestedAt": "2026-06-06T08:58:01.000Z",
+          "freshUntil": "2026-06-06T09:08:00.000Z",
+          "sourceId": "source-browser-ref-context-builder",
+          "adapterId": "adapter-browser-ref-context-builder",
+          "device": {
+            "deviceId": "device-context-builder-complete",
+            "childProfileId": "child-context-builder-complete",
+            "label": "Sam Windows PC",
+            "platform": "windows"
+          },
+          "childProfile": {
+            "childProfileId": "child-context-builder-complete",
+            "displayName": "Sam"
+          },
+          "custody": "child-device-query-store",
+          "retentionState": "local",
+          "confidence": 0.86,
+          "confidenceKind": "classifier",
+          "capabilityStatus": "available",
+          "degradedReasons": [],
+          "unknownReasons": [],
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ]
+        },
+        {
+          "evidenceRefId": "app-game-ref-context-builder",
+          "evidence": {
+            "evidenceReferenceId": "stored-app-game-ref-context-builder",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-06T08:58:00.000Z"
+          },
+          "evidenceKind": "app-game",
+          "sourceSchemaVersion": "v0.6",
+          "observedAt": "2026-06-06T08:58:00.000Z",
+          "ingestedAt": "2026-06-06T08:58:01.000Z",
+          "freshUntil": "2026-06-06T09:08:00.000Z",
+          "sourceId": "source-app-game-ref-context-builder",
+          "adapterId": "adapter-app-game-ref-context-builder",
+          "device": {
+            "deviceId": "device-context-builder-complete",
+            "childProfileId": "child-context-builder-complete",
+            "label": "Sam Windows PC",
+            "platform": "windows"
+          },
+          "childProfile": {
+            "childProfileId": "child-context-builder-complete",
+            "displayName": "Sam"
+          },
+          "custody": "child-device-query-store",
+          "retentionState": "local",
+          "confidence": 0.86,
+          "confidenceKind": "classifier",
+          "capabilityStatus": "available",
+          "degradedReasons": [],
+          "unknownReasons": [],
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ]
+        },
+        {
+          "evidenceRefId": "network-ref-context-builder",
+          "evidence": {
+            "evidenceReferenceId": "stored-network-ref-context-builder",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-06T08:58:00.000Z"
+          },
+          "evidenceKind": "network-flow",
+          "sourceSchemaVersion": "v0.6",
+          "observedAt": "2026-06-06T08:58:00.000Z",
+          "ingestedAt": "2026-06-06T08:58:01.000Z",
+          "freshUntil": "2026-06-06T09:08:00.000Z",
+          "sourceId": "source-network-ref-context-builder",
+          "adapterId": "adapter-network-ref-context-builder",
+          "device": {
+            "deviceId": "device-context-builder-complete",
+            "childProfileId": "child-context-builder-complete",
+            "label": "Sam Windows PC",
+            "platform": "windows"
+          },
+          "childProfile": {
+            "childProfileId": "child-context-builder-complete",
+            "displayName": "Sam"
+          },
+          "custody": "child-device-query-store",
+          "retentionState": "local",
+          "confidence": 0.86,
+          "confidenceKind": "classifier",
+          "capabilityStatus": "available",
+          "degradedReasons": [],
+          "unknownReasons": [],
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ]
+        },
+        {
+          "evidenceRefId": "screen-ref-context-builder",
+          "evidence": {
+            "evidenceReferenceId": "stored-screen-ref-context-builder",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-06T08:58:00.000Z"
+          },
+          "evidenceKind": "screen-summary",
+          "sourceSchemaVersion": "v0.6",
+          "observedAt": "2026-06-06T08:58:00.000Z",
+          "ingestedAt": "2026-06-06T08:58:01.000Z",
+          "freshUntil": "2026-06-06T09:08:00.000Z",
+          "sourceId": "source-screen-ref-context-builder",
+          "adapterId": "adapter-screen-ref-context-builder",
+          "device": {
+            "deviceId": "device-context-builder-complete",
+            "childProfileId": "child-context-builder-complete",
+            "label": "Sam Windows PC",
+            "platform": "windows"
+          },
+          "childProfile": {
+            "childProfileId": "child-context-builder-complete",
+            "displayName": "Sam"
+          },
+          "custody": "child-device-query-store",
+          "retentionState": "local",
+          "confidence": 0.86,
+          "confidenceKind": "classifier",
+          "capabilityStatus": "available",
+          "degradedReasons": [],
+          "unknownReasons": [],
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ]
+        }
+      ],
+      "browserEvidenceRefs": [
+        "browser-ref-context-builder"
+      ],
+      "appGameEvidenceRefs": [
+        "app-game-ref-context-builder"
+      ],
+      "networkFlowEvidenceRefs": [
+        "network-ref-context-builder"
+      ],
+      "screenSummaryRefs": [
+        "screen-ref-context-builder"
+      ],
+      "parentRuleReferences": [
+        "context-builder-rule"
+      ],
+      "parentRuleContextReferences": [
+        {
+          "parentRuleRefId": "context-builder-parent-rule-context",
+          "policyVersion": "context-builder-policy-v1",
+          "family": {
+            "familyId": "family-context-builder-complete"
+          },
+          "childProfile": {
+            "childProfileId": "child-context-builder-complete",
+            "displayName": "Sam"
+          },
+          "device": {
+            "deviceId": "device-context-builder-complete",
+            "childProfileId": "child-context-builder-complete",
+            "label": "Sam Windows PC",
+            "platform": "windows"
+          },
+          "rule": {
+            "ruleId": "context-builder-rule",
+            "target": {
+              "targetId": "context-builder-target",
+              "targetType": "category",
+              "targetValue": "screen-safety"
+            },
+            "action": "warn",
+            "scheduleId": null,
+            "priority": 10,
+            "reasonCode": "parent-rule-browser-safety",
+            "createdBy": {
+              "actorId": "parent-context-builder",
+              "role": "parent"
+            },
+            "enabled": true,
+            "effectiveFrom": null,
+            "effectiveUntil": null
+          },
+          "targetEvidenceRefs": [
+            "screen-ref-context-builder"
+          ],
+          "custody": "parent-device-cache",
+          "updatedAt": "2026-06-06T08:58:00.000Z",
+          "expiresAt": null
+        }
+      ],
+      "recentActivitySummaryRefs": [],
+      "memoryReferences": [
+        {
+          "memoryReferenceId": "context-builder-complete-memory",
+          "kind": "recent-activity",
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ],
+          "sourcePolicyVersion": "context-builder-policy-v1",
+          "generatedAt": "2026-06-06T08:58:00.000Z",
+          "confidence": 0.82,
+          "derivedIndexVersion": "context-builder-memory-index-v1"
+        }
+      ],
+      "graphReferences": [
+        {
+          "graphReferenceId": "context-builder-complete-graph",
+          "kind": "graph-edge",
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ],
+          "sourcePolicyVersion": "context-builder-policy-v1",
+          "generatedAt": "2026-06-06T08:58:00.000Z",
+          "confidence": 0.79,
+          "derivedIndexVersion": "context-builder-graph-index-v1"
+        }
+      ],
+      "localModelRuntimeRefs": [
+        "runtime-context-builder-complete"
+      ],
+      "promptVersion": "context-builder-prompt-v1",
+      "custodyLabels": [
+        "child-device-query-store"
+      ],
+      "degradedReasons": [],
+      "unknownReasons": [],
+      "validationSummary": {
+        "evidenceReferenceCount": 4,
+        "sourceEvidenceReferenceCount": 4,
+        "runtimeReferenceCount": 1,
+        "memoryReferenceCount": 1,
+        "graphReferenceCount": 1,
+        "parentRuleReferenceCount": 1,
+        "ungroundedParentRuleReferenceCount": 0,
+        "forbiddenCustodyReferenceCount": 0,
+        "unallowedCustodyReferenceCount": 0
+      }
+    },
+    "rejectedFields": [],
+    "missingEvidenceKinds": [],
+    "degradedSourceRefs": [],
+    "custodyBoundarySummary": "context uses only child-device or parent-owned stored evidence",
+    "validationGateSummary": "ready stored-evidence context for local-only model input",
+    "auditEvidenceReferences": [
+      {
+        "evidenceReferenceId": "stored-browser-ref-context-builder",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:58:00.000Z"
+      },
+      {
+        "evidenceReferenceId": "stored-app-game-ref-context-builder",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:58:00.000Z"
+      },
+      {
+        "evidenceReferenceId": "stored-network-ref-context-builder",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:58:00.000Z"
+      },
+      {
+        "evidenceReferenceId": "stored-screen-ref-context-builder",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:58:00.000Z"
+      }
+    ]
+  },
+  "partialResult": {
+    "schemaVersion": "v0.6",
+    "requestId": "context-builder-complete-request",
+    "state": "partial",
+    "context": {
+      "schemaVersion": "v0.6",
+      "contextId": "context-builder-complete-context",
+      "requestId": "context-builder-complete-request",
+      "childProfile": {
+        "childProfileId": "child-context-builder-complete",
+        "displayName": "Sam"
+      },
+      "device": {
+        "deviceId": "device-context-builder-complete",
+        "childProfileId": "child-context-builder-complete",
+        "label": "Sam Windows PC",
+        "platform": "windows"
+      },
+      "evidenceReferences": [
+        {
+          "evidenceRefId": "screen-ref-context-builder",
+          "evidence": {
+            "evidenceReferenceId": "stored-screen-ref-context-builder",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-06T08:58:00.000Z"
+          },
+          "evidenceKind": "screen-summary",
+          "sourceSchemaVersion": "v0.6",
+          "observedAt": "2026-06-06T08:58:00.000Z",
+          "ingestedAt": "2026-06-06T08:58:01.000Z",
+          "freshUntil": "2026-06-06T09:08:00.000Z",
+          "sourceId": "source-screen-ref-context-builder",
+          "adapterId": "adapter-screen-ref-context-builder",
+          "device": {
+            "deviceId": "device-context-builder-complete",
+            "childProfileId": "child-context-builder-complete",
+            "label": "Sam Windows PC",
+            "platform": "windows"
+          },
+          "childProfile": {
+            "childProfileId": "child-context-builder-complete",
+            "displayName": "Sam"
+          },
+          "custody": "child-device-query-store",
+          "retentionState": "local",
+          "confidence": 0.86,
+          "confidenceKind": "classifier",
+          "capabilityStatus": "available",
+          "degradedReasons": [],
+          "unknownReasons": [],
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ]
+        }
+      ],
+      "browserEvidenceRefs": [],
+      "appGameEvidenceRefs": [],
+      "networkFlowEvidenceRefs": [],
+      "screenSummaryRefs": [
+        "screen-ref-context-builder"
+      ],
+      "parentRuleReferences": [
+        "context-builder-rule"
+      ],
+      "parentRuleContextReferences": [
+        {
+          "parentRuleRefId": "context-builder-parent-rule-context",
+          "policyVersion": "context-builder-policy-v1",
+          "family": {
+            "familyId": "family-context-builder-complete"
+          },
+          "childProfile": {
+            "childProfileId": "child-context-builder-complete",
+            "displayName": "Sam"
+          },
+          "device": {
+            "deviceId": "device-context-builder-complete",
+            "childProfileId": "child-context-builder-complete",
+            "label": "Sam Windows PC",
+            "platform": "windows"
+          },
+          "rule": {
+            "ruleId": "context-builder-rule",
+            "target": {
+              "targetId": "context-builder-target",
+              "targetType": "category",
+              "targetValue": "screen-safety"
+            },
+            "action": "warn",
+            "scheduleId": null,
+            "priority": 10,
+            "reasonCode": "parent-rule-browser-safety",
+            "createdBy": {
+              "actorId": "parent-context-builder",
+              "role": "parent"
+            },
+            "enabled": true,
+            "effectiveFrom": null,
+            "effectiveUntil": null
+          },
+          "targetEvidenceRefs": [
+            "screen-ref-context-builder"
+          ],
+          "custody": "parent-device-cache",
+          "updatedAt": "2026-06-06T08:58:00.000Z",
+          "expiresAt": null
+        }
+      ],
+      "recentActivitySummaryRefs": [],
+      "memoryReferences": [
+        {
+          "memoryReferenceId": "context-builder-complete-memory",
+          "kind": "recent-activity",
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ],
+          "sourcePolicyVersion": "context-builder-policy-v1",
+          "generatedAt": "2026-06-06T08:58:00.000Z",
+          "confidence": 0.82,
+          "derivedIndexVersion": "context-builder-memory-index-v1"
+        }
+      ],
+      "graphReferences": [
+        {
+          "graphReferenceId": "context-builder-complete-graph",
+          "kind": "graph-edge",
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ],
+          "sourcePolicyVersion": "context-builder-policy-v1",
+          "generatedAt": "2026-06-06T08:58:00.000Z",
+          "confidence": 0.79,
+          "derivedIndexVersion": "context-builder-graph-index-v1"
+        }
+      ],
+      "localModelRuntimeRefs": [
+        "runtime-context-builder-complete"
+      ],
+      "promptVersion": "context-builder-prompt-v1",
+      "custodyLabels": [
+        "child-device-query-store"
+      ],
+      "degradedReasons": [],
+      "unknownReasons": [],
+      "validationSummary": {
+        "evidenceReferenceCount": 1,
+        "sourceEvidenceReferenceCount": 1,
+        "runtimeReferenceCount": 1,
+        "memoryReferenceCount": 1,
+        "graphReferenceCount": 1,
+        "parentRuleReferenceCount": 1,
+        "ungroundedParentRuleReferenceCount": 0,
+        "forbiddenCustodyReferenceCount": 0,
+        "unallowedCustodyReferenceCount": 0
+      }
+    },
+    "rejectedFields": [],
+    "missingEvidenceKinds": [
+      "browser",
+      "app-game",
+      "network-flow"
+    ],
+    "degradedSourceRefs": [],
+    "custodyBoundarySummary": "context uses only child-device or parent-owned stored evidence",
+    "validationGateSummary": "partial context built with explicit missing evidence kinds",
+    "auditEvidenceReferences": [
+      {
+        "evidenceReferenceId": "stored-screen-ref-context-builder",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:58:00.000Z"
+      }
+    ]
+  },
+  "forbiddenCustodyResult": {
+    "schemaVersion": "v0.6",
+    "requestId": "context-builder-complete-request",
+    "state": "rejected",
+    "context": null,
+    "rejectedFields": [
+      "evidenceReferences"
+    ],
+    "missingEvidenceKinds": [],
+    "degradedSourceRefs": [
+      "hosted-ref-context-builder"
+    ],
+    "custodyBoundarySummary": "ocentra-hosted non-activity metadata cannot source child-activity evidence",
+    "validationGateSummary": "rejected forbidden custody before local model input",
+    "auditEvidenceReferences": [
+      {
+        "evidenceReferenceId": "stored-hosted-ref-context-builder",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:58:00.000Z"
+      }
+    ]
+  },
+  "unallowedCustodyResult": {
+    "schemaVersion": "v0.6",
+    "requestId": "context-builder-complete-request",
+    "state": "rejected",
+    "context": null,
+    "rejectedFields": [
+      "evidenceReferences"
+    ],
+    "missingEvidenceKinds": [
+      "browser",
+      "app-game",
+      "network-flow",
+      "screen-summary"
+    ],
+    "degradedSourceRefs": [
+      "export-ref-context-builder"
+    ],
+    "custodyBoundarySummary": "evidence custody was not allowed by context request",
+    "validationGateSummary": "rejected unallowed custody before local model input",
+    "auditEvidenceReferences": [
+      {
+        "evidenceReferenceId": "stored-export-ref-context-builder",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:58:00.000Z"
+      }
+    ]
+  },
+  "unavailableRuntimeResult": {
+    "schemaVersion": "v0.6",
+    "requestId": "context-builder-complete-request",
+    "state": "partial",
+    "context": {
+      "schemaVersion": "v0.6",
+      "contextId": "context-builder-complete-context",
+      "requestId": "context-builder-complete-request",
+      "childProfile": {
+        "childProfileId": "child-context-builder-complete",
+        "displayName": "Sam"
+      },
+      "device": {
+        "deviceId": "device-context-builder-complete",
+        "childProfileId": "child-context-builder-complete",
+        "label": "Sam Windows PC",
+        "platform": "windows"
+      },
+      "evidenceReferences": [
+        {
+          "evidenceRefId": "browser-ref-context-builder",
+          "evidence": {
+            "evidenceReferenceId": "stored-browser-ref-context-builder",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-06T08:58:00.000Z"
+          },
+          "evidenceKind": "browser",
+          "sourceSchemaVersion": "v0.6",
+          "observedAt": "2026-06-06T08:58:00.000Z",
+          "ingestedAt": "2026-06-06T08:58:01.000Z",
+          "freshUntil": "2026-06-06T09:08:00.000Z",
+          "sourceId": "source-browser-ref-context-builder",
+          "adapterId": "adapter-browser-ref-context-builder",
+          "device": {
+            "deviceId": "device-context-builder-complete",
+            "childProfileId": "child-context-builder-complete",
+            "label": "Sam Windows PC",
+            "platform": "windows"
+          },
+          "childProfile": {
+            "childProfileId": "child-context-builder-complete",
+            "displayName": "Sam"
+          },
+          "custody": "child-device-query-store",
+          "retentionState": "local",
+          "confidence": 0.86,
+          "confidenceKind": "classifier",
+          "capabilityStatus": "available",
+          "degradedReasons": [],
+          "unknownReasons": [],
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ]
+        },
+        {
+          "evidenceRefId": "app-game-ref-context-builder",
+          "evidence": {
+            "evidenceReferenceId": "stored-app-game-ref-context-builder",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-06T08:58:00.000Z"
+          },
+          "evidenceKind": "app-game",
+          "sourceSchemaVersion": "v0.6",
+          "observedAt": "2026-06-06T08:58:00.000Z",
+          "ingestedAt": "2026-06-06T08:58:01.000Z",
+          "freshUntil": "2026-06-06T09:08:00.000Z",
+          "sourceId": "source-app-game-ref-context-builder",
+          "adapterId": "adapter-app-game-ref-context-builder",
+          "device": {
+            "deviceId": "device-context-builder-complete",
+            "childProfileId": "child-context-builder-complete",
+            "label": "Sam Windows PC",
+            "platform": "windows"
+          },
+          "childProfile": {
+            "childProfileId": "child-context-builder-complete",
+            "displayName": "Sam"
+          },
+          "custody": "child-device-query-store",
+          "retentionState": "local",
+          "confidence": 0.86,
+          "confidenceKind": "classifier",
+          "capabilityStatus": "available",
+          "degradedReasons": [],
+          "unknownReasons": [],
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ]
+        },
+        {
+          "evidenceRefId": "network-ref-context-builder",
+          "evidence": {
+            "evidenceReferenceId": "stored-network-ref-context-builder",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-06T08:58:00.000Z"
+          },
+          "evidenceKind": "network-flow",
+          "sourceSchemaVersion": "v0.6",
+          "observedAt": "2026-06-06T08:58:00.000Z",
+          "ingestedAt": "2026-06-06T08:58:01.000Z",
+          "freshUntil": "2026-06-06T09:08:00.000Z",
+          "sourceId": "source-network-ref-context-builder",
+          "adapterId": "adapter-network-ref-context-builder",
+          "device": {
+            "deviceId": "device-context-builder-complete",
+            "childProfileId": "child-context-builder-complete",
+            "label": "Sam Windows PC",
+            "platform": "windows"
+          },
+          "childProfile": {
+            "childProfileId": "child-context-builder-complete",
+            "displayName": "Sam"
+          },
+          "custody": "child-device-query-store",
+          "retentionState": "local",
+          "confidence": 0.86,
+          "confidenceKind": "classifier",
+          "capabilityStatus": "available",
+          "degradedReasons": [],
+          "unknownReasons": [],
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ]
+        },
+        {
+          "evidenceRefId": "screen-ref-context-builder",
+          "evidence": {
+            "evidenceReferenceId": "stored-screen-ref-context-builder",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-06T08:58:00.000Z"
+          },
+          "evidenceKind": "screen-summary",
+          "sourceSchemaVersion": "v0.6",
+          "observedAt": "2026-06-06T08:58:00.000Z",
+          "ingestedAt": "2026-06-06T08:58:01.000Z",
+          "freshUntil": "2026-06-06T09:08:00.000Z",
+          "sourceId": "source-screen-ref-context-builder",
+          "adapterId": "adapter-screen-ref-context-builder",
+          "device": {
+            "deviceId": "device-context-builder-complete",
+            "childProfileId": "child-context-builder-complete",
+            "label": "Sam Windows PC",
+            "platform": "windows"
+          },
+          "childProfile": {
+            "childProfileId": "child-context-builder-complete",
+            "displayName": "Sam"
+          },
+          "custody": "child-device-query-store",
+          "retentionState": "local",
+          "confidence": 0.86,
+          "confidenceKind": "classifier",
+          "capabilityStatus": "available",
+          "degradedReasons": [],
+          "unknownReasons": [],
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ]
+        }
+      ],
+      "browserEvidenceRefs": [
+        "browser-ref-context-builder"
+      ],
+      "appGameEvidenceRefs": [
+        "app-game-ref-context-builder"
+      ],
+      "networkFlowEvidenceRefs": [
+        "network-ref-context-builder"
+      ],
+      "screenSummaryRefs": [
+        "screen-ref-context-builder"
+      ],
+      "parentRuleReferences": [
+        "context-builder-rule"
+      ],
+      "parentRuleContextReferences": [
+        {
+          "parentRuleRefId": "context-builder-parent-rule-context",
+          "policyVersion": "context-builder-policy-v1",
+          "family": {
+            "familyId": "family-context-builder-complete"
+          },
+          "childProfile": {
+            "childProfileId": "child-context-builder-complete",
+            "displayName": "Sam"
+          },
+          "device": {
+            "deviceId": "device-context-builder-complete",
+            "childProfileId": "child-context-builder-complete",
+            "label": "Sam Windows PC",
+            "platform": "windows"
+          },
+          "rule": {
+            "ruleId": "context-builder-rule",
+            "target": {
+              "targetId": "context-builder-target",
+              "targetType": "category",
+              "targetValue": "screen-safety"
+            },
+            "action": "warn",
+            "scheduleId": null,
+            "priority": 10,
+            "reasonCode": "parent-rule-browser-safety",
+            "createdBy": {
+              "actorId": "parent-context-builder",
+              "role": "parent"
+            },
+            "enabled": true,
+            "effectiveFrom": null,
+            "effectiveUntil": null
+          },
+          "targetEvidenceRefs": [
+            "screen-ref-context-builder"
+          ],
+          "custody": "parent-device-cache",
+          "updatedAt": "2026-06-06T08:58:00.000Z",
+          "expiresAt": null
+        }
+      ],
+      "recentActivitySummaryRefs": [],
+      "memoryReferences": [
+        {
+          "memoryReferenceId": "context-builder-complete-memory",
+          "kind": "recent-activity",
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ],
+          "sourcePolicyVersion": "context-builder-policy-v1",
+          "generatedAt": "2026-06-06T08:58:00.000Z",
+          "confidence": 0.82,
+          "derivedIndexVersion": "context-builder-memory-index-v1"
+        }
+      ],
+      "graphReferences": [
+        {
+          "graphReferenceId": "context-builder-complete-graph",
+          "kind": "graph-edge",
+          "sourceEvidenceReferences": [
+            {
+              "evidenceReferenceId": "context-builder-complete-source",
+              "kind": "journal-event",
+              "observedAt": "2026-06-06T08:58:00.000Z"
+            }
+          ],
+          "sourcePolicyVersion": "context-builder-policy-v1",
+          "generatedAt": "2026-06-06T08:58:00.000Z",
+          "confidence": 0.79,
+          "derivedIndexVersion": "context-builder-graph-index-v1"
+        }
+      ],
+      "localModelRuntimeRefs": [],
+      "promptVersion": "context-builder-prompt-v1",
+      "custodyLabels": [
+        "child-device-query-store"
+      ],
+      "degradedReasons": [
+        "model-unavailable"
+      ],
+      "unknownReasons": [],
+      "validationSummary": {
+        "evidenceReferenceCount": 4,
+        "sourceEvidenceReferenceCount": 4,
+        "runtimeReferenceCount": 0,
+        "memoryReferenceCount": 1,
+        "graphReferenceCount": 1,
+        "parentRuleReferenceCount": 1,
+        "ungroundedParentRuleReferenceCount": 0,
+        "forbiddenCustodyReferenceCount": 0,
+        "unallowedCustodyReferenceCount": 0
+      }
+    },
+    "rejectedFields": [],
+    "missingEvidenceKinds": [],
+    "degradedSourceRefs": [],
+    "custodyBoundarySummary": "context uses only child-device or parent-owned stored evidence",
+    "validationGateSummary": "partial context built with explicit missing evidence kinds",
+    "auditEvidenceReferences": [
+      {
+        "evidenceReferenceId": "stored-browser-ref-context-builder",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:58:00.000Z"
+      },
+      {
+        "evidenceReferenceId": "stored-app-game-ref-context-builder",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:58:00.000Z"
+      },
+      {
+        "evidenceReferenceId": "stored-network-ref-context-builder",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:58:00.000Z"
+      },
+      {
+        "evidenceReferenceId": "stored-screen-ref-context-builder",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:58:00.000Z"
+      }
+    ]
+  },
+  "summary": {
+    "readyEvidenceReferenceCount": 4,
+    "readyRuntimeReferenceCount": 1,
+    "readyParentRuleReferenceCount": 1,
+    "readyMemoryReferenceCount": 1,
+    "readyGraphReferenceCount": 1,
+    "partialMissingEvidenceKindCount": 3,
+    "rejectedForbiddenCustodyCount": 1,
+    "rejectedUnallowedCustodyCount": 1,
+    "unavailableRuntimeDegradedCount": 1
+  },
+  "claimBoundaries": {
+    "modelExecutionClaimed": false,
+    "modelQualityClaimed": false,
+    "policyAuthorityClaimed": false,
+    "enforcementClaimed": false,
+    "portalUiClaimed": false,
+    "remoteApiAiUsed": false,
+    "rawPromptRetained": false,
+    "rawEvidenceRetained": false
+  }
+}

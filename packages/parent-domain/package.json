@@ -505,6 +505,10 @@
       "import": "./dist/local-ai-context-builder.js",
       "types": "./dist/local-ai-context-builder.d.ts"
     },
+    "./local-ai-context-builder-completeness-proof": {
+      "import": "./dist/local-ai-context-builder-completeness-proof.js",
+      "types": "./dist/local-ai-context-builder-completeness-proof.d.ts"
+    },
     "./local-ai-model-artifacts": {
       "import": "./dist/local-ai-model-artifacts.js",
       "types": "./dist/local-ai-model-artifacts.d.ts"

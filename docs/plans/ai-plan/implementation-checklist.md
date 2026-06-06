@@ -38,6 +38,7 @@ consumes the same results.
 | Local AI result journal/SQLite ingest             | P3 contract proved  | `output/ai-plan-proof/local-ai-result-journal-sqlite-proof/proof-summary.json`                                                         | Proves ready, unavailable, and manual-required `LocalAiSafetyResult` rows can become journal entries, SQLite-ingest rows, and a parent-facing read-model snapshot while preserving result, request, evidence, parent-rule, runtime, provider, model, prompt, and proof refs. It does not claim production storage runtime, model execution, model quality, raw prompt/model-output retention, remote/API AI, policy authority, portal UI, or enforcement.                                                    |
 | Local recent memory and short-window activity     | P3 contract proved  | `output/ai-plan-proof/local-ai-recent-memory-window-proof/proof-summary.json`                                                          | Proves a parent-domain read model over the existing local AI context builder that selects only fresh `recent-activity` evidence inside the requested window, returns source-grounded recent-memory refs, omits stale/out-of-window and ungrounded rows, and rejects raw retention, remote/API AI, policy authority, and enforcement overclaims. It does not create fresh capture, execute a model, prove production model quality, render portal UI, or dispatch enforcement.                                |
 | Local AI graph reference/minimal edges            | P3 contract proved  | `output/ai-plan-proof/local-ai-graph-reference-contract-proof/proof-summary.json`                                                      | Proves local AI graph refs are schema-validated, source-cited, and read through minimal activity-memory graph edges only when selected evidence, policy version, parent action refs, freshness, endpoints, and time range match. It does not claim a production graph storage/index runtime, model execution, model quality, UI, policy authority, enforcement, remote/API AI, or raw evidence retention.                                                                                                    |
+| Local AI context builder completeness             | P3 contract proved  | `output/ai-plan-proof/local-ai-context-builder-completeness-proof/proof-summary.json`                                                  | Proves the real local AI context builder preserves browser, app/game, network-flow, screen-summary, parent-rule, local runtime, memory, graph, and prompt refs for ready contexts; returns typed partial state for missing evidence; rejects forbidden hosted or unallowed custody; and degrades unavailable local runtime without remote/API fallback. It does not claim model execution, model quality, portal UI, policy authority, enforcement, raw prompt retention, or raw evidence retention.         |
 
 ## Contract And Source Truth
 
@@ -56,7 +57,8 @@ consumes the same results.
 - [ ] Provider capability contract complete.
 - [ ] Job queue contract complete.
 - [ ] Provider route contract complete.
-- [ ] Context builder contracts complete.
+- [x] Context builder contracts complete for ready, partial, rejected custody,
+      and unavailable-runtime degraded states over the real context builder.
 - [ ] Prompt/template version contract complete.
 - [x] Memory reference contract complete for source-cited recent-activity
       memory in the short-window read model; broader semantic/long-term memory
@@ -206,6 +208,11 @@ consumes the same results.
 - [x] local AI recent-memory and short-window activity proof run:
       `node --check scripts/test/local-ai-recent-memory-window-proof.mjs` and
       `node scripts/test/local-ai-recent-memory-window-proof.mjs`.
+- [x] local AI context builder completeness proof artifacts under
+      `output/ai-plan-proof/local-ai-context-builder-completeness-proof`.
+- [x] local AI context builder completeness proof run:
+      `node --check scripts/test/local-ai-context-builder-completeness-proof.mjs`
+      and `node scripts/test/local-ai-context-builder-completeness-proof.mjs`.
 - [x] guided VLM worker contract proof artifacts under
       `output/ai-plan-proof/screen-vlm-worker-contract-proof`.
 - [x] guided VLM worker contract proof run:

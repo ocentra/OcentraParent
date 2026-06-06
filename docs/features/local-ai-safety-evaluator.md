@@ -127,6 +127,16 @@ claim needs proof, not slogans.
   match. The proof keeps production graph storage/index runtime, model
   execution, model quality, portal UI, policy authority, enforcement,
   remote/API AI, and raw evidence retention unclaimed.
+- `LocalAiContextBuilderCompletenessProofSchema` and
+  `scripts/test/local-ai-context-builder-completeness-proof.mjs` now prove the
+  general local AI context-builder contract boundary over the real builder. The
+  proof preserves selected browser, app/game, network-flow, screen-summary,
+  parent-rule, local runtime, memory, graph, and prompt refs for ready contexts;
+  returns typed partial state for missing evidence; rejects forbidden hosted or
+  unallowed custody; and degrades unavailable local runtime without remote/API
+  fallback. It keeps model execution, model quality, portal UI, policy
+  authority, enforcement, raw prompt retention, and raw evidence retention
+  unclaimed.
 - The service WinRT OCR policy proof now reruns the real Windows service
   OCR path over live public Wikipedia pixels and consumes that exact
   `localOcr` Activity Screen row through `PolicyDecisionSchema`, producing an
@@ -288,6 +298,10 @@ production external evidence variants.
 - [x] Local recent-memory and short-window activity read-model proof path
       without fresh-capture, model-execution, remote/API, policy-authority,
       enforcement, portal UI, or production-quality claims.
+- [x] Local context-builder completeness proof path for ready, partial,
+      rejected custody, and unavailable-runtime degraded states without
+      model-execution, model-quality, remote/API, policy-authority, enforcement,
+      portal UI, raw-prompt, or raw-evidence claims.
 - [x] Local result contract with confidence/degraded state.
 - [x] Deterministic policy integration.
 - [x] Service WinRT OCR row consumed by typed parent policy dry-run.

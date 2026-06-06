@@ -1,0 +1,52 @@
+{
+  "status": "ok",
+  "proofKind": "local-ai-context-builder-completeness-proof",
+  "generatedAt": "2026-06-06T09:08:24.927Z",
+  "proof": "output/ai-plan-proof/local-ai-context-builder-completeness-proof/proof-summary.json",
+  "testResult": "test-results/local-ai-context-builder-completeness-proof/proof.json",
+  "validationCommands": "output/ai-plan-proof/local-ai-context-builder-completeness-proof/validation-commands.log",
+  "contextStates": {
+    "ready": "ready",
+    "partial": "partial",
+    "forbiddenCustody": "rejected",
+    "unallowedCustody": "rejected",
+    "unavailableRuntime": "partial"
+  },
+  "summary": {
+    "readyEvidenceReferenceCount": 4,
+    "readyRuntimeReferenceCount": 1,
+    "readyParentRuleReferenceCount": 1,
+    "readyMemoryReferenceCount": 1,
+    "readyGraphReferenceCount": 1,
+    "partialMissingEvidenceKindCount": 3,
+    "rejectedForbiddenCustodyCount": 1,
+    "rejectedUnallowedCustodyCount": 1,
+    "unavailableRuntimeDegradedCount": 1
+  },
+  "claimBoundaries": {
+    "modelExecutionClaimed": false,
+    "modelQualityClaimed": false,
+    "policyAuthorityClaimed": false,
+    "enforcementClaimed": false,
+    "portalUiClaimed": false,
+    "remoteApiAiUsed": false,
+    "rawPromptRetained": false,
+    "rawEvidenceRetained": false
+  },
+  "sourceArtifacts": [
+    "packages/parent-domain/src/local-ai-context.ts",
+    "packages/parent-domain/src/local-ai-context-builder.ts",
+    "packages/parent-domain/src/local-ai-context-builder-completeness-proof.ts"
+  ],
+  "claimsProved": [
+    "The real local AI context builder returns a ready local-only context preserving browser, app/game, network-flow, screen-summary, parent-rule, runtime, memory, graph, and prompt refs.",
+    "The builder returns typed partial state when required evidence is missing and typed rejected states for forbidden hosted custody and unallowed custody.",
+    "Unavailable local runtime degrades the context explicitly without remote/API fallback or policy/enforcement authority."
+  ],
+  "nonClaims": [
+    "This proof does not execute a model or prove production model quality.",
+    "This proof does not render a portal UI or dispatch enforcement.",
+    "This proof does not use remote/API AI or retain raw prompts or raw evidence.",
+    "This proof does not update the product capability checklist because that shared file is owned by another active lane."
+  ]
+}
