@@ -1,0 +1,15 @@
+git rev-parse --abbrev-ref HEAD
+exit=0
+codex/app-game-inventory-display-gate-proof
+
+
+git rev-parse HEAD
+exit=0
+566a9d9882538f5f95897213475b90555e98e3f8
+
+
+git status --short
+exit=0
+ M docs/features/app-game-control.md
+ M docs/plans/app-plan/implementation-checklist.md
+?? scripts/test/app-plan-merge-blocking-gates-proof.mjs

@@ -80,6 +80,11 @@ control with better evidence and local audit.
   display label remains a manual-required/risk text row in the parent dashboard
   intent, while the SVG dashboard source renders labels through bounded text
   sizing/truncation and avoids app/game dashboard HTML injection sinks.
+- The app-plan merge-blocking gate reconciliation now cross-records the
+  native-app side of those shared app/game proofs into the app-plan checklist:
+  each gate cites the current shared evidence spine, preserves native app and
+  native game product meanings, and does not move product status, package
+  exports, adapter dispatch, policy execution, or browser-game scope.
 - App/game unknown approval contracts now represent new inventory apps, unknown
   runtime processes, portable/installer candidates, launcher-game candidates,
   unknown game-like executables, child status/reason refs, parent response

@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-plan-merge-blocking-gates-proof",
+  "generatedAt": "2026-06-06T21:53:26.338Z",
+  "branch": "codex/app-game-inventory-display-gate-proof",
+  "commit": "566a9d9882538f5f95897213475b90555e98e3f8",
+  "gitStatusShort": "M docs/features/app-game-control.md\n M docs/plans/app-plan/implementation-checklist.md\n?? scripts/test/app-plan-merge-blocking-gates-proof.mjs",
+  "commands": [
+    "git rev-parse --abbrev-ref HEAD\nexit=0\ncodex/app-game-inventory-display-gate-proof\n",
+    "git rev-parse HEAD\nexit=0\n566a9d9882538f5f95897213475b90555e98e3f8\n",
+    "git status --short\nexit=0\n M docs/features/app-game-control.md\n M docs/plans/app-plan/implementation-checklist.md\n?? scripts/test/app-plan-merge-blocking-gates-proof.mjs\n"
+  ],
+  "gateSet": "docs/plans/app-plan/implementation-checklist.md#merge-blocking-failure-gates",
+  "gates": [
+    {
+      "appPlanGate": "Inventory evidence is displayed as app usage.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/inventory-display/proof.json",
+      "appGameGate": "Inventory evidence is displayed as app/game usage.",
+      "appGameGateState": "proven-by-existing-portal-dashboard-intent-and-route-assertion",
+      "appPlanPreventedBy": "inventory-display-boundary",
+      "proofMode": "app-game-inventory-display-gate-proof",
+      "commandCount": 1
+    },
+    {
+      "appPlanGate": "Running evidence is displayed as foreground usage.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/running-foreground-display/proof.json",
+      "appGameGate": "Running evidence is displayed as foreground usage.",
+      "appGameGateState": "prevented-by-existing-portal-dashboard-intent-and-route-assertion",
+      "appPlanPreventedBy": "running-foreground-boundary",
+      "proofMode": "app-game-running-foreground-display-gate-proof",
+      "commandCount": 1
+    },
+    {
+      "appPlanGate": "Foreground evidence is displayed as content knowledge.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/foreground-content-boundary/proof.json",
+      "appGameGate": "Foreground evidence is displayed as content knowledge.",
+      "appGameGateState": "prevented-by-foreground-contract-and-portal-display-boundary",
+      "appPlanPreventedBy": "foreground-content-boundary",
+      "proofMode": "app-game-foreground-content-boundary-gate-proof",
+      "commandCount": 2
+    },
+    {
+      "appPlanGate": "AI output can directly enforce.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/ai-output-direct-enforcement/proof.json",
+      "appGameGate": "AI output directly enforces.",
+      "appGameGateState": "prevented-by-ai-review-only-and-not-dispatched-policy-routing-contracts",
+      "appPlanPreventedBy": "ai-evidence-only-boundary",
+      "proofMode": "app-game-ai-output-direct-enforcement-gate-proof",
+      "commandCount": 3
+    },
+    {
+      "appPlanGate": "Dry-run terminates or blocks app.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/dry-run-no-action/proof.json",
+      "appGameGate": "Dry-run terminates or blocks app/game.",
+      "appGameGateState": "prevented-by-dry-run-only-and-not-dispatched-contracts",
+      "appPlanPreventedBy": "dry-run-no-action-boundary",
+      "proofMode": "app-game-dry-run-no-action-gate-proof",
+      "commandCount": 3
+    },
+    {
+      "appPlanGate": "Manual-required action calls an adapter.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/manual-required-no-adapter/proof.json",
+      "appGameGate": "Manual-required action calls an adapter.",
+      "appGameGateState": "prevented-by-manual-required-and-blocked-before-adapter-contracts",
+      "appPlanPreventedBy": "manual-required-no-adapter-boundary",
+      "proofMode": "app-game-manual-required-no-adapter-gate-proof",
+      "commandCount": 4
+    },
+    {
+      "appPlanGate": "Android normal mode claims package suspend/hide.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/android-normal-mode-no-suspend-hide/proof.json",
+      "appGameGate": "Android normal mode claims package suspend/hide.",
+      "appGameGateState": "prevented-by-android-owner-proof-manual-required-gate",
+      "appPlanPreventedBy": "android-normal-mode-no-claim-boundary",
+      "proofMode": "app-game-android-normal-mode-no-suspend-hide-gate-proof",
+      "commandCount": 1
+    },
+    {
+      "appPlanGate": "iOS claims process scanning/killing.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/ios-no-process-scan-kill/proof.json",
+      "appGameGate": "iOS claims process scanning/killing.",
+      "appGameGateState": "prevented-by-ios-not-claimed-process-gate",
+      "appPlanPreventedBy": "ios-no-process-control-boundary",
+      "proofMode": "app-game-ios-no-process-scan-kill-gate-proof",
+      "commandCount": 1
+    },
+    {
+      "appPlanGate": "macOS hard block is claimed without entitlement/profile proof.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/macos-hard-block-proof/proof.json",
+      "appGameGate": "macOS hard block is claimed without MDM/Endpoint/System Extension proof.",
+      "appGameGateState": "prevented-by-macos-manual-required-platform-proof-gate",
+      "appPlanPreventedBy": "macos-hard-block-proof-boundary",
+      "proofMode": "app-game-macos-hard-block-proof-gate",
+      "commandCount": 1
+    },
+    {
+      "appPlanGate": "Linux universal block is claimed without mechanism/distro proof.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/linux-universal-block-proof/proof.json",
+      "appGameGate": "Linux universal block is claimed without mechanism/distro proof.",
+      "appGameGateState": "prevented-by-linux-unavailable-mechanism-distro-session-proof-gate",
+      "appPlanPreventedBy": "linux-universal-block-proof-boundary",
+      "proofMode": "app-game-linux-universal-block-proof-gate",
+      "commandCount": 1
+    },
+    {
+      "appPlanGate": "Session duration changes after journal replay.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/session-duration-replay/proof.json",
+      "appGameGate": "Session duration changes after journal replay.",
+      "appGameGateState": "prevented-by-replay-duration-contract-and-dedupe-proof",
+      "appPlanPreventedBy": "session-replay-stability-boundary",
+      "proofMode": "app-game-session-duration-replay-gate-proof",
+      "commandCount": 3
+    },
+    {
+      "appPlanGate": "Portal hides stale, permission-limited, manual-required, or not-claimed states.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/portal-state-visibility/proof.json",
+      "appGameGate": "Portal hides stale, permission-limited, manual-required, or not-claimed states.",
+      "appGameGateState": "prevented-by-portal-dashboard-and-policy-readiness-intent-proof",
+      "appPlanPreventedBy": "portal-state-visibility-boundary",
+      "proofMode": "app-game-portal-state-visibility-gate-proof",
+      "commandCount": 2
+    },
+    {
+      "appPlanGate": "Raw private executable paths leak into parent UI.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/raw-executable-path-ui-leak/proof.json",
+      "appGameGate": "Raw private executable paths leak into parent UI.",
+      "appGameGateState": "prevented-by-dashboard-intent-redaction-and-render-source-proof",
+      "appPlanPreventedBy": "raw-executable-path-redaction-boundary",
+      "proofMode": "app-game-raw-executable-path-ui-leak-gate-proof",
+      "commandCount": 1
+    },
+    {
+      "appPlanGate": "Malicious app metadata causes XSS or layout breakage.",
+      "appGameProof": "output/app-game-plan-proof/merge-gates/malicious-metadata-ui-safety/proof.json",
+      "appGameGate": "Malicious app/game metadata causes XSS or layout breakage.",
+      "appGameGateState": "prevented-by-react-text-rendering-bounded-svg-layout-and-manual-required-row-proof",
+      "appPlanPreventedBy": "malicious-metadata-ui-safety-boundary",
+      "proofMode": "app-game-malicious-metadata-ui-safety-gate-proof",
+      "commandCount": 1
+    }
+  ],
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningPreservedInSharedProofs": true,
+    "browserGameWorkDuplicated": false,
+    "productStatusMoved": false,
+    "packageExportsChanged": false,
+    "adapterDispatchClaimed": false,
+    "policyExecutionClaimed": false
+  },
+  "proofPaths": {
+    "proof": "test-results/app-plan-merge-blocking-gates-proof/proof.json",
+    "appPlanProofPack": "output/app-plan-proof/merge-gates/app-plan-merge-blocking-gates",
+    "harness": "scripts/test/app-plan-merge-blocking-gates-proof.mjs"
+  }
+}

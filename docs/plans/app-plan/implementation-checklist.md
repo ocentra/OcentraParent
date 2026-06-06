@@ -186,21 +186,21 @@ reason.
 
 Block `DONE`, PR-ready, or merge if any of these are true:
 
-- [ ] Inventory evidence is displayed as app usage.
-- [ ] Running evidence is displayed as foreground usage.
-- [ ] Foreground evidence is displayed as content knowledge.
-- [ ] AI output can directly enforce.
-- [ ] Dry-run terminates or blocks app.
-- [ ] Manual-required action calls an adapter.
-- [ ] Android normal mode claims package suspend/hide.
-- [ ] iOS claims process scanning/killing.
-- [ ] macOS hard block is claimed without entitlement/profile proof.
-- [ ] Linux universal block is claimed without mechanism/distro proof.
-- [ ] Session duration changes after journal replay.
-- [ ] Portal hides stale, permission-limited, manual-required, or not-claimed
+- [x] Inventory evidence is displayed as app usage.
+- [x] Running evidence is displayed as foreground usage.
+- [x] Foreground evidence is displayed as content knowledge.
+- [x] AI output can directly enforce.
+- [x] Dry-run terminates or blocks app.
+- [x] Manual-required action calls an adapter.
+- [x] Android normal mode claims package suspend/hide.
+- [x] iOS claims process scanning/killing.
+- [x] macOS hard block is claimed without entitlement/profile proof.
+- [x] Linux universal block is claimed without mechanism/distro proof.
+- [x] Session duration changes after journal replay.
+- [x] Portal hides stale, permission-limited, manual-required, or not-claimed
       states.
-- [ ] Raw private executable paths leak into parent UI.
-- [ ] Malicious app metadata causes XSS or layout breakage.
+- [x] Raw private executable paths leak into parent UI.
+- [x] Malicious app metadata causes XSS or layout breakage.
 
 ## Main Execution Gates
 
