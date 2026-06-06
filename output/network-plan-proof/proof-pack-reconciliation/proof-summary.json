@@ -1,8 +1,9 @@
 {
   "proof": "network-proof-pack-reconciliation",
-  "checkedAt": "2026-06-06T23:40:39.697Z",
+  "checkedAt": "2026-06-06T23:47:24.455Z",
   "branch": "codex/network-proof-pack-reconciliation",
-  "commit": "36ccb0f8b167a2c1c541d50f2d346d76cf45ab23",
+  "sourceCommit": "a9b4f19d8d6d662ff3439212448ccc375202c725",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
   "originMain": "aa4d770c6bf326ef6ecb991e91b697d4be803b8e",
   "mergeBase": "aa4d770c6bf326ef6ecb991e91b697d4be803b8e",
   "sourceStatusShort": "",
