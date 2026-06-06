@@ -1,18 +1,22 @@
 use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventCustody, EventId,
-    EventMetadata, EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey,
-    RecordedAt, RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId,
-    TargetHandler,
+    AggregateKey, DomainEvent, EventBus, EventContract, EventSubscriber, EventType, EventingError,
+    IdempotencyKey, SchemaVersion, SubscriberId, TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    screen_event_runtime_input::{
+        ScreenRuntimeCaptureInput, ScreenRuntimeDeletionInput, ScreenRuntimeInput,
+    },
+    screen_event_runtime_metadata::{
+        screen_capture_event_metadata, screen_deletion_event_metadata, screen_event_metadata,
+    },
     screen_event_runtime_phase::ScreenRuntimePhase,
     screen_event_runtime_refs::{
         action_ref, ai_request_ref, ai_result_ref, deletion_proof_ref, parent_rule_ref,
         policy_action, policy_decision_ref, portal_read_model_ref, previous_phase_ref,
-        queue_event_ref, screen_aggregate_key, screen_correlation_id, summary_ref,
+        queue_event_ref, screen_aggregate_key, summary_ref,
     },
     screen_event_runtime_state::{
         action_state, ai_audit_state, custody_state, deletion_state, evidence_scope, policy_state,
@@ -20,78 +24,6 @@ use crate::{
         ScreenPolicyState, ScreenRuntimeClaimBoundary,
     },
 };
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct ScreenRuntimeInput {
-    pub queue_job_id: String,
-    pub screen_analysis_result_id: String,
-    pub capture_reason: String,
-    pub capture_scope: String,
-    pub image_digest: String,
-    pub summary: String,
-    pub model_runtime_ref: String,
-    pub model_id: String,
-    pub prompt_or_template_version: String,
-    pub policy_decision_ref: String,
-    pub policy_action: String,
-    pub parent_rule_ref: String,
-    pub action_ref: String,
-    pub deletion_proof_ref: String,
-    pub portal_read_model_ref: String,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct ScreenRuntimeCaptureInput {
-    pub queue_job_id: String,
-    pub screen_analysis_result_id: String,
-    pub capture_reason: String,
-    pub capture_scope: String,
-    pub image_digest: String,
-    pub summary: String,
-    pub model_runtime_ref: String,
-    pub model_id: String,
-    pub prompt_or_template_version: String,
-}
-
-impl ScreenRuntimeInput {
-    pub fn proof_fixture() -> Self {
-        Self {
-            queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
-            screen_analysis_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
-            capture_reason: constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE.to_string(),
-            capture_scope: constants::activity_capture::OBSERVATION_MODE_ACTIVE_WINDOW.to_string(),
-            image_digest: constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string(),
-            summary: constants::activity_store::TEST_SCREEN_SUMMARY.to_string(),
-            model_runtime_ref: constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string(),
-            model_id: constants::activity_store::TEST_SCREEN_MODEL_ID.to_string(),
-            prompt_or_template_version: constants::activity_store::TEST_SCREEN_TEMPLATE_VERSION
-                .to_string(),
-            policy_decision_ref: constants::activity_store::TEST_POLICY_DECISION_ID.to_string(),
-            policy_action: constants::activity_store::TEST_POLICY_ACTION_ALLOW.to_string(),
-            parent_rule_ref: constants::screen_flow::TEST_SCREEN_POLICY_RULE_REF.to_string(),
-            action_ref: constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
-            deletion_proof_ref: constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string(),
-            portal_read_model_ref: constants::screen_flow::TEST_SCREEN_PORTAL_READ_MODEL_REF
-                .to_string(),
-        }
-    }
-}
-
-impl From<&ScreenRuntimeInput> for ScreenRuntimeCaptureInput {
-    fn from(input: &ScreenRuntimeInput) -> Self {
-        Self {
-            queue_job_id: input.queue_job_id.clone(),
-            screen_analysis_result_id: input.screen_analysis_result_id.clone(),
-            capture_reason: input.capture_reason.clone(),
-            capture_scope: input.capture_scope.clone(),
-            image_digest: input.image_digest.clone(),
-            summary: input.summary.clone(),
-            model_runtime_ref: input.model_runtime_ref.clone(),
-            model_id: input.model_id.clone(),
-            prompt_or_template_version: input.prompt_or_template_version.clone(),
-        }
-    }
-}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ScreenRuntimeEventPayload {
@@ -189,6 +121,35 @@ impl ScreenRuntimeEventPayload {
         self.portal_read_model_ref = portal_read_model_ref(phase, input);
         self
     }
+
+    fn from_deletion_input(input: &ScreenRuntimeDeletionInput, observed_at: &str) -> Self {
+        let capture_input = ScreenRuntimeCaptureInput {
+            queue_job_id: input.queue_job_id.clone(),
+            screen_analysis_result_id: input.screen_analysis_result_id.clone(),
+            capture_reason: input.capture_reason.clone(),
+            capture_scope: input.capture_scope.clone(),
+            image_digest: input.image_digest.clone(),
+            summary: input.summary.clone(),
+            model_runtime_ref: input.model_runtime_ref.clone(),
+            model_id: input.model_id.clone(),
+            prompt_or_template_version: input.prompt_or_template_version.clone(),
+        };
+        let mut payload = Self::from_capture_input(
+            ScreenRuntimePhase::DeletionCommitted,
+            &capture_input,
+            observed_at,
+        );
+        payload.previous_phase_ref =
+            Some(constants::screen_flow::SCREEN_QUEUE_EVENT_REF.to_string());
+        payload.deletion_proof_ref = Some(input.deletion_proof_ref.clone());
+        payload.ai_audit_state = ScreenAiAuditState::NotRequested;
+        payload.policy_state = ScreenPolicyState::NotReady;
+        payload.action_state = ScreenActionState::NotReady;
+        payload.deletion_state = ScreenDeletionState::Committed;
+        payload.evidence_scope = ScreenEvidenceScope::DeletedQueryStoreSummary;
+        payload.custody_state = constants::eventing_source::CUSTODY_LOCAL_JOURNAL.to_string();
+        payload
+    }
 }
 
 impl DomainEvent for ScreenRuntimeEventPayload {
@@ -261,6 +222,14 @@ pub async fn publish_screen_capture_queue_events_for_input(
     spine.publish_capture_queue_events(input, observed_at).await
 }
 
+pub async fn publish_screen_deletion_event_for_input(
+    input: ScreenRuntimeDeletionInput,
+    observed_at: &str,
+) -> Result<ScreenRuntimeReport, EventingError> {
+    let spine = ScreenRuntimeSpine::with_default_handlers().await?;
+    spine.publish_deletion_event(input, observed_at).await
+}
+
 struct ScreenRuntimeSpine {
     bus: EventBus,
 }
@@ -320,42 +289,19 @@ impl ScreenRuntimeSpine {
             dead_letters: self.bus.dead_letters().await,
         })
     }
-}
 
-fn screen_event_metadata(
-    phase: ScreenRuntimePhase,
-    input: &ScreenRuntimeInput,
-    observed_at: &str,
-) -> Result<EventMetadata, EventingError> {
-    Ok(EventMetadata::from_parts(
-        EventId::generated(),
-        CorrelationId::parse(screen_correlation_id(&input.queue_job_id))?,
-        screen_event_source(phase)?,
-        RecordedAt::parse(observed_at)?,
-        Some(TargetHandler::parse(phase.target_handler())?),
-    ))
-}
-
-fn screen_capture_event_metadata(
-    phase: ScreenRuntimePhase,
-    input: &ScreenRuntimeCaptureInput,
-    observed_at: &str,
-) -> Result<EventMetadata, EventingError> {
-    Ok(EventMetadata::from_parts(
-        EventId::generated(),
-        CorrelationId::parse(screen_correlation_id(&input.queue_job_id))?,
-        screen_event_source(phase)?,
-        RecordedAt::parse(observed_at)?,
-        Some(TargetHandler::parse(phase.target_handler())?),
-    ))
-}
-
-fn screen_event_source(phase: ScreenRuntimePhase) -> Result<EventSource, EventingError> {
-    Ok(EventSource::new(
-        EventCustody::parse(custody_state(phase))?,
-        phase.runtime_role(),
-        SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
-        SourceComponent::parse(constants::screen_flow::RUNTIME_COMPONENT_SCREEN_SPINE)?,
-        RuntimeInstanceId::parse(constants::screen_flow::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT)?,
-    ))
+    async fn publish_deletion_event(
+        &self,
+        input: ScreenRuntimeDeletionInput,
+        observed_at: &str,
+    ) -> Result<ScreenRuntimeReport, EventingError> {
+        let payload = ScreenRuntimeEventPayload::from_deletion_input(&input, observed_at);
+        let metadata = screen_deletion_event_metadata(&input, observed_at)?;
+        let report = self.bus.publish(payload, metadata).await?;
+        Ok(ScreenRuntimeReport {
+            publish_reports: vec![report],
+            stored_events: self.bus.journal().await,
+            dead_letters: self.bus.dead_letters().await,
+        })
+    }
 }

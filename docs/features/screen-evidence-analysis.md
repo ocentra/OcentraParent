@@ -92,6 +92,16 @@ only with explicit parent settings.
   capture event producer hop without claiming a new external live capture run,
   retention sweeper deletion event publication, final enforcement, or model
   quality.
+- `scripts/test/screen-service-deletion-event-producer-proof.mjs` now proves the
+  service retention sweeper publishes typed `screen.deletion.committed` events
+  after expired encrypted queue records are removed. The core screen runtime
+  exposes a deletion-only publisher that requires a deletion proof ref while
+  keeping AI, policy, and action refs empty for TTL cleanup; the service bridge
+  maps Activity Screen retention rows into that payload while rejecting raw
+  retention and missing deletion proof rows; and the retention sweeper runtime
+  calls the shared producer after queue removal. This closes the TTL deletion
+  event producer hop without claiming parent retention UI persistence, final
+  enforcement, a new live capture run, or model quality.
 - `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
   screen-derived household mesh contract/runtime boundary: redacted
   summary/custody payloads, no raw screenshot transfer, provider claim/lease,
@@ -478,9 +488,10 @@ social proof beyond public/live surface proof, production OCR/VLM quality beyond
 the WinRT OCR service proof, controlled fixtures, and the full live operator
 matrix, production local vision adapter quality beyond the service proof
 adapter, service-owned live trigger event producers beyond the timed cadence
-loop and native active-window foreground watcher capture/queue event producer,
-startup wiring for remaining live producers beyond the service capture and
-analysis row-ready handoffs, physical
+loop and native active-window foreground watcher capture/queue event producer
+and retention sweeper deletion event producer, startup wiring for remaining live
+producers beyond the service capture/deletion and analysis row-ready handoffs,
+physical
 Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
 browser-trigger artifact closure,
 browser/network/mobile/broad block action adapters from screen-derived
@@ -561,6 +572,9 @@ parity, and UI remain separate proof gates.
 - [x] Screen service capture event producer proof publishes capture-observed and
       encrypted-queue events from the service cadence and native foreground
       capture loops after encrypted queue handoff.
+- [x] Screen service deletion event producer proof publishes deletion-committed
+      events from the retention sweeper after expired queue deletion without
+      fabricating policy/action refs.
 - [x] Screen household mesh proof keeps raw screenshots off LAN provider
       payloads, grants one child-owned lease, validates provider results on the
       child agent before policy, and rejects invalid provider results.
@@ -568,7 +582,7 @@ parity, and UI remain separate proof gates.
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof,
 remaining production startup subscriptions for live producers beyond the service
-capture/queue and analysis row-ready/policy-ref handoffs, production household mesh transport over
+capture/queue, deletion, and analysis row-ready/policy-ref handoffs, production household mesh transport over
 physical LAN, broad adapters, and production explanation portal rendering remain in the
 Current Gap section above.
 
