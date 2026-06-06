@@ -1,26 +1,19 @@
-use std::{collections::BTreeSet, path::PathBuf};
+use ocentra_eventing::{ReplayReadReport, StoredEventEnvelope};
+use ocentra_parent_agent_protocol::constants;
 
-use ocentra_eventing::{
-    EventBus, EventSubscriber, EventType, EventingError, JournalPolicy, JournalSelector,
-    NdjsonEventJournal, NdjsonJournalOptions, ReplayFilter, ReplayReadReport, ReplayRecord,
-    SourceComponent, StoredEventEnvelope, SubscriberId, TargetHandler,
-};
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
-};
-
-use crate::{
-    network_event_runtime_phase::NetworkRuntimePhase,
-    network_event_runtime_state::NetworkInterventionState, NetworkObservation,
-};
+use crate::network_event_runtime_state::NetworkInterventionState;
 
 use super::remote_delivery_event_chain_journal_types::{
-    count_payloads, NetworkRuntimeRemoteEventChainJournalError,
-    NetworkRuntimeRemoteEventChainJournalReport, UnsupportedClaimCounts,
+    NetworkRuntimeRemoteEventChainJournalError, NetworkRuntimeRemoteEventChainJournalReport,
+    UnsupportedClaimCounts,
+};
+use super::remote_delivery_event_chain_store::{
+    exported_event_type_count, publish_network_runtime_remote_event_chain_store, source_component,
+    unsupported_claim_counts,
 };
 use super::{
-    network_event_metadata, prove_network_runtime_remote_delivery_status, should_publish_phase,
-    NetworkRuntimeEventPayload, NetworkRuntimeRemoteDeliveryStatusReport,
+    prove_network_runtime_remote_delivery_status, NetworkRuntimeEventPayload,
+    NetworkRuntimeRemoteDeliveryStatusReport,
 };
 pub async fn prove_network_runtime_remote_event_chain_journal(
 ) -> Result<NetworkRuntimeRemoteEventChainJournalReport, NetworkRuntimeRemoteEventChainJournalError>
@@ -28,108 +21,20 @@ pub async fn prove_network_runtime_remote_event_chain_journal(
     let remote_delivery_status = prove_network_runtime_remote_delivery_status()
         .await
         .map_err(NetworkRuntimeRemoteEventChainJournalError::RemoteDeliveryStatus)?;
-    let (stored_events, projection) = publish_event_chain_to_journal().await?;
-    assert_projection_matches(&stored_events, &projection.records)?;
-    let payloads = decode_payloads(&projection.records)?;
-    let unsupported = unsupported_claim_counts(&payloads, &projection.records);
+    let store = publish_network_runtime_remote_event_chain_store().await?;
+    let unsupported = unsupported_claim_counts(&store.payloads, &store.projection.records);
     if unsupported.has_any() {
         return Err(NetworkRuntimeRemoteEventChainJournalError::UnsupportedClaim);
     }
     build_report(
         remote_delivery_status,
-        &stored_events,
-        projection,
-        payloads,
+        &store.stored_events,
+        store.projection,
+        store.payloads,
         unsupported,
     )
 }
-async fn publish_event_chain_to_journal(
-) -> Result<(Vec<StoredEventEnvelope>, ReplayReadReport), NetworkRuntimeRemoteEventChainJournalError>
-{
-    let journal = NdjsonEventJournal::with_options(
-        remote_event_chain_journal_path(),
-        NdjsonJournalOptions::hash_chain(),
-    );
-    let bus = event_chain_bus_with_journal(&journal).await?;
-    let observation = remote_event_chain_observation();
-    for phase in NetworkRuntimePhase::ordered_chain()
-        .iter()
-        .copied()
-        .filter(|phase| should_publish_phase(*phase, &observation))
-    {
-        let payload = NetworkRuntimeEventPayload::from_observation(
-            phase,
-            &observation,
-            constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        );
-        let metadata = network_event_metadata(
-            phase,
-            &observation,
-            constants::activity_store::TEST_FIRST_OBSERVED_AT,
-            phase.target_handler(),
-        )?;
-        bus.publish(payload, metadata).await?;
-    }
 
-    let stored_events = bus.journal().await;
-    let projection = journal.replay_projection(ReplayFilter::all()).await?;
-    cleanup_journal(journal.path());
-    Ok((stored_events, projection))
-}
-fn assert_projection_matches(
-    stored_events: &[StoredEventEnvelope],
-    records: &[ReplayRecord],
-) -> Result<(), NetworkRuntimeRemoteEventChainJournalError> {
-    if stored_events.is_empty() || records.is_empty() {
-        return Err(NetworkRuntimeRemoteEventChainJournalError::EmptyJournal);
-    }
-    if stored_events.len() != records.len() {
-        return Err(NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch);
-    }
-    for (index, (stored_event, record)) in stored_events.iter().zip(records.iter()).enumerate() {
-        let expected_sequence = u64::try_from(index)
-            .map(|value| value.saturating_add(1))
-            .map_err(|_| NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch)?;
-        if record.sequence != expected_sequence || &record.envelope != stored_event {
-            return Err(NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch);
-        }
-    }
-    Ok(())
-}
-fn decode_payloads(
-    records: &[ReplayRecord],
-) -> Result<Vec<NetworkRuntimeEventPayload>, EventingError> {
-    records
-        .iter()
-        .map(|record| record.envelope.decode().map(|envelope| envelope.payload))
-        .collect::<Result<Vec<NetworkRuntimeEventPayload>, EventingError>>()
-}
-fn unsupported_claim_counts(
-    payloads: &[NetworkRuntimeEventPayload],
-    records: &[ReplayRecord],
-) -> UnsupportedClaimCounts {
-    UnsupportedClaimCounts {
-        enforcement_command_event_count: records
-            .iter()
-            .filter(|record| {
-                record.envelope.contract.event_type.as_str()
-                    == constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
-            })
-            .count(),
-        adapter_action_executed_count: count_payloads(payloads, |payload| {
-            payload.claim_boundary.adapter_action_executed
-        }),
-        exact_url_available_count: count_payloads(payloads, |payload| {
-            payload.claim_boundary.exact_url_available
-        }),
-        decrypted_payload_available_count: count_payloads(payloads, |payload| {
-            payload.claim_boundary.decrypted_https_payload_available
-        }),
-        page_content_available_count: count_payloads(payloads, |payload| {
-            payload.claim_boundary.page_content_available
-        }),
-    }
-}
 fn build_report(
     remote_delivery_status: NetworkRuntimeRemoteDeliveryStatusReport,
     stored_events: &[StoredEventEnvelope],
@@ -182,63 +87,4 @@ fn build_report(
         side_effect_authority: remote_delivery_status.side_effect_authority,
         remote_delivery_status,
     })
-}
-async fn event_chain_bus_with_journal(
-    journal: &NdjsonEventJournal,
-) -> Result<EventBus, EventingError> {
-    let bus = EventBus::with_journal(
-        JournalPolicy::after_dispatch(JournalSelector::All),
-        journal.clone().shared(),
-    );
-    for phase in NetworkRuntimePhase::ordered_chain() {
-        bus.subscribe::<NetworkRuntimeEventPayload, _, _>(
-            EventSubscriber::new(
-                SubscriberId::parse(phase.subscriber_id())?,
-                EventType::parse(phase.event_type())?,
-                TargetHandler::parse(phase.target_handler())?,
-            ),
-            |_| async { Ok(()) },
-        )
-        .await?;
-    }
-    Ok(bus)
-}
-fn remote_event_chain_observation() -> NetworkObservation {
-    NetworkObservation {
-        status: ActivityCaptureCapabilityStatus::Unavailable,
-        protocol: Some(ActivityNetworkProtocol::Tcp),
-        local_ip: Some(constants::test_network::LOOPBACK_IP.to_string()),
-        local_port: Some(constants::activity_store::TEST_NETWORK_LOCAL_PORT),
-        destination_ip: Some(constants::activity_store::TEST_NETWORK_DESTINATION_IP.to_string()),
-        destination_port: Some(constants::activity_store::TEST_NETWORK_DESTINATION_PORT),
-        destination_domain: Some(constants::activity_store::TEST_NETWORK_DOMAIN.to_string()),
-        tcp_state: Some(ActivityNetworkTcpState::Established),
-        pid: Some(4242),
-        process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
-        associated_pid_count: 1,
-    }
-}
-fn remote_event_chain_journal_path() -> PathBuf {
-    let mut file_name =
-        String::from(constants::network_flow::TEST_REMOTE_EVENT_CHAIN_JOURNAL_PATH_PREFIX);
-    file_name.push(constants::delimiter::HYPHEN);
-    file_name.push_str(&std::process::id().to_string());
-    file_name.push(constants::delimiter::HYPHEN);
-    file_name.push_str(ocentra_eventing::EventId::generated().as_str());
-    file_name.push(constants::delimiter::DOT);
-    file_name.push_str(constants::network_flow::TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION);
-    std::env::temp_dir().join(file_name)
-}
-fn exported_event_type_count(records: &[ocentra_eventing::ReplayRecord]) -> usize {
-    records
-        .iter()
-        .map(|record| record.envelope.contract.event_type.as_str().to_string())
-        .collect::<BTreeSet<String>>()
-        .len()
-}
-fn source_component(value: &str) -> Result<SourceComponent, EventingError> {
-    SourceComponent::parse(value)
-}
-fn cleanup_journal(path: &std::path::Path) {
-    let _ = std::fs::remove_file(path);
 }

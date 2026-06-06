@@ -69,6 +69,14 @@ pub const TEST_REMOTE_EVENT_CHAIN_EXPORT_REF: &str =
     "network.remote-delivery.event-chain-export.10f";
 pub const TEST_REMOTE_EVENT_CHAIN_SUPPORT_STATUS_REF: &str =
     "network.remote-delivery.event-chain.support-status.10f";
+pub const TEST_REMOTE_EVENT_CHAIN_RECEIPT_LEDGER_REF: &str =
+    "network.remote-delivery.event-chain.receipt-ledger.10g";
+pub const TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF: &str =
+    "network.remote-delivery.event-chain.local-receipt-ack.10g";
+pub const TEST_REMOTE_EVENT_CHAIN_RECEIPT_REPLAY_REF: &str =
+    "network.remote-delivery.event-chain.receipt-replay.10g";
+pub const TEST_REMOTE_EVENT_CHAIN_RECEIPT_SUPPORT_STATUS_REF: &str =
+    "network.remote-delivery.event-chain.receipt-support-status.10g";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_PATH_PREFIX: &str =
     "ocentra-network-remote-event-chain-journal";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION: &str = "ndjson";
@@ -125,3 +133,5 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_DELIVERY_STATUS: &str =
     "network runtime remote delivery status proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_EVENT_CHAIN_JOURNAL: &str =
     "network runtime remote event-chain journal proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_RECEIPT_LEDGER: &str =
+    "network runtime remote receipt ledger proof";

@@ -98,6 +98,16 @@ compete on control while staying clear about attribution confidence and privacy.
   transport, action replay, policy authority, side effects, enforcement
   commands, adapter execution, exact URL, decrypted payload, page content, and
   host filtering remain false.
+- E-D added row10g remote delivery receipt ledger/local ack proof in
+  `agent-core`: `network-remote-delivery-receipt-ledger-proof` builds a
+  deterministic local receipt ledger from row10f projection replay records,
+  preserving replay sequence, event id, event type, correlation id, row10g
+  ledger refs, local receipt ack refs, receipt replay refs, and support-status
+  refs. This proves the local ack/receipt boundary future broker/family-hub
+  transport can consume, while live broker/family-hub transport, remote delivery
+  acknowledgement implementation, policy authority, side effects, enforcement
+  commands, adapter execution, exact URL, decrypted payload, page content, and
+  host filtering remain false.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,
@@ -391,9 +401,10 @@ and manual-required labels before any platform claim can be upgraded. Row52 now
 adds a platform-claim manifest that names exact Windows, Android, Apple
 macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
 follow-ups for missing artifacts.
-Broker/family-hub delivery implementation beyond the row10b status proof and
-row10f local event-chain journal/export boundary, local-AI model
-execution/worker runtime, full policy engine execution beyond
+Broker/family-hub delivery implementation beyond the row10b status proof,
+row10f local event-chain journal/export boundary, and row10g local receipt
+ledger/local ack boundary, local-AI model execution/worker runtime, full policy
+engine execution beyond
 the current stored-flow dry-run preview and stored-flow service unavailable-result proof,
 notification provider delivery, broader parent-facing rule UX, live host DNS
 mutation/proxy installation, live Windows
@@ -485,7 +496,10 @@ UI rendering remain open.
       chain into reusable `ocentra-eventing` NDJSON journal records and
       projection replay/export records while keeping action replay, live
       transport, policy, adapter, enforcement-command, and exact-content claims
-      false. Service network read-model delivery now publishes stored
+      false. Row10g now derives a local receipt ledger from that projection,
+      preserving sequence, event id, event type, correlation id, receipt
+      ledger refs, and local ack refs without implementing live remote delivery
+      acknowledgements. Service network read-model delivery now publishes stored
       ActivityStore network rows through the local eventing runtime and exposes
       delivery counts in the service payload; service WebSocket event-chain
       streaming now returns protocol-shaped local runtime entries for stored
@@ -519,8 +533,9 @@ UI rendering remain open.
       follow-ups for missing artifacts, and rejects generic platform support,
       live adapter execution, UI policy authority, and enforcement-command
       claims. AI model execution, broker/family-hub delivery implementation
-      beyond row10b status and row10f local journal/export boundary, full
-      policy engine execution, notification delivery, external
+      beyond row10b status, row10f local journal/export boundary, and row10g
+      local receipt ledger/local ack boundary, full policy engine execution,
+      notification delivery, external
       audit/deployment execution, full support-material authoring, and portal
       risk-budget/performance UI rendering remain.
 - [x] Parent portal network evidence drawer.
