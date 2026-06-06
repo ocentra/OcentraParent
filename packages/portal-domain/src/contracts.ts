@@ -369,6 +369,7 @@ export const PortalDom = {
     TrackingProofCitationDetail: 'service-backed-citation-detail',
     TrackingProofChildCheckIn: 'child-check-in',
     TrackingProofChildRuntimeUi: 'child-runtime-ui',
+    TrackingProofEvidenceDrawer: 'service-backed-evidence-drawer',
     TrackingProofFamilyDashboard: 'family-dashboard-rollup',
     TrackingProofRetentionSettings: 'retention-settings-ui',
   },

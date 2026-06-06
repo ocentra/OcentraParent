@@ -84,9 +84,10 @@ expose location or device-status features. Parents expect this category.
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
   drives the React parent route through Playwright, renders the service-data
-  coverage card, explicit service-backed citation detail card, and family
-  dashboard rollup card beside the service read-model summary, captures desktop,
-  mobile, hosted service-backed citation detail, hosted child-safe check-in, hosted
+  coverage card, explicit service-backed citation detail card, read-only
+  evidence drawer card, and family dashboard rollup card beside the service
+  read-model summary, captures desktop, mobile, hosted service-backed citation
+  detail, hosted evidence drawer, hosted child-safe check-in, hosted
   child-runtime UI, hosted family dashboard rollup, and unsupported/manual
   platform render-state proof screenshots, writes accessibility summary output,
   proves calm child check-in copy/actions plus child disclosure, safe/help
@@ -273,8 +274,9 @@ product-surface summary fields, narrow portal summary-consumption proof, live
 service-backed portal citation rows, hosted
 parent route service-data coverage, hosted parent route screenshot/accessibility
 proof with hosted child-safe check-in copy/actions, hosted child-runtime
-disclosure/safe-help/location-share consent copy, and hosted family dashboard
-rollup card plus hosted retention settings read-model card, P1 local parent-defined place
+disclosure/safe-help/location-share consent copy, hosted read-only evidence
+drawer drill-in, hosted family dashboard rollup card, and hosted retention
+settings read-model card, P1 local parent-defined place
 store proof, pre-device proof-gate progress, Android emulator package/service/status
 scaffold proof, WP08/WP09 Android permission/background manual-required proof,
 WP11/WP12 iOS Core Location manual-required proof, P3 WSL/local replay proof,
@@ -406,7 +408,8 @@ snapshots/accessibility beyond the hosted parent route are proved.
 - [x] Hosted parent `policy-tracking` route screenshot and accessibility proof
       against the real Rust service and seeded ActivityStore, including a
       rendered service-data coverage card, explicit service-backed citation
-      detail card, hosted child-safe check-in copy/actions card, hosted
+      detail card, hosted read-only evidence drawer card, hosted child-safe
+      check-in copy/actions card, hosted
       child-runtime disclosure/safe-help/location-share consent card, plus a
       family dashboard rollup card. This is not
       child-device delivery/runtime execution, full dashboard UI beyond the

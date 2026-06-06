@@ -376,9 +376,10 @@ Every implementation workpack must update, or explicitly justify not updating:
 - [ ] Tracking UI/UX is not product-complete. A P1 parent portal tracking-state
       fixture, local parent-route screenshot, hosted parent `policy-tracking`
       route screenshot/accessibility proof, hosted service-backed citation detail
-      screenshot proof, hosted child-safe check-in screenshot proof, and hosted
-      child-runtime disclosure/safe-help/location-share consent screenshot proof
-      exist; hosted React service-data coverage from the parsed
+      screenshot proof, hosted read-only evidence drawer screenshot proof,
+      hosted child-safe check-in screenshot proof, and hosted child-runtime
+      disclosure/safe-help/location-share consent screenshot proof exist; hosted
+      React service-data coverage from the parsed
       tracking read model is rendered and proved, but live parent/child UI beyond that route,
       actual child-device delivery/runtime execution, physical-device proof,
       authority, provider delivery, and production proof remain pending.
@@ -409,7 +410,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       pre-device proof gate, Android emulator scaffold proof, WSL/local replay
       proof, live service-backed portal citation rows, iOS simulator package
       routing, hosted parent route screenshot/accessibility proof, hosted
-      child-safe check-in screenshot proof, hosted child-runtime UI proof, and
+      child-safe check-in screenshot proof, hosted child-runtime UI proof,
+      hosted read-only evidence drawer proof, and
       remaining Android foreground/background location, physical-device,
       authority, actual child-device delivery/runtime execution, full
       child/parent UI beyond the hosted parent route, provider-delivery, and
@@ -423,8 +425,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       retention-deleted states at P1 with local proof artifact references. The
       runtime proof command captures a local rendered parent-route screenshot;
       hosted parent route Playwright/a11y proof now captures live service-data
-      desktop/mobile screenshots plus hosted child-safe check-in and
-      child-runtime UI proof screenshots; actual child-device runtime execution
+      desktop/mobile screenshots plus hosted evidence drawer, child-safe
+      check-in, and child-runtime UI proof screenshots; actual child-device runtime execution
       and full parent/child UI beyond that route remain pending.
 - [ ] Child-device runtime snapshots cover actual delivery/execution,
       disclosure, safe/help responses, and location-share consent. Hosted proof
@@ -438,6 +440,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png`;
       the hosted service-backed citation detail screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png`;
+      the hosted read-only evidence drawer screenshot is stored at
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png`;
       the hosted child-safe check-in screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`;
       the hosted child-runtime UI proof screenshot is stored at
@@ -446,9 +450,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       pending.
 - [ ] Accessibility output is stored for the hosted parent route proof in
       `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`;
-      it includes the service-backed citation detail, hosted child-safe check-in,
-      and hosted child-runtime UI cards, while actual child-device runtime/full
-      UI accessibility remains pending.
+      it includes the service-backed citation detail, hosted read-only evidence
+      drawer, hosted child-safe check-in, and hosted child-runtime UI cards,
+      while actual child-device runtime/full UI accessibility remains pending.
 
 ## Evidence Quality Gates
 

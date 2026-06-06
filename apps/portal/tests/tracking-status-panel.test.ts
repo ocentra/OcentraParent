@@ -11,6 +11,7 @@ import { PortalRoute, TrackingStatusProofArtifacts } from '@ocentra-parent/porta
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
 import { trackingChildCheckInProof, trackingChildRuntimeUiProof } from '../src/tracking-child-check-in-proof';
+import { trackingEvidenceDrawerHostedUiProof } from '../src/tracking-evidence-drawer-hosted-ui-proof';
 import {
   trackingFamilyDashboardHostedRollupProof,
   trackingStatusLiveSummary,
@@ -278,6 +279,32 @@ describe('tracking status proof surface', () => {
     const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
 
     expect(trackingStatusServiceDataCoverage(liveActivity)).toEqual(ExpectedTrackingServiceDataCoverage);
+  });
+
+  it('renders evidence drawer proof from the selected citation without evaluator or dispatch claims', () => {
+    const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
+    const liveSummary = trackingStatusLiveSummary(liveActivity);
+
+    expect(trackingEvidenceDrawerHostedUiProof(liveSummary.citations[0] ?? null)).toEqual({
+      title: 'Evidence drawer proof',
+      body: 'Hosted route renders a read-only evidence drawer from the selected service-backed citation without evaluating policy or dispatching actions.',
+      proofTier: 'P2 service proof',
+      drawerMode: 'read-only evidence drawer',
+      sourceEventId: 'tracking-event-1',
+      evidenceReferences: 'tracking-evidence-1',
+      deletedEvidence: 'Not reported',
+      proofArtifact: TrackingStatusProofArtifacts.HostedEvidenceDrawer,
+      boundary:
+        'Display-only evidence drill-in; policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
+      missingProof: 'Manual proof required',
+      productClaim: 'No product claim',
+      policyEvaluatorClaimedRows: '0',
+      actionDispatchClaimedRows: '0',
+      childDeviceDeliveryClaimedRows: '0',
+      providerDeliveryClaimedRows: '0',
+      physicalDeviceClaimedRows: '0',
+      authorityClaimedRows: '0',
+    });
   });
 });
 

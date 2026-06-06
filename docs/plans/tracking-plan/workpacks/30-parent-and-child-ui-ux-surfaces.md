@@ -27,6 +27,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `11-ui-snapshots/hosted-policy-tracking-live-summary.png`
 - `11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png`
 - `11-ui-snapshots/hosted-policy-tracking-citation-detail.png`
+- `11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`
 - `11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`
@@ -37,6 +38,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `17-hosted-ui-proof.json`
 - `18-service-data-ui-proof.json`
 - `19-child-runtime-ui-proof.json`
+- `20-evidence-drawer-hosted-ui-proof.json`
 - Accessibility summary:
   `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`
 - Pre-device gate:
@@ -74,8 +76,13 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       claiming writable settings, service mutation, platform runtime,
       child-device delivery, provider delivery, authority, physical-device
       execution, or production readiness.
+- [x] Render and screenshot hosted read-only evidence drawer drill-in from the
+      selected service-backed citation without claiming policy evaluation,
+      action dispatch, child-device delivery, provider delivery, physical-device
+      proof, authority, or product readiness.
 - [x] Ensure child copy avoids accusation.
-- [ ] Keep portal as authoring/display surface, not evaluator.
+- [x] Keep portal as authoring/display surface, not evaluator for the hosted
+      evidence drawer proof; broader UI/product paths remain separately gated.
 
 ## Where We Are
 
@@ -135,6 +142,14 @@ remote-AI disabled rows. The repeatable hosted proof captures it at
 and records no writable settings, service mutation, platform runtime,
 child-device delivery, provider delivery, authority, physical-device, or product
 readiness claim.
+The hosted route now also renders a read-only evidence drawer card from the
+selected service-backed citation. The repeatable hosted proof captures it at
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png`
+and writes
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json`
+while keeping policy evaluation, action dispatch, child-device delivery,
+provider delivery, physical-device proof, authority, and product readiness
+unclaimed.
 This is not product-complete UI proof: full dashboard UI beyond the hosted
 parent route, actual child-device delivery/runtime execution, writable retention
 settings, physical-device evidence, authority, provider delivery, and production
@@ -237,6 +252,26 @@ This workpack can be assigned independently, implemented against the owning doma
       execution, full parent/child UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-evidence-drawer-hosted-ui-proof`.
+- [x] Touched files: hosted evidence drawer proof model, React and DOM tracking
+      status renderers, portal/text/domain constants, hosted Playwright proof
+      spec, hosted proof script, owning tracking feature doc, implementation
+      checklist, WP30, WP32, and generated hosted proof artifacts.
+- [x] Validation commands and results: pending final focused hosted proof refresh
+      and guard run before PR-ready report.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json`,
+      `test-results/tracking-plan-hosted-ui-proof/`, and companion hosted proof
+      JSON files.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, and WP32 updated; central capability checklist row delta
+      stays hub-sequenced instead of editing `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: policy evaluation, action dispatch,
+      actual child-device delivery/runtime execution, full parent/child UI
+      beyond the hosted route, Android/iOS physical-device proof, authority,
+      provider delivery, notifications, and production proof remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-family-dashboard-hosted-ui-proof`.
 - [x] Touched files: hosted parent route renderer, tracking status renderer,

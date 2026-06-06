@@ -52,6 +52,9 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [x] Mark and screenshot the hosted service-backed citation detail card so the
       evidence refs and no-product-claim boundary are captured in hosted proof
       output.
+- [x] Mark and screenshot the hosted read-only evidence drawer card from the
+      selected service-backed citation without adding policy evaluation,
+      dispatch, delivery, device, authority, or product-ready claims.
 - [x] Expose hosted parent service-data coverage for service-backed read-model
       row counts, kinds, custody, capability, and active/deleted evidence refs.
 - [x] Expose active product-surface summary fields for kind/device/capability
@@ -85,6 +88,9 @@ event as a narrow live summary plus live citation rows on the `policy-tracking`
 route. The hosted parent route now also marks the service-backed citation detail
 card and captures it in
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png`.
+The hosted route now also renders a read-only evidence drawer from the selected
+service-backed citation and captures it in
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png`.
 The hosted parent route now also exposes a service-data coverage panel
 backed by the parsed
 `trackingReadModel` payload, including active/tombstone counts, latest tombstone
@@ -311,3 +317,19 @@ This workpack can be assigned independently, implemented against the owning doma
       parent/child UI beyond the hosted parent route, Android/iOS physical-device
       proof, authority, provider delivery, notifications, and production proof
       remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-evidence-drawer-hosted-ui-proof`.
+- [x] Touched files: WP32 doc plus hosted portal proof files in WP30; no new
+      read-model storage or service contracts were added.
+- [x] Validation commands and results: pending final focused hosted proof refresh
+      and guard run before PR-ready report.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json`
+      and `test-results/tracking-plan-hosted-ui-proof/`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, and WP32 updated; central capability checklist row stays
+      hub-sequenced instead of editing `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: the evidence drawer is hosted
+      read-only citation display only; policy evaluation, action dispatch,
+      child-device delivery/runtime execution, provider delivery, physical-device
+      proof, authority, and product readiness remain proof-gated.
