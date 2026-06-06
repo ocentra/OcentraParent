@@ -118,8 +118,9 @@ const proof = {
   commands,
   stackedOn: {
     wp75Branch: 'codex/app-game-source-freshness-preview-gate',
-    wp74Branch: 'codex/app-game-source-freshness-policy-consumption-v2',
-    reason: 'WP76 consumes WP75/WP74 contracts that are not on origin/main yet.',
+    requiredBranch: 'codex/app-game-source-freshness-preview-gate',
+    reason:
+      'WP76 consumes WP75 preview-gate contracts that are not on origin/main yet; WP74 source freshness policy consumption has landed on origin/main.',
   },
   summary: summarize(readModel),
   nonClaims: {
