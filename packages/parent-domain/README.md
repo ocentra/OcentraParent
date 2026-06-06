@@ -467,6 +467,13 @@ flowchart LR
   runtime emission, service events, read APIs, response consumers, service
   runtime, protocol, rendering, portal rendering, persistence, and adapter
   dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface status read-model
+  parent-surface read-model service read API handoff rows consume service event
+  handoff rows and keep future service read API proof visible while keeping
+  package exports, service read-model runtime emission, service event runtime
+  emission, service events, read APIs, read API responses, response consumers,
+  service runtime, protocol, rendering, portal rendering, persistence, and
+  adapter dispatch unclaimed.
   Portal authoring or preview UI, live evaluator execution, persistence,
   timers, child notification delivery, adapter dispatch, broad installed-app
   blocking, and platform enforcement remain unimplemented.
