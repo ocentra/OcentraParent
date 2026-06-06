@@ -45,6 +45,21 @@ fn network_product_readiness_status_payload_serializes_materializer_outputs() {
     assert!(product_status.portal_read_model_ready);
     assert!(product_status.retention_export_refs_visible);
     assert_eq!(product_status.platform_manual_required_claims, 1);
+    assert_eq!(product_status.platform_entries.len(), 2);
+    assert_eq!(
+        product_status.platform_entries[0].target,
+        ocentra_network_evidence::NetworkPlatformClaimTarget::WindowsFirewall
+    );
+    assert!(product_status.platform_entries[0].adapter_authorized_by_proof);
+    assert!(!product_status.platform_entries[0].enforcement_command_published);
+    assert_eq!(
+        product_status.platform_entries[1].target,
+        ocentra_network_evidence::NetworkPlatformClaimTarget::WindowsWfp
+    );
+    assert!(!product_status.platform_entries[1].adapter_authorized_by_proof);
+    assert!(!product_status.platform_entries[1]
+        .missing_required_artifacts
+        .is_empty());
     assert!(!product_status.exact_url_available);
     assert!(!product_status.decrypted_payload_available);
     assert!(!product_status.ui_policy_authority);
@@ -71,6 +86,7 @@ async fn websocket_network_product_readiness_status_command_reports_payload() {
         product_status.readiness_state,
         NetworkProductReadinessStatusState::ManualRequired
     );
+    assert_eq!(product_status.platform_entries.len(), 2);
     assert!(!product_status.policy_authority);
     assert!(!product_status.adapter_authority);
 }

@@ -270,8 +270,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       service-backed row13a live-capture/raw-custody status and row51a
       product-readiness status in the same drawer with capture/storage
       readiness, risk, performance, platform follow-up, portal read-model,
-      retention/export, and false adapter-dispatch/no-claim values. Broader
-      risk-budget/performance/platform UI coverage remains open.
+      retention/export, and false adapter-dispatch/no-claim values. Row52a now
+      renders Row52 platform-claim manifest entries in the same drawer with
+      exact OS/device, permission/entitlement, adapter capability,
+      missing-artifact, and audit refs plus false enforcement-command rows.
+      Broader risk-budget/performance UI coverage remains open.
 - [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
       reasons for every applicable gate. Workpack 03 proof lives under
       `output/network-plan-proof/03-contract-boundary-and-effect-schemas/`.
@@ -347,7 +350,7 @@ manual-required/N/A file.
 
 | 51 | Integrated event + network product path proof | [x] | E-D | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json`, `test-results/network-end-to-end-pipeline-proof/proof.json`, `end_to_end_pipeline_carries_refs_from_trigger_to_retention_export`, `end_to_end_pipeline_keeps_weak_evidence_non_enforcing`, `end_to_end_pipeline_keeps_unavailable_evidence_non_enforcing`, `end_to_end_pipeline_rejects_ai_ui_and_network_bypass_claims`, `network_runtime_chain_carries_exact_refs_without_direct_enforcement_shortcut`, `manual_required_network_evidence_does_not_publish_enforcement_command` | Integrated proof now composes existing typed event-chain refs, evidence bundle refs, local-AI refs-only queue, AI detection/audit refs, risk-budget and policy refs, DNS adapter proof-state refs, audit refs, portal read-model refs, and retention/delete/export refs into one deterministic product path. Weak or unavailable evidence cannot authorize adapter apply or publish enforcement commands, and AI/UI/network surfaces cannot bypass policy. This does not claim live capture driver invocation, local model execution, full policy engine execution, host adapter mutation, broker/family-hub delivery, or broader portal risk-budget/performance UI rendering. |
 
-| 52 | Platform claim manifest proof | [x] | E-D | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/52-platform-claims-proof/proof-summary.json`, `output/network-plan-proof/52-platform-claims-proof/11-manual-platform-proof.md`, `output/network-plan-proof/52-platform-claims-proof/12-validation-commands.log`, `test-results/network-platform-claims-proof/proof.json`, `platform_claim_manifest_names_exact_platform_permission_and_device_refs`, `platform_claim_manifest_reports_unavailable_states_without_execution`, `platform_claim_manifest_records_missing_permission_artifacts_as_manual_followup`, `platform_claim_manifest_rejects_broad_or_live_platform_claims`, `platform_claim_manifest_rejects_proof_source_that_publishes_enforcement_command` | Deterministic platform-claim manifest proof now composes Windows Firewall, Windows WFP, Android VpnService, Apple Network Extension macOS/iOS, and Linux nftables/eBPF/TUN proof gates into exact platform rows with OS/device refs, permission or entitlement refs, adapter capability refs, audit refs, unavailable-state accounting, and missing required artifacts captured as manual follow-ups. Generic platform support, live adapter execution, UI policy authority, exact URL, page content, decrypted payload, and enforcement-command claims are rejected. This does not claim production platform support, live host adapter mutation, packet blocking, policy engine execution, or portal platform-state rendering. |
+| 52 | Platform claim manifest proof | [x] | E-D | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/52-platform-claims-proof/proof-summary.json`, `output/network-plan-proof/52-platform-claims-proof/11-manual-platform-proof.md`, `output/network-plan-proof/52-platform-claims-proof/12-validation-commands.log`, `test-results/network-platform-claims-proof/proof.json`, `platform_claim_manifest_names_exact_platform_permission_and_device_refs`, `platform_claim_manifest_reports_unavailable_states_without_execution`, `platform_claim_manifest_records_missing_permission_artifacts_as_manual_followup`, `platform_claim_manifest_rejects_broad_or_live_platform_claims`, `platform_claim_manifest_rejects_proof_source_that_publishes_enforcement_command` | Deterministic platform-claim manifest proof now composes Windows Firewall, Windows WFP, Android VpnService, Apple Network Extension macOS/iOS, and Linux nftables/eBPF/TUN proof gates into exact platform rows with OS/device refs, permission or entitlement refs, adapter capability refs, audit refs, unavailable-state accounting, and missing required artifacts captured as manual follow-ups. Generic platform support, live adapter execution, UI policy authority, exact URL, page content, decrypted payload, and enforcement-command claims are rejected. Row52a now renders those exact platform rows through the service-backed product-readiness event. This does not claim production platform support, live host adapter mutation, packet blocking, policy engine execution, or platform adapter execution. |
 
 ## Supplemental Row Proofs
 
@@ -370,12 +373,13 @@ manual-required/N/A file.
       Rust `ocentra-network-evidence` materializer composes row48 risk-budget,
       row49 performance benchmark, and row52 platform-claim manifest proofs
       into one portal-safe readiness status with risk state, performance
-      regression state, platform manual follow-ups, portal read-model refs, and
-      retention/export refs. The proof rejects exact URL/content, decrypted
-      payload, production-SLO, UI policy authority, portal adapter dispatch,
-      live adapter execution, and enforcement-command claims. Row51b now covers
-      Rust service WebSocket exposure and row51c covers the narrow Activity
-      route portal rendering proof.
+      regression state, Row52 platform entries, platform manual follow-ups,
+      portal read-model refs, and retention/export refs. The proof rejects
+      exact URL/content, decrypted payload, production-SLO, UI policy authority,
+      portal adapter dispatch, live adapter execution, and enforcement-command
+      claims. Row51b now covers Rust service WebSocket exposure, row51c covers
+      the narrow Activity route status rendering proof, and row52a covers
+      platform-entry matrix rendering.
 - [x] 51b network product readiness service status: E-D added
       `output/network-plan-proof/51b-product-readiness-service-status/proof-summary.json`
       and
@@ -385,11 +389,12 @@ manual-required/N/A file.
       `agent.network.product-readiness.status.reported`; the Rust service
       returns `networkLiveCaptureCustodyStatus` and
       `networkProductReadinessStatus` payload fields built from the row13a and
-      row51a `ocentra-network-evidence` materializers. The proof keeps exact
-      URL/content, decrypted payload, production-SLO, UI policy authority,
-      portal adapter dispatch, live capture execution, live adapter execution,
-      and enforcement-command claims false. Row51c now covers portal rendering
-      of this service status.
+      row51a `ocentra-network-evidence` materializers, including Row52 platform
+      claim manifest entries. The proof keeps exact URL/content, decrypted
+      payload, production-SLO, UI policy authority, portal adapter dispatch,
+      live capture execution, live adapter execution, and enforcement-command
+      claims false. Row51c now covers portal status rendering and row52a covers
+      platform-entry matrix rendering of this service status.
 - [x] 51c network product-readiness portal rendering: E-D added
       `output/network-plan-proof/51c-product-readiness-portal/proof-summary.json`
       and
@@ -406,6 +411,19 @@ manual-required/N/A file.
       raw PCAP without custody, live capture execution, policy authority,
       adapter dispatch, host filtering, production-SLO, and enforcement-command
       claims false.
+- [x] 52a platform-claim manifest portal matrix: E-D added
+      `output/network-plan-proof/52a-platform-claim-manifest-portal/proof-summary.json`
+      and
+      `test-results/network-platform-claim-manifest-portal-proof/proof.json`.
+      The row51 product-readiness service event now carries Row52 platform
+      entries, the shared `agent-protocol-domain` parser validates target,
+      state, OS/device refs, permission/entitlement refs, adapter capability
+      refs, missing-artifact refs, audit refs, and false enforcement-command
+      publication, and the Activity route renders those rows in a platform
+      matrix. The proof uses the real Rust service, Vite portal, WebSocket path,
+      and Playwright screenshot while keeping exact URL/content, decrypted
+      payload, UI policy authority, live adapter execution, host filtering,
+      production-SLO, and enforcement-command claims false.
 - [x] 22a network risk target policy handoff: E-D added
       `output/network-plan-proof/22a-risk-target-policy-handoff-proof/proof-summary.json`
       and `test-results/network-risk-target-policy-handoff-proof/proof.json`.

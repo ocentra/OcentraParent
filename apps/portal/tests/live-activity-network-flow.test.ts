@@ -96,6 +96,14 @@ function defineNetworkProductReadinessStatusTests(): void {
     expect(summary.platformManualRequiredClaims).toBe('1');
     expect(summary.platformUnavailableClaims).toBe('1');
     expect(summary.platformManualFollowups).toBe('WindowsWfp | network.live-capture.permission-proof.13');
+    expect(summary.platformEntries).toHaveLength(4);
+    expect(summary.platformEntries[0]?.target).toBe('WindowsFirewall');
+    expect(summary.platformEntries[0]?.adapterAuthorizedByProof).toBe('true');
+    expect(summary.platformEntries[0]?.enforcementCommandPublished).toBe('false');
+    expect(summary.platformEntries[1]?.state).toBe('DryRun');
+    expect(summary.platformEntries[2]?.target).toBe('WindowsWfp');
+    expect(summary.platformEntries[2]?.missingRequiredArtifacts).toBe('network.platform-claim.manual-followup.51a');
+    expect(summary.platformEntries[3]?.state).toBe('Unavailable');
     expect(summary.portalReadModelReady).toBe('true');
     expect(summary.retentionExportRefsVisible).toBe('true');
     expect(summary.noClaimBoundary).toBe('false');
@@ -441,6 +449,7 @@ function productReadinessStatus() {
         missing_required_artifacts: ['network.live-capture.permission-proof.13'],
       },
     ],
+    platform_entries: platformEntries(),
     portal_read_model_ready: true,
     retention_export_refs_visible: true,
     policy_authority: false,
@@ -454,6 +463,67 @@ function productReadinessStatus() {
     decrypted_payload_available: false,
     page_content_available: false,
   };
+}
+
+function platformEntries() {
+  return [
+    {
+      target: 'WindowsFirewall',
+      claim_state: 'Ready',
+      policy_decision_ref: 'network.policy-decision.51a',
+      parent_rule_ref: 'network.parent-rule.51a',
+      evidence_refs: ['network.flow-evidence.51a'],
+      device_or_os_refs: ['windows-device.51a'],
+      permission_or_entitlement_refs: ['network.live-capture.permission-proof.13'],
+      adapter_capability_refs: ['network.adapter-capability.51a'],
+      missing_required_artifacts: [],
+      audit_refs: ['network.audit.51a'],
+      adapter_authorized_by_proof: true,
+      enforcement_command_published: false,
+    },
+    {
+      target: 'WindowsFirewall',
+      claim_state: 'DryRun',
+      policy_decision_ref: 'network.policy-decision.51a',
+      parent_rule_ref: 'network.parent-rule.51a',
+      evidence_refs: ['network.flow-evidence.51a'],
+      device_or_os_refs: ['windows-device.51a'],
+      permission_or_entitlement_refs: ['network.live-capture.permission-proof.13'],
+      adapter_capability_refs: ['network.adapter-capability.51a'],
+      missing_required_artifacts: [],
+      audit_refs: ['network.audit.51a'],
+      adapter_authorized_by_proof: false,
+      enforcement_command_published: false,
+    },
+    {
+      target: 'WindowsWfp',
+      claim_state: 'ManualRequired',
+      policy_decision_ref: 'network.policy-decision.51a',
+      parent_rule_ref: 'network.parent-rule.51a',
+      evidence_refs: ['network.flow-evidence.51a'],
+      device_or_os_refs: ['windows-wfp-device.51a'],
+      permission_or_entitlement_refs: [],
+      adapter_capability_refs: ['network.wfp-capability.51a'],
+      missing_required_artifacts: ['network.platform-claim.manual-followup.51a'],
+      audit_refs: ['network.wfp-audit.51a'],
+      adapter_authorized_by_proof: false,
+      enforcement_command_published: false,
+    },
+    {
+      target: 'AppleNetworkExtensionIos',
+      claim_state: 'Unavailable',
+      policy_decision_ref: 'network.policy-decision.51a',
+      parent_rule_ref: 'network.parent-rule.51a',
+      evidence_refs: ['network.flow-evidence.51a'],
+      device_or_os_refs: ['ios-device.51a'],
+      permission_or_entitlement_refs: [],
+      adapter_capability_refs: [],
+      missing_required_artifacts: [],
+      audit_refs: ['network.ios-audit.51a'],
+      adapter_authorized_by_proof: false,
+      enforcement_command_published: false,
+    },
+  ];
 }
 
 function networkClassifiedEntry() {

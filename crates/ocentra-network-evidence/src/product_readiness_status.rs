@@ -2,9 +2,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     NetworkInterventionState, NetworkPerformanceBenchmarkProof, NetworkPerformanceBenchmarkState,
-    NetworkPerformancePathState, NetworkPerformanceRegressionCode,
+    NetworkPerformancePathState, NetworkPerformanceRegressionCode, NetworkPlatformClaimEntry,
     NetworkPlatformClaimManifestProof, NetworkPlatformClaimManualFollowup,
-    NetworkRiskBudgetEvaluation, NetworkRiskBudgetState,
+    NetworkPlatformClaimState, NetworkRiskBudgetEvaluation, NetworkRiskBudgetState,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -52,6 +52,7 @@ pub struct NetworkProductReadinessStatus {
     pub platform_manual_required_claims: usize,
     pub platform_unavailable_claims: usize,
     pub platform_manual_followups: Vec<NetworkPlatformClaimManualFollowup>,
+    pub platform_entries: Vec<NetworkPlatformClaimEntry>,
     pub portal_read_model_ready: bool,
     pub retention_export_refs_visible: bool,
     pub policy_authority: bool,
@@ -88,6 +89,7 @@ pub enum NetworkProductReadinessStatusError {
     PlatformAuthorityClaimRejected,
     PlatformLiveAdapterClaimRejected,
     PlatformEnforcementClaimRejected,
+    PlatformCountMismatch,
 }
 
 pub fn materialize_network_product_readiness_status(
@@ -127,6 +129,7 @@ pub fn materialize_network_product_readiness_status(
         platform_manual_required_claims: input.platform_claims.manual_required_claims,
         platform_unavailable_claims: input.platform_claims.unavailable_claims,
         platform_manual_followups: input.platform_claims.manual_followups,
+        platform_entries: input.platform_claims.entries,
         portal_read_model_ready: true,
         retention_export_refs_visible: true,
         policy_authority: false,
@@ -248,7 +251,31 @@ fn validate_platform_claims(
     {
         return Err(NetworkProductReadinessStatusError::PlatformEnforcementClaimRejected);
     }
+    if count_platform_entries(platform_claims, NetworkPlatformClaimState::Ready)
+        != platform_claims.ready_claims
+        || count_platform_entries(platform_claims, NetworkPlatformClaimState::DryRun)
+            != platform_claims.dry_run_claims
+        || count_platform_entries(platform_claims, NetworkPlatformClaimState::ResearchOnly)
+            != platform_claims.research_only_claims
+        || count_platform_entries(platform_claims, NetworkPlatformClaimState::ManualRequired)
+            != platform_claims.manual_required_claims
+        || count_platform_entries(platform_claims, NetworkPlatformClaimState::Unavailable)
+            != platform_claims.unavailable_claims
+    {
+        return Err(NetworkProductReadinessStatusError::PlatformCountMismatch);
+    }
     Ok(())
+}
+
+fn count_platform_entries(
+    platform_claims: &NetworkPlatformClaimManifestProof,
+    state: NetworkPlatformClaimState,
+) -> usize {
+    platform_claims
+        .entries
+        .iter()
+        .filter(|entry| entry.claim_state == state)
+        .count()
 }
 
 fn readiness_state(

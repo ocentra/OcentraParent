@@ -327,9 +327,21 @@ fn platform_entry(
         adapter_capability_refs: vec![
             constants::network_flow::TEST_ADAPTER_CAPABILITY_REF.to_owned()
         ],
-        missing_required_artifacts: Vec::new(),
+        missing_required_artifacts: platform_missing_artifacts(claim_state),
         audit_refs: vec![constants::network_flow::TEST_AUDIT_ENTRY_REF.to_owned()],
         adapter_authorized_by_proof: claim_state == NetworkPlatformClaimState::Ready,
         enforcement_command_published: false,
+    }
+}
+
+fn platform_missing_artifacts(claim_state: NetworkPlatformClaimState) -> Vec<String> {
+    match claim_state {
+        NetworkPlatformClaimState::ManualRequired => {
+            vec![constants::network_flow::TEST_PLATFORM_MANUAL_FOLLOWUP_REF.to_owned()]
+        }
+        NetworkPlatformClaimState::Ready
+        | NetworkPlatformClaimState::DryRun
+        | NetworkPlatformClaimState::ResearchOnly
+        | NetworkPlatformClaimState::Unavailable => Vec::new(),
     }
 }
