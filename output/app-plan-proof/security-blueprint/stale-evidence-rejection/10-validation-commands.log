@@ -1,0 +1,12 @@
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff
+> @ocentra-parent/parent-domain@0.1.1 test
+> vitest run app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain
+
+
+ Test Files  3 passed (3)
+      Tests  15 passed (15)
+   Start at  18:23:27
+   Duration  794ms (transform 342ms, setup 0ms, import 1.64s, tests 52ms, environment 0ms)

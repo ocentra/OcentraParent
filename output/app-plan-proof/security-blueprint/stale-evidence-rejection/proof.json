@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-plan-stale-evidence-security-proof",
+  "generatedAt": "2026-06-06T22:23:28.552Z",
+  "branch": "codex/app-game-inventory-display-gate-proof",
+  "commit": "7e6b4c417209c819b1ff9c8176ca57cc454d441f",
+  "gitStatusShort": "M docs/features/app-game-control.md\n M docs/plans/app-plan/implementation-checklist.md\n?? scripts/test/app-plan-stale-evidence-security-proof.mjs",
+  "commands": [
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  3 passed (3)\n      Tests  15 passed (15)\n   Start at  18:23:27\n   Duration  794ms (transform 342ms, setup 0ms, import 1.64s, tests 52ms, environment 0ms)"
+  ],
+  "scope": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "browserGameWorkDuplicated": false,
+    "appPlanRows": [
+      "Security: stale evidence rejection."
+    ],
+    "productChecklistChanged": false,
+    "packageExportsChanged": false,
+    "adapterDispatchClaimed": false,
+    "policyExecutionClaimed": false,
+    "platformSupportClaimed": false
+  },
+  "sourceProof": {
+    "path": "output\\app-game-plan-proof\\75-source-freshness-preview-gate\\proof.json",
+    "proofMode": "app-game-source-freshness-preview-gate",
+    "summary": {
+      "rows": 3,
+      "nativeAppRowCount": 1,
+      "nativeGameRowCount": 2,
+      "previewReadyCount": 1,
+      "manualRequiredCount": 2,
+      "sourceManualRequiredCount": 1,
+      "compilerManualRequiredCount": 1,
+      "gateStates": {
+        "source-fresh": 1,
+        "source-manual-required": 1,
+        "compiler-manual-required": 1
+      },
+      "statuses": {
+        "preview-ready": 1,
+        "manual-required": 2
+      }
+    },
+    "nonClaims": {
+      "policyEvaluatorRuntimeClaimed": false,
+      "timerRuntimeClaimed": false,
+      "adapterDispatchClaimed": false,
+      "childDeliveryClaimed": false,
+      "platformEnforcementClaimed": false
+    },
+    "staleRejectedRow": {
+      "rowId": "source-gate-row-manual-game",
+      "targetDomain": "native-game",
+      "sourceReadinessState": "manual-required",
+      "sourcePolicyCompileAllowed": false,
+      "sourceRequirementStates": [
+        "stale",
+        "missing",
+        "not-claimed"
+      ],
+      "sourceReasonCodes": [
+        "stale-source-status-row",
+        "missing-source-status-row",
+        "not-claimed-source-status"
+      ],
+      "compiledDecisionProvided": false,
+      "previewStatus": "manual-required",
+      "gateState": "source-manual-required",
+      "previewRow": null,
+      "adapterDispatchClaimed": false,
+      "platformEnforcementClaimed": false
+    }
+  },
+  "proofPaths": {
+    "proof": "test-results\\app-plan-stale-evidence-security-proof\\proof.json",
+    "appPlanProofPack": "output\\app-plan-proof\\security-blueprint\\stale-evidence-rejection",
+    "harness": "scripts/test/app-plan-stale-evidence-security-proof.mjs"
+  }
+}

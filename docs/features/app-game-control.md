@@ -89,9 +89,14 @@ control with better evidence and local audit.
 - The app-plan authority security blueprint reconciliation now cross-records
   native app weak-evidence no-upgrade, manual-required guard, and platform
   authority guard rows from shared app/game unknown-process, manual-required
-  no-adapter, Android owner-proof, and macOS hard-block proof artifacts. The
-  app-plan stale-evidence rejection row remains open because current stale-state
-  evidence is visibility/session proof, not a direct stale rejection proof.
+  no-adapter, Android owner-proof, and macOS hard-block proof artifacts.
+- The app-plan stale evidence security reconciliation now cross-records native
+  app stale-evidence rejection from the shared app/game source-freshness preview
+  gate proof: stale/missing/not-claimed source readiness stays
+  manual-required, blocks policy compile and preview row creation, keeps
+  compiled decisions absent, and does not dispatch adapters, execute policy,
+  claim platform enforcement, move product checklist status, or add browser-game
+  scope.
 - The app-plan merge-blocking gate reconciliation now cross-records the
   native-app side of those shared app/game proofs into the app-plan checklist:
   each gate cites the current shared evidence spine, preserves native app and
