@@ -31,6 +31,7 @@ mod process;
 mod raw_capture_storage;
 mod readiness;
 mod risk_budget;
+mod risk_target_policy_handoff;
 mod screen_summary;
 mod signature_alert;
 mod transfer;

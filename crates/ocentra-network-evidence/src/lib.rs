@@ -29,6 +29,7 @@ pub mod process;
 pub mod raw_capture_storage;
 pub mod readiness;
 pub mod risk_budget;
+pub mod risk_target_policy_handoff;
 pub mod screen_summary;
 pub mod signature_alert;
 pub mod tls;
@@ -207,6 +208,11 @@ pub use risk_budget::{
     NetworkRiskBudgetEvidenceTier, NetworkRiskBudgetHouseholdPolicy, NetworkRiskBudgetPriorEvent,
     NetworkRiskBudgetSignal, NetworkRiskBudgetState, NetworkRiskBudgetThresholdError,
     NetworkRiskBudgetThresholdInput, NetworkRiskBudgetThresholds,
+};
+pub use risk_target_policy_handoff::{
+    map_network_risk_target_to_policy_handoff, NetworkRiskTargetPolicyHandoff,
+    NetworkRiskTargetPolicyHandoffError, NetworkRiskTargetPolicyHandoffInput,
+    NetworkRiskTargetPolicyHandoffState,
 };
 pub use screen_summary::{
     plan_network_screen_summary_trigger, NetworkScreenSummaryPrivacyMode,
