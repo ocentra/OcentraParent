@@ -233,11 +233,9 @@ mod screen_ai_retention_sweeper_runtime;
 #[cfg(test)]
 mod screen_ai_retention_sweeper_runtime_tests;
 mod screen_ai_service_capture_event_builder;
-#[cfg(test)]
 mod screen_ai_service_event_bridge;
 #[cfg(test)]
 mod screen_ai_service_event_bridge_tests;
-#[cfg(test)]
 mod screen_ai_service_event_subscription;
 #[cfg(test)]
 mod screen_ai_service_event_subscription_tests;

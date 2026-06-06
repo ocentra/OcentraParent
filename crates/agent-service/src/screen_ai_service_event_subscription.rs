@@ -14,6 +14,44 @@ use crate::screen_ai_service_event_bridge::{
     ScreenAiServiceEventBridgeRefs,
 };
 
+pub(crate) struct ScreenAiServiceEventRuntime {
+    bus: EventBus,
+    #[cfg(test)]
+    state: ScreenAiServiceEventSubscriptionState,
+}
+
+impl ScreenAiServiceEventRuntime {
+    pub(crate) async fn start() -> Result<Self, EventingError> {
+        let bus = EventBus::new();
+        let state = ScreenAiServiceEventSubscriptionState::default();
+        subscribe_screen_service_row_ready_events(&bus, state.clone()).await?;
+        Ok(Self {
+            bus,
+            #[cfg(test)]
+            state,
+        })
+    }
+
+    pub(crate) async fn publish_row_ready(
+        &self,
+        row: ActivityScreenReadModelRow,
+        action_ref: impl Into<String>,
+        observed_at: &str,
+    ) -> Result<ocentra_eventing::PublishReport, EventingError> {
+        publish_screen_service_row_ready_event(
+            &self.bus,
+            ScreenAiServiceRowReadyEvent::new(row, action_ref),
+            observed_at,
+        )
+        .await
+    }
+
+    #[cfg(test)]
+    pub(crate) fn dispatches(&self) -> Vec<ScreenAiServiceEventSubscriptionDispatch> {
+        self.state.dispatches()
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub(crate) struct ScreenAiServiceRowReadyEvent {
     pub(crate) row: ActivityScreenReadModelRow,
@@ -59,6 +97,7 @@ pub(crate) struct ScreenAiServiceEventSubscriptionState {
 }
 
 impl ScreenAiServiceEventSubscriptionState {
+    #[cfg(test)]
     pub(crate) fn dispatches(&self) -> Vec<ScreenAiServiceEventSubscriptionDispatch> {
         self.dispatches
             .lock()
