@@ -1,0 +1,165 @@
+{
+  "schemaVersion": "v0.6",
+  "proofKind": "local-ai-prompt-template-version-proof",
+  "promptRecord": {
+    "schemaVersion": "v0.6",
+    "promptVersion": "prompt-template-screen-safety-v1",
+    "lifecycleState": "active",
+    "compatibleModelIds": [
+      "model-local-prompt-template-proof"
+    ],
+    "compatibleRuntimeRefs": [
+      "runtime-local-prompt-template-proof"
+    ],
+    "taskRequirements": [
+      "classification",
+      "safety-decision"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "evidence-prompt-template-proof",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:00:00.000Z"
+      }
+    ],
+    "parentRuleReferences": [
+      "rule-prompt-template-proof"
+    ],
+    "generatedAt": "2026-06-06T07:55:00.000Z",
+    "validFrom": "2026-06-06T07:55:00.000Z",
+    "validUntil": null,
+    "supersededByPromptVersion": null,
+    "rawPromptRetained": false,
+    "rawTemplateTextRetained": false,
+    "remoteAiRequired": false
+  },
+  "evaluationInput": {
+    "schemaVersion": "v0.6",
+    "requestId": "request-prompt-template-proof",
+    "childProfile": {
+      "childProfileId": "child-prompt-template-proof",
+      "displayName": "Sam"
+    },
+    "device": {
+      "deviceId": "device-prompt-template-proof",
+      "childProfileId": "child-prompt-template-proof",
+      "label": "Sam Windows PC",
+      "platform": "windows"
+    },
+    "currentObservation": {
+      "contextKind": "page",
+      "evidence": {
+        "evidenceReferenceId": "evidence-prompt-template-proof",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:00:00.000Z"
+      }
+    },
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "evidence-prompt-template-proof",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:00:00.000Z"
+      }
+    ],
+    "parentRuleReferences": [
+      "rule-prompt-template-proof"
+    ],
+    "recentActivityWindow": [
+      {
+        "evidenceReferenceId": "evidence-prompt-template-proof",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:00:00.000Z"
+      }
+    ],
+    "memoryReferences": [],
+    "graphReferences": [],
+    "modelRequest": {
+      "providerId": "provider-local-prompt-template-proof",
+      "modelId": "model-local-prompt-template-proof",
+      "promptVersion": "prompt-template-screen-safety-v1"
+    }
+  },
+  "safetyResult": {
+    "schemaVersion": "v0.6",
+    "resultId": "result-prompt-template-proof",
+    "requestId": "request-prompt-template-proof",
+    "action": "warn",
+    "confidence": 0.82,
+    "unknownState": "none",
+    "degradedState": "none",
+    "reasonCodes": [
+      "screen-category-video"
+    ],
+    "explanationReference": "explanation-prompt-template-proof",
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "evidence-prompt-template-proof",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T08:00:00.000Z"
+      }
+    ],
+    "parentRuleReferences": [
+      "rule-prompt-template-proof"
+    ],
+    "memoryReferences": [],
+    "graphReferences": [],
+    "modelRuntime": {
+      "runtimeReferenceId": "runtime-local-prompt-template-proof",
+      "providerId": "provider-local-prompt-template-proof",
+      "modelId": "model-local-prompt-template-proof",
+      "modelReference": "model-ref-local-prompt-template-proof",
+      "privacyMode": "local-only",
+      "adapterBoundary": "local-adapter-ready",
+      "executionState": "dry-run-ready",
+      "providerSource": "local-model-cache",
+      "loadState": "loaded",
+      "capabilityFlags": [
+        "classification",
+        "safety-decision"
+      ],
+      "resourceClass": "cpu",
+      "degradedState": "none",
+      "lastCheckedAt": "2026-06-06T08:01:00.000Z",
+      "unavailableReason": null
+    },
+    "promptVersion": "prompt-template-screen-safety-v1",
+    "expiresAt": null
+  },
+  "runtimeStatus": {
+    "runtimeReferenceId": "runtime-local-prompt-template-proof",
+    "providerId": "provider-local-prompt-template-proof",
+    "modelId": "model-local-prompt-template-proof",
+    "modelReference": "model-ref-local-prompt-template-proof",
+    "privacyMode": "local-only",
+    "adapterBoundary": "local-adapter-ready",
+    "executionState": "dry-run-ready",
+    "providerSource": "local-model-cache",
+    "loadState": "loaded",
+    "capabilityFlags": [
+      "classification",
+      "safety-decision"
+    ],
+    "resourceClass": "cpu",
+    "degradedState": "none",
+    "lastCheckedAt": "2026-06-06T08:01:00.000Z",
+    "unavailableReason": null
+  },
+  "summary": {
+    "inputPromptRecordCount": 1,
+    "selectedPromptRecordCount": 1,
+    "evidenceReferenceCount": 1,
+    "parentRuleReferenceCount": 1,
+    "compatibleModelCount": 1,
+    "compatibleRuntimeCount": 1
+  },
+  "claimBoundaries": {
+    "remoteAiUsed": false,
+    "apiAiUsed": false,
+    "rawPromptRetained": false,
+    "rawTemplateTextRetained": false,
+    "modelQualityClaimed": false,
+    "policyAuthorityClaimed": false,
+    "enforcementClaimed": false,
+    "uiClaimed": false
+  }
+}
