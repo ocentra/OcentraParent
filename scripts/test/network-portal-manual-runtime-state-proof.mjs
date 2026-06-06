@@ -120,7 +120,7 @@ console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function runCommand(entry) {
   const result = spawnSync(entry.command, entry.args, { encoding: 'utf8', shell: false });
-  writeFileSync(entry.log, `${result.stdout ?? ''}${result.stderr ?? ''}`);
+  writeFileSync(entry.log, normalizedLog(`${result.stdout ?? ''}${result.stderr ?? ''}`));
   if (result.status !== 0) {
     throw new Error(`${entry.name} failed with exit ${result.status}`);
   }
@@ -130,6 +130,11 @@ function runCommand(entry) {
     status: result.status,
     log: entry.log,
   };
+}
+
+function normalizedLog(text) {
+  const withoutTrailingBlankLines = text.replace(/(?:\r?\n)+$/u, '');
+  return `${withoutTrailingBlankLines}\n`;
 }
 
 function runText(command, args) {
