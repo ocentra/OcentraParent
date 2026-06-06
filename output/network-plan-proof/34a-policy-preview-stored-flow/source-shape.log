@@ -1,10 +1,10 @@
 Source shape warnings: files/functions are near their size limits.
 apps/portal/e2e/portal-route-scaffold-assertions.ts:1 file has 760 lines; crossed 750-line advisory band; maximum is 1000
 apps/portal/e2e/portal-ui.spec.ts:1 file has 321 lines; crossed 250-line advisory band; maximum is 1000
-apps/portal/e2e/tracking-hosted-ui-proof.spec.ts:168 function has 69 lines; warning starts at 64 of 80
-apps/portal/src/live-activity-state.ts:1 file has 533 lines; crossed 500-line advisory band; maximum is 1000
-apps/portal/src/live-activity-state.ts:124 function has 80 lines; warning starts at 64 of 80
-apps/portal/src/network-runtime-event-chain.ts:1 file has 252 lines; crossed 250-line advisory band; maximum is 1000
+apps/portal/e2e/tracking-hosted-ui-proof.spec.ts:1 file has 463 lines; crossed 250-line advisory band; maximum is 1000
+apps/portal/e2e/tracking-hosted-ui-proof.spec.ts:201 function has 69 lines; warning starts at 64 of 80
+apps/portal/src/live-activity-state.ts:1 file has 521 lines; crossed 500-line advisory band; maximum is 1000
+apps/portal/src/live-activity-state.ts:121 function has 79 lines; warning starts at 64 of 80
 apps/portal/src/portal-control-card.ts:18 function has 67 lines; warning starts at 64 of 80
 apps/portal/src/portal-frame-layout-state.ts:1 file has 310 lines; crossed 250-line advisory band; maximum is 1000
 apps/portal/src/portal-frame-layout-types.ts:1 file has 288 lines; crossed 250-line advisory band; maximum is 1000
@@ -17,7 +17,9 @@ apps/portal/src/PortalBackgroundTunerControls.tsx:1 file has 568 lines; crossed 
 apps/portal/src/PortalBackgroundTunerControls.tsx:94 function has 75 lines; warning starts at 64 of 80
 apps/portal/src/PortalHeaderSvgFrame.tsx:1 file has 298 lines; crossed 250-line advisory band; maximum is 1000
 apps/portal/src/PortalUnifiedChrome.tsx:1 file has 346 lines; crossed 250-line advisory band; maximum is 1000
-apps/portal/src/tracking-status-panel.ts:1 file has 577 lines; crossed 500-line advisory band; maximum is 1000
+apps/portal/src/tracking-status-panel.ts:1 file has 929 lines; crossed 750-line advisory band; maximum is 1000
+apps/portal/src/TrackingStatusRoutePanel.tsx:1 file has 508 lines; crossed 500-line advisory band; maximum is 1000
+apps/portal/src/TrackingStatusRoutePanel.tsx:267 function has 71 lines; warning starts at 64 of 80
 apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts:1 file has 306 lines; crossed 250-line advisory band; maximum is 1000
 apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts:234 function has 64 lines; warning starts at 64 of 80
 apps/portal/tests/activity-ui-intent.test.ts:1 file has 551 lines; crossed 500-line advisory band; maximum is 1000
@@ -27,12 +29,11 @@ apps/portal/tests/activity-ui-lan-pairing-fixtures.ts:125 function has 73 lines;
 apps/portal/tests/app-game-notification-parent-surface-panel.test.ts:1 file has 262 lines; crossed 250-line advisory band; maximum is 1000
 apps/portal/tests/app-game-notification-parent-surface-panel.test.ts:19 function has 64 lines; warning starts at 64 of 80
 apps/portal/tests/live-activity-browser-status.test.ts:1 file has 272 lines; crossed 250-line advisory band; maximum is 1000
-apps/portal/tests/live-activity-network-flow.test.ts:1 file has 388 lines; crossed 250-line advisory band; maximum is 1000
-apps/portal/tests/live-activity-network-flow.test.ts:10 function has 66 lines; warning starts at 64 of 80
 apps/portal/tests/live-activity-state.test.ts:1 file has 400 lines; crossed 250-line advisory band; maximum is 1000
 apps/portal/tests/live-activity-state.test.ts:14 function has 64 lines; warning starts at 64 of 80
 apps/portal/tests/live-activity-surface-adapter.test.ts:1 file has 585 lines; crossed 500-line advisory band; maximum is 1000
-apps/portal/tests/tracking-status-panel.test.ts:1 file has 283 lines; crossed 250-line advisory band; maximum is 1000
+apps/portal/tests/tracking-status-panel.test.ts:1 file has 429 lines; crossed 250-line advisory band; maximum is 1000
+apps/portal/tests/tracking-status-panel.test.ts:246 function has 64 lines; warning starts at 64 of 80
 packages/activity-domain/src/activity-surface.ts:1 file has 416 lines; crossed 250-line advisory band; maximum is 1000
 packages/activity-domain/src/app-game.ts:1 file has 456 lines; crossed 250-line advisory band; maximum is 1000
 packages/activity-domain/src/browser-intervention-schemas.ts:1 file has 281 lines; crossed 250-line advisory band; maximum is 1000
@@ -74,7 +75,7 @@ packages/activity-domain/tests/tracking.test.ts:1 file has 290 lines; crossed 25
 packages/agent-protocol-domain/src/activity-surface-adapter-manifest.ts:1 file has 268 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/activity-surface-adapter.ts:1 file has 478 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/contracts.ts:1 file has 533 lines; crossed 500-line advisory band; maximum is 1000
-packages/agent-protocol-domain/src/defaults.ts:1 file has 476 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/src/defaults.ts:1 file has 467 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/lan-pairing-browser-add-device-state.ts:1 file has 378 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/network-runtime-events.ts:1 file has 357 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/parent-assistant-adapter.ts:1 file has 385 lines; crossed 250-line advisory band; maximum is 1000
@@ -93,7 +94,7 @@ packages/agent-protocol-domain/tests/lan-signed-discovery-relay-spine.test.ts:1 
 packages/agent-protocol-domain/tests/parent-assistant-adapter.test.ts:1 file has 475 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/parent-assistant-adapter.test.ts:307 function has 64 lines; warning starts at 64 of 80
 packages/logging-domain/src/notification-audit-history.ts:1 file has 436 lines; crossed 250-line advisory band; maximum is 1000
-packages/logging-domain/src/support-bundle-redaction.ts:1 file has 299 lines; crossed 250-line advisory band; maximum is 1000
+packages/logging-domain/src/support-bundle-redaction.ts:1 file has 340 lines; crossed 250-line advisory band; maximum is 1000
 packages/logging-domain/src/tamper-integrity-audit.ts:1 file has 293 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-control-catalog-data.ts:1 file has 835 lines; crossed 750-line advisory band; maximum is 1000
 packages/parent-domain/src/app-control-catalog-schema.ts:1 file has 296 lines; crossed 250-line advisory band; maximum is 1000
@@ -106,6 +107,30 @@ packages/parent-domain/src/app-game-notification-preference-status-handoff.ts:1 
 packages/parent-domain/src/app-game-notification-provider-preflight.ts:1 file has 255 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-game-notification-provider-status-handoff.ts:1 file has 300 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-game-source-freshness-policy-consumption.ts:1 file has 315 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-freshness-preview-gate.ts:1 file has 286 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-handoff.ts:1 file has 267 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent.ts:1 file has 267 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-scheduler-persistence.ts:1 file has 265 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-handoff.ts:1 file has 260 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.ts:1 file has 324 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff.ts:1 file has 271 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model.ts:1 file has 262 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff.ts:1 file has 293 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff.ts:1 file has 280 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff.ts:1 file has 301 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-model.ts:1 file has 261 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.ts:1 file has 303 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff.ts:1 file has 319 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff.ts:1 file has 326 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.ts:1 file has 352 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.ts:1 file has 296 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.ts:1 file has 297 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.ts:1 file has 279 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-service-handler-handoff.ts:1 file has 294 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-timer-service-event-handoff.ts:1 file has 272 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-timer-service-handoff.ts:1 file has 289 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-timer-service-read-api-handoff.ts:1 file has 272 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-timer-service-read-model-handoff.ts:1 file has 271 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-approval-package-sources.ts:1 file has 286 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-approval-proof.ts:1 file has 515 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-approval-report-domain-proof.ts:1 file has 282 lines; crossed 250-line advisory band; maximum is 1000
@@ -113,7 +138,9 @@ packages/parent-domain/src/app-install-purchase-approval-rules.ts:1 file has 390
 packages/parent-domain/src/app-install-purchase-approval.ts:1 file has 448 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-approved-api-entitlement-proof.ts:1 file has 296 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-child-artifact-delivery-proof.ts:1 file has 364 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-child-device-delivery-readiness-proof.ts:1 file has 265 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts:1 file has 367 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-limitation-summary-proof.ts:1 file has 272 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts:1 file has 374 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-package-source-capture-status-proof.ts:1 file has 453 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-parent-action-delivery-readiness-proof.ts:1 file has 333 lines; crossed 250-line advisory band; maximum is 1000
@@ -121,8 +148,21 @@ packages/parent-domain/src/app-install-purchase-parent-action-runtime-handoff-pr
 packages/parent-domain/src/app-install-purchase-parent-review-action-proof.ts:1 file has 343 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts:1 file has 296 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-platform-artifact-proof.ts:1 file has 332 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-platform-limitation-action-proof.ts:1 file has 285 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-product-claim-gate-proof.ts:1 file has 325 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts:1 file has 273 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-product-claim-provider-store-proof.ts:1 file has 363 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts:1 file has 286 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-product-claim-store-handoff-proof.ts:1 file has 328 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-product-claim-store-upgrade-readiness-proof.ts:1 file has 438 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-product-claim-store-upgrade-readiness-proof.ts:225 function has 65 lines; warning starts at 64 of 80
+packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts:1 file has 352 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts:1 file has 480 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts:1 file has 299 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-provider-store-report-status-proof.ts:1 file has 291 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-provider-store-report-status-runtime-proof.ts:1 file has 286 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-report-runtime-proof.ts:1 file has 310 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-report-status-read-model-handoff-proof.ts:1 file has 271 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-runtime-proof-rules.ts:1 file has 294 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-runtime-proof.ts:1 file has 314 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts:1 file has 301 lines; crossed 250-line advisory band; maximum is 1000
@@ -169,9 +209,16 @@ packages/parent-domain/src/game-control-catalog-data.ts:1 file has 987 lines; cr
 packages/parent-domain/src/game-control-catalog-schema.ts:1 file has 391 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/game-control-catalog.ts:1 file has 709 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/src/lan-signed-discovery-relay-spine.ts:1 file has 313 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/local-ai-classifier-read-model-manual-report-proof.ts:1 file has 269 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/local-ai-contract-completeness-proof.ts:1 file has 278 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/local-ai-deterministic-classifier-proof.ts:1 file has 339 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/local-ai-parent-assistant-runtime-proof-values.ts:1 file has 448 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/local-ai-parent-assistant-runtime-proof.ts:1 file has 291 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/local-ai-remote-assistant-boundary-proof.ts:1 file has 340 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/local-ai-result-journal-sqlite-proof.ts:1 file has 309 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/local-ai-runtime-provider-proof.ts:1 file has 522 lines; crossed 500-line advisory band; maximum is 1000
+packages/parent-domain/src/local-ai-runtime-status-read-model-proof.ts:1 file has 276 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/local-ai-text-inference-dry-run-proof.ts:1 file has 264 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/mobile-child-agent-capability-proof.ts:1 file has 511 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/src/network-control-catalog-data.ts:1 file has 443 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/network-control-catalog-metadata.ts:1 file has 388 lines; crossed 250-line advisory band; maximum is 1000
@@ -191,6 +238,7 @@ packages/parent-domain/src/screen-control-catalog-metadata.ts:1 file has 433 lin
 packages/parent-domain/src/screen-control-catalog-schema.ts:1 file has 301 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/screen-control-catalog.ts:1 file has 287 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/stateless-report-compiler-status.ts:1 file has 522 lines; crossed 500-line advisory band; maximum is 1000
+packages/parent-domain/src/tracking-android-permission-background-proof.ts:1 file has 382 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-android-status-proof.ts:1 file has 334 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-control-catalog-data.ts:1 file has 417 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-control-catalog-metadata.ts:1 file has 411 lines; crossed 250-line advisory band; maximum is 1000
@@ -198,12 +246,17 @@ packages/parent-domain/src/tracking-control-catalog-schema.ts:1 file has 344 lin
 packages/parent-domain/src/tracking-control-catalog.ts:1 file has 549 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-control-catalog.ts:312 function has 66 lines; warning starts at 64 of 80
 packages/parent-domain/src/tracking-escalation-readiness-proof.ts:1 file has 423 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/tracking-ios-location-manual-required-proof.ts:1 file has 485 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-location-policy.ts:1 file has 282 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-missing-device-mode-proof.ts:1 file has 427 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/tracking-notification-preference-preflight-proof.ts:1 file has 274 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/tracking-notification-receipt-boundary-proof.ts:1 file has 282 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-poi-provider-adapter.ts:1 file has 391 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-policy-compiler-runtime-proof.ts:1 file has 337 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-provider-notification-proof.ts:1 file has 315 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-report-policy-consumer-proof.ts:106 function has 66 lines; warning starts at 64 of 80
+packages/parent-domain/src/tracking-retention-settings-read-model-proof.ts:1 file has 318 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/tracking-retention-settings-writer-boundary-proof.ts:1 file has 334 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-temporary-live-mode-proof.ts:1 file has 340 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/v0-8-broad-os-adapter-proof.ts:1 file has 512 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/src/v0-8-broad-os-adapter-runtime-proof.ts:1 file has 422 lines; crossed 250-line advisory band; maximum is 1000
@@ -227,6 +280,19 @@ packages/parent-domain/tests/app-control-policy-catalog.test.ts:1 file has 593 l
 packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts:17 function has 75 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-game-notification-parent-surface-intent.test.ts:1 file has 336 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/tests/app-game-notification-parent-surface-intent.test.ts:56 function has 67 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-game-source-gated-policy-preview-read-model.test.ts:47 function has 71 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent.test.ts:1 file has 264 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-handoff.test.ts:1 file has 260 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-handoff.test.ts:120 function has 69 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.test.ts:33 function has 67 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff.test.ts:33 function has 73 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff.test.ts:29 function has 68 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-read-model.test.ts:1 file has 276 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-read-model.test.ts:129 function has 69 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff.test.ts:32 function has 80 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff.test.ts:32 function has 68 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.test.ts:32 function has 80 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-service-handler-handoff.test.ts:29 function has 68 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-game-time-budget-policy-runtime.test.ts:1 file has 251 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/tests/app-install-purchase-approval.test.ts:1 file has 575 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/tests/app-install-purchase-child-artifact-delivery-proof.test.ts:17 function has 76 lines; warning starts at 64 of 80
@@ -267,6 +333,9 @@ packages/parent-domain/tests/lan-pairing.test.ts:268 function has 77 lines; warn
 packages/parent-domain/tests/lan-pairing.test.ts:463 function has 68 lines; warning starts at 64 of 80
 packages/parent-domain/tests/lan-production-household-proof.test.ts:10 function has 73 lines; warning starts at 64 of 80
 packages/parent-domain/tests/lan-signed-discovery-relay-spine.test.ts:1 file has 387 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/tests/local-ai-parent-rule-context-builder-proof.test.ts:68 function has 68 lines; warning starts at 64 of 80
+packages/parent-domain/tests/local-ai-recent-memory-window-proof.test.ts:142 function has 68 lines; warning starts at 64 of 80
+packages/parent-domain/tests/local-ai-runtime-status-read-model-proof.test.ts:8 function has 66 lines; warning starts at 64 of 80
 packages/parent-domain/tests/local-ai-screen-summary-parent-explanation.test.ts:63 function has 67 lines; warning starts at 64 of 80
 packages/parent-domain/tests/mobile-child-agent-capability-proof.test.ts:1 file has 537 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/tests/network-control-catalog.test.ts:1 file has 524 lines; crossed 500-line advisory band; maximum is 1000
@@ -285,8 +354,10 @@ packages/parent-domain/tests/parent-mobile-controller-observer-handoff-runtime.t
 packages/parent-domain/tests/parent-mobile-runtime-fixtures.ts:1 file has 278 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/tests/parent-mobile-runtime.test.ts:19 function has 70 lines; warning starts at 64 of 80
 packages/parent-domain/tests/parent-mobile-service-bridge-runtime.test.ts:1 file has 568 lines; crossed 500-line advisory band; maximum is 1000
+packages/parent-domain/tests/production-support-data-export-delete-lifecycle-proof.test.ts:9 function has 71 lines; warning starts at 64 of 80
 packages/parent-domain/tests/screen-ai-adapter-readiness-proof.test.ts:1 file has 283 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/tests/screen-ai-model-artifact-manifest-proof.test.ts:77 function has 70 lines; warning starts at 64 of 80
+packages/parent-domain/tests/screen-ai-stricter-parent-rule-proof.test.ts:33 function has 67 lines; warning starts at 64 of 80
 packages/parent-domain/tests/screen-control-policy-catalog.test.ts:1 file has 562 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/tests/screen-control-policy-catalog.test.ts:163 function has 65 lines; warning starts at 64 of 80
 packages/parent-domain/tests/screen-family-ai-hub-runtime-discovery-proof.test.ts:49 function has 69 lines; warning starts at 64 of 80
@@ -297,12 +368,16 @@ packages/parent-domain/tests/tracking-control-catalog.test.ts:187 function has 7
 packages/parent-domain/tests/tracking-control-catalog.test.ts:188 function has 72 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-escalation-readiness-proof.test.ts:15 function has 69 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-family-dashboard-rollup-proof.test.ts:11 function has 68 lines; warning starts at 64 of 80
+packages/parent-domain/tests/tracking-ios-location-manual-required-proof.test.ts:26 function has 70 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-location-policy.test.ts:1 file has 401 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/tests/tracking-location-policy.test.ts:313 function has 69 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-missing-device-mode-proof.test.ts:29 function has 69 lines; warning starts at 64 of 80
+packages/parent-domain/tests/tracking-notification-receipt-boundary-proof.test.ts:43 function has 74 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-poi-provider-adapter.test.ts:54 function has 72 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-provider-notification-proof.test.ts:29 function has 75 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-report-policy-consumer-proof.test.ts:12 function has 64 lines; warning starts at 64 of 80
+packages/parent-domain/tests/tracking-retention-settings-read-model-proof.test.ts:12 function has 65 lines; warning starts at 64 of 80
+packages/parent-domain/tests/tracking-retention-settings-writer-boundary-proof.test.ts:47 function has 68 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-temporary-live-mode-proof.test.ts:9 function has 77 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-temporary-live-mode-proof.test.ts:87 function has 66 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-unsupported-platform-manual-proof.test.ts:7 function has 65 lines; warning starts at 64 of 80
@@ -319,7 +394,7 @@ packages/portal-domain/src/browser-child-intervention-page.ts:1 file has 483 lin
 packages/portal-domain/src/browser-child-intervention-page.ts:148 function has 71 lines; warning starts at 64 of 80
 packages/portal-domain/src/browser-child-intervention-page.ts:220 function has 72 lines; warning starts at 64 of 80
 packages/portal-domain/src/browser-child-intervention-style.ts:1 file has 885 lines; crossed 750-line advisory band; maximum is 1000
-packages/portal-domain/src/contracts.ts:1 file has 430 lines; crossed 250-line advisory band; maximum is 1000
+packages/portal-domain/src/contracts.ts:1 file has 434 lines; crossed 250-line advisory band; maximum is 1000
 packages/portal-domain/src/frame-tuner.ts:1 file has 989 lines; crossed 750-line advisory band; maximum is 1000
 packages/portal-domain/src/parent-assistant-chat.ts:1 file has 632 lines; crossed 500-line advisory band; maximum is 1000
 packages/portal-domain/src/parent-portal-data.ts:1 file has 740 lines; crossed 500-line advisory band; maximum is 1000
@@ -335,7 +410,7 @@ packages/portal-domain/tests/contracts.test.ts:1 file has 596 lines; crossed 500
 packages/portal-domain/tests/contracts.test.ts:199 function has 76 lines; warning starts at 64 of 80
 packages/portal-domain/tests/contracts.test.ts:200 function has 74 lines; warning starts at 64 of 80
 packages/portal-domain/tests/parent-portal-service-state.test.ts:1 file has 499 lines; crossed 250-line advisory band; maximum is 1000
-packages/text-domain/src/portal-dev.ts:1 file has 275 lines; crossed 250-line advisory band; maximum is 1000
+packages/text-domain/src/portal-dev.ts:1 file has 425 lines; crossed 250-line advisory band; maximum is 1000
 packages/text-domain/tests/portal-dev.test.ts:11 function has 68 lines; warning starts at 64 of 80
 packages/text-domain/tests/portal-dev.test.ts:12 function has 66 lines; warning starts at 64 of 80
 crates/agent-core/src/activity_store.rs:1 file has 15 functions; warning starts at 15 of 18
@@ -717,7 +792,7 @@ crates/ocentra-network-evidence/src/apple_network_extension_gate.rs:1 file has 4
 crates/ocentra-network-evidence/src/app_game_session.rs:1 file has 374 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/app_game_session.rs:118 function has 73 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/dns_adapter.rs:1 file has 417 lines; crossed 250-line advisory band; maximum is 1000
-crates/ocentra-network-evidence/src/lib.rs:1 file has 265 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/lib.rs:1 file has 259 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/linux_adapter_gate.rs:1 file has 464 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/live_capture.rs:1 file has 283 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/performance.rs:1 file has 414 lines; crossed 250-line advisory band; maximum is 1000
