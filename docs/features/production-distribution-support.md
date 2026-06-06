@@ -222,6 +222,14 @@ dev-only repo when it claims consumer readiness.
   account backend runtime, billing provider runtime, production publishing,
   signing/store proof, updater execution, support backend upload, production
   SLA, and child-activity custody unclaimed.
+- `production-support-publication-status-freshness-proof` adds parent-domain
+  freshness rows for support runbook publication, incident status publication,
+  public support contact publication, support backend upload publication,
+  privacy/legal publication, and account/billing support publication. It proves
+  only the source-contract freshness policy boundary and keeps public runtime,
+  support publication execution, support backend upload execution, account
+  lookup execution, billing provider contact, production SLA, legal disclosure
+  execution, remote support sessions, and child-activity custody unclaimed.
 - `billing-entitlement-contract-proof` defines parent-domain contracts for
   plan entitlement rows, entitlement snapshots, subscription status sync events,
   device-limit decisions, parent-visible failure states, local-safety fallback,
@@ -480,6 +488,13 @@ package/runtime proof.
       keeping publication/legal execution, support upload, account lookup,
       billing provider contact, remote support, production SLA, and
       child-activity custody unclaimed.
+      Current `production-support-publication-status-freshness-proof` adds a
+      support-publication freshness boundary for support runbook, incident
+      status, public support contact, support upload publication, privacy/legal,
+      and account/billing support publication rows while keeping real public
+      runtime, support publication execution, support upload execution, account
+      lookup execution, billing provider contact, production SLA, legal
+      execution, remote support sessions, and child-activity custody unclaimed.
 
 ## Next AI Instructions
 
