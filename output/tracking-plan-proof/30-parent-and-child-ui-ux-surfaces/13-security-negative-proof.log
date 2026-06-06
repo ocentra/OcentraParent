@@ -1,10 +1,12 @@
-checkedAt=2026-06-06T21:33:42.406Z
+checkedAt=2026-06-06T22:07:40.844Z
 asserted=no browser console or page errors
 asserted=no product-ready or physical-device-proved route copy
 asserted=family dashboard rollup rows render from existing proof refs without product-ready claim
 asserted=family dashboard rollup screenshot captured
 asserted=report export packet rows render from existing read-model proof refs without product-ready claim
 asserted=report export packet screenshot captured
+asserted=notification parent-surface history rows render from existing notification proof refs without provider delivery or receipt runtime claims
+asserted=notification parent-surface history screenshot captured
 asserted=evidence drawer renders selected service-backed citation without evaluator or dispatch claims
 asserted=evidence drawer screenshot captured
 asserted=retention settings write-preflight command button clicked

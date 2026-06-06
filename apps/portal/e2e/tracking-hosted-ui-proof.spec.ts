@@ -20,6 +20,10 @@ const desktopScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-l
 const mobileScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary-mobile.png');
 const familyDashboardScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-family-dashboard-rollup.png');
 const reportExportScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-report-export.png');
+const notificationParentSurfaceScreenshotPath = path.join(
+  screenshotDir,
+  'hosted-policy-tracking-notification-parent-surface.png'
+);
 const evidenceDrawerScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-evidence-drawer.png');
 const citationDetailScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-citation-detail.png');
 const retentionSettingsScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-retention-settings.png');
@@ -41,6 +45,18 @@ type HostedTrackingLayoutBox = {
   readonly bottom: number;
   readonly width: number;
   readonly height: number;
+};
+
+type HostedTrackingProofCards = {
+  readonly familyDashboard: Locator;
+  readonly reportExport: Locator;
+  readonly notificationParentSurface: Locator;
+  readonly evidenceDrawer: Locator;
+  readonly citationDetail: Locator;
+  readonly retentionSettings: Locator;
+  readonly childCheckIn: Locator;
+  readonly childRuntimeUi: Locator;
+  readonly unsupportedManual: Locator;
 };
 
 test('hosted policy tracking route renders real-service proof without product claims', async ({ page }) => {
@@ -79,6 +95,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await expect(trackingProofRegion.getByText('No product claim').first()).toBeVisible();
   await assertHostedFamilyDashboardRollupProof(trackingProofRegion);
   await assertHostedReportExportProof(trackingProofRegion);
+  await assertHostedNotificationParentSurfaceProof(trackingProofRegion);
   await assertHostedEvidenceDrawerProof(trackingProofRegion);
   await assertHostedCitationDetailProof(trackingProofRegion);
   await assertHostedRetentionSettingsProof(page, trackingProofRegion);
@@ -111,6 +128,27 @@ async function assertHostedReportExportProof(trackingProofRegion: Locator): Prom
   await expect(reportExportCard.getByText('28-report-export-read-model-proof.json')).toBeVisible();
   await expect(reportExportCard.getByText('Hosted report/export packet rendering only')).toBeVisible();
   await expect(reportExportCard.getByText('No product claim')).toBeVisible();
+}
+
+async function assertHostedNotificationParentSurfaceProof(trackingProofRegion: Locator): Promise<void> {
+  const notificationCard = trackingProofRegion
+    .locator('[data-ocentra-tracking-proof="notification-parent-surface-history-ui"]')
+    .first();
+  await expect(notificationCard).toBeVisible();
+  await expect(notificationCard.getByRole('heading', { name: 'Notification history intent UI' })).toBeVisible();
+  await expect(notificationCard.getByText('Notification history ready')).toBeVisible();
+  await expect(notificationCard.getByText('Manual notification action required')).toBeVisible();
+  await expect(notificationCard.getByText('Notification provider unavailable')).toBeVisible();
+  await expect(notificationCard.getByText('history-intent-ready')).toBeVisible();
+  await expect(notificationCard.getByText('manual-action-required')).toBeVisible();
+  await expect(notificationCard.getByText('provider-unavailable', { exact: true })).toBeVisible();
+  await expect(notificationCard.getByText('tracking-provider-attempt-home-arrival')).toBeVisible();
+  await expect(notificationCard.getByText('receipt-ingestion-required-home-arrival')).toBeVisible();
+  await expect(notificationCard.getByText('quiet-hours-requirement-left-school')).toBeVisible();
+  await expect(notificationCard.getByText('provider-adapter-unavailable')).toBeVisible();
+  await expect(notificationCard.getByText('26-notification-parent-surface-history-proof.json')).toBeVisible();
+  await expect(notificationCard.getByText('Hosted notification history rendering only')).toBeVisible();
+  await expect(notificationCard.getByText('No product claim')).toBeVisible();
 }
 
 async function assertHostedEvidenceDrawerProof(trackingProofRegion: Locator): Promise<void> {
@@ -244,10 +282,21 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 960 });
   const trackingProofRegion = page.getByRole('region', { name: 'Tracking status proof' });
   await expect(trackingProofRegion).toBeVisible();
+  await captureHostedTrackingProofCards(page, locateHostedTrackingProofCards(trackingProofRegion));
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('region', { name: 'Tracking status proof' })).toBeVisible();
+  await page.screenshot({ fullPage: true, path: mobileScreenshotPath });
+}
+
+function locateHostedTrackingProofCards(trackingProofRegion: Locator): HostedTrackingProofCards {
   const familyDashboardCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="family-dashboard-rollup"]')
     .first();
   const reportExportCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="report-export-ui"]').first();
+  const notificationParentSurfaceCard = trackingProofRegion
+    .locator('[data-ocentra-tracking-proof="notification-parent-surface-history-ui"]')
+    .first();
   const evidenceDrawerCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="service-backed-evidence-drawer"]')
     .first();
@@ -262,56 +311,72 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   const unsupportedManualCard = trackingProofRegion
     .getByRole('heading', { name: 'Unsupported/manual tracking platform proof' })
     .locator('xpath=ancestor::article[1]');
+  return {
+    familyDashboard: familyDashboardCard,
+    reportExport: reportExportCard,
+    notificationParentSurface: notificationParentSurfaceCard,
+    evidenceDrawer: evidenceDrawerCard,
+    citationDetail: citationDetailCard,
+    retentionSettings: retentionSettingsCard,
+    childCheckIn: childCheckInCard,
+    childRuntimeUi: childRuntimeUiCard,
+    unsupportedManual: unsupportedManualCard,
+  };
+}
+
+async function captureHostedTrackingProofCards(page: Page, cards: HostedTrackingProofCards): Promise<void> {
   await captureScrolledTrackingProofCardScreenshot(
     page,
-    familyDashboardCard,
+    cards.familyDashboard,
     '[data-ocentra-tracking-proof="family-dashboard-rollup"]',
     familyDashboardScreenshotPath
   );
   await captureScrolledTrackingProofCardScreenshot(
     page,
-    reportExportCard,
+    cards.reportExport,
     '[data-ocentra-tracking-proof="report-export-ui"]',
     reportExportScreenshotPath
   );
   await captureScrolledTrackingProofCardScreenshot(
     page,
-    evidenceDrawerCard,
+    cards.notificationParentSurface,
+    '[data-ocentra-tracking-proof="notification-parent-surface-history-ui"]',
+    notificationParentSurfaceScreenshotPath
+  );
+  await captureScrolledTrackingProofCardScreenshot(
+    page,
+    cards.evidenceDrawer,
     '[data-ocentra-tracking-proof="service-backed-evidence-drawer"]',
     evidenceDrawerScreenshotPath
   );
   await captureScrolledTrackingProofCardScreenshot(
     page,
-    citationDetailCard,
+    cards.citationDetail,
     '[data-ocentra-tracking-proof="service-backed-citation-detail"]',
     citationDetailScreenshotPath
   );
   await captureScrolledTrackingProofCardScreenshot(
     page,
-    retentionSettingsCard,
+    cards.retentionSettings,
     '[data-ocentra-tracking-proof="retention-settings-ui"]',
     retentionSettingsScreenshotPath
   );
   await captureScrolledTrackingProofCardScreenshot(
     page,
-    childCheckInCard,
+    cards.childCheckIn,
     '[data-ocentra-tracking-proof="child-check-in"]',
     childCheckInScreenshotPath
   );
   await captureScrolledTrackingProofCardScreenshot(
     page,
-    childRuntimeUiCard,
+    cards.childRuntimeUi,
     '[data-ocentra-tracking-proof="child-runtime-ui"]',
     childRuntimeUiScreenshotPath
   );
-  await unsupportedManualCard.scrollIntoViewIfNeeded();
+  await cards.unsupportedManual.scrollIntoViewIfNeeded();
   await page.waitForTimeout(250);
-  await expect(unsupportedManualCard).toBeVisible();
-  await unsupportedManualCard.screenshot({ path: unsupportedManualScreenshotPath });
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.getByRole('region', { name: 'Tracking status proof' })).toBeVisible();
-  await page.screenshot({ fullPage: true, path: mobileScreenshotPath });
+  await expect(cards.unsupportedManual).toBeVisible();
+  await cards.unsupportedManual.screenshot({ path: unsupportedManualScreenshotPath });
 }
 
 async function captureScrolledTrackingProofCardScreenshot(
@@ -363,6 +428,7 @@ async function collectAccessibilitySummary(page: Page): Promise<{
     }));
     const requiredProofIds = [
       'family-dashboard-rollup',
+      'notification-parent-surface-history-ui',
       'report-export-ui',
       'service-backed-evidence-drawer',
       'service-backed-citation-detail',
@@ -417,6 +483,9 @@ async function writeAccessibilitySummary(
           desktop: path.relative(repoRoot, desktopScreenshotPath).replace(/\\/gu, '/'),
           familyDashboard: path.relative(repoRoot, familyDashboardScreenshotPath).replace(/\\/gu, '/'),
           reportExport: path.relative(repoRoot, reportExportScreenshotPath).replace(/\\/gu, '/'),
+          notificationParentSurface: path
+            .relative(repoRoot, notificationParentSurfaceScreenshotPath)
+            .replace(/\\/gu, '/'),
           evidenceDrawer: path.relative(repoRoot, evidenceDrawerScreenshotPath).replace(/\\/gu, '/'),
           citationDetail: path.relative(repoRoot, citationDetailScreenshotPath).replace(/\\/gu, '/'),
           retentionSettings: path.relative(repoRoot, retentionSettingsScreenshotPath).replace(/\\/gu, '/'),
@@ -434,12 +503,18 @@ async function writeAccessibilitySummary(
 
 function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>): void {
   assertAccessibilityBasics(summary);
+  assertAccessibilityHeadingsAndLabels(summary);
+  assertAccessibilityValues(summary);
+}
+
+function assertAccessibilityHeadingsAndLabels(summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>): void {
   assertContainsAll(summary.headings, [
     'Tracking status proof',
     'Service read model',
     'Service data coverage',
     'Family dashboard tracking rollup',
     'Report export read-model UI',
+    'Notification history intent UI',
     'Retention settings read-model UI',
     'Evidence drawer proof',
     'Child check-in request',
@@ -458,6 +533,9 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'Readiness kind',
     'Product claim',
   ]);
+}
+
+function assertAccessibilityValues(summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>): void {
   assertContainsAll(summary.values, [
     "I'm safe",
     'Family active summary',
@@ -472,6 +550,18 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'tracking-report-export-evidence-policy-drill-in',
     'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json',
     'Hosted report/export packet rendering only; raw location payload export, service mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.',
+    'Notification history ready',
+    'Manual notification action required',
+    'Notification provider unavailable',
+    'history-intent-ready',
+    'manual-action-required',
+    'provider-unavailable',
+    'tracking-provider-attempt-home-arrival',
+    'receipt-ingestion-required-home-arrival',
+    'quiet-hours-requirement-left-school',
+    'provider-adapter-unavailable | manual-parent-history-review-required',
+    'output/tracking-plan-proof/26-alert-severity-and-notification-model/26-notification-parent-surface-history-proof.json',
+    'Hosted notification history rendering only; preference mutation, quiet-hours runtime, provider delivery, receipt ingestion, child-device delivery, physical-device proof, authority, production storage, adapter dispatch, and product readiness remain unclaimed.',
     'Retention window setting',
     'Delete-after-alert setting',
     'Parent export setting',
@@ -529,6 +619,7 @@ function assertHostedTrackingLayoutBoxes(layoutBoxes: readonly HostedTrackingLay
       'child-check-in',
       'child-runtime-ui',
       'family-dashboard-rollup',
+      'notification-parent-surface-history-ui',
       'report-export-ui',
       'retention-settings-ui',
       'service-backed-citation-detail',
@@ -563,6 +654,8 @@ function hostedTrackingAssertions(): readonly string[] {
     'family-dashboard-rollup-screenshot',
     'report-export-read-model-visible',
     'report-export-read-model-screenshot',
+    'notification-parent-surface-history-visible',
+    'notification-parent-surface-history-screenshot',
     'service-backed-evidence-drawer-visible',
     'service-backed-evidence-drawer-screenshot',
     'service-backed-citation-detail-visible',

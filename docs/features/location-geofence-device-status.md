@@ -183,6 +183,15 @@ expose location or device-status features. Parents expect this category.
   ingestion runtime, credentials, cloud routing, child-device delivery,
   physical-device proof, authority proof, retry workers, durable production
   history/outbox storage, and adapter dispatch remain unclaimed.
+- Hosted parent route notification history screenshot/accessibility proof now
+  exists through `npm run test:tracking-plan-hosted-ui-proof`. It renders the
+  existing WP26 parent-surface history/preference intent rows on the hosted
+  `policy-tracking` route, captures the notification parent-surface screenshot,
+  records accessibility/no-overlap assertions, and writes WP26/WP30/WP33 proof
+  artifacts while keeping parent preference mutation, quiet-hours runtime,
+  provider delivery, receipt ingestion runtime, child-device delivery,
+  physical-device proof, authority, production storage, adapter dispatch, and
+  product-ready tracking unclaimed.
 - WP27 escalation readiness proof now exists through
   `node scripts/test/tracking-escalation-readiness-proof.mjs`. It derives
   parent acknowledgement, child check-in, urgent second-guardian, and critical
@@ -442,15 +451,17 @@ retention-settings writer-boundary preflight proof for the same five settings
 rows, plus typed service transport write-command proof for retention settings
 preflight, plus hosted route command/result rendering for that typed write
 preflight, plus WP32 report/export read-model packet proof for redacted report,
-retention audit, family dashboard summary, and policy drill-in export packets.
+retention audit, family dashboard summary, and policy drill-in export packets,
+plus hosted notification parent-surface history/preference intent rendering
+with screenshot/accessibility proof.
 It remains a tracked product gap until platform location and
 geofence runtime adapters, broader product read models beyond these rows, full
 dashboard UI beyond the hosted parent route, applied product-ready service
 mutation execution, actual live provider execution/delivery, notification
-receipt ingestion, physical-device proof, actual child-device delivery/runtime
-execution, remote sync runtime, OS lost-mode APIs, production upload workers,
-and full parent/child UI snapshots/accessibility beyond the hosted parent route
-are proved.
+receipt ingestion runtime beyond hosted history rendering, physical-device
+proof, actual child-device delivery/runtime execution, remote sync runtime, OS
+lost-mode APIs, production upload workers, and full parent/child UI snapshots/
+accessibility beyond the hosted parent route are proved.
 
 ## Checklist
 
@@ -478,6 +489,12 @@ are proved.
       provider, receipt, and preference proof refs. It is not rendered
       notification UI, parent preference mutation, provider delivery, receipt
       runtime, child-device delivery, physical-device, authority, or
+      product-ready notification behavior.
+- [x] Hosted notification parent-surface history UI proof renders those rows on
+      the hosted parent `policy-tracking` route with screenshot/accessibility
+      evidence. This is not parent preference mutation, quiet-hours runtime,
+      provider delivery, receipt ingestion runtime, child-device delivery,
+      physical-device, authority, production storage, adapter dispatch, or
       product-ready notification behavior.
 - [ ] Android permission/background runtime proof. WP08/WP09 parent-domain
       manual-required proof rows now exist for foreground permission,
