@@ -9,9 +9,9 @@ and must not be merged under one vague "hub" concept.
 
 ## Where We Are
 
-Parent assistant provider routing proof exists. Screen family AI hub route proof
-exists for redacted/cropped local LAN custody, but the mesh does not yet prove
-provider discovery, claim/lease, result validation, child-agent policy
+Parent assistant provider routing proof exists. Legacy screen household-provider
+route proof exists for redacted/cropped local LAN custody, but the mesh does not
+yet prove provider discovery, claim/lease, result validation, child-agent policy
 authority, mobile dormant/fallback, or physical household LAN execution.
 Remote/API AI is already bounded by expectations but needs UI, custody,
 retention, and citation proof.
