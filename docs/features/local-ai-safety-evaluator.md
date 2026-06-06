@@ -131,6 +131,14 @@ claim needs proof, not slogans.
   rejected or manual parser rows remain visible as manual-required without raw
   output retention, model execution, remote/API AI, policy authority,
   enforcement, portal UI, or production-quality claims.
+- `LocalAiTextParserPolicyHandoffProofSchema` and
+  `scripts/test/local-ai-text-parser-policy-handoff-proof.mjs` now prove the
+  generic local text parser policy handoff boundary. Ready parser read-model
+  rows can create dry-run `PolicyDecision` rows with disabled enforcement
+  handoff and local AI result refs; rejected or manual parser rows remain
+  manual-required and cannot create policy decisions. The proof keeps raw model
+  output retention, model execution, remote/API AI, policy authority,
+  enforcement, portal UI, and production-quality claims out of scope.
 - `LocalAiPromptTemplateVersionProofSchema` and
   `scripts/test/local-ai-prompt-template-version-proof.mjs` now prove the
   prompt/template version contract boundary. The proof reconciles one
@@ -370,6 +378,10 @@ production external evidence variants.
       parent-visible rows without model-execution, remote/API, raw output
       retention, policy-authority, enforcement, portal UI, or production-quality
       claims.
+- [x] Local text parser policy handoff proof path where only ready parser rows
+      create dry-run policy decisions, while rejected/manual rows remain
+      manual-required without model-execution, remote/API, raw output retention,
+      policy-authority, enforcement, portal UI, or production-quality claims.
 - [x] Local prompt/template version proof path without model-execution,
       model-quality, remote/API, policy-authority, enforcement, portal UI, raw
       prompt, or raw model-output retention claims.

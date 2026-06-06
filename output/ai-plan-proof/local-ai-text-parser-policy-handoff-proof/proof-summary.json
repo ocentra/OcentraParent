@@ -1,0 +1,114 @@
+{
+  "status": "ok",
+  "proofKind": "local-ai-text-parser-policy-handoff-proof",
+  "generatedAt": "2026-06-06T14:46:36.637Z",
+  "output": "output/ai-plan-proof/local-ai-text-parser-policy-handoff-proof/proof-summary.json",
+  "rows": [
+    {
+      "policyHandoffRowId": "local-ai-text-parser-policy-handoff:0:local-ai-text-parser-read-model:0:local-ai-text-parser:screen-summary-wiki-ocr",
+      "sourceReadModelRowId": "local-ai-text-parser-read-model:0:local-ai-text-parser:screen-summary-wiki-ocr",
+      "parserRunId": "local-ai-text-parser:screen-summary-wiki-ocr",
+      "handoffState": "policy-dry-run-ready",
+      "action": "warn",
+      "policyDecisionId": "local-ai-text-parser-policy:0:local-ai-text-result:screen-summary-wiki-ocr",
+      "policyDecisionAction": "warn",
+      "localAiResultId": "local-ai-text-result:screen-summary-wiki-ocr",
+      "policyDecisionHandoffState": "disabled",
+      "resultPolicyEligible": true,
+      "manualRequiredReasons": [],
+      "sourceProofRefs": [
+        "proof:local-ai-text-parser-read-model"
+      ],
+      "dryRunOnly": true,
+      "reportOnly": true,
+      "modelExecuted": false,
+      "rawModelOutputRetained": false,
+      "remoteApiClaimed": false,
+      "policyAuthorityClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "policyHandoffRowId": "local-ai-text-parser-policy-handoff:1:local-ai-text-parser-read-model:1:local-ai-text-parser:screen-summary-wiki-ocr",
+      "sourceReadModelRowId": "local-ai-text-parser-read-model:1:local-ai-text-parser:screen-summary-wiki-ocr",
+      "parserRunId": "local-ai-text-parser:screen-summary-wiki-ocr",
+      "handoffState": "manual-required",
+      "action": "ask-parent",
+      "policyDecisionId": null,
+      "policyDecisionAction": null,
+      "localAiResultId": null,
+      "policyDecisionHandoffState": "not-requested",
+      "resultPolicyEligible": false,
+      "manualRequiredReasons": [
+        "manual:parser:rejected-invalid-output",
+        "manual:parser-rejected-output"
+      ],
+      "sourceProofRefs": [
+        "proof:local-ai-text-parser-read-model"
+      ],
+      "dryRunOnly": true,
+      "reportOnly": true,
+      "modelExecuted": false,
+      "rawModelOutputRetained": false,
+      "remoteApiClaimed": false,
+      "policyAuthorityClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "policyHandoffRowId": "local-ai-text-parser-policy-handoff:2:local-ai-text-parser-read-model:2:local-ai-text-parser:screen-summary-wiki-ocr",
+      "sourceReadModelRowId": "local-ai-text-parser-read-model:2:local-ai-text-parser:screen-summary-wiki-ocr",
+      "parserRunId": "local-ai-text-parser:screen-summary-wiki-ocr",
+      "handoffState": "manual-required",
+      "action": "ask-parent",
+      "policyDecisionId": null,
+      "policyDecisionAction": null,
+      "localAiResultId": null,
+      "policyDecisionHandoffState": "not-requested",
+      "resultPolicyEligible": false,
+      "manualRequiredReasons": [
+        "manual:parser:manual-required",
+        "manual:parser-rejected-output"
+      ],
+      "sourceProofRefs": [
+        "proof:local-ai-text-parser-read-model"
+      ],
+      "dryRunOnly": true,
+      "reportOnly": true,
+      "modelExecuted": false,
+      "rawModelOutputRetained": false,
+      "remoteApiClaimed": false,
+      "policyAuthorityClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "counts": {
+    "policyReadyRowCount": 1,
+    "manualRequiredRowCount": 2
+  },
+  "assertions": {
+    "readyRowCreatesDryRunPolicyDecision": true,
+    "manualRowsDoNotCreatePolicyDecisions": true,
+    "sourceProofRefsPreserved": true,
+    "rawModelOutputNotRetained": true,
+    "noModelPolicyOrEnforcementClaim": true,
+    "overclaimsRejected": true
+  },
+  "rejectionChecks": [
+    {
+      "name": "model-execution-overclaim",
+      "rejected": true
+    },
+    {
+      "name": "enforcement-overclaim",
+      "rejected": true
+    },
+    {
+      "name": "proof-count-mismatch",
+      "rejected": true
+    }
+  ],
+  "nonClaims": [
+    "This proof feeds ready local text parser rows into dry-run policy decisions.",
+    "Rejected and manual parser rows remain manual-required and cannot create policy decisions.",
+    "This proof does not execute a model, prove model quality, retain raw model output, render portal UI, dispatch enforcement, or use remote/API AI."
+  ]
+}
