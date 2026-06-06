@@ -11,7 +11,7 @@ import { AgentProtocolDefaults, type AgentProtocolLogFields } from '@ocentra-par
 
 export function parseNetworkFlowReadModel(payload: AgentProtocolLogFields): ActivityNetworkFlowReadModel | null {
   const returned = payload[AgentProtocolDefaults.Field.Returned];
-  const digest = networkFlowDigest(payload);
+  const digest = parseNetworkFlowDigest(payload);
   const row = returned === 0 ? [] : [networkFlowObservation(payload, digest)];
   const parsed = ActivityNetworkFlowReadModelSchema.safeParse({
     schemaVersion: ActivityQuerySchemaVersion,
@@ -35,6 +35,24 @@ export function parseNetworkFlowReadModel(payload: AgentProtocolLogFields): Acti
     return null;
   }
   return parsed.data;
+}
+
+export function parseNetworkFlowDigest(payload: AgentProtocolLogFields): ActivityNetworkFlowDigest | null {
+  const raw = payload[AgentProtocolDefaults.Field.ActivityDigest];
+  if (typeof raw !== AgentProtocolDefaults.Primitive.String) {
+    return null;
+  }
+
+  try {
+    const decoded = JSON.parse(String(raw)) as unknown;
+    const parsed = ActivityNetworkFlowDigestSchema.safeParse(decoded);
+    if (!parsed.success) {
+      return null;
+    }
+    return normalizeDigestEvidence(parsed.data);
+  } catch {
+    return null;
+  }
 }
 
 function networkFlowObservation(payload: AgentProtocolLogFields, digest: ActivityNetworkFlowDigest | null) {
@@ -73,24 +91,6 @@ function networkFlowObservation(payload: AgentProtocolLogFields, digest: Activit
 
 function nullIfMissing(value: AgentProtocolLogFields[keyof AgentProtocolLogFields] | undefined) {
   return value === undefined ? null : value;
-}
-
-function networkFlowDigest(payload: AgentProtocolLogFields): ActivityNetworkFlowDigest | null {
-  const raw = payload[AgentProtocolDefaults.Field.ActivityDigest];
-  if (typeof raw !== AgentProtocolDefaults.Primitive.String) {
-    return null;
-  }
-
-  try {
-    const decoded = JSON.parse(String(raw)) as unknown;
-    const parsed = ActivityNetworkFlowDigestSchema.safeParse(decoded);
-    if (!parsed.success) {
-      return null;
-    }
-    return normalizeDigestEvidence(parsed.data);
-  } catch {
-    return null;
-  }
 }
 
 function normalizeDigestEvidence(digest: ActivityNetworkFlowDigest): ActivityNetworkFlowDigest {

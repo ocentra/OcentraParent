@@ -258,9 +258,12 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       supported-adapter runtime proof in the same drawer, including observe-only
       policy handoff, manual-required host-domain gates, degraded dependency,
       unavailable Linux, unsupported macOS, exact active-tab not-claimed, and
-      false adapter-dispatch state. Exact URL/content and live adapter claims
-      remain unrendered; broader risk-budget/performance/platform UI coverage
-      remains open.
+      false adapter-dispatch state. Row36c now renders service-backed
+      `ActivityNetworkFlowDigest.unusualIndicators` in the same drawer with
+      indicator evidence refs for VPN/proxy/tunnel, encrypted-content,
+      unknown-process, and repeated-failure candidates. Exact URL/content and
+      live adapter claims remain unrendered; broader
+      risk-budget/performance/platform UI coverage remains open.
 - [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
       reasons for every applicable gate. Workpack 03 proof lives under
       `output/network-plan-proof/03-contract-boundary-and-effect-schemas/`.
@@ -387,6 +390,17 @@ manual-required/N/A file.
       not-claimed capability rows in the Activity route network drawer. The UI
       still shows adapter dispatch as false and does not publish policy,
       enforcement, adapter, host-filter, exact URL, or decrypted-content claims.
+- [x] 36c parent UI digest indicators: E-D added
+      `output/network-plan-proof/36c-parent-ui-digest-indicators/proof-summary.json`
+      and `test-results/network-parent-ui-digest-indicator-proof/proof.json`.
+      The Activity route network drawer now parses the existing service
+      `activityDigest` payload and renders unusual indicator kinds plus evidence
+      refs for VPN/proxy/tunnel, encrypted-content-unavailable,
+      unusual-unknown-process, and repeated-failure candidates. The proof uses
+      the real Rust service, WebSocket command/event path, Vite portal, and
+      Playwright UI while rejecting exact URL/content, policy authority,
+      notification delivery, live packet capture, host filtering, and adapter
+      execution claims.
 
 ## Worker Report Template
 

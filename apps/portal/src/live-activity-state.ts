@@ -18,7 +18,10 @@ import {
   type ActivityIngestStatus,
   type ActivityRecentSummary,
 } from '@ocentra-parent/activity-domain/query';
-import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/activity-domain/network-flow';
+import type {
+  ActivityNetworkFlowDigest,
+  ActivityNetworkFlowReadModel,
+} from '@ocentra-parent/activity-domain/network-flow';
 import type {
   ActivityAppUseReadModel,
   ActivityBrowserReadModel,
@@ -67,7 +70,7 @@ import {
   parseNetworkAdapterCapabilityStatus,
   type NetworkAdapterCapabilityStatusSummary,
 } from './network-adapter-capability-status';
-import { parseNetworkFlowReadModel } from './network-flow-read-model';
+import { parseNetworkFlowDigest, parseNetworkFlowReadModel } from './network-flow-read-model';
 import { parseNetworkRuntimeEventChain, type NetworkRuntimeEventChainSummary } from './network-runtime-event-chain';
 import { parsePolicyPreviewReadModel, type PortalPolicyPreviewReadModel } from './policy-preview-read-model';
 
@@ -112,6 +115,7 @@ export interface PortalLiveActivityState {
   readonly browserInterventionReadModel: BrowserInterventionReadModel | null;
   readonly networkFlowEvent: AgentEventEnvelope | null;
   readonly networkFlowReadModel: ActivityNetworkFlowReadModel | null;
+  readonly networkFlowDigest: ActivityNetworkFlowDigest | null;
   readonly networkRuntimeEventChainEvent: AgentEventEnvelope | null;
   readonly networkRuntimeEventChain: NetworkRuntimeEventChainSummary | null;
   readonly networkAdapterCapabilityStatusEvent: AgentEventEnvelope | null;
@@ -228,9 +232,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
       eventRefs.browserInterventionEvent === null
         ? null
         : parseBrowserInterventionReadModel(eventRefs.browserInterventionEvent.payload),
-    networkFlowEvent: eventRefs.networkFlowEvent,
-    networkFlowReadModel:
-      eventRefs.networkFlowEvent === null ? null : parseNetworkFlowReadModel(eventRefs.networkFlowEvent.payload),
+    ...resolveNetworkFlowState(eventRefs.networkFlowEvent),
     ...resolveNetworkRuntimeEventChain(events),
     ...resolveNetworkAdapterCapabilityStatus(events),
     ...resolveActivityTrackingReadModel(events),
@@ -256,6 +258,14 @@ function resolveNetworkRuntimeEventChain(events: readonly AgentEventEnvelope[]) 
   return {
     networkRuntimeEventChainEvent: event,
     networkRuntimeEventChain: event === null ? null : parseNetworkRuntimeEventChain(event.payload),
+  };
+}
+
+function resolveNetworkFlowState(event: AgentEventEnvelope | null) {
+  return {
+    networkFlowEvent: event,
+    networkFlowReadModel: event === null ? null : parseNetworkFlowReadModel(event.payload),
+    networkFlowDigest: event === null ? null : parseNetworkFlowDigest(event.payload),
   };
 }
 
