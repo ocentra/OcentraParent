@@ -28,6 +28,8 @@ function compilesDecisionCandidate() {
 
   expect(decision.compileRequestId).toBe(input.compileRequestId);
   expect(decision.targetKind).toBe('social-video');
+  expect(decision.scheduleState).toBe('outside-allowed-window');
+  expect(decision.timeBudgetState).toBe('budget-low');
   expect(decision.finalPolicyDecisionClaimed).toBe(false);
   expect(decision.runtimeGateExecutedClaimed).toBe(false);
   expect(decision.enforcementClaimed).toBe(false);
@@ -70,6 +72,10 @@ function rejectsInputClaims() {
     { ...policyInput(), nativeAppControlClaimed: true },
     { ...policyInput(), platformConnectorClaimed: true },
     { ...policyInput(), signalSetRefs: [] },
+    { ...policyInput(), scheduleContextRefs: [] },
+    { ...policyInput(), timeBudgetContextRefs: [] },
+    { ...policyInput(), scheduleState: 'manual-required' },
+    { ...policyInput(), timeBudgetState: 'unavailable' },
   ];
 
   for (const invalid of invalidRows) {
@@ -92,6 +98,8 @@ function rejectsDecisionClaims() {
     { ...valid, actionCandidate: 'manual-review-candidate', fallbackUsed: false },
     { ...valid, actionCandidate: 'parent-review-candidate', parentApprovalRequired: false },
     { ...valid, actionCandidate: 'allow-candidate', reasonCodes: ['social-risk-high'] },
+    { ...valid, actionCandidate: 'warn-candidate', scheduleContextRefs: [] },
+    { ...valid, actionCandidate: 'block-candidate', timeBudgetContextRefs: [] },
   ];
 
   for (const invalid of invalidRows) {
@@ -136,6 +144,9 @@ function policyInput(overrides = {}) {
     signalSetRefs: ['social-riskbenefit-signal-set-video'],
     parentRuleRefs: ['parent-rule-school-night-video'],
     scheduleContextRefs: ['schedule-context-school-night'],
+    timeBudgetContextRefs: ['time-budget-context-social-video-daily'],
+    scheduleState: 'outside-allowed-window',
+    timeBudgetState: 'budget-low',
     compilerMode: 'contract-only',
     rawSignalPayloadIncluded: false,
     rawModelTextIncluded: false,
