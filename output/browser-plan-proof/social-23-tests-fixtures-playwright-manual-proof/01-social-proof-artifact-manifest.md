@@ -1,10 +1,10 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T16:20:01.636Z
+Generated: 2026-06-06T16:33:01.978Z
 
 Rows checked: 22
-Proof-present rows: 17
-Partial/manual-required rows: 5
+Proof-present rows: 18
+Partial/manual-required rows: 4
 Playwright state: rendered-proof-bundle-ui-present-runtime-delivery-manual-required
 Product claimed: false
 
@@ -14,7 +14,7 @@ Product claimed: false
 | SOCIAL-02 | proof-present | `social-02-platform-route-contracts` | 6 |
 | SOCIAL-03 | proof-present | `social-03-social-url-pattern-library` | 6 |
 | SOCIAL-04 | proof-present | `social-04-account-flow-evidence-contracts` | 6 |
-| SOCIAL-05 | partial-manual-required | `social-05-managed-dom-form-shape-detector` | 5 |
+| SOCIAL-05 | proof-present | `social-05-managed-dom-form-shape-detector` | 6 |
 | SOCIAL-06 | partial-manual-required | `social-06-social-account-identity-registry` | 5 |
 | SOCIAL-07 | partial-manual-required | `social-07-parent-approval-contracts` | 5 |
 | SOCIAL-08 | proof-present | `social-08-feed-reels-shorts-route-classification` | 7 |
@@ -40,6 +40,7 @@ Service-backed dashboard and explanation read-model delivery is present.
 Live platform route boundary proof is present for SOCIAL-02 managed, unmanaged, and native/manual rows.
 Live social URL pattern proof is present for SOCIAL-03 real public route and account captures.
 Live account-flow proof is present for SOCIAL-04 real public account captures.
+Live form-shape proof is present for SOCIAL-05 real public account captures with sanitized controls.
 Live route classification proof is present for SOCIAL-08 public feed surfaces.
 Live metadata extraction proof is present for SOCIAL-09 public social/video surfaces.
 Live-evidence AI boundary proof is present for SOCIAL-10 degraded model-unavailable rows.

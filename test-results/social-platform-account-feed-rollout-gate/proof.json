@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-06T16:20:30.194Z",
+  "generatedAt": "2026-06-06T16:33:01.982Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -38,9 +38,9 @@
     {
       "rowNumber": 5,
       "rowId": "SOCIAL-05",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
-      "state": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "state": "proof-present",
       "failures": []
     },
     {
@@ -190,8 +190,8 @@
   ],
   "summary": {
     "totalRows": 23,
-    "completeRows": 17,
-    "partialRows": 6,
+    "completeRows": 18,
+    "partialRows": 5,
     "failures": 0,
     "rolloutState": "partial/manual-required",
     "productClaimed": false
@@ -209,6 +209,7 @@
     "social-live-platform-route-boundary-proof-present",
     "social-live-url-pattern-boundary-proof-present",
     "social-live-account-flow-boundary-proof-present",
+    "social-live-form-shape-boundary-proof-present",
     "social-live-route-classification-proof-present",
     "social-live-metadata-extraction-proof-present",
     "social-live-evidence-ai-boundary-proof-present",

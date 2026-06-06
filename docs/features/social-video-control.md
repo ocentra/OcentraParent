@@ -80,7 +80,12 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   to route-only account-flow evidence and rejects field values, raw DOM,
   credentials, form submission, account identity, parent approval decisions,
   policy decisions, connector access, native app control, UI delivery, and
-  enforcement.
+  enforcement. `social-form-shape-live-evidence-proof` now consumes the real
+  public SOCIAL-13 account captures, parses 4 signup/login rows through
+  URL-shape, social-route, account-flow, and sanitized form-shape contracts,
+  and rejects weak controls, captured control values, raw DOM, field values,
+  credentials, form submission, identity, approval, policy, and enforcement
+  promotion attempts.
 - Browser-plan SOCIAL-06 now adds a privacy-preserving social account identity
   registry contract. It supports unverified route-context entries,
   parent-declared hash refs, and manual-required state, while rejecting raw
