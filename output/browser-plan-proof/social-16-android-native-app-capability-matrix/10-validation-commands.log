@@ -1,0 +1,30 @@
+SOCIAL-16 Android native-app capability matrix validation
+
+PASS cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-android-native-app-capability-matrix.test.ts
+- Test Files: 1 passed
+- Tests: 5 passed
+
+PASS cmd /c npm run build:contracts
+- Built schema-domain, logging-domain, parent-domain, activity-domain, agent-protocol-domain, text-domain, and portal-domain contracts.
+
+PASS cmd /c node scripts/test/social-android-native-app-host-proof.mjs
+- adbInstalled=true
+- attachedDeviceCount=0
+- resultState=manual-device-proof-required
+- Wrote test-results/social-android-native-app-host-proof/proof.json.
+- Wrote output/browser-plan-proof/social-16-android-native-app-capability-matrix/11-android-host-device-proof.json.
+- No native route/content/account, screenshots, UI tree, logcat, package-list, runtime adapter, UI delivery, or enforcement claim.
+
+PASS cmd /c npm run format:check
+- All matched files use Prettier code style.
+
+PASS cmd /c npm run lint:schema-boundaries
+- No Zod, manual string brands, app string literals, Rust service/core string literals, missing source tests, or test doubles found.
+- Source shape guard passed with existing repository advisory output.
+- SOCIAL-16 source/test files remain below the source-shape advisory band.
+- AI rule index check passed.
+
+PASS git diff --check
+
+PASS git status --short -- docs/product-capability-checklist.md
+- No product capability checklist changes for SOCIAL-16.

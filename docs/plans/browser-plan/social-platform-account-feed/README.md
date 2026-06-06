@@ -219,6 +219,16 @@ rejects native route proof, per-video/per-reel blocking, messages, account
 identity, accessibility content capture, device-owner enrollment, VPN content
 inspection, runtime adapters, connector access, UI delivery, and enforcement.
 Package subpath exports are now present.
+`scripts/test/social-android-native-app-host-proof.mjs` now records the real
+host/device boundary for this row. It checks the local adb binary, attached
+device list, and known public social package ids only when a real device or
+emulator is attached. The current proof writes
+`test-results/social-android-native-app-host-proof/proof.json` and
+`output/browser-plan-proof/social-16-android-native-app-capability-matrix/11-android-host-device-proof.json`
+with adb installed, zero attached devices, package visibility not queried, and
+manual-device-proof-required state. It does not capture screenshots, UI trees,
+logcat, raw installed package lists, native routes, content, account identity,
+runtime adapter behavior, UI delivery, or enforcement.
 
 SOCIAL-17 now adds
 `packages/parent-domain/src/social-ios-screen-time-capability-matrix-values.ts`
