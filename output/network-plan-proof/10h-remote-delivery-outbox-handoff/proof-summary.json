@@ -1,11 +1,11 @@
 {
   "proof": "network-remote-delivery-outbox-handoff-proof",
-  "checkedAt": "2026-06-06T16:02:41.696Z",
+  "checkedAt": "2026-06-06T16:17:08.343Z",
   "branch": "codex/network-remote-delivery-outbox-handoff-proof",
-  "commit": "fcb5650897976909562dea8b6095c223500ec460",
-  "originMain": "a79e7643d935c623eada98afc04197c2a90ea675",
-  "mergeBase": "a79e7643d935c623eada98afc04197c2a90ea675",
-  "sourceStatusShort": " M crates/agent-core/README.md\n M crates/agent-core/src/network_event_runtime.rs\n M crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger.rs\n M crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs\n M crates/agent-protocol/src/constants/network_flow.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n?? crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff.rs\n?? crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff_types.rs\n?? scripts/test/network-remote-delivery-outbox-handoff-proof.mjs",
+  "commit": "ea912c3c7fcd56c8eb139b830149ad3572f8be85",
+  "originMain": "404543f494e699d4c0e81565180911438a3c6dad",
+  "mergeBase": "404543f494e699d4c0e81565180911438a3c6dad",
+  "sourceStatusShort": "",
   "proofRoot": "output\\network-plan-proof\\10h-remote-delivery-outbox-handoff",
   "testRoot": "test-results\\network-remote-delivery-outbox-handoff-proof",
   "commands": [
