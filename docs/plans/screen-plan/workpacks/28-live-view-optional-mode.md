@@ -20,6 +20,9 @@ session recording, and no remote input control. This is contract/preflight
 proof only; real live transport, relay/cache execution, platform permission
 prompts, service persistence, parent UI, and privacy/legal approval remain
 separate gates.
+Android MediaProjection proof records explicit OS capture consent for the
+Android child-agent capture adapter, but it is not live-view permission-prompt
+proof and does not close this workpack's live-view runtime gate.
 
 ## Checklist
 
@@ -38,3 +41,5 @@ separate gates.
 - Tests proving local-summary opt-in does not enable live view.
 - `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`.
 - `output/screen-plan-proof/27-28-optional-retention-live-preflight/proof-summary.json`.
+- Capture-adapter platform consent reference:
+  `output/screen-plan-proof/android-mediaprojection/proof-summary.json`.
