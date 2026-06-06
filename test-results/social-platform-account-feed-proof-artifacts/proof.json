@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-06T14:25:32.862Z",
+  "generatedAt": "2026-06-06T14:32:05.028Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -189,8 +189,8 @@
     {
       "rowNumber": 12,
       "rowId": "SOCIAL-12",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
       "proofDirectory": "social-12-parent-policy-compiler-social-targets",
       "proofFiles": [
         "00-source-snapshot.md",
@@ -200,7 +200,7 @@
         "11-live-evidence-policy-compiler-proof.json",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "proof-present",
       "failures": []
     },
     {
@@ -390,8 +390,8 @@
   ],
   "summary": {
     "totalRows": 22,
-    "completeRows": 12,
-    "partialRows": 10,
+    "completeRows": 13,
+    "partialRows": 9,
     "failures": 0,
     "playwrightState": "rendered-proof-bundle-ui-present-runtime-delivery-manual-required",
     "productClaimed": false

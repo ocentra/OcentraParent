@@ -1,6 +1,6 @@
 # Social Policy Schedule/Time-Budget Proof
 
-Generated: 2026-06-06T11:22:31.155Z
+Generated: 2026-06-06T14:32:05.034Z
 
 Proof claim: social policy compiler requires explicit schedule and time-budget context
 Schedule integration: contract-proof-present
