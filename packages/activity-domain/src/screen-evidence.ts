@@ -9,6 +9,7 @@ export * from './screen-evidence-resource-scheduler';
 export * from './screen-evidence-resource-scheduler-proof';
 export * from './screen-evidence-detector-prompt-pack';
 export * from './screen-evidence-family-hub-routing';
+export * from './screen-vlm-worker';
 export * from './screen-intelligence-router';
 export * from './screen-optional-visibility-mode';
 export * from './screen-managed-browser-cdp-capture';

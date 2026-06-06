@@ -53,6 +53,14 @@ claim needs proof, not slogans.
   records. The service proof adapter validates runtime plumbing and custody; the
   Windows WinRT OCR proof validates local OCR over live public Wikipedia pixels,
   but neither proof claims production model/OCR quality.
+- `ScreenVlmWorkerJobSchema`, `ScreenVlmWorkerResultSchema`, and
+  `scripts/test/screen-ai-vlm-worker-contract-proof.mjs` now provide a
+  first-class guided VLM worker contract matching the OCR worker boundary:
+  source-cited encrypted temp queue input, bounded local image pixels,
+  schema-bound local model output, conversion to `ScreenAnalysisResult`,
+  deleted-image/query-store custody before policy eligibility, and no raw
+  retention or remote/API AI. This is contract proof, not live model-quality or
+  production inference proof.
 - `local-ai-parent-assistant-runtime-proof` now ties the provider scheduler
   proof to Parent Assistant answer/status/action contracts, including cited
   local answer, queued/degraded/unavailable lifecycle, child-safety priority,
@@ -191,6 +199,7 @@ production external evidence variants.
 - [x] Parent explanation read-model proof path.
 - [x] Screen parent explanation service read-model proof path.
 - [x] Screen service WinRT OCR local adapter proof path.
+- [x] Screen guided VLM worker contract proof path.
 - [x] Screen-derived adapter readiness keeps unsupported/broad adapters
       manual-required, not-claimed, or unavailable without claim upgrades.
 - [x] Final screen-AI product path artifact gate.
