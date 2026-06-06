@@ -69,6 +69,7 @@ can be split further when source-shape, platform proof, or validation needs it.
 | 34b | Stored network flow enforcement unavailable result | P3       | Stored network domain evidence plus matching parent rule refs feed the existing service enforcement path and return a journaled network-control manual-required or unavailable result without host mutation or live adapter claims. |
 | 36a | Parent UI runtime event-chain drawer               | P3       | Parent drawer consumes the service runtime event-chain stream for typed AI/policy/enforcement/audit/portal refs while keeping exact URL/content and live adapter claims out of UI.                                                  |
 | 36b | Parent UI adapter capability status                | P3       | Parent drawer consumes the service supported-adapter runtime proof and renders observe-only, manual-required, degraded, unavailable, unsupported, and not-claimed network capability rows without adapter dispatch claims.          |
+| 36c | Parent UI digest indicators                        | P3       | Parent drawer consumes service `ActivityNetworkFlowDigest.unusualIndicators` and renders VPN/proxy/tunnel and other candidate indicator refs without exact URL/content, host filtering, or adapter execution claims.                |
 
 ## Required Workpack Record
 

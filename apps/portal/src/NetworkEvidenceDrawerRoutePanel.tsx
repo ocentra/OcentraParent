@@ -27,7 +27,8 @@ export function NetworkEvidenceDrawerRoutePanel({
 }): ReactElement {
   const summary = networkEvidenceDrawerSummary(
     liveActivity.networkFlowReadModel,
-    liveActivity.networkRuntimeEventChain
+    liveActivity.networkRuntimeEventChain,
+    liveActivity.networkFlowDigest
   );
   return (
     <section
@@ -77,6 +78,8 @@ function NetworkEvidenceDrawerCard({ summary }: { readonly summary: NetworkEvide
         <NetworkEvidenceDrawerDetail label={PortalDetails.Connections} value={summary.byteSummary} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.EvidenceReferences} value={summary.evidenceReferences} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.ReasonCodes} value={summary.uncertaintyReasonCodes} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ReasonCodes} value={summary.digestIndicators} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.EvidenceReferences} value={summary.digestIndicatorEvidence} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.Custody} value={summary.custody} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.EventHistory} value={summary.eventHistoryRef} />
       </dl>
