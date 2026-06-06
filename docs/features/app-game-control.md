@@ -228,6 +228,23 @@ control with better evidence and local audit.
   audit/rollback read-model proof, and keep source or compiler blockers blocked
   before audit/rollback without claiming runtime storage, audit logs, rollback
   execution, or enforcement.
+- Parent-domain source-gated policy preview timer audit/rollback read-model
+  contracts now consume those audit/rollback handoff rows, project the same
+  proof requirements into parent-visible read-model rows, and keep source or
+  compiler blockers blocked without claiming service runtime, portal UI,
+  durable audit logs, rollback execution, adapter dispatch, or enforcement.
+- Parent-domain source-gated policy preview timer audit/rollback
+  parent-surface intent contracts now consume those read-model rows, add
+  parent-surface proof and drill-in refs for eligible native app/native game
+  rows, and keep source or compiler blockers blocked without claiming service
+  read APIs, portal UI, durable audit logs, rollback execution, adapter
+  dispatch, or enforcement.
+- Parent-domain source-gated policy preview timer service-readiness handoff
+  contracts now consume those parent-surface intent rows, add future
+  service-readiness and service read-API proof refs for eligible native
+  app/native game rows, and keep source or compiler blockers blocked without
+  claiming service runtime events, service read API implementation, portal UI,
+  durable audit logs, rollback execution, adapter dispatch, or enforcement.
 - The portal App/Game Sessions route now renders that service-backed policy
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy
@@ -643,6 +660,41 @@ mobile UI, or prove platform support.
       storage, audit runtime, durable audit logs, rollback runtime/execution,
       adapter dispatch, child delivery, broad blocking, platform enforcement,
       or raw private source rows.
+      Source-gated policy preview timer audit/rollback read-model proof now
+      consumes those audit/rollback handoff rows and records that future
+      parent-visible scheduling status still requires service timer runtime,
+      scheduler persistence, durable scheduler state-store, audit trail,
+      rollback plan, and audit/rollback read-model proof, while source and
+      compiler blockers remain blocked before visibility. It remains
+      parent-domain proof only and does not claim service events, portal UI,
+      evaluator runtime, timer runtime/scheduling, scheduler persistence
+      runtime, durable scheduler storage, audit runtime, durable audit logs,
+      rollback runtime/execution, adapter dispatch, child delivery, broad
+      blocking, platform enforcement, or raw private source rows.
+      Source-gated policy preview timer audit/rollback parent-surface intent
+      proof now consumes those read-model rows and records that future
+      parent-surface visibility still requires service timer runtime,
+      scheduler persistence, durable scheduler state-store, audit trail,
+      rollback plan, audit/rollback read-model proof, and parent-surface proof,
+      while source and compiler blockers remain blocked before visibility. It
+      remains parent-domain proof only and does not claim service events/read
+      APIs, portal UI, evaluator runtime, timer runtime/scheduling, scheduler
+      persistence runtime, durable scheduler storage, audit runtime, durable
+      audit logs, rollback runtime/execution, adapter dispatch, child delivery,
+      broad blocking, platform enforcement, or raw private source rows.
+      Source-gated policy preview timer service-readiness handoff proof now
+      consumes those parent-surface intent rows and records that future service
+      visibility still requires service timer runtime, scheduler persistence,
+      durable scheduler state-store, audit trail, rollback plan,
+      audit/rollback read-model proof, parent-surface proof, service-readiness
+      proof, and service read-API proof, while source and compiler blockers
+      remain blocked before service/read API visibility. It remains
+      parent-domain proof only and does not claim service events/read API
+      implementation, portal UI, evaluator runtime, timer runtime/scheduling,
+      scheduler persistence runtime, durable scheduler storage, audit runtime,
+      durable audit logs, rollback runtime/execution, adapter dispatch, child
+      delivery, broad blocking, platform enforcement, or raw private source
+      rows.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,

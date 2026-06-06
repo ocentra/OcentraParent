@@ -30,6 +30,19 @@ mobile readiness, and control catalogs.
   scheduler persistence, durable scheduler state-store, audit trail, rollback
   plan, and audit/rollback read-model proof required before any future
   scheduling claim.
+- App/game source-gated policy preview timer audit/rollback read-model
+  contracts that consume audit/rollback handoff rows and keep those same proof
+  requirements visible without claiming service read APIs, portal UI, durable
+  audit storage, rollback execution, or timer scheduling.
+- App/game source-gated policy preview timer audit/rollback parent-surface
+  intent contracts that consume audit/rollback read-model rows and attach
+  future parent-surface proof/drill-in refs without claiming rendered UI or
+  service read APIs.
+- App/game source-gated policy preview timer service-readiness handoff
+  contracts that consume audit/rollback parent-surface intent rows and attach
+  future service-readiness/read-API proof refs without claiming service runtime
+  events, read API implementation, rendered UI, durable audit storage, rollback
+  execution, or timer scheduling.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.
@@ -339,10 +352,15 @@ flowchart LR
   required before scheduling while preserving source/compile blockers. Timer
   audit/rollback handoff rows add audit trail, rollback plan, and
   audit/rollback read-model proof still required before scheduling while keeping
-  durable audit logs and rollback execution unclaimed. Portal authoring or
-  preview UI, live evaluator execution, persistence, timers, child notification
-  delivery, adapter dispatch, broad installed-app blocking, and platform
-  enforcement remain unimplemented.
+  durable audit logs and rollback execution unclaimed. Timer audit/rollback
+  read-model rows project those proof requirements into a parent-visible
+  contract while keeping service read APIs, portal UI, durable audit storage,
+  rollback execution, and scheduling unclaimed. Timer audit/rollback
+  parent-surface intent rows add future proof and drill-in refs for the next
+  UI/service seam while keeping rendered UI and service read APIs unclaimed.
+  Portal authoring or preview UI, live evaluator execution, persistence,
+  timers, child notification delivery, adapter dispatch, broad installed-app
+  blocking, and platform enforcement remain unimplemented.
 - Supported-adapter and integrity runtime audit proof remain contract/read-model
   proof; broad app/domain/browser blocking, notification delivery, tamper
   resistance, mobile enforcement, stealth/persistence, and privilege escalation
