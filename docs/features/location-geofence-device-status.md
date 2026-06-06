@@ -100,6 +100,15 @@ expose location or device-status features. Parents expect this category.
   mutation rows while keeping remote sync and remote AI disabled and keeping
   live writable UI, platform runtime, child-device delivery, physical-device,
   authority, provider-delivery, production, and product-ready claims false.
+- WP07/WP32 service transport proof now exists for a typed retention settings
+  write command through
+  `node scripts/test/tracking-retention-settings-write-command-proof.mjs`. It
+  validates the TypeScript protocol parser, Rust protocol serialization, and
+  Rust service WebSocket response for a no-product-claim write preflight result
+  tied to the existing mutation proof refs while keeping live writable UI,
+  platform runtime, child-device delivery, physical-device, authority,
+  provider-delivery, notification receipts, production, and product-ready claims
+  false.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
@@ -411,10 +420,11 @@ narrow hosted-route rendering, and retention settings read-model proof for
 retention window, delete-after-alert, parent export, remote-sync disabled, and
 remote-AI disabled rows plus narrow hosted-route rendering, plus
 retention-settings writer-boundary preflight proof for the same five settings
-rows. It remains a tracked product gap until platform
+rows, plus typed service transport write-command proof for retention settings
+preflight. It remains a tracked product gap until platform
 location and geofence runtime adapters, broader product read models beyond
 these rows, full dashboard UI beyond the hosted parent route, actual
-writable live service mutation UI and service execution, actual live provider
+writable live service mutation UI and product-ready service execution, actual live provider
 execution/delivery, notification receipt ingestion, physical-device proof,
 actual child-device delivery/runtime execution, remote sync runtime, OS
 lost-mode APIs, production upload workers, and full parent/child UI
@@ -431,8 +441,9 @@ snapshots/accessibility beyond the hosted parent route are proved.
       P2 retention settings read-model rows plus hosted route rendering now
       exist. Writer-boundary preflight proof now validates the retention window,
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
-      disabled write intents; actual live service mutation UI and service
-      execution remain pending.
+      disabled write intents, and the service transport now accepts a typed
+      write command/preflight result; actual live writable service mutation UI
+      and product-ready service execution remain pending.
 - [x] Alert intent contract.
 - [x] Expected-place alert policy UI-readiness rows. This proves parent
       alert/check-in/suppression/manual readiness rows from expected-place
@@ -551,6 +562,12 @@ snapshots/accessibility beyond the hosted parent route are proved.
       platform runtime, child-device delivery/runtime execution, provider
       delivery, notification receipt ingestion, authority, physical-device, or
       product-complete proof.
+- [x] WP07/WP32 typed retention settings service write command proof. This
+      proves protocol parser, Rust protocol serialization, and Rust service
+      WebSocket response for a no-product-claim write preflight result; it is
+      not live writable UI, product-ready service execution, platform runtime,
+      child-device delivery/runtime execution, provider delivery, notification
+      receipt ingestion, authority, physical-device, or product-complete proof.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
 - [x] P3 WSL/local replay proof for the tracking read-model proof stack and

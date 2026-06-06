@@ -1,0 +1,4 @@
+cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain exit=0
+cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- tracking-retention-settings-write-command exit=0
+cargo test -p ocentra-parent-agent-protocol retention_settings_write -- --nocapture exit=0
+cargo test -p ocentra-parent-agent-service retention_settings_write -- --nocapture exit=0

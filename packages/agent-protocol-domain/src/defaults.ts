@@ -159,6 +159,7 @@ export const AgentProtocolDefaults = {
     BrowserSocialAlertReportReadModel: 'browserSocialAlertReportReadModel',
     BrowserSocialSourceCustodyMutation: 'browserSocialSourceCustodyMutation',
     ActivityTrackingReadModel: 'trackingReadModel',
+    ActivityTrackingRetentionSettingsWriteResult: 'trackingRetentionSettingsWriteResult',
     AdapterActionExecuted: 'adapterActionExecuted',
     BridgeEndpointRef: 'bridgeEndpointRef',
     BridgeKind: 'bridgeKind',

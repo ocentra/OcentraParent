@@ -4,6 +4,8 @@ use ocentra_parent_agent_protocol::{
     LogFieldValue, LogLevel,
 };
 
+mod tracking_retention_settings_write;
+
 use crate::{
     activity_api::social_alert_report_read_model_payload::build_browser_social_alert_report_read_model_report,
     activity_api::social_audit_explanation_read_model_payload::build_browser_social_audit_explanation_read_model_report,
@@ -47,6 +49,8 @@ use crate::{
     policy_preview_api::build_policy_preview_read_model_report,
     snapshot::build_dev_log_snapshot,
 };
+
+use self::tracking_retention_settings_write::build_tracking_retention_settings_write_report;
 
 pub async fn handle_socket(
     mut socket: WebSocket,
@@ -256,6 +260,7 @@ fn is_activity_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentBrowserSocialAlertReportReadModelGet
             | AgentCommandName::AgentActivityNetworkReadModelGet
             | AgentCommandName::AgentActivityTrackingReadModelGet
+            | AgentCommandName::AgentActivityTrackingRetentionSettingsWrite
     )
 }
 
@@ -359,6 +364,9 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         }
         AgentCommandName::AgentActivityTrackingReadModelGet => {
             build_activity_tracking_read_model_report(command).await
+        }
+        AgentCommandName::AgentActivityTrackingRetentionSettingsWrite => {
+            build_tracking_retention_settings_write_report(command).await
         }
         _ => build_log_snapshot_report(command),
     }
