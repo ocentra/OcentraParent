@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofId": "social-video-metadata-live-proof",
-  "generatedAt": "2026-06-06T10:47:59.882Z",
+  "generatedAt": "2026-06-06T12:08:26.416Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "1cb68872ed14b57c6b62aebe80089408ad9a19df",
-  "baseCommit": "7b2dab0c594362802b802f47b945f30f60ac73f6",
+  "commit": "d8187190d44bdd4d5ebcce9dc58b1cf39adbf233",
+  "baseCommit": "51f6d940352e4775700d8e0eb871390a3e37d95e",
   "liveCaptureSummary": {
     "realPublicSocialVideoSurfacesUsed": true,
     "generatedOrFixturePageUsed": false,
@@ -48,8 +48,8 @@
         "publishedAtPresent": true
       },
       "screenshotPath": "output/browser-plan-proof/social-09-video-social-metadata-extractor/06-live-screenshots/youtube-shorts-video.png",
-      "screenshotSha256": "b9123c36f4d8c64ff2eab5dd97af86621cfc37fe603a8bde1ea8078ad852f585",
-      "screenshotBytes": 846828,
+      "screenshotSha256": "ac58de4b794c34d670038f3018f7966f862dcdea0105fca3e1d5034c9ed5f46f",
+      "screenshotBytes": 894106,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -62,7 +62,7 @@
       "metadataSummary": {
         "schemaVersion": 1,
         "metadataEvidenceId": "youtube-shorts-video-live-metadata-evidence",
-        "collectedAt": "2026-06-06T10:47:59.882Z",
+        "collectedAt": "2026-06-06T12:08:26.416Z",
         "sourceEvidenceIds": [
           "youtube-shorts-video-live-metadata-source"
         ],
@@ -110,8 +110,8 @@
         "publishedAtPresent": true
       },
       "screenshotPath": "output/browser-plan-proof/social-09-video-social-metadata-extractor/06-live-screenshots/vimeo-public-video.png",
-      "screenshotSha256": "14abe9838b301fe5dd713a49f2dbcee99dc4c71f83cba8577749b81e6babdf9d",
-      "screenshotBytes": 52798,
+      "screenshotSha256": "66e9550506fe4f6c9e13e934bd561bba6e52c916bbcb8462263f848fcdc4cdf1",
+      "screenshotBytes": 52825,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -124,7 +124,7 @@
       "metadataSummary": {
         "schemaVersion": 1,
         "metadataEvidenceId": "vimeo-public-video-live-metadata-evidence",
-        "collectedAt": "2026-06-06T10:47:59.882Z",
+        "collectedAt": "2026-06-06T12:08:26.416Z",
         "sourceEvidenceIds": [
           "vimeo-public-video-live-metadata-source"
         ],
@@ -172,8 +172,8 @@
         "publishedAtPresent": true
       },
       "screenshotPath": "output/browser-plan-proof/social-09-video-social-metadata-extractor/06-live-screenshots/reddit-popular-feed.png",
-      "screenshotSha256": "0adb00a79cdada42a4b09efe990678760d3435188aa4d8db61d9dd200d45f5c1",
-      "screenshotBytes": 409421,
+      "screenshotSha256": "f3d7e93d393c78e54bd3484e853c32f981e570143f618e0659bf0ad2e54233c7",
+      "screenshotBytes": 327323,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -186,7 +186,7 @@
       "metadataSummary": {
         "schemaVersion": 1,
         "metadataEvidenceId": "reddit-popular-feed-live-metadata-evidence",
-        "collectedAt": "2026-06-06T10:47:59.882Z",
+        "collectedAt": "2026-06-06T12:08:26.416Z",
         "sourceEvidenceIds": [
           "reddit-popular-feed-live-metadata-source"
         ],
@@ -218,8 +218,8 @@
     {
       "targetId": "instagram-reels-feed",
       "requestedUrl": "https://www.instagram.com/reels/",
-      "finalUrl": "https://www.instagram.com/reels/DZIxlLNvCOd/",
-      "finalUrlSha256": "8070c04b5b2c71c8f94dedcacf04b523eb2933a459cf2612ecf21a76daf1ab27",
+      "finalUrl": "https://www.instagram.com/reels/DYpTv92RsJo/",
+      "finalUrlSha256": "e9635316d91da9f930e3aa1400155f3c95d1bc73bbd4368e24348e3776ed2991",
       "finalUrlQueryOrHashRemoved": false,
       "responseStatus": 200,
       "responseUrl": "https://www.instagram.com/reels/",
@@ -234,8 +234,8 @@
         "publishedAtPresent": true
       },
       "screenshotPath": "output/browser-plan-proof/social-09-video-social-metadata-extractor/06-live-screenshots/instagram-reels-feed.png",
-      "screenshotSha256": "a570949476962335c562fc2d0c08969e46c34ba059e038178075fcbfdc1c1c19",
-      "screenshotBytes": 499070,
+      "screenshotSha256": "52841dd928a8be17ac5e77683205ebde0d06a6f8489e7368bac3cdfbc25fcbbf",
+      "screenshotBytes": 120927,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -248,7 +248,7 @@
       "metadataSummary": {
         "schemaVersion": 1,
         "metadataEvidenceId": "instagram-reels-feed-live-metadata-evidence",
-        "collectedAt": "2026-06-06T10:47:59.882Z",
+        "collectedAt": "2026-06-06T12:08:26.416Z",
         "sourceEvidenceIds": [
           "instagram-reels-feed-live-metadata-source"
         ],
@@ -260,7 +260,7 @@
         "titleRef": null,
         "descriptionRef": null,
         "authorHashRef": null,
-        "thumbnailHashRef": "thumbnail-hash-ref-a570949476962335c562fc2d",
+        "thumbnailHashRef": "thumbnail-hash-ref-52841dd928a8be17ac5e7768",
         "durationSeconds": null,
         "publishedAt": null,
         "categoryRef": null,
