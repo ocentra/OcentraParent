@@ -202,7 +202,11 @@ refs, permission or entitlement refs, adapter capability refs, audit refs,
 unavailable-state accounting, and manual follow-ups for missing required
 artifacts while rejecting generic platform support, live adapter execution, UI
 policy authority, exact URL, page content, decrypted payload, and
-enforcement-command claims.
+enforcement-command claims. The action-result state proof records blocked,
+terminated, dry-run, manual-required, and unavailable result states from policy
+refs plus adapter proof refs while rejecting live host mutation, process
+termination execution, exact URL/content claims, and enforcement-command
+publication.
 
 Live Npcap/libpcap driver invocation and packet capture, full vendor category
 feeds, production CDN intelligence, unmanaged browser exact URL or active-tab

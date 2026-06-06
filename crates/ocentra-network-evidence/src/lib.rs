@@ -1,3 +1,4 @@
+pub mod action_result;
 pub mod ai_audit;
 pub mod ai_detection;
 pub mod android_vpn_service_gate;
@@ -45,6 +46,13 @@ mod process_support;
 #[cfg(test)]
 mod tests;
 
+pub use action_result::{
+    plan_network_action_result_state, NetworkActionResultAdapterProofState,
+    NetworkActionResultBoundaryReason, NetworkActionResultCapabilityState,
+    NetworkActionResultError, NetworkActionResultInput, NetworkActionResultProof,
+    NetworkActionResultRequestedAction, NetworkActionResultRequiredArtifact,
+    NetworkActionResultState, NetworkActionResultTargetKind,
+};
 pub use ai_audit::{
     build_network_ai_audit_report, NetworkAiAuditNarrativeState, NetworkAiAuditRecommendation,
     NetworkAiAuditRecommendationKind, NetworkAiAuditReport, NetworkAiAuditReportError,

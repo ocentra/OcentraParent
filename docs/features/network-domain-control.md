@@ -332,6 +332,13 @@ compete on control while staying clear about attribution confidence and privacy.
   records missing artifacts as manual follow-ups, and rejects generic platform
   support, live adapter execution, UI policy authority, and enforcement-command
   claims.
+- E-D added an action-result state proof in `ocentra-network-evidence` for
+  network block/terminate/unavailable outcomes. Blocked and terminated result
+  states require grade-A block policy refs, apply-ready adapter proof refs,
+  adapter result artifacts, and audit refs; dry-run, manual-required,
+  unavailable, weak-evidence, and invalid terminate-target states stay
+  non-result, and live host mutation or enforcement-command publication is
+  rejected.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -372,7 +379,10 @@ the required OS/device/permission artifacts, exact manual steps, command logs,
 and manual-required labels before any platform claim can be upgraded. Row52 now
 adds a platform-claim manifest that names exact Windows, Android, Apple
 macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
-follow-ups for missing artifacts.
+follow-ups for missing artifacts. Row53 now records block, terminate, dry-run,
+manual-required, and unavailable action-result states from policy refs and
+adapter proof artifacts without claiming live adapter execution or enforcement
+command publication.
 Broker/family-hub delivery implementation, local-AI model execution/worker
 runtime, full policy engine execution, notification provider delivery, broader
 parent-facing rule UX, live host DNS mutation/proxy installation, live Windows
@@ -555,7 +565,13 @@ UI rendering remain open.
       support, live adapter install, packet filtering, kernel hook load, TUN
       interface mutation, or service-manager install is not claimed.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.
-- [ ] Real block/terminate/unavailable result.
+- [x] Real block/terminate/unavailable result.
+      Row53 action-result state proof records blocked, terminated, dry-run,
+      manual-required, and unavailable result states from policy refs,
+      apply-ready adapter proof refs, adapter result artifacts, and audit refs.
+      Weak evidence, parent-review policy, invalid terminate targets,
+      unavailable capabilities, exact URL/content claims, host mutation claims,
+      and enforcement-command publication stay rejected.
 - [x] No decrypted payload/page-content claim at the network contract boundary.
       Managed-browser correlation can attach exact URLs only from matching
       browser evidence, not from network metadata.
