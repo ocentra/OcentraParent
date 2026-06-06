@@ -265,6 +265,13 @@ control with better evidence and local audit.
   implementation, service event/read-model emission, read API implementation,
   portal UI, durable audit logs, rollback execution, adapter dispatch, or
   enforcement.
+- Parent-domain source-gated policy preview timer service-readiness read-API
+  response consumer handoff contracts now consume response handoff rows, add
+  future response-consumer proof refs for eligible native app/native game rows,
+  and keep source or compiler blockers blocked without claiming service response
+  implementation, response consumer implementation, portal response rendering,
+  durable audit logs, rollback execution, adapter dispatch, child delivery, or
+  enforcement.
 - The portal App/Game Sessions route now renders that service-backed policy
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy
@@ -723,6 +730,19 @@ mobile UI, or prove platform support.
       command registration, service handler implementation, service event
       emission, service read API implementation or response implementation,
       agent-protocol implementation, Rust protocol mirror, portal UI, evaluator
+      runtime, timer runtime/scheduling, scheduler persistence runtime, durable
+      scheduler storage, audit runtime, durable audit logs, rollback
+      runtime/execution, adapter dispatch, child delivery, broad blocking,
+      platform enforcement, or raw private source rows.
+      Source-gated policy preview timer service-readiness read-API response
+      consumer handoff proof now consumes those response handoff rows and
+      records that future parent/service consumption still requires response
+      consumer proof, while source and compiler blockers remain blocked before
+      response consumption. It remains parent-domain proof only and does not
+      claim service command registration, service handler implementation,
+      service event emission, service read API implementation, response
+      implementation, response consumer implementation, portal UI/consumer
+      rendering, agent-protocol implementation, Rust protocol mirror, evaluator
       runtime, timer runtime/scheduling, scheduler persistence runtime, durable
       scheduler storage, audit runtime, durable audit logs, rollback
       runtime/execution, adapter dispatch, child delivery, broad blocking,

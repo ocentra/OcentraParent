@@ -90,6 +90,7 @@ before `DONE` or PR-ready reporting.
 82. WP91 app/game source-gated policy preview timer service readiness service handler handoff.
 83. WP92 app/game source-gated policy preview timer service readiness read API handoff.
 84. WP93 app/game source-gated policy preview timer service readiness read API response handoff.
+85. WP94 app/game source-gated policy preview timer service readiness read API response consumer handoff.
 
 ## Standard AI Worker Checklist
 
