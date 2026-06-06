@@ -323,10 +323,12 @@ flowchart LR
 - App/game policy preview handoff and timer-status proofs remain read-only
   contract/read-model proof. Timer-status rows classify whether future
   timer-runtime proof, source-freshness proof, or compiler-decision proof is
-  still required before scheduling. Portal authoring or preview UI, live
-  evaluator execution, persistence, timers, child notification delivery,
-  adapter dispatch, broad installed-app blocking, and platform enforcement
-  remain unimplemented.
+  still required before scheduling. The source-gated preview read-model,
+  timer-handoff, and timer-status contracts are package-exported for later
+  service/portal consumers. Portal authoring or preview UI, live evaluator
+  execution, persistence, timers, child notification delivery, adapter
+  dispatch, broad installed-app blocking, and platform enforcement remain
+  unimplemented.
 - Supported-adapter and integrity runtime audit proof remain contract/read-model
   proof; broad app/domain/browser blocking, notification delivery, tamper
   resistance, mobile enforcement, stealth/persistence, and privilege escalation

@@ -77,6 +77,7 @@ before `DONE` or PR-ready reporting.
 69. WP76 app/game source-gated policy preview read model.
 70. WP78 app/game source-gated policy preview timer handoff.
 71. WP79 app/game source-gated policy preview timer status.
+72. WP80 app/game source-gated policy preview package exports.
 
 ## Standard AI Worker Checklist
 

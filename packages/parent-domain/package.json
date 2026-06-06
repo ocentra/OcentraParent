@@ -29,6 +29,18 @@
       "import": "./dist/app-game-policy-preview-handoff.js",
       "types": "./dist/app-game-policy-preview-handoff.d.ts"
     },
+    "./app-game-source-gated-policy-preview-read-model": {
+      "import": "./dist/app-game-source-gated-policy-preview-read-model.js",
+      "types": "./dist/app-game-source-gated-policy-preview-read-model.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-status": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-status.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-status.d.ts"
+    },
     "./app-install-purchase-approval": {
       "import": "./dist/app-install-purchase-approval.js",
       "types": "./dist/app-install-purchase-approval.d.ts"

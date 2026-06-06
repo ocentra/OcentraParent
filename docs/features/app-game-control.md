@@ -600,6 +600,10 @@ mobile UI, or prove platform support.
       portal UI, evaluator runtime, timer scheduling, adapter dispatch, child
       delivery, broad blocking, platform enforcement, or raw private source
       rows.
+      The source-gated policy preview read-model, timer-handoff, and
+      timer-status contracts are now exported as parent-domain package subpaths
+      with built JS and type artifacts, but those exports remain contract
+      surfaces only and do not add runtime execution.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
