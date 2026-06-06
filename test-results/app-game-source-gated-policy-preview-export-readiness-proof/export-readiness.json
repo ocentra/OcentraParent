@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "v0.6",
+  "readinessId": "app-game-source-gated-policy-preview-export-readiness-proof",
+  "sourceReadModelId": "app-game-source-gated-policy-preview-read-model-proof",
+  "generatedAt": "2026-06-06T01:30:00Z",
+  "sourceContractRefs": [
+    "app-game-source-gated-policy-preview-read-model",
+    "docs/expectations/app-game-evidence.md",
+    "docs/expectations/policy.md"
+  ],
+  "requiredExportSubpath": "./app-game-source-gated-policy-preview-read-model",
+  "requiredExportSymbols": [
+    "AppGameSourceGatedPolicyPreviewReadModelSchema",
+    "AppGameSourceGatedPolicyPreviewReadModelRowSchema",
+    "buildAppGameSourceGatedPolicyPreviewReadModel",
+    "decodeAppGameSourceGatedPolicyPreviewReadModel",
+    "AppGameSourceGatedPolicyPreviewReadModelProjectionState",
+    "AppGameSourceGatedPolicyPreviewReadModelSensitiveBoundary"
+  ],
+  "readinessState": "ready-for-manifest-sequencing",
+  "manifestState": "deferred-by-package-manifest-lock",
+  "nativeAppRowCount": 1,
+  "nativeGameRowCount": 2,
+  "previewReadyVisibleCount": 1,
+  "sourceManualRequiredVisibleCount": 1,
+  "compilerManualRequiredVisibleCount": 1,
+  "projectionStates": [
+    "preview-ready-visible",
+    "source-manual-required-visible",
+    "compiler-manual-required-visible"
+  ],
+  "exportNonClaims": [
+    "no-package-manifest-edit",
+    "no-service-runtime-event",
+    "no-portal-ui-rendered",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows"
+  ],
+  "packageManifestUpdated": false,
+  "serviceRuntimeEventClaimed": false,
+  "portalUiRendered": false,
+  "policyEvaluatorRuntimeClaimed": false,
+  "timerRuntimeClaimed": false,
+  "adapterDispatchClaimed": false,
+  "childDeliveryClaimed": false,
+  "platformEnforcementClaimed": false,
+  "rawPrivateSourceRowsIncluded": false
+}
