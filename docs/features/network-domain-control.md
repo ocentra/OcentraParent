@@ -339,6 +339,12 @@ compete on control while staying clear about attribution confidence and privacy.
   unavailable, weak-evidence, and invalid terminate-target states stay
   non-result, and live host mutation or enforcement-command publication is
   rejected.
+- E-D added a content-claim invariant proof in `ocentra-network-evidence` for
+  the integrated network product path. Raw network payload, decrypted payload,
+  page content, video content, private message, search query, exact URL,
+  AI/UI/network policy bypass, adapter authority, and enforcement-command
+  claims are rejected before AI, policy, adapter, audit, portal, and retention
+  refs compose.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -581,9 +587,12 @@ UI rendering remain open.
       Weak evidence, parent-review policy, invalid terminate targets,
       unavailable capabilities, exact URL/content claims, host mutation claims,
       and enforcement-command publication stay rejected.
-- [x] No decrypted payload/page-content claim at the network contract boundary.
+- [x] No exact URL/video/message/search/decrypted payload/page-content claim at
+      the network contract boundary.
       Managed-browser correlation can attach exact URLs only from matching
-      browser evidence, not from network metadata.
+      browser evidence, not from network metadata. The integrated pipeline now
+      rejects network-only video content, private message, and search query
+      claims at the unsupported-claim boundary.
 - [x] Unmanaged browser correlation remains process-only bypass/candidate
       evidence and cannot upgrade to exact URL, active-tab, title, page-content,
       policy, adapter, or enforcement-command claims.

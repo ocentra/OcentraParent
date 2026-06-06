@@ -141,6 +141,30 @@ fn end_to_end_pipeline_rejects_ai_ui_and_network_bypass_claims() {
     );
 }
 
+#[test]
+fn end_to_end_pipeline_rejects_network_only_content_claims() {
+    let mut video_claim = pipeline_input();
+    video_claim.unsupported_claims.video_content_claimed = true;
+    assert_eq!(
+        prove_network_end_to_end_pipeline(video_claim),
+        Err(NetworkEndToEndPipelineError::VideoContentRejected)
+    );
+
+    let mut message_claim = pipeline_input();
+    message_claim.unsupported_claims.private_message_claimed = true;
+    assert_eq!(
+        prove_network_end_to_end_pipeline(message_claim),
+        Err(NetworkEndToEndPipelineError::PrivateMessageRejected)
+    );
+
+    let mut search_claim = pipeline_input();
+    search_claim.unsupported_claims.search_query_claimed = true;
+    assert_eq!(
+        prove_network_end_to_end_pipeline(search_claim),
+        Err(NetworkEndToEndPipelineError::SearchQueryRejected)
+    );
+}
+
 fn pipeline_input() -> NetworkEndToEndPipelineInput {
     NetworkEndToEndPipelineInput {
         refs: pipeline_refs(),
@@ -164,6 +188,9 @@ fn pipeline_input() -> NetworkEndToEndPipelineInput {
             raw_network_payload_claimed: false,
             decrypted_payload_claimed: false,
             page_content_claimed: false,
+            video_content_claimed: false,
+            private_message_claimed: false,
+            search_query_claimed: false,
             exact_url_claimed: false,
             ai_policy_authority_claimed: false,
             ui_policy_authority_claimed: false,

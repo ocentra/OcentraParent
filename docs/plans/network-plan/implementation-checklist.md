@@ -74,9 +74,17 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       SQLite/read-model rows, and custody labels.
 - [ ] `08-ui-snapshots/`: parent portal screenshots for normal, degraded,
       manual-required, audit, risk budget, and limitation states when UI changes.
-- [ ] `09-security-negative-proof.log`: no exact URL/video/message/search claim,
+- [x] `09-security-negative-proof.log`: no exact URL/video/message/search claim,
       no raw PCAP to AI, no decrypted payload, no weak-evidence block, no UI/AI
       direct enforcement.
+      Row54 proof now writes
+      `output/network-plan-proof/54-content-claim-invariant-proof/proof-summary.json`
+      and `test-results/network-content-claim-invariant-proof/proof.json` by
+      running focused pipeline tests, clippy, source-shape, and diff-check. The
+      proof rejects raw network payload, decrypted payload, page content, video
+      content, private message, search query, exact URL, AI policy authority,
+      UI policy authority, network adapter authority, and enforcement-command
+      publication claims before the product path composes.
 - [ ] `10-performance-proof.log`: throughput, latency, CPU, memory, disk, queue,
       and dropped-event metrics when real-time claims are touched.
 - [x] `10a-broker-delivery-proof.log`: delivery semantics declaration,
@@ -128,7 +136,9 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
 - [x] Network-only evidence never claims exact URL, exact video, private
       messages, search query, page content, screen activity, or decrypted
       payload. E-D added `ActivityNetworkFlowEvidenceSchema` negative tests for
-      exact URL and decrypted-payload claim attempts.
+      exact URL and decrypted-payload claim attempts. Row54 now adds a
+      Rust pipeline invariant that rejects video content, private message, and
+      search query claims at the integrated product-path boundary.
 - [x] Every network claim has evidence grade A/B/C/D.
       `ActivityNetworkEvidenceGradeSchema` now rejects grades outside A/B/C/D.
 - [x] Every network event that crosses Rust runtime uses reusable eventing
@@ -344,6 +354,8 @@ manual-required/N/A file.
 | 52 | Platform claim manifest proof | [x] | E-D | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/52-platform-claims-proof/proof-summary.json`, `output/network-plan-proof/52-platform-claims-proof/11-manual-platform-proof.md`, `output/network-plan-proof/52-platform-claims-proof/12-validation-commands.log`, `test-results/network-platform-claims-proof/proof.json`, `platform_claim_manifest_names_exact_platform_permission_and_device_refs`, `platform_claim_manifest_reports_unavailable_states_without_execution`, `platform_claim_manifest_records_missing_permission_artifacts_as_manual_followup`, `platform_claim_manifest_rejects_broad_or_live_platform_claims`, `platform_claim_manifest_rejects_proof_source_that_publishes_enforcement_command` | Deterministic platform-claim manifest proof now composes Windows Firewall, Windows WFP, Android VpnService, Apple Network Extension macOS/iOS, and Linux nftables/eBPF/TUN proof gates into exact platform rows with OS/device refs, permission or entitlement refs, adapter capability refs, audit refs, unavailable-state accounting, and missing required artifacts captured as manual follow-ups. Generic platform support, live adapter execution, UI policy authority, exact URL, page content, decrypted payload, and enforcement-command claims are rejected. This does not claim production platform support, live host adapter mutation, packet blocking, policy engine execution, or portal platform-state rendering. |
 
 | 53 | Action result state proof | [x] | E-D | `codex/network-action-result-state-proof` | `output/network-plan-proof/53-action-result-state-proof/proof-summary.json`, `test-results/network-action-result-state-proof/proof.json`, `action_result_accepts_blocked_state_from_policy_and_adapter_result_refs`, `action_result_accepts_process_termination_result_without_live_mutation_claims`, `action_result_dry_run_is_non_result_without_adapter_artifacts`, `action_result_routes_weak_policy_or_manual_adapter_state_to_manual_required`, `action_result_reports_unavailable_without_accepting_adapter_result`, `action_result_rejects_content_host_mutation_and_command_claims` | Deterministic action-result proof now records blocked, terminated, dry-run, manual-required, and unavailable result states from policy refs, apply-ready adapter proof refs, adapter result artifacts, and audit refs. Weak evidence, parent-review policy, invalid terminate targets, unavailable capabilities, exact URL/content claims, host mutation claims, and enforcement-command publication are rejected. This does not claim live host adapter mutation, process termination execution, platform command invocation, policy engine execution, broker/family-hub delivery, or production enforcement. |
+
+| 54 | Content claim invariant proof | [x] | E-D | `codex/network-content-claim-invariant-proof` | `output/network-plan-proof/54-content-claim-invariant-proof/proof-summary.json`, `test-results/network-content-claim-invariant-proof/proof.json`, `end_to_end_pipeline_rejects_network_only_content_claims`, `end_to_end_pipeline_rejects_ai_ui_and_network_bypass_claims`, `network-content-claim-invariant-proof.mjs` | Integrated pipeline unsupported-claim proof now rejects raw network payload, decrypted payload, page content, video content, private message, search query, exact URL, AI policy authority, UI policy authority, network adapter authority, and enforcement-command publication claims before AI, policy, adapter, audit, portal, and retention refs compose. This does not claim live packet capture, local model execution, full policy engine execution, host adapter mutation, broker/family-hub delivery, portal risk-budget/performance rendering, or production enforcement. |
 
 ## Worker Report Template
 

@@ -66,6 +66,9 @@ pub struct NetworkEndToEndUnsupportedClaims {
     pub raw_network_payload_claimed: bool,
     pub decrypted_payload_claimed: bool,
     pub page_content_claimed: bool,
+    pub video_content_claimed: bool,
+    pub private_message_claimed: bool,
+    pub search_query_claimed: bool,
     pub exact_url_claimed: bool,
     pub ai_policy_authority_claimed: bool,
     pub ui_policy_authority_claimed: bool,
@@ -134,6 +137,9 @@ pub enum NetworkEndToEndPipelineError {
     RawNetworkPayloadRejected,
     DecryptedPayloadRejected,
     PageContentRejected,
+    VideoContentRejected,
+    PrivateMessageRejected,
+    SearchQueryRejected,
     ExactUrlRejected,
     AiPolicyAuthorityRejected,
     UiPolicyAuthorityRejected,
@@ -454,6 +460,15 @@ fn reject_unsupported_claims(
     }
     if claims.page_content_claimed {
         return Err(NetworkEndToEndPipelineError::PageContentRejected);
+    }
+    if claims.video_content_claimed {
+        return Err(NetworkEndToEndPipelineError::VideoContentRejected);
+    }
+    if claims.private_message_claimed {
+        return Err(NetworkEndToEndPipelineError::PrivateMessageRejected);
+    }
+    if claims.search_query_claimed {
+        return Err(NetworkEndToEndPipelineError::SearchQueryRejected);
     }
     if claims.exact_url_claimed {
         return Err(NetworkEndToEndPipelineError::ExactUrlRejected);

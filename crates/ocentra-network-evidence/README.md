@@ -194,7 +194,11 @@ typed-event-ref, evidence bundle, local-AI refs-only queue, AI detection/audit,
 risk-budget, policy mapping, adapter proof-state, audit, portal read-model, and
 retention/delete/export refs into one product-path artifact while proving weak
 or unavailable evidence cannot authorize adapter apply, AI remains advisory, and
-UI/network surfaces cannot bypass policy. The platform-claim manifest proof
+UI/network surfaces cannot bypass policy. The content-claim invariant proof
+rejects raw network payload, decrypted payload, page content, video content,
+private message, search query, exact URL, policy-bypass, adapter-authority, and
+enforcement-command claims before the integrated product path composes. The
+platform-claim manifest proof
 composes Windows Firewall/WFP, Android VpnService, Apple Network Extension, and
 Linux nftables/eBPF/TUN gates into exact platform rows, including Apple
 macOS/iOS and separate Linux nftables, eBPF, and TUN targets, with OS/device
