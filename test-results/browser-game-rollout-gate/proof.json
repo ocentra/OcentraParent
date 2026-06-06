@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-rollout-gate",
-  "generatedAt": "2026-06-06T21:30:50.434Z",
+  "generatedAt": "2026-06-06T21:41:23.661Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -150,10 +150,10 @@
     {
       "rowNumber": 17,
       "rowId": "GAME-17",
-      "expectedStatus": "[~]",
+      "expectedStatus": "[x]",
       "expectedOwner": "codex-d",
-      "expectedState": "partial-manual-required",
-      "state": "partial-manual-required",
+      "expectedState": "live-policy-compiler-proof-present",
+      "state": "live-policy-compiler-proof-present",
       "failures": []
     },
     {
@@ -222,8 +222,8 @@
   ],
   "summary": {
     "totalRows": 24,
-    "completeRows": 16,
-    "partialRows": 8,
+    "completeRows": 17,
+    "partialRows": 7,
     "openRows": 0,
     "failures": 0,
     "rolloutState": "partial/manual-required",
@@ -248,6 +248,7 @@
     "browser-game-live-cloud-gaming-gate-proof-present",
     "browser-game-live-unblocked-site-detection-proof-present",
     "browser-game-live-ugc-multiplayer-chat-risk-proof-present",
+    "browser-game-live-policy-compiler-proof-present",
     "proof-artifact-coverage-contract-only",
     "playwright-manual-required-no-rendered-browser-game-ui",
     "runtime-signal-proof-manual-required",

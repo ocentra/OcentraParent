@@ -1,10 +1,10 @@
 # GAME-22 Browser-Game Proof Artifact Manifest
 
-Generated: 2026-06-06T21:30:50.403Z
+Generated: 2026-06-06T21:41:23.584Z
 
 Rows checked: 21
-Proof-present rows: 16
-Partial/manual-required rows: 5
+Proof-present rows: 17
+Partial/manual-required rows: 4
 Playwright state: manual-required-no-rendered-browser-game-ui
 Product claimed: false
 
@@ -26,7 +26,7 @@ Product claimed: false
 | GAME-14 | live-cloud-gaming-gate-proof-present | `game-14-cloud-gaming-gating` | 6 |
 | GAME-15 | live-unblocked-site-detection-proof-present | `game-15-unblocked-game-site-detection` | 6 |
 | GAME-16 | live-ugc-multiplayer-chat-risk-proof-present | `game-16-ugc-multiplayer-chat-risk-model` | 6 |
-| GAME-17 | partial-manual-required | `game-17-parent-game-policy-compiler` | 5 |
+| GAME-17 | live-policy-compiler-proof-present | `game-17-parent-game-policy-compiler` | 6 |
 | GAME-18 | partial-manual-required | `game-18-managed-browser-game-hold-block-adapter` | 5 |
 | GAME-19 | partial-manual-required | `game-19-child-game-checking-block-ux` | 5 |
 | GAME-20 | partial-manual-required | `game-20-parent-browser-game-dashboard-ux` | 5 |
@@ -63,6 +63,8 @@ GAME-15 live unblocked-site detection proof is present for real public
 unblocked, search, portal, game-page, archive, and manual fallback surfaces.
 GAME-16 live UGC/multiplayer/chat risk proof is present for real public
 UGC, multiplayer, chat, marketplace, and manual-required route surfaces.
+GAME-17 live policy compiler proof is present for real public
+browser-game route surfaces with candidate-only compiler decisions.
 It does not prove rendered browser-game UI, Playwright screenshots,
 runtime browser-game detection, cloud-streamed frame analysis, native
 game control, final policy execution, enforcement, or product checklist

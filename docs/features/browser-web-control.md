@@ -472,10 +472,14 @@ store profile/account/experience identifiers, execute web-to-app launches or
 purchases, control native games, claim final policy/runtime/UI delivery, or
 enforce actions.
 Browser-game/cloud-gaming GAME-17 now adds parent-domain candidate-only policy
-compiler contracts for browser-game evidence, analysis, mobile capability,
-parent rule, and schedule refs. These candidates are not final policy decisions,
-runtime gate executions, UI delivery, native game control, cloud-frame analysis,
-or enforcement.
+compiler contracts plus a live public compiler-shape proof for browser-game
+evidence, analysis, mobile capability, parent rule, and schedule refs. The live
+proof fetches real Code.org Minecraft, Poki Subway Surfers, Roblox Discover,
+Coolmath Run, Hooda unblocked games, Rec Room, and Internet Archive MS-DOS game
+surfaces while persisting only response hashes, evidence refs, compiler input
+refs, candidate decision refs, and no-authority flags. These candidates are not
+final policy decisions, runtime gate executions, UI delivery, native game
+control, cloud-frame analysis, or enforcement.
 Browser-game/cloud-gaming GAME-18 now adds parent-domain managed browser-game
 hold/block adapter contracts that link policy candidate refs, child UX refs,
 managed intervention adapter proof refs, and audit refs for hold, approval,
@@ -534,7 +538,8 @@ live-memory-cache-proof-present. GAME-13 is
 live-account-purchase-gate-proof-present. GAME-14 is
 live-cloud-gaming-gate-proof-present. GAME-15 is
 live-unblocked-site-detection-proof-present. GAME-16 is
-live-ugc-multiplayer-chat-risk-proof-present. GAME-17 through GAME-24 are
+live-ugc-multiplayer-chat-risk-proof-present. GAME-17 is
+live-policy-compiler-proof-present. GAME-18 through GAME-24 are
 partial/manual-required. UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.

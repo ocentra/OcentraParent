@@ -1,10 +1,10 @@
 # GAME-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T21:30:50.434Z
+Generated: 2026-06-06T21:41:23.661Z
 
 Rows checked: 24
-Proof-present rows: 16
-Partial/manual-required rows: 8
+Proof-present rows: 17
+Partial/manual-required rows: 7
 Open/manual-required rows: 0
 Rollout state: partial/manual-required
 Product claimed: false
@@ -27,7 +27,7 @@ Product claimed: false
 | GAME-14 | live-cloud-gaming-gate-proof-present | [x] |
 | GAME-15 | live-unblocked-site-detection-proof-present | [x] |
 | GAME-16 | live-ugc-multiplayer-chat-risk-proof-present | [x] |
-| GAME-17 | partial-manual-required | [~] |
+| GAME-17 | live-policy-compiler-proof-present | [x] |
 | GAME-18 | partial-manual-required | [~] |
 | GAME-19 | partial-manual-required | [~] |
 | GAME-20 | partial-manual-required | [~] |
@@ -52,6 +52,7 @@ GAME-13 live account/signup/purchase gate proof is present.
 GAME-14 live cloud-gaming gate proof is present.
 GAME-15 live unblocked-site detection proof is present.
 GAME-16 live UGC/multiplayer/chat risk proof is present.
+GAME-17 live policy compiler proof is present.
 Product checklist upgrade is not claimed.
 Browser-game child/parent UI, cloud-streamed frame analysis, native
 game control, and enforcement remain open or manual-required until

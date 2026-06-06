@@ -1408,11 +1408,16 @@ worker messages before code changes. Do not mix all 24 into one PR.
   experience identifiers, raw game payloads, web-to-app launch execution,
   purchase execution, native game control, final policy decisions, runtime gate
   execution, UI rendering, and enforcement.
-- GAME-17 now adds parent-domain browser-game policy compiler contracts. The
-  compiler consumes parent-owned evidence, analysis, mobile capability, rule,
-  and schedule refs, and returns candidate-only decisions without claiming final
-  policy authority, runtime gate execution, UI delivery, native game control,
-  cloud-frame analysis, or enforcement.
+- GAME-17 now adds parent-domain browser-game policy compiler contracts and a
+  live public compiler-shape proof. The compiler consumes parent-owned evidence,
+  analysis, mobile capability, rule, and schedule refs, and returns
+  candidate-only decisions without claiming final policy authority, runtime gate
+  execution, UI delivery, native game control, cloud-frame analysis, or
+  enforcement. The live proof fetches real Code.org Minecraft, Poki Subway
+  Surfers, Roblox Discover, Coolmath Run, Hooda unblocked games, Rec Room, and
+  Internet Archive MS-DOS game surfaces while persisting only response hashes,
+  evidence refs, compiler input refs, candidate decision refs, and
+  no-authority flags.
 - GAME-18 now adds parent-domain managed browser-game hold/block adapter
   contracts. Plans link policy candidate refs, child UX refs, managed
   intervention adapter proof refs, and audit refs for hold, approval, block,
@@ -1478,7 +1483,8 @@ worker messages before code changes. Do not mix all 24 into one PR.
   live-account-purchase-gate-proof-present, GAME-14 as
   live-cloud-gaming-gate-proof-present, GAME-15 as
   live-unblocked-site-detection-proof-present, GAME-16 as
-  live-ugc-multiplayer-chat-risk-proof-present, GAME-17 through GAME-24 as
+  live-ugc-multiplayer-chat-risk-proof-present, GAME-17 as
+  live-policy-compiler-proof-present, GAME-18 through GAME-24 as
   partial/manual-required, and no browser-game rows as open/manual-required.
   Product checklist upgrade is not claimed, and runtime
   child/parent UI, cloud-streamed frame analysis, native game control, and
