@@ -50,9 +50,11 @@ development paths and orchestrates runtime commands.
 - Network product-readiness status reports through
   `agent.network.product-readiness.status.get`, exposing row13a
   live-capture/raw-custody status, row51a product-readiness status, and row52
-  platform-claim manifest entries from `ocentra-network-evidence` materializers
-  without live capture, policy execution, adapter dispatch, host filtering, or
-  enforcement-command claims.
+  platform-claim manifest entries from `ocentra-network-evidence` materializers.
+  The payload also carries row48 risk-budget refs/score breakdown and row49
+  performance benchmark metrics for portal visibility without live capture,
+  production SLO validation, policy execution, adapter dispatch, host filtering,
+  or enforcement-command claims.
 - App/game live process capture bridge rows through the existing activity
   capture journal/store path, exposing runtime-only app/game rows to the
   existing app-use/games read models without foreground, policy, or adapter
@@ -155,10 +157,10 @@ flowchart LR
   broker/family-hub delivery, cross-process durable replay/retention, policy
   execution, adapter execution, and host filtering remain separate gaps.
 - Network product-readiness status output is service-local status exposure only;
-  parent portal rendering now covers the row51c status card and row52a platform
-  claim manifest matrix, while production SLO validation, live capture
-  execution, policy execution, adapter execution, and host filtering remain
-  separate gaps.
+  parent portal rendering now covers the row51c status card, row52a platform
+  claim manifest matrix, and row51d risk/performance detail card, while
+  production SLO validation, live capture execution, policy execution, adapter
+  execution, and host filtering remain separate gaps.
 - App/game live process, optional foreground, Windows shortcut inventory,
   Windows packaged-app manifest capture, and Windows registry inventory capture
   have bounded service proof; subscribed foreground transitions, policy

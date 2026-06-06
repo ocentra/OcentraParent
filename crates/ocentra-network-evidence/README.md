@@ -209,11 +209,12 @@ artifacts while rejecting generic platform support, live adapter execution, UI
 policy authority, exact URL, page content, decrypted payload, and
 enforcement-command claims. The product-readiness status materializer composes
 the risk-budget, performance benchmark, and platform-claim proofs into one
-portal-safe status with risk state, degraded-performance state, exact platform
-entries, platform manual follow-ups, portal read-model refs, and
-retention/export refs while rejecting
-exact content, production-SLO, UI policy authority, portal adapter dispatch,
-live adapter execution, and enforcement-command claims.
+portal-safe status with risk state, risk refs/score breakdown, performance
+benchmark metrics, degraded-performance state, exact platform entries, platform
+manual follow-ups, portal read-model refs, and retention/export refs while
+rejecting exact content, production-SLO, UI policy authority, portal adapter
+dispatch, live adapter execution, host filtering, and enforcement-command
+claims.
 
 Live Npcap/libpcap driver invocation and packet capture, full vendor category
 feeds, production CDN intelligence, unmanaged browser exact URL or active-tab
@@ -224,7 +225,7 @@ execution, screen analysis result creation, raw image retention, remote upload,
 live network adapter enforcement, file/content inspection, local-AI model
 execution/worker runtime, production model-quality monitoring, production SLO
 validation, full policy engine execution, notification provider delivery, portal
-AI audit UI, risk-budget, or performance rendering, live WFP driver/callout
+AI audit UI, live WFP driver/callout
 proof, live adapter execution, Android physical-device behavior, Apple
 entitlement/device behavior, Linux distro/kernel adapter behavior, live
 Zeek/TShark/Wireshark/Suricata/Snort execution, full support-material authoring,

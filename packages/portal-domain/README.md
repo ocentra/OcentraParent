@@ -27,6 +27,9 @@ contracts.
 - Shared detail labels for service-backed network platform-claim manifest rows,
   including OS/device refs, permission or entitlement refs, adapter capability
   refs, and false enforcement-command publication.
+- Shared detail labels for service-backed network risk-budget and performance
+  readiness rows, including risk refs, score breakdown, benchmark metrics, and
+  false production-SLO/adapter/host-filtering claims.
 
 ## Must Not Own
 
@@ -69,3 +72,6 @@ flowchart LR
 - Keep network platform-claim labels tied to service-backed status rows only;
   do not promote manifest rendering into policy authority, adapter execution, or
   host filtering claims.
+- Keep network risk/performance labels tied to service-backed status rows only;
+  do not promote benchmark rendering into production SLO validation, policy
+  authority, adapter execution, or host filtering claims.
