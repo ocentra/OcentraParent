@@ -46,6 +46,11 @@ mod enforcement_boundary;
 mod enforcement_policy_dispatch;
 mod enforcement_readiness;
 mod enforcement_timer_state;
+mod household_mesh_bridge_runtime;
+mod household_mesh_bridge_runtime_phase;
+mod household_mesh_bridge_runtime_refs;
+mod household_mesh_bridge_runtime_source;
+mod household_mesh_bridge_runtime_state;
 mod journal;
 mod journal_crypto;
 mod journal_error;
@@ -141,6 +146,17 @@ pub use enforcement_readiness::broad_os_adapter_readiness;
 pub use enforcement_timer_state::{
     active_timer_state_from_outcome, cancelled_timer_outcome, expired_timer_outcome,
     restart_recovered_timer_outcome, EnforcementTimerTransitionIds,
+};
+pub use household_mesh_bridge_runtime::{
+    publish_household_mesh_bridge_chain_for_input, validate_household_mesh_bridge_export,
+    validate_household_mesh_bridge_import, HouseholdMeshBridgeEventPayload,
+    HouseholdMeshBridgeExportCandidate, HouseholdMeshBridgeInboundEnvelope,
+    HouseholdMeshBridgeInput, HouseholdMeshBridgeReport, HouseholdMeshBridgeValidation,
+};
+pub use household_mesh_bridge_runtime_phase::HouseholdMeshBridgePhase;
+pub use household_mesh_bridge_runtime_state::{
+    HouseholdMeshBridgeCustody, HouseholdMeshBridgeDirection, HouseholdMeshBridgeEnvelopeState,
+    HouseholdMeshBridgeRejectionReason, HouseholdMeshBridgeValidationState,
 };
 pub use journal::ActivityJournal;
 pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
@@ -260,6 +276,8 @@ mod enforcement_timer_state_tests;
 mod enforcement_timer_tests;
 #[cfg(test)]
 mod enforcement_unavailable_adapter_tests;
+#[cfg(test)]
+mod household_mesh_bridge_runtime_tests;
 #[cfg(test)]
 mod journal_tests;
 #[cfg(test)]
