@@ -187,6 +187,13 @@ claim needs proof, not slogans.
   missing current-observation evidence shapes. This does not execute a model,
   prove model quality, rerun capture, render portal UI, or dispatch
   enforcement.
+- `ScreenAiMemoryGraphSourceGuardProofSchema` and
+  `scripts/test/screen-ai-memory-graph-source-guard-proof.mjs` now prove the
+  screen AI memory/graph source-citation guard through the real local-AI
+  context builder. Recent-memory and graph references must cite selected stored
+  screen evidence before model input, ungrounded derived refs are rejected, and
+  the proof keeps remote/API AI, policy authority, raw evidence embedding, and
+  enforcement unclaimed.
 
 ## Current Gap
 
@@ -230,6 +237,8 @@ production external evidence variants.
       local AI safety results.
 - [x] Screen AI model output parser proof rejects malformed model output and
       non-local runtime shapes.
+- [x] Screen AI recent-memory and graph refs require selected stored screen
+      evidence citations before model input.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub

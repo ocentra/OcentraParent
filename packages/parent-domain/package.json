@@ -665,6 +665,10 @@
       "import": "./dist/screen-ai-model-artifact-manifest-proof.js",
       "types": "./dist/screen-ai-model-artifact-manifest-proof.d.ts"
     },
+    "./screen-ai-memory-graph-source-guard-proof": {
+      "import": "./dist/screen-ai-memory-graph-source-guard-proof.js",
+      "types": "./dist/screen-ai-memory-graph-source-guard-proof.d.ts"
+    },
     "./tamper-uninstall-artifact-status": {
       "import": "./dist/tamper-uninstall-artifact-status.js",
       "types": "./dist/tamper-uninstall-artifact-status.d.ts"
