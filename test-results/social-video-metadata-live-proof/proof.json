@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofId": "social-video-metadata-live-proof",
-  "generatedAt": "2026-06-06T09:30:32.115Z",
+  "generatedAt": "2026-06-06T10:47:59.882Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "1cebe72adf04cc2f2cf0c4f718337b172f243326",
-  "baseCommit": "e2203ab8a1f6606d8e445c70ba4e979fb810ae94",
+  "commit": "1cb68872ed14b57c6b62aebe80089408ad9a19df",
+  "baseCommit": "7b2dab0c594362802b802f47b945f30f60ac73f6",
   "liveCaptureSummary": {
     "realPublicSocialVideoSurfacesUsed": true,
     "generatedOrFixturePageUsed": false,
@@ -48,8 +48,8 @@
         "publishedAtPresent": true
       },
       "screenshotPath": "output/browser-plan-proof/social-09-video-social-metadata-extractor/06-live-screenshots/youtube-shorts-video.png",
-      "screenshotSha256": "ebb13a5bd7b16408f2ab2a7f1cc58728347af30e58a3b8e1f13e0449ba63761a",
-      "screenshotBytes": 881722,
+      "screenshotSha256": "b9123c36f4d8c64ff2eab5dd97af86621cfc37fe603a8bde1ea8078ad852f585",
+      "screenshotBytes": 846828,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -62,7 +62,7 @@
       "metadataSummary": {
         "schemaVersion": 1,
         "metadataEvidenceId": "youtube-shorts-video-live-metadata-evidence",
-        "collectedAt": "2026-06-06T09:30:32.115Z",
+        "collectedAt": "2026-06-06T10:47:59.882Z",
         "sourceEvidenceIds": [
           "youtube-shorts-video-live-metadata-source"
         ],
@@ -100,8 +100,8 @@
       "responseStatus": 200,
       "responseUrl": "https://vimeo.com/76979871",
       "navigationError": null,
-      "titleLength": 43,
-      "titleSha256": "28eaafa931af75a93514b442e0538189e717144752025c886a04f664c5101125",
+      "titleLength": 70,
+      "titleSha256": "85e9b76743b4c02a6ab4f924bca0db0b71d947b40aee64fc68741b7d90fb37d8",
       "metadataAttributeSummary": {
         "titlePresent": true,
         "descriptionPresent": true,
@@ -110,8 +110,8 @@
         "publishedAtPresent": true
       },
       "screenshotPath": "output/browser-plan-proof/social-09-video-social-metadata-extractor/06-live-screenshots/vimeo-public-video.png",
-      "screenshotSha256": "00c337cee703b7ab8f37f37eafebc2af77f9f6c8f32ef8862ba51dc3af4f6462",
-      "screenshotBytes": 36088,
+      "screenshotSha256": "14abe9838b301fe5dd713a49f2dbcee99dc4c71f83cba8577749b81e6babdf9d",
+      "screenshotBytes": 52798,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -124,7 +124,7 @@
       "metadataSummary": {
         "schemaVersion": 1,
         "metadataEvidenceId": "vimeo-public-video-live-metadata-evidence",
-        "collectedAt": "2026-06-06T09:30:32.115Z",
+        "collectedAt": "2026-06-06T10:47:59.882Z",
         "sourceEvidenceIds": [
           "vimeo-public-video-live-metadata-source"
         ],
@@ -134,7 +134,7 @@
         "sourceKind": "open-graph",
         "metadataState": "available",
         "titleRef": "title-hash-ref-e93cccb437977c2f",
-        "descriptionRef": "description-hash-ref-43096da980530ae0",
+        "descriptionRef": "description-hash-ref-2c81283fd6aafadc",
         "authorHashRef": null,
         "thumbnailHashRef": "thumbnail-hash-ref-70c3e4fd3ef13902",
         "durationSeconds": null,
@@ -172,8 +172,8 @@
         "publishedAtPresent": true
       },
       "screenshotPath": "output/browser-plan-proof/social-09-video-social-metadata-extractor/06-live-screenshots/reddit-popular-feed.png",
-      "screenshotSha256": "261c4d2a0069140a0fe5c0621e4f753047e23ddb29ae91d23961b03b70c380d1",
-      "screenshotBytes": 474298,
+      "screenshotSha256": "0adb00a79cdada42a4b09efe990678760d3435188aa4d8db61d9dd200d45f5c1",
+      "screenshotBytes": 409421,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -186,7 +186,7 @@
       "metadataSummary": {
         "schemaVersion": 1,
         "metadataEvidenceId": "reddit-popular-feed-live-metadata-evidence",
-        "collectedAt": "2026-06-06T09:30:32.115Z",
+        "collectedAt": "2026-06-06T10:47:59.882Z",
         "sourceEvidenceIds": [
           "reddit-popular-feed-live-metadata-source"
         ],
@@ -218,8 +218,8 @@
     {
       "targetId": "instagram-reels-feed",
       "requestedUrl": "https://www.instagram.com/reels/",
-      "finalUrl": "https://www.instagram.com/reels/DZGyfoyuJ8t/",
-      "finalUrlSha256": "dce1fa4be919700992ea4e8f07c7d2ef6d0779b81ba2fbc920c0151df72b17c7",
+      "finalUrl": "https://www.instagram.com/reels/DZIxlLNvCOd/",
+      "finalUrlSha256": "8070c04b5b2c71c8f94dedcacf04b523eb2933a459cf2612ecf21a76daf1ab27",
       "finalUrlQueryOrHashRemoved": false,
       "responseStatus": 200,
       "responseUrl": "https://www.instagram.com/reels/",
@@ -234,8 +234,8 @@
         "publishedAtPresent": true
       },
       "screenshotPath": "output/browser-plan-proof/social-09-video-social-metadata-extractor/06-live-screenshots/instagram-reels-feed.png",
-      "screenshotSha256": "b3c1137ae601dfcc8f0d50350b4b91e780f7b15038ec3b60881390bfa8c3ec62",
-      "screenshotBytes": 609823,
+      "screenshotSha256": "a570949476962335c562fc2d0c08969e46c34ba059e038178075fcbfdc1c1c19",
+      "screenshotBytes": 499070,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -248,7 +248,7 @@
       "metadataSummary": {
         "schemaVersion": 1,
         "metadataEvidenceId": "instagram-reels-feed-live-metadata-evidence",
-        "collectedAt": "2026-06-06T09:30:32.115Z",
+        "collectedAt": "2026-06-06T10:47:59.882Z",
         "sourceEvidenceIds": [
           "instagram-reels-feed-live-metadata-source"
         ],
@@ -260,7 +260,7 @@
         "titleRef": null,
         "descriptionRef": null,
         "authorHashRef": null,
-        "thumbnailHashRef": "thumbnail-hash-ref-b3c1137ae601dfcc8f0d5035",
+        "thumbnailHashRef": "thumbnail-hash-ref-a570949476962335c562fc2d",
         "durationSeconds": null,
         "publishedAt": null,
         "categoryRef": null,
