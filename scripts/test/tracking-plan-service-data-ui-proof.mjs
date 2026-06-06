@@ -34,8 +34,9 @@ async function main() {
     commands,
     serviceDataUiSurface: {
       route: 'policy-tracking',
-      consumer: 'apps/portal/src/tracking-status-panel.ts',
+      consumer: 'apps/portal/src/TrackingStatusRoutePanel.tsx',
       modelFunction: 'trackingStatusServiceDataCoverage',
+      sourceModel: 'apps/portal/src/tracking-status-panel.ts',
       renderedTitle: 'Service data coverage',
       sourcePayload: 'trackingReadModel',
       sourceCommand: 'agent.activity.tracking.read-model.get',
@@ -56,6 +57,7 @@ async function main() {
     },
     assertions: [
       'The hosted policy-tracking route can render service-data coverage from the parsed tracking read model.',
+      'The React hosted policy-tracking route renders the service-data coverage card beside the service read-model summary.',
       'The coverage row exposes active/tombstone row counts through existing portal detail fields.',
       'The coverage row exposes event-kind coverage and deleted evidence references separately from active evidence references.',
       'The coverage row keeps productClaimReady=false and does not claim physical-device, provider, notification, or production readiness.',
