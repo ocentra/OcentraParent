@@ -541,6 +541,10 @@
       "import": "./dist/local-ai-runtime-status-read-model-proof.js",
       "types": "./dist/local-ai-runtime-status-read-model-proof.d.ts"
     },
+    "./local-ai-remote-assistant-boundary-proof": {
+      "import": "./dist/local-ai-remote-assistant-boundary-proof.js",
+      "types": "./dist/local-ai-remote-assistant-boundary-proof.d.ts"
+    },
     "./local-ai-text-inference-dry-run-proof": {
       "import": "./dist/local-ai-text-inference-dry-run-proof.js",
       "types": "./dist/local-ai-text-inference-dry-run-proof.d.ts"

@@ -40,6 +40,7 @@ consumes the same results.
 | Local recent memory and short-window activity     | P3 contract proved  | `output/ai-plan-proof/local-ai-recent-memory-window-proof/proof-summary.json`                                                          | Proves a parent-domain read model over the existing local AI context builder that selects only fresh `recent-activity` evidence inside the requested window, returns source-grounded recent-memory refs, omits stale/out-of-window and ungrounded rows, and rejects raw retention, remote/API AI, policy authority, and enforcement overclaims. It does not create fresh capture, execute a model, prove production model quality, render portal UI, or dispatch enforcement.                                |
 | Local AI graph reference/minimal edges            | P3 contract proved  | `output/ai-plan-proof/local-ai-graph-reference-contract-proof/proof-summary.json`                                                      | Proves local AI graph refs are schema-validated, source-cited, and read through minimal activity-memory graph edges only when selected evidence, policy version, parent action refs, freshness, endpoints, and time range match. It does not claim a production graph storage/index runtime, model execution, model quality, UI, policy authority, enforcement, remote/API AI, or raw evidence retention.                                                                                                    |
 | Local AI contract completeness                    | P3 contract proved  | `output/ai-plan-proof/local-ai-contract-completeness-proof/proof-summary.json`                                                         | Proves the baseline local AI input, safety-result, provider-capability, job-queue, and provider-route contracts line up over one local-only runtime route while preserving evidence refs, parent-rule refs, memory/graph refs, prompt/runtime refs, queue position, duplicate-runtime blocking, and provider capability metadata. It does not claim model execution, model quality, portal UI, policy authority, enforcement, remote/API AI, raw prompt retention, or raw evidence retention.                |
+| Remote assistant child-safety boundary            | P3 contract proved  | `output/ai-plan-proof/local-ai-remote-assistant-boundary-proof/proof-summary.json`                                                     | Proves parent-authorized remote assistant requests must cite approved stored evidence and parent-owned report bundles, stay outside the child-safety decision path, preserve local AI and deterministic policy authority, degrade to local-only fallback, and reject raw retention, policy-authority, enforcement, and remote-override overclaims. It does not execute a remote provider, render portal UI, prove model quality, or change local safety decisions.                                           |
 
 ## Contract And Source Truth
 
@@ -78,7 +79,9 @@ consumes the same results.
 - [x] AI journal/read-model contract complete for screen VLM status
       projection; broader AI journal/read-model surfaces remain product-scope
       follow-ups.
-- [ ] Remote assistant contract separated from child safety.
+- [x] Remote assistant contract separated from child safety for
+      parent-authorized report/explanation requests; production remote provider
+      execution and portal assistant UI remain follow-up scope.
 
 ## V0.7 Runtime And Context
 
@@ -276,4 +279,9 @@ consumes the same results.
       `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model`.
 - [x] screen AI memory/graph source guard proof artifacts under
       `output/ai-plan-proof/screen-ai-memory-graph-source-guard-proof`.
+- [x] local AI remote assistant boundary proof artifacts under
+      `output/ai-plan-proof/local-ai-remote-assistant-boundary-proof`.
+- [x] local AI remote assistant boundary proof run:
+      `node --check scripts/test/local-ai-remote-assistant-boundary-proof.mjs`
+      and `node scripts/test/local-ai-remote-assistant-boundary-proof.mjs`.
 - [ ] `npm run validate` or explicit approved omission.
