@@ -30,6 +30,12 @@ mod remote_delivery_event_chain_journal;
 #[cfg(test)]
 mod remote_delivery_event_chain_journal_types;
 #[cfg(test)]
+mod remote_delivery_event_chain_store;
+#[cfg(test)]
+mod remote_delivery_receipt_ledger;
+#[cfg(test)]
+mod remote_delivery_receipt_ledger_types;
+#[cfg(test)]
 mod remote_delivery_status;
 #[cfg(test)]
 mod review;
@@ -54,6 +60,12 @@ pub use remote_delivery_event_chain_journal::prove_network_runtime_remote_event_
 #[cfg(test)]
 pub use remote_delivery_event_chain_journal_types::{
     NetworkRuntimeRemoteEventChainJournalError, NetworkRuntimeRemoteEventChainJournalReport,
+};
+#[cfg(test)]
+pub use remote_delivery_receipt_ledger::prove_network_runtime_remote_delivery_receipt_ledger;
+#[cfg(test)]
+pub use remote_delivery_receipt_ledger_types::{
+    NetworkRuntimeRemoteDeliveryReceiptLedgerError, NetworkRuntimeRemoteDeliveryReceiptLedgerReport,
 };
 #[cfg(test)]
 pub use remote_delivery_status::{

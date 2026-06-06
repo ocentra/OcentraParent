@@ -49,9 +49,10 @@ service shell.
   dead-letter refs. Row10d also preserves cross-process replay, remote
   retention/delete/export propagation, delivery-acknowledgement, and follow-up
   proof refs, row10e preserves durable-envelope readiness, and row10f preserves
-  the remote event-chain journal/export boundary while keeping live transport,
-  policy authority, side effects, enforcement commands, adapter execution, and
-  host filtering false.
+  the remote event-chain journal/export boundary. Row10g preserves the remote
+  receipt ledger/local ack boundary while keeping live transport, delivery
+  acknowledgement implementation, policy authority, side effects, enforcement
+  commands, adapter execution, and host filtering false.
 
 ## Must Not Own
 
@@ -95,7 +96,8 @@ flowchart LR
 - Tracking read-model queries are query-store proof only; narrow portal summary
   consumption exists, while platform replay, deletion/tombstone behavior, richer
   UI, and physical-device artifacts remain separate proof gaps.
-- Network remote delivery is status and local journal/export boundary proof
-  only; live broker/family-hub transport, cross-process replay, remote
-  retention/delete/export propagation, delivery acknowledgements, and production
-  transport configuration remain separate implementation gaps.
+- Network remote delivery is status, local journal/export, and receipt
+  ledger/local ack boundary proof only; live broker/family-hub transport,
+  cross-process replay, remote retention/delete/export propagation, delivery
+  acknowledgements, and production transport configuration remain separate
+  implementation gaps.
