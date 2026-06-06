@@ -344,6 +344,17 @@ manual-required/N/A file.
       refs. The proof rejects network-only exact URL, decrypted payload, live
       adapter mutation, enforcement command publication, broad platform support,
       full policy execution, and portal UI claims.
+- [x] 34a policy preview over stored network flow evidence: E-D added
+      `output/network-plan-proof/34a-policy-preview-stored-flow/proof-summary.json`
+      and `test-results/network-policy-preview-stored-flow-proof/proof.json`.
+      Stored ActivityStore network domain-observed rows now map to domain
+      policy-preview targets from `destinationDomain`, no-rule rows stay
+      unknown dry-run, and matching parent domain rules preview block decisions
+      only when they cite stored network evidence refs. Enforcement handoff
+      remains disabled, and the proof rejects network-only exact URL, decrypted
+      payload, live adapter mutation, enforcement command publication, full
+      policy execution, notification delivery, portal policy authority, and
+      host filtering claims.
 - [x] 36a parent UI runtime event-chain drawer: E-D added
       `output/network-plan-proof/36a-parent-ui-runtime-event-chain/proof-summary.json`
       and `test-results/network-parent-ui-runtime-event-chain-proof/proof.json`.
