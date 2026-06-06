@@ -1,10 +1,10 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T14:32:05.028Z
+Generated: 2026-06-06T14:42:19.444Z
 
 Rows checked: 22
-Proof-present rows: 13
-Partial/manual-required rows: 9
+Proof-present rows: 14
+Partial/manual-required rows: 8
 Playwright state: rendered-proof-bundle-ui-present-runtime-delivery-manual-required
 Product claimed: false
 
@@ -28,7 +28,7 @@ Product claimed: false
 | SOCIAL-16 | partial-manual-required | `social-16-android-native-app-capability-matrix` | 6 |
 | SOCIAL-17 | partial-manual-required | `social-17-ios-screentime-managedsettings-matrix` | 6 |
 | SOCIAL-18 | proof-present | `social-18-platform-connector-authorization-boundary` | 7 |
-| SOCIAL-19 | partial-manual-required | `social-19-memory-cache-account-video-channel-decisions` | 6 |
+| SOCIAL-19 | proof-present | `social-19-memory-cache-account-video-channel-decisions` | 6 |
 | SOCIAL-20 | proof-present | `social-20-parent-social-dashboard-ux` | 9 |
 | SOCIAL-21 | proof-present | `social-21-child-approval-block-ux` | 7 |
 | SOCIAL-22 | proof-present | `social-22-audit-explanation-read-model` | 12 |
