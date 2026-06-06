@@ -1,6 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
@@ -9,13 +10,24 @@ const outputDir = join(repoRoot, 'test-results', 'screen-child-disclosure-proof'
 const outputPath = join(outputDir, 'proof.json');
 const planOutputDir = join(repoRoot, 'output', 'screen-plan-proof', 'screen-child-disclosure');
 const planOutputPath = join(planOutputDir, 'proof-summary.json');
+const screenshotDir = join(planOutputDir, 'screenshots');
+const renderedHtmlPath = join(outputDir, 'screen-child-disclosure-page.html');
+const desktopScreenshotPath = join(screenshotDir, 'screen-child-disclosure-desktop.png');
+const mobileScreenshotPath = join(screenshotDir, 'screen-child-disclosure-mobile.png');
 
-run('npx', ['vitest', 'run', 'packages/activity-domain/tests/screen-child-disclosure.test.ts']);
+run('npx', [
+  'vitest',
+  'run',
+  'packages/activity-domain/tests/screen-child-disclosure.test.ts',
+  'packages/activity-domain/tests/screen-child-disclosure-page.test.ts',
+]);
 run('npm', ['run', 'build', '--workspace=@ocentra-parent/activity-domain']);
 
 const screenEvidence = await import('../../packages/activity-domain/dist/screen-evidence.js');
 const snapshots = screenEvidence.screenChildDisclosureProofSnapshots();
 const parsed = snapshots.map((snapshot) => screenEvidence.ScreenChildDisclosureSnapshotSchema.parse(snapshot));
+const pageModel = screenEvidence.createScreenChildDisclosurePageModel(parsed);
+const renderedHtml = screenEvidence.renderScreenChildDisclosurePage(pageModel);
 
 assert.deepEqual(
   parsed.map((snapshot) => snapshot.state),
@@ -36,6 +48,15 @@ assert.equal(
   parsed.every((snapshot) => !snapshot.rawScreenshotShownToChild),
   true
 );
+assert.equal(pageModel.rawScreenshotRendered, false);
+assert.equal(pageModel.hiddenCaptureClaimed, false);
+assert.equal(pageModel.renderedChildAgentDeliveryClaimed, false);
+assert.match(renderedHtml, /data-ocentra-screen-disclosure-state="captureActive"/u);
+
+mkdirSync(outputDir, { recursive: true });
+mkdirSync(screenshotDir, { recursive: true });
+writeFileSync(renderedHtmlPath, renderedHtml);
+await captureScreenshots(renderedHtmlPath);
 
 const proof = {
   proofId: 'screen-child-disclosure-proof',
@@ -48,21 +69,42 @@ const proof = {
     'protected-surface state stays visible without queued raw image custody',
     'deleted-summary-ready state requires deleted local custody before summary display',
     'hidden capture, raw screenshot display, remote viewer, and policy-authority claims are rejected',
-    'rendered child-agent delivery remains unclaimed until a real child UX surface is implemented',
+    'rendered child disclosure screenshots exist for desktop and mobile viewport inspection',
+    'child-agent deployment/delivery remains unclaimed until a real child runtime surface serves the page',
   ],
   parsed: {
     states: parsed.map((snapshot) => snapshot.state),
     activeSurface: parsed[2].surface,
     summaryCustody: parsed[4].custodyState,
-    renderedChildAgentDeliveryClaimed: parsed.some((snapshot) => snapshot.renderedChildAgentDeliveryClaimed),
+    rawScreenshotRendered: pageModel.rawScreenshotRendered,
+    hiddenCaptureClaimed: pageModel.hiddenCaptureClaimed,
+    renderedChildAgentDeliveryClaimed: pageModel.renderedChildAgentDeliveryClaimed,
+  },
+  screenshots: {
+    desktop: 'output/screen-plan-proof/screen-child-disclosure/screenshots/screen-child-disclosure-desktop.png',
+    mobile: 'output/screen-plan-proof/screen-child-disclosure/screenshots/screen-child-disclosure-mobile.png',
+    html: 'test-results/screen-child-disclosure-proof/screen-child-disclosure-page.html',
   },
 };
 
-mkdirSync(outputDir, { recursive: true });
 mkdirSync(planOutputDir, { recursive: true });
 writeFileSync(outputPath, `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(planOutputPath, `${JSON.stringify(proof, null, 2)}\n`);
 console.log(`screen-child-disclosure-proof-ok: ${outputPath}`);
+
+async function captureScreenshots(htmlPath) {
+  const { chromium } = await import('playwright');
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    await page.goto(pathToFileURL(htmlPath).href);
+    await page.screenshot({ fullPage: true, path: desktopScreenshotPath });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.screenshot({ fullPage: true, path: mobileScreenshotPath });
+  } finally {
+    await browser.close();
+  }
+}
 
 function run(command, args) {
   const result = spawnSync(command, args, {
