@@ -15,6 +15,10 @@ import {
   type NetworkAdapterCapabilityStatusSummary,
 } from './network-adapter-capability-status';
 import { networkEvidenceDrawerSummary, type NetworkEvidenceDrawerSummary } from './network-evidence-drawer';
+import {
+  emptyNetworkProductReadinessStatusSummary,
+  type NetworkProductReadinessStatusSummary,
+} from './network-product-readiness-status';
 
 export function shouldRenderNetworkEvidenceDrawerRoute(route: PortalRouteValue): boolean {
   return route === PortalRoute.Activity;
@@ -51,6 +55,7 @@ export function NetworkEvidenceDrawerRoutePanel({
           <NetworkEvidenceDrawerCard summary={summary} />
           <NetworkEvidenceUnsupportedClaimCard summary={summary} />
           <NetworkAdapterCapabilityStatusCard status={liveActivity.networkAdapterCapabilityStatus} />
+          <NetworkProductReadinessStatusCard status={liveActivity.networkProductReadinessStatus} />
         </div>
       </div>
     </section>
@@ -139,6 +144,53 @@ function NetworkAdapterCapabilityStatusCard({
         <NetworkEvidenceDrawerDetail label={PortalDetails.MissingProof} value={summary.unsupportedState} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.AdapterDispatch} value={summary.noClaimBoundary} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.Audit} value={summary.proofArtifacts} />
+      </dl>
+    </article>
+  );
+}
+
+function NetworkProductReadinessStatusCard({
+  status,
+}: {
+  readonly status: NetworkProductReadinessStatusSummary | null;
+}): ReactElement {
+  const summary = status ?? emptyNetworkProductReadinessStatusSummary();
+  return (
+    <article className={networkEvidenceDrawerCardClassName()}>
+      <h2>{PortalDetails.ReadinessKind}</h2>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Reason} value={summary.parserStatus} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Custody} value={summary.custodyStatusRef} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Status} value={summary.custodyState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Source} value={summary.liveCaptureState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.EvidenceReferences} value={summary.rawCaptureStorageState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Capability} value={summary.captureReady} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Database} value={summary.rawArtifactStorageAuthorized} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.MissingProof} value={summary.missingArtifactCount} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ReadinessKind} value={summary.readinessStatusRef} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.State} value={summary.readinessState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.PolicyPreview} value={summary.riskBudgetState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ManualReview} value={summary.riskInterventionState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ExecutionState} value={summary.performanceState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.DryRun} value={summary.performancePathStates} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.PlatformReadyClaims} value={summary.platformReadyClaims} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.PlatformDryRunClaims} value={summary.platformDryRunClaims} />
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.PlatformResearchOnlyClaims}
+          value={summary.platformResearchOnlyClaims}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.PlatformManualRequiredClaims}
+          value={summary.platformManualRequiredClaims}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.PlatformUnavailableClaims}
+          value={summary.platformUnavailableClaims}
+        />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ManualRequired} value={summary.platformManualFollowups} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.NetworkFlow} value={summary.portalReadModelReady} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.DeletedEvidence} value={summary.retentionExportRefsVisible} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.AdapterDispatch} value={summary.noClaimBoundary} />
       </dl>
     </article>
   );

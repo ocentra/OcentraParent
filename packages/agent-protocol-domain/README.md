@@ -122,6 +122,7 @@ flowchart LR
   streaming of the event chain, host filtering, adapter execution, and portal UI
   rendering remain separate proof-gated work.
 - Network product-readiness status support proves command/event and payload
-  field parity only. Portal rendering, policy execution, adapter execution,
-  host filtering, live capture, and production SLO validation remain separate
+  field parity for the service status event; the Activity route now has a
+  separate portal rendering proof. Policy execution, adapter execution, host
+  filtering, live capture, and production SLO validation remain separate
   proof-gated work.
