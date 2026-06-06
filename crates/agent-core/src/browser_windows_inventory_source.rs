@@ -10,6 +10,7 @@ use crate::browser_windows_inventory_paths::{
     windows_browser_inventory_candidate_paths_from_sources, BrowserWindowsInventoryPathSources,
     BrowserWindowsRegistryInstallEntry,
 };
+use crate::browser_windows_shortcut_source::live_windows_browser_shortcut_targets_with_limit;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct BrowserWindowsLiveRegistryInstallEntry {
@@ -22,7 +23,18 @@ pub fn live_windows_browser_inventory_candidate_paths_with_limit(
     limit: usize,
 ) -> Vec<PathBuf> {
     let registry_entries = live_windows_browser_registry_install_entries(limit);
-    browser_windows_inventory_candidate_paths_from_live_sources(roots, &registry_entries, &[])
+    let shortcut_scan_limit = limit.min(
+        ocentra_parent_agent_protocol::constants::browser::SHORTCUT_SCAN_LIMIT_BROWSER_DISCOVERY,
+    );
+    let shortcut_targets = live_windows_browser_shortcut_targets_with_limit(shortcut_scan_limit)
+        .into_iter()
+        .map(|target| target.target)
+        .collect::<Vec<_>>();
+    browser_windows_inventory_candidate_paths_from_live_sources(
+        roots,
+        &registry_entries,
+        &shortcut_targets,
+    )
 }
 
 pub fn browser_windows_inventory_candidate_paths_from_live_sources(
