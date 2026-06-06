@@ -60,9 +60,9 @@ async function gameProofDirectories() {
 }
 
 function expectedRows() {
-  return Array.from({ length: 21 }, (_, index) => {
+  return Array.from({ length: 23 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 21;
+    const isComplete = rowNumber <= 21 || rowNumber === 23;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -108,7 +108,9 @@ function expectedRows() {
                                               ? 'live-child-checking-block-ux-proof-present'
                                               : rowNumber === 20
                                                 ? 'live-parent-dashboard-ux-proof-present'
-                                                : 'live-journal-sqlite-read-model-proof-present'
+                                                : rowNumber === 21
+                                                  ? 'live-journal-sqlite-read-model-proof-present'
+                                                  : 'live-android-ios-host-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -161,7 +163,7 @@ function validateProofFiles(row, proofFiles) {
       failures.push(`${row.rowId} proof is missing ${requiredFile}`);
     }
   }
-  if (!proofFiles.some((file) => /^01-.*proof\.(md|log)$/.test(file))) {
+  if (!proofFiles.some((file) => /^01-.*(?:proof|manifest)\.(md|log)$/.test(file))) {
     failures.push(`${row.rowId} proof is missing a 01-* proof artifact`);
   }
   if (!proofFiles.includes('ui-not-applicable.md')) {
@@ -225,6 +227,7 @@ function manifestFor(rows, failures) {
       liveChildCheckingBlockUxEvidence: 'game-19-live-child-checking-block-ux-proof-present',
       liveParentDashboardUxEvidence: 'game-20-live-parent-dashboard-ux-proof-present',
       liveJournalSqliteReadModelEvidence: 'game-21-live-journal-sqlite-read-model-proof-present',
+      liveAndroidIosHostEvidence: 'game-23-live-android-ios-host-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -295,6 +298,8 @@ function markdownFor(manifest) {
     'browser-game route surfaces with ref-only dashboard panel rows.',
     'GAME-21 live journal/SQLite read-model shape proof is present for real public',
     'browser-game route surfaces with ref-only/hash-only read-model rows.',
+    'GAME-23 live Android host emulator proof is present for the parent agent package',
+    'with iOS entitlement and owned-browser-shell support still manual-required.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

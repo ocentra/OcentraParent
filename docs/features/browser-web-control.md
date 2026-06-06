@@ -528,11 +528,15 @@ not claim screenshots, runtime browser-game detection, cloud-streamed frame
 analysis, native game control, final policy execution, enforcement, or product
 checklist status.
 Browser-game/cloud-gaming GAME-23 now adds parent-domain Android/iOS capability
-matrix contracts for mobile browser-game surfaces. Android and iOS rows remain
-manual-required, token-limited, entitlement-required, app-level, or domain-level
-only until real device/platform proof exists, and they do not claim exact game
-content, cloud-streamed frame analysis, native game control, UI delivery, or
-enforcement.
+matrix contracts and real Android host/emulator proof for mobile browser-game
+surfaces. The proof builds the Android agent APK, boots or reuses an Android 15
+emulator, installs and launches the package, observes the running agent status
+through UIAutomator tree evidence, hashes UI/package/device evidence, and queries known
+browser package targets without storing a raw package list. Android and iOS rows
+remain manual-required, token-limited, entitlement-required, app-level, or
+domain-level only until owned-browser-shell, iOS entitlement, and device-owner
+proof exists, and they do not claim exact game content, cloud-streamed frame
+analysis, native game control, UI delivery, or enforcement.
 Browser-game/cloud-gaming GAME-24 now labels the game track
 partial/manual-required through the rollout gate. Product checklist upgrade is
 not claimed. GAME-01 is scaffold-proof-present, GAME-02 is
@@ -553,10 +557,12 @@ live-policy-compiler-proof-present. GAME-18 is
 live-hold-block-adapter-proof-present. GAME-19 is
 live-child-checking-block-ux-proof-present. GAME-20 is
 live-parent-dashboard-ux-proof-present. GAME-21 is
-live-journal-sqlite-read-model-proof-present. GAME-22 through GAME-24 are
-partial/manual-required. UI, Playwright screenshots, cloud-streamed
-frame-analysis, native-control, and enforcement proof still need separate
-release-grade artifacts before product completion can be claimed.
+live-journal-sqlite-read-model-proof-present. GAME-22 is
+partial/manual-required. GAME-23 is live-android-ios-host-proof-present. GAME-24
+is partial/manual-required. UI, Playwright screenshots, cloud-streamed
+frame-analysis, native-control, owned-browser-shell support, iOS entitlement
+proof, and enforcement proof still need separate release-grade artifacts before
+product completion can be claimed.
 Browser AI enhancement rows AI-01 and AI-02 now add plan linkage and
 schema-backed URL shape classification contracts. These contracts classify URL
 shape, platform, and stable ids only from exact managed-browser URL evidence and

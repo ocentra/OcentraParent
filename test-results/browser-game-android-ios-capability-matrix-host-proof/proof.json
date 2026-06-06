@@ -1,0 +1,510 @@
+{
+  "schemaVersion": 1,
+  "proofId": "browser-game-android-ios-capability-matrix-host-proof",
+  "generatedAt": "2026-06-06T23:00:34.506Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "6d49ca01b1caf0d2dbb66c799da3c636a2e41691",
+  "baseCommit": "f2e736e478441743c82fd29c3fcc8a9b8d247812",
+  "hostProofSummary": {
+    "androidSdkResolved": true,
+    "adbPathPersisted": false,
+    "emulatorPathPersisted": false,
+    "adbPathSha256": "8f7574d08793a80ccaddee5ceeb0fbcf8589faaf0c7318fe2d32ad984a3c29df",
+    "emulatorPathSha256": "527a50968879bcf80bd6856c7aff47ebbb8de1c2263310e38123ac574e932fdb",
+    "avdCount": 1,
+    "avdNamePersisted": false,
+    "selectedAvdSha256": "63808a770c8578aba2062d377a2cb000dc3bd431845970f82c1adad1efbb25f0",
+    "launchedEmulator": true,
+    "packageBuildExitCode": 0,
+    "apkPathPersisted": false,
+    "apkSha256": "57906d14e6215898b458fe3b539ea5b28c5ff99ce7090d916c962a7d6c8d371e",
+    "deviceInspected": true,
+    "rawDeviceSerialPersisted": false,
+    "deviceSerialRef": "android-device-04ab3fc382bfb33e",
+    "packageInstalled": true,
+    "packageNamePersisted": false,
+    "packageNameSha256": "0c59c2bc74f578fd4febfd9d9d91407581754fc5c8ee94a3c3b80bfd5ccb0fe9",
+    "launcherActivityResolved": true,
+    "launcherActivityRawPersisted": false,
+    "launcherActivitySha256": "eb62f2d028c2a1217559d93b4f0816d2761f27e560c82dbc3501e2be76627bb1",
+    "appLaunched": true,
+    "uiTreeCaptured": true,
+    "uiTreeRawPersisted": false,
+    "uiTreeSha256": "2bc8eee9674313a4567870c51eb63606c4a022205aba6ee39c23dd25cf455213",
+    "statusTextObserved": true,
+    "screenshotCaptured": false,
+    "screenshotCaptureState": "not-used-headless-emulator-screencap-was-black",
+    "knownBrowserPackageTargetsQueried": 4,
+    "rawInstalledPackageListPersisted": false,
+    "iosDeviceInspected": false,
+    "iosEntitlementProofClaimed": false,
+    "exactGameContentClaimed": false,
+    "cloudStreamFrameAnalysisClaimed": false,
+    "nativeGameControlClaimed": false,
+    "nativeLauncherControlClaimed": false,
+    "gameChatContentClaimed": false,
+    "perGameCloudTitleClaimed": false,
+    "runtimeSignalClaimed": false,
+    "appStoreOrPurchaseControlClaimed": false,
+    "uiDeliveryClaimed": false,
+    "enforcementClaimed": false,
+    "productChecklistUpgradeClaimed": false
+  },
+  "deviceProps": {
+    "androidSdk": 35,
+    "androidRelease": "15",
+    "modelPersisted": false,
+    "modelSha256": "34cb6acc74fe3a8a2497a1f95b5497a7b37706c0aac9a79db5e663bea130e41b",
+    "manufacturerPersisted": false,
+    "manufacturerSha256": "ce770667e5f9b0d8f55367bb79419689d90c48451bb33f079f3a9a72ae132de8"
+  },
+  "packageVisibility": [
+    {
+      "targetId": "browser-package-target-01",
+      "packageIdPersisted": false,
+      "packageIdSha256": "3966e13ad3d5eb0c6f6a9df6a4b052e3f4b53c3a2244081d7d78cb6e9b37ae15",
+      "installed": true,
+      "rawPackagePathPersisted": false,
+      "packagePathSha256": "34d4a86b8e66ac06383630fd15fac1c73538f56b477f3b916ac60f1ba16c119f"
+    },
+    {
+      "targetId": "browser-package-target-02",
+      "packageIdPersisted": false,
+      "packageIdSha256": "985560b67ab78b17536af06e6335e55042afe97686e3516ffd912224840716e3",
+      "installed": false,
+      "rawPackagePathPersisted": false,
+      "packagePathSha256": null
+    },
+    {
+      "targetId": "browser-package-target-03",
+      "packageIdPersisted": false,
+      "packageIdSha256": "7d0c67a410c57b10071996771acd949876caa4dc1acd27f26dca96e026c753f6",
+      "installed": false,
+      "rawPackagePathPersisted": false,
+      "packagePathSha256": null
+    },
+    {
+      "targetId": "browser-package-target-04",
+      "packageIdPersisted": false,
+      "packageIdSha256": "0bd91a3b2a8faa1bacaaef5e963db0a3bd9466e6c28d6735fd999d8cf6b22adf",
+      "installed": false,
+      "rawPackagePathPersisted": false,
+      "packagePathSha256": null
+    }
+  ],
+  "capabilityMatrix": {
+    "schemaVersion": "browser-game-android-ios-capability-matrix",
+    "generatedAt": "2026-06-06T23:00:34.506Z",
+    "proofRefs": [
+      "parent-proof-browser-game-android-host-emulator",
+      "parent-proof-browser-game-ios-entitlement-manual"
+    ],
+    "rows": [
+      {
+        "platform": "android",
+        "surface": "android-owned-browser-shell",
+        "targetKind": "owned-browser-shell",
+        "parentCapability": "managed-browser-control",
+        "parentCapabilityStatus": "manual-required",
+        "capabilityState": "manual-device-proof-required",
+        "proofState": "manual-device-proof-required",
+        "policyScope": "owned-browser-shell-only",
+        "proofRefs": [
+          "parent-proof-browser-game-android-host-emulator",
+          "parent-proof-android-owned-browser-shell"
+        ],
+        "reasons": [
+          "owned-shell-required",
+          "managed-browser-required",
+          "manual-device-proof-required"
+        ],
+        "exactGameContentClaimed": false,
+        "cloudStreamFrameAnalysisClaimed": false,
+        "nativeGameControlClaimed": false,
+        "nativeLauncherControlClaimed": false,
+        "gameChatContentClaimed": false,
+        "perGameCloudTitleClaimed": false,
+        "runtimeSignalClaimed": false,
+        "appStoreOrPurchaseControlClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "platform": "android",
+        "surface": "android-managed-webview-shell",
+        "targetKind": "owned-browser-shell",
+        "parentCapability": "managed-browser-control",
+        "parentCapabilityStatus": "manual-required",
+        "capabilityState": "manual-device-proof-required",
+        "proofState": "manual-device-proof-required",
+        "policyScope": "owned-browser-shell-only",
+        "proofRefs": [
+          "parent-proof-browser-game-android-host-emulator",
+          "parent-proof-android-managed-webview-shell"
+        ],
+        "reasons": [
+          "owned-shell-required",
+          "managed-browser-required",
+          "manual-device-proof-required"
+        ],
+        "exactGameContentClaimed": false,
+        "cloudStreamFrameAnalysisClaimed": false,
+        "nativeGameControlClaimed": false,
+        "nativeLauncherControlClaimed": false,
+        "gameChatContentClaimed": false,
+        "perGameCloudTitleClaimed": false,
+        "runtimeSignalClaimed": false,
+        "appStoreOrPurchaseControlClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "platform": "android",
+        "surface": "android-custom-tabs",
+        "targetKind": "browser-game-web-surface",
+        "parentCapability": "managed-browser-control",
+        "parentCapabilityStatus": "manual-required",
+        "capabilityState": "manual-required",
+        "proofState": "adapter-not-implemented",
+        "policyScope": "manual-review-only",
+        "proofRefs": [
+          "parent-proof-browser-game-android-host-emulator",
+          "parent-proof-android-custom-tabs"
+        ],
+        "reasons": [
+          "android-custom-tabs-not-owned",
+          "unmanaged-exact-url-unavailable"
+        ],
+        "exactGameContentClaimed": false,
+        "cloudStreamFrameAnalysisClaimed": false,
+        "nativeGameControlClaimed": false,
+        "nativeLauncherControlClaimed": false,
+        "gameChatContentClaimed": false,
+        "perGameCloudTitleClaimed": false,
+        "runtimeSignalClaimed": false,
+        "appStoreOrPurchaseControlClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "platform": "android",
+        "surface": "android-installed-browser-app",
+        "targetKind": "installed-browser-app",
+        "parentCapability": "package-lifecycle",
+        "parentCapabilityStatus": "manual-required",
+        "capabilityState": "manual-required",
+        "proofState": "manual-device-proof-required",
+        "policyScope": "app-level-only",
+        "proofRefs": [
+          "parent-proof-browser-game-android-host-emulator",
+          "parent-proof-android-installed-browser-app"
+        ],
+        "reasons": [
+          "unmanaged-exact-url-unavailable",
+          "manual-device-proof-required"
+        ],
+        "exactGameContentClaimed": false,
+        "cloudStreamFrameAnalysisClaimed": false,
+        "nativeGameControlClaimed": false,
+        "nativeLauncherControlClaimed": false,
+        "gameChatContentClaimed": false,
+        "perGameCloudTitleClaimed": false,
+        "runtimeSignalClaimed": false,
+        "appStoreOrPurchaseControlClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "platform": "android",
+        "surface": "android-cloud-gaming-browser-session",
+        "targetKind": "cloud-gaming-web-session",
+        "parentCapability": "managed-browser-control",
+        "parentCapabilityStatus": "manual-required",
+        "capabilityState": "manual-required",
+        "proofState": "manual-device-proof-required",
+        "policyScope": "manual-review-only",
+        "proofRefs": [
+          "parent-proof-browser-game-android-host-emulator",
+          "parent-proof-android-cloud-gaming-browser-session"
+        ],
+        "reasons": [
+          "cloud-title-unavailable",
+          "content-frame-analysis-unavailable",
+          "runtime-signal-unavailable"
+        ],
+        "exactGameContentClaimed": false,
+        "cloudStreamFrameAnalysisClaimed": false,
+        "nativeGameControlClaimed": false,
+        "nativeLauncherControlClaimed": false,
+        "gameChatContentClaimed": false,
+        "perGameCloudTitleClaimed": false,
+        "runtimeSignalClaimed": false,
+        "appStoreOrPurchaseControlClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "platform": "android",
+        "surface": "android-device-owner-browser-policy",
+        "targetKind": "device-owner-browser-policy",
+        "parentCapability": "device-owner-policy",
+        "parentCapabilityStatus": "manual-required",
+        "capabilityState": "manual-required",
+        "proofState": "manual-device-proof-required",
+        "policyScope": "manual-review-only",
+        "proofRefs": [
+          "parent-proof-browser-game-android-host-emulator",
+          "parent-proof-android-device-owner-browser-policy"
+        ],
+        "reasons": [
+          "device-owner-required",
+          "app-store-control-unavailable"
+        ],
+        "exactGameContentClaimed": false,
+        "cloudStreamFrameAnalysisClaimed": false,
+        "nativeGameControlClaimed": false,
+        "nativeLauncherControlClaimed": false,
+        "gameChatContentClaimed": false,
+        "perGameCloudTitleClaimed": false,
+        "runtimeSignalClaimed": false,
+        "appStoreOrPurchaseControlClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "platform": "ios",
+        "surface": "ios-family-controls-authorization",
+        "targetKind": "application-token",
+        "parentCapability": "family-controls-entitlement",
+        "parentCapabilityStatus": "manual-required",
+        "capabilityState": "entitlement-required",
+        "proofState": "platform-entitlement-required",
+        "policyScope": "manual-review-only",
+        "proofRefs": [
+          "parent-proof-browser-game-ios-entitlement-manual",
+          "parent-proof-ios-family-controls-authorization"
+        ],
+        "reasons": [
+          "family-controls-entitlement-required",
+          "native-game-boundary"
+        ],
+        "exactGameContentClaimed": false,
+        "cloudStreamFrameAnalysisClaimed": false,
+        "nativeGameControlClaimed": false,
+        "nativeLauncherControlClaimed": false,
+        "gameChatContentClaimed": false,
+        "perGameCloudTitleClaimed": false,
+        "runtimeSignalClaimed": false,
+        "appStoreOrPurchaseControlClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "platform": "ios",
+        "surface": "ios-safari-web-domain-token",
+        "targetKind": "web-domain-token",
+        "parentCapability": "screen-time-api",
+        "parentCapabilityStatus": "manual-required",
+        "capabilityState": "domain-token-limited",
+        "proofState": "platform-entitlement-required",
+        "policyScope": "web-domain-token-level",
+        "proofRefs": [
+          "parent-proof-browser-game-ios-entitlement-manual",
+          "parent-proof-ios-safari-web-domain-token"
+        ],
+        "reasons": [
+          "web-domain-token-limited",
+          "cloud-title-unavailable"
+        ],
+        "exactGameContentClaimed": false,
+        "cloudStreamFrameAnalysisClaimed": false,
+        "nativeGameControlClaimed": false,
+        "nativeLauncherControlClaimed": false,
+        "gameChatContentClaimed": false,
+        "perGameCloudTitleClaimed": false,
+        "runtimeSignalClaimed": false,
+        "appStoreOrPurchaseControlClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "platform": "ios",
+        "surface": "ios-application-token",
+        "targetKind": "application-token",
+        "parentCapability": "family-controls-entitlement",
+        "parentCapabilityStatus": "manual-required",
+        "capabilityState": "app-token-limited",
+        "proofState": "platform-entitlement-required",
+        "policyScope": "app-token-level",
+        "proofRefs": [
+          "parent-proof-browser-game-ios-entitlement-manual",
+          "parent-proof-ios-application-token"
+        ],
+        "reasons": [
+          "opaque-application-token-required",
+          "native-game-boundary"
+        ],
+        "exactGameContentClaimed": false,
+        "cloudStreamFrameAnalysisClaimed": false,
+        "nativeGameControlClaimed": false,
+        "nativeLauncherControlClaimed": false,
+        "gameChatContentClaimed": false,
+        "perGameCloudTitleClaimed": false,
+        "runtimeSignalClaimed": false,
+        "appStoreOrPurchaseControlClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "platform": "ios",
+        "surface": "ios-managed-browser-shell",
+        "targetKind": "owned-browser-shell",
+        "parentCapability": "managed-browser-control",
+        "parentCapabilityStatus": "manual-required",
+        "capabilityState": "manual-device-proof-required",
+        "proofState": "manual-device-proof-required",
+        "policyScope": "owned-browser-shell-only",
+        "proofRefs": [
+          "parent-proof-browser-game-ios-entitlement-manual",
+          "parent-proof-ios-managed-browser-shell"
+        ],
+        "reasons": [
+          "owned-shell-required",
+          "managed-browser-required",
+          "manual-device-proof-required"
+        ],
+        "exactGameContentClaimed": false,
+        "cloudStreamFrameAnalysisClaimed": false,
+        "nativeGameControlClaimed": false,
+        "nativeLauncherControlClaimed": false,
+        "gameChatContentClaimed": false,
+        "perGameCloudTitleClaimed": false,
+        "runtimeSignalClaimed": false,
+        "appStoreOrPurchaseControlClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "platform": "ios",
+        "surface": "ios-cloud-gaming-web-session",
+        "targetKind": "cloud-gaming-web-session",
+        "parentCapability": "screen-time-api",
+        "parentCapabilityStatus": "manual-required",
+        "capabilityState": "manual-required",
+        "proofState": "platform-entitlement-required",
+        "policyScope": "manual-review-only",
+        "proofRefs": [
+          "parent-proof-browser-game-ios-entitlement-manual",
+          "parent-proof-ios-cloud-gaming-web-session"
+        ],
+        "reasons": [
+          "cloud-title-unavailable",
+          "content-frame-analysis-unavailable",
+          "runtime-signal-unavailable"
+        ],
+        "exactGameContentClaimed": false,
+        "cloudStreamFrameAnalysisClaimed": false,
+        "nativeGameControlClaimed": false,
+        "nativeLauncherControlClaimed": false,
+        "gameChatContentClaimed": false,
+        "perGameCloudTitleClaimed": false,
+        "runtimeSignalClaimed": false,
+        "appStoreOrPurchaseControlClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "platform": "ios",
+        "surface": "ios-webclip-pwa",
+        "targetKind": "webclip-or-pwa",
+        "parentCapability": "family-controls-entitlement",
+        "parentCapabilityStatus": "manual-required",
+        "capabilityState": "app-token-limited",
+        "proofState": "platform-entitlement-required",
+        "policyScope": "app-token-level",
+        "proofRefs": [
+          "parent-proof-browser-game-ios-entitlement-manual",
+          "parent-proof-ios-webclip-pwa"
+        ],
+        "reasons": [
+          "opaque-application-token-required",
+          "native-game-boundary",
+          "cloud-title-unavailable"
+        ],
+        "exactGameContentClaimed": false,
+        "cloudStreamFrameAnalysisClaimed": false,
+        "nativeGameControlClaimed": false,
+        "nativeLauncherControlClaimed": false,
+        "gameChatContentClaimed": false,
+        "perGameCloudTitleClaimed": false,
+        "runtimeSignalClaimed": false,
+        "appStoreOrPurchaseControlClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      }
+    ],
+    "claimBoundaries": {
+      "exactGameContent": "not-claimed",
+      "cloudStreamFrameAnalysis": "not-claimed",
+      "nativeGameControl": "not-claimed",
+      "nativeLauncherControl": "not-claimed",
+      "gameChatContent": "not-claimed",
+      "perGameCloudTitle": "not-claimed",
+      "runtimeSignals": "not-claimed",
+      "appStoreOrPurchaseControl": "not-claimed",
+      "uiDelivery": "not-claimed",
+      "enforcement": "not-claimed",
+      "reviewerSummary": "Android host proof validates package install/launch only; browser-game mobile control remains manual-required or token-limited until owned-browser and iOS entitlement proof exists."
+    }
+  },
+  "negativeChecks": [
+    {
+      "name": "exactGameContentClaimed",
+      "rejected": true
+    },
+    {
+      "name": "cloudStreamFrameAnalysisClaimed",
+      "rejected": true
+    },
+    {
+      "name": "nativeGameControlClaimed",
+      "rejected": true
+    },
+    {
+      "name": "nativeLauncherControlClaimed",
+      "rejected": true
+    },
+    {
+      "name": "gameChatContentClaimed",
+      "rejected": true
+    },
+    {
+      "name": "perGameCloudTitleClaimed",
+      "rejected": true
+    },
+    {
+      "name": "runtimeSignalClaimed",
+      "rejected": true
+    },
+    {
+      "name": "appStoreOrPurchaseControlClaimed",
+      "rejected": true
+    },
+    {
+      "name": "uiDeliveredClaimed",
+      "rejected": true
+    },
+    {
+      "name": "enforcementClaimed",
+      "rejected": true
+    },
+    {
+      "name": "unsupportedAndroidOwnedShellUpgrade",
+      "rejected": true
+    },
+    {
+      "name": "missingIosWebclipSurface",
+      "rejected": true
+    }
+  ]
+}

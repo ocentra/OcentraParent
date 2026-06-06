@@ -418,14 +418,19 @@ contract/proof rows without rendered browser-game UI.
 
 GAME-23 now adds parent-domain Android/iOS browser-game capability matrix
 contracts in
-`packages/parent-domain/src/browser-game-android-ios-capability-matrix.ts`. The
-matrix records owned-browser-shell, WebView, Custom Tabs, installed-browser,
-cloud-gaming, device-owner, Family Controls, Safari web-domain token,
-application-token, managed-browser, and Web Clip/PWA surfaces as manual-required,
-token-limited, entitlement-required, app-level, or domain-level only. It rejects
-exact game content, cloud-streamed frame analysis, native game/launcher control,
-game chat, per-game cloud title detection, runtime signals, app-store or
-purchase control, UI delivery, and enforcement. Package subpath exports are now present.
+`packages/parent-domain/src/browser-game-android-ios-capability-matrix.ts` plus
+a real Android host/emulator proof. The proof builds the Android agent APK,
+boots or reuses an Android 15 emulator, installs and launches the package,
+observes the running agent status through UIAutomator tree evidence, hashes
+UI/package/device evidence, and queries known browser package targets without storing a raw
+package list. The matrix records owned-browser-shell, WebView, Custom Tabs,
+installed-browser, cloud-gaming, device-owner, Family Controls, Safari
+web-domain token, application-token, managed-browser, and Web Clip/PWA surfaces
+as manual-required, token-limited, entitlement-required, app-level, or
+domain-level only. It rejects exact game content, cloud-streamed frame analysis,
+native game/launcher control, game chat, per-game cloud title detection,
+runtime signals, app-store or purchase control, UI delivery, and enforcement.
+Package subpath exports are now present.
 
 GAME-24 now adds the browser-game rollout/manual-required gate in
 `scripts/test/browser-game-rollout-gate.mjs`. GAME rollout state:
@@ -448,8 +453,10 @@ live-policy-compiler-proof-present, GAME-18 as
 live-hold-block-adapter-proof-present, GAME-19 as
 live-child-checking-block-ux-proof-present, GAME-20 as
 live-parent-dashboard-ux-proof-present, GAME-21 as
-live-journal-sqlite-read-model-proof-present, GAME-22 through GAME-24 as
-partial/manual-required, and no browser-game rows as open/manual-required.
+live-journal-sqlite-read-model-proof-present, GAME-22 as
+partial/manual-required, GAME-23 as live-android-ios-host-proof-present,
+GAME-24 as partial/manual-required, and no browser-game rows as
+open/manual-required.
 Product checklist upgrade is not claimed; child/parent UI,
 cloud-streamed frame analysis, native game control, and
 enforcement remain open or manual-required until separate proof exists.

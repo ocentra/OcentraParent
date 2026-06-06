@@ -1473,11 +1473,16 @@ worker messages before code changes. Do not mix all 24 into one PR.
   cloud-streamed frame analysis, native game control, final policy execution,
   enforcement, or product checklist claim is made.
 - GAME-23 now adds parent-domain Android/iOS browser-game capability matrix
-  contracts. The matrix keeps Android browser shells, WebView, Custom Tabs,
-  installed-browser, cloud-gaming, device-owner, iOS Family Controls, Safari
-  web-domain token, application-token, managed-browser, cloud-gaming, and Web
-  Clip/PWA surfaces manual-required, token-limited, entitlement-required,
-  app-level, or domain-level until real device/platform proof exists.
+  contracts plus a real Android host/emulator proof. The proof builds the
+  Android agent APK, boots or reuses an Android 15 emulator, installs and
+  launches the package, observes the running agent status through UIAutomator
+  tree evidence, hashes UI/package/device evidence, and queries known browser package targets
+  without storing a raw package list. The matrix keeps Android browser shells,
+  WebView, Custom Tabs, installed-browser, cloud-gaming, device-owner, iOS
+  Family Controls, Safari web-domain token, application-token, managed-browser,
+  cloud-gaming, and Web Clip/PWA surfaces manual-required, token-limited,
+  entitlement-required, app-level, or domain-level until owned-browser-shell,
+  iOS entitlement, and device-owner proof exists.
 - GAME-24 now adds the browser-game rollout/manual-required gate. GAME rollout
   state: partial/manual-required. The gate labels GAME-01 as
   scaffold-proof-present, GAME-02 as live-route-proof-present, GAME-03 as
@@ -1498,8 +1503,10 @@ worker messages before code changes. Do not mix all 24 into one PR.
   live-hold-block-adapter-proof-present, GAME-19 as
   live-child-checking-block-ux-proof-present, GAME-20 as
   live-parent-dashboard-ux-proof-present, GAME-21 as
-  live-journal-sqlite-read-model-proof-present, GAME-22 through GAME-24 as
-  partial/manual-required, and no browser-game rows as open/manual-required.
+  live-journal-sqlite-read-model-proof-present, GAME-22 as
+  partial/manual-required, GAME-23 as live-android-ios-host-proof-present,
+  GAME-24 as partial/manual-required, and no browser-game rows as
+  open/manual-required.
   Product checklist upgrade is not claimed, and runtime
   child/parent UI, cloud-streamed frame analysis, native game control, and
   enforcement remain open or manual-required until

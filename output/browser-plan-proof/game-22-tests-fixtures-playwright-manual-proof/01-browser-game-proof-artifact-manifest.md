@@ -1,10 +1,10 @@
 # GAME-22 Browser-Game Proof Artifact Manifest
 
-Generated: 2026-06-06T22:28:21.504Z
+Generated: 2026-06-06T23:02:27.680Z
 
-Rows checked: 21
-Proof-present rows: 21
-Partial/manual-required rows: 0
+Rows checked: 23
+Proof-present rows: 22
+Partial/manual-required rows: 1
 Playwright state: manual-required-no-rendered-browser-game-ui
 Product claimed: false
 
@@ -31,6 +31,8 @@ Product claimed: false
 | GAME-19 | live-child-checking-block-ux-proof-present | `game-19-child-game-checking-block-ux` | 6 |
 | GAME-20 | live-parent-dashboard-ux-proof-present | `game-20-parent-browser-game-dashboard-ux` | 6 |
 | GAME-21 | live-journal-sqlite-read-model-proof-present | `game-21-journal-sqlite-read-model` | 6 |
+| GAME-22 | partial-manual-required | `game-22-tests-fixtures-playwright-manual-proof` | 5 |
+| GAME-23 | live-android-ios-host-proof-present | `game-23-android-ios-capability-matrix` | 6 |
 
 GAME-22 proves proof-pack coverage for GAME-01 through GAME-21.
 GAME-02 live route proof is present for real public browser-game and
@@ -73,6 +75,8 @@ GAME-20 live parent dashboard UX proof is present for real public
 browser-game route surfaces with ref-only dashboard panel rows.
 GAME-21 live journal/SQLite read-model shape proof is present for real public
 browser-game route surfaces with ref-only/hash-only read-model rows.
+GAME-23 live Android host emulator proof is present for the parent agent package
+with iOS entitlement and owned-browser-shell support still manual-required.
 It does not prove rendered browser-game UI, Playwright screenshots,
 runtime browser-game detection, cloud-streamed frame analysis, native
 game control, final policy execution, enforcement, or product checklist
