@@ -185,6 +185,7 @@ packages/parent-domain/src/screen-control-catalog-metadata.ts:1 file has 433 lin
 packages/parent-domain/src/screen-control-catalog-schema.ts:1 file has 301 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/screen-control-catalog.ts:1 file has 287 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/stateless-report-compiler-status.ts:1 file has 522 lines; crossed 500-line advisory band; maximum is 1000
+packages/parent-domain/src/tracking-android-status-proof.ts:1 file has 334 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-control-catalog-data.ts:1 file has 417 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-control-catalog-metadata.ts:1 file has 411 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-control-catalog-schema.ts:1 file has 344 lines; crossed 250-line advisory band; maximum is 1000
