@@ -1,0 +1,74 @@
+{
+  "proof": "network-manual-followup-owner-proof",
+  "checkedAt": "2026-06-06T21:33:12.349Z",
+  "branch": "codex/network-manual-followup-owner-ledger-proof",
+  "commit": "62e9935e8185e80af4bd34281cfc3e99bbb33dd6",
+  "originMain": "5c630a4b7e848489c5d833414be647f8b62c144a",
+  "mergeBase": "5c630a4b7e848489c5d833414be647f8b62c144a",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\manual-followup-owner-ledger",
+  "testRoot": "test-results\\network-manual-followup-owner-proof",
+  "commands": [
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\manual-followup-owner-ledger\\source-shape.log"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\manual-followup-owner-ledger\\diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "ledgerJson": "output\\network-plan-proof\\manual-followup-owner-ledger\\manual-followup-owner-ledger.json",
+    "ledgerMarkdown": "output\\network-plan-proof\\manual-followup-owner-ledger\\manual-followup-owner-ledger.md",
+    "proofSummary": "output\\network-plan-proof\\manual-followup-owner-ledger\\proof-summary.json",
+    "testProof": "test-results\\network-manual-followup-owner-proof\\proof.json"
+  },
+  "provenGates": [
+    "every manual/deferred/skipped network proof item carries a reason",
+    "every manual/deferred/skipped network proof item carries a follow-up owner",
+    "every manual/deferred/skipped network proof item carries source refs",
+    "every manual/deferred/skipped network proof item carries a no-claim boundary"
+  ],
+  "knownGaps": [
+    {
+      "id": "row10-broker-family-hub-delivery",
+      "state": "deferred",
+      "owner": "E-D network remote-delivery sequencing"
+    },
+    {
+      "id": "raw-capture-retention-delete-export",
+      "state": "manual-required",
+      "owner": "E-D network custody and platform adapters"
+    },
+    {
+      "id": "live-analyzer-model-policy-execution",
+      "state": "deferred",
+      "owner": "E-D network AI/policy runtime"
+    },
+    {
+      "id": "host-adapter-execution",
+      "state": "manual-required",
+      "owner": "E-D platform adapter proof owners"
+    },
+    {
+      "id": "portal-risk-performance-platform-rendering",
+      "state": "deferred",
+      "owner": "E-D network portal readiness"
+    },
+    {
+      "id": "production-security-support-external-signoff",
+      "state": "manual-required",
+      "owner": "Primary release/support coordination with E-D network evidence"
+    },
+    {
+      "id": "ui-screenshot-na-for-non-ui-proof-rows",
+      "state": "skipped-non-ui",
+      "owner": "Owning row implementer when UI changes"
+    }
+  ]
+}
