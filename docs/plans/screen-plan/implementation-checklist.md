@@ -52,10 +52,10 @@ trigger ownership unless the row explicitly says so.
 These rows are planned only. They do not change the status of the existing
 family-hub route or runtime-discovery proofs.
 
-| Proof                                 | Status  | Artifact                                                                      | Non-claim                                                                                                                                                                                              |
-| ------------------------------------- | ------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Household mesh screen payload custody | planned | `output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json`         | Screen-derived household provider jobs must default to no raw screenshot transfer, use metadata/summary/OCR/redacted-crop/local-artifact refs, and return provider results for child-agent validation. |
-| Household mesh screen claim/lease     | planned | `output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json` | Must prove provider claim/lease, child-agent result validation, duplicate/expired/wrong-provider rejection, and custody before a screen-derived household provider route can be product-ready.         |
+| Proof                                 | Status           | Artifact                                                                      | Non-claim                                                                                                                                                                                                             |
+| ------------------------------------- | ---------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Household mesh screen payload custody | P2 runtime proof | `output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json`         | Proves screen-derived household provider work uses redacted summary/custody refs instead of raw screenshot transfer. Physical LAN provider execution and production mesh transport remain separate.                   |
+| Household mesh screen claim/lease     | P2 runtime proof | `output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json` | Proves provider claim/lease, child-agent result validation, duplicate/expired/wrong-provider/wrong-claim/evidence/custody/raw-transfer/authority rejection, and custody before policy. Physical LAN remains separate. |
 
 ## Main Gates
 
@@ -94,7 +94,7 @@ family-hub route or runtime-discovery proofs.
 - [x] Family AI hub is used before remote/API for hard visual cases.
 - [x] Screen capture, queue, deletion, and summary lifecycle transitions publish
       typed `ocentra-eventing` events before AI/policy/action consumers run.
-- [ ] Screen-derived household provider jobs prove no raw screenshot transfer,
+- [x] Screen-derived household provider jobs prove no raw screenshot transfer,
       claim/lease, child-agent result validation, and custody before policy.
 - [x] Platform capture proof exists before platform claim.
 - [x] Operator live URL/app proof is recorded before product-complete claim.
