@@ -19,6 +19,7 @@ const portalChain = load(SourcePaths.portalChain);
 const protectedSurface = load(SourcePaths.protectedSurface);
 const readModel = load(SourcePaths.readModel);
 const retentionSweeper = load(SourcePaths.retentionSweeper);
+const serviceReadModel = load(SourcePaths.serviceReadModel);
 
 const liveRows = validateLiveOperator();
 const closure = {
@@ -31,6 +32,7 @@ const closure = {
   actionDispatchProven: validateActionDispatch(),
   portalReadModelProven: validatePortalChain(),
   readModelRows: validateReadModel(),
+  serviceBackedReadModelProven: validateServiceReadModel(),
   retentionCustodyProven: validateDeletionCustody(),
   protectedSurfaceSkipProven: validateProtectedSurface(),
 };
@@ -200,6 +202,41 @@ function validateReadModel() {
   assert(readModel.summary?.remoteAiUsed === false, 'read-model used remote AI');
   assert(readModel.summary?.portalRuntimeClaimed === false, 'read-model claims portal runtime');
   return readModel.summary.rowCount;
+}
+
+function validateServiceReadModel() {
+  assert(serviceReadModel.status === 'ok', 'service read-model proof status is not ok');
+  assert(
+    serviceReadModel.proofKind === 'screen-summary-parent-explanation-service-read-model',
+    'service read-model proof kind mismatch'
+  );
+  assert(
+    serviceReadModel.closure?.serviceBackedWebSocketReadModel === true,
+    'service read-model is not service-backed WebSocket proof'
+  );
+  assert(
+    serviceReadModel.closure?.queryStoreIngestPreservedExplanationRefs === true,
+    'service read-model lost query-store explanation refs'
+  );
+  assert(
+    serviceReadModel.closure?.rawScreenshotsRetainedByDefault === false,
+    'service read-model retains raw screenshots'
+  );
+  assert(serviceReadModel.closure?.remoteAiUsedForChildSafety === false, 'service read-model used remote AI');
+  assert(serviceReadModel.closure?.portalUiRenderingClaimed === false, 'service read-model claims portal UI');
+  assert(serviceReadModel.serviceEvent?.activityReadModelKind === 'screen', 'service event is not screen read model');
+  assert(serviceReadModel.serviceEvent?.activitySurfaceState === 'ready', 'service event is not ready');
+  assert(serviceReadModel.row?.imageDeletionState === 'deleted', 'service row image is not deleted');
+  assert(
+    serviceReadModel.row?.custodyState === 'child-device-journal',
+    'service row custody is not child-device journal'
+  );
+  assert((serviceReadModel.row?.parentExplanationRefs ?? []).length > 0, 'service row has no parent explanation refs');
+  assert(
+    (serviceReadModel.row?.deletionReasons ?? []).includes('screen-image-deleted'),
+    'service row lacks deleted-image reason'
+  );
+  return true;
 }
 
 function validateDeletionCustody() {
