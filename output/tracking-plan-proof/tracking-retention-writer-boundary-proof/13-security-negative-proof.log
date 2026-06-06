@@ -1,0 +1,5 @@
+Security/no-claim proof:
+
+- Live service mutation, platform retention writer, child-device delivery, provider delivery, notification receipt, remote sync runtime, remote AI runtime, portal settings UI, physical-device proof, and product-ready claims remain false.
+- Remote sync and remote AI request rows are represented only as disabled states.
+- Parent export remains manual-service-mutation-required until a real service mutation/runtime writer exists.

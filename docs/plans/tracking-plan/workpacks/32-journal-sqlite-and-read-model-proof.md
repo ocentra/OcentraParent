@@ -34,6 +34,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `22-report-policy-consumer-proof.json`
 - `23-family-dashboard-rollup-proof.json`
 - `24-retention-settings-read-model-proof.json`
+- `25-retention-writer-boundary-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -60,6 +61,10 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [x] Expose retention settings read-model rows for retention window,
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
       disabled state without claiming service mutation or product UI.
+- [x] Expose typed retention writer-boundary rows for retention window,
+      delete-after-alert, parent export, remote-sync disabled, and remote-AI
+      disabled inputs without claiming service mutation, platform writer
+      execution, or product UI.
 
 ## Where We Are
 
@@ -98,6 +103,12 @@ rows from the existing WP07 retention/delete/export and WP32 service read-model
 proof refs while keeping service mutation, portal UI, platform runtime,
 child-device delivery, provider delivery, notification receipt, physical-device,
 authority, and product-ready claims false.
+The retention writer-boundary proof derives typed parent-domain input rows for
+retention window, delete-after-alert, parent export, remote-sync disabled, and
+remote-AI disabled settings from the existing WP07/WP32 proof refs while keeping
+live service mutation, platform writer execution, portal settings UI, provider
+delivery, notification receipt, physical-device, authority, remote sync runtime,
+remote AI runtime, and product-ready claims false.
 The pre-device proof gate now reruns this service proof and records the
 remaining broader read-model, full UI, hosted accessibility, and platform replay
 gaps before device work starts.
@@ -137,6 +148,10 @@ This workpack can be assigned independently, implemented against the owning doma
   rendered portal UI or child-device runtime proof.
 - Retention settings read-model rows are not writable product settings, service
   mutation, or live retention UI proof.
+- Retention writer-boundary rows are parent-domain contract/read-model input
+  proof only; they are not live service mutation, platform writer execution,
+  portal settings UI, provider delivery, notification receipt, remote sync
+  runtime, remote AI runtime, physical-device, authority, or product-ready proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -276,4 +291,25 @@ This workpack can be assigned independently, implemented against the owning doma
       live service-backed retention UI, service mutation, platform runtime,
       child-device delivery/runtime execution, Android/iOS physical-device
       proof, authority, provider delivery, notification receipts, and
+      production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-retention-writer-boundary-proof`.
+- [x] Touched files: parent-domain retention writer-boundary proof source/test,
+      proof harness, tracking feature doc, implementation checklist, WP07, WP32,
+      and generated WP07/WP32 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-retention-writer-boundary-proof.mjs` passed
+      locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/07-retention-and-custody-model/19-retention-writer-boundary-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-writer-boundary-proof.json`,
+      and `test-results/tracking-retention-writer-boundary-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, and WP32 updated; central capability checklist row is
+      not edited by this worker while another lane owns it.
+- [x] Known gaps/manual-required states: actual writable product settings,
+      live service-backed retention UI, live service mutation/platform writer
+      execution, platform runtime, child-device delivery/runtime execution,
+      Android/iOS physical-device proof, authority, provider delivery,
+      notification receipts, remote sync runtime, remote AI runtime, and
       production proof remain proof-gated.

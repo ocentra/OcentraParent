@@ -76,6 +76,12 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json`
   and
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json`,
+  plus retention writer-boundary proof through
+  `node scripts/test/tracking-retention-writer-boundary-proof.mjs`, with
+  artifacts
+  `output/tracking-plan-proof/07-retention-and-custody-model/19-retention-writer-boundary-proof.json`
+  and
+  `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-writer-boundary-proof.json`,
   plus `npm run test:tracking-plan-service-data-ui-proof`, with artifacts
   `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json`,
@@ -263,10 +269,13 @@ WP32 report/policy consumer-readiness proof for parent report summary, policy
 drill-in, and retention audit/export rows, plus WP32 family dashboard rollup
 proof for active family, child-attention, and retention-audit summary rows, and
 retention settings read-model proof for retention window, delete-after-alert,
-parent export, remote-sync disabled, and remote-AI disabled rows. It remains a
+parent export, remote-sync disabled, and remote-AI disabled rows, plus typed
+parent-domain writer-boundary rows for those retention settings inputs. It
+remains a
 tracked product gap until platform location and geofence runtime adapters,
 broader product read models beyond these rows, rendered dashboard UI for those
-rollups, actual writable/live retention settings UI, actual live provider
+rollups, actual writable/live retention settings UI, live service mutation and
+platform writer execution, actual live provider
 execution/delivery, notification receipt ingestion, physical-device proof,
 actual child-device delivery/runtime execution, remote sync runtime, OS
 lost-mode APIs, production upload workers, and full parent/child UI
@@ -280,8 +289,10 @@ snapshots/accessibility beyond the hosted parent route are proved.
 - [x] Battery/connectivity status contract.
 - [ ] Retention/delete/export settings. P1 retention-delete,
       parent-owned export, UI-visible deleted-history hiding fixture proof, and
-      P2 retention settings read-model rows now exist; actual writable product
-      settings and live service-backed retention UI remain pending.
+      P2 retention settings read-model plus typed parent-domain writer-boundary
+      rows now exist; actual writable product settings, live service mutation,
+      platform writer execution, and live service-backed retention UI remain
+      pending.
 - [x] Alert intent contract.
 - [ ] Android permission/background runtime proof. WP08/WP09 parent-domain
       manual-required proof rows now exist for foreground permission,

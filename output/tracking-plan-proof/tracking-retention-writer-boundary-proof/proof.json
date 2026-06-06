@@ -1,0 +1,276 @@
+{
+  "proofMode": "tracking-retention-writer-boundary-proof",
+  "generatedAt": "2026-06-06T05:58:00.000Z",
+  "branch": "codex/tracking-retention-writer-boundary-proof",
+  "baseCommitAtGeneration": "20ba147da813b77968525273d2bad2a63a75b425",
+  "gitStatusShort": "",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-writer-boundary-proof"
+  ],
+  "summary": {
+    "rows": 5,
+    "settingKinds": {
+      "retention-window": 1,
+      "delete-after-alert-resolved": 1,
+      "parent-export": 1,
+      "remote-sync": 1,
+      "remote-ai": 1
+    },
+    "states": {
+      "accepted-for-contract": 2,
+      "manual-service-mutation-required": 1,
+      "remote-sync-disabled": 1,
+      "remote-ai-disabled": 1
+    },
+    "acceptedForContractCount": 2,
+    "manualServiceMutationRequiredCount": 1,
+    "disabledRemoteRuntimeCount": 2
+  },
+  "nonClaims": {
+    "serviceMutationClaimed": false,
+    "platformRetentionWriterClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "remoteSyncRuntimeClaimed": false,
+    "remoteAiRuntimeClaimed": false,
+    "portalSettingsUiClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "productReadyClaimed": false
+  },
+  "proofPaths": {
+    "source": "packages/parent-domain/src/tracking-retention-writer-boundary-proof.ts",
+    "test": "packages/parent-domain/tests/tracking-retention-writer-boundary-proof.test.ts",
+    "harness": "scripts/test/tracking-retention-writer-boundary-proof.mjs",
+    "evidence": "test-results/tracking-retention-writer-boundary-proof/proof.json",
+    "wp07": "output/tracking-plan-proof/07-retention-and-custody-model/19-retention-writer-boundary-proof.json",
+    "wp32": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-writer-boundary-proof.json"
+  },
+  "readModel": {
+    "schemaVersion": "v0.6",
+    "proofId": "tracking-retention-writer-boundary-proof",
+    "generatedAt": "2026-06-06T05:58:00.000Z",
+    "family": {
+      "familyId": "family-tracking-retention-writer"
+    },
+    "device": {
+      "deviceId": "device-aarav-phone",
+      "childProfileId": "child-profile-aarav",
+      "label": "Aarav phone",
+      "platform": "android"
+    },
+    "sourceFeatureRefs": [
+      "location-geofence-device-status",
+      "tracking-plan-wp07-retention-and-custody-model",
+      "tracking-plan-wp32-journal-sqlite-and-read-model-proof"
+    ],
+    "rows": [
+      {
+        "rowId": "tracking-retention-writer-tracking-retention-writer-retention-window",
+        "request": {
+          "requestId": "tracking-retention-writer-retention-window",
+          "settingKind": "retention-window",
+          "requestedValueRef": "tracking-retention-value-7d",
+          "parentActionRef": "tracking-retention-parent-action-retention-window",
+          "sourceProofRefs": [
+            "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+            "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+            "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+          ],
+          "evidenceRefs": [
+            "tracking-retention-evidence-retention-window",
+            "tracking-retention-read-model-retention-window"
+          ],
+          "auditRefs": [
+            "tracking-retention-audit-retention-window"
+          ],
+          "requestedAt": "2026-06-06T05:58:00.000Z",
+          "remoteSyncEnabled": false,
+          "remoteAiEnabled": false
+        },
+        "state": "accepted-for-contract",
+        "validationRef": "tracking-retention-writer-validation-tracking-retention-writer-retention-window",
+        "mutationEnvelopeRef": "tracking-retention-writer-envelope-tracking-retention-writer-retention-window",
+        "readModelUpdateRef": "tracking-retention-writer-read-model-update-tracking-retention-writer-retention-window",
+        "serviceMutationClaimed": false,
+        "platformRetentionWriterClaimed": false,
+        "childDeviceDeliveryClaimed": false,
+        "providerDeliveryClaimed": false,
+        "notificationReceiptClaimed": false,
+        "portalSettingsUiClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "productReadyClaimed": false
+      },
+      {
+        "rowId": "tracking-retention-writer-tracking-retention-writer-delete-after-alert-resolved",
+        "request": {
+          "requestId": "tracking-retention-writer-delete-after-alert-resolved",
+          "settingKind": "delete-after-alert-resolved",
+          "requestedValueRef": "tracking-retention-value-delete-after-alert",
+          "parentActionRef": "tracking-retention-parent-action-delete-after-alert-resolved",
+          "sourceProofRefs": [
+            "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+            "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+            "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+          ],
+          "evidenceRefs": [
+            "tracking-retention-evidence-delete-after-alert-resolved",
+            "tracking-retention-read-model-delete-after-alert-resolved"
+          ],
+          "auditRefs": [
+            "tracking-retention-audit-delete-after-alert-resolved"
+          ],
+          "requestedAt": "2026-06-06T05:58:00.000Z",
+          "remoteSyncEnabled": false,
+          "remoteAiEnabled": false
+        },
+        "state": "accepted-for-contract",
+        "validationRef": "tracking-retention-writer-validation-tracking-retention-writer-delete-after-alert-resolved",
+        "mutationEnvelopeRef": "tracking-retention-writer-envelope-tracking-retention-writer-delete-after-alert-resolved",
+        "readModelUpdateRef": "tracking-retention-writer-read-model-update-tracking-retention-writer-delete-after-alert-resolved",
+        "serviceMutationClaimed": false,
+        "platformRetentionWriterClaimed": false,
+        "childDeviceDeliveryClaimed": false,
+        "providerDeliveryClaimed": false,
+        "notificationReceiptClaimed": false,
+        "portalSettingsUiClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "productReadyClaimed": false
+      },
+      {
+        "rowId": "tracking-retention-writer-tracking-retention-writer-parent-export",
+        "request": {
+          "requestId": "tracking-retention-writer-parent-export",
+          "settingKind": "parent-export",
+          "requestedValueRef": "tracking-retention-value-parent-export",
+          "parentActionRef": "tracking-retention-parent-action-parent-export",
+          "sourceProofRefs": [
+            "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+            "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+            "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+          ],
+          "evidenceRefs": [
+            "tracking-retention-evidence-parent-export",
+            "tracking-retention-read-model-parent-export"
+          ],
+          "auditRefs": [
+            "tracking-retention-audit-parent-export"
+          ],
+          "requestedAt": "2026-06-06T05:58:00.000Z",
+          "remoteSyncEnabled": false,
+          "remoteAiEnabled": false
+        },
+        "state": "manual-service-mutation-required",
+        "validationRef": "tracking-retention-writer-validation-tracking-retention-writer-parent-export",
+        "mutationEnvelopeRef": "tracking-retention-writer-envelope-tracking-retention-writer-parent-export",
+        "readModelUpdateRef": "tracking-retention-writer-read-model-update-tracking-retention-writer-parent-export",
+        "serviceMutationClaimed": false,
+        "platformRetentionWriterClaimed": false,
+        "childDeviceDeliveryClaimed": false,
+        "providerDeliveryClaimed": false,
+        "notificationReceiptClaimed": false,
+        "portalSettingsUiClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "productReadyClaimed": false
+      },
+      {
+        "rowId": "tracking-retention-writer-tracking-retention-writer-remote-sync",
+        "request": {
+          "requestId": "tracking-retention-writer-remote-sync",
+          "settingKind": "remote-sync",
+          "requestedValueRef": "tracking-retention-value-remote-sync-disabled",
+          "parentActionRef": "tracking-retention-parent-action-remote-sync",
+          "sourceProofRefs": [
+            "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+            "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+            "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+          ],
+          "evidenceRefs": [
+            "tracking-retention-evidence-remote-sync",
+            "tracking-retention-read-model-remote-sync"
+          ],
+          "auditRefs": [
+            "tracking-retention-audit-remote-sync"
+          ],
+          "requestedAt": "2026-06-06T05:58:00.000Z",
+          "remoteSyncEnabled": false,
+          "remoteAiEnabled": false
+        },
+        "state": "remote-sync-disabled",
+        "validationRef": "tracking-retention-writer-validation-tracking-retention-writer-remote-sync",
+        "mutationEnvelopeRef": "tracking-retention-writer-envelope-tracking-retention-writer-remote-sync",
+        "readModelUpdateRef": "tracking-retention-writer-read-model-update-tracking-retention-writer-remote-sync",
+        "serviceMutationClaimed": false,
+        "platformRetentionWriterClaimed": false,
+        "childDeviceDeliveryClaimed": false,
+        "providerDeliveryClaimed": false,
+        "notificationReceiptClaimed": false,
+        "portalSettingsUiClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "productReadyClaimed": false
+      },
+      {
+        "rowId": "tracking-retention-writer-tracking-retention-writer-remote-ai",
+        "request": {
+          "requestId": "tracking-retention-writer-remote-ai",
+          "settingKind": "remote-ai",
+          "requestedValueRef": "tracking-retention-value-remote-ai-disabled",
+          "parentActionRef": "tracking-retention-parent-action-remote-ai",
+          "sourceProofRefs": [
+            "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+            "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+            "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+          ],
+          "evidenceRefs": [
+            "tracking-retention-evidence-remote-ai",
+            "tracking-retention-read-model-remote-ai"
+          ],
+          "auditRefs": [
+            "tracking-retention-audit-remote-ai"
+          ],
+          "requestedAt": "2026-06-06T05:58:00.000Z",
+          "remoteSyncEnabled": false,
+          "remoteAiEnabled": false
+        },
+        "state": "remote-ai-disabled",
+        "validationRef": "tracking-retention-writer-validation-tracking-retention-writer-remote-ai",
+        "mutationEnvelopeRef": "tracking-retention-writer-envelope-tracking-retention-writer-remote-ai",
+        "readModelUpdateRef": "tracking-retention-writer-read-model-update-tracking-retention-writer-remote-ai",
+        "serviceMutationClaimed": false,
+        "platformRetentionWriterClaimed": false,
+        "childDeviceDeliveryClaimed": false,
+        "providerDeliveryClaimed": false,
+        "notificationReceiptClaimed": false,
+        "portalSettingsUiClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "productReadyClaimed": false
+      }
+    ],
+    "acceptedForContractCount": 2,
+    "manualServiceMutationRequiredCount": 1,
+    "disabledRemoteRuntimeCount": 2,
+    "nonClaims": [
+      "no-live-service-mutation",
+      "no-platform-retention-writer",
+      "no-child-device-delivery",
+      "no-provider-delivery",
+      "no-notification-receipt",
+      "no-remote-sync-runtime",
+      "no-remote-ai-runtime",
+      "no-portal-settings-ui",
+      "no-physical-device-proof",
+      "no-product-ready-claim"
+    ],
+    "serviceMutationClaimed": false,
+    "platformRetentionWriterClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "remoteSyncRuntimeClaimed": false,
+    "remoteAiRuntimeClaimed": false,
+    "portalSettingsUiClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "productReadyClaimed": false
+  }
+}

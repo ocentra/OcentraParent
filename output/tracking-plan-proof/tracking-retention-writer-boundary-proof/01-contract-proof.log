@@ -1,0 +1,5 @@
+Contract proof:
+
+- Parent-domain build and focused Vitest proof passed.
+- Rows cover retention-window, delete-after-alert-resolved, parent-export, remote-sync disabled, and remote-AI disabled settings.
+- Each row carries source proof refs, evidence refs, audit refs, validation refs, mutation-envelope refs, and read-model update refs.
