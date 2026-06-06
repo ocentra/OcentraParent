@@ -67,6 +67,10 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
 - Displays service-backed app/game policy readiness rows on App/Game Sessions
   without adding policy execution, persistence, adapter dispatch, or broad
   blocking claims.
+- Displays Activity network evidence drawer platform/capability state,
+  active/tombstone/exportable row counts, retention delete refs, and degraded
+  adapter state from the service-backed network read model without adding local
+  risk scoring, policy evaluation, adapter dispatch, or enforcement claims.
 - Displays the Browser-route social dashboard shell for the current
   unavailable zero-row state while service-backed social snapshots, connector
   runtime, native app control, final policy execution, notifications, and

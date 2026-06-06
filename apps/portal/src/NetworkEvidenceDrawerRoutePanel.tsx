@@ -61,6 +61,8 @@ function NetworkEvidenceDrawerCard({ summary }: { readonly summary: NetworkEvide
         <NetworkEvidenceDrawerDetail label={PortalDetails.Profile} value={summary.childProfileRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.Source} value={summary.sourceAdapter} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.Capability} value={summary.sourceQuality} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.PlatformState} value={summary.platformState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ReadModelRows} value={summary.readModelRows} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.Destination} value={summary.remoteEndpoint} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.NetworkProtocol} value={summary.protocolCandidate} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.TcpState} value={summary.applicationProtocolCandidate} />
@@ -91,6 +93,11 @@ function NetworkEvidenceUnsupportedClaimCard({
         <NetworkEvidenceDrawerDetail label={PortalDetails.PolicyPreview} value={summary.policyDecisionRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.EnforcementHandoff} value={summary.interventionResultRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.DeletedEvidence} value={summary.retentionState} />
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.DeletedEvidenceReferences}
+          value={summary.deletedEvidenceReferences}
+        />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.PerformanceState} value={summary.degradedState} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.Level} value={summary.evidenceGrade} />
       </dl>
     </article>
