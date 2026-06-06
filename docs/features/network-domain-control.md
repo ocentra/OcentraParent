@@ -482,6 +482,17 @@ compete on control while staying clear about attribution confidence and privacy.
   not live broker transport, family-hub relay, remote provider delivery,
   child-device delivery, product-ready remote delivery, policy authority,
   adapter execution, host filtering, or enforcement commands.
+- E-D added row10f remote delivery event-chain journal/export boundary proof.
+  The `agent-core` proof materializes the local network runtime event chain into
+  reusable `ocentra-eventing` NDJSON journal records and projection replay/export
+  records with row10f journal, replay, export, and support-status refs through
+  `network-remote-delivery-event-chain-journal-proof`. This proves the local
+  stored-envelope/export boundary that future broker/family-hub transport would
+  consume, not live broker transport, family-hub relay, action replay, remote
+  provider delivery, child-device delivery, product-ready remote delivery,
+  policy authority, side-effect authority, enforcement-command publication,
+  adapter execution, exact URL, decrypted payload, page content, or host
+  filtering.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -524,8 +535,9 @@ adds a platform-claim manifest that names exact Windows, Android, Apple
 macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
 follow-ups for missing artifacts.
 Broker/family-hub delivery implementation beyond the row10b status proof,
-row10c service/portal status visibility, row10d lifecycle blocker status, and
-row10e durable-envelope readiness status,
+row10c service/portal status visibility, row10d lifecycle blocker status,
+row10e durable-envelope readiness status, and row10f event-chain journal/export
+boundary status,
 live local-AI model execution beyond the row33a runtime result bridge and row33b service status, full policy engine execution beyond
 the current stored-flow dry-run preview and stored-flow service unavailable-result proof,
 notification provider delivery, broader parent-facing rule UX, live host DNS
@@ -641,7 +653,12 @@ proof, and row10e durable-envelope readiness proof.
       delivery remains requirements-gated rather than implemented. Row10d now
       renders lifecycle blocker refs and manual-required state for
       cross-process replay, remote retention/delete/export propagation, and
-      family-hub delivery acknowledgement. Service
+      family-hub delivery acknowledgement. Row10f now materializes the local
+      network runtime event chain into reusable `ocentra-eventing` NDJSON
+      journal records and projection replay/export records while keeping action
+      replay, live transport, provider delivery, child delivery, product-ready,
+      policy, adapter, enforcement-command, and exact-content claims false.
+      Service
       network read-model delivery now publishes stored
       ActivityStore network rows through the local eventing runtime and exposes
       delivery counts in the service payload; service WebSocket event-chain

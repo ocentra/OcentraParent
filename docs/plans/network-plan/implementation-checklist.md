@@ -234,10 +234,13 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   preserving local deletion refs and exportable-row counts. Row10a now proves
   broker route delivery semantics, duplicate idempotency rejection, replay plan
   refs, dropped-event audit refs, and zero duplicate adapter-action counts
-  without live broker/family-hub transport. Live broker/family-hub delivery,
-  cross-process durable replay, raw PCAP/live-capture retention and remote
-  delete/export propagation, live analyzer/model/policy execution, adapter
-  execution, and host filtering remain open.
+  without live broker/family-hub transport. Row10f now materializes the local
+  network runtime event chain into reusable `ocentra-eventing` NDJSON journal
+  and projection replay/export records for the future remote-delivery boundary.
+  Live broker/family-hub delivery, cross-process durable replay, raw
+  PCAP/live-capture retention and remote delete/export propagation, live
+  analyzer/model/policy execution, adapter execution, and host filtering remain
+  open.
 - [x] TypeScript Effect Schema contracts land before Rust/service/portal
       consumers where TypeScript domain boundaries are touched. Workpack 03
       added the `activity-domain` network contracts before Rust protocol parity.
@@ -379,6 +382,16 @@ manual-required/N/A file.
   parser invariants that reject missing durable-envelope refs, non-row10e refs,
   durable-envelope missing artifact drift, provider/child-device delivery
   claims, and product-ready remote delivery claims.
+- Workpack 10 rollup: row10f is part of the Workpack 10 remote-delivery
+  status proof set. The main row10 eventing/read-model summary is supplemented
+  by
+  `output/network-plan-proof/10f-remote-delivery-event-chain-journal-status/proof-summary.json`,
+  `test-results/network-remote-delivery-event-chain-journal-proof/proof.json`,
+  and Rust proof invariants that require `ocentra-eventing` projection replay
+  records to match the stored local runtime event chain while rejecting action
+  replay, live transport, provider delivery, child-device delivery,
+  product-ready, exact-content, policy, adapter, enforcement-command, and
+  host-filter claims.
 
 - [x] 10b broker/family-hub remote delivery status: E-D added
       `output/network-plan-proof/10b-broker-family-hub-delivery-status/proof-summary.json`
@@ -432,6 +445,18 @@ manual-required/N/A file.
       child-device delivery, product-ready remote delivery, policy authority,
       side-effect authority, enforcement-command publication, adapter execution,
       and host filtering false.
+- [x] 10f remote delivery event-chain journal/export boundary status: E-D added
+      `output/network-plan-proof/10f-remote-delivery-event-chain-journal-status/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-event-chain-journal-proof/proof.json`.
+      The `agent-core` proof materializes the local network runtime event chain
+      into reusable `ocentra-eventing` NDJSON journal records and projection
+      replay/export records, preserving row10f journal, replay, export, and
+      support-status refs. The proof keeps live broker/family-hub delivery,
+      action replay, remote provider delivery, child-device delivery,
+      product-ready remote delivery, policy authority, side-effect authority,
+      enforcement-command publication, adapter execution, exact URL, decrypted
+      payload, page content, and host filtering false.
 - [x] 33a network local-AI runtime result bridge: E-D added
       `output/network-plan-proof/33a-network-local-ai-runtime-result/proof-summary.json`
       and `test-results/network-local-ai-runtime-result-proof/proof.json`.
