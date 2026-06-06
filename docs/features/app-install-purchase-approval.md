@@ -238,6 +238,17 @@ generic app blocking covers this concern.
   that approval/report domain proof under
   `test-results/app-install-purchase-approval-report-domain-proof/proof.json`
   when run.
+- `packages/parent-domain/src/app-install-purchase-limitation-summary-proof.ts`
+  now aggregates provider/store report status rows and report status read-model
+  rows into parent-visible ready, manual-required, and unavailable limitation
+  summary buckets while preserving no portal approval/report UI, no external
+  runtime report delivery, no provider/store execution, no billing provider
+  contact, no platform adapters, no child-device delivery, no app blocking, no
+  child activity data, and no Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-limitation-summary-proof.mjs` records that
+  limitation summary proof under
+  `test-results/app-install-purchase-limitation-summary-proof/proof.json` when
+  run.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -439,6 +450,11 @@ Ocentra-hosted family data custody.
       status rows without portal report UI, external runtime report delivery,
       provider/store execution, platform adapters, child-device delivery, app
       blocking, child activity data, or hosted family data custody claims.
+- [x] Limitation summary proof aggregating provider/store report status rows and
+      report status read-model rows into ready/manual/unavailable parent-visible
+      buckets without portal approval/report UI, external report delivery,
+      provider/store execution, billing contact, platform adapters, child
+      delivery, app blocking, child activity data, or hosted custody claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions

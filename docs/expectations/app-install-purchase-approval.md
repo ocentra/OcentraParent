@@ -183,6 +183,13 @@ Expected contract families:
   report delivery, provider API execution, store integration, platform adapter
   implementation, child-device delivery, app blocking, child activity data
   custody, or Ocentra-hosted family data custody.
+- Limitation summary proof rows aggregate provider/store report status rows and
+  report status read-model rows into parent-visible ready, manual-required, and
+  unavailable buckets without claiming portal approval UI, portal report UI,
+  external runtime report delivery, provider API execution, store integration,
+  billing provider contact, platform adapter implementation, child-device
+  delivery, app blocking, child activity data custody, or Ocentra-hosted family
+  data custody.
 
 ## Validation Gates
 
@@ -296,6 +303,12 @@ Expected contract families:
   rejection, and required non-claim coverage. Public package export visibility
   remains a required follow-up once `packages/parent-domain/package.json` is
   available.
+- TypeScript schema tests and a proof harness for limitation summary rows,
+  missing ready/manual/unavailable bucket coverage rejection, source provider/
+  store status mismatch rejection, missing parent-visible summary refs, portal
+  approval/report UI/external delivery/provider/store/billing contact/platform
+  adapter/child delivery/app-blocking/custody overclaim rejection, and required
+  non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
