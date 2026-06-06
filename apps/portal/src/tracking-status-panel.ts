@@ -4,6 +4,7 @@ import {
   PortalFormatting,
   PortalText,
   PortalTextToken,
+  PortalTrackingReadModelValues,
   TrackingStatusProofArtifacts,
   decodePortalDetailValue,
   type PortalDetailValue,
@@ -82,6 +83,19 @@ export type TrackingStatusServiceDataCoverage = {
   readonly activityKinds: PortalDetailValue;
   readonly evidenceReferences: PortalDetailValue;
   readonly deletedEvidence: PortalDetailValue;
+  readonly productClaim: PortalDisplayText;
+};
+
+export type TrackingStatusDashboardRollup = {
+  readonly title: PortalDisplayText;
+  readonly body: PortalDisplayText;
+  readonly loadState: PortalDetailValue;
+  readonly proofTier: PortalDisplayText;
+  readonly visibleChildren: PortalDetailValue;
+  readonly attentionItems: PortalDetailValue;
+  readonly retentionAuditItems: PortalDetailValue;
+  readonly runtimeReference: TrackingStatusProofArtifact;
+  readonly evidenceReferences: PortalDetailValue;
   readonly productClaim: PortalDisplayText;
 };
 
@@ -273,6 +287,55 @@ export function trackingStatusServiceDataCoverage(
   };
 }
 
+export function trackingStatusDashboardRollup(liveActivity: PortalLiveActivityState): TrackingStatusDashboardRollup {
+  const event = liveActivity.activityTrackingReadModelEvent;
+  const readModelResult = liveActivity.activityTrackingReadModel;
+  const baseRollup = {
+    title: PortalText.Resolve(PortalTextToken.TrackingFamilyDashboardRollup),
+    body: PortalText.Resolve(PortalTextToken.TrackingFamilyDashboardRollupBody),
+    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofService),
+    visibleChildren: notReported(),
+    attentionItems: notReported(),
+    retentionAuditItems: notReported(),
+    runtimeReference: TrackingStatusProofArtifacts.FamilyDashboardRollup,
+    evidenceReferences: notReported(),
+    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
+  };
+
+  if (event === null || readModelResult === null) {
+    return {
+      ...baseRollup,
+      loadState: notReported(),
+    };
+  }
+
+  if (!readModelResult.ok) {
+    return {
+      ...baseRollup,
+      loadState: detailFromValue(event.severity),
+      evidenceReferences: detailFromValue(readModelResult.reason),
+    };
+  }
+
+  const readModel = readModelResult.value;
+  const activeRows = readModel.rows.filter(
+    (readModelRow) => readModelRow.queryVisibility === PortalTrackingReadModelValues.ActiveQueryVisibility
+  );
+  return {
+    ...baseRollup,
+    loadState: detailFromValue(event.severity),
+    visibleChildren: detailFromValue(new Set(activeRows.map((readModelRow) => readModelRow.deviceId)).size),
+    attentionItems: detailFromValue(activeRows.length),
+    retentionAuditItems: detailFromValue(readModel.tombstoneRows),
+    evidenceReferences: evidenceReferenceDetail(
+      readModel.rows.flatMap((readModelRow) => [
+        ...readModelRow.evidenceReferenceIds,
+        ...readModelRow.deletedEvidenceReferenceIds,
+      ])
+    ),
+  };
+}
+
 export function renderTrackingStatusSurface(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
   const intro = document.createElement(PortalDom.Tags.Section);
   intro.className = PortalDom.Classes.Summary;
@@ -291,6 +354,7 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
     const liveSummary = trackingStatusLiveSummary(liveActivity);
     dashboard.append(renderTrackingStatusLiveSummary(liveSummary));
     dashboard.append(renderTrackingStatusServiceDataCoverage(trackingStatusServiceDataCoverage(liveActivity)));
+    dashboard.append(renderTrackingStatusDashboardRollup(trackingStatusDashboardRollup(liveActivity)));
     for (const citation of liveSummary.citations) {
       dashboard.append(renderTrackingStatusLiveCitation(citation));
     }
@@ -403,6 +467,32 @@ function renderTrackingStatusServiceDataCoverage(coverage: TrackingStatusService
   appendDetail(metadata, PortalDetails.ProductClaim, toDetail(coverage.productClaim));
 
   panel.append(title, metadata);
+  return panel;
+}
+
+function renderTrackingStatusDashboardRollup(rollup: TrackingStatusDashboardRollup): HTMLElement {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+  panel.setAttribute(PortalDom.Attributes.DataTrackingProof, PortalDom.Attributes.TrackingProofFamilyDashboardRollup);
+
+  const title = document.createElement(PortalDom.Tags.HeadingTwo);
+  title.textContent = rollup.title;
+
+  const body = document.createElement(PortalDom.Tags.Paragraph);
+  body.className = PortalDom.Classes.CommandResultEmpty;
+  body.textContent = rollup.body;
+
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendDetail(metadata, PortalDetails.LoadState, rollup.loadState);
+  appendDetail(metadata, PortalDetails.ProofTier, toDetail(rollup.proofTier));
+  appendDetail(metadata, PortalDetails.VisibleChildren, rollup.visibleChildren);
+  appendDetail(metadata, PortalDetails.AttentionItems, rollup.attentionItems);
+  appendDetail(metadata, PortalDetails.RetentionAuditItems, rollup.retentionAuditItems);
+  appendDetail(metadata, PortalDetails.RuntimeReference, toDetail(rollup.runtimeReference));
+  appendDetail(metadata, PortalDetails.EvidenceReferences, rollup.evidenceReferences);
+  appendDetail(metadata, PortalDetails.ProductClaim, toDetail(rollup.productClaim));
+
+  panel.append(title, body, metadata);
   return panel;
 }
 

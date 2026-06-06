@@ -14,6 +14,10 @@ const desktopScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-l
 const mobileScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary-mobile.png');
 const childCheckInScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-check-in.png');
 const childRuntimeUiScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-runtime-ui.png');
+const familyDashboardRollupScreenshotPath = path.join(
+  screenshotDir,
+  'hosted-policy-tracking-family-dashboard-rollup.png'
+);
 const accessibilitySummaryPath = path.join(
   repoRoot,
   'test-results',
@@ -43,6 +47,13 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
 
   await expect(page.getByRole('heading', { name: 'Service read model' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Service data coverage' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Family dashboard rollup' })).toBeVisible();
+  await expect(
+    trackingProofRegion.getByText(
+      'Service-backed dashboard counts only; child-device delivery, provider delivery, authority, and product readiness remain unclaimed.'
+    )
+  ).toBeVisible();
+  await expect(trackingProofRegion.getByText('23-family-dashboard-rollup-proof.json')).toBeVisible();
   await expect(trackingProofRegion.getByText('tracking-hosted-expected-place-event').first()).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
@@ -112,6 +123,11 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   await expect(trackingProofRegion).toBeVisible();
   const childCheckInCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="child-check-in"]').first();
   const childRuntimeUiCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="child-runtime-ui"]').first();
+  const familyDashboardRollupCard = trackingProofRegion
+    .locator('[data-ocentra-tracking-proof="family-dashboard-rollup"]')
+    .first();
+  await expect(familyDashboardRollupCard).toBeVisible();
+  await familyDashboardRollupCard.screenshot({ path: familyDashboardRollupScreenshotPath });
   await page.evaluate(() => {
     const grid = document.querySelector('.tracking-status-overlay-grid');
     const childCheckIn = document.querySelector('[data-ocentra-tracking-proof="child-check-in"]');
@@ -148,18 +164,34 @@ async function collectAccessibilitySummary(page: Page): Promise<{
   readonly unlabeledButtons: number;
 }> {
   return page.evaluate(() => {
-    const region = document.querySelector('[aria-label="Tracking status proof"]');
     const text = (element: Element): string => element.textContent?.trim() ?? '';
-    const buttons = Array.from(region?.querySelectorAll('button') ?? []).map((element) => ({
+    const rollup = document.querySelector(
+      '[aria-label="Tracking status proof"] [data-ocentra-tracking-proof="family-dashboard-rollup"]'
+    );
+    const region =
+      rollup?.closest('[aria-label="Tracking status proof"]') ??
+      document.querySelector('[aria-label="Tracking status proof"]');
+    if (region === null) {
+      return {
+        hasNamedRegion: false,
+        headings: [],
+        paragraphs: [],
+        labels: [],
+        values: [],
+        buttons: [],
+        unlabeledButtons: 0,
+      };
+    }
+    const buttons = Array.from(region.querySelectorAll('button')).map((element) => ({
       text: text(element),
       disabled: element.hasAttribute('disabled'),
     }));
     return {
-      hasNamedRegion: region !== null,
-      headings: Array.from(region?.querySelectorAll('h2') ?? []).map(text),
-      paragraphs: Array.from(region?.querySelectorAll('p') ?? []).map(text),
-      labels: Array.from(region?.querySelectorAll('dt') ?? []).map(text),
-      values: Array.from(region?.querySelectorAll('dd') ?? []).map(text),
+      hasNamedRegion: true,
+      headings: Array.from(region.querySelectorAll('h2')).map(text),
+      paragraphs: Array.from(region.querySelectorAll('p')).map(text),
+      labels: Array.from(region.querySelectorAll('dt')).map(text),
+      values: Array.from(region.querySelectorAll('dd')).map(text),
       buttons,
       unlabeledButtons: buttons.filter((button) => button.text.length === 0).length,
     };
@@ -174,6 +206,7 @@ async function writeAccessibilitySummary(
   expect(summary.headings).toContain('Tracking status proof');
   expect(summary.headings).toContain('Service read model');
   expect(summary.headings).toContain('Service data coverage');
+  expect(summary.headings).toContain('Family dashboard rollup');
   expect(summary.headings).toContain('Child check-in request');
   expect(summary.headings).toContain('Child runtime UI proof');
   expect(summary.paragraphs).toContain('Your parent is asking you to check in. Are you safe?');
@@ -181,6 +214,9 @@ async function writeAccessibilitySummary(
     'Child sees a clear tracking request, safe response, help response, and location-share consent copy.'
   );
   expect(summary.labels).toContain('Evidence references');
+  expect(summary.labels).toContain('Visible children');
+  expect(summary.labels).toContain('Attention items');
+  expect(summary.labels).toContain('Retention audit items');
   expect(summary.labels).toContain('Child copy');
   expect(summary.labels).toContain('Child delivery');
   expect(summary.labels).toContain('Product claim');
@@ -189,6 +225,9 @@ async function writeAccessibilitySummary(
   expect(summary.values).toContain('Share current location');
   expect(summary.values).toContain('Call parent');
   expect(summary.values).toContain('Child-device delivery not proved');
+  expect(summary.values).toContain(
+    'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json'
+  );
   expect(summary.values).toContain('Tracking request disclosed');
   expect(summary.values).toContain('Safe response visible');
   expect(summary.values).toContain('Help response visible');
@@ -208,6 +247,7 @@ async function writeAccessibilitySummary(
           'enabled-refresh-button',
           'service-backed-row-citation-visible',
           'service-data-coverage-visible',
+          'family-dashboard-rollup-visible',
           'manual-required-visible',
           'physical-device-required-visible',
           'no-product-claim-visible',
@@ -227,6 +267,7 @@ async function writeAccessibilitySummary(
         summary,
         screenshots: {
           desktop: path.relative(repoRoot, desktopScreenshotPath).replace(/\\/gu, '/'),
+          familyDashboardRollup: path.relative(repoRoot, familyDashboardRollupScreenshotPath).replace(/\\/gu, '/'),
           childCheckIn: path.relative(repoRoot, childCheckInScreenshotPath).replace(/\\/gu, '/'),
           childRuntimeUi: path.relative(repoRoot, childRuntimeUiScreenshotPath).replace(/\\/gu, '/'),
           mobile: path.relative(repoRoot, mobileScreenshotPath).replace(/\\/gu, '/'),

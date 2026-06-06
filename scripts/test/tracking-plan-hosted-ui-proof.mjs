@@ -25,6 +25,7 @@ import { resolveDebugAgentServicePath, spawnVitePortal, stopProcessTreeAndWait }
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const portalRoot = path.join(repoRoot, 'apps', 'portal');
 const workpack30 = path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces');
+const workpack32 = path.join(repoRoot, 'output', 'tracking-plan-proof', '32-journal-sqlite-and-read-model-proof');
 const workpack33 = path.join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
 const proofResultDir = path.join(repoRoot, 'test-results', 'tracking-plan-hosted-ui-proof');
 const proofPath = path.join(proofResultDir, 'proof.json');
@@ -41,7 +42,14 @@ const childRuntimeUiScreenshot = path.join(
   '11-ui-snapshots',
   'hosted-policy-tracking-child-runtime-ui.png'
 );
+const familyDashboardRollupScreenshot = path.join(
+  workpack30,
+  '11-ui-snapshots',
+  'hosted-policy-tracking-family-dashboard-rollup.png'
+);
 const childRuntimeUiProofPath = path.join(workpack30, '19-child-runtime-ui-proof.json');
+const familyDashboardRollupProofPath = path.join(workpack30, '20-family-dashboard-rollup-ui-proof.json');
+const familyDashboardRollupWorkpack32ProofPath = path.join(workpack32, '24-family-dashboard-rendered-ui-proof.json');
 const accessibilitySummaryPath = path.join(proofResultDir, 'accessibility-summary.json');
 const runRoot = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-tracking-hosted-ui-'));
 const devLogDir = path.join(runRoot, 'dev-log');
@@ -65,6 +73,7 @@ let stopping = false;
 try {
   await mkdir(devLogDir, { recursive: true });
   await mkdir(workpack30, { recursive: true });
+  await mkdir(workpack32, { recursive: true });
   await mkdir(workpack33, { recursive: true });
   await mkdir(proofResultDir, { recursive: true });
   await seedActivityStore();
@@ -357,7 +366,10 @@ async function writeProof(playwright) {
       mobileScreenshot: relativePath(mobileScreenshot),
       childCheckInScreenshot: relativePath(childCheckInScreenshot),
       childRuntimeUiScreenshot: relativePath(childRuntimeUiScreenshot),
+      familyDashboardRollupScreenshot: relativePath(familyDashboardRollupScreenshot),
       childRuntimeUiProof: relativePath(childRuntimeUiProofPath),
+      familyDashboardRollupProof: relativePath(familyDashboardRollupProofPath),
+      familyDashboardRollupWorkpack32Proof: relativePath(familyDashboardRollupWorkpack32ProofPath),
       accessibilitySummary: relativePath(accessibilitySummaryPath),
     },
     accessibilitySummary,
@@ -375,11 +387,27 @@ async function writeProof(playwright) {
       ],
       productClaimReady: false,
     },
+    familyDashboardRollupProof: {
+      screenshot: relativePath(familyDashboardRollupScreenshot),
+      sourceProof:
+        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json',
+      assertions: [
+        'family-dashboard-rollup-heading-visible',
+        'service-backed-dashboard-counts-visible',
+        'family-dashboard-rollup-source-proof-visible',
+        'child-device-delivery-not-claimed',
+        'provider-delivery-not-claimed',
+        'authority-not-claimed',
+        'no-product-claim-visible',
+      ],
+      productClaimReady: false,
+    },
     nonClaims: [
       'This proof does not claim Android or iOS physical background tracking behavior.',
       'This proof does not claim real physical-device location, geofence, provider, or notification delivery.',
       'This proof uses a seeded temporary ActivityStore SQLite database to prove hosted portal rendering against the real Rust service command.',
       'This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.',
+      'This proof renders a hosted family-dashboard rollup card from the service read model and WP32 rollup artifact refs without claiming full product UI, child-device delivery, provider delivery, or authority.',
       'This proof does not claim full child-device UI or authority-enrolled hard-control readiness.',
     ],
     remainingGapsBeforeProductReady: [
@@ -393,6 +421,8 @@ async function writeProof(playwright) {
   await writeFile(outputProofPath, proofContent);
   await writeFile(gateProofPath, proofContent);
   await writeFile(childRuntimeUiProofPath, proofContent);
+  await writeFile(familyDashboardRollupProofPath, proofContent);
+  await writeFile(familyDashboardRollupWorkpack32ProofPath, proofContent);
   await writeFile(
     securityLogPath,
     [
@@ -403,6 +433,8 @@ async function writeProof(playwright) {
       'asserted=child check-in copy and actions visible without child-device delivery claim',
       'asserted=child runtime UI disclosure, safe/help response, and location-share consent copy visible',
       'asserted=hosted proof only boundary visible for child runtime UI',
+      'asserted=family dashboard rollup card visible from service-backed route',
+      'asserted=family dashboard rollup source proof ref visible',
       'asserted=productClaimReady=false',
     ].join('\n') + '\n'
   );

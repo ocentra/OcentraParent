@@ -78,7 +78,8 @@ expose location or device-status features. Parents expect this category.
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
   drives the React parent route through Playwright, renders the service-data
-  coverage card beside the service read-model summary, captures desktop, mobile,
+  coverage card and family dashboard rollup card beside the service read-model
+  summary, captures desktop, mobile, hosted family-dashboard rollup,
   hosted child-safe check-in, and hosted child-runtime UI proof screenshots,
   writes accessibility summary output, proves calm child check-in copy/actions
   plus child disclosure, safe/help response, and location-share consent copy
@@ -169,6 +170,13 @@ expose location or device-status features. Parents expect this category.
   and report/policy consumer proof refs while keeping portal UI completion,
   child-device delivery, provider delivery, notification receipt ingestion,
   authority, physical-device, and product-complete claims false.
+- Hosted family dashboard rollup card proof now exists through
+  `npm run test:tracking-plan-hosted-ui-proof`. It renders the service-backed
+  rollup card in the hosted `policy-tracking` route, cites the WP32 family
+  dashboard rollup artifact, captures
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`,
+  and keeps full product UI, child-device delivery, provider delivery,
+  authority, physical-device, and product-ready claims false.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -222,8 +230,9 @@ expose location or device-status features. Parents expect this category.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, actual child-device delivery/runtime
   execution, full parent/child UI beyond the hosted parent route, and broader
-  read-model product surfaces beyond the report/policy consumer-readiness rows
-  and hosted service-data coverage remain not product-complete.
+  read-model product surfaces beyond the report/policy consumer-readiness rows,
+  hosted service-data coverage, and hosted family-dashboard rollup card remain
+  not product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
@@ -239,20 +248,21 @@ disclosure/safe-help/location-share consent copy, P1 local parent-defined place
 store proof, pre-device proof-gate progress, Android emulator package/service/status
 scaffold proof, WP08/WP09 Android permission/background manual-required proof,
 WP11/WP12 iOS Core Location manual-required proof, P3 WSL/local replay proof,
-P1 evidence-quality gate proof, WP26 tracking alert-to-provider-status handoff
-proof, P1 escalation readiness proof for acknowledgement/check-in/manual
-escalation states, WP28 temporary live tracking mode proof for authorization/
-duration/cadence/degraded/auto-stop/retention states, and WP20 Google Places/
-POI provider request/response mapping proof, WP25 parent-policy compiler/
-evaluator runtime proof, and required fixture-state coverage proof, WP29
-missing-device mode parent-domain proof for last-known-only/offline/
-contact-requested/manual-required states, manual-required/unavailable platform
-render-state proof, and WP32 report/policy consumer-readiness proof for parent
-report summary, policy drill-in, and retention audit/export rows, plus WP32
-family dashboard rollup proof for active family, child-attention, and
-retention-audit summary rows. It remains a tracked
-product gap until platform location and geofence runtime adapters, broader
-product read models beyond these rollups, rendered dashboard UI for those rollups,
+P1 evidence-quality gate proof, WP26
+tracking alert-to-provider-status handoff proof, P1 escalation readiness proof
+for acknowledgement/check-in/manual escalation states, WP28 temporary live
+tracking mode proof for authorization/duration/cadence/degraded/auto-stop/
+retention states, and WP20 Google Places/POI provider request/response mapping
+proof, WP25 parent-policy compiler/evaluator runtime proof, and required
+fixture-state coverage proof, WP29 missing-device mode parent-domain proof for
+last-known-only/offline/contact-requested/manual-required states,
+manual-required/unavailable platform render-state proof, and WP32 report/policy
+consumer-readiness proof for parent report summary, policy drill-in, and
+retention audit/export rows, plus WP32 family dashboard rollup proof for active
+family, child-attention, and retention-audit summary rows, plus hosted
+family-dashboard rollup card screenshot/accessibility proof. It remains a
+tracked product gap until platform location and geofence runtime adapters,
+broader product read models beyond these rollups and hosted card,
 actual live provider execution/delivery, notification receipt ingestion,
 physical-device proof, actual child-device delivery/runtime execution, remote
 sync runtime, OS lost-mode APIs, production upload workers, portal screenshots
@@ -342,9 +352,8 @@ snapshots/accessibility beyond the hosted parent route are proved.
       product-complete proof.
 - [x] WP32 family dashboard rollup proof for active family summary,
       child-attention summary, and retention-audit summary rows. This is not
-      rendered dashboard UI, child-device delivery/runtime execution, provider
-      delivery, notification receipt ingestion, authority, physical-device, or
-      product-complete proof.
+      child-device delivery/runtime execution, provider delivery, notification
+      receipt ingestion, authority, physical-device, or product-complete proof.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
 - [x] P3 WSL/local replay proof for the tracking read-model proof stack and
@@ -353,10 +362,10 @@ snapshots/accessibility beyond the hosted parent route are proved.
       and local proof artifact references.
 - [x] Hosted parent `policy-tracking` route screenshot and accessibility proof
       against the real Rust service and seeded ActivityStore, including a
-      rendered service-data coverage card, hosted child-safe check-in
-      copy/actions card, and hosted child-runtime disclosure/safe-help/location-share
-      consent card. This is not
-      child-device delivery/runtime execution, full service-data UI, or
+      rendered service-data coverage card, hosted family-dashboard rollup card,
+      hosted child-safe check-in copy/actions card, and hosted child-runtime
+      disclosure/safe-help/location-share consent card. This is not
+      child-device delivery/runtime execution, full parent/child UI, or
       physical-device proof.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
       proof plans.

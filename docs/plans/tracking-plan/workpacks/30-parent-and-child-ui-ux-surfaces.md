@@ -28,12 +28,14 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`
+- `11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`
 - `12-playwright-proof.log`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
 - `17-hosted-ui-proof.json`
 - `18-service-data-ui-proof.json`
 - `19-child-runtime-ui-proof.json`
+- `20-family-dashboard-rollup-ui-proof.json`
 - Accessibility summary:
   `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`
 - Pre-device gate:
@@ -61,6 +63,9 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - [x] Render and screenshot hosted child-runtime disclosure, safe/help response,
       location-share consent, and delivery-boundary copy without claiming
       child-device delivery or runtime execution.
+- [x] Render and screenshot a hosted family-dashboard rollup card from the
+      service-backed tracking read model and existing WP32 rollup artifact refs
+      without claiming full product UI.
 - [x] Ensure child copy avoids accusation.
 - [ ] Keep portal as authoring/display surface, not evaluator.
 
@@ -108,6 +113,14 @@ captures it at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`
 and writes
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json`.
+The hosted route now also renders a family-dashboard rollup proof card from the
+same service-backed `trackingReadModel` event and the existing WP32 family
+dashboard rollup artifact reference. The repeatable hosted proof captures it at
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`,
+writes
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-family-dashboard-rollup-ui-proof.json`,
+and keeps child-device delivery, provider delivery, authority, and product-ready
+claims false.
 This is not product-complete UI proof: full service-data UI beyond the hosted
 parent route, actual child-device delivery/runtime execution, physical-device
 evidence, authority, provider delivery, and production proof remain pending.

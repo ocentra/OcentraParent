@@ -13,6 +13,7 @@ import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel
 import { trackingChildCheckInProof, trackingChildRuntimeUiProof } from '../src/tracking-child-check-in-proof';
 import {
   trackingStatusLiveSummary,
+  trackingStatusDashboardRollup,
   trackingStatusProofRows,
   trackingStatusServiceDataCoverage,
 } from '../src/tracking-status-panel';
@@ -175,6 +176,19 @@ const ExpectedTrackingServiceDataCoverage = {
   productClaim: 'No product claim',
 } as const;
 
+const ExpectedTrackingDashboardRollup = {
+  title: 'Family dashboard rollup',
+  body: 'Service-backed dashboard counts only; child-device delivery, provider delivery, authority, and product readiness remain unclaimed.',
+  loadState: 'info',
+  proofTier: 'P2 service proof',
+  visibleChildren: '1',
+  attentionItems: '1',
+  retentionAuditItems: '1',
+  runtimeReference: TrackingStatusProofArtifacts.FamilyDashboardRollup,
+  evidenceReferences: 'tracking-evidence-1 | location-evidence-1',
+  productClaim: 'No product claim',
+} as const;
+
 describe('tracking status proof surface', () => {
   it('lists the first-target tracking states as fixture proof without product claims', () => {
     const rows = trackingStatusProofRows();
@@ -211,6 +225,12 @@ describe('tracking status proof surface', () => {
     const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
 
     expect(trackingStatusServiceDataCoverage(liveActivity)).toEqual(ExpectedTrackingServiceDataCoverage);
+  });
+
+  it('renders a family dashboard rollup from the service read model without product claims', () => {
+    const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
+
+    expect(trackingStatusDashboardRollup(liveActivity)).toEqual(ExpectedTrackingDashboardRollup);
   });
 });
 

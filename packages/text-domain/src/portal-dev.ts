@@ -33,6 +33,8 @@ export const PortalDevTextToken = {
   TrackingStatusSurfaceBody: decodeTextTokenId('portal.dev.trackingStatusSurfaceBody'),
   TrackingServiceReadModel: decodeTextTokenId('portal.dev.trackingServiceReadModel'),
   TrackingServiceDataCoverage: decodeTextTokenId('portal.dev.trackingServiceDataCoverage'),
+  TrackingFamilyDashboardRollup: decodeTextTokenId('portal.dev.trackingFamilyDashboardRollup'),
+  TrackingFamilyDashboardRollupBody: decodeTextTokenId('portal.dev.trackingFamilyDashboardRollupBody'),
   TrackingFirstTarget: decodeTextTokenId('portal.dev.trackingFirstTarget'),
   TrackingProofFixture: decodeTextTokenId('portal.dev.trackingProofFixture'),
   TrackingProofService: decodeTextTokenId('portal.dev.trackingProofService'),
@@ -169,6 +171,10 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.TrackingStatusSurfaceBody]: decodeDisplayText('Location states are fixture proof only.'),
   [PortalDevTextToken.TrackingServiceReadModel]: decodeDisplayText('Service read model'),
   [PortalDevTextToken.TrackingServiceDataCoverage]: decodeDisplayText('Service data coverage'),
+  [PortalDevTextToken.TrackingFamilyDashboardRollup]: decodeDisplayText('Family dashboard rollup'),
+  [PortalDevTextToken.TrackingFamilyDashboardRollupBody]: decodeDisplayText(
+    'Service-backed dashboard counts only; child-device delivery, provider delivery, authority, and product readiness remain unclaimed.'
+  ),
   [PortalDevTextToken.TrackingFirstTarget]: decodeDisplayText('First target'),
   [PortalDevTextToken.TrackingProofFixture]: decodeDisplayText('P1 fixture proof'),
   [PortalDevTextToken.TrackingProofService]: decodeDisplayText('P2 service proof'),

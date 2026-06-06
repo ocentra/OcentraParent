@@ -21,9 +21,11 @@ import {
 } from './tracking-child-check-in-proof';
 import {
   trackingStatusLiveSummary,
+  trackingStatusDashboardRollup,
   trackingStatusServiceDataCoverage,
   trackingStatusProofRows,
   type TrackingStatusServiceDataCoverage,
+  type TrackingStatusDashboardRollup,
   type TrackingStatusLiveCitation,
   type TrackingStatusLiveSummary,
   type TrackingStatusProofRow,
@@ -44,6 +46,7 @@ export function TrackingStatusRoutePanel({
 }): ReactElement {
   const liveSummary = trackingStatusLiveSummary(liveActivity);
   const serviceDataCoverage = trackingStatusServiceDataCoverage(liveActivity);
+  const dashboardRollup = trackingStatusDashboardRollup(liveActivity);
   return (
     <section
       aria-label={PortalText.Resolve(PortalTextToken.TrackingStatusSurface)}
@@ -73,6 +76,7 @@ export function TrackingStatusRoutePanel({
         >
           <TrackingStatusLiveSummaryCard summary={liveSummary} />
           <TrackingStatusServiceDataCoverageCard coverage={serviceDataCoverage} />
+          <TrackingStatusDashboardRollupCard rollup={dashboardRollup} />
           {liveSummary.citations.map((citation) => (
             <TrackingStatusLiveCitationCard key={String(citation.eventId)} citation={citation} />
           ))}
@@ -136,6 +140,35 @@ function TrackingStatusServiceDataCoverageCard({
         <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={coverage.evidenceReferences} />
         <TrackingStatusDetail label={PortalDetails.DeletedEvidence} value={coverage.deletedEvidence} />
         <TrackingStatusDetail label={PortalDetails.ProductClaim} value={coverage.productClaim} />
+      </dl>
+    </article>
+  );
+}
+
+function TrackingStatusDashboardRollupCard({
+  rollup,
+}: {
+  readonly rollup: TrackingStatusDashboardRollup;
+}): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article
+      className={className}
+      {...{ [PortalDom.Attributes.DataTrackingProof]: PortalDom.Attributes.TrackingProofFamilyDashboardRollup }}
+    >
+      <h2>{rollup.title}</h2>
+      <p>{rollup.body}</p>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <TrackingStatusDetail label={PortalDetails.LoadState} value={rollup.loadState} />
+        <TrackingStatusDetail label={PortalDetails.ProofTier} value={rollup.proofTier} />
+        <TrackingStatusDetail label={PortalDetails.VisibleChildren} value={rollup.visibleChildren} />
+        <TrackingStatusDetail label={PortalDetails.AttentionItems} value={rollup.attentionItems} />
+        <TrackingStatusDetail label={PortalDetails.RetentionAuditItems} value={rollup.retentionAuditItems} />
+        <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={rollup.runtimeReference} />
+        <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={rollup.evidenceReferences} />
+        <TrackingStatusDetail label={PortalDetails.ProductClaim} value={rollup.productClaim} />
       </dl>
     </article>
   );

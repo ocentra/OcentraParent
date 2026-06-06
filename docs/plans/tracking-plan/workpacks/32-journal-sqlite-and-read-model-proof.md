@@ -33,6 +33,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `21-product-surface-summary-proof.json`
 - `22-report-policy-consumer-proof.json`
 - `23-family-dashboard-rollup-proof.json`
+- `24-family-dashboard-rendered-ui-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -56,6 +57,8 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [x] Expose family dashboard rollup rows for active family summary,
       child-attention summary, and retention-audit summary without claiming
       portal UI completion or child-device/runtime behavior.
+- [x] Render the hosted family-dashboard rollup card from the service read model
+      and existing WP32 proof refs without claiming product-complete UI.
 
 ## Where We Are
 
@@ -88,6 +91,14 @@ child-attention summary, and retention-audit summary rows from the existing
 service read-model/product-surface/report-consumer proof refs while keeping
 portal UI, child-device delivery, provider delivery, notification receipt,
 physical-device, authority, and product-ready claims false.
+The hosted parent route now renders a family-dashboard rollup card from the
+same service-backed `trackingReadModel` payload and cites
+`23-family-dashboard-rollup-proof.json`; `npm run
+test:tracking-plan-hosted-ui-proof` writes the rendered proof to
+`24-family-dashboard-rendered-ui-proof.json` and the companion WP30 hosted
+artifact `20-family-dashboard-rollup-ui-proof.json`. This proves a narrow
+hosted dashboard card only, not full parent/child UI or product-complete
+tracking.
 The pre-device proof gate now reruns this service proof and records the
 remaining broader read-model, full UI, hosted accessibility, and platform replay
 gaps before device work starts.
@@ -119,12 +130,11 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Full UI/report/policy consumers for the active product-surface summary, full
+- Full UI/report/policy consumers beyond the hosted route cards, full
   parent/child UI beyond the hosted parent route, platform physical-device
   replay, export, provider, authority, and production claims remain
   manual-required until the assigned proof artifacts exist. The family
-  dashboard rollup rows are read-model consumer proof only; they are not
-  rendered portal UI or child-device runtime proof.
+  dashboard rollup rows and hosted card are not child-device runtime proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready

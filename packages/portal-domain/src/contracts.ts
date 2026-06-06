@@ -194,6 +194,10 @@ export const PortalConnectionState = {
   Error: PortalConnectionStateSchema.parse('error'),
 } as const;
 
+export const PortalTrackingReadModelValues = {
+  ActiveQueryVisibility: 'active',
+} as const;
+
 export const PortalDom = {
   RootSelector: '#app',
   HashPrefix: '#/',
@@ -368,6 +372,7 @@ export const PortalDom = {
     TabList: 'tablist',
     TrackingProofChildCheckIn: 'child-check-in',
     TrackingProofChildRuntimeUi: 'child-runtime-ui',
+    TrackingProofFamilyDashboardRollup: 'family-dashboard-rollup',
   },
   Events: {
     Click: 'click',
