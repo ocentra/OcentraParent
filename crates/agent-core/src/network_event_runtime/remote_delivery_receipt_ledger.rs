@@ -82,7 +82,7 @@ pub async fn prove_network_runtime_remote_delivery_receipt_ledger() -> Result<
     })
 }
 
-fn receipt_records_from_projection(
+pub(super) fn receipt_records_from_projection(
     records: &[ReplayRecord],
 ) -> Result<
     Vec<NetworkRuntimeRemoteDeliveryReceiptRecord>,
