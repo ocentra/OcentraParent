@@ -208,7 +208,11 @@ consumes the same results.
 - [x] Policy integration tests for stricter parent-rule override on screen AI
       policy decisions.
 - [x] Memory/graph source guard tests.
-- [ ] Remote boundary tests.
+- [x] Remote boundary tests cover parent-authorized remote assistant requests,
+      local-only fallback, child-safety path rejection, raw-retention rejection,
+      and policy/enforcement/override overclaim rejection in
+      `packages/parent-domain/tests/local-ai-remote-assistant-boundary-proof.test.ts`
+      and `scripts/test/local-ai-remote-assistant-boundary-proof.mjs`.
 - [x] Playwright UI proof.
 - [x] `git diff --check`.
 - [x] lane/hub guards.
