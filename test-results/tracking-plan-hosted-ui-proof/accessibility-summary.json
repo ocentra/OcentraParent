@@ -27,6 +27,7 @@
     "unsupported-manual-platform-render-state-visible",
     "unsupported-manual-platform-screenshot",
     "no-unlabeled-buttons",
+    "no-proof-card-overlap",
     "desktop-screenshot",
     "child-check-in-screenshot",
     "child-runtime-ui-screenshot",
@@ -580,6 +581,62 @@
       {
         "text": "Refresh tracking status",
         "disabled": false
+      }
+    ],
+    "layoutBoxes": [
+      {
+        "proofId": "family-dashboard-rollup",
+        "left": 21,
+        "top": -5121,
+        "right": 366,
+        "bottom": -3793,
+        "width": 345,
+        "height": 1328
+      },
+      {
+        "proofId": "service-backed-evidence-drawer",
+        "left": 21,
+        "top": -2548,
+        "right": 366,
+        "bottom": -1775,
+        "width": 345,
+        "height": 773
+      },
+      {
+        "proofId": "service-backed-citation-detail",
+        "left": 21,
+        "top": -1769,
+        "right": 366,
+        "bottom": -1323,
+        "width": 345,
+        "height": 446
+      },
+      {
+        "proofId": "retention-settings-ui",
+        "left": 21,
+        "top": -3787,
+        "right": 366,
+        "bottom": -2554,
+        "width": 345,
+        "height": 1233
+      },
+      {
+        "proofId": "child-check-in",
+        "left": 21,
+        "top": -866,
+        "right": 366,
+        "bottom": -322,
+        "width": 345,
+        "height": 543
+      },
+      {
+        "proofId": "child-runtime-ui",
+        "left": 21,
+        "top": -316,
+        "right": 366,
+        "bottom": 248,
+        "width": 345,
+        "height": 564
       }
     ],
     "unlabeledButtons": 0

@@ -32,6 +32,16 @@ const accessibilitySummaryPath = path.join(
   'accessibility-summary.json'
 );
 
+type HostedTrackingLayoutBox = {
+  readonly proofId: string;
+  readonly left: number;
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+  readonly width: number;
+  readonly height: number;
+};
+
 test('hosted policy tracking route renders real-service proof without product claims', async ({ page }) => {
   const browserFailures = collectBrowserFailures(page);
 
@@ -305,6 +315,7 @@ async function collectAccessibilitySummary(page: Page): Promise<{
   readonly labels: readonly string[];
   readonly values: readonly string[];
   readonly buttons: readonly { readonly text: string; readonly disabled: boolean }[];
+  readonly layoutBoxes: readonly HostedTrackingLayoutBox[];
   readonly unlabeledButtons: number;
 }> {
   return page.evaluate(() => {
@@ -314,6 +325,32 @@ async function collectAccessibilitySummary(page: Page): Promise<{
       text: text(element),
       disabled: element.hasAttribute('disabled'),
     }));
+    const requiredProofIds = [
+      'family-dashboard-rollup',
+      'service-backed-evidence-drawer',
+      'service-backed-citation-detail',
+      'retention-settings-ui',
+      'child-check-in',
+      'child-runtime-ui',
+    ];
+    const layoutBoxes = requiredProofIds.flatMap((proofId) => {
+      const element = region?.querySelector<HTMLElement>(`[data-ocentra-tracking-proof="${proofId}"]`);
+      if (element === null || element === undefined) {
+        return [];
+      }
+      const rect = element.getBoundingClientRect();
+      return [
+        {
+          proofId,
+          left: Math.round(rect.left),
+          top: Math.round(rect.top),
+          right: Math.round(rect.right),
+          bottom: Math.round(rect.bottom),
+          width: Math.round(rect.width),
+          height: Math.round(rect.height),
+        },
+      ];
+    });
     return {
       hasNamedRegion: region !== null,
       headings: Array.from(region?.querySelectorAll('h2') ?? []).map(text),
@@ -321,6 +358,7 @@ async function collectAccessibilitySummary(page: Page): Promise<{
       labels: Array.from(region?.querySelectorAll('dt') ?? []).map(text),
       values: Array.from(region?.querySelectorAll('dd') ?? []).map(text),
       buttons,
+      layoutBoxes,
       unlabeledButtons: buttons.filter((button) => button.text.length === 0).length,
     };
   });
@@ -357,8 +395,7 @@ async function writeAccessibilitySummary(
 }
 
 function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>): void {
-  expect(summary.hasNamedRegion).toBe(true);
-  expect(summary.unlabeledButtons).toBe(0);
+  assertAccessibilityBasics(summary);
   assertContainsAll(summary.headings, [
     'Tracking status proof',
     'Service read model',
@@ -420,10 +457,44 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
   ]);
 }
 
+function assertAccessibilityBasics(summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>): void {
+  expect(summary.hasNamedRegion).toBe(true);
+  expect(summary.unlabeledButtons).toBe(0);
+  assertHostedTrackingLayoutBoxes(summary.layoutBoxes);
+}
+
 function assertContainsAll(actualValues: readonly string[], expectedValues: readonly string[]): void {
   for (const expectedValue of expectedValues) {
     expect(actualValues).toContain(expectedValue);
   }
+}
+
+function assertHostedTrackingLayoutBoxes(layoutBoxes: readonly HostedTrackingLayoutBox[]): void {
+  expect(layoutBoxes.map((box) => box.proofId).sort()).toEqual(
+    [
+      'child-check-in',
+      'child-runtime-ui',
+      'family-dashboard-rollup',
+      'retention-settings-ui',
+      'service-backed-citation-detail',
+      'service-backed-evidence-drawer',
+    ].sort()
+  );
+  for (const layoutBox of layoutBoxes) {
+    expect(layoutBox.width).toBeGreaterThan(0);
+    expect(layoutBox.height).toBeGreaterThan(0);
+  }
+  for (const [index, layoutBox] of layoutBoxes.entries()) {
+    for (const otherBox of layoutBoxes.slice(index + 1)) {
+      expect(layoutBoxesOverlap(layoutBox, otherBox)).toBe(false);
+    }
+  }
+}
+
+function layoutBoxesOverlap(first: HostedTrackingLayoutBox, second: HostedTrackingLayoutBox): boolean {
+  return (
+    first.left < second.right && first.right > second.left && first.top < second.bottom && first.bottom > second.top
+  );
 }
 
 function hostedTrackingAssertions(): readonly string[] {
@@ -454,6 +525,7 @@ function hostedTrackingAssertions(): readonly string[] {
     'unsupported-manual-platform-render-state-visible',
     'unsupported-manual-platform-screenshot',
     'no-unlabeled-buttons',
+    'no-proof-card-overlap',
     'desktop-screenshot',
     'child-check-in-screenshot',
     'child-runtime-ui-screenshot',

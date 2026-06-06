@@ -37,6 +37,7 @@ const requiredAssertions = [
   'no-product-claim-visible',
   'child-device-delivery-not-claimed',
   'no-unlabeled-buttons',
+  'no-proof-card-overlap',
 ];
 
 await rm(outputDir, { recursive: true, force: true });
@@ -85,6 +86,7 @@ async function buildProof() {
     },
     screenshots,
     requiredAssertions,
+    layoutProof: layoutProof(accessibilitySummary),
     proofPaths: {
       evidence: 'test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json',
       workpack30Proof:
@@ -139,6 +141,9 @@ function assertProof(proof) {
   if (missingAssertions.length > 0) {
     throw new Error(`Missing hosted accessibility assertions: ${missingAssertions.join(', ')}`);
   }
+  if (!proof.layoutProof.noOverlap || proof.layoutProof.boxes.length !== 6) {
+    throw new Error(`Hosted UI layout proof did not prove non-overlap: ${JSON.stringify(proof.layoutProof)}`);
+  }
   if (Object.values(proof.nonClaims).some((value) => value !== false)) {
     throw new Error(`Hosted UI inventory proof overclaimed behavior: ${JSON.stringify(proof.nonClaims)}`);
   }
@@ -160,7 +165,27 @@ function accessibilitySummarySummary(summary) {
     hasNamedRegion: summary.summary?.hasNamedRegion === true,
     headingCount: summary.summary?.headings?.length ?? 0,
     labelCount: summary.summary?.labels?.length ?? 0,
+    layoutBoxCount: summary.summary?.layoutBoxes?.length ?? 0,
   };
+}
+
+function layoutProof(summary) {
+  const boxes = summary.summary?.layoutBoxes ?? [];
+  return {
+    proofMode: 'hosted-tracking-no-overlap-layout-proof',
+    noOverlap: boxes.length === 6 && !boxesOverlap(boxes),
+    boxes,
+  };
+}
+
+function boxesOverlap(boxes) {
+  return boxes.some((box, index) => boxes.slice(index + 1).some((otherBox) => rectanglesOverlap(box, otherBox)));
+}
+
+function rectanglesOverlap(first, second) {
+  return (
+    first.left < second.right && first.right > second.left && first.top < second.bottom && first.bottom > second.top
+  );
 }
 
 function pngDimensions(buffer, relativePath) {
@@ -180,8 +205,8 @@ function sourceSnapshot(proof) {
     '',
     `- Branch: ${proof.branch}`,
     `- Base commit at generation: ${proof.baseCommitAtGeneration}`,
-    '- Source proof: existing hosted UI Playwright proof artifacts and accessibility summary.',
-    '- Scope: verify stored hosted screenshots, evidence drawer proof, and accessibility assertions for WP30/WP33 handoff.',
+    '- Source proof: existing hosted UI Playwright proof artifacts, accessibility summary, and layout geometry.',
+    '- Scope: verify stored hosted screenshots, evidence drawer proof, accessibility assertions, and no-overlap layout boxes for WP30/WP33 handoff.',
     '- Boundary: inventory proof only; child-device runtime, physical-device proof, authority, provider delivery, full parent/child UI beyond the hosted route, production proof, and product-ready tracking remain unclaimed.',
     '',
   ].join('\n');

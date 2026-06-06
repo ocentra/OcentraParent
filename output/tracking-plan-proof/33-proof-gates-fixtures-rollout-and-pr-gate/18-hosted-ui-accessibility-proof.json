@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T13:09:14.080Z",
-  "commit": "63acb813163d8c1b42162ab0af07915f1f3894fa",
+  "checkedAt": "2026-06-06T18:58:09.740Z",
+  "commit": "b803b37b2213c2eda95aa33338ac6637b8024f2f",
   "workpackIds": [
     "30-parent-and-child-ui-ux-surfaces",
     "31-platform-extension-checklists-and-proof-routing",
@@ -78,6 +78,7 @@
       "unsupported-manual-platform-render-state-visible",
       "unsupported-manual-platform-screenshot",
       "no-unlabeled-buttons",
+      "no-proof-card-overlap",
       "desktop-screenshot",
       "child-check-in-screenshot",
       "child-runtime-ui-screenshot",
@@ -633,6 +634,62 @@
           "disabled": false
         }
       ],
+      "layoutBoxes": [
+        {
+          "proofId": "family-dashboard-rollup",
+          "left": 21,
+          "top": -5121,
+          "right": 366,
+          "bottom": -3793,
+          "width": 345,
+          "height": 1328
+        },
+        {
+          "proofId": "service-backed-evidence-drawer",
+          "left": 21,
+          "top": -2548,
+          "right": 366,
+          "bottom": -1775,
+          "width": 345,
+          "height": 773
+        },
+        {
+          "proofId": "service-backed-citation-detail",
+          "left": 21,
+          "top": -1769,
+          "right": 366,
+          "bottom": -1323,
+          "width": 345,
+          "height": 446
+        },
+        {
+          "proofId": "retention-settings-ui",
+          "left": 21,
+          "top": -3787,
+          "right": 366,
+          "bottom": -2554,
+          "width": 345,
+          "height": 1233
+        },
+        {
+          "proofId": "child-check-in",
+          "left": 21,
+          "top": -866,
+          "right": 366,
+          "bottom": -322,
+          "width": 345,
+          "height": 543
+        },
+        {
+          "proofId": "child-runtime-ui",
+          "left": 21,
+          "top": -316,
+          "right": 366,
+          "bottom": 248,
+          "width": 345,
+          "height": 564
+        }
+      ],
       "unlabeledButtons": 0
     },
     "screenshots": {
@@ -649,7 +706,7 @@
   },
   "commands": [
     {
-      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-00Yu66\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-00Yu66\\seed-tracking.sql",
+      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-vf6tmY\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-vf6tmY\\seed-tracking.sql",
       "exitCode": 0
     },
     {
