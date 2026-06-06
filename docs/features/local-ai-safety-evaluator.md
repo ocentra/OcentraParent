@@ -46,6 +46,13 @@ claim needs proof, not slogans.
   parent/child jobs still share one lane, and tracked proof artifacts live under
   `output/ai-plan-proof/local-ai-runtime-provider-proof` and
   `output/ai-plan-proof/local-ai-provider-scheduler-proof`.
+- `LocalAiRuntimeStatusSurfaceReadModelSchema` and
+  `scripts/test/local-ai-runtime-status-read-model-proof.mjs` now project the
+  existing provider proof rows into parent-facing runtime status rows. The proof
+  preserves provider/runtime/model refs, child-safety priority visibility,
+  ready/queued/degraded/unavailable counts, and explicit setup/unavailable
+  states while keeping production portal rendering, remote/API AI, policy
+  authority, model execution/quality, and enforcement unclaimed.
 - The screen service analysis runtime now consumes an encrypted screen queue job,
   runs through the local provider scheduler and service-owned local adapter
   command boundary, records `localVision`, `localOcr`, or explicit
@@ -209,6 +216,7 @@ production external evidence variants.
 ## Checklist
 
 - [x] Runtime/provider status.
+- [x] Runtime status parent-facing read-model proof path.
 - [x] One local AI runtime access lane per physical device, with child-safety
       priority and no duplicate same-device model load proof.
 - [x] Evidence context builder proof path.
