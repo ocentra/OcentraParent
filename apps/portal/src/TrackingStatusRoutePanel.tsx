@@ -23,10 +23,12 @@ import {
   trackingStatusLiveSummary,
   trackingStatusServiceDataCoverage,
   trackingStatusProofRows,
+  trackingUnsupportedManualPlatformProof,
   type TrackingStatusServiceDataCoverage,
   type TrackingStatusLiveCitation,
   type TrackingStatusLiveSummary,
   type TrackingStatusProofRow,
+  type TrackingUnsupportedManualPlatformProof,
 } from './tracking-status-panel';
 
 export function shouldRenderTrackingStatusRoute(route: PortalRouteValue): boolean {
@@ -78,6 +80,7 @@ export function TrackingStatusRoutePanel({
           ))}
           <TrackingChildCheckInProofCard proof={trackingChildCheckInProof()} />
           <TrackingChildRuntimeUiProofCard proof={trackingChildRuntimeUiProof()} />
+          <TrackingUnsupportedManualPlatformProofCard proof={trackingUnsupportedManualPlatformProof()} />
           {trackingStatusProofRows().map((proofRow) => (
             <TrackingStatusRouteRow key={String(proofRow.title)} proofRow={proofRow} />
           ))}
@@ -218,6 +221,53 @@ function TrackingChildRuntimeUiProofCard({ proof }: { readonly proof: TrackingCh
         <TrackingStatusDetail label={PortalDetails.ProductClaim} value={proof.productClaim} />
       </dl>
     </article>
+  );
+}
+
+function TrackingUnsupportedManualPlatformProofCard({
+  proof,
+}: {
+  readonly proof: TrackingUnsupportedManualPlatformProof;
+}): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article className={className}>
+      <h2>{proof.title}</h2>
+      <p>{proof.body}</p>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <TrackingStatusDetail label={PortalDetails.ProofTier} value={proof.proofTier} />
+        <TrackingStatusDetail label={PortalDetails.RowsReturned} value={proof.rowsReturned} />
+        <TrackingStatusDetail label={PortalDetails.AdapterBoundary} value={proof.boundary} />
+        <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={proof.evidence} />
+        <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proof.proofArtifact} />
+        <TrackingStatusDetail label={PortalDetails.MissingProof} value={proof.missingProof} />
+        <TrackingStatusDetail label={PortalDetails.ProductClaim} value={proof.productClaim} />
+        <TrackingStatusDetail label={PortalDetails.Provider} value={proof.fakeCapabilityRows} />
+        <TrackingStatusDetail label={PortalDetails.PolicyReadiness} value={proof.productClaimReadyRows} />
+        <TrackingStatusDetail label={PortalDetails.Device} value={proof.physicalDeviceClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.Enforcement} value={proof.authorityClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.ManualReview} value={proof.authorityRequiredRows} />
+        {proof.rows.map((proofRow) => (
+          <TrackingUnsupportedManualPlatformRow key={String(proofRow.title)} proofRow={proofRow} />
+        ))}
+      </dl>
+    </article>
+  );
+}
+
+function TrackingUnsupportedManualPlatformRow({
+  proofRow,
+}: {
+  readonly proofRow: TrackingUnsupportedManualPlatformProof['rows'][number];
+}): ReactElement {
+  return (
+    <>
+      <TrackingStatusDetail label={PortalDetails.Title} value={proofRow.title} />
+      <TrackingStatusDetail label={PortalDetails.ReadinessKind} value={proofRow.supportState} />
+      <TrackingStatusDetail label={PortalDetails.Status} value={proofRow.renderedState} />
+    </>
   );
 }
 

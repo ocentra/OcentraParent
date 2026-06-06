@@ -64,6 +64,26 @@ export const PortalDevTextToken = {
   TrackingChildRuntimeHelpResponse: decodeTextTokenId('portal.dev.trackingChildRuntimeHelpResponse'),
   TrackingChildRuntimeLocationConsent: decodeTextTokenId('portal.dev.trackingChildRuntimeLocationConsent'),
   TrackingChildRuntimeBoundary: decodeTextTokenId('portal.dev.trackingChildRuntimeBoundary'),
+  TrackingUnsupportedManualProofTitle: decodeTextTokenId('portal.dev.trackingUnsupportedManualProofTitle'),
+  TrackingUnsupportedManualProofBody: decodeTextTokenId('portal.dev.trackingUnsupportedManualProofBody'),
+  TrackingUnsupportedManualAndroidBackground: decodeTextTokenId(
+    'portal.dev.trackingUnsupportedManualAndroidBackground'
+  ),
+  TrackingUnsupportedManualAndroidGeofence: decodeTextTokenId('portal.dev.trackingUnsupportedManualAndroidGeofence'),
+  TrackingUnsupportedManualIosBackground: decodeTextTokenId('portal.dev.trackingUnsupportedManualIosBackground'),
+  TrackingUnsupportedManualIosGeofence: decodeTextTokenId('portal.dev.trackingUnsupportedManualIosGeofence'),
+  TrackingUnsupportedManualDesktopOs: decodeTextTokenId('portal.dev.trackingUnsupportedManualDesktopOs'),
+  TrackingUnsupportedManualWebChildAgent: decodeTextTokenId('portal.dev.trackingUnsupportedManualWebChildAgent'),
+  TrackingUnsupportedManualAuthorityHardControl: decodeTextTokenId(
+    'portal.dev.trackingUnsupportedManualAuthorityHardControl'
+  ),
+  TrackingUnsupportedManualBoundary: decodeTextTokenId('portal.dev.trackingUnsupportedManualBoundary'),
+  TrackingSupportManualRequired: decodeTextTokenId('portal.dev.trackingSupportManualRequired'),
+  TrackingSupportPlatformUnsupported: decodeTextTokenId('portal.dev.trackingSupportPlatformUnsupported'),
+  TrackingSupportRealDeviceRequired: decodeTextTokenId('portal.dev.trackingSupportRealDeviceRequired'),
+  TrackingRenderedManualRequired: decodeTextTokenId('portal.dev.trackingRenderedManualRequired'),
+  TrackingRenderedUnavailable: decodeTextTokenId('portal.dev.trackingRenderedUnavailable'),
+  TrackingRenderedAuthorityRequired: decodeTextTokenId('portal.dev.trackingRenderedAuthorityRequired'),
   TrackingStateTemporaryLive: decodeTextTokenId('portal.dev.trackingStateTemporaryLive'),
   TrackingStateMissingDevice: decodeTextTokenId('portal.dev.trackingStateMissingDevice'),
   TrackingStateRetentionDeleted: decodeTextTokenId('portal.dev.trackingStateRetentionDeleted'),
@@ -204,6 +224,42 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.TrackingChildRuntimeHelpResponse]: decodeDisplayText('Help response visible'),
   [PortalDevTextToken.TrackingChildRuntimeLocationConsent]: decodeDisplayText('Location share asks consent'),
   [PortalDevTextToken.TrackingChildRuntimeBoundary]: decodeDisplayText('Hosted proof only, not child-agent delivery'),
+  [PortalDevTextToken.TrackingUnsupportedManualProofTitle]: decodeDisplayText(
+    'Unsupported/manual tracking platform proof'
+  ),
+  [PortalDevTextToken.TrackingUnsupportedManualProofBody]: decodeDisplayText(
+    'Unsupported platform and manual-required adapter rows render as degraded states without invented capability.'
+  ),
+  [PortalDevTextToken.TrackingUnsupportedManualAndroidBackground]: decodeDisplayText(
+    'Android background location manual required'
+  ),
+  [PortalDevTextToken.TrackingUnsupportedManualAndroidGeofence]: decodeDisplayText(
+    'Android geofence transition manual required'
+  ),
+  [PortalDevTextToken.TrackingUnsupportedManualIosBackground]: decodeDisplayText(
+    'iOS background location manual required'
+  ),
+  [PortalDevTextToken.TrackingUnsupportedManualIosGeofence]: decodeDisplayText(
+    'iOS geofence transition manual required'
+  ),
+  [PortalDevTextToken.TrackingUnsupportedManualDesktopOs]: decodeDisplayText(
+    'Windows desktop OS location manual required'
+  ),
+  [PortalDevTextToken.TrackingUnsupportedManualWebChildAgent]: decodeDisplayText(
+    'Web child agent location unavailable'
+  ),
+  [PortalDevTextToken.TrackingUnsupportedManualAuthorityHardControl]: decodeDisplayText(
+    'Authority hard-control proof required'
+  ),
+  [PortalDevTextToken.TrackingUnsupportedManualBoundary]: decodeDisplayText(
+    'Hosted render-state proof only; physical-device, authority, provider delivery, and product readiness remain unclaimed.'
+  ),
+  [PortalDevTextToken.TrackingSupportManualRequired]: decodeDisplayText('manual-required'),
+  [PortalDevTextToken.TrackingSupportPlatformUnsupported]: decodeDisplayText('platform-unsupported'),
+  [PortalDevTextToken.TrackingSupportRealDeviceRequired]: decodeDisplayText('real-device-required'),
+  [PortalDevTextToken.TrackingRenderedManualRequired]: decodeDisplayText('manual-required'),
+  [PortalDevTextToken.TrackingRenderedUnavailable]: decodeDisplayText('unavailable'),
+  [PortalDevTextToken.TrackingRenderedAuthorityRequired]: decodeDisplayText('authority-required'),
   [PortalDevTextToken.TrackingStateTemporaryLive]: decodeDisplayText('Temporary live'),
   [PortalDevTextToken.TrackingStateMissingDevice]: decodeDisplayText('Missing device'),
   [PortalDevTextToken.TrackingStateRetentionDeleted]: decodeDisplayText('Retention deleted'),

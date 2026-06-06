@@ -9,11 +9,18 @@ test.setTimeout(120_000);
 const portalShellReadyTimeoutMs = 90_000;
 const repoRoot = path.resolve(process.cwd(), '..', '..');
 const proofRoot = path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces');
+const workpack31Root = path.join(
+  repoRoot,
+  'output',
+  'tracking-plan-proof',
+  '31-platform-extension-checklists-and-proof-routing'
+);
 const screenshotDir = path.join(proofRoot, '11-ui-snapshots');
 const desktopScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary.png');
 const mobileScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary-mobile.png');
 const childCheckInScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-check-in.png');
 const childRuntimeUiScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-runtime-ui.png');
+const unsupportedManualScreenshotPath = path.join(workpack31Root, '19-unsupported-manual-hosted-ui.png');
 const accessibilitySummaryPath = path.join(
   repoRoot,
   'test-results',
@@ -63,6 +70,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await expect(trackingProofRegion.getByText('Call parent', { exact: true })).toBeVisible();
   await expect(trackingProofRegion.getByText('Child-device delivery not proved').first()).toBeVisible();
   await assertHostedChildRuntimeUiProof(trackingProofRegion);
+  await assertHostedUnsupportedManualPlatformProof(trackingProofRegion);
 
   const routeText = await trackingProofRegion.textContent();
   expect(routeText ?? '').not.toMatch(/(?:product ready|physical device proved|background geofence proved)/iu);
@@ -77,6 +85,24 @@ async function assertHostedChildRuntimeUiProof(trackingProofRegion: Locator): Pr
   await expect(trackingProofRegion.getByText('Location share asks consent')).toBeVisible();
   await expect(trackingProofRegion.getByText('Hosted proof only, not child-agent delivery')).toBeVisible();
   await expect(trackingProofRegion.getByText('19-child-runtime-ui-proof.json')).toBeVisible();
+}
+
+async function assertHostedUnsupportedManualPlatformProof(trackingProofRegion: Locator): Promise<void> {
+  await expect(
+    trackingProofRegion.getByRole('heading', { name: 'Unsupported/manual tracking platform proof' })
+  ).toBeVisible();
+  await expect(trackingProofRegion.getByText('Android background location manual required')).toBeVisible();
+  await expect(trackingProofRegion.getByText('Android geofence transition manual required')).toBeVisible();
+  await expect(trackingProofRegion.getByText('iOS background location manual required')).toBeVisible();
+  await expect(trackingProofRegion.getByText('iOS geofence transition manual required')).toBeVisible();
+  await expect(trackingProofRegion.getByText('Windows desktop OS location manual required')).toBeVisible();
+  await expect(trackingProofRegion.getByText('Web child agent location unavailable')).toBeVisible();
+  await expect(trackingProofRegion.getByText('Authority hard-control proof required')).toBeVisible();
+  await expect(trackingProofRegion.getByText('platform-unsupported')).toBeVisible();
+  await expect(trackingProofRegion.getByText('real-device-required')).toBeVisible();
+  await expect(trackingProofRegion.getByText('authority-required')).toBeVisible();
+  await expect(trackingProofRegion.getByText('unsupported-platform-manual-proof/proof.json')).toBeVisible();
+  await expect(trackingProofRegion.getByText('No product claim').first()).toBeVisible();
 }
 
 async function refreshHostedTrackingStatus(page: Page, trackingProofRegion: Locator): Promise<void> {
@@ -106,12 +132,16 @@ async function refreshHostedTrackingStatus(page: Page, trackingProofRegion: Loca
 
 async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   await mkdir(screenshotDir, { recursive: true });
+  await mkdir(workpack31Root, { recursive: true });
   await page.screenshot({ fullPage: true, path: desktopScreenshotPath });
   await page.setViewportSize({ width: 1280, height: 960 });
   const trackingProofRegion = page.getByRole('region', { name: 'Tracking status proof' });
   await expect(trackingProofRegion).toBeVisible();
   const childCheckInCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="child-check-in"]').first();
   const childRuntimeUiCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="child-runtime-ui"]').first();
+  const unsupportedManualCard = trackingProofRegion
+    .getByRole('heading', { name: 'Unsupported/manual tracking platform proof' })
+    .locator('xpath=ancestor::article[1]');
   await page.evaluate(() => {
     const grid = document.querySelector('.tracking-status-overlay-grid');
     const childCheckIn = document.querySelector('[data-ocentra-tracking-proof="child-check-in"]');
@@ -132,6 +162,10 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   await page.waitForTimeout(250);
   await expect(childRuntimeUiCard).toBeVisible();
   await childRuntimeUiCard.screenshot({ path: childRuntimeUiScreenshotPath });
+  await unsupportedManualCard.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(250);
+  await expect(unsupportedManualCard).toBeVisible();
+  await unsupportedManualCard.screenshot({ path: unsupportedManualScreenshotPath });
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole('region', { name: 'Tracking status proof' })).toBeVisible();
@@ -169,6 +203,30 @@ async function collectAccessibilitySummary(page: Page): Promise<{
 async function writeAccessibilitySummary(
   summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>
 ): Promise<void> {
+  assertAccessibilitySummary(summary);
+  await mkdir(path.dirname(accessibilitySummaryPath), { recursive: true });
+  await writeFile(
+    accessibilitySummaryPath,
+    `${JSON.stringify(
+      {
+        route: '#/policy-tracking',
+        assertions: hostedTrackingAssertions(),
+        summary,
+        screenshots: {
+          desktop: path.relative(repoRoot, desktopScreenshotPath).replace(/\\/gu, '/'),
+          childCheckIn: path.relative(repoRoot, childCheckInScreenshotPath).replace(/\\/gu, '/'),
+          childRuntimeUi: path.relative(repoRoot, childRuntimeUiScreenshotPath).replace(/\\/gu, '/'),
+          unsupportedManualPlatform: path.relative(repoRoot, unsupportedManualScreenshotPath).replace(/\\/gu, '/'),
+          mobile: path.relative(repoRoot, mobileScreenshotPath).replace(/\\/gu, '/'),
+        },
+      },
+      null,
+      2
+    )}\n`
+  );
+}
+
+function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>): void {
   expect(summary.hasNamedRegion).toBe(true);
   expect(summary.unlabeledButtons).toBe(0);
   expect(summary.headings).toContain('Tracking status proof');
@@ -176,6 +234,7 @@ async function writeAccessibilitySummary(
   expect(summary.headings).toContain('Service data coverage');
   expect(summary.headings).toContain('Child check-in request');
   expect(summary.headings).toContain('Child runtime UI proof');
+  expect(summary.headings).toContain('Unsupported/manual tracking platform proof');
   expect(summary.paragraphs).toContain('Your parent is asking you to check in. Are you safe?');
   expect(summary.paragraphs).toContain(
     'Child sees a clear tracking request, safe response, help response, and location-share consent copy.'
@@ -183,6 +242,7 @@ async function writeAccessibilitySummary(
   expect(summary.labels).toContain('Evidence references');
   expect(summary.labels).toContain('Child copy');
   expect(summary.labels).toContain('Child delivery');
+  expect(summary.labels).toContain('Readiness kind');
   expect(summary.labels).toContain('Product claim');
   expect(summary.values).toContain("I'm safe");
   expect(summary.values).toContain('Need help');
@@ -194,46 +254,38 @@ async function writeAccessibilitySummary(
   expect(summary.values).toContain('Help response visible');
   expect(summary.values).toContain('Location share asks consent');
   expect(summary.values).toContain('Hosted proof only, not child-agent delivery');
+  expect(summary.values).toContain('Android background location manual required');
+  expect(summary.values).toContain('Web child agent location unavailable');
+  expect(summary.values).toContain('Authority hard-control proof required');
+  expect(summary.values).toContain('platform-unsupported');
+  expect(summary.values).toContain('real-device-required');
+  expect(summary.values).toContain('authority-required');
   expect(summary.values).toContain('No product claim');
+}
 
-  await mkdir(path.dirname(accessibilitySummaryPath), { recursive: true });
-  await writeFile(
-    accessibilitySummaryPath,
-    `${JSON.stringify(
-      {
-        route: '#/policy-tracking',
-        assertions: [
-          'named-region',
-          'visible-heading',
-          'enabled-refresh-button',
-          'service-backed-row-citation-visible',
-          'service-data-coverage-visible',
-          'manual-required-visible',
-          'physical-device-required-visible',
-          'no-product-claim-visible',
-          'child-check-in-copy-visible',
-          'child-check-in-actions-visible',
-          'child-device-delivery-not-claimed',
-          'child-runtime-disclosure-visible',
-          'child-runtime-safe-help-response-visible',
-          'child-runtime-location-share-consent-visible',
-          'child-runtime-hosted-only-boundary-visible',
-          'no-unlabeled-buttons',
-          'desktop-screenshot',
-          'child-check-in-screenshot',
-          'child-runtime-ui-screenshot',
-          'mobile-screenshot',
-        ],
-        summary,
-        screenshots: {
-          desktop: path.relative(repoRoot, desktopScreenshotPath).replace(/\\/gu, '/'),
-          childCheckIn: path.relative(repoRoot, childCheckInScreenshotPath).replace(/\\/gu, '/'),
-          childRuntimeUi: path.relative(repoRoot, childRuntimeUiScreenshotPath).replace(/\\/gu, '/'),
-          mobile: path.relative(repoRoot, mobileScreenshotPath).replace(/\\/gu, '/'),
-        },
-      },
-      null,
-      2
-    )}\n`
-  );
+function hostedTrackingAssertions(): readonly string[] {
+  return [
+    'named-region',
+    'visible-heading',
+    'enabled-refresh-button',
+    'service-backed-row-citation-visible',
+    'service-data-coverage-visible',
+    'manual-required-visible',
+    'physical-device-required-visible',
+    'no-product-claim-visible',
+    'child-check-in-copy-visible',
+    'child-check-in-actions-visible',
+    'child-device-delivery-not-claimed',
+    'child-runtime-disclosure-visible',
+    'child-runtime-safe-help-response-visible',
+    'child-runtime-location-share-consent-visible',
+    'child-runtime-hosted-only-boundary-visible',
+    'unsupported-manual-platform-render-state-visible',
+    'unsupported-manual-platform-screenshot',
+    'no-unlabeled-buttons',
+    'desktop-screenshot',
+    'child-check-in-screenshot',
+    'child-runtime-ui-screenshot',
+    'mobile-screenshot',
+  ];
 }
