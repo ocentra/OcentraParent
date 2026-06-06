@@ -108,7 +108,14 @@ function socialAndroidNativeAppCapabilityRowIsHonest(row: SocialAndroidNativeApp
     return false;
   }
   if (row.surface === 'android-package-visibility') {
-    return row.capabilityState === 'app-level-capable-with-proof' && row.policyScope === 'app-level-only';
+    return (
+      (row.capabilityState === 'app-level-capable-with-proof' &&
+        row.proofState === 'existing-parent-domain-proof-ref' &&
+        row.policyScope === 'app-level-only') ||
+      (row.capabilityState === 'manual-required' &&
+        row.proofState === 'manual-device-proof-required' &&
+        row.policyScope === 'manual-review-only')
+    );
   }
   if (row.surface === 'android-usage-stats-foreground') {
     return row.capabilityState === 'permission-required' && row.proofState === 'permission-grant-required';

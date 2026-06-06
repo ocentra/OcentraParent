@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-06T06:15:04.879Z",
+  "generatedAt": "2026-06-06T06:27:20.154Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -261,6 +261,7 @@
         "01-contract-proof.md",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
+        "11-android-host-device-proof.json",
         "ui-not-applicable.md"
       ],
       "state": "partial-manual-required",
