@@ -208,7 +208,16 @@ function expectedRows() {
         expectedState: 'live-unblocked-site-detection-proof-present',
       };
     }
-    if (rowNumber >= 16) {
+    if (rowNumber === 16) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-ugc-multiplayer-chat-risk-proof-present',
+      };
+    }
+    if (rowNumber >= 17) {
       return {
         rowNumber,
         rowId,
@@ -285,6 +294,7 @@ function manifestFor(rows, failures) {
       'browser-game-live-account-purchase-gate-proof-present',
       'browser-game-live-cloud-gaming-gate-proof-present',
       'browser-game-live-unblocked-site-detection-proof-present',
+      'browser-game-live-ugc-multiplayer-chat-risk-proof-present',
       'proof-artifact-coverage-contract-only',
       'playwright-manual-required-no-rendered-browser-game-ui',
       'runtime-signal-proof-manual-required',
@@ -332,6 +342,7 @@ function markdownFor(manifest) {
     'GAME-13 live account/signup/purchase gate proof is present.',
     'GAME-14 live cloud-gaming gate proof is present.',
     'GAME-15 live unblocked-site detection proof is present.',
+    'GAME-16 live UGC/multiplayer/chat risk proof is present.',
     'Product checklist upgrade is not claimed.',
     'Browser-game child/parent UI, cloud-streamed frame analysis, native',
     'game control, and enforcement remain open or manual-required until',

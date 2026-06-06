@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 15;
+    const isComplete = rowNumber <= 16;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -96,7 +96,9 @@ function expectedRows() {
                                   ? 'live-account-purchase-gate-proof-present'
                                   : rowNumber === 14
                                     ? 'live-cloud-gaming-gate-proof-present'
-                                    : 'live-unblocked-site-detection-proof-present'
+                                    : rowNumber === 15
+                                      ? 'live-unblocked-site-detection-proof-present'
+                                      : 'live-ugc-multiplayer-chat-risk-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -207,6 +209,7 @@ function manifestFor(rows, failures) {
       liveAccountPurchaseGateEvidence: 'game-13-live-account-purchase-gate-proof-present',
       liveCloudGamingGateEvidence: 'game-14-live-cloud-gaming-gate-proof-present',
       liveUnblockedSiteDetectionEvidence: 'game-15-live-unblocked-site-detection-proof-present',
+      liveUgcMultiplayerChatRiskEvidence: 'game-16-live-ugc-multiplayer-chat-risk-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -265,6 +268,8 @@ function markdownFor(manifest) {
     'cloud platform, subscription, cloud PC, mobile cloud, and unknown fallback surfaces.',
     'GAME-15 live unblocked-site detection proof is present for real public',
     'unblocked, search, portal, game-page, archive, and manual fallback surfaces.',
+    'GAME-16 live UGC/multiplayer/chat risk proof is present for real public',
+    'UGC, multiplayer, chat, marketplace, and manual-required route surfaces.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

@@ -317,8 +317,10 @@ control, cloud-frame analysis, account/purchase flows, rendered UI, final
 policy decisions, runtime gate execution, and enforcement. Package subpath exports are now present.
 
 GAME-16 now adds parent-domain browser-game UGC/multiplayer/chat risk contracts
-in `packages/parent-domain/src/browser-game-ugc-multiplayer-chat-risk.ts`. The
-assessment models UGC game pages, experience pages, multiplayer lobbies,
+in `packages/parent-domain/src/browser-game-ugc-multiplayer-chat-risk.ts` and a
+live public risk-shape proof in
+`output/browser-plan-proof/game-16-ugc-multiplayer-chat-risk-model/02-live-ugc-multiplayer-chat-risk-shape-proof.json`.
+The assessment models UGC game pages, experience pages, multiplayer lobbies,
 profile/friends/message routes, launch prompts, web-to-app launch surfaces,
 manual-required states, and unavailable states. Risk rows cover unknown player
 contact, chat/voice contact, UGC worlds, unsafe user-created experiences,
@@ -326,10 +328,14 @@ off-platform contact, virtual currency, in-game purchase, missing age rating,
 web-to-app launch risk, manual-required, and unknown risk. Recommended controls
 remain candidates only: approved-experience-only, parent-review, block-chat,
 time-limit, purchase approval, block unknown UGC, manual review, or unknown.
-They reject raw chat content, profile content, experience identifiers, account
-identifiers, raw game payloads, web-to-app launch execution, purchase execution,
-native game control, final policy decisions, runtime gate execution, UI
-rendering, and enforcement. Package subpath exports are now present.
+The live proof fetches real Roblox Discover, Scratch Games Explore, Minecraft
+Marketplace, Chess.com online play, Steam Community chat, Rec Room, and Xbox
+Cloud Gaming surfaces while persisting only response hashes, evidence refs, risk
+row refs, and no-authority flags. The contracts and proof reject raw chat
+content, profile content, experience identifiers, account identifiers, raw game
+payloads, web-to-app launch execution, purchase execution, native game control,
+final policy decisions, runtime gate execution, UI rendering, and enforcement.
+Package subpath exports are now present.
 
 GAME-17 now adds parent-domain browser-game policy compiler contracts in
 `packages/parent-domain/src/browser-game-policy-compiler.ts`. The compiler
@@ -415,7 +421,8 @@ live-riskbenefit-signal-proof-present, GAME-12 as
 live-memory-cache-proof-present, GAME-13 as
 live-account-purchase-gate-proof-present, GAME-14 as
 live-cloud-gaming-gate-proof-present, GAME-15 as
-live-unblocked-site-detection-proof-present, GAME-16 through GAME-24 as
+live-unblocked-site-detection-proof-present, GAME-16 as
+live-ugc-multiplayer-chat-risk-proof-present, GAME-17 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
 Product checklist upgrade is not claimed; child/parent UI,
 cloud-streamed frame analysis, native game control, and

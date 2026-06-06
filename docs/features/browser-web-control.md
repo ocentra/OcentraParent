@@ -459,11 +459,15 @@ URLs, raw page body, raw search queries, captured iframe content, exact
 unmanaged URLs, native game control, cloud-frame analysis, account/purchase
 flows, rendered UI, final policy/runtime decisions, or enforcement.
 Browser-game/cloud-gaming GAME-16 now adds parent-domain UGC/multiplayer/chat
-risk contracts. The assessment covers UGC pages, experience pages, lobbies,
-profile/friends/message routes, launch prompts, and web-to-app launch surfaces,
-then returns candidate controls for approved experiences, parent approval, chat
-blocking where capability refs exist, time limits, purchase approval, unknown
-UGC blocking, manual review, or unknown state. It does not read chat content,
+risk contracts and a live public route-metadata proof. The assessment covers UGC
+pages, experience pages, lobbies, profile/friends/message routes, launch
+prompts, and web-to-app launch surfaces, then returns candidate controls for
+approved experiences, parent approval, chat blocking where capability refs
+exist, time limits, purchase approval, unknown UGC blocking, manual review, or
+unknown state. The live proof fetches real Roblox Discover, Scratch Games Explore,
+Minecraft Marketplace, Chess.com online play, Steam Community chat, Rec Room,
+and Xbox Cloud Gaming surfaces while persisting only response hashes, evidence
+refs, risk row refs, and no-authority flags. It does not read chat content,
 store profile/account/experience identifiers, execute web-to-app launches or
 purchases, control native games, claim final policy/runtime/UI delivery, or
 enforce actions.
@@ -529,7 +533,8 @@ live-riskbenefit-signal-proof-present. GAME-12 is
 live-memory-cache-proof-present. GAME-13 is
 live-account-purchase-gate-proof-present. GAME-14 is
 live-cloud-gaming-gate-proof-present. GAME-15 is
-live-unblocked-site-detection-proof-present. GAME-16 through GAME-24 are
+live-unblocked-site-detection-proof-present. GAME-16 is
+live-ugc-multiplayer-chat-risk-proof-present. GAME-17 through GAME-24 are
 partial/manual-required. UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.
