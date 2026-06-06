@@ -255,6 +255,13 @@ Any feature that can be disabled for billing must define its degraded local beha
   references, and reject provider contact execution, account lookup execution,
   entitlement override runtime, refund/credit runtime, support backend upload,
   portal admin UI, and child activity custody.
+- `production-support-account-sla-status-proof` proves account lookup request
+  and result boundaries, billing provider contact status, remote support
+  request/session status, and production SLA status remain source-contract,
+  manual-required, or not-implemented only; it rejects account lookup execution,
+  billing provider contact execution, provider secrets, support backend upload
+  execution, remote support sessions, production SLA commitments, and child
+  activity custody.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   prove account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries before provider/backend code exists.
