@@ -122,6 +122,14 @@ dev-only repo when it claims consumer readiness.
   contact, remote support sessions, production SLA execution, raw child activity
   custody, provider secrets, remote support transcripts, and default
   Ocentra-hosted family data unclaimed.
+- `production-incident-support-status-proof` adds parent-domain production
+  incident/support status rows for support incident intake, parent consent,
+  privacy/legal disclosure, data export request, delete request, incident
+  publication, and case resolution handoff. It proves only source-contract and
+  support-safe status metadata while preserving public publication, legal
+  execution, support backend upload execution, account lookup, billing provider
+  contact, remote support sessions, production SLA, provider secrets, and child
+  activity custody as explicit non-claims.
 - `production-support-publication-workflow-proof` adds parent-domain source
   contract rows for public privacy policy publication, privacy/legal disclosure
   execution, support runbook publication, support incident status publication,
@@ -397,6 +405,15 @@ package/runtime proof.
       support sessions, production SLA execution, raw child activity custody,
       provider secrets, remote transcripts, and hosted family data remain
       unclaimed.
+- [ ] Production incident/support status proof. Current
+      `production-incident-support-status-proof` covers support incident intake,
+      parent consent, privacy/legal disclosure, data export request, delete
+      request, incident publication, and case resolution handoff status rows.
+      It links support workflow, custody/audit, case resolution, publication,
+      public docs, and data-custody expectations while keeping public
+      publication, legal execution, backend upload execution, account lookup,
+      billing provider contact, remote support sessions, production SLA,
+      provider secrets, and child activity custody unclaimed.
 - [ ] Production support public publication workflow proof. Current
       `production-support-publication-workflow-proof` covers public privacy
       policy publication, privacy/legal disclosure execution, support runbook
