@@ -419,6 +419,11 @@ flowchart LR
   response-consumer handoff rows and keep future parent-surface proof refs
   visible while keeping parent-surface rendering, portal rendering, service
   runtime, and adapter dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface read-model handoff
+  rows consume parent-surface handoff rows and keep future parent-surface
+  read-model proof refs visible while keeping read-model implementation,
+  parent-surface rendering, portal rendering, service runtime, and adapter
+  dispatch unclaimed.
   Portal authoring or preview UI, live evaluator execution, persistence,
   timers, child notification delivery, adapter dispatch, broad installed-app
   blocking, and platform enforcement remain unimplemented.
