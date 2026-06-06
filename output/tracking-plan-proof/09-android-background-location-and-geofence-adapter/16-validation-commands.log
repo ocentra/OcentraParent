@@ -12,5 +12,5 @@ $ cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-andr
 
  Test Files  1 passed (1)
       Tests  3 passed (3)
-   Start at  20:19:56
-   Duration  1.21s (transform 133ms, setup 0ms, import 767ms, tests 24ms, environment 0ms)
+   Start at  20:26:46
+   Duration  930ms (transform 121ms, setup 0ms, import 644ms, tests 17ms, environment 0ms)
