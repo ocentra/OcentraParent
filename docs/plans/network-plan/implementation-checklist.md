@@ -355,6 +355,16 @@ manual-required/N/A file.
       payload, live adapter mutation, enforcement command publication, full
       policy execution, notification delivery, portal policy authority, and
       host filtering claims.
+- [x] 34b stored network flow enforcement unavailable result: E-D added
+      `output/network-plan-proof/34b-stored-flow-enforcement-result/proof-summary.json`
+      and `test-results/network-stored-flow-enforcement-result-proof/proof.json`.
+      Stored ActivityStore network domain-observed evidence plus a matching
+      parent domain rule now feeds the existing service enforcement command path
+      through the row-derived policy target, action, and evidence refs. The
+      service records pre-action and final audit rows and returns a typed
+      network-control manual-required or unavailable result with no adapter
+      request, no host mutation, no enforcement-command publication, and no
+      exact URL/content claim. Live block/terminate execution remains open.
 - [x] 36a parent UI runtime event-chain drawer: E-D added
       `output/network-plan-proof/36a-parent-ui-runtime-event-chain/proof-summary.json`
       and `test-results/network-parent-ui-runtime-event-chain-proof/proof.json`.

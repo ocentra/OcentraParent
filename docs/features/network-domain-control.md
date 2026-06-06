@@ -393,7 +393,8 @@ adds a platform-claim manifest that names exact Windows, Android, Apple
 macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
 follow-ups for missing artifacts.
 Broker/family-hub delivery implementation, local-AI model execution/worker
-runtime, full policy engine execution beyond stored-flow dry-run preview,
+runtime, full policy engine execution beyond the current stored-flow dry-run
+preview and stored-flow service unavailable-result proof,
 notification provider delivery, broader parent-facing rule UX, live host DNS
 mutation/proxy installation, live Windows
 Firewall mutation, live WFP driver/callout/packet blocking, live Android
@@ -535,6 +536,19 @@ performance, and platform capability UI rendering remain open.
       and `test-results/network-policy-preview-stored-flow-proof/proof.json`.
       Full policy engine execution, notification delivery, adapter execution,
       host filtering, and portal policy authority remain unclaimed.
+- [x] Stored flow unavailable enforcement result proof.
+      Stored ActivityStore network domain-observed evidence plus a matching
+      parent domain rule now feeds the existing service enforcement command path
+      through row-derived policy target, action, and evidence refs. The service
+      records pre-action and final audit rows and returns a typed network-control
+      manual-required or unavailable result with no adapter request, no host
+      mutation, no enforcement-command publication, and no exact URL/content
+      claim. Proof:
+      `output/network-plan-proof/34b-stored-flow-enforcement-result/proof-summary.json`
+      and
+      `test-results/network-stored-flow-enforcement-result-proof/proof.json`.
+      Live block/terminate execution, policy UI, notification delivery, and
+      platform adapter execution remain unclaimed.
 - [ ] Adapter capability status.
       Row37 DNS adapter, Row38 Windows Firewall, Row39 WFP, and Row40 Android
       VpnService plus Row41 Apple Network Extension and Row42 Linux proof gates
@@ -589,6 +603,11 @@ performance, and platform capability UI rendering remain open.
       interface mutation, or service-manager install is not claimed.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.
 - [ ] Real block/terminate/unavailable result.
+      Stored-flow network evidence now reaches the real service enforcement
+      boundary and produces an auditable manual-required or unavailable
+      network-control result without an adapter request. Live block/terminate,
+      rollback, platform adapter execution, and parent-facing action UX remain
+      open.
 - [x] No decrypted payload/page-content claim at the network contract boundary.
       Managed-browser correlation can attach exact URLs only from matching
       browser evidence, not from network metadata.
