@@ -120,6 +120,14 @@ expose location or device-status features. Parents expect this category.
   response, location-share consent copy, and manual-required/unavailable/
   authority-required unsupported platform rows inside the hosted route only, and
   keeps `productClaimReady=false`.
+- WP31 platform extension inventory proof now exists through
+  `node scripts/test/tracking-platform-extension-inventory-proof.mjs`. It
+  verifies the existing Android emulator/status/manual-required artifacts, iOS
+  simulator/manual-required artifacts, desktop hint-only artifact, and hosted
+  unsupported/manual platform UI artifact in one evidence bundle while keeping
+  Android/iOS physical-device behavior, background runtime, precise desktop
+  location, authority enrollment, provider delivery, production upload workers,
+  and product-ready tracking unclaimed.
 - P1 evidence-quality gate proof now exists through
   `npm run test:tracking-plan-evidence-quality-gate-proof`. It validates
   location UI evidence refs, geofence rule/source refs, nearby-place provider

@@ -40,14 +40,16 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 - `18-ios-simulator-proof.json`
 - `19-unsupported-manual-hosted-ui-proof.json`
 - `19-unsupported-manual-hosted-ui.png`
+- `20-platform-extension-inventory-proof.json`
+- `20-platform-extension-inventory-source-snapshot.md`
 
 ## AI Worker Checklist
 
-- [ ] Maintain Android extension rows.
-- [ ] Maintain iOS extension rows.
-- [ ] Maintain desktop extension rows.
+- [x] Maintain Android extension rows.
+- [x] Maintain iOS extension rows.
+- [x] Maintain desktop extension rows.
 - [ ] Add managed-device proof only when real enrollment/control exists.
-- [ ] Keep CI/package proof separate from real device capability proof.
+- [x] Keep CI/package proof separate from real device capability proof.
 - [x] Route iOS simulator package build/install/launch proof separately from
       iOS Core Location, background, entitlement, and physical-device claims.
 
@@ -80,6 +82,17 @@ captures `19-unsupported-manual-hosted-ui.png` and writes
 keeping physical-device execution, authority enrollment, provider delivery, and
 product-ready tracking unclaimed.
 
+WP31 platform extension inventory proof now exists through
+`node scripts/test/tracking-platform-extension-inventory-proof.mjs`. It verifies
+the existing Android emulator package/service/status proof, Android
+foreground/background manual-required rows, Android status manual-required rows,
+iOS simulator routing, iOS Core Location manual-required rows, desktop
+hint-only proof, and hosted unsupported/manual UI proof. It writes
+`20-platform-extension-inventory-proof.json` under this workpack root and keeps
+Android/iOS physical-device behavior, background runtime, precise desktop
+location, authority enrollment, provider delivery, production upload workers,
+and product-ready tracking unclaimed.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.
@@ -96,6 +109,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md
 - docs/plans/tracking-plan/implementation-checklist.md
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
+- scripts/test/tracking-platform-extension-inventory-proof.mjs
 - `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`
 - `apps/portal/src/tracking-status-panel.ts`
 - `apps/portal/src/TrackingStatusRoutePanel.tsx`
@@ -146,3 +160,23 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Known gaps/manual-required states: physical-device execution, authority
       enrollment, provider delivery, production worker, and product-ready
       tracking remain unclaimed.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: WP31 platform extension inventory proof script, owning
+      tracking feature doc, implementation checklist, this workpack doc, and
+      generated WP31/test-results proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-platform-extension-inventory-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/20-platform-extension-inventory-proof.json`,
+      `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/20-platform-extension-inventory-source-snapshot.md`,
+      and
+      `test-results/tracking-platform-extension-inventory-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and WP31 updated; central product capability checklist remains
+      hub/primary sequenced.
+- [x] Known gaps/manual-required states: managed-device enrollment/control,
+      Android/iOS foreground/background physical-device behavior, precise
+      desktop location, authority enrollment, provider delivery, production
+      upload workers, and product-ready tracking remain unclaimed.

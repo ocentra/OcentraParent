@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "tracking-platform-extension-inventory-proof",
+  "generatedAt": "2026-06-06T19:27:41.541Z",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "commit": "522f85c27bd0476b52f713e0e1f4f5aeaac75ca9",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md\n M docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/12-playwright-proof.log\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/10-journal-sqlite-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/00-run-metadata.json\n M scripts/test/tracking-plan-runtime-proof.mjs\n?? scripts/test/tracking-platform-extension-inventory-proof.mjs",
+  "summary": {
+    "artifactCount": 7,
+    "manualRequiredArtifactCount": 5,
+    "provedArtifactCount": 5,
+    "physicalDeviceClaimedArtifacts": 0,
+    "productReadyClaimedArtifacts": 0
+  },
+  "artifacts": [
+    {
+      "id": "android-emulator-package-service-status",
+      "workpack": "08/09/10",
+      "path": "test-results/tracking-plan-android-emulator-proof/proof.json",
+      "bytes": 24763,
+      "status": "emulator_scaffold_observed_nonvisual_screenshot",
+      "manualRequired": false,
+      "claimBoundary": "emulator package launch/status only; no foreground/background/geofence runtime claim"
+    },
+    {
+      "id": "android-foreground-background-manual-required",
+      "workpack": "08/09",
+      "path": "test-results/tracking-android-permission-background-proof/proof.json",
+      "bytes": 11612,
+      "status": "proved",
+      "manualRequired": true,
+      "claimBoundary": "manual-required rows for Android permission/sample/background/geofence gaps"
+    },
+    {
+      "id": "android-status-manual-required",
+      "workpack": "10",
+      "path": "test-results/tracking-android-status-proof/proof.json",
+      "bytes": 9784,
+      "status": "proved",
+      "manualRequired": true,
+      "claimBoundary": "status degradation rows only; no production upload worker or device runtime claim"
+    },
+    {
+      "id": "ios-simulator-package-routing",
+      "workpack": "11/12/31",
+      "path": "test-results/tracking-plan-ios-simulator-proof/proof.json",
+      "bytes": 2906,
+      "status": "manual_required",
+      "manualRequired": true,
+      "claimBoundary": "simulator/package routing only; no Core Location/background/physical-device claim"
+    },
+    {
+      "id": "ios-location-manual-required",
+      "workpack": "11/12",
+      "path": "test-results/tracking-ios-location-manual-required-proof/proof.json",
+      "bytes": 20481,
+      "status": "proved",
+      "manualRequired": true,
+      "claimBoundary": "manual-required iOS Core Location and background rows"
+    },
+    {
+      "id": "desktop-presence-hint",
+      "workpack": "13",
+      "path": "test-results/tracking-desktop-presence-hint-proof/proof.json",
+      "bytes": 8304,
+      "status": "proved",
+      "manualRequired": false,
+      "claimBoundary": "LAN/IP/Wi-Fi presence remains hint-only"
+    },
+    {
+      "id": "unsupported-manual-hosted-ui",
+      "workpack": "31",
+      "path": "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui-proof.json",
+      "bytes": 31075,
+      "status": "proved",
+      "manualRequired": true,
+      "claimBoundary": "hosted UI renders unsupported/manual/authority rows without fake capability"
+    }
+  ],
+  "productClaims": {
+    "androidPhysicalDeviceProofClaimed": false,
+    "androidBackgroundRuntimeClaimed": false,
+    "iosPhysicalDeviceProofClaimed": false,
+    "iosBackgroundRuntimeClaimed": false,
+    "desktopPreciseLocationClaimed": false,
+    "authorityEnrollmentClaimed": false,
+    "productionTrackingClaimed": false
+  },
+  "nonClaims": [
+    "Android foreground/background location runtime or physical-device behavior",
+    "Android geofence transition delivery or notification delivery",
+    "iOS Core Location authorization, background delivery, region monitoring, or physical-device behavior",
+    "Desktop precise location beyond hint-only presence rows",
+    "Authority enrollment or hard-control runtime",
+    "Provider delivery, production upload workers, or product-ready tracking"
+  ]
+}
