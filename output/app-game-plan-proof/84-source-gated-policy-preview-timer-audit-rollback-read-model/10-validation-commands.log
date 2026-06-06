@@ -18,5 +18,5 @@ exit=0
 
  Test Files  2 passed (2)
       Tests  6 passed (6)
-   Start at  01:48:52
-   Duration  1.53s (transform 777ms, setup 0ms, import 2.13s, tests 114ms, environment 0ms)
+   Start at  02:21:57
+   Duration  1.20s (transform 714ms, setup 0ms, import 1.82s, tests 93ms, environment 0ms)

@@ -2,11 +2,11 @@
   "proofMode": "app-game-source-gated-policy-preview-timer-audit-rollback-read-model",
   "generatedAt": "2026-06-06T05:45:00Z",
   "branch": "codex/app-game-source-gated-policy-preview-timer-audit-rollback-read-model",
-  "commit": "da0d383556bb8e1a50242c746402ede2163611bd",
+  "commit": "4e64ce35bee9020aae9b40fd63a7da5cb774cc11",
   "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n",
-    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-gated-policy-preview-timer-audit-rollback-read-model app-game-source-gated-policy-preview-timer-audit-rollback-handoff\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-source-gated-policy-preview-timer-audit-rollback-read-model app-game-source-gated-policy-preview-timer-audit-rollback-handoff\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  2 passed (2)\n      Tests  6 passed (6)\n   Start at  01:48:52\n   Duration  1.53s (transform 777ms, setup 0ms, import 2.13s, tests 114ms, environment 0ms)\n\n"
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-gated-policy-preview-timer-audit-rollback-read-model app-game-source-gated-policy-preview-timer-audit-rollback-handoff\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-source-gated-policy-preview-timer-audit-rollback-read-model app-game-source-gated-policy-preview-timer-audit-rollback-handoff\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  2 passed (2)\n      Tests  6 passed (6)\n   Start at  02:21:57\n   Duration  1.20s (transform 714ms, setup 0ms, import 1.82s, tests 93ms, environment 0ms)\n\n"
   ],
   "stackedOn": {
     "wp83Branch": "codex/app-game-source-gated-policy-preview-timer-audit-rollback-handoff",
