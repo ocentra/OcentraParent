@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T23:56:42.143Z",
-  "commit": "f3578df8a61e1b96854416da3f6e45a2d789aafb",
+  "checkedAt": "2026-06-06T00:09:41.658Z",
+  "commit": "a07bd205ee9fa70d91ace31261e4a8fea0e58a53",
   "proofMode": "production-incident-support-status-proof",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
