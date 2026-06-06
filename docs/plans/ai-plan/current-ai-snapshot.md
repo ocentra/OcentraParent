@@ -22,11 +22,12 @@ Already present:
 - Reusable Rust eventing infrastructure in `crates/ocentra-eventing`, with
   existing network and parent/child consumer examples that AI work should
   follow instead of adding direct capture-to-AI coupling.
-- LAN AI job submit/status and screen family AI hub proof primitives exist, but
-  they do not yet prove a decentralized household AI provider mesh with
-  provider advertisement, claim/lease, duplicate prevention, result validation,
-  retry/dead-letter, mobile dormant/fallback policy, or child-agent-only policy
-  authority.
+- LAN AI job submit/status and legacy screen family-hub proof primitives exist,
+  but the target architecture is the Household AI Provider Mesh. Those existing
+  primitives are precursors only: they do not yet prove decentralized provider
+  discovery, claim/lease, child-agent result validation, duplicate prevention,
+  retry/dead-letter, mobile dormant/fallback policy, child-agent-only policy
+  authority, or physical household LAN execution.
 - Activity memory graph contracts and read-model proof pieces.
 - Policy dry-run evaluator and enforcement policy dispatch proof pieces.
 

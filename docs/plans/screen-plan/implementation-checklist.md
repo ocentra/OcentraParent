@@ -39,7 +39,7 @@ trigger ownership unless the row explicitly says so.
 | Optional retention/live preflight         | P2 contract proved          | `output/screen-plan-proof/27-28-optional-retention-live-preflight/proof-summary.json`              | Proves separate explicit opt-in raw-retention/live-view modes with approval, audit, custody, TTL/delete/no-retention, platform-proof gates, and no remote input; no runtime transport claimed.                                                                                                                                   |
 | Detector prompt pack proof                | P2 contract proved          | `output/screen-plan-proof/40-detector-prompt-packs-and-schema-tests/proof-summary.json`            | Proves guided detector prompt pack/output contracts reject open-ended prompts, raw/private fields, policy authority, and enforcement claims; no production model quality or live inference claimed.                                                                                                                              |
 | Local AI resource scheduler proof         | P2 contract + runtime       | `output/screen-plan-proof/local-ai-resource-scheduler/proof-summary.json`                          | Proves screen OCR/VLM priority, singleton heavy-lane admission, timeout/skipped/degraded states, caps, and reuse of the provider scheduler proof; not a final capture-to-policy pipeline claim.                                                                                                                                  |
-| Family AI hub screen route proof          | P2 contract proved          | `output/screen-plan-proof/37-family-ai-hub-screen-analysis-queue/proof-summary.json`               | Proves hard screen-analysis cases route child-local first, then local household family hub with no retention and no remote/API fallback; no real LAN hub runtime or production model quality claimed.                                                                                                                            |
+| Household mesh precursor screen route     | P2 contract proved          | `output/screen-plan-proof/37-family-ai-hub-screen-analysis-queue/proof-summary.json`               | Proves hard screen-analysis cases route child-local first, then local household-provider execution with no retention and no remote/API fallback; no decentralized claim/lease mesh, physical LAN runtime, or production model quality claimed.                                                                                   |
 | Screen eventing consumer boundary         | P2 runtime proof            | `output/screen-plan-proof/screen-eventing-consumer-boundary/proof-summary.json`                    | Proves an ordered typed `ocentra-eventing` runtime chain for capture, encrypted queue, AI request/result, summary, policy, action dry-run, deletion, and portal-read-model events without raw-image escape. Live service producers/subscribers and household mesh execution remain separate gates.                               |
 | Screen service event bridge               | P2 service bridge proof     | `output/screen-plan-proof/screen-service-event-bridge/proof-summary.json`                          | Proves service Activity Screen read-model rows map into the existing typed screen event chain, reject raw retention and missing policy refs before publication, and reuse the core event path without a duplicate service event bus. Always-on production subscriptions remain separate.                                         |
 | Screen service event subscription         | P2 service subscriber proof | `output/screen-plan-proof/screen-service-event-subscription/proof-summary.json`                    | Proves a service-owned `screen.service.row.ready` subscriber consumes typed Activity Screen rows, invokes the existing bridge, records accepted/rejected dispatch state, publishes downstream screen runtime events for safe rows, and rejects raw-retained rows before downstream publication. Startup wiring remains separate. |
@@ -52,7 +52,7 @@ trigger ownership unless the row explicitly says so.
 ## Planned Household Mesh Screen Custody Rows
 
 These rows are planned only. They do not change the status of the existing
-family-hub route or runtime-discovery proofs.
+legacy household-provider route or runtime-discovery proofs.
 
 | Proof                                 | Status           | Artifact                                                                      | Non-claim                                                                                                                                                                                                             |
 | ------------------------------------- | ---------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -93,7 +93,8 @@ family-hub route or runtime-discovery proofs.
 - [x] Remote/cloud screenshot upload disabled by default.
 - [x] Remote/API path accepts only parent-approved redacted summaries by default.
 - [x] Local AI resource scheduler prevents multiple heavy jobs on normal PCs.
-- [x] Family AI hub is used before remote/API for hard visual cases.
+- [x] Local or trusted household provider route is used before remote/API for hard
+      visual cases.
 - [x] Screen capture, queue, deletion, and summary lifecycle transitions publish
       typed `ocentra-eventing` events before AI/policy/action consumers run.
 - [x] Service Activity Screen rows bridge into the typed screen event chain
@@ -209,7 +210,7 @@ bridge before downstream publication
 | [~]    | 34 OCR Tesseract baseline                          |
 | [~]    | 35 OCR PaddleOCR/PP-OCR evaluation                 |
 | [~]    | 36 Small VLM guided classifier evaluation          |
-| [x]    | 37 Family AI hub screen-analysis queue             |
+| [x]    | 37 Household mesh screen-analysis queue            |
 | [x]    | 38 Local AI resource scheduler/priority queue      |
 | [x]    | 39 Redacted summary-only remote boundary           |
 | [x]    | 40 Detector prompt packs and schema tests          |
