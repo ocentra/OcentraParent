@@ -249,6 +249,17 @@ generic app blocking covers this concern.
   limitation summary proof under
   `test-results/app-install-purchase-limitation-summary-proof/proof.json` when
   run.
+- `packages/parent-domain/src/app-install-purchase-platform-proof-readiness.ts`
+  now links merged limitation-summary rows to per-platform manual evidence
+  requirements for Windows, macOS, Linux, Android, and iOS before product
+  claims while preserving no Google Play, Apple App Store, Microsoft Store,
+  provider/store execution, store integration, platform adapter, child-device
+  delivery, runtime report delivery, app blocking, child activity data, or
+  hosted family data custody claims.
+- `scripts/test/app-install-purchase-platform-proof-readiness.mjs` records that
+  platform proof readiness proof under
+  `test-results/app-install-purchase-platform-proof-readiness/proof.json` when
+  run.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -330,8 +341,10 @@ report-runtime rows into approval/report domain
 rows, and
 convert parent-owned runtime writer delivery rows into deterministic envelope
 and delivery result receipt rows, and link those receipts to parent-owned
-runtime report writer delivery-ready rows and report receipts, and expose
+runtime report writer delivery-ready rows and report receipts, expose
 parent-visible report status read-model rows for ready/manual-required handoff,
+aggregate those rows into limitation summaries, and name platform manual
+evidence requirements before any platform product claim,
 but do not
 implement Google Play, Apple App Store, Microsoft Store, billing entitlement,
 provider/store execution, provider contact, platform interception, runtime
@@ -471,6 +484,11 @@ Ocentra-hosted family data custody.
       rows and report status read-model rows into parent-visible follow-up
       action rows without portal approval/report UI, external report delivery,
       provider/store execution, billing contact, platform adapters, child
+      delivery, app blocking, child activity data, or hosted custody claims.
+- [x] Platform proof readiness proof linking limitation summary rows to
+      Windows/macOS/Linux/Android/iOS manual evidence requirements before
+      product claims without Google Play, Apple App Store, Microsoft Store,
+      provider/store execution, platform adapters, child delivery, report
       delivery, app blocking, child activity data, or hosted custody claims.
 - [ ] Portal tests and platform proof before product claim.
 

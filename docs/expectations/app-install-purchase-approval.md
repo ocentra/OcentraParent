@@ -197,6 +197,13 @@ Expected contract families:
   execution, store integration, billing provider contact, platform adapter
   implementation, child-device delivery, app blocking, child activity data
   custody, or Ocentra-hosted family data custody.
+- Platform proof readiness rows link limitation-summary proof rows to
+  platform-specific manual evidence requirements for Windows, macOS, Linux,
+  Android, and iOS without claiming Google Play execution, Apple App Store
+  execution, Microsoft Store execution, provider API execution, store
+  integration, platform adapter implementation, child-device delivery, runtime
+  report delivery, app blocking, child activity data custody, or
+  Ocentra-hosted family data custody.
 
 ## Validation Gates
 
@@ -322,6 +329,10 @@ Expected contract families:
   report UI/external delivery/provider/store/billing contact/platform adapter/
   child delivery/app-blocking/custody overclaim rejection, and required
   non-claim coverage.
+- TypeScript schema tests and a proof harness for platform proof readiness rows,
+  missing platform coverage rejection, missing limitation-summary refs, missing
+  manual evidence refs, provider/store/platform/child delivery/report delivery/
+  app-blocking/custody overclaim rejection, and required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -429,6 +440,10 @@ Expected contract families:
   store integration, billing provider contact, platform adapter implementation,
   child-device delivery, app blocking, child activity custody, or
   Ocentra-hosted family data custody.
+- Do not treat platform proof readiness refs as Google Play, Apple App Store,
+  Microsoft Store, provider API execution, store integration, platform adapter
+  implementation, child-device delivery, runtime report delivery, app blocking,
+  child activity custody, or Ocentra-hosted family data custody.
 
 ## Done Signal
 
