@@ -190,7 +190,16 @@ function expectedRows() {
         expectedState: 'live-account-purchase-gate-proof-present',
       };
     }
-    if (rowNumber >= 14) {
+    if (rowNumber === 14) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-cloud-gaming-gate-proof-present',
+      };
+    }
+    if (rowNumber >= 15) {
       return {
         rowNumber,
         rowId,
@@ -265,6 +274,7 @@ function manifestFor(rows, failures) {
       'browser-game-live-riskbenefit-signal-proof-present',
       'browser-game-live-memory-cache-proof-present',
       'browser-game-live-account-purchase-gate-proof-present',
+      'browser-game-live-cloud-gaming-gate-proof-present',
       'proof-artifact-coverage-contract-only',
       'playwright-manual-required-no-rendered-browser-game-ui',
       'runtime-signal-proof-manual-required',
@@ -310,6 +320,7 @@ function markdownFor(manifest) {
     'GAME-11 live risk/benefit signal proof is present.',
     'GAME-12 live memory/cache proof is present.',
     'GAME-13 live account/signup/purchase gate proof is present.',
+    'GAME-14 live cloud-gaming gate proof is present.',
     'Product checklist upgrade is not claimed.',
     'Browser-game child/parent UI, cloud-streamed frame analysis, native',
     'game control, and enforcement remain open or manual-required until',

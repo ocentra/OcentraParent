@@ -1366,16 +1366,20 @@ worker messages before code changes. Do not mix all 24 into one PR.
   candidate decisions; and rejects 38 raw URL/title/account/credential,
   submission, purchase/payment, notification/UI, policy/runtime, native,
   cloud-frame, and enforcement overclaims.
-- GAME-14 now adds parent-domain browser-game cloud-gaming gate contracts. The
-  contracts model known cloud domains, streaming session routes,
-  gamepad/fullscreen/high-bandwidth/low-latency signal refs, optional platform
-  title/rating metadata refs, unknown cloud-game approval, mature cloud-game
-  block candidates, school-night blocks, time-budget candidates,
-  manual-required content-frame gaps, and unavailable platform proof states.
-  They reject raw cloud titles, raw stream frames, cloud-streamed frame
-  analysis, per-game cloud title claims, native game/launcher control, game
-  chat content, account/purchase flows, notifications, UI, final policy
-  authority, runtime gate execution, and enforcement.
+- GAME-14 now adds parent-domain browser-game cloud-gaming gate contracts
+  plus a live public cloud-gaming route proof. The contracts model known cloud
+  domains, streaming session routes, gamepad/fullscreen/high-bandwidth/
+  low-latency signal refs, optional platform title/rating metadata refs,
+  unknown cloud-game approval, mature cloud-game block candidates,
+  school-night blocks, time-budget candidates, manual-required content-frame
+  gaps, and unavailable platform proof states. The proof fetches real Xbox
+  Cloud Gaming, GeForce Now, Amazon Luna, Boosteroid, PlayStation Plus,
+  Shadow cloud PC, and now.gg surfaces while persisting only response hashes,
+  evidence refs, request/decision refs, and no-authority flags. It rejects raw
+  URLs/titles/stream frames, cloud-streamed frame analysis, per-game cloud
+  title claims, native game/launcher control, game chat content,
+  account/purchase flows, notifications, UI, final policy authority, runtime
+  gate execution, and enforcement.
 - GAME-15 now adds parent-domain browser-game unblocked-site detection
   contracts. The detection models managed browser routes/pages, search intent,
   portal indexes, iframe embeds, proxy/mirror routes, hidden game origins,
@@ -1445,7 +1449,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   references, feature coverage, and expectation boundary text. It emits
   `test-results/browser-game-proof-artifacts/proof.json` and
   `output/browser-plan-proof/game-22-tests-fixtures-playwright-manual-proof/01-browser-game-proof-artifact-manifest.md`.
-  The manifest records one scaffold-proof row and 20 partial/manual-required
+  The manifest records 14 complete/proof rows and seven partial/manual-required
   rows. Playwright stays manual-required because no rendered browser-game UI
   exists in this slice. No screenshot, runtime browser-game detection,
   cloud-streamed frame analysis, native game control, final policy execution,
@@ -1468,7 +1472,8 @@ worker messages before code changes. Do not mix all 24 into one PR.
   live-ai-analysis-proof-present, GAME-11 as
   live-riskbenefit-signal-proof-present, GAME-12 as
   live-memory-cache-proof-present, GAME-13 as
-  live-account-purchase-gate-proof-present, GAME-14 through GAME-24 as
+  live-account-purchase-gate-proof-present, GAME-14 as
+  live-cloud-gaming-gate-proof-present, GAME-15 through GAME-24 as
   partial/manual-required, and no browser-game rows as open/manual-required.
   Product checklist upgrade is not claimed, and runtime
   child/parent UI, cloud-streamed frame analysis, native game control, and

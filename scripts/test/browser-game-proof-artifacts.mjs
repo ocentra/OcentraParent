@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 13;
+    const isComplete = rowNumber <= 14;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -92,7 +92,9 @@ function expectedRows() {
                               ? 'live-riskbenefit-signal-proof-present'
                               : rowNumber === 12
                                 ? 'live-memory-cache-proof-present'
-                                : 'live-account-purchase-gate-proof-present'
+                                : rowNumber === 13
+                                  ? 'live-account-purchase-gate-proof-present'
+                                  : 'live-cloud-gaming-gate-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -201,6 +203,7 @@ function manifestFor(rows, failures) {
       liveRiskBenefitSignalEvidence: 'game-11-live-riskbenefit-signal-proof-present',
       liveMemoryCacheEvidence: 'game-12-live-memory-cache-proof-present',
       liveAccountPurchaseGateEvidence: 'game-13-live-account-purchase-gate-proof-present',
+      liveCloudGamingGateEvidence: 'game-14-live-cloud-gaming-gate-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -255,6 +258,8 @@ function markdownFor(manifest) {
     'and cloud-gaming pages with bounded cache-key refs and no runtime store.',
     'GAME-13 live account/signup/purchase gate proof is present for real public',
     'account, subscription, purchase, cloud, educational, and store route surfaces.',
+    'GAME-14 live cloud-gaming gate proof is present for real public',
+    'cloud platform, subscription, cloud PC, mobile cloud, and unknown fallback surfaces.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

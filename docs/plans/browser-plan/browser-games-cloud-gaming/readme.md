@@ -288,16 +288,21 @@ requests plus 6 candidate decisions; and rejects 38 overclaims. Package subpath
 exports are now present.
 
 GAME-14 now adds parent-domain browser-game cloud-gaming gate contracts in
-`packages/parent-domain/src/browser-game-cloud-gaming-gate.ts`. The contracts
-cover known cloud domains, streaming session routes, gamepad/fullscreen/
-high-bandwidth/low-latency signal refs, optional platform title/rating metadata
-refs, unknown cloud-game approval, mature cloud-game block candidates,
-school-night blocks, time-budget candidates, manual-required content-frame
-gaps, and unavailable platform proof states. They reject raw cloud titles, raw
-stream frames, cloud-streamed frame analysis, per-game cloud title claims,
-native game/launcher control, game chat content, account/purchase flows,
-notifications, rendered UI, child notification, final policy decisions, runtime
-gate execution, and enforcement. Package subpath exports are now present.
+`packages/parent-domain/src/browser-game-cloud-gaming-gate.ts` plus a live
+public cloud-gaming route proof in
+`scripts/test/browser-game-cloud-gaming-gate-live-evidence-proof.mjs`. The
+contracts cover known cloud domains, streaming session routes,
+gamepad/fullscreen/high-bandwidth/low-latency signal refs, optional platform
+title/rating metadata refs, unknown cloud-game approval, mature cloud-game
+block candidates, school-night blocks, time-budget candidates, manual-required
+content-frame gaps, and unavailable platform proof states. The proof fetches
+real Xbox Cloud Gaming, GeForce Now, Amazon Luna, Boosteroid, PlayStation Plus,
+Shadow cloud PC, and now.gg surfaces, stores only response hashes, evidence
+refs, request/decision refs, and no-authority flags, and rejects raw
+URLs/titles/stream frames, cloud-streamed frame analysis, per-game cloud title
+claims, native game/launcher control, game chat content, account/purchase
+flows, notifications, rendered UI, child notification, final policy decisions,
+runtime gate execution, and enforcement. Package subpath exports are present.
 
 GAME-15 now adds parent-domain browser-game unblocked-site detection contracts
 in `packages/parent-domain/src/browser-game-unblocked-site-detection.ts`. The
@@ -408,7 +413,8 @@ live-educational-classifier-proof-present, GAME-10 as
 live-ai-analysis-proof-present, GAME-11 as
 live-riskbenefit-signal-proof-present, GAME-12 as
 live-memory-cache-proof-present, GAME-13 as
-live-account-purchase-gate-proof-present, GAME-14 through GAME-24 as
+live-account-purchase-gate-proof-present, GAME-14 as
+live-cloud-gaming-gate-proof-present, GAME-15 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
 Product checklist upgrade is not claimed; child/parent UI,
 cloud-streamed frame analysis, native game control, and

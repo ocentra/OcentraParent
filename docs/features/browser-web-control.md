@@ -436,15 +436,18 @@ purchase/payment execution, launcher downloads, notifications, rendered UI,
 child notification, final policy decisions, runtime gate execution, native game
 control, cloud-frame analysis, and enforcement.
 Browser-game/cloud-gaming GAME-14 now adds parent-domain cloud-gaming gate
-contracts. The contracts cover known cloud domains, streaming session routes,
-gamepad/fullscreen/high-bandwidth/low-latency signal refs, optional platform
-title/rating metadata refs, unknown cloud-game approval, mature cloud-game
-block candidates, school-night blocks, time-budget candidates, manual-required
-content-frame gaps, and unavailable platform proof states while rejecting raw
-cloud titles, raw stream frames, cloud-streamed frame analysis, per-game cloud
-title claims, native game/launcher control, game chat content, account/purchase
-flows, notifications, rendered UI, child notification, final policy decisions,
-runtime gate execution, and enforcement.
+contracts plus a live public cloud-gaming route proof. The contracts cover known
+cloud domains, streaming session routes, gamepad/fullscreen/high-bandwidth/
+low-latency signal refs, optional platform title/rating metadata refs, unknown
+cloud-game approval, mature cloud-game block candidates, school-night blocks,
+time-budget candidates, manual-required content-frame gaps, and unavailable
+platform proof states. The proof fetches real Xbox Cloud Gaming, GeForce Now,
+Amazon Luna, Boosteroid, PlayStation Plus, Shadow cloud PC, and now.gg surfaces
+while storing only response hashes, evidence refs, request/decision refs, and
+no-authority flags. It rejects raw URLs/titles/stream frames, cloud-streamed
+frame analysis, per-game cloud title claims, native game/launcher control, game
+chat content, account/purchase flows, notifications, rendered UI, child
+notification, final policy decisions, runtime gate execution, and enforcement.
 Browser-game/cloud-gaming GAME-15 now adds parent-domain unblocked-site
 detection contracts. The detection models managed routes/pages, search intent,
 portal indexes, iframe embeds, proxy/mirror routes, hidden game origins, school
@@ -524,7 +527,8 @@ live-educational-classifier-proof-present. GAME-10 is
 live-ai-analysis-proof-present. GAME-11 is
 live-riskbenefit-signal-proof-present. GAME-12 is
 live-memory-cache-proof-present. GAME-13 is
-live-account-purchase-gate-proof-present. GAME-14 through GAME-24 are
+live-account-purchase-gate-proof-present. GAME-14 is
+live-cloud-gaming-gate-proof-present. GAME-15 through GAME-24 are
 partial/manual-required. UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.
