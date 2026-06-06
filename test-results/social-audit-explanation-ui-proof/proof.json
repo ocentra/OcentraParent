@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T05:33:14.096Z",
-  "commit": "a89957bd8cb3e2491fd65d83d7248949df7b3be0",
+  "checkedAt": "2026-06-06T07:12:13.889Z",
+  "commit": "e00dbe6d035225cc874e1174a09cc75a5c7c1923",
   "workpackIds": [
     "social-22-audit-explanation-read-model"
   ],
@@ -247,7 +247,12 @@
         "parent-evidence-audit-ref-rendered",
         "Rendered parent explanation surface only; runtime audit-store delivery, notifications, connector authorization, native app control, final policy execution, and enforcement remain unclaimed."
       ],
-      "buttons": [],
+      "buttons": [
+        {
+          "text": "Social explanations",
+          "disabled": false
+        }
+      ],
       "unlabeledButtons": 0
     },
     "screenshots": {

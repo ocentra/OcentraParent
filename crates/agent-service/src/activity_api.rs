@@ -46,6 +46,11 @@ mod app_game_policy_readiness_payload_tests;
 mod app_game_policy_readiness_service_tests;
 mod browser_intervention_payload;
 mod browser_intervention_report;
+pub(crate) mod social_audit_explanation_read_model_payload;
+#[cfg(test)]
+mod social_audit_explanation_read_model_payload_tests;
+#[cfg(test)]
+mod social_audit_explanation_read_model_service_tests;
 pub(crate) mod social_dashboard_read_model_payload;
 #[cfg(test)]
 mod social_dashboard_read_model_payload_tests;

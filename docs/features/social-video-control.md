@@ -198,23 +198,24 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
 - Browser-plan SOCIAL-22 now adds parent-domain audit/explanation read-model
   contracts for account approval, feed/video gates, native-app gaps, connector
   boundaries, decision memory, and manual-required gaps. These are ref-only
-  explanation/audit rows with evidence and policy links; they reject runtime
-  audit stores, rendered explanation UI, notifications, raw account/video/message
-  content, connector authorization, native app control, final policy decisions,
-  and enforcement.
+  explanation/audit rows with evidence and policy links, and the service now
+  reports them through `agent.browser.social-audit-explanation.read-model.get`.
+  They still reject runtime audit stores, notifications, raw
+  account/video/message content, connector authorization, native app control,
+  final policy decisions, and enforcement.
 - Browser-plan SOCIAL-23 now adds a proof artifact gate for SOCIAL-01 through
   SOCIAL-22. The generated manifest checks checklist ownership, proof directory
   references, required proof files, README references, and feature/expectation
   coverage. SOCIAL-20 has rendered parent Browser-route dashboard proof,
   SOCIAL-21 has child-agent-served intervention proof, and SOCIAL-22 has
-  rendered parent explanation proof, while service-backed social data delivery,
-  connector/native runtime, final policy, and enforcement proof remain
-  manual-required.
+  rendered parent explanation proof plus service-backed explanation read-model
+  proof, while connector/native runtime, final policy, and enforcement proof
+  remain manual-required.
 - Browser-plan SOCIAL-24 now adds rollout/manual-required status labels for
   SOCIAL-01 through SOCIAL-23. SOCIAL rollout state: partial/manual-required.
   Product completion remains unclaimed; the rendered SOCIAL-20/SOCIAL-21/SOCIAL-22
-  proof does not upgrade service-backed delivery, connector/native runtime,
-  final policy, enforcement, or release readiness.
+  proof does not upgrade connector/native runtime, final policy, enforcement, or
+  release readiness.
 - Browser-plan package export closure now exposes the existing parent-domain
   social contract modules as public package subpaths and reconciles the
   browser-plan docs to stop treating package exports as the remaining blocker.
