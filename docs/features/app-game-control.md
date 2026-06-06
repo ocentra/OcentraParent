@@ -600,6 +600,15 @@ mobile UI, or prove platform support.
       portal UI, evaluator runtime, timer scheduling, adapter dispatch, child
       delivery, broad blocking, platform enforcement, or raw private source
       rows.
+      Source-gated policy preview timer runtime-readiness proof now consumes
+      those timer-status rows and records that future scheduling still requires
+      service timer runtime, scheduler persistence, audit, and rollback proof,
+      while source and compiler blockers remain blocked before timer runtime.
+      It remains parent-domain proof only and does not claim service events,
+      portal UI, evaluator runtime, timer runtime/scheduling, scheduler
+      persistence runtime, audit/rollback runtime, adapter dispatch, child
+      delivery, broad blocking, platform enforcement, or raw private source
+      rows.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
