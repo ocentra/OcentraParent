@@ -53,7 +53,7 @@ async function assertSocialDashboardRoute(page: Page): Promise<void> {
 async function requestSocialDashboardReadModel(page: Page): Promise<void> {
   const socialRegion = page.getByRole('region', { name: 'Social review' });
   await socialRegion.getByRole('button', { name: 'Social review' }).click();
-  await expect(socialRegion.getByRole('heading', { name: '6 social dashboard rows' })).toBeVisible({
+  await expect(socialRegion.getByRole('heading', { name: '7 social dashboard rows' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
 }
@@ -65,6 +65,7 @@ async function assertServiceBackedSocialRows(page: Page): Promise<void> {
   await expect(socialRegion.getByRole('heading', { name: 'Native app capability' })).toBeVisible();
   await expect(socialRegion.getByRole('heading', { name: 'Connected account boundaries' })).toBeVisible();
   await expect(socialRegion.getByRole('heading', { name: 'Remembered decisions' })).toBeVisible();
+  await expect(socialRegion.getByRole('heading', { name: 'Settings and custody' })).toBeVisible();
   await expect(socialRegion.getByRole('heading', { name: 'Needs manual proof' })).toBeVisible();
   await expect(socialRegion.getByText('Ready for parent review').first()).toBeVisible();
   await expect(socialRegion.getByText('Manual proof required').first()).toBeVisible();
@@ -119,18 +120,19 @@ async function writeAccessibilitySummary(
   expect(summary.hasNamedRegion).toBe(true);
   expect(summary.unlabeledButtons).toBe(0);
   expect(summary.headings).toContain('Social review');
-  expect(summary.headings).toContain('6 social dashboard rows');
+  expect(summary.headings).toContain('7 social dashboard rows');
   expect(summary.headings).toContain('Account approvals');
   expect(summary.headings).toContain('Feed and video route gates');
   expect(summary.headings).toContain('Native app capability');
   expect(summary.headings).toContain('Connected account boundaries');
   expect(summary.headings).toContain('Remembered decisions');
+  expect(summary.headings).toContain('Settings and custody');
   expect(summary.headings).toContain('Needs manual proof');
   expect(summary.labels).toContain('Rows returned');
   expect(summary.labels).toContain('Generated at');
   expect(summary.labels).toContain('Status');
   expect(summary.labels).toContain('Product claim');
-  expect(summary.values).toContain('6');
+  expect(summary.values).toContain('7');
   expect(summary.values).toContain('Ready for parent review');
   expect(summary.values).toContain('Manual proof required');
   expect(summary.values).toContain('Contract proof only');
@@ -145,12 +147,13 @@ async function writeAccessibilitySummary(
           'named-region',
           'visible-social-review-heading',
           'zero-row-before-command-visible',
-          'service-backed-six-row-summary-visible',
+          'service-backed-seven-row-summary-visible',
           'account-approval-row-visible',
           'feed-video-gate-row-visible',
           'native-app-manual-required-visible',
           'connector-boundary-manual-required-visible',
           'decision-memory-contract-only-visible',
+          'settings-custody-manual-required-visible',
           'manual-required-gap-visible',
           'runtime-social-claims-not-visible',
           'no-unlabeled-buttons',

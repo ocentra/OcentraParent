@@ -15,6 +15,7 @@ export const SocialDashboardPanelKindSchema = withParser(
     'native-app-capability',
     'connector-boundaries',
     'decision-memory',
+    'settings-custody',
     'manual-required-gaps'
   )
 );
@@ -30,6 +31,7 @@ export const SocialDashboardPanelActionSchema = withParser(
     'review-native-capability',
     'review-connector-boundary',
     'review-memory-entry',
+    'review-settings-custody',
     'manual-review'
   )
 );
@@ -43,6 +45,7 @@ export const SocialDashboardPanelReasonSchema = withParser(
     'native-app-manual-required',
     'connector-boundary-manual-required',
     'memory-contract-only',
+    'settings-custody-runtime-gap',
     'platform-proof-gap'
   )
 );

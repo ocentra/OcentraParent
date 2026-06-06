@@ -204,14 +204,15 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   native app control, final policy execution, and enforcement unclaimed.
 - Browser-plan SOCIAL-20 now adds parent-domain parent social dashboard UX
   contracts for the account approval queue, feed/video gates, native app
-  capability, connector boundaries, decision memory, and manual-required gaps.
+  capability, connector boundaries, decision memory, settings/custody, and
+  manual-required gaps.
   These are section/action/status contracts only; they reject rendered portal
   UI, notifications, runtime data fetch, policy decisions, connector
   authorization, native app control, and enforcement.
 - Browser-plan SOCIAL-20 now also renders an honest parent Browser-route social
   dashboard in the real portal from the service-backed Rust WebSocket
   `agent.browser.social-dashboard.read-model.reported` event. The proof captures
-  desktop/mobile screenshots for the six-row parent social snapshot at
+  desktop/mobile screenshots for the seven-row parent social snapshot at
   `output/browser-plan-proof/social-20-parent-social-dashboard-ux/06-ui-snapshots/`
   and records `test-results/social-dashboard-ui-proof/proof.json`. This proves
   the rendered parent social dashboard read-model only; connector authorization,
@@ -243,8 +244,8 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
 - Browser-plan SOCIAL-24 now adds rollout/manual-required status labels for
   SOCIAL-01 through SOCIAL-23. SOCIAL rollout state: partial/manual-required.
   Product completion remains unclaimed; the rendered SOCIAL-20/SOCIAL-21/SOCIAL-22
-  proof does not upgrade connector/native runtime, final policy, enforcement, or
-  release readiness.
+  proof does not upgrade connector/native runtime, runtime custody mutation,
+  final policy, enforcement, or release readiness.
 - Browser-plan package export closure now exposes the existing parent-domain
   social contract modules as public package subpaths and reconciles the
   browser-plan docs to stop treating package exports as the remaining blocker.
@@ -320,8 +321,9 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
       links source/privacy, candidate AI analysis, candidate signals, and route
       gate/action refs without claiming runtime AI execution or final policy.
 - [ ] Parent sensitivity settings. Sensitivity settings contract proof exists
-      for ref-only policy/alert candidates; runtime settings UI, runtime
-      custody mutation, final policy, and enforcement remain.
+      for ref-only policy/alert candidates, and the Browser dashboard now renders
+      a service-backed settings/custody manual-required row; runtime custody
+      mutation, final policy, and enforcement remain.
 - [ ] Alert and report integration. Alert/report intent proof exists with
       ref-only local-outbox/report linkage; provider delivery, rendered
       notification UI, final policy, and enforcement remain.
