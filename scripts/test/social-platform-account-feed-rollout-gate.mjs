@@ -73,7 +73,7 @@ async function loadDocs() {
 }
 
 function expectedRows() {
-  const completeRows = new Set([1, 13, 14, 15, 20, 21, 22]);
+  const completeRows = new Set([1, 13, 14, 15, 18, 20, 21, 22]);
   return Array.from({ length: 23 }, (_, index) => {
     const rowNumber = index + 1;
     const complete = completeRows.has(rowNumber);
@@ -135,6 +135,7 @@ function manifestFor(rows, failures) {
       'social-live-evidence-ai-boundary-proof-present',
       'social-live-evidence-risk-benefit-boundary-proof-present',
       'social-live-evidence-policy-compiler-proof-present',
+      'social-live-public-connector-boundary-proof-present',
       'social-live-evidence-decision-memory-proof-present',
       'social-alert-report-intent-proof-present',
       'social-schedule-time-budget-compiler-proof-present',
@@ -178,6 +179,7 @@ function markdownFor(manifest) {
     'Live SOCIAL-10 evidence-bound AI degradation proof is present.',
     'Live SOCIAL-11 evidence-bound risk/benefit degradation proof is present.',
     'Live SOCIAL-12 evidence-bound policy compiler proof is present.',
+    'Live SOCIAL-18 public connector boundary proof is present.',
     'Live SOCIAL-19 evidence-bound decision memory proof is present.',
     'Ref-only social alert/report intent proof is present.',
     'Schedule/time-budget compiler proof and parent sensitivity',

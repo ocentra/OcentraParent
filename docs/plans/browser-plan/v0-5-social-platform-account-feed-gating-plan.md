@@ -1379,6 +1379,12 @@ worker messages before code changes. Do not mix all 24 into one PR.
   capture, account identity verification, policy decisions, AI runtime, UI,
   native app control, connector implementation, and enforcement. Package subpath exports are now present; no
   connector runtime, token store, provider API, UI, or enforcement is claimed.
+  `social-platform-connector-authorization-proof` captures live public
+  Google/YouTube supervision, Meta Family Center, and TikTok Family Pairing
+  pages with Playwright screenshots and parses those proof refs through the
+  five-row connector boundary while keeping connector implementation, token
+  storage, OAuth, provider API calls, raw account/message/feed capture, UI
+  delivery, native app control, policy execution, and enforcement unclaimed.
 - SOCIAL-19 now adds parent-domain social decision memory-cache contracts in
   `packages/parent-domain/src/social-decision-memory-cache-values.ts` and
   `packages/parent-domain/src/social-decision-memory-cache.ts`. The initial

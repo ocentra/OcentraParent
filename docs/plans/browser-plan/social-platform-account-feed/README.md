@@ -291,6 +291,14 @@ TikTok, platform export/import, and parent-provided account refs. It models
 parent authorization, custody, scopes, expiry, revocation, manual-required
 state, and proof refs without token storage, OAuth clients, provider APIs, raw
 account/message/feed data, policy decisions, UI, native control, or enforcement.
+`scripts/test/social-platform-connector-authorization-proof.mjs` captures real
+public Google/YouTube supervision, Meta Family Center, and TikTok Family
+Pairing pages with Playwright and writes
+`output/browser-plan-proof/social-18-platform-connector-authorization-boundary/11-live-public-connector-boundary-proof.json`
+plus screenshots. This proves public adjacent-source boundary visibility only;
+connector implementation, token storage, OAuth, provider API calls, raw account
+or message/feed capture, UI delivery, native app control, policy execution, and
+enforcement remain unclaimed.
 
 `social-video-source-custody-settings-proof` now adds
 `packages/activity-domain/src/social-video-source-custody-settings.ts`, an
