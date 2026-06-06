@@ -202,6 +202,16 @@ expose location or device-status features. Parents expect this category.
   alert delivery runtime, provider delivery, notification receipt runtime,
   child-device runtime, physical-device proof, authority proof, production
   workers, or adapter dispatch.
+- WP17 parent acknowledgement action readiness proof now exists through
+  `node scripts/test/tracking-parent-acknowledgement-action-readiness-proof.mjs`.
+  It maps existing tracking alerts, acknowledgements, exceptions, false-alarm
+  rows, child check-in decisions, and escalation rows into parent action
+  readiness rows while preserving evidence refs, policy decision refs, alert
+  refs, acknowledgement refs, escalation refs, audit refs, expiry refs, and UI
+  surface refs. It does not claim rendered portal acknowledgement UI, live
+  service mutation, provider delivery, notification receipt runtime,
+  child-device runtime, physical-device proof, authority proof, production
+  workers, or adapter dispatch.
 - Required fixture-state coverage proof now exists through
   `node scripts/test/tracking-fixture-coverage-proof.mjs`. It records fresh,
   stale, offline, permission-denied, low-accuracy, ambiguous nearby place,
@@ -413,6 +423,12 @@ snapshots/accessibility beyond the hosted parent route are proved.
       non-claims.
 - [x] Expected-place schedule and exception contracts.
 - [x] Parent acknowledgement and escalation contracts.
+- [x] Parent acknowledgement action readiness rows. This proves parent
+      acknowledge-safe, expected/exception, false-alarm, child check-in request,
+      and escalation manual-review readiness rows from existing alert and
+      acknowledgement contracts. It is not rendered portal acknowledgement UI,
+      live service mutation, provider delivery, receipt runtime, child runtime,
+      physical-device, authority, production worker, or adapter dispatch proof.
 - [x] WP25 P1 parent-policy compiler/evaluator runtime proof for tracking
       rules, deterministic parent-policy final authority, AI non-authority,
       manual-required fallback, and dry-run/preview output. This is not runtime

@@ -1,0 +1,253 @@
+{
+  "schemaVersion": "v0.5-tracking",
+  "readinessId": "tracking-parent-acknowledgement-action-readiness-proof",
+  "generatedAt": "2026-06-06T17:45:00.000Z",
+  "sourceReadModelGeneratedAt": "2026-06-06T17:45:00.000Z",
+  "sourceContractRefs": [
+    "packages/parent-domain/src/tracking-location-policy.ts",
+    "docs/plans/tracking-plan/workpacks/17-parent-acknowledgement-and-exception-model.md",
+    "docs/expectations/notifications.md",
+    "docs/expectations/policy.md"
+  ],
+  "rows": [
+    {
+      "rowId": "tracking-parent-acknowledgement-action-tracking-alert-safe",
+      "alertId": "tracking-alert-safe",
+      "sourceDecisionId": "tracking-decision-safe",
+      "sourceAcknowledgementId": "tracking-ack-safe",
+      "sourceEscalationId": null,
+      "severity": "warning",
+      "actionState": "acknowledgement-recorded",
+      "primaryAction": "acknowledge-safe",
+      "allowedActions": [
+        "acknowledge-safe",
+        "mark-expected",
+        "holiday-exception",
+        "trip-exception",
+        "mark-false-alarm",
+        "request-child-check-in"
+      ],
+      "exceptionExpiresAt": null,
+      "stillAlertForCritical": true,
+      "evidenceReferenceIds": [
+        "tracking-parent-action-evidence-1"
+      ],
+      "policyDecisionRefs": [
+        "tracking-decision-safe",
+        "tracking-decision-safe"
+      ],
+      "auditRefs": [
+        "tracking-parent-action-alert",
+        "tracking-acknowledgement-audit-tracking-alert-safe",
+        "tracking-decision-audit-tracking-alert-safe",
+        "tracking-parent-action-readiness-acknowledgement-recorded"
+      ],
+      "uiSurfaceRef": "tracking-parent-action-surface-tracking-alert-safe",
+      "manualProofRequirements": [
+        "live-service-mutation-proof-required",
+        "rendered-portal-acknowledgement-ui-proof-required"
+      ],
+      "renderedPortalAcknowledgementUiClaimed": false,
+      "liveServiceMutationClaimed": false,
+      "providerDeliveryClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false
+    },
+    {
+      "rowId": "tracking-parent-acknowledgement-action-tracking-alert-expected",
+      "alertId": "tracking-alert-expected",
+      "sourceDecisionId": "tracking-decision-expected",
+      "sourceAcknowledgementId": "tracking-ack-expected",
+      "sourceEscalationId": null,
+      "severity": "warning",
+      "actionState": "exception-active",
+      "primaryAction": "mark-expected",
+      "allowedActions": [
+        "acknowledge-safe",
+        "mark-expected",
+        "holiday-exception",
+        "trip-exception",
+        "mark-false-alarm",
+        "request-child-check-in"
+      ],
+      "exceptionExpiresAt": "2026-06-06T20:00:00.000Z",
+      "stillAlertForCritical": true,
+      "evidenceReferenceIds": [
+        "tracking-parent-action-evidence-1"
+      ],
+      "policyDecisionRefs": [
+        "tracking-decision-expected",
+        "tracking-decision-expected"
+      ],
+      "auditRefs": [
+        "tracking-parent-action-alert",
+        "tracking-acknowledgement-audit-tracking-alert-expected",
+        "tracking-decision-audit-tracking-alert-expected",
+        "tracking-parent-action-readiness-exception-active"
+      ],
+      "uiSurfaceRef": "tracking-parent-action-surface-tracking-alert-expected",
+      "manualProofRequirements": [
+        "live-service-mutation-proof-required",
+        "rendered-portal-acknowledgement-ui-proof-required"
+      ],
+      "renderedPortalAcknowledgementUiClaimed": false,
+      "liveServiceMutationClaimed": false,
+      "providerDeliveryClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false
+    },
+    {
+      "rowId": "tracking-parent-acknowledgement-action-tracking-alert-false-alarm",
+      "alertId": "tracking-alert-false-alarm",
+      "sourceDecisionId": "tracking-decision-false-alarm",
+      "sourceAcknowledgementId": "tracking-ack-false-alarm",
+      "sourceEscalationId": null,
+      "severity": "warning",
+      "actionState": "false-alarm-recorded",
+      "primaryAction": "mark-false-alarm",
+      "allowedActions": [
+        "acknowledge-safe",
+        "mark-expected",
+        "holiday-exception",
+        "trip-exception",
+        "mark-false-alarm",
+        "request-child-check-in"
+      ],
+      "exceptionExpiresAt": null,
+      "stillAlertForCritical": true,
+      "evidenceReferenceIds": [
+        "tracking-parent-action-evidence-1"
+      ],
+      "policyDecisionRefs": [
+        "tracking-decision-false-alarm",
+        "tracking-decision-false-alarm"
+      ],
+      "auditRefs": [
+        "tracking-parent-action-alert",
+        "tracking-acknowledgement-audit-tracking-alert-false-alarm",
+        "tracking-decision-audit-tracking-alert-false-alarm",
+        "tracking-parent-action-readiness-false-alarm-recorded"
+      ],
+      "uiSurfaceRef": "tracking-parent-action-surface-tracking-alert-false-alarm",
+      "manualProofRequirements": [
+        "live-service-mutation-proof-required",
+        "rendered-portal-acknowledgement-ui-proof-required"
+      ],
+      "renderedPortalAcknowledgementUiClaimed": false,
+      "liveServiceMutationClaimed": false,
+      "providerDeliveryClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false
+    },
+    {
+      "rowId": "tracking-parent-acknowledgement-action-tracking-alert-check-in",
+      "alertId": "tracking-alert-check-in",
+      "sourceDecisionId": "tracking-decision-check-in",
+      "sourceAcknowledgementId": null,
+      "sourceEscalationId": null,
+      "severity": "watch",
+      "actionState": "child-check-in-request-ready",
+      "primaryAction": "request-child-check-in",
+      "allowedActions": [
+        "acknowledge-safe",
+        "mark-expected",
+        "holiday-exception",
+        "trip-exception",
+        "mark-false-alarm",
+        "request-child-check-in"
+      ],
+      "exceptionExpiresAt": null,
+      "stillAlertForCritical": false,
+      "evidenceReferenceIds": [
+        "tracking-parent-action-evidence-1"
+      ],
+      "policyDecisionRefs": [
+        "tracking-decision-check-in",
+        "tracking-decision-check-in"
+      ],
+      "auditRefs": [
+        "tracking-parent-action-alert",
+        "tracking-decision-audit-tracking-alert-check-in",
+        "tracking-parent-action-readiness-child-check-in-request-ready"
+      ],
+      "uiSurfaceRef": "tracking-parent-action-surface-tracking-alert-check-in",
+      "manualProofRequirements": [
+        "rendered-portal-acknowledgement-ui-proof-required",
+        "live-service-mutation-proof-required",
+        "provider-delivery-proof-required",
+        "physical-device-proof-required"
+      ],
+      "renderedPortalAcknowledgementUiClaimed": false,
+      "liveServiceMutationClaimed": false,
+      "providerDeliveryClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false
+    },
+    {
+      "rowId": "tracking-parent-acknowledgement-action-tracking-alert-critical-review",
+      "alertId": "tracking-alert-critical-review",
+      "sourceDecisionId": "tracking-decision-critical-review",
+      "sourceAcknowledgementId": null,
+      "sourceEscalationId": "tracking-escalation-critical-review",
+      "severity": "critical",
+      "actionState": "escalation-review-ready",
+      "primaryAction": "escalate-manual-review",
+      "allowedActions": [
+        "acknowledge-safe",
+        "request-child-check-in",
+        "escalate-manual-review"
+      ],
+      "exceptionExpiresAt": null,
+      "stillAlertForCritical": true,
+      "evidenceReferenceIds": [
+        "tracking-parent-action-evidence-1"
+      ],
+      "policyDecisionRefs": [
+        "tracking-decision-critical-review",
+        "tracking-decision-critical-review"
+      ],
+      "auditRefs": [
+        "tracking-parent-action-alert",
+        "tracking-decision-audit-tracking-alert-critical-review",
+        "tracking-escalation-audit-tracking-alert-critical-review",
+        "tracking-parent-action-readiness-escalation-review-ready"
+      ],
+      "uiSurfaceRef": "tracking-parent-action-surface-tracking-alert-critical-review",
+      "manualProofRequirements": [
+        "rendered-portal-acknowledgement-ui-proof-required",
+        "live-service-mutation-proof-required",
+        "provider-delivery-proof-required",
+        "physical-device-proof-required"
+      ],
+      "renderedPortalAcknowledgementUiClaimed": false,
+      "liveServiceMutationClaimed": false,
+      "providerDeliveryClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false
+    }
+  ],
+  "actionReadyCount": 2,
+  "recordedCount": 3,
+  "manualRequiredCount": 0,
+  "readinessNonClaims": [
+    "no-rendered-portal-acknowledgement-ui",
+    "no-live-service-mutation-execution",
+    "no-provider-delivery-execution",
+    "no-notification-receipt-runtime",
+    "no-child-device-runtime",
+    "no-physical-device-proof",
+    "no-authority-proof",
+    "no-production-worker",
+    "no-adapter-dispatch"
+  ],
+  "renderedPortalAcknowledgementUiClaimed": false,
+  "liveServiceMutationClaimed": false,
+  "providerDeliveryClaimed": false,
+  "notificationReceiptRuntimeClaimed": false,
+  "childDeviceRuntimeClaimed": false,
+  "physicalDeviceProofClaimed": false,
+  "authorityProofClaimed": false,
+  "productionWorkerClaimed": false,
+  "adapterDispatchClaimed": false,
+  "productClaimReady": false
+}
