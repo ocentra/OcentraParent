@@ -449,6 +449,31 @@ flowchart LR
   handoff rows and produce parent-safe native app/native game read-model rows
   while keeping package exports, runtime persistence, rendering, portal
   rendering, service runtime, and adapter dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface status read-model
+  parent-surface read-model service handoff rows consume parent-safe
+  read-model contract rows and keep future service read-model/event/API proof
+  visible while keeping package exports, service runtime, protocol, rendering,
+  portal rendering, persistence, and adapter dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface status read-model
+  parent-surface read-model service read-model handoff rows consume service
+  handoff rows and keep future service read-model proof visible while keeping
+  package exports, service read-model runtime emission, service events, read
+  APIs, response consumers, service runtime, protocol, rendering, portal
+  rendering, persistence, and adapter dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface status read-model
+  parent-surface read-model service event handoff rows consume service
+  read-model handoff rows and keep future service event proof visible while
+  keeping package exports, service read-model runtime emission, service event
+  runtime emission, service events, read APIs, response consumers, service
+  runtime, protocol, rendering, portal rendering, persistence, and adapter
+  dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface status read-model
+  parent-surface read-model service read API handoff rows consume service event
+  handoff rows and keep future service read API proof visible while keeping
+  package exports, service read-model runtime emission, service event runtime
+  emission, service events, read APIs, read API responses, response consumers,
+  service runtime, protocol, rendering, portal rendering, persistence, and
+  adapter dispatch unclaimed.
   Portal authoring or preview UI, live evaluator execution, persistence,
   timers, child notification delivery, adapter dispatch, broad installed-app
   blocking, and platform enforcement remain unimplemented.

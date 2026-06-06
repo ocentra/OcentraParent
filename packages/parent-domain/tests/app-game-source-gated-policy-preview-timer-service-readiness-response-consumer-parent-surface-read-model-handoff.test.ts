@@ -9,7 +9,7 @@ import {
 import { ParentContractSchemaVersion } from '../src/reference-primitives';
 
 const UpstreamParentSurfaceHandoffPath = new URL(
-  '../../../test-results/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-proof/timer-service-readiness-response-consumer-parent-surface-handoff.json',
+  '../../../test-results/app-game-timer-parent-surface-proof/handoff.json',
   import.meta.url
 );
 

@@ -24,9 +24,9 @@ Add a parent-domain parent-surface read-model contract that consumes WP100 hando
 - `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.ts`
 - `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-rules.ts`
 - `packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.test.ts`
-- `scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-proof.mjs`
+- `scripts/test/app-game-timer-parent-read-model-proof.mjs`
 - `output/app-game-plan-proof/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model`
-- `test-results/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-proof/proof.json`
+- `test-results/app-game-timer-parent-read-model-proof/proof.json`
 
 ## Known Gaps
 
