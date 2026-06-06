@@ -128,9 +128,10 @@ only with explicit parent settings.
 - Household mesh screen AI execution is planned through the
   [Household AI Provider Mesh Plan](../plans/ai-plan/household-ai-provider-mesh-plan.md)
   and [Screen AI Pipeline Plan](../plans/screen-ai-pipeline-plan/README.md).
-  Existing family-hub route/runtime-discovery proof does not yet prove full
-  provider claim/lease/result-validation, no-raw-screen-transfer, or
-  child-agent-only policy authority.
+  Existing legacy family-hub route/runtime-discovery proofs are precursors
+  only; they do not upgrade into household mesh completion unless provider
+  claim/lease, result validation, no-raw-screen-transfer, and
+  child-agent-only policy authority all pass.
 - `@ocentra-parent/activity-domain` now proves parent opt-in settings, cadence
   and trigger gates, temporary encrypted queue custody, deletion/expiry/delete
   failure states, raw-image non-retention, confidence/unknown handling, and
@@ -330,25 +331,28 @@ only with explicit parent settings.
   `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`.
   This is not live-view transport, retention UI, or privacy/legal approval.
 - `ScreenFamilyAiHubRouteSchema` and
-  `scripts/test/screen-family-ai-hub-routing-proof.mjs` now prove the
-  screen-specific family AI hub route contract for hard visual cases: the child
-  device local analysis attempt must be visible first, a selected family hub
-  route stays inside `live-lan-child-agent` custody, redacted/cropped input is
-  required, no retention is allowed, and raw screenshot transfer, remote/API
-  fallback, and Ocentra-hosted processing are rejected. This is contract proof;
-  real LAN hub runtime/discovery, production model quality, policy decisions,
-  UI, and enforcement remain separate gates.
+  `scripts/test/screen-family-ai-hub-routing-proof.mjs` now prove the legacy
+  screen-specific household-provider route contract for hard visual cases: the
+  child device local analysis attempt must be visible first, a selected
+  household route stays inside `live-lan-child-agent` custody, redacted/cropped
+  input is required, no retention is allowed, and raw screenshot transfer,
+  remote/API fallback, and Ocentra-hosted processing are rejected. This is
+  precursor contract proof for the household mesh; provider claim/lease,
+  child-agent result validation, production model quality, UI, and enforcement
+  remain separate gates.
 - `ScreenFamilyAiHubRuntimeDiscoveryReadModelSchema` and
   `scripts/test/screen-family-ai-hub-runtime-discovery-proof.mjs` now prove the
-  first runtime/discovery layer for the screen-specific family AI hub route. The
-  proof starts a real loopback family-hub HTTP endpoint, discovers it, records
-  child-agent hello, heartbeat, and route evidence through existing LAN
-  discovery schemas, selects the existing screen family-hub route after a
-  child-local degraded attempt, submits a redacted-crop job payload, and writes
+  first loopback runtime/discovery layer for the legacy household-provider
+  route. The proof starts a real loopback provider HTTP endpoint, discovers it,
+  records child-agent hello, heartbeat, and route evidence through existing LAN
+  discovery schemas, selects the existing screen household-provider route after
+  a child-local degraded attempt, submits a redacted-crop job payload, and
+  writes
   `output/screen-ai-pipeline-proof/family-ai-hub-runtime-discovery/proof-summary.json`.
   The exchange log proves no raw full screenshot bytes are sent, no raw image is
   retained, and remote/API or Ocentra-hosted processing is not used. Physical
-  household LAN discovery, production VLM quality, portal UI, policy authority,
+  household mesh discovery, provider claim/lease/result validation, production
+  VLM quality, portal UI, policy authority,
   cloud relay, and enforcement remain separate gates.
 - `scripts/test/screen-ai-service-disabled-suppression-proof.mjs` now proves the
   service-owned disabled setting against the real Rust service on Windows: an
@@ -536,9 +540,9 @@ physical
 Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
 browser-trigger artifact closure,
 browser/network/mobile/broad block action adapters from screen-derived
-decisions, physical household family AI hub discovery/runtime proof beyond the
-loopback runtime exchange, and production parent explanation portal rendering
-remain. Browser-trigger proof now covers contract flow into screen evidence and
+decisions, physical household mesh discovery/runtime proof beyond the loopback
+runtime exchange, and production parent explanation portal rendering remain.
+Browser-trigger proof now covers contract flow into screen evidence and
 local-AI context only; live trigger producers, production startup subscriptions
 for all live producers, authenticated surfaces, cloud-streamed frames, mobile
 parity, and UI remain separate proof gates.
@@ -575,11 +579,11 @@ parity, and UI remain separate proof gates.
       prioritizes policy-blocking screen analysis.
 - [x] Detector-specific prompt packs replace open-ended screen descriptions and
       reject private/raw output fields.
-- [x] Family AI hub route contract is used before remote/API for hard visual
-      cases.
-- [x] Family AI hub runtime/discovery loopback proof starts a real local
-      endpoint, records hello/heartbeat/route evidence, submits a redacted-crop
-      job, and preserves no-raw/no-remote custody boundaries.
+- [x] Legacy household-provider route contract is used before remote/API for
+      hard visual cases.
+- [x] Legacy household-provider runtime/discovery loopback proof starts a real
+      local endpoint, records hello/heartbeat/route evidence, submits a
+      redacted-crop job, and preserves no-raw/no-remote custody boundaries.
 - [x] Screen intelligence router checks typed evidence and managed-browser
       structured extraction before selecting screenshots.
 - [x] Managed-browser CDP screenshot capture is page-scoped, target-tied,

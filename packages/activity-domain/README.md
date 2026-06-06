@@ -39,10 +39,11 @@ Shared activity and evidence contracts for child-device observations.
   prioritize policy-blocking work, enforce one heavy local screen AI lane per
   child device, and keep pixel/snippet caps plus no-remote-AI/no-raw-retention
   custody explicit.
-- Screen evidence family AI hub routing contracts that require child-local
-  analysis first, keep selected hard-visual routing inside local household LAN
-  custody, and reject raw retention, remote/API fallback, and Ocentra-hosted
-  processing claims.
+- Screen evidence legacy household-provider routing contracts that require
+  child-local analysis first, keep selected hard-visual routing inside local
+  household LAN custody, and reject raw retention, remote/API fallback, and
+  Ocentra-hosted processing claims. Full household mesh execution requires the
+  AI plan claim/lease/result-validation and child-agent authority proofs.
 - Screen intelligence router and managed-browser structured extraction
   contracts that check typed evidence before screenshot capture, skip screenshots
   when structured evidence is enough, and fail closed for protected or
@@ -136,9 +137,10 @@ flowchart LR
 - Screen detector prompts now have `screen-detector-prompt-pack-proof`;
   production model quality, live inference, policy action, and enforcement proof
   remain open.
-- Screen family AI hub routing now has
-  `screen-family-ai-hub-routing-proof`; real LAN hub runtime/discovery,
-  production model quality, UI, policy, and enforcement proof remain open.
+- Legacy household-provider routing now has
+  `screen-family-ai-hub-routing-proof`; household mesh claim/lease/result
+  validation, physical LAN runtime/discovery, production model quality, UI,
+  policy, and enforcement proof remain open.
 - Screen intelligence routing now has
   `screen-router-structured-extraction-proof`; real managed-browser
   DOM/accessibility producer integration, portal rendering, final policy, and
