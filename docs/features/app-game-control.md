@@ -401,6 +401,11 @@ control with better evidence and local audit.
   rows, the core dashboard maps inventory evidence into app/game usage metrics,
   and the App/Game Sessions route assertion requires inventory text without
   duplicating browser-game work or rendering raw private executable paths.
+- The running/foreground merge-blocking display gate is now backed by
+  `output/app-game-plan-proof/merge-gates/running-foreground-display`: the
+  portal app/game dashboard keeps Running and Foreground as separate metrics and
+  per-row counts, including running rows that are explicitly not foreground,
+  without promoting runtime evidence to foreground usage.
 
 ## Current Gap
 
