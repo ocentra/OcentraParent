@@ -173,7 +173,12 @@ through fingerprints, evidence refs, source kinds, confidence, status, and
 reason codes. They reject raw title, description, page body, image, and
 structured-data storage; runtime DOM extraction, platform API calls, AI
 classification, final policy decisions, cloud-frame analysis, native game
-control, and enforcement. Package subpath exports are now present.
+control, and enforcement. The live proof fetches real public Poki, Coolmath
+Games, Chess.com play, PlayStation Plus games catalog, and Xbox Cloud Gaming
+pages; stores only response metadata, hashed origin/path/body refs, metadata
+shape booleans, length buckets, and value hashes; parses 15 metadata field rows
+plus an extraction bundle; and rejects 27 raw-metadata, DOM/API, AI, policy,
+native, cloud-frame, and enforcement overclaims. Package subpath exports are now present.
 
 GAME-08 now adds parent-domain hidden analysis profile safety contracts in
 `packages/parent-domain/src/browser-game-hidden-analysis-profile-safety.ts`.
@@ -367,7 +372,8 @@ partial/manual-required. The gate labels GAME-01 as scaffold-proof-present,
 GAME-02 as live-route-proof-present, GAME-03 as
 live-portal-pattern-proof-present, GAME-04 as live-cloud-pattern-proof-present,
 GAME-05 as live-url-shape-proof-present, GAME-06 as
-live-runtime-signal-shape-proof-present, GAME-07 through GAME-24 as
+live-runtime-signal-shape-proof-present, GAME-07 as
+live-metadata-shape-proof-present, GAME-08 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
 Product checklist upgrade is not claimed; runtime signals, metadata, AI,
 memory, child/parent UI, cloud-streamed frame analysis, native game control, and

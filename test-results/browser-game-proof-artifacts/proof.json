@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-proof-artifacts",
-  "generatedAt": "2026-06-06T19:22:45.702Z",
+  "generatedAt": "2026-06-06T19:34:26.244Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -108,17 +108,18 @@
     {
       "rowNumber": 7,
       "rowId": "GAME-07",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "live-metadata-shape-proof-present",
       "proofDirectory": "game-07-game-metadata-extractor",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-contract-proof.md",
+        "02-live-metadata-shape-proof.json",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "live-metadata-shape-proof-present",
       "failures": []
     },
     {
@@ -348,8 +349,8 @@
   ],
   "summary": {
     "totalRows": 21,
-    "completeRows": 6,
-    "partialRows": 15,
+    "completeRows": 7,
+    "partialRows": 14,
     "failures": 0,
     "playwrightState": "manual-required-no-rendered-browser-game-ui",
     "productClaimed": false
@@ -362,6 +363,7 @@
     "liveCloudPatternEvidence": "game-04-live-cloud-pattern-proof-present",
     "liveUrlShapeEvidence": "game-05-live-url-shape-proof-present",
     "liveRuntimeSignalEvidence": "game-06-live-runtime-signal-shape-proof-present",
+    "liveMetadataEvidence": "game-07-live-metadata-shape-proof-present",
     "renderedUi": "not-claimed",
     "cloudStreamedFrameAnalysis": "not-claimed",
     "nativeGameControl": "not-claimed",

@@ -348,6 +348,11 @@ publisher, thumbnail, educational subject, cloud platform title, and
 unknown/manual-required metadata shapes through fingerprints and evidence refs.
 They do not store raw metadata, scrape runtime DOM, call platform APIs, run AI,
 decide policy, inspect cloud frames, control native games, or enforce actions.
+The live proof fetches real public Poki, Coolmath Games, Chess.com play,
+PlayStation Plus games catalog, and Xbox Cloud Gaming pages; stores only
+response metadata, hashed origin/path/body refs, metadata shape booleans, length
+buckets, and value hashes; parses 15 metadata field rows plus an extraction
+bundle; and rejects 27 overclaims.
 Browser-game/cloud-gaming GAME-08 now adds parent-domain hidden analysis profile
 safety contracts. Profile and loader rows model Ocentra-owned isolated profiles,
 bounded retention, proof-backed metadata-only/analysis-ready states,
@@ -487,8 +492,9 @@ partial/manual-required through the rollout gate. Product checklist upgrade is
 not claimed. GAME-01 is scaffold-proof-present, GAME-02 is
 live-route-proof-present, GAME-03 is live-portal-pattern-proof-present, GAME-04
 is live-cloud-pattern-proof-present, and GAME-05 is live-url-shape-proof-present.
-GAME-06 is live-runtime-signal-shape-proof-present. GAME-07 through GAME-24 are
-partial/manual-required. Metadata, AI, memory, UI, cloud-streamed
+GAME-06 is live-runtime-signal-shape-proof-present. GAME-07 is
+live-metadata-shape-proof-present. GAME-08 through GAME-24 are
+partial/manual-required. AI, memory, UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.
 Browser AI enhancement rows AI-01 and AI-02 now add plan linkage and
