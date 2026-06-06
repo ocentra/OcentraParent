@@ -1202,7 +1202,17 @@ worker messages before code changes. Do not mix all 24 into one PR.
   fingerprints, evidence refs, confidence, and review states. They reject raw
   domains, raw URLs, raw page titles, raw page bodies, runtime detection
   claims, AI classification claims, policy authority, cloud-gaming ownership,
-  and enforcement.
+  and enforcement. GAME-03 also now includes live public-surface proof in
+  `output/browser-plan-proof/game-03-known-game-portal-pattern-library/05-live-pattern-library-proof.json`
+  and
+  `test-results/browser-game-portal-pattern-library-live-evidence-proof/proof.json`.
+  That proof fetches real CrazyGames, Poki, Coolmath Games, itch.io HTML5,
+  Internet Archive MS-DOS games, and Chess.com play surfaces; stores only
+  response metadata plus hashed origin/path/body refs; parses six reviewed
+  portal pattern rows plus a reviewed library; and rejects 17 overclaims. No
+  runtime portal detector, URL parser, AI classifier, final policy, UI, product
+  checklist update, release claim, cloud-frame analysis, native game control,
+  or enforcement is made.
 - GAME-04 now adds parent-domain cloud-gaming pattern library contracts.
   Entries model cloud-gaming platforms, cloud PC platforms, mobile cloud-game
   portals, browser-embedded cloud-game surfaces, native launcher prompt
@@ -1392,9 +1402,10 @@ worker messages before code changes. Do not mix all 24 into one PR.
   app-level, or domain-level until real device/platform proof exists.
 - GAME-24 now adds the browser-game rollout/manual-required gate. GAME rollout
   state: partial/manual-required. The gate labels GAME-01 as
-  scaffold-proof-present, GAME-02 as live-route-proof-present, GAME-03 through
-  GAME-24 as partial/manual-required, and no browser-game rows as
-  open/manual-required. Product checklist upgrade is not claimed, and runtime
+  scaffold-proof-present, GAME-02 as live-route-proof-present, GAME-03 as
+  live-portal-pattern-proof-present, GAME-04 through GAME-24 as
+  partial/manual-required, and no browser-game rows as open/manual-required.
+  Product checklist upgrade is not claimed, and runtime
   signals, metadata, AI, memory, child/parent UI, cloud-streamed frame analysis,
   native game control, and enforcement remain open or manual-required until
   separate proof exists.

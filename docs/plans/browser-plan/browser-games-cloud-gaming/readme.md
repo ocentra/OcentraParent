@@ -100,7 +100,19 @@ model known-game, educational, UGC, indie, classic archive, school, and unknown
 portal families through route kinds, signal kinds, pattern fingerprints,
 evidence refs, confidence, and review states. They reject raw domains, raw URLs,
 raw page titles, raw page bodies, runtime detection claims, AI classification
-claims, policy decisions, cloud-gaming ownership, and enforcement. Package subpath exports are now present.
+claims, policy decisions, cloud-gaming ownership, and enforcement. Package
+subpath exports are now present. GAME-03 also now includes live public-surface
+proof in
+`output/browser-plan-proof/game-03-known-game-portal-pattern-library/05-live-pattern-library-proof.json`
+and
+`test-results/browser-game-portal-pattern-library-live-evidence-proof/proof.json`.
+That proof fetches real CrazyGames, Poki, Coolmath Games, itch.io HTML5,
+Internet Archive MS-DOS games, and Chess.com play surfaces; stores only response
+metadata plus hashed origin/path/body refs; parses six reviewed portal pattern
+rows plus a reviewed library; and rejects 17 overclaims. It does not claim a
+runtime portal detector, URL parser, AI classifier, UI, final policy, product
+checklist update, release readiness, cloud-frame analysis, native game control,
+or enforcement.
 
 GAME-04 now adds parent-domain cloud-gaming pattern library contracts in
 `packages/parent-domain/src/browser-game-cloud-pattern-library.ts`. Entries
@@ -330,7 +342,8 @@ purchase control, UI delivery, and enforcement. Package subpath exports are now 
 GAME-24 now adds the browser-game rollout/manual-required gate in
 `scripts/test/browser-game-rollout-gate.mjs`. GAME rollout state:
 partial/manual-required. The gate labels GAME-01 as scaffold-proof-present,
-GAME-02 as live-route-proof-present, GAME-03 through GAME-24 as
+GAME-02 as live-route-proof-present, GAME-03 as
+live-portal-pattern-proof-present, GAME-04 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
 Product checklist upgrade is not claimed; runtime signals, metadata, AI,
 memory, child/parent UI, cloud-streamed frame analysis, native game control, and

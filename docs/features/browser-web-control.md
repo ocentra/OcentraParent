@@ -293,6 +293,17 @@ school, and unknown portal families through route kinds, signal kinds, pattern
 fingerprints, evidence refs, confidence, and review states. They do not store
 raw domains, URLs, page titles, page bodies, claim runtime detection, AI
 classification, policy decisions, cloud-gaming ownership, or enforcement.
+GAME-03 also now includes live public-surface proof in
+`output/browser-plan-proof/game-03-known-game-portal-pattern-library/05-live-pattern-library-proof.json`
+and
+`test-results/browser-game-portal-pattern-library-live-evidence-proof/proof.json`.
+The proof fetches real CrazyGames, Poki, Coolmath Games, itch.io HTML5,
+Internet Archive MS-DOS games, and Chess.com play surfaces; stores only response
+metadata plus hashed origin/path/body refs; parses six reviewed portal pattern
+rows plus a reviewed library; and rejects 17 overclaims. It does not claim a
+runtime portal detector, URL parser, AI classifier, UI, final policy, product
+checklist update, release readiness, cloud-frame analysis, native game control,
+or enforcement.
 Browser-game/cloud-gaming GAME-04 now adds parent-domain cloud-gaming pattern
 library contracts. Entries model cloud-gaming platforms, cloud PC platforms,
 mobile cloud-game portals, browser-embedded cloud-game surfaces, native launcher
@@ -458,8 +469,8 @@ enforcement.
 Browser-game/cloud-gaming GAME-24 now labels the game track
 partial/manual-required through the rollout gate. Product checklist upgrade is
 not claimed. GAME-01 is scaffold-proof-present, GAME-02 is
-live-route-proof-present, and GAME-03 through GAME-24 are
-partial/manual-required. Runtime, metadata, AI, memory, UI, cloud-streamed
+live-route-proof-present, GAME-03 is live-portal-pattern-proof-present, and
+GAME-04 through GAME-24 are partial/manual-required. Runtime, metadata, AI, memory, UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.
 Browser AI enhancement rows AI-01 and AI-02 now add plan linkage and

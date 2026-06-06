@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-proof-artifacts",
-  "generatedAt": "2026-06-06T18:28:10.265Z",
+  "generatedAt": "2026-06-06T18:44:18.182Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -40,17 +40,18 @@
     {
       "rowNumber": 3,
       "rowId": "GAME-03",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "live-portal-pattern-proof-present",
       "proofDirectory": "game-03-known-game-portal-pattern-library",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-contract-proof.md",
+        "05-live-pattern-library-proof.json",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "live-portal-pattern-proof-present",
       "failures": []
     },
     {
@@ -344,8 +345,8 @@
   ],
   "summary": {
     "totalRows": 21,
-    "completeRows": 2,
-    "partialRows": 19,
+    "completeRows": 3,
+    "partialRows": 18,
     "failures": 0,
     "playwrightState": "manual-required-no-rendered-browser-game-ui",
     "productClaimed": false
@@ -354,6 +355,7 @@
     "screenshots": "not-applicable-contract-only",
     "playwright": "manual-required-no-rendered-browser-game-ui",
     "liveRouteEvidence": "game-02-live-route-proof-present",
+    "livePortalPatternEvidence": "game-03-live-portal-pattern-proof-present",
     "renderedUi": "not-claimed",
     "cloudStreamedFrameAnalysis": "not-claimed",
     "nativeGameControl": "not-claimed",

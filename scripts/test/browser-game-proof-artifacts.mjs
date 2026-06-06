@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 2;
+    const isComplete = rowNumber <= 3;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -70,7 +70,9 @@ function expectedRows() {
       expectedState: isComplete
         ? rowNumber === 1
           ? 'scaffold-proof-present'
-          : 'live-route-proof-present'
+          : rowNumber === 2
+            ? 'live-route-proof-present'
+            : 'live-portal-pattern-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -168,6 +170,7 @@ function manifestFor(rows, failures) {
       screenshots: 'not-applicable-contract-only',
       playwright: 'manual-required-no-rendered-browser-game-ui',
       liveRouteEvidence: 'game-02-live-route-proof-present',
+      livePortalPatternEvidence: 'game-03-live-portal-pattern-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -200,6 +203,8 @@ function markdownFor(manifest) {
     'GAME-22 proves proof-pack coverage for GAME-01 through GAME-21.',
     'GAME-02 live route proof is present for real public browser-game and',
     'cloud-gaming route surfaces with ref-only/hash-only custody.',
+    'GAME-03 live portal pattern library proof is present for real public',
+    'browser-game portal and archive surfaces with ref-only/hash-only custody.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',
