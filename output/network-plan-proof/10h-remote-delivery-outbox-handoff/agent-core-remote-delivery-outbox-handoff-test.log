@@ -1,0 +1,31 @@
+
+running 2 tests
+test network_event_runtime_remote_delivery_tests::network_runtime_remote_delivery_outbox_handoff_preserves_projection_and_receipt_refs_without_dispatch ... ok
+test network_event_runtime_remote_delivery_tests::network_runtime_remote_delivery_outbox_handoff_rejects_dispatch_ack_action_and_content_claims ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 254 filtered out; finished in 0.03s
+
+warning: field `remote_delivery_status` is never read
+  --> crates\agent-core\src\network_event_runtime\remote_delivery_outbox_handoff_types.rs:33:9
+   |
+32 | pub struct NetworkRuntimeRemoteDeliveryOutboxHandoffReport {
+   |            ----------------------------------------------- field in this struct
+33 |     pub remote_delivery_status: NetworkRuntimeRemoteDeliveryStatusReport,
+   |         ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `NetworkRuntimeRemoteDeliveryOutboxHandoffReport` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` on by default
+
+warning: field `remote_delivery_status` is never read
+  --> crates\agent-core\src\network_event_runtime\remote_delivery_receipt_ledger_types.rs:22:9
+   |
+21 | pub struct NetworkRuntimeRemoteDeliveryReceiptLedgerReport {
+   |            ----------------------------------------------- field in this struct
+22 |     pub remote_delivery_status: NetworkRuntimeRemoteDeliveryStatusReport,
+   |         ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `NetworkRuntimeRemoteDeliveryReceiptLedgerReport` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: `ocentra-parent-agent-core` (lib test) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+     Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_core-98ce409322ace2ff.exe)

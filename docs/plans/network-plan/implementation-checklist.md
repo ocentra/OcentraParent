@@ -234,10 +234,12 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   event-chain journal/export projection through reusable `ocentra-eventing`
   NDJSON records without action replay, and row10g now proves a local receipt
   ledger/local ack boundary from that projection without implementing remote
-  delivery acknowledgements. Live broker/family-hub delivery, cross-process
-  durable replay, raw PCAP/live-capture retention and remote delete/export
-  propagation, live analyzer/model/policy execution, adapter execution, and host
-  filtering remain open.
+  delivery acknowledgements. Row10h now prepares local outbox/handoff candidates
+  from row10f projection records plus row10g receipt records without dispatch
+  attempts or remote acknowledgements. Live broker/family-hub delivery,
+  cross-process durable replay, raw PCAP/live-capture retention and remote
+  delete/export propagation, live analyzer/model/policy execution, adapter
+  execution, and host filtering remain open.
 - [x] TypeScript Effect Schema contracts land before Rust/service/portal
       consumers where TypeScript domain boundaries are touched. Workpack 03
       added the `activity-domain` network contracts before Rust protocol parity.
@@ -369,6 +371,20 @@ manual-required/N/A file.
       event type, correlation id, receipt ledger refs, local receipt ack refs,
       receipt replay refs, and support-status refs. This proves a local
       ack/receipt boundary only; live broker/family-hub transport, remote
+      delivery acknowledgement implementation, cross-process transport, remote
+      retention/delete/export propagation, policy authority, side-effect
+      authority, enforcement-command publication, adapter execution,
+      exact-content claims, and host filtering remain false.
+- [x] 10h remote delivery outbox/handoff readiness status: E-D added
+      `output/network-plan-proof/10h-remote-delivery-outbox-handoff/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-outbox-handoff-proof/proof.json`.
+      The `agent-core` proof derives local outbox candidates from row10f
+      projection replay records and row10g receipt records while preserving
+      replay sequence, event id, event type, correlation id, idempotency key,
+      target handler, outbox refs, handoff refs, replay refs, and support-status
+      refs. This proves a local outbox/handoff boundary only; live
+      broker/family-hub transport, dispatch attempts, remote acknowledgements,
       delivery acknowledgement implementation, cross-process transport, remote
       retention/delete/export propagation, policy authority, side-effect
       authority, enforcement-command publication, adapter execution,

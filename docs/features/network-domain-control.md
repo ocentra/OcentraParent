@@ -108,6 +108,17 @@ compete on control while staying clear about attribution confidence and privacy.
   acknowledgement implementation, policy authority, side effects, enforcement
   commands, adapter execution, exact URL, decrypted payload, page content, and
   host filtering remain false.
+- E-D added row10h remote delivery outbox/handoff proof in `agent-core`:
+  `network-remote-delivery-outbox-handoff-proof` builds deterministic local
+  outbox candidates from row10f projection replay records and row10g receipt
+  records, preserving replay sequence, event id, event type, correlation id,
+  idempotency key, target handler, row10h outbox refs, handoff refs, replay refs,
+  and support-status refs. This proves the local outbox/handoff boundary future
+  broker/family-hub transport can consume, while live broker/family-hub
+  transport, dispatch attempts, remote acknowledgements, delivery acknowledgement
+  implementation, policy authority, side effects, enforcement commands, adapter
+  execution, exact URL, decrypted payload, page content, and host filtering
+  remain false.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,
@@ -402,9 +413,9 @@ adds a platform-claim manifest that names exact Windows, Android, Apple
 macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
 follow-ups for missing artifacts.
 Broker/family-hub delivery implementation beyond the row10b status proof,
-row10f local event-chain journal/export boundary, and row10g local receipt
-ledger/local ack boundary, local-AI model execution/worker runtime, full policy
-engine execution beyond
+row10f local event-chain journal/export boundary, row10g local receipt
+ledger/local ack boundary, and row10h local outbox/handoff boundary, local-AI
+model execution/worker runtime, full policy engine execution beyond
 the current stored-flow dry-run preview and stored-flow service unavailable-result proof,
 notification provider delivery, broader parent-facing rule UX, live host DNS
 mutation/proxy installation, live Windows
@@ -499,7 +510,10 @@ UI rendering remain open.
       false. Row10g now derives a local receipt ledger from that projection,
       preserving sequence, event id, event type, correlation id, receipt
       ledger refs, and local ack refs without implementing live remote delivery
-      acknowledgements. Service network read-model delivery now publishes stored
+      acknowledgements. Row10h now derives local outbox candidates from row10f
+      projection replay records and row10g receipts, preserving idempotency key,
+      target handler, outbox refs, and handoff refs without dispatch attempts or
+      remote acknowledgements. Service network read-model delivery now publishes stored
       ActivityStore network rows through the local eventing runtime and exposes
       delivery counts in the service payload; service WebSocket event-chain
       streaming now returns protocol-shaped local runtime entries for stored
@@ -534,8 +548,8 @@ UI rendering remain open.
       live adapter execution, UI policy authority, and enforcement-command
       claims. AI model execution, broker/family-hub delivery implementation
       beyond row10b status, row10f local journal/export boundary, and row10g
-      local receipt ledger/local ack boundary, full policy engine execution,
-      notification delivery, external
+      local receipt ledger/local ack boundary, row10h local outbox/handoff
+      boundary, full policy engine execution, notification delivery, external
       audit/deployment execution, full support-material authoring, and portal
       risk-budget/performance UI rendering remain.
 - [x] Parent portal network evidence drawer.

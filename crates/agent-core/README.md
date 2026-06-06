@@ -47,10 +47,11 @@ service shell.
   custody, auth, encryption, retention, replay, deletion, offset, dedupe,
   broker config, family-hub identity, relay policy, idempotency, and
   dead-letter refs. Row10f also preserves the remote event-chain
-  journal/export boundary, and row10g preserves the receipt ledger/local ack
-  boundary while keeping live transport, delivery acknowledgement
-  implementation, policy authority, side effects, enforcement commands,
-  adapter execution, exact-content claims, and host filtering false.
+  journal/export boundary, row10g preserves the receipt ledger/local ack
+  boundary, and row10h preserves the outbox/handoff boundary while keeping live
+  transport, dispatch attempts, delivery acknowledgement implementation, policy
+  authority, side effects, enforcement commands, adapter execution,
+  exact-content claims, and host filtering false.
 
 ## Must Not Own
 
@@ -94,8 +95,8 @@ flowchart LR
 - Tracking read-model queries are query-store proof only; narrow portal summary
   consumption exists, while platform replay, deletion/tombstone behavior, richer
   UI, and physical-device artifacts remain separate proof gaps.
-- Network remote delivery is status, local journal/export, and receipt
-  ledger/local ack boundary proof only; live broker/family-hub transport,
+- Network remote delivery is status, local journal/export, receipt ledger/local
+  ack, and outbox/handoff boundary proof only; live broker/family-hub transport,
   cross-process replay, remote retention/delete/export propagation, delivery
-  acknowledgements, and production transport configuration remain separate
-  implementation gaps.
+  acknowledgements, dispatch attempts, and production transport configuration
+  remain separate implementation gaps.
