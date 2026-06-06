@@ -115,7 +115,9 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   state, confidence, and evidence refs from typed social AI analysis results
   while rejecting raw message/feed/page/model use, account identity verification
   claims, final policy decisions, connector/native claims, UI delivery, and
-  enforcement.
+  enforcement. The SOCIAL-11 live-evidence proof consumes SOCIAL-10 degraded AI
+  result refs and emits unavailable risk/benefit signal sets without
+  classifying content or claiming final policy/enforcement authority.
 - Browser-plan SOCIAL-12 now adds parent-domain social policy compiler
   contracts. They consume parent-owned evidence, signal-set, rule, and schedule
   refs to produce non-final decision candidates while rejecting raw signal
