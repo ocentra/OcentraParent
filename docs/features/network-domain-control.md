@@ -339,6 +339,11 @@ compete on control while staying clear about attribution confidence and privacy.
   unavailable, weak-evidence, and invalid terminate-target states stay
   non-result, and live host mutation or enforcement-command publication is
   rejected.
+- E-D added root proof-pack reconciliation for the network plan. The harness
+  verifies committed current-main proof artifacts, writes
+  `output/network-plan-proof/proof-pack-reconciliation/`, and records branch-only
+  content-claim/manual-follow-up evidence separately instead of upgrading
+  current-main claims.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -383,6 +388,9 @@ follow-ups for missing artifacts. Row53 now records block, terminate, dry-run,
 manual-required, and unavailable action-result states from policy refs and
 adapter proof artifacts without claiming live adapter execution or enforcement
 command publication.
+Root proof-pack reconciliation now records which current-main proof-pack gates
+are satisfied and which remain partial, including adapter/action,
+journal/read-model, UI, and security/content-claim follow-ups.
 Broker/family-hub delivery implementation, local-AI model execution/worker
 runtime, full policy engine execution, notification provider delivery, broader
 parent-facing rule UX, live host DNS mutation/proxy installation, live Windows

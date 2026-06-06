@@ -39,15 +39,15 @@ output/network-plan-proof/<workpack-id>/
 
 The proof pack must contain or explicitly mark N/A for each applicable item:
 
-- [ ] `00-source-snapshot.md`: git branch, commit, `git status --short`,
+- [x] `00-source-snapshot.md`: git branch, commit, `git status --short`,
       existing source paths inspected, existing behavior, and before-state gap.
-- [ ] `01-contract-proof.log`: TypeScript/Rust contract tests, invalid states,
+- [x] `01-contract-proof.log`: TypeScript/Rust contract tests, invalid states,
       schema-boundary/source-shape checks, and protocol parity where applicable.
-- [ ] `02-eventing-proof.log`: reusable Rust eventing dependency, validated
+- [x] `02-eventing-proof.log`: reusable Rust eventing dependency, validated
       event newtypes, typed live envelopes, associated request responses, event
       constants, routing, queue/retry/TTL, no-adapter-call guards, and no UI
       business-event publish path when eventing changes.
-- [ ] `03-parser-fixture-proof.json`: PCAP fixture input, parser output,
+- [x] `03-parser-fixture-proof.json`: PCAP fixture input, parser output,
       expected JSON, TShark/Wireshark comparison, and must-not-claim records.
 - [x] `03a-live-capture-storage-proof.json`: encryption-at-rest, quota
       rotation, retention/delete/export behavior, private-family-traffic
@@ -59,10 +59,10 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       raw capture artifact custody gate over proof-ready live-capture refs,
       raw artifact manifest, encrypted local storage, quota, retention,
       delete/export, custody-chain, and private-traffic-exclusion refs.
-- [ ] `04-analyzer-alert-proof.json`: Zeek-style summaries,
+- [x] `04-analyzer-alert-proof.json`: Zeek-style summaries,
       Suricata/Snort-compatible alert fixtures, false-positive guards, and
       no-signature-only-enforcement proof.
-- [ ] `05-ai-policy-proof.json`: AI detection/audit input refs, output refs,
+- [x] `05-ai-policy-proof.json`: AI detection/audit input refs, output refs,
       policy decision refs, risk budget state, and unsupported-claim rejection.
 - [~] `06-adapter-action-proof.json`: adapter capability, dry-run/manual-required
   state, apply/result/rollback/unavailable state, and audit refs.
@@ -70,15 +70,24 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   cover deterministic apply/result/rollback/manual/unavailable result
   boundaries and audit refs. Live adapter execution, host mutation, and
   production enforcement remain unclaimed.
-- [ ] `07-journal-sqlite-proof.json`: journal entry refs, replay result,
-      SQLite/read-model rows, and custody labels.
-- [ ] `08-ui-snapshots/`: parent portal screenshots for normal, degraded,
-      manual-required, audit, risk budget, and limitation states when UI changes.
-- [ ] `09-security-negative-proof.log`: no exact URL/video/message/search claim,
-      no raw PCAP to AI, no decrypted payload, no weak-evidence block, no UI/AI
-      direct enforcement.
-- [ ] `10-performance-proof.log`: throughput, latency, CPU, memory, disk, queue,
+- [~] `07-journal-sqlite-proof.json`: journal entry refs, replay result,
+  SQLite/read-model rows, and custody labels.
+- [~] `08-ui-snapshots/`: parent portal screenshots for normal, degraded,
+  manual-required, audit, risk budget, and limitation states when UI changes.
+- [~] `09-security-negative-proof.log`: no exact URL/video/message/search claim,
+  no raw PCAP to AI, no decrypted payload, no weak-evidence block, no UI/AI
+  direct enforcement.
+- [x] `10-performance-proof.log`: throughput, latency, CPU, memory, disk, queue,
       and dropped-event metrics when real-time claims are touched.
+      E-D proof-pack reconciliation now writes
+      `output/network-plan-proof/proof-pack-reconciliation/00-source-snapshot.md`
+      through
+      `output/network-plan-proof/proof-pack-reconciliation/10-performance-proof.log`
+      plus `proof-summary.json`, citing only committed current-main proof
+      artifacts. Adapter/action, journal/read-model, UI, and security-negative
+      gates remain partial where they depend on live adapter execution, raw PCAP
+      remote retention propagation, broader risk-budget/audit/performance UI,
+      or branch-only exact video/content-claim invariant evidence.
 - [x] `10a-broker-delivery-proof.log`: delivery semantics declaration,
       duplicate detection, idempotency keys, replay, dropped-event audit, and
       no duplicate adapter action when broker-backed routes are touched.
@@ -200,8 +209,12 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       nftables/eBPF/TUN OS/device/permission refs, manual follow-ups for missing
       artifacts, and rejected generic platform, live adapter execution, UI
       policy authority, and enforcement-command claims.
-- [ ] Every failed, skipped, manual, or deferred test has a reason and follow-up
-      owner recorded.
+- [~] Every failed, skipped, manual, or deferred test has a reason and follow-up
+  owner recorded. Proof-pack reconciliation records current-main manual and
+  deferred follow-ups under
+  `output/network-plan-proof/proof-pack-reconciliation/11-manual-deferred-followups.json`.
+  The fuller manual-followup sourceRef ledger remains branch-only at
+  `codex/network-manual-followup-owner-ledger-proof` until integrated.
 
 ## Main Execution Gates
 
@@ -269,6 +282,9 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
 - [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
       reasons for every applicable gate. Workpack 03 proof lives under
       `output/network-plan-proof/03-contract-boundary-and-effect-schemas/`.
+      Root proof-pack reconciliation now lives under
+      `output/network-plan-proof/proof-pack-reconciliation/` and records which
+      current-main gates are proved versus partial.
 - [x] Feature docs, expectation docs, module READMEs, and product capability
       checklist decisions are recorded. E-D updated the network feature doc and
       checklist rows; no expectation or module README update was needed because
