@@ -316,6 +316,18 @@ Release features are product features because parents need install/update paths 
   execution, raw child activity custody, provider secrets, status backend
   payload custody, default Ocentra-hosted family data, or raw support bundle
   payloads.
+- `production-support-status-backend-dead-letter-proof` may prove support-safe
+  status backend dead-letter/manual-triage labels for support runbook,
+  incident, contact, upload, privacy/legal, account, and billing support targets
+  across requested, authorized, dead-lettered, triage-ready, retry-blocked,
+  failed, manual-required, and backend-unavailable states, but it must not
+  claim real status backend execution, durable queue storage, retry worker
+  execution, audit persistence, dead-letter payload custody, public runtime
+  execution, provider execution, support backend upload execution, account
+  lookup execution, billing provider contact execution, remote support session
+  execution, production SLA, legal disclosure execution, raw child activity
+  custody, provider secrets, default Ocentra-hosted family data, or raw support
+  bundle payloads.
 - `production-support-status-backend-payload-custody-proof` may prove
   support-safe status backend payload custody labels for custody boundary,
   retention manual-required, delete request, deletion manual-required,
