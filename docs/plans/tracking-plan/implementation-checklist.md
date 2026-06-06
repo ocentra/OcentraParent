@@ -288,10 +288,10 @@ WP30/WP33 additionally have hosted UI artifact inventory proof from
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/21-hosted-ui-artifact-inventory-proof.json`,
 `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/28-hosted-ui-artifact-inventory-proof.json`,
 and `test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json`. It
-verifies hosted screenshot PNG files, accessibility assertions, and
-no-product-claim boundaries without claiming full parent/child UI,
-child-device runtime, physical-device proof, authority, provider delivery, or
-production proof.
+verifies hosted screenshot PNG files, accessibility assertions, no-overlap
+layout geometry, and no-product-claim boundaries without claiming full
+parent/child UI, child-device runtime, physical-device proof, authority,
+provider delivery, or production proof.
 WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
 The runtime proof command also records the full `minimumSeriousMvpAudit` in
 generated `00-run-metadata.json`; both are first-checkpoint P1

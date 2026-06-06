@@ -61,8 +61,8 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 
 ## AI Worker Checklist
 
-- [ ] Add Playwright coverage for all required screens and badges.
-- [ ] Add no-overlap/no-overclaim screenshot proof.
+- [x] Add Playwright coverage for all hosted proof-route screens and badges.
+- [x] Add no-overlap/no-overclaim screenshot proof for the hosted proof route.
 - [x] Add first-target parent route tracking state fixture surface.
 - [x] Capture local rendered parent-route fixture screenshot.
 - [x] Keep UI rows at no-product-claim with P1 fixture status.
@@ -95,10 +95,10 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       selected service-backed citation without claiming policy evaluation,
       action dispatch, child-device delivery, provider delivery, physical-device
       proof, authority, or product readiness.
-- [x] Verify hosted screenshot PNG artifacts, evidence drawer proof output, and
-      accessibility assertions are present and non-empty through a dedicated
-      artifact inventory proof without claiming full parent/child UI or device
-      runtime execution.
+- [x] Verify hosted screenshot PNG artifacts, evidence drawer proof output,
+      accessibility assertions, and no-overlap layout geometry are present and
+      non-empty through a dedicated artifact inventory proof without claiming
+      full parent/child UI or device runtime execution.
 - [x] Ensure child copy avoids accusation.
 - [x] Keep portal as authoring/display surface, not evaluator for the hosted
       evidence drawer proof; broader UI/product paths remain separately gated.
