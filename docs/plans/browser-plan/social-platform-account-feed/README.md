@@ -193,6 +193,13 @@ schedule and time-budget state refs in
 `output/browser-plan-proof/social-policy-schedule-time-budget-proof/01-social-policy-schedule-time-budget-proof.md`.
 The proof remains contract-only: it does not claim runtime policy execution,
 applied schedules, applied time budgets, browser mutation, or enforcement.
+`social-policy-live-evidence-compiler-proof` consumes SOCIAL-11 live-evidence
+signal refs and writes
+`test-results/social-policy-live-evidence-compiler-proof/proof.json` plus
+`output/browser-plan-proof/social-12-parent-policy-compiler-social-targets/11-live-evidence-policy-compiler-proof.json`.
+It emits non-final manual-review candidates and keeps final policy decisions,
+runtime gates, UI delivery, native app control, connector authorization, raw
+signal/model storage, and enforcement unclaimed.
 
 SOCIAL-13 now adds
 `packages/activity-domain/src/browser-social-account-creation-gate.ts`, a
