@@ -131,7 +131,9 @@ function manifestFor(rows, failures) {
       'rendered-proof-bundle-social-ui-present',
       'service-backed-dashboard-and-explanation-read-model-proof-present',
       'social-alert-report-intent-proof-present',
+      'social-schedule-time-budget-compiler-proof-present',
       'provider-report-delivery-not-claimed',
+      'applied-schedule-time-budget-not-claimed',
       'connector-native-runtime-not-claimed',
       'final-policy-execution-not-claimed',
       'enforcement-not-claimed',
@@ -163,8 +165,9 @@ function markdownFor(manifest) {
     'Rendered proof-bundle social UI exists for dashboard, child intervention,',
     'and parent explanation states. Service-backed dashboard and explanation',
     'read-model delivery is present. Ref-only social alert/report intent proof',
-    'is present; connector/native runtime, provider/report delivery, final',
-    'policy execution, and enforcement remain unclaimed.',
+    'is present. Schedule/time-budget compiler proof is present; connector/native',
+    'runtime, provider/report delivery, applied schedules/budgets, final policy',
+    'execution, and enforcement remain unclaimed.',
   ].join('\n');
 }
 

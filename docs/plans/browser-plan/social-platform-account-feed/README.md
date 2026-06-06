@@ -161,12 +161,22 @@ claims, UI delivery, and enforcement. Package subpath exports are now present.
 SOCIAL-12 now adds parent-domain social policy compiler contracts in
 `packages/parent-domain/src/social-policy-compiler-values.ts` and
 `packages/parent-domain/src/social-policy-compiler.ts`. The compiler consumes
-parent-owned evidence, signal-set, parent-rule, and schedule refs and produces
-decision candidates for allow, warn, parent-review, block, manual-review, or
-unknown outcomes. It rejects raw signal payloads, raw model text,
+parent-owned evidence, signal-set, parent-rule, schedule, and time-budget refs
+and produces decision candidates for allow, warn, parent-review, block,
+manual-review, or unknown outcomes. It rejects raw signal payloads, raw model text,
 activity-domain object transfer, UI/runtime/enforcement, native app, and
 connector claims. Decision candidates are not final policy decisions or
 enforcement handoffs. Package subpath exports are now present.
+
+`social-policy-schedule-time-budget-proof` strengthens SOCIAL-12 with explicit
+schedule and time-budget state refs in
+`packages/parent-domain/src/social-policy-compiler-values.ts`,
+`packages/parent-domain/src/social-policy-compiler.ts`, and
+`packages/parent-domain/tests/social-policy-compiler.test.ts`. It writes
+`test-results/social-policy-schedule-time-budget-proof/proof.json` and
+`output/browser-plan-proof/social-policy-schedule-time-budget-proof/01-social-policy-schedule-time-budget-proof.md`.
+The proof remains contract-only: it does not claim runtime policy execution,
+applied schedules, applied time budgets, browser mutation, or enforcement.
 
 SOCIAL-13 now adds
 `packages/activity-domain/src/browser-social-account-creation-gate.ts`, a
