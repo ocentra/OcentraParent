@@ -198,6 +198,14 @@ expose location or device-status features. Parents expect this category.
   policy-review input only. It does not claim live provider execution,
   provider delivery, exact-place presence, automatic action, physical-device
   proof, authority proof, production behavior, or full UI.
+- WP24 AI provider routing proof now exists through
+  `node scripts/test/tracking-ai-provider-routing-proof.mjs`. It proves a
+  parent-domain route matrix with child-local as the only default safety path,
+  parent-approved remote as the only remote-data route, degraded/unavailable/
+  disabled rows, assistant preview-only no-write/no-enforcement boundaries, and
+  evidence/custody refs on every AI context. It does not claim model execution,
+  child-device runtime, provider delivery, assistant policy writes,
+  enforcement, physical-device proof, production behavior, or UI.
 - WP25 tracking policy compiler runtime proof now exists through
   `node scripts/test/tracking-policy-compiler-runtime-proof.mjs`. It compiles
   parent-owned tracking rules for observe, notify, child check-in, parent
