@@ -1244,7 +1244,11 @@ worker messages before code changes. Do not mix all 24 into one PR.
   category, and restriction signals. Metadata can be available, partial, or
   manual-required, while page body capture, transcript text, message content,
   feed content semantics, content semantics, AI decisions, policy decisions,
-  native app control, connector access, and enforcement are rejected. Package subpath exports are now present; no network
+  native app control, connector access, and enforcement are rejected. The live
+  proof now captures real public YouTube Shorts, Vimeo, Reddit, and Instagram
+  route surfaces, persists screenshots plus redacted URL/title/meta hashes, and
+  parses bounded refs through the extractor without storing raw title text, meta
+  values, page body, DOM, transcript text, or feed content. Package subpath exports are now present; no network
   fetcher, transcript parser, feed content parser, AI analysis, policy
   evaluator, runtime gate, UI, native app support, connector, or enforcement is
   claimed.
