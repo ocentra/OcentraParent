@@ -288,6 +288,15 @@ expose location or device-status features. Parents expect this category.
   explicitly rejects portal UI completion, child-device delivery, provider
   delivery, notification receipt ingestion, authority, physical-device, and
   product-complete claims.
+- WP32 report/export read-model proof now exists through
+  `node scripts/test/tracking-report-export-read-model-proof.mjs`. It derives
+  redacted report export, retention audit export, family dashboard summary, and
+  policy drill-in export packet rows from the existing tracking service
+  read-model, product-surface summary, report/policy consumer, family dashboard
+  rollup, and retention settings proof refs while keeping raw location payload
+  export, rendered report UI, service mutation, platform runtime, child-device
+  delivery, provider delivery, notification receipt ingestion, authority,
+  physical-device, production, and product-complete claims false.
 - Unsupported and not-yet-proved tracking platform states now have a
   parent-domain manual-required/unavailable render-state proof through
   `node scripts/test/tracking-unsupported-platform-manual-proof.mjs`. It proves
@@ -424,7 +433,9 @@ remote-AI disabled rows plus narrow hosted-route rendering, plus
 retention-settings writer-boundary preflight proof for the same five settings
 rows, plus typed service transport write-command proof for retention settings
 preflight, plus hosted route command/result rendering for that typed write
-preflight. It remains a tracked product gap until platform location and
+preflight, plus WP32 report/export read-model packet proof for redacted report,
+retention audit, family dashboard summary, and policy drill-in export packets.
+It remains a tracked product gap until platform location and
 geofence runtime adapters, broader product read models beyond these rows, full
 dashboard UI beyond the hosted parent route, applied product-ready service
 mutation execution, actual live provider execution/delivery, notification
@@ -546,6 +557,13 @@ are proved.
       policy evidence drill-in, and retention audit/export rows. This is not
       portal UI completion, child-device delivery, provider delivery,
       notification receipt ingestion, authority, physical-device, or
+      product-complete proof.
+- [x] WP32 report/export read-model proof for redacted report export,
+      retention audit export, family dashboard summary, and policy drill-in
+      export packet rows. This is evidence-ref packet readiness only; it is not
+      raw location payload export, rendered report UI, service mutation,
+      platform runtime, child-device delivery/runtime execution, provider
+      delivery, notification receipt ingestion, authority, physical-device, or
       product-complete proof.
 - [x] WP32 family dashboard rollup proof for active family summary,
       child-attention summary, and retention-audit summary rows, plus narrow
