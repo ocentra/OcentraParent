@@ -377,6 +377,15 @@ compete on control while staying clear about attribution confidence and privacy.
   portal read-model refs, and retention/export refs. The proof rejects exact
   content, production-SLO, UI policy authority, portal adapter dispatch, live
   adapter execution, and enforcement-command claims.
+- E-D exposed the row13a live-capture/raw-custody status and row51a
+  product-readiness status through a typed Rust service WebSocket status event:
+  `agent.network.product-readiness.status.get` now returns
+  `agent.network.product-readiness.status.reported` with
+  `networkLiveCaptureCustodyStatus` and `networkProductReadinessStatus` payload
+  fields serialized from the reusable `ocentra-network-evidence` materializers.
+  This is service status exposure only; portal rendering, live capture driver
+  invocation, policy execution, adapter dispatch, host filtering, production
+  SLO, and enforcement-command publication remain unclaimed.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -425,8 +434,7 @@ notification provider delivery, broader parent-facing rule UX, live host DNS
 mutation/proxy installation, live Windows
 Firewall mutation, live WFP driver/callout/packet blocking, live Android
 VpnService filtering, live Apple Network Extension behavior, live Linux adapter
-execution, platform adapter execution, service WebSocket exposure for the new
-live-capture/raw-custody status materializer, and broader portal risk-budget,
+execution, platform adapter execution, and broader portal risk-budget,
 performance, platform capability, and product-readiness status rendering remain
 open.
 
@@ -556,8 +564,10 @@ open.
       manual-follow-up and degraded-performance states. AI model execution,
       broker/family-hub delivery implementation, full policy engine execution,
       notification delivery, external audit/deployment execution, full
-      support-material authoring, and service/portal rendering of the
-      product-readiness status remain.
+      support-material authoring, and portal rendering of the product-readiness
+      status remain. Row51b now exposes row13a custody status and row51a
+      product-readiness status through the Rust service WebSocket protocol with
+      no portal rendering or adapter claims.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
@@ -602,8 +612,8 @@ open.
   `output/network-plan-proof/36b-adapter-capability-status/proof-summary.json`
   and
   `test-results/network-adapter-capability-status-proof/proof.json`.
-  Broader Row52 platform-claim manifest UI and service/portal rendering of the
-  row51a product-readiness status remain open.
+  Broader Row52 platform-claim manifest UI and portal rendering of the row51a
+  product-readiness status remain open.
 - [x] DNS proxy/block/redirect adapter proof boundary.
       The Rust proof accepts apply-ready only with grade-A policy, parent-rule
       refs, evidence refs, supported capability, adapter authorization,

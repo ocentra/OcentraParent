@@ -193,6 +193,9 @@ mod network_flow_digest_rollups;
 mod network_flow_digest_tests;
 #[cfg(test)]
 mod network_flow_payload_tests;
+mod network_product_readiness_status_payload;
+#[cfg(test)]
+mod network_product_readiness_status_service_tests;
 mod network_runtime_delivery;
 #[cfg(test)]
 mod network_runtime_delivery_tests;
