@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T14:42:19.490Z
+Generated: 2026-06-06T14:56:05.529Z
 
 Rows checked: 23
 Proof-present rows: 14
