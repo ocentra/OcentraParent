@@ -307,6 +307,18 @@ generic app blocking covers this concern.
   that product-claim gate proof under
   `test-results/app-install-purchase-product-claim-gate-proof/proof.json` when
   run.
+- `packages/parent-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts`
+  now consumes product-claim gate rows into safe parent review,
+  manual-parent-review-required, and unsupported-store-workflow-blocked rows so
+  parents have a closest safe workflow without upgrading product claims. It
+  preserves no portal approval/report UI, provider/store execution, store
+  integration, platform adapters, child-device delivery, runtime writer/report
+  delivery, app blocking, child activity data, or hosted family data custody
+  claims.
+- `scripts/test/app-install-purchase-product-claim-safe-parent-workflow-proof.mjs`
+  records that safe parent workflow proof under
+  `test-results/app-install-purchase-product-claim-safe-parent-workflow-proof/proof.json`
+  when run.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -581,6 +593,11 @@ Ocentra-hosted family data custody.
       execution proof, and platform adapter proof exist, without portal UI,
       provider/store execution, platform adapters, child delivery, app
       blocking, child activity data, or hosted custody claims.
+- [x] Product-claim safe parent workflow proof converting product-claim gate
+      rows into safe parent review/manual-required/unsupported workflow rows
+      without portal approval/report UI, provider/store execution, store
+      integration, platform adapters, child delivery, runtime writer/report
+      delivery, app blocking, child activity data, or hosted custody claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions

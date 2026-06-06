@@ -241,6 +241,13 @@ Expected contract families:
   integration, platform adapter implementation, child-device delivery, runtime
   writer delivery, runtime report delivery, app blocking, child activity data
   custody, or Ocentra-hosted family data custody.
+- Product-claim safe parent workflow rows consume product-claim gate rows into
+  safe parent review, manual-parent-review-required, and unsupported-store
+  workflow states while product claims remain unapproved and portal approval UI,
+  portal report UI, provider API execution, store integration, platform adapter
+  implementation, child-device delivery, runtime writer/report delivery, app
+  blocking, child activity custody, and Ocentra-hosted family data custody stay
+  unclaimed.
 
 ## Validation Gates
 
@@ -397,6 +404,10 @@ Expected contract families:
   adapter refs, product-claim overclaim rejection, portal/provider/store/
   platform/child delivery/app-blocking/custody overclaim rejection, and
   required non-claim coverage.
+- TypeScript schema tests and a proof harness for product-claim safe parent
+  workflow rows, source gate linkage, workflow coverage, required follow-up
+  refs, portal/provider/store/platform/child delivery/runtime/app-blocking/
+  custody overclaim rejection, and required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -529,6 +540,11 @@ Expected contract families:
   Ocentra-hosted family data custody.
 - Do not treat product-claim gate proof refs as portal approval UI, portal
   report UI, provider API execution, store integration, platform adapter
+  implementation, child-device delivery, runtime writer delivery, runtime
+  report delivery, app blocking, child activity custody, Ocentra-hosted family
+  data custody, or an approved product claim.
+- Do not treat product-claim safe parent workflow refs as portal approval UI,
+  portal report UI, provider API execution, store integration, platform adapter
   implementation, child-device delivery, runtime writer delivery, runtime
   report delivery, app blocking, child activity custody, Ocentra-hosted family
   data custody, or an approved product claim.
