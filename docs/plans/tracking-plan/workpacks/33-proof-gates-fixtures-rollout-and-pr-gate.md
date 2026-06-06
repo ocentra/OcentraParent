@@ -56,6 +56,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `20-evidence-quality-gate-validation.log`
 - Hosted child-safe check-in screenshot:
   `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
+- Tracking notification parent-surface proof:
+  `23-notification-parent-surface-proof.json`
 
 ## Merge Blockers
 
@@ -139,6 +141,17 @@ helpers, parent-domain contracts, and the portal citation test. It writes
 `test-results/tracking-plan-evidence-quality-gate-proof/proof.json` while
 keeping live device/provider delivery and production behavior unclaimed.
 
+This branch adds `node scripts/test/tracking-notification-parent-surface-proof.mjs`,
+which derives parent-visible history, manual-action, unavailable, preference
+setup, drill-in, audit, and minimal payload rows from the tracking
+provider-notification proof. It writes WP26 and WP33 companion artifacts plus
+`output/tracking-plan-proof/tracking-notification-parent-surface-proof/` and
+`test-results/tracking-notification-parent-surface-proof/` while keeping
+rendered parent notification UI/history/preferences, parent preference mutation
+runtime, provider delivery, receipt ingestion, credentials, adapter dispatch,
+child-device delivery, physical-device proof, authority, durable outbox storage,
+and product-ready notification behavior unclaimed.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.
@@ -158,6 +171,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - scripts/test/tracking-plan-hosted-ui-proof.mjs
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
 - scripts/test/tracking-plan-evidence-quality-gate-proof.mjs
+- scripts/test/tracking-notification-parent-surface-proof.mjs
 - packages/activity-domain/src/tracking-evidence-quality-gate.ts
 - packages/activity-domain/tests/tracking-evidence-quality-gate.test.ts
 - `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`
@@ -168,6 +182,11 @@ This workpack can be assigned independently, implemented against the owning doma
 - Platform, provider, live UI, or runtime claims remain
   manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
+- Rendered parent notification UI/history/preferences, parent preference
+  mutation runtime, provider delivery, receipt ingestion, credentials, adapter
+  dispatch, child-device delivery, physical-device proof, authority, durable
+  outbox storage, and product-ready notification behavior remain
+  manual-required.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
@@ -304,3 +323,26 @@ This workpack can be assigned independently, implemented against the owning doma
       parent/child UI beyond the hosted route, Android/iOS physical-device
       proof, authority, provider delivery, notifications, and production proof
       remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-notification-parent-surface-proof`.
+- [x] Touched files: parent-domain tracking notification parent-surface proof
+      contract, focused tests, proof script, tracking feature doc,
+      implementation checklist, WP26, WP33, package export, and generated proof
+      artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-notification-parent-surface-proof.mjs` passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/26-alert-severity-and-notification-model/23-notification-parent-surface-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/23-notification-parent-surface-proof.json`,
+      `output/tracking-plan-proof/tracking-notification-parent-surface-proof/proof.json`,
+      and `test-results/tracking-notification-parent-surface-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP26, and WP33 updated. Product capability checklist was not
+      edited because E-C currently owns that central checklist lock. Package
+      README was not edited because codex-c currently owns the parent-domain
+      README lock.
+- [x] Known gaps/manual-required states: rendered parent notification
+      UI/history/preferences, parent preference mutation runtime, provider
+      delivery, receipt ingestion, credentials, adapter dispatch, child-device
+      delivery, physical-device proof, authority, durable outbox storage, and
+      product-ready notification behavior remain proof-gated.

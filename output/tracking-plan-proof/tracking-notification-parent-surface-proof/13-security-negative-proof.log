@@ -1,0 +1,4 @@
+Security/no-claim proof:
+
+- Parent notification UI, parent preference UI, parent history UI, parent preference mutation runtime, provider delivery, provider receipt ingestion, credentials, adapter dispatch, child-device delivery, mobile physical-device proof, authority proof, and durable outbox storage remain false.
+- Surface rows use drill-in and status refs only; sensitive tracking detail remains behind authenticated tracking detail surfaces.

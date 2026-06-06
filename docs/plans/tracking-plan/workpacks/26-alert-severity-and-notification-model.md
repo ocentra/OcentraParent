@@ -26,6 +26,7 @@ Proof root: `output/tracking-plan-proof/26-alert-severity-and-notification-model
 - `11-ui-snapshots/`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
+- `23-notification-parent-surface-proof.json`
 
 ## AI Worker Checklist
 
@@ -46,6 +47,14 @@ refs, reason refs, and minimal/authenticated-drill-in provider payload
 boundaries while keeping provider delivery, receipts, credentials, parent
 notification UI, child-device delivery, physical-device proof, production
 runtime, durable outbox storage, and adapter dispatch unclaimed.
+Tracking notification parent-surface proof now derives parent-visible history,
+manual-action, unavailable, preference setup, drill-in, audit, and minimal
+payload rows from that provider-notification proof through
+`node scripts/test/tracking-notification-parent-surface-proof.mjs`. The proof
+keeps rendered parent notification UI/history/preferences, parent preference
+mutation runtime, provider delivery, receipt ingestion, credentials, adapter
+dispatch, child-device delivery, physical-device proof, authority, durable
+outbox storage, and product-ready notification behavior unclaimed.
 
 ## Where We Want To Be
 
@@ -62,6 +71,9 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - docs/plans/tracking-plan/workpacks/26-alert-severity-and-notification-model.md
 - docs/plans/tracking-plan/implementation-checklist.md
+- packages/parent-domain/src/tracking-notification-parent-surface-proof.ts
+- packages/parent-domain/tests/tracking-notification-parent-surface-proof.test.ts
+- scripts/test/tracking-notification-parent-surface-proof.mjs
 - `output/tracking-plan-proof/26-alert-severity-and-notification-model/`
 - Implementation paths listed by the worker before editing.
 
@@ -69,6 +81,11 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - Platform, provider, UI, retention, or runtime claims remain manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
+- Rendered parent notification UI/history/preferences, parent preference
+  mutation runtime, provider delivery, receipt ingestion, credentials, adapter
+  dispatch, child-device delivery, physical-device proof, authority, durable
+  outbox storage, and product-ready notification behavior remain
+  manual-required.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
@@ -91,3 +108,26 @@ This workpack can be assigned independently, implemented against the owning doma
       child-device delivery, physical-device proof, runtime engines,
       retention/delete/export, Rust journal/SQLite, production outbox/runtime,
       and full UI remain proof-gated as applicable.
+- [x] Workpack id and branch:
+      `codex/tracking-notification-parent-surface-proof`.
+- [x] Touched files: parent-domain tracking notification parent-surface proof
+      contract, focused tests, proof script, feature doc, implementation
+      checklist, this workpack doc, WP33 proof-gate doc, package export, and
+      generated proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-notification-parent-surface-proof.mjs` passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/26-alert-severity-and-notification-model/23-notification-parent-surface-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/23-notification-parent-surface-proof.json`,
+      `output/tracking-plan-proof/tracking-notification-parent-surface-proof/proof.json`,
+      and `test-results/tracking-notification-parent-surface-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and this workpack doc updated. Product capability checklist was
+      not edited because E-C currently owns that central checklist lock. Package
+      README was not edited because codex-c currently owns the parent-domain
+      README lock.
+- [x] Known gaps/manual-required states: rendered parent notification
+      UI/history/preferences, parent preference mutation runtime, provider
+      delivery, receipt ingestion, credentials, adapter dispatch, child-device
+      delivery, physical-device proof, authority, durable outbox storage, and
+      product-ready notification behavior remain proof-gated.

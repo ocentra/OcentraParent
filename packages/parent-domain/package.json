@@ -700,6 +700,10 @@
     "./tracking-location-policy": {
       "import": "./dist/tracking-location-policy.js",
       "types": "./dist/tracking-location-policy.d.ts"
+    },
+    "./tracking-notification-parent-surface-proof": {
+      "import": "./dist/tracking-notification-parent-surface-proof.js",
+      "types": "./dist/tracking-notification-parent-surface-proof.d.ts"
     }
   },
   "scripts": {

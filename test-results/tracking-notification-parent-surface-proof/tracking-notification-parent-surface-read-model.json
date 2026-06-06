@@ -1,0 +1,204 @@
+{
+  "schemaVersion": "v0.6",
+  "proofId": "tracking-notification-parent-surface-proof",
+  "generatedAt": "2026-06-06T07:22:00.000Z",
+  "family": {
+    "familyId": "family-tracking-notification-parent-surface"
+  },
+  "sourceProviderNotificationProofRef": "tracking-provider-notification-proof",
+  "sourceContractRefs": [
+    "tracking-provider-notification-proof",
+    "v0-8-notification-provider-status-boundary",
+    "notifications-expectations-parent-surface",
+    "location-geofence-device-status",
+    "reports-notifications-sync"
+  ],
+  "sourceProviderProofNonClaims": [
+    "no-provider-delivery-execution",
+    "no-provider-receipt-ingestion",
+    "no-provider-credentials",
+    "no-cloud-routing",
+    "no-parent-notification-ui",
+    "no-child-device-delivery",
+    "no-mobile-physical-device-proof",
+    "no-retry-worker-runtime",
+    "no-quiet-hours-timer-runtime",
+    "no-production-durable-outbox-storage",
+    "no-adapter-dispatch"
+  ],
+  "rows": [
+    {
+      "surfaceRowId": "tracking-notification-parent-surface-tracking-alert-home-arrival",
+      "sourceProviderProofRowRef": "tracking-provider-notification-tracking-alert-home-arrival",
+      "sourceAlertId": "tracking-alert-home-arrival",
+      "sourcePolicyDecisionId": "tracking-decision-home-arrival",
+      "sourceProviderStatusEntryRef": "tracking-provider-status-tracking-alert-home-arrival",
+      "sourceProviderStatusKind": "provider-adapter-required",
+      "parentSurfaceStatus": "history-row-ready",
+      "historyVisibility": "status-history-ready",
+      "preferenceVisibility": "preference-setup-required",
+      "parentVisibleNotificationStatusRef": "tracking-notification-intent-home-arrival",
+      "providerAttemptRef": "tracking-provider-attempt-not-started-tracking-alert-home-arrival",
+      "evidenceRefs": [
+        "location-evidence-geofence-entry"
+      ],
+      "sourceNotificationStatusRefs": [
+        "tracking-notification-intent-home-arrival"
+      ],
+      "reasonCodeRefs": [
+        "home-arrival-notification"
+      ],
+      "drillInRefs": [
+        "tracking-alert-home-arrival",
+        "tracking-decision-home-arrival",
+        "tracking-notification-intent-home-arrival"
+      ],
+      "auditRefs": [
+        "tracking-provider-notification-audit-tracking-alert-home-arrival"
+      ],
+      "preferenceRefs": [
+        "tracking-provider-notification-preference-tracking-alert-home-arrival"
+      ],
+      "manualProofRequirements": [
+        "tracking-provider-adapter-required-tracking-alert-home-arrival",
+        "tracking-provider-credentials-required-tracking-alert-home-arrival",
+        "tracking-provider-smoke-proof-required-tracking-alert-home-arrival"
+      ],
+      "minimalSurfacePayloadBoundary": "Parent surface row may show minimal alert status, history, and setup requirements while evidence detail stays behind authenticated tracking detail surfaces.",
+      "sensitiveDetailIncluded": false,
+      "parentNotificationUiRendered": false,
+      "parentPreferenceUiRendered": false,
+      "parentHistoryUiRendered": false,
+      "parentPreferenceMutationClaimed": false,
+      "providerDeliveryClaimed": false,
+      "providerReceiptIngestionClaimed": false,
+      "childDeviceDeliveryClaimed": false,
+      "authorityProofClaimed": false,
+      "mobilePhysicalDeviceProofClaimed": false
+    },
+    {
+      "surfaceRowId": "tracking-notification-parent-surface-tracking-alert-left-expected-place",
+      "sourceProviderProofRowRef": "tracking-provider-notification-tracking-alert-left-expected-place",
+      "sourceAlertId": "tracking-alert-left-expected-place",
+      "sourcePolicyDecisionId": "tracking-decision-left-school",
+      "sourceProviderStatusEntryRef": "tracking-provider-status-tracking-alert-left-expected-place",
+      "sourceProviderStatusKind": "manual-required",
+      "parentSurfaceStatus": "manual-action-required",
+      "historyVisibility": "manual-review-only",
+      "preferenceVisibility": "preference-setup-required",
+      "parentVisibleNotificationStatusRef": "tracking-notification-intent-left-school",
+      "providerAttemptRef": "tracking-provider-attempt-not-started-tracking-alert-left-expected-place",
+      "evidenceRefs": [
+        "location-evidence-geofence-entry"
+      ],
+      "sourceNotificationStatusRefs": [
+        "tracking-notification-intent-left-school"
+      ],
+      "reasonCodeRefs": [
+        "left-expected-place"
+      ],
+      "drillInRefs": [
+        "tracking-alert-left-expected-place",
+        "tracking-decision-left-school",
+        "tracking-notification-intent-left-school"
+      ],
+      "auditRefs": [
+        "tracking-provider-notification-audit-tracking-alert-left-expected-place"
+      ],
+      "preferenceRefs": [
+        "tracking-provider-notification-preference-tracking-alert-left-expected-place"
+      ],
+      "manualProofRequirements": [
+        "tracking-provider-parent-preference-required-tracking-alert-left-expected-place",
+        "tracking-provider-critical-escalation-review-tracking-alert-left-expected-place",
+        "tracking-provider-smoke-proof-required-tracking-alert-left-expected-place"
+      ],
+      "minimalSurfacePayloadBoundary": "Parent surface row may show manual status and authenticated drill-in refs only; precise location evidence stays behind authenticated tracking detail surfaces.",
+      "sensitiveDetailIncluded": false,
+      "parentNotificationUiRendered": false,
+      "parentPreferenceUiRendered": false,
+      "parentHistoryUiRendered": false,
+      "parentPreferenceMutationClaimed": false,
+      "providerDeliveryClaimed": false,
+      "providerReceiptIngestionClaimed": false,
+      "childDeviceDeliveryClaimed": false,
+      "authorityProofClaimed": false,
+      "mobilePhysicalDeviceProofClaimed": false
+    },
+    {
+      "surfaceRowId": "tracking-notification-parent-surface-tracking-alert-provider-unavailable",
+      "sourceProviderProofRowRef": "tracking-provider-notification-tracking-alert-provider-unavailable",
+      "sourceAlertId": "tracking-alert-provider-unavailable",
+      "sourcePolicyDecisionId": "tracking-decision-provider-unavailable",
+      "sourceProviderStatusEntryRef": "tracking-provider-status-tracking-alert-provider-unavailable",
+      "sourceProviderStatusKind": "unavailable",
+      "parentSurfaceStatus": "unavailable-visible",
+      "historyVisibility": "unavailable-row-visible",
+      "preferenceVisibility": "preference-unavailable-visible",
+      "parentVisibleNotificationStatusRef": "tracking-provider-status-unavailable-tracking-alert-provider-unavailable",
+      "providerAttemptRef": "tracking-provider-attempt-not-started-tracking-alert-provider-unavailable",
+      "evidenceRefs": [
+        "location-evidence-geofence-entry"
+      ],
+      "sourceNotificationStatusRefs": [],
+      "reasonCodeRefs": [
+        "provider-unavailable"
+      ],
+      "drillInRefs": [
+        "tracking-alert-provider-unavailable",
+        "tracking-decision-provider-unavailable",
+        "tracking-provider-status-unavailable-tracking-alert-provider-unavailable"
+      ],
+      "auditRefs": [
+        "tracking-provider-notification-audit-tracking-alert-provider-unavailable"
+      ],
+      "preferenceRefs": [
+        "tracking-provider-notification-preference-tracking-alert-provider-unavailable"
+      ],
+      "manualProofRequirements": [
+        "tracking-provider-unavailable-tracking-alert-provider-unavailable"
+      ],
+      "minimalSurfacePayloadBoundary": "Parent surface row may show minimal alert status, history, and setup requirements while evidence detail stays behind authenticated tracking detail surfaces.",
+      "sensitiveDetailIncluded": false,
+      "parentNotificationUiRendered": false,
+      "parentPreferenceUiRendered": false,
+      "parentHistoryUiRendered": false,
+      "parentPreferenceMutationClaimed": false,
+      "providerDeliveryClaimed": false,
+      "providerReceiptIngestionClaimed": false,
+      "childDeviceDeliveryClaimed": false,
+      "authorityProofClaimed": false,
+      "mobilePhysicalDeviceProofClaimed": false
+    }
+  ],
+  "historyRowReadyCount": 1,
+  "manualActionRequiredCount": 1,
+  "unavailableVisibleCount": 1,
+  "preferenceSetupRequiredCount": 2,
+  "parentSurfaceNonClaims": [
+    "no-parent-notification-ui-rendered",
+    "no-parent-preference-ui-rendered",
+    "no-parent-history-ui-rendered",
+    "no-parent-preference-mutation-runtime",
+    "no-provider-delivery-execution",
+    "no-provider-receipt-ingestion",
+    "no-provider-credentials",
+    "no-adapter-dispatch",
+    "no-child-device-delivery",
+    "no-mobile-physical-device-proof",
+    "no-authority-proof",
+    "no-production-durable-outbox-storage"
+  ],
+  "parentNotificationUiRendered": false,
+  "parentPreferenceUiRendered": false,
+  "parentHistoryUiRendered": false,
+  "parentPreferenceMutationRuntimeClaimed": false,
+  "providerDeliveryRuntimeClaimed": false,
+  "providerReceiptIngestionClaimed": false,
+  "providerCredentialsClaimed": false,
+  "adapterDispatchClaimed": false,
+  "childDeviceDeliveryClaimed": false,
+  "mobilePhysicalDeviceProofClaimed": false,
+  "authorityProofClaimed": false,
+  "productionDurableOutboxStorageClaimed": false
+}

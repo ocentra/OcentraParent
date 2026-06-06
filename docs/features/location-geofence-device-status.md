@@ -107,6 +107,17 @@ expose location or device-status features. Parents expect this category.
   claiming provider delivery, receipts, credentials, parent notification UI,
   child-device delivery, physical-device proof, retry/runtime workers, or
   adapter dispatch.
+- WP26 parent notification surface readiness proof now exists through
+  `node scripts/test/tracking-notification-parent-surface-proof.mjs`. It derives
+  parent-visible history, manual-action, unavailable, preference setup, drill-in,
+  audit, and minimal payload rows from the tracking provider-notification proof
+  while preserving provider proof refs, evidence refs, policy decision refs,
+  notification status refs, reason refs, provider attempt refs, audit refs, and
+  preference refs. It keeps rendered parent notification UI/history/preferences,
+  parent preference mutation runtime, provider delivery, receipt ingestion,
+  credentials, adapter dispatch, child-device delivery, physical-device proof,
+  authority, durable outbox storage, and product-ready notification behavior
+  false.
 - WP27 escalation readiness proof now exists through
   `node scripts/test/tracking-escalation-readiness-proof.mjs`. It derives
   parent acknowledgement, child check-in, urgent second-guardian, and critical
@@ -319,6 +330,12 @@ snapshots/accessibility beyond the hosted parent route are proved.
       evidence refs, policy decision refs, notification status refs, reason refs,
       and minimal/authenticated-drill-in payload boundaries. This is not
       provider delivery or receipt proof.
+- [x] Tracking provider-notification rows derive parent-visible history,
+      manual-action, unavailable, preference setup, drill-in, audit, and minimal
+      payload surface readiness rows. This is not rendered parent notification
+      UI/history/preferences, parent preference mutation runtime, provider
+      delivery, receipt ingestion, credentials, child-device delivery,
+      physical-device, authority, durable outbox, or product-ready proof.
 - [x] WP27 P1
       escalation readiness proof for acknowledgement cancellation, child
       check-in resolution, urgent second-guardian manual readiness, critical
