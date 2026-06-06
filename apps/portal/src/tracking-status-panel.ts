@@ -16,6 +16,11 @@ import type {
   AgentActivityTrackingReadModelRow,
 } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
 import {
+  buildTrackingFamilyDashboardRollupProof,
+  type TrackingFamilyDashboardRollupProof,
+  type TrackingFamilyDashboardRollupRow,
+} from '@ocentra-parent/parent-domain/tracking-family-dashboard-rollup-proof';
+import {
   trackingChildCheckInProof,
   trackingChildRuntimeUiProof,
   type TrackingChildCheckInProof,
@@ -109,6 +114,22 @@ export type TrackingUnsupportedManualPlatformProof = {
   readonly boundary: PortalDisplayText;
   readonly productClaim: PortalDisplayText;
   readonly rows: readonly TrackingUnsupportedManualPlatformRow[];
+};
+
+export type TrackingFamilyDashboardRollupSurface = {
+  readonly title: PortalDisplayText;
+  readonly proofTier: PortalDisplayText;
+  readonly rowsReturned: PortalDetailValue;
+  readonly generatedAt: PortalDetailValue;
+  readonly visibleChildren: PortalDetailValue;
+  readonly attentionItems: PortalDetailValue;
+  readonly retentionAuditItems: PortalDetailValue;
+  readonly rollupKinds: PortalDetailValue;
+  readonly evidenceReferences: PortalDetailValue;
+  readonly sourceProofRefs: PortalDetailValue;
+  readonly reasonCodes: PortalDetailValue;
+  readonly productClaim: PortalDisplayText;
+  readonly rows: readonly TrackingFamilyDashboardRollupRow[];
 };
 
 type TrackingStatusRetentionProofDefinition = {
@@ -366,6 +387,19 @@ export function trackingStatusServiceDataCoverage(
   };
 }
 
+export function trackingFamilyDashboardRollup(
+  liveActivity: PortalLiveActivityState
+): TrackingFamilyDashboardRollupSurface | null {
+  const event = liveActivity.activityTrackingReadModelEvent;
+  const readModelResult = liveActivity.activityTrackingReadModel;
+  if (event === null || readModelResult === null || !readModelResult.ok) {
+    return null;
+  }
+
+  const proof = buildTrackingFamilyDashboardRollupProof(readModelResult.value.generatedAt);
+  return familyDashboardRollupSurface(proof);
+}
+
 export function renderTrackingStatusSurface(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
   const intro = document.createElement(PortalDom.Tags.Section);
   intro.className = PortalDom.Classes.Summary;
@@ -382,8 +416,12 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
 
   renderDashboard(container, (dashboard) => {
     const liveSummary = trackingStatusLiveSummary(liveActivity);
+    const familyDashboardRollup = trackingFamilyDashboardRollup(liveActivity);
     dashboard.append(renderTrackingStatusLiveSummary(liveSummary));
     dashboard.append(renderTrackingStatusServiceDataCoverage(trackingStatusServiceDataCoverage(liveActivity)));
+    if (familyDashboardRollup !== null) {
+      dashboard.append(renderTrackingFamilyDashboardRollup(familyDashboardRollup));
+    }
     for (const citation of liveSummary.citations) {
       dashboard.append(renderTrackingStatusLiveCitation(citation));
     }
@@ -560,6 +598,30 @@ function renderTrackingStatusServiceDataCoverage(coverage: TrackingStatusService
   return panel;
 }
 
+function renderTrackingFamilyDashboardRollup(rollup: TrackingFamilyDashboardRollupSurface): HTMLElement {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+
+  const title = document.createElement(PortalDom.Tags.HeadingTwo);
+  title.textContent = rollup.title;
+
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendDetail(metadata, PortalDetails.ProofTier, toDetail(rollup.proofTier));
+  appendDetail(metadata, PortalDetails.RowsReturned, rollup.rowsReturned);
+  appendDetail(metadata, PortalDetails.GeneratedAt, rollup.generatedAt);
+  appendDetail(metadata, PortalDetails.Connections, rollup.visibleChildren);
+  appendDetail(metadata, PortalDetails.ManualReview, rollup.attentionItems);
+  appendDetail(metadata, PortalDetails.HistoryVisibility, rollup.retentionAuditItems);
+  appendDetail(metadata, PortalDetails.ActivityKind, rollup.rollupKinds);
+  appendDetail(metadata, PortalDetails.EvidenceReferences, rollup.evidenceReferences);
+  appendDetail(metadata, PortalDetails.RuntimeReference, rollup.sourceProofRefs);
+  appendDetail(metadata, PortalDetails.ReasonCodes, rollup.reasonCodes);
+  appendDetail(metadata, PortalDetails.ProductClaim, toDetail(rollup.productClaim));
+
+  panel.append(title, metadata);
+  return panel;
+}
+
 function renderTrackingStatusLiveCitation(citation: TrackingStatusLiveCitation): HTMLElement {
   const panel = document.createElement(PortalDom.Tags.Section);
   panel.className = PortalDom.Classes.Summary;
@@ -712,6 +774,26 @@ function liveCitation(row: AgentActivityTrackingReadModelRow): TrackingStatusLiv
   };
 }
 
+function familyDashboardRollupSurface(proof: TrackingFamilyDashboardRollupProof): TrackingFamilyDashboardRollupSurface {
+  return {
+    title: PortalText.Resolve(PortalTextToken.TrackingFamilyDashboardRollup),
+    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofService),
+    rowsReturned: detailFromValue(proof.rows.length),
+    generatedAt: detailFromValue(proof.generatedAt),
+    visibleChildren: sumDetail(proof.rows.map((row) => row.visibleChildCount)),
+    attentionItems: sumDetail(proof.rows.map((row) => row.attentionItemCount)),
+    retentionAuditItems: sumDetail(proof.rows.map((row) => row.retainedAuditItemCount)),
+    rollupKinds: listDetail(proof.rows.map((row) => row.rollupKind)),
+    evidenceReferences: listDetail(
+      proof.rows.flatMap((row) => row.evidenceReferences.map((reference) => reference.evidenceReferenceId))
+    ),
+    sourceProofRefs: listDetail(proof.rows.flatMap((row) => row.sourceProofRefs)),
+    reasonCodes: listDetail(proof.rows.flatMap((row) => row.reasonCodes)),
+    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
+    rows: proof.rows,
+  };
+}
+
 function notReported(): PortalDetailValue {
   return toDetail(PortalText.Resolve(PortalTextToken.NotReported));
 }
@@ -727,4 +809,8 @@ function sequenceDetail(values: readonly unknown[]): PortalDetailValue {
     return notReported();
   }
   return detailFromValue(normalizedValues.join(PortalFormatting.EventDetailSeparator));
+}
+
+function sumDetail(values: readonly number[]): PortalDetailValue {
+  return detailFromValue(values.reduce((total, value) => total + value, 0));
 }

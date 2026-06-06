@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T04:20:10.602Z",
-  "commit": "6c9657276800f03420ad82126c22506d9faf0c93",
+  "checkedAt": "2026-06-06T05:15:23.317Z",
+  "commit": "e48f9a5d1b2ce63ced27df3ddddd0d6532cf1b09",
   "workpackIds": [
     "30-parent-and-child-ui-ux-surfaces",
     "31-platform-extension-checklists-and-proof-routing",
@@ -53,6 +53,9 @@
       "enabled-refresh-button",
       "service-backed-row-citation-visible",
       "service-data-coverage-visible",
+      "family-dashboard-rollup-visible",
+      "family-dashboard-rollup-evidence-visible",
+      "family-dashboard-rollup-no-product-claim",
       "manual-required-visible",
       "physical-device-required-visible",
       "no-product-claim-visible",
@@ -77,6 +80,7 @@
         "Tracking status proof",
         "Service read model",
         "Service data coverage",
+        "Family dashboard rollup",
         "School",
         "School location",
         "Child check-in request",
@@ -124,6 +128,17 @@
         "Activity kind",
         "Evidence references",
         "Deleted evidence",
+        "Product claim",
+        "Proof tier",
+        "Rows returned",
+        "Generated at",
+        "Connections",
+        "Manual review",
+        "History visibility",
+        "Activity kind",
+        "Evidence references",
+        "Runtime reference",
+        "Reason codes",
         "Product claim",
         "Event ID",
         "Last observed",
@@ -305,6 +320,17 @@
         "location-evidence-hosted-1 | location-evidence-hosted-2 | location-evidence-hosted-1 | location-evidence-hosted-2",
         "Not reported",
         "No product claim",
+        "P2 service proof",
+        "3",
+        "2026-06-06T05:14:58.114Z",
+        "3",
+        "3",
+        "2",
+        "family-active-summary | child-attention-summary | retention-audit-summary",
+        "tracking-family-dashboard-evidence-active-summary | tracking-family-dashboard-evidence-child-attention | tracking-family-dashboard-evidence-retention-audit",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json | output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json | output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json",
+        "tracking-family-dashboard-active-summary-ready | tracking-family-dashboard-child-attention-ready | tracking-family-dashboard-retention-audit-ready",
+        "No product claim",
         "tracking-hosted-expected-place-event",
         "2026-06-04T10:10:00.000Z",
         "child-android-hosted-proof",
@@ -481,7 +507,7 @@
   },
   "commands": [
     {
-      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-0VQCF1\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-0VQCF1\\seed-tracking.sql",
+      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-WCpp3K\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-WCpp3K\\seed-tracking.sql",
       "exitCode": 0
     },
     {
@@ -529,12 +555,27 @@
     "authorityClaimedRows": 0,
     "productClaimReady": false
   },
+  "familyDashboardRollupProof": {
+    "assertions": [
+      "family-dashboard-rollup-heading-visible",
+      "family-active-summary-visible",
+      "child-attention-summary-visible",
+      "retention-audit-summary-visible",
+      "family-dashboard-evidence-refs-visible",
+      "family-dashboard-reason-codes-visible",
+      "no-product-claim-visible"
+    ],
+    "sourceContract": "@ocentra-parent/parent-domain/tracking-family-dashboard-rollup-proof",
+    "sourceProof": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
+    "productClaimReady": false
+  },
   "nonClaims": [
     "This proof does not claim Android or iOS physical background tracking behavior.",
     "This proof does not claim real physical-device location, geofence, provider, or notification delivery.",
     "This proof uses a seeded temporary ActivityStore SQLite database to prove hosted portal rendering against the real Rust service command.",
     "This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.",
     "This proof renders unsupported/manual platform rows in the hosted portal but does not claim physical-device execution, authority enrollment, provider delivery, or product-ready tracking.",
+    "This proof renders family dashboard rollup rows from the shared parent-domain contract but does not claim child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, or product-ready tracking.",
     "This proof does not claim full child-device UI or authority-enrolled hard-control readiness."
   ],
   "remainingGapsBeforeProductReady": [

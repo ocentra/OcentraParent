@@ -123,8 +123,8 @@ This workpack can be assigned independently, implemented against the owning doma
   parent/child UI beyond the hosted parent route, platform physical-device
   replay, export, provider, authority, and production claims remain
   manual-required until the assigned proof artifacts exist. The family
-  dashboard rollup rows are read-model consumer proof only; they are not
-  rendered portal UI or child-device runtime proof.
+  dashboard rollup rows are read-model consumer proof and are now rendered in
+  the hosted parent route; they are not child-device runtime proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -241,7 +241,29 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, and WP32 updated; central capability checklist row was not
       edited because another lane owns `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: rendered portal dashboard UI,
-      child-device delivery/runtime execution, Android/iOS physical-device
-      proof, authority, provider delivery, notifications, and production proof
-      remain proof-gated.
+- [x] Known gaps/manual-required states: full parent/child UI beyond the
+      hosted route, child-device delivery/runtime execution, Android/iOS
+      physical-device proof, authority, provider delivery, notifications, and
+      production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-family-dashboard-rendered-rollup-ui-proof`.
+- [x] Touched files: parent-domain package export, hosted parent route DOM and
+      React rollup renderers/tests, hosted Playwright proof spec, hosted proof
+      script, text-domain portal token, feature doc, implementation checklist,
+      WP30, WP32, and generated hosted proof artifacts.
+- [x] Validation commands and results:
+      `cmd /c npm run test --workspace @ocentra-parent/portal -- tracking-status-panel`,
+      `cmd /c npm run lint:exec --workspace @ocentra-parent/portal`, and
+      `cmd /c npm run test:tracking-plan-hosted-ui-proof` passed locally.
+- [x] Proof artifacts under
+      `test-results/tracking-plan-hosted-ui-proof/`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`,
+      and
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/18-hosted-ui-accessibility-proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, and WP32 updated; central capability checklist row was
+      not edited because another lane owns `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: child-device delivery/runtime
+      execution, full parent/child UI beyond the hosted route, Android/iOS
+      physical-device proof, authority, provider delivery, notifications, and
+      production proof remain proof-gated.

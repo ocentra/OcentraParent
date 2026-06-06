@@ -12,6 +12,7 @@ import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
 import { trackingChildCheckInProof, trackingChildRuntimeUiProof } from '../src/tracking-child-check-in-proof';
 import {
+  trackingFamilyDashboardRollup,
   trackingStatusLiveSummary,
   trackingStatusProofRows,
   trackingStatusServiceDataCoverage,
@@ -214,6 +215,24 @@ const ExpectedUnsupportedManualRows = [
   },
 ] as const;
 
+const ExpectedTrackingFamilyDashboardRollup = {
+  title: 'Family dashboard rollup',
+  proofTier: 'P2 service proof',
+  rowsReturned: '3',
+  generatedAt: '2026-06-03T07:25:00Z',
+  visibleChildren: '3',
+  attentionItems: '3',
+  retentionAuditItems: '2',
+  rollupKinds: 'family-active-summary | child-attention-summary | retention-audit-summary',
+  evidenceReferences:
+    'tracking-family-dashboard-evidence-active-summary | tracking-family-dashboard-evidence-child-attention | tracking-family-dashboard-evidence-retention-audit',
+  sourceProofRefs:
+    'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json | output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json | output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json',
+  reasonCodes:
+    'tracking-family-dashboard-active-summary-ready | tracking-family-dashboard-child-attention-ready | tracking-family-dashboard-retention-audit-ready',
+  productClaim: 'No product claim',
+} as const;
+
 describe('tracking status proof surface', () => {
   it('lists the first-target tracking states as fixture proof without product claims', () => {
     const rows = trackingStatusProofRows();
@@ -276,6 +295,40 @@ describe('tracking status proof surface', () => {
       rows: ExpectedUnsupportedManualRows,
     });
     expect(JSON.stringify(proof)).not.toMatch(/(?:product ready|physical device proved|authority proved)/iu);
+  });
+});
+
+describe('tracking family dashboard rollup proof surface', () => {
+  it('renders family dashboard rollup rows from the shared parent-domain proof contract', () => {
+    const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
+    const rollup = trackingFamilyDashboardRollup(liveActivity);
+
+    if (rollup === null) {
+      throw new Error('Expected tracking family dashboard rollup surface.');
+    }
+    expect({
+      title: rollup.title,
+      proofTier: rollup.proofTier,
+      rowsReturned: rollup.rowsReturned,
+      generatedAt: rollup.generatedAt,
+      visibleChildren: rollup.visibleChildren,
+      attentionItems: rollup.attentionItems,
+      retentionAuditItems: rollup.retentionAuditItems,
+      rollupKinds: rollup.rollupKinds,
+      evidenceReferences: rollup.evidenceReferences,
+      sourceProofRefs: rollup.sourceProofRefs,
+      reasonCodes: rollup.reasonCodes,
+      productClaim: rollup.productClaim,
+    }).toEqual(ExpectedTrackingFamilyDashboardRollup);
+    expect(rollup.rows.map((row) => row.rollupKind)).toEqual([
+      'family-active-summary',
+      'child-attention-summary',
+      'retention-audit-summary',
+    ]);
+    expect(rollup.rows.every((row) => row.portalUiClaimed === false)).toBe(true);
+    expect(rollup.rows.every((row) => row.childDeviceDeliveryClaimed === false)).toBe(true);
+    expect(rollup.rows.every((row) => row.physicalDeviceClaimed === false)).toBe(true);
+    expect(rollup.rows.every((row) => row.productClaimReady === false)).toBe(true);
   });
 });
 

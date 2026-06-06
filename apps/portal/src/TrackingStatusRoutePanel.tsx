@@ -21,9 +21,11 @@ import {
 } from './tracking-child-check-in-proof';
 import {
   trackingStatusLiveSummary,
+  trackingFamilyDashboardRollup,
   trackingStatusServiceDataCoverage,
   trackingStatusProofRows,
   trackingUnsupportedManualPlatformProof,
+  type TrackingFamilyDashboardRollupSurface,
   type TrackingStatusServiceDataCoverage,
   type TrackingStatusLiveCitation,
   type TrackingStatusLiveSummary,
@@ -46,6 +48,7 @@ export function TrackingStatusRoutePanel({
 }): ReactElement {
   const liveSummary = trackingStatusLiveSummary(liveActivity);
   const serviceDataCoverage = trackingStatusServiceDataCoverage(liveActivity);
+  const familyDashboardRollup = trackingFamilyDashboardRollup(liveActivity);
   return (
     <section
       aria-label={PortalText.Resolve(PortalTextToken.TrackingStatusSurface)}
@@ -75,6 +78,7 @@ export function TrackingStatusRoutePanel({
         >
           <TrackingStatusLiveSummaryCard summary={liveSummary} />
           <TrackingStatusServiceDataCoverageCard coverage={serviceDataCoverage} />
+          {familyDashboardRollup === null ? null : <TrackingFamilyDashboardRollupCard rollup={familyDashboardRollup} />}
           {liveSummary.citations.map((citation) => (
             <TrackingStatusLiveCitationCard key={String(citation.eventId)} citation={citation} />
           ))}
@@ -87,6 +91,34 @@ export function TrackingStatusRoutePanel({
         </div>
       </div>
     </section>
+  );
+}
+
+function TrackingFamilyDashboardRollupCard({
+  rollup,
+}: {
+  readonly rollup: TrackingFamilyDashboardRollupSurface;
+}): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article className={className}>
+      <h2>{rollup.title}</h2>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <TrackingStatusDetail label={PortalDetails.ProofTier} value={rollup.proofTier} />
+        <TrackingStatusDetail label={PortalDetails.RowsReturned} value={rollup.rowsReturned} />
+        <TrackingStatusDetail label={PortalDetails.GeneratedAt} value={rollup.generatedAt} />
+        <TrackingStatusDetail label={PortalDetails.Connections} value={rollup.visibleChildren} />
+        <TrackingStatusDetail label={PortalDetails.ManualReview} value={rollup.attentionItems} />
+        <TrackingStatusDetail label={PortalDetails.HistoryVisibility} value={rollup.retentionAuditItems} />
+        <TrackingStatusDetail label={PortalDetails.ActivityKind} value={rollup.rollupKinds} />
+        <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={rollup.evidenceReferences} />
+        <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={rollup.sourceProofRefs} />
+        <TrackingStatusDetail label={PortalDetails.ReasonCodes} value={rollup.reasonCodes} />
+        <TrackingStatusDetail label={PortalDetails.ProductClaim} value={rollup.productClaim} />
+      </dl>
+    </article>
   );
 }
 

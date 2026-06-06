@@ -402,12 +402,28 @@ async function writeProof(playwright) {
       authorityClaimedRows: 0,
       productClaimReady: false,
     },
+    familyDashboardRollupProof: {
+      assertions: [
+        'family-dashboard-rollup-heading-visible',
+        'family-active-summary-visible',
+        'child-attention-summary-visible',
+        'retention-audit-summary-visible',
+        'family-dashboard-evidence-refs-visible',
+        'family-dashboard-reason-codes-visible',
+        'no-product-claim-visible',
+      ],
+      sourceContract: '@ocentra-parent/parent-domain/tracking-family-dashboard-rollup-proof',
+      sourceProof:
+        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json',
+      productClaimReady: false,
+    },
     nonClaims: [
       'This proof does not claim Android or iOS physical background tracking behavior.',
       'This proof does not claim real physical-device location, geofence, provider, or notification delivery.',
       'This proof uses a seeded temporary ActivityStore SQLite database to prove hosted portal rendering against the real Rust service command.',
       'This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.',
       'This proof renders unsupported/manual platform rows in the hosted portal but does not claim physical-device execution, authority enrollment, provider delivery, or product-ready tracking.',
+      'This proof renders family dashboard rollup rows from the shared parent-domain contract but does not claim child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, or product-ready tracking.',
       'This proof does not claim full child-device UI or authority-enrolled hard-control readiness.',
     ],
     remainingGapsBeforeProductReady: [

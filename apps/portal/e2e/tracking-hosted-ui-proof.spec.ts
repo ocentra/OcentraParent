@@ -50,6 +50,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
 
   await expect(page.getByRole('heading', { name: 'Service read model' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Service data coverage' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Family dashboard rollup' })).toBeVisible();
   await expect(trackingProofRegion.getByText('tracking-hosted-expected-place-event').first()).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
@@ -58,6 +59,13 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await expect(trackingProofRegion.getByText('child-device-query-store', { exact: true }).first()).toBeVisible();
   await expect(
     trackingProofRegion.getByText('location-evidence-hosted-1 | location-evidence-hosted-2').first()
+  ).toBeVisible();
+  await expect(
+    trackingProofRegion.getByText('family-active-summary | child-attention-summary | retention-audit-summary').first()
+  ).toBeVisible();
+  await expect(trackingProofRegion.getByText('tracking-family-dashboard-child-attention-ready').first()).toBeVisible();
+  await expect(
+    trackingProofRegion.getByText('tracking-family-dashboard-evidence-retention-audit').first()
   ).toBeVisible();
   await expect(trackingProofRegion.getByText('Manual proof required').first()).toBeVisible();
   await expect(trackingProofRegion.getByText('Physical device proof required').first()).toBeVisible();
@@ -232,18 +240,39 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
   expect(summary.headings).toContain('Tracking status proof');
   expect(summary.headings).toContain('Service read model');
   expect(summary.headings).toContain('Service data coverage');
+  expect(summary.labels).toContain('Evidence references');
+  expect(summary.labels).toContain('Reason codes');
+  expect(summary.labels).toContain('Product claim');
+  assertFamilyDashboardRollupAccessibilitySummary(summary);
+  assertChildTrackingAccessibilitySummary(summary);
+  assertUnsupportedManualAccessibilitySummary(summary);
+  expect(summary.values).toContain('No product claim');
+}
+
+function assertFamilyDashboardRollupAccessibilitySummary(
+  summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>
+): void {
+  expect(summary.headings).toContain('Family dashboard rollup');
+  expect(summary.values).toContain('family-active-summary | child-attention-summary | retention-audit-summary');
+  expect(summary.values).toContain(
+    'tracking-family-dashboard-evidence-active-summary | tracking-family-dashboard-evidence-child-attention | tracking-family-dashboard-evidence-retention-audit'
+  );
+  expect(summary.values).toContain(
+    'tracking-family-dashboard-active-summary-ready | tracking-family-dashboard-child-attention-ready | tracking-family-dashboard-retention-audit-ready'
+  );
+}
+
+function assertChildTrackingAccessibilitySummary(
+  summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>
+): void {
   expect(summary.headings).toContain('Child check-in request');
   expect(summary.headings).toContain('Child runtime UI proof');
-  expect(summary.headings).toContain('Unsupported/manual tracking platform proof');
   expect(summary.paragraphs).toContain('Your parent is asking you to check in. Are you safe?');
   expect(summary.paragraphs).toContain(
     'Child sees a clear tracking request, safe response, help response, and location-share consent copy.'
   );
-  expect(summary.labels).toContain('Evidence references');
   expect(summary.labels).toContain('Child copy');
   expect(summary.labels).toContain('Child delivery');
-  expect(summary.labels).toContain('Readiness kind');
-  expect(summary.labels).toContain('Product claim');
   expect(summary.values).toContain("I'm safe");
   expect(summary.values).toContain('Need help');
   expect(summary.values).toContain('Share current location');
@@ -254,13 +283,19 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
   expect(summary.values).toContain('Help response visible');
   expect(summary.values).toContain('Location share asks consent');
   expect(summary.values).toContain('Hosted proof only, not child-agent delivery');
+}
+
+function assertUnsupportedManualAccessibilitySummary(
+  summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>
+): void {
+  expect(summary.headings).toContain('Unsupported/manual tracking platform proof');
+  expect(summary.labels).toContain('Readiness kind');
   expect(summary.values).toContain('Android background location manual required');
   expect(summary.values).toContain('Web child agent location unavailable');
   expect(summary.values).toContain('Authority hard-control proof required');
   expect(summary.values).toContain('platform-unsupported');
   expect(summary.values).toContain('real-device-required');
   expect(summary.values).toContain('authority-required');
-  expect(summary.values).toContain('No product claim');
 }
 
 function hostedTrackingAssertions(): readonly string[] {
@@ -270,6 +305,9 @@ function hostedTrackingAssertions(): readonly string[] {
     'enabled-refresh-button',
     'service-backed-row-citation-visible',
     'service-data-coverage-visible',
+    'family-dashboard-rollup-visible',
+    'family-dashboard-rollup-evidence-visible',
+    'family-dashboard-rollup-no-product-claim',
     'manual-required-visible',
     'physical-device-required-visible',
     'no-product-claim-visible',
