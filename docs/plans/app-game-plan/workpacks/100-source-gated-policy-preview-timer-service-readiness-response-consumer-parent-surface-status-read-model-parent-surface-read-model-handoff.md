@@ -25,7 +25,7 @@ Add a parent-domain-only handoff that consumes WP99 response-consumer parent-sur
 - `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff-rules.ts`
 - `packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.test.ts`
 - `scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff-proof.mjs`
-- `output/app-game-plan-proof/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff`
+- `output/app-game-plan-proof/100-timer-parent-read-model`
 - `test-results/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff-proof/proof.json`
 
 ## Known Gaps

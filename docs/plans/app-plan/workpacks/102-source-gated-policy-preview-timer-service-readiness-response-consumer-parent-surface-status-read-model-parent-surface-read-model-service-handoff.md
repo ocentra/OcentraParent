@@ -20,10 +20,10 @@ Cross-record the shared app/game WP102 parent-domain service handoff for native 
 
 ## Evidence
 
-- `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.ts`
-- `packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.test.ts`
-- `scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-proof.mjs`
-- `output/app-plan-proof/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff`
+- `packages/parent-domain/src/app-game-timer-service-handoff.ts`
+- `packages/parent-domain/tests/app-game-timer-service-handoff.test.ts`
+- `scripts/test/app-game-timer-service-handoff-proof.mjs`
+- `output/app-plan-proof/102-timer-service-handoff`
 
 ## Known Gaps
 
