@@ -1,0 +1,38 @@
+cmd /c npm run test --workspace @ocentra-parent/portal -- activity-ui-app-game-dashboard-intent.test.ts
+exit=0
+
+> @ocentra-parent/portal@0.1.1 test
+> vitest run tests activity-ui-app-game-dashboard-intent.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/apps/portal
+
+
+ Test Files  16 passed (16)
+      Tests  69 passed (69)
+   Start at  17:21:57
+   Duration  3.87s (transform 19.50s, setup 0ms, import 46.98s, tests 382ms, environment 3ms)
+
+[2m5:21:57 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
+[2m5:21:57 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
+[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`
+
+
+cmd /c npm run test --workspace @ocentra-parent/portal -- app-game-policy-readiness-panel.test.ts
+exit=0
+
+> @ocentra-parent/portal@0.1.1 test
+> vitest run tests app-game-policy-readiness-panel.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/apps/portal
+
+
+ Test Files  16 passed (16)
+      Tests  69 passed (69)
+   Start at  17:22:03
+   Duration  3.47s (transform 17.79s, setup 0ms, import 41.17s, tests 339ms, environment 4ms)
+
+[2m5:22:03 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
+[2m5:22:03 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
+[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`

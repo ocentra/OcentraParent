@@ -80,8 +80,16 @@ describe('app-game policy readiness portal route panel', () => {
 
     const intent = createAppGamePolicyReadinessPanelIntent(liveActivity.appGamePolicyReadinessReadModel);
     expect(intent.summaryDetails).toContainEqual({
+      label: 'Capability',
+      value: 'Not claimed',
+    });
+    expect(intent.summaryDetails).toContainEqual({
       label: 'Adapter dispatch',
       value: 'Not claimed',
+    });
+    expect(intent.summaryDetails).toContainEqual({
+      label: 'Manual review',
+      value: 'Manual required',
     });
     expect(intent.rows.map((row) => row.title)).toEqual(['Policy evidence', 'AI classifier context']);
   });

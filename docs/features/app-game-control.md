@@ -67,6 +67,10 @@ control with better evidence and local audit.
   surface with separate inventory, running, foreground, launcher-only,
   unknown-review, manual-required capability, game-budget gap, and evidence
   counts.
+- The App/Game Sessions portal visibility gate now proves stale,
+  permission-required, manual-required, and not-claimed app/game states remain
+  visible through dashboard rows, capability summaries, and policy-readiness
+  route details instead of being hidden or upgraded into adapter/policy claims.
 - App/game unknown approval contracts now represent new inventory apps, unknown
   runtime processes, portable/installer candidates, launcher-game candidates,
   unknown game-like executables, child status/reason refs, parent response

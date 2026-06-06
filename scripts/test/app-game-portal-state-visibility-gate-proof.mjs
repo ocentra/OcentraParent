@@ -1,0 +1,214 @@
+import { spawnSync } from 'node:child_process';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
+const repoRoot = process.cwd();
+const testOutputDir = join(repoRoot, 'test-results', 'app-game-portal-state-visibility-gate-proof');
+const proofDir = join(repoRoot, 'output', 'app-game-plan-proof', 'merge-gates', 'portal-state-visibility');
+const commands = [];
+
+await main();
+
+async function main() {
+  await mkdir(testOutputDir, { recursive: true });
+  await mkdir(proofDir, { recursive: true });
+
+  run('cmd', [
+    '/c',
+    'npm',
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/portal',
+    '--',
+    'activity-ui-app-game-dashboard-intent.test.ts',
+  ]);
+  run('cmd', [
+    '/c',
+    'npm',
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/portal',
+    '--',
+    'app-game-policy-readiness-panel.test.ts',
+  ]);
+
+  const dashboardIntent = await readFile(
+    join(repoRoot, 'vendor', 'ocentra-parent-core-ui', 'AppPages', 'ParentPortal', 'app-game-dashboard-intent.ts'),
+    'utf8'
+  );
+  const dashboardTest = await readFile(
+    join(repoRoot, 'apps', 'portal', 'tests', 'activity-ui-app-game-dashboard-intent.test.ts'),
+    'utf8'
+  );
+  const policyReadinessTest = await readFile(
+    join(repoRoot, 'apps', 'portal', 'tests', 'app-game-policy-readiness-panel.test.ts'),
+    'utf8'
+  );
+  const policyReadinessPanel = await readFile(
+    join(repoRoot, 'packages', 'portal-domain', 'src', 'app-game-policy-readiness-panel.ts'),
+    'utf8'
+  );
+  const portalReadme = await readFile(join(repoRoot, 'apps', 'portal', 'README.md'), 'utf8');
+  const appGameFeatureDoc = await readFile(join(repoRoot, 'docs', 'features', 'app-game-control.md'), 'utf8');
+
+  assertIncludes(
+    dashboardIntent,
+    '/manual|required|permission|unsupported|unavailable|not-claimed|admin|supervised|degraded|stale/u',
+    'dashboard manual-required classifier covers stale, permission, and not-claimed states'
+  );
+  assertIncludes(
+    dashboardTest,
+    'expect(dashboard.rows.map((row) => [row.label, row.capabilityStatus, row.manualRequired, row.tone])).toContainEqual',
+    'dashboard test keeps permission-required game rows visible as gold/manual-required'
+  );
+  assertIncludes(dashboardTest, "'Voxel Quest Candidate'", 'dashboard test names permission-required game row');
+  assertIncludes(
+    dashboardTest,
+    "'permission-required',\n    true,\n    'gold'",
+    'dashboard test asserts permission row state'
+  );
+  assertIncludes(
+    dashboardTest,
+    "'stale',\n    'manual-required',\n    true",
+    'dashboard test keeps stale/manual-required app rows visible'
+  );
+  assertIncludes(
+    dashboardTest,
+    "expect(dashboard.capabilityRows.map((row) => row.label)).toContain('permission-required')",
+    'dashboard test exposes permission-required capability row'
+  );
+  assertIncludes(
+    dashboardTest,
+    "expect(dashboard.capabilityRows.map((row) => row.label)).toContain('manual-required')",
+    'dashboard test exposes manual-required capability row'
+  );
+  assertIncludes(
+    policyReadinessTest,
+    "capabilityStatus: 'notClaimed'",
+    'policy readiness fixture contains not-claimed app-game capability status'
+  );
+  assertIncludes(
+    policyReadinessTest,
+    "label: 'Capability',\n      value: 'Not claimed'",
+    'policy readiness test keeps not-claimed capability visible'
+  );
+  assertIncludes(
+    policyReadinessTest,
+    "label: 'Manual review',\n      value: 'Manual required'",
+    'policy readiness test keeps manual review visible'
+  );
+  assertIncludes(
+    policyReadinessPanel,
+    'detail(PortalDetails.Capability, readableValue(readModel.capabilityStatus))',
+    'policy readiness panel renders capability status'
+  );
+  assertIncludes(
+    policyReadinessPanel,
+    'detail(PortalDetails.AdapterDispatch, Readable.NotClaimed)',
+    'policy readiness panel renders adapter dispatch as not claimed'
+  );
+  assertIncludes(
+    portalReadme,
+    'Displays service-backed app/game policy readiness rows on App/Game Sessions',
+    'portal README names service-backed app/game readiness surface'
+  );
+  assertIncludes(
+    appGameFeatureDoc,
+    'The portal App/Game Sessions route now renders that service-backed policy',
+    'feature doc names app/game policy readiness portal route'
+  );
+
+  const proof = {
+    schemaVersion: 1,
+    proofMode: 'app-game-portal-state-visibility-gate-proof',
+    generatedAt: new Date().toISOString(),
+    branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
+    commit: gitOutput(['rev-parse', 'HEAD']),
+    gitStatusShort: gitOutput(['status', '--short']),
+    commands,
+    gate: 'Portal hides stale, permission-limited, manual-required, or not-claimed states.',
+    gateState: 'prevented-by-portal-dashboard-and-policy-readiness-intent-proof',
+    evidence: {
+      dashboardIntent:
+        'vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts classifies stale, permission, manual-required, unavailable, degraded, and not-claimed state text as parent-visible manual-required/gold rows.',
+      dashboardTest:
+        'apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts proves stale/manual-required app rows and permission-required native-game rows remain in dashboard rows and capability summaries.',
+      policyReadinessTest:
+        'apps/portal/tests/app-game-policy-readiness-panel.test.ts proves not-claimed app/game policy readiness capability and adapter dispatch states render in summary details.',
+      policyReadinessPanel:
+        'packages/portal-domain/src/app-game-policy-readiness-panel.ts renders capability status, manual review, and adapter dispatch details from the service-backed read model.',
+    },
+    productBoundaries: {
+      sharedEvidenceSpine: true,
+      nativeAppMeaningProven: true,
+      nativeGameMeaningProven: true,
+      staleRowsHidden: false,
+      permissionLimitedRowsHidden: false,
+      manualRequiredRowsHidden: false,
+      notClaimedRowsHidden: false,
+      browserGameWorkDuplicated: false,
+      portalFakeActivityAdded: false,
+      adapterDispatchClaimed: false,
+      policyExecutionClaimed: false,
+      packageExportsChanged: false,
+    },
+    proofPaths: {
+      proof: 'test-results/app-game-portal-state-visibility-gate-proof/proof.json',
+      appGameProofPack: 'output/app-game-plan-proof/merge-gates/portal-state-visibility',
+      harness: 'scripts/test/app-game-portal-state-visibility-gate-proof.mjs',
+    },
+  };
+
+  await writeJson(join(testOutputDir, 'proof.json'), proof);
+  await writeJson(join(proofDir, 'proof.json'), proof);
+  await writeFile(
+    join(proofDir, '00-source-snapshot.md'),
+    [
+      '# App-game portal state visibility gate source snapshot',
+      '',
+      `- Branch: ${proof.branch}`,
+      `- Commit: ${proof.commit}`,
+      `- Git status: ${proof.gitStatusShort.length === 0 ? 'clean before proof generation' : proof.gitStatusShort}`,
+      '',
+      'Evidence:',
+      '- The App/Game Sessions dashboard intent keeps stale/manual-required app rows visible.',
+      '- The same dashboard keeps permission-required native-game rows visible and gold/manual-required.',
+      '- App/game policy readiness route summary details keep not-claimed capability and adapter dispatch visible.',
+      '- This proof adds no fake portal activity, policy execution, adapter dispatch, or browser-game path.',
+      '',
+    ].join('\n')
+  );
+  await writeFile(join(proofDir, '10-validation-commands.log'), `${commands.join('\n\n').trimEnd()}\n`);
+
+  console.log('app-game-portal-state-visibility-gate-proof-ok');
+  console.log('evidence=test-results/app-game-portal-state-visibility-gate-proof/proof.json');
+}
+
+function assertIncludes(source, needle, label) {
+  if (!source.includes(needle)) {
+    throw new Error(`Missing ${label}: ${needle}`);
+  }
+}
+
+async function writeJson(path, value) {
+  await writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function run(command, args) {
+  const rendered = `${command} ${args.join(' ')}`;
+  const result = spawnSync(command, args, { cwd: repoRoot, encoding: 'utf8', shell: false });
+  commands.push(`${rendered}\nexit=${result.status}\n${result.stdout}${result.stderr}`);
+  if (result.status !== 0) {
+    throw new Error(`${rendered} failed with exit ${result.status}`);
+  }
+}
+
+function gitOutput(args) {
+  const result = spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8', shell: false });
+  if (result.status !== 0) {
+    throw new Error(`git ${args.join(' ')} failed: ${result.stderr}`);
+  }
+  return result.stdout.trim();
+}
