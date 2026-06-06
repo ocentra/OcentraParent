@@ -5,8 +5,8 @@
 
 Running 1 test using 1 worker
 
-  ok 1 [chromium] › e2e\network-risk-performance-readiness-portal-proof.spec.ts:7:1 › network drawer renders service-backed risk and performance readiness details without authority claims (23.6s)
+  ok 1 [chromium] › e2e\network-risk-performance-readiness-portal-proof.spec.ts:7:1 › network drawer renders service-backed risk and performance readiness details without authority claims (20.9s)
 
-  1 passed (24.7s)
-(node:42336) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+  1 passed (22.0s)
+(node:21440) ExperimentalWarning: SQLite is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
