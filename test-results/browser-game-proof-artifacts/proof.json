@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-proof-artifacts",
-  "generatedAt": "2026-06-06T22:13:25.292Z",
+  "generatedAt": "2026-06-06T22:28:21.504Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -346,24 +346,25 @@
     {
       "rowNumber": 21,
       "rowId": "GAME-21",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "live-journal-sqlite-read-model-proof-present",
       "proofDirectory": "game-21-journal-sqlite-read-model",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-contract-proof.md",
+        "02-live-journal-sqlite-read-model-shape-proof.json",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "live-journal-sqlite-read-model-proof-present",
       "failures": []
     }
   ],
   "summary": {
     "totalRows": 21,
-    "completeRows": 20,
-    "partialRows": 1,
+    "completeRows": 21,
+    "partialRows": 0,
     "failures": 0,
     "playwrightState": "manual-required-no-rendered-browser-game-ui",
     "productClaimed": false
@@ -390,6 +391,7 @@
     "liveHoldBlockAdapterEvidence": "game-18-live-hold-block-adapter-proof-present",
     "liveChildCheckingBlockUxEvidence": "game-19-live-child-checking-block-ux-proof-present",
     "liveParentDashboardUxEvidence": "game-20-live-parent-dashboard-ux-proof-present",
+    "liveJournalSqliteReadModelEvidence": "game-21-live-journal-sqlite-read-model-proof-present",
     "renderedUi": "not-claimed",
     "cloudStreamedFrameAnalysis": "not-claimed",
     "nativeGameControl": "not-claimed",

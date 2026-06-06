@@ -253,7 +253,16 @@ function expectedRows() {
         expectedState: 'live-parent-dashboard-ux-proof-present',
       };
     }
-    if (rowNumber >= 21) {
+    if (rowNumber === 21) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-journal-sqlite-read-model-proof-present',
+      };
+    }
+    if (rowNumber >= 22) {
       return {
         rowNumber,
         rowId,
@@ -335,6 +344,7 @@ function manifestFor(rows, failures) {
       'browser-game-live-hold-block-adapter-proof-present',
       'browser-game-live-child-checking-block-ux-proof-present',
       'browser-game-live-parent-dashboard-ux-proof-present',
+      'browser-game-live-journal-sqlite-read-model-proof-present',
       'proof-artifact-coverage-contract-only',
       'playwright-manual-required-no-rendered-browser-game-ui',
       'runtime-signal-proof-manual-required',
@@ -387,6 +397,7 @@ function markdownFor(manifest) {
     'GAME-18 live hold/block adapter proof is present.',
     'GAME-19 live child checking/block UX proof is present.',
     'GAME-20 live parent dashboard UX proof is present.',
+    'GAME-21 live journal/SQLite read-model shape proof is present.',
     'Product checklist upgrade is not claimed.',
     'Browser-game child/parent UI, cloud-streamed frame analysis, native',
     'game control, and enforcement remain open or manual-required until',

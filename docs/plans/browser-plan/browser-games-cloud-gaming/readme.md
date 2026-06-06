@@ -393,15 +393,19 @@ rejects rendered portal UI, notification delivery, runtime data fetch, final
 policy decisions, cloud-frame analysis, native game control, and enforcement. Package subpath exports are now present.
 
 GAME-21 now adds parent-domain browser-game journal/SQLite read-model contracts
-in `packages/parent-domain/src/browser-game-journal-sqlite-read-model.ts`. The
-snapshot indexes managed browser evidence journal replay, app-game session
+in `packages/parent-domain/src/browser-game-journal-sqlite-read-model.ts` plus
+a live public evidence-backed read-model shape proof. The snapshot indexes
+managed browser evidence journal replay, app-game session
 report proof, managed browser-game adapter audit refs, manual-required
 cloud-gaming rows, and unavailable native/unmanaged rows. Proof-backed rows
 require journal entry refs, SQLite row refs, source read-model refs, proof refs,
 positive event/row counts, and matching reason codes. They reject raw
 URL/page/game/title/account/purchase storage, child cookie/session reuse, cloud
 title certainty, browser mutation, rendered UI, final policy decisions, and
-enforcement. Package subpath exports are now present.
+enforcement. The live proof persists only response hashes, origin/path hashes,
+source refs, and no-claim flags; it does not claim a runtime SQLite query,
+rendered browser-game UI, Playwright screenshot, product checklist upgrade, or
+release readiness. Package subpath exports are now present.
 
 GAME-22 now adds `scripts/test/browser-game-proof-artifacts.mjs`, a proof
 artifact gate for GAME-01 through GAME-21. It validates checklist ownership,
@@ -443,7 +447,8 @@ live-ugc-multiplayer-chat-risk-proof-present, GAME-17 as
 live-policy-compiler-proof-present, GAME-18 as
 live-hold-block-adapter-proof-present, GAME-19 as
 live-child-checking-block-ux-proof-present, GAME-20 as
-live-parent-dashboard-ux-proof-present, GAME-21 through GAME-24 as
+live-parent-dashboard-ux-proof-present, GAME-21 as
+live-journal-sqlite-read-model-proof-present, GAME-22 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
 Product checklist upgrade is not claimed; child/parent UI,
 cloud-streamed frame analysis, native game control, and

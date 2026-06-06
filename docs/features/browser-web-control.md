@@ -511,12 +511,16 @@ mobile/native gap, and manual-required gap panels parse while rendered portal
 UI, notification delivery, runtime data fetch, final policy decisions,
 cloud-frame analysis, native game control, and enforcement are rejected.
 Browser-game/cloud-gaming GAME-21 now adds parent-domain journal/SQLite
-read-model contracts for browser-game proof refs. The snapshot indexes managed
-browser evidence journal replay, app-game session report proof, adapter audit
+read-model contracts and a live public evidence-backed read-model shape proof
+for browser-game proof refs. The snapshot indexes managed browser evidence
+journal replay, app-game session report proof, adapter audit
 refs, manual-required cloud rows, and unavailable native/unmanaged rows while
 rejecting raw URL/page/game/title/account/purchase storage, child session reuse,
 cloud title certainty, browser mutation, rendered UI, final policy decisions,
-and enforcement.
+and enforcement. The live proof stores only response hashes, origin/path hashes,
+source refs, and no-claim flags; it does not claim a runtime SQLite query,
+rendered browser-game UI, Playwright screenshot, product checklist upgrade, or
+release readiness.
 Browser-game/cloud-gaming GAME-22 now adds a proof artifact gate that checks
 GAME-01 through GAME-21 proof-pack coverage and marks Playwright
 manual-required because this slice does not render browser-game UI. This does
@@ -548,8 +552,9 @@ live-ugc-multiplayer-chat-risk-proof-present. GAME-17 is
 live-policy-compiler-proof-present. GAME-18 is
 live-hold-block-adapter-proof-present. GAME-19 is
 live-child-checking-block-ux-proof-present. GAME-20 is
-live-parent-dashboard-ux-proof-present. GAME-21 through GAME-24 are
-partial/manual-required. UI, cloud-streamed
+live-parent-dashboard-ux-proof-present. GAME-21 is
+live-journal-sqlite-read-model-proof-present. GAME-22 through GAME-24 are
+partial/manual-required. UI, Playwright screenshots, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.
 Browser AI enhancement rows AI-01 and AI-02 now add plan linkage and

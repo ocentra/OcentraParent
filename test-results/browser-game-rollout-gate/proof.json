@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-rollout-gate",
-  "generatedAt": "2026-06-06T22:13:25.314Z",
+  "generatedAt": "2026-06-06T22:28:21.547Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -186,10 +186,10 @@
     {
       "rowNumber": 21,
       "rowId": "GAME-21",
-      "expectedStatus": "[~]",
+      "expectedStatus": "[x]",
       "expectedOwner": "codex-d",
-      "expectedState": "partial-manual-required",
-      "state": "partial-manual-required",
+      "expectedState": "live-journal-sqlite-read-model-proof-present",
+      "state": "live-journal-sqlite-read-model-proof-present",
       "failures": []
     },
     {
@@ -222,8 +222,8 @@
   ],
   "summary": {
     "totalRows": 24,
-    "completeRows": 20,
-    "partialRows": 4,
+    "completeRows": 21,
+    "partialRows": 3,
     "openRows": 0,
     "failures": 0,
     "rolloutState": "partial/manual-required",
@@ -252,6 +252,7 @@
     "browser-game-live-hold-block-adapter-proof-present",
     "browser-game-live-child-checking-block-ux-proof-present",
     "browser-game-live-parent-dashboard-ux-proof-present",
+    "browser-game-live-journal-sqlite-read-model-proof-present",
     "proof-artifact-coverage-contract-only",
     "playwright-manual-required-no-rendered-browser-game-ui",
     "runtime-signal-proof-manual-required",

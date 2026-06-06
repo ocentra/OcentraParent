@@ -1449,21 +1449,25 @@ worker messages before code changes. Do not mix all 24 into one PR.
   UI, notification delivery, runtime data fetch, final policy decisions,
   cloud-frame analysis, native game control, and enforcement claims.
 - GAME-21 now adds parent-domain browser-game journal/SQLite read-model
-  contracts. The snapshot indexes managed browser evidence journal replay,
+  contracts plus a live public evidence-backed read-model shape proof. The
+  snapshot indexes managed browser evidence journal replay,
   app-game session report proof, managed browser-game adapter audit refs,
   manual-required cloud rows, and unavailable native/unmanaged rows. Proof rows
   require journal entry refs, SQLite row refs, source read-model refs, proof
   refs, positive event/row counts, and matching reason codes while rejecting raw
   URL/page/game/title/account/purchase storage, child session reuse, cloud title
   certainty, browser mutation, rendered UI, final policy decisions, and
-  enforcement.
+  enforcement. The live proof persists only response hashes, origin/path hashes,
+  source refs, and no-claim flags; it does not claim a runtime SQLite query,
+  rendered browser-game UI, Playwright screenshot, product checklist upgrade, or
+  release readiness.
 - GAME-22 now adds `scripts/test/browser-game-proof-artifacts.mjs`, a proof
   artifact gate that verifies GAME-01 through GAME-21 checklist ownership,
   proof directory references, required proof files, browser-game workpack README
   references, feature coverage, and expectation boundary text. It emits
   `test-results/browser-game-proof-artifacts/proof.json` and
   `output/browser-plan-proof/game-22-tests-fixtures-playwright-manual-proof/01-browser-game-proof-artifact-manifest.md`.
-  The manifest records 15 complete/proof rows and six partial/manual-required
+  The manifest records 21 complete/proof rows and zero partial/manual-required
   rows. Playwright stays manual-required because no rendered browser-game UI
   exists in this slice. No screenshot, runtime browser-game detection,
   cloud-streamed frame analysis, native game control, final policy execution,
@@ -1493,7 +1497,8 @@ worker messages before code changes. Do not mix all 24 into one PR.
   live-policy-compiler-proof-present, GAME-18 as
   live-hold-block-adapter-proof-present, GAME-19 as
   live-child-checking-block-ux-proof-present, GAME-20 as
-  live-parent-dashboard-ux-proof-present, GAME-21 through GAME-24 as
+  live-parent-dashboard-ux-proof-present, GAME-21 as
+  live-journal-sqlite-read-model-proof-present, GAME-22 through GAME-24 as
   partial/manual-required, and no browser-game rows as open/manual-required.
   Product checklist upgrade is not claimed, and runtime
   child/parent UI, cloud-streamed frame analysis, native game control, and

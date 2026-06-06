@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 20;
+    const isComplete = rowNumber <= 21;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -106,7 +106,9 @@ function expectedRows() {
                                             ? 'live-hold-block-adapter-proof-present'
                                             : rowNumber === 19
                                               ? 'live-child-checking-block-ux-proof-present'
-                                              : 'live-parent-dashboard-ux-proof-present'
+                                              : rowNumber === 20
+                                                ? 'live-parent-dashboard-ux-proof-present'
+                                                : 'live-journal-sqlite-read-model-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -222,6 +224,7 @@ function manifestFor(rows, failures) {
       liveHoldBlockAdapterEvidence: 'game-18-live-hold-block-adapter-proof-present',
       liveChildCheckingBlockUxEvidence: 'game-19-live-child-checking-block-ux-proof-present',
       liveParentDashboardUxEvidence: 'game-20-live-parent-dashboard-ux-proof-present',
+      liveJournalSqliteReadModelEvidence: 'game-21-live-journal-sqlite-read-model-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -290,6 +293,8 @@ function markdownFor(manifest) {
     'browser-game route surfaces with ref-only child UX surface rows.',
     'GAME-20 live parent dashboard UX proof is present for real public',
     'browser-game route surfaces with ref-only dashboard panel rows.',
+    'GAME-21 live journal/SQLite read-model shape proof is present for real public',
+    'browser-game route surfaces with ref-only/hash-only read-model rows.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',
