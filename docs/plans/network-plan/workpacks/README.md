@@ -58,6 +58,12 @@ can be split further when source-shape, platform proof, or validation needs it.
 | 49  | Performance, latency, resource, and high-concurrency benchmark proof                                                      | P3/P6               | Packet-to-detection latency, event throughput, CPU/memory/disk/queue metrics, and high-concurrency fixture results.                                                                                                                                                                                                                          |
 | 50  | Security, privacy, compliance, deployment, support, and staged rollout proof                                              | P6                  | Threat model, retention/delete/export, key rotation, secret handling, signature/rule-set provenance and rollback, AI model/version promotion gates, penetration test or external audit signoff for production claims, parent/user guide, FAQ, support playbook, staff-training material, rollout gates, and known-gap signoff.               |
 
+## Supplemental Proof Rows
+
+| Row | Workpack                                         | Priority | Notes                                                                                                                                                                                                                       |
+| --- | ------------------------------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 34a | Policy preview over stored network flow evidence | P3       | Stored ActivityStore network domain-observed rows map to domain policy-preview targets, matching parent rules require stored evidence refs, and previewed block decisions remain dry-run with enforcement handoff disabled. |
+
 ## Required Workpack Record
 
 Each workpack should include:

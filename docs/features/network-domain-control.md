@@ -160,6 +160,13 @@ compete on control while staying clear about attribution confidence and privacy.
   source-custody category records, freshness/staleness is explicit, and signed
   snapshot update policy rejects unsigned or older inputs without claiming live
   vendor feeds, exact URLs, or decrypted content.
+- E-D added stored network-flow policy preview proof in `agent-core`: stored
+  ActivityStore network domain-observed rows map to domain policy-preview
+  targets from `destinationDomain`, parent rule contexts resolve only when they
+  cite stored network evidence refs, and matching block rules remain dry-run
+  with enforcement handoff disabled. The proof rejects network-only exact URL,
+  decrypted payload, live adapter mutation, enforcement command publication,
+  full policy execution, and portal policy-authority claims.
 - E-D added deterministic social/video/game/cloud-gaming classification in
   `ocentra-network-evidence`: fresh domain categories classify directly,
   CDN/process hints remain browser-confirmation-required, and matching browser
@@ -374,8 +381,9 @@ adds a platform-claim manifest that names exact Windows, Android, Apple
 macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
 follow-ups for missing artifacts.
 Broker/family-hub delivery implementation, local-AI model execution/worker
-runtime, full policy engine execution, notification provider delivery, broader
-parent-facing rule UX, live host DNS mutation/proxy installation, live Windows
+runtime, full policy engine execution beyond stored-flow dry-run preview,
+notification provider delivery, broader parent-facing rule UX, live host DNS
+mutation/proxy installation, live Windows
 Firewall mutation, live WFP driver/callout/packet blocking, live Android
 VpnService filtering, live Apple Network Extension behavior, live Linux adapter
 execution, platform adapter execution, and broader portal risk-budget/performance
@@ -501,7 +509,16 @@ UI rendering remain open.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
       unsupported-claim states without publishing policy or adapter commands.
-- [ ] Policy preview over stored flow evidence.
+- [x] Policy preview over stored flow evidence.
+      Stored ActivityStore network domain-observed rows now feed the
+      `agent-core` policy-preview read model as domain targets with activity
+      event refs. Matching parent domain rules can preview a dry-run block only
+      when they cite the stored network evidence, and enforcement handoff stays
+      disabled. Proof:
+      `output/network-plan-proof/34a-policy-preview-stored-flow/proof-summary.json`
+      and `test-results/network-policy-preview-stored-flow-proof/proof.json`.
+      Full policy engine execution, notification delivery, adapter execution,
+      host filtering, and portal policy authority remain unclaimed.
 - [ ] Adapter capability status.
       Row37 DNS adapter, Row38 Windows Firewall, Row39 WFP, and Row40 Android
       VpnService plus Row41 Apple Network Extension and Row42 Linux proof gates

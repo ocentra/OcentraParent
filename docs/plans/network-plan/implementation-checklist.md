@@ -331,6 +331,20 @@ manual-required/N/A file.
 
 | 52 | Platform claim manifest proof | [x] | E-D | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/52-platform-claims-proof/proof-summary.json`, `output/network-plan-proof/52-platform-claims-proof/11-manual-platform-proof.md`, `output/network-plan-proof/52-platform-claims-proof/12-validation-commands.log`, `test-results/network-platform-claims-proof/proof.json`, `platform_claim_manifest_names_exact_platform_permission_and_device_refs`, `platform_claim_manifest_reports_unavailable_states_without_execution`, `platform_claim_manifest_records_missing_permission_artifacts_as_manual_followup`, `platform_claim_manifest_rejects_broad_or_live_platform_claims`, `platform_claim_manifest_rejects_proof_source_that_publishes_enforcement_command` | Deterministic platform-claim manifest proof now composes Windows Firewall, Windows WFP, Android VpnService, Apple Network Extension macOS/iOS, and Linux nftables/eBPF/TUN proof gates into exact platform rows with OS/device refs, permission or entitlement refs, adapter capability refs, audit refs, unavailable-state accounting, and missing required artifacts captured as manual follow-ups. Generic platform support, live adapter execution, UI policy authority, exact URL, page content, decrypted payload, and enforcement-command claims are rejected. This does not claim production platform support, live host adapter mutation, packet blocking, policy engine execution, or portal platform-state rendering. |
 
+## Supplemental Row Proofs
+
+- [x] 34a policy preview over stored network flow evidence: E-D added
+      `output/network-plan-proof/34a-policy-preview-stored-flow/proof-summary.json`
+      and `test-results/network-policy-preview-stored-flow-proof/proof.json`.
+      Stored ActivityStore network domain-observed rows now map to domain
+      policy-preview targets from `destinationDomain`, no-rule rows stay
+      unknown dry-run, and matching parent domain rules preview block decisions
+      only when they cite stored network evidence refs. Enforcement handoff
+      remains disabled, and the proof rejects network-only exact URL, decrypted
+      payload, live adapter mutation, enforcement command publication, full
+      policy execution, notification delivery, portal policy authority, and
+      host filtering claims.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:
