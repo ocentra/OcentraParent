@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofId": "social-decision-memory-live-evidence-proof",
-  "generatedAt": "2026-06-06T12:17:57.915Z",
+  "generatedAt": "2026-06-06T14:42:19.956Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "19eeb8a1371f777142290329b7560dd08fe65d4b",
-  "baseCommit": "51f6d940352e4775700d8e0eb871390a3e37d95e",
+  "commit": "15a9f973ff22763640291bdf372bd14ffa1c57b1",
+  "baseCommit": "0a00b9ec5445ca86eb60d3c1c2ca460b30d419f7",
   "sourceProof": "test-results/social-policy-live-evidence-compiler-proof/proof.json",
   "liveEvidenceBoundary": {
     "sourcePolicyCompilerUsesLiveSocial11Refs": true,
@@ -27,7 +27,7 @@
   },
   "snapshot": {
     "snapshotId": "social-decision-memory-live-evidence-snapshot",
-    "capturedAt": "2026-06-06T12:17:57.915Z",
+    "capturedAt": "2026-06-06T14:42:19.956Z",
     "retentionBounded": true,
     "rawContentStored": false,
     "runtimeStoreClaimed": false,
