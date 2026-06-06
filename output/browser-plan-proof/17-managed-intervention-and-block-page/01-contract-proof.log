@@ -1,0 +1,24 @@
+WP17 contract proof
+
+Commands:
+
+- cmd /c npm run build:contracts
+- cmd /c npm run test --workspace @ocentra-parent/activity-domain -- browser-intervention.test.ts
+- cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- contracts.test.ts
+- cmd /c npm run test --workspace @ocentra-parent/portal-domain -- contracts.test.ts
+- cmd /c npm run test --workspace @ocentra-parent/portal -- live-activity-browser-status.test.ts
+
+Results:
+
+- build:contracts passed.
+- activity-domain browser-intervention.test.ts passed: 2 tests.
+- agent-protocol-domain contracts.test.ts passed: 33 tests across 4 files.
+- portal-domain contracts.test.ts passed: 11 tests.
+- portal live-activity browser status test run passed: 42 tests across 11 portal test files.
+
+Contract deltas:
+
+- Browser intervention rows now accept schema-backed `interventionActionId`, `interventionAuditId`, `evidenceReferenceIds`, and `childDeliveryState`.
+- Intervention vocabulary now covers managed block, warning, approval hold, checking hold, social account/feed/video targets, browser-game, game purchase, and cloud gaming target classes.
+- Agent protocol defaults expose browser intervention action/audit ids, browser boundary state, exact URL claim state, unmanaged detection state, child delivery state, and the list delimiter used for scalar service payloads.
+- Portal detail labels/readable values cover the new intervention proof fields.

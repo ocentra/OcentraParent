@@ -1,0 +1,32 @@
+AI-19 rendered child UX proof
+
+Command:
+
+- cmd /c "npm run build:contracts && node scripts/test/browser-ai-child-ux-rendered-proof.mjs"
+
+Result:
+
+```text
+browser-ai-child-ux-rendered-proof-ok=true
+evidence=C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-d\OcentraParent\test-results\browser-ai-child-ux-rendered-proof\2026-06-06T00-57-51-063Z.json
+requested=https://www.youtube.com/watch?v=XzUB8_gj6xM
+captured=https://www.youtube.com/watch?v=XzUB8_gj6xM
+states=checking,warning,approval_required,limited,blocked
+assertion.approvalRendered=true
+assertion.blockRendered=true
+assertion.checkingRendered=true
+assertion.childAgentEndpointRendered=true
+assertion.liveTargetCapturedBeforeRender=true
+assertion.noRawCopyClaims=true
+assertion.timeLimitRendered=true
+assertion.warningRendered=true
+assertion.expectedStateCoverage=true
+```
+
+Screenshots:
+
+- `test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z-screenshots/chrome-stable-child-ux-checking.png`
+- `test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z-screenshots/chrome-stable-child-ux-warning.png`
+- `test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z-screenshots/chrome-stable-child-ux-approval_required.png`
+- `test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z-screenshots/chrome-stable-child-ux-limited.png`
+- `test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z-screenshots/chrome-stable-child-ux-blocked.png`

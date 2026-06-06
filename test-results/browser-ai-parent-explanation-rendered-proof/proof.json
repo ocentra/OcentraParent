@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-06T01:29:02.632Z",
+  "commit": "b74ae680014f90585266fa4619b4a260fb0c5ada",
+  "workpackIds": [
+    "ai-20-parent-explanation-audit-ux"
+  ],
+  "proofMode": "real-portal-browser-route-parent-explanation-from-live-ai19-youtube-evidence",
+  "route": "#/browser",
+  "currentStatus": "rendered-parent-explanation-proof-only",
+  "productClaimReady": false,
+  "artifacts": {
+    "proof": "test-results/browser-ai-parent-explanation-rendered-proof/proof.json",
+    "outputProof": "output/browser-plan-proof/ai-20-parent-explanation-audit-ux/03-runtime-evidence.json",
+    "sourceSnapshot": "output/browser-plan-proof/ai-20-parent-explanation-audit-ux/00-source-snapshot.md",
+    "playwrightLog": "output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/browser-parent-explanation-ui-playwright.log",
+    "securityNegativeLog": "output/browser-plan-proof/ai-20-parent-explanation-audit-ux/08-security-negative-proof.log",
+    "validationCommands": "output/browser-plan-proof/ai-20-parent-explanation-audit-ux/10-validation-commands.log",
+    "desktopScreenshot": "output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/browser-parent-explanation-route.png",
+    "mobileScreenshot": "output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/browser-parent-explanation-route-mobile.png",
+    "accessibilitySummary": "test-results/browser-ai-parent-explanation-rendered-proof/accessibility-summary.json",
+    "sourceChildUxProof": "test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z.json",
+    "sourceChildUxScreenshot": "test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z-screenshots/chrome-stable-child-ux-warning.png"
+  },
+  "sourceBoundary": {
+    "sourceProof": "test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z.json",
+    "sourceSurface": "live YouTube page captured through the AI-19 child UX CDP proof before intervention render",
+    "requestedUrlHash": "hash-cbe499dc",
+    "capturedLocationHash": "hash-cbe499dc",
+    "rawUrlRenderedInPortal": false
+  },
+  "renderedBundle": {
+    "explanationId": "browser-parent-explanation-live-youtube-warning",
+    "sections": [
+      "summary",
+      "evidence",
+      "ai-analysis",
+      "policy-decision",
+      "action-taken",
+      "child-experience",
+      "memory-cache",
+      "knowledge-graph",
+      "degraded-fallback",
+      "audit"
+    ],
+    "sourceEvidenceIds": [
+      "browser-evidence-live-youtube-cdp"
+    ],
+    "actionLabels": [
+      "warning_shown_after_review"
+    ],
+    "childDeliveryState": "warn-page-rendered",
+    "auditRefs": [
+      "browser-parent-explanation-audit-live-youtube-warning"
+    ]
+  },
+  "assertions": [
+    "Portal browser route renders the Browser review region from the real app shell.",
+    "The rendered parent explanation bundle is parsed by BrowserAiParentExplanationBundleSchema before reaching the portal panel intent.",
+    "The source proof is the latest AI-19 live YouTube CDP child UX evidence JSON, not generated page content.",
+    "The portal screenshot exposes evidence, model, policy, action, child experience, and audit sections without raw URL, page content, prompt text, or enforcement claims.",
+    "Desktop and mobile screenshots were captured from the real portal route."
+  ],
+  "nonClaims": [
+    "This proof does not claim production service delivery of parent explanation bundles.",
+    "This proof does not claim final policy authority, browser mutation, enforcement, remote AI, or raw page/prompt custody.",
+    "This proof does not claim product capability checklist completion."
+  ],
+  "remainingGapsBeforeProductReady": [
+    "Service-backed parent explanation read-model/event delivery remains pending.",
+    "Parent notification/report delivery remains pending.",
+    "Final policy execution and enforcement remain separate proof gates."
+  ],
+  "accessibilitySummary": {
+    "route": "#/browser",
+    "assertions": [
+      "named-browser-review-region",
+      "schema-backed-parent-explanation-visible",
+      "model-policy-action-audit-headings-visible",
+      "live-ai19-evidence-ref-visible",
+      "raw-youtube-url-not-rendered",
+      "no-unlabeled-buttons",
+      "desktop-screenshot",
+      "mobile-screenshot"
+    ],
+    "summary": {
+      "hasNamedRegion": true,
+      "headings": [
+        "Browser review",
+        "10 parent explanation rows",
+        "What happened",
+        "AI and model details",
+        "Action taken",
+        "Audit trail"
+      ],
+      "labels": [
+        "Rows returned",
+        "Generated at",
+        "Status",
+        "Product claim",
+        "Browser evidence",
+        "Evidence references",
+        "Reason codes",
+        "Model",
+        "Version",
+        "Degraded state",
+        "Product claim",
+        "Policy evaluation",
+        "Rule IDs",
+        "Intervention action",
+        "Adapter boundary",
+        "Child delivery",
+        "Intervention audit ID",
+        "Custody",
+        "Manual review",
+        "Enforcement"
+      ],
+      "values": [
+        "10",
+        "2026-06-06T00:58:06.594Z",
+        "ready",
+        "Rendered parent explanation surface only; runtime service delivery, final policy authority, browser mutation, enforcement, remote AI, and raw page or prompt content remain unclaimed.",
+        "browser-evidence-live-youtube-cdp",
+        "browser-url-metadata-live-youtube-oembed",
+        "explicit_parent_rule, schedule_match, ai_high_confidence, memory_hit, graph_ref",
+        "local-model-runtime-browser-video",
+        "2026-06-06",
+        "none",
+        "Rendered parent explanation surface only; runtime service delivery, final policy authority, browser mutation, enforcement, remote AI, and raw page or prompt content remain unclaimed.",
+        "warn",
+        "parent-rule-school-night-video-review",
+        "warning_shown_after_review",
+        "child-agent-endpoint-proof-warning",
+        "warn-page-rendered",
+        "browser-parent-explanation-audit-live-youtube-warning",
+        "managed-browser-warning-page",
+        "false",
+        "false"
+      ],
+      "buttons": [],
+      "unlabeledButtons": 0
+    },
+    "screenshots": {
+      "desktop": "output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/browser-parent-explanation-route.png",
+      "mobile": "output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/browser-parent-explanation-route-mobile.png"
+    }
+  },
+  "commands": [
+    {
+      "command": "cmd /c npm run build:contracts",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run test -- browser-ai-parent-explanation.test.ts",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/text-domain run test -- browser-parent-explanation.test.ts",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/portal-domain run type-check",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/portal run type-check",
+      "exitCode": 0
+    },
+    {
+      "command": "cargo build -p ocentra-parent-agent-service",
+      "exitCode": 0
+    },
+    {
+      "command": "C:\\Program Files\\nodejs\\node.exe C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-d\\OcentraParent\\node_modules\\@playwright\\test\\cli.js test --config C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-d\\OcentraParent\\apps\\portal\\playwright.config.ts browser-ai-parent-explanation-ui-proof.spec.ts --workers=1",
+      "exitCode": 0
+    },
+    {
+      "command": "git rev-parse HEAD",
+      "exitCode": 0
+    }
+  ]
+}

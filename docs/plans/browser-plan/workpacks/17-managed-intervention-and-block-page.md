@@ -7,6 +7,9 @@ block, warning, approval-hold, and checking-hold pages through real Chrome,
 Firefox, and Edge harnesses. The typed decision/action/audit/evidence/delivery
 fields also round-trip through activity-domain contracts, Rust protocol,
 journal/read-model replay, service payload flattening, and portal parsing.
+After PR399, the composited blocker proof uses the shared
+`renderBrowserChildInterventionPage` renderer and the Rust child-agent
+`/api/browser/intervention/page` endpoint instead of a one-off preview route.
 
 ## Where We Want To Be
 
@@ -54,6 +57,10 @@ target refs, audit refs, child-facing delivery proof, and portal proof.
   `output/browser-plan-proof/17-managed-intervention-and-block-page/`
 - Latest real browser proof:
   `test-results/managed-browser-intervention-proof/2026-06-02T23-29-49-841Z.json`
+- Latest endpoint-backed composited blocker proof:
+  `test-results/managed-browser-composited-block-proof/2026-06-06T01-28-21-082Z.json`
+- Endpoint-backed blocker screenshot:
+  `test-results/managed-browser-composited-block-proof/2026-06-06T01-28-21-082Z-screenshots/chrome-stable-composited-block-youtube.png`
 - Screenshot directory:
   `test-results/managed-browser-intervention-proof/2026-06-02T23-29-49-841Z-screenshots`
 - Focused validation:
@@ -66,7 +73,9 @@ target refs, audit refs, child-facing delivery proof, and portal proof.
   `cargo test -p ocentra-parent-agent-core activity_store_browser_intervention`,
   `cargo test -p ocentra-parent-agent-service browser_intervention`,
   `node --check scripts/test/managed-browser-intervention-proof.mjs`, and
-  `cmd /c npm run test:managed-browser-intervention`.
+  `cmd /c npm run test:managed-browser-intervention`,
+  `node --check scripts/test/managed-browser-composited-block-proof.mjs`, and
+  `cmd /c npm run test:managed-browser-composited-block`.
 
 ## AI Worker Checklist
 
@@ -94,3 +103,7 @@ Fill this before reporting `DONE` or PR-ready:
 Managed intervention proof is not broad OS browser blocking and does not cover
 unmanaged browsers. It also does not prove native-app per-reel or per-message
 blocking, native-game scene control, or cloud-streamed frame analysis.
+The endpoint-backed composited proof proves the rendered child blocker page is
+served by the local child-agent endpoint after a policy-acceptable live YouTube
+capture; it does not claim a final policy evaluator, broad browser interception,
+or native/mobile blocking.

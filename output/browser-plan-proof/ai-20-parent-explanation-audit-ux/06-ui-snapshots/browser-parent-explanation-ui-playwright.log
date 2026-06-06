@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ok 1 [chromium] › e2e\browser-ai-parent-explanation-ui-proof.spec.ts:25:1 › browser route renders evidence-backed parent explanation bundle (12.5s)
+
+  1 passed (13.6s)
