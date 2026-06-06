@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "workpack": "ai-19-child-facing-checking-warning-ux",
+  "status": "rendered-child-ux-proof-only",
+  "policyAuthorityClaimed": false,
+  "enforcementClaimed": false,
+  "notes": [
+    "Proof fixtures are decoded by the existing BrowserAiChildUxSnapshotSchema and post-analysis action schemas.",
+    "The rendered pages require adapter proof refs before warning, approval, limited, or blocked states are accepted.",
+    "No final policy evaluator runtime, policy write, browser mutation, or enforcement action is claimed."
+  ]
+}

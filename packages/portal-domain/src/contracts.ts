@@ -133,6 +133,13 @@ export {
   type AppGamePolicyReadinessPanelRow,
 } from './app-game-policy-readiness-panel';
 export {
+  createBrowserParentExplanationPanelIntent,
+  type BrowserParentExplanationPanelDetail,
+  type BrowserParentExplanationPanelIntent,
+  type BrowserParentExplanationPanelRow,
+} from './browser-parent-explanation-panel';
+
+export {
   createSocialDashboardPanelIntent,
   type SocialDashboardPanelDetail,
   type SocialDashboardPanelIntent,
@@ -421,6 +428,7 @@ export const PortalTiming = {
 
 export const PortalEnvironment = {
   AgentWebSocketUrl: 'VITE_AGENT_WS_URL',
+  BrowserParentExplanationProofBundle: 'VITE_BROWSER_PARENT_EXPLANATION_PROOF_BUNDLE',
 } as const;
 
 export const PortalText = {

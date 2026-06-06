@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "workpack": "17-managed-intervention-and-block-page",
+  "command": "cargo test -p ocentra-parent-agent-core activity_store_browser_intervention",
+  "status": "passed",
+  "tests": [
+    "activity_store_reports_typed_browser_intervention_read_model_from_ingested_events",
+    "activity_store_infers_legacy_managed_url_proof_without_overclaiming_unmanaged_rows",
+    "activity_store_does_not_overclaim_legacy_rows_without_managed_url_proof",
+    "activity_store_replays_browser_interventions_from_encrypted_journal",
+    "activity_store_reports_empty_browser_intervention_readiness_without_rows"
+  ],
+  "proof": [
+    "Journal event fields carry browserInterventionActionId, browserInterventionAuditId, evidenceReferenceIds, and childDeliveryState.",
+    "SQLite/read-model replay returns those fields on BrowserInterventionRow.",
+    "Legacy rows missing these fields default to no action/audit refs, no evidence refs, and not-delivered."
+  ]
+}

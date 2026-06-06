@@ -27,6 +27,10 @@ import {
   AppGamePolicyReadinessRoutePanel,
   shouldRenderAppGamePolicyReadinessRoute,
 } from './AppGamePolicyReadinessRoutePanel';
+import {
+  BrowserParentExplanationRoutePanel,
+  shouldRenderBrowserParentExplanationRoute,
+} from './BrowserParentExplanationRoutePanel';
 import { shouldRenderSocialDashboardRoute, SocialDashboardRoutePanel } from './SocialDashboardRoutePanel';
 import { ScreenSettingsRoutePanel, shouldRenderScreenSettingsRoute } from './ScreenSettingsRoutePanel';
 import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
@@ -111,6 +115,7 @@ export function ParentPortalRoute({
           readModelResult={activityState.appGamePolicyReadinessReadModel}
         />
       ) : null}
+      {shouldRenderBrowserParentExplanationRoute(route) ? <BrowserParentExplanationRoutePanel /> : null}
       {shouldRenderSocialDashboardRoute(route) ? <SocialDashboardRoutePanel snapshot={null} /> : null}
       {shouldRenderScreenSettingsRoute(route) ? <ScreenSettingsRoutePanel /> : null}
     </div>

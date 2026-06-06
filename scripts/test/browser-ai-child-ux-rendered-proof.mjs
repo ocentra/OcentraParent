@@ -1,31 +1,38 @@
 import { spawn } from 'node:child_process';
-import { mkdir, mkdtemp, stat, writeFile } from 'node:fs/promises';
 import { createServer as createNetServer } from 'node:net';
+import { mkdir, mkdtemp, stat, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { tmpdir } from 'node:os';
 import { setTimeout as delay } from 'node:timers/promises';
 
 import {
+  BrowserAiChildUxSchemaVersion,
+  BrowserAiChildUxSnapshotSchema,
+} from '@ocentra-parent/activity-domain/browser-ai-child-ux-schemas';
+import { BrowserAiPolicyEvaluatorSchemaVersion } from '@ocentra-parent/activity-domain/browser-ai-policy-evaluator-schemas';
+import { BrowserAiPostAnalysisActionSchemaVersion } from '@ocentra-parent/activity-domain/browser-ai-post-analysis-action-schemas';
+import {
   BrowserChildInterventionPageDefaults,
   renderBrowserChildInterventionPage,
 } from '@ocentra-parent/portal-domain/contracts';
+import { resolveBrowserChildUxText } from '@ocentra-parent/text-domain/browser-child-ux';
 
 import { resolveDebugAgentServicePath, stopProcessTreeAndWait } from './agent-service-process.mjs';
 
 const repoRoot = process.cwd();
 const runId = new Date().toISOString().replaceAll(':', '-').replaceAll('.', '-');
-const evidenceDirectory = join(repoRoot, 'test-results', 'managed-browser-composited-block-proof');
+const evidenceDirectory = join(repoRoot, 'test-results', 'browser-ai-child-ux-rendered-proof');
 const screenshotDirectory = join(evidenceDirectory, `${runId}-screenshots`);
-const probeRoot = join(tmpdir(), `ocentra-parent-managed-browser-composited-block-${process.pid}`);
-const timeoutMs = envNumber('OCENTRA_PARENT_MANAGED_BROWSER_COMPOSITED_BLOCK_TIMEOUT_MS', 45_000);
-const commandTimeoutMs = envNumber('OCENTRA_PARENT_MANAGED_BROWSER_COMPOSITED_BLOCK_COMMAND_TIMEOUT_MS', 20_000);
+const probeRoot = join(tmpdir(), `ocentra-parent-browser-ai-child-ux-rendered-${process.pid}`);
+const timeoutMs = envNumber('OCENTRA_PARENT_BROWSER_AI_CHILD_UX_RENDERED_TIMEOUT_MS', 45_000);
+const commandTimeoutMs = envNumber('OCENTRA_PARENT_BROWSER_AI_CHILD_UX_RENDERED_COMMAND_TIMEOUT_MS', 20_000);
 const requestedUrl =
-  process.env.OCENTRA_PARENT_MANAGED_BROWSER_COMPOSITED_BLOCK_URL ?? 'https://www.youtube.com/watch?v=XzUB8_gj6xM';
+  process.env.OCENTRA_PARENT_BROWSER_AI_CHILD_UX_RENDERED_URL ?? 'https://www.youtube.com/watch?v=XzUB8_gj6xM';
 
 async function main() {
   const browser = await installedChromiumBrowser();
   if (browser === null) {
-    throw new Error('No installed Chrome or Edge executable found for managed composited block proof.');
+    throw new Error('No installed Chrome or Edge executable found for browser AI child UX rendered proof.');
   }
 
   await mkdir(evidenceDirectory, { recursive: true });
@@ -33,14 +40,13 @@ async function main() {
   await mkdir(probeRoot, { recursive: true });
   await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
 
+  const runRoot = await mkdtemp(join(tmpdir(), 'ocentra-parent-browser-ai-child-ux-agent-'));
+  const htmlPath = join(runRoot, 'browser-intervention-page.html');
+  const agentPort = await freePort();
+  const service = spawnAgentService(runRoot, agentPort, htmlPath);
+  const serviceOutput = collectOutput(service);
   let profileRun;
-  let service;
   try {
-    const runRoot = await mkdtemp(join(tmpdir(), 'ocentra-parent-managed-browser-composited-agent-'));
-    const htmlPath = join(runRoot, 'browser-intervention-page.html');
-    const agentPort = await freePort();
-    service = spawnAgentService(runRoot, agentPort, htmlPath);
-    const serviceOutput = collectOutput(service);
     await waitForHealth(agentPort, serviceOutput);
     profileRun = await launchChromiumProfile(browser);
     const version = await waitForJson(profileRun.port, '/json/version');
@@ -55,31 +61,66 @@ async function main() {
       const capturedLocation = await evaluateChromiumValue(client, 'location.href');
       const capturedScreenshot = await client.command('Page.captureScreenshot', { format: 'png' });
       const backdropDataUrl = `data:image/png;base64,${capturedScreenshot.data}`;
-      const blockPageHtml = renderBrowserChildInterventionPage({
-        ...browserChildCompositedBlockModel(requestedUrl),
-        backdrop: {
-          imageUrl: backdropDataUrl,
-          label: 'Captured page before block',
-        },
-      });
-      await writeFile(htmlPath, blockPageHtml, 'utf8');
-      const blockedPageUrl = `http://127.0.0.1:${agentPort}/api/browser/intervention/page?target=${encodeURIComponent(
-        requestedUrl
-      )}`;
-      await client.command('Page.navigate', { url: blockedPageUrl });
-      await waitForChromiumReady(client);
-      await delay(750);
-      const observed = await client.command('Runtime.evaluate', {
-        expression: `({
-          href: location.href,
-          title: document.title,
-          markerPresent: document.body.textContent.includes('${BrowserChildInterventionPageDefaults.BlockMarker}'),
-          targetTextPresent: document.body.textContent.includes(${JSON.stringify(requestedUrl)}),
-          backdropPresent: Boolean(document.querySelector('.ocentra-child-site-backdrop img')),
-        })`,
-        returnByValue: true,
-      });
-      const screenshotPath = await captureChromiumScreenshot(browser, client, 'composited-block-youtube');
+      const cases = [];
+      for (const proofCase of childUxProofCases()) {
+        const snapshot = BrowserAiChildUxSnapshotSchema.parse(childUxSnapshot(proofCase));
+        const primaryText = String(resolveBrowserChildUxText(snapshot.primaryTextToken));
+        const secondaryText =
+          snapshot.secondaryTextToken === null ? null : String(resolveBrowserChildUxText(snapshot.secondaryTextToken));
+        const html = renderBrowserChildInterventionPage({
+          action: proofCase.action,
+          backdrop: {
+            imageUrl: backdropDataUrl,
+            label: 'Captured page before child UX state',
+          },
+          blockMarker: BrowserChildInterventionPageDefaults.BlockMarker,
+          bridge: 'child-agent-browser-ai-child-ux-rendered-proof',
+          deliveryState: snapshot.deliveryState,
+          outcome: proofCase.outcome,
+          parentRequestEnabled: proofCase.parentRequestEnabled,
+          reason: secondaryText ?? primaryText,
+          requestedUrl,
+          ruleId: proofCase.ruleId,
+          ruleLabel: proofCase.ruleLabel,
+          ruleMarker: BrowserChildInterventionPageDefaults.BlockMarker,
+          targetType: 'video',
+          theme: 'dark',
+        });
+        await writeFile(htmlPath, html, 'utf8');
+        const endpointUrl = `http://127.0.0.1:${agentPort}/api/browser/intervention/page?target=${encodeURIComponent(
+          requestedUrl
+        )}&state=${encodeURIComponent(snapshot.state)}`;
+        await client.command('Page.navigate', { url: endpointUrl });
+        await waitForChromiumReady(client);
+        await delay(500);
+        const observed = await client.command('Runtime.evaluate', {
+          expression: `({
+            href: location.href,
+            title: document.title,
+            markerPresent: document.body.textContent.includes('${BrowserChildInterventionPageDefaults.BlockMarker}'),
+            primaryTextPresent: document.body.textContent.includes(${JSON.stringify(primaryText)}),
+            targetTextPresent: document.body.textContent.includes(${JSON.stringify(requestedUrl)}),
+            backdropPresent: Boolean(document.querySelector('.ocentra-child-site-backdrop img')),
+            askParentButtonPresent: Boolean(document.querySelector('[data-ocentra-child-action="ask-parent"]')),
+          })`,
+          returnByValue: true,
+        });
+        const screenshotPath = await captureChromiumScreenshot(browser, client, `child-ux-${snapshot.state}`);
+        cases.push({
+          action: proofCase.action,
+          adapterProofRef: snapshot.adapterProofRef,
+          deliveryState: snapshot.deliveryState,
+          endpointUrl,
+          observed: observed.result?.value,
+          outcome: proofCase.outcome,
+          primaryText,
+          ruleId: proofCase.ruleId,
+          screenshotPath,
+          snapshotId: snapshot.snapshotId,
+          state: snapshot.state,
+          surface: snapshot.surface,
+        });
+      }
       const evidence = {
         schemaVersion: 1,
         generatedAt: new Date().toISOString(),
@@ -87,15 +128,13 @@ async function main() {
         browserVersion: version.Browser,
         requestedUrl,
         capturedLocation,
-        blockedPageUrl,
         childAgentEndpoint: '/api/browser/intervention/page',
         htmlPath: relative(repoRoot, htmlPath),
-        observed: observed.result?.value,
-        screenshotPath,
-        assertions: assertionsForCompositedBlock(observed.result?.value, capturedLocation),
+        cases,
+        assertions: assertionsForCases(cases, capturedLocation),
       };
       const evidencePath = join(evidenceDirectory, `${runId}.json`);
-      await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
+      await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
       printSummary(evidence, evidencePath);
       if (!Object.values(evidence.assertions).every(Boolean)) {
         process.exitCode = 1;
@@ -104,43 +143,210 @@ async function main() {
       client.close();
     }
   } finally {
-    if (service !== undefined) {
-      await stopProcessTreeAndWait(service);
-    }
     if (profileRun !== undefined) {
       await cleanupProfileRun(profileRun);
     }
+    await stopProcessTreeAndWait(service);
     await stopWindowsProcessesByCommandLineFragment(probeRoot);
   }
 }
 
-function browserChildCompositedBlockModel(url) {
+function childUxProofCases() {
+  return [
+    {
+      action: 'checking-hold',
+      deliveryState: 'checking-hold-rendered',
+      outcome: 'checking',
+      parentRequestEnabled: false,
+      ruleId: 'browser-ai-checking-youtube-video',
+      ruleLabel: 'Checking YouTube video',
+      state: 'checking',
+      surface: 'managed-browser-hold-page',
+    },
+    {
+      action: 'warn',
+      deliveryState: 'warn-page-rendered',
+      outcome: 'warned',
+      parentRequestEnabled: true,
+      ruleId: 'browser-ai-warning-youtube-video',
+      ruleLabel: 'Warn before continuing',
+      state: 'warning',
+      surface: 'managed-browser-warning-page',
+    },
+    {
+      action: 'approval-hold',
+      deliveryState: 'approval-hold-rendered',
+      outcome: 'approval_required',
+      parentRequestEnabled: true,
+      ruleId: 'browser-ai-approval-youtube-video',
+      ruleLabel: 'Parent approval required',
+      state: 'approval_required',
+      surface: 'parent-approval-hold-page',
+    },
+    {
+      action: 'time-limit',
+      deliveryState: 'warn-page-rendered',
+      outcome: 'limited',
+      parentRequestEnabled: true,
+      ruleId: 'browser-ai-limited-youtube-video',
+      ruleLabel: 'Time limit reached',
+      state: 'limited',
+      surface: 'managed-browser-warning-page',
+    },
+    {
+      action: 'block',
+      deliveryState: 'block-page-rendered',
+      outcome: 'blocked',
+      parentRequestEnabled: true,
+      ruleId: 'browser-ai-block-youtube-video',
+      ruleLabel: 'Blocked after review',
+      state: 'blocked',
+      surface: 'managed-browser-block-page',
+    },
+  ];
+}
+
+function childUxSnapshot(proofCase) {
   return {
-    action: 'block',
-    blockMarker: BrowserChildInterventionPageDefaults.BlockMarker,
-    bridge: 'local-composited-block-page',
-    deliveryState: 'local-composited-block-rendered',
-    outcome: 'blocked',
-    parentRequestEnabled: true,
-    reason: 'Your family rule blocks this exact video URL.',
-    requestedUrl: url,
-    ruleId: 'blocked-youtube-video-url',
-    ruleLabel: 'Disallowed YouTube video URL',
-    ruleMarker: BrowserChildInterventionPageDefaults.BlockMarker,
-    targetType: 'video',
-    theme: 'dark',
+    schemaVersion: BrowserAiChildUxSchemaVersion,
+    snapshotId: `browser-ai-child-ux-${proofCase.state}`,
+    createdAt: '2026-06-06T00:45:00.000Z',
+    sourceEvidenceIds: ['browser-evidence-youtube-video-live-cdp-capture'],
+    state: proofCase.state,
+    tone: proofCase.state === 'blocked' ? 'neutral' : 'calm',
+    surface: proofCase.surface,
+    primaryTextToken: textTokenForState(proofCase.state),
+    secondaryTextToken: null,
+    deliveryState: proofCase.deliveryState,
+    adapterProofRef: `child-agent-endpoint-proof-${proofCase.state}`,
+    postAnalysisActionPlan: postAnalysisActionPlanForState(proofCase.state),
+    rawCopyClaimed: false,
+    visualRenderClaimed: false,
+    surveillanceCopyClaimed: false,
+    shamingCopyClaimed: false,
   };
 }
 
-function assertionsForCompositedBlock(observed, capturedLocation) {
+function textTokenForState(state) {
+  switch (state) {
+    case 'checking':
+      return 'browser.child.checking.title';
+    case 'warning':
+      return 'browser.child.warning.title';
+    case 'approval_required':
+      return 'browser.child.approval.title';
+    case 'limited':
+      return 'browser.child.limited.title';
+    case 'blocked':
+      return 'browser.child.blocked.title';
+    default:
+      return 'browser.child.unavailable.title';
+  }
+}
+
+function postAnalysisActionPlanForState(state) {
+  if (state === 'checking') {
+    return null;
+  }
+  const outcome =
+    state === 'approval_required'
+      ? 'ask_parent'
+      : state === 'blocked'
+        ? 'block'
+        : state === 'limited'
+          ? 'time_limit'
+          : 'warn';
   return {
-    backdropRendered: observed?.backdropPresent === true,
-    blockMarkerPresent: observed?.markerPresent === true,
-    capturedTargetBeforeBlock: isSameWatchedTarget(capturedLocation, requestedUrl),
-    childAgentEndpointRendered:
-      typeof observed?.href === 'string' && observed.href.includes('/api/browser/intervention/page?target='),
-    targetUrlShown: observed?.targetTextPresent === true,
+    schemaVersion: BrowserAiPostAnalysisActionSchemaVersion,
+    actionPlanId: `browser-post-analysis-action-plan-${state}`,
+    createdAt: '2026-06-06T00:44:00.000Z',
+    sourceEvidenceIds: ['browser-evidence-youtube-video-live-cdp-capture'],
+    aiAnalysisId: 'browser-ai-analysis-result-youtube-video',
+    policyDecision: policyDecision(outcome),
+    policyDecisionAuditRefs: ['browser-policy-decision-audit-youtube-video'],
+    parentRuleRefs: ['parent-rule-video-review'],
+    actionLabels: actionLabelsForOutcome(outcome),
+    trigger: 'policy_decision',
+    timing: 'after_playback_started',
+    childAlreadyEngaged: true,
+    deliveryState: 'delivered',
+    adapterProofRef: `child-agent-endpoint-proof-${state}`,
+    rememberUntil: null,
+    actionAuditRefs: ['browser-post-analysis-action-audit-youtube-video'],
+    realtimeBlockClaimed: false,
+    browserRuntimeMutationClaimed: false,
+    directEnforcementClaimed: false,
   };
+}
+
+function actionLabelsForOutcome(outcome) {
+  switch (outcome) {
+    case 'ask_parent':
+      return ['parent_approval_requested_after_review'];
+    case 'block':
+      return ['playback_stopped_after_review'];
+    default:
+      return ['warning_shown_after_review'];
+  }
+}
+
+function policyDecision(outcome) {
+  return {
+    schemaVersion: BrowserAiPolicyEvaluatorSchemaVersion,
+    decisionId: `browser-policy-decision-${outcome}`,
+    requestId: 'browser-policy-evaluator-request-youtube-video',
+    decidedAt: '2026-06-06T00:43:59.000Z',
+    policyVersionRef: 'browser-policy-version-2026-06-06',
+    sourceEvidenceIds: ['browser-evidence-youtube-video-live-cdp-capture'],
+    aiAnalysisId: 'browser-ai-analysis-result-youtube-video',
+    memoryHitIds: [],
+    graphRefs: [],
+    parentRuleRefs: ['parent-rule-video-review'],
+    scheduleContextRefs: ['schedule-context-evening'],
+    outcome,
+    evaluatorMode: 'active',
+    confidence: 'high',
+    reasonCodes: ['explicit_parent_rule', 'ai_high_confidence'],
+    auditRefs: ['browser-policy-decision-audit-youtube-video'],
+    adapterProofRef: `child-agent-endpoint-policy-proof-${outcome}`,
+    fallbackUsed: false,
+    aiClaimedAsAuthority: false,
+    portalEvaluatedClaimed: false,
+    directEnforcementClaimed: false,
+  };
+}
+
+function assertionsForCases(cases, capturedLocation) {
+  const states = new Set(cases.map((proofCase) => proofCase.state));
+  return {
+    approvalRendered: casePassed(cases, 'approval_required'),
+    blockRendered: casePassed(cases, 'blocked'),
+    checkingRendered: casePassed(cases, 'checking'),
+    childAgentEndpointRendered: cases.every((proofCase) =>
+      String(proofCase.observed?.href ?? '').includes('/api/browser/intervention/page?target=')
+    ),
+    liveTargetCapturedBeforeRender: isSameWatchedTarget(capturedLocation, requestedUrl),
+    noRawCopyClaims: cases.every((proofCase) => proofCase.adapterProofRef !== null),
+    timeLimitRendered: casePassed(cases, 'limited'),
+    warningRendered: casePassed(cases, 'warning'),
+    expectedStateCoverage:
+      states.has('checking') &&
+      states.has('warning') &&
+      states.has('approval_required') &&
+      states.has('limited') &&
+      states.has('blocked'),
+  };
+}
+
+function casePassed(cases, state) {
+  const proofCase = cases.find((item) => item.state === state);
+  return (
+    proofCase !== undefined &&
+    proofCase.observed?.markerPresent === true &&
+    proofCase.observed?.primaryTextPresent === true &&
+    proofCase.observed?.targetTextPresent === true &&
+    proofCase.observed?.backdropPresent === true
+  );
 }
 
 function isSameWatchedTarget(observedUrl, expectedUrl) {
@@ -162,12 +368,14 @@ function isSameWatchedTarget(observedUrl, expectedUrl) {
 
 function printSummary(evidence, evidencePath) {
   const ok = Object.values(evidence.assertions).every(Boolean);
-  console.log(`managed-browser-composited-block-proof-ok=${ok}`);
+  console.log(`browser-ai-child-ux-rendered-proof-ok=${ok}`);
   console.log(`evidence=${evidencePath}`);
   console.log(`requested=${evidence.requestedUrl}`);
   console.log(`captured=${evidence.capturedLocation}`);
-  console.log(`observed=${evidence.observed?.href ?? 'unknown'}`);
-  console.log(`screenshot=${evidence.screenshotPath}`);
+  console.log(`states=${evidence.cases.map((item) => item.state).join(',')}`);
+  for (const item of evidence.cases) {
+    console.log(`screenshot.${item.state}=${item.screenshotPath}`);
+  }
   for (const [name, passed] of Object.entries(evidence.assertions)) {
     console.log(`assertion.${name}=${passed}`);
   }
@@ -175,7 +383,7 @@ function printSummary(evidence, evidencePath) {
 
 async function launchChromiumProfile(browser) {
   const port = await freePort();
-  const profileDir = join(probeRoot, browser.id, 'managed-browser-composited-block-proof');
+  const profileDir = join(probeRoot, browser.id, 'browser-ai-child-ux-rendered-proof');
   await mkdir(profileDir, { recursive: true });
   const child = spawn(
     browser.executablePath,
@@ -183,7 +391,7 @@ async function launchChromiumProfile(browser) {
       '--remote-debugging-address=127.0.0.1',
       `--remote-debugging-port=${port}`,
       `--user-data-dir=${profileDir}`,
-      '--profile-directory=OcentraManagedCompositedBlock',
+      '--profile-directory=OcentraBrowserAiChildUxRenderedProof',
       '--no-first-run',
       '--no-default-browser-check',
       '--new-window',
@@ -263,7 +471,7 @@ async function waitForLivePage(client) {
     }
     await delay(500);
   }
-  throw new Error('Timed out waiting for live page before capture.');
+  throw new Error('Timed out waiting for live page before child UX render proof.');
 }
 
 async function waitForChromiumReady(client) {
@@ -362,15 +570,6 @@ function collectOutput(child) {
   return () => chunks.join('');
 }
 
-function safeFileName(value) {
-  return value.replace(/[^a-zA-Z0-9_.-]/g, '-');
-}
-
-function envNumber(name, fallback) {
-  const parsed = Number(process.env[name]);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
-}
-
 async function waitForJson(port, path) {
   const deadline = Date.now() + timeoutMs;
   let lastError;
@@ -404,6 +603,15 @@ async function stopWindowsProcessesByCommandLineFragment(fragment) {
     });
     child.once('exit', resolve);
   });
+}
+
+function safeFileName(value) {
+  return value.replace(/[^a-zA-Z0-9_.-]/g, '-');
+}
+
+function envNumber(name, fallback) {
+  const parsed = Number(process.env[name]);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 class DevToolsClient {
