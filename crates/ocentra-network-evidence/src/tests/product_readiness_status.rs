@@ -23,14 +23,46 @@ fn product_readiness_status_composes_ready_proofs_without_runtime_authority() {
         NetworkProductReadinessStatusState::ReadyForPortal
     );
     assert_eq!(status.risk_budget_ref, "network-risk-budget-row51a");
+    assert_eq!(status.risk_evaluation_ref, "network-risk-evaluation-row51a");
+    assert_eq!(status.risk_age_band, NetworkRiskBudgetAgeBand::UnderTwelve);
     assert_eq!(
         status.risk_intervention_state,
         NetworkInterventionState::AskParent
+    );
+    assert_eq!(status.risk_total_points, 42);
+    assert_eq!(status.risk_age_profile_points, 15);
+    assert_eq!(status.risk_active_signal_points, 27);
+    assert_eq!(status.risk_triggered_threshold_points, 40);
+    assert_eq!(status.risk_cited_signal_refs, vec!["network-signal-row51a"]);
+    assert_eq!(status.risk_cited_audit_refs, vec!["network-audit-row51a"]);
+    assert_eq!(
+        status.risk_cited_evidence_refs,
+        vec!["network-evidence-row51a"]
+    );
+    assert_eq!(
+        status.risk_cited_parent_rule_refs,
+        vec!["parent-rule-row51a"]
+    );
+    assert_eq!(
+        status.risk_adapter_proof_state,
+        NetworkRiskBudgetAdapterProofState::Ready
+    );
+    assert!(status.risk_budget_advisory_only);
+    assert_eq!(
+        status.performance_benchmark_run_ref,
+        "network-performance-row51a"
     );
     assert_eq!(
         status.performance_state,
         NetworkPerformanceBenchmarkState::MeetsBenchmarkGate
     );
+    assert_eq!(status.performance_packet_count, 2_000);
+    assert_eq!(status.performance_event_throughput_per_second, 3_200);
+    assert_eq!(status.performance_max_queue_depth, 4);
+    assert_eq!(status.performance_dropped_event_count, 0);
+    assert!(!status.performance_realtime_response_claimed);
+    assert!(!status.performance_adapter_action_executed);
+    assert!(!status.performance_host_filtering_executed);
     assert_eq!(status.platform_ready_claims, 8);
     assert_eq!(status.platform_entries.len(), 8);
     assert_eq!(

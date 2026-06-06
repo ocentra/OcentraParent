@@ -4,7 +4,8 @@ use crate::{
     NetworkInterventionState, NetworkPerformanceBenchmarkProof, NetworkPerformanceBenchmarkState,
     NetworkPerformancePathState, NetworkPerformanceRegressionCode, NetworkPlatformClaimEntry,
     NetworkPlatformClaimManifestProof, NetworkPlatformClaimManualFollowup,
-    NetworkPlatformClaimState, NetworkRiskBudgetEvaluation, NetworkRiskBudgetState,
+    NetworkPlatformClaimState, NetworkRiskBudgetAdapterProofState, NetworkRiskBudgetAgeBand,
+    NetworkRiskBudgetEvaluation, NetworkRiskBudgetState,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -38,14 +39,55 @@ pub struct NetworkProductReadinessStatus {
     pub portal_read_model_ref: String,
     pub retention_export_ref: String,
     pub readiness_state: NetworkProductReadinessStatusState,
+    pub risk_evaluation_ref: String,
+    pub risk_child_profile_ref: String,
+    pub risk_household_policy_ref: String,
     pub risk_budget_ref: String,
+    pub risk_cascade_ref: String,
+    pub risk_age_band: NetworkRiskBudgetAgeBand,
     pub risk_budget_state: NetworkRiskBudgetState,
     pub risk_intervention_state: NetworkInterventionState,
     pub risk_total_points: u16,
+    pub risk_age_profile_points: u16,
+    pub risk_active_signal_points: u16,
+    pub risk_prior_event_points: u16,
+    pub risk_safe_behavior_credit_applied_points: u16,
+    pub risk_triggered_threshold_points: u16,
+    pub risk_cited_signal_refs: Vec<String>,
+    pub risk_cited_audit_refs: Vec<String>,
+    pub risk_cited_evidence_refs: Vec<String>,
+    pub risk_cited_parent_rule_refs: Vec<String>,
+    pub risk_cited_prior_event_refs: Vec<String>,
+    pub risk_adapter_proof_state: NetworkRiskBudgetAdapterProofState,
     pub risk_budget_advisory_only: bool,
+    pub performance_benchmark_run_ref: String,
+    pub performance_fixture_set_ref: String,
+    pub performance_event_history_ref: String,
+    pub performance_resource_snapshot_ref: String,
     pub performance_state: NetworkPerformanceBenchmarkState,
     pub performance_regression_codes: Vec<NetworkPerformanceRegressionCode>,
+    pub performance_scenario_count: usize,
+    pub performance_fixture_count: u32,
+    pub performance_packet_count: u32,
+    pub performance_flow_count: u32,
+    pub performance_event_count: u32,
+    pub performance_max_packet_to_summary_latency_ms: u32,
+    pub performance_max_packet_to_detection_latency_ms: u32,
+    pub performance_max_detection_to_cascade_latency_ms: u32,
+    pub performance_max_cascade_to_command_latency_ms: Option<u32>,
+    pub performance_event_throughput_per_second: u32,
+    pub performance_max_cpu_millis: u32,
+    pub performance_max_memory_peak_kib: u32,
+    pub performance_total_disk_written_bytes: u64,
+    pub performance_max_queue_depth: u32,
+    pub performance_dropped_event_count: u32,
+    pub performance_high_concurrency_flow_count: u32,
+    pub performance_false_positive_count: u32,
+    pub performance_false_negative_count: u32,
     pub performance_path_states: Vec<NetworkPerformancePathState>,
+    pub performance_realtime_response_claimed: bool,
+    pub performance_adapter_action_executed: bool,
+    pub performance_host_filtering_executed: bool,
     pub platform_ready_claims: usize,
     pub platform_dry_run_claims: usize,
     pub platform_research_only_claims: usize,
@@ -110,26 +152,11 @@ pub fn materialize_network_product_readiness_status(
         &input.platform_claims,
     );
 
-    Ok(NetworkProductReadinessStatus {
+    let mut status = NetworkProductReadinessStatus {
         status_ref,
         portal_read_model_ref,
         retention_export_ref,
         readiness_state,
-        risk_budget_ref: input.risk_budget.risk_budget_ref,
-        risk_budget_state: input.risk_budget.risk_budget_state,
-        risk_intervention_state: input.risk_budget.intervention_state,
-        risk_total_points: input.risk_budget.total_risk_points,
-        risk_budget_advisory_only: input.risk_budget.advisory_only,
-        performance_state: input.performance.benchmark_state,
-        performance_regression_codes: input.performance.regression_codes,
-        performance_path_states: input.performance.path_states,
-        platform_ready_claims: input.platform_claims.ready_claims,
-        platform_dry_run_claims: input.platform_claims.dry_run_claims,
-        platform_research_only_claims: input.platform_claims.research_only_claims,
-        platform_manual_required_claims: input.platform_claims.manual_required_claims,
-        platform_unavailable_claims: input.platform_claims.unavailable_claims,
-        platform_manual_followups: input.platform_claims.manual_followups,
-        platform_entries: input.platform_claims.entries,
         portal_read_model_ready: true,
         retention_export_refs_visible: true,
         policy_authority: false,
@@ -142,7 +169,170 @@ pub fn materialize_network_product_readiness_status(
         exact_url_available: false,
         decrypted_payload_available: false,
         page_content_available: false,
-    })
+        ..NetworkProductReadinessStatus::default()
+    };
+    apply_risk_details(&mut status, input.risk_budget);
+    apply_performance_details(&mut status, input.performance);
+    apply_platform_details(&mut status, input.platform_claims);
+    Ok(status)
+}
+
+impl Default for NetworkProductReadinessStatus {
+    fn default() -> Self {
+        Self {
+            status_ref: String::new(),
+            portal_read_model_ref: String::new(),
+            retention_export_ref: String::new(),
+            readiness_state: NetworkProductReadinessStatusState::ReadyForPortal,
+            risk_evaluation_ref: String::new(),
+            risk_child_profile_ref: String::new(),
+            risk_household_policy_ref: String::new(),
+            risk_budget_ref: String::new(),
+            risk_cascade_ref: String::new(),
+            risk_age_band: NetworkRiskBudgetAgeBand::AdultOrUnknown,
+            risk_budget_state: NetworkRiskBudgetState::WithinBudget,
+            risk_intervention_state: NetworkInterventionState::Ignore,
+            risk_total_points: 0,
+            risk_age_profile_points: 0,
+            risk_active_signal_points: 0,
+            risk_prior_event_points: 0,
+            risk_safe_behavior_credit_applied_points: 0,
+            risk_triggered_threshold_points: 0,
+            risk_cited_signal_refs: Vec::new(),
+            risk_cited_audit_refs: Vec::new(),
+            risk_cited_evidence_refs: Vec::new(),
+            risk_cited_parent_rule_refs: Vec::new(),
+            risk_cited_prior_event_refs: Vec::new(),
+            risk_adapter_proof_state: NetworkRiskBudgetAdapterProofState::NotNeeded,
+            risk_budget_advisory_only: true,
+            performance_benchmark_run_ref: String::new(),
+            performance_fixture_set_ref: String::new(),
+            performance_event_history_ref: String::new(),
+            performance_resource_snapshot_ref: String::new(),
+            performance_state: NetworkPerformanceBenchmarkState::MeetsBenchmarkGate,
+            performance_regression_codes: Vec::new(),
+            performance_scenario_count: 0,
+            performance_fixture_count: 0,
+            performance_packet_count: 0,
+            performance_flow_count: 0,
+            performance_event_count: 0,
+            performance_max_packet_to_summary_latency_ms: 0,
+            performance_max_packet_to_detection_latency_ms: 0,
+            performance_max_detection_to_cascade_latency_ms: 0,
+            performance_max_cascade_to_command_latency_ms: None,
+            performance_event_throughput_per_second: 0,
+            performance_max_cpu_millis: 0,
+            performance_max_memory_peak_kib: 0,
+            performance_total_disk_written_bytes: 0,
+            performance_max_queue_depth: 0,
+            performance_dropped_event_count: 0,
+            performance_high_concurrency_flow_count: 0,
+            performance_false_positive_count: 0,
+            performance_false_negative_count: 0,
+            performance_path_states: Vec::new(),
+            performance_realtime_response_claimed: false,
+            performance_adapter_action_executed: false,
+            performance_host_filtering_executed: false,
+            platform_ready_claims: 0,
+            platform_dry_run_claims: 0,
+            platform_research_only_claims: 0,
+            platform_manual_required_claims: 0,
+            platform_unavailable_claims: 0,
+            platform_manual_followups: Vec::new(),
+            platform_entries: Vec::new(),
+            portal_read_model_ready: false,
+            retention_export_refs_visible: false,
+            policy_authority: false,
+            adapter_authority: false,
+            ui_policy_authority: false,
+            live_adapter_execution_claimed: false,
+            portal_adapter_dispatch_claimed: false,
+            enforcement_commands_published: 0,
+            production_slo_claimed: false,
+            exact_url_available: false,
+            decrypted_payload_available: false,
+            page_content_available: false,
+        }
+    }
+}
+
+fn apply_risk_details(
+    status: &mut NetworkProductReadinessStatus,
+    risk_budget: NetworkRiskBudgetEvaluation,
+) {
+    status.risk_evaluation_ref = risk_budget.evaluation_ref;
+    status.risk_child_profile_ref = risk_budget.child_profile_ref;
+    status.risk_household_policy_ref = risk_budget.household_policy_ref;
+    status.risk_budget_ref = risk_budget.risk_budget_ref;
+    status.risk_cascade_ref = risk_budget.cascade_ref;
+    status.risk_age_band = risk_budget.age_band;
+    status.risk_budget_state = risk_budget.risk_budget_state;
+    status.risk_intervention_state = risk_budget.intervention_state;
+    status.risk_total_points = risk_budget.total_risk_points;
+    status.risk_age_profile_points = risk_budget.age_profile_points;
+    status.risk_active_signal_points = risk_budget.active_signal_points;
+    status.risk_prior_event_points = risk_budget.prior_event_points;
+    status.risk_safe_behavior_credit_applied_points =
+        risk_budget.safe_behavior_credit_applied_points;
+    status.risk_triggered_threshold_points = risk_budget.triggered_threshold_points;
+    status.risk_cited_signal_refs = risk_budget.cited_signal_refs;
+    status.risk_cited_audit_refs = risk_budget.cited_audit_refs;
+    status.risk_cited_evidence_refs = risk_budget.cited_evidence_refs;
+    status.risk_cited_parent_rule_refs = risk_budget.cited_parent_rule_refs;
+    status.risk_cited_prior_event_refs = risk_budget.cited_prior_event_refs;
+    status.risk_adapter_proof_state = risk_budget.adapter_proof_state;
+    status.risk_budget_advisory_only = risk_budget.advisory_only;
+}
+
+fn apply_performance_details(
+    status: &mut NetworkProductReadinessStatus,
+    performance: NetworkPerformanceBenchmarkProof,
+) {
+    status.performance_benchmark_run_ref = performance.benchmark_run_ref;
+    status.performance_fixture_set_ref = performance.fixture_set_ref;
+    status.performance_event_history_ref = performance.event_history_ref;
+    status.performance_resource_snapshot_ref = performance.resource_snapshot_ref;
+    status.performance_state = performance.benchmark_state;
+    status.performance_regression_codes = performance.regression_codes;
+    status.performance_scenario_count = performance.scenario_count;
+    status.performance_fixture_count = performance.fixture_count;
+    status.performance_packet_count = performance.packet_count;
+    status.performance_flow_count = performance.flow_count;
+    status.performance_event_count = performance.event_count;
+    status.performance_max_packet_to_summary_latency_ms =
+        performance.max_packet_to_summary_latency_ms;
+    status.performance_max_packet_to_detection_latency_ms =
+        performance.max_packet_to_detection_latency_ms;
+    status.performance_max_detection_to_cascade_latency_ms =
+        performance.max_detection_to_cascade_latency_ms;
+    status.performance_max_cascade_to_command_latency_ms =
+        performance.max_cascade_to_command_latency_ms;
+    status.performance_event_throughput_per_second = performance.event_throughput_per_second;
+    status.performance_max_cpu_millis = performance.max_cpu_millis;
+    status.performance_max_memory_peak_kib = performance.max_memory_peak_kib;
+    status.performance_total_disk_written_bytes = performance.total_disk_written_bytes;
+    status.performance_max_queue_depth = performance.max_queue_depth;
+    status.performance_dropped_event_count = performance.dropped_event_count;
+    status.performance_high_concurrency_flow_count = performance.high_concurrency_flow_count;
+    status.performance_false_positive_count = performance.false_positive_count;
+    status.performance_false_negative_count = performance.false_negative_count;
+    status.performance_path_states = performance.path_states;
+    status.performance_realtime_response_claimed = performance.realtime_response_claimed;
+    status.performance_adapter_action_executed = performance.adapter_action_executed;
+    status.performance_host_filtering_executed = performance.host_filtering_executed;
+}
+
+fn apply_platform_details(
+    status: &mut NetworkProductReadinessStatus,
+    platform_claims: NetworkPlatformClaimManifestProof,
+) {
+    status.platform_ready_claims = platform_claims.ready_claims;
+    status.platform_dry_run_claims = platform_claims.dry_run_claims;
+    status.platform_research_only_claims = platform_claims.research_only_claims;
+    status.platform_manual_required_claims = platform_claims.manual_required_claims;
+    status.platform_unavailable_claims = platform_claims.unavailable_claims;
+    status.platform_manual_followups = platform_claims.manual_followups;
+    status.platform_entries = platform_claims.entries;
 }
 
 fn validate_input(

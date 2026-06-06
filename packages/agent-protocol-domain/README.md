@@ -38,8 +38,9 @@ transports.
   `activity-domain`.
 - Network product-readiness status command/event names and payload field
   constants for service-backed row13a custody and row51a product-readiness
-  materializer outputs plus row52 platform-claim manifest entries with
-  enforced false enforcement-command publication.
+  materializer outputs, row48 risk-budget details, row49 performance benchmark
+  metrics, and row52 platform-claim manifest entries with enforced false
+  production-SLO, adapter, host-filtering, and enforcement-command publication.
 - Network runtime event contracts for the local eventing spine, including
   flow/domain/classification, AI advisory, policy, enforcement dry-run/result,
   audit, and portal read-model update shapes mirrored from `crates/agent-protocol`.
@@ -123,8 +124,10 @@ flowchart LR
   streaming of the event chain, host filtering, adapter execution, and portal UI
   rendering remain separate proof-gated work.
 - Network product-readiness status support proves command/event and payload
-  field parity for the service status event, including row52 platform entries
-  and the regression that rejects enforcement-command publication; the Activity
-  route now has separate row51c status and row52a manifest rendering proof.
+  field parity for the service status event, including row48 risk-budget
+  details, row49 performance benchmark metrics, row52 platform entries, and the
+  regressions that reject production-SLO, host-filtering, adapter, and
+  enforcement-command claims; the Activity route now has separate row51c
+  status, row52a manifest, and row51d risk/performance rendering proofs.
   Policy execution, adapter execution, host filtering, live capture, and
   production SLO validation remain separate proof-gated work.

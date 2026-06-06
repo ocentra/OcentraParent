@@ -404,6 +404,15 @@ compete on control while staying clear about attribution confidence and privacy.
   This remains platform-proof visibility only; live adapter execution, host
   filtering, UI policy authority, production SLO, and enforcement-command
   publication remain unclaimed.
+- E-D added a row51d risk/performance readiness portal proof. The service-backed
+  product-readiness status now carries row48 risk-budget refs, score breakdown,
+  cited evidence/audit/rule refs, adapter proof state, row49 performance
+  benchmark refs, latency/throughput/resource/quality metrics, path states, and
+  false production-SLO/adapter/host-filtering claims into the Activity route
+  network drawer. The `network-risk-performance-readiness-portal-proof` uses the
+  real Rust service WebSocket path and keeps policy execution, adapter
+  execution, host filtering, exact-content claims, production SLO validation,
+  and enforcement-command publication unclaimed.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -413,8 +422,8 @@ compete on control while staying clear about attribution confidence and privacy.
 Real OS/domain blocking adapter execution, broader live DNS/VPN/proxy handling,
 attribution quality, live capture driver invocation, live analyzer fixture
 proof, broker/family-hub transport, remote network runtime event-chain
-delivery, raw PCAP/live-capture retention, production risk-budget service/UI
-wiring,
+delivery, raw PCAP/live-capture retention, production risk-budget execution and
+parent-facing rule UX,
 production SLO validation,
 external audit/deployment execution, full support-material authoring, and
 parent-facing rule UX remain.
@@ -452,9 +461,9 @@ notification provider delivery, broader parent-facing rule UX, live host DNS
 mutation/proxy installation, live Windows
 Firewall mutation, live WFP driver/callout/packet blocking, live Android
 VpnService filtering, live Apple Network Extension behavior, live Linux adapter
-execution, platform adapter execution, and broader portal risk-budget and
-performance coverage remain open beyond the row51c product-readiness status
-drawer proof and row52a platform-claim manifest matrix proof.
+execution, platform adapter execution, and production risk-budget/SLO execution
+remain open beyond the row51c product-readiness status drawer proof, row52a
+platform-claim manifest matrix proof, and row51d risk/performance detail proof.
 
 ## Checklist
 
@@ -582,13 +591,15 @@ drawer proof and row52a platform-claim manifest matrix proof.
       manual-follow-up and degraded-performance states. AI model execution,
       broker/family-hub delivery implementation, full policy engine execution,
       notification delivery, external audit/deployment execution, full
-      support-material authoring, and broader portal production readiness views
-      remain. Row51b now exposes row13a custody status and row51a
+      support-material authoring, and production readiness execution remain.
+      Row51b now exposes row13a custody status and row51a
       product-readiness status through the Rust service WebSocket protocol with
       no adapter claims, row51c renders those statuses in the Activity route
       network drawer, and row52a renders the Row52 platform-claim manifest
       entries without policy, adapter, host-filtering, production-SLO, or
-      enforcement-command claims.
+      enforcement-command claims. Row51d now renders row48 risk-budget details
+      and row49 performance benchmark metrics in the same drawer while
+      preserving the same no-claim boundaries.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
@@ -636,7 +647,9 @@ drawer proof and row52a platform-claim manifest matrix proof.
   Row51c now renders the row51a product-readiness status in the same drawer,
   and row52a renders the Row52 platform-claim manifest entries with exact
   OS/device, permission/entitlement, adapter capability, missing-artifact, and
-  audit refs. Broader live adapter execution remains open.
+  audit refs. Row51d now renders service-backed risk-budget refs, score
+  breakdown, performance benchmark refs, and latency/throughput/resource
+  metrics. Broader live adapter execution remains open.
 - [x] DNS proxy/block/redirect adapter proof boundary.
       The Rust proof accepts apply-ready only with grade-A policy, parent-rule
       refs, evidence refs, supported capability, adapter authorization,
