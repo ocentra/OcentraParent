@@ -48,6 +48,12 @@ mobile readiness, and control catalogs.
   service-readiness/read-API proof refs visible without claiming agent protocol,
   service runtime events, read API implementation, rendered UI, durable audit
   storage, rollback execution, or timer scheduling.
+- App/game source-gated policy preview timer service-readiness protocol handoff
+  contracts that consume service-readiness read-model rows and keep future
+  agent-protocol command/event, Rust protocol mirror, service handler, and
+  service read-API proof refs visible without claiming protocol implementation,
+  service command registration, service event emission, rendered UI, durable
+  audit storage, rollback execution, or timer scheduling.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.
@@ -363,6 +369,12 @@ flowchart LR
   rollback execution, and scheduling unclaimed. Timer audit/rollback
   parent-surface intent rows add future proof and drill-in refs for the next
   UI/service seam while keeping rendered UI and service read APIs unclaimed.
+  Timer service-readiness protocol handoff rows add future agent-protocol
+  command/event, Rust protocol mirror, service handler, and service read-API
+  proof refs while keeping protocol implementation, service command
+  registration, service event emission, service read API implementation,
+  rendered UI, durable audit storage, rollback execution, and timer scheduling
+  unclaimed.
   Portal authoring or preview UI, live evaluator execution, persistence,
   timers, child notification delivery, adapter dispatch, broad installed-app
   blocking, and platform enforcement remain unimplemented.
