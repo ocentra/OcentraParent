@@ -49,6 +49,9 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [x] Record P3 WSL/local replay proof for the read-model proof stack.
 - [x] Expose live portal citation rows for service-backed read-model rows and
       retention tombstones.
+- [x] Mark and screenshot the hosted service-backed citation detail card so the
+      evidence refs and no-product-claim boundary are captured in hosted proof
+      output.
 - [x] Expose hosted parent service-data coverage for service-backed read-model
       row counts, kinds, custody, capability, and active/deleted evidence refs.
 - [x] Expose active product-surface summary fields for kind/device/capability
@@ -75,7 +78,10 @@ summary fields for latest active event metadata plus active kind, device, and
 capability-status counts; those counts are derived from the same SQLite rows
 and explicitly exclude retention tombstones. The parent portal consumes that
 event as a narrow live summary plus live citation rows on the `policy-tracking`
-route. The hosted parent route now also exposes a service-data coverage panel
+route. The hosted parent route now also marks the service-backed citation detail
+card and captures it in
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png`.
+The hosted parent route now also exposes a service-data coverage panel
 backed by the parsed
 `trackingReadModel` payload, including active/tombstone counts, latest tombstone
 metadata, kind coverage, custody/capability, active evidence references, deleted
@@ -277,3 +283,21 @@ This workpack can be assigned independently, implemented against the owning doma
       child-device delivery/runtime execution, Android/iOS physical-device
       proof, authority, provider delivery, notification receipts, and
       production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-hosted-citation-detail-proof`.
+- [x] Touched files: portal renderers, portal-domain proof marker, hosted
+      Playwright proof spec, tracking feature doc, implementation checklist,
+      WP30, WP32, portal README, and generated hosted proof artifacts.
+- [x] Validation commands and results: pending final local hosted proof refresh
+      and guard run before PR-ready report.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png`
+      and `test-results/tracking-plan-hosted-ui-proof/`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, WP32, and portal README updated; central capability row
+      delta stays hub-sequenced instead of editing
+      `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: broader product read models, full
+      parent/child UI beyond the hosted parent route, Android/iOS physical-device
+      proof, authority, provider delivery, notifications, and production proof
+      remain proof-gated.

@@ -84,8 +84,9 @@ expose location or device-status features. Parents expect this category.
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
   drives the React parent route through Playwright, renders the service-data
-  coverage card and family dashboard rollup card beside the service read-model
-  summary, captures desktop, mobile, hosted child-safe check-in, hosted
+  coverage card, explicit service-backed citation detail card, and family
+  dashboard rollup card beside the service read-model summary, captures desktop,
+  mobile, hosted service-backed citation detail, hosted child-safe check-in, hosted
   child-runtime UI, hosted family dashboard rollup, and unsupported/manual
   platform render-state proof screenshots, writes accessibility summary output,
   proves calm child check-in copy/actions plus child disclosure, safe/help
@@ -396,9 +397,10 @@ snapshots/accessibility beyond the hosted parent route are proved.
       and local proof artifact references.
 - [x] Hosted parent `policy-tracking` route screenshot and accessibility proof
       against the real Rust service and seeded ActivityStore, including a
-      rendered service-data coverage card, hosted child-safe check-in
-      copy/actions card, and hosted child-runtime disclosure/safe-help/location-share
-      consent card, plus a family dashboard rollup card. This is not
+      rendered service-data coverage card, explicit service-backed citation
+      detail card, hosted child-safe check-in copy/actions card, hosted
+      child-runtime disclosure/safe-help/location-share consent card, plus a
+      family dashboard rollup card. This is not
       child-device delivery/runtime execution, full dashboard UI beyond the
       hosted route, or physical-device proof.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual

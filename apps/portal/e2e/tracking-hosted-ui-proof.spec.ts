@@ -19,6 +19,7 @@ const screenshotDir = path.join(proofRoot, '11-ui-snapshots');
 const desktopScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary.png');
 const mobileScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary-mobile.png');
 const familyDashboardScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-family-dashboard-rollup.png');
+const citationDetailScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-citation-detail.png');
 const childCheckInScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-check-in.png');
 const childRuntimeUiScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-runtime-ui.png');
 const unsupportedManualScreenshotPath = path.join(workpack31Root, '19-unsupported-manual-hosted-ui.png');
@@ -64,6 +65,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await expect(trackingProofRegion.getByText('Physical device proof required').first()).toBeVisible();
   await expect(trackingProofRegion.getByText('No product claim').first()).toBeVisible();
   await assertHostedFamilyDashboardRollupProof(trackingProofRegion);
+  await assertHostedCitationDetailProof(trackingProofRegion);
   await expect(page.getByRole('heading', { name: 'Child check-in request' })).toBeVisible();
   await expect(trackingProofRegion.getByText('Your parent is asking you to check in. Are you safe?')).toBeVisible();
   await expect(trackingProofRegion.getByText("I'm safe")).toBeVisible();
@@ -77,6 +79,17 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   const routeText = await trackingProofRegion.textContent();
   expect(routeText ?? '').not.toMatch(/(?:product ready|physical device proved|background geofence proved)/iu);
   expect(routeText ?? '').not.toMatch(/(?:trouble|lying|bad place|delivered to child device)/iu);
+}
+
+async function assertHostedCitationDetailProof(trackingProofRegion: Locator): Promise<void> {
+  const citationDetailCard = trackingProofRegion
+    .locator('[data-ocentra-tracking-proof="service-backed-citation-detail"]')
+    .first();
+  await expect(citationDetailCard).toBeVisible();
+  await expect(citationDetailCard.locator('h2').first()).toBeVisible();
+  await expect(citationDetailCard.getByText('tracking-hosted-expected-place-event').first()).toBeVisible();
+  await expect(citationDetailCard.getByText('location-evidence-hosted-1 | location-evidence-hosted-2')).toBeVisible();
+  await expect(citationDetailCard.getByText('No product claim')).toBeVisible();
 }
 
 async function assertHostedFamilyDashboardRollupProof(trackingProofRegion: Locator): Promise<void> {
@@ -158,6 +171,9 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   const familyDashboardCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="family-dashboard-rollup"]')
     .first();
+  const citationDetailCard = trackingProofRegion
+    .locator('[data-ocentra-tracking-proof="service-backed-citation-detail"]')
+    .first();
   const childCheckInCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="child-check-in"]').first();
   const childRuntimeUiCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="child-runtime-ui"]').first();
   const unsupportedManualCard = trackingProofRegion
@@ -173,23 +189,14 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   await page.waitForTimeout(250);
   await expect(familyDashboardCard).toBeVisible();
   await familyDashboardCard.screenshot({ path: familyDashboardScreenshotPath });
-  await page.evaluate(() => {
-    const grid = document.querySelector('.tracking-status-overlay-grid');
-    const childCheckIn = document.querySelector('[data-ocentra-tracking-proof="child-check-in"]');
-    if (grid instanceof HTMLElement && childCheckIn instanceof HTMLElement) {
-      grid.scrollTop = Math.max(0, childCheckIn.offsetTop - 48);
-    }
-  });
+  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="service-backed-citation-detail"]');
+  await expect(citationDetailCard).toBeVisible();
+  await citationDetailCard.screenshot({ path: citationDetailScreenshotPath });
+  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="child-check-in"]');
   await page.waitForTimeout(250);
   await expect(childCheckInCard).toBeVisible();
   await childCheckInCard.screenshot({ path: childCheckInScreenshotPath });
-  await page.evaluate(() => {
-    const grid = document.querySelector('.tracking-status-overlay-grid');
-    const childRuntimeUi = document.querySelector('[data-ocentra-tracking-proof="child-runtime-ui"]');
-    if (grid instanceof HTMLElement && childRuntimeUi instanceof HTMLElement) {
-      grid.scrollTop = Math.max(0, childRuntimeUi.offsetTop - 48);
-    }
-  });
+  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="child-runtime-ui"]');
   await page.waitForTimeout(250);
   await expect(childRuntimeUiCard).toBeVisible();
   await childRuntimeUiCard.screenshot({ path: childRuntimeUiScreenshotPath });
@@ -201,6 +208,16 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole('region', { name: 'Tracking status proof' })).toBeVisible();
   await page.screenshot({ fullPage: true, path: mobileScreenshotPath });
+}
+
+async function scrollTrackingProofCard(page: Page, proofSelector: string): Promise<void> {
+  await page.evaluate((selector) => {
+    const grid = document.querySelector('.tracking-status-overlay-grid');
+    const proofCard = document.querySelector(selector);
+    if (grid instanceof HTMLElement && proofCard instanceof HTMLElement) {
+      grid.scrollTop = Math.max(0, proofCard.offsetTop - 48);
+    }
+  }, proofSelector);
 }
 
 async function collectAccessibilitySummary(page: Page): Promise<{
@@ -246,6 +263,7 @@ async function writeAccessibilitySummary(
         screenshots: {
           desktop: path.relative(repoRoot, desktopScreenshotPath).replace(/\\/gu, '/'),
           familyDashboard: path.relative(repoRoot, familyDashboardScreenshotPath).replace(/\\/gu, '/'),
+          citationDetail: path.relative(repoRoot, citationDetailScreenshotPath).replace(/\\/gu, '/'),
           childCheckIn: path.relative(repoRoot, childCheckInScreenshotPath).replace(/\\/gu, '/'),
           childRuntimeUi: path.relative(repoRoot, childRuntimeUiScreenshotPath).replace(/\\/gu, '/'),
           unsupportedManualPlatform: path.relative(repoRoot, unsupportedManualScreenshotPath).replace(/\\/gu, '/'),
@@ -288,6 +306,8 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'Child attention summary',
     'Retention audit summary',
     'tracking-family-dashboard-evidence-active-summary',
+    'tracking-hosted-expected-place-event',
+    'location-evidence-hosted-1 | location-evidence-hosted-2',
     'Need help',
     'Share current location',
     'Call parent',
@@ -322,6 +342,8 @@ function hostedTrackingAssertions(): readonly string[] {
     'service-data-coverage-visible',
     'family-dashboard-rollup-visible',
     'family-dashboard-rollup-screenshot',
+    'service-backed-citation-detail-visible',
+    'service-backed-citation-detail-screenshot',
     'manual-required-visible',
     'physical-device-required-visible',
     'no-product-claim-visible',

@@ -8,6 +8,8 @@
     "service-data-coverage-visible",
     "family-dashboard-rollup-visible",
     "family-dashboard-rollup-screenshot",
+    "service-backed-citation-detail-visible",
+    "service-backed-citation-detail-screenshot",
     "manual-required-visible",
     "physical-device-required-visible",
     "no-product-claim-visible",
@@ -491,6 +493,7 @@
   "screenshots": {
     "desktop": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary.png",
     "familyDashboard": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png",
+    "citationDetail": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png",
     "childCheckIn": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png",
     "childRuntimeUi": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png",
     "unsupportedManualPlatform": "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui.png",

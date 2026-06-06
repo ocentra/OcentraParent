@@ -26,6 +26,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `11-ui-snapshots/policy-tracking-parent-fixture.png`
 - `11-ui-snapshots/hosted-policy-tracking-live-summary.png`
 - `11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png`
+- `11-ui-snapshots/hosted-policy-tracking-citation-detail.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`
 - `11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`
@@ -52,6 +53,9 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - [x] Feed UI proof gaps into the pre-device proof gate before device work.
 - [x] Render live service-backed read-model citation rows with evidence refs
       and retention tombstone refs.
+- [x] Capture hosted service-backed citation detail screenshot and accessibility
+      proof without adding child-device, provider, physical-device, or production
+      claims.
 - [x] Capture hosted parent route desktop/mobile screenshot and accessibility
       proof against the real Rust service.
 - [x] Render and screenshot hosted child-safe check-in copy/actions with no
@@ -99,7 +103,9 @@ Rust service with a seeded temporary ActivityStore SQLite database, drives the
 hosted React parent `policy-tracking` route through Playwright, renders the
 service-data coverage card beside the service read-model summary, captures
 desktop and mobile screenshots, writes accessibility summary output, and records
-`productClaimReady=false`.
+`productClaimReady=false`. The hosted proof now also marks the live
+service-backed citation detail card and captures it at
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png`.
 The hosted route now also renders a child-safe check-in proof card with calm
 copy, safe/help/share/call actions, and an explicit "child-device delivery not
 proved" boundary. The repeatable hosted proof captures it at
@@ -236,6 +242,26 @@ This workpack can be assigned independently, implemented against the owning doma
       queued/reported through hub because E-C owns
       `docs/product-capability-checklist.md`; portal README was not edited
       because E-D owns `apps/portal/README.md`.
+- [x] Known gaps/manual-required states: actual child-device delivery/runtime
+      execution, full dashboard UI beyond the hosted route, Android/iOS
+      physical-device proof, authority, provider delivery, notifications, and
+      production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-hosted-citation-detail-proof`.
+- [x] Touched files: hosted parent route renderer, tracking status renderer,
+      portal-domain proof marker, hosted Playwright proof spec, owning tracking
+      feature doc, implementation checklist, WP30, WP32, portal README, and
+      generated hosted proof artifacts.
+- [x] Validation commands and results: pending final local proof refresh and
+      guard run before PR-ready report.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png`,
+      `test-results/tracking-plan-hosted-ui-proof/`, and companion hosted proof
+      JSON files.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, WP32, and portal README updated; central capability row
+      delta stays hub-sequenced instead of editing
+      `docs/product-capability-checklist.md`.
 - [x] Known gaps/manual-required states: actual child-device delivery/runtime
       execution, full dashboard UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
