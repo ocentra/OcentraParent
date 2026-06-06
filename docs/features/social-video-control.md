@@ -96,7 +96,11 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   title, description, author hash, thumbnail hash, duration, publish date,
   category, and restriction refs, while rejecting page body, transcript text,
   messages, feed content, AI decisions, policy decisions, connector access,
-  native app control, UI delivery, and enforcement.
+  native app control, UI delivery, and enforcement. The SOCIAL-09 live proof
+  captures real public YouTube Shorts, Vimeo, Reddit, and Instagram routes,
+  reads only title/meta attributes plus screenshot hashes, and parses bounded
+  refs through the metadata extractor without storing raw title text, meta
+  values, page body, DOM, transcript text, or feed content.
 - Browser-plan SOCIAL-10 now adds social-specific AI analysis contracts for
   managed-browser social evidence. They define task-scoped inputs, prompt
   templates, candidate classifications, confidence, uncertainty, runtime refs,

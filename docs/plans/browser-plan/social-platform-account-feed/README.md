@@ -139,7 +139,11 @@ metadata-ref extractor for managed social video/post/feed route evidence. It can
 record title, description, author hash, thumbnail hash, duration, publish date,
 category, and restriction refs, but rejects page body, transcript text, messages,
 feed content, AI decisions, policy decisions, connector access, native app
-control, UI delivery, and enforcement. Package subpath exports are now present.
+control, UI delivery, and enforcement.
+`scripts/test/social-video-metadata-live-proof.mjs` now captures real public
+YouTube Shorts, Vimeo, Reddit, and Instagram routes, reads only title/meta
+attributes plus screenshot hashes, and parses bounded refs through the
+extractor. Package subpath exports are now present.
 
 SOCIAL-10 now adds social-specific AI analysis contracts in
 `packages/activity-domain/src/browser-social-ai-analysis-values.ts`,
