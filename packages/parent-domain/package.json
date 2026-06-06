@@ -113,6 +113,10 @@
       "import": "./dist/app-install-purchase-product-claim-provider-store-proof.js",
       "types": "./dist/app-install-purchase-product-claim-provider-store-proof.d.ts"
     },
+    "./app-install-purchase-product-claim-store-upgrade-readiness-proof": {
+      "import": "./dist/app-install-purchase-product-claim-store-upgrade-readiness-proof.js",
+      "types": "./dist/app-install-purchase-product-claim-store-upgrade-readiness-proof.d.ts"
+    },
     "./billing-entitlement": {
       "import": "./dist/billing-entitlement.js",
       "types": "./dist/billing-entitlement.d.ts"

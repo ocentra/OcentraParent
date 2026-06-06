@@ -270,6 +270,15 @@ Expected contract families:
   execution, store integration, platform adapter implementation,
   child-device delivery, runtime writer/report delivery, app blocking, child
   activity custody, and Ocentra-hosted family data custody stay unclaimed.
+- Product-claim store upgrade readiness rows consume product-claim gate, portal
+  test readiness, and provider/store proof rows so upgrade readiness remains
+  blocked, manual-required, or unsupported before any product claim while
+  product claim approval, Google Play execution, Apple App Store execution,
+  Microsoft Store execution, billing/provider contact, provider API execution,
+  store integration, platform interception, platform adapter implementation,
+  runtime writer/report delivery, child-device delivery, portal approval/report
+  UI, app blocking, child activity custody, and Ocentra-hosted family data
+  custody stay unclaimed.
 
 ## Validation Gates
 
@@ -447,6 +456,12 @@ Expected contract families:
   manual evidence, audit, and report refs, product-claim approval/provider/
   portal/delivery/app-blocking/custody overclaim rejection, and required
   non-claim coverage.
+- TypeScript schema tests and a proof harness for product-claim store upgrade
+  readiness rows, product-claim gate linkage, portal test readiness linkage,
+  provider/store product-claim linkage, required portal/provider/child/platform/
+  runtime refs, product-claim approval/provider/store/platform/child delivery/
+  portal/runtime/app-blocking/custody overclaim rejection, public package export
+  visibility, and required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -603,6 +618,12 @@ Expected contract families:
   integration, platform adapter implementation, child-device delivery, runtime
   writer delivery, runtime report delivery, app blocking, child activity
   custody, Ocentra-hosted family data custody, or store integration proof.
+- Do not treat product-claim store upgrade readiness proof refs as product claim
+  approval, Google Play, Apple App Store, Microsoft Store, or billing provider
+  execution/contact, provider API execution, store integration, platform
+  interception, platform adapter implementation, runtime writer/report delivery,
+  child-device delivery, portal approval/report UI, app blocking, child activity
+  custody, Ocentra-hosted family data custody, or a product-claim upgrade.
 
 ## Done Signal
 
