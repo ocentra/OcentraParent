@@ -34,6 +34,7 @@ const failureReadModel = adapter.buildGooglePlacesProviderFailureReadModel(
   searchInput,
   'google-places-quota-unavailable'
 );
+const parityRows = adapter.buildTrackingPoiProviderParityRows(readModel);
 
 const proof = {
   proofMode: 'tracking-poi-provider-adapter-proof',
@@ -49,6 +50,7 @@ const proof = {
       'https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places/searchNearby',
   },
   summary: summarize(readModel, failureReadModel),
+  providerParitySummary: summarizeProviderParity(parityRows),
   nonClaims: nonClaims(readModel),
   proofPaths: {
     source: 'packages/parent-domain/src/tracking-poi-provider-adapter.ts',
@@ -60,12 +62,14 @@ const proof = {
   request,
   readModel,
   failureReadModel,
+  parityRows,
 };
 
 assertProof(proof);
 await writeJson(join(testOutputDir, 'google-places-request.json'), request);
 await writeJson(join(testOutputDir, 'tracking-poi-provider-read-model.json'), readModel);
 await writeJson(join(testOutputDir, 'provider-failure-read-model.json'), failureReadModel);
+await writeJson(join(testOutputDir, 'provider-parity-readiness.json'), parityRows);
 await writeJson(join(testOutputDir, 'proof.json'), proof);
 await writeProofPack(proofDir, proof);
 
@@ -133,6 +137,16 @@ function summarize(readModel, failureReadModel) {
   };
 }
 
+function summarizeProviderParity(parityRows) {
+  return parityRows.map((row) => ({
+    provider: row.provider,
+    status: row.status,
+    termsReviewRequired: row.providerTermsReviewRequired,
+    credentialsRequired: row.providerCredentialsRequired,
+    reasonCodes: row.reasonCodes,
+  }));
+}
+
 function nonClaims(readModel) {
   return {
     credentialsStored: readModel.credentialsStored,
@@ -154,6 +168,16 @@ function assertProof(proof) {
   }
   if (Object.values(proof.nonClaims).some((value) => value !== false)) {
     throw new Error(`Tracking POI provider proof overclaimed live behavior: ${JSON.stringify(proof.nonClaims)}`);
+  }
+  const manualProviders = proof.providerParitySummary.filter((row) => row.status === 'manual-required');
+  if (
+    proof.providerParitySummary.length !== 3 ||
+    manualProviders.map((row) => row.provider).join(',') !== 'apple-mapkit-search,openstreetmap-nominatim' ||
+    proof.parityRows.some(
+      (row) => row.liveProviderRequestClaimed || row.exactPlaceClaimed || row.physicalDeviceProofClaimed
+    )
+  ) {
+    throw new Error(`Tracking POI provider parity proof is not preserving manual boundaries`);
   }
 }
 
@@ -187,11 +211,13 @@ async function writeProofPack(path, proof) {
       '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-poi-provider-adapter tracking-location-policy: PASS',
       '- Google Places Nearby Search request uses POST, a bounded circle locationRestriction, included types, maxResultCount 1..20, and the minimal production field mask.',
       '- Provider response mapping preserves provider id/resource, display text, primary type, category, distance, confidence, ambiguity, and source evidence reference.',
+      '- Provider parity rows keep Google request-mapped while Apple MapKit and OSM stay manual-required until provider terms/runtime proof exists.',
       '',
     ].join('\n'),
     'utf8'
   );
   await writeJson(join(path, '07-nearby-place-proof.json'), proof.summary);
+  await writeJson(join(path, '08-provider-parity-readiness-proof.json'), proof.providerParitySummary);
   await writeFile(
     join(path, '13-security-negative-proof.log'),
     [
@@ -202,6 +228,7 @@ async function writeProofPack(path, proof) {
       '- Credentials are not stored and live Google provider execution is not claimed.',
       '- Mapped nearby-place rows preserve ambiguity and do not claim exact child location or physical-device proof.',
       '- Provider quota/unavailable errors degrade to provider-unavailable instead of silent success.',
+      '- Apple MapKit and OSM parity rows are manual-required and do not claim live execution, credentials, exact-place proof, or physical-device proof.',
       '',
     ].join('\n'),
     'utf8'

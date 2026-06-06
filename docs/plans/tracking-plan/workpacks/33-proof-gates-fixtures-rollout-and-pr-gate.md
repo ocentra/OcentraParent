@@ -68,6 +68,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `19-evidence-quality-gate-proof.json`
 - Evidence quality gate validation log:
   `20-evidence-quality-gate-validation.log`
+- WP20 provider parity readiness proof:
+  `../20-google-places-and-poi-provider-adapter/08-provider-parity-readiness-proof.json`
 - Tracking notification receipt boundary proof:
   `22-notification-receipt-boundary-proof.json`
 - Hosted child-safe check-in screenshot:
@@ -482,3 +484,21 @@ This workpack can be assigned independently, implemented against the owning doma
       runtime, live location sample runtime, physical-device proof, authority
       proof, production timeout workers, adapter dispatch, and product-ready
       child check-in behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain tracking POI provider adapter/test, proof
+      script, owning tracking feature doc, implementation checklist, WP20,
+      WP33, generated WP20 proof artifacts, and hub doc delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-poi-provider-adapter-proof.mjs` passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/08-provider-parity-readiness-proof.json`
+      and `test-results/tracking-poi-provider-adapter-proof/provider-parity-readiness.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP20, and WP33 updated. Central
+      `docs/product-capability-checklist.md` is queued through the hub doc
+      delta.
+- [x] Known gaps/manual-required states: live Google/Apple/OSM provider
+      execution, provider credentials/auth, provider terms review, exact-place
+      claims, physical-device proof, provider UI, production persistence, and
+      product-ready nearby-place behavior remain proof-gated.
