@@ -107,7 +107,9 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   and degraded states while rejecting raw browser/page/feed/message/transcript
   or screenshot state, final policy actions, enforcement, raw model/content
   storage, connector claims, native app control, UI delivery, and runtime AI
-  execution claims.
+  execution claims. The SOCIAL-10 live-evidence proof consumes the SOCIAL-09
+  public social/video metadata proof refs and emits degraded `model-unavailable`
+  AI input/result rows without executing a model or claiming provider selection.
 - Browser-plan SOCIAL-11 now adds candidate social risk/benefit signal model
   contracts. Signal rows carry canonical risk or benefit kinds, severity,
   state, confidence, and evidence refs from typed social AI analysis results

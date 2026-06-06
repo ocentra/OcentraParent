@@ -1262,7 +1262,10 @@ worker messages before code changes. Do not mix all 24 into one PR.
   page, feed, message, transcript, screenshot, native, and connector state;
   results reject final policy actions, enforcement, raw model text/content
   storage, native app control, connector claims, and inconsistent degraded
-  states. Package subpath exports are now present; no AI model execution, runtime provider selection, SOCIAL-11
+  states. The live-evidence proof consumes SOCIAL-09 public social/video
+  metadata proof refs and emits degraded `model-unavailable` input/result rows
+  without executing a model or claiming provider selection. Package subpath
+  exports are now present; no AI model execution, runtime provider selection, SOCIAL-11
   risk/benefit signal model, policy evaluator, runtime gate, UI, native app
   support, connector, or enforcement is claimed.
 - SOCIAL-11 now adds social risk/benefit signal model contracts in
