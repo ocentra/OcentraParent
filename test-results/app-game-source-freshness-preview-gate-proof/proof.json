@@ -2,15 +2,15 @@
   "proofMode": "app-game-source-freshness-preview-gate",
   "generatedAt": "2026-06-05T23:45:00Z",
   "branch": "codex/app-game-source-freshness-preview-gate",
-  "commit": "e453c57f9de4182221ac84fb8038f18209cf568a",
+  "commit": "e66f4095ad64e357ecd44f6e1dfdb68f926cb839",
   "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff"
   ],
   "stackedOn": {
-    "requiredBranch": "codex/app-game-source-freshness-policy-consumption-v2",
-    "reason": "WP75 consumes WP74 source freshness contracts that are not on origin/main yet."
+    "requiredBranch": "origin/main",
+    "reason": "WP74 source freshness policy-consumption contracts have landed on main; WP75 targets current main."
   },
   "summary": {
     "rows": 3,
