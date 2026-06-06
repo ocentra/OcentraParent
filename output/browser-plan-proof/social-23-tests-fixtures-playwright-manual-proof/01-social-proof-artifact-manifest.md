@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T08:57:30.190Z
+Generated: 2026-06-06T09:11:50.333Z
 
 Rows checked: 22
 Proof-present rows: 7
@@ -17,7 +17,7 @@ Product claimed: false
 | SOCIAL-05 | partial-manual-required | `social-05-managed-dom-form-shape-detector` | 5 |
 | SOCIAL-06 | partial-manual-required | `social-06-social-account-identity-registry` | 5 |
 | SOCIAL-07 | partial-manual-required | `social-07-parent-approval-contracts` | 5 |
-| SOCIAL-08 | partial-manual-required | `social-08-feed-reels-shorts-route-classification` | 5 |
+| SOCIAL-08 | partial-manual-required | `social-08-feed-reels-shorts-route-classification` | 7 |
 | SOCIAL-09 | partial-manual-required | `social-09-video-social-metadata-extractor` | 5 |
 | SOCIAL-10 | partial-manual-required | `social-10-social-ai-analysis-contracts` | 5 |
 | SOCIAL-11 | partial-manual-required | `social-11-social-risk-benefit-signal-model` | 5 |
@@ -37,6 +37,7 @@ SOCIAL-23 proves proof-pack coverage for SOCIAL-01 through SOCIAL-22.
 Rendered proof-bundle UI exists for the parent social dashboard,
 child-agent-served social intervention page, and parent explanation panel.
 Service-backed dashboard and explanation read-model delivery is present.
+Live route classification proof is present for SOCIAL-08 public feed surfaces.
 Ref-only social alert/report intent proof is present.
 Schedule/time-budget compiler contract proof is present.
 Parent sensitivity settings contract proof is present.

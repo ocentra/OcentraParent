@@ -1229,7 +1229,12 @@ worker messages before code changes. Do not mix all 24 into one PR.
   surface hints and distinguishes dynamic feeds, short-video feed surfaces, and
   exact single-short-video routes. It rejects feed content semantics,
   recommendation semantics, message content, AI decisions, policy decisions,
-  native app control, connector access, and enforcement. Package subpath exports are now present; no feed content parser,
+  native app control, connector access, and enforcement. The live proof now
+  drives Playwright against real public Reddit, Twitch, TikTok, Instagram, and
+  YouTube Shorts routes, persists screenshots plus redacted URL/title hashes,
+  and parses the route-only captures through the classifier without storing page
+  body, DOM, feed content, messages, credentials, or recommendation semantics.
+  Package subpath exports are now present; no feed content parser,
   recommender analysis, policy evaluator, runtime gate, UI, native app support,
   connector, or enforcement is claimed.
 - SOCIAL-09 now adds bounded video/social metadata extractor contracts in

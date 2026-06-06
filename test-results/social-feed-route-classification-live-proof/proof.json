@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "proofId": "social-feed-route-classification-live-proof",
+  "generatedAt": "2026-06-06T09:10:28.044Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "8affbc5561bbed8e5364dc477cafcbf32a0ef0b1",
+  "baseCommit": "bde3b77fe37544f514e98f3d3a6648204999ed82",
+  "liveCaptureSummary": {
+    "realPublicSocialSurfacesUsed": true,
+    "generatedOrFixturePageUsed": false,
+    "passiveNavigationOnly": true,
+    "formsSubmitted": false,
+    "credentialsCaptured": false,
+    "rawPageBodyPersisted": false,
+    "rawDomPersisted": false,
+    "rawTitlePersisted": false,
+    "screenshotsPersisted": true,
+    "screenshotCount": 5,
+    "classifiedCaptureCount": 5,
+    "requestedTargetCount": 5,
+    "requiredCoverage": {
+      "dynamicFeed": true,
+      "shortVideoSurface": true,
+      "singleShortVideo": true,
+      "routeOnlyClassification": true
+    }
+  },
+  "captures": [
+    {
+      "targetId": "reddit-popular-feed",
+      "requestedUrl": "https://www.reddit.com/r/popular/",
+      "finalUrl": "https://www.reddit.com/r/popular/",
+      "finalUrlSha256": "8dffa590b4261f2b73343b7541be2faff0a26f900d8abcd8ae06535b58f30c27",
+      "finalUrlQueryOrHashRemoved": true,
+      "responseStatus": 200,
+      "responseUrl": "https://www.reddit.com/r/popular/",
+      "navigationError": null,
+      "titleLength": 9,
+      "titleSha256": "7eb83e0654e30e86bce4572ff21c0af6c26f45e0c41f69faaec3f73ecd704df9",
+      "screenshotPath": "output/browser-plan-proof/social-08-feed-reels-shorts-route-classification/06-live-screenshots/reddit-popular-feed.png",
+      "screenshotSha256": "472b1b2dfd699493838bd1e7fb049ab137bc655ad71aac3ce495f0d3b5f32a8c",
+      "screenshotBytes": 419111,
+      "rawPageBodyPersisted": false,
+      "rawDomPersisted": false,
+      "rawTitlePersisted": false,
+      "formSubmitted": false,
+      "credentialsCaptured": false,
+      "contractClassificationCreated": true,
+      "classificationSummary": {
+        "schemaVersion": 1,
+        "feedRouteClassificationId": "reddit-popular-feed-live-feed-route-classification",
+        "observedAt": "2026-06-06T09:10:28.044Z",
+        "sourceEvidenceIds": [
+          "reddit-popular-feed-live-feed-route-evidence"
+        ],
+        "socialRouteEvidenceId": "reddit-popular-feed-live-social-route-evidence",
+        "platform": "reddit",
+        "routeKind": "feed",
+        "surfaceHint": "home-feed",
+        "surfaceKind": "dynamic-feed",
+        "routeOnly": true,
+        "dynamicFeed": true,
+        "shortVideoSurface": false,
+        "feedContentSemanticsClaimed": false,
+        "recommendationSemanticsClaimed": false,
+        "messageContentClaimed": false,
+        "aiDecisionClaimed": false,
+        "policyDecisionClaimed": false,
+        "enforcementClaimed": false,
+        "nativeAppControlClaimed": false,
+        "platformConnectorClaimed": false
+      }
+    },
+    {
+      "targetId": "twitch-directory-feed",
+      "requestedUrl": "https://www.twitch.tv/directory",
+      "finalUrl": "https://www.twitch.tv/directory",
+      "finalUrlSha256": "f9d8afd0cc85b071d6313953c6c9e352e24cbc5a5ff90e311af32d42c74e7d4c",
+      "finalUrlQueryOrHashRemoved": false,
+      "responseStatus": 200,
+      "responseUrl": "https://www.twitch.tv/directory",
+      "navigationError": null,
+      "titleLength": 23,
+      "titleSha256": "049c10ef52a14482bbcd72e9cdb80c263d0bffab9002531cdc9b2c55af7f5292",
+      "screenshotPath": "output/browser-plan-proof/social-08-feed-reels-shorts-route-classification/06-live-screenshots/twitch-directory-feed.png",
+      "screenshotSha256": "bcd6d3b597f5d391b895078ba251d7147bb1cd727a074abe0176cdd61ac6f585",
+      "screenshotBytes": 559424,
+      "rawPageBodyPersisted": false,
+      "rawDomPersisted": false,
+      "rawTitlePersisted": false,
+      "formSubmitted": false,
+      "credentialsCaptured": false,
+      "contractClassificationCreated": true,
+      "classificationSummary": {
+        "schemaVersion": 1,
+        "feedRouteClassificationId": "twitch-directory-feed-live-feed-route-classification",
+        "observedAt": "2026-06-06T09:10:28.044Z",
+        "sourceEvidenceIds": [
+          "twitch-directory-feed-live-feed-route-evidence"
+        ],
+        "socialRouteEvidenceId": "twitch-directory-feed-live-social-route-evidence",
+        "platform": "twitch",
+        "routeKind": "feed",
+        "surfaceHint": "home-feed",
+        "surfaceKind": "dynamic-feed",
+        "routeOnly": true,
+        "dynamicFeed": true,
+        "shortVideoSurface": false,
+        "feedContentSemanticsClaimed": false,
+        "recommendationSemanticsClaimed": false,
+        "messageContentClaimed": false,
+        "aiDecisionClaimed": false,
+        "policyDecisionClaimed": false,
+        "enforcementClaimed": false,
+        "nativeAppControlClaimed": false,
+        "platformConnectorClaimed": false
+      }
+    },
+    {
+      "targetId": "tiktok-explore-feed",
+      "requestedUrl": "https://www.tiktok.com/explore",
+      "finalUrl": "https://www.tiktok.com/explore",
+      "finalUrlSha256": "61b04f310cea6b340460674085a14b81e4085f23d5f179e0bc8d9711cf876fc7",
+      "finalUrlQueryOrHashRemoved": false,
+      "responseStatus": 200,
+      "responseUrl": "https://www.tiktok.com/explore",
+      "navigationError": null,
+      "titleLength": 46,
+      "titleSha256": "10345dc402e4eb8a3e421bdb479dba5450f5f9b6a902947b319c855af3d35139",
+      "screenshotPath": "output/browser-plan-proof/social-08-feed-reels-shorts-route-classification/06-live-screenshots/tiktok-explore-feed.png",
+      "screenshotSha256": "858b6a420940c9d018b37dcf30e614ec3d604b5a65e9b2064637fda781b9e811",
+      "screenshotBytes": 940836,
+      "rawPageBodyPersisted": false,
+      "rawDomPersisted": false,
+      "rawTitlePersisted": false,
+      "formSubmitted": false,
+      "credentialsCaptured": false,
+      "contractClassificationCreated": true,
+      "classificationSummary": {
+        "schemaVersion": 1,
+        "feedRouteClassificationId": "tiktok-explore-feed-live-feed-route-classification",
+        "observedAt": "2026-06-06T09:10:28.044Z",
+        "sourceEvidenceIds": [
+          "tiktok-explore-feed-live-feed-route-evidence"
+        ],
+        "socialRouteEvidenceId": "tiktok-explore-feed-live-social-route-evidence",
+        "platform": "tiktok",
+        "routeKind": "feed",
+        "surfaceHint": "explore-feed",
+        "surfaceKind": "dynamic-feed",
+        "routeOnly": true,
+        "dynamicFeed": true,
+        "shortVideoSurface": false,
+        "feedContentSemanticsClaimed": false,
+        "recommendationSemanticsClaimed": false,
+        "messageContentClaimed": false,
+        "aiDecisionClaimed": false,
+        "policyDecisionClaimed": false,
+        "enforcementClaimed": false,
+        "nativeAppControlClaimed": false,
+        "platformConnectorClaimed": false
+      }
+    },
+    {
+      "targetId": "instagram-reels-feed",
+      "requestedUrl": "https://www.instagram.com/reels/",
+      "finalUrl": "https://www.instagram.com/reels/DZIQUUVNLzZ/",
+      "finalUrlSha256": "8c9f38f407fa03462dd0ede2e3249210a2d5e5d21fba220671020d0ad41e861d",
+      "finalUrlQueryOrHashRemoved": false,
+      "responseStatus": 200,
+      "responseUrl": "https://www.instagram.com/reels/",
+      "navigationError": null,
+      "titleLength": 9,
+      "titleSha256": "bad57ef7837c8e6bf99c2a5935cc9d6fe5324a53d88744ad5551db0e46b03cd6",
+      "screenshotPath": "output/browser-plan-proof/social-08-feed-reels-shorts-route-classification/06-live-screenshots/instagram-reels-feed.png",
+      "screenshotSha256": "d9f1a1cbde38249bd4055317e1e9448486cffdaba180674f0d85b40c0c6ec5cc",
+      "screenshotBytes": 180149,
+      "rawPageBodyPersisted": false,
+      "rawDomPersisted": false,
+      "rawTitlePersisted": false,
+      "formSubmitted": false,
+      "credentialsCaptured": false,
+      "contractClassificationCreated": true,
+      "classificationSummary": {
+        "schemaVersion": 1,
+        "feedRouteClassificationId": "instagram-reels-feed-live-feed-route-classification",
+        "observedAt": "2026-06-06T09:10:28.044Z",
+        "sourceEvidenceIds": [
+          "instagram-reels-feed-live-feed-route-evidence"
+        ],
+        "socialRouteEvidenceId": "instagram-reels-feed-live-social-route-evidence",
+        "platform": "instagram",
+        "routeKind": "feed",
+        "surfaceHint": "reels-feed",
+        "surfaceKind": "short-video-surface",
+        "routeOnly": true,
+        "dynamicFeed": true,
+        "shortVideoSurface": true,
+        "feedContentSemanticsClaimed": false,
+        "recommendationSemanticsClaimed": false,
+        "messageContentClaimed": false,
+        "aiDecisionClaimed": false,
+        "policyDecisionClaimed": false,
+        "enforcementClaimed": false,
+        "nativeAppControlClaimed": false,
+        "platformConnectorClaimed": false
+      }
+    },
+    {
+      "targetId": "youtube-shorts-video",
+      "requestedUrl": "https://www.youtube.com/shorts/jNQXAC9IVRw",
+      "finalUrl": "https://www.youtube.com/watch",
+      "finalUrlSha256": "72f28014a0a6851435fb70d88574443e9edfaded6ddfa4ab6ab0b5d97455f131",
+      "finalUrlQueryOrHashRemoved": true,
+      "responseStatus": 200,
+      "responseUrl": "https://www.youtube.com/watch",
+      "navigationError": null,
+      "titleLength": 23,
+      "titleSha256": "78292aae02101a86107be6e03dda218f2b8d74670659730284c8026a86629e89",
+      "screenshotPath": "output/browser-plan-proof/social-08-feed-reels-shorts-route-classification/06-live-screenshots/youtube-shorts-video.png",
+      "screenshotSha256": "dba6a68966a862d96df8714243f95bbf9070178aef956e1401dfcde8beeca7ab",
+      "screenshotBytes": 853782,
+      "rawPageBodyPersisted": false,
+      "rawDomPersisted": false,
+      "rawTitlePersisted": false,
+      "formSubmitted": false,
+      "credentialsCaptured": false,
+      "contractClassificationCreated": true,
+      "classificationSummary": {
+        "schemaVersion": 1,
+        "feedRouteClassificationId": "youtube-shorts-video-live-feed-route-classification",
+        "observedAt": "2026-06-06T09:10:28.044Z",
+        "sourceEvidenceIds": [
+          "youtube-shorts-video-live-feed-route-evidence"
+        ],
+        "socialRouteEvidenceId": "youtube-shorts-video-live-social-route-evidence",
+        "platform": "youtube-shorts",
+        "routeKind": "video",
+        "surfaceHint": "single-short-video",
+        "surfaceKind": "single-short-video",
+        "routeOnly": true,
+        "dynamicFeed": false,
+        "shortVideoSurface": true,
+        "feedContentSemanticsClaimed": false,
+        "recommendationSemanticsClaimed": false,
+        "messageContentClaimed": false,
+        "aiDecisionClaimed": false,
+        "policyDecisionClaimed": false,
+        "enforcementClaimed": false,
+        "nativeAppControlClaimed": false,
+        "platformConnectorClaimed": false
+      }
+    }
+  ],
+  "classificationParseChecks": [
+    {
+      "targetId": "reddit-popular-feed",
+      "accepted": true
+    },
+    {
+      "targetId": "twitch-directory-feed",
+      "accepted": true
+    },
+    {
+      "targetId": "tiktok-explore-feed",
+      "accepted": true
+    },
+    {
+      "targetId": "instagram-reels-feed",
+      "accepted": true
+    },
+    {
+      "targetId": "youtube-shorts-video",
+      "accepted": true
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "feed-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "recommendation-claim",
+      "rejected": true
+    },
+    {
+      "name": "message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "ai-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "native-app-control-claim",
+      "rejected": true
+    },
+    {
+      "name": "platform-connector-claim",
+      "rejected": true
+    },
+    {
+      "name": "enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "not-route-only",
+      "rejected": true
+    }
+  ],
+  "noClaimChecks": {
+    "feedContentCaptured": false,
+    "recommendationModelClaimed": false,
+    "messageContentCaptured": false,
+    "aiDecisionClaimed": false,
+    "policyDecisionClaimed": false,
+    "nativeAppControlClaimed": false,
+    "platformConnectorClaimed": false,
+    "enforcementClaimed": false
+  }
+}

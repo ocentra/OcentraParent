@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T08:57:47.230Z
+Generated: 2026-06-06T09:11:50.354Z
 
 Rows checked: 23
 Proof-present rows: 7
@@ -38,8 +38,9 @@ SOCIAL rollout state: partial/manual-required.
 Product checklist upgrade is not claimed.
 Rendered proof-bundle social UI exists for dashboard, child intervention,
 and parent explanation states. Service-backed dashboard and explanation
-read-model delivery is present. Ref-only social alert/report intent proof
-is present. Schedule/time-budget compiler proof and parent sensitivity
+read-model delivery is present. Live SOCIAL-08 route classification proof
+is present. Ref-only social alert/report intent proof is present.
+Schedule/time-budget compiler proof and parent sensitivity
 settings proof are present. Source custody settings proof is present over
 source/privacy refs; connector/native runtime, provider/report delivery,
 applied schedules/budgets, runtime custody mutation, final policy
