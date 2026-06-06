@@ -211,6 +211,14 @@ expose location or device-status features. Parents expect this category.
   simulator build and simctl install/launch smoke. On non-macOS hosts it writes
   explicit `manual_required` proof instead of pretending simulator execution
   happened.
+- WP11/WP12 iOS Core Location manual-required proof now exists through
+  `node scripts/test/tracking-ios-location-manual-required-proof.mjs`. It maps
+  simulator/package proof refs and manual proof plans into parent-domain rows
+  for When In Use authorization, foreground location sample, denied/restricted
+  and services-disabled states, Always authorization, region transitions,
+  significant-change/visit events, and background terminated/relaunch gaps while
+  keeping Core Location runtime, entitlement, notification delivery,
+  physical-device, authority, and product-ready iOS tracking claims false.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, actual child-device delivery/runtime
   execution, full parent/child UI beyond the hosted parent route, and broader
@@ -230,18 +238,19 @@ proof with hosted child-safe check-in copy/actions and hosted child-runtime
 disclosure/safe-help/location-share consent copy, P1 local parent-defined place
 store proof, pre-device proof-gate progress, Android emulator package/service/status
 scaffold proof, WP08/WP09 Android permission/background manual-required proof,
-P3 WSL/local replay proof, P1 evidence-quality gate proof, WP26
-tracking alert-to-provider-status handoff proof, P1 escalation readiness proof
-for acknowledgement/check-in/manual escalation states, WP28 temporary live
-tracking mode proof for authorization/duration/cadence/degraded/auto-stop/
-retention states, and WP20 Google Places/POI provider request/response mapping
-proof, WP25 parent-policy compiler/evaluator runtime proof, and required
-fixture-state coverage proof, WP29 missing-device mode parent-domain proof for
-last-known-only/offline/contact-requested/manual-required states,
-manual-required/unavailable platform render-state proof, and WP32 report/policy
-consumer-readiness proof for parent report summary, policy drill-in, and
-retention audit/export rows, plus WP32 family dashboard rollup proof for active
-family, child-attention, and retention-audit summary rows. It remains a tracked
+WP11/WP12 iOS Core Location manual-required proof, P3 WSL/local replay proof,
+P1 evidence-quality gate proof, WP26 tracking alert-to-provider-status handoff
+proof, P1 escalation readiness proof for acknowledgement/check-in/manual
+escalation states, WP28 temporary live tracking mode proof for authorization/
+duration/cadence/degraded/auto-stop/retention states, and WP20 Google Places/
+POI provider request/response mapping proof, WP25 parent-policy compiler/
+evaluator runtime proof, and required fixture-state coverage proof, WP29
+missing-device mode parent-domain proof for last-known-only/offline/
+contact-requested/manual-required states, manual-required/unavailable platform
+render-state proof, and WP32 report/policy consumer-readiness proof for parent
+report summary, policy drill-in, and retention audit/export rows, plus WP32
+family dashboard rollup proof for active family, child-attention, and
+retention-audit summary rows. It remains a tracked
 product gap until platform location and geofence runtime adapters, broader
 product read models beyond these rollups, rendered dashboard UI for those rollups,
 actual live provider execution/delivery, notification receipt ingestion,
@@ -272,7 +281,13 @@ snapshots/accessibility beyond the hosted parent route are proved.
 - [x] iOS simulator package build/install/launch proof routing. This is not
       Core Location, entitlement, background region, notification, physical-device,
       or child-agent parity proof.
-- [ ] iOS entitlement/background proof.
+- [ ] iOS entitlement/background proof. WP11/WP12 parent-domain
+      manual-required proof rows now exist for When In Use authorization,
+      foreground sample, denied/restricted and services-disabled states, Always
+      authorization, region transitions, significant-change/visit events, and
+      background terminated/relaunch gaps; real Core Location authorization,
+      samples, background/region runtime, entitlement, notification delivery,
+      physical-device, and authority proof remain pending.
 - [x] Expected-place schedule and exception contracts.
 - [x] Parent acknowledgement and escalation contracts.
 - [x] WP25 P1 parent-policy compiler/evaluator runtime proof for tracking
