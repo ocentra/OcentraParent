@@ -130,6 +130,9 @@ function panelTitle(panel: SocialDashboardPanel): DisplayText {
   if (panel.panelKind === 'decision-memory') {
     return resolveSocialDashboardUxText(SocialDashboardUxTextToken.DecisionMemory);
   }
+  if (panel.panelKind === 'settings-custody') {
+    return resolveSocialDashboardUxText(SocialDashboardUxTextToken.SettingsCustody);
+  }
   return resolveSocialDashboardUxText(SocialDashboardUxTextToken.ManualRequiredGaps);
 }
 

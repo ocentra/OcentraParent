@@ -101,6 +101,7 @@ const RequiredSocialDashboardPanels = [
   'native-app-capability',
   'connector-boundaries',
   'decision-memory',
+  'settings-custody',
   'manual-required-gaps',
 ] as const satisfies ReadonlyArray<SocialDashboardPanelKind>;
 
@@ -130,6 +131,9 @@ function socialDashboardPanelIsHonest(panel: SocialDashboardPanelCandidate): boo
   }
   if (panel.panelKind === 'decision-memory') {
     return panel.status === 'contract-only' && panel.primaryAction === 'review-memory-entry';
+  }
+  if (panel.panelKind === 'settings-custody') {
+    return manualRequiredPanelIsHonest(panel, 'review-settings-custody', 'settings-custody-runtime-gap');
   }
   return manualRequiredPanelIsHonest(panel, 'manual-review', 'platform-proof-gap');
 }

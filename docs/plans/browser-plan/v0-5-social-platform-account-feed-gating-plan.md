@@ -1406,12 +1406,13 @@ worker messages before code changes. Do not mix all 24 into one PR.
   `packages/parent-domain/src/social-dashboard-ux.ts`, plus text-domain copy
   tokens in `packages/text-domain/src/social-dashboard-ux-text.ts`. The
   snapshot covers account approval queue, feed/video gates, native app
-  capability, connector boundaries, decision memory, and manual-required gaps
-  as section/action/status contracts. The real Browser route now requests the
-  service-backed social dashboard read-model and captures desktop/mobile
-  screenshots for the six-row parent social snapshot. Package subpath exports
-  are now present; no notification delivery, connector authorization, native app
-  control, final policy execution, or enforcement is claimed.
+  capability, connector boundaries, decision memory, settings/custody, and
+  manual-required gaps as section/action/status contracts. The real Browser
+  route now requests the service-backed social dashboard read-model and captures
+  desktop/mobile screenshots for the seven-row parent social snapshot. Package
+  subpath exports are now present; no settings mutation, notification delivery,
+  connector authorization, native app control, final policy execution, or
+  enforcement is claimed.
 - SOCIAL-21 now adds parent-domain child approval/block UX contracts in
   `packages/parent-domain/src/social-child-approval-block-ux-values.ts` and
   `packages/parent-domain/src/social-child-approval-block-ux.ts`, plus
@@ -1447,8 +1448,8 @@ worker messages before code changes. Do not mix all 24 into one PR.
   `output/browser-plan-proof/social-23-tests-fixtures-playwright-manual-proof/01-social-proof-artifact-manifest.md`.
   The manifest records rendered parent dashboard, child intervention, and parent
   explanation proof coverage while the overall rollout stays partial. No runtime
-  connector, native app control, final policy execution, enforcement, or product
-  checklist claim is made.
+  connector, native app control, runtime custody mutation, final policy
+  execution, enforcement, or product checklist claim is made.
 - SOCIAL-24 now adds `scripts/test/social-platform-account-feed-rollout-gate.mjs`,
   a rollout/manual-required label gate that verifies SOCIAL-01 through SOCIAL-23
   checklist labels and required no-claim guard text. It emits
@@ -1456,8 +1457,9 @@ worker messages before code changes. Do not mix all 24 into one PR.
   `output/browser-plan-proof/social-24-rollout-manual-required-labels/01-rollout-manual-required-labels.md`.
   SOCIAL rollout state: partial/manual-required. Product checklist upgrade is
   not claimed. Service-backed dashboard and explanation read-model delivery plus
-  child-agent-served intervention rendering are present, but connector/native
-  runtime, final policy execution, enforcement, release readiness, and product
+  child-agent-served intervention rendering are present, including the
+  settings/custody dashboard row, but connector/native runtime, runtime custody
+  mutation, final policy execution, enforcement, release readiness, and product
   completion remain unclaimed.
 - `social-alert-report-intent-proof` now adds parent-domain social alert/report
   intent contracts and focused tests for high-risk signal, account approval,
