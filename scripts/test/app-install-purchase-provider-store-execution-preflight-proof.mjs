@@ -61,7 +61,7 @@ async function main() {
     proofMode: 'app-install-purchase-provider-store-execution-preflight-proof',
     commands,
     packageExportState: 'not-claimed-new-public-export-deferred',
-    checklistState: 'not-touched-doc-overlap-pr430-pr433',
+    checklistState: 'blocked-by-current-e-c-docs-product-capability-checklist-lock',
     evidence: {
       providerStoreExecutionPreflightContract:
         'packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
@@ -71,8 +71,10 @@ async function main() {
         'packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts',
       contractTest:
         'packages/parent-domain/tests/app-install-purchase-provider-store-execution-preflight-proof.test.ts',
-      docsDeferred:
-        'docs/features/app-install-purchase-approval.md and docs/expectations/app-install-purchase-approval.md are intentionally untouched while PR430 and PR433 own overlapping app-install docs.',
+      featureDoc: 'docs/features/app-install-purchase-approval.md',
+      expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
+      checklistBlocked:
+        'docs/product-capability-checklist.md is not edited in this slice because E-C currently owns that lock; this proof names the current blocker instead of stale PR overlap.',
       output: relative(repoRoot, proofPath),
     },
     providerStoreExecutionPreflightSummary: summary,

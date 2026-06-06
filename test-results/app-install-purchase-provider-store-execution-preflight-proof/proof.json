@@ -1,28 +1,30 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T07:36:51.588Z",
-  "commit": "b5f84e2bef95b74306fde145b9dedcf9d652e82f",
+  "checkedAt": "2026-06-06T07:58:33.954Z",
+  "commit": "58b33a6fd84bb31a5f752204f08d4ca231804dfc",
   "proofMode": "app-install-purchase-provider-store-execution-preflight-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-06T07:36:43.953Z",
+      "startedAt": "2026-06-06T07:58:27.413Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-provider-store-execution-preflight-proof.test.ts",
-      "startedAt": "2026-06-06T07:36:48.391Z",
+      "startedAt": "2026-06-06T07:58:31.045Z",
       "exitCode": 0
     }
   ],
   "packageExportState": "not-claimed-new-public-export-deferred",
-  "checklistState": "not-touched-doc-overlap-pr430-pr433",
+  "checklistState": "blocked-by-current-e-c-docs-product-capability-checklist-lock",
   "evidence": {
     "providerStoreExecutionPreflightContract": "packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts",
     "sourceProviderStoreExecutionReadinessContract": "packages/parent-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts",
     "sourceRuntimeWriterExecutionDeliveryContract": "packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts",
     "contractTest": "packages/parent-domain/tests/app-install-purchase-provider-store-execution-preflight-proof.test.ts",
-    "docsDeferred": "docs/features/app-install-purchase-approval.md and docs/expectations/app-install-purchase-approval.md are intentionally untouched while PR430 and PR433 own overlapping app-install docs.",
+    "featureDoc": "docs/features/app-install-purchase-approval.md",
+    "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
+    "checklistBlocked": "docs/product-capability-checklist.md is not edited in this slice because E-C currently owns that lock; this proof names the current blocker instead of stale PR overlap.",
     "output": "test-results\\app-install-purchase-provider-store-execution-preflight-proof\\proof.json"
   },
   "providerStoreExecutionPreflightSummary": {
@@ -358,6 +360,6 @@
   "knownGaps": [
     "Provider/store execution preflight rows record parent-owned evidence readiness only; no Google Play Apple App Store Microsoft Store or billing provider execution is implemented.",
     "Runtime writer receipt refs are parent-owned proof rows only; runtime device delivery, child-device delivery, platform adapters, app blocking, child activity data, and hosted custody remain unimplemented.",
-    "App-install feature and expectation doc updates are deferred while PR430 and PR433 own overlapping app-install doc paths."
+    "Product capability checklist update is deferred while E-C owns docs/product-capability-checklist.md; feature and expectation docs now record this preflight proof."
   ]
 }

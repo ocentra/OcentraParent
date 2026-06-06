@@ -160,7 +160,7 @@ export const AppInstallPurchaseProviderStoreExecutionPreflightProofSchema = with
 export const AppInstallPurchaseProviderStoreExecutionPreflightKnownGaps = [
   'Provider/store execution preflight rows record parent-owned evidence readiness only; no Google Play Apple App Store Microsoft Store or billing provider execution is implemented.',
   'Runtime writer receipt refs are parent-owned proof rows only; runtime device delivery, child-device delivery, platform adapters, app blocking, child activity data, and hosted custody remain unimplemented.',
-  'App-install feature and expectation doc updates are deferred while PR430 and PR433 own overlapping app-install doc paths.',
+  'Product capability checklist update is deferred while E-C owns docs/product-capability-checklist.md; feature and expectation docs now record this preflight proof.',
 ] as const;
 
 export const AppInstallPurchaseProviderStoreExecutionPreflightProofReadModel =

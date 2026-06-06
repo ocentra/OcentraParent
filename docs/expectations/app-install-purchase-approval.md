@@ -178,6 +178,14 @@ Expected contract families:
   platform adapter implementation, child-device delivery, runtime report
   delivery, real interception, app blocking, child activity data custody, or
   Ocentra-hosted family data custody.
+- Provider/store execution preflight proof rows link provider/store execution
+  readiness rows and runtime writer execution delivery receipts into
+  parent-owned execution-ready, manual-required, and unavailable preflight states
+  without claiming Google Play execution, Apple App Store execution, Microsoft
+  Store execution, billing/provider contact, provider API execution, store
+  integration, platform interception, platform adapter implementation, runtime
+  device delivery, child-device delivery, app blocking, child activity data
+  custody, or Ocentra-hosted family data custody.
 - Runtime report writer delivery proof rows link runtime writer execution
   delivery receipts and report-runtime compiler output rows into parent-owned
   report delivery-ready rows and report receipts without claiming portal report
@@ -313,6 +321,13 @@ Expected contract families:
   child delivery/report delivery/app-blocking/custody overclaim rejection, and
   required non-claim coverage. Public package export visibility remains a
   required follow-up once `packages/parent-domain/package.json` is available.
+- TypeScript schema tests and a proof harness for provider/store execution
+  preflight rows, missing provider/store readiness or runtime writer execution
+  delivery receipt coverage rejection, provider/store execution/store
+  integration/billing contact/platform adapter/runtime device delivery/child
+  delivery/app-blocking/custody overclaim rejection, and required non-claim
+  coverage. Product checklist visibility remains pending while the current
+  checklist lock is owned by E-C.
 - TypeScript schema tests and a proof harness for child-device delivery
   readiness rows, missing child delivery runtime-writer/package adapter/platform
   limitation/status refs, child delivery/provider/store/adapter/app-blocking/
@@ -443,6 +458,11 @@ Expected contract families:
   implementation, child-device delivery, runtime report delivery, real
   interception, app blocking, child activity custody, or Ocentra-hosted family
   data custody.
+- Do not treat provider/store execution preflight proof refs as Google Play,
+  Apple App Store, Microsoft Store, billing provider execution/contact,
+  provider API execution, store integration, platform interception, platform
+  adapter implementation, runtime device delivery, child-device delivery, app
+  blocking, child activity custody, or Ocentra-hosted family data custody.
 - Do not treat runtime report writer delivery proof refs as portal report UI,
   external runtime report delivery, provider API execution, store integration,
   platform interception, platform adapter implementation, child-device delivery,

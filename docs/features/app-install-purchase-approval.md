@@ -286,6 +286,18 @@ generic app blocking covers this concern.
   when run. The proof records the public package export as pending behind the
   active `packages/parent-domain/package.json` lock and the parent-domain
   README delta as pending behind the active README lock.
+- `packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts`
+  links provider/store execution readiness rows and runtime writer execution
+  delivery receipts into parent-owned provider/store execution preflight ready,
+  manual-required, and unavailable rows without provider/store execution,
+  provider API execution, store integration, billing/provider contact, platform
+  interception/adapters, runtime device delivery, child-device delivery, app
+  blocking, child activity data, or hosted family data custody claims.
+- `scripts/test/app-install-purchase-provider-store-execution-preflight-proof.mjs`
+  records that provider/store execution preflight proof under
+  `test-results/app-install-purchase-provider-store-execution-preflight-proof/proof.json`
+  when run. The proof records the product checklist row as pending behind the
+  current E-C lock on `docs/product-capability-checklist.md`.
 - `packages/parent-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts`
   now links runtime writer execution delivery receipts and report-runtime
   compiler output rows into parent-owned runtime report writer delivery-ready
@@ -481,6 +493,12 @@ Ocentra-hosted family data custody.
       without provider/store execution, platform interception/adapters,
       child-device delivery, runtime report delivery, app blocking, child
       activity data, or hosted family data custody claims.
+- [x] Provider/store execution preflight proof linking provider/store execution
+      readiness rows and runtime writer execution delivery receipts into
+      parent-owned ready/manual/unavailable preflight rows without provider API
+      execution, store integration, billing/provider contact, platform
+      interception/adapters, runtime device delivery, child-device delivery, app
+      blocking, child activity data, or hosted family data custody claims.
 - [x] Runtime report writer delivery proof linking runtime writer execution
       delivery receipts and report-runtime compiler output rows into
       parent-owned report delivery-ready rows and report receipts without
