@@ -150,6 +150,13 @@ Expected contract families:
   execution, store integration, platform interception, platform adapter
   implementation, child-device delivery, runtime writer delivery, app blocking,
   child activity data custody, or Ocentra-hosted family data custody.
+- Provider/store report status runtime proof rows link provider/store execution
+  readiness rows to parent-owned runtime report writer receipts so store
+  report statuses can be ready, manual-required, or unavailable without
+  claiming provider API execution, store integration, portal report UI,
+  external runtime report delivery, platform adapter implementation,
+  child-device delivery, app blocking, child activity data custody, or
+  Ocentra-hosted family data custody.
 - Approval/report domain proof rows link parent review action decisions and
   report-runtime refs into approval/report-ready or manual-review rows without
   claiming portal approval UI, portal report UI, runtime report delivery,
@@ -255,6 +262,11 @@ Expected contract families:
   Store/provider contact/provider execution/store integration/platform
   interception/adapter/child delivery/runtime writer/app-blocking/custody
   overclaim rejection, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for provider/store report status
+  runtime rows, missing provider/store readiness or runtime report writer
+  receipt coverage rejection, provider/store execution/store integration/portal
+  report UI/external report delivery/platform adapter/child delivery/
+  app-blocking/custody overclaim rejection, and required non-claim coverage.
 - TypeScript schema tests and a proof harness for approval/report domain rows,
   missing parent review action/report-runtime coverage rejection, portal
   approval/report UI/runtime report delivery/provider/store/adapter/child
@@ -351,6 +363,10 @@ Expected contract families:
   Apple App Store, Microsoft Store, or billing provider execution/contact,
   provider API execution, store integration, platform interception, platform
   adapter implementation, child-device delivery, runtime writer delivery, app
+  blocking, child activity custody, or Ocentra-hosted family data custody.
+- Do not treat provider/store report status runtime proof refs as provider API
+  execution, store integration, portal report UI, external runtime report
+  delivery, platform adapter implementation, child-device delivery, app
   blocking, child activity custody, or Ocentra-hosted family data custody.
 - Do not treat approval/report domain proof refs as portal approval UI, portal
   report UI, runtime report delivery, provider/store execution, platform
