@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-06T16:41:28.312Z",
+  "generatedAt": "2026-06-06T16:58:27.718Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -108,17 +108,18 @@
     {
       "rowNumber": 7,
       "rowId": "SOCIAL-07",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
       "proofDirectory": "social-07-parent-approval-contracts",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-contract-proof.md",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
+        "11-live-approval-proof.json",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "proof-present",
       "failures": []
     },
     {
@@ -395,8 +396,8 @@
   ],
   "summary": {
     "totalRows": 22,
-    "completeRows": 19,
-    "partialRows": 3,
+    "completeRows": 20,
+    "partialRows": 2,
     "failures": 0,
     "playwrightState": "rendered-proof-bundle-ui-present-runtime-delivery-manual-required",
     "productClaimed": false
@@ -411,6 +412,7 @@
     "liveAccountFlowBoundary": "proof-present",
     "liveFormShapeBoundary": "proof-present",
     "liveIdentityRegistryBoundary": "proof-present",
+    "liveParentApprovalBoundary": "proof-present",
     "liveRouteClassification": "proof-present",
     "liveMetadataExtraction": "proof-present",
     "liveEvidenceAiBoundary": "proof-present",

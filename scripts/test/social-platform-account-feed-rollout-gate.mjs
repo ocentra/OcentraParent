@@ -73,7 +73,7 @@ async function loadDocs() {
 }
 
 function expectedRows() {
-  const completeRows = new Set([1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19, 20, 21, 22]);
+  const completeRows = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19, 20, 21, 22]);
   return Array.from({ length: 23 }, (_, index) => {
     const rowNumber = index + 1;
     const complete = completeRows.has(rowNumber);
@@ -135,6 +135,7 @@ function manifestFor(rows, failures) {
       'social-live-account-flow-boundary-proof-present',
       'social-live-form-shape-boundary-proof-present',
       'social-live-identity-registry-boundary-proof-present',
+      'social-live-parent-approval-boundary-proof-present',
       'social-live-route-classification-proof-present',
       'social-live-metadata-extraction-proof-present',
       'social-live-evidence-ai-boundary-proof-present',
@@ -184,6 +185,7 @@ function markdownFor(manifest) {
     'Live SOCIAL-04 account-flow proof is present.',
     'Live SOCIAL-05 form-shape proof is present.',
     'Live SOCIAL-06 identity registry proof is present.',
+    'Live SOCIAL-07 parent approval contract proof is present.',
     'Live SOCIAL-08 route classification proof is present.',
     'Live SOCIAL-09 metadata extraction proof is present.',
     'Live SOCIAL-10 evidence-bound AI degradation proof is present.',
