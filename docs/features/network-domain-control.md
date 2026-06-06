@@ -57,6 +57,12 @@ compete on control while staying clear about attribution confidence and privacy.
   unavailable/unsupported platform states, exact active-tab not-claimed state,
   and a false adapter-dispatch claim from
   `network-adapter-capability-status-proof`.
+- E-D now renders service-backed network digest unusual indicators in the
+  Activity route network drawer from the validated `activityDigest` payload,
+  including VPN/proxy/tunnel, encrypted-content-unavailable, unknown-process,
+  and repeated-failure candidates with evidence refs and without exact
+  URL/content or adapter execution claims from
+  `network-parent-ui-digest-indicator-proof`.
 - The V0.8 enforcement integrity runtime audit now includes a
   network-domain-observe-only result with flow evidence refs and an explicit
   host-network-domain-filter manual-required row with required apply/rollback
@@ -363,7 +369,7 @@ compete on control while staying clear about attribution confidence and privacy.
 
 ## Current Gap
 
-Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
+Real OS/domain blocking adapter execution, broader live DNS/VPN/proxy handling,
 attribution quality, live capture driver invocation, live analyzer fixture
 proof, broker/family-hub transport, remote network runtime event-chain
 delivery, raw PCAP/live-capture retention, production risk-budget service/UI
@@ -414,10 +420,17 @@ performance, and platform capability UI rendering remain open.
 - [x] Domain/IP/protocol/process attribution status contracts.
       Replay-backed process/app correlation now links PID flow evidence to
       process snapshots and app inventory without claiming browser URL/content.
-- [ ] VPN/proxy/tunnel indicators where available.
-      Deterministic indicator classification now exists for VPN adapter,
-      proxy-port, Tor, and tunnel-protocol candidates, with encrypted-DNS-only
-      negative proof and no hidden-destination claim.
+- [~] VPN/proxy/tunnel indicators where available.
+  Deterministic indicator classification now exists for VPN adapter,
+  proxy-port, Tor, and tunnel-protocol candidates, with encrypted-DNS-only
+  negative proof and no hidden-destination claim. E-D 36c now surfaces
+  service-backed `ActivityNetworkFlowDigest.unusualIndicators` in the parent
+  Activity drawer with proof
+  `output/network-plan-proof/36c-parent-ui-digest-indicators/proof-summary.json`
+  and
+  `test-results/network-parent-ui-digest-indicator-proof/proof.json`.
+  Broader live VPN/proxy detection, hidden-destination resolution, tunnel
+  adapter handling, proxy installation, and host filtering remain unclaimed.
 - [x] Network category/risk targets.
       Domain normalization, public-suffix, source-custody category
       intelligence, classifier candidates, and risk-target policy handoff proof
