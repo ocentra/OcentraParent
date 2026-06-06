@@ -261,7 +261,14 @@ async function writeAccessibilitySummary(
 function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>): void {
   expect(summary.hasNamedRegion).toBe(true);
   expect(summary.unlabeledButtons).toBe(0);
-  assertContainsAll(summary.headings, [
+  assertTrackingHeadings(summary.headings);
+  assertTrackingParagraphs(summary.paragraphs);
+  assertTrackingLabels(summary.labels);
+  assertTrackingValues(summary.values);
+}
+
+function assertTrackingHeadings(headings: readonly string[]): void {
+  assertContainsAll(headings, [
     'Tracking status proof',
     'Service read model',
     'Service data coverage',
@@ -270,11 +277,17 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'Child runtime UI proof',
     'Unsupported/manual tracking platform proof',
   ]);
-  assertContainsAll(summary.paragraphs, [
+}
+
+function assertTrackingParagraphs(paragraphs: readonly string[]): void {
+  assertContainsAll(paragraphs, [
     'Your parent is asking you to check in. Are you safe?',
     'Child sees a clear tracking request, safe response, help response, and location-share consent copy.',
   ]);
-  assertContainsAll(summary.labels, [
+}
+
+function assertTrackingLabels(labels: readonly string[]): void {
+  assertContainsAll(labels, [
     'Evidence references',
     'Row count',
     'Child copy',
@@ -282,7 +295,10 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'Readiness kind',
     'Product claim',
   ]);
-  assertContainsAll(summary.values, [
+}
+
+function assertTrackingValues(values: readonly string[]): void {
+  assertContainsAll(values, [
     "I'm safe",
     'Family active summary',
     'Child attention summary',
