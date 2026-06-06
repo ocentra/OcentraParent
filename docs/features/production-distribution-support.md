@@ -196,6 +196,16 @@ dev-only repo when it claims consumer readiness.
   account backend runtime, billing provider runtime, production publishing,
   signing/store proof, updater execution, support backend upload, production
   SLA, and child-activity custody unclaimed.
+- `production-release-public-docs-freshness-proof` adds parent-domain
+  freshness rows for privacy policy, retention policy, export/delete process,
+  support runbook, incident status disclosure, and legal disclosure. It proves
+  only the source-contract freshness policy boundary and keeps public
+  publication execution, legal disclosure execution, support backend upload,
+  account lookup execution, billing provider contact, remote support sessions,
+  production SLA, and child-activity custody unclaimed.
+  account backend runtime, billing provider runtime, production publishing,
+  signing/store proof, updater execution, support backend upload, production
+  SLA, and child-activity custody unclaimed.
 - `billing-entitlement-contract-proof` defines parent-domain contracts for
   plan entitlement rows, entitlement snapshots, subscription status sync events,
   device-limit decisions, parent-visible failure states, local-safety fallback,
@@ -429,6 +439,12 @@ package/runtime proof.
       surfaces while keeping public runtime execution, account backend runtime,
       billing provider runtime, production publishing, signing/store proof,
       updater execution, support backend upload, production SLA, and
+      child-activity custody unclaimed.
+      Current `production-release-public-docs-freshness-proof` adds the same
+      freshness boundary for public privacy, retention, export/delete, support
+      runbook, incident disclosure, and legal disclosure document rows while
+      keeping publication/legal execution, support upload, account lookup,
+      billing provider contact, remote support, production SLA, and
       child-activity custody unclaimed.
 
 ## Next AI Instructions

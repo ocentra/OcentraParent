@@ -47,6 +47,12 @@ Release features are product features because parents need install/update paths 
   provider runtime, production publishing, signing/store proof, updater
   execution, support upload, production SLA, legal execution, and child-activity
   custody unclaimed.
+- `production-release-public-docs-freshness-proof` may prove privacy policy,
+  retention policy, export/delete process, support runbook, incident status
+  disclosure, and legal disclosure freshness rows while keeping public
+  publication execution, legal disclosure execution, support backend upload,
+  account lookup execution, billing provider contact, remote support sessions,
+  production SLA, and child-activity custody unclaimed.
 - V8 public support contact/status proof that names public support contact,
   support status page contact, support runbook contact, incident status
   contact, backend-upload support contact, and billing-support contact while
