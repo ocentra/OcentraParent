@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-video-source-custody-settings-proof",
+  "generatedAt": "2026-06-06T08:57:30.019Z",
+  "files": [
+    "packages/activity-domain/src/social-video-source-custody-settings.ts",
+    "packages/activity-domain/tests/social-video-source-custody-settings.test.ts",
+    "docs/features/social-video-control.md",
+    "docs/plans/browser-plan/social-platform-account-feed/readme.md",
+    "docs/plans/browser-plan/v0-5-social-platform-account-feed-gating-plan.md"
+  ],
+  "checks": [
+    {
+      "path": "packages/activity-domain/src/social-video-source-custody-settings.ts",
+      "failures": []
+    },
+    {
+      "path": "packages/activity-domain/tests/social-video-source-custody-settings.test.ts",
+      "failures": []
+    },
+    {
+      "path": "docs/features/social-video-control.md",
+      "failures": []
+    },
+    {
+      "path": "docs/plans/browser-plan/social-platform-account-feed/readme.md",
+      "failures": []
+    },
+    {
+      "path": "docs/plans/browser-plan/v0-5-social-platform-account-feed-gating-plan.md",
+      "failures": []
+    }
+  ],
+  "claims": {
+    "sourceCustodySettingsContract": "proof-present",
+    "sourcePrivacyEvidenceRefs": "required",
+    "policyCandidateInput": "enabled-redacted-ref-contract-only",
+    "parentReviewBoundary": "proof-present",
+    "manualRequiredBoundary": "proof-present",
+    "runtimeSettingsUi": "not-claimed",
+    "runtimeCustodyMutation": "not-claimed",
+    "rawContentCustody": "not-claimed",
+    "connectorApiCalls": "not-claimed",
+    "finalPolicyDecision": "not-claimed",
+    "enforcement": "not-claimed"
+  },
+  "failures": []
+}

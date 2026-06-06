@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T08:35:34.756Z
+Generated: 2026-06-06T08:57:30.190Z
 
 Rows checked: 22
 Proof-present rows: 7
@@ -40,6 +40,7 @@ Service-backed dashboard and explanation read-model delivery is present.
 Ref-only social alert/report intent proof is present.
 Schedule/time-budget compiler contract proof is present.
 Parent sensitivity settings contract proof is present.
+Source custody settings contract proof is present over source/privacy refs.
 It does not prove runtime connector behavior, native app control, final
 policy execution, provider/report delivery, applied schedules/budgets,
-enforcement, or product checklist completion.
+runtime custody mutation, enforcement, or product checklist completion.

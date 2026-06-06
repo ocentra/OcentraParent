@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-06T08:35:44.764Z",
+  "generatedAt": "2026-06-06T08:57:47.230Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -209,9 +209,11 @@
     "social-alert-report-intent-proof-present",
     "social-schedule-time-budget-compiler-proof-present",
     "social-parent-sensitivity-settings-proof-present",
+    "social-source-custody-settings-proof-present",
     "provider-report-delivery-not-claimed",
     "applied-schedule-time-budget-not-claimed",
     "connector-native-runtime-not-claimed",
+    "runtime-custody-mutation-not-claimed",
     "final-policy-execution-not-claimed",
     "enforcement-not-claimed",
     "product-checklist-upgrade-not-claimed"
