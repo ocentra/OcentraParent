@@ -70,6 +70,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `20-evidence-quality-gate-validation.log`
 - WP20 provider parity readiness proof:
   `../20-google-places-and-poi-provider-adapter/08-provider-parity-readiness-proof.json`
+- WP25 policy compiler runtime proof:
+  `../25-policy-compiler-for-tracking-rules/proof.json`
 - Tracking notification receipt boundary proof:
   `22-notification-receipt-boundary-proof.json`
 - Hosted child-safe check-in screenshot:
@@ -502,3 +504,19 @@ This workpack can be assigned independently, implemented against the owning doma
       execution, provider credentials/auth, provider terms review, exact-place
       claims, physical-device proof, provider UI, production persistence, and
       product-ready nearby-place behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: implementation checklist and WP33 proof-gate doc.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-policy-compiler-runtime-proof.mjs` passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/proof.json`
+      and `test-results/tracking-policy-compiler-runtime-proof/proof.json`.
+- [x] Product doc/checklist updates: implementation checklist and WP33 updated;
+      no central capability checklist row change needed because this checkpoint
+      corrects stale proof-tier wording for already documented WP25 proof.
+- [x] Known gaps/manual-required states: runtime enforcement, platform adapters,
+      provider delivery, notification receipt ingestion, production workers,
+      physical-device behavior, full UI/report/policy consumers, child-device
+      delivery, authority proof, and product-ready policy behavior remain
+      proof-gated.
