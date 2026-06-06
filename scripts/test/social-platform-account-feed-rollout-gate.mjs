@@ -73,7 +73,7 @@ async function loadDocs() {
 }
 
 function expectedRows() {
-  const completeRows = new Set([1, 13, 14, 15, 20, 21]);
+  const completeRows = new Set([1, 13, 14, 15, 20, 21, 22]);
   return Array.from({ length: 23 }, (_, index) => {
     const rowNumber = index + 1;
     const complete = completeRows.has(rowNumber);
