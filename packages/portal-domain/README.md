@@ -21,6 +21,10 @@ contracts.
 - Social dashboard panel intents that adapt parent-domain social dashboard
   snapshots into portal rows, or render an unavailable zero-row state when no
   service-backed social snapshot exists.
+- Social audit/explanation panel intents that adapt schema-decoded SOCIAL-22
+  proof bundles into parent-visible rows while keeping service-backed
+  explanation delivery, notification delivery, connector authorization, native
+  app control, policy execution, and enforcement unclaimed.
 
 ## Must Not Own
 
@@ -60,3 +64,7 @@ flowchart LR
 - Keep social dashboard rows unavailable until a real service-backed social
   snapshot path exists; do not promote connector/native/final-policy/enforcement
   claims from portal-only rendering.
+- Keep social explanation rows proof-bundle only until a real service-backed
+  explanation read-model/event path exists; do not promote audit-store,
+  notification, connector/native, final-policy, or enforcement claims from
+  portal rendering.
