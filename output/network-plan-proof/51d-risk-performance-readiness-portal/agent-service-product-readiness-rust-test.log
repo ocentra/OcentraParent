@@ -10,5 +10,5 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 264 filtered out; fi
    Compiling ocentra-parent-agent-core v0.1.1 (E:\OcentraParentWorktrees\E-D\OcentraParent\crates\agent-core)
    Compiling ocentra-parent-screen-capture-adapter v0.1.1 (E:\OcentraParentWorktrees\E-D\OcentraParent\crates\screen-capture-adapter)
    Compiling ocentra-parent-agent-service v0.1.1 (E:\OcentraParentWorktrees\E-D\OcentraParent\crates\agent-service)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 17.79s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 16.99s
      Running unittests src\main.rs (target\debug\deps\ocentra_parent_agent_service-7d7b6baa09508943.exe)
