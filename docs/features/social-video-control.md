@@ -156,7 +156,10 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   application-token selection, web-domain-token selection, DeviceActivity
   monitor state, and ManagedSettings shield states while rejecting Apple
   entitlement approval, raw app identity, route proof, content capture,
-  connector/UI/runtime-adapter, and enforcement claims.
+  connector/UI/runtime-adapter, and enforcement claims. SOCIAL-17 also has a
+  real host proof for this lane's Apple/iOS tooling boundary; the current
+  Windows proof records no Darwin host, no Apple tooling, no attached iOS
+  device, and host-tooling-unavailable state.
 - Browser-plan SOCIAL-18 now adds platform connector authorization boundary
   contracts. They model Google/YouTube supervision, Meta Family Center, TikTok
   Family Pairing, platform export/import, and parent-provided account refs as

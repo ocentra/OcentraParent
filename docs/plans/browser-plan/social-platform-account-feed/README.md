@@ -237,6 +237,18 @@ iOS Screen Time/ManagedSettings capability matrix. It keeps Apple entitlement,
 token selection, DeviceActivity, and ManagedSettings shield states explicit
 while rejecting raw app identity, native route proof, content capture, runtime
 adapters, connector access, UI delivery, and enforcement.
+`scripts/test/social-ios-screen-time-host-proof.mjs` now records the real
+host/tooling boundary for this row. It checks whether the current host is macOS,
+whether Apple/iOS tooling such as xcrun, xcodebuild, idevice_id, and ios-deploy
+is available, and whether any iOS device refs are visible without persisting raw
+tool paths, raw device serials, or environment details. The current proof writes
+`test-results/social-ios-screen-time-host-proof/proof.json` and
+`output/browser-plan-proof/social-17-ios-screentime-managedsettings-matrix/11-ios-host-tooling-proof.json`
+with `isDarwinHost=false`, `appleToolingAvailable=false`,
+`attachedDeviceCount=0`, and `host-tooling-unavailable` state. It does not claim
+FamilyControls authorization, token selection, DeviceActivity runtime,
+ManagedSettings runtime, raw application identity, native route proof, content
+capture, UI delivery, connector authorization, or enforcement.
 
 SOCIAL-18 now adds
 `packages/parent-domain/src/social-platform-connector-authorization-values.ts`
