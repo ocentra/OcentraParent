@@ -176,6 +176,17 @@ generic app blocking covers this concern.
   records that child-device delivery runtime writer proof under
   `test-results/app-install-purchase-child-device-delivery-runtime-writer-proof/proof.json`
   when run.
+- `packages/parent-domain/src/app-install-purchase-child-device-delivery-readiness-proof.ts`
+  now links child-device delivery runtime-writer envelope rows,
+  package-source adapter execution rows, and platform limitation action rows
+  into child delivery readiness/manual/unavailable/policy-blocked evidence
+  states while preserving no child-device delivery, runtime writer execution or
+  delivery, provider/store execution, platform adapter implementation, app
+  blocking, child activity data, or Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-child-device-delivery-readiness-proof.mjs`
+  records that child-device delivery readiness proof under
+  `test-results/app-install-purchase-child-device-delivery-readiness-proof/proof.json`
+  when run.
 - `packages/parent-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts`
   now links package-source capture/status rows to local Windows, manual macOS,
   unavailable Linux, and blocked Android/iOS package-source adapter execution
@@ -431,6 +442,12 @@ Ocentra-hosted family data custody.
       parent action runtime delivery, provider/store execution, platform
       adapters, child delivery, report delivery, custody, interception, or app
       blocking claims.
+- [x] Child-device delivery readiness proof linking child-device delivery
+      runtime-writer envelope rows, package-source adapter execution rows, and
+      platform limitation action rows into readiness/manual/unavailable/
+      policy-blocked evidence states without child delivery, writer delivery,
+      provider/store execution, adapters, app blocking, custody, or hosted
+      family data claims.
 - [x] Package-source adapter execution proof linking package-source capture/
       status rows to local Windows, manual macOS, unavailable Linux, and
       blocked Android/iOS adapter execution states without provider/store
