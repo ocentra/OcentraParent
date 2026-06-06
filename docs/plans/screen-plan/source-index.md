@@ -58,7 +58,7 @@ Workers must verify current official docs before claiming platform-specific impl
 | Area                         | Source To Verify                                                                             |
 | ---------------------------- | -------------------------------------------------------------------------------------------- |
 | Managed browser screenshot   | Chrome DevTools Protocol `Page.captureScreenshot` and `Page.startScreencast`.                |
-| OCR baseline                 | Tesseract project/docs and packaging proof.                                                  |
+| OCR baseline                 | Tesseract project/docs, Apache-2.0 license, Windows installer state, and packaging proof.    |
 | OCR preferred path           | PaddleOCR 3.0 / PP-OCR evaluation and packaging proof.                                       |
 | Small/household-provider VLM | Candidate model papers/docs, including Qwen2.5-VL or current Gemma multimodal runtime proof. |
 | Remote/API boundary          | Product privacy docs and parent-approved redacted-summary-only contract.                     |

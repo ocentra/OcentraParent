@@ -464,6 +464,11 @@ only with explicit parent settings.
   no raw retention, model/runtime/template metadata, and
   degraded/manual-required states without claiming production model quality or
   cross-platform parity.
+- `scripts/test/screen-ocr-tesseract-baseline-proof.mjs` now records the
+  Tesseract OCR baseline readiness check. It verifies the upstream
+  project/docs/license direction and records that this Windows lane does not
+  have `tesseract` on `PATH`, so extraction, packaging, quality,
+  CPU/memory/runtime measurement, and PaddleOCR comparison remain open.
 - `scripts/test/screen-ai-service-winrt-ocr-proof.mjs` now proves the
   service-owned Windows WinRT OCR analysis path over real live Chrome/Wikipedia
   pixels: the Rust service cadence loop captures an active-window frame into
@@ -598,6 +603,9 @@ parity, and UI remain separate proof gates.
 - [x] Windows WinRT OCR worker analyzes real browser/native captured pixels,
       emits schema-valid screen analysis evidence, feeds policy dry-run, and
       deletes raw temp images.
+- [~] Tesseract baseline source/license/runtime readiness is recorded, but the
+  local runtime is unavailable on this Windows lane and extraction/quality
+  comparison remains open.
 - [x] Service WinRT OCR proof analyzes live public browser pixels through the
       encrypted service queue, records a `localOcr` Activity Screen row, drains
       the queue, and deletes adapter temp image material.
