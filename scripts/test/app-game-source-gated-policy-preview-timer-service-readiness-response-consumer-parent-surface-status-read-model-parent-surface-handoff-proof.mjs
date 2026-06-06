@@ -115,13 +115,7 @@ const proof = {
 };
 
 assertProof(proof);
-await writeJson(
-  join(
-    testOutputDir,
-    'timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.json'
-  ),
-  parentSurfaceHandoff
-);
+await writeJson(join(testOutputDir, 'handoff.json'), parentSurfaceHandoff);
 await writeJson(join(testOutputDir, 'proof.json'), proof);
 await writeProofPack(appGameProofDir, proof, 'app-game WP99');
 await writeProofPack(appProofDir, proof, 'app WP99');

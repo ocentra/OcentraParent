@@ -44,7 +44,7 @@ const sourceHandoff = await readJson(
     repoRoot,
     'test-results',
     'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff-proof',
-    'timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.json'
+    'handoff.json'
   )
 );
 const parentSurfaceReadModelHandoff =
@@ -117,13 +117,7 @@ const proof = {
 };
 
 assertProof(proof);
-await writeJson(
-  join(
-    testOutputDir,
-    'timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.json'
-  ),
-  parentSurfaceReadModelHandoff
-);
+await writeJson(join(testOutputDir, 'handoff.json'), parentSurfaceReadModelHandoff);
 await writeJson(join(testOutputDir, 'proof.json'), proof);
 await writeProofPack(appGameProofDir, proof, 'app-game WP100');
 await writeProofPack(appProofDir, proof, 'app WP100');
