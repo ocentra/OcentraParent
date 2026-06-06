@@ -361,6 +361,7 @@ export const AgentProtocolDefaults = {
     MostRecentSubjectName: 'mostRecentSubjectName',
     NetworkProtocol: 'networkProtocol',
     NetworkLiveCaptureCustodyStatus: 'networkLiveCaptureCustodyStatus',
+    NetworkLocalAiRuntimeResultStatus: 'networkLocalAiRuntimeResultStatus',
     NetworkProductReadinessStatus: 'networkProductReadinessStatus',
     NetworkRemoteDeliveryStatus: 'networkRemoteDeliveryStatus',
     NetworkRuntimeDeadLetters: 'networkRuntimeDeadLetters',

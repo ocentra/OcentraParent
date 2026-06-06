@@ -79,6 +79,23 @@ pub const TEST_PRODUCT_READINESS_PORTAL_READ_MODEL_REF: &str =
 pub const TEST_PRODUCT_READINESS_RETENTION_EXPORT_REF: &str =
     "network.product-readiness.retention-export.51a";
 pub const TEST_REMOTE_DELIVERY_STATUS_REF: &str = "network.remote-delivery.status.10c";
+pub const TEST_LOCAL_AI_RUNTIME_RESULT_STATUS_REF: &str =
+    "network.local-ai.runtime-result.status.33b";
+pub const TEST_LOCAL_AI_TRIGGER_REF: &str = "network.local-ai.trigger.33b";
+pub const TEST_LOCAL_AI_QUEUE_JOB_REF: &str = "network.local-ai.queue-job.33b";
+pub const TEST_LOCAL_AI_QUEUE_REF: &str = "network.local-ai.queue.33b";
+pub const TEST_LOCAL_AI_MODEL_RUNTIME_REF: &str = "network.local-ai.model-runtime.33b";
+pub const TEST_LOCAL_AI_RESULT_REF: &str = "network.local-ai.result.33b";
+pub const TEST_LOCAL_AI_RUNTIME_REFERENCE_ID: &str = "network.local-ai.runtime-ref.33b";
+pub const TEST_LOCAL_AI_MODEL_REF: &str = "network.local-ai.model.33b";
+pub const TEST_LOCAL_AI_MODEL_VERSION_REF: &str = "network.local-ai.model-version.33b";
+pub const TEST_LOCAL_AI_OUTPUT_SUMMARY_REF: &str = "network.local-ai.output-summary.33b";
+pub const TEST_LOCAL_AI_PROMPT_TEMPLATE_REF: &str = "network.local-ai.prompt-template.33b";
+pub const TEST_LOCAL_AI_POLICY_CONTEXT_REF: &str = "network.local-ai.policy-context.33b";
+pub const TEST_LOCAL_AI_NETWORK_SUMMARY_REF: &str = "network.local-ai.network-summary.33b";
+pub const TEST_LOCAL_AI_SCREEN_SUMMARY_REF: &str = "network.local-ai.screen-summary.33b";
+pub const TEST_LOCAL_AI_MANAGED_BROWSER_EXACT_URL_EVIDENCE_REF: &str =
+    "network.local-ai.managed-browser-exact-url-evidence.33b";
 pub const TEST_RISK_EVALUATION_REF: &str = "network.risk-evaluation.51a";
 pub const TEST_CHILD_PROFILE_REF: &str = "child-profile.network.51a";
 pub const TEST_HOUSEHOLD_POLICY_REF: &str = "household-policy.network.51a";

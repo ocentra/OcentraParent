@@ -15,7 +15,10 @@ use ocentra_parent_agent_protocol::{
     LogLevel, NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState,
 };
 
-use crate::{event_builder::build_event, fields::fields_from_pairs};
+use crate::{
+    event_builder::build_event, fields::fields_from_pairs,
+    network_local_ai_runtime_result_status_payload::local_ai_runtime_result_status,
+};
 
 pub(crate) fn build_network_product_readiness_status_report(
     command: AgentCommandEnvelope,
@@ -34,6 +37,7 @@ pub(crate) fn build_network_product_readiness_status_report(
 pub fn network_product_readiness_status_payload() -> LogFields {
     let live_capture_status = live_capture_custody_status();
     let product_status = product_readiness_status();
+    let local_ai_runtime_result_status = local_ai_runtime_result_status();
     let remote_delivery_status = remote_delivery_status();
 
     fields_from_pairs(vec![
@@ -44,6 +48,10 @@ pub fn network_product_readiness_status_payload() -> LogFields {
         (
             constants::field::NETWORK_PRODUCT_READINESS_STATUS,
             status_field(&product_status),
+        ),
+        (
+            constants::field::NETWORK_LOCAL_AI_RUNTIME_RESULT_STATUS,
+            status_field(&local_ai_runtime_result_status),
         ),
         (
             constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
