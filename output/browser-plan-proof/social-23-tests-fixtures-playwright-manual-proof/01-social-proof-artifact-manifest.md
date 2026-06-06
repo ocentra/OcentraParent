@@ -1,10 +1,10 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T13:17:04.908Z
+Generated: 2026-06-06T13:31:52.037Z
 
 Rows checked: 22
-Proof-present rows: 8
-Partial/manual-required rows: 14
+Proof-present rows: 9
+Partial/manual-required rows: 13
 Playwright state: rendered-proof-bundle-ui-present-runtime-delivery-manual-required
 Product claimed: false
 
@@ -17,7 +17,7 @@ Product claimed: false
 | SOCIAL-05 | partial-manual-required | `social-05-managed-dom-form-shape-detector` | 5 |
 | SOCIAL-06 | partial-manual-required | `social-06-social-account-identity-registry` | 5 |
 | SOCIAL-07 | partial-manual-required | `social-07-parent-approval-contracts` | 5 |
-| SOCIAL-08 | partial-manual-required | `social-08-feed-reels-shorts-route-classification` | 7 |
+| SOCIAL-08 | proof-present | `social-08-feed-reels-shorts-route-classification` | 7 |
 | SOCIAL-09 | partial-manual-required | `social-09-video-social-metadata-extractor` | 7 |
 | SOCIAL-10 | partial-manual-required | `social-10-social-ai-analysis-contracts` | 6 |
 | SOCIAL-11 | partial-manual-required | `social-11-social-risk-benefit-signal-model` | 6 |
