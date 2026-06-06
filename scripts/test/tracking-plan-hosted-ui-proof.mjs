@@ -24,6 +24,13 @@ import { resolveDebugAgentServicePath, spawnVitePortal, stopProcessTreeAndWait }
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const portalRoot = path.join(repoRoot, 'apps', 'portal');
+const workpack16 = path.join(repoRoot, 'output', 'tracking-plan-proof', '16-expected-place-schedule-engine');
+const workpack17 = path.join(
+  repoRoot,
+  'output',
+  'tracking-plan-proof',
+  '17-parent-acknowledgement-and-exception-model'
+);
 const workpack26 = path.join(repoRoot, 'output', 'tracking-plan-proof', '26-alert-severity-and-notification-model');
 const workpack30 = path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces');
 const workpack31 = path.join(
@@ -54,6 +61,11 @@ const notificationParentSurfaceScreenshot = path.join(
   '11-ui-snapshots',
   'hosted-policy-tracking-notification-parent-surface.png'
 );
+const parentActionReadinessScreenshot = path.join(
+  workpack30,
+  '11-ui-snapshots',
+  'hosted-policy-tracking-parent-action-readiness.png'
+);
 const retentionSettingsScreenshot = path.join(
   workpack30,
   '11-ui-snapshots',
@@ -81,6 +93,19 @@ const notificationParentSurfaceWp26HostedUiProofPath = path.join(
 const notificationParentSurfaceWp33HostedUiProofPath = path.join(
   workpack33,
   '35-notification-parent-surface-hosted-ui-proof.json'
+);
+const parentActionReadinessHostedUiProofPath = path.join(workpack30, '23-parent-action-readiness-hosted-ui-proof.json');
+const parentActionReadinessWp16HostedUiProofPath = path.join(
+  workpack16,
+  '30-expected-place-alert-policy-hosted-ui-proof.json'
+);
+const parentActionReadinessWp17HostedUiProofPath = path.join(
+  workpack17,
+  '31-parent-acknowledgement-action-hosted-ui-proof.json'
+);
+const parentActionReadinessWp33HostedUiProofPath = path.join(
+  workpack33,
+  '36-parent-action-readiness-hosted-ui-proof.json'
 );
 const unsupportedManualScreenshot = path.join(workpack31, '19-unsupported-manual-hosted-ui.png');
 const unsupportedManualHostedProofPath = path.join(workpack31, '19-unsupported-manual-hosted-ui-proof.json');
@@ -409,6 +434,11 @@ async function writeProof(playwright) {
       notificationParentSurfaceHostedUiProof: relativePath(notificationParentSurfaceHostedUiProofPath),
       notificationParentSurfaceWp26HostedUiProof: relativePath(notificationParentSurfaceWp26HostedUiProofPath),
       notificationParentSurfaceWp33HostedUiProof: relativePath(notificationParentSurfaceWp33HostedUiProofPath),
+      parentActionReadinessScreenshot: relativePath(parentActionReadinessScreenshot),
+      parentActionReadinessHostedUiProof: relativePath(parentActionReadinessHostedUiProofPath),
+      parentActionReadinessWp16HostedUiProof: relativePath(parentActionReadinessWp16HostedUiProofPath),
+      parentActionReadinessWp17HostedUiProof: relativePath(parentActionReadinessWp17HostedUiProofPath),
+      parentActionReadinessWp33HostedUiProof: relativePath(parentActionReadinessWp33HostedUiProofPath),
       retentionSettingsScreenshot: relativePath(retentionSettingsScreenshot),
       evidenceDrawerScreenshot: relativePath(evidenceDrawerScreenshot),
       evidenceDrawerHostedUiProof: relativePath(evidenceDrawerHostedUiProofPath),
@@ -484,6 +514,36 @@ async function writeProof(playwright) {
       productClaimReadyRows: 0,
       productClaimReady: false,
     },
+    parentActionReadinessHostedUiProof: {
+      expectedPlaceSourceProof:
+        'output/tracking-plan-proof/16-expected-place-schedule-engine/29-expected-place-alert-policy-proof.json',
+      acknowledgementSourceProof:
+        'output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/30-parent-acknowledgement-action-readiness-proof.json',
+      screenshot: relativePath(parentActionReadinessScreenshot),
+      renderedRows: [
+        'alert-policy-ready',
+        'check-in-policy-ready',
+        'suppressed-no-action',
+        'manual-required',
+        'acknowledgement-recorded',
+        'exception-active',
+        'false-alarm-recorded',
+        'child-check-in-request-ready',
+        'escalation-review-ready',
+      ],
+      expectedPlaceRows: 4,
+      acknowledgementActionRows: 5,
+      liveServiceMutationRows: 0,
+      alertDeliveryClaimedRows: 0,
+      providerDeliveryClaimedRows: 0,
+      notificationReceiptClaimedRows: 0,
+      childDeviceRuntimeClaimedRows: 0,
+      physicalDeviceClaimedRows: 0,
+      authorityClaimedRows: 0,
+      productionWorkerClaimedRows: 0,
+      adapterDispatchClaimedRows: 0,
+      productClaimReady: false,
+    },
     retentionSettingsHostedUiProof: {
       sourceProof:
         'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json',
@@ -557,6 +617,7 @@ async function writeProof(playwright) {
       'This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.',
       'This proof renders report/export read-model packet rows but does not claim raw location payload export, service mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, or product-ready export behavior.',
       'This proof renders notification parent-surface history/preference rows but does not claim preference mutation, quiet-hours runtime, provider delivery, receipt ingestion, child-device delivery, physical-device proof, authority, production storage, adapter dispatch, or product readiness.',
+      'This proof renders parent action readiness rows for expected-place alert policy and parent acknowledgement actions but does not claim live service mutation, alert delivery, provider delivery, receipt ingestion, child-device runtime, physical-device proof, authority, production workers, adapter dispatch, or product readiness.',
       'This proof renders retention settings read-model rows but does not claim writable product settings, service mutation, or platform runtime execution.',
       'This proof sends and renders a typed retention settings write-preflight result but does not claim product-ready service mutation, platform runtime execution, child-device delivery, provider delivery, physical-device proof, authority, or production behavior.',
       'This proof renders unsupported/manual platform rows in the hosted portal but does not claim physical-device execution, authority enrollment, provider delivery, or product-ready tracking.',
@@ -579,6 +640,10 @@ async function writeProof(playwright) {
   await writeFile(notificationParentSurfaceHostedUiProofPath, proofContent);
   await writeFile(notificationParentSurfaceWp26HostedUiProofPath, proofContent);
   await writeFile(notificationParentSurfaceWp33HostedUiProofPath, proofContent);
+  await writeFile(parentActionReadinessHostedUiProofPath, proofContent);
+  await writeFile(parentActionReadinessWp16HostedUiProofPath, proofContent);
+  await writeFile(parentActionReadinessWp17HostedUiProofPath, proofContent);
+  await writeFile(parentActionReadinessWp33HostedUiProofPath, proofContent);
   await writeFile(unsupportedManualHostedProofPath, proofContent);
   await writeFile(
     securityLogPath,
@@ -592,6 +657,8 @@ async function writeProof(playwright) {
       'asserted=report export packet screenshot captured',
       'asserted=notification parent-surface history rows render from existing notification proof refs without provider delivery or receipt runtime claims',
       'asserted=notification parent-surface history screenshot captured',
+      'asserted=parent action readiness rows render expected-place alert policy and parent acknowledgement actions without live mutation, delivery, receipt, child-device runtime, authority, or product claims',
+      'asserted=parent action readiness screenshot captured',
       'asserted=evidence drawer renders selected service-backed citation without evaluator or dispatch claims',
       'asserted=evidence drawer screenshot captured',
       'asserted=retention settings write-preflight command button clicked',

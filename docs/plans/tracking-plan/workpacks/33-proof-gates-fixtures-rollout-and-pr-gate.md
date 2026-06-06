@@ -72,6 +72,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `24-notification-preference-preflight-proof.json`
 - Hosted notification parent-surface proof:
   `35-notification-parent-surface-hosted-ui-proof.json`
+- Hosted parent action readiness proof:
+  `36-parent-action-readiness-hosted-ui-proof.json`
 
 ## Merge Blockers
 
@@ -138,13 +140,14 @@ This branch adds `npm run test:tracking-plan-hosted-ui-proof`, which starts the
 real Rust service against a seeded temporary ActivityStore SQLite database and
 drives the hosted parent `policy-tracking` route through Playwright. It writes
 desktop/mobile screenshots, hosted child-safe check-in, child-runtime,
-retention/settings, evidence drawer, and notification parent-surface screenshots,
-an accessibility summary, WP30 hosted UI proof, and WP33 hosted UI gate proof
+retention/settings, evidence drawer, notification parent-surface, and parent
+action readiness screenshots, an accessibility summary, WP30 hosted UI proof,
+and WP33 hosted UI gate proof
 while keeping `productClaimReady=false`. It is a hosted route proof only and
-does not claim writable parent notification preferences, provider delivery,
-receipt ingestion runtime, child-device delivery/runtime UI, Android/iOS
-physical-device behavior, authority, adapter dispatch, production storage, or
-production readiness.
+does not claim writable parent notification preferences, live service mutation,
+provider delivery, receipt ingestion runtime, child-device delivery/runtime UI,
+Android/iOS physical-device behavior, authority, adapter dispatch, production
+storage/workers, or production readiness.
 
 This branch adds `npm run test:tracking-plan-evidence-quality-gate-proof`,
 which validates location UI evidence refs, geofence rule/source refs,
@@ -548,6 +551,31 @@ test:tracking-plan-hosted-ui-proof` passed.
       runtime, live location sample runtime, physical-device proof, authority
       proof, production timeout workers, adapter dispatch, and product-ready
       child check-in behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: hosted parent action readiness proof model, portal route
+      renderer/tests, hosted Playwright proof spec, hosted proof script,
+      portal/text/domain constants, owning tracking feature doc, implementation
+      checklist, WP16, WP17, WP30, WP33, and generated hosted proof artifacts.
+- [x] Validation commands and results: pending final hosted proof refresh after
+      focused text-domain, portal-domain, and portal tracking-status tests
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/36-parent-action-readiness-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/23-parent-action-readiness-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/16-expected-place-schedule-engine/30-expected-place-alert-policy-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/31-parent-acknowledgement-action-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`,
+      and `test-results/tracking-plan-hosted-ui-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP16, WP17, WP30, and WP33 updated. Central
+      `docs/product-capability-checklist.md` remains hub-sequenced because E-B
+      owns that lock.
+- [x] Known gaps/manual-required states: hosted parent action readiness rows are
+      read-only rendering proof only; live service mutation, alert/provider
+      delivery, receipt ingestion runtime, child-device runtime, Android/iOS
+      physical-device proof, authority proof, production workers, adapter
+      dispatch, and product-ready parent action behavior remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: parent-domain tracking POI provider adapter/test, proof

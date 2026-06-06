@@ -397,6 +397,7 @@ export const PortalDom = {
     TrackingProofEvidenceDrawer: 'service-backed-evidence-drawer',
     TrackingProofFamilyDashboard: 'family-dashboard-rollup',
     TrackingProofNotificationParentSurfaceHistory: 'notification-parent-surface-history-ui',
+    TrackingProofParentActionReadiness: 'parent-action-readiness-ui',
     TrackingProofReportExport: 'report-export-ui',
     TrackingProofRetentionSettings: 'retention-settings-ui',
   },

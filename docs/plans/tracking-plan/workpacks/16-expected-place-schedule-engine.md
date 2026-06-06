@@ -49,6 +49,13 @@ evidence refs, reason refs, audit refs, and UI surface refs without claiming
 rendered parent UI, alert delivery runtime, provider delivery, notification
 receipt runtime, child-device runtime, physical-device proof, authority proof,
 production workers, or adapter dispatch.
+The hosted parent route now renders those expected-place alert/check-in/
+suppression/manual rows as read-only parent action readiness UI through
+`npm run test:tracking-plan-hosted-ui-proof`. The hosted proof writes
+`30-expected-place-alert-policy-hosted-ui-proof.json` while keeping alert
+delivery runtime, provider delivery, receipt ingestion, child-device runtime,
+physical-device proof, authority proof, production workers, adapter dispatch,
+and product-ready expected-place behavior unclaimed.
 
 ## Where We Want To Be
 
@@ -115,3 +122,26 @@ This workpack can be assigned independently, implemented against the owning doma
       runtime, physical-device proof, authority proof, production workers,
       adapter dispatch, exception/holiday integration, and product-ready
       expected-place behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: hosted parent action readiness proof model, portal route
+      renderer/tests, hosted Playwright proof spec, hosted proof script,
+      portal/text/domain constants, owning tracking feature doc, implementation
+      checklist, WP16, WP17, WP30, WP33, and generated hosted proof artifacts.
+- [x] Validation commands and results: pending final hosted proof refresh after
+      focused text-domain, portal-domain, and portal tracking-status tests
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/16-expected-place-schedule-engine/30-expected-place-alert-policy-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/23-parent-action-readiness-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/36-parent-action-readiness-hosted-ui-proof.json`,
+      and `test-results/tracking-plan-hosted-ui-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP16, WP17, WP30, and WP33 updated. Central
+      `docs/product-capability-checklist.md` remains hub-sequenced because E-B
+      owns that lock.
+- [x] Known gaps/manual-required states: hosted parent action readiness is
+      read-only rendering proof only; alert delivery runtime, provider delivery,
+      notification receipt runtime, child-device runtime, physical-device
+      proof, authority proof, production workers, adapter dispatch, and
+      product-ready expected-place behavior remain proof-gated.
