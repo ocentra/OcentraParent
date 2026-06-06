@@ -154,26 +154,27 @@ Required files:
 | 104 | [Source-gated policy preview timer service event handoff](workpacks/104-timer-service-event-handoff.md) | [x] | codex-c | codex/app-game-timer-service-event-handoff-wp104 | output/app-game-plan-proof/104-timer-service-event | Parent-domain service event handoff now consumes WP103 service read-model handoff rows and projects whether each native app/native game row still requires future service event proof before runtime event emission/API visibility, or remains blocked by source freshness/compiler decisions. Product checklist unchanged because no feature status moved; package manifest/exports, service command registration, service handler implementation, service read-model runtime emission, service event runtime emission, service event emission, service read API implementation, service read API response implementation, service read API response consumer implementation, runtime persistence, parent-surface rendering, portal UI/consumer rendering, agent-protocol implementation, Rust protocol mirror, policy evaluator runtime, timer runtime/scheduling, scheduler persistence runtime, durable scheduler storage, audit runtime, durable audit log, rollback runtime/execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed. |
 | 105 | [Source-gated policy preview timer service read API handoff](workpacks/105-timer-service-read-api-handoff.md) | [x] | codex-c | codex/app-game-timer-service-read-api-handoff-wp105 | output/app-game-plan-proof/105-timer-service-read-api | Parent-domain service read API handoff now consumes WP104 service event handoff rows and projects whether each native app/native game row still requires future service read API proof before read API implementation/response visibility, or remains blocked by source freshness/compiler decisions. Product checklist unchanged because no feature status moved; package manifest/exports, service command registration, service handler implementation, service read-model runtime emission, service event runtime emission, service event emission, service read API implementation, service read API response implementation, service read API response consumer implementation, runtime persistence, parent-surface rendering, portal UI/consumer rendering, agent-protocol implementation, Rust protocol mirror, policy evaluator runtime, timer runtime/scheduling, scheduler persistence runtime, durable scheduler storage, audit runtime, durable audit log, rollback runtime/execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed. |
 | 106 | [Source-gated policy preview timer service read API response handoff](workpacks/106-timer-service-read-api-response-handoff.md) | [x] | codex-c | codex/app-game-timer-service-read-api-response-handoff-wp106-clean | output/app-game-plan-proof/106-timer-service-read-api-response | Parent-domain service read API response handoff now consumes WP105 service read API handoff rows and projects whether each native app/native game row still requires future service read API response proof before response implementation/consumer visibility, or remains blocked by source freshness/compiler decisions. Product checklist unchanged because no feature status moved; package manifest/exports, service command registration, service handler implementation, service read-model runtime emission, service event runtime emission, service event emission, service read API implementation, service read API response implementation, service read API response consumer implementation, runtime persistence, parent-surface rendering, portal UI/consumer rendering, agent-protocol implementation, Rust protocol mirror, policy evaluator runtime, timer runtime/scheduling, scheduler persistence runtime, durable scheduler storage, audit runtime, durable audit log, rollback runtime/execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed. |
+| 107 | [Source-gated policy preview timer service read API response consumer handoff](workpacks/107-timer-service-read-api-response-consumer-handoff.md) | [x] | codex-c | codex/app-game-timer-service-read-api-response-consumer-handoff-wp107 | output/app-game-plan-proof/107-timer-service-read-api-response-consumer | Parent-domain service read API response consumer handoff now consumes WP106 service read API response handoff rows and projects whether each native app/native game row still requires future response consumer proof before parent-surface/portal consumption, or remains blocked by source freshness/compiler decisions. Product checklist unchanged because no feature status moved; package manifest/exports, service command registration, service handler implementation, service read-model runtime emission, service event runtime emission, service event emission, service read API implementation, service read API response implementation, service read API response consumer implementation, runtime persistence, parent-surface rendering, portal UI/consumer rendering, agent-protocol implementation, Rust protocol mirror, policy evaluator runtime, timer runtime/scheduling, scheduler persistence runtime, durable scheduler storage, audit runtime, durable audit log, rollback runtime/execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed. |
 
 ## Merge-Blocking Failure Gates
 
-- [x] Inventory evidence is displayed as app/game usage.
-- [x] Running evidence is displayed as foreground usage.
-- [x] Foreground evidence is displayed as content knowledge.
-- [x] Launcher evidence is displayed as active game without child-game proof.
-- [x] Unknown process is auto-promoted to known game.
-- [x] AI output directly enforces.
-- [x] Dry-run terminates or blocks app/game.
-- [x] Manual-required action calls an adapter.
-- [x] Android normal mode claims package suspend/hide.
-- [x] iOS claims process scanning/killing.
+- [ ] Inventory evidence is displayed as app/game usage.
+- [ ] Running evidence is displayed as foreground usage.
+- [ ] Foreground evidence is displayed as content knowledge.
+- [ ] Launcher evidence is displayed as active game without child-game proof.
+- [ ] Unknown process is auto-promoted to known game.
+- [ ] AI output directly enforces.
+- [ ] Dry-run terminates or blocks app/game.
+- [ ] Manual-required action calls an adapter.
+- [ ] Android normal mode claims package suspend/hide.
+- [ ] iOS claims process scanning/killing.
 - [ ] macOS hard block is claimed without MDM/Endpoint/System Extension proof.
 - [x] Linux universal block is claimed without mechanism/distro proof.
 - [x] Session duration changes after journal replay.
 - [x] Portal hides stale, permission-limited, manual-required, or not-claimed
       states.
-- [x] Raw private executable paths leak into parent UI.
-- [x] Malicious app/game metadata causes XSS or layout breakage.
+- [ ] Raw private executable paths leak into parent UI.
+- [ ] Malicious app/game metadata causes XSS or layout breakage.
 
 ## Platform Extension Checklist
 
