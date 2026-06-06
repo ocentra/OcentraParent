@@ -1,0 +1,756 @@
+{
+  "schemaVersion": 1,
+  "proofId": "browser-game-educational-classifier-live-evidence-proof",
+  "generatedAt": "2026-06-06T19:58:31.684Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "751e9265bb9591a368bb687766f04ff8e8ac2e9f",
+  "baseCommit": "e9118e91b1be80973a3fb75c5ae8ff76f0d6718c",
+  "captureMode": "real-public-browser-game-educational-classifier-shapes",
+  "targets": [
+    {
+      "targetId": "code-org-minecraft",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 471212,
+      "bodySha256": "b58565af5124f5ecc1a54bc554279778727d9447e14eb2bb833b3641c28a6d61",
+      "inputOriginSha256": "6785ad3888129d98da7c78600a0670a8dbb63d42ec8ef5071f272d15ad3c87a1",
+      "inputPathSha256": "8108e2eb5112e5264cb0e8bfff7a06f4af8e1d25e9f106adf4e352db485e5111",
+      "finalOriginSha256": "6785ad3888129d98da7c78600a0670a8dbb63d42ec8ef5071f272d15ad3c87a1",
+      "finalPathSha256": "8d772dcbb300b6aaf55d75ec2d8d474796d3d05c216c89970b2983aecc2338f8",
+      "category": "coding",
+      "outcome": "educational-candidate",
+      "recommendedGate": "allow-during-homework-candidate",
+      "evidenceKinds": [
+        "school-platform",
+        "subject-metadata"
+      ],
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawModelTextPersisted": false,
+      "platformLabelAuthorityPersisted": false,
+      "policyDecisionPersisted": false
+    },
+    {
+      "targetId": "chess-play-online",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=UTF-8",
+      "contentLength": 114944,
+      "bodySha256": "2abcf7ad66a27f2e0b8f4cc6ececb59e89f13d49a21b063164adfe931b7876a4",
+      "inputOriginSha256": "1e76d9acdaa1d09f7881b8ef8a593a6b926a3cd57d263a84ce6cf6edf900e283",
+      "inputPathSha256": "c98a6799eead2719f98cf1973c99a48a29ccdfb2e8cbaef51f160c6e894260fb",
+      "finalOriginSha256": "1e76d9acdaa1d09f7881b8ef8a593a6b926a3cd57d263a84ce6cf6edf900e283",
+      "finalPathSha256": "c98a6799eead2719f98cf1973c99a48a29ccdfb2e8cbaef51f160c6e894260fb",
+      "category": "chess-logic",
+      "outcome": "educational-candidate",
+      "recommendedGate": "allow-with-time-limit-candidate",
+      "evidenceKinds": [
+        "parent-allowlist",
+        "subject-metadata"
+      ],
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawModelTextPersisted": false,
+      "platformLabelAuthorityPersisted": false,
+      "policyDecisionPersisted": false
+    },
+    {
+      "targetId": "coolmath-run-3",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=UTF-8",
+      "contentLength": 351691,
+      "bodySha256": "d601a7b0f2f98d91466b63398123181add293e91a2da906fa170099ab87ca46b",
+      "inputOriginSha256": "b84f0ef0f2f4f655dc9b86c2925f6edc7dbd72c011a218d18181d0be16442584",
+      "inputPathSha256": "d5046ad3269b96691f45f979e9644d573cdfda21ceaae28c0a87cfae1c5232ec",
+      "finalOriginSha256": "b84f0ef0f2f4f655dc9b86c2925f6edc7dbd72c011a218d18181d0be16442584",
+      "finalPathSha256": "d5046ad3269b96691f45f979e9644d573cdfda21ceaae28c0a87cfae1c5232ec",
+      "category": "unknown-educational-category",
+      "outcome": "misleading-educational-claim",
+      "recommendedGate": "block-portal-candidate",
+      "evidenceKinds": [
+        "platform-self-label",
+        "domain-reputation"
+      ],
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawModelTextPersisted": false,
+      "platformLabelAuthorityPersisted": false,
+      "policyDecisionPersisted": false
+    },
+    {
+      "targetId": "poki-subway-surfers",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 350935,
+      "bodySha256": "856b8a0599864039ef62778b5544e4d0cb102043ec36825692def0531ebbf392",
+      "inputOriginSha256": "f9b232b1f68e6833e5875b782274f5aeb719a114cedc674ea2fddc4fbc258da7",
+      "inputPathSha256": "c9e4e52602ab9978fa98f3cebaa2efe5ecb447763240abefa740170da024aadc",
+      "finalOriginSha256": "f9b232b1f68e6833e5875b782274f5aeb719a114cedc674ea2fddc4fbc258da7",
+      "finalPathSha256": "c9e4e52602ab9978fa98f3cebaa2efe5ecb447763240abefa740170da024aadc",
+      "category": "problem-solving",
+      "outcome": "entertainment-candidate",
+      "recommendedGate": "parent-review-candidate",
+      "evidenceKinds": [
+        "domain-reputation",
+        "page-metadata"
+      ],
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawModelTextPersisted": false,
+      "platformLabelAuthorityPersisted": false,
+      "policyDecisionPersisted": false
+    },
+    {
+      "targetId": "xbox-cloud-play",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 6388929,
+      "bodySha256": "7060c97feef610ba3882d1cc1e77e87d7c15cd53e62ad466d45841b0086b3044",
+      "inputOriginSha256": "c671f65a7182028d27403cb4710407c2b099fba7fcc1921b6ca6e49b450e7244",
+      "inputPathSha256": "5b26e27ee6ed081569893464078e64733cd44843e86d270083ae31be5f1751a4",
+      "finalOriginSha256": "c671f65a7182028d27403cb4710407c2b099fba7fcc1921b6ca6e49b450e7244",
+      "finalPathSha256": "5b26e27ee6ed081569893464078e64733cd44843e86d270083ae31be5f1751a4",
+      "category": "unknown-educational-category",
+      "outcome": "manual-required",
+      "recommendedGate": "manual-review-candidate",
+      "evidenceKinds": [
+        "manual-required"
+      ],
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawModelTextPersisted": false,
+      "platformLabelAuthorityPersisted": false,
+      "policyDecisionPersisted": false
+    }
+  ],
+  "evidenceRows": [
+    {
+      "evidenceRowId": "educational-evidence-code-org-minecraft-school-platform",
+      "evidenceKind": "school-platform",
+      "evidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-code-org-minecraft-school-platform"
+      ],
+      "confidence": "high",
+      "schoolOrParentVerified": true,
+      "platformSelfLabelOnly": false,
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "evidenceRowId": "educational-evidence-code-org-minecraft-subject-metadata",
+      "evidenceKind": "subject-metadata",
+      "evidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-code-org-minecraft-subject-metadata"
+      ],
+      "confidence": "high",
+      "schoolOrParentVerified": false,
+      "platformSelfLabelOnly": false,
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "evidenceRowId": "educational-evidence-chess-play-online-parent-allowlist",
+      "evidenceKind": "parent-allowlist",
+      "evidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-chess-play-online-parent-allowlist"
+      ],
+      "confidence": "high",
+      "schoolOrParentVerified": true,
+      "platformSelfLabelOnly": false,
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "evidenceRowId": "educational-evidence-chess-play-online-subject-metadata",
+      "evidenceKind": "subject-metadata",
+      "evidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-chess-play-online-subject-metadata"
+      ],
+      "confidence": "high",
+      "schoolOrParentVerified": false,
+      "platformSelfLabelOnly": false,
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "evidenceRowId": "educational-evidence-coolmath-run-3-platform-self-label",
+      "evidenceKind": "platform-self-label",
+      "evidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-coolmath-run-3-platform-self-label"
+      ],
+      "confidence": "low",
+      "schoolOrParentVerified": false,
+      "platformSelfLabelOnly": true,
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "evidenceRowId": "educational-evidence-coolmath-run-3-domain-reputation",
+      "evidenceKind": "domain-reputation",
+      "evidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-coolmath-run-3-domain-reputation"
+      ],
+      "confidence": "medium",
+      "schoolOrParentVerified": false,
+      "platformSelfLabelOnly": false,
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "evidenceRowId": "educational-evidence-poki-subway-surfers-domain-reputation",
+      "evidenceKind": "domain-reputation",
+      "evidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-poki-subway-surfers-domain-reputation"
+      ],
+      "confidence": "medium",
+      "schoolOrParentVerified": false,
+      "platformSelfLabelOnly": false,
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "evidenceRowId": "educational-evidence-poki-subway-surfers-page-metadata",
+      "evidenceKind": "page-metadata",
+      "evidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-poki-subway-surfers-page-metadata"
+      ],
+      "confidence": "medium",
+      "schoolOrParentVerified": false,
+      "platformSelfLabelOnly": false,
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "evidenceRowId": "educational-evidence-xbox-cloud-play-manual-required",
+      "evidenceKind": "manual-required",
+      "evidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-xbox-cloud-play-manual-required"
+      ],
+      "confidence": "unknown",
+      "schoolOrParentVerified": false,
+      "platformSelfLabelOnly": false,
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "classifierResults": [
+    {
+      "schemaVersion": "browser-game-educational-classifier-contract",
+      "classifierResultId": "educational-classifier-result-code-org-minecraft",
+      "familyId": "family-browser-game-live-education-proof",
+      "childProfileId": "child-browser-game-live-education-proof",
+      "deviceId": "device-browser-game-live-education-proof",
+      "classifiedAt": "2026-06-06T19:58:31.684Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-code-org-minecraft-school-platform",
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-code-org-minecraft-subject-metadata"
+      ],
+      "evidenceRows": [
+        {
+          "evidenceRowId": "educational-evidence-code-org-minecraft-school-platform",
+          "evidenceKind": "school-platform",
+          "evidenceRefs": [
+            "parent-proof-browser-game-educational-classifier-live-evidence-proof-code-org-minecraft-school-platform"
+          ],
+          "confidence": "high",
+          "schoolOrParentVerified": true,
+          "platformSelfLabelOnly": false,
+          "rawPageBodyUsed": false,
+          "rawGamePayloadUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "evidenceRowId": "educational-evidence-code-org-minecraft-subject-metadata",
+          "evidenceKind": "subject-metadata",
+          "evidenceRefs": [
+            "parent-proof-browser-game-educational-classifier-live-evidence-proof-code-org-minecraft-subject-metadata"
+          ],
+          "confidence": "high",
+          "schoolOrParentVerified": false,
+          "platformSelfLabelOnly": false,
+          "rawPageBodyUsed": false,
+          "rawGamePayloadUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "category": "coding",
+      "outcome": "educational-candidate",
+      "confidence": "high",
+      "recommendedGate": "allow-during-homework-candidate",
+      "degradedState": "none",
+      "uncertaintyReasons": [],
+      "homeworkContextRef": "parent-proof-browser-game-educational-classifier-live-evidence-proof-code-org-minecraft-homework",
+      "parentAllowlistRef": null,
+      "schoolSourceRef": "parent-proof-browser-game-educational-classifier-live-evidence-proof-code-org-minecraft-school-source",
+      "aiAnalysisRef": null,
+      "metadataRef": "parent-proof-browser-game-educational-classifier-live-evidence-proof-code-org-minecraft-metadata-shape",
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "platformLabelTreatedAsAuthority": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-educational-classifier-contract",
+      "classifierResultId": "educational-classifier-result-chess-play-online",
+      "familyId": "family-browser-game-live-education-proof",
+      "childProfileId": "child-browser-game-live-education-proof",
+      "deviceId": "device-browser-game-live-education-proof",
+      "classifiedAt": "2026-06-06T19:58:31.684Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-chess-play-online-parent-allowlist",
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-chess-play-online-subject-metadata"
+      ],
+      "evidenceRows": [
+        {
+          "evidenceRowId": "educational-evidence-chess-play-online-parent-allowlist",
+          "evidenceKind": "parent-allowlist",
+          "evidenceRefs": [
+            "parent-proof-browser-game-educational-classifier-live-evidence-proof-chess-play-online-parent-allowlist"
+          ],
+          "confidence": "high",
+          "schoolOrParentVerified": true,
+          "platformSelfLabelOnly": false,
+          "rawPageBodyUsed": false,
+          "rawGamePayloadUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "evidenceRowId": "educational-evidence-chess-play-online-subject-metadata",
+          "evidenceKind": "subject-metadata",
+          "evidenceRefs": [
+            "parent-proof-browser-game-educational-classifier-live-evidence-proof-chess-play-online-subject-metadata"
+          ],
+          "confidence": "high",
+          "schoolOrParentVerified": false,
+          "platformSelfLabelOnly": false,
+          "rawPageBodyUsed": false,
+          "rawGamePayloadUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "category": "chess-logic",
+      "outcome": "educational-candidate",
+      "confidence": "high",
+      "recommendedGate": "allow-with-time-limit-candidate",
+      "degradedState": "none",
+      "uncertaintyReasons": [],
+      "homeworkContextRef": "parent-proof-browser-game-educational-classifier-live-evidence-proof-chess-play-online-homework",
+      "parentAllowlistRef": "parent-proof-browser-game-educational-classifier-live-evidence-proof-chess-play-online-parent-allowlist",
+      "schoolSourceRef": null,
+      "aiAnalysisRef": null,
+      "metadataRef": "parent-proof-browser-game-educational-classifier-live-evidence-proof-chess-play-online-metadata-shape",
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "platformLabelTreatedAsAuthority": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-educational-classifier-contract",
+      "classifierResultId": "educational-classifier-result-coolmath-run-3",
+      "familyId": "family-browser-game-live-education-proof",
+      "childProfileId": "child-browser-game-live-education-proof",
+      "deviceId": "device-browser-game-live-education-proof",
+      "classifiedAt": "2026-06-06T19:58:31.684Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-coolmath-run-3-platform-self-label",
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-coolmath-run-3-domain-reputation"
+      ],
+      "evidenceRows": [
+        {
+          "evidenceRowId": "educational-evidence-coolmath-run-3-platform-self-label",
+          "evidenceKind": "platform-self-label",
+          "evidenceRefs": [
+            "parent-proof-browser-game-educational-classifier-live-evidence-proof-coolmath-run-3-platform-self-label"
+          ],
+          "confidence": "low",
+          "schoolOrParentVerified": false,
+          "platformSelfLabelOnly": true,
+          "rawPageBodyUsed": false,
+          "rawGamePayloadUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "evidenceRowId": "educational-evidence-coolmath-run-3-domain-reputation",
+          "evidenceKind": "domain-reputation",
+          "evidenceRefs": [
+            "parent-proof-browser-game-educational-classifier-live-evidence-proof-coolmath-run-3-domain-reputation"
+          ],
+          "confidence": "medium",
+          "schoolOrParentVerified": false,
+          "platformSelfLabelOnly": false,
+          "rawPageBodyUsed": false,
+          "rawGamePayloadUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "category": "unknown-educational-category",
+      "outcome": "misleading-educational-claim",
+      "confidence": "medium",
+      "recommendedGate": "block-portal-candidate",
+      "degradedState": "none",
+      "uncertaintyReasons": [],
+      "homeworkContextRef": null,
+      "parentAllowlistRef": null,
+      "schoolSourceRef": null,
+      "aiAnalysisRef": null,
+      "metadataRef": "parent-proof-browser-game-educational-classifier-live-evidence-proof-coolmath-run-3-metadata-shape",
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "platformLabelTreatedAsAuthority": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-educational-classifier-contract",
+      "classifierResultId": "educational-classifier-result-poki-subway-surfers",
+      "familyId": "family-browser-game-live-education-proof",
+      "childProfileId": "child-browser-game-live-education-proof",
+      "deviceId": "device-browser-game-live-education-proof",
+      "classifiedAt": "2026-06-06T19:58:31.684Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-poki-subway-surfers-domain-reputation",
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-poki-subway-surfers-page-metadata"
+      ],
+      "evidenceRows": [
+        {
+          "evidenceRowId": "educational-evidence-poki-subway-surfers-domain-reputation",
+          "evidenceKind": "domain-reputation",
+          "evidenceRefs": [
+            "parent-proof-browser-game-educational-classifier-live-evidence-proof-poki-subway-surfers-domain-reputation"
+          ],
+          "confidence": "medium",
+          "schoolOrParentVerified": false,
+          "platformSelfLabelOnly": false,
+          "rawPageBodyUsed": false,
+          "rawGamePayloadUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "evidenceRowId": "educational-evidence-poki-subway-surfers-page-metadata",
+          "evidenceKind": "page-metadata",
+          "evidenceRefs": [
+            "parent-proof-browser-game-educational-classifier-live-evidence-proof-poki-subway-surfers-page-metadata"
+          ],
+          "confidence": "medium",
+          "schoolOrParentVerified": false,
+          "platformSelfLabelOnly": false,
+          "rawPageBodyUsed": false,
+          "rawGamePayloadUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "category": "problem-solving",
+      "outcome": "entertainment-candidate",
+      "confidence": "medium",
+      "recommendedGate": "parent-review-candidate",
+      "degradedState": "none",
+      "uncertaintyReasons": [],
+      "homeworkContextRef": null,
+      "parentAllowlistRef": null,
+      "schoolSourceRef": null,
+      "aiAnalysisRef": null,
+      "metadataRef": "parent-proof-browser-game-educational-classifier-live-evidence-proof-poki-subway-surfers-metadata-shape",
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "platformLabelTreatedAsAuthority": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-educational-classifier-contract",
+      "classifierResultId": "educational-classifier-result-xbox-cloud-play",
+      "familyId": "family-browser-game-live-education-proof",
+      "childProfileId": "child-browser-game-live-education-proof",
+      "deviceId": "device-browser-game-live-education-proof",
+      "classifiedAt": "2026-06-06T19:58:31.684Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-educational-classifier-live-evidence-proof-xbox-cloud-play-manual-required"
+      ],
+      "evidenceRows": [
+        {
+          "evidenceRowId": "educational-evidence-xbox-cloud-play-manual-required",
+          "evidenceKind": "manual-required",
+          "evidenceRefs": [
+            "parent-proof-browser-game-educational-classifier-live-evidence-proof-xbox-cloud-play-manual-required"
+          ],
+          "confidence": "unknown",
+          "schoolOrParentVerified": false,
+          "platformSelfLabelOnly": false,
+          "rawPageBodyUsed": false,
+          "rawGamePayloadUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "category": "unknown-educational-category",
+      "outcome": "manual-required",
+      "confidence": "low",
+      "recommendedGate": "manual-review-candidate",
+      "degradedState": "manual-required",
+      "uncertaintyReasons": [
+        "manual-required",
+        "missing-school-source"
+      ],
+      "homeworkContextRef": null,
+      "parentAllowlistRef": null,
+      "schoolSourceRef": null,
+      "aiAnalysisRef": null,
+      "metadataRef": "parent-proof-browser-game-educational-classifier-live-evidence-proof-xbox-cloud-play-metadata-shape",
+      "rawPageBodyUsed": false,
+      "rawGamePayloadUsed": false,
+      "rawModelTextUsed": false,
+      "platformLabelTreatedAsAuthority": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "row-raw-page-body",
+      "rejected": true
+    },
+    {
+      "name": "row-raw-game-payload",
+      "rejected": true
+    },
+    {
+      "name": "row-raw-model-text",
+      "rejected": true
+    },
+    {
+      "name": "row-account-purchase-execution",
+      "rejected": true
+    },
+    {
+      "name": "row-native-game-control",
+      "rejected": true
+    },
+    {
+      "name": "row-cloud-frame-analysis",
+      "rejected": true
+    },
+    {
+      "name": "row-policy-decision",
+      "rejected": true
+    },
+    {
+      "name": "row-enforcement",
+      "rejected": true
+    },
+    {
+      "name": "row-platform-label-high-authority",
+      "rejected": true
+    },
+    {
+      "name": "result-raw-page-body",
+      "rejected": true
+    },
+    {
+      "name": "result-raw-game-payload",
+      "rejected": true
+    },
+    {
+      "name": "result-raw-model-text",
+      "rejected": true
+    },
+    {
+      "name": "result-platform-label-authority",
+      "rejected": true
+    },
+    {
+      "name": "result-final-policy-decision",
+      "rejected": true
+    },
+    {
+      "name": "result-runtime-gate",
+      "rejected": true
+    },
+    {
+      "name": "result-ui-rendered",
+      "rejected": true
+    },
+    {
+      "name": "result-account-purchase-execution",
+      "rejected": true
+    },
+    {
+      "name": "result-native-game-control",
+      "rejected": true
+    },
+    {
+      "name": "result-cloud-frame-analysis",
+      "rejected": true
+    },
+    {
+      "name": "result-enforcement",
+      "rejected": true
+    },
+    {
+      "name": "result-empty-evidence",
+      "rejected": true
+    },
+    {
+      "name": "result-educational-unknown-category",
+      "rejected": true
+    },
+    {
+      "name": "result-degraded-high-confidence",
+      "rejected": true
+    }
+  ],
+  "summary": {
+    "targetCount": 5,
+    "evidenceRows": 9,
+    "classifierResults": 5,
+    "negativeChecks": 23,
+    "educationalCandidates": 2,
+    "entertainmentCandidates": 1,
+    "misleadingEducationalClaims": 1,
+    "manualRequired": 1,
+    "rawPageBodyUsed": false,
+    "rawGamePayloadUsed": false,
+    "rawModelTextUsed": false,
+    "platformLabelTreatedAsAuthority": false,
+    "accountOrPurchaseExecutionClaimed": false,
+    "finalPolicyDecisionClaimed": false,
+    "runtimeGateExecutedClaimed": false,
+    "uiRenderedClaimed": false,
+    "nativeGameControlClaimed": false,
+    "cloudFrameAnalysisClaimed": false,
+    "enforcementClaimed": false,
+    "productChecklistUpgradeClaimed": false
+  }
+}

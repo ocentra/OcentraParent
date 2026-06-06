@@ -367,13 +367,15 @@ store or capture raw URL/page/game/frame payloads, instrument browsers, control
 hidden native surfaces, run AI, decide policy, render UI, inspect cloud frames,
 control native games, or enforce actions.
 Browser-game/cloud-gaming GAME-09 now adds parent-domain educational classifier
-contracts for browser games. The classifier uses evidence refs for school URLs,
-teacher/parent allowlists, metadata, AI classification refs, parent approval,
-homework context, school platforms, platform self-labels, and manual-required
-states, then returns candidate gate inputs only. It does not treat platform
-labels as authority and does not claim raw page/game/model capture, final policy
-decisions, runtime gates, UI rendering, native game control, cloud-frame
-analysis, or enforcement.
+contracts plus a live public candidate-shape proof. The live proof fetches real
+public Code.org Minecraft, Chess.com play, Coolmath Run 3, Poki Subway Surfers,
+and Xbox Cloud Gaming pages; stores only response metadata, hashed
+origin/path/body refs, evidence refs, classifier candidate rows, and
+no-authority flags; validates 9 evidence rows plus 5 educational,
+entertainment, misleading-claim, and manual-required candidate results; and
+rejects 23 overclaims. It does not treat platform labels as authority and does
+not claim raw page/game/model capture, final policy decisions, runtime gates, UI
+rendering, native game control, cloud-frame analysis, or enforcement.
 Browser-game/cloud-gaming GAME-10 now adds parent-domain AI analysis contracts
 for browser games. Inputs consume typed evidence refs only for browser
 evidence, URL shape, runtime signals, metadata, screen summaries, parent rules,
@@ -499,7 +501,8 @@ live-route-proof-present, GAME-03 is live-portal-pattern-proof-present, GAME-04
 is live-cloud-pattern-proof-present, and GAME-05 is live-url-shape-proof-present.
 GAME-06 is live-runtime-signal-shape-proof-present. GAME-07 is
 live-metadata-shape-proof-present. GAME-08 is
-live-hidden-analysis-profile-safety-proof-present. GAME-09 through GAME-24 are
+live-hidden-analysis-profile-safety-proof-present. GAME-09 is
+live-educational-classifier-proof-present. GAME-10 through GAME-24 are
 partial/manual-required. AI, memory, UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.

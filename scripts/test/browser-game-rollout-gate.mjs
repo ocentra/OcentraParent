@@ -145,7 +145,16 @@ function expectedRows() {
         expectedState: 'live-hidden-analysis-profile-safety-proof-present',
       };
     }
-    if (rowNumber >= 9) {
+    if (rowNumber === 9) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-educational-classifier-proof-present',
+      };
+    }
+    if (rowNumber >= 10) {
       return {
         rowNumber,
         rowId,
@@ -257,6 +266,7 @@ function markdownFor(manifest) {
     'GAME-06 live runtime signal shape proof is present.',
     'GAME-07 live metadata shape proof is present.',
     'GAME-08 live hidden analysis profile safety proof is present.',
+    'GAME-09 live educational classifier proof is present.',
     'Product checklist upgrade is not claimed.',
     'Browser-game route contracts, runtime signals, metadata, AI, memory,',
     'child/parent UI, cloud-streamed frame analysis, native game control,',

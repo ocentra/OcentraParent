@@ -1283,18 +1283,19 @@ worker messages before code changes. Do not mix all 24 into one PR.
   profile rows plus 10 planned/proof-backed loader results; and rejects 40 child
   profile reuse, raw capture, hidden/browser/native, AI, policy, UI, cloud-frame,
   and enforcement overclaims.
-- GAME-09 now adds parent-domain browser-game educational classifier contracts.
-  The classifier models evidence rows for domain reputation, school-provided
-  URLs, teacher/parent allowlists, page/subject metadata, AI classification
-  refs, past parent approval, homework context, school platforms, platform
-  self-labels, and manual-required states. Results classify educational,
-  entertainment, misleading educational claim, unknown, manual-required, or
-  unavailable candidates, and recommend allow-during-homework,
-  allow-with-time-limit, parent-review, block-portal, manual-review, or unknown
-  gate inputs. They reject raw page/game/model payloads, account/purchase
-  execution, platform labels as authority, final policy authority, runtime
-  gate execution, UI rendering, native game control, cloud-frame analysis, and
-  enforcement.
+- GAME-09 now adds parent-domain browser-game educational classifier contracts
+  and a live public candidate-shape proof. The classifier models evidence rows
+  for domain reputation, school-provided URLs, teacher/parent allowlists,
+  page/subject metadata, AI classification refs, past parent approval, homework
+  context, school platforms, platform self-labels, and manual-required states.
+  The live proof fetches real public Code.org Minecraft, Chess.com play,
+  Coolmath Run 3, Poki Subway Surfers, and Xbox Cloud Gaming pages; stores only
+  response metadata, hashed origin/path/body refs, evidence refs, classifier
+  candidate rows, and no-authority flags; validates 9 evidence rows plus 5
+  educational, entertainment, misleading-claim, and manual-required candidate
+  results; and rejects 23 raw content, model text, platform-authority,
+  account/purchase, policy, runtime, UI, native, cloud-frame, and enforcement
+  overclaims.
 - GAME-10 now adds parent-domain browser-game AI analysis input/result
   contracts. Inputs consume typed evidence refs only for browser evidence, URL
   shape, runtime signals, metadata, screen summaries, parent rules, recent
@@ -1436,7 +1437,8 @@ worker messages before code changes. Do not mix all 24 into one PR.
   GAME-05 as live-url-shape-proof-present, GAME-06 as
   live-runtime-signal-shape-proof-present, GAME-07 as
   live-metadata-shape-proof-present, GAME-08 as
-  live-hidden-analysis-profile-safety-proof-present, GAME-09 through GAME-24 as
+  live-hidden-analysis-profile-safety-proof-present, GAME-09 as
+  live-educational-classifier-proof-present, GAME-10 through GAME-24 as
   partial/manual-required, and no browser-game rows as open/manual-required.
   Product checklist upgrade is not claimed, and runtime
   signals, metadata, AI, memory, child/parent UI, cloud-streamed frame analysis,

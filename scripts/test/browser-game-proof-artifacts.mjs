@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 8;
+    const isComplete = rowNumber <= 9;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -82,7 +82,9 @@ function expectedRows() {
                     ? 'live-runtime-signal-shape-proof-present'
                     : rowNumber === 7
                       ? 'live-metadata-shape-proof-present'
-                      : 'live-hidden-analysis-profile-safety-proof-present'
+                      : rowNumber === 8
+                        ? 'live-hidden-analysis-profile-safety-proof-present'
+                        : 'live-educational-classifier-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -186,6 +188,7 @@ function manifestFor(rows, failures) {
       liveRuntimeSignalEvidence: 'game-06-live-runtime-signal-shape-proof-present',
       liveMetadataEvidence: 'game-07-live-metadata-shape-proof-present',
       liveHiddenAnalysisProfileSafetyEvidence: 'game-08-live-hidden-analysis-profile-safety-proof-present',
+      liveEducationalClassifierEvidence: 'game-09-live-educational-classifier-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -230,6 +233,8 @@ function markdownFor(manifest) {
     'browser-game and cloud-gaming pages with ref-only/hash-only custody.',
     'GAME-08 live hidden analysis profile safety proof is present for real public',
     'browser-game and cloud-gaming pages with isolated-profile, no-capture custody.',
+    'GAME-09 live educational classifier proof is present for real public',
+    'educational, entertainment, misleading, and manual-required candidate shapes.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

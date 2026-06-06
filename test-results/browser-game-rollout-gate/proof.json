@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-rollout-gate",
-  "generatedAt": "2026-06-06T19:47:28.887Z",
+  "generatedAt": "2026-06-06T19:58:32.279Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -78,10 +78,10 @@
     {
       "rowNumber": 9,
       "rowId": "GAME-09",
-      "expectedStatus": "[~]",
+      "expectedStatus": "[x]",
       "expectedOwner": "codex-d",
-      "expectedState": "partial-manual-required",
-      "state": "partial-manual-required",
+      "expectedState": "live-educational-classifier-proof-present",
+      "state": "live-educational-classifier-proof-present",
       "failures": []
     },
     {
@@ -222,8 +222,8 @@
   ],
   "summary": {
     "totalRows": 24,
-    "completeRows": 8,
-    "partialRows": 16,
+    "completeRows": 9,
+    "partialRows": 15,
     "openRows": 0,
     "failures": 0,
     "rolloutState": "partial/manual-required",
