@@ -45,6 +45,14 @@ replace the constitution, roadmap, or capability checklist.
   contact, remote support sessions, production SLA, legal disclosure execution,
   provider secrets, and child-activity custody as gaps until real evidence
   exists.
+- `production-support-publication-status-freshness-proof` may prove source
+  contract freshness for support runbook, incident status, public support
+  contact, support backend upload publication, privacy/legal publication, and
+  account/billing support publication rows, but docs must still label public
+  runtime execution, support publication execution, support backend upload
+  execution, account lookup execution, billing provider contact, remote support
+  sessions, production SLA, legal disclosure execution, provider secrets, and
+  child-activity custody as gaps until real evidence exists.
 - `production-support-backend-upload-status-proof` may prove support upload
   status/read-model rows, redaction/audit refs, retry/abandon refs, and manual
   proof requirements, but docs must still label raw child activity custody,
