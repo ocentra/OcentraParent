@@ -33,6 +33,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `21-product-surface-summary-proof.json`
 - `22-report-policy-consumer-proof.json`
 - `23-family-dashboard-rollup-proof.json`
+- `24-retention-settings-read-model-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -56,6 +57,9 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [x] Expose family dashboard rollup rows for active family summary,
       child-attention summary, and retention-audit summary without claiming
       portal UI completion or child-device/runtime behavior.
+- [x] Expose retention settings read-model rows for retention window,
+      delete-after-alert, parent export, remote-sync disabled, and remote-AI
+      disabled state without claiming service mutation or product UI.
 
 ## Where We Are
 
@@ -88,6 +92,12 @@ child-attention summary, and retention-audit summary rows from the existing
 service read-model/product-surface/report-consumer proof refs while keeping
 portal UI, child-device delivery, provider delivery, notification receipt,
 physical-device, authority, and product-ready claims false.
+The retention settings read-model proof derives retention window,
+delete-after-alert, parent export, remote-sync disabled, and remote-AI disabled
+rows from the existing WP07 retention/delete/export and WP32 service read-model
+proof refs while keeping service mutation, portal UI, platform runtime,
+child-device delivery, provider delivery, notification receipt, physical-device,
+authority, and product-ready claims false.
 The pre-device proof gate now reruns this service proof and records the
 remaining broader read-model, full UI, hosted accessibility, and platform replay
 gaps before device work starts.
@@ -125,6 +135,8 @@ This workpack can be assigned independently, implemented against the owning doma
   manual-required until the assigned proof artifacts exist. The family
   dashboard rollup rows are read-model consumer proof only; they are not
   rendered portal UI or child-device runtime proof.
+- Retention settings read-model rows are not writable product settings, service
+  mutation, or live retention UI proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -245,3 +257,23 @@ This workpack can be assigned independently, implemented against the owning doma
       child-device delivery/runtime execution, Android/iOS physical-device
       proof, authority, provider delivery, notifications, and production proof
       remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-retention-settings-read-model-proof`.
+- [x] Touched files: parent-domain retention settings read-model proof
+      source/test, proof harness, tracking feature doc, implementation
+      checklist, WP07, WP32, and generated WP07/WP32 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-retention-settings-read-model-proof.mjs`
+      passed locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json`,
+      and `test-results/tracking-retention-settings-read-model-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, and WP32 updated; central capability checklist row is
+      not edited by this worker while another lane owns it.
+- [x] Known gaps/manual-required states: actual writable product settings,
+      live service-backed retention UI, service mutation, platform runtime,
+      child-device delivery/runtime execution, Android/iOS physical-device
+      proof, authority, provider delivery, notification receipts, and
+      production proof remain proof-gated.
