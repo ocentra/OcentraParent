@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T09:43:25.443Z
+Generated: 2026-06-06T09:55:00.982Z
 
 Rows checked: 23
 Proof-present rows: 7
@@ -41,6 +41,7 @@ and parent explanation states. Service-backed dashboard and explanation
 read-model delivery is present. Live SOCIAL-08 route classification proof
 is present. Live SOCIAL-09 metadata extraction proof is present.
 Live SOCIAL-10 evidence-bound AI degradation proof is present.
+Live SOCIAL-11 evidence-bound risk/benefit degradation proof is present.
 Ref-only social alert/report intent proof is present.
 Schedule/time-budget compiler proof and parent sensitivity
 settings proof are present. Source custody settings proof is present over

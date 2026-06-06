@@ -168,7 +168,11 @@ results. Signal rows carry canonical risk or benefit kinds, severity, state,
 confidence, and evidence refs, while signal sets copy analysis provenance and
 degraded state. They reject raw message/feed/page/model use, account identity
 verification claims, final policy decisions, native app control, connector
-claims, UI delivery, and enforcement. Package subpath exports are now present.
+claims, UI delivery, and enforcement.
+`scripts/test/social-risk-benefit-live-evidence-proof.mjs` consumes SOCIAL-10
+degraded AI result refs and emits unavailable risk/benefit signal sets without
+classifying content or claiming final policy/enforcement authority. Package
+subpath exports are now present.
 
 SOCIAL-12 now adds parent-domain social policy compiler contracts in
 `packages/parent-domain/src/social-policy-compiler-values.ts` and
