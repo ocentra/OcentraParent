@@ -351,3 +351,16 @@ manual-required states, and unavailable capability states. The proof writes
 It proves ref-only local-outbox/report linkage and rejects raw
 account/video/message content, screenshots, provider delivery, report delivery,
 parent notification UI, final policy decisions, and enforcement.
+
+The follow-up `social-parent-sensitivity-settings-proof` adds
+`packages/parent-domain/src/social-parent-sensitivity-settings-values.ts`,
+`packages/parent-domain/src/social-parent-sensitivity-settings.ts`, and
+`packages/parent-domain/tests/social-parent-sensitivity-settings.test.ts`, a
+parent sensitivity settings boundary for high-risk alerts, feed/video review,
+account-flow review, connector data use, native-app gap review, and weekly
+summary sensitivity rows. The proof writes
+`test-results/social-parent-sensitivity-settings-proof/proof.json` and
+`output/browser-plan-proof/social-parent-sensitivity-settings-proof/01-social-parent-sensitivity-settings-proof.md`.
+It proves ref-only policy/alert candidate settings and rejects raw
+message/video content, screenshots, connector tokens/API calls, runtime
+settings UI, final policy decisions, and enforcement.
