@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T09:30:30.843Z
+Generated: 2026-06-06T09:43:25.344Z
 
 Rows checked: 22
 Proof-present rows: 7
@@ -19,7 +19,7 @@ Product claimed: false
 | SOCIAL-07 | partial-manual-required | `social-07-parent-approval-contracts` | 5 |
 | SOCIAL-08 | partial-manual-required | `social-08-feed-reels-shorts-route-classification` | 7 |
 | SOCIAL-09 | partial-manual-required | `social-09-video-social-metadata-extractor` | 7 |
-| SOCIAL-10 | partial-manual-required | `social-10-social-ai-analysis-contracts` | 5 |
+| SOCIAL-10 | partial-manual-required | `social-10-social-ai-analysis-contracts` | 6 |
 | SOCIAL-11 | partial-manual-required | `social-11-social-risk-benefit-signal-model` | 5 |
 | SOCIAL-12 | partial-manual-required | `social-12-parent-policy-compiler-social-targets` | 5 |
 | SOCIAL-13 | proof-present | `social-13-managed-browser-account-creation-gate` | 8 |
@@ -39,6 +39,7 @@ child-agent-served social intervention page, and parent explanation panel.
 Service-backed dashboard and explanation read-model delivery is present.
 Live route classification proof is present for SOCIAL-08 public feed surfaces.
 Live metadata extraction proof is present for SOCIAL-09 public social/video surfaces.
+Live-evidence AI boundary proof is present for SOCIAL-10 degraded model-unavailable rows.
 Ref-only social alert/report intent proof is present.
 Schedule/time-budget compiler contract proof is present.
 Parent sensitivity settings contract proof is present.
