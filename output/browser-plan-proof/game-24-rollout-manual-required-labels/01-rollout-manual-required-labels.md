@@ -1,10 +1,10 @@
 # GAME-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T18:28:10.265Z
+Generated: 2026-06-06T18:40:24.632Z
 
 Rows checked: 24
-Proof-present rows: 2
-Partial/manual-required rows: 22
+Proof-present rows: 3
+Partial/manual-required rows: 21
 Open/manual-required rows: 0
 Rollout state: partial/manual-required
 Product claimed: false
@@ -13,7 +13,7 @@ Product claimed: false
 | --- | --- | --- |
 | GAME-01 | scaffold-proof-present | [x] |
 | GAME-02 | live-route-proof-present | [x] |
-| GAME-03 | partial-manual-required | [~] |
+| GAME-03 | live-portal-pattern-proof-present | [x] |
 | GAME-04 | partial-manual-required | [~] |
 | GAME-05 | partial-manual-required | [~] |
 | GAME-06 | partial-manual-required | [~] |
@@ -38,6 +38,7 @@ Product claimed: false
 
 GAME rollout state: partial/manual-required.
 GAME-02 live route contract proof is present.
+GAME-03 live portal pattern library proof is present.
 Product checklist upgrade is not claimed.
 Browser-game route contracts, runtime signals, metadata, AI, memory,
 child/parent UI, cloud-streamed frame analysis, native game control,

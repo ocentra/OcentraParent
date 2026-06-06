@@ -1,10 +1,10 @@
 # GAME-22 Browser-Game Proof Artifact Manifest
 
-Generated: 2026-06-06T18:28:10.265Z
+Generated: 2026-06-06T18:40:24.608Z
 
 Rows checked: 21
-Proof-present rows: 2
-Partial/manual-required rows: 19
+Proof-present rows: 3
+Partial/manual-required rows: 18
 Playwright state: manual-required-no-rendered-browser-game-ui
 Product claimed: false
 
@@ -12,7 +12,7 @@ Product claimed: false
 | --- | --- | --- | --- |
 | GAME-01 | scaffold-proof-present | `game-01-browser-game-plan-folder-readme` | 5 |
 | GAME-02 | live-route-proof-present | `game-02-browser-game-platform-route-contracts` | 6 |
-| GAME-03 | partial-manual-required | `game-03-known-game-portal-pattern-library` | 5 |
+| GAME-03 | live-portal-pattern-proof-present | `game-03-known-game-portal-pattern-library` | 6 |
 | GAME-04 | partial-manual-required | `game-04-cloud-gaming-pattern-library` | 5 |
 | GAME-05 | partial-manual-required | `game-05-game-url-shape-parser` | 5 |
 | GAME-06 | partial-manual-required | `game-06-game-runtime-signal-detector` | 5 |
@@ -35,6 +35,8 @@ Product claimed: false
 GAME-22 proves proof-pack coverage for GAME-01 through GAME-21.
 GAME-02 live route proof is present for real public browser-game and
 cloud-gaming route surfaces with ref-only/hash-only custody.
+GAME-03 live portal pattern library proof is present for real public
+browser-game portal and archive surfaces with ref-only/hash-only custody.
 It does not prove rendered browser-game UI, Playwright screenshots,
 runtime browser-game detection, cloud-streamed frame analysis, native
 game control, final policy execution, enforcement, or product checklist
