@@ -22,6 +22,7 @@ mod linux_adapter_gate;
 mod live_capture;
 mod live_capture_custody_status;
 mod local_ai_queue;
+mod local_ai_runtime_result;
 mod managed_browser;
 mod notification;
 mod performance;
