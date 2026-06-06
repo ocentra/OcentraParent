@@ -10,6 +10,10 @@ import {
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
 import type { PortalLiveActivityState } from './live-activity-state';
+import {
+  emptyNetworkAdapterCapabilityStatusSummary,
+  type NetworkAdapterCapabilityStatusSummary,
+} from './network-adapter-capability-status';
 import { networkEvidenceDrawerSummary, type NetworkEvidenceDrawerSummary } from './network-evidence-drawer';
 
 export function shouldRenderNetworkEvidenceDrawerRoute(route: PortalRouteValue): boolean {
@@ -45,6 +49,7 @@ export function NetworkEvidenceDrawerRoutePanel({
         >
           <NetworkEvidenceDrawerCard summary={summary} />
           <NetworkEvidenceUnsupportedClaimCard summary={summary} />
+          <NetworkAdapterCapabilityStatusCard status={liveActivity.networkAdapterCapabilityStatus} />
         </div>
       </div>
     </section>
@@ -100,6 +105,37 @@ function NetworkEvidenceUnsupportedClaimCard({
         <NetworkEvidenceDrawerDetail label={PortalDetails.Confidence} value={summary.confidence} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.ManualRequired} value={summary.manualRequiredState} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.UnavailableState} value={summary.unavailableState} />
+      </dl>
+    </article>
+  );
+}
+
+function NetworkAdapterCapabilityStatusCard({
+  status,
+}: {
+  readonly status: NetworkAdapterCapabilityStatusSummary | null;
+}): ReactElement {
+  const summary = status ?? emptyNetworkAdapterCapabilityStatusSummary();
+  return (
+    <article className={networkEvidenceDrawerCardClassName()}>
+      <h2>{PortalDetails.AdapterBoundary}</h2>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Source} value={summary.sourceReadModel} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.LastChecked} value={summary.generatedAt} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Capability} value={summary.observePolicyHandoff} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Platform} value={summary.platformMatrix} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.PolicyPreview} value={summary.hostDomainManualGate} />
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.EnforcementHandoff}
+          value={summary.hostDomainArtifactStatus}
+        />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ExactUrlClaim} value={summary.exactUrlCapability} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ReasonCodes} value={summary.degradedState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ManualRequired} value={summary.manualProofRequirements} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.UnavailableState} value={summary.unavailableState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.MissingProof} value={summary.unsupportedState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.AdapterDispatch} value={summary.noClaimBoundary} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Audit} value={summary.proofArtifacts} />
       </dl>
     </article>
   );
