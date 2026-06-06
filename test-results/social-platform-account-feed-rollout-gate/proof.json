@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-06T12:56:46.746Z",
+  "generatedAt": "2026-06-06T13:17:04.974Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -142,9 +142,9 @@
     {
       "rowNumber": 18,
       "rowId": "SOCIAL-18",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
-      "state": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "state": "proof-present",
       "failures": []
     },
     {
@@ -190,8 +190,8 @@
   ],
   "summary": {
     "totalRows": 23,
-    "completeRows": 7,
-    "partialRows": 16,
+    "completeRows": 8,
+    "partialRows": 15,
     "failures": 0,
     "rolloutState": "partial/manual-required",
     "productClaimed": false
@@ -211,6 +211,7 @@
     "social-live-evidence-ai-boundary-proof-present",
     "social-live-evidence-risk-benefit-boundary-proof-present",
     "social-live-evidence-policy-compiler-proof-present",
+    "social-live-public-connector-boundary-proof-present",
     "social-live-evidence-decision-memory-proof-present",
     "social-alert-report-intent-proof-present",
     "social-schedule-time-budget-compiler-proof-present",

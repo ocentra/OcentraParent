@@ -1,0 +1,34 @@
+SOCIAL-18 validation commands, run from C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-d\OcentraParent
+
+PASS cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-platform-connector-authorization.test.ts
+- 1 test file passed, 4 tests passed.
+
+PASS cmd /c npm run build:contracts
+- Built schema-domain, logging-domain, parent-domain, activity-domain, agent-protocol-domain, text-domain, and portal-domain.
+
+PASS cmd /c node scripts/test/social-platform-connector-authorization-proof.mjs
+- Captured real public Google/YouTube supervision, Meta Family Center, and TikTok Family Pairing pages.
+- Wrote output/browser-plan-proof/social-18-platform-connector-authorization-boundary/11-live-public-connector-boundary-proof.json.
+- Wrote test-results/social-platform-connector-authorization-proof/proof.json.
+- Captured 3 screenshots under output/browser-plan-proof/social-18-platform-connector-authorization-boundary/06-live-screenshots/.
+- Verified no token storage, OAuth client, provider API, raw account/message/feed capture, UI delivery, native app control, policy execution, or enforcement claim.
+
+PASS cmd /c npm run format:check
+- All matched files use Prettier code style after formatting the touched checklist row.
+
+PASS cmd /c npm run lint:schema-boundaries
+- No direct Zod source usage found.
+- No manual string brands or naked domain string aliases found.
+- No inline app string literals found.
+- No ParentPortal vendor page imports use portal asset aliases.
+- No inline Rust service/core string literals found.
+- Required test scaffold is present for all source workspaces.
+- No test doubles found.
+- Source shape guard passed.
+- AI rule index check passed.
+- Existing source-shape advisories remain in unrelated files; no SOCIAL-18 hard failure exists.
+
+PASS git diff --check
+
+PASS git status --short -- docs/product-capability-checklist.md
+- No output; product capability checklist stayed clean.

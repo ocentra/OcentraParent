@@ -1,10 +1,10 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T12:56:46.701Z
+Generated: 2026-06-06T13:17:04.908Z
 
 Rows checked: 22
-Proof-present rows: 7
-Partial/manual-required rows: 15
+Proof-present rows: 8
+Partial/manual-required rows: 14
 Playwright state: rendered-proof-bundle-ui-present-runtime-delivery-manual-required
 Product claimed: false
 
@@ -27,7 +27,7 @@ Product claimed: false
 | SOCIAL-15 | proof-present | `social-15-unmanaged-social-bypass-detector` | 6 |
 | SOCIAL-16 | partial-manual-required | `social-16-android-native-app-capability-matrix` | 6 |
 | SOCIAL-17 | partial-manual-required | `social-17-ios-screentime-managedsettings-matrix` | 6 |
-| SOCIAL-18 | partial-manual-required | `social-18-platform-connector-authorization-boundary` | 5 |
+| SOCIAL-18 | proof-present | `social-18-platform-connector-authorization-boundary` | 7 |
 | SOCIAL-19 | partial-manual-required | `social-19-memory-cache-account-video-channel-decisions` | 6 |
 | SOCIAL-20 | proof-present | `social-20-parent-social-dashboard-ux` | 9 |
 | SOCIAL-21 | proof-present | `social-21-child-approval-block-ux` | 7 |
@@ -42,6 +42,7 @@ Live metadata extraction proof is present for SOCIAL-09 public social/video surf
 Live-evidence AI boundary proof is present for SOCIAL-10 degraded model-unavailable rows.
 Live-evidence risk/benefit boundary proof is present for SOCIAL-11 unavailable signal sets.
 Live-evidence policy compiler proof is present for SOCIAL-12 non-final manual-review candidates.
+Live public connector boundary proof is present for SOCIAL-18 Google/YouTube, Meta, and TikTok surfaces.
 Live-evidence decision memory proof is present for SOCIAL-19 ref-only cache snapshots.
 Ref-only social alert/report intent proof is present.
 Schedule/time-budget compiler contract proof is present.

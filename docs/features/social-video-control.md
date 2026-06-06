@@ -189,6 +189,13 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   OAuth clients, provider API calls, raw account/message/feed data, account
   identity verification, core gating dependency, policy decisions, AI runtime,
   UI delivery, native app control, and enforcement.
+- `social-platform-connector-authorization-proof` now captures real public
+  Google/YouTube supervision, Meta Family Center, and TikTok Family Pairing
+  pages with Playwright screenshots and uses those refs to parse the SOCIAL-18
+  connector boundary. This proves public adjacent-source visibility only;
+  connector implementation, token storage, OAuth, provider API calls, raw
+  account/message/feed capture, UI delivery, native app control, final policy
+  execution, and enforcement remain unclaimed.
 - Browser-plan SOCIAL-19 now adds parent-domain social decision memory-cache
   contracts for account, video, and channel decision refs. Fresh hits can be
   reused for policy input only when they cite decision refs and have no
