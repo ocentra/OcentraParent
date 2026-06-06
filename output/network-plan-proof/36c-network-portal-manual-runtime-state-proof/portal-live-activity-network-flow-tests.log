@@ -8,9 +8,9 @@
 
  Test Files  16 passed (16)
       Tests  69 passed (69)
-   Start at  16:19:55
-   Duration  2.81s (transform 14.50s, setup 0ms, import 33.72s, tests 265ms, environment 3ms)
+   Start at  16:24:03
+   Duration  3.35s (transform 17.19s, setup 0ms, import 39.64s, tests 343ms, environment 4ms)
 
-[2m4:19:54 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
-[2m4:19:54 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
+[2m4:24:03 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
+[2m4:24:03 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
 [33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`
