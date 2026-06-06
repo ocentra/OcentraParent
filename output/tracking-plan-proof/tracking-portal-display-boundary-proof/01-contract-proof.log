@@ -1,0 +1,5 @@
+Contract proof:
+
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-portal-display-boundary-proof tracking-location-policy: PASS
+- Service read-model, retention settings, family dashboard, and unsupported/manual platform display rows parse through parent-domain schemas.

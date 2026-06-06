@@ -34,6 +34,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `17-hosted-ui-proof.json`
 - `18-service-data-ui-proof.json`
 - `19-child-runtime-ui-proof.json`
+- `20-portal-display-boundary-proof.json`
 - Accessibility summary:
   `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`
 - Pre-device gate:
@@ -62,7 +63,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       location-share consent, and delivery-boundary copy without claiming
       child-device delivery or runtime execution.
 - [x] Ensure child copy avoids accusation.
-- [ ] Keep portal as authoring/display surface, not evaluator.
+- [x] Keep portal as authoring/display surface, not evaluator.
 
 ## Where We Are
 
@@ -111,6 +112,12 @@ and writes
 This is not product-complete UI proof: full service-data UI beyond the hosted
 parent route, actual child-device delivery/runtime execution, physical-device
 evidence, authority, provider delivery, and production proof remain pending.
+`node scripts/test/tracking-portal-display-boundary-proof.mjs` now proves the
+portal display/authoring boundary for service read-model, retention settings,
+family dashboard rollup, and unsupported/manual platform rows. It records
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-portal-display-boundary-proof.json`
+and keeps portal evaluator, service mutation, platform writer, child runtime,
+provider delivery, physical-device, authority, and product-ready claims false.
 `node scripts/test/tracking-plan-pre-device-proof.mjs` now records those UI
 gaps in the aggregate pre-device gate so the next pass can run actual
 child-device runtime execution and full parent/child UI proof beyond the hosted
@@ -190,6 +197,26 @@ This workpack can be assigned independently, implemented against the owning doma
       parent route, actual child-device delivery/runtime execution, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-portal-display-boundary-proof`.
+- [x] Touched files: parent-domain portal display-boundary proof contract/test,
+      proof script, tracking feature doc, implementation checklist, WP30, WP33,
+      and generated WP30/WP33/test-results proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-portal-display-boundary-proof.mjs` passed
+      locally before PR-ready handoff.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-portal-display-boundary-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/21-portal-display-boundary-proof.json`,
+      and `test-results/tracking-portal-display-boundary-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, and WP33 updated; central capability checklist not edited
+      because another lane owns that lock.
+- [x] Known gaps/manual-required states: portal display/authoring boundary is
+      proved only as typed row readiness; portal evaluator, service mutation,
+      platform writer execution, actual child-device delivery/runtime execution,
+      physical-device proof, authority, provider delivery, notifications, full
+      parent/child UI, and production proof remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-child-check-in-ui-proof`.
 - [x] Touched files: hosted child check-in proof model, portal tracking status

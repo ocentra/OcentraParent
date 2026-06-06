@@ -180,6 +180,13 @@ expose location or device-status features. Parents expect this category.
   and report/policy consumer proof refs while keeping portal UI completion,
   child-device delivery, provider delivery, notification receipt ingestion,
   authority, physical-device, and product-complete claims false.
+- Portal display-boundary proof now exists through
+  `node scripts/test/tracking-portal-display-boundary-proof.mjs`. It proves the
+  portal may display service read-model, retention settings, family dashboard,
+  and unsupported/manual platform rows from existing source proof refs while
+  explicitly rejecting portal evaluator, service mutation, platform writer,
+  child runtime, provider delivery, physical-device, authority, and product-ready
+  claims.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -258,17 +265,19 @@ POI provider request/response mapping proof, WP25 parent-policy compiler/
 evaluator runtime proof, and required fixture-state coverage proof, WP29
 missing-device mode parent-domain proof for last-known-only/offline/
 contact-requested/manual-required states, manual-required/unavailable platform
-render-state proof plus hosted unsupported/manual platform route screenshot, and
+render-state proof plus hosted unsupported/manual platform route screenshot,
 WP32 report/policy consumer-readiness proof for parent report summary, policy
-drill-in, and retention audit/export rows, plus WP32 family dashboard rollup
-proof for active family, child-attention, and retention-audit summary rows, and
-retention settings read-model proof for retention window, delete-after-alert,
-parent export, remote-sync disabled, and remote-AI disabled rows. It remains a
-tracked product gap until platform location and geofence runtime adapters,
-broader product read models beyond these rows, rendered dashboard UI for those
-rollups, actual writable/live retention settings UI, actual live provider
-execution/delivery, notification receipt ingestion, physical-device proof,
-actual child-device delivery/runtime execution, remote sync runtime, OS
+drill-in, and retention audit/export rows, WP32 family dashboard rollup proof
+for active family, child-attention, and retention-audit summary rows, retention
+settings read-model proof for retention window, delete-after-alert, parent
+export, remote-sync disabled, and remote-AI disabled rows, and portal
+display-boundary proof for service, retention, rollup, and manual platform row
+display/authoring readiness. It remains a tracked product gap until platform
+location and geofence runtime adapters, broader product read models beyond
+these rows, rendered dashboard UI for those rollups, actual writable/live
+retention settings service mutation, platform writer execution, actual live
+provider execution/delivery, notification receipt ingestion, physical-device
+proof, actual child-device delivery/runtime execution, remote sync runtime, OS
 lost-mode APIs, production upload workers, and full parent/child UI
 snapshots/accessibility beyond the hosted parent route are proved.
 
@@ -281,7 +290,9 @@ snapshots/accessibility beyond the hosted parent route are proved.
 - [ ] Retention/delete/export settings. P1 retention-delete,
       parent-owned export, UI-visible deleted-history hiding fixture proof, and
       P2 retention settings read-model rows now exist; actual writable product
-      settings and live service-backed retention UI remain pending.
+      settings and live service-backed retention UI remain pending. Portal
+      display/authoring boundary proof now keeps retention setting rows visible
+      without claiming service mutation or platform writer execution.
 - [x] Alert intent contract.
 - [ ] Android permission/background runtime proof. WP08/WP09 parent-domain
       manual-required proof rows now exist for foreground permission,

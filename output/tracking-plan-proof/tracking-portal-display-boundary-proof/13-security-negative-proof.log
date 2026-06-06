@@ -1,0 +1,4 @@
+Security/no-claim proof:
+
+- Portal display rows do not claim portal evaluator behavior, policy evaluation authority, service mutation, platform writer execution, child runtime execution, provider delivery, notification receipts, physical-device behavior, authority enrollment, or product readiness.
+- Retention settings authoring readiness is separated from live service mutation and platform writer execution.

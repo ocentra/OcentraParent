@@ -1,0 +1,194 @@
+[
+  {
+    "schemaVersion": "v0.5-tracking",
+    "rowId": "tracking-portal-display-boundary-service-read-model",
+    "boundaryKind": "service-read-model-display",
+    "boundaryState": "display-ready",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-06T06:38:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "hostedProofRefs": [
+      "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json",
+      "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+      "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui-proof.json",
+      "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-portal-display-evidence-service-read-model",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T06:38:00.000Z"
+      }
+    ],
+    "visibleStatusCount": 4,
+    "editableSettingCount": 0,
+    "reasonCodes": [
+      "tracking-portal-service-read-model-display-ready"
+    ],
+    "auditRefs": [
+      "tracking-portal-display-audit-service-read-model"
+    ],
+    "portalDisplayClaimed": true,
+    "portalAuthoringClaimed": false,
+    "portalEvaluatorClaimed": false,
+    "policyEvaluationClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformWriterExecutionClaimed": false,
+    "childRuntimeExecutionClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "rowId": "tracking-portal-display-boundary-retention-settings",
+    "boundaryKind": "retention-settings-display",
+    "boundaryState": "authoring-ready",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-06T06:38:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "hostedProofRefs": [
+      "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json",
+      "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+      "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui-proof.json",
+      "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-portal-display-evidence-retention-settings",
+        "kind": "policy-decision",
+        "observedAt": "2026-06-06T06:38:00.000Z"
+      }
+    ],
+    "visibleStatusCount": 5,
+    "editableSettingCount": 5,
+    "reasonCodes": [
+      "tracking-portal-retention-settings-authoring-ready"
+    ],
+    "auditRefs": [
+      "tracking-portal-display-audit-retention-settings"
+    ],
+    "portalDisplayClaimed": true,
+    "portalAuthoringClaimed": true,
+    "portalEvaluatorClaimed": false,
+    "policyEvaluationClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformWriterExecutionClaimed": false,
+    "childRuntimeExecutionClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "rowId": "tracking-portal-display-boundary-family-dashboard",
+    "boundaryKind": "family-dashboard-rollup-display",
+    "boundaryState": "display-ready",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-06T06:38:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "hostedProofRefs": [
+      "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json",
+      "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+      "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui-proof.json",
+      "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-portal-display-evidence-family-dashboard",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T06:38:00.000Z"
+      }
+    ],
+    "visibleStatusCount": 3,
+    "editableSettingCount": 0,
+    "reasonCodes": [
+      "tracking-portal-family-dashboard-display-ready"
+    ],
+    "auditRefs": [
+      "tracking-portal-display-audit-family-dashboard"
+    ],
+    "portalDisplayClaimed": true,
+    "portalAuthoringClaimed": false,
+    "portalEvaluatorClaimed": false,
+    "policyEvaluationClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformWriterExecutionClaimed": false,
+    "childRuntimeExecutionClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "rowId": "tracking-portal-display-boundary-unsupported-platform",
+    "boundaryKind": "unsupported-platform-manual-display",
+    "boundaryState": "manual-required",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-06T06:38:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "hostedProofRefs": [
+      "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json",
+      "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+      "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui-proof.json",
+      "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-portal-display-evidence-unsupported-platform",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T06:38:00.000Z"
+      }
+    ],
+    "visibleStatusCount": 4,
+    "editableSettingCount": 0,
+    "reasonCodes": [
+      "tracking-portal-unsupported-platform-manual-display-ready"
+    ],
+    "auditRefs": [
+      "tracking-portal-display-audit-unsupported-platform"
+    ],
+    "portalDisplayClaimed": true,
+    "portalAuthoringClaimed": false,
+    "portalEvaluatorClaimed": false,
+    "policyEvaluationClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformWriterExecutionClaimed": false,
+    "childRuntimeExecutionClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  }
+]
