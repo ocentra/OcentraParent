@@ -162,8 +162,8 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   retention remain open. Row13a now composes the row13 live-capture gate and
   row03a raw-storage gate into one custody-ready/manual-required/unavailable/
   degraded status materializer with combined missing-artifact refs and
-  mismatched-proof rejection. Service WebSocket exposure for that status remains
-  sequenced behind shared protocol/service locks.
+  mismatched-proof rejection. Row51b now exposes that status through the Rust
+  service WebSocket protocol without portal rendering or live capture claims.
 - [x] Analyzer alerts are evidence inputs, not policy authority. E-D row44 and
       row51 proofs keep analyzer refs advisory and non-enforcing.
 - [x] AI audit is advisory and cites evidence refs. E-D row47 and row51 proofs
@@ -369,8 +369,21 @@ manual-required/N/A file.
       regression state, platform manual follow-ups, portal read-model refs, and
       retention/export refs. The proof rejects exact URL/content, decrypted
       payload, production-SLO, UI policy authority, portal adapter dispatch,
-      live adapter execution, and enforcement-command claims. Service WebSocket
-      exposure and portal rendering of this status remain separate work.
+      live adapter execution, and enforcement-command claims. Row51b now covers
+      Rust service WebSocket exposure; portal rendering remains separate work.
+- [x] 51b network product readiness service status: E-D added
+      `output/network-plan-proof/51b-product-readiness-service-status/proof-summary.json`
+      and
+      `test-results/network-product-readiness-service-status-proof/proof.json`.
+      The TypeScript and Rust agent protocol now expose
+      `agent.network.product-readiness.status.get` and
+      `agent.network.product-readiness.status.reported`; the Rust service
+      returns `networkLiveCaptureCustodyStatus` and
+      `networkProductReadinessStatus` payload fields built from the row13a and
+      row51a `ocentra-network-evidence` materializers. The proof keeps exact
+      URL/content, decrypted payload, production-SLO, UI policy authority,
+      portal adapter dispatch, live capture execution, live adapter execution,
+      and enforcement-command claims false. Portal rendering remains open.
 - [x] 22a network risk target policy handoff: E-D added
       `output/network-plan-proof/22a-risk-target-policy-handoff-proof/proof-summary.json`
       and `test-results/network-risk-target-policy-handoff-proof/proof.json`.

@@ -1,10 +1,12 @@
+use serde::{Deserialize, Serialize};
+
 use crate::{
     NetworkLiveCaptureProof, NetworkLiveCaptureProofState, NetworkLiveCaptureRequiredArtifact,
     NetworkRawCaptureStorageProof, NetworkRawCaptureStorageRequiredArtifact,
     NetworkRawCaptureStorageState,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkLiveCaptureCustodyStatusState {
     CustodyReady,
     ManualRequired,
@@ -12,13 +14,13 @@ pub enum NetworkLiveCaptureCustodyStatusState {
     Degraded,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkLiveCaptureCustodyStatusMissingArtifact {
     LiveCapture(NetworkLiveCaptureRequiredArtifact),
     RawCaptureStorage(NetworkRawCaptureStorageRequiredArtifact),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NetworkLiveCaptureCustodyStatusInput {
     pub status_ref: String,
     pub live_capture_proof: NetworkLiveCaptureProof,
@@ -37,7 +39,7 @@ pub struct NetworkLiveCaptureCustodyStatusInput {
     pub enforcement_command_claimed: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NetworkLiveCaptureCustodyStatus {
     pub status_ref: String,
     pub live_capture_proof_ref: String,

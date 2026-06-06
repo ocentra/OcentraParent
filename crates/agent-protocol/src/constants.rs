@@ -125,6 +125,8 @@ pub mod event_id {
     pub const NETWORK_FLOW_READ_MODEL_REPORTED: &str = "network-flow-read-model-reported";
     pub const NETWORK_RUNTIME_EVENT_CHAIN_STREAM_REPORTED: &str =
         "network-runtime-event-chain-stream-reported";
+    pub const NETWORK_PRODUCT_READINESS_STATUS_REPORTED: &str =
+        "network-product-readiness-status-reported";
     pub const LOCAL_AI_RUNTIME_STATUS_REPORTED: &str = "local-ai-runtime-status-reported";
     pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
     pub const PARENT_ASSISTANT_ANSWER_REPORTED: &str = "parent-assistant-answer-reported";

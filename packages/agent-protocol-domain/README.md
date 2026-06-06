@@ -36,6 +36,9 @@ transports.
 - Activity app-use and games read-model event parsing for backend-owned
   app/game source freshness rows, while product semantics stay in
   `activity-domain`.
+- Network product-readiness status command/event names and payload field
+  constants for service-backed row13a custody and row51a product-readiness
+  materializer outputs.
 - Network runtime event contracts for the local eventing spine, including
   flow/domain/classification, AI advisory, policy, enforcement dry-run/result,
   audit, and portal read-model update shapes mirrored from `crates/agent-protocol`.
@@ -118,3 +121,7 @@ flowchart LR
   protocol event chain only. Broker/family-hub delivery, service WebSocket
   streaming of the event chain, host filtering, adapter execution, and portal UI
   rendering remain separate proof-gated work.
+- Network product-readiness status support proves command/event and payload
+  field parity only. Portal rendering, policy execution, adapter execution,
+  host filtering, live capture, and production SLO validation remain separate
+  proof-gated work.

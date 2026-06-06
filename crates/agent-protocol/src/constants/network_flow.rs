@@ -47,6 +47,51 @@ pub const TEST_PARENT_RULE_REF: &str = "policy.rule.network-domain.1";
 pub const TEST_ADAPTER_CAPABILITY_REF: &str = "adapter.capability.network.dry-run.1";
 pub const TEST_ROLLBACK_REF: &str = "rollback.network.command.1";
 pub const TEST_PROMPT_TEMPLATE_REF: &str = "prompt.network-ai-audit.v1";
+pub const TEST_LIVE_CAPTURE_CUSTODY_STATUS_REF: &str = "network.live-capture.custody-status.13a";
+pub const TEST_LIVE_CAPTURE_PROOF_REF: &str = "network.live-capture.proof.13";
+pub const TEST_LIVE_CAPTURE_INTERFACE_REF: &str = "network.live-capture.interface.13";
+pub const TEST_LIVE_CAPTURE_DRIVER_PROOF_REF: &str = "network.live-capture.driver-proof.13";
+pub const TEST_LIVE_CAPTURE_PERMISSION_PROOF_REF: &str = "network.live-capture.permission-proof.13";
+pub const TEST_LIVE_CAPTURE_BOUNDED_PROOF_REF: &str = "network.live-capture.bounded-proof.13";
+pub const TEST_LIVE_CAPTURE_CLEAN_STOP_REF: &str = "network.live-capture.clean-stop.13";
+pub const TEST_LIVE_CAPTURE_QUOTA_ROTATION_REF: &str = "network.live-capture.quota-rotation.13";
+pub const TEST_LIVE_CAPTURE_RETENTION_DELETE_EXPORT_REF: &str =
+    "network.live-capture.retention-delete-export.13";
+pub const TEST_LIVE_CAPTURE_CUSTODY_REF: &str = "network.live-capture.custody.13";
+pub const TEST_LIVE_CAPTURE_PRIVATE_TRAFFIC_EXCLUSION_REF: &str =
+    "network.live-capture.private-traffic-exclusion.13";
+pub const TEST_RAW_CAPTURE_STORAGE_PROOF_REF: &str = "network.raw-capture.storage-proof.03a";
+pub const TEST_RAW_CAPTURE_ARTIFACT_MANIFEST_REF: &str =
+    "network.raw-capture.artifact-manifest.03a";
+pub const TEST_RAW_CAPTURE_STORAGE_LOCATION_REF: &str =
+    "network.raw-capture.local-encrypted-storage.03a";
+pub const TEST_RAW_CAPTURE_ENCRYPTION_AT_REST_REF: &str =
+    "network.raw-capture.encryption-at-rest.03a";
+pub const TEST_RAW_CAPTURE_QUOTA_ROTATION_REF: &str = "network.raw-capture.quota-rotation.03a";
+pub const TEST_RAW_CAPTURE_RETENTION_POLICY_REF: &str = "network.raw-capture.retention-policy.03a";
+pub const TEST_RAW_CAPTURE_DELETE_EXPORT_REF: &str = "network.raw-capture.delete-export.03a";
+pub const TEST_RAW_CAPTURE_CUSTODY_CHAIN_REF: &str = "network.raw-capture.custody-chain.03a";
+pub const TEST_RAW_CAPTURE_PRIVATE_TRAFFIC_EXCLUSION_REF: &str =
+    "network.raw-capture.private-traffic-exclusion.03a";
+pub const TEST_PRODUCT_READINESS_STATUS_REF: &str = "network.product-readiness.status.51a";
+pub const TEST_PRODUCT_READINESS_PORTAL_READ_MODEL_REF: &str =
+    "network.product-readiness.portal-read-model.51a";
+pub const TEST_PRODUCT_READINESS_RETENTION_EXPORT_REF: &str =
+    "network.product-readiness.retention-export.51a";
+pub const TEST_RISK_EVALUATION_REF: &str = "network.risk-evaluation.51a";
+pub const TEST_CHILD_PROFILE_REF: &str = "child-profile.network.51a";
+pub const TEST_HOUSEHOLD_POLICY_REF: &str = "household-policy.network.51a";
+pub const TEST_RISK_BUDGET_REF: &str = "network.risk-budget.51a";
+pub const TEST_CASCADE_REF: &str = "network.cascade.51a";
+pub const TEST_RISK_SIGNAL_REF: &str = "network.signal.51a";
+pub const TEST_RISK_AUDIT_REF: &str = "network.audit.51a";
+pub const TEST_PERFORMANCE_BENCHMARK_REF: &str = "network.performance.benchmark.51a";
+pub const TEST_PERFORMANCE_FIXTURE_SET_REF: &str = "network.performance.fixtures.51a";
+pub const TEST_PERFORMANCE_EVENT_HISTORY_REF: &str = "network.performance.event-history.51a";
+pub const TEST_PERFORMANCE_RESOURCE_SNAPSHOT_REF: &str =
+    "network.performance.resource-snapshot.51a";
+pub const TEST_PLATFORM_MANIFEST_REF: &str = "network.platform-claim.manifest.51a";
+pub const TEST_PLATFORM_MANUAL_FOLLOWUP_REF: &str = "network.platform-claim.manual-followup.51a";
 pub const TEST_BROKER_CUSTODY_PROOF_REF: &str = "broker.network.custody-proof.1";
 pub const TEST_BROKER_PUBLISHER_AUTH_REF: &str = "broker.network.publisher-auth.1";
 pub const TEST_BROKER_SUBSCRIBER_AUTH_REF: &str = "broker.network.subscriber-auth.1";
