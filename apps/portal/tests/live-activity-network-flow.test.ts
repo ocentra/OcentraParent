@@ -80,6 +80,7 @@ function defineNetworkProductReadinessStatusTests(): void {
     expectProductReadinessRiskSummary(summary);
     expectProductReadinessPerformanceSummary(summary);
     expectProductReadinessPlatformSummary(summary);
+    expectProductReadinessRemoteDeliverySummary(summary);
     expectProductReadinessNoClaimSummary(summary);
   });
 
@@ -151,6 +152,33 @@ function expectProductReadinessPlatformSummary(summary: NetworkProductReadinessS
   expect(summary.platformEntries[2]?.target).toBe('WindowsWfp');
   expect(summary.platformEntries[2]?.missingRequiredArtifacts).toBe('network.platform-claim.manual-followup.51a');
   expect(summary.platformEntries[3]?.state).toBe('Unavailable');
+}
+
+function expectProductReadinessRemoteDeliverySummary(summary: NetworkProductReadinessStatusSummary): void {
+  expect(summary.remoteDeliveryStatusRef).toBe('network.remote-delivery.status.10c');
+  expect(summary.remoteBrokerStatus).toBe('RequirementsSatisfiedButNotImplemented');
+  expect(summary.remoteFamilyHubStatus).toBe('RequirementsSatisfiedButNotImplemented');
+  expect(summary.remoteCustodyProofRef).toBe('broker.network.custody-proof.1');
+  expect(summary.remoteAuthRefs).toBe('broker.network.publisher-auth.1 | broker.network.subscriber-auth.1');
+  expect(summary.remoteTransportRefs).toBe(
+    'broker.network.encryption.1 | broker.network.config.1 | family-hub.network.identity.1 | family-hub.network.relay-policy.1'
+  );
+  expect(summary.remoteLifecycleRefs).toBe(
+    'broker.network.retention-policy.1 | broker.network.replay-plan.1 | broker.network.deletion-plan.1 | broker.network.offset-policy.1 | broker.network.dedupe-policy.1'
+  );
+  expect(summary.remoteMissingArtifactCounts).toBe('0 | 0');
+  expect(summary.remoteAcceptedEventTypeCount).toBe('3');
+  expect(summary.remoteLocalQueueProof).toBe('true');
+  expect(summary.remoteDuplicateProof).toBe('true | true');
+  expect(summary.remoteDeadLetterCount).toBe('1');
+  expect(summary.remoteExternalTransportImplemented).toBe('false');
+  expect(summary.remoteFamilyHubDeliveryImplemented).toBe('false');
+  expect(summary.remoteCrossProcessReplayImplemented).toBe('false');
+  expect(summary.remoteRetentionDeleteExportImplemented).toBe('false');
+  expect(summary.remotePolicyAuthority).toBe('false');
+  expect(summary.remoteSideEffectAuthority).toBe('false');
+  expect(summary.remoteEnforcementCommandEventCount).toBe('0');
+  expect(summary.remoteAdapterActionExecutedCount).toBe('0');
 }
 
 function expectProductReadinessNoClaimSummary(summary: NetworkProductReadinessStatusSummary): void {
@@ -419,6 +447,7 @@ function networkProductReadinessStatusEvent() {
     payload: {
       [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
       [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
     snapshot: null,
   });
@@ -433,6 +462,7 @@ function malformedNetworkProductReadinessStatusEvent() {
         ...productReadinessStatus(),
         portal_adapter_dispatch_claimed: true,
       }),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
 }
@@ -485,6 +515,41 @@ function productReadinessStatus() {
     exact_url_available: false,
     decrypted_payload_available: false,
     page_content_available: false,
+  };
+}
+
+function remoteDeliveryStatus() {
+  return {
+    status_ref: 'network.remote-delivery.status.10c',
+    broker_status: 'RequirementsSatisfiedButNotImplemented',
+    family_hub_status: 'RequirementsSatisfiedButNotImplemented',
+    custody_proof_ref: 'broker.network.custody-proof.1',
+    publisher_auth_ref: 'broker.network.publisher-auth.1',
+    subscriber_auth_ref: 'broker.network.subscriber-auth.1',
+    encryption_ref: 'broker.network.encryption.1',
+    retention_policy_ref: 'broker.network.retention-policy.1',
+    replay_plan_ref: 'broker.network.replay-plan.1',
+    deletion_plan_ref: 'broker.network.deletion-plan.1',
+    offset_policy_ref: 'broker.network.offset-policy.1',
+    dedupe_policy_ref: 'broker.network.dedupe-policy.1',
+    transport_config_ref: 'broker.network.config.1',
+    relay_identity_ref: 'family-hub.network.identity.1',
+    relay_policy_ref: 'family-hub.network.relay-policy.1',
+    broker_missing_artifact_count: 0,
+    family_hub_missing_artifact_count: 0,
+    accepted_event_type_count: 3,
+    local_idempotency_queue_proved: true,
+    dropped_event_dead_letter_count: 1,
+    queued_duplicate_rejected: true,
+    completed_duplicate_rejected: true,
+    external_transport_delivery_implemented: false,
+    family_hub_delivery_implemented: false,
+    cross_process_replay_implemented: false,
+    remote_retention_delete_export_propagation_implemented: false,
+    policy_authority: false,
+    side_effect_authority: false,
+    enforcement_command_event_count: 0,
+    adapter_action_executed_count: 0,
   };
 }
 

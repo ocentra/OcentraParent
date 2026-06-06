@@ -78,6 +78,7 @@ pub const TEST_PRODUCT_READINESS_PORTAL_READ_MODEL_REF: &str =
     "network.product-readiness.portal-read-model.51a";
 pub const TEST_PRODUCT_READINESS_RETENTION_EXPORT_REF: &str =
     "network.product-readiness.retention-export.51a";
+pub const TEST_REMOTE_DELIVERY_STATUS_REF: &str = "network.remote-delivery.status.10c";
 pub const TEST_RISK_EVALUATION_REF: &str = "network.risk-evaluation.51a";
 pub const TEST_CHILD_PROFILE_REF: &str = "child-profile.network.51a";
 pub const TEST_HOUSEHOLD_POLICY_REF: &str = "household-policy.network.51a";

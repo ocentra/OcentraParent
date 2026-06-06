@@ -20,6 +20,7 @@ import {
   type NetworkProductReadinessStatusSummary,
 } from './network-product-readiness-status';
 import { NetworkPlatformClaimManifestCard } from './network-platform-claim-manifest-card';
+import { NetworkRemoteDeliveryStatusCard } from './network-remote-delivery-status-card';
 import { NetworkRiskPerformanceReadinessCard } from './network-risk-performance-readiness-card';
 
 export function shouldRenderNetworkEvidenceDrawerRoute(route: PortalRouteValue): boolean {
@@ -59,6 +60,7 @@ export function NetworkEvidenceDrawerRoutePanel({
           <NetworkAdapterCapabilityStatusCard status={liveActivity.networkAdapterCapabilityStatus} />
           <NetworkProductReadinessStatusCard status={liveActivity.networkProductReadinessStatus} />
           <NetworkRiskPerformanceReadinessCard status={liveActivity.networkProductReadinessStatus} />
+          <NetworkRemoteDeliveryStatusCard status={liveActivity.networkProductReadinessStatus} />
           <NetworkPlatformClaimManifestCard
             entries={
               (liveActivity.networkProductReadinessStatus ?? emptyNetworkProductReadinessStatusSummary())
