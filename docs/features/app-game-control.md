@@ -209,6 +209,12 @@ control with better evidence and local audit.
   preview-ready, source-manual-required, and compiler-manual-required states
   without service runtime, portal UI, raw private source rows, adapter dispatch,
   child delivery, or platform enforcement claims.
+- Parent-domain source-gated policy preview timer-handoff contracts now consume
+  those redacted preview rows, mark preview-ready native app/native game rows as
+  future timer sequencing candidates, and keep source-manual plus
+  compiler-manual rows blocked before timer runtime without claiming service
+  runtime, portal UI, policy evaluator execution, adapter dispatch, child
+  delivery, platform enforcement, or raw private source-row access.
 - The portal App/Game Sessions route now renders that service-backed policy
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy
