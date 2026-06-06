@@ -11,7 +11,7 @@ browser/app/network evidence first
 managed-browser structured capture second
 cheap OCR third
 small local VLM only when needed
-big local/family hub VLM only for hard cases
+big local or household-provider VLM only for hard cases
 remote/API VLM disabled for raw screenshots by default
 ```
 
@@ -36,7 +36,7 @@ The second pass focuses on AI processing:
 - OCR engine selection;
 - selected local model image capability proof;
 - candidate VLM comparison;
-- family AI hub fallback;
+- household provider fallback with child-agent validation;
 - detector prompt quality proof;
 - model resource scheduling under load.
 
@@ -82,7 +82,7 @@ type ScreenAnalysisRoute =
   | 'selected_app_window_ocr'
   | 'selected_app_window_vlm'
   | 'full_screen_manual_required'
-  | 'family_ai_hub_required'
+  | 'household_provider_required'
   | 'parent_approved_remote_required'
   | 'unavailable';
 ```

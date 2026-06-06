@@ -52,7 +52,7 @@ Use this order:
 3. Guided VLM:
    yes/no/multi-label classification from the smallest safe image.
 
-4. Bigger local/family-hub VLM:
+4. Bigger local or household-provider VLM:
    only for hard cases when cheap local evidence is uncertain;
    route through event contracts, not a direct capture-to-model call. Household
    provider execution uses the AI plan's Household Mesh Bridge with child-agent
@@ -209,7 +209,7 @@ Ocentra needs a screen subsystem that can:
 | 34   | [OCR Tesseract Baseline](workpacks/34-ocr-tesseract-baseline.md)                                                   | Simple local OCR baseline is evaluated before VLM.                                                                                            |
 | 35   | [OCR PaddleOCR PP-OCR Evaluation](workpacks/35-ocr-paddleocr-ppocr-evaluation.md)                                  | Preferred OCR research path evaluates PaddleOCR/PP-OCR packaging, quality, runtime, and local-only proof.                                     |
 | 36   | [Small VLM Guided Classifier Evaluation](workpacks/36-small-vlm-guided-classifier-evaluation.md)                   | Small local VLM is used only for guided classification on safe crops when structured/OCR evidence is insufficient.                            |
-| 37   | [Family AI Hub Screen Analysis Queue](workpacks/37-family-ai-hub-screen-analysis-queue.md)                         | Heavier analysis moves to a local/family hub queue before any remote/API path.                                                                |
+| 37   | [Household Mesh Screen Analysis Queue](workpacks/37-family-ai-hub-screen-analysis-queue.md)                        | Heavier analysis moves to child-agent-owned local or trusted household provider work before any remote/API path.                              |
 | 38   | [Local AI Resource Scheduler Priority Queue](workpacks/38-local-ai-resource-scheduler-priority-queue.md)           | One-heavy-job scheduling, OCR/VLM rate limits, and policy-priority behavior are defined.                                                      |
 | 39   | [Redacted Summary Only Remote Boundary](workpacks/39-redacted-summary-only-remote-boundary.md)                     | Remote/API path is disabled for raw screenshots and allowed only for parent-approved redacted summaries.                                      |
 | 40   | [Detector Prompt Packs And Schema Tests](workpacks/40-detector-prompt-packs-and-schema-tests.md)                   | Detector-specific JSON prompts replace open-ended screen descriptions.                                                                        |
