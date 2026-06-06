@@ -1,11 +1,11 @@
 {
   "proof": "network-remote-delivery-event-chain-journal-proof",
-  "checkedAt": "2026-06-06T15:00:34.282Z",
+  "checkedAt": "2026-06-06T15:14:52.276Z",
   "branch": "codex/network-remote-event-chain-journal-proof",
-  "commit": "635018128eb7ee9471ffe4acfee8fc5656951d6f",
-  "originMain": "75cb334eab600ddf106da2c5a18dbfed1a7c048a",
-  "mergeBase": "0a00b9ec5445ca86eb60d3c1c2ca460b30d419f7",
-  "sourceStatusShort": " M crates/agent-core/README.md\n M crates/agent-core/src/network_event_runtime.rs\n M crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs\n M crates/agent-protocol/src/constants/network_flow.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n?? crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_journal.rs\n?? crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_journal_types.rs\n?? scripts/test/network-remote-delivery-event-chain-journal-proof.mjs",
+  "commit": "123d1f0f28b65816c2fb03754ed7ce1eca173661",
+  "originMain": "0f9e76bf15f42848abb983c6dc9094849b5223ea",
+  "mergeBase": "0f9e76bf15f42848abb983c6dc9094849b5223ea",
+  "sourceStatusShort": "",
   "proofRoot": "output\\network-plan-proof\\10f-remote-delivery-event-chain-journal-status",
   "testRoot": "test-results\\network-remote-delivery-event-chain-journal-proof",
   "commands": [
