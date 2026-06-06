@@ -29,6 +29,7 @@ import {
 } from './AppGamePolicyReadinessRoutePanel';
 import { shouldRenderSocialDashboardRoute, SocialDashboardRoutePanel } from './SocialDashboardRoutePanel';
 import { ScreenSettingsRoutePanel, shouldRenderScreenSettingsRoute } from './ScreenSettingsRoutePanel';
+import { ScreenSummaryRoutePanel, shouldRenderScreenSummaryRoute } from './ScreenSummaryRoutePanel';
 import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
 
 type ParentPortalRouteProps = {
@@ -113,6 +114,7 @@ export function ParentPortalRoute({
       ) : null}
       {shouldRenderSocialDashboardRoute(route) ? <SocialDashboardRoutePanel snapshot={null} /> : null}
       {shouldRenderScreenSettingsRoute(route) ? <ScreenSettingsRoutePanel /> : null}
+      {shouldRenderScreenSummaryRoute(route) ? <ScreenSummaryRoutePanel liveActivity={activityState} /> : null}
     </div>
   );
 }
