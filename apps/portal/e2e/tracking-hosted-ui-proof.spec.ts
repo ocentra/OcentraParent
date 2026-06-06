@@ -43,6 +43,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
 
   await expect(page.getByRole('heading', { name: 'Service read model' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Service data coverage' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Family dashboard rollup' })).toBeVisible();
   await expect(trackingProofRegion.getByText('tracking-hosted-expected-place-event').first()).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
@@ -51,6 +52,13 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await expect(trackingProofRegion.getByText('child-device-query-store', { exact: true }).first()).toBeVisible();
   await expect(
     trackingProofRegion.getByText('location-evidence-hosted-1 | location-evidence-hosted-2').first()
+  ).toBeVisible();
+  await expect(
+    trackingProofRegion.getByText('family-active-summary | child-attention-summary | retention-audit-summary').first()
+  ).toBeVisible();
+  await expect(trackingProofRegion.getByText('tracking-family-dashboard-child-attention-ready').first()).toBeVisible();
+  await expect(
+    trackingProofRegion.getByText('tracking-family-dashboard-evidence-retention-audit').first()
   ).toBeVisible();
   await expect(trackingProofRegion.getByText('Manual proof required').first()).toBeVisible();
   await expect(trackingProofRegion.getByText('Physical device proof required').first()).toBeVisible();
@@ -174,6 +182,7 @@ async function writeAccessibilitySummary(
   expect(summary.headings).toContain('Tracking status proof');
   expect(summary.headings).toContain('Service read model');
   expect(summary.headings).toContain('Service data coverage');
+  expect(summary.headings).toContain('Family dashboard rollup');
   expect(summary.headings).toContain('Child check-in request');
   expect(summary.headings).toContain('Child runtime UI proof');
   expect(summary.paragraphs).toContain('Your parent is asking you to check in. Are you safe?');
@@ -181,9 +190,17 @@ async function writeAccessibilitySummary(
     'Child sees a clear tracking request, safe response, help response, and location-share consent copy.'
   );
   expect(summary.labels).toContain('Evidence references');
+  expect(summary.labels).toContain('Reason codes');
   expect(summary.labels).toContain('Child copy');
   expect(summary.labels).toContain('Child delivery');
   expect(summary.labels).toContain('Product claim');
+  expect(summary.values).toContain('family-active-summary | child-attention-summary | retention-audit-summary');
+  expect(summary.values).toContain(
+    'tracking-family-dashboard-evidence-active-summary | tracking-family-dashboard-evidence-child-attention | tracking-family-dashboard-evidence-retention-audit'
+  );
+  expect(summary.values).toContain(
+    'tracking-family-dashboard-active-summary-ready | tracking-family-dashboard-child-attention-ready | tracking-family-dashboard-retention-audit-ready'
+  );
   expect(summary.values).toContain("I'm safe");
   expect(summary.values).toContain('Need help');
   expect(summary.values).toContain('Share current location');
@@ -202,38 +219,49 @@ async function writeAccessibilitySummary(
     `${JSON.stringify(
       {
         route: '#/policy-tracking',
-        assertions: [
-          'named-region',
-          'visible-heading',
-          'enabled-refresh-button',
-          'service-backed-row-citation-visible',
-          'service-data-coverage-visible',
-          'manual-required-visible',
-          'physical-device-required-visible',
-          'no-product-claim-visible',
-          'child-check-in-copy-visible',
-          'child-check-in-actions-visible',
-          'child-device-delivery-not-claimed',
-          'child-runtime-disclosure-visible',
-          'child-runtime-safe-help-response-visible',
-          'child-runtime-location-share-consent-visible',
-          'child-runtime-hosted-only-boundary-visible',
-          'no-unlabeled-buttons',
-          'desktop-screenshot',
-          'child-check-in-screenshot',
-          'child-runtime-ui-screenshot',
-          'mobile-screenshot',
-        ],
+        assertions: trackingHostedUiAssertions(),
         summary,
-        screenshots: {
-          desktop: path.relative(repoRoot, desktopScreenshotPath).replace(/\\/gu, '/'),
-          childCheckIn: path.relative(repoRoot, childCheckInScreenshotPath).replace(/\\/gu, '/'),
-          childRuntimeUi: path.relative(repoRoot, childRuntimeUiScreenshotPath).replace(/\\/gu, '/'),
-          mobile: path.relative(repoRoot, mobileScreenshotPath).replace(/\\/gu, '/'),
-        },
+        screenshots: trackingHostedUiScreenshots(),
       },
       null,
       2
     )}\n`
   );
+}
+
+function trackingHostedUiAssertions(): readonly string[] {
+  return [
+    'named-region',
+    'visible-heading',
+    'enabled-refresh-button',
+    'service-backed-row-citation-visible',
+    'service-data-coverage-visible',
+    'family-dashboard-rollup-visible',
+    'family-dashboard-rollup-evidence-visible',
+    'family-dashboard-rollup-no-product-claim',
+    'manual-required-visible',
+    'physical-device-required-visible',
+    'no-product-claim-visible',
+    'child-check-in-copy-visible',
+    'child-check-in-actions-visible',
+    'child-device-delivery-not-claimed',
+    'child-runtime-disclosure-visible',
+    'child-runtime-safe-help-response-visible',
+    'child-runtime-location-share-consent-visible',
+    'child-runtime-hosted-only-boundary-visible',
+    'no-unlabeled-buttons',
+    'desktop-screenshot',
+    'child-check-in-screenshot',
+    'child-runtime-ui-screenshot',
+    'mobile-screenshot',
+  ];
+}
+
+function trackingHostedUiScreenshots(): Record<string, string> {
+  return {
+    desktop: path.relative(repoRoot, desktopScreenshotPath).replace(/\\/gu, '/'),
+    childCheckIn: path.relative(repoRoot, childCheckInScreenshotPath).replace(/\\/gu, '/'),
+    childRuntimeUi: path.relative(repoRoot, childRuntimeUiScreenshotPath).replace(/\\/gu, '/'),
+    mobile: path.relative(repoRoot, mobileScreenshotPath).replace(/\\/gu, '/'),
+  };
 }

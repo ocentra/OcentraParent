@@ -166,9 +166,16 @@ expose location or device-status features. Parents expect this category.
   `node scripts/test/tracking-family-dashboard-rollup-proof.mjs`. It derives
   active family summary, child-attention summary, and retention-audit summary
   rows from the existing tracking service read-model, product-surface summary,
-  and report/policy consumer proof refs while keeping portal UI completion,
-  child-device delivery, provider delivery, notification receipt ingestion,
-  authority, physical-device, and product-complete claims false.
+  and report/policy consumer proof refs while keeping child-device delivery,
+  provider delivery, notification receipt ingestion, authority,
+  physical-device, and product-complete claims false.
+- The hosted parent `policy-tracking` route now renders those WP32 family
+  dashboard rollup rows from the shared parent-domain contract through
+  `npm run test:tracking-plan-hosted-ui-proof`, with desktop/mobile screenshots
+  and accessibility proof. This remains hosted parent-route proof only and
+  keeps actual child-device runtime execution/delivery, full parent/child UI,
+  provider delivery, notification receipt ingestion, authority,
+  physical-device, and product-complete claims false.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -252,7 +259,8 @@ report summary, policy drill-in, and retention audit/export rows, plus WP32
 family dashboard rollup proof for active family, child-attention, and
 retention-audit summary rows. It remains a tracked
 product gap until platform location and geofence runtime adapters, broader
-product read models beyond these rollups, rendered dashboard UI for those rollups,
+product read models beyond these rollups, full dashboard UI beyond the hosted
+parent route,
 actual live provider execution/delivery, notification receipt ingestion,
 physical-device proof, actual child-device delivery/runtime execution, remote
 sync runtime, OS lost-mode APIs, production upload workers, portal screenshots
@@ -342,9 +350,13 @@ snapshots/accessibility beyond the hosted parent route are proved.
       product-complete proof.
 - [x] WP32 family dashboard rollup proof for active family summary,
       child-attention summary, and retention-audit summary rows. This is not
-      rendered dashboard UI, child-device delivery/runtime execution, provider
-      delivery, notification receipt ingestion, authority, physical-device, or
-      product-complete proof.
+      child-device delivery/runtime execution, provider delivery, notification
+      receipt ingestion, authority, physical-device, or product-complete proof.
+- [x] Hosted parent route rendering for WP32 family dashboard rollup rows,
+      sourced from the shared parent-domain contract and covered by hosted
+      screenshot/accessibility proof. This is not full parent/child UI,
+      child-device delivery/runtime execution, provider delivery, notification
+      receipt ingestion, authority, physical-device, or product-complete proof.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
 - [x] P3 WSL/local replay proof for the tracking read-model proof stack and

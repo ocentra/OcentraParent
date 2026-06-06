@@ -228,8 +228,29 @@ This workpack can be assigned independently, implemented against the owning doma
       checklist, and WP30 updated; central capability checklist not edited
       because another lane owns that lock.
 - [x] Known gaps/manual-required states: parent-domain family dashboard rollup
-      rendering needs the existing rollup contract exported before portal can
-      consume it without duplicating rows; actual child-device delivery/runtime
+      rendering is now sequenced to the rendered-rollup UI branch; actual
+      child-device delivery/runtime execution, full parent/child UI beyond the
+      hosted route, Android/iOS physical-device proof, authority, provider
+      delivery, notifications, and production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-family-dashboard-rendered-rollup-ui-proof`.
+- [x] Touched files: parent-domain rollup export, portal tracking status DOM and
+      React renderers/tests, hosted Playwright proof spec, hosted proof script,
+      portal text-domain token, tracking feature doc, implementation checklist,
+      WP30, WP32, and generated hosted proof artifacts.
+- [x] Validation commands and results:
+      `cmd /c npm run test --workspace @ocentra-parent/portal -- tracking-status-panel`,
+      `cmd /c npm run lint:exec --workspace @ocentra-parent/portal`, and
+      `cmd /c npm run test:tracking-plan-hosted-ui-proof` passed locally.
+- [x] Proof artifacts under
+      `test-results/tracking-plan-hosted-ui-proof/`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`,
+      and
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/18-hosted-ui-accessibility-proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, and WP32 updated; central capability checklist not edited
+      because another lane owns `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: actual child-device delivery/runtime
       execution, full parent/child UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.

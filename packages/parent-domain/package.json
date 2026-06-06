@@ -693,6 +693,10 @@
       "import": "./dist/tracking-control-catalog.js",
       "types": "./dist/tracking-control-catalog.d.ts"
     },
+    "./tracking-family-dashboard-rollup-proof": {
+      "import": "./dist/tracking-family-dashboard-rollup-proof.js",
+      "types": "./dist/tracking-family-dashboard-rollup-proof.d.ts"
+    },
     "./tracking-location-policy": {
       "import": "./dist/tracking-location-policy.js",
       "types": "./dist/tracking-location-policy.d.ts"
