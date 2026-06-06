@@ -274,7 +274,7 @@ service-backed portal citation rows, hosted
 parent route service-data coverage, hosted parent route screenshot/accessibility
 proof with hosted child-safe check-in copy/actions, hosted child-runtime
 disclosure/safe-help/location-share consent copy, and hosted family dashboard
-rollup card, P1 local parent-defined place
+rollup card plus hosted retention settings read-model card, P1 local parent-defined place
 store proof, pre-device proof-gate progress, Android emulator package/service/status
 scaffold proof, WP08/WP09 Android permission/background manual-required proof,
 WP11/WP12 iOS Core Location manual-required proof, P3 WSL/local replay proof,
@@ -293,10 +293,11 @@ drill-in, and retention audit/export rows, plus WP32 family dashboard rollup
 proof for active family, child-attention, and retention-audit summary rows with
 narrow hosted-route rendering, and retention settings read-model proof for
 retention window, delete-after-alert, parent export, remote-sync disabled, and
-remote-AI disabled rows. It remains a tracked product gap until platform
+remote-AI disabled rows plus narrow hosted-route rendering. It remains a
+tracked product gap until platform
 location and geofence runtime adapters, broader product read models beyond
 these rows, full dashboard UI beyond the hosted parent route, actual
-writable/live retention settings UI, actual live provider
+writable retention settings and service mutation UI, actual live provider
 execution/delivery, notification receipt ingestion, physical-device proof,
 actual child-device delivery/runtime execution, remote sync runtime, OS
 lost-mode APIs, production upload workers, and full parent/child UI
@@ -310,8 +311,9 @@ snapshots/accessibility beyond the hosted parent route are proved.
 - [x] Battery/connectivity status contract.
 - [ ] Retention/delete/export settings. P1 retention-delete,
       parent-owned export, UI-visible deleted-history hiding fixture proof, and
-      P2 retention settings read-model rows now exist; actual writable product
-      settings and live service-backed retention UI remain pending.
+      P2 retention settings read-model rows plus hosted route rendering now
+      exist; actual writable product settings and service mutation UI remain
+      pending.
 - [x] Alert intent contract.
 - [ ] Android permission/background runtime proof. WP08/WP09 parent-domain
       manual-required proof rows now exist for foreground permission,
@@ -389,6 +391,12 @@ snapshots/accessibility beyond the hosted parent route are proved.
       UI beyond the hosted route, child-device delivery/runtime execution,
       provider delivery, notification receipt ingestion, authority,
       physical-device, or product-complete proof.
+- [x] WP32 retention settings hosted UI proof for retention window,
+      delete-after-alert, parent export, remote-sync disabled, and remote-AI
+      disabled read-model rows on the hosted parent route. This is not writable
+      product settings, service mutation, platform runtime, child-device
+      delivery/runtime execution, provider delivery, authority, physical-device,
+      or product-complete proof.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
 - [x] P3 WSL/local replay proof for the tracking read-model proof stack and

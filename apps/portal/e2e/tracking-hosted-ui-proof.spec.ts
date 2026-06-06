@@ -20,6 +20,7 @@ const desktopScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-l
 const mobileScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary-mobile.png');
 const familyDashboardScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-family-dashboard-rollup.png');
 const citationDetailScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-citation-detail.png');
+const retentionSettingsScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-retention-settings.png');
 const childCheckInScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-check-in.png');
 const childRuntimeUiScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-runtime-ui.png');
 const unsupportedManualScreenshotPath = path.join(workpack31Root, '19-unsupported-manual-hosted-ui.png');
@@ -66,6 +67,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await expect(trackingProofRegion.getByText('No product claim').first()).toBeVisible();
   await assertHostedFamilyDashboardRollupProof(trackingProofRegion);
   await assertHostedCitationDetailProof(trackingProofRegion);
+  await assertHostedRetentionSettingsProof(trackingProofRegion);
   await expect(page.getByRole('heading', { name: 'Child check-in request' })).toBeVisible();
   await expect(trackingProofRegion.getByText('Your parent is asking you to check in. Are you safe?')).toBeVisible();
   await expect(trackingProofRegion.getByText("I'm safe")).toBeVisible();
@@ -104,6 +106,24 @@ async function assertHostedFamilyDashboardRollupProof(trackingProofRegion: Locat
   await expect(
     trackingProofRegion.getByText(
       'Hosted dashboard rollup rendering only; child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.'
+    )
+  ).toBeVisible();
+}
+
+async function assertHostedRetentionSettingsProof(trackingProofRegion: Locator): Promise<void> {
+  await expect(trackingProofRegion.getByRole('heading', { name: 'Retention settings read-model UI' })).toBeVisible();
+  await expect(trackingProofRegion.getByText('Retention window setting')).toBeVisible();
+  await expect(trackingProofRegion.getByText('Delete-after-alert setting')).toBeVisible();
+  await expect(trackingProofRegion.getByText('Parent export setting')).toBeVisible();
+  await expect(trackingProofRegion.getByText('Remote sync disabled setting')).toBeVisible();
+  await expect(trackingProofRegion.getByText('Remote AI disabled setting')).toBeVisible();
+  await expect(trackingProofRegion.getByText('settings-read-model-ready').first()).toBeVisible();
+  await expect(trackingProofRegion.getByText('tracking-retention-settings-evidence-window')).toBeVisible();
+  await expect(trackingProofRegion.getByText('tracking-retention-settings-evidence-remote-ai-disabled')).toBeVisible();
+  await expect(trackingProofRegion.getByText('24-retention-settings-read-model-proof.json')).toBeVisible();
+  await expect(
+    trackingProofRegion.getByText(
+      'Hosted retention settings rendering only; writable product settings, service mutation, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.'
     )
   ).toBeVisible();
 }
@@ -174,6 +194,9 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   const citationDetailCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="service-backed-citation-detail"]')
     .first();
+  const retentionSettingsCard = trackingProofRegion
+    .locator('[data-ocentra-tracking-proof="retention-settings-ui"]')
+    .first();
   const childCheckInCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="child-check-in"]').first();
   const childRuntimeUiCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="child-runtime-ui"]').first();
   const unsupportedManualCard = trackingProofRegion
@@ -186,20 +209,31 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
       grid.scrollTop = Math.max(0, familyDashboard.offsetTop - 48);
     }
   });
-  await page.waitForTimeout(250);
-  await expect(familyDashboardCard).toBeVisible();
-  await familyDashboardCard.screenshot({ path: familyDashboardScreenshotPath });
-  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="service-backed-citation-detail"]');
-  await expect(citationDetailCard).toBeVisible();
-  await citationDetailCard.screenshot({ path: citationDetailScreenshotPath });
-  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="child-check-in"]');
-  await page.waitForTimeout(250);
-  await expect(childCheckInCard).toBeVisible();
-  await childCheckInCard.screenshot({ path: childCheckInScreenshotPath });
-  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="child-runtime-ui"]');
-  await page.waitForTimeout(250);
-  await expect(childRuntimeUiCard).toBeVisible();
-  await childRuntimeUiCard.screenshot({ path: childRuntimeUiScreenshotPath });
+  await captureTrackingProofCardScreenshot(familyDashboardCard, familyDashboardScreenshotPath);
+  await captureScrolledTrackingProofCardScreenshot(
+    page,
+    citationDetailCard,
+    '[data-ocentra-tracking-proof="service-backed-citation-detail"]',
+    citationDetailScreenshotPath
+  );
+  await captureScrolledTrackingProofCardScreenshot(
+    page,
+    retentionSettingsCard,
+    '[data-ocentra-tracking-proof="retention-settings-ui"]',
+    retentionSettingsScreenshotPath
+  );
+  await captureScrolledTrackingProofCardScreenshot(
+    page,
+    childCheckInCard,
+    '[data-ocentra-tracking-proof="child-check-in"]',
+    childCheckInScreenshotPath
+  );
+  await captureScrolledTrackingProofCardScreenshot(
+    page,
+    childRuntimeUiCard,
+    '[data-ocentra-tracking-proof="child-runtime-ui"]',
+    childRuntimeUiScreenshotPath
+  );
   await unsupportedManualCard.scrollIntoViewIfNeeded();
   await page.waitForTimeout(250);
   await expect(unsupportedManualCard).toBeVisible();
@@ -208,6 +242,26 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole('region', { name: 'Tracking status proof' })).toBeVisible();
   await page.screenshot({ fullPage: true, path: mobileScreenshotPath });
+}
+
+async function captureScrolledTrackingProofCardScreenshot(
+  page: Page,
+  proofCard: Locator,
+  proofSelector: string,
+  screenshotPath: string
+): Promise<void> {
+  await scrollTrackingProofCard(page, proofSelector);
+  await captureTrackingProofCardScreenshot(proofCard, screenshotPath);
+}
+
+async function captureTrackingProofCardScreenshot(proofCard: Locator, screenshotPath: string): Promise<void> {
+  await pageSettledForScreenshot();
+  await expect(proofCard).toBeVisible();
+  await proofCard.screenshot({ path: screenshotPath });
+}
+
+async function pageSettledForScreenshot(): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 250));
 }
 
 async function scrollTrackingProofCard(page: Page, proofSelector: string): Promise<void> {
@@ -264,6 +318,7 @@ async function writeAccessibilitySummary(
           desktop: path.relative(repoRoot, desktopScreenshotPath).replace(/\\/gu, '/'),
           familyDashboard: path.relative(repoRoot, familyDashboardScreenshotPath).replace(/\\/gu, '/'),
           citationDetail: path.relative(repoRoot, citationDetailScreenshotPath).replace(/\\/gu, '/'),
+          retentionSettings: path.relative(repoRoot, retentionSettingsScreenshotPath).replace(/\\/gu, '/'),
           childCheckIn: path.relative(repoRoot, childCheckInScreenshotPath).replace(/\\/gu, '/'),
           childRuntimeUi: path.relative(repoRoot, childRuntimeUiScreenshotPath).replace(/\\/gu, '/'),
           unsupportedManualPlatform: path.relative(repoRoot, unsupportedManualScreenshotPath).replace(/\\/gu, '/'),
@@ -284,6 +339,7 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'Service read model',
     'Service data coverage',
     'Family dashboard tracking rollup',
+    'Retention settings read-model UI',
     'Child check-in request',
     'Child runtime UI proof',
     'Unsupported/manual tracking platform proof',
@@ -305,9 +361,17 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'Family active summary',
     'Child attention summary',
     'Retention audit summary',
+    'Retention window setting',
+    'Delete-after-alert setting',
+    'Parent export setting',
+    'Remote sync disabled setting',
+    'Remote AI disabled setting',
+    'settings-read-model-ready',
     'tracking-family-dashboard-evidence-active-summary',
     'tracking-hosted-expected-place-event',
     'location-evidence-hosted-1 | location-evidence-hosted-2',
+    'tracking-retention-settings-evidence-window',
+    'tracking-retention-settings-evidence-remote-ai-disabled',
     'Need help',
     'Share current location',
     'Call parent',
@@ -344,6 +408,8 @@ function hostedTrackingAssertions(): readonly string[] {
     'family-dashboard-rollup-screenshot',
     'service-backed-citation-detail-visible',
     'service-backed-citation-detail-screenshot',
+    'retention-settings-read-model-visible',
+    'retention-settings-screenshot',
     'manual-required-visible',
     'physical-device-required-visible',
     'no-product-claim-visible',

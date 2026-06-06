@@ -370,6 +370,7 @@ export const PortalDom = {
     TrackingProofChildCheckIn: 'child-check-in',
     TrackingProofChildRuntimeUi: 'child-runtime-ui',
     TrackingProofFamilyDashboard: 'family-dashboard-rollup',
+    TrackingProofRetentionSettings: 'retention-settings-ui',
   },
   Events: {
     Click: 'click',

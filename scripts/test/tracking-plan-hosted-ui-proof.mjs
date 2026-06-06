@@ -46,6 +46,11 @@ const familyDashboardScreenshot = path.join(
   '11-ui-snapshots',
   'hosted-policy-tracking-family-dashboard-rollup.png'
 );
+const retentionSettingsScreenshot = path.join(
+  workpack30,
+  '11-ui-snapshots',
+  'hosted-policy-tracking-retention-settings.png'
+);
 const childCheckInScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-child-check-in.png');
 const childRuntimeUiScreenshot = path.join(
   workpack30,
@@ -371,6 +376,7 @@ async function writeProof(playwright) {
       desktopScreenshot: relativePath(desktopScreenshot),
       mobileScreenshot: relativePath(mobileScreenshot),
       familyDashboardScreenshot: relativePath(familyDashboardScreenshot),
+      retentionSettingsScreenshot: relativePath(retentionSettingsScreenshot),
       childCheckInScreenshot: relativePath(childCheckInScreenshot),
       childRuntimeUiScreenshot: relativePath(childRuntimeUiScreenshot),
       childRuntimeUiProof: relativePath(childRuntimeUiProofPath),
@@ -406,6 +412,26 @@ async function writeProof(playwright) {
       productClaimReadyRows: 0,
       productClaimReady: false,
     },
+    retentionSettingsHostedUiProof: {
+      sourceProof:
+        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json',
+      screenshot: relativePath(retentionSettingsScreenshot),
+      renderedRows: [
+        'retention-window-setting',
+        'delete-after-alert-setting',
+        'parent-export-setting',
+        'remote-sync-disabled-setting',
+        'remote-ai-disabled-setting',
+      ],
+      serviceMutationClaimedRows: 0,
+      platformRuntimeClaimedRows: 0,
+      childDeviceDeliveryClaimedRows: 0,
+      providerDeliveryClaimedRows: 0,
+      physicalDeviceClaimedRows: 0,
+      authorityClaimedRows: 0,
+      productClaimReadyRows: 0,
+      productClaimReady: false,
+    },
     unsupportedManualPlatformProof: {
       sourceProof: 'output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json',
       screenshot: relativePath(unsupportedManualScreenshot),
@@ -426,6 +452,7 @@ async function writeProof(playwright) {
       'This proof does not claim real physical-device location, geofence, provider, or notification delivery.',
       'This proof uses a seeded temporary ActivityStore SQLite database to prove hosted portal rendering against the real Rust service command.',
       'This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.',
+      'This proof renders retention settings read-model rows but does not claim writable product settings, service mutation, or platform runtime execution.',
       'This proof renders unsupported/manual platform rows in the hosted portal but does not claim physical-device execution, authority enrollment, provider delivery, or product-ready tracking.',
       'This proof does not claim full child-device UI or authority-enrolled hard-control readiness.',
     ],

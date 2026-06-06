@@ -30,6 +30,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`
 - `11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`
+- `11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
 - `12-playwright-proof.log`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
@@ -69,6 +70,10 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - [x] Render and screenshot hosted family dashboard rollup rows without claiming
       full dashboard UI, child-device delivery, authority, provider delivery,
       physical-device execution, or production readiness.
+- [x] Render and screenshot hosted retention settings read-model rows without
+      claiming writable settings, service mutation, platform runtime,
+      child-device delivery, provider delivery, authority, physical-device
+      execution, or production readiness.
 - [x] Ensure child copy avoids accusation.
 - [ ] Keep portal as authoring/display surface, not evaluator.
 
@@ -123,9 +128,17 @@ existing active family, child-attention, and retention-audit summary rows. The
 repeatable hosted proof captures it at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`
 and records the same no-product-claim boundary in hosted proof output.
+The hosted route now also renders a retention settings read-model proof card for
+retention window, delete-after-alert, parent export, remote-sync disabled, and
+remote-AI disabled rows. The repeatable hosted proof captures it at
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
+and records no writable settings, service mutation, platform runtime,
+child-device delivery, provider delivery, authority, physical-device, or product
+readiness claim.
 This is not product-complete UI proof: full dashboard UI beyond the hosted
-parent route, actual child-device delivery/runtime execution, physical-device
-evidence, authority, provider delivery, and production proof remain pending.
+parent route, actual child-device delivery/runtime execution, writable retention
+settings, physical-device evidence, authority, provider delivery, and production
+proof remain pending.
 `node scripts/test/tracking-plan-pre-device-proof.mjs` now records those UI
 gaps in the aggregate pre-device gate so the next pass can run actual
 child-device runtime execution and full parent/child UI proof beyond the hosted
