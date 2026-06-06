@@ -474,7 +474,11 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
     dashboard.append(renderTrackingStatusLiveSummary(liveSummary));
     dashboard.append(renderTrackingStatusServiceDataCoverage(trackingStatusServiceDataCoverage(liveActivity)));
     dashboard.append(renderTrackingFamilyDashboardHostedRollupProof(trackingFamilyDashboardHostedRollupProof()));
-    dashboard.append(renderTrackingRetentionSettingsHostedUiProof(trackingRetentionSettingsHostedUiProof()));
+    dashboard.append(
+      renderTrackingRetentionSettingsHostedUiProof(
+        trackingRetentionSettingsHostedUiProof(liveActivity.activityTrackingRetentionSettingsWriteResult)
+      )
+    );
     dashboard.append(
       renderTrackingEvidenceDrawerHostedUiProof(trackingEvidenceDrawerHostedUiProof(liveSummary.citations[0] ?? null))
     );

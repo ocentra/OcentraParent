@@ -106,8 +106,9 @@ Every checked item must cite one or more proof artifacts.
       `output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json`
       and
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json`.
-      The hosted route now renders those read-model rows; actual live service
-      mutation UI and product-ready service execution remain pending.
+      The hosted route now renders those read-model rows and sends/renders the
+      typed write-preflight command result; applied product-ready service
+      mutation execution remains pending.
 - [x] Remote sync and remote AI are disabled by default. Contract proof:
       `output/tracking-plan-proof/07-retention-and-custody-model/`,
       `output/tracking-plan-proof/24-ai-provider-routing/`.
@@ -456,8 +457,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       retention settings mutation proof now applies those five write intents
       while preserving remote sync and remote AI disabled. The service transport
       now has a typed retention settings write command/preflight result proof;
-      live writable retention UI, platform runtime, and product-ready retention
-      behavior remain pending.
+      hosted route write-preflight command/result rendering now exists.
+      Platform runtime and applied product-ready retention behavior remain
+      pending.
 - [x] Tracking service read-model command has P2 proof for SQLite tracking rows,
       citation IDs through `trackingReadModel`, retention-delete tombstone
       replay with deleted evidence citation summaries, and narrow parent portal
@@ -471,8 +473,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       screenshot proof, hosted read-only evidence drawer screenshot proof,
       hosted child-safe check-in screenshot proof, and hosted child-runtime
       disclosure/safe-help/location-share consent screenshot proof exist; hosted
-      React service-data coverage from the parsed
-      tracking read model is rendered and proved, but live parent/child UI beyond that route,
+      retention settings write-preflight command/result rendering is proved, and
+      hosted React service-data coverage from the parsed tracking read model is
+      rendered and proved, but live parent/child UI beyond that route,
       actual child-device delivery/runtime execution, physical-device proof,
       authority, provider delivery, and production proof remain pending.
 - [x] Minimum Serious MVP first-checkpoint audit exists in tracked
@@ -519,8 +522,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       runtime proof command captures a local rendered parent-route screenshot;
       hosted parent route Playwright/a11y proof now captures live service-data
       desktop/mobile screenshots plus hosted evidence drawer, child-safe
-      check-in, and child-runtime UI proof screenshots; hosted artifact
-      inventory proof verifies the stored PNG files and accessibility
+      check-in, child-runtime UI, and retention settings write-preflight proof
+      screenshots; hosted artifact inventory proof verifies the stored PNG files and accessibility
       assertions; actual child-device runtime execution and full parent/child UI
       beyond that route remain pending.
 - [ ] Child-device runtime snapshots cover actual delivery/execution,
@@ -541,6 +544,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`;
       the hosted child-runtime UI proof screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`;
+      the hosted retention settings write-preflight screenshot is stored at
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`;
       hosted artifact inventory proof verifies these PNG artifacts under
       `test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json`;
       actual child-device runtime and full parent/child screenshots remain
@@ -549,8 +554,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`;
       it includes the service-backed citation detail, hosted read-only evidence
       drawer, hosted child-safe check-in, and hosted child-runtime UI cards,
-      and hosted artifact inventory proof verifies the required assertions while
-      actual child-device runtime/full UI accessibility remains pending.
+      plus the retention settings write-preflight result card, and hosted
+      artifact inventory proof verifies the required assertions while actual
+      child-device runtime/full UI accessibility remains pending.
 
 ## Evidence Quality Gates
 

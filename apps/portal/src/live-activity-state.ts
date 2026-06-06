@@ -102,6 +102,10 @@ import {
   type AgentActivityTrackingReadModelResult,
 } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
 import {
+  parseAgentTrackingRetentionSettingsWriteResultEvent,
+  type AgentTrackingRetentionSettingsWriteResultParseResult,
+} from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
+import {
   parseAgentAppGamePolicyReadinessEvent,
   type AgentAppGamePolicyReadinessResult,
 } from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
@@ -221,6 +225,8 @@ export interface PortalLiveActivityState {
   readonly networkWindowsWfpGateStatusResult: AgentNetworkWindowsWfpGateStatusParseResult | null;
   readonly activityTrackingReadModelEvent: AgentEventEnvelope | null;
   readonly activityTrackingReadModel: AgentActivityTrackingReadModelResult | null;
+  readonly activityTrackingRetentionSettingsWriteEvent: AgentEventEnvelope | null;
+  readonly activityTrackingRetentionSettingsWriteResult: AgentTrackingRetentionSettingsWriteResultParseResult | null;
   readonly lanPairingStatusEvent: AgentEventEnvelope | null;
   readonly lanPairingBrowserDiscoveryEvent: AgentEventEnvelope | null;
   readonly lanAddDeviceReadModel: AgentLanBrowserAddDeviceReadModel | null;
@@ -244,6 +250,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     ...resolveAppGameTimerParentSurfaceReadModel(events),
     ...resolveNetworkState(events),
     ...resolveActivityTrackingReadModel(events),
+    ...resolveActivityTrackingRetentionSettingsWrite(events),
     ...resolveLanPairingState(events),
     ...resolvePolicyState(events),
   };
@@ -570,6 +577,15 @@ function resolveActivityTrackingReadModel(events: readonly AgentEventEnvelope[])
   return {
     activityTrackingReadModelEvent: event,
     activityTrackingReadModel: event === null ? null : parseAgentActivityTrackingReadModelEvent(event),
+  };
+}
+
+function resolveActivityTrackingRetentionSettingsWrite(events: readonly AgentEventEnvelope[]) {
+  const event = latestEvent(events, AgentEvent.ActivityTrackingRetentionSettingsWriteReported);
+  return {
+    activityTrackingRetentionSettingsWriteEvent: event,
+    activityTrackingRetentionSettingsWriteResult:
+      event === null ? null : parseAgentTrackingRetentionSettingsWriteResultEvent(event),
   };
 }
 

@@ -12,6 +12,7 @@ import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
 import { trackingChildCheckInProof, trackingChildRuntimeUiProof } from '../src/tracking-child-check-in-proof';
 import { trackingEvidenceDrawerHostedUiProof } from '../src/tracking-evidence-drawer-hosted-ui-proof';
+import { trackingRetentionSettingsHostedUiProof } from '../src/tracking-retention-settings-hosted-ui-proof';
 import {
   trackingFamilyDashboardHostedRollupProof,
   trackingStatusLiveSummary,
@@ -243,6 +244,28 @@ const ExpectedFamilyDashboardHostedRollupRows = [
   },
 ] as const;
 
+const TrackingRetentionSettingsWriteResult = {
+  schemaVersion: AgentProtocolSchemaVersion,
+  commandId: 'tracking-retention-settings-write-command',
+  settingsKind: 'retention-window-setting',
+  writeState: 'service-write-command-accepted',
+  acceptedAt: '2026-06-06T19:40:00.000Z',
+  sourceMutationProofRefs: [
+    'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
+  ],
+  commandTransportClaimed: true,
+  serviceWritePreflightClaimed: true,
+  serviceMutationExecuted: false,
+  portalWritableUiClaimed: false,
+  platformRuntimeClaimed: false,
+  childDeviceDeliveryClaimed: false,
+  providerDeliveryClaimed: false,
+  notificationReceiptClaimed: false,
+  physicalDeviceClaimed: false,
+  authorityClaimed: false,
+  productClaimReady: false,
+} as const;
+
 describe('tracking status proof surface', () => {
   it('lists the first-target tracking states as fixture proof without product claims', () => {
     const rows = trackingStatusProofRows();
@@ -304,6 +327,42 @@ describe('tracking status proof surface', () => {
       providerDeliveryClaimedRows: '0',
       physicalDeviceClaimedRows: '0',
       authorityClaimedRows: '0',
+    });
+  });
+});
+
+describe('tracking retention settings hosted proof surface', () => {
+  it('renders retention write preflight result without product-ready mutation claims', () => {
+    const liveActivity = resolveLiveActivityState([
+      trackingRetentionSettingsWriteEvent(JSON.stringify(TrackingRetentionSettingsWriteResult)),
+    ]);
+
+    expect(
+      trackingRetentionSettingsHostedUiProof(liveActivity.activityTrackingRetentionSettingsWriteResult)
+    ).toMatchObject({
+      title: 'Retention settings read-model UI',
+      writePreflight: {
+        title: 'Retention write preflight result',
+        commandId: 'tracking-retention-settings-write-command',
+        settingsKind: 'retention-window-setting',
+        writeState: 'service-write-command-accepted',
+        acceptedAt: '2026-06-06T19:40:00.000Z',
+        sourceMutationProofRefs:
+          'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
+        commandTransportClaimedRows: '1',
+        serviceWritePreflightClaimedRows: '1',
+        serviceMutationExecutedRows: '0',
+        platformRuntimeClaimedRows: '0',
+        childDeviceDeliveryClaimedRows: '0',
+        providerDeliveryClaimedRows: '0',
+        notificationReceiptClaimedRows: '0',
+        physicalDeviceClaimedRows: '0',
+        authorityClaimedRows: '0',
+        productClaimReadyRows: '0',
+        parserReason: 'Not reported',
+        boundary:
+          'Portal command/result rendering only; service mutation execution, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
+      },
     });
   });
 });
@@ -422,6 +481,29 @@ function trackingEvent(serializedReadModel: string): AgentEventEnvelope {
     severity: 'info',
     payload: {
       [AgentProtocolDefaults.Field.ActivityTrackingReadModel]: serializedReadModel,
+    },
+    snapshot: null,
+  });
+}
+
+function trackingRetentionSettingsWriteEvent(serializedResult: string): AgentEventEnvelope {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: AgentProtocolSchemaVersion,
+    eventId: 'tracking-retention-settings-write-result-event',
+    correlationId: 'tracking-retention-settings-write-command',
+    sentAt: '2026-06-06T19:40:01Z',
+    source: {
+      peerId: 'agent-service',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: AgentEvent.ActivityTrackingRetentionSettingsWriteReported,
+    severity: 'info',
+    payload: {
+      [AgentProtocolDefaults.Field.ActivityTrackingRetentionSettingsWriteResult]: serializedResult,
     },
     snapshot: null,
   });

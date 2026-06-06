@@ -35,6 +35,7 @@ const CommandResultEvents = new Set<AgentEventName>([
   AgentEvent.NetworkWindowsFirewallLabStatusReported,
   AgentEvent.NetworkWindowsWfpGateStatusReported,
   AgentEvent.ActivityTrackingReadModelReported,
+  AgentEvent.ActivityTrackingRetentionSettingsWriteReported,
   AgentEvent.LocalAiRuntimeStatusReported,
   AgentEvent.PolicyPreviewReadModelReported,
   AgentEvent.ActivityAppGamePolicyReadinessReadModelReported,

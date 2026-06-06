@@ -41,6 +41,10 @@
       "import": "./dist/tracking-read-model.js",
       "types": "./dist/tracking-read-model.d.ts"
     },
+    "./tracking-retention-settings-write-command": {
+      "import": "./dist/tracking-retention-settings-write-command.js",
+      "types": "./dist/tracking-retention-settings-write-command.d.ts"
+    },
     "./network-runtime-events": {
       "import": "./dist/network-runtime-events.js",
       "types": "./dist/network-runtime-events.d.ts"

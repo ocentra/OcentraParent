@@ -79,7 +79,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await assertHostedFamilyDashboardRollupProof(trackingProofRegion);
   await assertHostedEvidenceDrawerProof(trackingProofRegion);
   await assertHostedCitationDetailProof(trackingProofRegion);
-  await assertHostedRetentionSettingsProof(trackingProofRegion);
+  await assertHostedRetentionSettingsProof(page, trackingProofRegion);
   await expect(page.getByRole('heading', { name: 'Child check-in request' })).toBeVisible();
   await expect(trackingProofRegion.getByText('Your parent is asking you to check in. Are you safe?')).toBeVisible();
   await expect(trackingProofRegion.getByText("I'm safe")).toBeVisible();
@@ -137,7 +137,12 @@ async function assertHostedFamilyDashboardRollupProof(trackingProofRegion: Locat
   ).toBeVisible();
 }
 
-async function assertHostedRetentionSettingsProof(trackingProofRegion: Locator): Promise<void> {
+async function assertHostedRetentionSettingsProof(page: Page, trackingProofRegion: Locator): Promise<void> {
+  const retentionSettingsCard = trackingProofRegion
+    .locator('[data-ocentra-tracking-proof="retention-settings-ui"]')
+    .first();
+  const writePreflight = retentionSettingsCard.getByRole('button', { name: 'Send retention write preflight' });
+
   await expect(trackingProofRegion.getByRole('heading', { name: 'Retention settings read-model UI' })).toBeVisible();
   await expect(trackingProofRegion.getByText('Retention window setting')).toBeVisible();
   await expect(trackingProofRegion.getByText('Delete-after-alert setting')).toBeVisible();
@@ -148,6 +153,12 @@ async function assertHostedRetentionSettingsProof(trackingProofRegion: Locator):
   await expect(trackingProofRegion.getByText('tracking-retention-settings-evidence-window')).toBeVisible();
   await expect(trackingProofRegion.getByText('tracking-retention-settings-evidence-remote-ai-disabled')).toBeVisible();
   await expect(trackingProofRegion.getByText('24-retention-settings-read-model-proof.json')).toBeVisible();
+  await expect(writePreflight).toBeEnabled();
+  await writePreflight.click();
+  await expect(page.getByText('service-write-command-accepted')).toBeVisible();
+  await expect(page.getByText('retention-window-setting').first()).toBeVisible();
+  await expect(page.getByText('20-retention-settings-mutation-proof.json', { exact: false }).first()).toBeVisible();
+  await expect(page.getByText('Portal command/result rendering only').first()).toBeVisible();
   await expect(
     trackingProofRegion.getByText(
       'Hosted retention settings rendering only; writable product settings, service mutation, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.'
@@ -435,6 +446,12 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'location-evidence-hosted-1 | location-evidence-hosted-2',
     'tracking-retention-settings-evidence-window',
     'tracking-retention-settings-evidence-remote-ai-disabled',
+    'Retention write preflight result',
+    'service-write-command-accepted',
+    'tracking-retention-settings-write-command',
+    'retention-window-setting',
+    'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
+    'Portal command/result rendering only; service mutation execution, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
     'read-only evidence drawer',
     'Display-only evidence drill-in; policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
     'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json',
@@ -511,6 +528,8 @@ function hostedTrackingAssertions(): readonly string[] {
     'service-backed-citation-detail-visible',
     'service-backed-citation-detail-screenshot',
     'retention-settings-read-model-visible',
+    'retention-settings-write-preflight-clicked',
+    'retention-settings-write-preflight-result-visible',
     'retention-settings-screenshot',
     'manual-required-visible',
     'physical-device-required-visible',

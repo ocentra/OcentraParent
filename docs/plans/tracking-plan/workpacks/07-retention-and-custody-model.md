@@ -70,14 +70,16 @@ through `node scripts/test/tracking-retention-settings-mutation-proof.mjs`,
 while remote sync and remote AI stay disabled. Typed service transport proof for
 the retention settings write command/preflight result now exists through
 `node scripts/test/tracking-retention-settings-write-command-proof.mjs`.
-Platform behavior, actual writable live service-backed retention UI, and product
-claim readiness are not claimed beyond the proof state recorded in
+The hosted parent route now also sends that typed write-preflight command and
+renders the service accepted result without claiming applied mutation behavior.
+Platform behavior, applied product-ready writable retention execution, and
+product claim readiness are not claimed beyond the proof state recorded in
 `proof-summary.json`, `14-retention-delete-proof.json`,
 `17-retention-export-proof.json`, `18-retention-settings-read-model-proof.json`,
 `19-retention-settings-writer-boundary-proof.json`,
 `20-retention-settings-mutation-proof.json`,
 `21-retention-settings-write-command-proof.json`,
-the WP30 UI fixture artifact, and the implementation checklist.
+the WP30 hosted UI proof artifact, and the implementation checklist.
 
 ## Where We Want To Be
 
@@ -100,8 +102,9 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Platform, provider, live service-backed writable retention UI, and product
-  claims remain manual-required until the assigned proof artifacts exist.
+- Platform, provider, applied product-ready writable retention execution, and
+  product claims remain manual-required until the assigned proof artifacts
+  exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -203,3 +206,32 @@ This workpack can be assigned independently, implemented against the owning doma
       delivery, Android/iOS physical proof, authority, provider delivery,
       notification receipts, production workers, and product-ready retention
       behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: portal live activity state, portal event-result routing,
+      hosted retention settings UI proof model, React route panel, DOM tracking
+      status panel, hosted Playwright proof, portal tests, text-domain tokens,
+      portal-domain proof artifact marker, hosted UI proof harness, tracking
+      feature doc, implementation checklist, WP07, WP30, WP32, and regenerated
+      hosted UI proof screenshots/results.
+- [x] Validation commands and results:
+      `cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain`
+      passed; `cmd /c npm run build --workspace @ocentra-parent/text-domain`
+      passed; `cmd /c npm run build --workspace @ocentra-parent/portal-domain`
+      passed; `cmd /c npm run test --workspace @ocentra-parent/portal --
+tracking-status-panel` passed; `cmd /c npm run build --workspace
+@ocentra-parent/portal` passed; `cmd /c npm run format:check` passed;
+      `cmd /c npm run test:tracking-plan-hosted-ui-proof` passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/18-hosted-ui-accessibility-proof.json`,
+      and `test-results/tracking-plan-hosted-ui-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, WP30, and WP32 updated; central product capability
+      checklist remains hub/primary sequenced.
+- [x] Known gaps/manual-required states: applied product-ready service mutation
+      execution, platform runtime, child-device delivery, Android/iOS physical
+      proof, authority, provider delivery, notification receipts, production
+      workers, full parent/child UI beyond the hosted route, and product-ready
+      retention behavior remain proof-gated.
