@@ -38,6 +38,7 @@ consumes the same results.
 | Local AI result journal/SQLite ingest             | P3 contract proved  | `output/ai-plan-proof/local-ai-result-journal-sqlite-proof/proof-summary.json`                                                         | Proves ready, unavailable, and manual-required `LocalAiSafetyResult` rows can become journal entries, SQLite-ingest rows, and a parent-facing read-model snapshot while preserving result, request, evidence, parent-rule, runtime, provider, model, prompt, and proof refs. It does not claim production storage runtime, model execution, model quality, raw prompt/model-output retention, remote/API AI, policy authority, portal UI, or enforcement.                                                    |
 | Local recent memory and short-window activity     | P3 contract proved  | `output/ai-plan-proof/local-ai-recent-memory-window-proof/proof-summary.json`                                                          | Proves a parent-domain read model over the existing local AI context builder that selects only fresh `recent-activity` evidence inside the requested window, returns source-grounded recent-memory refs, omits stale/out-of-window and ungrounded rows, and rejects raw retention, remote/API AI, policy authority, and enforcement overclaims. It does not create fresh capture, execute a model, prove production model quality, render portal UI, or dispatch enforcement.                                |
 | Local AI graph reference/minimal edges            | P3 contract proved  | `output/ai-plan-proof/local-ai-graph-reference-contract-proof/proof-summary.json`                                                      | Proves local AI graph refs are schema-validated, source-cited, and read through minimal activity-memory graph edges only when selected evidence, policy version, parent action refs, freshness, endpoints, and time range match. It does not claim a production graph storage/index runtime, model execution, model quality, UI, policy authority, enforcement, remote/API AI, or raw evidence retention.                                                                                                    |
+| Local AI contract completeness                    | P3 contract proved  | `output/ai-plan-proof/local-ai-contract-completeness-proof/proof-summary.json`                                                         | Proves the baseline local AI input, safety-result, provider-capability, job-queue, and provider-route contracts line up over one local-only runtime route while preserving evidence refs, parent-rule refs, memory/graph refs, prompt/runtime refs, queue position, duplicate-runtime blocking, and provider capability metadata. It does not claim model execution, model quality, portal UI, policy authority, enforcement, remote/API AI, raw prompt retention, or raw evidence retention.                |
 
 ## Contract And Source Truth
 
@@ -50,12 +51,19 @@ consumes the same results.
 
 ## V0.6 Contracts
 
-- [ ] Local AI input contract complete.
-- [ ] Local AI result contract complete.
+- [x] Local AI input contract complete for evidence-cited request, current
+      observation, parent-rule, memory, graph, model-request, and prompt refs.
+- [x] Local AI result contract complete for evidence-cited result, parent-rule,
+      memory, graph, local runtime, prompt, confidence, unknown, and degraded
+      state refs.
 - [x] Runtime status contract complete.
-- [ ] Provider capability contract complete.
-- [ ] Job queue contract complete.
-- [ ] Provider route contract complete.
+- [x] Provider capability contract complete for local-only provider task,
+      resource class, privacy mode, and fallback-order metadata.
+- [x] Job queue contract complete for physical-device scheduler state, queued
+      child-safety job position, duplicate-runtime blocking, and unavailable
+      route rejection.
+- [x] Provider route contract complete for selected local runtime refs and
+      provider/runtime/status alignment.
 - [ ] Context builder contracts complete.
 - [ ] Prompt/template version contract complete.
 - [x] Memory reference contract complete for source-cited recent-activity
@@ -206,6 +214,11 @@ consumes the same results.
 - [x] local AI recent-memory and short-window activity proof run:
       `node --check scripts/test/local-ai-recent-memory-window-proof.mjs` and
       `node scripts/test/local-ai-recent-memory-window-proof.mjs`.
+- [x] local AI contract completeness proof artifacts under
+      `output/ai-plan-proof/local-ai-contract-completeness-proof`.
+- [x] local AI contract completeness proof run:
+      `node --check scripts/test/local-ai-contract-completeness-proof.mjs` and
+      `node scripts/test/local-ai-contract-completeness-proof.mjs`.
 - [x] guided VLM worker contract proof artifacts under
       `output/ai-plan-proof/screen-vlm-worker-contract-proof`.
 - [x] guided VLM worker contract proof run:
