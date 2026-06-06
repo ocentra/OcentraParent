@@ -207,7 +207,12 @@ refs, permission or entitlement refs, adapter capability refs, audit refs,
 unavailable-state accounting, and manual follow-ups for missing required
 artifacts while rejecting generic platform support, live adapter execution, UI
 policy authority, exact URL, page content, decrypted payload, and
-enforcement-command claims.
+enforcement-command claims. The product-readiness status materializer composes
+the risk-budget, performance benchmark, and platform-claim proofs into one
+portal-safe status with risk state, degraded-performance state, platform manual
+follow-ups, portal read-model refs, and retention/export refs while rejecting
+exact content, production-SLO, UI policy authority, portal adapter dispatch,
+live adapter execution, and enforcement-command claims.
 
 Live Npcap/libpcap driver invocation and packet capture, full vendor category
 feeds, production CDN intelligence, unmanaged browser exact URL or active-tab
