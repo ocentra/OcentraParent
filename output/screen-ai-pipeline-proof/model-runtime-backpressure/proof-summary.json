@@ -1,7 +1,7 @@
 {
   "status": "ok",
   "proofKind": "screen-ai-model-runtime-backpressure-proof",
-  "generatedAt": "2026-06-06T01:53:20.469Z",
+  "generatedAt": "2026-06-06T03:35:54.482Z",
   "output": "output/screen-ai-pipeline-proof/model-runtime-backpressure/proof-summary.json",
   "claimsProven": [
     "one heavy local screen AI model job can run per physical child device",
@@ -34,7 +34,7 @@
   "proof": {
     "schemaVersion": "v0.6",
     "proofId": "screen-ai-model-runtime-backpressure-proof",
-    "generatedAt": "2026-06-06T01:53:20.469Z",
+    "generatedAt": "2026-06-06T03:35:54.482Z",
     "maxQueueDepth": 2,
     "rows": [
       {
@@ -43,7 +43,7 @@
         "sourceEncryptedQueueRef": "queue:encrypted-frame-1",
         "captureDigestRef": "digest:frame-1",
         "priority": "policy-blocking",
-        "requestedAt": "2026-06-06T01:53:20.469Z",
+        "requestedAt": "2026-06-06T03:35:54.482Z",
         "modelId": "screen-child-safety-vlm",
         "runtimeReferenceId": "runtime:screen-child-safety-vlm",
         "providerDecision": {
@@ -73,7 +73,7 @@
         "sourceEncryptedQueueRef": "queue:encrypted-frame-2",
         "captureDigestRef": "digest:frame-2",
         "priority": "foreground",
-        "requestedAt": "2026-06-06T01:53:20.469Z",
+        "requestedAt": "2026-06-06T03:35:54.482Z",
         "modelId": "screen-child-safety-vlm",
         "runtimeReferenceId": "runtime:screen-child-safety-vlm",
         "providerDecision": {
@@ -103,7 +103,7 @@
         "sourceEncryptedQueueRef": "queue:encrypted-frame-3",
         "captureDigestRef": "digest:frame-3",
         "priority": "background-summary",
-        "requestedAt": "2026-06-06T01:53:20.469Z",
+        "requestedAt": "2026-06-06T03:35:54.482Z",
         "modelId": "screen-child-safety-vlm",
         "runtimeReferenceId": "runtime:screen-child-safety-vlm",
         "providerDecision": {
@@ -133,7 +133,7 @@
         "sourceEncryptedQueueRef": "queue:encrypted-frame-4",
         "captureDigestRef": "digest:frame-4",
         "priority": "cadence",
-        "requestedAt": "2026-06-06T01:53:20.469Z",
+        "requestedAt": "2026-06-06T03:35:54.482Z",
         "modelId": "screen-child-safety-vlm",
         "runtimeReferenceId": "runtime:screen-child-safety-vlm",
         "providerDecision": {
