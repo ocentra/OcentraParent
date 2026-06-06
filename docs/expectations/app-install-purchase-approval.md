@@ -128,6 +128,14 @@ Expected contract families:
   execution, store integration, platform adapter implementation, child-device
   delivery, runtime report delivery, real interception, child activity data
   custody, app blocking, or Ocentra-hosted family data custody.
+- Child-device delivery readiness proof rows link child-device delivery
+  runtime-writer envelope rows, package-source adapter execution rows, and
+  platform limitation action rows into delivery evidence ready, manual proof
+  required, platform unavailable, and policy blocked states without claiming
+  child-device delivery, runtime writer execution, runtime writer delivery,
+  provider API execution, store integration, platform adapter implementation,
+  app blocking, child activity data custody, or Ocentra-hosted family data
+  custody.
 - Package-source adapter execution proof rows link package-source capture/
   status rows to local Windows, manual macOS, unavailable Linux, and blocked
   Android/iOS adapter execution states with artifact, audit, report, and
@@ -298,6 +306,10 @@ Expected contract families:
   child delivery/report delivery/app-blocking/custody overclaim rejection, and
   required non-claim coverage. Public package export visibility remains a
   required follow-up once `packages/parent-domain/package.json` is available.
+- TypeScript schema tests and a proof harness for child-device delivery
+  readiness rows, missing child delivery runtime-writer/package adapter/platform
+  limitation/status refs, child delivery/provider/store/adapter/app-blocking/
+  custody overclaim rejection, and required non-claim coverage.
 - TypeScript schema tests and a proof harness for runtime report writer
   delivery rows, missing runtime writer execution/report-runtime/output/
   receipt/audit coverage rejection, provider/store/platform/child delivery/
@@ -388,6 +400,10 @@ Expected contract families:
   implementation, child-device delivery, runtime report delivery, child
   activity custody, interception, app blocking, or Ocentra-hosted family data
   custody.
+- Do not treat child-device delivery readiness proof refs as child-device
+  delivery, runtime writer execution, runtime writer delivery, provider/store
+  API execution, store integration, platform adapter implementation, app
+  blocking, child activity custody, or Ocentra-hosted family data custody.
 - Do not treat package-source adapter execution proof refs as provider/store
   API execution, store integration, portal approval UI, production platform
   adapters, child-device delivery, runtime report delivery, child activity
