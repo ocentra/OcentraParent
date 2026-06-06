@@ -62,6 +62,12 @@ claim needs proof, not slogans.
   phases without direct AI-to-policy/action shortcuts. General AI job contracts,
   degraded-result events, live service consumers, and household mesh event
   bridge remain planned.
+- `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
+  screen-derived household provider worker boundary: child-owned work item,
+  provider claim/lease, no raw screenshot transfer, worker-only provider result,
+  child-agent validation before policy, and rejection of duplicate, expired,
+  wrong-provider, wrong-claim, evidence-mismatch, custody-mismatch, raw-transfer,
+  and provider-authority-invalid results.
 - The [Household AI Provider Mesh Plan](../plans/ai-plan/household-ai-provider-mesh-plan.md)
   now defines trusted household AI providers, the Household Mesh Bridge,
   provider advertisement/heartbeat, claim/lease, result validation, no raw
@@ -432,11 +438,15 @@ validation against production external evidence variants.
 - [x] Screen successful-path AI event runtime proof publishes a typed AI result
       event from typed screen evidence and carries it to policy/action/read-model
       phases without direct AI-to-policy/action shortcuts.
+- [x] Screen household mesh provider proof validates child-owned claim/lease and
+      provider-result acceptance before policy without raw screenshot transfer
+      or provider policy/enforcement authority.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub
-runtime/discovery, live service AI event consumers, degraded-result event flow,
-and broad enforcement handoff remain in the Current Gap section above.
+runtime/discovery, production mesh bridge transport, live service AI event
+consumers, degraded-result event flow, and broad enforcement handoff remain in
+the Current Gap section above.
 
 ## Next AI Instructions
 

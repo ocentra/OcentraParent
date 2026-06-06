@@ -50,6 +50,12 @@ only with explicit parent settings.
   summary, policy, action dry-run, deletion, and portal-read-model events
   without raw-image escape. This is an in-process runtime proof; live service
   producers/subscribers and household mesh execution remain separate gates.
+- `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
+  screen-derived household mesh contract/runtime boundary: redacted
+  summary/custody payloads, no raw screenshot transfer, provider claim/lease,
+  worker-only provider result, child-agent result validation before policy, and
+  duplicate/expired/wrong-provider/wrong-claim/evidence/custody/raw-transfer/
+  authority rejection. Physical LAN execution remains separate.
 - Household mesh screen AI execution is planned through the
   [Household AI Provider Mesh Plan](../plans/ai-plan/household-ai-provider-mesh-plan.md)
   and [Screen AI Pipeline Plan](../plans/screen-ai-pipeline-plan/README.md).
@@ -496,11 +502,14 @@ separate proof gates.
 - [x] Screen eventing runtime proof publishes typed capture, queue, AI-result,
       summary, policy, action dry-run, deletion, and portal-read-model events
       through `ocentra-eventing` without raw-image escape.
+- [x] Screen household mesh proof keeps raw screenshots off LAN provider
+      payloads, grants one child-owned lease, validates provider results on the
+      child agent before policy, and rejects invalid provider results.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof,
-live service event producers/subscribers, physical household family AI hub
-runtime/discovery, broad adapters, and production explanation portal rendering
+live service event producers/subscribers, production household mesh transport
+over physical LAN, broad adapters, and production explanation portal rendering
 remain in the Current Gap section above.
 
 ## Next AI Instructions
