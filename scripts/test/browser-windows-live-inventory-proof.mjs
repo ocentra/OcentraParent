@@ -32,6 +32,7 @@ async function main() {
     ...knownPathCandidates(host.environment),
     ...registryCandidates(),
     ...shortcutCandidates(),
+    ...storePackageCandidates(),
     ...runningProcessCandidates(),
   ]);
   const rows = await Promise.all(discovered.map(toProofRow));
@@ -48,6 +49,7 @@ async function main() {
       managementTierCounts: countBy(rows.map((row) => row.managementTier)),
       supportTierCounts: countBy(rows.map((row) => row.supportTier)),
       signatureStatusCounts: countBy(rows.map((row) => row.signatureStatus)),
+      packageRows: rows.filter((row) => row.installState === 'packaged').length,
       productClaimed: false,
       exactUrlClaimedRows: rows.filter((row) => row.exactUrlCapability === 'managed-exact-url-available').length,
       rawPathStored: false,
@@ -59,6 +61,7 @@ async function main() {
       'file-hashes-are-evidence-refs-not-content',
       'signature-subjects-hashed',
       'registry-and-shortcut-inputs-redacted',
+      'store-package-inputs-redacted',
       'running-processes-are-process-only-when-not-managed',
       'exact-url-tab-content-not-captured',
       'browser-blocking-and-enforcement-not-claimed',
@@ -195,7 +198,59 @@ Get-CimInstance Win32_Process | Where-Object { $names -contains $_.Name.ToLowerI
   );
 }
 
+function storePackageCandidates() {
+  const script = String.raw`
+Get-AppxPackage -ErrorAction SilentlyContinue |
+  Where-Object { "$($_.Name) $($_.PackageFullName)" -match 'Edge|Chrome|Brave|Vivaldi|Opera|Firefox|Tor|DuckDuckGo|Arc|Chromium' } |
+  Select-Object Name, PackageFullName, PackageFamilyName, InstallLocation |
+  ConvertTo-Json -Depth 4
+`;
+  const rows = parseJson(runPowerShell(script, '[]'));
+  return asArray(rows).map((row) =>
+    packageCandidate(String(row.Name ?? row.PackageFullName ?? ''), {
+      packageFullNameHash:
+        typeof row.PackageFullName === 'string' && row.PackageFullName !== ''
+          ? stableHash(row.PackageFullName.toLowerCase())
+          : null,
+      packageFamilyNameHash:
+        typeof row.PackageFamilyName === 'string' && row.PackageFamilyName !== ''
+          ? stableHash(row.PackageFamilyName.toLowerCase())
+          : null,
+      installLocationRef:
+        typeof row.InstallLocation === 'string' && row.InstallLocation !== ''
+          ? stableHash(row.InstallLocation.toLowerCase())
+          : null,
+    })
+  );
+}
+
 async function toProofRow(row) {
+  if (row.sourceKinds.has('store-package')) {
+    const classification = packagedClassification(row.packageName);
+    return {
+      sourceKinds: [...row.sourceKinds].sort(),
+      productName: classification.productName,
+      browserFamily: classification.browserFamily,
+      executableName: null,
+      pathRef: stableHash(row.packageName.toLowerCase()),
+      packageFullNameHash: row.packageFullNameHash,
+      packageFamilyNameHash: row.packageFamilyNameHash,
+      installLocationRef: row.installLocationRef,
+      fileSha256: null,
+      fileSizeBytes: null,
+      signatureStatus: 'not-checked-package',
+      signerSubjectHash: null,
+      installState: 'packaged',
+      runningState: 'not-running',
+      managementTier: classification.managementTier,
+      supportTier: classification.supportTier,
+      exactUrlCapability: classification.exactUrlCapability,
+      activeTabCapability: classification.activeTabCapability,
+      capabilityStatus: classification.capabilityStatus,
+      processIdHash: null,
+      noClaims: ['raw-path', 'raw-url', 'page-title', 'page-body', 'active-tab', 'block-enforcement'],
+    };
+  }
   const executable = basename(row.path).toLowerCase();
   const classification = knownExecutables.get(executable) ?? unknown();
   const stat = row.exists ? statSync(row.path) : null;
@@ -231,6 +286,16 @@ function candidate(path, sourceKind, extra = {}) {
     path: normalizedPath,
     exists,
     sourceKinds: new Set([sourceKind]),
+    ...extra,
+  };
+}
+
+function packageCandidate(packageName, extra = {}) {
+  return {
+    path: `package:${stableHash(packageName.toLowerCase())}`,
+    packageName,
+    exists: false,
+    sourceKinds: new Set(['store-package']),
     ...extra,
   };
 }
@@ -315,6 +380,19 @@ function manual(productName, browserFamily) {
   };
 }
 
+function packagedManual(productName, browserFamily) {
+  return {
+    productName,
+    browserFamily,
+    managementTier: 'manual-required',
+    supportTier: 'manual-required',
+    exactUrlCapability: 'manual-required',
+    activeTabCapability: 'manual-required',
+    capabilityStatus: 'permission-limited',
+    runningCapabilityStatus: 'unmanaged-browser',
+  };
+}
+
 function unsupported(productName, browserFamily) {
   return {
     productName,
@@ -330,6 +408,23 @@ function unsupported(productName, browserFamily) {
 
 function unknown() {
   return unsupported('Unknown Browser', 'unknown');
+}
+
+function packagedClassification(packageName) {
+  const normalized = String(packageName).toLowerCase();
+  if (normalized.includes('microsoftedge') || normalized.includes('edge')) {
+    return packagedManual('Microsoft Edge', 'edge');
+  }
+  if (normalized.includes('chrome')) return packagedManual('Google Chrome', 'chrome');
+  if (normalized.includes('brave')) return packagedManual('Brave Browser', 'brave');
+  if (normalized.includes('vivaldi')) return packagedManual('Vivaldi Browser', 'unknown-chromium');
+  if (normalized.includes('opera')) return packagedManual('Opera Browser', 'opera');
+  if (normalized.includes('chromium')) return packagedManual('Chromium', 'unknown-chromium');
+  if (normalized.includes('firefox')) return unsupported('Mozilla Firefox', 'firefox');
+  if (normalized.includes('tor')) return unsupported('Tor Browser', 'unknown');
+  if (normalized.includes('duckduckgo')) return unsupported('DuckDuckGo Browser', 'unknown');
+  if (normalized.includes('arc')) return unsupported('Arc Browser', 'unknown-chromium');
+  return unknown();
 }
 
 function installState(path) {
@@ -366,7 +461,10 @@ function validateProof(proof) {
     failures.push('proof leaked a raw Windows path');
   if (/https?:\/\//i.test(serialized)) failures.push('proof leaked a raw URL');
   for (const row of proof.rows) {
-    if (!row.fileSha256 || row.fileSha256.length !== 64) failures.push(`${row.productName} missing file hash ref`);
+    if (row.installState !== 'packaged' && (!row.fileSha256 || row.fileSha256.length !== 64))
+      failures.push(`${row.productName} missing file hash ref`);
+    if (row.installState === 'packaged' && row.executableName !== null)
+      failures.push(`${row.productName} packaged row must not claim an executable`);
     if (row.exactUrlCapability === 'managed-exact-url-available') failures.push(`${row.productName} claimed exact URL`);
     if (!row.noClaims.includes('page-body')) failures.push(`${row.productName} missing no-content no-claim`);
   }
@@ -377,7 +475,7 @@ function manualMarkdown(proof) {
   const rows = proof.rows
     .map(
       (row) =>
-        `| ${row.productName} | ${row.executableName} | ${row.sourceKinds.join(', ')} | ${row.managementTier} | ${row.supportTier} | ${row.exactUrlCapability} | ${row.signatureStatus} | ${row.pathRef.slice(0, 12)} |`
+        `| ${row.productName} | ${row.executableName ?? 'package-ref-only'} | ${row.sourceKinds.join(', ')} | ${row.managementTier} | ${row.supportTier} | ${row.exactUrlCapability} | ${row.signatureStatus} | ${row.pathRef.slice(0, 12)} |`
     )
     .join('\n');
   return [
@@ -395,7 +493,7 @@ function manualMarkdown(proof) {
     '| --- | --- | --- | --- | --- | --- | --- | --- |',
     rows,
     '',
-    'No product checklist upgrade is claimed. Live registry, shortcut, known-path, and process evidence improves the WP04 manual platform proof, but exact URL/tab evidence, active-tab certainty, browser content capture, AppLocker/App Control application, blocking, rollback, and enforcement remain unclaimed.',
+    'No product checklist upgrade is claimed. Live registry, shortcut, known-path, store-package, and process evidence improves the WP04 manual platform proof, but exact URL/tab evidence, active-tab certainty, browser content capture, AppLocker/App Control application, blocking, rollback, and enforcement remain unclaimed.',
   ].join('\n');
 }
 

@@ -1,5 +1,8 @@
+use std::path::Path;
+
 use ocentra_parent_agent_core::{
-    windows_browser_inventory_observations, BrowserUnmanagedProcessObservation, ProcessObservation,
+    live_windows_browser_package_entries_from_roots, windows_browser_inventory_observations,
+    windows_browser_package_observations, BrowserUnmanagedProcessObservation, ProcessObservation,
 };
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
@@ -230,6 +233,78 @@ async fn browser_inventory_service_default_roots_feed_windows_inventory_without_
     );
 }
 
+#[test]
+fn browser_inventory_service_sources_feed_packaged_browser_without_url_claims() {
+    let root = temp_service_inventory_root();
+    let package_root = root
+        .join(ocentra_parent_agent_protocol::APP_GAME_WINDOWS_PATH_WINDOWS_APPS)
+        .join(constants::browser::DEVTOOLS_TEST_EDGE_STORE_PACKAGE_NAME);
+    write_manifest(
+        &package_root,
+        constants::browser::DEVTOOLS_TEST_EDGE_STORE_PACKAGE_MANIFEST_XML,
+    );
+    let packages = live_windows_browser_package_entries_from_roots(
+        std::slice::from_ref(
+            &root.join(ocentra_parent_agent_protocol::APP_GAME_WINDOWS_PATH_WINDOWS_APPS),
+        ),
+        constants::browser::PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY,
+    );
+    let observations = windows_browser_package_observations(&packages);
+    let read_model = browser_inventory_read_model_from_windows_inventory(
+        constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        &observations,
+    );
+
+    let _ = std::fs::remove_dir_all(root);
+    let row = read_model
+        .rows
+        .iter()
+        .find(|row| {
+            row.product_name == constants::browser::PRODUCT_NAME_MICROSOFT_EDGE
+                && row.install_state == BrowserInventoryInstallState::Packaged
+                && row.executable_path_ref.is_none()
+        })
+        .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+
+    assert!(row.claim_boundary_is_honest());
+    assert_eq!(row.management_tier, BrowserManagementTier::ManualRequired);
+    assert_eq!(
+        row.exact_url_capability,
+        BrowserExactUrlCapability::ManualRequired
+    );
+}
+
+#[test]
+fn browser_inventory_package_observations_are_manual_required_without_url_claims() {
+    let root = temp_service_inventory_root();
+    let windows_apps = root.join(ocentra_parent_agent_protocol::APP_GAME_WINDOWS_PATH_WINDOWS_APPS);
+    let package_root = windows_apps.join(constants::browser::DEVTOOLS_TEST_EDGE_STORE_PACKAGE_NAME);
+    write_manifest(
+        &package_root,
+        constants::browser::DEVTOOLS_TEST_EDGE_STORE_PACKAGE_MANIFEST_XML,
+    );
+    let packages = live_windows_browser_package_entries_from_roots(
+        std::slice::from_ref(&windows_apps),
+        constants::browser::PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY,
+    );
+    let observations = windows_browser_package_observations(&packages);
+
+    let _ = std::fs::remove_dir_all(root);
+    assert_eq!(observations.len(), 1);
+    assert_eq!(
+        observations[0].install_state,
+        BrowserInventoryInstallState::Packaged
+    );
+    assert_eq!(
+        observations[0].management_tier,
+        BrowserManagementTier::ManualRequired
+    );
+    assert_eq!(
+        observations[0].exact_url_capability,
+        BrowserExactUrlCapability::ManualRequired
+    );
+}
+
 fn inventory_command() -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -286,6 +361,15 @@ fn create_executable_fixture(path: &std::path::PathBuf) {
     )
     .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
     std::fs::write(path, []).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+}
+
+fn write_manifest(root: &Path, manifest: &str) {
+    std::fs::create_dir_all(root).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    std::fs::write(
+        root.join(ocentra_parent_agent_protocol::APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME),
+        manifest,
+    )
+    .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
 }
 
 fn restore_env_var(name: &str, value: Option<std::ffi::OsString>) {
