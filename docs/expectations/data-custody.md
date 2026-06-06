@@ -166,6 +166,14 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   payment provider tokens, support backend payloads, remote support session
   transcripts, production SLA commitments, default Ocentra-hosted family data,
   parent rules, or raw support bundle payloads.
+- `production-support-data-export-delete-lifecycle-proof` may summarize
+  parent-authorized local export/delete requested, authorized, queued, running,
+  succeeded, failed, and manual-required lifecycle status rows with local queue,
+  runtime, output, delete, redaction/audit, custody, and manual proof refs, but
+  it must not include raw child activity, raw support bundle payloads, provider
+  secrets, backend upload payloads, public runtime payloads, remote support
+  transcripts, production SLA commitments, default Ocentra-hosted family data,
+  or any claim that Ocentra-hosted services executed export/delete custody.
 - Any future feature that stores family activity in Ocentra infrastructure
   requires a new explicit product, privacy, security, retention, and deletion
   design before implementation.

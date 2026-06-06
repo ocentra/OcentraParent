@@ -159,6 +159,21 @@ support sessions, production SLA execution, raw child activity custody,
 provider secrets, remote support transcripts, or default Ocentra-hosted family
 data.
 
+## Data Export/Delete Lifecycle Contract
+
+`src/data-export-delete-lifecycle.ts` owns the logging-domain schema proof for
+`production-support-data-export-delete-lifecycle-proof`, while
+`src/data-export-delete-lifecycle-read-model.ts` owns the current fixture rows.
+They record parent-authorized export and delete requested, authorized, queued,
+running, succeeded, failed, and manual-required lifecycle states with local
+queue/runtime/output/delete refs, redaction/audit refs, custody refs, and manual
+proof requirements.
+
+This contract is metadata-only. It does not claim real backend upload
+execution, public runtime execution, provider execution, production SLA, remote
+support sessions, raw child activity custody, provider secrets, remote support
+transcripts, or default Ocentra-hosted family data.
+
 ## Gaps To Fill
 
 - Keep log contracts aligned with every new remote, notification, and support

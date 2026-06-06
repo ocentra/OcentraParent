@@ -62,6 +62,14 @@ replace the constitution, roadmap, or capability checklist.
   support sessions, production SLA commitments, support backend upload
   execution, public runtime execution, and child-activity custody as gaps until
   real evidence exists.
+- `production-support-data-export-delete-lifecycle-proof` may prove
+  requested, authorized, queued, running, succeeded, failed, and
+  manual-required export/delete lifecycle status rows for parent-authorized
+  local runtime proof, but docs must still label real backend upload
+  execution, public runtime execution, provider execution, production SLA,
+  remote support sessions, default Ocentra-hosted family data, child-activity
+  custody, durable production queues, and delete executor proof as gaps until
+  real evidence exists.
 - `production-support-backend-upload-status-proof` may prove support upload
   status/read-model rows, redaction/audit refs, retry/abandon refs, and manual
   proof requirements, but docs must still label raw child activity custody,
