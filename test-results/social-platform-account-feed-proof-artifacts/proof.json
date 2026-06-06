@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-06T09:11:50.333Z",
+  "generatedAt": "2026-06-06T09:30:30.843Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -143,8 +143,10 @@
       "proofFiles": [
         "00-source-snapshot.md",
         "01-metadata-proof.md",
+        "06-live-screenshots",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
+        "11-live-metadata-proof.json",
         "ui-not-applicable.md"
       ],
       "state": "partial-manual-required",
@@ -394,6 +396,7 @@
     "renderedUi": "parent-dashboard-child-intervention-parent-explanation-proof-present",
     "serviceBackedExplanationReadModel": "proof-present",
     "liveRouteClassification": "proof-present",
+    "liveMetadataExtraction": "proof-present",
     "alertReportIntent": "proof-present",
     "scheduleTimeBudgetCompiler": "proof-present",
     "parentSensitivitySettings": "proof-present",
