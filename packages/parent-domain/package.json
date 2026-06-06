@@ -105,6 +105,10 @@
       "import": "./dist/app-install-purchase-approval-report-domain-proof.js",
       "types": "./dist/app-install-purchase-approval-report-domain-proof.d.ts"
     },
+    "./app-install-purchase-product-claim-provider-store-proof": {
+      "import": "./dist/app-install-purchase-product-claim-provider-store-proof.js",
+      "types": "./dist/app-install-purchase-product-claim-provider-store-proof.d.ts"
+    },
     "./billing-entitlement": {
       "import": "./dist/billing-entitlement.js",
       "types": "./dist/billing-entitlement.d.ts"
