@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 12;
+    const isComplete = rowNumber <= 13;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -90,7 +90,9 @@ function expectedRows() {
                             ? 'live-ai-analysis-proof-present'
                             : rowNumber === 11
                               ? 'live-riskbenefit-signal-proof-present'
-                              : 'live-memory-cache-proof-present'
+                              : rowNumber === 12
+                                ? 'live-memory-cache-proof-present'
+                                : 'live-account-purchase-gate-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -198,6 +200,7 @@ function manifestFor(rows, failures) {
       liveAiAnalysisEvidence: 'game-10-live-ai-analysis-proof-present',
       liveRiskBenefitSignalEvidence: 'game-11-live-riskbenefit-signal-proof-present',
       liveMemoryCacheEvidence: 'game-12-live-memory-cache-proof-present',
+      liveAccountPurchaseGateEvidence: 'game-13-live-account-purchase-gate-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -250,6 +253,8 @@ function markdownFor(manifest) {
     'browser-game and cloud-gaming pages with typed candidate-only signal sets.',
     'GAME-12 live memory/cache proof is present for real public browser-game',
     'and cloud-gaming pages with bounded cache-key refs and no runtime store.',
+    'GAME-13 live account/signup/purchase gate proof is present for real public',
+    'account, subscription, purchase, cloud, educational, and store route surfaces.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

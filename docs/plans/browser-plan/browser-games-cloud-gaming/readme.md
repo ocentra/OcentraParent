@@ -280,7 +280,12 @@ reject raw URLs/titles/account identifiers, credentials, form submission,
 account creation, purchase/payment execution, launcher downloads,
 notifications, rendered UI, child notification, final policy decisions, runtime
 gate execution, native game control, cloud-frame analysis, and enforcement.
-Package subpath exports are now present.
+The live proof fetches real public Roblox login, Roblox subscription, Steam app
+purchase, Xbox Cloud Gaming, Code.org sign-in, and PlayStation store pages;
+stores only response metadata, hashed origin/path/body refs, evidence refs,
+request and decision refs, and no-authority flags; validates 6 approval
+requests plus 6 candidate decisions; and rejects 38 overclaims. Package subpath
+exports are now present.
 
 GAME-14 now adds parent-domain browser-game cloud-gaming gate contracts in
 `packages/parent-domain/src/browser-game-cloud-gaming-gate.ts`. The contracts
@@ -402,7 +407,8 @@ live-hidden-analysis-profile-safety-proof-present, GAME-09 as
 live-educational-classifier-proof-present, GAME-10 as
 live-ai-analysis-proof-present, GAME-11 as
 live-riskbenefit-signal-proof-present, GAME-12 as
-live-memory-cache-proof-present, GAME-13 through GAME-24 as
+live-memory-cache-proof-present, GAME-13 as
+live-account-purchase-gate-proof-present, GAME-14 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
 Product checklist upgrade is not claimed; child/parent UI,
 cloud-streamed frame analysis, native game control, and

@@ -421,15 +421,20 @@ does not store raw URLs, raw game IDs, raw cloud titles, raw game payloads, raw
 model text, or claim runtime cache store, AI cache, UI, native game control,
 cloud-frame analysis, final policy, or enforcement.
 Browser-game/cloud-gaming GAME-13 now adds parent-domain browser-game
-account/signup/purchase gate contracts. The contracts cover account creation,
-login, secondary account, purchase, subscription, loot box/random item, virtual
-currency, download/install, wallet/gambling-like payment, cloud-gaming start,
-and unknown-game start approval states as evidence-backed request/decision
-candidates only. They reject raw URLs/titles/account identifiers, credentials,
-form submission, account creation, purchase/payment execution, launcher
-downloads, notifications, rendered UI, child notification, final policy
-decisions, runtime gate execution, native game control, cloud-frame analysis,
-and enforcement.
+account/signup/purchase gate contracts plus a live public account/purchase
+route proof. The contracts cover account creation, login, secondary account,
+purchase, subscription, loot box/random item, virtual currency,
+download/install, wallet/gambling-like payment, cloud-gaming start, and
+unknown-game start approval states as evidence-backed request/decision
+candidates only. The live proof fetches real public Roblox login, Roblox
+subscription, Steam app purchase, Xbox Cloud Gaming, Code.org sign-in, and
+PlayStation store pages; stores only response hashes, evidence refs, request
+and decision refs, and no-authority flags; validates 6 approval requests plus
+6 candidate decisions; and rejects 38 overclaims. They reject raw
+URLs/titles/account identifiers, credentials, form submission, account creation,
+purchase/payment execution, launcher downloads, notifications, rendered UI,
+child notification, final policy decisions, runtime gate execution, native game
+control, cloud-frame analysis, and enforcement.
 Browser-game/cloud-gaming GAME-14 now adds parent-domain cloud-gaming gate
 contracts. The contracts cover known cloud domains, streaming session routes,
 gamepad/fullscreen/high-bandwidth/low-latency signal refs, optional platform
@@ -518,7 +523,8 @@ live-hidden-analysis-profile-safety-proof-present. GAME-09 is
 live-educational-classifier-proof-present. GAME-10 is
 live-ai-analysis-proof-present. GAME-11 is
 live-riskbenefit-signal-proof-present. GAME-12 is
-live-memory-cache-proof-present. GAME-13 through GAME-24 are
+live-memory-cache-proof-present. GAME-13 is
+live-account-purchase-gate-proof-present. GAME-14 through GAME-24 are
 partial/manual-required. UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.

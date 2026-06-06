@@ -1,10 +1,10 @@
 # GAME-22 Browser-Game Proof Artifact Manifest
 
-Generated: 2026-06-06T20:33:38.083Z
+Generated: 2026-06-06T20:45:20.138Z
 
 Rows checked: 21
-Proof-present rows: 12
-Partial/manual-required rows: 9
+Proof-present rows: 13
+Partial/manual-required rows: 8
 Playwright state: manual-required-no-rendered-browser-game-ui
 Product claimed: false
 
@@ -22,7 +22,7 @@ Product claimed: false
 | GAME-10 | live-ai-analysis-proof-present | `game-10-browser-game-ai-analysis-contract` | 6 |
 | GAME-11 | live-riskbenefit-signal-proof-present | `game-11-game-risk-benefit-signal-model` | 6 |
 | GAME-12 | live-memory-cache-proof-present | `game-12-browser-game-memory-cache` | 6 |
-| GAME-13 | partial-manual-required | `game-13-game-account-signup-purchase-gating` | 5 |
+| GAME-13 | live-account-purchase-gate-proof-present | `game-13-game-account-signup-purchase-gating` | 6 |
 | GAME-14 | partial-manual-required | `game-14-cloud-gaming-gating` | 5 |
 | GAME-15 | partial-manual-required | `game-15-unblocked-game-site-detection` | 5 |
 | GAME-16 | partial-manual-required | `game-16-ugc-multiplayer-chat-risk-model` | 5 |
@@ -55,6 +55,8 @@ GAME-11 live risk/benefit signal proof is present for real public
 browser-game and cloud-gaming pages with typed candidate-only signal sets.
 GAME-12 live memory/cache proof is present for real public browser-game
 and cloud-gaming pages with bounded cache-key refs and no runtime store.
+GAME-13 live account/signup/purchase gate proof is present for real public
+account, subscription, purchase, cloud, educational, and store route surfaces.
 It does not prove rendered browser-game UI, Playwright screenshots,
 runtime browser-game detection, cloud-streamed frame analysis, native
 game control, final policy execution, enforcement, or product checklist
