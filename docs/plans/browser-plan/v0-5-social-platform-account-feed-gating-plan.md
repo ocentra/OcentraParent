@@ -1447,6 +1447,15 @@ worker messages before code changes. Do not mix all 24 into one PR.
   stay out of policy input. The proof does not claim raw content custody,
   connector API calls, runtime settings UI, final policy decisions, or
   enforcement.
+- `social-video-source-custody-settings-proof` now adds activity-domain social
+  source custody settings contracts and focused tests for enabled redacted-ref
+  use, parent-review connector refs, disabled/manual-required/unavailable
+  source states, retention labels, and manual proof requirements. Contract-only
+  policy candidate input requires source/privacy evidence refs and enabled
+  custody state; parent-review, disabled, manual-required, and unavailable rows
+  stay out of policy input. The proof does not claim raw message/video custody,
+  screenshots, connector tokens/API calls, runtime settings UI, runtime custody
+  mutation, final policy decisions, or enforcement.
 
 ## 21. Must-Not-Claim List
 
