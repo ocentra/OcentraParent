@@ -64,6 +64,12 @@ mobile readiness, and control catalogs.
   proof refs visible without claiming service command registration, handler
   implementation, service event emission, read API implementation, rendered UI,
   durable audit storage, rollback execution, or timer scheduling.
+- App/game source-gated policy preview timer service-readiness read-API response
+  handoff contracts that consume read-API handoff rows and keep future response
+  proof refs visible without claiming service command registration, handler
+  implementation, service event emission, read API implementation or response
+  implementation, rendered UI, durable audit storage, rollback execution, or
+  timer scheduling.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.
@@ -401,6 +407,10 @@ flowchart LR
   rows and keep future read API proof refs visible while keeping service command
   registration, handler implementation, event emission, and read API
   implementation unclaimed.
+  Timer service-readiness read-API response handoff rows consume read-API
+  handoff rows and keep future response proof refs visible while keeping service
+  command registration, handler implementation, event emission, read API
+  implementation, and response implementation unclaimed.
   Portal authoring or preview UI, live evaluator execution, persistence,
   timers, child notification delivery, adapter dispatch, broad installed-app
   blocking, and platform enforcement remain unimplemented.
