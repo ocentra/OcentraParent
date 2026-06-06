@@ -100,6 +100,14 @@ claim needs proof, not slogans.
   refs, parent-rule refs, runtime refs, prompt version refs, no raw prompt
   retention, and explicit no model-execution, no remote/API AI, no
   policy-authority, no enforcement, and no production-model-quality claims.
+- `LocalAiPromptTemplateVersionProofSchema` and
+  `scripts/test/local-ai-prompt-template-version-proof.mjs` now prove the
+  prompt/template version contract boundary. The proof reconciles one
+  schema-bound prompt version across context-builder request, local AI
+  evaluation input, safety result, provider/model metadata, input-binding rows,
+  and output schema refs while rejecting raw prompt retention, raw model-output
+  retention, remote/API AI, policy authority, enforcement, portal UI, model
+  execution, and production model-quality claims.
 - `LocalAiResultReadModelSnapshotSchema` and
   `scripts/test/local-ai-result-journal-sqlite-proof.mjs` now prove local AI
   safety results can flow into journal entries, SQLite-ingest rows, and a
@@ -291,6 +299,9 @@ production external evidence variants.
 - [x] Local text inference dry-run proof path without model-execution,
       remote/API, policy-authority, enforcement, production-quality, or raw
       prompt-retention claims.
+- [x] Local prompt/template version proof path without model-execution,
+      model-quality, remote/API, policy-authority, enforcement, portal UI, raw
+      prompt, or raw model-output retention claims.
 - [x] Local AI result journal/SQLite ingest proof path without production
       storage runtime, raw prompt/model-output retention, policy authority,
       remote/API AI, or enforcement claims.
