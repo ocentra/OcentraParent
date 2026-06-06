@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-06T13:17:04.908Z",
+  "generatedAt": "2026-06-06T13:31:52.037Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -119,8 +119,8 @@
     {
       "rowNumber": 8,
       "rowId": "SOCIAL-08",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
       "proofDirectory": "social-08-feed-reels-shorts-route-classification",
       "proofFiles": [
         "00-source-snapshot.md",
@@ -131,7 +131,7 @@
         "11-live-route-classification-proof.json",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "proof-present",
       "failures": []
     },
     {
@@ -390,8 +390,8 @@
   ],
   "summary": {
     "totalRows": 22,
-    "completeRows": 8,
-    "partialRows": 14,
+    "completeRows": 9,
+    "partialRows": 13,
     "failures": 0,
     "playwrightState": "rendered-proof-bundle-ui-present-runtime-delivery-manual-required",
     "productClaimed": false
