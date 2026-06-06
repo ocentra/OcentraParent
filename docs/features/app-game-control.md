@@ -423,6 +423,12 @@ control with better evidence and local audit.
   heuristic category/risk labels stay manual-review candidates; and the
   App/Game Sessions dashboard renders unknown-process and possible-game rows as
   manual-required review state instead of known native-game usage.
+- The AI-output direct-enforcement merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/ai-output-direct-enforcement`: AI
+  classification digests expose only classification, confidence, action hints,
+  and evidence/session refs; local-AI category candidates require digest refs
+  and remain `notEnforcement`; and parent-domain category/risk policy routes
+  keep adapter dispatch `not-dispatched`.
 
 ## Current Gap
 
