@@ -47,7 +47,11 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   unmanaged-bypass states, and native-app manual-required states. These
   contracts reject account identity proof, message/feed content semantics, AI
   authority, policy authority, connector claims, native app control, and
-  enforcement.
+  enforcement. `social-platform-route-live-evidence-proof` now consumes the real
+  public SOCIAL-08/SOCIAL-13 route captures, SOCIAL-15 unmanaged process proof,
+  and SOCIAL-16/SOCIAL-17 native host proof to parse managed, unmanaged, and
+  native/manual route rows through the contract while keeping runtime adapter,
+  connector, native-control, UI, final policy, and enforcement claims out.
 - Browser-plan SOCIAL-03 now adds an activity-domain social URL pattern adapter
   from exact managed URL-shape classifications to validated social route
   evidence. It covers known social domains and route patterns for signup,

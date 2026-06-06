@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-06T14:56:05.528Z",
+  "generatedAt": "2026-06-06T15:38:26.624Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -23,17 +23,18 @@
     {
       "rowNumber": 2,
       "rowId": "SOCIAL-02",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
       "proofDirectory": "social-02-platform-route-contracts",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-contract-proof.md",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
+        "11-live-evidence-route-schema-proof.json",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "proof-present",
       "failures": []
     },
     {
@@ -390,8 +391,8 @@
   ],
   "summary": {
     "totalRows": 22,
-    "completeRows": 14,
-    "partialRows": 8,
+    "completeRows": 15,
+    "partialRows": 7,
     "failures": 0,
     "playwrightState": "rendered-proof-bundle-ui-present-runtime-delivery-manual-required",
     "productClaimed": false
@@ -401,6 +402,7 @@
     "playwright": "service-backed-dashboard-and-explanation-playwright-present",
     "renderedUi": "parent-dashboard-child-intervention-parent-explanation-proof-present",
     "serviceBackedExplanationReadModel": "proof-present",
+    "livePlatformRouteBoundary": "proof-present",
     "liveRouteClassification": "proof-present",
     "liveMetadataExtraction": "proof-present",
     "liveEvidenceAiBoundary": "proof-present",
