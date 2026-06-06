@@ -226,6 +226,13 @@ Expected contract families:
   store integration, platform adapter implementation, runtime writer delivery,
   runtime report delivery, child-device delivery, app blocking, child activity
   data custody, or Ocentra-hosted family data custody.
+- Provider/store manual evidence packet proof rows link platform proof
+  readiness rows and provider/store preflight rows into parent-owned
+  packet-ready, manual-review-required, and provider-unavailable packet states
+  without claiming provider API execution, store integration, platform adapter
+  implementation, runtime writer delivery, runtime report delivery,
+  child-device delivery, app blocking, child activity data custody, or
+  Ocentra-hosted family data custody.
 
 ## Validation Gates
 
@@ -371,6 +378,11 @@ Expected contract families:
   version rejection, missing manual evidence refs, provider/store/platform/
   runtime writer/report/child delivery/app-blocking/custody overclaim
   rejection, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for provider/store manual
+  evidence packet rows, missing store coverage rejection, missing platform
+  readiness or provider/store preflight refs, missing manual/provider evidence
+  refs, provider/store/platform/runtime writer/report/child delivery/
+  app-blocking/custody overclaim rejection, and required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -495,6 +507,11 @@ Expected contract families:
   Microsoft Store, provider API execution, store integration, platform adapter
   implementation, runtime writer delivery, runtime report delivery,
   child-device delivery, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat provider/store manual evidence packet proof refs as Google Play,
+  Apple App Store, Microsoft Store, provider API execution, store integration,
+  platform adapter implementation, runtime writer delivery, runtime report
+  delivery, child-device delivery, app blocking, child activity custody, or
   Ocentra-hosted family data custody.
 
 ## Done Signal
