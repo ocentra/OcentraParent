@@ -232,15 +232,23 @@ claim needs proof, not slogans.
   overload row can become policy eligible, retain raw images, or fall back to a
   remote/API provider. This is backpressure contract proof, not live model
   execution, production model quality, portal UI, or enforcement.
+- `ScreenAiConfidencePolicyGuardProofSchema` and
+  `scripts/test/screen-ai-confidence-policy-guard-proof.mjs` now prove the
+  screen AI confidence-to-policy guard over typed local AI safety results. The
+  proof covers high, medium, low, and unknown confidence rows; prevents
+  low/unknown confidence from driving allow/block decisions; keeps policy
+  decisions dry-run; and preserves local-only/no-raw-retention custody. It does
+  not execute a model, prove model quality or calibration, rerun capture, render
+  portal UI, dispatch enforcement, or use remote/API AI.
 
 ## Current Gap
 
 Ocentra needs production-installed local model artifacts behind the typed
-manifest boundary, production screen model/OCR quality beyond current local
-proof, confidence handling, authenticated-account social proof beyond
-public/live surface proof, production parent explanation portal rendering,
-broader enforcement handoff, production browser-trigger producers, physical
-household family AI hub runtime/discovery beyond the loopback proof,
+manifest boundary, production screen model/OCR quality and confidence
+calibration beyond current local proof, authenticated-account social proof
+beyond public/live surface proof, production parent explanation portal
+rendering, broader enforcement handoff, production browser-trigger producers,
+physical household family AI hub runtime/discovery beyond the loopback proof,
 cloud-streamed frame proof, mobile browser parity, and validation against
 production external evidence variants.
 
@@ -286,6 +294,9 @@ production external evidence variants.
 - [x] Screen AI model runtime flood-control/backpressure proof rejects duplicate
       active heavy runtimes, queue overflow, policy-eligible overload rows,
       remote provider fallback, and raw image retention.
+- [x] Screen AI confidence policy guard prevents low/unknown confidence from
+      driving allow/block decisions or enforcement while preserving local-only
+      custody.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub

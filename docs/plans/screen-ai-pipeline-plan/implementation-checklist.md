@@ -96,6 +96,8 @@ claims.
 - [x] Local text model route proof over typed context.
 - [x] Deterministic route proof where structured evidence is enough.
 - [x] Low confidence degrades safely.
+- [x] Low/unknown confidence cannot drive allow/block policy decisions or
+      enforcement.
 - [x] Invalid output cannot reach policy.
 
 ## Policy And Action Gates

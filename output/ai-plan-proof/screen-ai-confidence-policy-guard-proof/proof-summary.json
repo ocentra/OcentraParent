@@ -1,0 +1,79 @@
+{
+  "status": "ok",
+  "proofKind": "screen-ai-confidence-policy-guard-proof",
+  "generatedAt": "2026-06-06T05:12:49.128Z",
+  "output": "output/ai-plan-proof/screen-ai-confidence-policy-guard-proof/proof-summary.json",
+  "confidenceThreshold": 0.8,
+  "summary": {
+    "totalRows": 4,
+    "policyReadyRows": 1,
+    "parentReviewRows": 1,
+    "manualRequiredRows": 2,
+    "lowConfidenceRows": 1,
+    "unsafeAllowOrBlockRows": 0,
+    "enforcementAllowedRows": 0,
+    "remoteProviderRows": 0,
+    "rawRetainedRows": 0
+  },
+  "rows": [
+    {
+      "rowId": "screen-ai-confidence-row:high",
+      "confidence": 0.91,
+      "confidenceBand": "high",
+      "localAction": "warn",
+      "policyAction": "warn",
+      "guardOutcome": "policy-ready",
+      "policyEligible": true,
+      "enforcementAllowed": false,
+      "remoteProviderUsed": false,
+      "rawImageRetained": false
+    },
+    {
+      "rowId": "screen-ai-confidence-row:medium",
+      "confidence": 0.62,
+      "confidenceBand": "medium",
+      "localAction": "ask-parent",
+      "policyAction": "ask-parent",
+      "guardOutcome": "parent-review-required",
+      "policyEligible": true,
+      "enforcementAllowed": false,
+      "remoteProviderUsed": false,
+      "rawImageRetained": false
+    },
+    {
+      "rowId": "screen-ai-confidence-row:low",
+      "confidence": 0.31,
+      "confidenceBand": "low",
+      "localAction": "unknown",
+      "policyAction": "unknown",
+      "guardOutcome": "manual-required",
+      "policyEligible": false,
+      "enforcementAllowed": false,
+      "remoteProviderUsed": false,
+      "rawImageRetained": false
+    },
+    {
+      "rowId": "screen-ai-confidence-row:unknown",
+      "confidence": 0,
+      "confidenceBand": "unknown",
+      "localAction": "unknown",
+      "policyAction": "unknown",
+      "guardOutcome": "manual-required",
+      "policyEligible": false,
+      "enforcementAllowed": false,
+      "remoteProviderUsed": false,
+      "rawImageRetained": false
+    }
+  ],
+  "assertions": {
+    "coversHighMediumLowAndUnknownConfidence": true,
+    "lowConfidenceCannotAllowOrBlock": true,
+    "noEnforcementAuthorityClaimed": true,
+    "noRemoteProviderUsed": true,
+    "noRawImageRetained": true
+  },
+  "nonClaims": [
+    "This proof validates confidence-to-policy guard behavior over typed screen AI safety results.",
+    "It does not execute a model, prove model quality, rerun capture, render portal UI, dispatch enforcement, use remote/API AI, or retain raw images."
+  ]
+}
