@@ -234,6 +234,7 @@ async fn network_runtime_remote_delivery_receipt_ledger_preserves_local_ack_boun
         report.receipt_support_status_ref.as_str(),
         constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_SUPPORT_STATUS_REF
     );
+    assert_remote_delivery_status_carried_without_transport(&report.remote_delivery_status);
     assert!(report.receipt_ledger_ready);
     assert!(report.receipt_replay_ready);
     assert!(report.receipt_records_match_projection);
@@ -265,6 +266,21 @@ async fn network_runtime_remote_delivery_receipt_ledger_preserves_local_ack_boun
             constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF
         );
     }
+}
+
+fn assert_remote_delivery_status_carried_without_transport(
+    report: &NetworkRuntimeRemoteDeliveryStatusReport,
+) {
+    assert_eq!(
+        report.broker_status,
+        NetworkRuntimeRemoteDeliveryState::RequirementsSatisfiedButNotImplemented
+    );
+    assert_eq!(
+        report.family_hub_status,
+        NetworkRuntimeRemoteDeliveryState::RequirementsSatisfiedButNotImplemented
+    );
+    assert!(!report.external_transport_delivery_implemented);
+    assert!(!report.family_hub_delivery_implemented);
 }
 
 #[tokio::test]

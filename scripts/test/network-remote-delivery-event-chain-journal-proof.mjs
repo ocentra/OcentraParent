@@ -185,6 +185,10 @@ function assertSourceContracts() {
     'crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_journal.rs',
     'utf8'
   );
+  const coreStore = readFileSync(
+    'crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_store.rs',
+    'utf8'
+  );
   const coreTests = readFileSync('crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs', 'utf8');
   const coreReadme = readFileSync('crates/agent-core/README.md', 'utf8');
   const featureDoc = readFileSync('docs/features/network-domain-control.md', 'utf8');
@@ -193,7 +197,8 @@ function assertSourceContracts() {
   const requiredSnippets = [
     [protocolConstants, 'TEST_REMOTE_EVENT_CHAIN_JOURNAL_REF'],
     [coreRuntime, 'prove_network_runtime_remote_event_chain_journal'],
-    [coreProof, 'NdjsonEventJournal::with_options'],
+    [coreStore, 'NdjsonEventJournal::with_options'],
+    [coreStore, 'journal.replay_projection(ReplayFilter::all())'],
     [coreProof, 'projection_replay_mode: projection.mode'],
     [coreTests, 'network_runtime_remote_event_chain_journal_preserves_export_boundary_without_transport'],
     [coreTests, 'broker_delivery_implemented'],
