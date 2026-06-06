@@ -21,8 +21,11 @@ offline, or pending upload.
 Proof root: `output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/`
 
 - `04-device-status-proof.json`
+- `17-status-gap-proof.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- Focused WP10 proof command:
+  `node scripts/test/tracking-android-status-proof.mjs`
 - Local emulator proof command:
   `npm run test:tracking-plan-android-emulator-proof`
 - Pre-device plan:
@@ -31,10 +34,13 @@ Proof root: `output/tracking-plan-proof/10-android-battery-connectivity-and-stat
 ## AI Worker Checklist
 
 - [x] Capture emulator battery percentage and charging state where available.
-- [ ] Capture low-power/battery-saver degraded state.
+- [x] Capture low-power/battery-saver degraded state. Proof:
+      `output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/17-status-gap-proof.json`.
 - [x] Capture emulator connectivity dump and active-network summary.
-- [ ] Capture app killed/restarted behavior.
-- [ ] Keep pending upload count auditable.
+- [x] Capture app killed/restarted behavior. Proof:
+      `output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/17-status-gap-proof.json`.
+- [x] Keep pending upload count auditable. Proof:
+      `test-results/tracking-android-status-proof/proof.json`.
 - [x] Capture Android package launch, foreground-service scaffold, UI tree,
       screenshot, and logcat for local status proof.
 - [x] Generate the Android Studio/local and physical-device proof artifact plan
@@ -53,8 +59,20 @@ claimed.
 status layer. The generated `04-device-status-proof.json` captures emulator
 device metadata, foreground service state, battery dump, connectivity summary,
 UI tree, screenshot path, and logcat findings. This is emulator scaffold proof
-only; offline, killed/restarted, pending-upload, physical-device, and
-production tracking freshness claims remain pending.
+only; foreground location, background/geofence transitions, notification
+delivery, physical-device, and production tracking freshness claims remain
+pending.
+
+`node scripts/test/tracking-android-status-proof.mjs` now adds a focused WP10
+parent-domain proof for the remaining local status gap states. It records
+low-power/battery-saver degradation, app killed/restarted auditability,
+pending-upload count auditability, and a manual-required platform-proof row
+under `17-status-gap-proof.json` and
+`test-results/tracking-android-status-proof/proof.json`. This proof is
+parser/read-model evidence only; it does not claim foreground location samples,
+background location runtime, geofence transitions, notification delivery,
+device-owner authority, physical-device behavior, production upload workers, or
+product-ready Android tracking.
 
 ## Where We Want To Be
 

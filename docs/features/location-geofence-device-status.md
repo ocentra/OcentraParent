@@ -236,9 +236,9 @@ product gap until platform location and geofence adapters, broader product
 read models beyond these rollups, rendered dashboard UI for those rollups,
 actual live provider execution/delivery, notification receipt ingestion,
 physical-device proof, actual child-device delivery/runtime execution, remote
-sync runtime, OS lost-mode APIs, portal screenshots for the unsupported/manual
-states, and full parent/child UI snapshots/accessibility beyond the hosted
-parent route are proved.
+sync runtime, OS lost-mode APIs, production upload workers, portal screenshots
+for the unsupported/manual states, and full parent/child UI
+snapshots/accessibility beyond the hosted parent route are proved.
 
 ## Checklist
 
