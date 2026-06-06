@@ -2,7 +2,7 @@
   "proofMode": "tracking-android-permission-background-proof",
   "generatedAt": "2026-06-05T23:46:00.000Z",
   "branch": "codex/tracking-android-permission-background-proof",
-  "baseCommitAtGeneration": "1fa2f4cafbaaa5d17f889c35c1c13cea906861ca",
+  "baseCommitAtGeneration": "80927eb16450b1bc01a218cdaf87dc602624e938",
   "gitStatusShort": "",
   "commands": [
     {
@@ -14,7 +14,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-android-permission-background-proof",
       "status": 0,
-      "stdout": "\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-android-permission-background-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  20:35:02\n   Duration  1.48s (transform 159ms, setup 0ms, import 1.02s, tests 26ms, environment 0ms)\n\n",
+      "stdout": "\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-android-permission-background-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  20:37:49\n   Duration  1.11s (transform 132ms, setup 0ms, import 751ms, tests 27ms, environment 0ms)\n\n",
       "stderr": ""
     }
   ],
