@@ -120,6 +120,14 @@ Release features are product features because parents need install/update paths 
   execution, account lookup execution, remote support sessions, production SLA
   commitments, support backend upload execution, public runtime execution, and
   child-activity custody unclaimed.
+- V8 production support provider-secret custody status proof that records
+  custody-boundary recorded, provider-secret absent, backend secret store
+  manual-required, rotation manual-required, revocation manual-required, and
+  support-safe audit export readiness rows while keeping real provider-secret
+  custody, backend secret store execution, rotation execution, revocation
+  execution, support backend upload execution, account lookup execution, billing
+  provider contact, remote support sessions, production SLA, default
+  Ocentra-hosted family data, and child-activity custody unclaimed.
 
 ## Acceptance
 
@@ -274,6 +282,15 @@ Release features are product features because parents need install/update paths 
   provider contact execution, account lookup execution, remote support sessions,
   production SLA commitments, support backend upload execution, public runtime
   execution, or child-activity custody.
+- `production-support-provider-secret-custody-status-proof` may prove
+  provider-secret custody-boundary recorded, provider-secret absent, backend
+  secret store manual-required, rotation manual-required, revocation
+  manual-required, and support-safe audit export readiness rows, but it must not
+  claim provider-secret custody, backend secret store execution, rotation
+  execution, revocation execution, support backend upload execution, account
+  lookup execution, billing provider contact execution, remote support sessions,
+  production SLA commitments, default Ocentra-hosted family data, or
+  child-activity custody.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play
