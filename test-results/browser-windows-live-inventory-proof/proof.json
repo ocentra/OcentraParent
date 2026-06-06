@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-windows-live-inventory-proof",
-  "generatedAt": "2026-06-05T21:34:09.756Z",
+  "generatedAt": "2026-06-06T02:08:04.082Z",
   "sourceWorkpack": "docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md",
   "host": {
     "platform": "win32",
@@ -68,7 +68,7 @@
       "exactUrlCapability": "unsupported",
       "activeTabCapability": "unsupported",
       "capabilityStatus": "unsupported-browser",
-      "processIdHash": "deb022ea66a3750044c3bfa0794c9d2c7a2e652b0b231baf473e3b82e8d9725d",
+      "processIdHash": "b4a1b60b2d1822f8a17862704492968e1580c69307a57136b4127574bfb8f86c",
       "noClaims": [
         "raw-path",
         "raw-url",
