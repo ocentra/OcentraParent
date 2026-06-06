@@ -209,8 +209,9 @@ artifacts while rejecting generic platform support, live adapter execution, UI
 policy authority, exact URL, page content, decrypted payload, and
 enforcement-command claims. The product-readiness status materializer composes
 the risk-budget, performance benchmark, and platform-claim proofs into one
-portal-safe status with risk state, degraded-performance state, platform manual
-follow-ups, portal read-model refs, and retention/export refs while rejecting
+portal-safe status with risk state, degraded-performance state, exact platform
+entries, platform manual follow-ups, portal read-model refs, and
+retention/export refs while rejecting
 exact content, production-SLO, UI policy authority, portal adapter dispatch,
 live adapter execution, and enforcement-command claims.
 

@@ -17,6 +17,13 @@ describe('network product readiness status protocol adapter', () => {
     expect(parsed.productReadinessStatus.status_ref).toBe('network.product-readiness.status.51a');
     expect(parsed.productReadinessStatus.readiness_state).toBe('ManualRequired');
     expect(parsed.productReadinessStatus.risk_budget_state).toBe('AskParentThreshold');
+    expect(parsed.productReadinessStatus.platform_entries).toHaveLength(4);
+    expect(parsed.productReadinessStatus.platform_entries[0]?.target).toBe('WindowsFirewall');
+    expect(parsed.productReadinessStatus.platform_entries[0]?.adapter_authorized_by_proof).toBe(true);
+    expect(parsed.productReadinessStatus.platform_entries[2]?.target).toBe('WindowsWfp');
+    expect(parsed.productReadinessStatus.platform_entries[2]?.missing_required_artifacts).toEqual([
+      'network.platform-claim.manual-followup.51a',
+    ]);
     expect(parsed.productReadinessStatus.portal_adapter_dispatch_claimed).toBe(false);
     expect(parsed.productReadinessStatus.enforcement_commands_published).toBe(0);
   });
@@ -40,6 +47,14 @@ describe('network product readiness status protocol adapter', () => {
       reason: 'invalid-product-readiness-status',
     });
     expect(parseAgentNetworkProductReadinessStatusEvent(unknownReadinessStateEvent())).toEqual({
+      ok: false,
+      reason: 'invalid-product-readiness-status',
+    });
+    expect(parseAgentNetworkProductReadinessStatusEvent(platformEntryCommandRegressionEvent())).toEqual({
+      ok: false,
+      reason: 'invalid-product-readiness-status',
+    });
+    expect(parseAgentNetworkProductReadinessStatusEvent(platformCountRegressionEvent())).toEqual({
       ok: false,
       reason: 'invalid-product-readiness-status',
     });
@@ -144,6 +159,37 @@ function unknownReadinessStateEvent() {
   });
 }
 
+function platformEntryCommandRegressionEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...productReadinessEvent(),
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify({
+        ...productReadinessStatus(),
+        platform_entries: [
+          {
+            ...platformEntries()[0],
+            enforcement_command_published: true,
+          },
+        ],
+      }),
+    },
+  });
+}
+
+function platformCountRegressionEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...productReadinessEvent(),
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify({
+        ...productReadinessStatus(),
+        platform_ready_claims: 2,
+      }),
+    },
+  });
+}
+
 function liveCaptureCustodyStatus() {
   return {
     status_ref: 'network.live-capture.custody-status.13a',
@@ -196,6 +242,7 @@ function productReadinessStatus() {
         missing_required_artifacts: ['network.live-capture.permission-proof.13'],
       },
     ],
+    platform_entries: platformEntries(),
     portal_read_model_ready: true,
     retention_export_refs_visible: true,
     policy_authority: false,
@@ -209,4 +256,65 @@ function productReadinessStatus() {
     decrypted_payload_available: false,
     page_content_available: false,
   };
+}
+
+function platformEntries() {
+  return [
+    {
+      target: 'WindowsFirewall',
+      claim_state: 'Ready',
+      policy_decision_ref: 'network.policy-decision.51a',
+      parent_rule_ref: 'network.parent-rule.51a',
+      evidence_refs: ['network.flow-evidence.51a'],
+      device_or_os_refs: ['windows-device.51a'],
+      permission_or_entitlement_refs: ['network.live-capture.permission-proof.13'],
+      adapter_capability_refs: ['network.adapter-capability.51a'],
+      missing_required_artifacts: [],
+      audit_refs: ['network.audit.51a'],
+      adapter_authorized_by_proof: true,
+      enforcement_command_published: false,
+    },
+    {
+      target: 'WindowsFirewall',
+      claim_state: 'DryRun',
+      policy_decision_ref: 'network.policy-decision.51a',
+      parent_rule_ref: 'network.parent-rule.51a',
+      evidence_refs: ['network.flow-evidence.51a'],
+      device_or_os_refs: ['windows-device.51a'],
+      permission_or_entitlement_refs: ['network.live-capture.permission-proof.13'],
+      adapter_capability_refs: ['network.adapter-capability.51a'],
+      missing_required_artifacts: [],
+      audit_refs: ['network.audit.51a'],
+      adapter_authorized_by_proof: false,
+      enforcement_command_published: false,
+    },
+    {
+      target: 'WindowsWfp',
+      claim_state: 'ManualRequired',
+      policy_decision_ref: 'network.policy-decision.51a',
+      parent_rule_ref: 'network.parent-rule.51a',
+      evidence_refs: ['network.flow-evidence.51a'],
+      device_or_os_refs: ['windows-wfp-device.51a'],
+      permission_or_entitlement_refs: [],
+      adapter_capability_refs: ['network.wfp-capability.51a'],
+      missing_required_artifacts: ['network.platform-claim.manual-followup.51a'],
+      audit_refs: ['network.wfp-audit.51a'],
+      adapter_authorized_by_proof: false,
+      enforcement_command_published: false,
+    },
+    {
+      target: 'AppleNetworkExtensionIos',
+      claim_state: 'Unavailable',
+      policy_decision_ref: 'network.policy-decision.51a',
+      parent_rule_ref: 'network.parent-rule.51a',
+      evidence_refs: ['network.flow-evidence.51a'],
+      device_or_os_refs: ['ios-device.51a'],
+      permission_or_entitlement_refs: [],
+      adapter_capability_refs: [],
+      missing_required_artifacts: [],
+      audit_refs: ['network.ios-audit.51a'],
+      adapter_authorized_by_proof: false,
+      enforcement_command_published: false,
+    },
+  ];
 }
