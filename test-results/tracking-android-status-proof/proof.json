@@ -1,9 +1,9 @@
 {
   "proofMode": "tracking-android-status-proof",
   "generatedAt": "2026-06-05T22:36:00.000Z",
-  "branch": "codex/tracking-android-status-proof",
-  "baseCommitAtGeneration": "0533702a4f066026e6d8fa01f7214f66700ca78d",
-  "gitStatusShort": "",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "baseCommitAtGeneration": "710f1caf0c364df5916f48d708ae69adee7df93a",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/08-android-foreground-location-adapter.md\n M docs/plans/tracking-plan/workpacks/09-android-background-location-and-geofence-adapter.md\n M docs/plans/tracking-plan/workpacks/10-android-battery-connectivity-and-status-adapter.md\n M output/tracking-plan-proof/08-android-foreground-location-adapter/00-source-snapshot.md\n M output/tracking-plan-proof/08-android-foreground-location-adapter/16-validation-commands.log\n M output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/00-source-snapshot.md\n M output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/16-validation-commands.log\n M output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/00-source-snapshot.md\n M output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/16-validation-commands.log\n M test-results/tracking-android-permission-background-proof/proof.json\n M test-results/tracking-android-status-proof/proof.json",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -14,7 +14,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-android-status-proof",
       "status": 0,
-      "stdout": "\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-android-status-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  20:51:41\n   Duration  937ms (transform 111ms, setup 0ms, import 649ms, tests 21ms, environment 0ms)\n\n",
+      "stdout": "\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-android-status-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  15:08:51\n   Duration  887ms (transform 111ms, setup 0ms, import 662ms, tests 21ms, environment 0ms)\n\n",
       "stderr": ""
     }
   ],

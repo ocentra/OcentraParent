@@ -401,6 +401,14 @@ Every implementation workpack must update, or explicitly justify not updating:
       by `node scripts/test/tracking-ios-location-wp33-gate-proof.mjs` without
       creating a duplicate iOS tracking contract or changing runtime/device
       non-claims.
+- [x] WP08/WP09 Android parent-domain manual-required proof rows exist for
+      foreground permission, foreground sample, background permission, and
+      geofence transition gaps through
+      `node scripts/test/tracking-android-permission-background-proof.mjs`.
+- [x] WP10 Android local status proof rows exist for low-power degradation,
+      killed/restarted auditability, pending-upload count auditability, and
+      manual-required platform proof through
+      `node scripts/test/tracking-android-status-proof.mjs`.
 - [ ] Android background permission proof is not complete. The emulator proof
       and WP08/WP09 parent-domain manual-required proof record this as
       manual-required instead of product-ready.

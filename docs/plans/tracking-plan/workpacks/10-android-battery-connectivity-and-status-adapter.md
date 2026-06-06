@@ -99,9 +99,23 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch.
-- [ ] Touched files.
-- [ ] Validation commands and results.
-- [ ] Proof artifacts under `output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/`.
-- [ ] Product doc/checklist updates or reason none were needed.
-- [ ] Known gaps/manual-required states.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: Android status workpack doc, tracking implementation
+      checklist, owning tracking feature doc, WP10 generated proof artifacts,
+      and focused Android status proof results.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-android-status-proof.mjs` passed locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/`,
+      including `04-device-status-proof.json`, `17-status-gap-proof.json`,
+      `15-manual-platform-proof.md`, and `16-validation-commands.log`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and this workpack doc updated for the local Android
+      low-power, killed/restarted, pending-upload, and manual-required status
+      proof; central capability row update remains a hub/primary-owned doc
+      delta.
+- [x] Known gaps/manual-required states: foreground location samples,
+      background location runtime, geofence transitions, notification delivery,
+      device-owner authority, physical-device behavior, production upload
+      workers, and product-ready Android tracking remain unclaimed.
