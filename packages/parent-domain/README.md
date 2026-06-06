@@ -25,6 +25,11 @@ mobile readiness, and control catalogs.
   that consume runtime-readiness rows and keep service timer runtime, scheduler
   persistence, durable scheduler state-store, audit, and rollback proof required
   before any future scheduling claim.
+- App/game source-gated policy preview timer audit/rollback handoff contracts
+  that consume scheduler-persistence rows and keep service timer runtime,
+  scheduler persistence, durable scheduler state-store, audit trail, rollback
+  plan, and audit/rollback read-model proof required before any future
+  scheduling claim.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.
@@ -331,10 +336,13 @@ flowchart LR
   service timer runtime, scheduler persistence, audit, and rollback proof still
   required before any future scheduling can be claimed. Timer
   scheduler-persistence rows add the durable scheduler state-store proof still
-  required before scheduling while preserving source/compile blockers. Portal
-  authoring or preview UI, live evaluator execution, persistence, timers, child
-  notification delivery, adapter dispatch, broad installed-app blocking, and
-  platform enforcement remain unimplemented.
+  required before scheduling while preserving source/compile blockers. Timer
+  audit/rollback handoff rows add audit trail, rollback plan, and
+  audit/rollback read-model proof still required before scheduling while keeping
+  durable audit logs and rollback execution unclaimed. Portal authoring or
+  preview UI, live evaluator execution, persistence, timers, child notification
+  delivery, adapter dispatch, broad installed-app blocking, and platform
+  enforcement remain unimplemented.
 - Supported-adapter and integrity runtime audit proof remain contract/read-model
   proof; broad app/domain/browser blocking, notification delivery, tamper
   resistance, mobile enforcement, stealth/persistence, and privilege escalation

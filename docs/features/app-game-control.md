@@ -221,6 +221,13 @@ control with better evidence and local audit.
   durable scheduler state-store, audit, and rollback proof, and keep source or
   compiler blockers blocked before scheduling without claiming runtime storage
   or enforcement.
+- Parent-domain source-gated policy preview timer audit/rollback handoff
+  contracts now consume those scheduler-persistence rows, record which native
+  app/native game rows still need service timer runtime, scheduler persistence,
+  durable scheduler state-store, audit trail, rollback plan, and
+  audit/rollback read-model proof, and keep source or compiler blockers blocked
+  before audit/rollback without claiming runtime storage, audit logs, rollback
+  execution, or enforcement.
 - The portal App/Game Sessions route now renders that service-backed policy
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy
@@ -625,6 +632,17 @@ mobile UI, or prove platform support.
       scheduler storage, audit/rollback runtime, adapter dispatch, child
       delivery, broad blocking, platform enforcement, or raw private source
       rows.
+      Source-gated policy preview timer audit/rollback handoff proof now
+      consumes those scheduler-persistence rows and records that future
+      scheduling still requires service timer runtime, scheduler persistence,
+      durable scheduler state-store, audit trail, rollback plan, and
+      audit/rollback read-model proof, while source and compiler blockers remain
+      blocked before audit/rollback. It remains parent-domain proof only and
+      does not claim service events, portal UI, evaluator runtime, timer
+      runtime/scheduling, scheduler persistence runtime, durable scheduler
+      storage, audit runtime, durable audit logs, rollback runtime/execution,
+      adapter dispatch, child delivery, broad blocking, platform enforcement,
+      or raw private source rows.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
