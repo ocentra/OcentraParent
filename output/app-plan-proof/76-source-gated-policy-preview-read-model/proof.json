@@ -2,11 +2,11 @@
   "proofMode": "app-game-source-gated-policy-preview-read-model",
   "generatedAt": "2026-06-06T00:05:00Z",
   "branch": "codex/app-game-source-gated-policy-preview-read-model",
-  "commit": "3bfd321c6b071d407ad431f0885384ceae7d2d32",
-  "gitStatusShort": "M docs/expectations/app-game-evidence.md\n M docs/expectations/policy.md\n M docs/features/app-game-control.md\n M docs/plans/app-game-plan/implementation-checklist.md\n M docs/plans/app-game-plan/workpacks/README.md\n M docs/plans/app-plan/implementation-checklist.md\n?? docs/plans/app-game-plan/workpacks/76-source-gated-policy-preview-read-model.md\n?? docs/plans/app-plan/workpacks/76-source-gated-policy-preview-read-model.md\n?? packages/parent-domain/src/app-game-source-gated-policy-preview-read-model-rules.ts\n?? packages/parent-domain/src/app-game-source-gated-policy-preview-read-model.ts\n?? packages/parent-domain/tests/app-game-source-gated-policy-preview-read-model.test.ts\n?? scripts/test/app-game-source-gated-policy-preview-read-model-proof.mjs",
+  "commit": "5ef30c9a57cff9e99a271f0d9d304ab11e41d6e9",
+  "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
-    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-gated-policy-preview-read-model app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-source-gated-policy-preview-read-model app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  4 passed (4)\n      Tests  19 passed (19)\n   Start at  20:51:43\n   Duration  1.13s (transform 724ms, setup 0ms, import 3.09s, tests 109ms, environment 1ms)"
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-gated-policy-preview-read-model app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-source-gated-policy-preview-read-model app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  4 passed (4)\n      Tests  19 passed (19)\n   Start at  21:05:48\n   Duration  3.10s (transform 910ms, setup 0ms, import 4.24s, tests 161ms, environment 1ms)"
   ],
   "stackedOn": {
     "wp75Branch": "codex/app-game-source-freshness-preview-gate",
