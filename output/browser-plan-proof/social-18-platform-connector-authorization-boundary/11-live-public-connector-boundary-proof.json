@@ -1,0 +1,375 @@
+{
+  "schemaVersion": 1,
+  "proofId": "social-platform-connector-authorization-proof",
+  "generatedAt": "2026-06-06T13:16:37.084Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "fb9eb7c0592f6e74cdf5457e218452eced92d0fa",
+  "baseCommit": "94ada961b5a6be48c8adcf146c294059ac1c3de4",
+  "liveCaptureSummary": {
+    "realPublicProviderSurfacesUsed": true,
+    "generatedOrFixturePageUsed": false,
+    "passiveNavigationOnly": true,
+    "formsSubmitted": false,
+    "credentialsCaptured": false,
+    "rawPageBodyPersisted": false,
+    "rawDomPersisted": false,
+    "rawTitlePersisted": false,
+    "screenshotsPersisted": true,
+    "screenshotCount": 3,
+    "providerApiCalled": false,
+    "oauthClientImplemented": false,
+    "tokenStored": false,
+    "rawAccountDataCaptured": false,
+    "messageContentCaptured": false,
+    "feedContentCaptured": false,
+    "accountIdentityVerified": false,
+    "coreGatingDependencyClaimed": false,
+    "policyDecisionClaimed": false,
+    "aiRuntimeClaimed": false,
+    "uiDeliveredClaimed": false,
+    "nativeAppControlClaimed": false,
+    "enforcementClaimed": false
+  },
+  "captures": [
+    {
+      "targetId": "google-youtube-supervision-public-doc",
+      "provider": "google-youtube-supervision",
+      "requestedUrl": "https://support.google.com/youtube/answer/10314940?hl=en",
+      "finalUrl": "https://support.google.com/youtube/answer/10314940?hl=en",
+      "allowedHosts": [
+        "support.google.com"
+      ],
+      "finalHost": "support.google.com",
+      "allowedHostObserved": true,
+      "httpStatus": 200,
+      "proofRef": "parent-proof-google-youtube-supervision-public-doc",
+      "titleSha256": "71f2789b59f36d55fb52a286dccb66b95a81f483f5a45cb4391de5814554d6d5",
+      "rawTitlePersisted": false,
+      "screenshotPath": "output/browser-plan-proof/social-18-platform-connector-authorization-boundary/06-live-screenshots/google-youtube-supervision-public-doc.png",
+      "screenshotSha256": "e6c4a47b9927fe67b9a08f2403d4eca8a72f952355bfa63fd70531bf810403e4",
+      "screenshotBytes": 155685,
+      "screenshotCaptured": true,
+      "rawPageBodyPersisted": false,
+      "rawDomPersisted": false,
+      "providerApiCalled": false,
+      "oauthClientImplemented": false,
+      "tokenStored": false,
+      "accountDataCaptured": false,
+      "enforcementClaimed": false
+    },
+    {
+      "targetId": "meta-family-center-public-page",
+      "provider": "meta-family-center",
+      "requestedUrl": "https://familycenter.meta.com/",
+      "finalUrl": "https://familycenter.meta.com/ca/",
+      "allowedHosts": [
+        "familycenter.meta.com"
+      ],
+      "finalHost": "familycenter.meta.com",
+      "allowedHostObserved": true,
+      "httpStatus": 200,
+      "proofRef": "parent-proof-meta-family-center-public-page",
+      "titleSha256": "3acf436130d4204974aa38138eff86811ba9a62f9010487c5f47fd5efb99b361",
+      "rawTitlePersisted": false,
+      "screenshotPath": "output/browser-plan-proof/social-18-platform-connector-authorization-boundary/06-live-screenshots/meta-family-center-public-page.png",
+      "screenshotSha256": "c66b02abe66aa35cbf0600f4e8e1abd00f22557fdc1a8dd869add46dde86dc48",
+      "screenshotBytes": 796160,
+      "screenshotCaptured": true,
+      "rawPageBodyPersisted": false,
+      "rawDomPersisted": false,
+      "providerApiCalled": false,
+      "oauthClientImplemented": false,
+      "tokenStored": false,
+      "accountDataCaptured": false,
+      "enforcementClaimed": false
+    },
+    {
+      "targetId": "tiktok-family-pairing-public-doc",
+      "provider": "tiktok-family-pairing",
+      "requestedUrl": "https://support.tiktok.com/en/account-and-privacy/account-privacy-settings/family-pairing",
+      "finalUrl": "https://www.tiktok.com/support/faq_detail?id=7543604781667867142&category=web_account",
+      "allowedHosts": [
+        "support.tiktok.com",
+        "www.tiktok.com"
+      ],
+      "finalHost": "www.tiktok.com",
+      "allowedHostObserved": true,
+      "httpStatus": 200,
+      "proofRef": "parent-proof-tiktok-family-pairing-public-doc",
+      "titleSha256": "534de99a0ab4d3d6bc0c3f6a3190bbd237a8c9a126554e61ed06f6864bad2bd9",
+      "rawTitlePersisted": false,
+      "screenshotPath": "output/browser-plan-proof/social-18-platform-connector-authorization-boundary/06-live-screenshots/tiktok-family-pairing-public-doc.png",
+      "screenshotSha256": "03db1efb97c551f31ca26937b616f5aa4023c66c18ad01e9d32e3a66dd095501",
+      "screenshotBytes": 139625,
+      "screenshotCaptured": true,
+      "rawPageBodyPersisted": false,
+      "rawDomPersisted": false,
+      "providerApiCalled": false,
+      "oauthClientImplemented": false,
+      "tokenStored": false,
+      "accountDataCaptured": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "authorizationBoundary": {
+    "authorizationBoundaryId": "social-connector-boundary-live-public-proof",
+    "generatedAt": "2026-06-06T13:16:37.084Z",
+    "rows": [
+      {
+        "provider": "google-youtube-supervision",
+        "authorizationState": "not-implemented",
+        "proofState": "provider-artifact-required",
+        "custodyState": "parent-owned-token-required",
+        "scopes": [
+          "account-supervision-state",
+          "video-channel-metadata"
+        ],
+        "reasons": [
+          "optional-adjacent-source",
+          "parent-authorization-required",
+          "provider-api-not-implemented",
+          "token-storage-not-implemented",
+          "core-gating-independent",
+          "message-content-unavailable",
+          "feed-content-unavailable"
+        ],
+        "proofRefs": [
+          "parent-proof-google-youtube-supervision-public-doc"
+        ],
+        "coreGatingDependency": "not-required",
+        "providerApiCallClaimed": false,
+        "rawTokenStoredClaimed": false,
+        "oauthClientImplementedClaimed": false,
+        "rawAccountDataCaptured": false,
+        "messageContentCaptured": false,
+        "feedContentCaptured": false,
+        "accountIdentityVerifiedClaimed": false,
+        "nativeAppControlClaimed": false,
+        "policyDecisionClaimed": false,
+        "aiRuntimeClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "provider": "meta-family-center",
+        "authorizationState": "not-implemented",
+        "proofState": "provider-artifact-required",
+        "custodyState": "parent-owned-token-required",
+        "scopes": [
+          "family-center-state"
+        ],
+        "reasons": [
+          "optional-adjacent-source",
+          "parent-authorization-required",
+          "provider-api-not-implemented",
+          "token-storage-not-implemented",
+          "core-gating-independent",
+          "message-content-unavailable",
+          "feed-content-unavailable"
+        ],
+        "proofRefs": [
+          "parent-proof-meta-family-center-public-page"
+        ],
+        "coreGatingDependency": "not-required",
+        "providerApiCallClaimed": false,
+        "rawTokenStoredClaimed": false,
+        "oauthClientImplementedClaimed": false,
+        "rawAccountDataCaptured": false,
+        "messageContentCaptured": false,
+        "feedContentCaptured": false,
+        "accountIdentityVerifiedClaimed": false,
+        "nativeAppControlClaimed": false,
+        "policyDecisionClaimed": false,
+        "aiRuntimeClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "provider": "tiktok-family-pairing",
+        "authorizationState": "not-implemented",
+        "proofState": "provider-artifact-required",
+        "custodyState": "parent-owned-token-required",
+        "scopes": [
+          "family-pairing-state"
+        ],
+        "reasons": [
+          "optional-adjacent-source",
+          "parent-authorization-required",
+          "provider-api-not-implemented",
+          "token-storage-not-implemented",
+          "core-gating-independent",
+          "message-content-unavailable",
+          "feed-content-unavailable"
+        ],
+        "proofRefs": [
+          "parent-proof-tiktok-family-pairing-public-doc"
+        ],
+        "coreGatingDependency": "not-required",
+        "providerApiCallClaimed": false,
+        "rawTokenStoredClaimed": false,
+        "oauthClientImplementedClaimed": false,
+        "rawAccountDataCaptured": false,
+        "messageContentCaptured": false,
+        "feedContentCaptured": false,
+        "accountIdentityVerifiedClaimed": false,
+        "nativeAppControlClaimed": false,
+        "policyDecisionClaimed": false,
+        "aiRuntimeClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "provider": "platform-export-import",
+        "authorizationState": "manual-required",
+        "proofState": "manual-export-required",
+        "custodyState": "manual-export-required",
+        "scopes": [
+          "manual-export-file"
+        ],
+        "reasons": [
+          "manual-export-required",
+          "core-gating-independent"
+        ],
+        "proofRefs": [
+          "parent-proof-platform-export-import-manual-required"
+        ],
+        "coreGatingDependency": "not-required",
+        "providerApiCallClaimed": false,
+        "rawTokenStoredClaimed": false,
+        "oauthClientImplementedClaimed": false,
+        "rawAccountDataCaptured": false,
+        "messageContentCaptured": false,
+        "feedContentCaptured": false,
+        "accountIdentityVerifiedClaimed": false,
+        "nativeAppControlClaimed": false,
+        "policyDecisionClaimed": false,
+        "aiRuntimeClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "provider": "parent-provided-account-ref",
+        "authorizationState": "parent-authorized",
+        "proofState": "parent-consent-record-only",
+        "custodyState": "redacted-parent-input-only",
+        "scopes": [
+          "parent-declared-account-ref"
+        ],
+        "reasons": [
+          "optional-adjacent-source",
+          "visible-setting-required",
+          "redacted-input-required",
+          "core-gating-independent",
+          "message-content-unavailable",
+          "feed-content-unavailable"
+        ],
+        "proofRefs": [
+          "parent-proof-redacted-parent-provided-account-ref"
+        ],
+        "coreGatingDependency": "not-required",
+        "providerApiCallClaimed": false,
+        "rawTokenStoredClaimed": false,
+        "oauthClientImplementedClaimed": false,
+        "rawAccountDataCaptured": false,
+        "messageContentCaptured": false,
+        "feedContentCaptured": false,
+        "accountIdentityVerifiedClaimed": false,
+        "nativeAppControlClaimed": false,
+        "policyDecisionClaimed": false,
+        "aiRuntimeClaimed": false,
+        "uiDeliveredClaimed": false,
+        "enforcementClaimed": false
+      }
+    ],
+    "claimBoundaries": {
+      "tokenStorage": "not-claimed",
+      "oauthClient": "not-claimed",
+      "providerApiCalls": "not-claimed",
+      "rawAccountData": "not-claimed",
+      "messageContent": "not-claimed",
+      "feedContent": "not-claimed",
+      "accountIdentityVerification": "not-claimed",
+      "coreGatingDependency": "not-claimed",
+      "policyDecision": "not-claimed",
+      "aiRuntime": "not-claimed",
+      "uiDelivery": "not-claimed",
+      "nativeAppControl": "not-claimed",
+      "enforcement": "not-claimed",
+      "reviewerSummary": "Live public connector pages prove only adjacent provider boundary visibility; OAuth, tokens, APIs, UI delivery, and enforcement remain unclaimed."
+    }
+  },
+  "parseChecks": {
+    "boundaryAccepted": true,
+    "requiredProvidersPresent": true,
+    "publicProofRefsAttached": true
+  },
+  "negativeChecks": [
+    {
+      "mutation": "raw-token-storage",
+      "rejected": true
+    },
+    {
+      "mutation": "oauth-client",
+      "rejected": true
+    },
+    {
+      "mutation": "provider-api-call",
+      "rejected": true
+    },
+    {
+      "mutation": "raw-account-data",
+      "rejected": true
+    },
+    {
+      "mutation": "message-content",
+      "rejected": true
+    },
+    {
+      "mutation": "feed-content",
+      "rejected": true
+    },
+    {
+      "mutation": "account-identity",
+      "rejected": true
+    },
+    {
+      "mutation": "native-app-control",
+      "rejected": true
+    },
+    {
+      "mutation": "policy-decision",
+      "rejected": true
+    },
+    {
+      "mutation": "ai-runtime",
+      "rejected": true
+    },
+    {
+      "mutation": "ui-delivery",
+      "rejected": true
+    },
+    {
+      "mutation": "enforcement",
+      "rejected": true
+    },
+    {
+      "mutation": "provider-authorized-with-public-page-only",
+      "rejected": true
+    }
+  ],
+  "noClaimChecks": {
+    "providerApiCalls": false,
+    "oauthClient": false,
+    "tokenStorage": false,
+    "rawAccountData": false,
+    "messageContent": false,
+    "feedContent": false,
+    "accountIdentityVerification": false,
+    "coreGatingDependency": false,
+    "policyDecision": false,
+    "aiRuntime": false,
+    "uiDelivery": false,
+    "nativeAppControl": false,
+    "enforcement": false
+  }
+}

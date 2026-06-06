@@ -59,7 +59,7 @@ async function socialProofDirectories() {
 }
 
 function expectedRows() {
-  const completeRows = new Set([1, 13, 14, 15, 20, 21, 22]);
+  const completeRows = new Set([1, 13, 14, 15, 18, 20, 21, 22]);
   return Array.from({ length: 22 }, (_, index) => {
     const rowNumber = index + 1;
     const complete = completeRows.has(rowNumber);
@@ -170,6 +170,7 @@ function manifestFor(rows, failures) {
       liveEvidenceAiBoundary: 'proof-present',
       liveEvidenceRiskBenefitBoundary: 'proof-present',
       liveEvidencePolicyCompilerBoundary: 'proof-present',
+      livePublicConnectorBoundary: 'proof-present',
       liveEvidenceDecisionMemoryBoundary: 'proof-present',
       alertReportIntent: 'proof-present',
       scheduleTimeBudgetCompiler: 'proof-present',
@@ -210,6 +211,7 @@ function markdownFor(manifest) {
     'Live-evidence AI boundary proof is present for SOCIAL-10 degraded model-unavailable rows.',
     'Live-evidence risk/benefit boundary proof is present for SOCIAL-11 unavailable signal sets.',
     'Live-evidence policy compiler proof is present for SOCIAL-12 non-final manual-review candidates.',
+    'Live public connector boundary proof is present for SOCIAL-18 Google/YouTube, Meta, and TikTok surfaces.',
     'Live-evidence decision memory proof is present for SOCIAL-19 ref-only cache snapshots.',
     'Ref-only social alert/report intent proof is present.',
     'Schedule/time-budget compiler contract proof is present.',

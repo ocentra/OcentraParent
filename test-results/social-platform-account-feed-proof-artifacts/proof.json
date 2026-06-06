@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-06T12:56:46.701Z",
+  "generatedAt": "2026-06-06T13:17:04.908Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -294,17 +294,19 @@
     {
       "rowNumber": 18,
       "rowId": "SOCIAL-18",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
       "proofDirectory": "social-18-platform-connector-authorization-boundary",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-contract-proof.md",
+        "06-live-screenshots",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
+        "11-live-public-connector-boundary-proof.json",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "proof-present",
       "failures": []
     },
     {
@@ -388,8 +390,8 @@
   ],
   "summary": {
     "totalRows": 22,
-    "completeRows": 7,
-    "partialRows": 15,
+    "completeRows": 8,
+    "partialRows": 14,
     "failures": 0,
     "playwrightState": "rendered-proof-bundle-ui-present-runtime-delivery-manual-required",
     "productClaimed": false
@@ -404,6 +406,7 @@
     "liveEvidenceAiBoundary": "proof-present",
     "liveEvidenceRiskBenefitBoundary": "proof-present",
     "liveEvidencePolicyCompilerBoundary": "proof-present",
+    "livePublicConnectorBoundary": "proof-present",
     "liveEvidenceDecisionMemoryBoundary": "proof-present",
     "alertReportIntent": "proof-present",
     "scheduleTimeBudgetCompiler": "proof-present",
