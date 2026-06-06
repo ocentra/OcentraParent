@@ -11,10 +11,12 @@ proof plus writable local screen-summary intent draft proof. Complete parent UI
 is still open, but the dedicated Screen Analysis route now has a typed summary
 panel intent and renderer proof at
 `output/screen-plan-proof/screen-parent-portal-summary-ui/proof-summary.json`.
-The proof uses service-backed Activity Screen read-model rows and shows
-capability, queue job, summary/category, confidence, source refs, deleted-image
-custody, model/runtime status, policy, audit, and not-claimed enforcement state.
-It does not yet provide fresh desktop/mobile screenshots for this exact route.
+The proof launches the real portal/agent path, clicks the Activity Screen
+read-model command, renders `#/screen-analysis`, and shows capability, queue
+job, summary/category, confidence, source refs, deleted-image custody,
+model/runtime status, policy, audit, and not-claimed enforcement state.
+Desktop and mobile screenshots are captured under
+`output/screen-plan-proof/screen-parent-portal-summary-ui/screenshots/`.
 
 ## Checklist
 
@@ -25,13 +27,15 @@ It does not yet provide fresh desktop/mobile screenshots for this exact route.
 - [x] Build confidence/unknown UI.
 - [x] Build deletion/custody labels.
 - [x] Build policy/audit details.
-- [~] Capture screenshots.
+- [x] Capture screenshots.
 
 ## Proof
 
 - `packages/portal-domain/tests/screen-summary-panel.test.ts`.
 - `apps/portal/tests/screen-summary-route-panel.test.ts`.
+- `apps/portal/e2e/screen-summary-ui-proof.spec.ts`.
 - `scripts/test/screen-parent-portal-summary-ui-proof.mjs`.
-- Desktop and mobile screenshots for the dedicated summary route remain open.
+- `output/screen-plan-proof/screen-parent-portal-summary-ui/screenshots/screen-analysis-route-desktop.png`.
+- `output/screen-plan-proof/screen-parent-portal-summary-ui/screenshots/screen-analysis-route-mobile.png`.
 - `output/screen-plan-proof/settings-writable-controls/proof-summary.json`.
 - `output/screen-plan-proof/screen-parent-portal-summary-ui/proof-summary.json`.

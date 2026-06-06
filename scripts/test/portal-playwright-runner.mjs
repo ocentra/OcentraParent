@@ -104,9 +104,11 @@ function trackChild(child, label) {
 
 function runPlaywright() {
   const cliPath = path.join(repoRoot, 'node_modules', '@playwright', 'test', 'cli.js');
+  const spec = process.env['OCENTRA_PARENT_PORTAL_PLAYWRIGHT_SPEC'];
+  const specArgs = spec === undefined || spec.trim().length === 0 ? [] : [spec.trim()];
   const child = spawn(
     process.execPath,
-    [cliPath, 'test', '--config', path.join(portalRoot, 'playwright.config.ts'), '--workers=1'],
+    [cliPath, 'test', ...specArgs, '--config', path.join(portalRoot, 'playwright.config.ts'), '--workers=1'],
     {
       cwd: portalRoot,
       env: {
