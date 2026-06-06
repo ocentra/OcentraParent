@@ -414,6 +414,20 @@ manual-required/N/A file.
       visibility only; live local model execution, raw model output, policy
       execution, adapter execution, broker/family-hub delivery, host filtering,
       and portal rendering remain unclaimed.
+- [x] 33c network local-AI runtime result portal status: E-D added
+      `output/network-plan-proof/33c-network-local-ai-runtime-result-portal/proof-summary.json`
+      and
+      `test-results/network-local-ai-runtime-result-portal-proof/proof.json`.
+      The Activity route network drawer now renders the service-backed row33b
+      status with bridge, queue, runtime, model, prompt, policy, parent-rule,
+      evidence, summary, managed-browser exact-URL evidence, and output-summary
+      refs plus the local runtime result ref. The drawer also renders false
+      model-execution, raw-PCAP, exact-URL, decrypted-payload, page-content,
+      private-message, search-query, remote-AI, policy-authority,
+      adapter-authority, and enforcement-command fields. This does not claim
+      live local model execution, raw model output, remote AI, policy execution,
+      adapter execution, broker/family-hub delivery, host filtering, or full
+      network-plan completion.
 - [x] 13a live-capture custody status materializer: E-D added
       `output/network-plan-proof/13a-live-capture-custody-status/proof-summary.json`
       and
