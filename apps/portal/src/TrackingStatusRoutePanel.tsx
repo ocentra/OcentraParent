@@ -23,10 +23,12 @@ import {
   trackingStatusLiveSummary,
   trackingStatusServiceDataCoverage,
   trackingStatusProofRows,
+  trackingUnsupportedPlatformPortalProof,
   type TrackingStatusServiceDataCoverage,
   type TrackingStatusLiveCitation,
   type TrackingStatusLiveSummary,
   type TrackingStatusProofRow,
+  type TrackingUnsupportedPlatformPortalProof,
 } from './tracking-status-panel';
 
 export function shouldRenderTrackingStatusRoute(route: PortalRouteValue): boolean {
@@ -78,6 +80,7 @@ export function TrackingStatusRoutePanel({
           ))}
           <TrackingChildCheckInProofCard proof={trackingChildCheckInProof()} />
           <TrackingChildRuntimeUiProofCard proof={trackingChildRuntimeUiProof()} />
+          <TrackingUnsupportedPlatformPortalProofCard proof={trackingUnsupportedPlatformPortalProof()} />
           {trackingStatusProofRows().map((proofRow) => (
             <TrackingStatusRouteRow key={String(proofRow.title)} proofRow={proofRow} />
           ))}
@@ -212,6 +215,37 @@ function TrackingChildRuntimeUiProofCard({ proof }: { readonly proof: TrackingCh
         <TrackingStatusDetail label={PortalDetails.ChildDelivery} value={proof.deliveryBoundary} />
         <TrackingStatusDetail label={PortalDetails.AdapterBoundary} value={proof.runtimeBoundary} />
         <TrackingStatusDetail label={PortalDetails.ProofTier} value={proof.proofTier} />
+        <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={proof.evidence} />
+        <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proof.proofArtifact} />
+        <TrackingStatusDetail label={PortalDetails.MissingProof} value={proof.missingProof} />
+        <TrackingStatusDetail label={PortalDetails.ProductClaim} value={proof.productClaim} />
+      </dl>
+    </article>
+  );
+}
+
+function TrackingUnsupportedPlatformPortalProofCard({
+  proof,
+}: {
+  readonly proof: TrackingUnsupportedPlatformPortalProof;
+}): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article
+      className={className}
+      {...{ [PortalDom.Attributes.DataTrackingProof]: PortalDom.Attributes.TrackingProofUnsupportedPlatformManual }}
+    >
+      <h2>{proof.title}</h2>
+      <p>{proof.body}</p>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <TrackingStatusDetail label={PortalDetails.RowsReturned} value={proof.rowCount} />
+        <TrackingStatusDetail label={PortalDetails.Platform} value={proof.platforms} />
+        <TrackingStatusDetail label={PortalDetails.ResourceClass} value={proof.surfaces} />
+        <TrackingStatusDetail label={PortalDetails.Status} value={proof.renderedStates} />
+        <TrackingStatusDetail label={PortalDetails.Capability} value={proof.supportStates} />
+        <TrackingStatusDetail label={PortalDetails.ReasonCodes} value={proof.reasonCodes} />
         <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={proof.evidence} />
         <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proof.proofArtifact} />
         <TrackingStatusDetail label={PortalDetails.MissingProof} value={proof.missingProof} />

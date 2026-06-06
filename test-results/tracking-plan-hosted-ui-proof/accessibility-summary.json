@@ -16,10 +16,13 @@
     "child-runtime-safe-help-response-visible",
     "child-runtime-location-share-consent-visible",
     "child-runtime-hosted-only-boundary-visible",
+    "unsupported-platform-manual-states-visible",
+    "unsupported-platform-manual-non-claim-visible",
     "no-unlabeled-buttons",
     "desktop-screenshot",
     "child-check-in-screenshot",
     "child-runtime-ui-screenshot",
+    "unsupported-platform-manual-screenshot",
     "mobile-screenshot"
   ],
   "summary": {
@@ -32,6 +35,7 @@
       "School location",
       "Child check-in request",
       "Child runtime UI proof",
+      "Unsupported/manual platform states",
       "Tracking off",
       "Permission required",
       "Stale last known",
@@ -50,7 +54,8 @@
       "First target",
       "Location states are fixture proof only.",
       "Your parent is asking you to check in. Are you safe?",
-      "Child sees a clear tracking request, safe response, help response, and location-share consent copy."
+      "Child sees a clear tracking request, safe response, help response, and location-share consent copy.",
+      "Android/iOS background and geofence, desktop OS location, web child-agent unavailable, and authority-required rows render without unproved capability."
     ],
     "labels": [
       "Load state",
@@ -114,6 +119,16 @@
       "Child delivery",
       "Adapter boundary",
       "Proof tier",
+      "Evidence references",
+      "Runtime reference",
+      "Missing proof",
+      "Product claim",
+      "Rows returned",
+      "Platform",
+      "Resource class",
+      "Status",
+      "Capability",
+      "Reason codes",
       "Evidence references",
       "Runtime reference",
       "Missing proof",
@@ -265,6 +280,16 @@
       "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
       "Manual proof required",
       "No product claim",
+      "7",
+      "android | ios | windows | web",
+      "background-location | geofence-transition | desktop-os-location | child-agent-location | authority-hard-control",
+      "manual-required | unavailable | authority-required",
+      "manual-required | platform-unsupported | real-device-required",
+      "tracking-android-background-location-manual-required | tracking-android-geofence-transition-manual-required | tracking-ios-background-location-manual-required | tracking-ios-geofence-transition-manual-required | tracking-windows-desktop-os-location-manual-required | tracking-web-child-agent-location-unavailable | tracking-android-authority-hard-control-authority-required",
+      "tracking-android-background-location-manual-proof-plan | tracking-android-geofence-transition-manual-proof-plan | tracking-ios-background-location-manual-proof-plan | tracking-ios-geofence-transition-manual-proof-plan | tracking-windows-desktop-os-location-manual-proof-plan | tracking-web-child-agent-location-manual-proof-plan | tracking-android-authority-hard-control-manual-proof-plan",
+      "output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json",
+      "Manual proof required",
+      "No product claim",
       "Tracking off",
       "P1 fixture proof",
       "Contract/runtime proof",
@@ -358,6 +383,7 @@
     "desktop": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary.png",
     "childCheckIn": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png",
     "childRuntimeUi": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png",
+    "unsupportedPlatformManual": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-unsupported-platform-manual.png",
     "mobile": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png"
   }
 }

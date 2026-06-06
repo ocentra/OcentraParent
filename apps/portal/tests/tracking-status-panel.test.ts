@@ -15,6 +15,7 @@ import {
   trackingStatusLiveSummary,
   trackingStatusProofRows,
   trackingStatusServiceDataCoverage,
+  trackingUnsupportedPlatformPortalProof,
 } from '../src/tracking-status-panel';
 
 const ExpectedTrackingStateTitles = [
@@ -211,6 +212,30 @@ describe('tracking status proof surface', () => {
     const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
 
     expect(trackingStatusServiceDataCoverage(liveActivity)).toEqual(ExpectedTrackingServiceDataCoverage);
+  });
+
+  it('summarizes unsupported platform manual rows for hosted portal screenshot proof', () => {
+    expect(trackingUnsupportedPlatformPortalProof()).toEqual({
+      title: 'Unsupported/manual platform states',
+      body: 'Android/iOS background and geofence, desktop OS location, web child-agent unavailable, and authority-required rows render without unproved capability.',
+      proofTier: 'P2 service proof',
+      rowCount: '7',
+      platforms: 'android | ios | windows | web',
+      surfaces:
+        'background-location | geofence-transition | desktop-os-location | child-agent-location | authority-hard-control',
+      renderedStates: 'manual-required | unavailable | authority-required',
+      supportStates: 'manual-required | platform-unsupported | real-device-required',
+      reasonCodes:
+        'tracking-android-background-location-manual-required | tracking-android-geofence-transition-manual-required | tracking-ios-background-location-manual-required | tracking-ios-geofence-transition-manual-required | tracking-windows-desktop-os-location-manual-required | tracking-web-child-agent-location-unavailable | tracking-android-authority-hard-control-authority-required',
+      evidence:
+        'tracking-android-background-location-manual-proof-plan | tracking-android-geofence-transition-manual-proof-plan | tracking-ios-background-location-manual-proof-plan | tracking-ios-geofence-transition-manual-proof-plan | tracking-windows-desktop-os-location-manual-proof-plan | tracking-web-child-agent-location-manual-proof-plan | tracking-android-authority-hard-control-manual-proof-plan',
+      proofArtifact: TrackingStatusProofArtifacts.UnsupportedPlatformManual,
+      missingProof: 'Manual proof required',
+      productClaim: 'No product claim',
+    });
+    expect(JSON.stringify(trackingUnsupportedPlatformPortalProof())).not.toMatch(
+      /(?:product ready|physical device proved|authority proved)/iu
+    );
   });
 });
 

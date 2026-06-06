@@ -28,6 +28,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`
+- `11-ui-snapshots/hosted-policy-tracking-unsupported-platform-manual.png`
 - `12-playwright-proof.log`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
@@ -61,6 +62,9 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - [x] Render and screenshot hosted child-runtime disclosure, safe/help response,
       location-share consent, and delivery-boundary copy without claiming
       child-device delivery or runtime execution.
+- [x] Render and screenshot hosted unsupported/manual platform rows without
+      claiming physical-device behavior, authority enrollment, or product
+      readiness.
 - [x] Ensure child copy avoids accusation.
 - [ ] Keep portal as authoring/display surface, not evaluator.
 
@@ -108,6 +112,12 @@ captures it at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`
 and writes
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json`.
+The hosted route now also renders unsupported/manual platform states from the
+parent-domain render-state proof as a portal-visible card and captures it at
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-unsupported-platform-manual.png`.
+This keeps Android/iOS background/geofence, desktop OS location, web
+child-agent unavailability, and authority-required hard-control states visible
+without claiming physical-device or authority proof.
 This is not product-complete UI proof: full service-data UI beyond the hosted
 parent route, actual child-device delivery/runtime execution, physical-device
 evidence, authority, provider delivery, and production proof remain pending.

@@ -64,6 +64,8 @@ export const PortalDevTextToken = {
   TrackingChildRuntimeHelpResponse: decodeTextTokenId('portal.dev.trackingChildRuntimeHelpResponse'),
   TrackingChildRuntimeLocationConsent: decodeTextTokenId('portal.dev.trackingChildRuntimeLocationConsent'),
   TrackingChildRuntimeBoundary: decodeTextTokenId('portal.dev.trackingChildRuntimeBoundary'),
+  TrackingUnsupportedPlatformManualTitle: decodeTextTokenId('portal.dev.trackingUnsupportedPlatformManualTitle'),
+  TrackingUnsupportedPlatformManualBody: decodeTextTokenId('portal.dev.trackingUnsupportedPlatformManualBody'),
   TrackingStateTemporaryLive: decodeTextTokenId('portal.dev.trackingStateTemporaryLive'),
   TrackingStateMissingDevice: decodeTextTokenId('portal.dev.trackingStateMissingDevice'),
   TrackingStateRetentionDeleted: decodeTextTokenId('portal.dev.trackingStateRetentionDeleted'),
@@ -204,6 +206,10 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.TrackingChildRuntimeHelpResponse]: decodeDisplayText('Help response visible'),
   [PortalDevTextToken.TrackingChildRuntimeLocationConsent]: decodeDisplayText('Location share asks consent'),
   [PortalDevTextToken.TrackingChildRuntimeBoundary]: decodeDisplayText('Hosted proof only, not child-agent delivery'),
+  [PortalDevTextToken.TrackingUnsupportedPlatformManualTitle]: decodeDisplayText('Unsupported/manual platform states'),
+  [PortalDevTextToken.TrackingUnsupportedPlatformManualBody]: decodeDisplayText(
+    'Android/iOS background and geofence, desktop OS location, web child-agent unavailable, and authority-required rows render without unproved capability.'
+  ),
   [PortalDevTextToken.TrackingStateTemporaryLive]: decodeDisplayText('Temporary live'),
   [PortalDevTextToken.TrackingStateMissingDevice]: decodeDisplayText('Missing device'),
   [PortalDevTextToken.TrackingStateRetentionDeleted]: decodeDisplayText('Retention deleted'),

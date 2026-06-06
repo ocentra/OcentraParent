@@ -1,9 +1,9 @@
 {
   "proofMode": "tracking-unsupported-platform-manual-proof",
   "generatedAt": "2026-06-05T19:55:00.000Z",
-  "branch": "codex/tracking-unsupported-platform-manual-proof",
-  "baseCommitAtGeneration": "05736bb4ef30e7172ed85454e18cd00aac1d0694",
-  "gitStatusShort": "",
+  "branch": "codex/tracking-unsupported-platform-portal-proof",
+  "baseCommitAtGeneration": "9eb93e3398b1bebc33596e8cbfd96a72bd8f6a07",
+  "gitStatusShort": "M  apps/portal/README.md\nM  apps/portal/e2e/tracking-hosted-ui-proof.spec.ts\nM  apps/portal/src/TrackingStatusRoutePanel.tsx\nM  apps/portal/src/tracking-status-panel.ts\nM  apps/portal/tests/tracking-status-panel.test.ts\nM  docs/features/location-geofence-device-status.md\nM  docs/plans/tracking-plan/implementation-checklist.md\nM  docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md\nMM output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png\nMM output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png\nMM output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png\nMM output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary.png\nAM output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-unsupported-platform-manual.png\nMM output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/12-playwright-proof.log\nMM output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/13-security-negative-proof.log\nMM output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/16-validation-commands.log\nMM output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json\nMM output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json\nMM output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/18-hosted-ui-accessibility-proof.json\nM  output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json\nM  packages/parent-domain/src/tracking-location-policy.ts\nM  packages/portal-domain/src/contracts.ts\nM  packages/portal-domain/src/tracking-status-proof-artifacts.ts\nM  packages/text-domain/src/portal-dev.ts\nM  scripts/test/tracking-plan-hosted-ui-proof.mjs\nM  test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json\nMM test-results/tracking-plan-hosted-ui-proof/proof.json\nM  test-results/tracking-unsupported-platform-manual-proof/proof.json",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -14,7 +14,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-unsupported-platform-manual-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-unsupported-platform-manual-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  4 passed (4)\n   Start at  18:29:42\n   Duration  705ms (transform 71ms, setup 0ms, import 469ms, tests 12ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-unsupported-platform-manual-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  4 passed (4)\n   Start at  22:15:28\n   Duration  706ms (transform 73ms, setup 0ms, import 484ms, tests 11ms, environment 0ms)",
       "stderr": ""
     }
   ],

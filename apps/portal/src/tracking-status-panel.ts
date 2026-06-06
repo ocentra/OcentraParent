@@ -10,6 +10,7 @@ import {
   type PortalDisplayText,
   type TrackingStatusProofArtifact,
 } from '@ocentra-parent/portal-domain/contracts';
+import { trackingUnsupportedPlatformManualProofRows } from '@ocentra-parent/parent-domain/tracking-location-policy';
 import type {
   AgentActivityTrackingEvidenceReferenceIds,
   AgentActivityTrackingReadModel,
@@ -82,6 +83,22 @@ export type TrackingStatusServiceDataCoverage = {
   readonly activityKinds: PortalDetailValue;
   readonly evidenceReferences: PortalDetailValue;
   readonly deletedEvidence: PortalDetailValue;
+  readonly productClaim: PortalDisplayText;
+};
+
+export type TrackingUnsupportedPlatformPortalProof = {
+  readonly title: PortalDisplayText;
+  readonly body: PortalDisplayText;
+  readonly proofTier: PortalDisplayText;
+  readonly rowCount: PortalDetailValue;
+  readonly platforms: PortalDetailValue;
+  readonly surfaces: PortalDetailValue;
+  readonly renderedStates: PortalDetailValue;
+  readonly supportStates: PortalDetailValue;
+  readonly reasonCodes: PortalDetailValue;
+  readonly evidence: PortalDetailValue;
+  readonly proofArtifact: TrackingStatusProofArtifact;
+  readonly missingProof: PortalDisplayText;
   readonly productClaim: PortalDisplayText;
 };
 
@@ -273,6 +290,25 @@ export function trackingStatusServiceDataCoverage(
   };
 }
 
+export function trackingUnsupportedPlatformPortalProof(): TrackingUnsupportedPlatformPortalProof {
+  const rows = trackingUnsupportedPlatformManualProofRows();
+  return {
+    title: PortalText.Resolve(PortalTextToken.TrackingUnsupportedPlatformManualTitle),
+    body: PortalText.Resolve(PortalTextToken.TrackingUnsupportedPlatformManualBody),
+    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofService),
+    rowCount: detailFromValue(rows.length),
+    platforms: listDetail(rows.map((proofRow) => proofRow.platform)),
+    surfaces: listDetail(rows.map((proofRow) => proofRow.surface)),
+    renderedStates: listDetail(rows.map((proofRow) => proofRow.renderedState)),
+    supportStates: listDetail(rows.map((proofRow) => proofRow.supportState)),
+    reasonCodes: listDetail(rows.flatMap((proofRow) => proofRow.reasonCodes)),
+    evidence: listDetail(rows.flatMap((proofRow) => proofRow.proofArtifactRefs)),
+    proofArtifact: TrackingStatusProofArtifacts.UnsupportedPlatformManual,
+    missingProof: PortalText.Resolve(PortalTextToken.TrackingManualRequired),
+    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
+  };
+}
+
 export function renderTrackingStatusSurface(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
   const intro = document.createElement(PortalDom.Tags.Section);
   intro.className = PortalDom.Classes.Summary;
@@ -296,6 +332,7 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
     }
     dashboard.append(renderTrackingChildCheckInProof(trackingChildCheckInProof()));
     dashboard.append(renderTrackingChildRuntimeUiProof(trackingChildRuntimeUiProof()));
+    dashboard.append(renderTrackingUnsupportedPlatformPortalProof(trackingUnsupportedPlatformPortalProof()));
     for (const proofRow of trackingStatusProofRows()) {
       dashboard.append(renderTrackingStatusRow(proofRow));
     }
@@ -480,6 +517,37 @@ function renderTrackingChildRuntimeUiProof(proof: TrackingChildRuntimeUiProof): 
   appendDetail(metadata, PortalDetails.AdapterBoundary, toDetail(proof.runtimeBoundary));
   appendDetail(metadata, PortalDetails.ProofTier, toDetail(proof.proofTier));
   appendDetail(metadata, PortalDetails.EvidenceReferences, toDetail(proof.evidence));
+  appendDetail(metadata, PortalDetails.RuntimeReference, toDetail(proof.proofArtifact));
+  appendDetail(metadata, PortalDetails.MissingProof, toDetail(proof.missingProof));
+  appendDetail(metadata, PortalDetails.ProductClaim, toDetail(proof.productClaim));
+
+  panel.append(title, body, metadata);
+  return panel;
+}
+
+function renderTrackingUnsupportedPlatformPortalProof(proof: TrackingUnsupportedPlatformPortalProof): HTMLElement {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+  panel.setAttribute(
+    PortalDom.Attributes.DataTrackingProof,
+    PortalDom.Attributes.TrackingProofUnsupportedPlatformManual
+  );
+
+  const title = document.createElement(PortalDom.Tags.HeadingTwo);
+  title.textContent = proof.title;
+
+  const body = document.createElement(PortalDom.Tags.Paragraph);
+  body.className = PortalDom.Classes.CommandResultEmpty;
+  body.textContent = proof.body;
+
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendDetail(metadata, PortalDetails.RowsReturned, proof.rowCount);
+  appendDetail(metadata, PortalDetails.Platform, proof.platforms);
+  appendDetail(metadata, PortalDetails.ResourceClass, proof.surfaces);
+  appendDetail(metadata, PortalDetails.Status, proof.renderedStates);
+  appendDetail(metadata, PortalDetails.Capability, proof.supportStates);
+  appendDetail(metadata, PortalDetails.ReasonCodes, proof.reasonCodes);
+  appendDetail(metadata, PortalDetails.EvidenceReferences, proof.evidence);
   appendDetail(metadata, PortalDetails.RuntimeReference, toDetail(proof.proofArtifact));
   appendDetail(metadata, PortalDetails.MissingProof, toDetail(proof.missingProof));
   appendDetail(metadata, PortalDetails.ProductClaim, toDetail(proof.productClaim));

@@ -79,10 +79,12 @@ expose location or device-status features. Parents expect this category.
   real Rust service against a seeded temporary ActivityStore SQLite database,
   drives the React parent route through Playwright, renders the service-data
   coverage card beside the service read-model summary, captures desktop, mobile,
-  hosted child-safe check-in, and hosted child-runtime UI proof screenshots,
-  writes accessibility summary output, proves calm child check-in copy/actions
-  plus child disclosure, safe/help response, and location-share consent copy
-  inside the hosted route only, and keeps `productClaimReady=false`.
+  hosted child-safe check-in, hosted child-runtime UI, and hosted
+  unsupported/manual-platform proof screenshots, writes accessibility summary
+  output, proves calm child check-in copy/actions plus child disclosure,
+  safe/help response, location-share consent copy, service-data coverage, and
+  unsupported/manual platform state rendering inside the hosted route only, and
+  keeps `productClaimReady=false`.
 - P1 evidence-quality gate proof now exists through
   `npm run test:tracking-plan-evidence-quality-gate-proof`. It validates
   location UI evidence refs, geofence rule/source refs, nearby-place provider
@@ -157,11 +159,12 @@ expose location or device-status features. Parents expect this category.
   product-complete claims.
 - Unsupported and not-yet-proved tracking platform states now have a
   parent-domain manual-required/unavailable render-state proof through
-  `node scripts/test/tracking-unsupported-platform-manual-proof.mjs`. It proves
-  Android/iOS background and geofence rows, desktop OS location, web
-  child-agent unavailability, and authority-required hard-control rows stay
-  UI-ready without fake capability, product-ready, physical-device, authority,
-  or portal screenshot claims.
+  `node scripts/test/tracking-unsupported-platform-manual-proof.mjs`, plus
+  hosted portal rendering and screenshot coverage through
+  `npm run test:tracking-plan-hosted-ui-proof`. It proves Android/iOS
+  background and geofence rows, desktop OS location, web child-agent
+  unavailability, and authority-required hard-control rows stay UI-ready
+  without fake capability, product-ready, physical-device, or authority claims.
 - WP32 family dashboard rollup proof now exists through
   `node scripts/test/tracking-family-dashboard-rollup-proof.mjs`. It derives
   active family summary, child-attention summary, and retention-audit summary
@@ -218,9 +221,10 @@ service read-model proof with retention-delete tombstone replay and active
 product-surface summary fields, narrow portal summary-consumption proof, live
 service-backed portal citation rows, hosted
 parent route service-data coverage, hosted parent route screenshot/accessibility
-proof with hosted child-safe check-in copy/actions and hosted child-runtime
-disclosure/safe-help/location-share consent copy, P1 local parent-defined place
-store proof, pre-device proof-gate progress, Android emulator package/service/status
+proof with hosted child-safe check-in copy/actions, hosted child-runtime
+disclosure/safe-help/location-share consent copy, and unsupported/manual
+platform state screenshot coverage, P1 local parent-defined place store proof,
+pre-device proof-gate progress, Android emulator package/service/status
 scaffold proof, P3 WSL/local replay proof, P1 evidence-quality gate proof, WP26
 tracking alert-to-provider-status handoff proof, P1 escalation readiness proof
 for acknowledgement/check-in/manual escalation states, WP28 temporary live
@@ -237,8 +241,7 @@ product gap until platform location and geofence adapters, broader product
 read models beyond these rollups, rendered dashboard UI for those rollups,
 actual live provider execution/delivery, notification receipt ingestion,
 physical-device proof, actual child-device delivery/runtime execution, remote
-sync runtime, OS lost-mode APIs, production upload workers, portal screenshots
-for the unsupported/manual states, and full parent/child UI
+sync runtime, OS lost-mode APIs, production upload workers, and full parent/child UI
 snapshots/accessibility beyond the hosted parent route are proved.
 
 ## Checklist
@@ -327,15 +330,16 @@ snapshots/accessibility beyond the hosted parent route are proved.
       against the real Rust service and seeded ActivityStore, including a
       rendered service-data coverage card, hosted child-safe check-in
       copy/actions card, and hosted child-runtime disclosure/safe-help/location-share
-      consent card. This is not
-      child-device delivery/runtime execution, full service-data UI, or
-      physical-device proof.
+      consent card, plus hosted unsupported/manual-platform state rendering.
+      This is not child-device delivery/runtime execution, full service-data UI,
+      physical-device proof, or authority proof.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
       proof plans.
 - [x] Parent-domain unsupported-platform manual-required/unavailable render-state
       proof for Android/iOS background/geofence rows, desktop OS location, web
       child-agent unavailability, and authority-required hard-control rows. This
-      is not a portal screenshot, physical-device, or authority proof.
+      now has hosted portal screenshot proof; it is still not physical-device
+      or authority proof.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence
       source refs, nearby-place context fields, AI no-final-action constraints,
       alert policy-decision refs, and retention before/after proof. This is not
