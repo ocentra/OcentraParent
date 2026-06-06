@@ -63,9 +63,10 @@ can be split further when source-shape, platform proof, or validation needs it.
 
 ## Supplemental Proof Rows
 
-| Row           | Workpack                                                 | Priority | Notes                                                                                                                                                                                                                                |
-| ------------- | -------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| portal-status | Portal risk/performance/platform read-model status proof | P3       | Activity network drawer renders service-backed platform/capability status, active/tombstone/exportable counts, retention delete refs, and degraded adapter state without UI risk scoring, policy, adapter, or enforcement authority. |
+| Row              | Workpack                                                 | Priority | Notes                                                                                                                                                                                                                                            |
+| ---------------- | -------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| portal-status    | Portal risk/performance/platform read-model status proof | P3       | Activity network drawer renders service-backed platform/capability status, active/tombstone/exportable counts, retention delete refs, and degraded adapter state without UI risk scoring, policy, adapter, or enforcement authority.             |
+| manual-follow-up | Manual/deferred follow-up owner proof                    | P6       | Manual, deferred, skipped-N/A, and unavailable network proof gaps carry reasons, follow-up owners, source refs, and no-claim boundaries before any product-ready claim is upgraded.                                                              |
 
 ## Required Workpack Record
 

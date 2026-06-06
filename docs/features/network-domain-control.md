@@ -339,6 +339,11 @@ compete on control while staying clear about attribution confidence and privacy.
   unavailable, weak-evidence, and invalid terminate-target states stay
   non-result, and live host mutation or enforcement-command publication is
   rejected.
+- E-D added a manual/deferred follow-up owner ledger proof for network gaps:
+  every broker/family-hub, raw-capture retention, live analyzer/model/policy,
+  host-adapter, portal rendering, production signoff, and UI-screenshot N/A
+  item carries a reason, owner, source refs, follow-up path, and no-claim
+  boundary before any product-ready upgrade.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -507,11 +512,12 @@ UI rendering remain open.
       platform/capability state, active/tombstone/exportable row counts,
       retention delete refs, and degraded adapter state in the Activity network
       drawer while keeping policy, adapter, AI, exact URL, and enforcement refs
-      not reported unless the service provides them. AI model execution,
-      broker/family-hub delivery implementation, full policy engine execution,
-      notification delivery, external audit/deployment execution, full
-      support-material authoring, and true risk-budget/performance SLO UI
-      rendering remain.
+      not reported unless the service provides them. The manual/deferred
+      follow-up owner ledger now keeps remaining gaps explicitly owned with
+      reasons and no-claim boundaries. AI model execution, broker/family-hub
+      delivery implementation, full policy engine execution, notification
+      delivery, external audit/deployment execution, full support-material
+      authoring, and true risk-budget/performance SLO UI rendering remain.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
