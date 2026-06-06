@@ -6,7 +6,7 @@
 - Reason: Live broker and family-hub delivery require custody, auth, encryption, offset, replay, deletion, dedupe, broker config, family identity, and relay-policy artifacts before product delivery can be claimed.
 - Follow-up owner: E-D network remote-delivery sequencing
 - Follow-up path: row10b/row10f/row10g/row10h split branches after dependency integration
-- Source refs: docs/features/network-domain-control.md, docs/plans/network-plan/implementation-checklist.md, output/network-plan-proof/45-eventing-delivery-decision-proof/proof-summary.json
+- Source refs: docs/features/network-domain-control.md, docs/plans/network-plan/implementation-checklist.md, docs/plans/network-plan/workpacks/README.md
 - No-claim boundary: no live broker transport, no family-hub relay delivery, no remote adapter action
 
 ## raw-capture-retention-delete-export
@@ -24,7 +24,7 @@
 - Reason: Analyzer, local-AI model, and full policy engine execution remain fixture-backed or refs-only until live runtime execution and policy authority proof exists.
 - Follow-up owner: E-D network AI/policy runtime
 - Follow-up path: live analyzer/model/policy execution proof after local runtime integration
-- Source refs: docs/features/network-domain-control.md, output/network-plan-proof/46-ai-detection-fixture-proof/proof-summary.json, output/network-plan-proof/47-ai-audit-narrative-proof/proof-summary.json, output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json
+- Source refs: docs/features/network-domain-control.md, docs/plans/network-plan/implementation-checklist.md, output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json
 - No-claim boundary: no live local model execution, no remote AI invocation, no policy engine execution claim
 
 ## host-adapter-execution
@@ -51,7 +51,7 @@
 - Reason: Production-ready claims require external audit or penetration-test signoff plus full support, incident, staged-rollout, and training artifacts.
 - Follow-up owner: Primary release/support coordination with E-D network evidence
 - Follow-up path: external audit/support rollout proof after production scope is authorized
-- Source refs: docs/features/network-domain-control.md, output/network-plan-proof/50-security-readiness-proof/proof-summary.json, output/network-plan-proof/11a-hardening-support-proof/proof-summary.json
+- Source refs: docs/features/network-domain-control.md, docs/plans/network-plan/implementation-checklist.md, output/network-plan-proof/11a-hardening-support-proof/proof-summary.json
 - No-claim boundary: no production deployment claim, no external audit execution claim, no default remote upload
 
 ## ui-screenshot-na-for-non-ui-proof-rows

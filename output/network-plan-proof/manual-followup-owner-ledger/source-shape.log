@@ -29,6 +29,8 @@ apps/portal/tests/activity-ui-lan-pairing-fixtures.ts:125 function has 73 lines;
 apps/portal/tests/app-game-notification-parent-surface-panel.test.ts:1 file has 262 lines; crossed 250-line advisory band; maximum is 1000
 apps/portal/tests/app-game-notification-parent-surface-panel.test.ts:19 function has 64 lines; warning starts at 64 of 80
 apps/portal/tests/live-activity-browser-status.test.ts:1 file has 272 lines; crossed 250-line advisory band; maximum is 1000
+apps/portal/tests/live-activity-network-flow.test.ts:1 file has 297 lines; crossed 250-line advisory band; maximum is 1000
+apps/portal/tests/live-activity-network-flow.test.ts:9 function has 69 lines; warning starts at 64 of 80
 apps/portal/tests/live-activity-state.test.ts:1 file has 400 lines; crossed 250-line advisory band; maximum is 1000
 apps/portal/tests/live-activity-state.test.ts:14 function has 64 lines; warning starts at 64 of 80
 apps/portal/tests/live-activity-surface-adapter.test.ts:1 file has 585 lines; crossed 500-line advisory band; maximum is 1000
@@ -783,6 +785,7 @@ crates/ocentra-eventing/src/tests/request_response.rs:1 file has 329 lines; cros
 crates/ocentra-eventing/src/tests/request_response_support.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/ocentra-eventing/src/topology.rs:1 file has 256 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-eventing/src/topology.rs:1 file has 16 functions; warning starts at 15 of 18
+crates/ocentra-network-evidence/src/action_result.rs:1 file has 426 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/ai_audit.rs:1 file has 440 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/ai_audit.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/ocentra-network-evidence/src/ai_detection.rs:1 file has 597 lines; crossed 500-line advisory band; maximum is 1000
@@ -793,7 +796,7 @@ crates/ocentra-network-evidence/src/apple_network_extension_gate.rs:1 file has 4
 crates/ocentra-network-evidence/src/app_game_session.rs:1 file has 374 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/app_game_session.rs:118 function has 73 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/dns_adapter.rs:1 file has 417 lines; crossed 250-line advisory band; maximum is 1000
-crates/ocentra-network-evidence/src/lib.rs:1 file has 259 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/lib.rs:1 file has 267 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/linux_adapter_gate.rs:1 file has 464 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/live_capture.rs:1 file has 283 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/performance.rs:1 file has 414 lines; crossed 250-line advisory band; maximum is 1000
@@ -807,6 +810,7 @@ crates/ocentra-network-evidence/src/risk_budget.rs:1 file has 582 lines; crossed
 crates/ocentra-network-evidence/src/risk_budget.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/ocentra-network-evidence/src/screen_summary.rs:1 file has 252 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/signature_alert.rs:1 file has 306 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/tests/action_result.rs:1 file has 358 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/ai_audit.rs:1 file has 305 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/ai_detection.rs:1 file has 355 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/ai_detection.rs:10 function has 71 lines; warning starts at 64 of 80

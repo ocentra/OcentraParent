@@ -9,7 +9,7 @@
       "sourceRefs": [
         "docs/features/network-domain-control.md",
         "docs/plans/network-plan/implementation-checklist.md",
-        "output/network-plan-proof/45-eventing-delivery-decision-proof/proof-summary.json"
+        "docs/plans/network-plan/workpacks/README.md"
       ],
       "noClaimBoundary": [
         "no live broker transport",
@@ -42,8 +42,7 @@
       "followUpPath": "live analyzer/model/policy execution proof after local runtime integration",
       "sourceRefs": [
         "docs/features/network-domain-control.md",
-        "output/network-plan-proof/46-ai-detection-fixture-proof/proof-summary.json",
-        "output/network-plan-proof/47-ai-audit-narrative-proof/proof-summary.json",
+        "docs/plans/network-plan/implementation-checklist.md",
         "output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json"
       ],
       "noClaimBoundary": [
@@ -93,7 +92,7 @@
       "followUpPath": "external audit/support rollout proof after production scope is authorized",
       "sourceRefs": [
         "docs/features/network-domain-control.md",
-        "output/network-plan-proof/50-security-readiness-proof/proof-summary.json",
+        "docs/plans/network-plan/implementation-checklist.md",
         "output/network-plan-proof/11a-hardening-support-proof/proof-summary.json"
       ],
       "noClaimBoundary": [
