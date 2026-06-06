@@ -33,6 +33,7 @@ use crate::{
         record_captured_screen_image_to_paths, ScreenAiServiceCaptureClock,
         ScreenAiServiceCapturePaths, ScreenAiServiceCaptureRecord,
     },
+    screen_ai_service_event_bridge::publish_screen_capture_queue_events_for_queue_job,
 };
 
 const DEFAULT_CADENCE_SECONDS: u64 = 60;
@@ -88,9 +89,16 @@ async fn run_screen_ai_cadence_runtime(config: ScreenAiCadenceRuntimeConfig) {
         interval.tick().await;
         tick_count += 1;
         let clock = ScreenAiCadenceTickClock::from_system_time();
+        let observed_at = clock.timestamp.clone();
         let epoch_seconds = clock.epoch_seconds;
         let outcome = record_screen_ai_cadence_tick(&config, state, clock, tick_count);
-        if let Ok(ScreenAiCadenceTickOutcome::Recorded { .. }) = outcome {
+        if let Ok(ScreenAiCadenceTickOutcome::Recorded { queue_job_id }) = outcome {
+            let _ = publish_screen_capture_queue_events_for_queue_job(
+                &config.store_path,
+                &queue_job_id,
+                &observed_at,
+            )
+            .await;
             state.last_capture_at_epoch_seconds = Some(epoch_seconds);
             capture_count += 1;
         }
