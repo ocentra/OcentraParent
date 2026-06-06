@@ -57,6 +57,14 @@ only with explicit parent settings.
   capture, encrypted queue, AI request/result, summary, policy, dry-run action,
   deletion, and portal-read-model events. This is service bridge proof, not a
   new live capture run or always-on production subscription claim.
+- `scripts/test/screen-service-event-subscription-proof.mjs` now proves a
+  service-owned `screen.service.row.ready` subscriber using `ocentra-eventing`.
+  The subscriber consumes typed Activity Screen rows, invokes the existing
+  service bridge, records accepted/rejected row dispatch state, publishes the
+  ordered downstream screen runtime chain for safe rows, and rejects raw-image
+  retained rows before downstream screen events are recorded. This is
+  subscriber runtime proof; service startup wiring for every live producer
+  remains a separate production gate.
 - `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
   screen-derived household mesh contract/runtime boundary: redacted
   summary/custody payloads, no raw screenshot transfer, provider claim/lease,
@@ -443,15 +451,16 @@ social proof beyond public/live surface proof, production OCR/VLM quality beyond
 the WinRT OCR service proof, controlled fixtures, and the full live operator
 matrix, production local vision adapter quality beyond the service proof
 adapter, service-owned live trigger event producers beyond the timed cadence
-loop and native active-window foreground watcher, physical Android/iOS proof,
-live macOS capture proof, Linux root/Wayland portal proof, browser-trigger
-artifact closure, browser/network/mobile/broad block action adapters from
-screen-derived decisions, physical household family AI hub discovery/runtime
-proof beyond the loopback runtime exchange, and production parent explanation
-portal rendering remain. Browser-trigger proof now covers contract flow into
-screen evidence and local-AI context only; live trigger producers,
-always-on production screen event subscriptions, authenticated surfaces,
-cloud-streamed frames, mobile parity, and UI remain separate proof gates.
+loop and native active-window foreground watcher, service startup wiring for
+every live producer, physical Android/iOS proof, live macOS capture proof,
+Linux root/Wayland portal proof, browser-trigger artifact closure,
+browser/network/mobile/broad block action adapters from screen-derived
+decisions, physical household family AI hub discovery/runtime proof beyond the
+loopback runtime exchange, and production parent explanation portal rendering
+remain. Browser-trigger proof now covers contract flow into screen evidence and
+local-AI context only; live trigger producers, production startup subscriptions
+for all live producers, authenticated surfaces, cloud-streamed frames, mobile
+parity, and UI remain separate proof gates.
 
 ## Checklist
 
@@ -512,15 +521,19 @@ cloud-streamed frames, mobile parity, and UI remain separate proof gates.
 - [x] Screen service event bridge proof maps service Activity Screen read-model
       rows into the existing typed screen event chain, rejects raw retention and
       missing policy refs, and avoids a duplicate service event bus.
+- [x] Screen service event subscription proof consumes typed service row-ready
+      events, invokes the existing bridge, publishes downstream screen runtime
+      events for safe rows, and rejects raw-retained rows before downstream
+      publication.
 - [x] Screen household mesh proof keeps raw screenshots off LAN provider
       payloads, grants one child-owned lease, validates provider results on the
       child agent before policy, and rejects invalid provider results.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof,
-always-on production screen event subscriptions, production household mesh
-transport over physical LAN, broad adapters, and production explanation portal
-rendering remain in the Current Gap section above.
+production startup subscriptions for all live producers, production household
+mesh transport over physical LAN, broad adapters, and production explanation
+portal rendering remain in the Current Gap section above.
 
 ## Next AI Instructions
 
