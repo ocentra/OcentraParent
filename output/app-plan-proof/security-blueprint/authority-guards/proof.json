@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-plan-authority-security-blueprint-proof",
+  "generatedAt": "2026-06-06T22:13:56.376Z",
+  "branch": "codex/app-game-inventory-display-gate-proof",
+  "commit": "94278f81df4f8759d43cf208d73190bc4bac736c",
+  "gitStatusShort": "M docs/features/app-game-control.md\n M docs/plans/app-plan/implementation-checklist.md\n?? scripts/test/app-plan-authority-security-blueprint-proof.mjs",
+  "commands": [
+    "cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game-identity.test.ts\n> @ocentra-parent/activity-domain@0.1.1 test\n> vitest run app-game-identity.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/activity-domain\n\n\n Test Files  1 passed (1)\n      Tests  6 passed (6)\n   Start at  18:13:49\n   Duration  1.08s (transform 401ms, setup 0ms, import 866ms, tests 11ms, environment 0ms)",
+    "cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game-category-risk.test.ts\n> @ocentra-parent/activity-domain@0.1.1 test\n> vitest run app-game-category-risk.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/activity-domain\n\n\n Test Files  1 passed (1)\n      Tests  8 passed (8)\n   Start at  18:13:51\n   Duration  863ms (transform 197ms, setup 0ms, import 638ms, tests 19ms, environment 0ms)",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-broad-blocking-proof-gates.test.ts\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-broad-blocking-proof-gates.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  6 passed (6)\n   Start at  18:13:53\n   Duration  756ms (transform 141ms, setup 0ms, import 551ms, tests 11ms, environment 0ms)",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-policy-preview-handoff.test.ts\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-policy-preview-handoff.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  5 passed (5)\n   Start at  18:13:55\n   Duration  994ms (transform 149ms, setup 0ms, import 737ms, tests 17ms, environment 0ms)"
+  ],
+  "scope": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "browserGameWorkDuplicated": false,
+    "appPlanRows": [
+      "Security: weak evidence no-upgrade.",
+      "Security: manual-required guard.",
+      "Security: platform authority guard."
+    ],
+    "intentionallyOpenRows": [
+      "Security: stale evidence rejection."
+    ],
+    "productChecklistChanged": false,
+    "packageExportsChanged": false,
+    "adapterDispatchClaimed": false,
+    "policyExecutionClaimed": false,
+    "platformSupportClaimed": false
+  },
+  "sourceProofs": [
+    {
+      "appPlanRow": "Security: weak evidence no-upgrade.",
+      "sourceProof": "output\\app-game-plan-proof\\merge-gates\\unknown-process-auto-promotion\\proof.json",
+      "sourceProofMode": "app-game-unknown-process-auto-promotion-gate-proof",
+      "gate": "Unknown process is auto-promoted to known game.",
+      "gateState": "prevented-by-weak-unknown-identity-and-manual-review-contracts",
+      "productBoundaries": {
+        "sharedEvidenceSpine": true,
+        "nativeAppMeaningProven": true,
+        "nativeGameMeaningProven": true,
+        "unknownProcessPromotedToKnownGame": false,
+        "heuristicLabelDispatchesAdapter": false,
+        "manualReviewRequired": true,
+        "browserGameWorkDuplicated": false,
+        "packageExportsChanged": false,
+        "runtimeAdapterClaimed": false
+      },
+      "proofPaths": {
+        "proof": "test-results/app-game-unknown-process-auto-promotion-gate-proof/proof.json",
+        "appGameProofPack": "output/app-game-plan-proof/merge-gates/unknown-process-auto-promotion",
+        "harness": "scripts/test/app-game-unknown-process-auto-promotion-gate-proof.mjs"
+      }
+    },
+    {
+      "appPlanRow": "Security: manual-required guard.",
+      "sourceProof": "output\\app-game-plan-proof\\merge-gates\\manual-required-no-adapter\\proof.json",
+      "sourceProofMode": "app-game-manual-required-no-adapter-gate-proof",
+      "gate": "Manual-required action calls an adapter.",
+      "gateState": "prevented-by-manual-required-and-blocked-before-adapter-contracts",
+      "productBoundaries": {
+        "sharedEvidenceSpine": true,
+        "nativeAppMeaningProven": true,
+        "nativeGameMeaningProven": true,
+        "manualRequiredCallsAdapter": false,
+        "adapterDispatchClaimed": false,
+        "platformEnforcementClaimed": false,
+        "broadBlockingClaimed": false,
+        "runtimeAdapterClaimed": false,
+        "browserGameWorkDuplicated": false,
+        "packageExportsChanged": false
+      },
+      "proofPaths": {
+        "proof": "test-results/app-game-manual-required-no-adapter-gate-proof/proof.json",
+        "appGameProofPack": "output/app-game-plan-proof/merge-gates/manual-required-no-adapter",
+        "harness": "scripts/test/app-game-manual-required-no-adapter-gate-proof.mjs"
+      }
+    },
+    {
+      "appPlanRow": "Security: platform authority guard.",
+      "sourceProof": "output\\app-game-plan-proof\\merge-gates\\android-normal-mode-no-suspend-hide\\proof.json",
+      "sourceProofMode": "app-game-android-normal-mode-no-suspend-hide-gate-proof",
+      "gate": "Android normal mode claims package suspend/hide.",
+      "gateState": "prevented-by-android-owner-proof-manual-required-gate",
+      "productBoundaries": {
+        "sharedEvidenceSpine": true,
+        "nativeAppMeaningProven": true,
+        "nativeGameMeaningProven": true,
+        "androidNormalModeSuspendHideClaimed": false,
+        "androidDeviceOwnerProofAttached": false,
+        "androidProfileOwnerProofAttached": false,
+        "adapterDispatchClaimed": false,
+        "platformEnforcementClaimed": false,
+        "broadBlockingClaimed": false,
+        "browserGameWorkDuplicated": false,
+        "packageExportsChanged": false
+      },
+      "proofPaths": {
+        "proof": "test-results/app-game-android-normal-mode-no-suspend-hide-gate-proof/proof.json",
+        "appGameProofPack": "output/app-game-plan-proof/merge-gates/android-normal-mode-no-suspend-hide",
+        "harness": "scripts/test/app-game-android-normal-mode-no-suspend-hide-gate-proof.mjs"
+      }
+    },
+    {
+      "appPlanRow": "Security: platform authority guard.",
+      "sourceProof": "output\\app-game-plan-proof\\merge-gates\\macos-hard-block-proof\\proof.json",
+      "sourceProofMode": "app-game-macos-hard-block-proof-gate",
+      "gate": "macOS hard block is claimed without MDM/Endpoint/System Extension proof.",
+      "gateState": "prevented-by-macos-manual-required-platform-proof-gate",
+      "productBoundaries": {
+        "sharedEvidenceSpine": true,
+        "nativeAppMeaningProven": true,
+        "nativeGameMeaningProven": true,
+        "macosHardBlockClaimed": false,
+        "macosMdmProfileProofAttached": false,
+        "macosEndpointSecurityProofAttached": false,
+        "macosSystemExtensionProofAttached": false,
+        "rollbackProofAttached": false,
+        "auditProofAttached": false,
+        "adapterDispatchClaimed": false,
+        "platformEnforcementClaimed": false,
+        "broadBlockingClaimed": false,
+        "browserGameWorkDuplicated": false,
+        "packageExportsChanged": false
+      },
+      "proofPaths": {
+        "proof": "test-results/app-game-macos-hard-block-proof-gate/proof.json",
+        "appGameProofPack": "output/app-game-plan-proof/merge-gates/macos-hard-block-proof",
+        "harness": "scripts/test/app-game-macos-hard-block-proof-gate.mjs"
+      }
+    }
+  ],
+  "proofPaths": {
+    "proof": "test-results\\app-plan-authority-security-blueprint-proof\\proof.json",
+    "appPlanProofPack": "output\\app-plan-proof\\security-blueprint\\authority-guards",
+    "harness": "scripts/test/app-plan-authority-security-blueprint-proof.mjs"
+  }
+}

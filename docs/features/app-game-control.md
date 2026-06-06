@@ -86,6 +86,12 @@ control with better evidence and local audit.
   proof/readiness reconciliation only: it does not add a new UI code path,
   product checklist status move, package export, adapter dispatch, policy
   execution, platform support claim, or browser-game scope.
+- The app-plan authority security blueprint reconciliation now cross-records
+  native app weak-evidence no-upgrade, manual-required guard, and platform
+  authority guard rows from shared app/game unknown-process, manual-required
+  no-adapter, Android owner-proof, and macOS hard-block proof artifacts. The
+  app-plan stale-evidence rejection row remains open because current stale-state
+  evidence is visibility/session proof, not a direct stale rejection proof.
 - The app-plan merge-blocking gate reconciliation now cross-records the
   native-app side of those shared app/game proofs into the app-plan checklist:
   each gate cites the current shared evidence spine, preserves native app and

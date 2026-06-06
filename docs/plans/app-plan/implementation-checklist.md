@@ -135,9 +135,9 @@ reason.
 - [ ] Contract: `NativeAppEnforcementResult`.
 - [ ] Contract: `NewAppApprovalRequest`.
 - [ ] Contract: `AppCapabilityStatus`.
-- [ ] Security: weak evidence no-upgrade.
-- [ ] Security: manual-required guard.
-- [ ] Security: platform authority guard.
+- [x] Security: weak evidence no-upgrade.
+- [x] Security: manual-required guard.
+- [x] Security: platform authority guard.
 - [x] Security: path redaction.
 - [x] Security: malicious metadata escaping.
 - [ ] Security: stale evidence rejection.

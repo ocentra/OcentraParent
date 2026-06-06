@@ -1,0 +1,51 @@
+cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game-identity.test.ts
+> @ocentra-parent/activity-domain@0.1.1 test
+> vitest run app-game-identity.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/activity-domain
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  18:13:49
+   Duration  1.08s (transform 401ms, setup 0ms, import 866ms, tests 11ms, environment 0ms)
+
+cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game-category-risk.test.ts
+> @ocentra-parent/activity-domain@0.1.1 test
+> vitest run app-game-category-risk.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/activity-domain
+
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  18:13:51
+   Duration  863ms (transform 197ms, setup 0ms, import 638ms, tests 19ms, environment 0ms)
+
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-broad-blocking-proof-gates.test.ts
+> @ocentra-parent/parent-domain@0.1.1 test
+> vitest run app-game-broad-blocking-proof-gates.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  18:13:53
+   Duration  756ms (transform 141ms, setup 0ms, import 551ms, tests 11ms, environment 0ms)
+
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-policy-preview-handoff.test.ts
+> @ocentra-parent/parent-domain@0.1.1 test
+> vitest run app-game-policy-preview-handoff.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  18:13:55
+   Duration  994ms (transform 149ms, setup 0ms, import 737ms, tests 17ms, environment 0ms)
