@@ -263,6 +263,16 @@ compete on control while staying clear about attribution confidence and privacy.
   queue-unavailable, and not-recommended states are explicit and do not carry a
   queue job, and the planner rejects raw packet payload, page content,
   decrypted payload, policy-authority, or adapter-authority claims.
+- E-D added `network-local-ai-runtime-result-proof`: queued row33 local-AI jobs
+  can now bridge to local-AI runtime result refs with complete, unavailable,
+  failed, timed-out, and queue-not-ready states. Complete results require an
+  output-summary ref rather than raw model text; non-complete states cannot
+  carry output summaries. The bridge preserves evidence, summary,
+  managed-browser exact-URL evidence refs, prompt-template refs, policy context
+  refs, and parent-rule refs while rejecting raw PCAP, exact URL from
+  network-only evidence, page content, private message, search query, decrypted
+  payload, remote AI, policy, adapter, enforcement-command, and
+  model-execution-proof claims.
 - E-D added deterministic network AI detection fixture evaluation in
   `ocentra-network-evidence`: fixture labels, structured summary refs, evidence
   refs, and analyzer alert refs can be compared against model predictions with
@@ -476,7 +486,7 @@ macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
 follow-ups for missing artifacts.
 Broker/family-hub delivery implementation beyond the row10b status proof and
 row10c service/portal status visibility,
-local-AI model execution/worker runtime, full policy engine execution beyond
+live local-AI model execution beyond the row33a runtime result bridge, full policy engine execution beyond
 the current stored-flow dry-run preview and stored-flow service unavailable-result proof,
 notification provider delivery, broader parent-facing rule UX, live host DNS
 mutation/proxy installation, live Windows
@@ -535,11 +545,14 @@ row10c remote-delivery status drawer proof.
       exist. Service-side enforcement audit ordering now proves
       journal-before-action and final adapter-result audit/store projection;
       network-triggered local-AI queue planning now keeps AI inputs to refs
-      only, and evidence-grade policy mapping now proves dry-run/parent-review/
-      observe-only handoffs with parent rule refs. Parent notification candidate
-      mapping now preserves refs without provider delivery, and the Activity
-      route now renders a service-backed network evidence drawer with missing
-      exact URL/AI/policy/intervention/retention refs labeled as not reported.
+      only. Row33a now bridges queued local-AI jobs to runtime result refs and
+      output-summary refs without raw model text or model-execution-proof
+      claims. Evidence-grade policy mapping now proves dry-run/parent-review/
+      observe-only handoffs with parent rule refs. Parent notification
+      candidate mapping now preserves refs without provider delivery, and the
+      Activity route now renders a service-backed network evidence drawer with
+      missing exact URL/AI/policy/intervention/retention refs labeled as not
+      reported.
       Row37 DNS adapter proof now models apply-ready, dry-run,
       manual-required, and unavailable states with required apply/result/
       rollback/audit refs while refusing host mutation and enforcement command

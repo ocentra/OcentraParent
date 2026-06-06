@@ -91,9 +91,16 @@ policy-authority, or adapter-authority claims. The network-triggered local-AI
 queue planner can turn a local-AI-recommended bundle into a queued job that
 carries only trigger, evidence, summary, queue, and model-runtime refs. Disabled,
 model-unavailable, queue-unavailable, and not-recommended states remain explicit
-and do not carry jobs. The evidence-grade policy mapper turns A/B/C/D evidence
-plus parent rule/policy refs into dry-run, parent-review, or observe-only
-handoff states while keeping adapter and enforcement command authorization false.
+and do not carry jobs. The local-AI runtime result bridge can attach queued
+jobs to local-AI runtime result refs with complete, unavailable, failed,
+timed-out, and queue-not-ready states. Complete results carry output-summary
+refs instead of raw model text, non-complete results cannot carry output
+summaries, and raw PCAP, exact URL from network-only evidence, page content,
+private message, search query, decrypted payload, remote-AI, policy, adapter,
+enforcement-command, and model-execution-proof claims are rejected. The
+evidence-grade policy mapper turns A/B/C/D evidence plus parent rule/policy refs
+into dry-run, parent-review, or observe-only handoff states while keeping adapter
+and enforcement command authorization false.
 The risk-target policy handoff mapper consumes category lookup risk targets and
 routes fresh high-confidence block/limit requests to parent review, monitor
 requests to dry-run, and unknown categories to observe-only while rejecting exact
