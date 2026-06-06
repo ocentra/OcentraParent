@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T21:25:26.714Z",
-  "commit": "264e478a96eb20a7920fde0f7da4c3b0cc85d770",
+  "checkedAt": "2026-06-06T21:44:58.163Z",
+  "commit": "8458bfd3d96741b7ae0a1af04ec907f6d10746e4",
   "proofMode": "app-install-purchase-product-claim-platform-preclaim-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-06T21:25:21.176Z",
+      "startedAt": "2026-06-06T21:44:50.167Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-product-claim-platform-preclaim-proof.test.ts",
-      "startedAt": "2026-06-06T21:25:23.893Z",
+      "startedAt": "2026-06-06T21:44:55.149Z",
       "exitCode": 0
     }
   ],
