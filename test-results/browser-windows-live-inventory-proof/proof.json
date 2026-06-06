@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-windows-live-inventory-proof",
-  "generatedAt": "2026-06-06T02:08:04.082Z",
+  "generatedAt": "2026-06-06T03:03:53.264Z",
   "sourceWorkpack": "docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md",
   "host": {
     "platform": "win32",
@@ -137,27 +137,416 @@
         "active-tab",
         "block-enforcement"
       ]
+    },
+    {
+      "sourceKinds": [
+        "store-package"
+      ],
+      "productName": "Tor Browser",
+      "browserFamily": "unknown",
+      "executableName": null,
+      "pathRef": "dd4b6ce71c04c2b4531a51ba9073cce2eec7b14c6e0d8f0869da36bf2abfb284",
+      "packageFullNameHash": "43d0b5ff624ad7b5b16089ac52ea9bd7ba68bda18500bb61a5402946f40ee3c8",
+      "packageFamilyNameHash": "32f181ab8a4819c9c26433b6d233a724289708d5afb3644284e4e25e523e950f",
+      "installLocationRef": "e51889003ac2ce09fc633decd3aa82160aea2112be60acd0c3a1ea390ae70f96",
+      "fileSha256": null,
+      "fileSizeBytes": null,
+      "signatureStatus": "not-checked-package",
+      "signerSubjectHash": null,
+      "installState": "packaged",
+      "runningState": "not-running",
+      "managementTier": "unsupported",
+      "supportTier": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "processIdHash": null,
+      "noClaims": [
+        "raw-path",
+        "raw-url",
+        "page-title",
+        "page-body",
+        "active-tab",
+        "block-enforcement"
+      ]
+    },
+    {
+      "sourceKinds": [
+        "store-package"
+      ],
+      "productName": "Tor Browser",
+      "browserFamily": "unknown",
+      "executableName": null,
+      "pathRef": "80d033bcf112c3ac832627bad56939716e3e7b98e262f0666cac60a36335d879",
+      "packageFullNameHash": "75f209978a19e962f57817e684ebe362077f41c36f1945bd1ca810368c681729",
+      "packageFamilyNameHash": "cd2f83045160d17968b3353ef113a82dd6ec9d664d63e60941bff3db8d7b4d85",
+      "installLocationRef": null,
+      "fileSha256": null,
+      "fileSizeBytes": null,
+      "signatureStatus": "not-checked-package",
+      "signerSubjectHash": null,
+      "installState": "packaged",
+      "runningState": "not-running",
+      "managementTier": "unsupported",
+      "supportTier": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "processIdHash": null,
+      "noClaims": [
+        "raw-path",
+        "raw-url",
+        "page-title",
+        "page-body",
+        "active-tab",
+        "block-enforcement"
+      ]
+    },
+    {
+      "sourceKinds": [
+        "store-package"
+      ],
+      "productName": "Microsoft Edge",
+      "browserFamily": "edge",
+      "executableName": null,
+      "pathRef": "c75dcd9395ab2467c708a84771ed62855a82efc391d73e20578ef1d1ffe43d9e",
+      "packageFullNameHash": "198c16c24e1f4fae27dc451e3ec02b15671c1a015d3a50ca47a07b07749e230b",
+      "packageFamilyNameHash": "9d2f0fae20275f0569eadfce2687c28a87a0dde20c682e29dd71c4a6916e13a8",
+      "installLocationRef": "7982b82deaa0506f04008312c70c933b78d8a19a8e5b469ce90e1fce70d1a461",
+      "fileSha256": null,
+      "fileSizeBytes": null,
+      "signatureStatus": "not-checked-package",
+      "signerSubjectHash": null,
+      "installState": "packaged",
+      "runningState": "not-running",
+      "managementTier": "manual-required",
+      "supportTier": "manual-required",
+      "exactUrlCapability": "manual-required",
+      "activeTabCapability": "manual-required",
+      "capabilityStatus": "permission-limited",
+      "processIdHash": null,
+      "noClaims": [
+        "raw-path",
+        "raw-url",
+        "page-title",
+        "page-body",
+        "active-tab",
+        "block-enforcement"
+      ]
+    },
+    {
+      "sourceKinds": [
+        "store-package"
+      ],
+      "productName": "Microsoft Edge",
+      "browserFamily": "edge",
+      "executableName": null,
+      "pathRef": "8df66e304b3641b22b8151e1bfe0e02341cd2a28154f5923d28b2f4b18750050",
+      "packageFullNameHash": "1aa26af3981d2cbe4b6dc504865d6c391aaccd4cb812d91dc96fe52de1056779",
+      "packageFamilyNameHash": "653832d7088a86922879e06ab961371fcda259e8b0c3d0b26f6791516ce95a68",
+      "installLocationRef": null,
+      "fileSha256": null,
+      "fileSizeBytes": null,
+      "signatureStatus": "not-checked-package",
+      "signerSubjectHash": null,
+      "installState": "packaged",
+      "runningState": "not-running",
+      "managementTier": "manual-required",
+      "supportTier": "manual-required",
+      "exactUrlCapability": "manual-required",
+      "activeTabCapability": "manual-required",
+      "capabilityStatus": "permission-limited",
+      "processIdHash": null,
+      "noClaims": [
+        "raw-path",
+        "raw-url",
+        "page-title",
+        "page-body",
+        "active-tab",
+        "block-enforcement"
+      ]
+    },
+    {
+      "sourceKinds": [
+        "store-package"
+      ],
+      "productName": "Tor Browser",
+      "browserFamily": "unknown",
+      "executableName": null,
+      "pathRef": "e0959356b63eca03d0c86d59f87eda46ee73f081020ff4730fd9f68e3f0e86e7",
+      "packageFullNameHash": "c1b75c78969ffbd75281f29024471ef4b7089c511b12d07a332ff18e0deb8d87",
+      "packageFamilyNameHash": "94eb28ecc3e270c004b2d3d6458bb2c1666616f5b967bfcc46ea38917e04d59f",
+      "installLocationRef": "eb46df58317176169858d69c7b948ef8a87c408bcd2dfd7cd89ba6f04b4fab2e",
+      "fileSha256": null,
+      "fileSizeBytes": null,
+      "signatureStatus": "not-checked-package",
+      "signerSubjectHash": null,
+      "installState": "packaged",
+      "runningState": "not-running",
+      "managementTier": "unsupported",
+      "supportTier": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "processIdHash": null,
+      "noClaims": [
+        "raw-path",
+        "raw-url",
+        "page-title",
+        "page-body",
+        "active-tab",
+        "block-enforcement"
+      ]
+    },
+    {
+      "sourceKinds": [
+        "store-package"
+      ],
+      "productName": "Arc Browser",
+      "browserFamily": "unknown-chromium",
+      "executableName": null,
+      "pathRef": "2485c4443942dfc7afdb1297f77ba9bc835dcf4a4547ba56ef48e7293bec508b",
+      "packageFullNameHash": "2598077aa6721dcc98380d4f802bab4c353278a79dcadcbe8a384869445090e0",
+      "packageFamilyNameHash": "2e9b57c458fcc28a29c35310a1bf29fdc602600e39f1ffbb858d93f8ce66027a",
+      "installLocationRef": "4e2d8a3fcfaacf1883ed6fd03421643243754de435de60a88db30853dd945cf5",
+      "fileSha256": null,
+      "fileSizeBytes": null,
+      "signatureStatus": "not-checked-package",
+      "signerSubjectHash": null,
+      "installState": "packaged",
+      "runningState": "not-running",
+      "managementTier": "unsupported",
+      "supportTier": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "processIdHash": null,
+      "noClaims": [
+        "raw-path",
+        "raw-url",
+        "page-title",
+        "page-body",
+        "active-tab",
+        "block-enforcement"
+      ]
+    },
+    {
+      "sourceKinds": [
+        "store-package"
+      ],
+      "productName": "Microsoft Edge",
+      "browserFamily": "edge",
+      "executableName": null,
+      "pathRef": "7c5b35e6c4f3f33f9a8f6bd959f99f051370a2674a1381740ae9dfcd3abce860",
+      "packageFullNameHash": "3f137ca943490f71c297123a73a8dbc7d6f9066d16890c03e289831a3613d4ba",
+      "packageFamilyNameHash": "ea7aaa3b179f81c41434b21d233a2f453a529618162a43e9b884b5c002de6a0f",
+      "installLocationRef": "abe46aed2b508ee76e148205d15f39d28c03ab2e3e46c03001f5cdb28e77ba25",
+      "fileSha256": null,
+      "fileSizeBytes": null,
+      "signatureStatus": "not-checked-package",
+      "signerSubjectHash": null,
+      "installState": "packaged",
+      "runningState": "not-running",
+      "managementTier": "manual-required",
+      "supportTier": "manual-required",
+      "exactUrlCapability": "manual-required",
+      "activeTabCapability": "manual-required",
+      "capabilityStatus": "permission-limited",
+      "processIdHash": null,
+      "noClaims": [
+        "raw-path",
+        "raw-url",
+        "page-title",
+        "page-body",
+        "active-tab",
+        "block-enforcement"
+      ]
+    },
+    {
+      "sourceKinds": [
+        "store-package"
+      ],
+      "productName": "Microsoft Edge",
+      "browserFamily": "edge",
+      "executableName": null,
+      "pathRef": "12b55bf0cf85340e517d6541ea73cd371550d65711c26182467f9d516c637e61",
+      "packageFullNameHash": "dbe71e74c8bfc1bdb0acc1f986fb7e9e4071fcb9dce1fdeae32957980f3531d7",
+      "packageFamilyNameHash": "5e6e56287cd835b30564e06ca534267e8ce394f2f6cfda4fb5794b938be172f7",
+      "installLocationRef": "2666cbac91501bbd8fb162374cb594b56aabb965d535bb12ac4e5f632de91c48",
+      "fileSha256": null,
+      "fileSizeBytes": null,
+      "signatureStatus": "not-checked-package",
+      "signerSubjectHash": null,
+      "installState": "packaged",
+      "runningState": "not-running",
+      "managementTier": "manual-required",
+      "supportTier": "manual-required",
+      "exactUrlCapability": "manual-required",
+      "activeTabCapability": "manual-required",
+      "capabilityStatus": "permission-limited",
+      "processIdHash": null,
+      "noClaims": [
+        "raw-path",
+        "raw-url",
+        "page-title",
+        "page-body",
+        "active-tab",
+        "block-enforcement"
+      ]
+    },
+    {
+      "sourceKinds": [
+        "store-package"
+      ],
+      "productName": "Tor Browser",
+      "browserFamily": "unknown",
+      "executableName": null,
+      "pathRef": "d654f48336dde54ba01a0a47abc13f522a4043e1970a24d6d0a84f062bf52280",
+      "packageFullNameHash": "2e11c31119ab873e3d7f4476464b1f885aa1517b026985e39c1d806a7102d1af",
+      "packageFamilyNameHash": "1d281828a9b7d0d1a8c07e056d2b505d2c1cd41ad670906616065e2dabfcccaf",
+      "installLocationRef": "7571128372ff6204de50b9432b83ff6341d8ba4158829842a2463bd6bad414a1",
+      "fileSha256": null,
+      "fileSizeBytes": null,
+      "signatureStatus": "not-checked-package",
+      "signerSubjectHash": null,
+      "installState": "packaged",
+      "runningState": "not-running",
+      "managementTier": "unsupported",
+      "supportTier": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "processIdHash": null,
+      "noClaims": [
+        "raw-path",
+        "raw-url",
+        "page-title",
+        "page-body",
+        "active-tab",
+        "block-enforcement"
+      ]
+    },
+    {
+      "sourceKinds": [
+        "store-package"
+      ],
+      "productName": "Microsoft Edge",
+      "browserFamily": "edge",
+      "executableName": null,
+      "pathRef": "e9440135849ae43d45d58855c8f579d1a8c96ef6c7bbaea023a0e9d126b65d28",
+      "packageFullNameHash": "3053b3d321c13645d629006013a2aeb7fd4eb541951cdeba924bfc80aafd7cd7",
+      "packageFamilyNameHash": "1f16afc3f61ee3fe0c52f70f6dc84e6a1c07f46997f8e98ad950a24265b7a347",
+      "installLocationRef": "f224e3d19a4de413207942ce62f825455a3be2b11d5f254a02b1bfdd88a844b9",
+      "fileSha256": null,
+      "fileSizeBytes": null,
+      "signatureStatus": "not-checked-package",
+      "signerSubjectHash": null,
+      "installState": "packaged",
+      "runningState": "not-running",
+      "managementTier": "manual-required",
+      "supportTier": "manual-required",
+      "exactUrlCapability": "manual-required",
+      "activeTabCapability": "manual-required",
+      "capabilityStatus": "permission-limited",
+      "processIdHash": null,
+      "noClaims": [
+        "raw-path",
+        "raw-url",
+        "page-title",
+        "page-body",
+        "active-tab",
+        "block-enforcement"
+      ]
+    },
+    {
+      "sourceKinds": [
+        "store-package"
+      ],
+      "productName": "Tor Browser",
+      "browserFamily": "unknown",
+      "executableName": null,
+      "pathRef": "b2d7fbb3967434e8b19f57a53ae2cad9f548dd1cf654c5f19d59e441fab725f0",
+      "packageFullNameHash": "7b52faeaafbf9436a469d3757b636d398687212e5b819b647a9f890c6c881c16",
+      "packageFamilyNameHash": "21ffe19217f7d519ff5ad16124ac7cd4d9d348d2bc90fa698931bee0a8b0c13c",
+      "installLocationRef": "d73e1ce2b5de881472ca4f0ab41d266903b7c7c3cab1f130cddcf5b639685331",
+      "fileSha256": null,
+      "fileSizeBytes": null,
+      "signatureStatus": "not-checked-package",
+      "signerSubjectHash": null,
+      "installState": "packaged",
+      "runningState": "not-running",
+      "managementTier": "unsupported",
+      "supportTier": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "processIdHash": null,
+      "noClaims": [
+        "raw-path",
+        "raw-url",
+        "page-title",
+        "page-body",
+        "active-tab",
+        "block-enforcement"
+      ]
+    },
+    {
+      "sourceKinds": [
+        "store-package"
+      ],
+      "productName": "Tor Browser",
+      "browserFamily": "unknown",
+      "executableName": null,
+      "pathRef": "2d021053e3a431bb5e9d4c17839f013267c02cdc454b7e7b1de0f53517510975",
+      "packageFullNameHash": "b94de3aa11008ba202cea0e414293db0a88fe6d6fc474651315e6d775e61d5e3",
+      "packageFamilyNameHash": "446e5500a529f938beed5ca5ad39b1d8584c68c91756df044d2003518a4cf1cb",
+      "installLocationRef": "9a954234b048bd768a99b337da9ceec584bba20932b853b593e37434d311063a",
+      "fileSha256": null,
+      "fileSizeBytes": null,
+      "signatureStatus": "not-checked-package",
+      "signerSubjectHash": null,
+      "installState": "packaged",
+      "runningState": "not-running",
+      "managementTier": "unsupported",
+      "supportTier": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "processIdHash": null,
+      "noClaims": [
+        "raw-path",
+        "raw-url",
+        "page-title",
+        "page-body",
+        "active-tab",
+        "block-enforcement"
+      ]
     }
   ],
   "summary": {
-    "totalRows": 4,
+    "totalRows": 16,
     "sourceCounts": {
       "known-path": 3,
       "registry-uninstall": 4,
       "running-process": 2,
-      "start-menu-shortcut": 3
+      "start-menu-shortcut": 3,
+      "store-package": 12
     },
     "managementTierCounts": {
       "managed": 3,
-      "unsupported": 1
+      "unsupported": 8,
+      "manual-required": 5
     },
     "supportTierCounts": {
       "candidate": 3,
-      "unsupported": 1
+      "unsupported": 8,
+      "manual-required": 5
     },
     "signatureStatusCounts": {
-      "Valid": 4
+      "Valid": 4,
+      "not-checked-package": 12
     },
+    "packageRows": 12,
     "productClaimed": false,
     "exactUrlClaimedRows": 0,
     "rawPathStored": false,
@@ -169,6 +558,7 @@
     "file-hashes-are-evidence-refs-not-content",
     "signature-subjects-hashed",
     "registry-and-shortcut-inputs-redacted",
+    "store-package-inputs-redacted",
     "running-processes-are-process-only-when-not-managed",
     "exact-url-tab-content-not-captured",
     "browser-blocking-and-enforcement-not-claimed"
