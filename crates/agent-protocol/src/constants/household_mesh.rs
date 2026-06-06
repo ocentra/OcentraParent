@@ -1,0 +1,34 @@
+pub const EVENT_SCHEMA_VERSION: u16 = 1;
+pub const EVENT_BRIDGE_LOCAL_SELECTED: &str = "household.mesh.bridge.local-event.selected";
+pub const EVENT_BRIDGE_LAN_EXPORTED: &str = "household.mesh.bridge.lan-message.exported";
+pub const EVENT_BRIDGE_LAN_RECEIVED: &str = "household.mesh.bridge.lan-message.received";
+pub const EVENT_BRIDGE_LOCAL_REPUBLISHED: &str = "household.mesh.bridge.local-event.republished";
+pub const MESSAGE_AI_WORK_OFFER: &str = "household.mesh.ai-work-offer";
+pub const MESSAGE_AI_WORK_RESULT: &str = "household.mesh.ai-work-result";
+pub const TARGET_BRIDGE_EXPORT_VALIDATOR: &str = "household-mesh-bridge-export-validator";
+pub const TARGET_BRIDGE_LAN_TRANSPORT: &str = "household-mesh-lan-transport";
+pub const TARGET_BRIDGE_IMPORT_VALIDATOR: &str = "household-mesh-bridge-import-validator";
+pub const TARGET_LOCAL_EVENT_REPUBLISHER: &str = "household-mesh-local-event-republisher";
+pub const SUBSCRIBER_BRIDGE_LOCAL_SELECTED: &str =
+    "household-mesh-bridge-local-selected-subscriber";
+pub const SUBSCRIBER_BRIDGE_LAN_EXPORTED: &str = "household-mesh-bridge-lan-exported-subscriber";
+pub const SUBSCRIBER_BRIDGE_LAN_RECEIVED: &str = "household-mesh-bridge-lan-received-subscriber";
+pub const SUBSCRIBER_BRIDGE_LOCAL_REPUBLISHED: &str =
+    "household-mesh-bridge-local-republished-subscriber";
+pub const RUNTIME_COMPONENT_HOUSEHOLD_MESH_BRIDGE: &str = "household-mesh-bridge";
+pub const RUNTIME_INSTANCE_CHILD_MESH_BRIDGE: &str = "child-household-mesh-bridge";
+pub const RUNTIME_INSTANCE_PROVIDER_MESH_BRIDGE: &str = "provider-household-mesh-bridge";
+pub const AGGREGATE_HOUSEHOLD_MESH_PREFIX: &str = "household-mesh-";
+pub const IDEMPOTENCY_HOUSEHOLD_MESH_PREFIX: &str = "household-mesh-idempotency-";
+pub const TEST_BRIDGE_CORRELATION_ID: &str = "household-mesh-bridge-correlation-1";
+pub const TEST_BRIDGE_OUTBOUND_MESSAGE_ID: &str = "household-mesh-outbound-message-1";
+pub const TEST_BRIDGE_INBOUND_MESSAGE_ID: &str = "household-mesh-inbound-message-1";
+pub const TEST_BRIDGE_CHILD_AGENT_PEER_ID: &str = "child-agent-peer-1";
+pub const TEST_BRIDGE_PROVIDER_PEER_ID: &str = "trusted-parent-desktop-provider-peer-1";
+pub const TEST_BRIDGE_PAYLOAD_REF: &str = "household-mesh-redacted-payload-ref-1";
+pub const TEST_BRIDGE_SELECTED_EVENT_REF: &str = "event.household.mesh.local-selected.1";
+pub const TEST_BRIDGE_EXPORTED_MESSAGE_REF: &str = "message.household.mesh.exported.1";
+pub const TEST_BRIDGE_RECEIVED_MESSAGE_REF: &str = "message.household.mesh.received.1";
+pub const ERROR_BRIDGE_CHAIN_PUBLISHES: &str = "household mesh bridge chain publishes";
+pub const ERROR_BRIDGE_PAYLOAD_DECODES: &str = "household mesh bridge payload decodes";
+pub const ERROR_BRIDGE_TOPOLOGY_PROVES: &str = "household mesh bridge topology proves";
