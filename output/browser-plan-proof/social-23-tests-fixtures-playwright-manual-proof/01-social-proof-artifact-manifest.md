@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T09:55:00.824Z
+Generated: 2026-06-06T10:18:58.307Z
 
 Rows checked: 22
 Proof-present rows: 7
@@ -21,7 +21,7 @@ Product claimed: false
 | SOCIAL-09 | partial-manual-required | `social-09-video-social-metadata-extractor` | 7 |
 | SOCIAL-10 | partial-manual-required | `social-10-social-ai-analysis-contracts` | 6 |
 | SOCIAL-11 | partial-manual-required | `social-11-social-risk-benefit-signal-model` | 6 |
-| SOCIAL-12 | partial-manual-required | `social-12-parent-policy-compiler-social-targets` | 5 |
+| SOCIAL-12 | partial-manual-required | `social-12-parent-policy-compiler-social-targets` | 6 |
 | SOCIAL-13 | proof-present | `social-13-managed-browser-account-creation-gate` | 8 |
 | SOCIAL-14 | proof-present | `social-14-managed-browser-feed-short-video-gate` | 7 |
 | SOCIAL-15 | proof-present | `social-15-unmanaged-social-bypass-detector` | 6 |
@@ -41,6 +41,7 @@ Live route classification proof is present for SOCIAL-08 public feed surfaces.
 Live metadata extraction proof is present for SOCIAL-09 public social/video surfaces.
 Live-evidence AI boundary proof is present for SOCIAL-10 degraded model-unavailable rows.
 Live-evidence risk/benefit boundary proof is present for SOCIAL-11 unavailable signal sets.
+Live-evidence policy compiler proof is present for SOCIAL-12 non-final manual-review candidates.
 Ref-only social alert/report intent proof is present.
 Schedule/time-budget compiler contract proof is present.
 Parent sensitivity settings contract proof is present.

@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "proofId": "social-policy-live-evidence-compiler-proof",
+  "generatedAt": "2026-06-06T10:18:58.806Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "620e9bbbfc940cc32910445941fc26783a8810eb",
+  "baseCommit": "fe1b6c4d0f5f487b0e10ab97ea7cc9cf8e3ad76d",
+  "sourceProof": "test-results/social-risk-benefit-live-evidence-proof/proof.json",
+  "liveEvidenceBoundary": {
+    "sourceRiskBenefitProofUsesLiveSocial10Refs": true,
+    "sourceSignalSetCount": 4,
+    "sourceRiskBenefitCandidateClassified": false,
+    "unavailableSignalRowsOnly": true,
+    "policyCandidateCount": 4,
+    "finalPolicyDecisionClaimed": false,
+    "runtimeGateExecutedClaimed": false,
+    "uiRenderedClaimed": false,
+    "enforcementClaimed": false,
+    "nativeAppControlClaimed": false,
+    "platformConnectorClaimed": false,
+    "rawSignalPayloadStored": false,
+    "rawModelTextUsed": false
+  },
+  "policyCandidates": [
+    {
+      "targetId": "youtube-shorts-video",
+      "decisionCandidateId": "youtube-shorts-video-social-policy-decision-candidate",
+      "compileRequestId": "youtube-shorts-video-social-policy-compile-request",
+      "targetKind": "social-video",
+      "sourceEvidenceRefs": [
+        "parent-evidence-youtube-shorts-video-social-ai-analysis"
+      ],
+      "signalSetRefs": [
+        "youtube-shorts-video-risk-benefit-signal-set"
+      ],
+      "scheduleState": "inside-allowed-window",
+      "timeBudgetState": "budget-available",
+      "actionCandidate": "manual-review-candidate",
+      "reasonCodes": [
+        "manual-required",
+        "degraded-analysis",
+        "missing-signal-proof"
+      ],
+      "confidence": "unknown",
+      "compilerMode": "contract-only",
+      "fallbackUsed": true,
+      "parentApprovalRequired": true,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false,
+      "rawSignalPayloadStored": false,
+      "rawModelTextUsed": false
+    },
+    {
+      "targetId": "vimeo-public-video",
+      "decisionCandidateId": "vimeo-public-video-social-policy-decision-candidate",
+      "compileRequestId": "vimeo-public-video-social-policy-compile-request",
+      "targetKind": "social-video",
+      "sourceEvidenceRefs": [
+        "parent-evidence-vimeo-public-video-social-ai-analysis"
+      ],
+      "signalSetRefs": [
+        "vimeo-public-video-risk-benefit-signal-set"
+      ],
+      "scheduleState": "inside-allowed-window",
+      "timeBudgetState": "budget-available",
+      "actionCandidate": "manual-review-candidate",
+      "reasonCodes": [
+        "manual-required",
+        "degraded-analysis",
+        "missing-signal-proof"
+      ],
+      "confidence": "unknown",
+      "compilerMode": "contract-only",
+      "fallbackUsed": true,
+      "parentApprovalRequired": true,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false,
+      "rawSignalPayloadStored": false,
+      "rawModelTextUsed": false
+    },
+    {
+      "targetId": "reddit-popular-feed",
+      "decisionCandidateId": "reddit-popular-feed-social-policy-decision-candidate",
+      "compileRequestId": "reddit-popular-feed-social-policy-compile-request",
+      "targetKind": "social-feed",
+      "sourceEvidenceRefs": [
+        "parent-evidence-reddit-popular-feed-social-ai-analysis"
+      ],
+      "signalSetRefs": [
+        "reddit-popular-feed-risk-benefit-signal-set"
+      ],
+      "scheduleState": "inside-allowed-window",
+      "timeBudgetState": "budget-available",
+      "actionCandidate": "manual-review-candidate",
+      "reasonCodes": [
+        "manual-required",
+        "degraded-analysis",
+        "missing-signal-proof"
+      ],
+      "confidence": "unknown",
+      "compilerMode": "contract-only",
+      "fallbackUsed": true,
+      "parentApprovalRequired": true,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false,
+      "rawSignalPayloadStored": false,
+      "rawModelTextUsed": false
+    },
+    {
+      "targetId": "instagram-reels-feed",
+      "decisionCandidateId": "instagram-reels-feed-social-policy-decision-candidate",
+      "compileRequestId": "instagram-reels-feed-social-policy-compile-request",
+      "targetKind": "social-feed",
+      "sourceEvidenceRefs": [
+        "parent-evidence-instagram-reels-feed-social-ai-analysis"
+      ],
+      "signalSetRefs": [
+        "instagram-reels-feed-risk-benefit-signal-set"
+      ],
+      "scheduleState": "inside-allowed-window",
+      "timeBudgetState": "budget-available",
+      "actionCandidate": "manual-review-candidate",
+      "reasonCodes": [
+        "manual-required",
+        "degraded-analysis",
+        "missing-signal-proof"
+      ],
+      "confidence": "unknown",
+      "compilerMode": "contract-only",
+      "fallbackUsed": true,
+      "parentApprovalRequired": true,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false,
+      "rawSignalPayloadStored": false,
+      "rawModelTextUsed": false
+    }
+  ],
+  "inputParseChecks": [
+    {
+      "targetId": "youtube-shorts-video",
+      "accepted": true
+    },
+    {
+      "targetId": "vimeo-public-video",
+      "accepted": true
+    },
+    {
+      "targetId": "reddit-popular-feed",
+      "accepted": true
+    },
+    {
+      "targetId": "instagram-reels-feed",
+      "accepted": true
+    }
+  ],
+  "candidateParseChecks": [
+    {
+      "targetId": "youtube-shorts-video",
+      "accepted": true
+    },
+    {
+      "targetId": "vimeo-public-video",
+      "accepted": true
+    },
+    {
+      "targetId": "reddit-popular-feed",
+      "accepted": true
+    },
+    {
+      "targetId": "instagram-reels-feed",
+      "accepted": true
+    }
+  ],
+  "negativeChecks": [
+    {
+      "label": "input-raw-signal-payload",
+      "rejected": true
+    },
+    {
+      "label": "input-raw-model-text",
+      "rejected": true
+    },
+    {
+      "label": "input-runtime-gate-claim",
+      "rejected": true
+    },
+    {
+      "label": "input-enforcement-claim",
+      "rejected": true
+    },
+    {
+      "label": "input-native-app-claim",
+      "rejected": true
+    },
+    {
+      "label": "input-connector-claim",
+      "rejected": true
+    },
+    {
+      "label": "input-missing-signal-ref",
+      "rejected": true
+    },
+    {
+      "label": "candidate-final-policy",
+      "rejected": true
+    },
+    {
+      "label": "candidate-runtime-gate",
+      "rejected": true
+    },
+    {
+      "label": "candidate-ui-rendered",
+      "rejected": true
+    },
+    {
+      "label": "candidate-enforcement",
+      "rejected": true
+    },
+    {
+      "label": "candidate-raw-signal-store",
+      "rejected": true
+    },
+    {
+      "label": "candidate-raw-model-text",
+      "rejected": true
+    },
+    {
+      "label": "candidate-manual-without-fallback",
+      "rejected": true
+    }
+  ],
+  "noClaimChecks": {
+    "finalPolicyDecision": false,
+    "runtimeGate": false,
+    "uiDelivery": false,
+    "enforcement": false,
+    "nativeAppControl": false,
+    "connectorAuthorization": false,
+    "appliedSchedule": false,
+    "appliedTimeBudget": false,
+    "rawContentUse": false
+  }
+}
