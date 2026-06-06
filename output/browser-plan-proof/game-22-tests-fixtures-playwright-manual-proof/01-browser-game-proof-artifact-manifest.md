@@ -1,10 +1,10 @@
 # GAME-22 Browser-Game Proof Artifact Manifest
 
-Generated: 2026-06-06T18:55:27.435Z
+Generated: 2026-06-06T19:10:58.471Z
 
 Rows checked: 21
-Proof-present rows: 4
-Partial/manual-required rows: 17
+Proof-present rows: 5
+Partial/manual-required rows: 16
 Playwright state: manual-required-no-rendered-browser-game-ui
 Product claimed: false
 
@@ -14,7 +14,7 @@ Product claimed: false
 | GAME-02 | live-route-proof-present | `game-02-browser-game-platform-route-contracts` | 6 |
 | GAME-03 | live-portal-pattern-proof-present | `game-03-known-game-portal-pattern-library` | 6 |
 | GAME-04 | live-cloud-pattern-proof-present | `game-04-cloud-gaming-pattern-library` | 6 |
-| GAME-05 | partial-manual-required | `game-05-game-url-shape-parser` | 5 |
+| GAME-05 | live-url-shape-proof-present | `game-05-game-url-shape-parser` | 6 |
 | GAME-06 | partial-manual-required | `game-06-game-runtime-signal-detector` | 5 |
 | GAME-07 | partial-manual-required | `game-07-game-metadata-extractor` | 5 |
 | GAME-08 | partial-manual-required | `game-08-hidden-analysis-profile-safety` | 5 |
@@ -39,6 +39,8 @@ GAME-03 live portal pattern library proof is present for real public
 browser-game portal and archive surfaces with ref-only/hash-only custody.
 GAME-04 live cloud pattern library proof is present for real public
 cloud-gaming and cloud-PC surfaces with ref-only/hash-only custody.
+GAME-05 live URL-shape parser proof is present for real public
+browser-game and cloud-gaming route surfaces with ref-only/hash-only custody.
 It does not prove rendered browser-game UI, Playwright screenshots,
 runtime browser-game detection, cloud-streamed frame analysis, native
 game control, final policy execution, enforcement, or product checklist

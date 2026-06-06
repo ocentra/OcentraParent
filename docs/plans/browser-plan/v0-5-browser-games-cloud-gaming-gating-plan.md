@@ -1239,7 +1239,12 @@ worker messages before code changes. Do not mix all 24 into one PR.
   query/fragment shape booleans, reason codes, confidence, and a route-shape
   fingerprint. It rejects raw URL, domain, path, and query storage; browser
   navigation, runtime detection, AI classification, final policy decisions,
-  cloud-frame analysis, native game control, and enforcement.
+  cloud-frame analysis, native game control, and enforcement. The live proof
+  fetches real public CrazyGames, Poki, Coolmath Games, Chess.com play, Xbox
+  Cloud Gaming play/cloud, and NVIDIA GeForce Now route surfaces; stores only
+  response metadata plus hashed origin/path/body refs; parses seven
+  URL-shape rows; and rejects 16 raw-storage/runtime/AI/policy/native/cloud-frame
+  and enforcement overclaims.
 - GAME-06 now adds parent-domain runtime signal detector contracts. Signal rows
   model canvas, WebGL, Gamepad API, fullscreen, pointer-lock, audio context,
   animation-loop, iframe game surface, cloud-streaming, and
@@ -1415,8 +1420,8 @@ worker messages before code changes. Do not mix all 24 into one PR.
   state: partial/manual-required. The gate labels GAME-01 as
   scaffold-proof-present, GAME-02 as live-route-proof-present, GAME-03 as
   live-portal-pattern-proof-present, GAME-04 as live-cloud-pattern-proof-present,
-  GAME-05 through GAME-24 as partial/manual-required, and no browser-game rows as
-  open/manual-required.
+  GAME-05 as live-url-shape-proof-present, GAME-06 through GAME-24 as
+  partial/manual-required, and no browser-game rows as open/manual-required.
   Product checklist upgrade is not claimed, and runtime
   signals, metadata, AI, memory, child/parent UI, cloud-streamed frame analysis,
   native game control, and enforcement remain open or manual-required until

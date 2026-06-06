@@ -326,9 +326,12 @@ readiness, native game control, or enforcement.
 Browser-game/cloud-gaming GAME-05 now adds a parent-domain redacted URL-shape
 parser. It accepts unknown input, uses URL parsing only transiently, emits shape
 and fingerprint fields, and does not store raw URLs, domains, paths, queries, or
-fragments. It does not navigate browsers, claim runtime detection, run AI
-classification, decide policy, inspect cloud frames, control native games, or
-enforce actions.
+fragments. The live proof fetches real public CrazyGames, Poki, Coolmath Games,
+Chess.com play, Xbox Cloud Gaming play/cloud, and NVIDIA GeForce Now route
+surfaces; stores only response metadata plus hashed origin/path/body refs;
+parses seven URL-shape rows; and rejects 16 overclaims. It does not navigate
+browsers, claim runtime detection, run AI classification, decide policy, inspect
+cloud frames, control native games, or enforce actions.
 Browser-game/cloud-gaming GAME-06 now adds parent-domain runtime signal detector
 contracts. Signal rows model shape-only canvas, WebGL, Gamepad API, fullscreen,
 pointer-lock, audio, animation-loop, iframe surface, cloud-streaming, and
@@ -479,9 +482,9 @@ enforcement.
 Browser-game/cloud-gaming GAME-24 now labels the game track
 partial/manual-required through the rollout gate. Product checklist upgrade is
 not claimed. GAME-01 is scaffold-proof-present, GAME-02 is
-live-route-proof-present, GAME-03 is live-portal-pattern-proof-present, and
-GAME-04 is live-cloud-pattern-proof-present. GAME-05 through GAME-24 are
-partial/manual-required. Runtime, metadata, AI, memory, UI, cloud-streamed
+live-route-proof-present, GAME-03 is live-portal-pattern-proof-present, GAME-04
+is live-cloud-pattern-proof-present, and GAME-05 is live-url-shape-proof-present.
+GAME-06 through GAME-24 are partial/manual-required. Runtime, metadata, AI, memory, UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.
 Browser AI enhancement rows AI-01 and AI-02 now add plan linkage and
