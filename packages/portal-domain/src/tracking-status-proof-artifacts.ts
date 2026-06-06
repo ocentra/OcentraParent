@@ -27,6 +27,9 @@ export const TrackingStatusProofArtifacts = {
   ChildRuntimeUi: artifact(
     'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json'
   ),
+  FamilyDashboardRollup: artifact(
+    'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json'
+  ),
   UnsupportedManualPlatform: artifact('output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json'),
   TemporaryLiveMode: artifact('output/tracking-plan-proof/28-temporary-live-tracking-mode/proof-summary.json'),
   MissingDeviceMode: artifact('output/tracking-plan-proof/29-missing-device-mode/proof-summary.json'),
