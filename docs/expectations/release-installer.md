@@ -135,6 +135,15 @@ Release features are product features because parents need install/update paths 
   execution, support backend upload execution, account lookup execution, billing
   provider contact, remote support sessions, production SLA, default
   Ocentra-hosted family data, and child-activity custody unclaimed.
+- V8 production support status backend payload custody proof that records
+  status payload custody-boundary, retention manual-required, delete request,
+  deletion manual-required, audit-export-ready, and backend-unavailable rows
+  while keeping real status backend execution, durable status backend payload
+  storage, payload deletion execution, retry worker execution, audit
+  persistence, public runtime execution, provider execution, support backend
+  upload execution, account lookup execution, billing provider contact, remote
+  support sessions, production SLA, default Ocentra-hosted family data, and
+  child-activity custody unclaimed.
 
 ## Acceptance
 
@@ -307,6 +316,17 @@ Release features are product features because parents need install/update paths 
   execution, raw child activity custody, provider secrets, status backend
   payload custody, default Ocentra-hosted family data, or raw support bundle
   payloads.
+- `production-support-status-backend-payload-custody-proof` may prove
+  support-safe status backend payload custody labels for custody boundary,
+  retention manual-required, delete request, deletion manual-required,
+  audit-export-ready, and backend-unavailable states, but it must not claim
+  real status backend execution, durable status backend payload storage,
+  payload deletion execution, retry worker execution, audit persistence, public
+  runtime execution, provider execution, support backend upload execution,
+  account lookup execution, billing provider contact execution, remote support
+  session execution, production SLA, legal disclosure execution, raw child
+  activity custody, provider secrets, default Ocentra-hosted family data, or raw
+  support bundle payloads.
 - `production-support-privacy-legal-disclosure-status-proof` may prove
   support-safe privacy/legal disclosure status labels for requested,
   parent-authorized, legal-review queued/running, parent-notification-ready,

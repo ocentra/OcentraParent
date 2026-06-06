@@ -218,6 +218,15 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   payloads, audit persistence payloads, public runtime payloads, remote support
   transcripts, production SLA commitments, or default Ocentra-hosted family
   data.
+- `production-support-status-backend-payload-custody-proof` may summarize
+  status backend payload custody rows with support-safe status target refs,
+  queue refs, audit refs, redaction refs, custody refs, retention refs, delete
+  refs, and manual proof refs, but it must not include raw child activity, raw
+  support bundles, provider secrets, account lookup results, billing contact
+  records, backend upload payloads, status backend payloads, public runtime
+  payloads, remote support transcripts, production SLA commitments, durable
+  status backend payload storage, payload deletion execution, retry worker
+  execution, audit persistence execution, or default Ocentra-hosted family data.
 - `production-support-privacy-legal-disclosure-status-proof` may summarize
   parent-authorized privacy/legal disclosure requested, legal-review
   queued/running, parent-notification-ready, publication-ready, failed, and
