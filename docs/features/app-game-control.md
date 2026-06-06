@@ -434,6 +434,11 @@ control with better evidence and local audit.
   runtime decisions stay dry-run-only, preview handoff rows require disabled
   enforcement handoff and `not-dispatched` adapter state, and unproved
   block-launch decisions remain manual-required instead of executable blocks.
+- The manual-required no-adapter merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/manual-required-no-adapter`: broad
+  blocking gates block manual-required rows before adapter dispatch, policy
+  preview rows keep manual-required block-launch `not-dispatched`, and
+  category/risk manual-review routes remain out of compile-ready execution.
 
 ## Current Gap
 

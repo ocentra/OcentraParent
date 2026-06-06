@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-manual-required-no-adapter-gate-proof",
+  "generatedAt": "2026-06-06T20:26:35.141Z",
+  "branch": "codex/app-game-inventory-display-gate-proof",
+  "commit": "e279351566f4bc80fc96257495eb9c0038d6ac28",
+  "gitStatusShort": "M docs/features/app-game-control.md\n M docs/plans/app-game-plan/implementation-checklist.md\n?? scripts/test/app-game-manual-required-no-adapter-gate-proof.mjs",
+  "commands": [
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-broad-blocking-proof-gates.test.ts\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-broad-blocking-proof-gates.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  6 passed (6)\n   Start at  16:26:29\n   Duration  806ms (transform 149ms, setup 0ms, import 581ms, tests 16ms, environment 0ms)\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-policy-preview-handoff.test.ts\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-policy-preview-handoff.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  5 passed (5)\n   Start at  16:26:30\n   Duration  819ms (transform 144ms, setup 0ms, import 593ms, tests 17ms, environment 0ms)\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-policy-target-compiler.test.ts\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-policy-target-compiler.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  5 passed (5)\n   Start at  16:26:32\n   Duration  719ms (transform 100ms, setup 0ms, import 500ms, tests 14ms, environment 0ms)\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-category-risk-policy-routing.test.ts\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-category-risk-policy-routing.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  5 passed (5)\n   Start at  16:26:34\n   Duration  784ms (transform 129ms, setup 0ms, import 572ms, tests 10ms, environment 0ms)\n\n"
+  ],
+  "gate": "Manual-required action calls an adapter.",
+  "gateState": "prevented-by-manual-required-and-blocked-before-adapter-contracts",
+  "evidence": {
+    "broadBlockingGate": "packages/parent-domain/src/app-game-broad-blocking-proof-gates.ts requires unproved platform blocking to remain manual-required, unavailable, or not-claimed before adapter dispatch.",
+    "broadBlockingGateData": "packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts sets manual gates to blocked-before-adapter, canCallAdapter=false, supportedModes=[], and broadBlockingClaimed=false.",
+    "broadBlockingGateTests": "packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts rejects manual-required/unavailable rows that try canCallAdapter=true or dispatch-eligible.",
+    "previewHandoff": "packages/parent-domain/tests/app-game-policy-preview-handoff.test.ts keeps native-game block-launch manual-required rows not-dispatched with adapter/platform enforcement claims false.",
+    "compilerBoundary": "packages/parent-domain/tests/app-game-policy-target-compiler.test.ts keeps unproved block-launch manual-required and rejects dry-run-ready upgrades without proof.",
+    "categoryRiskRouting": "packages/parent-domain/src/app-game-category-risk-policy-routing.ts and tests keep manual-review category/risk routes not-dispatched and out of compile-ready routing."
+  },
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "manualRequiredCallsAdapter": false,
+    "adapterDispatchClaimed": false,
+    "platformEnforcementClaimed": false,
+    "broadBlockingClaimed": false,
+    "runtimeAdapterClaimed": false,
+    "browserGameWorkDuplicated": false,
+    "packageExportsChanged": false
+  },
+  "proofPaths": {
+    "proof": "test-results/app-game-manual-required-no-adapter-gate-proof/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/merge-gates/manual-required-no-adapter",
+    "harness": "scripts/test/app-game-manual-required-no-adapter-gate-proof.mjs"
+  }
+}

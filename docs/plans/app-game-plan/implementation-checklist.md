@@ -163,7 +163,7 @@ Required files:
 - [x] Unknown process is auto-promoted to known game.
 - [x] AI output directly enforces.
 - [x] Dry-run terminates or blocks app/game.
-- [ ] Manual-required action calls an adapter.
+- [x] Manual-required action calls an adapter.
 - [ ] Android normal mode claims package suspend/hide.
 - [ ] iOS claims process scanning/killing.
 - [ ] macOS hard block is claimed without MDM/Endpoint/System Extension proof.
