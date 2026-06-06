@@ -104,6 +104,8 @@ pub const TEST_BROKER_DEDUPE_POLICY_REF: &str = "broker.network.dedupe-policy.1"
 pub const TEST_BROKER_CONFIG_REF: &str = "broker.network.config.1";
 pub const TEST_BROKER_DROPPED_EVENT_AUDIT_REF: &str = "broker.network.dropped-event-audit.1";
 pub const TEST_BROKER_ADAPTER_ACTION_LEDGER_REF: &str = "broker.network.adapter-action-ledger.1";
+pub const TEST_FAMILY_HUB_IDENTITY_REF: &str = "family-hub.network.identity.1";
+pub const TEST_FAMILY_HUB_RELAY_POLICY_REF: &str = "family-hub.network.relay-policy.1";
 pub const UNCERTAINTY_NETWORK_ONLY_NO_EXACT_URL: &str = "network-only-no-exact-url";
 pub const UNSUPPORTED_CLAIM_DECRYPTED_HTTPS_PAYLOAD: &str = "decrypted-https-payload";
 pub const UNAVAILABLE_REASON_MANUAL_REQUIRED: &str = "manual-required";
@@ -153,3 +155,5 @@ pub const ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES: &str = "network runtime payload
 pub const ERROR_NETWORK_RUNTIME_REVIEW_COMPLETES: &str = "network runtime review request completes";
 pub const ERROR_NETWORK_RUNTIME_BROKER_DELIVERY_SEMANTICS: &str =
     "network runtime broker delivery semantics proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_DELIVERY_STATUS: &str =
+    "network runtime remote delivery status proof";
