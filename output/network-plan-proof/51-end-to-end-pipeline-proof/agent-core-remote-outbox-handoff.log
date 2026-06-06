@@ -27,5 +27,5 @@ warning: field `remote_delivery_status` is never read
    = note: `NetworkRuntimeRemoteDeliveryReceiptLedgerReport` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
 
 warning: `ocentra-parent-agent-core` (lib test) generated 2 warnings
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
      Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_core-98ce409322ace2ff.exe)
