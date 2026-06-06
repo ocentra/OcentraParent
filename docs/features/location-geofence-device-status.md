@@ -212,6 +212,16 @@ expose location or device-status features. Parents expect this category.
   service mutation, provider delivery, notification receipt runtime,
   child-device runtime, physical-device proof, authority proof, production
   workers, or adapter dispatch.
+- WP18 child check-in timeout escalation proof now exists through
+  `node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`. It
+  maps existing child check-in requests and responses through the runtime
+  resolver into waiting, safe response, help response escalation, call-parent
+  escalation, and expired timeout escalation rows while preserving request,
+  response, alert, evidence, policy, audit, parent action, timeout, and optional
+  location-evidence refs. It does not claim child-device delivery runtime,
+  child-device response runtime, rendered child UI, provider delivery,
+  notification receipt runtime, live location sample runtime, physical-device
+  proof, authority proof, production timeout workers, or adapter dispatch.
 - Required fixture-state coverage proof now exists through
   `node scripts/test/tracking-fixture-coverage-proof.mjs`. It records fresh,
   stale, offline, permission-denied, low-accuracy, ambiguous nearby place,
@@ -441,6 +451,12 @@ snapshots/accessibility beyond the hosted parent route are proved.
       remote-AI-disabled states. This is fixture/read-model coverage only; it is
       not live-device, child-runtime, provider-delivery, physical-device, or
       product-ready proof.
+- [x] Child check-in timeout escalation readiness rows. This proves waiting,
+      safe, help, call-parent, and expired-timeout rows from the existing child
+      check-in resolver and policy refs. It is not child-device delivery,
+      rendered child UI, provider delivery, receipt runtime, live location
+      runtime, physical-device, authority, production timeout worker, or adapter
+      dispatch proof.
 - [x] Tracking alert intents map to provider-status boundary evidence with
       evidence refs, policy decision refs, notification status refs, reason refs,
       and minimal/authenticated-drill-in payload boundaries. This is not

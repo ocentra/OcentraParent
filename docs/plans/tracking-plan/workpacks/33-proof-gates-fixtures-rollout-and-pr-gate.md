@@ -460,3 +460,25 @@ This workpack can be assigned independently, implemented against the owning doma
       runtime, child-device runtime, physical-device proof, authority proof,
       production workers, adapter dispatch, and product-ready parent action
       behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain child check-in timeout escalation
+      proof/test, proof script, owning tracking feature doc, implementation
+      checklist, WP18, WP33, generated WP18/WP33 proof artifacts, and hub doc
+      delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/31-child-check-in-timeout-escalation-proof.json`,
+      `output/tracking-plan-proof/18-child-check-in-flow/31-child-check-in-timeout-escalation-proof.json`,
+      and `test-results/tracking-child-check-in-timeout-escalation-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP18, and WP33 updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta.
+- [x] Known gaps/manual-required states: child-device delivery/runtime
+      execution, rendered child UI, provider delivery, notification receipt
+      runtime, live location sample runtime, physical-device proof, authority
+      proof, production timeout workers, adapter dispatch, and product-ready
+      child check-in behavior remain proof-gated.

@@ -396,7 +396,15 @@ Every implementation workpack must update, or explicitly justify not updating:
       receipt runtime, child-device runtime, physical-device proof, authority,
       production workers, or adapter dispatch.
 - [x] Child check-in fixture proof exists at P1 tier; child-device UI,
-      delivery, timeout escalation wiring, and screenshots remain pending.
+      delivery, timeout escalation wiring, and screenshots remain pending. WP18
+      child check-in timeout escalation rows now preserve request, response,
+      alert, evidence, policy, audit, parent action, timeout, and optional
+      location-evidence refs for waiting, safe response, help/call-parent
+      escalation, and expired timeout states without claiming child-device
+      delivery/runtime execution, rendered child UI, provider delivery,
+      notification receipt runtime, live location sample runtime,
+      physical-device proof, authority, production timeout workers, or adapter
+      dispatch.
 - [x] Android emulator package launch, foreground-service scaffold, battery,
       and connectivity status proof exists at P3 local-dev tier; foreground
       location and background/geofence behavior are not claimed by it.
