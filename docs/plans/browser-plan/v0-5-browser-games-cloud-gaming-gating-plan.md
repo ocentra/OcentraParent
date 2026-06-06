@@ -1449,7 +1449,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   references, feature coverage, and expectation boundary text. It emits
   `test-results/browser-game-proof-artifacts/proof.json` and
   `output/browser-plan-proof/game-22-tests-fixtures-playwright-manual-proof/01-browser-game-proof-artifact-manifest.md`.
-  The manifest records 14 complete/proof rows and seven partial/manual-required
+  The manifest records 15 complete/proof rows and six partial/manual-required
   rows. Playwright stays manual-required because no rendered browser-game UI
   exists in this slice. No screenshot, runtime browser-game detection,
   cloud-streamed frame analysis, native game control, final policy execution,
@@ -1473,7 +1473,8 @@ worker messages before code changes. Do not mix all 24 into one PR.
   live-riskbenefit-signal-proof-present, GAME-12 as
   live-memory-cache-proof-present, GAME-13 as
   live-account-purchase-gate-proof-present, GAME-14 as
-  live-cloud-gaming-gate-proof-present, GAME-15 through GAME-24 as
+  live-cloud-gaming-gate-proof-present, GAME-15 as
+  live-unblocked-site-detection-proof-present, GAME-16 through GAME-24 as
   partial/manual-required, and no browser-game rows as open/manual-required.
   Product checklist upgrade is not claimed, and runtime
   child/parent UI, cloud-streamed frame analysis, native game control, and

@@ -1,10 +1,10 @@
 # GAME-22 Browser-Game Proof Artifact Manifest
 
-Generated: 2026-06-06T20:58:18.334Z
+Generated: 2026-06-06T21:13:37.112Z
 
 Rows checked: 21
-Proof-present rows: 14
-Partial/manual-required rows: 7
+Proof-present rows: 15
+Partial/manual-required rows: 6
 Playwright state: manual-required-no-rendered-browser-game-ui
 Product claimed: false
 
@@ -24,7 +24,7 @@ Product claimed: false
 | GAME-12 | live-memory-cache-proof-present | `game-12-browser-game-memory-cache` | 6 |
 | GAME-13 | live-account-purchase-gate-proof-present | `game-13-game-account-signup-purchase-gating` | 6 |
 | GAME-14 | live-cloud-gaming-gate-proof-present | `game-14-cloud-gaming-gating` | 6 |
-| GAME-15 | partial-manual-required | `game-15-unblocked-game-site-detection` | 5 |
+| GAME-15 | live-unblocked-site-detection-proof-present | `game-15-unblocked-game-site-detection` | 6 |
 | GAME-16 | partial-manual-required | `game-16-ugc-multiplayer-chat-risk-model` | 5 |
 | GAME-17 | partial-manual-required | `game-17-parent-game-policy-compiler` | 5 |
 | GAME-18 | partial-manual-required | `game-18-managed-browser-game-hold-block-adapter` | 5 |
@@ -59,6 +59,8 @@ GAME-13 live account/signup/purchase gate proof is present for real public
 account, subscription, purchase, cloud, educational, and store route surfaces.
 GAME-14 live cloud-gaming gate proof is present for real public
 cloud platform, subscription, cloud PC, mobile cloud, and unknown fallback surfaces.
+GAME-15 live unblocked-site detection proof is present for real public
+unblocked, search, portal, game-page, archive, and manual fallback surfaces.
 It does not prove rendered browser-game UI, Playwright screenshots,
 runtime browser-game detection, cloud-streamed frame analysis, native
 game control, final policy execution, enforcement, or product checklist

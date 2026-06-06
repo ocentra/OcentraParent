@@ -414,7 +414,8 @@ live-ai-analysis-proof-present, GAME-11 as
 live-riskbenefit-signal-proof-present, GAME-12 as
 live-memory-cache-proof-present, GAME-13 as
 live-account-purchase-gate-proof-present, GAME-14 as
-live-cloud-gaming-gate-proof-present, GAME-15 through GAME-24 as
+live-cloud-gaming-gate-proof-present, GAME-15 as
+live-unblocked-site-detection-proof-present, GAME-16 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
 Product checklist upgrade is not claimed; child/parent UI,
 cloud-streamed frame analysis, native game control, and

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-proof-artifacts",
-  "generatedAt": "2026-06-06T20:58:18.334Z",
+  "generatedAt": "2026-06-06T21:13:37.112Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -244,17 +244,18 @@
     {
       "rowNumber": 15,
       "rowId": "GAME-15",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "live-unblocked-site-detection-proof-present",
       "proofDirectory": "game-15-unblocked-game-site-detection",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-contract-proof.md",
+        "02-live-unblocked-site-detection-shape-proof.json",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "live-unblocked-site-detection-proof-present",
       "failures": []
     },
     {
@@ -356,8 +357,8 @@
   ],
   "summary": {
     "totalRows": 21,
-    "completeRows": 14,
-    "partialRows": 7,
+    "completeRows": 15,
+    "partialRows": 6,
     "failures": 0,
     "playwrightState": "manual-required-no-rendered-browser-game-ui",
     "productClaimed": false
@@ -378,6 +379,7 @@
     "liveMemoryCacheEvidence": "game-12-live-memory-cache-proof-present",
     "liveAccountPurchaseGateEvidence": "game-13-live-account-purchase-gate-proof-present",
     "liveCloudGamingGateEvidence": "game-14-live-cloud-gaming-gate-proof-present",
+    "liveUnblockedSiteDetectionEvidence": "game-15-live-unblocked-site-detection-proof-present",
     "renderedUi": "not-claimed",
     "cloudStreamedFrameAnalysis": "not-claimed",
     "nativeGameControl": "not-claimed",

@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 14;
+    const isComplete = rowNumber <= 15;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -94,7 +94,9 @@ function expectedRows() {
                                 ? 'live-memory-cache-proof-present'
                                 : rowNumber === 13
                                   ? 'live-account-purchase-gate-proof-present'
-                                  : 'live-cloud-gaming-gate-proof-present'
+                                  : rowNumber === 14
+                                    ? 'live-cloud-gaming-gate-proof-present'
+                                    : 'live-unblocked-site-detection-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -204,6 +206,7 @@ function manifestFor(rows, failures) {
       liveMemoryCacheEvidence: 'game-12-live-memory-cache-proof-present',
       liveAccountPurchaseGateEvidence: 'game-13-live-account-purchase-gate-proof-present',
       liveCloudGamingGateEvidence: 'game-14-live-cloud-gaming-gate-proof-present',
+      liveUnblockedSiteDetectionEvidence: 'game-15-live-unblocked-site-detection-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -260,6 +263,8 @@ function markdownFor(manifest) {
     'account, subscription, purchase, cloud, educational, and store route surfaces.',
     'GAME-14 live cloud-gaming gate proof is present for real public',
     'cloud platform, subscription, cloud PC, mobile cloud, and unknown fallback surfaces.',
+    'GAME-15 live unblocked-site detection proof is present for real public',
+    'unblocked, search, portal, game-page, archive, and manual fallback surfaces.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

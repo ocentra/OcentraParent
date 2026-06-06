@@ -528,7 +528,8 @@ live-ai-analysis-proof-present. GAME-11 is
 live-riskbenefit-signal-proof-present. GAME-12 is
 live-memory-cache-proof-present. GAME-13 is
 live-account-purchase-gate-proof-present. GAME-14 is
-live-cloud-gaming-gate-proof-present. GAME-15 through GAME-24 are
+live-cloud-gaming-gate-proof-present. GAME-15 is
+live-unblocked-site-detection-proof-present. GAME-16 through GAME-24 are
 partial/manual-required. UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.
