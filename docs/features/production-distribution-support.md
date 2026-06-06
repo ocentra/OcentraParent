@@ -204,6 +204,17 @@ dev-only repo when it claims consumer readiness.
   account lookup, billing provider contact, production SLA, legal disclosure
   execution, remote support sessions, provider-secret custody, and child
   activity custody.
+- `production-support-status-backend-public-runtime-followthrough-proof` adds
+  parent-domain follow-through rows for support status public runtime, support
+  runbook status backend, incident status backend, public support contact status
+  backend, support upload status backend, and account/billing status backend
+  targets across requested, queued, running, succeeded, failed, and
+  manual-required labels. It proves deterministic handoff/status metadata while
+  preserving real public runtime execution, status backend execution, support
+  backend upload execution, account lookup, billing provider contact, legal
+  disclosure execution, remote support sessions, production SLA,
+  provider-secret custody, public runtime payload custody, and child activity
+  custody as explicit non-claims.
 - `production-support-privacy-legal-disclosure-status-proof` adds
   logging-domain privacy/legal disclosure status rows for disclosure requested,
   parent-authorized, legal-review queued, legal-review running,
@@ -578,6 +589,19 @@ package/runtime proof.
       disclosure execution, remote support sessions, production SLA,
       provider-secret custody, and child activity custody remain unimplemented
       or unclaimed.
+- [ ] Production support status backend/public runtime follow-through proof.
+      Current
+      `production-support-status-backend-public-runtime-followthrough-proof`
+      covers support status public runtime, support runbook status backend,
+      incident status backend, public support contact status backend, support
+      upload status backend, and account/billing status backend follow-through
+      labels for requested, queued, running, succeeded, failed, and
+      manual-required rows. It remains deterministic contract/status proof only:
+      real public runtime execution, status backend execution, support backend
+      upload execution, account lookup, billing provider contact, legal
+      disclosure execution, remote support sessions, production SLA,
+      provider-secret custody, public runtime payload custody, and child
+      activity custody remain unimplemented or unclaimed.
 - [ ] Production support privacy/legal disclosure status proof. Current
       `production-support-privacy-legal-disclosure-status-proof` covers
       privacy/legal disclosure requested, parent-authorized, legal-review
