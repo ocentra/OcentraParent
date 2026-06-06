@@ -282,6 +282,12 @@ That proof records foreground permission grant, foreground location sample,
 background permission grant, and geofence transition gaps as explicit
 manual-required rows; it is not foreground/background/geofence runtime or
 physical-device proof.
+WP10 status gap proof is additionally wrapped by
+`node scripts/test/tracking-android-status-gap-proof.mjs`, which writes
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/26-android-status-gap-proof.json`
+and `test-results/tracking-android-status-gap-proof/proof.json` while reusing
+the existing Android status contract and preserving the no-runtime/no-device
+claims.
 WP32/WP33 additionally have P3 WSL/local replay proof from
 `npm run test:tracking-plan-wsl-local-proof`, written to
 `output/tracking-plan-proof/wsl-local-replay/`,
@@ -350,6 +356,9 @@ Every implementation workpack must update, or explicitly justify not updating:
 - [x] Android emulator package launch, foreground-service scaffold, battery,
       and connectivity status proof exists at P3 local-dev tier; foreground
       location and background/geofence behavior are not claimed by it.
+- [x] WP10 Android status gap companion proof records low-power degraded,
+      killed/restarted, pending-upload, and manual-required status rows in the
+      WP33 gate without creating a duplicate status contract.
 - [x] iOS simulator package proof harness exists and is wired to macOS
       package-preview artifacts; local non-macOS proof records
       `manual_required` instead of claiming simulator execution. Core Location,

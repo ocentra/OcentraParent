@@ -1,11 +1,14 @@
 # WP10 Android Battery Connectivity And Status Adapter Source Snapshot
 
-- Branch: codex/tracking-android-status-proof
-- Base commit at generation: 0533702a4f066026e6d8fa01f7214f66700ca78d
+- Branch: codex/tracking-android-status-gap-proof
+- Base commit at generation: e77dda857267d56a74eb015261ec30b4094ff631
 - Git status at proof generation:
 
 ```text
-clean
+D output/tracking-plan-proof/tracking-android-status-gap-proof/00-source-snapshot.md
+ D output/tracking-plan-proof/tracking-android-status-gap-proof/16-validation-commands.log
+ D output/tracking-plan-proof/tracking-android-status-gap-proof/proof.json
+ D test-results/tracking-android-status-gap-proof/proof.json
 ```
 
 - Scope: parent-domain Android status read model for low-power degradation, killed/restarted audit rows, pending-upload auditability, and manual-required platform gaps.

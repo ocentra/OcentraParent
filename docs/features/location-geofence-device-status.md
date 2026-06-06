@@ -244,6 +244,14 @@ expose location or device-status features. Parents expect this category.
   permission, foreground sample, background permission, background runtime,
   geofence runtime, physical-device, authority, notification delivery, provider
   delivery, and product-ready Android tracking claims false.
+- WP10 Android status gap companion proof now exists through
+  `node scripts/test/tracking-android-status-gap-proof.mjs`. It reuses the
+  existing Android status read model to record low-power degraded,
+  killed/restarted, pending-upload, and manual-required status rows under the
+  WP33 proof gate without adding a duplicate status contract or claiming
+  foreground/background/geofence runtime, physical-device, authority,
+  notification/provider delivery, production workers, or product-ready Android
+  tracking.
 - P3 WSL/local replay proof now exists through
   `npm run test:tracking-plan-wsl-local-proof`. It records WSL2/Ubuntu
   toolchain evidence, the linked-worktree Git mapping needed for this
@@ -334,6 +342,10 @@ snapshots/accessibility beyond the hosted parent route are proved.
 - [x] Android emulator package launch, foreground-service scaffold, battery,
       and connectivity proof. This is not foreground location or geofence
       proof.
+- [x] Android status gap companion proof for low-power, killed/restarted,
+      pending-upload, and manual-required status rows under the WP33 proof gate.
+      This is not runtime location, physical-device, or product-ready Android
+      tracking proof.
 - [x] iOS simulator package build/install/launch proof routing. This is not
       Core Location, entitlement, background region, notification, physical-device,
       or child-agent parity proof.

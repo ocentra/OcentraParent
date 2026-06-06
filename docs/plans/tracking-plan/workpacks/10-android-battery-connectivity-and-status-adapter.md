@@ -22,10 +22,13 @@ Proof root: `output/tracking-plan-proof/10-android-battery-connectivity-and-stat
 
 - `04-device-status-proof.json`
 - `17-status-gap-proof.json`
+- Companion rollout-gate proof:
+  `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/26-android-status-gap-proof.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
 - Focused WP10 proof command:
   `node scripts/test/tracking-android-status-proof.mjs`
+- Companion gate command: `node scripts/test/tracking-android-status-gap-proof.mjs`
 - Local emulator proof command:
   `npm run test:tracking-plan-android-emulator-proof`
 - Pre-device plan:
@@ -73,6 +76,12 @@ parser/read-model evidence only; it does not claim foreground location samples,
 background location runtime, geofence transitions, notification delivery,
 device-owner authority, physical-device behavior, production upload workers, or
 product-ready Android tracking.
+
+`node scripts/test/tracking-android-status-gap-proof.mjs` now wraps the existing
+WP10 proof into a companion PR-gate artifact under WP33. It does not create a
+second Android status contract; it verifies the existing low-power,
+killed/restarted, pending-upload, and manual-required rows and keeps the same
+runtime/product non-claims.
 
 ## Where We Want To Be
 

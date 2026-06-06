@@ -1,0 +1,76 @@
+{
+  "proofMode": "tracking-android-status-gap-proof",
+  "generatedAt": "2026-06-06T13:55:00.000Z",
+  "branch": "codex/tracking-android-status-gap-proof",
+  "baseCommitAtGeneration": "e77dda857267d56a74eb015261ec30b4094ff631",
+  "commands": [
+    {
+      "command": "node scripts/test/tracking-android-status-proof.mjs",
+      "status": 0,
+      "stdout": "tracking-android-status-proof-ok\nevidence=test-results\\tracking-android-status-proof\\proof.json\n",
+      "stderr": ""
+    }
+  ],
+  "sourceProofPath": "test-results/tracking-android-status-proof/proof.json",
+  "sourceProofSummary": {
+    "rows": 4,
+    "lowPowerDegradedCount": 1,
+    "appRestartObservedCount": 1,
+    "pendingUploadAuditableCount": 1,
+    "manualRequiredCount": 1,
+    "runtimeEvidenceRefs": 4,
+    "claimStates": {
+      "degraded": 3,
+      "manual-required": 1
+    },
+    "caseKinds": {
+      "low-power-degraded": 1,
+      "app-killed-restarted": 1,
+      "pending-upload-auditable": 1,
+      "manual-required": 1
+    }
+  },
+  "sourceNonClaims": {
+    "foregroundLocationClaimed": false,
+    "backgroundLocationRuntimeClaimed": false,
+    "geofenceRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "notificationDeliveryClaimed": false,
+    "deviceOwnerAuthorityClaimed": false,
+    "productionUploadWorkerClaimed": false,
+    "productReadyAndroidTrackingClaimed": false
+  },
+  "statusGapRows": [
+    {
+      "rowId": "tracking-android-status-low-power",
+      "caseKind": "low-power-degraded",
+      "claimState": "degraded",
+      "parentVisibleStatusToken": "tracking-android-status-low-power-degraded"
+    },
+    {
+      "rowId": "tracking-android-status-restarted",
+      "caseKind": "app-killed-restarted",
+      "claimState": "degraded",
+      "parentVisibleStatusToken": "tracking-android-status-app-restarted-audit"
+    },
+    {
+      "rowId": "tracking-android-status-pending-upload",
+      "caseKind": "pending-upload-auditable",
+      "claimState": "degraded",
+      "parentVisibleStatusToken": "tracking-android-status-pending-upload-audit"
+    },
+    {
+      "rowId": "tracking-android-status-manual-required",
+      "caseKind": "manual-required",
+      "claimState": "manual-required",
+      "parentVisibleStatusToken": "tracking-android-status-manual-platform-proof-required"
+    }
+  ],
+  "proofPaths": {
+    "sourceHarness": "scripts/test/tracking-android-status-proof.mjs",
+    "companionHarness": "scripts/test/tracking-android-status-gap-proof.mjs",
+    "wp10Proof": "output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/17-status-gap-proof.json",
+    "wp33Proof": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/26-android-status-gap-proof.json",
+    "evidence": "test-results/tracking-android-status-gap-proof/proof.json"
+  }
+}

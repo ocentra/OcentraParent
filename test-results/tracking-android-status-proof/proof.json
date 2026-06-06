@@ -1,9 +1,9 @@
 {
   "proofMode": "tracking-android-status-proof",
   "generatedAt": "2026-06-05T22:36:00.000Z",
-  "branch": "codex/tracking-android-status-proof",
-  "baseCommitAtGeneration": "0533702a4f066026e6d8fa01f7214f66700ca78d",
-  "gitStatusShort": "",
+  "branch": "codex/tracking-android-status-gap-proof",
+  "baseCommitAtGeneration": "e77dda857267d56a74eb015261ec30b4094ff631",
+  "gitStatusShort": "D output/tracking-plan-proof/tracking-android-status-gap-proof/00-source-snapshot.md\n D output/tracking-plan-proof/tracking-android-status-gap-proof/16-validation-commands.log\n D output/tracking-plan-proof/tracking-android-status-gap-proof/proof.json\n D test-results/tracking-android-status-gap-proof/proof.json",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -14,7 +14,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-android-status-proof",
       "status": 0,
-      "stdout": "\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-android-status-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  20:51:41\n   Duration  937ms (transform 111ms, setup 0ms, import 649ms, tests 21ms, environment 0ms)\n\n",
+      "stdout": "\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-android-status-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  10:14:04\n   Duration  780ms (transform 90ms, setup 0ms, import 548ms, tests 16ms, environment 0ms)\n\n",
       "stderr": ""
     }
   ],

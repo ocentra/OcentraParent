@@ -1,0 +1,3 @@
+$ node scripts/test/tracking-android-status-proof.mjs
+tracking-android-status-proof-ok
+evidence=test-results\tracking-android-status-proof\proof.json
