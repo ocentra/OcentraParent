@@ -69,6 +69,11 @@ terminated/relaunch gaps under this workpack root. Those rows attach simulator
 package/manual proof refs and keep Core Location background runtime,
 entitlement, notification delivery, physical-device, authority, and
 product-ready claims false.
+`node scripts/test/tracking-ios-location-wp33-gate-proof.mjs` now wraps the same
+WP12 background/region manual-required rows into the WP33 rollout gate artifact
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/27-ios-location-manual-required-proof.json`
+without claiming Always authorization, region monitoring, significant-change,
+visits, background delivery, entitlement, or physical-device behavior.
 
 ## Where We Want To Be
 
@@ -112,3 +117,5 @@ This workpack can be assigned independently, implemented against the owning doma
       authority proof remain unclaimed.
 - [x] Parent-domain manual-required proof added:
       `test-results/tracking-ios-location-manual-required-proof/proof.json`.
+- [x] WP33 companion gate added:
+      `test-results/tracking-ios-location-wp33-gate-proof/proof.json`.

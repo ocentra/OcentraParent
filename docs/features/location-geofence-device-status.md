@@ -264,6 +264,12 @@ expose location or device-status features. Parents expect this category.
   significant-change/visit events, and background terminated/relaunch gaps while
   keeping Core Location runtime, entitlement, notification delivery,
   physical-device, authority, and product-ready iOS tracking claims false.
+- WP11/WP12 iOS manual-required rows are now also wrapped by a WP33 companion
+  proof gate through `node scripts/test/tracking-ios-location-wp33-gate-proof.mjs`,
+  which records the same seven manual-required rows under the rollout/PR gate
+  without adding a duplicate iOS location contract or claiming Core Location
+  runtime, entitlement, notification delivery, physical-device, authority, or
+  product-ready iOS tracking.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, actual child-device delivery/runtime
   execution, full parent/child UI beyond the hosted parent route, and broader
@@ -344,6 +350,11 @@ snapshots/accessibility beyond the hosted parent route are proved.
       background terminated/relaunch gaps; real Core Location authorization,
       samples, background/region runtime, entitlement, notification delivery,
       physical-device, and authority proof remain pending.
+- [x] iOS WP33 companion gate records the same WP11/WP12 manual-required rows
+      under `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/27-ios-location-manual-required-proof.json`
+      while preserving all Core Location runtime, entitlement,
+      notification-delivery, physical-device, authority, and product-ready
+      non-claims.
 - [x] Expected-place schedule and exception contracts.
 - [x] Parent acknowledgement and escalation contracts.
 - [x] WP25 P1 parent-policy compiler/evaluator runtime proof for tracking
