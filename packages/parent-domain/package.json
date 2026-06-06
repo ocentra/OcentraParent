@@ -517,6 +517,10 @@
       "import": "./dist/local-ai-provider-scheduler.js",
       "types": "./dist/local-ai-provider-scheduler.d.ts"
     },
+    "./local-ai-prompt-template-version-proof": {
+      "import": "./dist/local-ai-prompt-template-version-proof.js",
+      "types": "./dist/local-ai-prompt-template-version-proof.d.ts"
+    },
     "./local-ai-parent-assistant-runtime-proof": {
       "import": "./dist/local-ai-parent-assistant-runtime-proof.js",
       "types": "./dist/local-ai-parent-assistant-runtime-proof.d.ts"
