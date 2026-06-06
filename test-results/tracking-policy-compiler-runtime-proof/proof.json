@@ -1,9 +1,9 @@
 {
   "proofMode": "tracking-policy-compiler-runtime-proof",
   "generatedAt": "2026-06-05T17:10:00.000Z",
-  "branch": "codex/tracking-policy-compiler-runtime-proof-refresh",
-  "baseCommitAtGeneration": "16b67df835da17e06a483577b06bbf86afa8cb9d",
-  "gitStatusShort": "",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "baseCommitAtGeneration": "12afe0df9b54afd9a1e9c556a9ee5e89b2a72d26",
+  "gitStatusShort": "M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-policy-compiler-runtime-proof tracking-location-policy"
