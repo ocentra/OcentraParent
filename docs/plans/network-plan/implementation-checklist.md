@@ -251,30 +251,34 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   projection, and retention tombstone filtering for stored network facts;
   broader portal/policy dependencies remain gated by the remaining product
   path.
-- [ ] Parent UI renders capability, degraded, stale, unsupported, unavailable,
-      manual-required, limitation, audit, and risk-budget states honestly.
-      E-D now proves the existing network drawer renders service-provided
-      endpoint/domain/process/custody/evidence refs, and row36a now proves the
-      same Activity route consumes service `agent.network.runtime.event-chain`
-      output for AI audit, policy, enforcement handoff, audit, retention
-      counters, event history, evidence grade, confidence, and
-      manual/unavailable state refs. Row36b now renders the service-backed
-      supported-adapter runtime proof in the same drawer, including observe-only
-      policy handoff, manual-required host-domain gates, degraded dependency,
-      unavailable Linux, unsupported macOS, exact active-tab not-claimed, and
-      false adapter-dispatch state. Row36c now renders service-backed
-      `ActivityNetworkFlowDigest.unusualIndicators` in the same drawer with
-      indicator evidence refs for VPN/proxy/tunnel, encrypted-content,
-      unknown-process, and repeated-failure candidates. Exact URL/content and
-      live adapter claims remain unrendered. Row51c now renders the
-      service-backed row13a live-capture/raw-custody status and row51a
-      product-readiness status in the same drawer with capture/storage
-      readiness, risk, performance, platform follow-up, portal read-model,
-      retention/export, and false adapter-dispatch/no-claim values. Row52a now
-      renders Row52 platform-claim manifest entries in the same drawer with
-      exact OS/device, permission/entitlement, adapter capability,
-      missing-artifact, and audit refs plus false enforcement-command rows.
-      Broader risk-budget/performance UI coverage remains open.
+- [~] Parent UI renders capability, degraded, stale, unsupported, unavailable,
+  manual-required, limitation, audit, and risk-budget states honestly.
+  E-D now proves the existing network drawer renders service-provided
+  endpoint/domain/process/custody/evidence refs, and row36a now proves the
+  same Activity route consumes service `agent.network.runtime.event-chain`
+  output for AI audit, policy, enforcement handoff, audit, retention
+  counters, event history, evidence grade, confidence, and
+  manual/unavailable state refs. Row36b now renders the service-backed
+  supported-adapter runtime proof in the same drawer, including observe-only
+  policy handoff, manual-required host-domain gates, degraded dependency,
+  unavailable Linux, unsupported macOS, exact active-tab not-claimed, and
+  false adapter-dispatch state. Row36c now renders service-backed
+  `ActivityNetworkFlowDigest.unusualIndicators` in the same drawer with
+  indicator evidence refs for VPN/proxy/tunnel, encrypted-content,
+  unknown-process, and repeated-failure candidates. Exact URL/content and
+  live adapter claims remain unrendered. Row51c now renders the
+  service-backed row13a live-capture/raw-custody status and row51a
+  product-readiness status in the same drawer with capture/storage
+  readiness, risk, performance, platform follow-up, portal read-model,
+  retention/export, and false adapter-dispatch/no-claim values. Row52a now
+  renders Row52 platform-claim manifest entries in the same drawer with
+  exact OS/device, permission/entitlement, adapter capability,
+  missing-artifact, and audit refs plus false enforcement-command rows.
+  Row51d now renders row48 risk-budget refs/score breakdown and row49
+  performance benchmark refs, latency, throughput, resource, quality, path
+  state, and false production-SLO/adapter/host-filtering values. Broader
+  parent-facing rule UX, live adapter execution, and production SLO
+  validation remain open.
 - [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
       reasons for every applicable gate. Workpack 03 proof lives under
       `output/network-plan-proof/03-contract-boundary-and-effect-schemas/`.
@@ -424,6 +428,18 @@ manual-required/N/A file.
       and Playwright screenshot while keeping exact URL/content, decrypted
       payload, UI policy authority, live adapter execution, host filtering,
       production-SLO, and enforcement-command claims false.
+- [x] 51d risk/performance readiness portal details: E-D added
+      `output/network-plan-proof/51d-risk-performance-readiness-portal/proof-summary.json`
+      and
+      `test-results/network-risk-performance-readiness-portal-proof/proof.json`.
+      The row51 product-readiness service event now carries row48 risk-budget
+      detail fields and row49 performance benchmark detail metrics, the shared
+      `agent-protocol-domain` parser validates those fields plus false
+      production-SLO, adapter-action, host-filtering, and enforcement-command
+      rows, and the Activity route renders a risk/performance detail card from
+      the real Rust service WebSocket path. This does not claim production SLO
+      validation, policy execution, live capture execution, adapter execution,
+      host filtering, exact URL/content, or enforcement-command publication.
 - [x] 22a network risk target policy handoff: E-D added
       `output/network-plan-proof/22a-risk-target-policy-handoff-proof/proof-summary.json`
       and `test-results/network-risk-target-policy-handoff-proof/proof.json`.

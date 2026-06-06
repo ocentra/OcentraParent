@@ -80,6 +80,11 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   refs, permission/entitlement refs, adapter capability refs, missing artifacts,
   audit refs, and false enforcement-command publication without live adapter
   execution or host filtering claims.
+- Displays service-backed row48 risk-budget details and row49 performance
+  benchmark metrics from the same network product-readiness status event in the
+  Activity route drawer, including refs, score breakdown, latency/throughput/
+  resource counters, and false production-SLO, adapter, and host-filtering
+  claims.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own
