@@ -295,6 +295,18 @@ generic app blocking covers this concern.
   when run. The proof records the public package export as pending behind the
   active `packages/parent-domain/package.json` lock and the parent-domain
   README delta as pending behind the active README lock.
+- `packages/parent-domain/src/app-install-purchase-product-claim-gate-proof.ts`
+  now links provider/store manual evidence packet rows to product-claim gate
+  rows that deny, keep manual-required, or block app-install product claims
+  until portal approval/report tests, child delivery proof, provider/store API
+  execution proof, and platform adapter proof are present. It preserves no
+  portal approval/report UI, provider/store execution, store integration,
+  platform adapters, child-device delivery, runtime writer/report delivery, app
+  blocking, child activity data, or hosted family data custody claims.
+- `scripts/test/app-install-purchase-product-claim-gate-proof.mjs` records
+  that product-claim gate proof under
+  `test-results/app-install-purchase-product-claim-gate-proof/proof.json` when
+  run.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -391,7 +403,9 @@ and delivery result receipt rows, and link those receipts to parent-owned
 runtime report writer delivery-ready rows and report receipts, expose
 parent-visible report status read-model rows for ready/manual-required handoff,
 aggregate those rows into limitation summaries, and name platform manual
-evidence requirements before any platform product claim,
+evidence requirements before any platform product claim, and deny product claims
+through a parent-domain gate until portal tests, child delivery proof,
+provider/store API execution proof, and platform adapter proof are present,
 but do not
 implement Google Play, Apple App Store, Microsoft Store, billing entitlement,
 provider/store execution, provider contact, platform interception, runtime
@@ -561,6 +575,12 @@ Ocentra-hosted family data custody.
       without provider/store execution, store integration, platform adapters,
       runtime writer/report delivery, child delivery, app blocking, child
       activity data, or hosted custody claims.
+- [x] Product-claim gate proof linking provider/store manual evidence packet
+      rows to denied/manual-required/blocked product-claim gate rows until
+      portal approval/report tests, child delivery proof, provider/store API
+      execution proof, and platform adapter proof exist, without portal UI,
+      provider/store execution, platform adapters, child delivery, app
+      blocking, child activity data, or hosted custody claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
