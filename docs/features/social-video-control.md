@@ -222,6 +222,14 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   browser-plan docs to stop treating package exports as the remaining blocker.
   Runtime connector behavior, native app control, rendered UI, final policy
   execution, enforcement, and product checklist completion remain unclaimed.
+- `social-alert-report-intent-proof` now adds parent-domain alert/report intent
+  contracts for high-risk social signals, account approval alerts, feed/video
+  gate alerts, weekly summaries, manual-required states, and unavailable
+  capability states. The contract links dashboard panel refs, explanation refs,
+  evidence refs, policy refs, audit refs, optional parent report/action refs,
+  and local-outbox refs while rejecting raw account/video/message content,
+  screenshots, provider delivery, report delivery, parent notification UI,
+  final policy decisions, and enforcement.
 - Browser-plan AI-23 now adds live dynamic social URL proof for real public
   Instagram, TikTok, Facebook, Twitch, X/Twitter, Reddit, and Discord route
   surfaces. The proof stores only response statuses, content types, lengths,
@@ -254,7 +262,7 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
 ## Current Gap
 
 Ocentra does not yet have complete social/message/video sources, privacy
-settings, alert contracts, confidence handling, platform proof, or parent UI.
+settings, delivered alerts, confidence handling, platform proof, or parent UI.
 
 ## Checklist
 
@@ -268,7 +276,9 @@ settings, alert contracts, confidence handling, platform proof, or parent UI.
       links source/privacy, candidate AI analysis, candidate signals, and route
       gate/action refs without claiming runtime AI execution or final policy.
 - [ ] Parent sensitivity settings.
-- [ ] Alert and report integration.
+- [ ] Alert and report integration. Alert/report intent proof exists with
+      ref-only local-outbox/report linkage; provider delivery, rendered
+      notification UI, final policy, and enforcement remain.
 - [ ] Policy schedule/time-budget integration.
 - [ ] Platform-specific unavailable/manual-required states.
 

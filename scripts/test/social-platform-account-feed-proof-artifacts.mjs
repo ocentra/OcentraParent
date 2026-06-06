@@ -165,6 +165,7 @@ function manifestFor(rows, failures) {
       playwright: 'service-backed-dashboard-and-explanation-playwright-present',
       renderedUi: 'parent-dashboard-child-intervention-parent-explanation-proof-present',
       serviceBackedExplanationReadModel: 'proof-present',
+      alertReportIntent: 'proof-present',
       enforcement: 'not-claimed',
       productChecklistUpgrade: 'not-claimed',
     },
@@ -195,8 +196,9 @@ function markdownFor(manifest) {
     'Rendered proof-bundle UI exists for the parent social dashboard,',
     'child-agent-served social intervention page, and parent explanation panel.',
     'Service-backed dashboard and explanation read-model delivery is present.',
+    'Ref-only social alert/report intent proof is present.',
     'It does not prove runtime connector behavior, native app control, final',
-    'policy execution, enforcement, or product checklist completion.',
+    'policy execution, provider/report delivery, enforcement, or product checklist completion.',
   ].join('\n');
 }
 

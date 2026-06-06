@@ -130,6 +130,8 @@ function manifestFor(rows, failures) {
     noClaimLabels: [
       'rendered-proof-bundle-social-ui-present',
       'service-backed-dashboard-and-explanation-read-model-proof-present',
+      'social-alert-report-intent-proof-present',
+      'provider-report-delivery-not-claimed',
       'connector-native-runtime-not-claimed',
       'final-policy-execution-not-claimed',
       'enforcement-not-claimed',
@@ -160,8 +162,9 @@ function markdownFor(manifest) {
     'Product checklist upgrade is not claimed.',
     'Rendered proof-bundle social UI exists for dashboard, child intervention,',
     'and parent explanation states. Service-backed dashboard and explanation',
-    'read-model delivery is present; connector/native runtime, final policy',
-    'execution, and enforcement remain unclaimed.',
+    'read-model delivery is present. Ref-only social alert/report intent proof',
+    'is present; connector/native runtime, provider/report delivery, final',
+    'policy execution, and enforcement remain unclaimed.',
   ].join('\n');
 }
 
