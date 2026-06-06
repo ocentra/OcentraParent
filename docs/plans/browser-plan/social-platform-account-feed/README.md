@@ -328,3 +328,16 @@ claimed. Service-backed social rows, child intervention UI, and social
 explanation delivery now have proof, but connector/native runtime, final policy
 execution, enforcement, release readiness, and product completion remain
 unclaimed.
+
+The follow-up `social-alert-report-intent-proof` adds
+`packages/parent-domain/src/social-alert-report-intent-values.ts`,
+`packages/parent-domain/src/social-alert-report-intent.ts`, and
+`packages/parent-domain/tests/social-alert-report-intent.test.ts`, a
+parent-domain alert/report intent boundary for high-risk social signals,
+account approval alerts, feed/video gate alerts, weekly summaries,
+manual-required states, and unavailable capability states. The proof writes
+`test-results/social-alert-report-intent-proof/proof.json` and
+`output/browser-plan-proof/social-alert-report-intent-proof/01-social-alert-report-intent-proof.md`.
+It proves ref-only local-outbox/report linkage and rejects raw
+account/video/message content, screenshots, provider delivery, report delivery,
+parent notification UI, final policy decisions, and enforcement.
