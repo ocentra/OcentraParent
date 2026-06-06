@@ -343,6 +343,7 @@ describe('activity report history contracts', () => {
 
 describe('activity screen and app-use read-model contracts', () => {
   specifyActivityScreenReadModelContracts();
+  specifyActivityScreenAiDegradedSurfaceContracts();
   specifyActivityScreenLegacyReadModelContracts();
   specifyActivityAppUseReadModelContracts();
 });
@@ -423,6 +424,84 @@ function specifyActivityScreenReadModelContracts() {
     expect(parsed.rows[0]?.rawImageRetained).toBe(false);
     expect(parsed.rows[1]?.providerKind).toBe('serviceCaptureMetadata');
     expect(parsed.rows[1]?.policyEligible).toBe(false);
+  });
+}
+
+function specifyActivityScreenAiDegradedSurfaceContracts() {
+  it('ActivityScreenReadModelSchema: surfaces OCR unavailable and VLM degraded rows without policy eligibility', () => {
+    const parsed = ActivityScreenReadModelSchema.parse({
+      ...screenReadModel(),
+      state: 'stale',
+      summary: 'Screen AI rows include degraded local analysis states',
+      rows: [
+        screenReadModelRow({
+          rowId: 'screen-ocr-unavailable-row',
+          label: 'Windows OCR unavailable for this capture',
+          state: 'unavailable',
+          captureReason: 'timedCadence',
+          capabilityStatus: 'modelUnavailable',
+          queueJobId: 'screen-ocr-unavailable-job',
+          modelRuntimeRef: 'windows-winrt-ocr-local-runtime',
+          modelId: 'windows-winrt-ocr',
+          providerKind: 'localOcr',
+          promptOrTemplateVersion: 'screen-ocr-worker-winrt-v1',
+          primaryCategory: null,
+          confidence: 0,
+          imageDeletionState: 'unavailableNoImage',
+          rawImageRetained: false,
+          policyEligible: false,
+          imageDigest: 'sha256:screen-ocr-unavailable-no-image',
+          custodyState: 'unavailable',
+          policyDecisionRef: null,
+          policyAction: null,
+          policyReasonCodes: [],
+          parentRuleRefs: [],
+          localModelRuntimeRefs: ['windows-winrt-ocr-local-runtime'],
+          parentExplanationRefs: [],
+          explanationReasons: ['local-ocr-unavailable'],
+          deletionReasons: ['no-image-retained'],
+        }),
+        screenReadModelRow({
+          rowId: 'screen-vlm-degraded-row',
+          label: 'Local VLM produced degraded analysis',
+          state: 'ready',
+          captureReason: 'timedCadence',
+          capabilityStatus: 'degraded',
+          queueJobId: 'screen-vlm-degraded-job',
+          modelRuntimeRef: 'screen-vlm-worker-runtime',
+          modelId: 'screen-vlm-worker-model',
+          providerKind: 'localVision',
+          promptOrTemplateVersion: 'screen-vlm-worker-v1',
+          primaryCategory: 'unknown',
+          confidence: 0.31,
+          imageDeletionState: 'deleted',
+          rawImageRetained: false,
+          policyEligible: false,
+          imageDigest: 'sha256:screen-vlm-degraded-image',
+          custodyState: 'child-device-query-store',
+          policyDecisionRef: null,
+          policyAction: null,
+          policyReasonCodes: [],
+          parentRuleRefs: ['screen-parent-rule-review'],
+          localModelRuntimeRefs: ['screen-vlm-worker-runtime'],
+          parentExplanationRefs: ['screen-vlm-degraded-explanation'],
+          explanationReasons: ['low-confidence-local-vlm'],
+          deletionReasons: ['screen-image-deleted'],
+        }),
+      ],
+    });
+
+    expect(parsed.rows.map((row) => row.providerKind)).toEqual(['localOcr', 'localVision']);
+    expect(parsed.rows.map((row) => row.policyEligible)).toEqual([false, false]);
+    expect(parsed.rows.every((row) => row.rawImageRetained === false)).toBe(true);
+    expect(parsed.rows[0]?.capabilityStatus).toBe('modelUnavailable');
+    expect(parsed.rows[0]?.primaryCategory).toBeNull();
+    expect(parsed.rows[0]?.custodyState).toBe('unavailable');
+    expect(parsed.rows[0]?.localModelRuntimeRefs).toEqual(['windows-winrt-ocr-local-runtime']);
+    expect(parsed.rows[1]?.capabilityStatus).toBe('degraded');
+    expect(parsed.rows[1]?.modelId).toBe('screen-vlm-worker-model');
+    expect(parsed.rows[1]?.promptOrTemplateVersion).toBe('screen-vlm-worker-v1');
+    expect(parsed.rows[1]?.deletionReasons).toEqual(['screen-image-deleted']);
   });
 }
 

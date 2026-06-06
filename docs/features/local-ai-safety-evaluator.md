@@ -60,6 +60,14 @@ claim needs proof, not slogans.
   records. The service proof adapter validates runtime plumbing and custody; the
   Windows WinRT OCR proof validates local OCR over live public Wikipedia pixels,
   but neither proof claims production model/OCR quality.
+- `ActivityScreenReadModelSchema` and
+  `scripts/test/activity-screen-ai-degraded-surface-proof.mjs` now prove the
+  parent-visible Activity Screen surface can carry local OCR unavailable and
+  local VLM degraded rows with runtime/model/template refs, deleted or
+  unavailable image custody, no raw image retention, and no policy eligibility.
+  This is contract/read-model proof; it does not execute OCR/VLM inference,
+  prove production model quality, render portal UI, grant policy authority, or
+  dispatch enforcement.
 - `ScreenVlmWorkerJobSchema`, `ScreenVlmWorkerResultSchema`, and
   `scripts/test/screen-ai-vlm-worker-contract-proof.mjs` now provide a
   first-class guided VLM worker contract matching the OCR worker boundary:

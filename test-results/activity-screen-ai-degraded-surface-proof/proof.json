@@ -1,0 +1,51 @@
+{
+  "status": "ok",
+  "proof": "activity-screen-ai-degraded-surface-proof",
+  "generatedAt": "2026-06-06T16:17:11.977Z",
+  "artifactRoots": {
+    "aiPlan": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\ai-plan-proof\\activity-screen-ai-degraded-surface-proof",
+    "testResults": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\test-results\\activity-screen-ai-degraded-surface-proof"
+  },
+  "rowCount": 2,
+  "rowStates": [
+    {
+      "rowId": "activity-screen-ai-proof-ocr-unavailable",
+      "providerKind": "localOcr",
+      "capabilityStatus": "modelUnavailable",
+      "state": "unavailable",
+      "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+      "modelId": "windows-winrt-ocr",
+      "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+      "primaryCategory": null,
+      "imageDeletionState": "unavailableNoImage",
+      "rawImageRetained": false,
+      "policyEligible": false
+    },
+    {
+      "rowId": "activity-screen-ai-proof-vlm-degraded",
+      "providerKind": "localVision",
+      "capabilityStatus": "degraded",
+      "state": "ready",
+      "modelRuntimeRef": "screen-vlm-worker-runtime",
+      "modelId": "screen-vlm-worker-model",
+      "promptOrTemplateVersion": "screen-vlm-worker-v1",
+      "primaryCategory": "unknown",
+      "imageDeletionState": "deleted",
+      "rawImageRetained": false,
+      "policyEligible": false
+    }
+  ],
+  "assertions": {
+    "exportedSchemaParsed": true,
+    "exposesOcrUnavailableRow": true,
+    "exposesVlmDegradedRow": true,
+    "noRawImagesRetained": true,
+    "noPolicyEligibilityForDegradedRows": true,
+    "deletionCustodyVisible": true
+  },
+  "nonClaims": [
+    "This proof validates Activity Screen read-model contract visibility for degraded and unavailable local AI rows.",
+    "It does not execute OCR or VLM inference, prove production model quality, render portal UI, grant policy authority, or dispatch enforcement.",
+    "It does not retain raw screen images by default or claim live view/raw retention product behavior."
+  ]
+}
