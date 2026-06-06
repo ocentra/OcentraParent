@@ -215,6 +215,19 @@ generic app blocking covers this concern.
   when run. The proof records the public package export and product checklist
   row as pending lock-gated deltas because other lanes owned those files during
   this slice.
+- `packages/parent-domain/src/app-install-purchase-provider-store-report-status-runtime-proof.ts`
+  now links provider/store execution readiness rows to parent-owned runtime
+  report writer delivery receipts so store-specific report status runtime rows
+  can be classified as ready, manual-required, or unavailable while preserving
+  no provider/store execution, portal report UI, external runtime report
+  delivery, platform adapter, child-device delivery, app blocking, child
+  activity data, or Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-provider-store-report-status-runtime-proof.mjs`
+  records that provider/store report status runtime proof under
+  `test-results/app-install-purchase-provider-store-report-status-runtime-proof/proof.json`
+  when run. The proof records the public package export and product checklist
+  row as pending lock-gated deltas because other lanes owned those files during
+  this slice.
 - `packages/parent-domain/src/app-install-purchase-approval-report-domain-proof.ts`
   now links parent review actions and report-runtime rows into approval/report
   domain rows while preserving no portal approval UI, no portal report UI,
@@ -287,8 +300,10 @@ runtime writer rows plus package-source capture/status rows to child-device
 delivery envelope/manual-required rows, and classify parent action delivery
 readiness against child delivery envelope rows, and classify provider/store
 execution readiness/manual/unavailable states across approved API evidence,
-store status, package-source adapter, and parent action readiness rows, and
-link parent review actions and report-runtime rows into approval/report domain
+store status, package-source adapter, and parent action readiness rows, and link
+provider/store readiness rows to runtime report writer receipts for
+store-specific report status runtime rows, and link parent review actions and
+report-runtime rows into approval/report domain
 rows, and
 convert parent-owned runtime writer delivery rows into deterministic envelope
 and delivery result receipt rows, and link those receipts to parent-owned
@@ -396,6 +411,12 @@ Ocentra-hosted family data custody.
       Google Play, Apple App Store, Microsoft Store, billing/provider contact,
       provider/store execution, platform interception, child delivery, runtime
       writer delivery, app blocking, custody, or hosted family data claims.
+- [x] Provider/store report status runtime proof linking provider/store
+      execution readiness rows and runtime report writer receipts into
+      store-specific ready/manual/unavailable report status rows without
+      provider/store execution, portal report UI, external report delivery,
+      platform adapters, child delivery, app blocking, custody, or hosted family
+      data claims.
 - [x] Approval/report domain proof linking parent review action decisions and
       report-runtime refs into approval/report rows without portal approval UI,
       portal report UI, runtime report delivery, provider/store execution,
