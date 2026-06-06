@@ -158,6 +158,13 @@ mobile readiness, and control catalogs.
   adapter implementation, child-device delivery, runtime report delivery,
   install/purchase interception, app blocking, child activity data, and
   Ocentra-hosted family data custody unclaimed.
+- App install/purchase runtime report writer delivery proof contracts that link
+  runtime writer execution delivery receipts and report-runtime compiler output
+  rows into parent-owned report delivery-ready rows and report receipts while
+  keeping portal report UI, external runtime report delivery, provider/store
+  execution, platform interception, platform adapter implementation,
+  child-device delivery, app blocking, child activity data, and Ocentra-hosted
+  family data custody unclaimed.
 - App install/purchase package-source capture status proof contracts that link
   child package-source artifact refs and store status handoff rows to captured,
   blocked, manual-required, and unavailable capture rows with artifact, audit,
@@ -271,13 +278,14 @@ flowchart LR
   writer delivery proof plus package-source capture status, child-device
   delivery runtime writer proof, adapter execution proof, and parent action
   delivery readiness proof plus provider/store execution readiness and
-  approval/report domain proofs plus runtime writer execution delivery proof;
+  approval/report domain proofs plus runtime writer execution delivery proof
+  and runtime report writer delivery proof;
   platform/store provider execution, actual provider contact, actual platform
   adapters, production child-device package capture, production package-source
   capture adapter execution,
   runtime status reader, child delivery, portal UX, external runtime writer
-  device delivery, parent action runtime delivery, and report runtime
-  writer/delivery remain unimplemented.
+  device delivery, parent action runtime delivery, and external report runtime
+  delivery remain unimplemented.
 - Billing/subscription provider integration, account backend, entitlement
   signing/delivery runtime, provider-contact execution, entitlement admin
   override runtime, refund/credit runtime, portal billing/admin UI, support
