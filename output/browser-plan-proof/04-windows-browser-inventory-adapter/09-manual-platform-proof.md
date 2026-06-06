@@ -1,6 +1,6 @@
 # WP04 Live Windows Browser Inventory Proof
 
-Generated: 2026-06-06T03:03:53.264Z
+Generated: 2026-06-06T03:28:42.700Z
 
 This proof ran against the local Windows host and stores only redacted refs, hashes, counts, executable basenames, and capability labels.
 It does not store raw paths, raw URLs, page titles, page bodies, browser profile data, cookies, tokens, tabs, or browsing content.

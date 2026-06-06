@@ -43,6 +43,7 @@ mod browser_windows_inventory_paths;
 mod browser_windows_inventory_source;
 mod browser_windows_package_inventory;
 mod browser_windows_package_source;
+mod browser_windows_shortcut_source;
 mod enforcement_adapter;
 mod enforcement_app_time_limit;
 mod enforcement_boundary;
@@ -125,6 +126,10 @@ pub use browser_windows_package_inventory::{
 pub use browser_windows_package_source::{
     live_windows_browser_package_entries_from_roots,
     live_windows_browser_package_entries_with_limit, BrowserWindowsLivePackageEntry,
+};
+pub use browser_windows_shortcut_source::{
+    browser_windows_shortcut_target_from_bytes, live_windows_browser_shortcut_targets_from_roots,
+    live_windows_browser_shortcut_targets_with_limit, BrowserWindowsLiveShortcutTarget,
 };
 pub use enforcement_adapter::{
     app_block_control_capability, managed_browser_control_capability, network_control_capability,
