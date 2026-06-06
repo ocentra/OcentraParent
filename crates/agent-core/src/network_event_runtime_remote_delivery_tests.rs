@@ -1,11 +1,13 @@
 use ocentra_eventing::{
-    EventDeliveryDecisionState, EventDeliveryRequiredArtifact, EventDeliveryRouteKind,
+    EventDeliveryDecisionState, EventDeliveryRequiredArtifact, EventDeliveryRouteKind, ReplayMode,
 };
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::{
-    prove_network_runtime_remote_delivery_status, NetworkRuntimeRemoteDeliveryState,
-    NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
+    prove_network_runtime_remote_delivery_status, prove_network_runtime_remote_event_chain_journal,
+    NetworkRuntimeRemoteDeliveryState, NetworkRuntimeRemoteDeliveryStatusError,
+    NetworkRuntimeRemoteDeliveryStatusReport, NetworkRuntimeRemoteEventChainJournalError,
+    NetworkRuntimeRemoteEventChainJournalReport,
 };
 
 #[tokio::test]
@@ -192,4 +194,73 @@ async fn network_runtime_remote_delivery_status_rejects_authority_and_side_effec
         .family_hub_decision
         .required_artifacts
         .contains(&EventDeliveryRequiredArtifact::ExternalRelayPolicy));
+}
+
+#[tokio::test]
+async fn network_runtime_remote_event_chain_journal_preserves_export_boundary_without_transport() {
+    let proof_result: Result<
+        NetworkRuntimeRemoteEventChainJournalReport,
+        NetworkRuntimeRemoteEventChainJournalError,
+    > = prove_network_runtime_remote_event_chain_journal().await;
+    let report = proof_result
+        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_EVENT_CHAIN_JOURNAL);
+
+    assert_eq!(
+        report.event_chain_journal_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_JOURNAL_REF
+    );
+    assert_eq!(
+        report.event_chain_replay_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_REPLAY_REF
+    );
+    assert_eq!(
+        report.event_chain_export_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_EXPORT_REF
+    );
+    assert_eq!(
+        report.event_chain_support_status_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_SUPPORT_STATUS_REF
+    );
+    assert!(report.stored_event_count > 0);
+    assert_eq!(report.journal_entry_count, report.stored_event_count);
+    assert_eq!(
+        report.projection_replay_record_count,
+        report.journal_entry_count
+    );
+    assert_eq!(
+        report.replay_cursor_next_sequence,
+        report.journal_entry_count as u64 + 1
+    );
+    assert_eq!(report.projection_replay_mode, ReplayMode::ProjectionOnly);
+    assert_eq!(
+        report.exportable_remote_envelope_count,
+        report.journal_entry_count
+    );
+    assert_eq!(report.exported_event_type_count, report.journal_entry_count);
+    assert_eq!(report.unavailable_event_count, report.journal_entry_count);
+    assert!(report.durable_envelope_ready);
+}
+
+#[tokio::test]
+async fn network_runtime_remote_event_chain_journal_rejects_delivery_and_content_claims() {
+    let report = prove_network_runtime_remote_event_chain_journal()
+        .await
+        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_EVENT_CHAIN_JOURNAL);
+
+    assert_eq!(
+        report.remote_delivery_status.broker_status,
+        NetworkRuntimeRemoteDeliveryState::RequirementsSatisfiedButNotImplemented
+    );
+    assert!(!report.broker_delivery_implemented);
+    assert!(!report.family_hub_delivery_implemented);
+    assert!(!report.provider_delivery_implemented);
+    assert!(!report.child_device_delivery_implemented);
+    assert!(!report.product_ready_claimed);
+    assert!(!report.policy_authority);
+    assert!(!report.side_effect_authority);
+    assert_eq!(report.enforcement_command_event_count, 0);
+    assert_eq!(report.adapter_action_executed_count, 0);
+    assert_eq!(report.exact_url_available_count, 0);
+    assert_eq!(report.decrypted_payload_available_count, 0);
+    assert_eq!(report.page_content_available_count, 0);
 }
