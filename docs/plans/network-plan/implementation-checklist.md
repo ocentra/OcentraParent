@@ -159,7 +159,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   delete/export, custody-chain, and private-traffic-exclusion refs before
   local raw artifact storage authorization. Live driver invocation, raw
   artifact creation, remote deletion/export propagation, and production
-  retention remain open.
+  retention remain open. Row13a now composes the row13 live-capture gate and
+  row03a raw-storage gate into one custody-ready/manual-required/unavailable/
+  degraded status materializer with combined missing-artifact refs and
+  mismatched-proof rejection. Service WebSocket exposure for that status remains
+  sequenced behind shared protocol/service locks.
 - [x] Analyzer alerts are evidence inputs, not policy authority. E-D row44 and
       row51 proofs keep analyzer refs advisory and non-enforcing.
 - [x] AI audit is advisory and cites evidence refs. E-D row47 and row51 proofs
@@ -343,6 +347,18 @@ manual-required/N/A file.
 
 ## Supplemental Row Proofs
 
+- [x] 13a live-capture custody status materializer: E-D added
+      `output/network-plan-proof/13a-live-capture-custody-status/proof-summary.json`
+      and
+      `test-results/network-live-capture-custody-status-proof/proof.json`.
+      The Rust `ocentra-network-evidence` materializer composes row13
+      live-capture readiness and row03a raw capture storage custody into one
+      custody-ready/manual-required/unavailable/degraded status, preserves
+      combined missing-artifact refs, rejects mismatched proof refs, and keeps
+      driver invocation, raw artifact creation, remote upload, exact URL/content,
+      policy authority, adapter authority, and enforcement commands false. This
+      does not claim service WebSocket exposure yet because shared protocol and
+      service files were locked by another lane.
 - [x] 22a network risk target policy handoff: E-D added
       `output/network-plan-proof/22a-risk-target-policy-handoff-proof/proof-summary.json`
       and `test-results/network-risk-target-policy-handoff-proof/proof.json`.

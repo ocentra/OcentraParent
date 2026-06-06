@@ -16,6 +16,7 @@ pub mod flow;
 pub mod http;
 pub mod linux_adapter_gate;
 pub mod live_capture;
+pub mod live_capture_custody_status;
 pub mod local_ai_queue;
 pub mod managed_browser;
 pub mod notification;
@@ -139,6 +140,11 @@ pub use live_capture::{
     plan_network_live_capture_proof, NetworkLiveCapturePlatform, NetworkLiveCaptureProof,
     NetworkLiveCaptureProofError, NetworkLiveCaptureProofInput, NetworkLiveCaptureProofState,
     NetworkLiveCaptureRequiredArtifact,
+};
+pub use live_capture_custody_status::{
+    materialize_network_live_capture_custody_status, NetworkLiveCaptureCustodyStatus,
+    NetworkLiveCaptureCustodyStatusError, NetworkLiveCaptureCustodyStatusInput,
+    NetworkLiveCaptureCustodyStatusMissingArtifact, NetworkLiveCaptureCustodyStatusState,
 };
 pub use local_ai_queue::{
     plan_network_local_ai_queue, NetworkLocalAiQueueError, NetworkLocalAiQueueInput,
