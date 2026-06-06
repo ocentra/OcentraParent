@@ -73,6 +73,14 @@
       "import": "./dist/privacy-legal-disclosure-status-read-model.js",
       "types": "./dist/privacy-legal-disclosure-status-read-model.d.ts"
     },
+    "./status-backend-payload-custody": {
+      "import": "./dist/status-backend-payload-custody.js",
+      "types": "./dist/status-backend-payload-custody.d.ts"
+    },
+    "./status-backend-payload-custody-read-model": {
+      "import": "./dist/status-backend-payload-custody-read-model.js",
+      "types": "./dist/status-backend-payload-custody-read-model.d.ts"
+    },
     "./support-incident-workflow": {
       "import": "./dist/support-incident-workflow.js",
       "types": "./dist/support-incident-workflow.d.ts"

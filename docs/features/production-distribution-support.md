@@ -238,6 +238,18 @@ dev-only repo when it claims consumer readiness.
   account lookup, billing provider contact, legal disclosure execution, remote
   support sessions, production SLA, provider-secret custody, status backend
   payload custody, and child activity custody as explicit non-claims.
+- `production-support-status-backend-payload-custody-proof` adds
+  logging-domain status backend payload custody rows for custody boundary,
+  retention manual-required, delete request, deletion manual-required,
+  audit-export-ready, and backend-unavailable states. It proves only
+  support-safe status target, queue, audit, redaction, custody, retention,
+  delete, and manual proof references while preserving real status backend
+  execution, durable status backend payload storage, payload deletion, retry
+  worker execution, audit persistence, public runtime execution, provider
+  execution, support backend upload execution, account lookup, billing provider
+  contact, legal disclosure execution, remote support sessions, production SLA,
+  provider-secret custody, default Ocentra-hosted family data, and child
+  activity custody as explicit non-claims.
 - `production-support-privacy-legal-disclosure-status-proof` adds
   logging-domain privacy/legal disclosure status rows for disclosure requested,
   parent-authorized, legal-review queued, legal-review running,
@@ -650,6 +662,19 @@ package/runtime proof.
       remote support sessions, production SLA, provider-secret custody, status
       backend payload custody, and child activity custody remain unimplemented
       or unclaimed.
+- [ ] Production support status backend payload custody proof. Current
+      `production-support-status-backend-payload-custody-proof` covers status
+      backend payload custody boundary, retention manual-required, delete
+      request, deletion manual-required, audit-export-ready, and
+      backend-unavailable states with support-safe status target, queue, audit,
+      redaction, custody, retention, delete, and manual proof refs. It remains
+      deterministic logging contract proof only: real status backend execution,
+      durable status backend payload storage, payload deletion execution, retry
+      worker execution, audit persistence, public runtime execution, provider
+      execution, support backend upload execution, account lookup, billing
+      provider contact, legal disclosure execution, remote support sessions,
+      production SLA, provider-secret custody, default Ocentra-hosted family
+      data, and child activity custody remain unimplemented or unclaimed.
 - [ ] Production support privacy/legal disclosure status proof. Current
       `production-support-privacy-legal-disclosure-status-proof` covers
       privacy/legal disclosure requested, parent-authorized, legal-review
