@@ -117,6 +117,16 @@ expose location or device-status features. Parents expect this category.
   webhook receipt ingestion runtime, provider delivery, credentials, adapter
   dispatch, child-device delivery, authority, physical-device proof, and
   production durable outbox storage unclaimed.
+- WP26 tracking notification preference preflight proof now exists through
+  `node scripts/test/tracking-notification-preference-preflight-proof.mjs`. It
+  derives parent-preference-required, source-manual-required, and
+  source-unavailable rows from the tracking provider-notification proof,
+  preserves provider attempt refs, provider preference refs, evidence refs,
+  policy decision refs, notification status refs, reason refs, and quiet-hours
+  requirement refs, and keeps parent notification preference UI/history UI,
+  frequency controls, quiet-hours timer runtime, provider delivery, receipt
+  runtime, credentials, adapter dispatch, child-device delivery,
+  physical-device proof, and production durable outbox storage unclaimed.
 - WP27 escalation readiness proof now exists through
   `node scripts/test/tracking-escalation-readiness-proof.mjs`. It derives
   parent acknowledgement, child check-in, urgent second-guardian, and critical
@@ -261,7 +271,8 @@ store proof, pre-device proof-gate progress, Android emulator package/service/st
 scaffold proof, WP08/WP09 Android permission/background manual-required proof,
 WP11/WP12 iOS Core Location manual-required proof, P3 WSL/local replay proof,
 P1 evidence-quality gate proof, WP26 tracking alert-to-provider-status handoff
-proof, P1 escalation readiness proof for acknowledgement/check-in/manual
+and notification preference preflight proof, P1 escalation readiness proof for
+acknowledgement/check-in/manual
 escalation states, WP28 temporary live tracking mode proof for authorization/
 duration/cadence/degraded/auto-stop/retention states, and WP20 Google Places/
 POI provider request/response mapping proof, WP25 parent-policy compiler/

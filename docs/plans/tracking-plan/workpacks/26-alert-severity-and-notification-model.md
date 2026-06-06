@@ -27,6 +27,7 @@ Proof root: `output/tracking-plan-proof/26-alert-severity-and-notification-model
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
 - `22-notification-receipt-boundary-proof.json`
+- `24-notification-preference-preflight-proof.json`
 
 ## AI Worker Checklist
 
@@ -57,6 +58,17 @@ cites the V0.8 delivered-provider receipt-required contract, and still does not
 claim webhook receipt ingestion runtime, provider delivery, credentials,
 adapter dispatch, child-device delivery, authority, physical-device proof, or
 durable outbox storage.
+Tracking notification preference preflight proof now derives
+parent-preference-required, source-manual-required, and source-unavailable rows
+from those provider-notification proof rows through
+`node scripts/test/tracking-notification-preference-preflight-proof.mjs`. The
+proof preserves provider attempt refs, provider preference refs, evidence refs,
+policy decision refs, notification status refs, reason refs, parent preference
+requirement refs, quiet-hours requirement refs, and manual proof requirements
+while keeping parent notification preference UI/history UI, frequency controls,
+quiet-hours timer runtime, provider delivery, receipt runtime, credentials,
+adapter dispatch, child-device delivery, physical-device proof, and durable
+outbox storage unclaimed.
 
 ## Where We Want To Be
 
@@ -76,6 +88,9 @@ This workpack can be assigned independently, implemented against the owning doma
 - packages/parent-domain/src/tracking-notification-receipt-boundary-proof.ts
 - packages/parent-domain/tests/tracking-notification-receipt-boundary-proof.test.ts
 - scripts/test/tracking-notification-receipt-boundary-proof.mjs
+- packages/parent-domain/src/tracking-notification-preference-preflight-proof.ts
+- packages/parent-domain/tests/tracking-notification-preference-preflight-proof.test.ts
+- scripts/test/tracking-notification-preference-preflight-proof.mjs
 - `output/tracking-plan-proof/26-alert-severity-and-notification-model/`
 - Implementation paths listed by the worker before editing.
 
@@ -87,6 +102,9 @@ This workpack can be assigned independently, implemented against the owning doma
   provider credentials, retry/quiet-hours workers, parent notification UI,
   child-device delivery, physical-device proof, authority proof, production
   durable outbox storage, and adapter dispatch remain manual-required.
+- Parent notification preference UI/history UI, parent preference mutation
+  runtime, frequency-control UI, and quiet-hours timer runtime remain
+  manual-required until runtime/UI proof exists.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
@@ -132,3 +150,28 @@ This workpack can be assigned independently, implemented against the owning doma
       retry/quiet-hours workers, parent notification UI, child-device delivery,
       physical-device proof, authority proof, durable outbox storage, and
       product-ready notification behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-notification-preference-preflight-proof`.
+- [x] Touched files: parent-domain tracking notification preference preflight
+      proof contract, focused tests, proof script, owning tracking feature doc,
+      implementation checklist, this workpack doc, and WP33 proof-gate doc.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-notification-preference-preflight-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/26-alert-severity-and-notification-model/24-notification-preference-preflight-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/24-notification-preference-preflight-proof.json`,
+      `output/tracking-plan-proof/tracking-notification-preference-preflight-proof/proof.json`,
+      and
+      `test-results/tracking-notification-preference-preflight-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, this workpack doc, and WP33 proof-gate doc updated. Central
+      `docs/product-capability-checklist.md` was not edited because E-C
+      currently owns that lock. Package export/README was not edited because
+      codex-d currently owns `packages/parent-domain/package.json`.
+- [x] Known gaps/manual-required states: parent notification preference
+      UI/history UI, preference mutation runtime, frequency-control UI,
+      quiet-hours timer runtime, receipt ingestion runtime, provider delivery,
+      credentials, adapter dispatch, child-device delivery, physical-device
+      proof, authority proof, durable outbox storage, and product-ready
+      notification behavior remain proof-gated.

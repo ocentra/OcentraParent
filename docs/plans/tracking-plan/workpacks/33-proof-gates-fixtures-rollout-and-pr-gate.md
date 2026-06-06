@@ -58,6 +58,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `22-notification-receipt-boundary-proof.json`
 - Hosted child-safe check-in screenshot:
   `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
+- Notification preference preflight proof:
+  `24-notification-preference-preflight-proof.json`
 
 ## Merge Blockers
 
@@ -140,6 +142,14 @@ helpers, parent-domain contracts, and the portal citation test. It writes
 `20-evidence-quality-gate-validation.log`, and
 `test-results/tracking-plan-evidence-quality-gate-proof/proof.json` while
 keeping live device/provider delivery and production behavior unclaimed.
+Tracking notification preference preflight proof now writes
+`24-notification-preference-preflight-proof.json` through
+`node scripts/test/tracking-notification-preference-preflight-proof.mjs`. It
+adds parent-preference-required, source-manual-required, and source-unavailable
+boundary proof rows while keeping parent notification UI/history, preference
+mutation runtime, quiet-hours timer runtime, provider delivery/receipt runtime,
+child-device delivery, physical-device proof, authority, and production
+notification behavior unclaimed.
 
 This branch adds `node scripts/test/tracking-notification-receipt-boundary-proof.mjs`,
 which derives tracking notification receipt boundary rows from the WP26
@@ -169,6 +179,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - scripts/test/tracking-plan-hosted-ui-proof.mjs
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
 - scripts/test/tracking-plan-evidence-quality-gate-proof.mjs
+- scripts/test/tracking-notification-preference-preflight-proof.mjs
 - packages/activity-domain/src/tracking-evidence-quality-gate.ts
 - packages/activity-domain/tests/tracking-evidence-quality-gate.test.ts
 - scripts/test/tracking-notification-receipt-boundary-proof.mjs
@@ -184,6 +195,8 @@ This workpack can be assigned independently, implemented against the owning doma
   adapter dispatch, child-device delivery, authority, physical-device proof,
   and production durable outbox storage remain manual-required until matching
   proof exists.
+- Parent notification preferences and quiet-hours must remain manual-required
+  until runtime/UI mutation proof exists.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
@@ -342,4 +355,24 @@ This workpack can be assigned independently, implemented against the owning doma
       ingestion runtime, provider delivery, credentials, adapter dispatch,
       retry/quiet-hours workers, parent notification UI, child-device delivery,
       physical-device proof, authority proof, durable outbox storage, and
+      product-ready notification behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-notification-preference-preflight-proof`.
+- [x] Touched files: parent-domain tracking notification preference preflight
+      proof/test, proof script, tracking feature doc, implementation checklist,
+      WP26, WP33, and generated WP26/WP33 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-notification-preference-preflight-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/24-notification-preference-preflight-proof.json`
+      plus the WP26 companion proof and test-results proof.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP26, and WP33 updated; central
+      `docs/product-capability-checklist.md` was not edited because E-C owns
+      that lock.
+- [x] Known gaps/manual-required states: parent notification UI/history,
+      preference mutation runtime, frequency-control UI, quiet-hours timer
+      runtime, provider delivery/receipt runtime, credentials, child-device
+      delivery, physical-device proof, authority, durable outbox storage, and
       product-ready notification behavior remain proof-gated.
