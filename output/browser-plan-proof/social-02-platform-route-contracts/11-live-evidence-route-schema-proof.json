@@ -1,0 +1,719 @@
+{
+  "schemaVersion": 1,
+  "proofId": "social-platform-route-live-evidence-proof",
+  "generatedAt": "2026-06-06T15:33:06.006Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "0a90d2739f319e75fdd932b3f471e6735d053cdb",
+  "baseCommit": "438e7cbfd73f1de5913d98751b945cacc550814b",
+  "sourceProofs": {
+    "feedRouteClassification": {
+      "proofId": "social-feed-route-classification-live-proof",
+      "generatedAt": "2026-06-06T14:55:20.731Z",
+      "commit": "8fdd1adbaf6eb65611c4a1b780bccf06efa97f90",
+      "baseCommit": "75cb334eab600ddf106da2c5a18dbfed1a7c048a"
+    },
+    "accountCreationGate": {
+      "proofId": "social-account-creation-live-proof",
+      "generatedAt": "2026-06-05T04:32:20.491Z",
+      "commit": "8007ba421104441fd31a290a4b850d6759528c02",
+      "baseCommit": "8007ba421104441fd31a290a4b850d6759528c02"
+    },
+    "unmanagedBypass": {
+      "proofId": "social-unmanaged-bypass-live-process-proof",
+      "generatedAt": "2026-06-06T06:15:05.387Z",
+      "commit": "3076c98819dca9efa229eca4dbdcaa72f43e16aa",
+      "baseCommit": "840d1c21ccf95e21283a4d0161ee12dc802a6a9d"
+    },
+    "androidNativeHost": {
+      "proofId": "social-android-native-app-host-proof",
+      "generatedAt": "2026-06-06T11:34:49.066Z",
+      "commit": "a1c483777d5f9861c2fbd376e587f0eb958da5b9",
+      "baseCommit": "b363a2e205c0b2fc0dc22c0b92131da1177f3fdb"
+    },
+    "iosNativeHost": {
+      "proofId": "social-ios-screen-time-host-proof",
+      "generatedAt": "2026-06-06T11:40:49.349Z",
+      "commit": "e2e6a19e6dd4e2a27a8a1512bf95f5a9c62b4deb",
+      "baseCommit": "b363a2e205c0b2fc0dc22c0b92131da1177f3fdb"
+    }
+  },
+  "liveEvidenceSummary": {
+    "realPublicSocialSurfacesUsed": true,
+    "managedRouteRows": 9,
+    "unmanagedBypassRows": 2,
+    "nativeManualRequiredRows": 2,
+    "totalRouteRows": 13,
+    "generatedOrFixturePageUsed": false,
+    "rawPageBodyPersisted": false,
+    "rawDomPersisted": false,
+    "rawTitlePersisted": false,
+    "rawMessageOrFeedContentPersisted": false,
+    "accountIdentityClaimed": false,
+    "policyDecisionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "routeRows": [
+    {
+      "socialRouteEvidenceId": "reddit-popular-feed-live-social-route-evidence",
+      "sourceEvidenceIds": [
+        "reddit-popular-feed-live-feed-route-evidence"
+      ],
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "reddit",
+      "routeKind": "feed",
+      "urlShapeTargetKind": "social-feed",
+      "exactManagedBrowserRouteEvidence": true,
+      "unmanagedBypassOnly": false,
+      "manualRequired": false,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    },
+    {
+      "socialRouteEvidenceId": "twitch-directory-feed-live-social-route-evidence",
+      "sourceEvidenceIds": [
+        "twitch-directory-feed-live-feed-route-evidence"
+      ],
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "twitch",
+      "routeKind": "feed",
+      "urlShapeTargetKind": "social-feed",
+      "exactManagedBrowserRouteEvidence": true,
+      "unmanagedBypassOnly": false,
+      "manualRequired": false,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    },
+    {
+      "socialRouteEvidenceId": "tiktok-explore-feed-live-social-route-evidence",
+      "sourceEvidenceIds": [
+        "tiktok-explore-feed-live-feed-route-evidence"
+      ],
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "tiktok",
+      "routeKind": "feed",
+      "urlShapeTargetKind": "social-feed",
+      "exactManagedBrowserRouteEvidence": true,
+      "unmanagedBypassOnly": false,
+      "manualRequired": false,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    },
+    {
+      "socialRouteEvidenceId": "instagram-reels-feed-live-social-route-evidence",
+      "sourceEvidenceIds": [
+        "instagram-reels-feed-live-feed-route-evidence"
+      ],
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "instagram",
+      "routeKind": "feed",
+      "urlShapeTargetKind": "social-feed",
+      "exactManagedBrowserRouteEvidence": true,
+      "unmanagedBypassOnly": false,
+      "manualRequired": false,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    },
+    {
+      "socialRouteEvidenceId": "youtube-shorts-video-live-social-route-evidence",
+      "sourceEvidenceIds": [
+        "youtube-shorts-video-live-feed-route-evidence"
+      ],
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "youtube-shorts",
+      "routeKind": "video",
+      "urlShapeTargetKind": "short-video",
+      "exactManagedBrowserRouteEvidence": true,
+      "unmanagedBypassOnly": false,
+      "manualRequired": false,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    },
+    {
+      "socialRouteEvidenceId": "social-account-live-route-facebook-signup",
+      "sourceEvidenceIds": [
+        "social-account-live-gate-evidence-facebook-signup"
+      ],
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "facebook",
+      "routeKind": "account-signup",
+      "urlShapeTargetKind": "social-upload-post",
+      "exactManagedBrowserRouteEvidence": true,
+      "unmanagedBypassOnly": false,
+      "manualRequired": false,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    },
+    {
+      "socialRouteEvidenceId": "social-account-live-route-pinterest-login",
+      "sourceEvidenceIds": [
+        "social-account-live-gate-evidence-pinterest-login"
+      ],
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "pinterest",
+      "routeKind": "login",
+      "urlShapeTargetKind": "unknown",
+      "exactManagedBrowserRouteEvidence": true,
+      "unmanagedBypassOnly": false,
+      "manualRequired": false,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    },
+    {
+      "socialRouteEvidenceId": "social-account-live-route-reddit-register",
+      "sourceEvidenceIds": [
+        "social-account-live-gate-evidence-reddit-register"
+      ],
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "reddit",
+      "routeKind": "account-signup",
+      "urlShapeTargetKind": "social-upload-post",
+      "exactManagedBrowserRouteEvidence": true,
+      "unmanagedBypassOnly": false,
+      "manualRequired": false,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    },
+    {
+      "socialRouteEvidenceId": "social-account-live-route-instagram-signup",
+      "sourceEvidenceIds": [
+        "social-account-live-gate-evidence-instagram-signup"
+      ],
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "instagram",
+      "routeKind": "account-signup",
+      "urlShapeTargetKind": "social-upload-post",
+      "exactManagedBrowserRouteEvidence": true,
+      "unmanagedBypassOnly": false,
+      "manualRequired": false,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    },
+    {
+      "socialRouteEvidenceId": "social-route-social-unmanaged-bypass-reddit-live-social-surface",
+      "sourceEvidenceIds": [
+        "browser-evidence-social-unmanaged-reddit-live-social-surface"
+      ],
+      "sourceKind": "unmanaged-browser-bypass",
+      "proofState": "bypass-only",
+      "platform": "unknown-social",
+      "routeKind": "unknown-social-route",
+      "urlShapeTargetKind": null,
+      "exactManagedBrowserRouteEvidence": false,
+      "unmanagedBypassOnly": true,
+      "manualRequired": true,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    },
+    {
+      "socialRouteEvidenceId": "social-route-social-unmanaged-bypass-youtube-shorts-live-social-video-surface",
+      "sourceEvidenceIds": [
+        "browser-evidence-social-unmanaged-youtube-shorts-live-social-video-surface"
+      ],
+      "sourceKind": "unmanaged-browser-bypass",
+      "proofState": "bypass-only",
+      "platform": "unknown-social",
+      "routeKind": "unknown-social-route",
+      "urlShapeTargetKind": null,
+      "exactManagedBrowserRouteEvidence": false,
+      "unmanagedBypassOnly": true,
+      "manualRequired": true,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    },
+    {
+      "socialRouteEvidenceId": "social-route-android-native-manual-required-host-proof",
+      "sourceEvidenceIds": [
+        "parent-proof-social-android-native-host-device"
+      ],
+      "sourceKind": "native-app-manual-required",
+      "proofState": "manual-required",
+      "platform": "tiktok",
+      "routeKind": "unknown-social-route",
+      "urlShapeTargetKind": null,
+      "exactManagedBrowserRouteEvidence": false,
+      "unmanagedBypassOnly": false,
+      "manualRequired": true,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    },
+    {
+      "socialRouteEvidenceId": "social-route-ios-native-manual-required-host-proof",
+      "sourceEvidenceIds": [
+        "parent-proof-social-ios-screen-time-host"
+      ],
+      "sourceKind": "native-app-manual-required",
+      "proofState": "manual-required",
+      "platform": "instagram",
+      "routeKind": "unknown-social-route",
+      "urlShapeTargetKind": null,
+      "exactManagedBrowserRouteEvidence": false,
+      "unmanagedBypassOnly": false,
+      "manualRequired": true,
+      "accountIdentityClaimed": false,
+      "messageContentClaimed": false,
+      "feedContentSemanticsClaimed": false,
+      "aiDecisionClaimed": false,
+      "policyDecisionClaimed": false,
+      "enforcementClaimed": false,
+      "nativeAppControlClaimed": false,
+      "platformConnectorClaimed": false
+    }
+  ],
+  "parseChecks": [
+    {
+      "socialRouteEvidenceId": "reddit-popular-feed-live-social-route-evidence",
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "reddit",
+      "routeKind": "feed",
+      "accepted": true
+    },
+    {
+      "socialRouteEvidenceId": "twitch-directory-feed-live-social-route-evidence",
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "twitch",
+      "routeKind": "feed",
+      "accepted": true
+    },
+    {
+      "socialRouteEvidenceId": "tiktok-explore-feed-live-social-route-evidence",
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "tiktok",
+      "routeKind": "feed",
+      "accepted": true
+    },
+    {
+      "socialRouteEvidenceId": "instagram-reels-feed-live-social-route-evidence",
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "instagram",
+      "routeKind": "feed",
+      "accepted": true
+    },
+    {
+      "socialRouteEvidenceId": "youtube-shorts-video-live-social-route-evidence",
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "youtube-shorts",
+      "routeKind": "video",
+      "accepted": true
+    },
+    {
+      "socialRouteEvidenceId": "social-account-live-route-facebook-signup",
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "facebook",
+      "routeKind": "account-signup",
+      "accepted": true
+    },
+    {
+      "socialRouteEvidenceId": "social-account-live-route-pinterest-login",
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "pinterest",
+      "routeKind": "login",
+      "accepted": true
+    },
+    {
+      "socialRouteEvidenceId": "social-account-live-route-reddit-register",
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "reddit",
+      "routeKind": "account-signup",
+      "accepted": true
+    },
+    {
+      "socialRouteEvidenceId": "social-account-live-route-instagram-signup",
+      "sourceKind": "managed-browser-url-shape",
+      "proofState": "route-evidence",
+      "platform": "instagram",
+      "routeKind": "account-signup",
+      "accepted": true
+    },
+    {
+      "socialRouteEvidenceId": "social-route-social-unmanaged-bypass-reddit-live-social-surface",
+      "sourceKind": "unmanaged-browser-bypass",
+      "proofState": "bypass-only",
+      "platform": "unknown-social",
+      "routeKind": "unknown-social-route",
+      "accepted": true
+    },
+    {
+      "socialRouteEvidenceId": "social-route-social-unmanaged-bypass-youtube-shorts-live-social-video-surface",
+      "sourceKind": "unmanaged-browser-bypass",
+      "proofState": "bypass-only",
+      "platform": "unknown-social",
+      "routeKind": "unknown-social-route",
+      "accepted": true
+    },
+    {
+      "socialRouteEvidenceId": "social-route-android-native-manual-required-host-proof",
+      "sourceKind": "native-app-manual-required",
+      "proofState": "manual-required",
+      "platform": "tiktok",
+      "routeKind": "unknown-social-route",
+      "accepted": true
+    },
+    {
+      "socialRouteEvidenceId": "social-route-ios-native-manual-required-host-proof",
+      "sourceKind": "native-app-manual-required",
+      "proofState": "manual-required",
+      "platform": "instagram",
+      "routeKind": "unknown-social-route",
+      "accepted": true
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "reddit-popular-feed-live-social-route-evidence:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "reddit-popular-feed-live-social-route-evidence:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "reddit-popular-feed-live-social-route-evidence:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "reddit-popular-feed-live-social-route-evidence:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "reddit-popular-feed-live-social-route-evidence:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "twitch-directory-feed-live-social-route-evidence:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "twitch-directory-feed-live-social-route-evidence:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "twitch-directory-feed-live-social-route-evidence:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "twitch-directory-feed-live-social-route-evidence:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "twitch-directory-feed-live-social-route-evidence:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "tiktok-explore-feed-live-social-route-evidence:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "tiktok-explore-feed-live-social-route-evidence:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "tiktok-explore-feed-live-social-route-evidence:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "tiktok-explore-feed-live-social-route-evidence:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "tiktok-explore-feed-live-social-route-evidence:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "instagram-reels-feed-live-social-route-evidence:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "instagram-reels-feed-live-social-route-evidence:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "instagram-reels-feed-live-social-route-evidence:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "instagram-reels-feed-live-social-route-evidence:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "instagram-reels-feed-live-social-route-evidence:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "youtube-shorts-video-live-social-route-evidence:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "youtube-shorts-video-live-social-route-evidence:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "youtube-shorts-video-live-social-route-evidence:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "youtube-shorts-video-live-social-route-evidence:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "youtube-shorts-video-live-social-route-evidence:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-facebook-signup:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-facebook-signup:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-facebook-signup:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-facebook-signup:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-facebook-signup:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-pinterest-login:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-pinterest-login:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-pinterest-login:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-pinterest-login:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-pinterest-login:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-reddit-register:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-reddit-register:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-reddit-register:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-reddit-register:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-reddit-register:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-instagram-signup:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-instagram-signup:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-instagram-signup:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-instagram-signup:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-account-live-route-instagram-signup:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-social-unmanaged-bypass-reddit-live-social-surface:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-social-unmanaged-bypass-reddit-live-social-surface:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-social-unmanaged-bypass-reddit-live-social-surface:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-social-unmanaged-bypass-reddit-live-social-surface:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-social-unmanaged-bypass-reddit-live-social-surface:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-social-unmanaged-bypass-youtube-shorts-live-social-video-surface:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-social-unmanaged-bypass-youtube-shorts-live-social-video-surface:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-social-unmanaged-bypass-youtube-shorts-live-social-video-surface:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-social-unmanaged-bypass-youtube-shorts-live-social-video-surface:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-social-unmanaged-bypass-youtube-shorts-live-social-video-surface:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-android-native-manual-required-host-proof:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-android-native-manual-required-host-proof:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-android-native-manual-required-host-proof:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-android-native-manual-required-host-proof:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-android-native-manual-required-host-proof:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-ios-native-manual-required-host-proof:account-identity-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-ios-native-manual-required-host-proof:message-content-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-ios-native-manual-required-host-proof:feed-content-semantics-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-ios-native-manual-required-host-proof:policy-decision-claim",
+      "rejected": true
+    },
+    {
+      "name": "social-route-ios-native-manual-required-host-proof:enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "unmanaged-bypass-promoted-to-managed-route",
+      "rejected": true
+    },
+    {
+      "name": "native-manual-required-promoted-to-route-evidence",
+      "rejected": true
+    }
+  ]
+}

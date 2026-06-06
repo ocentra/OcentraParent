@@ -1,17 +1,17 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T14:56:05.528Z
+Generated: 2026-06-06T15:33:34.693Z
 
 Rows checked: 22
-Proof-present rows: 14
-Partial/manual-required rows: 8
+Proof-present rows: 15
+Partial/manual-required rows: 7
 Playwright state: rendered-proof-bundle-ui-present-runtime-delivery-manual-required
 Product claimed: false
 
 | Row | State | Proof Directory | Files |
 | --- | --- | --- | --- |
 | SOCIAL-01 | proof-present | `social-01-social-video-gating-plan-folder-readme` | 5 |
-| SOCIAL-02 | partial-manual-required | `social-02-platform-route-contracts` | 5 |
+| SOCIAL-02 | proof-present | `social-02-platform-route-contracts` | 6 |
 | SOCIAL-03 | partial-manual-required | `social-03-social-url-pattern-library` | 5 |
 | SOCIAL-04 | partial-manual-required | `social-04-account-flow-evidence-contracts` | 5 |
 | SOCIAL-05 | partial-manual-required | `social-05-managed-dom-form-shape-detector` | 5 |
@@ -37,6 +37,7 @@ SOCIAL-23 proves proof-pack coverage for SOCIAL-01 through SOCIAL-22.
 Rendered proof-bundle UI exists for the parent social dashboard,
 child-agent-served social intervention page, and parent explanation panel.
 Service-backed dashboard and explanation read-model delivery is present.
+Live platform route boundary proof is present for SOCIAL-02 managed, unmanaged, and native/manual rows.
 Live route classification proof is present for SOCIAL-08 public feed surfaces.
 Live metadata extraction proof is present for SOCIAL-09 public social/video surfaces.
 Live-evidence AI boundary proof is present for SOCIAL-10 degraded model-unavailable rows.
