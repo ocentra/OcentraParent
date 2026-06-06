@@ -7,8 +7,10 @@ use ocentra_parent_agent_protocol::constants;
 
 use crate::{
     browser_windows_inventory_candidate_paths_from_live_sources,
-    browser_windows_live_registry_entry, live_windows_browser_package_entries_from_roots,
-    windows_browser_inventory_observations, windows_browser_package_observations,
+    browser_windows_live_registry_entry, browser_windows_shortcut_target_from_bytes,
+    live_windows_browser_package_entries_from_roots,
+    live_windows_browser_shortcut_targets_from_roots, windows_browser_inventory_observations,
+    windows_browser_package_observations,
 };
 
 #[test]
@@ -66,6 +68,52 @@ fn browser_windows_live_sources_feed_shortcut_targets_without_url_claims() {
     assert_eq!(
         observations[0].reason_code,
         constants::browser::INVENTORY_REASON_WINDOWS_MANAGED_PROFILE_REQUIRED
+    );
+
+    let _ = std::fs::remove_dir_all(root);
+}
+
+#[test]
+fn browser_windows_live_sources_parse_lnk_targets_without_url_claims() {
+    let root = temp_inventory_source_root(4);
+    let edge = root
+        .join(constants::browser::PATH_SEGMENT_MICROSOFT)
+        .join(constants::browser::PATH_SEGMENT_EDGE)
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS);
+    let shortcut = root.join(constants::browser::DEVTOOLS_TEST_EDGE_SHORTCUT_FILE_NAME);
+    create_executable_fixture(&edge);
+    write_shortcut(&shortcut, &edge);
+
+    let parsed_target = browser_windows_shortcut_target_from_bytes(
+        &fs::read(&shortcut).expect(constants::error::ACTIVITY_CAPTURE_RECORDS),
+    );
+    let shortcut_targets = live_windows_browser_shortcut_targets_from_roots(
+        std::slice::from_ref(&root),
+        constants::browser::SHORTCUT_SCAN_LIMIT_BROWSER_DISCOVERY,
+    );
+    let target_strings = shortcut_targets
+        .iter()
+        .map(|target| target.target.clone())
+        .collect::<Vec<_>>();
+    let paths =
+        browser_windows_inventory_candidate_paths_from_live_sources(&[], &[], &target_strings);
+    let observations = windows_browser_inventory_observations(&paths, &[], None);
+
+    assert_eq!(
+        parsed_target.as_deref(),
+        Some(edge.to_string_lossy().as_ref())
+    );
+    assert_eq!(shortcut_targets.len(), 1);
+    assert_eq!(paths, vec![edge]);
+    assert_eq!(observations.len(), 1);
+    assert_eq!(
+        observations[0].reason_code,
+        constants::browser::INVENTORY_REASON_WINDOWS_MANAGED_PROFILE_REQUIRED
+    );
+    assert_eq!(
+        observations[0].exact_url_capability,
+        ocentra_parent_agent_protocol::BrowserExactUrlCapability::Unavailable
     );
 
     let _ = std::fs::remove_dir_all(root);
@@ -140,6 +188,42 @@ fn write_manifest(root: &Path, manifest: &str) {
         manifest,
     )
     .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+}
+
+fn write_shortcut(path: &Path, target: &Path) {
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    }
+    fs::write(path, shortcut_bytes(target)).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+}
+
+fn shortcut_bytes(target: &Path) -> Vec<u8> {
+    let mut bytes = Vec::new();
+    bytes.extend_from_slice(&constants::browser::SHORTCUT_LINK_HEADER_SIZE.to_le_bytes());
+    bytes.extend_from_slice(&[
+        0x01, 0x14, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x46,
+    ]);
+    bytes.extend_from_slice(&constants::browser::SHORTCUT_LINK_FLAGS_HAS_LINK_INFO.to_le_bytes());
+    while bytes.len() < constants::browser::SHORTCUT_LINK_INFO_SECTION_OFFSET {
+        bytes.push(0);
+    }
+    let mut target_bytes = target.to_string_lossy().as_bytes().to_vec();
+    target_bytes.push(0);
+    let link_info_size =
+        constants::browser::SHORTCUT_LINK_INFO_MIN_SIZE as u32 + target_bytes.len() as u32;
+    bytes.extend_from_slice(&link_info_size.to_le_bytes());
+    bytes.extend_from_slice(&constants::browser::SHORTCUT_LINK_INFO_HEADER_SIZE.to_le_bytes());
+    bytes.extend_from_slice(
+        &constants::browser::SHORTCUT_LINK_INFO_LOCAL_BASE_PATH_FLAG.to_le_bytes(),
+    );
+    bytes.extend_from_slice(&0u32.to_le_bytes());
+    bytes
+        .extend_from_slice(&(constants::browser::SHORTCUT_LINK_INFO_MIN_SIZE as u32).to_le_bytes());
+    bytes.extend_from_slice(&0u32.to_le_bytes());
+    bytes.extend_from_slice(&0u32.to_le_bytes());
+    bytes.extend_from_slice(&target_bytes);
+    bytes
 }
 
 fn quoted_display_icon(path: &PathBuf) -> String {

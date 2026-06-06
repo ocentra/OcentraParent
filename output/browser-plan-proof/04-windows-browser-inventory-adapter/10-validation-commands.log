@@ -44,3 +44,64 @@ Remaining no-claims:
   Rust `.lnk` binary parsing, exact URL/tab evidence, browser content capture,
   AppLocker/App Control application, blocking, rollback, and enforcement remain
   unclaimed.
+
+WP04 Rust Start Menu lnk target parser refresh - 2026-06-06
+
+PASS cargo fmt --all --check
+
+PASS cargo test -p ocentra-parent-agent-core browser_windows_live_sources_parse_lnk_targets_without_url_claims --quiet
+  running 1 test
+  test result: ok. 1 passed; 0 failed
+
+PASS cargo test -p ocentra-parent-agent-core windows_browser_inventory --quiet
+  running 15 tests
+  test result: ok. 15 passed; 0 failed
+
+PASS cargo test -p ocentra-parent-agent-service browser_inventory_read_model --quiet
+  running 8 tests
+  test result: ok. 8 passed; 0 failed
+
+Scope:
+  Added browser-owned Rust Shell Link .lnk local target parser and Start Menu
+  shortcut source. Parsed shortcut targets feed the existing browser inventory
+  candidate normalizer and service read model.
+
+Remaining no-claims:
+  Exact URL/tab evidence, browser content capture, AppLocker/App Control
+  application, blocking, rollback, and enforcement remain unclaimed.
+
+WP04 Rust Start Menu lnk target parser refresh after PR419 sync - 2026-06-06
+
+PASS cargo fmt --all --check
+
+PASS cargo test -p ocentra-parent-agent-core browser_windows_live_sources_parse_lnk_targets_without_url_claims --quiet
+  running 1 test
+  test result: ok. 1 passed; 0 failed
+
+PASS cargo test -p ocentra-parent-agent-core windows_browser_inventory --quiet
+  running 15 tests
+  test result: ok. 15 passed; 0 failed
+
+PASS cargo test -p ocentra-parent-agent-service browser_inventory_read_model --quiet
+  running 8 tests
+  test result: ok. 8 passed; 0 failed
+
+PASS cmd /c node --check scripts/test/browser-windows-live-inventory-proof.mjs
+
+PASS cmd /c node scripts/test/browser-windows-live-inventory-proof.mjs
+  browser-windows-live-inventory-proof-ok=true
+  rows=16 managed=3 manualRequired=5 unsupported=8
+
+PASS cmd /c npm run format:check
+  All matched files use Prettier code style.
+
+PASS cmd /c npm run lint:schema-boundaries
+  Boundary checks passed. Existing source-shape advisory warnings remain.
+
+PASS git diff --check
+
+PASS cmd /c npm run lanes:guard
+  lane-guard-ok: lane=codex-d owner=sujan thread=browser-social-ui-proof-d branch=codex/browser-child-intervention-endpoint-flow
+
+PASS cmd /c npm run hub:guard
+  hub-guard-ok: lane=codex-d
