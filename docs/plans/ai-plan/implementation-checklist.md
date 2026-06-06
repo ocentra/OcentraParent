@@ -16,6 +16,7 @@ consumes the same results.
 | Disabled screen analysis suppression              | P3 proved           | `output/ai-plan-proof/real-analysis/disabled-no-capture-no-ai/01-source-evidence.json`                                                 | Proves the proof harness creates no capture/AI/policy result when the parent setting is disabled; product UI and service-owned disable suppression remain separate runtime wiring.                                                                                                                                                                                                                                                                                                                           |
 | Parent explanation snapshots                      | P3 artifact proved  | `output/ai-plan-proof/real-analysis/youtube-ordinary-video/10-ui-snapshot.png` and peer rows                                           | These are proof artifact snapshots rendered from scenario outputs, not the production portal runtime.                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Local AI provider per-device runtime lane         | P3 runtime proved   | `output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json`; `output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json` | Proves one provider/runtime lane per physical device, parent/child same-device sharing, child-safety priority, queued/degraded/unavailable states, and no duplicate same-device model load. It does not prove LAN cross-device routing, model quality, Portal UI, or API/remote provider availability.                                                                                                                                                                                                       |
+| Local AI runtime status read model                | P3 contract proved  | `output/ai-plan-proof/local-ai-runtime-status-read-model-proof/proof-summary.json`                                                     | Projects existing provider proof rows into parent-facing runtime status rows with provider/runtime/model refs, child-safety priority visibility, ready/queued/degraded/unavailable counts, and setup/unavailable visibility. It does not render the production portal, execute a model, prove model quality, use remote/API AI, grant policy authority, or dispatch enforcement.                                                                                                                             |
 | Windows WinRT OCR worker over captured pixels     | P3 real OCR proved  | `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`                                                                      | Proves real selected-window browser/native captures can run through Windows WinRT OCR, become schema-valid `ScreenAnalysisResult` evidence, feed allow dry-run policy decisions, and delete raw temp images. It does not claim production OCR quality, service runtime integration, or cross-platform OCR parity.                                                                                                                                                                                            |
 | Guided VLM worker contract                        | P3 contract proved  | `output/ai-plan-proof/screen-vlm-worker-contract-proof/proof-summary.json`                                                             | Proves source-cited encrypted queue jobs can enter a guided local VLM worker contract, schema-bound model output can convert into `ScreenAnalysisResult` evidence, policy eligibility requires deleted-image/query-store custody, and raw retention/remote AI are rejected. It does not claim live model execution, production VLM quality, portal UI, or enforcement.                                                                                                                                       |
 | VLM execution readiness/status handoff            | P3 contract proved  | `output/ai-plan-proof/screen-vlm-execution-readiness-proof/proof-summary.json`                                                         | Proves encrypted temp-queue VLM jobs can become accepted readiness handoffs, queued/completed/manual-required status rows preserve local model/runtime/template refs, and completed rows require deleted-image/query-store custody. It explicitly does not claim live model execution, production VLM quality, portal runtime rendering, policy authority, or enforcement.                                                                                                                                   |
@@ -68,7 +69,8 @@ consumes the same results.
 - [ ] Output parser implemented.
 - [x] Invalid output and timeout degrade safely.
 - [x] Provider queue and routing implemented.
-- [ ] Runtime status visible in service and portal.
+- [x] Runtime status parent-facing read-model proof implemented; production
+      service and portal rendering remain follow-up runtime work.
 - [ ] AI result journal and SQLite ingest implemented.
 - [x] Parent explanation read-model proof contract implemented; production
       portal consumption remains a UI/runtime gap.
@@ -132,7 +134,8 @@ consumes the same results.
 
 ## UI/UX
 
-- [ ] AI runtime status surface.
+- [x] AI runtime status surface read-model proof; production portal screenshot
+      remains follow-up UI work.
 - [ ] AI jobs/activity surface.
 - [ ] AI decision explanation surface.
 - [ ] Memory/graph evidence surface.
@@ -157,6 +160,11 @@ consumes the same results.
 - [x] real capture proof artifacts under `output/screen-plan-proof/real-capture` when screen-derived AI is in scope.
 - [x] real AI analysis proof artifacts under `output/ai-plan-proof/real-analysis`.
 - [x] real WinRT OCR worker proof artifacts under `output/ai-plan-proof/screen-winrt-ocr-worker`.
+- [x] local AI runtime status read-model proof artifacts under
+      `output/ai-plan-proof/local-ai-runtime-status-read-model-proof`.
+- [x] local AI runtime status read-model proof run:
+      `node --check scripts/test/local-ai-runtime-status-read-model-proof.mjs`
+      and `node scripts/test/local-ai-runtime-status-read-model-proof.mjs`.
 - [x] guided VLM worker contract proof artifacts under
       `output/ai-plan-proof/screen-vlm-worker-contract-proof`.
 - [x] guided VLM worker contract proof run:
