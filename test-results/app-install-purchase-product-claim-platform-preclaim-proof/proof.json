@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-06T21:25:26.714Z",
+  "commit": "264e478a96eb20a7920fde0f7da4c3b0cc85d770",
+  "proofMode": "app-install-purchase-product-claim-platform-preclaim-proof",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "startedAt": "2026-06-06T21:25:21.176Z",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-product-claim-platform-preclaim-proof.test.ts",
+      "startedAt": "2026-06-06T21:25:23.893Z",
+      "exitCode": 0
+    }
+  ],
+  "packageExportState": "validated-via-public-parent-domain-subpath-export",
+  "checklistState": "updated-docs-product-capability-checklist-app-install-row",
+  "evidence": {
+    "platformPreclaimContract": "packages/parent-domain/src/app-install-purchase-product-claim-platform-preclaim-proof.ts",
+    "sourcePortalTestReadinessContract": "packages/parent-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts",
+    "sourcePlatformProofReadinessContract": "packages/parent-domain/src/app-install-purchase-platform-proof-readiness.ts",
+    "contractTest": "packages/parent-domain/tests/app-install-purchase-product-claim-platform-preclaim-proof.test.ts",
+    "featureDoc": "docs/features/app-install-purchase-approval.md",
+    "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
+    "platformExpectationDoc": "docs/expectations/platforms.md",
+    "checklistDoc": "docs/product-capability-checklist.md",
+    "packageReadme": "packages/parent-domain/README.md",
+    "packageExport": "@ocentra-parent/parent-domain/app-install-purchase-product-claim-platform-preclaim-proof",
+    "output": "test-results\\app-install-purchase-product-claim-platform-preclaim-proof\\proof.json"
+  },
+  "platformPreclaimSummary": {
+    "platformPreclaimRows": 5,
+    "manualPlatformPreclaimRequiredRows": 2,
+    "unsupportedPlatformPreclaimBlockedRows": 3,
+    "portalUiClaimedRows": 0,
+    "platformAdapterImplementedRows": 0,
+    "productClaimApprovedRows": 0
+  },
+  "platformPreclaimRows": [
+    {
+      "schemaVersion": "app-install-purchase-product-claim-platform-preclaim-proof",
+      "platformPreclaimRowId": "app-install-product-claim-platform-preclaim-windows-microsoft-store",
+      "sourcePortalTestReadinessProofVersion": "app-install-purchase-product-claim-portal-test-readiness-proof",
+      "sourcePortalTestReadinessRowId": "app-install-product-claim-portal-test-readiness-windows-microsoft-store",
+      "sourcePortalTestReadinessState": "portal-test-ready",
+      "sourcePlatformProofReadinessProofVersion": "app-install-purchase-platform-proof-readiness",
+      "sourcePlatformProofReadinessRowId": "app-install-platform-proof-readiness-windows",
+      "sourcePlatformProofReadinessState": "manual-proof-required",
+      "platform": "windows",
+      "storeSurface": "microsoft-store",
+      "platformPreclaimState": "manual-platform-preclaim-required",
+      "portalApprovalTestRef": "portal-approval-report-test-windows-microsoft-store",
+      "portalReportTestRef": "portal-report-test-windows-microsoft-store",
+      "requiredManualPlatformEvidenceRefs": [
+        "windows-host-package-source-proof",
+        "windows-guarded-adapter-proof"
+      ],
+      "requiredChildDeliveryRefs": [
+        "child-device-delivery-proof-windows-microsoft-store"
+      ],
+      "requiredProviderStoreExecutionRefs": [
+        "provider-store-api-execution-proof-windows-microsoft-store"
+      ],
+      "requiredPlatformAdapterRefs": [
+        "platform-adapter-proof-windows-microsoft-store"
+      ],
+      "limitationRefs": [
+        "windows-host-package-source-proof",
+        "windows-guarded-adapter-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "product claim platform preclaim proof only; links portal approval report test readiness with platform proof readiness before product claims remain manual or blocked no product claim approval no portal approval UI no portal report UI no Google Play execution no Apple App Store execution no Microsoft Store execution no provider API execution no store integration no platform adapter implementation no child-device delivery no runtime writer delivery no runtime report delivery no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-06T21:20:00.000Z"
+    },
+    {
+      "schemaVersion": "app-install-purchase-product-claim-platform-preclaim-proof",
+      "platformPreclaimRowId": "app-install-product-claim-platform-preclaim-macos-mac-app-store",
+      "sourcePortalTestReadinessProofVersion": "app-install-purchase-product-claim-portal-test-readiness-proof",
+      "sourcePortalTestReadinessRowId": "app-install-product-claim-portal-test-readiness-macos-mac-app-store",
+      "sourcePortalTestReadinessState": "manual-portal-test-required",
+      "sourcePlatformProofReadinessProofVersion": "app-install-purchase-platform-proof-readiness",
+      "sourcePlatformProofReadinessRowId": "app-install-platform-proof-readiness-macos",
+      "sourcePlatformProofReadinessState": "manual-proof-required",
+      "platform": "macos",
+      "storeSurface": "mac-app-store",
+      "platformPreclaimState": "manual-platform-preclaim-required",
+      "portalApprovalTestRef": "portal-approval-report-test-macos-mac-app-store",
+      "portalReportTestRef": "portal-report-test-macos-mac-app-store",
+      "requiredManualPlatformEvidenceRefs": [
+        "macos-signing-receipt-proof",
+        "macos-store-source-manual-proof"
+      ],
+      "requiredChildDeliveryRefs": [
+        "child-device-delivery-proof-macos-mac-app-store"
+      ],
+      "requiredProviderStoreExecutionRefs": [
+        "provider-store-api-execution-proof-macos-mac-app-store"
+      ],
+      "requiredPlatformAdapterRefs": [
+        "platform-adapter-proof-macos-mac-app-store"
+      ],
+      "limitationRefs": [
+        "macos-signing-receipt-proof",
+        "macos-store-source-manual-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "product claim platform preclaim proof only; links portal approval report test readiness with platform proof readiness before product claims remain manual or blocked no product claim approval no portal approval UI no portal report UI no Google Play execution no Apple App Store execution no Microsoft Store execution no provider API execution no store integration no platform adapter implementation no child-device delivery no runtime writer delivery no runtime report delivery no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-06T21:20:00.000Z"
+    },
+    {
+      "schemaVersion": "app-install-purchase-product-claim-platform-preclaim-proof",
+      "platformPreclaimRowId": "app-install-product-claim-platform-preclaim-linux-linux-package-manager",
+      "sourcePortalTestReadinessProofVersion": "app-install-purchase-product-claim-portal-test-readiness-proof",
+      "sourcePortalTestReadinessRowId": "app-install-product-claim-portal-test-readiness-linux-linux-package-manager",
+      "sourcePortalTestReadinessState": "unsupported-portal-test-blocked",
+      "sourcePlatformProofReadinessProofVersion": "app-install-purchase-platform-proof-readiness",
+      "sourcePlatformProofReadinessRowId": "app-install-platform-proof-readiness-linux",
+      "sourcePlatformProofReadinessState": "unavailable",
+      "platform": "linux",
+      "storeSurface": "linux-package-manager",
+      "platformPreclaimState": "unsupported-platform-preclaim-blocked",
+      "portalApprovalTestRef": "portal-approval-report-test-linux-linux-package-manager",
+      "portalReportTestRef": "portal-report-test-linux-linux-package-manager",
+      "requiredManualPlatformEvidenceRefs": [
+        "linux-package-manager-source-path-proof"
+      ],
+      "requiredChildDeliveryRefs": [
+        "child-device-delivery-proof-linux-linux-package-manager"
+      ],
+      "requiredProviderStoreExecutionRefs": [
+        "provider-store-api-execution-proof-linux-linux-package-manager"
+      ],
+      "requiredPlatformAdapterRefs": [
+        "platform-adapter-proof-linux-linux-package-manager"
+      ],
+      "limitationRefs": [
+        "linux-package-manager-source-path-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "product claim platform preclaim proof only; links portal approval report test readiness with platform proof readiness before product claims remain manual or blocked no product claim approval no portal approval UI no portal report UI no Google Play execution no Apple App Store execution no Microsoft Store execution no provider API execution no store integration no platform adapter implementation no child-device delivery no runtime writer delivery no runtime report delivery no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-06T21:20:00.000Z"
+    },
+    {
+      "schemaVersion": "app-install-purchase-product-claim-platform-preclaim-proof",
+      "platformPreclaimRowId": "app-install-product-claim-platform-preclaim-android-google-play",
+      "sourcePortalTestReadinessProofVersion": "app-install-purchase-product-claim-portal-test-readiness-proof",
+      "sourcePortalTestReadinessRowId": "app-install-product-claim-portal-test-readiness-android-google-play",
+      "sourcePortalTestReadinessState": "unsupported-portal-test-blocked",
+      "sourcePlatformProofReadinessProofVersion": "app-install-purchase-platform-proof-readiness",
+      "sourcePlatformProofReadinessRowId": "app-install-platform-proof-readiness-android",
+      "sourcePlatformProofReadinessState": "policy-blocked",
+      "platform": "android",
+      "storeSurface": "google-play",
+      "platformPreclaimState": "unsupported-platform-preclaim-blocked",
+      "portalApprovalTestRef": "portal-approval-report-test-android-google-play",
+      "portalReportTestRef": "portal-report-test-android-google-play",
+      "requiredManualPlatformEvidenceRefs": [
+        "android-device-owner-or-managed-profile-proof",
+        "google-play-policy-review-proof"
+      ],
+      "requiredChildDeliveryRefs": [
+        "child-device-delivery-proof-android-google-play"
+      ],
+      "requiredProviderStoreExecutionRefs": [
+        "provider-store-api-execution-proof-android-google-play"
+      ],
+      "requiredPlatformAdapterRefs": [
+        "platform-adapter-proof-android-google-play"
+      ],
+      "limitationRefs": [
+        "android-device-owner-or-managed-profile-proof",
+        "google-play-policy-review-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "product claim platform preclaim proof only; links portal approval report test readiness with platform proof readiness before product claims remain manual or blocked no product claim approval no portal approval UI no portal report UI no Google Play execution no Apple App Store execution no Microsoft Store execution no provider API execution no store integration no platform adapter implementation no child-device delivery no runtime writer delivery no runtime report delivery no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-06T21:20:00.000Z"
+    },
+    {
+      "schemaVersion": "app-install-purchase-product-claim-platform-preclaim-proof",
+      "platformPreclaimRowId": "app-install-product-claim-platform-preclaim-ios-apple-app-store",
+      "sourcePortalTestReadinessProofVersion": "app-install-purchase-product-claim-portal-test-readiness-proof",
+      "sourcePortalTestReadinessRowId": "app-install-product-claim-portal-test-readiness-ios-apple-app-store",
+      "sourcePortalTestReadinessState": "unsupported-portal-test-blocked",
+      "sourcePlatformProofReadinessProofVersion": "app-install-purchase-platform-proof-readiness",
+      "sourcePlatformProofReadinessRowId": "app-install-platform-proof-readiness-ios",
+      "sourcePlatformProofReadinessState": "policy-blocked",
+      "platform": "ios",
+      "storeSurface": "apple-app-store",
+      "platformPreclaimState": "unsupported-platform-preclaim-blocked",
+      "portalApprovalTestRef": "portal-approval-report-test-ios-apple-app-store",
+      "portalReportTestRef": "portal-report-test-ios-apple-app-store",
+      "requiredManualPlatformEvidenceRefs": [
+        "ios-family-controls-entitlement-proof",
+        "apple-review-proof"
+      ],
+      "requiredChildDeliveryRefs": [
+        "child-device-delivery-proof-ios-apple-app-store"
+      ],
+      "requiredProviderStoreExecutionRefs": [
+        "provider-store-api-execution-proof-ios-apple-app-store"
+      ],
+      "requiredPlatformAdapterRefs": [
+        "platform-adapter-proof-ios-apple-app-store"
+      ],
+      "limitationRefs": [
+        "ios-family-controls-entitlement-proof",
+        "apple-review-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "product claim platform preclaim proof only; links portal approval report test readiness with platform proof readiness before product claims remain manual or blocked no product claim approval no portal approval UI no portal report UI no Google Play execution no Apple App Store execution no Microsoft Store execution no provider API execution no store integration no platform adapter implementation no child-device delivery no runtime writer delivery no runtime report delivery no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-06T21:20:00.000Z"
+    }
+  ],
+  "nonClaims": [
+    "no-product-claim-approval",
+    "no-portal-approval-ui",
+    "no-portal-report-ui",
+    "no-google-play-execution",
+    "no-apple-app-store-execution",
+    "no-microsoft-store-execution",
+    "no-provider-api-execution",
+    "no-store-integration",
+    "no-platform-adapter-implementation",
+    "no-child-device-delivery",
+    "no-runtime-writer-delivery",
+    "no-runtime-report-delivery",
+    "no-app-blocking",
+    "no-child-activity-data",
+    "no-ocentra-hosted-family-data-custody"
+  ],
+  "knownGaps": [
+    "Platform preclaim rows link portal approval/report test refs with platform proof readiness rows before any product claim can be upgraded.",
+    "Windows and macOS remain manual-platform-preclaim-required until real portal approval/report tests and platform adapter evidence are attached.",
+    "Linux, Android, and iOS remain unsupported-platform-preclaim-blocked until package-manager source, managed-profile, entitlement, or review proof exists."
+  ]
+}

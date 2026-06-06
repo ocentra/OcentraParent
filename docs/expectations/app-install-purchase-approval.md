@@ -279,6 +279,14 @@ Expected contract families:
   runtime writer/report delivery, child-device delivery, portal approval/report
   UI, app blocking, child activity custody, and Ocentra-hosted family data
   custody stay unclaimed.
+- Product-claim platform preclaim rows consume portal-test readiness rows and
+  platform-proof readiness rows so product claims remain manual-required or
+  unsupported before any claim while product claim approval, portal
+  approval/report UI, Google Play execution, Apple App Store execution,
+  Microsoft Store execution, provider API execution, store integration,
+  platform adapter implementation, child-device delivery, runtime writer/report
+  delivery, app blocking, child activity custody, and Ocentra-hosted family data
+  custody stay unclaimed.
 
 ## Validation Gates
 
@@ -462,6 +470,12 @@ Expected contract families:
   runtime refs, product-claim approval/provider/store/platform/child delivery/
   portal/runtime/app-blocking/custody overclaim rejection, public package export
   visibility, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for product-claim platform
+  preclaim rows, portal-test readiness linkage, platform-proof readiness
+  linkage, required portal/manual-platform/child/provider/platform/report refs,
+  product-claim approval, portal UI, provider/store/platform/child delivery/
+  runtime/app-blocking/custody overclaim rejection, public package export
+  visibility, and required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -624,6 +638,13 @@ Expected contract families:
   interception, platform adapter implementation, runtime writer/report delivery,
   child-device delivery, portal approval/report UI, app blocking, child activity
   custody, Ocentra-hosted family data custody, or a product-claim upgrade.
+- Do not treat product-claim platform preclaim proof refs as product claim
+  approval, portal approval UI, portal report UI, Google Play execution, Apple
+  App Store execution, Microsoft Store execution, provider API execution, store
+  integration, platform adapter implementation, child-device delivery, runtime
+  writer/report delivery, app blocking, child activity custody,
+  Ocentra-hosted family data custody, or proof that platform/store claims are
+  product-ready.
 
 ## Done Signal
 
