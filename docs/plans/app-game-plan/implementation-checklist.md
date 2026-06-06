@@ -165,7 +165,7 @@ Required files:
 - [x] Dry-run terminates or blocks app/game.
 - [x] Manual-required action calls an adapter.
 - [x] Android normal mode claims package suspend/hide.
-- [ ] iOS claims process scanning/killing.
+- [x] iOS claims process scanning/killing.
 - [ ] macOS hard block is claimed without MDM/Endpoint/System Extension proof.
 - [ ] Linux universal block is claimed without mechanism/distro proof.
 - [ ] Session duration changes after journal replay.

@@ -443,6 +443,11 @@ control with better evidence and local audit.
   `output/app-game-plan-proof/merge-gates/android-normal-mode-no-suspend-hide`:
   Android package suspend remains manual-required and blocked before adapter
   dispatch unless Device Owner or Profile Owner proof exists.
+- The iOS process scan/kill merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/ios-no-process-scan-kill`: iOS
+  process enumeration and terminate-process behavior remain not-claimed,
+  not-dispatched, and blocked from adapter calls unless real FamilyControls,
+  ManagedSettings, or supervised MDM proof exists.
 
 ## Current Gap
 
