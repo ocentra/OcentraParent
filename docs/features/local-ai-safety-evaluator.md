@@ -73,6 +73,13 @@ claim needs proof, not slogans.
   before local republish, remote peers cannot publish directly into another
   runtime bus, and private local queue/capture internals plus raw screen
   payloads are rejected before export or republish.
+- `scripts/test/household-ai-provider-route-selection-proof.mjs` now proves
+  household AI provider route selection for the local mesh contract: trusted
+  parent desktop providers outrank laptop, child-desktop, and mobile providers;
+  stale, offline, revoked, degraded, unsupported, and custody-mismatched
+  providers are rejected; mobile providers stay dormant while desktop/laptop
+  capacity exists; and mobile is eligible only for explicit light fallback when
+  battery, thermal, and fallback policy allow it.
 - The [Household AI Provider Mesh Plan](../plans/ai-plan/household-ai-provider-mesh-plan.md)
   now defines trusted household AI providers, the Household Mesh Bridge,
   provider advertisement/heartbeat, claim/lease, result validation, no raw
@@ -365,7 +372,9 @@ household family AI hub runtime/discovery beyond the loopback proof,
 production remote assistant provider execution and portal assistant UI,
 cloud-streamed frame proof, mobile browser parity, live service AI event
 consumers, degraded-result event flow, production household mesh transport over
-physical LAN, and validation against production external evidence variants.
+physical LAN, live provider advertisement/heartbeat gossip, live lease expiry
+and dead-letter handling, and validation against production external evidence
+variants.
 
 ## Checklist
 
@@ -449,12 +458,18 @@ physical LAN, and validation against production external evidence variants.
 - [x] Household Mesh Bridge proof validates selected-event export/import,
       authenticated/authorized local republish, no direct remote bus publish,
       and no private/raw screen payload transfer.
+- [x] Household AI provider route selection proof validates desktop/laptop
+      preference, mobile dormant/fallback, stale/offline/revoked rejection,
+      degraded/unsupported rejection, and custody mismatch rejection without
+      claiming physical LAN routing, production model execution, portal UI,
+      policy authority, or enforcement.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub
-runtime/discovery, production mesh bridge transport over real LAN, live service AI event
-consumers, degraded-result event flow, and broad enforcement handoff remain in
-the Current Gap section above.
+runtime/discovery, production mesh bridge transport over real LAN, live provider
+advertisement/heartbeat gossip, lease expiry/dead-letter handling, live service
+AI event consumers, degraded-result event flow, and broad enforcement handoff
+remain in the Current Gap section above.
 
 ## Next AI Instructions
 

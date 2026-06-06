@@ -50,6 +50,9 @@ mod enforcement_boundary;
 mod enforcement_policy_dispatch;
 mod enforcement_readiness;
 mod enforcement_timer_state;
+mod household_ai_provider_route;
+mod household_ai_provider_route_labels;
+mod household_ai_provider_route_state;
 mod household_mesh_bridge_runtime;
 mod household_mesh_bridge_runtime_phase;
 mod household_mesh_bridge_runtime_refs;
@@ -166,6 +169,15 @@ pub use enforcement_readiness::broad_os_adapter_readiness;
 pub use enforcement_timer_state::{
     active_timer_state_from_outcome, cancelled_timer_outcome, expired_timer_outcome,
     restart_recovered_timer_outcome, EnforcementTimerTransitionIds,
+};
+pub use household_ai_provider_route::{
+    select_household_ai_provider_route, HouseholdAiProviderCandidate,
+    HouseholdAiRouteCandidateDecision, HouseholdAiRouteRequest, HouseholdAiRouteSelection,
+};
+pub use household_ai_provider_route_state::{
+    HouseholdAiProviderClass, HouseholdAiProviderResourcePolicy, HouseholdAiProviderResourceState,
+    HouseholdAiProviderTrustState, HouseholdAiRouteDecisionState, HouseholdAiRouteRejectionReason,
+    HouseholdAiWorkClass,
 };
 pub use household_mesh_bridge_runtime::{
     publish_household_mesh_bridge_chain_for_input, validate_household_mesh_bridge_export,
@@ -308,6 +320,8 @@ mod enforcement_timer_state_tests;
 mod enforcement_timer_tests;
 #[cfg(test)]
 mod enforcement_unavailable_adapter_tests;
+#[cfg(test)]
+mod household_ai_provider_route_tests;
 #[cfg(test)]
 mod household_mesh_bridge_runtime_tests;
 #[cfg(test)]
