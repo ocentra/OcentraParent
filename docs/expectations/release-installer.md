@@ -273,6 +273,16 @@ Release features are product features because parents need install/update paths 
   execution, production SLA, legal disclosure execution, raw child activity
   custody, provider secrets, default Ocentra-hosted family data, or raw support
   bundle payloads.
+- `production-support-status-backend-public-runtime-followthrough-proof` may
+  prove status backend/public runtime follow-through labels for support status,
+  runbook, incident, contact, upload, account, and billing support targets
+  across requested, queued, running, succeeded, failed, and manual-required
+  states, but it must not claim real public runtime execution, status backend
+  execution, support backend upload execution, account lookup execution, billing
+  provider contact execution, remote support session execution, production SLA,
+  legal disclosure execution, raw child activity custody, provider secrets,
+  public runtime payload custody, default Ocentra-hosted family data, or raw
+  support bundle payloads.
 - `production-support-privacy-legal-disclosure-status-proof` may prove
   support-safe privacy/legal disclosure status labels for requested,
   parent-authorized, legal-review queued/running, parent-notification-ready,
