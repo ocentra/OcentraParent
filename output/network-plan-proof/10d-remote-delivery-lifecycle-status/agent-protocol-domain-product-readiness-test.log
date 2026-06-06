@@ -1,0 +1,12 @@
+
+> @ocentra-parent/agent-protocol-domain@0.1.1 test
+> vitest run network-product-readiness-status.test.ts
+
+
+ RUN  v4.1.6 E:/OcentraParentWorktrees/E-D/OcentraParent/packages/agent-protocol-domain
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  09:22:53
+   Duration  784ms (transform 183ms, setup 0ms, import 573ms, tests 26ms, environment 0ms)

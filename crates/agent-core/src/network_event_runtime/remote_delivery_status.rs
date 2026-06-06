@@ -42,6 +42,12 @@ pub struct NetworkRuntimeRemoteDeliveryStatusReport {
     pub dropped_event_dead_letter_count: usize,
     pub queued_duplicate_rejected: bool,
     pub completed_duplicate_rejected: bool,
+    pub cross_process_replay_ref: SourceComponent,
+    pub remote_retention_delete_export_ref: SourceComponent,
+    pub remote_delivery_ack_ref: SourceComponent,
+    pub remote_lifecycle_followup_ref: SourceComponent,
+    pub remote_lifecycle_missing_artifact_count: usize,
+    pub remote_lifecycle_manual_required: bool,
     pub external_transport_delivery_implemented: bool,
     pub family_hub_delivery_implemented: bool,
     pub cross_process_replay_implemented: bool,
@@ -66,6 +72,7 @@ pub async fn prove_network_runtime_remote_delivery_status(
         .map_err(NetworkRuntimeRemoteDeliveryStatusError::BrokerProof)?;
     let family_hub_decision = decide_event_delivery_route(family_hub_delivery_input()?)
         .map_err(NetworkRuntimeRemoteDeliveryStatusError::DeliveryDecision)?;
+    let remote_lifecycle_refs = remote_lifecycle_refs()?;
 
     Ok(NetworkRuntimeRemoteDeliveryStatusReport {
         broker_status: delivery_state_from_decision(
@@ -108,15 +115,19 @@ pub async fn prove_network_runtime_remote_delivery_status(
         )?,
         broker_missing_artifact_count: broker_semantics.delivery_decision.missing_artifacts.len(),
         family_hub_missing_artifact_count: family_hub_decision.missing_artifacts.len(),
-        accepted_event_type_count: family_hub_decision
-            .subscriber_filter
-            .accepted_event_types
-            .len(),
+        accepted_event_type_count: accepted_event_type_count(&family_hub_decision),
         local_idempotency_queue_proved: broker_semantics.delivery_semantics
             == NetworkRuntimeBrokerDeliverySemantics::LocalIdempotencyQueueProof,
         dropped_event_dead_letter_count: broker_semantics.dropped_event_dead_letter_count,
         queued_duplicate_rejected: broker_semantics.queued_duplicate_rejected,
         completed_duplicate_rejected: broker_semantics.completed_duplicate_rejected,
+        cross_process_replay_ref: remote_lifecycle_refs.cross_process_replay_ref,
+        remote_retention_delete_export_ref: remote_lifecycle_refs
+            .remote_retention_delete_export_ref,
+        remote_delivery_ack_ref: remote_lifecycle_refs.remote_delivery_ack_ref,
+        remote_lifecycle_followup_ref: remote_lifecycle_refs.remote_lifecycle_followup_ref,
+        remote_lifecycle_missing_artifact_count: 3,
+        remote_lifecycle_manual_required: true,
         external_transport_delivery_implemented: broker_semantics
             .external_transport_delivery_implemented,
         family_hub_delivery_implemented: family_hub_decision.external_relay_delivery_implemented,
@@ -130,6 +141,34 @@ pub async fn prove_network_runtime_remote_delivery_status(
         adapter_action_executed_count: broker_semantics.adapter_action_executed_count,
         family_hub_decision,
         broker_semantics,
+    })
+}
+
+fn accepted_event_type_count(decision: &EventDeliveryDecisionProof) -> usize {
+    decision.subscriber_filter.accepted_event_types.len()
+}
+
+struct NetworkRuntimeRemoteLifecycleRefs {
+    cross_process_replay_ref: SourceComponent,
+    remote_retention_delete_export_ref: SourceComponent,
+    remote_delivery_ack_ref: SourceComponent,
+    remote_lifecycle_followup_ref: SourceComponent,
+}
+
+fn remote_lifecycle_refs() -> Result<NetworkRuntimeRemoteLifecycleRefs, EventingError> {
+    Ok(NetworkRuntimeRemoteLifecycleRefs {
+        cross_process_replay_ref: source_component(
+            constants::network_flow::TEST_REMOTE_LIFECYCLE_CROSS_PROCESS_REPLAY_REF,
+        )?,
+        remote_retention_delete_export_ref: source_component(
+            constants::network_flow::TEST_REMOTE_LIFECYCLE_RETENTION_DELETE_EXPORT_REF,
+        )?,
+        remote_delivery_ack_ref: source_component(
+            constants::network_flow::TEST_REMOTE_LIFECYCLE_DELIVERY_ACK_REF,
+        )?,
+        remote_lifecycle_followup_ref: source_component(
+            constants::network_flow::TEST_REMOTE_LIFECYCLE_FOLLOWUP_REF,
+        )?,
     })
 }
 

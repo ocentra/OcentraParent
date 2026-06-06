@@ -1,0 +1,16 @@
+
+> @ocentra-parent/portal@0.1.1 test
+> vitest run tests live-activity-network-flow
+
+
+ RUN  v4.1.6 E:/OcentraParentWorktrees/E-D/OcentraParent/apps/portal
+
+
+ Test Files  16 passed (16)
+      Tests  71 passed (71)
+   Start at  09:22:58
+   Duration  3.32s (transform 16.14s, setup 0ms, import 38.18s, tests 339ms, environment 3ms)
+
+[2m9:22:58 a.m.[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
+[2m9:22:58 a.m.[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
+[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`

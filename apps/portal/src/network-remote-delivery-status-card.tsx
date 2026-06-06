@@ -20,68 +20,71 @@ export function NetworkRemoteDeliveryStatusCard({
     <article className={networkRemoteDeliveryStatusCardClassName()}>
       <h2>{PortalDetails.RemoteDeliveryStatus}</h2>
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.RuntimeReference}
-          value={summary.remoteDeliveryStatusRef}
-        />
-        <NetworkRemoteDeliveryStatusDetail label={PortalDetails.BrokerDelivery} value={summary.remoteBrokerStatus} />
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.FamilyHubDelivery}
-          value={summary.remoteFamilyHubStatus}
-        />
-        <NetworkRemoteDeliveryStatusDetail label={PortalDetails.Custody} value={summary.remoteCustodyProofRef} />
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.ParentRuleContextReferences}
-          value={summary.remoteAuthRefs}
-        />
-        <NetworkRemoteDeliveryStatusDetail label={PortalDetails.RemoteTransport} value={summary.remoteTransportRefs} />
-        <NetworkRemoteDeliveryStatusDetail label={PortalDetails.RemoteLifecycle} value={summary.remoteLifecycleRefs} />
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.MissingProof}
-          value={summary.remoteMissingArtifactCounts}
-        />
-        <NetworkRemoteDeliveryStatusDetail label={PortalDetails.Events} value={summary.remoteAcceptedEventTypeCount} />
-        <NetworkRemoteDeliveryStatusDetail label={PortalDetails.LocalQueue} value={summary.remoteLocalQueueProof} />
-        <NetworkRemoteDeliveryStatusDetail label={PortalDetails.DuplicateEvents} value={summary.remoteDuplicateProof} />
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.DeletedEvidence}
-          value={summary.remoteDeadLetterCount}
-        />
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.Transport}
-          value={summary.remoteExternalTransportImplemented}
-        />
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.ChildDelivery}
-          value={summary.remoteFamilyHubDeliveryImplemented}
-        />
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.EventHistory}
-          value={summary.remoteCrossProcessReplayImplemented}
-        />
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.RemoteSync}
-          value={summary.remoteRetentionDeleteExportImplemented}
-        />
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.PolicyAuthority}
-          value={summary.remotePolicyAuthority}
-        />
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.SideEffectAuthority}
-          value={summary.remoteSideEffectAuthority}
-        />
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.EnforcementCommandPublished}
-          value={summary.remoteEnforcementCommandEventCount}
-        />
-        <NetworkRemoteDeliveryStatusDetail
-          label={PortalDetails.AdapterDispatch}
-          value={summary.remoteAdapterActionExecutedCount}
-        />
+        <NetworkRemoteDeliveryStatusDetails summary={summary} />
       </dl>
     </article>
   );
+}
+
+type NetworkRemoteDeliveryStatusDetailEntry = {
+  readonly label: PortalDisplayText;
+  readonly value: PortalDetailValue;
+};
+
+function NetworkRemoteDeliveryStatusDetails({
+  summary,
+}: {
+  readonly summary: NetworkProductReadinessStatusSummary;
+}): ReactElement {
+  return (
+    <>
+      {networkRemoteDeliveryStatusDetails(summary).map((detail) => (
+        <NetworkRemoteDeliveryStatusDetail key={detail.label} label={detail.label} value={detail.value} />
+      ))}
+    </>
+  );
+}
+
+function networkRemoteDeliveryStatusDetails(
+  summary: NetworkProductReadinessStatusSummary
+): readonly NetworkRemoteDeliveryStatusDetailEntry[] {
+  return [...remoteDeliveryEvidenceDetails(summary), ...remoteDeliveryFalseClaimDetails(summary)];
+}
+
+function remoteDeliveryEvidenceDetails(
+  summary: NetworkProductReadinessStatusSummary
+): readonly NetworkRemoteDeliveryStatusDetailEntry[] {
+  return [
+    { label: PortalDetails.RuntimeReference, value: summary.remoteDeliveryStatusRef },
+    { label: PortalDetails.BrokerDelivery, value: summary.remoteBrokerStatus },
+    { label: PortalDetails.FamilyHubDelivery, value: summary.remoteFamilyHubStatus },
+    { label: PortalDetails.Custody, value: summary.remoteCustodyProofRef },
+    { label: PortalDetails.ParentRuleContextReferences, value: summary.remoteAuthRefs },
+    { label: PortalDetails.RemoteTransport, value: summary.remoteTransportRefs },
+    { label: PortalDetails.RemoteLifecycle, value: summary.remoteLifecycleRefs },
+    { label: PortalDetails.MissingProof, value: summary.remoteMissingArtifactCounts },
+    { label: PortalDetails.Events, value: summary.remoteAcceptedEventTypeCount },
+    { label: PortalDetails.LocalQueue, value: summary.remoteLocalQueueProof },
+    { label: PortalDetails.DuplicateEvents, value: summary.remoteDuplicateProof },
+    { label: PortalDetails.DeletedEvidence, value: summary.remoteDeadLetterCount },
+    { label: PortalDetails.Audit, value: summary.remoteLifecycleFollowupRef },
+    { label: PortalDetails.ManualRequired, value: summary.remoteLifecycleManualRequired },
+  ];
+}
+
+function remoteDeliveryFalseClaimDetails(
+  summary: NetworkProductReadinessStatusSummary
+): readonly NetworkRemoteDeliveryStatusDetailEntry[] {
+  return [
+    { label: PortalDetails.Transport, value: summary.remoteExternalTransportImplemented },
+    { label: PortalDetails.ChildDelivery, value: summary.remoteFamilyHubDeliveryImplemented },
+    { label: PortalDetails.EventHistory, value: summary.remoteCrossProcessReplayImplemented },
+    { label: PortalDetails.RemoteSync, value: summary.remoteRetentionDeleteExportImplemented },
+    { label: PortalDetails.PolicyAuthority, value: summary.remotePolicyAuthority },
+    { label: PortalDetails.SideEffectAuthority, value: summary.remoteSideEffectAuthority },
+    { label: PortalDetails.EnforcementCommandPublished, value: summary.remoteEnforcementCommandEventCount },
+    { label: PortalDetails.AdapterDispatch, value: summary.remoteAdapterActionExecutedCount },
+  ];
 }
 
 function NetworkRemoteDeliveryStatusDetail({
