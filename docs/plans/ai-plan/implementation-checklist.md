@@ -35,6 +35,7 @@ consumes the same results.
 | Screen parent explanation service read model      | P3 service proved   | `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json`                                         | Starts the real Rust service against a seeded ActivityStore and requests the Activity Screen read model over WebSocket, proving policy refs, parent rules, local runtime refs, parent explanation refs, deletion reasons, deleted-image state, and child-device custody survive service/query projection. It does not claim production portal rendering, new capture/model inference, remote/API AI, policy authority, or enforcement.                                                                       |
 | Screen family AI hub runtime discovery            | P3 loopback proved  | `output/screen-ai-pipeline-proof/family-ai-hub-runtime-discovery/proof-summary.json`                                                   | Starts a real loopback family-hub endpoint, discovers it through existing LAN evidence schemas, links it to the selected screen family-hub route, and submits a redacted-crop job payload without raw screenshot transfer, raw retention, remote/API provider use, or Ocentra-hosted processing. Physical household LAN, production model quality, portal UI, policy authority, and enforcement remain separate gates.                                                                                       |
 | Local text inference dry-run                      | P3 dry-run proved   | `output/ai-plan-proof/local-ai-text-inference-dry-run/proof-summary.json`                                                              | Proves schema-valid local AI input and matching local runtime metadata can produce ready, unavailable, and missing-evidence `LocalAiSafetyResult` rows while preserving typed evidence refs, parent-rule refs, runtime refs, prompt version refs, no raw prompt retention, and explicit no model-execution, no remote/API AI, no policy-authority, no enforcement, and no production-model-quality claims.                                                                                                   |
+| Local recent memory and short-window activity     | P3 contract proved  | `output/ai-plan-proof/local-ai-recent-memory-window-proof/proof-summary.json`                                                          | Proves a parent-domain read model over the existing local AI context builder that selects only fresh `recent-activity` evidence inside the requested window, returns source-grounded recent-memory refs, omits stale/out-of-window and ungrounded rows, and rejects raw retention, remote/API AI, policy authority, and enforcement overclaims. It does not create fresh capture, execute a model, prove production model quality, render portal UI, or dispatch enforcement.                                |
 
 ## Contract And Source Truth
 
@@ -55,7 +56,9 @@ consumes the same results.
 - [ ] Provider route contract complete.
 - [ ] Context builder contracts complete.
 - [ ] Prompt/template version contract complete.
-- [ ] Memory reference contract complete.
+- [x] Memory reference contract complete for source-cited recent-activity
+      memory in the short-window read model; broader semantic/long-term memory
+      quality remains product-scope follow-up.
 - [ ] Graph reference contract complete.
 - [x] AI journal/read-model contract complete for screen VLM status
       projection; broader AI journal/read-model surfaces remain product-scope
@@ -85,8 +88,10 @@ consumes the same results.
 
 ## Memory And Graph
 
-- [ ] Recent memory contract implemented.
-- [ ] Short-window recent activity implemented.
+- [x] Recent memory contract implemented for source-grounded recent-activity
+      read-model rows over the local AI context builder.
+- [x] Short-window recent activity implemented for the parent-domain read-model
+      proof path, with stale/out-of-window evidence omitted.
 - [x] Semantic memory source-citation guard implemented for screen AI context.
 - [ ] Graph reference contract implemented.
 - [ ] Minimal graph edges implemented.
@@ -182,6 +187,11 @@ consumes the same results.
 - [x] local AI stored-evidence context proof run:
       `node --check scripts/test/local-ai-stored-evidence-context-proof.mjs`
       and `node scripts/test/local-ai-stored-evidence-context-proof.mjs`.
+- [x] local AI recent-memory and short-window activity proof artifacts under
+      `output/ai-plan-proof/local-ai-recent-memory-window-proof`.
+- [x] local AI recent-memory and short-window activity proof run:
+      `node --check scripts/test/local-ai-recent-memory-window-proof.mjs` and
+      `node scripts/test/local-ai-recent-memory-window-proof.mjs`.
 - [x] guided VLM worker contract proof artifacts under
       `output/ai-plan-proof/screen-vlm-worker-contract-proof`.
 - [x] guided VLM worker contract proof run:
