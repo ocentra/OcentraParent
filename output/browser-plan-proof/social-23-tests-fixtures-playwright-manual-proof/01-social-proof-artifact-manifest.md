@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T06:42:26.595Z
+Generated: 2026-06-06T07:10:49.046Z
 
 Rows checked: 22
 Proof-present rows: 6
@@ -31,7 +31,7 @@ Product claimed: false
 | SOCIAL-19 | partial-manual-required | `social-19-memory-cache-account-video-channel-decisions` | 5 |
 | SOCIAL-20 | proof-present | `social-20-parent-social-dashboard-ux` | 9 |
 | SOCIAL-21 | proof-present | `social-21-child-approval-block-ux` | 7 |
-| SOCIAL-22 | partial-manual-required | `social-22-audit-explanation-read-model` | 9 |
+| SOCIAL-22 | partial-manual-required | `social-22-audit-explanation-read-model` | 12 |
 
 SOCIAL-23 proves proof-pack coverage for SOCIAL-01 through SOCIAL-22.
 Rendered proof-bundle UI exists for the parent social dashboard,
