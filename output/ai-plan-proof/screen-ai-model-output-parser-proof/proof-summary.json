@@ -1,7 +1,7 @@
 {
   "status": "ok",
   "proofKind": "screen-ai-model-output-parser-proof",
-  "generatedAt": "2026-06-05T23:48:00.752Z",
+  "generatedAt": "2026-06-06T04:43:38.062Z",
   "output": "output/ai-plan-proof/screen-ai-model-output-parser-proof/proof-summary.json",
   "parsedInput": {
     "requestId": "screen-ai-request:parser-proof",

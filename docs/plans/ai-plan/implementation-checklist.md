@@ -153,7 +153,11 @@ consumes the same results.
 - [x] Rust parity tests.
 - [ ] Stored-evidence integration tests.
 - [x] Provider route/status tests.
-- [ ] Model output parser tests.
+- [x] Model output parser tests exist in
+      `packages/parent-domain/tests/screen-ai-model-output-parser-proof.test.ts`
+      and `scripts/test/screen-ai-model-output-parser-proof.mjs`, with proof
+      artifact
+      `output/ai-plan-proof/screen-ai-model-output-parser-proof/proof-summary.json`.
 - [x] Policy integration tests for stricter parent-rule override on screen AI
       policy decisions.
 - [x] Memory/graph source guard tests.
