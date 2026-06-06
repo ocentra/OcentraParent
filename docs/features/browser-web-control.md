@@ -110,10 +110,13 @@ control while being more honest about managed versus unmanaged sources.
   live OS scanning, live signature/hash extraction, portal dashboard rendering,
   exact URL evidence, or blocking claims.
 - Browser-plan WP04 default-root service proof now feeds the service inventory
-  read-model scan with default Windows candidate roots before process
+  read-model scan with default Windows candidate roots and live Windows
+  uninstall registry DisplayIcon/InstallLocation entries before process
   observations. Fixture proof shows a default-root Edge install becomes a
-  managed candidate row with exact URL still unavailable, without live registry,
-  Start Menu, `.lnk`, AppX/MSIX, signature, UI, or enforcement claims.
+  managed candidate row with exact URL still unavailable, and focused Rust tests
+  prove registry-source ingestion through the browser-owned candidate path
+  helper, without Rust `.lnk` binary parsing, AppX/MSIX, UI, or enforcement
+  claims.
 - Browser-plan WP04 live Windows inventory proof now captures real local
   Windows known-path, registry uninstall, Start Menu shortcut, running-process,
   file-hash, and Authenticode status evidence for Chrome, Edge, and Firefox

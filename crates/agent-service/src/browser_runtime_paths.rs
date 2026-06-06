@@ -2,7 +2,7 @@ use std::{env, path::PathBuf};
 
 use ocentra_parent_agent_core::{
     create_or_repair_managed_browser_profile_store, installed_managed_browser_candidates,
-    windows_browser_inventory_candidate_paths, BrowserManagedInstallCandidate,
+    live_windows_browser_inventory_candidate_paths_with_limit, BrowserManagedInstallCandidate,
     BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreRecord,
 };
 use ocentra_parent_agent_protocol::{constants, BrowserChannel, BrowserFamily};
@@ -65,5 +65,8 @@ pub(crate) fn system_browser_candidate_paths() -> Vec<PathBuf> {
     if let Ok(root) = env::var(constants::env_var::LOCAL_APP_DATA) {
         roots.push(PathBuf::from(root));
     }
-    windows_browser_inventory_candidate_paths(&roots)
+    live_windows_browser_inventory_candidate_paths_with_limit(
+        &roots,
+        constants::browser::PROCESS_SCAN_LIMIT_BROWSER_DISCOVERY,
+    )
 }

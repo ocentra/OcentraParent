@@ -1,0 +1,96 @@
+use std::path::PathBuf;
+
+use ocentra_parent_agent_protocol::constants;
+
+use crate::{
+    browser_windows_inventory_candidate_paths_from_live_sources,
+    browser_windows_live_registry_entry, windows_browser_inventory_observations,
+};
+
+#[test]
+fn browser_windows_live_sources_feed_registry_display_icon_and_install_location_candidates() {
+    let root = temp_inventory_source_root(1);
+    let edge = root
+        .join(constants::browser::PATH_SEGMENT_MICROSOFT)
+        .join(constants::browser::PATH_SEGMENT_EDGE)
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS);
+    let chrome_root = root
+        .join(constants::browser::PATH_SEGMENT_GOOGLE)
+        .join(constants::browser::PATH_SEGMENT_CHROME);
+    let chrome = chrome_root
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::EXECUTABLE_CHROME_WINDOWS);
+    create_executable_fixture(&edge);
+    create_executable_fixture(&chrome);
+    let display_icon = quoted_display_icon(&edge);
+    let entries = [browser_windows_live_registry_entry(
+        Some(display_icon),
+        Some(chrome_root.as_path()),
+    )];
+
+    let paths = browser_windows_inventory_candidate_paths_from_live_sources(&[], &entries, &[]);
+    let observations = windows_browser_inventory_observations(&paths, &[], None);
+
+    assert!(paths.iter().any(|path| path == &edge));
+    assert!(paths.iter().any(|path| path == &chrome));
+    assert_eq!(observations.len(), 2);
+    assert!(observations
+        .iter()
+        .all(|observation| observation.executable_path.is_some()));
+
+    let _ = std::fs::remove_dir_all(root);
+}
+
+#[test]
+fn browser_windows_live_sources_feed_shortcut_targets_without_url_claims() {
+    let root = temp_inventory_source_root(2);
+    let edge = root
+        .join(constants::browser::PATH_SEGMENT_MICROSOFT)
+        .join(constants::browser::PATH_SEGMENT_EDGE)
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS);
+    create_executable_fixture(&edge);
+    let shortcut_targets = [quoted_display_icon(&edge)];
+
+    let paths =
+        browser_windows_inventory_candidate_paths_from_live_sources(&[], &[], &shortcut_targets);
+    let observations = windows_browser_inventory_observations(&paths, &[], None);
+
+    assert_eq!(paths, vec![edge.clone()]);
+    assert_eq!(observations.len(), 1);
+    assert_eq!(
+        observations[0].reason_code,
+        constants::browser::INVENTORY_REASON_WINDOWS_MANAGED_PROFILE_REQUIRED
+    );
+
+    let _ = std::fs::remove_dir_all(root);
+}
+
+fn temp_inventory_source_root(index: u32) -> PathBuf {
+    let root = std::env::temp_dir()
+        .join(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR)
+        .join(std::process::id().to_string())
+        .join(index.to_string());
+    let _ = std::fs::remove_dir_all(&root);
+    root
+}
+
+fn create_executable_fixture(path: &PathBuf) {
+    std::fs::create_dir_all(
+        path.parent()
+            .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET),
+    )
+    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    std::fs::write(path, []).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+}
+
+fn quoted_display_icon(path: &PathBuf) -> String {
+    let mut display_icon = String::new();
+    display_icon.push(constants::delimiter::QUOTE);
+    display_icon.push_str(path.to_string_lossy().as_ref());
+    display_icon.push(constants::delimiter::QUOTE);
+    display_icon.push(constants::delimiter::LIST);
+    display_icon.push('0');
+    display_icon
+}
