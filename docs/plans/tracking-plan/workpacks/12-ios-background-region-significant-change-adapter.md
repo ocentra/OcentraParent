@@ -32,10 +32,15 @@ Proof root: `output/tracking-plan-proof/12-ios-background-region-significant-cha
 
 ## AI Worker Checklist
 
-- [ ] Prove Always authorization UX.
-- [ ] Prove region enter/exit where claimed.
-- [ ] Prove significant-change and visit events where claimed.
-- [ ] Prove background/terminated degraded behavior.
+- [ ] Prove Always authorization UX. Parent-domain manual-required row now
+      exists; real authorization/entitlement capture remains pending.
+- [ ] Prove region enter/exit where claimed. Parent-domain manual-required row
+      now exists; real region transition capture remains pending.
+- [ ] Prove significant-change and visit events where claimed. Parent-domain
+      manual-required row now exists; real event capture remains pending.
+- [ ] Prove background/terminated degraded behavior. Parent-domain
+      manual-required row now exists; real background delivery and relaunch proof
+      remain pending.
 - [ ] Document App Store/privacy disclosure implications before release claims.
 - [x] Generate the iOS simulator/local and physical-device proof artifact plan
       before device work.
@@ -57,6 +62,13 @@ proof into this workpack root. It can prove the simulator package build and
 install/launch path on macOS, but simulator package launch is not Always
 authorization, region monitoring, significant-change, visits, low-power,
 terminated/relaunch, notification, entitlement, or physical-device proof.
+`node scripts/test/tracking-ios-location-manual-required-proof.mjs` now writes
+parent-domain read-model proof rows for Always authorization, region
+transitions, significant-change/visit events, and background
+terminated/relaunch gaps under this workpack root. Those rows attach simulator
+package/manual proof refs and keep Core Location background runtime,
+entitlement, notification delivery, physical-device, authority, and
+product-ready claims false.
 
 ## Where We Want To Be
 
@@ -98,3 +110,5 @@ This workpack can be assigned independently, implemented against the owning doma
       monitoring, significant-change, visits, background delivery, low-power,
       terminated/relaunch, notification delivery, physical-device, and
       authority proof remain unclaimed.
+- [x] Parent-domain manual-required proof added:
+      `test-results/tracking-ios-location-manual-required-proof/proof.json`.

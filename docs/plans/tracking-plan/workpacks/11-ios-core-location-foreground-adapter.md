@@ -32,9 +32,13 @@ Proof root: `output/tracking-plan-proof/11-ios-core-location-foreground-adapter/
 
 ## AI Worker Checklist
 
-- [ ] Prove When In Use authorization UX.
-- [ ] Prove current location sample.
-- [ ] Prove denied/restricted and services-disabled states.
+- [ ] Prove When In Use authorization UX. Parent-domain manual-required row now
+      exists; real authorization capture remains pending.
+- [ ] Prove current location sample. Parent-domain manual-required row now
+      exists; real Core Location sample capture remains pending.
+- [ ] Prove denied/restricted and services-disabled states. Parent-domain
+      manual-required row now exists; real simulator/device state capture
+      remains pending.
 - [ ] Preserve accuracy/freshness.
 - [ ] Do not claim Always/background from this workpack.
 - [x] Generate the iOS simulator/local proof artifact plan before device work.
@@ -56,6 +60,12 @@ install/launch path through the existing Xcode/simctl scripts; on non-macOS
 hosts it writes `manual_required` output instead of pretending simulator
 execution happened. This is package-mechanics proof only, not Core Location
 authorization or foreground sample proof.
+`node scripts/test/tracking-ios-location-manual-required-proof.mjs` now writes
+parent-domain read-model proof rows for When In Use authorization, foreground
+sample, and denied/restricted/services-disabled gaps under this workpack root.
+Those rows attach simulator package/manual proof refs and keep authorization,
+sample capture, physical-device, notification, provider, authority, and
+product-ready claims false.
 
 ## Where We Want To Be
 
@@ -96,3 +106,5 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Known gaps/manual-required states: Core Location authorization/sample,
       background/region behavior, notification delivery, signing/TestFlight,
       physical-device, and authority proof remain unclaimed.
+- [x] Parent-domain manual-required proof added:
+      `test-results/tracking-ios-location-manual-required-proof/proof.json`.
