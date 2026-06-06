@@ -17,6 +17,11 @@ mobile readiness, and control catalogs.
   app and native game decisions into read-only parent preview rows while
   keeping evaluator runtime, timers, child delivery, adapter dispatch, broad
   blocking, and platform enforcement unclaimed.
+- App/game source-gated policy preview export-readiness contracts that consume
+  the source-gated preview read model, name the future package subpath and
+  public symbols, and keep the package manifest edit deferred without adding
+  service runtime, portal UI, evaluator, timer, adapter, child delivery,
+  platform enforcement, or raw source-row claims.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.

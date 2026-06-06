@@ -75,6 +75,7 @@ before `DONE` or PR-ready reporting.
 67. WP74 app/game source freshness policy consumption.
 68. WP75 app/game source freshness preview gate.
 69. WP76 app/game source-gated policy preview read model.
+70. WP77 app/game source-gated policy preview export readiness.
 
 ## Standard AI Worker Checklist
 
