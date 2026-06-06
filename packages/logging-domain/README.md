@@ -159,6 +159,25 @@ support sessions, production SLA execution, raw child activity custody,
 provider secrets, remote support transcripts, or default Ocentra-hosted family
 data.
 
+## Provider Secret Custody Status Contract
+
+`src/provider-secret-custody-status.ts` owns the logging-domain schema proof for
+production support provider-secret custody status rows, while
+`src/provider-secret-custody-status-read-model.ts` owns the current fixture
+rows. They record custody-boundary recorded, provider-secret absent, backend
+secret store manual-required, rotation manual-required, revocation
+manual-required, and audit-export-ready states with legal/provider readiness,
+billing support, redaction, custody audit, rotation, revocation, manual proof,
+and audit export refs.
+
+This contract is metadata-only. It does not claim provider secrets, payment
+provider tokens, raw child activity, raw support bundle payloads, account
+lookup results, billing provider contact records, remote support transcripts,
+real provider-secret custody, backend secret store execution, rotation
+execution, revocation execution, support backend upload execution, account
+lookup execution, billing provider contact execution, remote support session
+execution, production SLA, or default Ocentra-hosted family data.
+
 ## Data Export/Delete Lifecycle Contract
 
 `src/data-export-delete-lifecycle.ts` owns the logging-domain schema proof for

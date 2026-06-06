@@ -57,6 +57,14 @@
       "import": "./dist/support-case-resolution-status-read-model.js",
       "types": "./dist/support-case-resolution-status-read-model.d.ts"
     },
+    "./provider-secret-custody-status": {
+      "import": "./dist/provider-secret-custody-status.js",
+      "types": "./dist/provider-secret-custody-status.d.ts"
+    },
+    "./provider-secret-custody-status-read-model": {
+      "import": "./dist/provider-secret-custody-status-read-model.js",
+      "types": "./dist/provider-secret-custody-status-read-model.d.ts"
+    },
     "./support-incident-workflow": {
       "import": "./dist/support-incident-workflow.js",
       "types": "./dist/support-incident-workflow.d.ts"
