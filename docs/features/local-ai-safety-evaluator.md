@@ -92,6 +92,14 @@ claim needs proof, not slogans.
   partial context with explicit missing evidence kinds. It consumes existing
   proof artifacts and does not create fresh capture, execute a model, prove
   model quality, render portal UI, dispatch enforcement, or use remote/API AI.
+- `LocalAiTextInferenceDryRunResultSchema` and
+  `scripts/test/local-ai-text-inference-dry-run-proof.mjs` now prove the local
+  text inference dry-run boundary over schema-valid local AI input and matching
+  local runtime metadata. The proof emits ready, unavailable, and
+  missing-evidence `LocalAiSafetyResult` rows while preserving typed evidence
+  refs, parent-rule refs, runtime refs, prompt version refs, no raw prompt
+  retention, and explicit no model-execution, no remote/API AI, no
+  policy-authority, no enforcement, and no production-model-quality claims.
 - The service WinRT OCR policy proof now reruns the real Windows service
   OCR path over live public Wikipedia pixels and consumes that exact
   `localOcr` Activity Screen row through `PolicyDecisionSchema`, producing an
@@ -244,6 +252,9 @@ production external evidence variants.
       priority and no duplicate same-device model load proof.
 - [x] Evidence context builder proof path.
 - [x] Parent-rule context proof path.
+- [x] Local text inference dry-run proof path without model-execution,
+      remote/API, policy-authority, enforcement, production-quality, or raw
+      prompt-retention claims.
 - [x] Local result contract with confidence/degraded state.
 - [x] Deterministic policy integration.
 - [x] Service WinRT OCR row consumed by typed parent policy dry-run.

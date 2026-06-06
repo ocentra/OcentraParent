@@ -537,6 +537,10 @@
       "import": "./dist/local-ai-runtime-status-read-model-proof.js",
       "types": "./dist/local-ai-runtime-status-read-model-proof.d.ts"
     },
+    "./local-ai-text-inference-dry-run-proof": {
+      "import": "./dist/local-ai-text-inference-dry-run-proof.js",
+      "types": "./dist/local-ai-text-inference-dry-run-proof.d.ts"
+    },
     "./lan-pairing": {
       "import": "./dist/lan-pairing.js",
       "types": "./dist/lan-pairing.d.ts"
