@@ -163,6 +163,13 @@ Expected contract families:
   platform adapter implementation, child-device delivery, runtime report
   delivery, real interception, app blocking, child activity data custody, or
   Ocentra-hosted family data custody.
+- Runtime report writer delivery proof rows link runtime writer execution
+  delivery receipts and report-runtime compiler output rows into parent-owned
+  report delivery-ready rows and report receipts without claiming portal report
+  UI, external runtime report delivery, provider API execution, store
+  integration, platform interception, platform adapter implementation,
+  child-device delivery, app blocking, child activity data custody, or
+  Ocentra-hosted family data custody.
 
 ## Validation Gates
 
@@ -259,6 +266,11 @@ Expected contract families:
   child delivery/report delivery/app-blocking/custody overclaim rejection, and
   required non-claim coverage. Public package export visibility remains a
   required follow-up once `packages/parent-domain/package.json` is available.
+- TypeScript schema tests and a proof harness for runtime report writer
+  delivery rows, missing runtime writer execution/report-runtime/output/
+  receipt/audit coverage rejection, provider/store/platform/child delivery/
+  portal report UI/report delivery/app-blocking/custody overclaim rejection,
+  public package export visibility, and required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -349,6 +361,10 @@ Expected contract families:
   implementation, child-device delivery, runtime report delivery, real
   interception, app blocking, child activity custody, or Ocentra-hosted family
   data custody.
+- Do not treat runtime report writer delivery proof refs as portal report UI,
+  external runtime report delivery, provider API execution, store integration,
+  platform interception, platform adapter implementation, child-device delivery,
+  app blocking, child activity custody, or Ocentra-hosted family data custody.
 
 ## Done Signal
 
