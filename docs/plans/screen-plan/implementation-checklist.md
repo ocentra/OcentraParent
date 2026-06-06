@@ -47,6 +47,7 @@ trigger ownership unless the row explicitly says so.
 | Screen service policy-ref producer         | P2 service producer proof   | `output/screen-plan-proof/screen-service-policy-ref-producer/proof-summary.json`                   | Proves the Rust service event-record producer writes dry-run policy refs for policy-eligible analysis rows before row-ready publication and does not fabricate refs for non-policy-eligible rows. Broad parent-rule compiler coverage, final enforcement, and new live external capture remain separate.                                                 |
 | Screen service capture event producer      | P2 service producer proof   | `output/screen-plan-proof/screen-service-capture-event-producer/proof-summary.json`                | Proves the service cadence and native foreground capture loops publish typed capture-observed and encrypted-queue events after encrypted queue handoff through the existing screen event runtime. Retention sweeper deletion event publication, new live external capture, final enforcement, and model quality remain separate.                         |
 | Screen service deletion event producer     | P2 service producer proof   | `output/screen-plan-proof/screen-service-deletion-event-producer/proof-summary.json`               | Proves the service retention sweeper publishes typed deletion-committed events after expired encrypted queue deletion through the existing screen event runtime without fabricating AI, policy, or action refs. Parent retention UI persistence, final enforcement, and model quality remain separate.                                                   |
+| Screen child disclosure contract           | P2 contract proof           | `output/screen-plan-proof/screen-child-disclosure/proof-summary.json`                              | Proves child-visible disabled, paused, active capture, protected-surface, and deleted-summary states with calm tokenized copy while rejecting hidden capture, raw screenshot display, remote viewer, and policy-authority claims. Rendered child-agent delivery and platform screenshots remain separate.                                                |
 | Router/structured extraction proof         | P2 contract proved          | `output/screen-plan-proof/31-32-screen-router-structured-extraction/proof-summary.json`            | Proves typed screen routing checks existing evidence and managed-browser structured extraction before screenshots; no live producer, portal, policy, or enforcement claim.                                                                                                                                                                               |
 | Managed-browser CDP screenshot capture     | P3 live local proved        | `output/screen-plan-proof/33-managed-browser-cdp-screenshot-capture-path/proof-summary.json`       | Proves real Chromium CDP page/viewport/crop screenshot capture tied to a managed page target with encrypted temp queue handoff and deletion; no URL-trigger ownership, OCR/VLM, policy, enforcement, live view, or raw retention claim.                                                                                                                  |
 | Windows WinRT OCR worker capture analysis  | P3 real OCR proved          | `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`                                  | Proves real selected-window browser/native captured pixels run through Windows WinRT OCR, become typed screen-analysis evidence, feed allow dry-run policy decisions, and delete raw temp images; no production OCR quality, service runtime, cross-platform, enforcement, live view, or raw retention claim.                                            |
@@ -113,6 +114,9 @@ legacy household-provider route or runtime-discovery proofs.
       capture-observed and encrypted-queue events after encrypted queue handoff.
 - [x] Service retention sweeper publishes typed deletion-committed events after
       expired encrypted queue deletion without fabricating policy/action refs.
+- [x] Screen child disclosure contract defines child-visible disabled, paused,
+      active capture, protected-surface, and deleted-summary status without
+      hidden capture or raw screenshot display claims.
 - [x] Screen-derived household provider jobs prove no raw screenshot transfer,
       claim/lease, child-agent result validation, and custody before policy.
 - [x] Platform capture proof exists before platform claim.
@@ -213,7 +217,7 @@ bridge before downstream publication
 | [x]    | 23 Policy compiler for screen-derived evidence     |
 | [~]    | 24 Enforcement handoff guard                       |
 | [~]    | 25 Parent portal summary UI                        |
-| [ ]    | 26 Child disclosure UX                             |
+| [~]    | 26 Child disclosure UX                             |
 | [~]    | 27 Screenshot retention optional mode              |
 | [~]    | 28 Live view optional mode                         |
 | [x]    | 29 Proof tiers and proof packs                     |

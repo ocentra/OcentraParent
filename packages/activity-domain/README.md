@@ -31,6 +31,10 @@ Shared activity and evidence contracts for child-device observations.
 - Screen evidence settings UI proof contracts that build disabled, observe-only,
   and strict dry-run parent intent drafts from the real settings schemas without
   claiming child-agent persistence.
+- Screen child disclosure contracts that define disabled, paused, active
+  capture, protected-surface, and deleted-summary states with calm tokenized
+  child-visible status copy while rejecting hidden capture, raw screenshot
+  display, remote viewer, and policy-authority claims.
 - Screen local AI resource scheduler proof contracts that type OCR/VLM jobs,
   prioritize policy-blocking work, enforce one heavy local screen AI lane per
   child device, and keep pixel/snippet caps plus no-remote-AI/no-raw-retention
@@ -139,6 +143,9 @@ flowchart LR
   `screen-optional-retention-live-preflight-proof`; runtime retention
   enablement, live transport/relay/cache, platform permission prompts, parent
   UI persistence, privacy/legal approval, and production adapters remain open.
+- Screen child disclosure now has `screen-child-disclosure-proof`; rendered
+  child-agent delivery, platform-specific screenshots, and product-complete
+  child UX remain separate proof gates.
 - Screen managed-browser CDP screenshot capture now has
   `screen-managed-browser-cdp-capture-proof`; production URL-trigger ownership,
   OCR/VLM quality, policy action, enforcement, live view, and raw retention
