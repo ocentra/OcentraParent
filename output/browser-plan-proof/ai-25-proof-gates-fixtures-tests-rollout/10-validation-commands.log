@@ -79,3 +79,20 @@ Rollout state:
   UI delivery are still manual-required. It does not claim runtime model
   execution, UI delivery, policy authority, enforcement, public package exports,
   or product checklist completion.
+
+AI-25 rendered UI proof refresh - 2026-06-06
+
+PASS cmd /c node scripts/test/browser-url-video-ai-proof-gates.mjs
+  browser-url-video-ai-proof-gates-ok=true
+  proof=test-results/browser-url-video-ai-proof-gates/proof.json
+  manifest=output/browser-plan-proof/ai-25-proof-gates-fixtures-tests-rollout/01-ai-proof-gate.md
+  complete=24 partial=0
+
+Gate refresh:
+  AI-19 and AI-20 are now contract/proof-present rows because the gate requires
+  the AI-19 live YouTube child UX evidence JSON plus all five rendered child
+  screenshots, and the AI-20 real portal parent explanation proof JSON,
+  accessibility summary, desktop/mobile screenshots, and Playwright log.
+  Browser AI proof-gate coverage is complete for AI-01 through AI-24. Runtime
+  model execution, final policy authority, enforcement, and product completion
+  remain unclaimed.
