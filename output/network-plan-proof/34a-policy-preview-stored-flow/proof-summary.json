@@ -1,11 +1,11 @@
 {
   "proof": "network-policy-preview-stored-flow-proof",
-  "checkedAt": "2026-06-06T01:58:29.362Z",
+  "checkedAt": "2026-06-06T02:04:56.215Z",
   "branch": "codex/network-risk-target-policy-handoff-proof",
-  "commit": "4f117810ee020755b73c411dc39e0e5a8a11bcad",
-  "originMain": "d9a963395175fd5cc56569e278656dfd3c8dd4ea",
-  "mergeBase": "d9a963395175fd5cc56569e278656dfd3c8dd4ea",
-  "sourceStatusShort": "",
+  "commit": "08760daee988da634887e5dc25555f07d6950895",
+  "originMain": "9eb93e3398b1bebc33596e8cbfd96a72bd8f6a07",
+  "mergeBase": "9eb93e3398b1bebc33596e8cbfd96a72bd8f6a07",
+  "sourceStatusShort": " M output/network-plan-proof/22a-risk-target-policy-handoff-proof/clippy.log\n M output/network-plan-proof/22a-risk-target-policy-handoff-proof/proof-summary.json\n M output/network-plan-proof/22a-risk-target-policy-handoff-proof/risk-target-policy-handoff-tests.log\n M output/network-plan-proof/22a-risk-target-policy-handoff-proof/source-shape.log\n M output/network-plan-proof/36a-parent-ui-runtime-event-chain/08-ui-snapshots/network-runtime-event-chain-playwright.log\n M output/network-plan-proof/36a-parent-ui-runtime-event-chain/08-ui-snapshots/network-runtime-event-chain.png\n M output/network-plan-proof/36a-parent-ui-runtime-event-chain/09-security-negative-proof.log\n M output/network-plan-proof/36a-parent-ui-runtime-event-chain/12-validation-commands.log\n M output/network-plan-proof/36a-parent-ui-runtime-event-chain/proof-summary.json\n M test-results/network-parent-ui-runtime-event-chain-proof/proof.json\n M test-results/network-risk-target-policy-handoff-proof/proof.json",
   "proofRoot": "output\\network-plan-proof\\34a-policy-preview-stored-flow",
   "testRoot": "test-results\\network-policy-preview-stored-flow-proof",
   "commands": [
