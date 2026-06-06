@@ -448,6 +448,11 @@ control with better evidence and local audit.
   process enumeration and terminate-process behavior remain not-claimed,
   not-dispatched, and blocked from adapter calls unless real FamilyControls,
   ManagedSettings, or supervised MDM proof exists.
+- The macOS hard-block merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/macos-hard-block-proof`: macOS
+  broad block-launch behavior remains manual-required and blocked before
+  adapter dispatch unless MDM profile, Endpoint Security, or System Extension
+  proof plus rollback and audit proof exists.
 
 ## Current Gap
 
