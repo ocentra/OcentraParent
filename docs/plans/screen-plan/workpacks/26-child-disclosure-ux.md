@@ -6,18 +6,22 @@ Child-visible/local disclosure, parent-enabled status, calm wording, and no hidd
 
 ## Current State
 
-Disclosure requirement exists in expectations. UI/product proof is open.
+Disclosure requirement exists in expectations. `screen-child-disclosure-proof`
+now defines the child-visible status/copy contract and proves no hidden capture
+or raw screenshot display can be represented. Rendered child-agent delivery and
+platform-specific screenshots remain open.
 
 ## Checklist
 
-- [ ] Define child-visible status.
-- [ ] Define local disclosure copy.
-- [ ] Define paused/disabled states.
-- [ ] Define capture-active state where platform permits.
-- [ ] Avoid hidden capture.
-- [ ] Add screenshots/proof.
+- [x] Define child-visible status.
+- [x] Define local disclosure copy.
+- [x] Define paused/disabled states.
+- [x] Define capture-active state where platform permits.
+- [x] Avoid hidden capture.
+- [~] Add screenshots/proof.
 
 ## Proof
 
-- Child/device UX screenshots or platform-specific proof.
+- `output/screen-plan-proof/screen-child-disclosure/proof-summary.json`.
+- Child/device UX screenshots or platform-specific proof remain open.
 - Product text reviewed.
