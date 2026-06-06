@@ -127,6 +127,15 @@ claim needs proof, not slogans.
   match. The proof keeps production graph storage/index runtime, model
   execution, model quality, portal UI, policy authority, enforcement,
   remote/API AI, and raw evidence retention unclaimed.
+- `LocalAiContractCompletenessProofSchema` and
+  `scripts/test/local-ai-contract-completeness-proof.mjs` now prove the
+  baseline local AI input, safety-result, provider-capability, job-queue, and
+  provider-route contracts line up over a single local-only runtime route. The
+  proof preserves evidence refs, parent-rule refs, memory refs, graph refs,
+  prompt/runtime refs, queue position, duplicate-runtime blocking, and provider
+  capability metadata while rejecting model-execution, model-quality, portal
+  UI, policy-authority, enforcement, remote/API AI, raw-prompt, and
+  raw-evidence claims.
 - The service WinRT OCR policy proof now reruns the real Windows service
   OCR path over live public Wikipedia pixels and consumes that exact
   `localOcr` Activity Screen row through `PolicyDecisionSchema`, producing an
@@ -288,6 +297,10 @@ production external evidence variants.
 - [x] Local recent-memory and short-window activity read-model proof path
       without fresh-capture, model-execution, remote/API, policy-authority,
       enforcement, portal UI, or production-quality claims.
+- [x] Local AI input/result/provider capability/job queue/provider route
+      contract-completeness proof path without model-execution, model-quality,
+      remote/API, policy-authority, enforcement, portal UI, raw-prompt, or
+      raw-evidence claims.
 - [x] Local result contract with confidence/degraded state.
 - [x] Deterministic policy integration.
 - [x] Service WinRT OCR row consumed by typed parent policy dry-run.
