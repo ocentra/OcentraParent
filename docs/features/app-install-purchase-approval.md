@@ -276,6 +276,18 @@ generic app blocking covers this concern.
   `test-results/app-install-purchase-report-status-read-model-handoff-proof/proof.json`
   when run. The proof records the public package export, product checklist row,
   and parent-domain README deltas as pending behind the active shared locks.
+- `packages/parent-domain/src/app-install-purchase-platform-limitation-action-proof.ts`
+  now links provider/store report status rows and report status read-model rows
+  into parent-visible limitation follow-up action rows for ready,
+  manual-required, and unavailable platforms while preserving no portal
+  approval/report UI, no external runtime report delivery, no provider/store
+  execution, no billing provider contact, no platform adapters, no child-device
+  delivery, no app blocking, no child activity data, and no Ocentra-hosted
+  family data custody claims.
+- `scripts/test/app-install-purchase-platform-limitation-action-proof.mjs`
+  records that platform limitation action proof under
+  `test-results/app-install-purchase-platform-limitation-action-proof/proof.json`
+  when run.
 
 ## Current Gap
 
@@ -439,6 +451,11 @@ Ocentra-hosted family data custody.
       status rows without portal report UI, external runtime report delivery,
       provider/store execution, platform adapters, child-device delivery, app
       blocking, child activity data, or hosted family data custody claims.
+- [x] Platform limitation action proof linking provider/store report status
+      rows and report status read-model rows into parent-visible follow-up
+      action rows without portal approval/report UI, external report delivery,
+      provider/store execution, billing contact, platform adapters, child
+      delivery, app blocking, child activity data, or hosted custody claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
