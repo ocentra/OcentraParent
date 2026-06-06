@@ -55,6 +55,10 @@ Shared activity and evidence contracts for child-device observations.
   queue jobs, bounded retained OCR snippets, conversion to screen-analysis
   evidence, child-device query-store custody, policy eligibility only after raw
   image deletion, and no raw retention or remote AI.
+- Screen OCR sensitive text redaction contracts that require parent-controlled
+  OCR text retention, bounded snippets, disabled OCR text state,
+  credential-like suppression, PII-like redaction, no raw text retention, no raw
+  image retention, and no remote AI.
 - Screen guided VLM worker contracts that require source-cited encrypted temp
   queue jobs, bounded local image inputs, schema-bound model output,
   conversion to screen-analysis evidence, child-device query-store custody,
@@ -157,6 +161,9 @@ flowchart LR
   policy authority. Production OCR quality, unavailable/permission-required
   state proof, broader trigger OCR, cross-platform OCR parity, and enforcement
   remain separate proof gates.
+- Screen OCR sensitive text redaction now has `screen-ocr-redaction-proof`;
+  service persistence and portal screenshot rendering remain separate proof
+  gates.
 - Screen guided VLM worker now has `screen-ai-vlm-worker-contract-proof`;
   production VLM inference quality, live model execution, portal rendering,
   final policy authority, and enforcement remain separate proof gates.
