@@ -54,6 +54,13 @@ expose location or device-status features. Parents expect this category.
   first-target UI states, local proof artifact references, and captures a local
   rendered parent-route screenshot under
   `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`.
+- WP13 desktop presence hint proof now exists through
+  `node scripts/test/tracking-desktop-presence-hint-proof.mjs`. It proves
+  Windows/macOS precise desktop location remains manual-required, LAN/Wi-Fi/IP
+  rows are hint-only, manual check-in is separate from automatic presence, and
+  stale/offline/missing-device rows cannot be shown as live. It does not claim
+  desktop OS location runtime, GPS/precise location, exact physical presence,
+  physical-device proof, production behavior, or UI.
 - P2 service-boundary proof now exists for a narrow
   `agent.activity.tracking.read-model.get` WebSocket command that reads
   tracking event rows from the shared ActivityStore SQLite query store and

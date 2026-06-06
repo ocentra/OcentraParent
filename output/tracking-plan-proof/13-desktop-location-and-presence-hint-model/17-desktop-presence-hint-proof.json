@@ -1,0 +1,230 @@
+{
+  "proofMode": "tracking-desktop-presence-hint-proof",
+  "generatedAt": "2026-06-06T18:42:00.000Z",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "commit": "6c2ccb6802870db9d0e81abf941661fd47c073f7",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/13-desktop-location-and-presence-hint-model.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/00-source-snapshot.md\n M output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/01-contract-proof.log\n M output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/13-security-negative-proof.log\n M output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/16-validation-commands.log\n M output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/proof-summary.json\n?? packages/parent-domain/src/tracking-desktop-presence-hint-proof.ts\n?? packages/parent-domain/tests/tracking-desktop-presence-hint-proof.test.ts\n?? scripts/test/tracking-desktop-presence-hint-proof.mjs",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-desktop-presence-hint-proof"
+  ],
+  "summary": {
+    "sourceCount": 10,
+    "states": [
+      "manual-required",
+      "hint-only",
+      "stale",
+      "offline",
+      "missing-device"
+    ],
+    "preciseLocationClaimCount": 0,
+    "physicalPresenceClaimCount": 0,
+    "liveDeviceClaimCount": 7,
+    "manualRequiredPreciseLocationRows": [
+      "windows-os-location",
+      "macos-os-location"
+    ],
+    "manualCheckInSeparatedRows": [
+      "linux-manual-check-in",
+      "manual-check-in"
+    ],
+    "hintOnlyRows": [
+      "lan-pairing",
+      "home-wifi",
+      "ip-coarse"
+    ],
+    "staleOfflineMissingRows": [
+      "stale-cache",
+      "offline",
+      "missing-device"
+    ]
+  },
+  "nonClaims": {
+    "preciseLocationClaimed": false,
+    "physicalPresenceClaimed": false,
+    "lanPairingAsPresenceClaimed": false,
+    "staleDisplayedAsLiveClaimed": false,
+    "desktopOsLocationRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "productionBehaviorClaimed": false
+  },
+  "proofPaths": {
+    "source": "packages/parent-domain/src/tracking-desktop-presence-hint-proof.ts",
+    "test": "packages/parent-domain/tests/tracking-desktop-presence-hint-proof.test.ts",
+    "harness": "scripts/test/tracking-desktop-presence-hint-proof.mjs",
+    "evidence": "test-results/tracking-desktop-presence-hint-proof/proof.json",
+    "trackingProofPack": "output/tracking-plan-proof/13-desktop-location-and-presence-hint-model"
+  },
+  "rows": [
+    {
+      "schemaVersion": "v0.5-tracking",
+      "source": "windows-os-location",
+      "state": "manual-required",
+      "label": "Windows OS location proof required",
+      "canClaimPreciseLocation": false,
+      "physicalPresenceClaimed": false,
+      "liveDeviceClaimed": true,
+      "manualCheckInSeparateFromAutomaticPresence": false,
+      "requiresManualProofForPreciseLocation": true,
+      "reasonCodes": [
+        "desktop-precise-location-manual-required"
+      ],
+      "auditRefs": [
+        "tracking-desktop-presence-hint-proof"
+      ]
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "source": "macos-os-location",
+      "state": "manual-required",
+      "label": "macOS OS location proof required",
+      "canClaimPreciseLocation": false,
+      "physicalPresenceClaimed": false,
+      "liveDeviceClaimed": true,
+      "manualCheckInSeparateFromAutomaticPresence": false,
+      "requiresManualProofForPreciseLocation": true,
+      "reasonCodes": [
+        "desktop-precise-location-manual-required"
+      ],
+      "auditRefs": [
+        "tracking-desktop-presence-hint-proof"
+      ]
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "source": "linux-manual-check-in",
+      "state": "manual-required",
+      "label": "Linux manual check-in proof required",
+      "canClaimPreciseLocation": false,
+      "physicalPresenceClaimed": false,
+      "liveDeviceClaimed": true,
+      "manualCheckInSeparateFromAutomaticPresence": true,
+      "requiresManualProofForPreciseLocation": false,
+      "reasonCodes": [
+        "desktop-manual-check-in-separate"
+      ],
+      "auditRefs": [
+        "tracking-desktop-presence-hint-proof"
+      ]
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "source": "lan-pairing",
+      "state": "hint-only",
+      "label": "LAN pairing is a connection hint only",
+      "canClaimPreciseLocation": false,
+      "physicalPresenceClaimed": false,
+      "liveDeviceClaimed": true,
+      "manualCheckInSeparateFromAutomaticPresence": false,
+      "requiresManualProofForPreciseLocation": false,
+      "reasonCodes": [
+        "lan-pairing-not-physical-presence"
+      ],
+      "auditRefs": [
+        "tracking-desktop-presence-hint-proof"
+      ]
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "source": "home-wifi",
+      "state": "hint-only",
+      "label": "Home Wi-Fi is a presence hint only",
+      "canClaimPreciseLocation": false,
+      "physicalPresenceClaimed": false,
+      "liveDeviceClaimed": true,
+      "manualCheckInSeparateFromAutomaticPresence": false,
+      "requiresManualProofForPreciseLocation": false,
+      "reasonCodes": [
+        "wifi-not-precise-location"
+      ],
+      "auditRefs": [
+        "tracking-desktop-presence-hint-proof"
+      ]
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "source": "ip-coarse",
+      "state": "hint-only",
+      "label": "IP region is a coarse hint only",
+      "canClaimPreciseLocation": false,
+      "physicalPresenceClaimed": false,
+      "liveDeviceClaimed": true,
+      "manualCheckInSeparateFromAutomaticPresence": false,
+      "requiresManualProofForPreciseLocation": false,
+      "reasonCodes": [
+        "ip-not-precise-location"
+      ],
+      "auditRefs": [
+        "tracking-desktop-presence-hint-proof"
+      ]
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "source": "manual-check-in",
+      "state": "manual-required",
+      "label": "Manual check-in is child-reported status only",
+      "canClaimPreciseLocation": false,
+      "physicalPresenceClaimed": false,
+      "liveDeviceClaimed": true,
+      "manualCheckInSeparateFromAutomaticPresence": true,
+      "requiresManualProofForPreciseLocation": false,
+      "reasonCodes": [
+        "manual-check-in-not-automatic-location"
+      ],
+      "auditRefs": [
+        "tracking-desktop-presence-hint-proof"
+      ]
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "source": "stale-cache",
+      "state": "stale",
+      "label": "Cached desktop status is stale",
+      "canClaimPreciseLocation": false,
+      "physicalPresenceClaimed": false,
+      "liveDeviceClaimed": false,
+      "manualCheckInSeparateFromAutomaticPresence": false,
+      "requiresManualProofForPreciseLocation": false,
+      "reasonCodes": [
+        "stale-not-live-location"
+      ],
+      "auditRefs": [
+        "tracking-desktop-presence-hint-proof"
+      ]
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "source": "offline",
+      "state": "offline",
+      "label": "Desktop agent is offline",
+      "canClaimPreciseLocation": false,
+      "physicalPresenceClaimed": false,
+      "liveDeviceClaimed": false,
+      "manualCheckInSeparateFromAutomaticPresence": false,
+      "requiresManualProofForPreciseLocation": false,
+      "reasonCodes": [
+        "offline-not-live-location"
+      ],
+      "auditRefs": [
+        "tracking-desktop-presence-hint-proof"
+      ]
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "source": "missing-device",
+      "state": "missing-device",
+      "label": "Missing-device mode uses last-known only",
+      "canClaimPreciseLocation": false,
+      "physicalPresenceClaimed": false,
+      "liveDeviceClaimed": false,
+      "manualCheckInSeparateFromAutomaticPresence": false,
+      "requiresManualProofForPreciseLocation": false,
+      "reasonCodes": [
+        "missing-device-last-known-only"
+      ],
+      "auditRefs": [
+        "tracking-desktop-presence-hint-proof"
+      ]
+    }
+  ]
+}

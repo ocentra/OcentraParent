@@ -1,0 +1,31 @@
+{
+  "sourceCount": 10,
+  "states": [
+    "manual-required",
+    "hint-only",
+    "stale",
+    "offline",
+    "missing-device"
+  ],
+  "preciseLocationClaimCount": 0,
+  "physicalPresenceClaimCount": 0,
+  "liveDeviceClaimCount": 7,
+  "manualRequiredPreciseLocationRows": [
+    "windows-os-location",
+    "macos-os-location"
+  ],
+  "manualCheckInSeparatedRows": [
+    "linux-manual-check-in",
+    "manual-check-in"
+  ],
+  "hintOnlyRows": [
+    "lan-pairing",
+    "home-wifi",
+    "ip-coarse"
+  ],
+  "staleOfflineMissingRows": [
+    "stale-cache",
+    "offline",
+    "missing-device"
+  ]
+}

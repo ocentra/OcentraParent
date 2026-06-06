@@ -1,6 +1,8 @@
-workpack=13-desktop-location-and-presence-hint-model
-proofState=contract-proof-complete
-activity-domain tracking tests passed
-parent-domain tracking-location-policy tests passed
-schema-boundary guard passed
-Desktop LAN, Wi-Fi, IP, manual, and unknown hints are blocked from precise coordinate claims.
+Contract proof:
+
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-desktop-presence-hint-proof: PASS
+- LAN, Wi-Fi, and IP rows are hint-only and cannot claim precise location or physical presence.
+- Manual check-in rows are separate from automatic physical presence.
+- Windows/macOS precise desktop location remains manual-required until OS location proof exists.
+- Stale, offline, and missing-device rows cannot be displayed as live.

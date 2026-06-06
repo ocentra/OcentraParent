@@ -46,6 +46,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
 - WSL/local replay proof:
   `17-wsl-local-proof.json`
+- WP13 desktop presence hint proof:
+  `../13-desktop-location-and-presence-hint-model/17-desktop-presence-hint-proof.json`
 - iOS simulator package proof:
   `test-results/tracking-plan-ios-simulator-proof/proof.json`
 - Hosted parent route screenshot/accessibility proof:
@@ -184,6 +186,13 @@ evidence/custody refs on every AI context. It keeps model execution,
 child-device runtime, provider delivery, assistant policy writes, enforcement,
 physical-device proof, production behavior, and UI unclaimed.
 
+This branch adds `node scripts/test/tracking-desktop-presence-hint-proof.mjs`,
+which derives WP13 desktop presence hint rows for Windows/macOS OS-location
+manual-required states, LAN/Wi-Fi/IP hint-only states, manual check-in,
+stale/offline, and missing-device boundaries. It keeps desktop OS location
+runtime, GPS/precise location, exact physical presence, physical-device proof,
+production behavior, and UI unclaimed.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.
@@ -213,6 +222,9 @@ This workpack can be assigned independently, implemented against the owning doma
 - packages/parent-domain/src/tracking-ai-provider-routing-proof.ts
 - packages/parent-domain/tests/tracking-ai-provider-routing-proof.test.ts
 - scripts/test/tracking-ai-provider-routing-proof.mjs
+- packages/parent-domain/src/tracking-desktop-presence-hint-proof.ts
+- packages/parent-domain/tests/tracking-desktop-presence-hint-proof.test.ts
+- scripts/test/tracking-desktop-presence-hint-proof.mjs
 - `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`
 - Implementation paths listed by the worker before editing.
 
