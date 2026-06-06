@@ -157,6 +157,15 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   provider secrets, support backend payloads, payment provider tokens, remote
   support session transcripts, production SLA commitments, default
   Ocentra-hosted family data, or raw support bundle payloads.
+- `production-support-legal-provider-readiness-proof` may summarize
+  privacy/legal review, data export/delete runtime readiness, provider-secret
+  custody boundary, billing provider contact readiness, remote-support
+  legal/session boundary, and production SLA legal-boundary rows with source
+  refs and manual proof refs, but it must not include raw child activity,
+  account lookup results, billing provider contact records, provider secrets,
+  payment provider tokens, support backend payloads, remote support session
+  transcripts, production SLA commitments, default Ocentra-hosted family data,
+  parent rules, or raw support bundle payloads.
 - Any future feature that stores family activity in Ocentra infrastructure
   requires a new explicit product, privacy, security, retention, and deletion
   design before implementation.

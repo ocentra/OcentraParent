@@ -138,6 +138,15 @@ dev-only repo when it claims consumer readiness.
   provider contact, remote support sessions, production SLA commitments, support
   backend upload execution, `family.ocentra.ca` runtime, provider secrets, and
   child activity custody unclaimed.
+- `production-support-legal-provider-readiness-proof` adds parent-domain
+  production support legal/provider readiness rows for privacy/legal review,
+  data export/delete runtime, provider-secret custody, billing provider contact,
+  remote-support legal/session boundaries, and production SLA legal boundary
+  status. It proves only source-contract and support-safe metadata while keeping
+  real legal disclosure execution, data export/delete runtime, provider secret
+  custody, billing provider contact execution, account lookup execution, remote
+  support sessions, production SLA commitments, support backend upload
+  execution, public runtime execution, and child activity custody unclaimed.
 - `production-support-publication-workflow-proof` adds parent-domain source
   contract rows for public privacy policy publication, privacy/legal disclosure
   execution, support runbook publication, support incident status publication,
@@ -450,6 +459,17 @@ package/runtime proof.
       lookup execution, billing provider contact, remote support sessions,
       production SLA, support backend upload execution, `family.ocentra.ca`
       runtime, provider secrets, and child activity custody unclaimed.
+- [ ] Production support legal/provider readiness proof. Current
+      `production-support-legal-provider-readiness-proof` covers privacy/legal
+      review, data export/delete runtime, provider-secret custody, billing
+      provider contact, remote-support legal/session boundary, and production
+      SLA legal boundary rows. It links incident support, account/SLA support,
+      publication freshness, release-installer, billing, data-custody, and
+      documentation refs while keeping legal disclosure execution, data
+      export/delete runtime, provider secret custody, billing provider contact
+      execution, account lookup execution, remote support sessions, production
+      SLA, support backend upload execution, public runtime execution, and child
+      activity custody unclaimed.
 - [ ] Production support public publication workflow proof. Current
       `production-support-publication-workflow-proof` covers public privacy
       policy publication, privacy/legal disclosure execution, support runbook

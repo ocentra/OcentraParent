@@ -53,6 +53,15 @@ replace the constitution, roadmap, or capability checklist.
   execution, account lookup execution, billing provider contact, remote support
   sessions, production SLA, legal disclosure execution, provider secrets, and
   child-activity custody as gaps until real evidence exists.
+- `production-support-legal-provider-readiness-proof` may prove
+  privacy/legal-review, export/delete runtime, provider-secret custody,
+  billing-provider contact, remote-support legal/session, and production SLA
+  legal-boundary readiness rows, but docs must still label real legal
+  disclosure execution, export/delete runtime execution, provider secret
+  custody, billing provider contact execution, account lookup execution, remote
+  support sessions, production SLA commitments, support backend upload
+  execution, public runtime execution, and child-activity custody as gaps until
+  real evidence exists.
 - `production-support-backend-upload-status-proof` may prove support upload
   status/read-model rows, redaction/audit refs, retry/abandon refs, and manual
   proof requirements, but docs must still label raw child activity custody,

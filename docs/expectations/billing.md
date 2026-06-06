@@ -262,6 +262,12 @@ Any feature that can be disabled for billing must define its degraded local beha
   billing provider contact execution, provider secrets, support backend upload
   execution, remote support sessions, production SLA commitments, and child
   activity custody.
+- `production-support-legal-provider-readiness-proof` proves billing provider
+  contact and account lookup remain manual-required support boundaries inside a
+  broader legal/provider readiness matrix; it rejects billing provider contact
+  execution, account lookup execution, provider secret custody, payment provider
+  tokens, support backend upload execution, remote support sessions, production
+  SLA commitments, public runtime execution, and child activity custody.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   prove account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries before provider/backend code exists.
