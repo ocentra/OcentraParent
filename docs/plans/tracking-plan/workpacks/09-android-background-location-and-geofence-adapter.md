@@ -105,9 +105,25 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch.
-- [ ] Touched files.
-- [ ] Validation commands and results.
-- [ ] Proof artifacts under `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`.
-- [ ] Product doc/checklist updates or reason none were needed.
-- [ ] Known gaps/manual-required states.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: Android background/geofence workpack doc, tracking
+      implementation checklist, owning tracking feature doc, WP09 generated
+      proof artifacts, and focused Android permission/background proof results.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-android-permission-background-proof.mjs`
+      passed locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`,
+      including `02-platform-permission-proof.md`,
+      `05-geofence-transition-proof.json`, `15-manual-platform-proof.md`, and
+      `16-validation-commands.log`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and this workpack doc updated for the local manual-required
+      background permission/geofence transition proof; central capability row
+      update remains a hub/primary-owned doc delta.
+- [x] Known gaps/manual-required states: Android 10+ background permission,
+      Android 11+ settings-page background permission flow, enter/exit/dwell
+      transition delivery, active geofence-limit runtime, physical-device
+      proof, authority, provider delivery, notification delivery, and
+      product-ready Android tracking remain unclaimed.

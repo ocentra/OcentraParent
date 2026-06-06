@@ -327,6 +327,14 @@ expose location or device-status features. Parents expect this category.
   permission, foreground sample, background permission, background runtime,
   geofence runtime, physical-device, authority, notification delivery, provider
   delivery, and product-ready Android tracking claims false.
+- WP10 Android status proof now exists through
+  `node scripts/test/tracking-android-status-proof.mjs`. It records
+  parent-domain rows for low-power degradation, app killed/restarted
+  auditability, pending-upload count auditability, and manual-required platform
+  proof while keeping foreground location samples, background runtime, geofence
+  transitions, notification delivery, device-owner authority, physical-device
+  behavior, production upload workers, and product-ready Android tracking
+  unclaimed.
 - P3 WSL/local replay proof now exists through
   `npm run test:tracking-plan-wsl-local-proof`. It records WSL2/Ubuntu
   toolchain evidence, the linked-worktree Git mapping needed for this
