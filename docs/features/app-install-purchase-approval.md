@@ -367,6 +367,18 @@ generic app blocking covers this concern.
   records that product-claim store upgrade readiness proof under
   `test-results/app-install-purchase-product-claim-store-upgrade-readiness-proof/proof.json`
   when run and validates the public parent-domain package export.
+- `packages/parent-domain/src/app-install-purchase-product-claim-platform-preclaim-proof.ts`
+  now links product-claim portal test readiness rows with platform proof
+  readiness rows into manual-required or unsupported preclaim rows before any
+  product claim while preserving no product-claim approval, no portal
+  approval/report UI, no provider/store execution, no store integration, no
+  platform adapter implementation, no child-device delivery, no runtime
+  writer/report delivery, no app blocking, no child activity data, and no
+  Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-product-claim-platform-preclaim-proof.mjs`
+  records that platform preclaim proof under
+  `test-results/app-install-purchase-product-claim-platform-preclaim-proof/proof.json`
+  when run and validates the public parent-domain package export.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -673,14 +685,18 @@ Ocentra-hosted family data custody.
       provider/store execution, store integration, portal approval/report UI,
       platform adapters, child delivery, app blocking, child activity data, or
       hosted custody claims.
-- [ ] Portal tests and platform proof before product claim.
+- [x] Portal tests and platform proof before product claim, represented by
+      platform preclaim rows that link portal approval/report test readiness
+      with platform proof readiness while keeping product claims manual or
+      unsupported until real portal UI tests, platform adapters, child delivery,
+      and provider/store execution proof exist.
 
 ## Next AI Instructions
 
 Do not fold this into generic app blocking. The next proof should add real
 portal approval/report UI, external runtime writer delivery to a device, real
-child delivery, provider/store API execution proof, or
-actual platform adapters before upgrading manual-required source rows, child
-delivery, parent action, store status, capture status, adapter execution, or
-report status. If the OS/store does not allow interception, document the
+child delivery, provider/store API execution proof, or actual platform adapters
+before upgrading manual-required source rows, child delivery, parent action,
+store status, capture status, adapter execution, report status, or product
+claim preclaim rows. If the OS/store does not allow interception, document the
 limitation and offer the closest safe parent workflow.

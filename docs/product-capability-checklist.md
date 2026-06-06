@@ -84,9 +84,13 @@ rows into review-ready, manual-required, and unavailable parent-visible store
 handoff rows without approving product claims or claiming portal UI,
 provider/store execution, platform adapters, child delivery, runtime
 writer/report delivery, app blocking, child activity data, or hosted custody.
-The next gap remains real portal approval/report tests, provider/store API
-execution, platform adapter proof, and child delivery proof before any product
-claim upgrade.
+Product-claim platform preclaim proof now links portal approval/report test
+readiness with platform proof readiness so product claims remain
+manual-required or unsupported until real portal UI tests, provider/store API
+execution, platform adapter proof, and child delivery proof exist. The next gap
+remains real portal approval/report tests, provider/store API execution,
+platform adapter proof, and child delivery proof before any product claim
+upgrade.
 
 ## Multi-Device, Remote, And Platforms
 
