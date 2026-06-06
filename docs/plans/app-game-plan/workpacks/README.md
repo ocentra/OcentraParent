@@ -94,6 +94,7 @@ before `DONE` or PR-ready reporting.
 86. WP95 app/game source-gated policy preview timer service readiness response consumer parent-surface handoff.
 87. WP96 app/game source-gated policy preview timer service readiness response consumer parent-surface read-model handoff.
 88. WP97 app/game source-gated policy preview timer service readiness response consumer parent-surface status handoff.
+89. WP98 app/game source-gated policy preview timer service readiness response consumer parent-surface status read-model handoff.
 
 ## Standard AI Worker Checklist
 
