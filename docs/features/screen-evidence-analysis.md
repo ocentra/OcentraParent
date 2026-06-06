@@ -65,6 +65,14 @@ only with explicit parent settings.
   retained rows before downstream screen events are recorded. This is
   subscriber runtime proof; service startup wiring for every live producer
   remains a separate production gate.
+- `scripts/test/screen-service-analysis-row-ready-proof.mjs` now proves the
+  service analysis runtime starts the service row-ready event runtime, converts
+  a recorded Activity Screen analysis result through the shared row mapper, and
+  publishes `screen.service.row.ready`. Current service analysis rows still lack
+  policy refs, so the existing bridge records `MissingPolicyDecision` and blocks
+  downstream policy/action/deletion/portal publication until the policy producer
+  supplies those refs. This closes the analysis-producer-to-row-ready handoff
+  without claiming final policy/action publication.
 - `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
   screen-derived household mesh contract/runtime boundary: redacted
   summary/custody payloads, no raw screenshot transfer, provider claim/lease,
@@ -451,9 +459,10 @@ social proof beyond public/live surface proof, production OCR/VLM quality beyond
 the WinRT OCR service proof, controlled fixtures, and the full live operator
 matrix, production local vision adapter quality beyond the service proof
 adapter, service-owned live trigger event producers beyond the timed cadence
-loop and native active-window foreground watcher, service startup wiring for
-every live producer, physical Android/iOS proof, live macOS capture proof,
-Linux root/Wayland portal proof, browser-trigger artifact closure,
+loop and native active-window foreground watcher, startup wiring for remaining
+live producers beyond the service analysis row-ready handoff, physical
+Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
+browser-trigger artifact closure,
 browser/network/mobile/broad block action adapters from screen-derived
 decisions, physical household family AI hub discovery/runtime proof beyond the
 loopback runtime exchange, and production parent explanation portal rendering
@@ -525,15 +534,20 @@ parity, and UI remain separate proof gates.
       events, invokes the existing bridge, publishes downstream screen runtime
       events for safe rows, and rejects raw-retained rows before downstream
       publication.
+- [x] Screen service analysis row-ready producer proof starts the event
+      subscriber runtime from the service analysis loop, publishes
+      `screen.service.row.ready`, and gates current analysis rows as
+      `MissingPolicyDecision` before downstream policy/action publication.
 - [x] Screen household mesh proof keeps raw screenshots off LAN provider
       payloads, grants one child-owned lease, validates provider results on the
       child agent before policy, and rejects invalid provider results.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof,
-production startup subscriptions for all live producers, production household
-mesh transport over physical LAN, broad adapters, and production explanation
-portal rendering remain in the Current Gap section above.
+remaining production startup subscriptions for live producers beyond the service
+analysis row-ready handoff, production household mesh transport over physical
+LAN, broad adapters, and production explanation portal rendering remain in the
+Current Gap section above.
 
 ## Next AI Instructions
 
