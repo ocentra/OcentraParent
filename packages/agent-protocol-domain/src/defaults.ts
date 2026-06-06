@@ -360,6 +360,8 @@ export const AgentProtocolDefaults = {
     MostRecentSubjectKind: 'mostRecentSubjectKind',
     MostRecentSubjectName: 'mostRecentSubjectName',
     NetworkProtocol: 'networkProtocol',
+    NetworkLiveCaptureCustodyStatus: 'networkLiveCaptureCustodyStatus',
+    NetworkProductReadinessStatus: 'networkProductReadinessStatus',
     NetworkRuntimeDeadLetters: 'networkRuntimeDeadLetters',
     NetworkRuntimeDeliveredRows: 'networkRuntimeDeliveredRows',
     NetworkRuntimeEnforcementCommandEvents: 'networkRuntimeEnforcementCommandEvents',

@@ -32,6 +32,7 @@ const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['BrowserInterventionReadModelGet', 'agent.browser.intervention.read-model.get'],
   ['NetworkFlowReadModelGet', 'agent.network.flow.read-model.get'],
   ['NetworkRuntimeEventChainStreamGet', 'agent.network.runtime.event-chain.stream.get'],
+  ['NetworkProductReadinessStatusGet', 'agent.network.product-readiness.status.get'],
   ['LocalAiRuntimeStatusGet', 'agent.local-ai.runtime.status.get'],
   ['LocalAiChatGenerate', 'agent.local-ai.chat.generate'],
   ['ParentAssistantAnswerGenerate', 'agent.parent-assistant.answer.generate'],
@@ -97,6 +98,7 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
   ['BrowserInterventionReadModelReported', 'agent.browser.intervention.read-model.reported'],
   ['NetworkFlowReadModelReported', 'agent.network.flow.read-model.reported'],
   ['NetworkRuntimeEventChainStreamReported', 'agent.network.runtime.event-chain.stream.reported'],
+  ['NetworkProductReadinessStatusReported', 'agent.network.product-readiness.status.reported'],
   ['LocalAiRuntimeStatusReported', 'agent.local-ai.runtime.status.reported'],
   ['LocalAiChatGenerationReported', 'agent.local-ai.chat.generation.reported'],
   ['ParentAssistantAnswerReported', 'agent.parent-assistant.answer.reported'],
@@ -390,6 +392,8 @@ function expectReadModelEnforcementAndUnmanagedFields() {
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
   expect(AgentProtocolDefaults.Field.NetworkRuntimeEventChainStream).toBe('networkRuntimeEventChainStream');
   expect(AgentProtocolDefaults.Field.NetworkRuntimeStreamedEvents).toBe('networkRuntimeStreamedEvents');
+  expect(AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus).toBe('networkLiveCaptureCustodyStatus');
+  expect(AgentProtocolDefaults.Field.NetworkProductReadinessStatus).toBe('networkProductReadinessStatus');
   expect(AgentProtocolDefaults.Field.Payload).toBe('payload');
   expect(AgentProtocolDefaults.Field.VisibleManualRequired).toBe('visibleManualRequired');
   expect(AgentProtocolDefaults.Field.UnmanagedBrowserEnforcement).toBe('unmanagedBrowserEnforcement');

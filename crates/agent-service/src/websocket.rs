@@ -37,6 +37,7 @@ use crate::{
     },
     local_ai_chat_generation::build_local_ai_chat_generation_report,
     local_ai_runtime_status::build_local_ai_runtime_status_report,
+    network_product_readiness_status_payload::build_network_product_readiness_status_report,
     parent_assistant_api::build_parent_assistant_scaffold_event,
     parent_assistant_runtime::build_parent_assistant_answer_report,
     policy_preview_api::build_policy_preview_read_model_report,
@@ -195,7 +196,8 @@ async fn build_command_event(
         | AgentCommandName::AgentBrowserManagedBridgePoll
         | AgentCommandName::AgentBrowserInterventionReadModelGet
         | AgentCommandName::AgentNetworkFlowReadModelGet
-        | AgentCommandName::AgentNetworkRuntimeEventChainStreamGet => {
+        | AgentCommandName::AgentNetworkRuntimeEventChainStreamGet
+        | AgentCommandName::AgentNetworkProductReadinessStatusGet => {
             build_browser_network_command_report(command).await
         }
         AgentCommandName::AgentLocalAiRuntimeStatusGet
@@ -355,6 +357,9 @@ async fn build_browser_network_command_report(command: AgentCommandEnvelope) -> 
         }
         AgentCommandName::AgentNetworkRuntimeEventChainStreamGet => {
             build_network_runtime_event_chain_stream_report(command).await
+        }
+        AgentCommandName::AgentNetworkProductReadinessStatusGet => {
+            build_network_product_readiness_status_report(command)
         }
         _ => build_log_snapshot_report(command),
     }
