@@ -211,6 +211,7 @@ from `npm run test:tracking-plan-hosted-ui-proof`, written to
 `17-hosted-ui-proof.json`, `12-playwright-proof.log`,
 `11-ui-snapshots/hosted-policy-tracking-live-summary.png`,
 `11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png`,
+`11-ui-snapshots/hosted-policy-tracking-citation-detail.png`,
 `11-ui-snapshots/hosted-policy-tracking-child-check-in.png`,
 `11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`,
 `19-child-runtime-ui-proof.json`, and
@@ -219,9 +220,10 @@ hosted child-safe check-in card proves calm copy/actions inside this route only,
 and the hosted child-runtime card proves disclosure, safe/help responses,
 location-share consent copy, and a hosted-only delivery boundary. The hosted
 route now also has service-data coverage proof at
-`18-service-data-ui-proof.json`. Actual child-device delivery/runtime execution,
-full parent/child UI beyond the hosted route, and physical-device proof remain
-pending.
+`18-service-data-ui-proof.json` plus hosted service-backed citation detail proof
+at `11-ui-snapshots/hosted-policy-tracking-citation-detail.png`. Actual
+child-device delivery/runtime execution, full parent/child UI beyond the hosted
+route, and physical-device proof remain pending.
 WP33 additionally has P1 evidence-quality gate proof from
 `npm run test:tracking-plan-evidence-quality-gate-proof`, written to
 `19-evidence-quality-gate-proof.json`, `20-evidence-quality-gate-validation.log`,
@@ -373,9 +375,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       replay proof remain pending.
 - [ ] Tracking UI/UX is not product-complete. A P1 parent portal tracking-state
       fixture, local parent-route screenshot, hosted parent `policy-tracking`
-      route screenshot/accessibility proof, hosted child-safe check-in screenshot
-      proof, and hosted child-runtime disclosure/safe-help/location-share consent
-      screenshot proof exist; hosted React service-data coverage from the parsed
+      route screenshot/accessibility proof, hosted service-backed citation detail
+      screenshot proof, hosted child-safe check-in screenshot proof, and hosted
+      child-runtime disclosure/safe-help/location-share consent screenshot proof
+      exist; hosted React service-data coverage from the parsed
       tracking read model is rendered and proved, but live parent/child UI beyond that route,
       actual child-device delivery/runtime execution, physical-device proof,
       authority, provider delivery, and production proof remain pending.
@@ -433,6 +436,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary.png`
       and
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png`;
+      the hosted service-backed citation detail screenshot is stored at
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png`;
       the hosted child-safe check-in screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`;
       the hosted child-runtime UI proof screenshot is stored at
@@ -441,9 +446,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       pending.
 - [ ] Accessibility output is stored for the hosted parent route proof in
       `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`;
-      it includes the hosted child-safe check-in and hosted child-runtime UI
-      cards, while actual child-device runtime/full UI accessibility remains
-      pending.
+      it includes the service-backed citation detail, hosted child-safe check-in,
+      and hosted child-runtime UI cards, while actual child-device runtime/full
+      UI accessibility remains pending.
 
 ## Evidence Quality Gates
 

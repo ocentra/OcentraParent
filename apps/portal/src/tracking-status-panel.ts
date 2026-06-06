@@ -702,6 +702,7 @@ function renderTrackingStatusServiceDataCoverage(coverage: TrackingStatusService
 function renderTrackingStatusLiveCitation(citation: TrackingStatusLiveCitation): HTMLElement {
   const panel = document.createElement(PortalDom.Tags.Section);
   panel.className = PortalDom.Classes.Summary;
+  panel.setAttribute(PortalDom.Attributes.DataTrackingProof, PortalDom.Attributes.TrackingProofCitationDetail);
 
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
   title.textContent = citation.title;

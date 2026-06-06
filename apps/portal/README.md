@@ -46,8 +46,9 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
 - Displays LAN source-matrix diagnostics from the service-backed add-device read
   model so workpack/source proof status is visible in Devices/LAN and
   Activity/Network review.
-- Displays the tracking service read-model event, hosted child-safe check-in
-  proof, hosted child-runtime UI disclosure/consent proof, and
+- Displays the tracking service read-model event, hosted service-backed citation
+  detail proof, hosted child-safe check-in proof, hosted child-runtime UI
+  disclosure/consent proof, and
   unsupported/manual platform rendered states as narrow Policy Tracking route
   cards; this is not actual child-device delivery/runtime execution,
   physical-device execution, authority enrollment, provider delivery, or full

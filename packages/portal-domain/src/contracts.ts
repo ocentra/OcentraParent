@@ -366,6 +366,7 @@ export const PortalDom = {
     Role: 'role',
     Tab: 'tab',
     TabList: 'tablist',
+    TrackingProofCitationDetail: 'service-backed-citation-detail',
     TrackingProofChildCheckIn: 'child-check-in',
     TrackingProofChildRuntimeUi: 'child-runtime-ui',
     TrackingProofFamilyDashboard: 'family-dashboard-rollup',

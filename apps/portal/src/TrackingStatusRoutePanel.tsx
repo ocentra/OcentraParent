@@ -205,7 +205,10 @@ function TrackingStatusLiveCitationCard({ citation }: { readonly citation: Track
     PortalDom.Classes.ClassNameSeparator
   );
   return (
-    <article className={className}>
+    <article
+      className={className}
+      {...{ [PortalDom.Attributes.DataTrackingProof]: PortalDom.Attributes.TrackingProofCitationDetail }}
+    >
       <h2>{citation.title}</h2>
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         <TrackingStatusDetail label={PortalDetails.EventId} value={citation.eventId} />
