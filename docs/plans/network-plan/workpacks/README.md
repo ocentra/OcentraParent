@@ -58,6 +58,12 @@ can be split further when source-shape, platform proof, or validation needs it.
 | 49  | Performance, latency, resource, and high-concurrency benchmark proof                                                      | P3/P6               | Packet-to-detection latency, event throughput, CPU/memory/disk/queue metrics, and high-concurrency fixture results.                                                                                                                                                                                                                          |
 | 50  | Security, privacy, compliance, deployment, support, and staged rollout proof                                              | P6                  | Threat model, retention/delete/export, key rotation, secret handling, signature/rule-set provenance and rollback, AI model/version promotion gates, penetration test or external audit signoff for production claims, parent/user guide, FAQ, support playbook, staff-training material, rollout gates, and known-gap signoff.               |
 
+## Supplemental Proof Rows
+
+| Row           | Workpack                                                 | Priority | Notes                                                                                                                                                                                                                                |
+| ------------- | -------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| portal-status | Portal risk/performance/platform read-model status proof | P3       | Activity network drawer renders service-backed platform/capability status, active/tombstone/exportable counts, retention delete refs, and degraded adapter state without UI risk scoring, policy, adapter, or enforcement authority. |
+
 ## Required Workpack Record
 
 Each workpack should include:

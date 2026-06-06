@@ -493,14 +493,22 @@ UI rendering remain open.
       gates into exact OS/device/permission claim rows, records manual
       follow-ups for missing artifacts, and rejects generic platform support,
       live adapter execution, UI policy authority, and enforcement-command
-      claims. AI model execution, broker/family-hub delivery implementation,
-      full policy engine execution, notification delivery, external
-      audit/deployment execution, full support-material authoring, and portal
-      risk-budget/performance UI rendering remain.
+      claims. E-D portal status proof now renders service-backed network
+      platform/capability state, active/tombstone/exportable row counts,
+      retention delete refs, and degraded adapter state in the Activity network
+      drawer while keeping policy, adapter, AI, exact URL, and enforcement refs
+      not reported unless the service provides them. AI model execution,
+      broker/family-hub delivery implementation, full policy engine execution,
+      notification delivery, external audit/deployment execution, full
+      support-material authoring, and true risk-budget/performance SLO UI
+      rendering remain.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
       unsupported-claim states without publishing policy or adapter commands.
+      E-D portal status proof also renders service-backed platform/capability
+      state, active/tombstone/exportable row counts, retention delete refs, and
+      degraded adapter state without local risk scoring or adapter authority.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
       Row37 DNS adapter, Row38 Windows Firewall, Row39 WFP, and Row40 Android
@@ -510,8 +518,9 @@ UI rendering remain open.
       adapter boundaries. Row11 now records the aggregate manual/platform proof
       pack for OS/device/permission artifacts and exact manual steps, and Row52
       accounts for those claims in one exact OS/device/permission manifest with
-      manual follow-ups, but broader
-      platform capability status and parent UI surfacing remain open.
+      manual follow-ups. The Activity network drawer now surfaces read-model
+      capability/platform status for the current service row; broader platform
+      capability UX beyond the network drawer remains open.
 - [x] DNS proxy/block/redirect adapter proof boundary.
       The Rust proof accepts apply-ready only with grade-A policy, parent-rule
       refs, evidence refs, supported capability, adapter authorization,

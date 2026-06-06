@@ -43,6 +43,10 @@ export type NetworkEvidenceDrawerSummary = {
   readonly uncertaintyReasonCodes: PortalDetailValue;
   readonly evidenceReferences: PortalDetailValue;
   readonly exactUrlClaim: PortalDetailValue;
+  readonly platformState: PortalDetailValue;
+  readonly readModelRows: PortalDetailValue;
+  readonly degradedState: PortalDetailValue;
+  readonly deletedEvidenceReferences: PortalDetailValue;
 };
 
 export function networkEvidenceDrawerSummary(
@@ -73,13 +77,17 @@ export function networkEvidenceDrawerSummary(
     policyDecisionRef: notReported(),
     interventionResultRef: notReported(),
     eventHistoryRef: detailFromValue(row?.eventId),
-    retentionState: notReported(),
+    retentionState: retentionState(readModel),
     custody: readModelCustodyDetail(readModel),
     evidenceGrade: notReported(),
     confidence: notReported(),
     uncertaintyReasonCodes: uncertaintyReasonCodes(row),
     evidenceReferences: evidenceReferenceDetail(row),
     exactUrlClaim: notReported(),
+    platformState: readModelPlatformState(readModel),
+    readModelRows: readModelRows(readModel),
+    degradedState: degradedState(row, readModel),
+    deletedEvidenceReferences: deletedEvidenceReferences(readModel),
   };
 }
 
@@ -120,6 +128,33 @@ function readModelCustodyDetail(readModel: ActivityNetworkFlowReadModel | null):
   return detailFromValue(readModel.custody);
 }
 
+function readModelPlatformState(readModel: ActivityNetworkFlowReadModel | null): PortalDetailValue {
+  if (readModel === null) {
+    return notReported();
+  }
+  return joinedDetail([readModel.custody, readModel.capabilityStatus]);
+}
+
+function readModelRows(readModel: ActivityNetworkFlowReadModel | null): PortalDetailValue {
+  if (readModel === null) {
+    return notReported();
+  }
+  return joinedDetail([readModel.returned, readModel.activeRows, readModel.tombstoneRows, readModel.exportableRows]);
+}
+
+function degradedState(
+  row: ActivityNetworkFlowObservation | null,
+  readModel: ActivityNetworkFlowReadModel | null
+): PortalDetailValue {
+  if (row !== null) {
+    return joinedDetail([row.capabilityStatus, row.domainAttributionStatus, row.processAttributionStatus]);
+  }
+  if (readModel !== null) {
+    return detailFromValue(readModel.capabilityStatus);
+  }
+  return notReported();
+}
+
 function domainDetail(row: ActivityNetworkFlowObservation | null): PortalDetailValue {
   if (row === null) {
     return notReported();
@@ -153,6 +188,27 @@ function evidenceReferenceDetail(row: ActivityNetworkFlowObservation | null): Po
     return notReported();
   }
   return joinedDetail(row.evidence.map((evidence) => evidence.evidenceId));
+}
+
+function retentionState(readModel: ActivityNetworkFlowReadModel | null): PortalDetailValue {
+  if (readModel === null) {
+    return notReported();
+  }
+  if (readModel.latestTombstoneEventId !== null || readModel.latestTombstoneObservedAt !== null) {
+    return joinedDetail([
+      readModel.latestTombstoneEventId,
+      readModel.latestTombstoneObservedAt,
+      ...readModel.deletedEvidenceReferenceIds,
+    ]);
+  }
+  return joinedDetail([readModel.tombstoneRows, readModel.exportableRows]);
+}
+
+function deletedEvidenceReferences(readModel: ActivityNetworkFlowReadModel | null): PortalDetailValue {
+  if (readModel === null || readModel.deletedEvidenceReferenceIds.length === 0) {
+    return notReported();
+  }
+  return joinedDetail(readModel.deletedEvidenceReferenceIds);
 }
 
 function endpointDetail(endpoint: ActivityNetworkEndpoint | null | undefined): PortalDetailValue {

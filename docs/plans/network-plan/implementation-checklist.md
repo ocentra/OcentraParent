@@ -247,13 +247,21 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   projection, and retention tombstone filtering for stored network facts;
   broader portal/policy dependencies remain gated by the remaining product
   path.
-- [ ] Parent UI renders capability, degraded, stale, unsupported, unavailable,
-      manual-required, limitation, audit, and risk-budget states honestly.
-      E-D now proves the existing network drawer renders service-provided
-      endpoint/domain/process/custody/evidence refs and labels exact URL, AI,
-      policy, intervention, retention, and evidence-grade facets as not reported
-      when no service refs exist; broader risk-budget/performance/manual-state UI
-      coverage remains open.
+- [~] Parent UI renders capability, degraded, stale, unsupported, unavailable,
+  manual-required, limitation, audit, and risk-budget states honestly.
+  E-D now proves the existing network drawer renders service-provided
+  endpoint/domain/process/custody/evidence refs and labels exact URL, AI,
+  policy, intervention, retention, and evidence-grade facets as not reported
+  when no service refs exist. E-D portal status proof now also writes
+  `output/network-plan-proof/portal-risk-performance-platform-status/proof-summary.json`
+  and
+  `test-results/network-portal-risk-performance-platform-proof/proof.json`,
+  proving platform/capability state, active/tombstone/exportable row counts,
+  retention delete refs, and degraded adapter state render from the
+  service-backed read model without UI policy, risk scoring, adapter, or
+  enforcement authority. True risk-budget scoring UI, production performance
+  SLO UI, broader platform capability UX, and live manual-required host
+  adapter execution remain open.
 - [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
       reasons for every applicable gate. Workpack 03 proof lives under
       `output/network-plan-proof/03-contract-boundary-and-effect-schemas/`.

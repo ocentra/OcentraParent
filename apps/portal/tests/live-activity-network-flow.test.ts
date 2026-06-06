@@ -22,6 +22,8 @@ describe('portal live activity network flow state', () => {
     expect(summary.evidenceId).toBe('activity-network-flow-1');
     expect(summary.sourceAdapter).toBe('windows-network-snapshot');
     expect(summary.sourceQuality).toBe('available');
+    expect(summary.platformState).toBe('child-device-query-store | available');
+    expect(summary.readModelRows).toBe('1 | 1 | 0 | 1');
     expect(summary.localEndpoint).toBe('127.0.0.1 | 4242');
     expect(summary.remoteEndpoint).toBe('203.0.113.10 | 443');
     expect(summary.domainEvidenceRef).toBe('example-network.test | domain-observed');
@@ -31,7 +33,9 @@ describe('portal live activity network flow state', () => {
     expect(summary.aiAuditRef).toBe('Not reported');
     expect(summary.policyDecisionRef).toBe('Not reported');
     expect(summary.interventionResultRef).toBe('Not reported');
-    expect(summary.retentionState).toBe('Not reported');
+    expect(summary.retentionState).toBe('0 | 1');
+    expect(summary.deletedEvidenceReferences).toBe('Not reported');
+    expect(summary.degradedState).toBe('available | domain-observed | process-attributed');
   });
 
   it('keeps empty network flow read models visible without inventing destinations', () => {
@@ -44,6 +48,26 @@ describe('portal live activity network flow state', () => {
     expect(readModel.capabilityStatus).toBe('no-network-observations');
     expect(summary.evidenceReferences).toBe('Not reported');
     expect(summary.exactUrlClaim).toBe('Not reported');
+    expect(summary.platformState).toBe('child-device-query-store | no-network-observations');
+    expect(summary.readModelRows).toBe('0 | 0 | 0 | 0');
+    expect(summary.degradedState).toBe('no-network-observations');
+  });
+
+  it('renders deleted and degraded network status from service-backed read models', () => {
+    const state = resolveLiveActivityState([deletedNetworkFlowEvent()]);
+    const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
+    const summary = networkEvidenceDrawerSummary(readModel);
+
+    expectNetworkReadModelDeletedCounts(readModel);
+    expect(readModel.rows).toEqual([]);
+    expect(summary.sourceQuality).toBe('adapter-error');
+    expect(summary.platformState).toBe('child-device-query-store | adapter-error');
+    expect(summary.readModelRows).toBe('0 | 0 | 1 | 0');
+    expect(summary.retentionState).toBe('activity-network-flow-deleted | 2026-05-21T02:05:00Z | network-evidence-1');
+    expect(summary.deletedEvidenceReferences).toBe('network-evidence-1');
+    expect(summary.degradedState).toBe('adapter-error');
+    expect(summary.policyDecisionRef).toBe('Not reported');
+    expect(summary.interventionResultRef).toBe('Not reported');
   });
 
   it('mounts the network evidence drawer on the activity product route only', () => {
@@ -65,6 +89,13 @@ function expectNetworkReadModelCounts(readModel: ActivityNetworkFlowReadModel, e
   expect(readModel.activeRows).toBe(expectedRows);
   expect(readModel.tombstoneRows).toBe(0);
   expect(readModel.exportableRows).toBe(expectedRows);
+}
+
+function expectNetworkReadModelDeletedCounts(readModel: ActivityNetworkFlowReadModel): void {
+  expect(readModel.returned).toBe(0);
+  expect(readModel.activeRows).toBe(0);
+  expect(readModel.tombstoneRows).toBe(1);
+  expect(readModel.exportableRows).toBe(0);
 }
 
 function expectNetworkFlowRow(readModel: ActivityNetworkFlowReadModel): void {
@@ -188,6 +219,59 @@ function emptyNetworkFlowEvent() {
       latestTombstoneEventId: null,
       latestTombstoneObservedAt: null,
       deletedEvidenceReferenceIds: '',
+      observer: null,
+      adapterId: null,
+      networkProtocol: null,
+      tcpState: null,
+      localIp: null,
+      localPort: null,
+      destinationIp: null,
+      destinationPort: null,
+      destinationDomain: null,
+      domainAttributionStatus: null,
+      processAttributionStatus: null,
+      processId: null,
+      processName: null,
+      connectionCount: null,
+      bytesSent: null,
+      bytesReceived: null,
+      firstSeenAt: null,
+      lastSeenAt: null,
+    },
+    snapshot: null,
+  });
+}
+
+function deletedNetworkFlowEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-network-deleted',
+    correlationId: 'cmd-network-deleted',
+    sentAt: '2026-05-21T02:05:01Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: 'agent.network.flow.read-model.reported',
+    severity: 'warn',
+    payload: {
+      generatedAt: '2026-05-21T02:05:01Z',
+      custody: 'child-device-query-store',
+      limit: 10,
+      returned: 0,
+      activeRows: 0,
+      tombstoneRows: 1,
+      exportableRows: 0,
+      capabilityStatus: 'adapter-error',
+      latestEventId: null,
+      latestObservedAt: null,
+      latestTombstoneEventId: 'activity-network-flow-deleted',
+      latestTombstoneObservedAt: '2026-05-21T02:05:00Z',
+      deletedEvidenceReferenceIds: 'network-evidence-1',
       observer: null,
       adapterId: null,
       networkProtocol: null,
