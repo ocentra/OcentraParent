@@ -1,0 +1,14 @@
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-broad-blocking-proof-gates.test.ts
+exit=0
+
+> @ocentra-parent/parent-domain@0.1.1 test
+> vitest run app-game-broad-blocking-proof-gates.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  16:34:12
+   Duration  879ms (transform 163ms, setup 0ms, import 638ms, tests 14ms, environment 0ms)

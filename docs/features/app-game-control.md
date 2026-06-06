@@ -439,6 +439,10 @@ control with better evidence and local audit.
   blocking gates block manual-required rows before adapter dispatch, policy
   preview rows keep manual-required block-launch `not-dispatched`, and
   category/risk manual-review routes remain out of compile-ready execution.
+- The Android normal-mode suspend/hide merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/android-normal-mode-no-suspend-hide`:
+  Android package suspend remains manual-required and blocked before adapter
+  dispatch unless Device Owner or Profile Owner proof exists.
 
 ## Current Gap
 
