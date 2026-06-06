@@ -1,7 +1,7 @@
 # WP08 Android Foreground Location Adapter Source Snapshot
 
 - Branch: codex/tracking-android-permission-background-proof
-- Base commit at generation: 8e1d6782bbc3421b957ebb3bfc220b79e633c10a
+- Base commit at generation: f9df01eda887a6fb8e37c9b4a6a20b2017abbc25
 - Git status at proof generation:
 
 ```text
