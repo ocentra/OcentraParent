@@ -1,0 +1,34 @@
+SOCIAL-24 validation commands
+Generated: 2026-06-06
+
+PASS cmd /c node scripts/test/social-platform-account-feed-rollout-gate.mjs
+- Generated test-results/social-platform-account-feed-rollout-gate/proof.json.
+- Generated output/browser-plan-proof/social-24-rollout-manual-required-labels/01-rollout-manual-required-labels.md.
+- Checked SOCIAL-01 through SOCIAL-23 rollout labels.
+- Summary: 5 proof-present rows, 18 partial/manual-required rows, 0 failures.
+
+PASS cmd /c npm run format:check
+- Ran cmd /c npx prettier --write for the SOCIAL-23/24 scripts, checklist,
+  social feature doc, and generated markdown manifests.
+- Reran the social rollout gate after the rewrite.
+- Rerun passed with all matched files using Prettier code style.
+
+PASS cmd /c npm run lint:schema-boundaries
+- No direct Zod source usage.
+- No manual string brands or naked domain string aliases.
+- No inline app string literals.
+- No ParentPortal vendor page imports through portal asset aliases.
+- No inline Rust service/core string literals.
+- Required test scaffold present.
+- No test doubles.
+- Source shape guard passed with existing advisory warnings only.
+- AI rule index check passed.
+
+PASS git diff --check
+
+PASS npm run lanes:guard
+
+PASS npm run hub:guard
+
+PASS git status --short -- docs/product-capability-checklist.md
+- No product capability checklist change for SOCIAL-24.

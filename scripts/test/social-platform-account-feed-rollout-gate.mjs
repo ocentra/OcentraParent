@@ -18,7 +18,7 @@ const rolloutGuards = [
   },
   {
     docKey: 'feature',
-    text: 'Product completion remains unclaimed.',
+    text: 'Product completion remains unclaimed;',
   },
   {
     docKey: 'browserFeature',
@@ -73,13 +73,15 @@ async function loadDocs() {
 }
 
 function expectedRows() {
+  const completeRows = new Set([1, 13, 14, 20, 21]);
   return Array.from({ length: 23 }, (_, index) => {
     const rowNumber = index + 1;
+    const complete = completeRows.has(rowNumber);
     return {
       rowNumber,
       rowId: `SOCIAL-${String(rowNumber).padStart(2, '0')}`,
-      expectedStatus: rowNumber === 1 ? '[x]' : '[~]',
-      expectedState: rowNumber === 1 ? 'scaffold-proof-present' : 'partial-manual-required',
+      expectedStatus: complete ? '[x]' : '[~]',
+      expectedState: complete ? 'proof-present' : 'partial-manual-required',
     };
   });
 }
@@ -118,7 +120,7 @@ function manifestFor(rows, failures) {
     rows,
     summary: {
       totalRows: rows.length,
-      completeRows: rows.filter((row) => row.expectedState === 'scaffold-proof-present').length,
+      completeRows: rows.filter((row) => row.expectedState === 'proof-present').length,
       partialRows: rows.filter((row) => row.expectedState === 'partial-manual-required').length,
       failures: failures.length,
       rolloutState: 'partial/manual-required',
@@ -126,8 +128,8 @@ function manifestFor(rows, failures) {
     },
     guardTexts: rolloutGuards.map((guard) => guard.text),
     noClaimLabels: [
-      'rendered-social-ui-not-claimed',
-      'playwright-screenshots-manual-required',
+      'rendered-proof-bundle-social-ui-present',
+      'service-backed-social-ui-delivery-not-claimed',
       'connector-native-runtime-not-claimed',
       'final-policy-execution-not-claimed',
       'enforcement-not-claimed',
@@ -145,7 +147,7 @@ function markdownFor(manifest) {
     `Generated: ${manifest.generatedAt}`,
     '',
     `Rows checked: ${manifest.summary.totalRows}`,
-    `Scaffold-proof rows: ${manifest.summary.completeRows}`,
+    `Proof-present rows: ${manifest.summary.completeRows}`,
     `Partial/manual-required rows: ${manifest.summary.partialRows}`,
     `Rollout state: ${manifest.summary.rolloutState}`,
     `Product claimed: ${manifest.summary.productClaimed}`,
@@ -156,8 +158,9 @@ function markdownFor(manifest) {
     '',
     'SOCIAL rollout state: partial/manual-required.',
     'Product checklist upgrade is not claimed.',
-    'Rendered social UI, Playwright screenshots, connector/native runtime,',
-    'final policy execution, and enforcement remain unclaimed.',
+    'Rendered proof-bundle social UI exists for dashboard, child intervention,',
+    'and parent explanation states. Service-backed delivery, connector/native',
+    'runtime, final policy execution, and enforcement remain unclaimed.',
   ].join('\n');
 }
 
