@@ -1,0 +1,118 @@
+{
+  "status": "ok",
+  "proofKind": "local-ai-parent-rule-context-proof",
+  "generatedAt": "2026-06-06T08:13:30.265Z",
+  "output": "output/ai-plan-proof/local-ai-parent-rule-context-proof/proof-summary.json",
+  "rows": [
+    {
+      "rowId": "grounded-parent-rule-selected",
+      "contextState": "ready",
+      "selectedEvidenceRefs": [
+        "screen-ref-education"
+      ],
+      "selectedParentRuleRefs": [
+        "parent-rule-context:screen-education"
+      ],
+      "parentRuleReferences": [
+        "rule:parent-rule-context:screen-education"
+      ],
+      "degradedReasons": [
+        "screen-image-deleted"
+      ],
+      "validationSummary": {
+        "evidenceReferenceCount": 1,
+        "sourceEvidenceReferenceCount": 1,
+        "runtimeReferenceCount": 1,
+        "memoryReferenceCount": 0,
+        "graphReferenceCount": 0,
+        "parentRuleReferenceCount": 1,
+        "ungroundedParentRuleReferenceCount": 0,
+        "forbiddenCustodyReferenceCount": 0,
+        "unallowedCustodyReferenceCount": 0
+      },
+      "ungroundedParentRuleReferenceCount": 0,
+      "rejectedFields": [],
+      "missingEvidenceKinds": [],
+      "custodyBoundarySummary": "context uses only child-device or parent-owned stored evidence",
+      "validationGateSummary": "ready stored-evidence context for local-only model input"
+    },
+    {
+      "rowId": "ungrounded-parent-rule-rejected",
+      "contextState": "partial",
+      "selectedEvidenceRefs": [
+        "screen-ref-education"
+      ],
+      "selectedParentRuleRefs": [],
+      "parentRuleReferences": [],
+      "degradedReasons": [
+        "screen-image-deleted",
+        "parent-rule-missing"
+      ],
+      "validationSummary": {
+        "evidenceReferenceCount": 1,
+        "sourceEvidenceReferenceCount": 1,
+        "runtimeReferenceCount": 1,
+        "memoryReferenceCount": 0,
+        "graphReferenceCount": 0,
+        "parentRuleReferenceCount": 0,
+        "ungroundedParentRuleReferenceCount": 1,
+        "forbiddenCustodyReferenceCount": 0,
+        "unallowedCustodyReferenceCount": 0
+      },
+      "ungroundedParentRuleReferenceCount": 1,
+      "rejectedFields": [],
+      "missingEvidenceKinds": [],
+      "custodyBoundarySummary": "context uses only child-device or parent-owned stored evidence",
+      "validationGateSummary": "partial context built with explicit missing evidence kinds"
+    },
+    {
+      "rowId": "missing-parent-rule-degraded",
+      "contextState": "partial",
+      "selectedEvidenceRefs": [
+        "screen-ref-education"
+      ],
+      "selectedParentRuleRefs": [],
+      "parentRuleReferences": [],
+      "degradedReasons": [
+        "screen-image-deleted",
+        "parent-rule-missing"
+      ],
+      "validationSummary": {
+        "evidenceReferenceCount": 1,
+        "sourceEvidenceReferenceCount": 1,
+        "runtimeReferenceCount": 1,
+        "memoryReferenceCount": 0,
+        "graphReferenceCount": 0,
+        "parentRuleReferenceCount": 0,
+        "ungroundedParentRuleReferenceCount": 0,
+        "forbiddenCustodyReferenceCount": 0,
+        "unallowedCustodyReferenceCount": 0
+      },
+      "ungroundedParentRuleReferenceCount": 0,
+      "rejectedFields": [],
+      "missingEvidenceKinds": [],
+      "custodyBoundarySummary": "context uses only child-device or parent-owned stored evidence",
+      "validationGateSummary": "partial context built with explicit missing evidence kinds"
+    }
+  ],
+  "summary": {
+    "groundedRows": 1,
+    "ungroundedRows": 1,
+    "missingRuleRows": 2,
+    "remoteAiUsed": false,
+    "rawEvidenceRetained": false,
+    "policyAuthorityClaimed": false,
+    "enforcementClaimed": false,
+    "failures": 0
+  },
+  "assertions": [
+    "Grounded parent rule context refs are selected only when every target evidence ref survives context selection.",
+    "Parent rule refs targeting filtered or missing evidence are rejected before model input and counted as ungrounded.",
+    "Missing parent rule context degrades explicitly with parent-rule-missing instead of silently producing policy authority."
+  ],
+  "nonClaims": [
+    "This proof exercises existing local AI context contracts; it does not execute a model or prove production model quality.",
+    "This proof does not claim remote/API AI, policy authority, portal UI, or enforcement.",
+    "This proof does not create fresh capture; it proves parent-rule context grounding over typed stored evidence refs."
+  ]
+}
