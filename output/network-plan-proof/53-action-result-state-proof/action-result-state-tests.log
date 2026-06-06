@@ -1,0 +1,16 @@
+
+running 8 tests
+test tests::action_result::action_result_rejects_empty_refs_and_policy_authority_bypass ... ok
+test tests::action_result::action_result_rejects_content_host_mutation_and_command_claims ... ok
+test tests::action_result::action_result_reports_unavailable_without_accepting_adapter_result ... ok
+test tests::action_result::action_result_accepts_blocked_state_from_policy_and_adapter_result_refs ... ok
+test tests::action_result::action_result_dry_run_is_non_result_without_adapter_artifacts ... ok
+test tests::action_result::action_result_requires_adapter_proof_apply_result_and_audit_refs ... ok
+test tests::action_result::action_result_routes_weak_policy_or_manual_adapter_state_to_manual_required ... ok
+test tests::action_result::action_result_accepts_process_termination_result_without_live_mutation_claims ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 205 filtered out; finished in 0.00s
+
+   Compiling ocentra-network-evidence v0.1.1 (E:\OcentraParentWorktrees\E-D\OcentraParent\crates\ocentra-network-evidence)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.73s
+     Running unittests src\lib.rs (target\debug\deps\ocentra_network_evidence-36610952c1128119.exe)
