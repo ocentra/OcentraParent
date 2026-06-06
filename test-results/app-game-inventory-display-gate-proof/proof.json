@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-inventory-display-gate-proof",
+  "generatedAt": "2026-06-06T19:24:14.321Z",
+  "branch": "codex/app-game-inventory-display-gate-proof",
+  "commit": "e9118e91b1be80973a3fb75c5ae8ff76f0d6718c",
+  "gitStatusShort": "M docs/features/app-game-control.md\n M docs/plans/app-game-plan/implementation-checklist.md\n?? scripts/test/app-game-inventory-display-gate-proof.mjs",
+  "commands": [
+    "cmd /c npm run test --workspace @ocentra-parent/portal -- activity-ui-app-game-dashboard-intent.test.ts\nexit=0\n\n> @ocentra-parent/portal@0.1.1 test\n> vitest run tests activity-ui-app-game-dashboard-intent.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/apps/portal\n\n\n Test Files  16 passed (16)\n      Tests  69 passed (69)\n   Start at  15:24:09\n   Duration  4.64s (transform 23.75s, setup 0ms, import 53.81s, tests 302ms, environment 4ms)\n\n\u001b[2m3:24:09 p.m.\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `esbuild` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `oxc` instead.\u001b[39m\n\u001b[2m3:24:09 p.m.\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `optimizeDeps.esbuildOptions` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.\u001b[39m\n\u001b[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.\u001b[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`\n"
+  ],
+  "gate": "Inventory evidence is displayed as app/game usage.",
+  "gateState": "proven-by-existing-portal-dashboard-intent-and-route-assertion",
+  "evidence": {
+    "intentTest": "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts proves native-app, native-game, and launcher rows feed the dashboard separately.",
+    "intentSource": "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts maps inventoryRowCount/inventoryState into inventoryCount and dashboard Inventory metrics.",
+    "routeSource": "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx renders APP/GAME READ MODEL DASHBOARD and per-row Inventory counts.",
+    "routeAssertion": "apps/portal/e2e/portal-route-scaffold-assertions.ts asserts the App/Game Sessions route displays INVENTORY text."
+  },
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "browserGameWorkDuplicated": false,
+    "rawPrivateExecutablePathsRendered": false,
+    "packageExportsChanged": false,
+    "runtimeAdapterClaimed": false
+  },
+  "proofPaths": {
+    "proof": "test-results/app-game-inventory-display-gate-proof/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/merge-gates/inventory-display",
+    "harness": "scripts/test/app-game-inventory-display-gate-proof.mjs"
+  }
+}
