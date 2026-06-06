@@ -239,7 +239,7 @@ mkdirSync(localPath(proofRoot), { recursive: true });
 mkdirSync(localPath(testRoot), { recursive: true });
 
 const branch = runText('git', ['branch', '--show-current']).trim();
-const commit = runText('git', ['rev-parse', 'HEAD']).trim();
+const sourceCommit = runText('git', ['rev-parse', 'HEAD']).trim();
 const originMain = runText('git', ['rev-parse', 'origin/main']).trim();
 const mergeBase = runText('git', ['merge-base', 'HEAD', 'origin/main']).trim();
 const sourceStatusShort = runText('git', [
@@ -272,7 +272,8 @@ const proof = {
   proof: 'network-proof-pack-reconciliation',
   checkedAt: new Date().toISOString(),
   branch,
-  commit,
+  sourceCommit,
+  artifactCommit: 'see the enclosing git commit for generated proof artifacts',
   originMain,
   mergeBase,
   sourceStatusShort,
@@ -344,7 +345,7 @@ function sourceSnapshot() {
   return `# Network Proof Pack Reconciliation Source Snapshot
 
 Branch: ${branch}
-Commit: ${commit}
+Source commit at proof generation: ${sourceCommit}
 Origin main: ${originMain}
 Merge base: ${mergeBase}
 
