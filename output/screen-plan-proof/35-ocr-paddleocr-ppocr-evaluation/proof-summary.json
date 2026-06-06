@@ -1,6 +1,6 @@
 {
   "proof": "screen-ocr-paddleocr-ppocr-evaluation",
-  "generatedAt": "2026-06-05T06:39:49.466Z",
+  "generatedAt": "2026-06-06T23:37:39.808Z",
   "officialSourceSnapshot": {
     "paddleOcrInstallation": "https://paddlepaddle.github.io/PaddleOCR/main/en/version3.x/installation.html",
     "paddleOcrQuickStart": "https://paddlepaddle.github.io/PaddleOCR/main/en/quick_start.html",
@@ -41,7 +41,7 @@
   },
   "placementDecision": {
     "selectedForProduction": false,
-    "preferredNextHost": "family-hub-or-child-after-install-proof",
+    "preferredNextHost": "household-mesh-or-child-after-install-proof",
     "decision": "Do not select PaddleOCR/PP-OCR for production screen OCR until local package install, model-cache custody, no-upload execution, and Tesseract comparison proof pass."
   },
   "nonClaims": [

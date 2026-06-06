@@ -85,7 +85,7 @@ const summary = {
   },
   placementDecision: {
     selectedForProduction: false,
-    preferredNextHost: localRuntimeReady ? 'child-device' : 'family-hub-or-child-after-install-proof',
+    preferredNextHost: localRuntimeReady ? 'child-device' : 'household-mesh-or-child-after-install-proof',
     decision:
       'Do not select PaddleOCR/PP-OCR for production screen OCR until local package install, model-cache custody, no-upload execution, and Tesseract comparison proof pass.',
   },
