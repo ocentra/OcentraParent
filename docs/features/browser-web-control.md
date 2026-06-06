@@ -354,13 +354,18 @@ response metadata, hashed origin/path/body refs, metadata shape booleans, length
 buckets, and value hashes; parses 15 metadata field rows plus an extraction
 bundle; and rejects 27 overclaims.
 Browser-game/cloud-gaming GAME-08 now adds parent-domain hidden analysis profile
-safety contracts. Profile and loader rows model Ocentra-owned isolated profiles,
-bounded retention, proof-backed metadata-only/analysis-ready states,
-disabled-policy, proof-missing, manual-required, and unavailable states. They do
-not reuse child cookies or sessions, share child storage, store or capture raw
-URL/page/game/frame payloads, instrument browsers, control hidden native
-surfaces, run AI, decide policy, render UI, inspect cloud frames, control native
-games, or enforce actions.
+safety contracts plus a live public safety-shape proof. Profile and loader rows
+model Ocentra-owned isolated profiles, bounded retention, proof-backed
+metadata-only/analysis-ready states, disabled-policy, proof-missing,
+manual-required, and unavailable states. The live proof fetches real public
+Poki, Coolmath Games, Chess.com play, PlayStation Plus games catalog, and Xbox
+Cloud Gaming pages; stores only response metadata, hashed origin/path/body refs,
+profile fingerprints, loader proof refs, and no-capture safety flags; validates
+10 profile rows plus 10 planned/proof-backed loader results; and rejects 40
+overclaims. It does not reuse child cookies or sessions, share child storage,
+store or capture raw URL/page/game/frame payloads, instrument browsers, control
+hidden native surfaces, run AI, decide policy, render UI, inspect cloud frames,
+control native games, or enforce actions.
 Browser-game/cloud-gaming GAME-09 now adds parent-domain educational classifier
 contracts for browser games. The classifier uses evidence refs for school URLs,
 teacher/parent allowlists, metadata, AI classification refs, parent approval,
@@ -493,7 +498,8 @@ not claimed. GAME-01 is scaffold-proof-present, GAME-02 is
 live-route-proof-present, GAME-03 is live-portal-pattern-proof-present, GAME-04
 is live-cloud-pattern-proof-present, and GAME-05 is live-url-shape-proof-present.
 GAME-06 is live-runtime-signal-shape-proof-present. GAME-07 is
-live-metadata-shape-proof-present. GAME-08 through GAME-24 are
+live-metadata-shape-proof-present. GAME-08 is
+live-hidden-analysis-profile-safety-proof-present. GAME-09 through GAME-24 are
 partial/manual-required. AI, memory, UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.

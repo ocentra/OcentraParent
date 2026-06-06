@@ -1271,15 +1271,18 @@ worker messages before code changes. Do not mix all 24 into one PR.
   shape booleans, length buckets, and value hashes; parses 15 metadata field rows
   plus an extraction bundle; and rejects 27 raw-metadata, DOM/API, AI, policy,
   native, cloud-frame, and enforcement overclaims.
-- GAME-08 now adds parent-domain hidden analysis profile safety contracts.
-  Profile and loader rows model Ocentra-owned isolated profiles, bounded
-  retention, proof-backed metadata-only/analysis-ready states, disabled-policy,
-  proof-missing, manual-required, and unavailable states through evidence refs,
-  profile fingerprints, reason codes, confidence, and loader proof refs. They
-  reject child cookie/session reuse, shared child storage, raw URL/page/game/frame
-  storage or capture, browser instrumentation, hidden native control, AI
-  classification, final policy decisions, UI rendering, cloud-frame analysis,
-  native game control, and enforcement.
+- GAME-08 now adds parent-domain hidden analysis profile safety contracts and a
+  live public safety-shape proof. Profile and loader rows model Ocentra-owned
+  isolated profiles, bounded retention, proof-backed metadata-only/analysis-ready
+  states, disabled-policy, proof-missing, manual-required, and unavailable states
+  through evidence refs, profile fingerprints, reason codes, confidence, and
+  loader proof refs. The live proof fetches real public Poki, Coolmath Games,
+  Chess.com play, PlayStation Plus games catalog, and Xbox Cloud Gaming pages;
+  stores only response metadata, hashed origin/path/body refs, profile
+  fingerprints, loader proof refs, and no-capture safety flags; validates 10
+  profile rows plus 10 planned/proof-backed loader results; and rejects 40 child
+  profile reuse, raw capture, hidden/browser/native, AI, policy, UI, cloud-frame,
+  and enforcement overclaims.
 - GAME-09 now adds parent-domain browser-game educational classifier contracts.
   The classifier models evidence rows for domain reputation, school-provided
   URLs, teacher/parent allowlists, page/subject metadata, AI classification
@@ -1432,7 +1435,8 @@ worker messages before code changes. Do not mix all 24 into one PR.
   live-portal-pattern-proof-present, GAME-04 as live-cloud-pattern-proof-present,
   GAME-05 as live-url-shape-proof-present, GAME-06 as
   live-runtime-signal-shape-proof-present, GAME-07 as
-  live-metadata-shape-proof-present, GAME-08 through GAME-24 as
+  live-metadata-shape-proof-present, GAME-08 as
+  live-hidden-analysis-profile-safety-proof-present, GAME-09 through GAME-24 as
   partial/manual-required, and no browser-game rows as open/manual-required.
   Product checklist upgrade is not claimed, and runtime
   signals, metadata, AI, memory, child/parent UI, cloud-streamed frame analysis,

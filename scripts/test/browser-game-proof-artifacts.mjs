@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 7;
+    const isComplete = rowNumber <= 8;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -80,7 +80,9 @@ function expectedRows() {
                   ? 'live-url-shape-proof-present'
                   : rowNumber === 6
                     ? 'live-runtime-signal-shape-proof-present'
-                    : 'live-metadata-shape-proof-present'
+                    : rowNumber === 7
+                      ? 'live-metadata-shape-proof-present'
+                      : 'live-hidden-analysis-profile-safety-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -183,6 +185,7 @@ function manifestFor(rows, failures) {
       liveUrlShapeEvidence: 'game-05-live-url-shape-proof-present',
       liveRuntimeSignalEvidence: 'game-06-live-runtime-signal-shape-proof-present',
       liveMetadataEvidence: 'game-07-live-metadata-shape-proof-present',
+      liveHiddenAnalysisProfileSafetyEvidence: 'game-08-live-hidden-analysis-profile-safety-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -225,6 +228,8 @@ function markdownFor(manifest) {
     'browser-game and cloud-gaming pages through Playwright with ref-only/hash-only custody.',
     'GAME-07 live metadata shape proof is present for real public',
     'browser-game and cloud-gaming pages with ref-only/hash-only custody.',
+    'GAME-08 live hidden analysis profile safety proof is present for real public',
+    'browser-game and cloud-gaming pages with isolated-profile, no-capture custody.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

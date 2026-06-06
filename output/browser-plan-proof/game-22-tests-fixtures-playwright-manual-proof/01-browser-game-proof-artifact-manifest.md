@@ -1,10 +1,10 @@
 # GAME-22 Browser-Game Proof Artifact Manifest
 
-Generated: 2026-06-06T19:34:26.244Z
+Generated: 2026-06-06T19:47:28.890Z
 
 Rows checked: 21
-Proof-present rows: 7
-Partial/manual-required rows: 14
+Proof-present rows: 8
+Partial/manual-required rows: 13
 Playwright state: manual-required-no-rendered-browser-game-ui
 Product claimed: false
 
@@ -17,7 +17,7 @@ Product claimed: false
 | GAME-05 | live-url-shape-proof-present | `game-05-game-url-shape-parser` | 6 |
 | GAME-06 | live-runtime-signal-shape-proof-present | `game-06-game-runtime-signal-detector` | 6 |
 | GAME-07 | live-metadata-shape-proof-present | `game-07-game-metadata-extractor` | 6 |
-| GAME-08 | partial-manual-required | `game-08-hidden-analysis-profile-safety` | 5 |
+| GAME-08 | live-hidden-analysis-profile-safety-proof-present | `game-08-hidden-analysis-profile-safety` | 6 |
 | GAME-09 | partial-manual-required | `game-09-educational-game-classifier-contract` | 5 |
 | GAME-10 | partial-manual-required | `game-10-browser-game-ai-analysis-contract` | 5 |
 | GAME-11 | partial-manual-required | `game-11-game-risk-benefit-signal-model` | 5 |
@@ -45,6 +45,8 @@ GAME-06 live runtime signal shape proof is present for real public
 browser-game and cloud-gaming pages through Playwright with ref-only/hash-only custody.
 GAME-07 live metadata shape proof is present for real public
 browser-game and cloud-gaming pages with ref-only/hash-only custody.
+GAME-08 live hidden analysis profile safety proof is present for real public
+browser-game and cloud-gaming pages with isolated-profile, no-capture custody.
 It does not prove rendered browser-game UI, Playwright screenshots,
 runtime browser-game detection, cloud-streamed frame analysis, native
 game control, final policy execution, enforcement, or product checklist
