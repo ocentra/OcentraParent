@@ -422,6 +422,17 @@ compete on control while staying clear about attribution confidence and privacy.
   real Rust service WebSocket path and keeps policy execution, adapter
   execution, host filtering, exact-content claims, production SLO validation,
   and enforcement-command publication unclaimed.
+- E-D added a row10c remote delivery service/portal status proof. The
+  service-backed product-readiness event now carries `networkRemoteDeliveryStatus`
+  with row10b broker/family-hub custody, publisher/subscriber auth, encryption,
+  retention, replay, deletion, offset, dedupe, broker config, family-hub
+  identity, relay-policy, local idempotency, duplicate, and dead-letter refs.
+  The Activity route drawer renders those refs and the false live-delivery,
+  cross-process replay, remote retention/delete/export propagation, policy
+  authority, side-effect authority, enforcement-command, adapter-action, and
+  host-filtering boundaries in
+  `network-remote-delivery-status-portal-proof`. This remains status visibility
+  only; live broker delivery and family-hub relay delivery remain unimplemented.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -463,7 +474,8 @@ and manual-required labels before any platform claim can be upgraded. Row52 now
 adds a platform-claim manifest that names exact Windows, Android, Apple
 macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
 follow-ups for missing artifacts.
-Broker/family-hub delivery implementation beyond the row10b status proof,
+Broker/family-hub delivery implementation beyond the row10b status proof and
+row10c service/portal status visibility,
 local-AI model execution/worker runtime, full policy engine execution beyond
 the current stored-flow dry-run preview and stored-flow service unavailable-result proof,
 notification provider delivery, broader parent-facing rule UX, live host DNS
@@ -472,7 +484,8 @@ Firewall mutation, live WFP driver/callout/packet blocking, live Android
 VpnService filtering, live Apple Network Extension behavior, live Linux adapter
 execution, platform adapter execution, and production risk-budget/SLO execution
 remain open beyond the row51c product-readiness status drawer proof, row52a
-platform-claim manifest matrix proof, and row51d risk/performance detail proof.
+platform-claim manifest matrix proof, row51d risk/performance detail proof, and
+row10c remote-delivery status drawer proof.
 
 ## Checklist
 
@@ -561,8 +574,15 @@ platform-claim manifest matrix proof, and row51d risk/performance detail proof.
       Row10a broker delivery semantics proof now preserves replay plan,
       dropped-event audit, and adapter-action ledger refs while proving duplicate
       idempotency rejection and zero duplicate adapter-action counts.
-      Broker/family-hub delivery remains requirements-gated rather than
-      implemented. Service network read-model delivery now publishes stored
+      Row10b broker/family-hub remote-delivery status materializes custody,
+      auth, encryption, retention, replay, deletion, offset, dedupe, broker
+      config, family-hub identity, relay-policy, idempotency, and dead-letter
+      refs. Row10c now exposes and renders that status through the service
+      product-readiness event and Activity drawer without live delivery,
+      cross-process replay, remote retention/delete/export propagation,
+      authority, enforcement, adapter, or host-filter claims. Broker/family-hub
+      delivery remains requirements-gated rather than implemented. Service
+      network read-model delivery now publishes stored
       ActivityStore network rows through the local eventing runtime and exposes
       delivery counts in the service payload; service WebSocket event-chain
       streaming now returns protocol-shaped local runtime entries for stored
@@ -608,7 +628,10 @@ platform-claim manifest matrix proof, and row51d risk/performance detail proof.
       entries without policy, adapter, host-filtering, production-SLO, or
       enforcement-command claims. Row51d now renders row48 risk-budget details
       and row49 performance benchmark metrics in the same drawer while
-      preserving the same no-claim boundaries.
+      preserving the same no-claim boundaries. Row10c now renders
+      broker/family-hub remote-delivery status in that drawer while preserving
+      false live-delivery, authority, enforcement, adapter, and host-filter
+      boundaries.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and

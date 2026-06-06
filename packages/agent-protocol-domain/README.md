@@ -39,8 +39,10 @@ transports.
 - Network product-readiness status command/event names and payload field
   constants for service-backed row13a custody and row51a product-readiness
   materializer outputs, row48 risk-budget details, row49 performance benchmark
-  metrics, and row52 platform-claim manifest entries with enforced false
-  production-SLO, adapter, host-filtering, and enforcement-command publication.
+  metrics, row52 platform-claim manifest entries, and row10c
+  broker/family-hub remote-delivery status with enforced false production-SLO,
+  live delivery, adapter, host-filtering, authority, and enforcement-command
+  publication.
 - Network runtime event contracts for the local eventing spine, including
   flow/domain/classification, AI advisory, policy, enforcement dry-run/result,
   audit, and portal read-model update shapes mirrored from `crates/agent-protocol`.
@@ -126,8 +128,10 @@ flowchart LR
 - Network product-readiness status support proves command/event and payload
   field parity for the service status event, including row48 risk-budget
   details, row49 performance benchmark metrics, row52 platform entries, and the
-  regressions that reject production-SLO, host-filtering, adapter, and
-  enforcement-command claims; the Activity route now has separate row51c
-  status, row52a manifest, and row51d risk/performance rendering proofs.
-  Policy execution, adapter execution, host filtering, live capture, and
-  production SLO validation remain separate proof-gated work.
+  row10c regressions that reject live broker/family-hub delivery, remote
+  retention/delete/export propagation, production-SLO, host-filtering, adapter,
+  authority, and enforcement-command claims; the Activity route now has
+  separate row51c status, row52a manifest, row51d risk/performance, and row10c
+  remote-delivery rendering proofs. Broker/family-hub transport, policy
+  execution, adapter execution, host filtering, live capture, and production SLO
+  validation remain separate proof-gated work.
