@@ -31,6 +31,10 @@ import {
   BrowserParentExplanationRoutePanel,
   shouldRenderBrowserParentExplanationRoute,
 } from './BrowserParentExplanationRoutePanel';
+import {
+  shouldRenderSocialAuditExplanationRoute,
+  SocialAuditExplanationRoutePanel,
+} from './SocialAuditExplanationRoutePanel';
 import { shouldRenderSocialDashboardRoute, SocialDashboardRoutePanel } from './SocialDashboardRoutePanel';
 import { ScreenSettingsRoutePanel, shouldRenderScreenSettingsRoute } from './ScreenSettingsRoutePanel';
 import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
@@ -116,6 +120,7 @@ export function ParentPortalRoute({
         />
       ) : null}
       {shouldRenderBrowserParentExplanationRoute(route) ? <BrowserParentExplanationRoutePanel /> : null}
+      {shouldRenderSocialAuditExplanationRoute(route) ? <SocialAuditExplanationRoutePanel /> : null}
       {shouldRenderSocialDashboardRoute(route) ? (
         <SocialDashboardRoutePanel
           actions={actions}

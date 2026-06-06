@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-06T05:33:14.096Z",
+  "commit": "a89957bd8cb3e2491fd65d83d7248949df7b3be0",
+  "workpackIds": [
+    "social-22-audit-explanation-read-model"
+  ],
+  "proofMode": "real-portal-browser-route-social-audit-explanation-proof-bundle",
+  "route": "#/browser",
+  "currentStatus": "rendered-social-explanation-proof-only",
+  "productClaimReady": false,
+  "artifacts": {
+    "proof": "test-results/social-audit-explanation-ui-proof/proof.json",
+    "outputProof": "output/browser-plan-proof/social-22-audit-explanation-read-model/07-rendered-explanation-ui-proof.json",
+    "sourceSnapshot": "output/browser-plan-proof/social-22-audit-explanation-read-model/00-source-snapshot.md",
+    "contractProof": "output/browser-plan-proof/social-22-audit-explanation-read-model/01-contract-proof.log",
+    "playwrightLog": "output/browser-plan-proof/social-22-audit-explanation-read-model/06-ui-snapshots/social-audit-explanation-ui-playwright.log",
+    "securityNegativeLog": "output/browser-plan-proof/social-22-audit-explanation-read-model/08-security-negative-proof.log",
+    "validationCommands": "output/browser-plan-proof/social-22-audit-explanation-read-model/10-validation-commands.log",
+    "desktopScreenshot": "output/browser-plan-proof/social-22-audit-explanation-read-model/06-ui-snapshots/social-audit-explanation-route.png",
+    "mobileScreenshot": "output/browser-plan-proof/social-22-audit-explanation-read-model/06-ui-snapshots/social-audit-explanation-route-mobile.png",
+    "accessibilitySummary": "test-results/social-audit-explanation-ui-proof/accessibility-summary.json"
+  },
+  "sourceBoundary": {
+    "source": "schema-decoded SOCIAL-22 parent-domain explanation snapshot passed through dedicated portal proof env",
+    "route": "#/browser",
+    "rawSocialContentRendered": false,
+    "serviceBackedReadModelClaimed": false
+  },
+  "renderedSnapshot": {
+    "snapshotId": "social-audit-explanation-snapshot-rendered",
+    "entries": [
+      {
+        "eventId": "social-audit-account-approval-rendered",
+        "subjectKind": "account-approval",
+        "status": "ready-for-parent",
+        "actionCandidate": "parent-review-candidate",
+        "evidenceKinds": [
+          "policy-candidate",
+          "parent-approval"
+        ]
+      },
+      {
+        "eventId": "social-audit-feed-video-gate-rendered",
+        "subjectKind": "feed-video-gate",
+        "status": "ready-for-parent",
+        "actionCandidate": "warn-candidate",
+        "evidenceKinds": [
+          "route-evidence",
+          "policy-candidate"
+        ]
+      },
+      {
+        "eventId": "social-audit-native-gap-rendered",
+        "subjectKind": "native-app-gap",
+        "status": "manual-required",
+        "actionCandidate": "manual-review-candidate",
+        "evidenceKinds": [
+          "native-capability"
+        ]
+      },
+      {
+        "eventId": "social-audit-connector-boundary-rendered",
+        "subjectKind": "connector-boundary",
+        "status": "manual-required",
+        "actionCandidate": "manual-review-candidate",
+        "evidenceKinds": [
+          "connector-boundary"
+        ]
+      },
+      {
+        "eventId": "social-audit-decision-memory-rendered",
+        "subjectKind": "decision-memory",
+        "status": "contract-only",
+        "actionCandidate": "allow-candidate",
+        "evidenceKinds": [
+          "decision-memory"
+        ]
+      },
+      {
+        "eventId": "social-audit-manual-required-gap-rendered",
+        "subjectKind": "manual-required-gap",
+        "status": "manual-required",
+        "actionCandidate": "manual-review-candidate",
+        "evidenceKinds": [
+          "manual-gap"
+        ]
+      }
+    ]
+  },
+  "assertions": [
+    "Portal browser route renders the Social explanations region from the real app shell.",
+    "The rendered snapshot is parsed by SocialAuditExplanationSnapshotSchema before reaching the portal panel intent.",
+    "The route shows all six SOCIAL-22 subject rows: account approval, feed/video gate, native app gap, connector boundary, decision memory, and manual proof gap.",
+    "The rendered copy explicitly keeps runtime audit-store delivery, notification delivery, connector authorization, native app control, final policy execution, and enforcement unclaimed.",
+    "Desktop and mobile screenshots were captured from the real portal route."
+  ],
+  "nonClaims": [
+    "This proof does not claim production service delivery of social explanation bundles.",
+    "This proof does not claim notification delivery, connector authorization, native app control, final policy execution, or enforcement.",
+    "This proof does not claim product capability checklist completion."
+  ],
+  "remainingGapsBeforeProductReady": [
+    "Service-backed social explanation read-model/event delivery remains pending until protocol locks are available.",
+    "Parent notification/report delivery remains pending.",
+    "Connector/native runtime, final policy execution, and enforcement remain separate proof gates."
+  ],
+  "accessibilitySummary": {
+    "route": "#/browser",
+    "assertions": [
+      "named-social-explanations-region",
+      "schema-backed-social-explanation-visible",
+      "six-subject-explanation-headings-visible",
+      "evidence-and-audit-refs-visible",
+      "runtime-social-claims-not-visible",
+      "no-unlabeled-buttons",
+      "desktop-screenshot",
+      "mobile-screenshot"
+    ],
+    "summary": {
+      "hasNamedRegion": true,
+      "headings": [
+        "Social explanations",
+        "6 social explanation rows",
+        "Account approval explanation",
+        "Feed and video gate explanation",
+        "Native app gap explanation",
+        "Connected account boundary explanation",
+        "Remembered decision explanation",
+        "Manual proof gap explanation"
+      ],
+      "labels": [
+        "Rows returned",
+        "Generated at",
+        "Product claim",
+        "Status",
+        "Decision source",
+        "Decision action",
+        "Policy evaluation",
+        "Evidence references",
+        "Reason codes",
+        "Reason",
+        "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Decision source",
+        "Decision action",
+        "Policy evaluation",
+        "Evidence references",
+        "Reason codes",
+        "Reason",
+        "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Decision source",
+        "Decision action",
+        "Policy evaluation",
+        "Evidence references",
+        "Reason codes",
+        "Reason",
+        "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Decision source",
+        "Decision action",
+        "Policy evaluation",
+        "Evidence references",
+        "Reason codes",
+        "Reason",
+        "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Decision source",
+        "Decision action",
+        "Policy evaluation",
+        "Evidence references",
+        "Reason codes",
+        "Reason",
+        "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Decision source",
+        "Decision action",
+        "Policy evaluation",
+        "Evidence references",
+        "Reason codes",
+        "Reason",
+        "Intervention audit ID",
+        "Product claim"
+      ],
+      "values": [
+        "6",
+        "2026-06-06T05:20:00.000Z",
+        "Rendered parent explanation surface only; runtime audit-store delivery, notifications, connector authorization, native app control, final policy execution, and enforcement remain unclaimed.",
+        "ready-for-parent",
+        "parent-recorded",
+        "parent-review-candidate",
+        "policy-version-social-audit-rendered",
+        "policy-candidate:parent-evidence-policy-candidate, parent-approval:parent-evidence-parent-approval",
+        "parent-rule-match",
+        "evidence-linked, policy-candidate-linked, parent-decision-linked",
+        "parent-evidence-audit-ref-rendered",
+        "Rendered parent explanation surface only; runtime audit-store delivery, notifications, connector authorization, native app control, final policy execution, and enforcement remain unclaimed.",
+        "ready-for-parent",
+        "candidate-only",
+        "warn-candidate",
+        "policy-version-social-audit-rendered",
+        "route-evidence:parent-evidence-route-evidence, policy-candidate:parent-evidence-policy-candidate",
+        "social-risk-high, video-safety-risk",
+        "evidence-linked, policy-candidate-linked",
+        "parent-evidence-audit-ref-rendered",
+        "Rendered parent explanation surface only; runtime audit-store delivery, notifications, connector authorization, native app control, final policy execution, and enforcement remain unclaimed.",
+        "manual-required",
+        "manual-required",
+        "manual-review-candidate",
+        "not reported",
+        "native-capability:parent-evidence-native-capability",
+        "manual-required",
+        "native-app-manual-required, missing-runtime-proof",
+        "parent-evidence-audit-ref-rendered",
+        "Rendered parent explanation surface only; runtime audit-store delivery, notifications, connector authorization, native app control, final policy execution, and enforcement remain unclaimed.",
+        "manual-required",
+        "manual-required",
+        "manual-review-candidate",
+        "not reported",
+        "connector-boundary:parent-evidence-connector-boundary",
+        "manual-required",
+        "connector-boundary-linked, manual-review-required",
+        "parent-evidence-audit-ref-rendered",
+        "Rendered parent explanation surface only; runtime audit-store delivery, notifications, connector authorization, native app control, final policy execution, and enforcement remain unclaimed.",
+        "contract-only",
+        "candidate-only",
+        "allow-candidate",
+        "policy-version-social-audit-rendered",
+        "decision-memory:parent-evidence-decision-memory",
+        "parent-rule-match",
+        "memory-linked, evidence-linked",
+        "parent-evidence-audit-ref-rendered",
+        "Rendered parent explanation surface only; runtime audit-store delivery, notifications, connector authorization, native app control, final policy execution, and enforcement remain unclaimed.",
+        "manual-required",
+        "manual-required",
+        "manual-review-candidate",
+        "not reported",
+        "manual-gap:parent-evidence-manual-gap",
+        "manual-required",
+        "manual-review-required",
+        "parent-evidence-audit-ref-rendered",
+        "Rendered parent explanation surface only; runtime audit-store delivery, notifications, connector authorization, native app control, final policy execution, and enforcement remain unclaimed."
+      ],
+      "buttons": [],
+      "unlabeledButtons": 0
+    },
+    "screenshots": {
+      "desktop": "output/browser-plan-proof/social-22-audit-explanation-read-model/06-ui-snapshots/social-audit-explanation-route.png",
+      "mobile": "output/browser-plan-proof/social-22-audit-explanation-read-model/06-ui-snapshots/social-audit-explanation-route-mobile.png"
+    }
+  },
+  "commands": [
+    {
+      "command": "cmd /c npm run build:contracts",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run test -- social-audit-explanation-read-model.test.ts",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/portal-domain run test -- social-audit-explanation-panel.test.ts",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/portal run test -- social-audit-explanation-panel.test.ts",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/portal-domain run type-check",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/portal run type-check",
+      "exitCode": 0
+    },
+    {
+      "command": "cargo build -p ocentra-parent-agent-service",
+      "exitCode": 0
+    },
+    {
+      "command": "C:\\Program Files\\nodejs\\node.exe C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-d\\OcentraParent\\node_modules\\@playwright\\test\\cli.js test --config C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-d\\OcentraParent\\apps\\portal\\playwright.config.ts social-audit-explanation-ui-proof.spec.ts --workers=1",
+      "exitCode": 0
+    },
+    {
+      "command": "git rev-parse HEAD",
+      "exitCode": 0
+    }
+  ]
+}
