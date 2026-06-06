@@ -1,6 +1,6 @@
 # Screen AI Final Product Path Proof
 
-Generated: 2026-06-05T11:53:18.784Z
+Generated: 2026-06-06T12:18:01.309Z
 
 ## Source Artifacts
 
@@ -13,6 +13,7 @@ Generated: 2026-06-05T11:53:18.784Z
 - protectedSurface: `output/screen-ai-pipeline-proof/protected-surface/proof-summary.json`
 - readModel: `output/ai-plan-proof/screen-summary-parent-explanation-read-model/proof-summary.json`
 - retentionSweeper: `output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json`
+- serviceReadModel: `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json`
 
 ## Closure
 
@@ -27,6 +28,7 @@ Generated: 2026-06-05T11:53:18.784Z
   "actionDispatchProven": true,
   "portalReadModelProven": true,
   "readModelRows": 2,
+  "serviceBackedReadModelProven": true,
   "retentionCustodyProven": true,
   "protectedSurfaceSkipProven": true,
   "finalPathEvidenceComplete": true,

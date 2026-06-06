@@ -132,8 +132,8 @@ claims.
       protected-surface non-claims, parent screenshots, and deletion custody:
       `output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json`.
 - [x] Final product path artifact gate validates the retained live/operator,
-      AI, policy, action, portal/read-model, retention, and deletion custody
-      artifacts:
+      AI, policy, action, portal/read-model, service-backed Activity Screen
+      read-model, retention, and deletion custody artifacts:
       `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`.
 - [x] Parent explanation refs survive service-backed Activity Screen read-model
       projection:

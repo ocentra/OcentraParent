@@ -226,8 +226,9 @@ claim needs proof, not slogans.
 - `scripts/test/screen-ai-final-product-path-proof.mjs` now verifies the
   retained final screen-AI path artifacts: real live/operator trigger rows,
   local VLM analysis rows, dry-run policy decisions, Windows action handoff
-  proofs, portal/read-model proof, retention/deletion custody, and
-  protected-surface non-claims. The verifier writes
+  proofs, portal/read-model proof, service-backed Activity Screen read-model
+  proof, retention/deletion custody, and protected-surface non-claims. The
+  verifier writes
   `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json` and
   does not rerun live capture/model inference or claim remote/API AI.
 - `ScreenAiStricterParentRuleProofSchema` and

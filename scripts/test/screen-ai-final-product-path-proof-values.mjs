@@ -39,6 +39,7 @@ export const SourcePaths = {
   protectedSurface: 'output/screen-ai-pipeline-proof/protected-surface/proof-summary.json',
   readModel: 'output/ai-plan-proof/screen-summary-parent-explanation-read-model/proof-summary.json',
   retentionSweeper: 'output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json',
+  serviceReadModel: 'output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json',
 };
 
 export function readJson(path, assert) {
