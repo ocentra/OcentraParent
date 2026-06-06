@@ -73,6 +73,14 @@ only with explicit parent settings.
   downstream policy/action/deletion/portal publication until the policy producer
   supplies those refs. This closes the analysis-producer-to-row-ready handoff
   without claiming final policy/action publication.
+- `scripts/test/screen-service-policy-ref-producer-proof.mjs` now proves the
+  Rust service event-record producer writes bridge-required dry-run policy refs
+  for policy-eligible service analysis rows before `screen.service.row.ready`
+  publication: policy decision, action, reason, parent rule, explanation, and
+  deletion proof refs. Non-policy-eligible rows still do not fabricate policy
+  refs, and the existing subscriber proof remains the downstream runtime-chain
+  proof for safe rows. This is not broad parent-rule compiler coverage, final
+  enforcement execution, or a new live external capture run.
 - `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
   screen-derived household mesh contract/runtime boundary: redacted
   summary/custody payloads, no raw screenshot transfer, provider claim/lease,
@@ -545,8 +553,8 @@ parity, and UI remain separate proof gates.
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof,
 remaining production startup subscriptions for live producers beyond the service
-analysis row-ready handoff, production household mesh transport over physical
-LAN, broad adapters, and production explanation portal rendering remain in the
+analysis row-ready/policy-ref handoff, production household mesh transport over
+physical LAN, broad adapters, and production explanation portal rendering remain in the
 Current Gap section above.
 
 ## Next AI Instructions
