@@ -94,6 +94,25 @@ it('rejects local AI runtime result state/ref mismatches', () => {
   });
 });
 
+it('rejects remote delivery lifecycle and broker proof mismatches', () => {
+  expect(parseAgentNetworkProductReadinessStatusEvent(remoteDeliveryMissingArtifactCountMismatchEvent())).toEqual({
+    ok: false,
+    reason: 'invalid-remote-delivery-status',
+  });
+  expect(parseAgentNetworkProductReadinessStatusEvent(remoteDeliveryLifecycleRefRegressionEvent())).toEqual({
+    ok: false,
+    reason: 'invalid-remote-delivery-status',
+  });
+  expect(parseAgentNetworkProductReadinessStatusEvent(remoteDeliveryBrokerRequirementCountMismatchEvent())).toEqual({
+    ok: false,
+    reason: 'invalid-remote-delivery-status',
+  });
+  expect(parseAgentNetworkProductReadinessStatusEvent(remoteDeliveryDuplicateProofRegressionEvent())).toEqual({
+    ok: false,
+    reason: 'invalid-remote-delivery-status',
+  });
+});
+
 function assertLiveCaptureCustodyStatus(status: AgentNetworkLiveCaptureCustodyStatus) {
   expect(status.status_ref).toBe('network.live-capture.custody-status.13a');
   expect(status.state).toBe('CustodyReady');
@@ -399,6 +418,45 @@ function remoteDeliveryClaimRegressionEvent() {
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify({
         ...remoteDeliveryStatus(),
         family_hub_delivery_implemented: true,
+      }),
+    },
+  });
+}
+
+function remoteDeliveryMissingArtifactCountMismatchEvent() {
+  return remoteDeliveryStatusEvent({
+    remote_lifecycle_missing_artifact_count: 2,
+  });
+}
+
+function remoteDeliveryLifecycleRefRegressionEvent() {
+  return remoteDeliveryStatusEvent({
+    cross_process_replay_ref: 'broker.network.cross-process-replay.implemented.10d',
+  });
+}
+
+function remoteDeliveryBrokerRequirementCountMismatchEvent() {
+  return remoteDeliveryStatusEvent({
+    broker_missing_artifact_count: 1,
+  });
+}
+
+function remoteDeliveryDuplicateProofRegressionEvent() {
+  return remoteDeliveryStatusEvent({
+    queued_duplicate_rejected: false,
+  });
+}
+
+function remoteDeliveryStatusEvent(statusPatch: Partial<ReturnType<typeof remoteDeliveryStatus>>) {
+  return AgentEventEnvelopeSchema.parse({
+    ...productReadinessEvent(),
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify({
+        ...remoteDeliveryStatus(),
+        ...statusPatch,
       }),
     },
   });
