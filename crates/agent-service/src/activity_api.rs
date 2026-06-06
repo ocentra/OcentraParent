@@ -46,6 +46,11 @@ mod app_game_policy_readiness_payload_tests;
 mod app_game_policy_readiness_service_tests;
 mod browser_intervention_payload;
 mod browser_intervention_report;
+pub(crate) mod social_dashboard_read_model_payload;
+#[cfg(test)]
+mod social_dashboard_read_model_payload_tests;
+#[cfg(test)]
+mod social_dashboard_read_model_service_tests;
 
 use self::app_game_boundary_read_model_payload::{
     app_game_boundary_read_model_from_service_model, app_game_boundary_read_model_payload,
@@ -56,7 +61,6 @@ use self::app_game_notification_readiness_payload::{
 use self::app_game_policy_readiness_payload::{
     app_game_policy_readiness_from_service_model, app_game_policy_readiness_payload,
 };
-
 pub use activity_memory_graph_report::build_activity_memory_graph_report;
 pub use browser_intervention_report::build_browser_intervention_read_model_report;
 
