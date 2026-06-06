@@ -28,6 +28,7 @@ const parentActionReadinessScreenshotPath = path.join(
   screenshotDir,
   'hosted-policy-tracking-parent-action-readiness.png'
 );
+const missingDeviceScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-missing-device.png');
 const evidenceDrawerScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-evidence-drawer.png');
 const citationDetailScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-citation-detail.png');
 const retentionSettingsScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-retention-settings.png');
@@ -56,6 +57,7 @@ type HostedTrackingProofCards = {
   readonly reportExport: Locator;
   readonly notificationParentSurface: Locator;
   readonly parentActionReadiness: Locator;
+  readonly missingDevice: Locator;
   readonly evidenceDrawer: Locator;
   readonly citationDetail: Locator;
   readonly retentionSettings: Locator;
@@ -102,6 +104,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await assertHostedReportExportProof(trackingProofRegion);
   await assertHostedNotificationParentSurfaceProof(trackingProofRegion);
   await assertHostedParentActionReadinessProof(trackingProofRegion);
+  await assertHostedMissingDeviceProof(trackingProofRegion);
   await assertHostedEvidenceDrawerProof(trackingProofRegion);
   await assertHostedCitationDetailProof(trackingProofRegion);
   await assertHostedRetentionSettingsProof(page, trackingProofRegion);
@@ -176,6 +179,25 @@ async function assertHostedParentActionReadinessProof(trackingProofRegion: Locat
   await expect(parentActionCard.getByText('30-parent-acknowledgement-action-readiness-proof.json')).toBeVisible();
   await expect(parentActionCard.getByText('Hosted parent action readiness rendering only')).toBeVisible();
   await expect(parentActionCard.getByText('No product claim')).toBeVisible();
+}
+
+async function assertHostedMissingDeviceProof(trackingProofRegion: Locator): Promise<void> {
+  const missingDeviceCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="missing-device-ui"]').first();
+  await expect(missingDeviceCard).toBeVisible();
+  await expect(missingDeviceCard.getByRole('heading', { name: 'Missing-device state UI' })).toBeVisible();
+  await expect(missingDeviceCard.getByText('Last-known only state')).toBeVisible();
+  await expect(missingDeviceCard.getByText('Powered-off offline state')).toBeVisible();
+  await expect(missingDeviceCard.getByText('Contact requested state')).toBeVisible();
+  await expect(missingDeviceCard.getByText('Manual platform proof state')).toBeVisible();
+  await expect(missingDeviceCard.getByText('location-evidence-last-known-stale')).toBeVisible();
+  await expect(missingDeviceCard.getByText('device-status-powered-off')).toBeVisible();
+  await expect(missingDeviceCard.getByText('device-status-contact-action-queued')).toBeVisible();
+  await expect(missingDeviceCard.getByText('device-status-platform-proof-required')).toBeVisible();
+  await expect(missingDeviceCard.getByText('powered-off-current-location-proof-forbidden')).toBeVisible();
+  await expect(missingDeviceCard.getByText('os-lost-mode-api-proof-required')).toBeVisible();
+  await expect(missingDeviceCard.getByText('29-missing-device-mode/proof.json')).toBeVisible();
+  await expect(missingDeviceCard.getByText('Hosted missing-device rendering only')).toBeVisible();
+  await expect(missingDeviceCard.getByText('No product claim')).toBeVisible();
 }
 
 async function assertHostedEvidenceDrawerProof(trackingProofRegion: Locator): Promise<void> {
@@ -327,6 +349,7 @@ function locateHostedTrackingProofCards(trackingProofRegion: Locator): HostedTra
   const parentActionReadinessCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="parent-action-readiness-ui"]')
     .first();
+  const missingDeviceCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="missing-device-ui"]').first();
   const evidenceDrawerCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="service-backed-evidence-drawer"]')
     .first();
@@ -346,6 +369,7 @@ function locateHostedTrackingProofCards(trackingProofRegion: Locator): HostedTra
     reportExport: reportExportCard,
     notificationParentSurface: notificationParentSurfaceCard,
     parentActionReadiness: parentActionReadinessCard,
+    missingDevice: missingDeviceCard,
     evidenceDrawer: evidenceDrawerCard,
     citationDetail: citationDetailCard,
     retentionSettings: retentionSettingsCard,
@@ -379,6 +403,12 @@ async function captureHostedTrackingProofCards(page: Page, cards: HostedTracking
     cards.parentActionReadiness,
     '[data-ocentra-tracking-proof="parent-action-readiness-ui"]',
     parentActionReadinessScreenshotPath
+  );
+  await captureScrolledTrackingProofCardScreenshot(
+    page,
+    cards.missingDevice,
+    '[data-ocentra-tracking-proof="missing-device-ui"]',
+    missingDeviceScreenshotPath
   );
   await captureScrolledTrackingProofCardScreenshot(
     page,
@@ -465,6 +495,7 @@ async function collectAccessibilitySummary(page: Page): Promise<{
     }));
     const requiredProofIds = [
       'family-dashboard-rollup',
+      'missing-device-ui',
       'notification-parent-surface-history-ui',
       'parent-action-readiness-ui',
       'report-export-ui',
@@ -525,6 +556,7 @@ async function writeAccessibilitySummary(
             .relative(repoRoot, notificationParentSurfaceScreenshotPath)
             .replace(/\\/gu, '/'),
           parentActionReadiness: path.relative(repoRoot, parentActionReadinessScreenshotPath).replace(/\\/gu, '/'),
+          missingDevice: path.relative(repoRoot, missingDeviceScreenshotPath).replace(/\\/gu, '/'),
           evidenceDrawer: path.relative(repoRoot, evidenceDrawerScreenshotPath).replace(/\\/gu, '/'),
           citationDetail: path.relative(repoRoot, citationDetailScreenshotPath).replace(/\\/gu, '/'),
           retentionSettings: path.relative(repoRoot, retentionSettingsScreenshotPath).replace(/\\/gu, '/'),
@@ -555,6 +587,7 @@ function assertAccessibilityHeadingsAndLabels(summary: Awaited<ReturnType<typeof
     'Report export read-model UI',
     'Notification history intent UI',
     'Parent action readiness UI',
+    'Missing-device state UI',
     'Retention settings read-model UI',
     'Evidence drawer proof',
     'Child check-in request',
@@ -576,7 +609,14 @@ function assertAccessibilityHeadingsAndLabels(summary: Awaited<ReturnType<typeof
 }
 
 function assertAccessibilityValues(summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>): void {
-  assertContainsAll(summary.values, [
+  assertAccessibilityReportAndNotificationValues(summary.values);
+  assertAccessibilityParentActionAndMissingDeviceValues(summary.values);
+  assertAccessibilityRetentionAndEvidenceValues(summary.values);
+  assertAccessibilityChildAndPlatformValues(summary.values);
+}
+
+function assertAccessibilityReportAndNotificationValues(actualValues: readonly string[]): void {
+  assertContainsAll(actualValues, [
     "I'm safe",
     'Family active summary',
     'Child attention summary',
@@ -602,6 +642,11 @@ function assertAccessibilityValues(summary: Awaited<ReturnType<typeof collectAcc
     'provider-adapter-unavailable | manual-parent-history-review-required',
     'output/tracking-plan-proof/26-alert-severity-and-notification-model/26-notification-parent-surface-history-proof.json',
     'Hosted notification history rendering only; preference mutation, quiet-hours runtime, provider delivery, receipt ingestion, child-device delivery, physical-device proof, authority, production storage, adapter dispatch, and product readiness remain unclaimed.',
+  ]);
+}
+
+function assertAccessibilityParentActionAndMissingDeviceValues(actualValues: readonly string[]): void {
+  assertContainsAll(actualValues, [
     'Expected-place parent alert ready',
     'Expected-place child check-in ready',
     'Parent acknowledgement recorded',
@@ -614,6 +659,23 @@ function assertAccessibilityValues(summary: Awaited<ReturnType<typeof collectAcc
     'output/tracking-plan-proof/16-expected-place-schedule-engine/29-expected-place-alert-policy-proof.json',
     'output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/30-parent-acknowledgement-action-readiness-proof.json',
     'Hosted parent action readiness rendering only; live service mutation, alert delivery, provider delivery, receipt ingestion, child-device runtime, physical-device proof, authority, production workers, adapter dispatch, and product readiness remain unclaimed.',
+    'Last-known only state',
+    'Powered-off offline state',
+    'Contact requested state',
+    'Manual platform proof state',
+    'location-evidence-last-known-stale',
+    'device-status-powered-off',
+    'device-status-contact-action-queued',
+    'device-status-platform-proof-required',
+    'powered-off-current-location-proof-forbidden | hosted-read-only-missing-device-proof',
+    'os-lost-mode-api-proof-required | physical-device-proof-required',
+    'output/tracking-plan-proof/29-missing-device-mode/proof.json',
+    'Hosted missing-device rendering only; current location runtime, powered-off tracking, remote sync, provider delivery, physical-device proof, OS lost-mode APIs, authority, production workers, and product readiness remain unclaimed.',
+  ]);
+}
+
+function assertAccessibilityRetentionAndEvidenceValues(actualValues: readonly string[]): void {
+  assertContainsAll(actualValues, [
     'Retention window setting',
     'Delete-after-alert setting',
     'Parent export setting',
@@ -634,6 +696,11 @@ function assertAccessibilityValues(summary: Awaited<ReturnType<typeof collectAcc
     'read-only evidence drawer',
     'Display-only evidence drill-in; policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
     'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json',
+  ]);
+}
+
+function assertAccessibilityChildAndPlatformValues(actualValues: readonly string[]): void {
+  assertContainsAll(actualValues, [
     'Need help',
     'Share current location',
     'Call parent',
@@ -671,6 +738,7 @@ function assertHostedTrackingLayoutBoxes(layoutBoxes: readonly HostedTrackingLay
       'child-check-in',
       'child-runtime-ui',
       'family-dashboard-rollup',
+      'missing-device-ui',
       'notification-parent-surface-history-ui',
       'parent-action-readiness-ui',
       'report-export-ui',
@@ -711,6 +779,8 @@ function hostedTrackingAssertions(): readonly string[] {
     'notification-parent-surface-history-screenshot',
     'parent-action-readiness-visible',
     'parent-action-readiness-screenshot',
+    'missing-device-visible',
+    'missing-device-screenshot',
     'service-backed-evidence-drawer-visible',
     'service-backed-evidence-drawer-screenshot',
     'service-backed-citation-detail-visible',

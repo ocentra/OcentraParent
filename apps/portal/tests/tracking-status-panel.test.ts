@@ -14,6 +14,7 @@ import { trackingChildCheckInProof, trackingChildRuntimeUiProof } from '../src/t
 import { trackingEvidenceDrawerHostedUiProof } from '../src/tracking-evidence-drawer-hosted-ui-proof';
 import { trackingNotificationParentSurfaceHostedUiProof } from '../src/tracking-notification-parent-surface-hosted-ui-proof';
 import { trackingParentActionReadinessHostedUiProof } from '../src/tracking-parent-action-readiness-hosted-ui-proof';
+import { trackingMissingDeviceHostedUiProof } from '../src/tracking-missing-device-hosted-ui-proof';
 import { trackingReportExportHostedUiProof } from '../src/tracking-report-export-hosted-ui-proof';
 import { trackingRetentionSettingsHostedUiProof } from '../src/tracking-retention-settings-hosted-ui-proof';
 import {
@@ -402,6 +403,49 @@ const ExpectedParentActionReadinessRows = [
   },
 ] as const;
 
+const ExpectedMissingDeviceRows = [
+  {
+    title: 'Last-known only state',
+    state: 'last-known-only',
+    primaryBadge: 'last-known',
+    contactState: 'contact-state-offline',
+    lastKnownEvidenceRef: 'location-evidence-last-known-stale',
+    deviceStatusEvidenceRef: 'device-status-offline-last-known',
+    actionRefs: 'review-last-known | ask-child-check-in | call-child | mark-found',
+    manualProofRequirements: 'hosted-read-only-missing-device-proof',
+  },
+  {
+    title: 'Powered-off offline state',
+    state: 'offline',
+    primaryBadge: 'offline',
+    contactState: 'contact-state-powered-off',
+    lastKnownEvidenceRef: 'location-evidence-last-known-powered-off',
+    deviceStatusEvidenceRef: 'device-status-powered-off',
+    actionRefs: 'review-last-known | ask-child-check-in | call-child | mark-found',
+    manualProofRequirements: 'powered-off-current-location-proof-forbidden | hosted-read-only-missing-device-proof',
+  },
+  {
+    title: 'Contact requested state',
+    state: 'contact-requested',
+    primaryBadge: 'contact-requested',
+    contactState: 'contact-state-online',
+    lastKnownEvidenceRef: 'location-evidence-last-known-contact-requested',
+    deviceStatusEvidenceRef: 'device-status-contact-action-queued',
+    actionRefs: 'review-last-known | call-child | mark-found',
+    manualProofRequirements: 'hosted-read-only-missing-device-proof',
+  },
+  {
+    title: 'Manual platform proof state',
+    state: 'manual-required',
+    primaryBadge: 'manual-required',
+    contactState: 'contact-state-unknown',
+    lastKnownEvidenceRef: 'location-evidence-last-known-manual-required',
+    deviceStatusEvidenceRef: 'device-status-platform-proof-required',
+    actionRefs: 'review-last-known | manual-platform-proof',
+    manualProofRequirements: 'os-lost-mode-api-proof-required | physical-device-proof-required',
+  },
+] as const;
+
 const TrackingRetentionSettingsWriteResult = {
   schemaVersion: AgentProtocolSchemaVersion,
   commandId: 'tracking-retention-settings-write-command',
@@ -667,6 +711,37 @@ describe('tracking parent action readiness hosted proof surface', () => {
     expect(JSON.stringify(proof)).not.toMatch(
       /(?:service mutation executed|provider delivered|receipt ingested|product ready)/iu
     );
+  });
+});
+
+describe('tracking missing-device hosted proof surface', () => {
+  it('renders missing-device state rows without current-location, physical-device, or product claims', () => {
+    const proof = trackingMissingDeviceHostedUiProof();
+
+    expect(proof).toEqual({
+      title: 'Missing-device state UI',
+      body: 'Hosted route renders last-known, offline, contact-requested, and manual-required missing-device rows from existing WP29 proof without claiming current location or OS lost-mode runtime.',
+      proofTier: 'P2 service proof',
+      sourceProofArtifact: TrackingStatusProofArtifacts.MissingDeviceMode,
+      boundary:
+        'Hosted missing-device rendering only; current location runtime, powered-off tracking, remote sync, provider delivery, physical-device proof, OS lost-mode APIs, authority, production workers, and product readiness remain unclaimed.',
+      missingProof: 'Manual proof required',
+      productClaim: 'No product claim',
+      renderedMissingDeviceRows: '4',
+      lastKnownOnlyRows: '1',
+      offlineRows: '1',
+      contactRequestedRows: '1',
+      manualRequiredRows: '1',
+      currentLocationRuntimeClaimedRows: '0',
+      poweredOffTrackingClaimedRows: '0',
+      remoteSyncRuntimeClaimedRows: '0',
+      providerDeliveryClaimedRows: '0',
+      physicalDeviceProofClaimedRows: '0',
+      osLostModeApiClaimedRows: '0',
+      productClaimReadyRows: '0',
+      rows: ExpectedMissingDeviceRows,
+    });
+    expect(JSON.stringify(proof)).not.toMatch(/(?:current location proved|lost mode executed|product ready)/iu);
   });
 });
 

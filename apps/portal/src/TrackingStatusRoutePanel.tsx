@@ -43,6 +43,11 @@ import {
   type TrackingParentActionReadinessHostedUiProof,
 } from './tracking-parent-action-readiness-hosted-ui-proof';
 import {
+  TrackingMissingDeviceHostedUiDetails,
+  trackingMissingDeviceHostedUiProof,
+  type TrackingMissingDeviceHostedUiProof,
+} from './tracking-missing-device-hosted-ui-proof';
+import {
   trackingFamilyDashboardHostedRollupProof,
   trackingStatusLiveSummary,
   trackingStatusServiceDataCoverage,
@@ -106,6 +111,7 @@ export function TrackingStatusRoutePanel({
             proof={trackingNotificationParentSurfaceHostedUiProof()}
           />
           <TrackingParentActionReadinessHostedUiProofCard proof={trackingParentActionReadinessHostedUiProof()} />
+          <TrackingMissingDeviceHostedUiProofCard proof={trackingMissingDeviceHostedUiProof()} />
           <TrackingRetentionSettingsHostedUiProofCard
             actions={actions}
             commandEnabled={commandEnabled}
@@ -431,6 +437,68 @@ function TrackingParentActionReadinessHostedUiRow({
         label={TrackingParentActionReadinessHostedUiDetails.UiSurface}
         value={proofRow.uiSurfaceRef}
       />
+      <TrackingStatusDetail label={PortalDetails.MissingProof} value={proofRow.manualProofRequirements} />
+    </>
+  );
+}
+
+function TrackingMissingDeviceHostedUiProofCard({
+  proof,
+}: {
+  readonly proof: TrackingMissingDeviceHostedUiProof;
+}): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article
+      className={className}
+      {...{
+        [PortalDom.Attributes.DataTrackingProof]: PortalDom.Attributes.TrackingProofMissingDevice,
+      }}
+    >
+      <h2>{proof.title}</h2>
+      <p>{proof.body}</p>
+      <dl>
+        <TrackingStatusDetail label={PortalDetails.ProofTier} value={proof.proofTier} />
+        <TrackingStatusDetail
+          label={TrackingMissingDeviceHostedUiDetails.MissingDeviceProof}
+          value={proof.sourceProofArtifact}
+        />
+        <TrackingStatusDetail label={PortalDetails.MissingProof} value={proof.missingProof} />
+        <TrackingStatusDetail label={PortalDetails.AdapterBoundary} value={proof.boundary} />
+        <TrackingStatusDetail label={PortalDetails.ProductClaim} value={proof.productClaim} />
+        <TrackingStatusDetail label={PortalDetails.RowCount} value={proof.renderedMissingDeviceRows} />
+        <TrackingStatusDetail label={PortalDetails.ActiveState} value={proof.lastKnownOnlyRows} />
+        <TrackingStatusDetail label={PortalDetails.DegradedState} value={proof.offlineRows} />
+        <TrackingStatusDetail label={PortalDetails.ManualReview} value={proof.manualRequiredRows} />
+        <TrackingStatusDetail label={PortalDetails.Database} value={proof.currentLocationRuntimeClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.Provider} value={proof.providerDeliveryClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.Device} value={proof.physicalDeviceProofClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proof.osLostModeApiClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.PolicyReadiness} value={proof.productClaimReadyRows} />
+        {proof.rows.map((proofRow) => (
+          <TrackingMissingDeviceHostedUiRow key={String(proofRow.title)} proofRow={proofRow} />
+        ))}
+      </dl>
+    </article>
+  );
+}
+
+function TrackingMissingDeviceHostedUiRow({
+  proofRow,
+}: {
+  readonly proofRow: TrackingMissingDeviceHostedUiProof['rows'][number];
+}): ReactElement {
+  return (
+    <>
+      <TrackingStatusDetail label={PortalDetails.Title} value={proofRow.title} />
+      <TrackingStatusDetail label={PortalDetails.State} value={proofRow.state} />
+      <TrackingStatusDetail label={TrackingMissingDeviceHostedUiDetails.PrimaryBadge} value={proofRow.primaryBadge} />
+      <TrackingStatusDetail label={TrackingMissingDeviceHostedUiDetails.ContactState} value={proofRow.contactState} />
+      <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={proofRow.lastKnownEvidenceRef} />
+      <TrackingStatusDetail label={PortalDetails.Device} value={proofRow.deviceStatusEvidenceRef} />
+      <TrackingStatusDetail label={PortalDetails.DecisionAction} value={proofRow.actionRefs} />
       <TrackingStatusDetail label={PortalDetails.MissingProof} value={proofRow.manualProofRequirements} />
     </>
   );

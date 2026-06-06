@@ -74,6 +74,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `35-notification-parent-surface-hosted-ui-proof.json`
 - Hosted parent action readiness proof:
   `36-parent-action-readiness-hosted-ui-proof.json`
+- Hosted missing-device proof:
+  `37-missing-device-hosted-ui-proof.json`
 
 ## Merge Blockers
 
@@ -140,13 +142,14 @@ This branch adds `npm run test:tracking-plan-hosted-ui-proof`, which starts the
 real Rust service against a seeded temporary ActivityStore SQLite database and
 drives the hosted parent `policy-tracking` route through Playwright. It writes
 desktop/mobile screenshots, hosted child-safe check-in, child-runtime,
-retention/settings, evidence drawer, notification parent-surface, and parent
-action readiness screenshots, an accessibility summary, WP30 hosted UI proof,
-and WP33 hosted UI gate proof
-while keeping `productClaimReady=false`. It is a hosted route proof only and
-does not claim writable parent notification preferences, live service mutation,
-provider delivery, receipt ingestion runtime, child-device delivery/runtime UI,
-Android/iOS physical-device behavior, authority, adapter dispatch, production
+retention/settings, evidence drawer, notification parent-surface, parent action
+readiness, and missing-device screenshots, an accessibility summary, WP30 hosted
+UI proof, and WP33 hosted UI gate proof while keeping
+`productClaimReady=false`. It is a hosted route proof only and does not claim
+writable parent notification preferences, live service mutation, current
+location runtime, powered-off tracking, remote sync, provider delivery, receipt
+ingestion runtime, child-device delivery/runtime UI, Android/iOS physical-device
+behavior, OS lost-mode API execution, authority, adapter dispatch, production
 storage/workers, or production readiness.
 
 This branch adds `npm run test:tracking-plan-evidence-quality-gate-proof`,

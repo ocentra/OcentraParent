@@ -1,4 +1,4 @@
-checkedAt=2026-06-06T22:48:27.670Z
+checkedAt=2026-06-06T23:31:10.599Z
 asserted=no browser console or page errors
 asserted=no product-ready or physical-device-proved route copy
 asserted=family dashboard rollup rows render from existing proof refs without product-ready claim
@@ -9,6 +9,8 @@ asserted=notification parent-surface history rows render from existing notificat
 asserted=notification parent-surface history screenshot captured
 asserted=parent action readiness rows render expected-place alert policy and parent acknowledgement actions without live mutation, delivery, receipt, child-device runtime, authority, or product claims
 asserted=parent action readiness screenshot captured
+asserted=missing-device rows render last-known, offline, contact-requested, and manual-required states without current-location runtime, powered-off tracking, remote sync, provider delivery, physical-device proof, OS lost-mode API execution, authority, production worker, or product claims
+asserted=missing-device screenshot captured
 asserted=evidence drawer renders selected service-backed citation without evaluator or dispatch claims
 asserted=evidence drawer screenshot captured
 asserted=retention settings write-preflight command button clicked

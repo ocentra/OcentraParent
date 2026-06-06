@@ -31,6 +31,7 @@ const workpack17 = path.join(
   'tracking-plan-proof',
   '17-parent-acknowledgement-and-exception-model'
 );
+const workpack29 = path.join(repoRoot, 'output', 'tracking-plan-proof', '29-missing-device-mode');
 const workpack26 = path.join(repoRoot, 'output', 'tracking-plan-proof', '26-alert-severity-and-notification-model');
 const workpack30 = path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces');
 const workpack31 = path.join(
@@ -66,6 +67,7 @@ const parentActionReadinessScreenshot = path.join(
   '11-ui-snapshots',
   'hosted-policy-tracking-parent-action-readiness.png'
 );
+const missingDeviceScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-missing-device.png');
 const retentionSettingsScreenshot = path.join(
   workpack30,
   '11-ui-snapshots',
@@ -107,6 +109,9 @@ const parentActionReadinessWp33HostedUiProofPath = path.join(
   workpack33,
   '36-parent-action-readiness-hosted-ui-proof.json'
 );
+const missingDeviceHostedUiProofPath = path.join(workpack30, '24-missing-device-hosted-ui-proof.json');
+const missingDeviceWp29HostedUiProofPath = path.join(workpack29, '20-missing-device-hosted-ui-proof.json');
+const missingDeviceWp33HostedUiProofPath = path.join(workpack33, '37-missing-device-hosted-ui-proof.json');
 const unsupportedManualScreenshot = path.join(workpack31, '19-unsupported-manual-hosted-ui.png');
 const unsupportedManualHostedProofPath = path.join(workpack31, '19-unsupported-manual-hosted-ui-proof.json');
 const accessibilitySummaryPath = path.join(proofResultDir, 'accessibility-summary.json');
@@ -132,6 +137,7 @@ let stopping = false;
 try {
   await mkdir(devLogDir, { recursive: true });
   await mkdir(workpack26, { recursive: true });
+  await mkdir(workpack29, { recursive: true });
   await mkdir(workpack30, { recursive: true });
   await mkdir(workpack31, { recursive: true });
   await mkdir(workpack32, { recursive: true });
@@ -439,6 +445,10 @@ async function writeProof(playwright) {
       parentActionReadinessWp16HostedUiProof: relativePath(parentActionReadinessWp16HostedUiProofPath),
       parentActionReadinessWp17HostedUiProof: relativePath(parentActionReadinessWp17HostedUiProofPath),
       parentActionReadinessWp33HostedUiProof: relativePath(parentActionReadinessWp33HostedUiProofPath),
+      missingDeviceScreenshot: relativePath(missingDeviceScreenshot),
+      missingDeviceHostedUiProof: relativePath(missingDeviceHostedUiProofPath),
+      missingDeviceWp29HostedUiProof: relativePath(missingDeviceWp29HostedUiProofPath),
+      missingDeviceWp33HostedUiProof: relativePath(missingDeviceWp33HostedUiProofPath),
       retentionSettingsScreenshot: relativePath(retentionSettingsScreenshot),
       evidenceDrawerScreenshot: relativePath(evidenceDrawerScreenshot),
       evidenceDrawerHostedUiProof: relativePath(evidenceDrawerHostedUiProofPath),
@@ -544,6 +554,22 @@ async function writeProof(playwright) {
       adapterDispatchClaimedRows: 0,
       productClaimReady: false,
     },
+    missingDeviceHostedUiProof: {
+      sourceProof: 'output/tracking-plan-proof/29-missing-device-mode/proof.json',
+      screenshot: relativePath(missingDeviceScreenshot),
+      renderedRows: ['last-known-only', 'offline', 'contact-requested', 'manual-required'],
+      lastKnownOnlyRows: 1,
+      offlineRows: 1,
+      contactRequestedRows: 1,
+      manualRequiredRows: 1,
+      currentLocationRuntimeClaimedRows: 0,
+      poweredOffTrackingClaimedRows: 0,
+      remoteSyncRuntimeClaimedRows: 0,
+      providerDeliveryClaimedRows: 0,
+      physicalDeviceProofClaimedRows: 0,
+      osLostModeApiClaimedRows: 0,
+      productClaimReady: false,
+    },
     retentionSettingsHostedUiProof: {
       sourceProof:
         'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json',
@@ -618,6 +644,7 @@ async function writeProof(playwright) {
       'This proof renders report/export read-model packet rows but does not claim raw location payload export, service mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, or product-ready export behavior.',
       'This proof renders notification parent-surface history/preference rows but does not claim preference mutation, quiet-hours runtime, provider delivery, receipt ingestion, child-device delivery, physical-device proof, authority, production storage, adapter dispatch, or product readiness.',
       'This proof renders parent action readiness rows for expected-place alert policy and parent acknowledgement actions but does not claim live service mutation, alert delivery, provider delivery, receipt ingestion, child-device runtime, physical-device proof, authority, production workers, adapter dispatch, or product readiness.',
+      'This proof renders missing-device last-known, offline, contact-requested, and manual-required rows but does not claim current-location runtime, powered-off tracking, remote sync, provider delivery, physical-device proof, OS lost-mode API execution, authority, production workers, or product readiness.',
       'This proof renders retention settings read-model rows but does not claim writable product settings, service mutation, or platform runtime execution.',
       'This proof sends and renders a typed retention settings write-preflight result but does not claim product-ready service mutation, platform runtime execution, child-device delivery, provider delivery, physical-device proof, authority, or production behavior.',
       'This proof renders unsupported/manual platform rows in the hosted portal but does not claim physical-device execution, authority enrollment, provider delivery, or product-ready tracking.',
@@ -644,6 +671,9 @@ async function writeProof(playwright) {
   await writeFile(parentActionReadinessWp16HostedUiProofPath, proofContent);
   await writeFile(parentActionReadinessWp17HostedUiProofPath, proofContent);
   await writeFile(parentActionReadinessWp33HostedUiProofPath, proofContent);
+  await writeFile(missingDeviceHostedUiProofPath, proofContent);
+  await writeFile(missingDeviceWp29HostedUiProofPath, proofContent);
+  await writeFile(missingDeviceWp33HostedUiProofPath, proofContent);
   await writeFile(unsupportedManualHostedProofPath, proofContent);
   await writeFile(
     securityLogPath,
@@ -659,6 +689,8 @@ async function writeProof(playwright) {
       'asserted=notification parent-surface history screenshot captured',
       'asserted=parent action readiness rows render expected-place alert policy and parent acknowledgement actions without live mutation, delivery, receipt, child-device runtime, authority, or product claims',
       'asserted=parent action readiness screenshot captured',
+      'asserted=missing-device rows render last-known, offline, contact-requested, and manual-required states without current-location runtime, powered-off tracking, remote sync, provider delivery, physical-device proof, OS lost-mode API execution, authority, production worker, or product claims',
+      'asserted=missing-device screenshot captured',
       'asserted=evidence drawer renders selected service-backed citation without evaluator or dispatch claims',
       'asserted=evidence drawer screenshot captured',
       'asserted=retention settings write-preflight command button clicked',

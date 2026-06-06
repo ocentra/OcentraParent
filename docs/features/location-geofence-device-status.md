@@ -119,7 +119,8 @@ expose location or device-status features. Parents expect this category.
   desktop, mobile, hosted service-backed citation detail, hosted evidence
   drawer, hosted child-safe check-in, hosted child-runtime UI, hosted family
   dashboard rollup, hosted retention settings, hosted parent action readiness,
-  and unsupported/manual platform render-state proof screenshots, writes accessibility summary output, proves
+  hosted missing-device state, and unsupported/manual platform render-state
+  proof screenshots, writes accessibility summary output, proves
   calm child check-in copy/actions plus child disclosure, safe/help response,
   location-share consent copy, typed retention settings write-preflight command
   rendering, and manual-required/unavailable/authority-required unsupported
@@ -201,6 +202,15 @@ expose location or device-status features. Parents expect this category.
   service mutation, alert delivery, provider delivery, receipt ingestion,
   child-device runtime, physical-device proof, authority, production workers,
   adapter dispatch, and product-ready tracking unclaimed.
+- Hosted parent route missing-device state screenshot/accessibility proof now
+  exists through `npm run test:tracking-plan-hosted-ui-proof`. It renders the
+  existing WP29 last-known-only, offline/powered-off, contact-requested, and
+  manual-required missing-device rows on the hosted `policy-tracking` route,
+  captures the missing-device screenshot, records accessibility/no-overlap
+  assertions, and writes WP29/WP30/WP33 proof artifacts while keeping current
+  location runtime, powered-off tracking, remote sync, provider delivery,
+  physical-device proof, OS lost-mode API execution, authority, production
+  workers, and product-ready tracking unclaimed.
 - WP27 escalation readiness proof now exists through
   `node scripts/test/tracking-escalation-readiness-proof.mjs`. It derives
   parent acknowledgement, child check-in, urgent second-guardian, and critical
@@ -448,8 +458,9 @@ duration/cadence/degraded/auto-stop/retention states, and WP20 Google Places/
 POI provider request/response mapping proof, WP25 parent-policy compiler/
 evaluator runtime proof, and required fixture-state coverage proof, WP29
 missing-device mode parent-domain proof for last-known-only/offline/
-contact-requested/manual-required states, manual-required/unavailable platform
-render-state proof plus hosted unsupported/manual platform route screenshot, and
+contact-requested/manual-required states plus hosted missing-device route
+screenshot/accessibility proof, manual-required/unavailable platform render-state
+proof plus hosted unsupported/manual platform route screenshot, and
 WP32 report/policy consumer-readiness proof for parent report summary, policy
 drill-in, and retention audit/export rows, plus WP32 family dashboard rollup
 proof for active family, child-attention, and retention-audit summary rows with
@@ -462,6 +473,7 @@ preflight, plus hosted route command/result rendering for that typed write
 preflight, plus WP32 report/export read-model packet proof for redacted report,
 retention audit, family dashboard summary, and policy drill-in export packets,
 plus hosted notification parent-surface history/preference intent rendering
+with screenshot/accessibility proof and hosted missing-device state rendering
 with screenshot/accessibility proof.
 It remains a tracked product gap until platform location and
 geofence runtime adapters, broader product read models beyond these rows, full
@@ -581,8 +593,13 @@ accessibility beyond the hosted parent route are proved.
       offline/powered-off, contact-requested, and manual-required states,
       including last-known evidence refs, contact/battery/connectivity/pending
       upload status, parent action/audit refs, UI state tokens, and no-current
-      location copy gates. This is not portal runtime UI, child-device delivery,
-      physical-device, provider delivery, remote sync, or OS lost-mode API proof.
+      location copy gates. This is not child-device delivery, physical-device,
+      provider delivery, remote sync, or OS lost-mode API proof.
+- [x] Hosted missing-device state UI proof renders those WP29 rows on the
+      hosted parent `policy-tracking` route with screenshot/accessibility
+      evidence. This is not current-location runtime, powered-off tracking,
+      remote sync, provider delivery, physical-device proof, OS lost-mode API
+      execution, authority, production worker, or product-ready tracking proof.
 - [x] P1 ActivityStore tracking-event SQLite ingest proof.
 - [x] P2 service-backed tracking read-model command proof for SQLite journal
       rows, citation IDs, retention-delete tombstone replay, and active
@@ -644,8 +661,9 @@ accessibility beyond the hosted parent route are proved.
       detail card, hosted read-only evidence drawer card, hosted child-safe
       check-in copy/actions card, hosted
       child-runtime disclosure/safe-help/location-share consent card, plus a
-      family dashboard rollup card, parent action readiness card, and retention
-      settings write-preflight result card. This is not
+      family dashboard rollup card, parent action readiness card,
+      missing-device state card, and retention settings write-preflight result
+      card. This is not
       child-device delivery/runtime execution, full dashboard UI beyond the
       hosted route, or physical-device proof.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual

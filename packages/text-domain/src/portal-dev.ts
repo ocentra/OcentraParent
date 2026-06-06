@@ -261,6 +261,57 @@ export const PortalDevTextToken = {
     'portal.dev.trackingParentActionChildRuntimeManualProof'
   ),
   TrackingParentActionEscalationManualProof: decodeTextTokenId('portal.dev.trackingParentActionEscalationManualProof'),
+  TrackingMissingDeviceHostedUi: decodeTextTokenId('portal.dev.trackingMissingDeviceHostedUi'),
+  TrackingMissingDeviceHostedUiBody: decodeTextTokenId('portal.dev.trackingMissingDeviceHostedUiBody'),
+  TrackingMissingDeviceHostedBoundary: decodeTextTokenId('portal.dev.trackingMissingDeviceHostedBoundary'),
+  TrackingMissingDeviceLastKnownOnly: decodeTextTokenId('portal.dev.trackingMissingDeviceLastKnownOnly'),
+  TrackingMissingDevicePoweredOff: decodeTextTokenId('portal.dev.trackingMissingDevicePoweredOff'),
+  TrackingMissingDeviceContactRequested: decodeTextTokenId('portal.dev.trackingMissingDeviceContactRequested'),
+  TrackingMissingDeviceManualRequired: decodeTextTokenId('portal.dev.trackingMissingDeviceManualRequired'),
+  TrackingMissingDeviceLastKnownState: decodeTextTokenId('portal.dev.trackingMissingDeviceLastKnownState'),
+  TrackingMissingDeviceOfflineState: decodeTextTokenId('portal.dev.trackingMissingDeviceOfflineState'),
+  TrackingMissingDeviceContactRequestedState: decodeTextTokenId(
+    'portal.dev.trackingMissingDeviceContactRequestedState'
+  ),
+  TrackingMissingDeviceManualRequiredState: decodeTextTokenId('portal.dev.trackingMissingDeviceManualRequiredState'),
+  TrackingMissingDeviceLastKnownBadge: decodeTextTokenId('portal.dev.trackingMissingDeviceLastKnownBadge'),
+  TrackingMissingDeviceOfflineBadge: decodeTextTokenId('portal.dev.trackingMissingDeviceOfflineBadge'),
+  TrackingMissingDeviceContactRequestedBadge: decodeTextTokenId(
+    'portal.dev.trackingMissingDeviceContactRequestedBadge'
+  ),
+  TrackingMissingDeviceManualRequiredBadge: decodeTextTokenId('portal.dev.trackingMissingDeviceManualRequiredBadge'),
+  TrackingMissingDeviceOfflineContact: decodeTextTokenId('portal.dev.trackingMissingDeviceOfflineContact'),
+  TrackingMissingDevicePoweredOffContact: decodeTextTokenId('portal.dev.trackingMissingDevicePoweredOffContact'),
+  TrackingMissingDeviceOnlineContact: decodeTextTokenId('portal.dev.trackingMissingDeviceOnlineContact'),
+  TrackingMissingDeviceUnknownContact: decodeTextTokenId('portal.dev.trackingMissingDeviceUnknownContact'),
+  TrackingMissingDeviceLastKnownEvidence: decodeTextTokenId('portal.dev.trackingMissingDeviceLastKnownEvidence'),
+  TrackingMissingDeviceOfflineStatusEvidence: decodeTextTokenId(
+    'portal.dev.trackingMissingDeviceOfflineStatusEvidence'
+  ),
+  TrackingMissingDevicePoweredOffEvidence: decodeTextTokenId('portal.dev.trackingMissingDevicePoweredOffEvidence'),
+  TrackingMissingDevicePoweredOffStatusEvidence: decodeTextTokenId(
+    'portal.dev.trackingMissingDevicePoweredOffStatusEvidence'
+  ),
+  TrackingMissingDeviceContactRequestedEvidence: decodeTextTokenId(
+    'portal.dev.trackingMissingDeviceContactRequestedEvidence'
+  ),
+  TrackingMissingDeviceContactStatusEvidence: decodeTextTokenId(
+    'portal.dev.trackingMissingDeviceContactStatusEvidence'
+  ),
+  TrackingMissingDeviceManualEvidence: decodeTextTokenId('portal.dev.trackingMissingDeviceManualEvidence'),
+  TrackingMissingDevicePlatformProofEvidence: decodeTextTokenId(
+    'portal.dev.trackingMissingDevicePlatformProofEvidence'
+  ),
+  TrackingMissingDeviceReviewCheckInAction: decodeTextTokenId('portal.dev.trackingMissingDeviceReviewCheckInAction'),
+  TrackingMissingDeviceCallMarkFoundAction: decodeTextTokenId('portal.dev.trackingMissingDeviceCallMarkFoundAction'),
+  TrackingMissingDeviceManualPlatformAction: decodeTextTokenId('portal.dev.trackingMissingDeviceManualPlatformAction'),
+  TrackingMissingDeviceHostedReadOnlyManualProof: decodeTextTokenId(
+    'portal.dev.trackingMissingDeviceHostedReadOnlyManualProof'
+  ),
+  TrackingMissingDevicePoweredOffManualProof: decodeTextTokenId(
+    'portal.dev.trackingMissingDevicePoweredOffManualProof'
+  ),
+  TrackingMissingDevicePlatformManualProof: decodeTextTokenId('portal.dev.trackingMissingDevicePlatformManualProof'),
   TrackingRetentionSettingsHostedUi: decodeTextTokenId('portal.dev.trackingRetentionSettingsHostedUi'),
   TrackingRetentionSettingsHostedUiBody: decodeTextTokenId('portal.dev.trackingRetentionSettingsHostedUiBody'),
   TrackingRetentionSettingsWindow: decodeTextTokenId('portal.dev.trackingRetentionSettingsWindow'),
@@ -699,6 +750,67 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   ),
   [PortalDevTextToken.TrackingParentActionEscalationManualProof]: decodeDisplayText(
     'critical-escalation-runtime-proof-required | second-guardian-provider-proof-required'
+  ),
+  [PortalDevTextToken.TrackingMissingDeviceHostedUi]: decodeDisplayText('Missing-device state UI'),
+  [PortalDevTextToken.TrackingMissingDeviceHostedUiBody]: decodeDisplayText(
+    'Hosted route renders last-known, offline, contact-requested, and manual-required missing-device rows from existing WP29 proof without claiming current location or OS lost-mode runtime.'
+  ),
+  [PortalDevTextToken.TrackingMissingDeviceHostedBoundary]: decodeDisplayText(
+    'Hosted missing-device rendering only; current location runtime, powered-off tracking, remote sync, provider delivery, physical-device proof, OS lost-mode APIs, authority, production workers, and product readiness remain unclaimed.'
+  ),
+  [PortalDevTextToken.TrackingMissingDeviceLastKnownOnly]: decodeDisplayText('Last-known only state'),
+  [PortalDevTextToken.TrackingMissingDevicePoweredOff]: decodeDisplayText('Powered-off offline state'),
+  [PortalDevTextToken.TrackingMissingDeviceContactRequested]: decodeDisplayText('Contact requested state'),
+  [PortalDevTextToken.TrackingMissingDeviceManualRequired]: decodeDisplayText('Manual platform proof state'),
+  [PortalDevTextToken.TrackingMissingDeviceLastKnownState]: decodeDisplayText('last-known-only'),
+  [PortalDevTextToken.TrackingMissingDeviceOfflineState]: decodeDisplayText('offline'),
+  [PortalDevTextToken.TrackingMissingDeviceContactRequestedState]: decodeDisplayText('contact-requested'),
+  [PortalDevTextToken.TrackingMissingDeviceManualRequiredState]: decodeDisplayText('manual-required'),
+  [PortalDevTextToken.TrackingMissingDeviceLastKnownBadge]: decodeDisplayText('last-known'),
+  [PortalDevTextToken.TrackingMissingDeviceOfflineBadge]: decodeDisplayText('offline'),
+  [PortalDevTextToken.TrackingMissingDeviceContactRequestedBadge]: decodeDisplayText('contact-requested'),
+  [PortalDevTextToken.TrackingMissingDeviceManualRequiredBadge]: decodeDisplayText('manual-required'),
+  [PortalDevTextToken.TrackingMissingDeviceOfflineContact]: decodeDisplayText('contact-state-offline'),
+  [PortalDevTextToken.TrackingMissingDevicePoweredOffContact]: decodeDisplayText('contact-state-powered-off'),
+  [PortalDevTextToken.TrackingMissingDeviceOnlineContact]: decodeDisplayText('contact-state-online'),
+  [PortalDevTextToken.TrackingMissingDeviceUnknownContact]: decodeDisplayText('contact-state-unknown'),
+  [PortalDevTextToken.TrackingMissingDeviceLastKnownEvidence]: decodeDisplayText('location-evidence-last-known-stale'),
+  [PortalDevTextToken.TrackingMissingDeviceOfflineStatusEvidence]: decodeDisplayText(
+    'device-status-offline-last-known'
+  ),
+  [PortalDevTextToken.TrackingMissingDevicePoweredOffEvidence]: decodeDisplayText(
+    'location-evidence-last-known-powered-off'
+  ),
+  [PortalDevTextToken.TrackingMissingDevicePoweredOffStatusEvidence]: decodeDisplayText('device-status-powered-off'),
+  [PortalDevTextToken.TrackingMissingDeviceContactRequestedEvidence]: decodeDisplayText(
+    'location-evidence-last-known-contact-requested'
+  ),
+  [PortalDevTextToken.TrackingMissingDeviceContactStatusEvidence]: decodeDisplayText(
+    'device-status-contact-action-queued'
+  ),
+  [PortalDevTextToken.TrackingMissingDeviceManualEvidence]: decodeDisplayText(
+    'location-evidence-last-known-manual-required'
+  ),
+  [PortalDevTextToken.TrackingMissingDevicePlatformProofEvidence]: decodeDisplayText(
+    'device-status-platform-proof-required'
+  ),
+  [PortalDevTextToken.TrackingMissingDeviceReviewCheckInAction]: decodeDisplayText(
+    'review-last-known | ask-child-check-in | call-child | mark-found'
+  ),
+  [PortalDevTextToken.TrackingMissingDeviceCallMarkFoundAction]: decodeDisplayText(
+    'review-last-known | call-child | mark-found'
+  ),
+  [PortalDevTextToken.TrackingMissingDeviceManualPlatformAction]: decodeDisplayText(
+    'review-last-known | manual-platform-proof'
+  ),
+  [PortalDevTextToken.TrackingMissingDeviceHostedReadOnlyManualProof]: decodeDisplayText(
+    'hosted-read-only-missing-device-proof'
+  ),
+  [PortalDevTextToken.TrackingMissingDevicePoweredOffManualProof]: decodeDisplayText(
+    'powered-off-current-location-proof-forbidden | hosted-read-only-missing-device-proof'
+  ),
+  [PortalDevTextToken.TrackingMissingDevicePlatformManualProof]: decodeDisplayText(
+    'os-lost-mode-api-proof-required | physical-device-proof-required'
   ),
   [PortalDevTextToken.TrackingRetentionSettingsHostedUi]: decodeDisplayText('Retention settings read-model UI'),
   [PortalDevTextToken.TrackingRetentionSettingsHostedUiBody]: decodeDisplayText(
