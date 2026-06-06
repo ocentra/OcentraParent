@@ -641,6 +641,18 @@
       "import": "./dist/production-support-status-backend-public-runtime-followthrough-values.js",
       "types": "./dist/production-support-status-backend-public-runtime-followthrough-values.d.ts"
     },
+    "./production-support-status-backend-execution-queue": {
+      "import": "./dist/production-support-status-backend-execution-queue-proof.js",
+      "types": "./dist/production-support-status-backend-execution-queue-proof.d.ts"
+    },
+    "./production-support-status-backend-execution-queue-read-model": {
+      "import": "./dist/production-support-status-backend-execution-queue-read-model.js",
+      "types": "./dist/production-support-status-backend-execution-queue-read-model.d.ts"
+    },
+    "./production-support-status-backend-execution-queue-values": {
+      "import": "./dist/production-support-status-backend-execution-queue-values.js",
+      "types": "./dist/production-support-status-backend-execution-queue-values.d.ts"
+    },
     "./parent-mobile-runtime": {
       "import": "./dist/parent-mobile-runtime.js",
       "types": "./dist/parent-mobile-runtime.d.ts"
