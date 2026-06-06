@@ -302,6 +302,15 @@ claim needs proof, not slogans.
   runtime/model refs, prompt refs, and trace refs. It does not execute a model,
   prove production model quality, use remote/API AI, retain raw evidence, grant
   policy authority, render portal UI, or dispatch enforcement.
+- `LocalAiClassifierReportSnapshotSchema` and
+  `scripts/test/local-ai-classifier-read-model-manual-report-proof.mjs` now
+  prove a parent-domain read-model/report bridge over those deterministic
+  classifier rows. The proof projects ready, manual-required, and unavailable
+  parent-facing report rows while preserving evidence refs, parent rule refs,
+  runtime/provider/model refs, prompt refs, proof refs, and classifier trace
+  refs. It does not execute a model, prove production model quality, use
+  remote/API AI, retain raw evidence or raw model output, grant policy
+  authority, render portal UI, or dispatch enforcement.
 
 ## Current Gap
 
@@ -347,6 +356,10 @@ production external evidence variants.
       warn, ask-parent, time-limit, and block rows without model-execution,
       remote/API, raw-evidence retention, policy-authority, enforcement, portal
       UI, or production-quality claims.
+- [x] Local classifier read-model/manual-required report bridge proof path for
+      ready, manual-required, and unavailable parent-facing rows without
+      model-execution, remote/API, raw retention, policy-authority,
+      enforcement, portal UI, or production-quality claims.
 - [x] Local result contract with confidence/degraded state.
 - [x] Deterministic policy integration.
 - [x] Service WinRT OCR row consumed by typed parent policy dry-run.
