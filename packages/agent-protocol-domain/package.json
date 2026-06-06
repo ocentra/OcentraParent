@@ -41,6 +41,10 @@
       "import": "./dist/network-runtime-events.js",
       "types": "./dist/network-runtime-events.d.ts"
     },
+    "./network-product-readiness-status": {
+      "import": "./dist/network-product-readiness-status.js",
+      "types": "./dist/network-product-readiness-status.d.ts"
+    },
     "./app-game-boundary-read-model": {
       "import": "./dist/app-game-boundary-read-model.js",
       "types": "./dist/app-game-boundary-read-model.d.ts"
