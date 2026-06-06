@@ -27,12 +27,19 @@ test('network drawer renders broker and family-hub remote delivery status withou
   await expect(remoteDeliveryCard).toContainText('broker.network.deletion-plan.1');
   await expect(remoteDeliveryCard).toContainText('broker.network.offset-policy.1');
   await expect(remoteDeliveryCard).toContainText('broker.network.dedupe-policy.1');
+  await expect(remoteDeliveryCard).toContainText('broker.network.cross-process-replay.manual-required.10d');
+  await expect(remoteDeliveryCard).toContainText('broker.network.remote-retention-delete-export.manual-required.10d');
   await expect(remoteDeliveryCard).toContainText('broker.network.config.1');
   await expect(remoteDeliveryCard).toContainText('family-hub.network.identity.1');
   await expect(remoteDeliveryCard).toContainText('family-hub.network.relay-policy.1');
-  await expect(remoteDeliveryDetailValue(remoteDeliveryCard, 'Missing proof')).toHaveText('0 | 0');
+  await expect(remoteDeliveryCard).toContainText('family-hub.network.delivery-ack.manual-required.10d');
+  await expect(remoteDeliveryDetailValue(remoteDeliveryCard, 'Missing proof')).toHaveText('0 | 0 | 3');
   await expect(remoteDeliveryDetailValue(remoteDeliveryCard, 'Events')).toHaveText('3');
   await expect(remoteDeliveryDetailValue(remoteDeliveryCard, 'Local queue')).toHaveText('true');
+  await expect(remoteDeliveryDetailValue(remoteDeliveryCard, 'Audit')).toHaveText(
+    'network.remote-delivery.lifecycle-followup.10d'
+  );
+  await expect(remoteDeliveryDetailValue(remoteDeliveryCard, 'Manual required')).toHaveText('true');
   await expect(remoteDeliveryDetailValue(remoteDeliveryCard, 'Transport')).toHaveText('false');
   await expect(remoteDeliveryDetailValue(remoteDeliveryCard, 'Child delivery')).toHaveText('false');
   await expect(remoteDeliveryDetailValue(remoteDeliveryCard, 'Remote sync')).toHaveText('false');
