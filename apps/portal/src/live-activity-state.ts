@@ -71,6 +71,10 @@ import {
   type NetworkAdapterCapabilityStatusSummary,
 } from './network-adapter-capability-status';
 import { parseNetworkFlowDigest, parseNetworkFlowReadModel } from './network-flow-read-model';
+import {
+  parseNetworkProductReadinessStatus,
+  type NetworkProductReadinessStatusSummary,
+} from './network-product-readiness-status';
 import { parseNetworkRuntimeEventChain, type NetworkRuntimeEventChainSummary } from './network-runtime-event-chain';
 import { parsePolicyPreviewReadModel, type PortalPolicyPreviewReadModel } from './policy-preview-read-model';
 
@@ -120,6 +124,8 @@ export interface PortalLiveActivityState {
   readonly networkRuntimeEventChain: NetworkRuntimeEventChainSummary | null;
   readonly networkAdapterCapabilityStatusEvent: AgentEventEnvelope | null;
   readonly networkAdapterCapabilityStatus: NetworkAdapterCapabilityStatusSummary | null;
+  readonly networkProductReadinessStatusEvent: AgentEventEnvelope | null;
+  readonly networkProductReadinessStatus: NetworkProductReadinessStatusSummary | null;
   readonly activityTrackingReadModelEvent: AgentEventEnvelope | null;
   readonly activityTrackingReadModel: AgentActivityTrackingReadModelResult | null;
   readonly lanPairingStatusEvent: AgentEventEnvelope | null;
@@ -151,6 +157,7 @@ function resolveLiveActivityEventRefs(events: readonly AgentEventEnvelope[]) {
   const activityNetworkReadModelEvent = latestEvent(events, AgentEvent.ActivityNetworkReadModelReported);
   const browserInterventionEvent = latestEvent(events, AgentEvent.BrowserInterventionReadModelReported);
   const networkFlowEvent = latestEvent(events, AgentEvent.NetworkFlowReadModelReported);
+  const networkProductReadinessStatusEvent = latestEvent(events, AgentEvent.NetworkProductReadinessStatusReported);
   const lanPairingStatusEvent = latestEventOf(events, [
     AgentEvent.LanPairingStatusReported,
     AgentEvent.LanPairingBrowserDiscoveryReported,
@@ -177,6 +184,7 @@ function resolveLiveActivityEventRefs(events: readonly AgentEventEnvelope[]) {
     activityNetworkReadModelEvent,
     browserInterventionEvent,
     networkFlowEvent,
+    networkProductReadinessStatusEvent,
     lanPairingStatusEvent,
     lanPairingBrowserDiscoveryEvent,
     policyPreviewEvent,
@@ -235,6 +243,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     ...resolveNetworkFlowState(eventRefs.networkFlowEvent),
     ...resolveNetworkRuntimeEventChain(events),
     ...resolveNetworkAdapterCapabilityStatus(events),
+    ...resolveNetworkProductReadinessStatus(eventRefs.networkProductReadinessStatusEvent),
     ...resolveActivityTrackingReadModel(events),
     lanPairingStatusEvent: eventRefs.lanPairingStatusEvent,
     lanPairingBrowserDiscoveryEvent: eventRefs.lanPairingBrowserDiscoveryEvent,
@@ -274,6 +283,13 @@ function resolveNetworkAdapterCapabilityStatus(events: readonly AgentEventEnvelo
   return {
     networkAdapterCapabilityStatusEvent: event,
     networkAdapterCapabilityStatus: parseNetworkAdapterCapabilityStatus(event),
+  };
+}
+
+function resolveNetworkProductReadinessStatus(event: AgentEventEnvelope | null) {
+  return {
+    networkProductReadinessStatusEvent: event,
+    networkProductReadinessStatus: parseNetworkProductReadinessStatus(event),
   };
 }
 

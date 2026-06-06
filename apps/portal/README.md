@@ -71,6 +71,10 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   unavailable zero-row state while service-backed social snapshots, connector
   runtime, native app control, final policy execution, notifications, and
   enforcement remain unclaimed.
+- Displays service-backed network product-readiness status in the Activity
+  route network drawer by projecting row13a custody and row51a readiness service
+  events into portal-visible refs and false no-claim values, without policy
+  authority or adapter dispatch.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own

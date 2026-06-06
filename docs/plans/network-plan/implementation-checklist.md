@@ -266,7 +266,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       `ActivityNetworkFlowDigest.unusualIndicators` in the same drawer with
       indicator evidence refs for VPN/proxy/tunnel, encrypted-content,
       unknown-process, and repeated-failure candidates. Exact URL/content and
-      live adapter claims remain unrendered; broader
+      live adapter claims remain unrendered. Row51c now renders the
+      service-backed row13a live-capture/raw-custody status and row51a
+      product-readiness status in the same drawer with capture/storage
+      readiness, risk, performance, platform follow-up, portal read-model,
+      retention/export, and false adapter-dispatch/no-claim values. Broader
       risk-budget/performance/platform UI coverage remains open.
 - [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
       reasons for every applicable gate. Workpack 03 proof lives under
@@ -370,7 +374,8 @@ manual-required/N/A file.
       retention/export refs. The proof rejects exact URL/content, decrypted
       payload, production-SLO, UI policy authority, portal adapter dispatch,
       live adapter execution, and enforcement-command claims. Row51b now covers
-      Rust service WebSocket exposure; portal rendering remains separate work.
+      Rust service WebSocket exposure and row51c covers the narrow Activity
+      route portal rendering proof.
 - [x] 51b network product readiness service status: E-D added
       `output/network-plan-proof/51b-product-readiness-service-status/proof-summary.json`
       and
@@ -383,7 +388,24 @@ manual-required/N/A file.
       row51a `ocentra-network-evidence` materializers. The proof keeps exact
       URL/content, decrypted payload, production-SLO, UI policy authority,
       portal adapter dispatch, live capture execution, live adapter execution,
-      and enforcement-command claims false. Portal rendering remains open.
+      and enforcement-command claims false. Row51c now covers portal rendering
+      of this service status.
+- [x] 51c network product-readiness portal rendering: E-D added
+      `output/network-plan-proof/51c-product-readiness-portal/proof-summary.json`
+      and
+      `test-results/network-product-readiness-portal-proof/proof.json`. The
+      Activity route network drawer now requests the service
+      `agent.network.product-readiness.status.get` command through the overview
+      refresh, parses `agent.network.product-readiness.status.reported` with the
+      shared `agent-protocol-domain` parser, and renders row13a custody and
+      row51a product-readiness refs, capture/storage readiness, risk,
+      performance, platform follow-up counts, portal read-model readiness,
+      retention/export visibility, and false adapter-dispatch/no-claim status.
+      The proof uses the real Rust service, Vite portal, WebSocket path, and
+      Playwright screenshot while keeping exact URL/content, decrypted payload,
+      raw PCAP without custody, live capture execution, policy authority,
+      adapter dispatch, host filtering, production-SLO, and enforcement-command
+      claims false.
 - [x] 22a network risk target policy handoff: E-D added
       `output/network-plan-proof/22a-risk-target-policy-handoff-proof/proof-summary.json`
       and `test-results/network-risk-target-policy-handoff-proof/proof.json`.

@@ -1,13 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/activity-domain/network-flow';
 import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
-import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  AgentEvent,
+  AgentEventEnvelopeSchema,
+  AgentProtocolDefaults,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
 import { shouldRenderNetworkEvidenceDrawerRoute } from '../src/NetworkEvidenceDrawerRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { networkEvidenceDrawerSummary } from '../src/network-evidence-drawer';
+import type { NetworkProductReadinessStatusSummary } from '../src/network-product-readiness-status';
 import type { NetworkRuntimeEventChainSummary } from '../src/network-runtime-event-chain';
 
 describe('portal live activity network flow state', () => {
+  defineNetworkFlowReadModelTests();
+  defineNetworkRuntimeEventChainTests();
+  defineNetworkProductReadinessStatusTests();
+  defineNetworkRouteMountTests();
+});
+
+function defineNetworkFlowReadModelTests(): void {
   it('parses real service network flow read-model payload fields', () => {
     const state = resolveLiveActivityState([networkFlowEvent()]);
     const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
@@ -34,7 +46,9 @@ describe('portal live activity network flow state', () => {
     expect(summary.interventionResultRef).toBe('Not reported');
     expect(summary.retentionState).toBe('Not reported');
   });
+}
 
+function defineNetworkRuntimeEventChainTests(): void {
   it('projects service runtime event-chain refs into the parent network drawer', () => {
     const state = resolveLiveActivityState([networkFlowEvent(), networkRuntimeEventChainEvent()]);
     const eventChain = requireNetworkRuntimeEventChain(state.networkRuntimeEventChain);
@@ -55,7 +69,49 @@ describe('portal live activity network flow state', () => {
     expect(summary.unavailableState).toBe('manual-required');
     expect(summary.exactUrlClaim).toBe('Not reported');
   });
+}
 
+function defineNetworkProductReadinessStatusTests(): void {
+  it('projects service product-readiness status into the parent network drawer', () => {
+    const state = resolveLiveActivityState([networkProductReadinessStatusEvent()]);
+    const summary = requireNetworkProductReadinessStatus(state.networkProductReadinessStatus);
+
+    expect(summary.parserStatus).toBe('true');
+    expect(summary.custodyStatusRef).toBe('network.live-capture.custody-status.13a');
+    expect(summary.custodyState).toBe('CustodyReady');
+    expect(summary.liveCaptureState).toBe('ProofReady');
+    expect(summary.rawCaptureStorageState).toBe('CustodyReady');
+    expect(summary.captureReady).toBe('true');
+    expect(summary.rawArtifactStorageAuthorized).toBe('true');
+    expect(summary.missingArtifactCount).toBe('0');
+    expect(summary.readinessStatusRef).toBe('network.product-readiness.status.51a');
+    expect(summary.readinessState).toBe('ManualRequired');
+    expect(summary.riskBudgetState).toBe('AskParentThreshold');
+    expect(summary.riskInterventionState).toBe('AskParent');
+    expect(summary.performanceState).toBe('MeetsBenchmarkGate');
+    expect(summary.performancePathStates).toBe('DryRun');
+    expect(summary.platformReadyClaims).toBe('1');
+    expect(summary.platformDryRunClaims).toBe('1');
+    expect(summary.platformResearchOnlyClaims).toBe('0');
+    expect(summary.platformManualRequiredClaims).toBe('1');
+    expect(summary.platformUnavailableClaims).toBe('1');
+    expect(summary.platformManualFollowups).toBe('WindowsWfp | network.live-capture.permission-proof.13');
+    expect(summary.portalReadModelReady).toBe('true');
+    expect(summary.retentionExportRefsVisible).toBe('true');
+    expect(summary.noClaimBoundary).toBe('false');
+  });
+
+  it('keeps malformed product-readiness status visible as a parser failure', () => {
+    const state = resolveLiveActivityState([malformedNetworkProductReadinessStatusEvent()]);
+    const summary = requireNetworkProductReadinessStatus(state.networkProductReadinessStatus);
+
+    expect(summary.parserStatus).toBe('invalid-product-readiness-status');
+    expect(summary.readinessStatusRef).toBe('Not reported');
+    expect(summary.noClaimBoundary).toBe('Not reported');
+  });
+}
+
+function defineNetworkRouteMountTests(): void {
   it('keeps empty network flow read models visible without inventing destinations', () => {
     const state = resolveLiveActivityState([emptyNetworkFlowEvent()]);
     const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
@@ -72,7 +128,7 @@ describe('portal live activity network flow state', () => {
     expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.Activity)).toBe(true);
     expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.Overview)).toBe(false);
   });
-});
+}
 
 function requireNetworkFlowReadModel(readModel: ActivityNetworkFlowReadModel | null): ActivityNetworkFlowReadModel {
   expect(readModel).not.toBeNull();
@@ -90,6 +146,16 @@ function requireNetworkRuntimeEventChain(
     throw new Error('network runtime event-chain missing');
   }
   return eventChain;
+}
+
+function requireNetworkProductReadinessStatus(
+  status: NetworkProductReadinessStatusSummary | null
+): NetworkProductReadinessStatusSummary {
+  expect(status).not.toBeNull();
+  if (status === null) {
+    throw new Error('network product-readiness status missing');
+  }
+  return status;
 }
 
 function expectNetworkReadModelCounts(readModel: ActivityNetworkFlowReadModel, expectedRows: number): void {
@@ -125,7 +191,7 @@ function networkFlowEvent() {
       peerId: 'portal-dev',
       role: 'portal',
     },
-    event: 'agent.network.flow.read-model.reported',
+    event: AgentEvent.NetworkFlowReadModelReported,
     severity: 'info',
     payload: {
       generatedAt: '2026-05-21T02:00:01Z',
@@ -204,7 +270,7 @@ function emptyNetworkFlowEvent() {
       peerId: 'portal-dev',
       role: 'portal',
     },
-    event: 'agent.network.flow.read-model.reported',
+    event: AgentEvent.NetworkFlowReadModelReported,
     severity: 'info',
     payload: {
       generatedAt: '2026-05-21T02:00:01Z',
@@ -257,7 +323,7 @@ function networkRuntimeEventChainEvent() {
       peerId: 'portal-dev',
       role: 'portal',
     },
-    event: 'agent.network.runtime.event-chain.stream.reported',
+    event: AgentEvent.NetworkRuntimeEventChainStreamReported,
     severity: 'info',
     payload: {
       networkRuntimeObservedRows: 1,
@@ -284,6 +350,110 @@ function networkRuntimeEventChainEntries() {
     auditEntryCommittedEntry(),
     portalReadModelUpdatedEntry(),
   ];
+}
+
+function networkProductReadinessStatusEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-network-product-readiness',
+    correlationId: 'cmd-network-product-readiness',
+    sentAt: '2026-06-06T05:50:00Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: AgentEvent.NetworkProductReadinessStatusReported,
+    severity: 'info',
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+    },
+    snapshot: null,
+  });
+}
+
+function malformedNetworkProductReadinessStatusEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...networkProductReadinessStatusEvent(),
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify({
+        ...productReadinessStatus(),
+        portal_adapter_dispatch_claimed: true,
+      }),
+    },
+  });
+}
+
+function liveCaptureCustodyStatus() {
+  return {
+    status_ref: 'network.live-capture.custody-status.13a',
+    live_capture_proof_ref: 'network.live-capture.proof.13',
+    raw_capture_storage_proof_ref: 'network.raw-capture.storage.03a',
+    state: 'CustodyReady',
+    live_capture_state: 'ProofReady',
+    raw_capture_storage_state: 'CustodyReady',
+    missing_artifacts: [],
+    capture_ready: true,
+    raw_artifact_storage_authorized: true,
+    driver_invoked: false,
+    live_capture_executed: false,
+    raw_artifact_created: false,
+    remote_upload_enabled: false,
+    raw_pcap_without_custody_available: false,
+    exact_url_available: false,
+    decrypted_payload_available: false,
+    page_content_available: false,
+    private_message_available: false,
+    search_query_available: false,
+    policy_authority: false,
+    adapter_authority: false,
+    enforcement_commands_published: 0,
+  };
+}
+
+function productReadinessStatus() {
+  return {
+    status_ref: 'network.product-readiness.status.51a',
+    portal_read_model_ref: 'network.portal-read-model.51a',
+    retention_export_ref: 'network.retention-export.51a',
+    readiness_state: 'ManualRequired',
+    risk_budget_ref: 'network.risk-budget.51a',
+    risk_budget_state: 'AskParentThreshold',
+    risk_intervention_state: 'AskParent',
+    risk_total_points: 42,
+    risk_budget_advisory_only: true,
+    performance_state: 'MeetsBenchmarkGate',
+    performance_regression_codes: [],
+    performance_path_states: ['DryRun'],
+    platform_ready_claims: 1,
+    platform_dry_run_claims: 1,
+    platform_research_only_claims: 0,
+    platform_manual_required_claims: 1,
+    platform_unavailable_claims: 1,
+    platform_manual_followups: [
+      {
+        target: 'WindowsWfp',
+        missing_required_artifacts: ['network.live-capture.permission-proof.13'],
+      },
+    ],
+    portal_read_model_ready: true,
+    retention_export_refs_visible: true,
+    policy_authority: false,
+    adapter_authority: false,
+    ui_policy_authority: false,
+    live_adapter_execution_claimed: false,
+    portal_adapter_dispatch_claimed: false,
+    enforcement_commands_published: 0,
+    production_slo_claimed: false,
+    exact_url_available: false,
+    decrypted_payload_available: false,
+    page_content_available: false,
+  };
 }
 
 function networkClassifiedEntry() {

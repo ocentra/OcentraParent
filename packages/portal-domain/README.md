@@ -21,6 +21,9 @@ contracts.
 - Social dashboard panel intents that adapt parent-domain social dashboard
   snapshots into portal rows, or render an unavailable zero-row state when no
   service-backed social snapshot exists.
+- Portal overview refresh command descriptors for service-backed network
+  product-readiness status visibility, without defining policy or adapter
+  authority.
 
 ## Must Not Own
 
