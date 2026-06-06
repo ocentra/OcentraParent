@@ -21,6 +21,10 @@ import {
   type TrackingChildCheckInProof,
   type TrackingChildRuntimeUiProof,
 } from './tracking-child-check-in-proof';
+import {
+  renderTrackingRetentionSettingsHostedUiProof,
+  trackingRetentionSettingsHostedUiProof,
+} from './tracking-retention-settings-hosted-ui-proof';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 import { renderDashboard } from './portal-dashboard';
@@ -465,6 +469,7 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
     dashboard.append(renderTrackingStatusLiveSummary(liveSummary));
     dashboard.append(renderTrackingStatusServiceDataCoverage(trackingStatusServiceDataCoverage(liveActivity)));
     dashboard.append(renderTrackingFamilyDashboardHostedRollupProof(trackingFamilyDashboardHostedRollupProof()));
+    dashboard.append(renderTrackingRetentionSettingsHostedUiProof(trackingRetentionSettingsHostedUiProof()));
     for (const citation of liveSummary.citations) {
       dashboard.append(renderTrackingStatusLiveCitation(citation));
     }

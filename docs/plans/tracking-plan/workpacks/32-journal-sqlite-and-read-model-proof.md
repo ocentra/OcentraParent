@@ -63,6 +63,10 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [x] Expose retention settings read-model rows for retention window,
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
       disabled state without claiming service mutation or product UI.
+- [x] Render the retention settings read-model rows on the hosted parent route
+      without claiming writable settings, service mutation, platform runtime,
+      child-device delivery, provider delivery, authority, physical-device
+      execution, or production readiness.
 
 ## Where We Are
 
@@ -104,6 +108,12 @@ rows from the existing WP07 retention/delete/export and WP32 service read-model
 proof refs while keeping service mutation, portal UI, platform runtime,
 child-device delivery, provider delivery, notification receipt, physical-device,
 authority, and product-ready claims false.
+The hosted parent route now renders those retention settings read-model rows as
+a narrow proof card and captures
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
+while keeping writable settings, service mutation, platform runtime,
+child-device delivery, provider delivery, physical-device, authority, and
+product-ready claims false.
 The pre-device proof gate now reruns this service proof and records the
 remaining broader read-model, full UI, hosted accessibility, and platform replay
 gaps before device work starts.

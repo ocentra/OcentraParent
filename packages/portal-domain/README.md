@@ -10,6 +10,8 @@ contracts.
 - Parent portal nav and section descriptors.
 - Service-state display rows and dev command descriptors, including the
   tracking read-model refresh command consumed by the Policy Tracking route.
+- Tracking hosted proof DOM markers and proof artifact refs consumed by the
+  Policy Tracking route and Playwright proof harness.
 - App/game notification parent-surface panel intent values derived from the
   parent-domain read model plus the live service notification-readiness
   projection, without claiming delivery, preference mutation, scheduler/outbox

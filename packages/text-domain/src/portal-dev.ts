@@ -47,6 +47,28 @@ export const PortalDevTextToken = {
     'portal.dev.trackingFamilyDashboardRetentionAuditEvidence'
   ),
   TrackingFamilyDashboardHostedBoundary: decodeTextTokenId('portal.dev.trackingFamilyDashboardHostedBoundary'),
+  TrackingRetentionSettingsHostedUi: decodeTextTokenId('portal.dev.trackingRetentionSettingsHostedUi'),
+  TrackingRetentionSettingsHostedUiBody: decodeTextTokenId('portal.dev.trackingRetentionSettingsHostedUiBody'),
+  TrackingRetentionSettingsWindow: decodeTextTokenId('portal.dev.trackingRetentionSettingsWindow'),
+  TrackingRetentionSettingsDeleteAfterAlert: decodeTextTokenId('portal.dev.trackingRetentionSettingsDeleteAfterAlert'),
+  TrackingRetentionSettingsParentExport: decodeTextTokenId('portal.dev.trackingRetentionSettingsParentExport'),
+  TrackingRetentionSettingsRemoteSyncDisabled: decodeTextTokenId(
+    'portal.dev.trackingRetentionSettingsRemoteSyncDisabled'
+  ),
+  TrackingRetentionSettingsRemoteAiDisabled: decodeTextTokenId('portal.dev.trackingRetentionSettingsRemoteAiDisabled'),
+  TrackingRetentionSettingsReadModelReady: decodeTextTokenId('portal.dev.trackingRetentionSettingsReadModelReady'),
+  TrackingRetentionSettingsWindowEvidence: decodeTextTokenId('portal.dev.trackingRetentionSettingsWindowEvidence'),
+  TrackingRetentionSettingsDeleteAfterAlertEvidence: decodeTextTokenId(
+    'portal.dev.trackingRetentionSettingsDeleteAfterAlertEvidence'
+  ),
+  TrackingRetentionSettingsParentExportEvidence: decodeTextTokenId(
+    'portal.dev.trackingRetentionSettingsParentExportEvidence'
+  ),
+  TrackingRetentionSettingsRemoteSyncEvidence: decodeTextTokenId(
+    'portal.dev.trackingRetentionSettingsRemoteSyncEvidence'
+  ),
+  TrackingRetentionSettingsRemoteAiEvidence: decodeTextTokenId('portal.dev.trackingRetentionSettingsRemoteAiEvidence'),
+  TrackingRetentionSettingsHostedBoundary: decodeTextTokenId('portal.dev.trackingRetentionSettingsHostedBoundary'),
   TrackingFirstTarget: decodeTextTokenId('portal.dev.trackingFirstTarget'),
   TrackingProofFixture: decodeTextTokenId('portal.dev.trackingProofFixture'),
   TrackingProofService: decodeTextTokenId('portal.dev.trackingProofService'),
@@ -222,6 +244,34 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   ),
   [PortalDevTextToken.TrackingFamilyDashboardHostedBoundary]: decodeDisplayText(
     'Hosted dashboard rollup rendering only; child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.'
+  ),
+  [PortalDevTextToken.TrackingRetentionSettingsHostedUi]: decodeDisplayText('Retention settings read-model UI'),
+  [PortalDevTextToken.TrackingRetentionSettingsHostedUiBody]: decodeDisplayText(
+    'Hosted route renders existing retention settings read-model rows without writable settings or service mutation.'
+  ),
+  [PortalDevTextToken.TrackingRetentionSettingsWindow]: decodeDisplayText('Retention window setting'),
+  [PortalDevTextToken.TrackingRetentionSettingsDeleteAfterAlert]: decodeDisplayText('Delete-after-alert setting'),
+  [PortalDevTextToken.TrackingRetentionSettingsParentExport]: decodeDisplayText('Parent export setting'),
+  [PortalDevTextToken.TrackingRetentionSettingsRemoteSyncDisabled]: decodeDisplayText('Remote sync disabled setting'),
+  [PortalDevTextToken.TrackingRetentionSettingsRemoteAiDisabled]: decodeDisplayText('Remote AI disabled setting'),
+  [PortalDevTextToken.TrackingRetentionSettingsReadModelReady]: decodeDisplayText('settings-read-model-ready'),
+  [PortalDevTextToken.TrackingRetentionSettingsWindowEvidence]: decodeDisplayText(
+    'tracking-retention-settings-evidence-window'
+  ),
+  [PortalDevTextToken.TrackingRetentionSettingsDeleteAfterAlertEvidence]: decodeDisplayText(
+    'tracking-retention-settings-evidence-delete-after-alert'
+  ),
+  [PortalDevTextToken.TrackingRetentionSettingsParentExportEvidence]: decodeDisplayText(
+    'tracking-retention-settings-evidence-parent-export'
+  ),
+  [PortalDevTextToken.TrackingRetentionSettingsRemoteSyncEvidence]: decodeDisplayText(
+    'tracking-retention-settings-evidence-remote-sync-disabled'
+  ),
+  [PortalDevTextToken.TrackingRetentionSettingsRemoteAiEvidence]: decodeDisplayText(
+    'tracking-retention-settings-evidence-remote-ai-disabled'
+  ),
+  [PortalDevTextToken.TrackingRetentionSettingsHostedBoundary]: decodeDisplayText(
+    'Hosted retention settings rendering only; writable product settings, service mutation, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.'
   ),
   [PortalDevTextToken.TrackingFirstTarget]: decodeDisplayText('First target'),
   [PortalDevTextToken.TrackingProofFixture]: decodeDisplayText('P1 fixture proof'),
