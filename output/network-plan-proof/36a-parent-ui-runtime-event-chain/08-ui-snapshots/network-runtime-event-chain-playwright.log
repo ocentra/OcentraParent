@@ -1,6 +1,6 @@
 
 Running 1 test using 1 worker
 
-  ok 1 [chromium] › e2e\network-runtime-event-chain-proof.spec.ts:7:1 › network drawer renders service-backed runtime event-chain refs (30.0s)
+  ok 1 [chromium] › e2e\network-runtime-event-chain-proof.spec.ts:7:1 › network drawer renders service-backed runtime event-chain refs (24.8s)
 
-  1 passed (31.8s)
+  1 passed (25.9s)
