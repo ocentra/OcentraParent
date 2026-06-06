@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "proofId": "social-decision-memory-live-evidence-proof",
+  "generatedAt": "2026-06-06T10:33:01.050Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "db77d1a0784a3dc56634cff7da715367a0f5f67d",
+  "baseCommit": "7b2dab0c594362802b802f47b945f30f60ac73f6",
+  "sourceProof": "test-results/social-policy-live-evidence-compiler-proof/proof.json",
+  "liveEvidenceBoundary": {
+    "sourcePolicyCompilerUsesLiveSocial11Refs": true,
+    "sourcePolicyCandidateCount": 4,
+    "sourcePolicyFinalDecisionClaimed": false,
+    "memorySnapshotEntryCount": 3,
+    "accountEntryState": "miss",
+    "videoEntryState": "fresh-hit",
+    "channelEntryState": "stale-hit",
+    "finalPolicyDecisionClaimed": false,
+    "runtimeCacheStoreClaimed": false,
+    "aiCacheClaimed": false,
+    "rawAccountDataStored": false,
+    "rawVideoContentStored": false,
+    "rawMessageContentStored": false,
+    "connectorDataStored": false,
+    "uiDeliveredClaimed": false,
+    "nativeAppControlClaimed": false,
+    "enforcementClaimed": false
+  },
+  "snapshot": {
+    "snapshotId": "social-decision-memory-live-evidence-snapshot",
+    "capturedAt": "2026-06-06T10:33:01.050Z",
+    "retentionBounded": true,
+    "rawContentStored": false,
+    "runtimeStoreClaimed": false,
+    "entries": [
+      {
+        "entryId": "social-memory-account-ref-live-evidence",
+        "subjectKind": "account-ref",
+        "memoryState": "miss",
+        "decisionSource": "unavailable",
+        "actionCandidate": "unknown-candidate",
+        "reasonCodes": [
+          "unknown-evidence"
+        ],
+        "confidence": "unknown",
+        "ttlClass": "account-decision",
+        "canReuseForPolicyInput": false,
+        "sourceEvidenceRefs": [
+          "parent-evidence-youtube-shorts-video-social-ai-analysis"
+        ],
+        "decisionRefs": [],
+        "invalidationReasons": [
+          "ttl-expired"
+        ],
+        "finalPolicyDecisionClaimed": false,
+        "runtimeCacheStoreClaimed": false,
+        "aiCacheClaimed": false,
+        "rawAccountDataStored": false,
+        "rawVideoContentStored": false,
+        "rawMessageContentStored": false,
+        "connectorDataStored": false,
+        "uiDeliveredClaimed": false,
+        "nativeAppControlClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "entryId": "social-memory-video-ref-live-evidence",
+        "subjectKind": "video-ref",
+        "memoryState": "fresh-hit",
+        "decisionSource": "parent-decision-candidate",
+        "actionCandidate": "manual-review-candidate",
+        "reasonCodes": [
+          "manual-required",
+          "degraded-analysis",
+          "missing-signal-proof"
+        ],
+        "confidence": "unknown",
+        "ttlClass": "stable-video-decision",
+        "canReuseForPolicyInput": true,
+        "sourceEvidenceRefs": [
+          "parent-evidence-youtube-shorts-video-social-ai-analysis"
+        ],
+        "decisionRefs": [
+          "youtube-shorts-video-social-policy-decision-candidate"
+        ],
+        "invalidationReasons": [],
+        "finalPolicyDecisionClaimed": false,
+        "runtimeCacheStoreClaimed": false,
+        "aiCacheClaimed": false,
+        "rawAccountDataStored": false,
+        "rawVideoContentStored": false,
+        "rawMessageContentStored": false,
+        "connectorDataStored": false,
+        "uiDeliveredClaimed": false,
+        "nativeAppControlClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "entryId": "social-memory-channel-ref-live-evidence",
+        "subjectKind": "channel-ref",
+        "memoryState": "stale-hit",
+        "decisionSource": "parent-decision-candidate",
+        "actionCandidate": "manual-review-candidate",
+        "reasonCodes": [
+          "manual-required",
+          "degraded-analysis",
+          "missing-signal-proof"
+        ],
+        "confidence": "unknown",
+        "ttlClass": "channel-decision",
+        "canReuseForPolicyInput": false,
+        "sourceEvidenceRefs": [
+          "parent-evidence-reddit-popular-feed-social-ai-analysis"
+        ],
+        "decisionRefs": [
+          "reddit-popular-feed-social-policy-decision-candidate"
+        ],
+        "invalidationReasons": [
+          "parent-rule-changed"
+        ],
+        "finalPolicyDecisionClaimed": false,
+        "runtimeCacheStoreClaimed": false,
+        "aiCacheClaimed": false,
+        "rawAccountDataStored": false,
+        "rawVideoContentStored": false,
+        "rawMessageContentStored": false,
+        "connectorDataStored": false,
+        "uiDeliveredClaimed": false,
+        "nativeAppControlClaimed": false,
+        "enforcementClaimed": false
+      }
+    ]
+  },
+  "parseChecks": {
+    "snapshotAccepted": true,
+    "requiredSubjectsPresent": true
+  },
+  "negativeChecks": [
+    {
+      "label": "entry-final-policy",
+      "rejected": true
+    },
+    {
+      "label": "entry-runtime-store",
+      "rejected": true
+    },
+    {
+      "label": "entry-ai-cache",
+      "rejected": true
+    },
+    {
+      "label": "entry-raw-account",
+      "rejected": true
+    },
+    {
+      "label": "entry-raw-video",
+      "rejected": true
+    },
+    {
+      "label": "entry-raw-message",
+      "rejected": true
+    },
+    {
+      "label": "entry-connector-data",
+      "rejected": true
+    },
+    {
+      "label": "entry-ui-delivery",
+      "rejected": true
+    },
+    {
+      "label": "entry-native-app",
+      "rejected": true
+    },
+    {
+      "label": "entry-enforcement",
+      "rejected": true
+    },
+    {
+      "label": "fresh-hit-without-decision-ref",
+      "rejected": true
+    },
+    {
+      "label": "snapshot-raw-content",
+      "rejected": true
+    },
+    {
+      "label": "snapshot-runtime-store",
+      "rejected": true
+    },
+    {
+      "label": "snapshot-missing-channel",
+      "rejected": true
+    }
+  ],
+  "noClaimChecks": {
+    "runtimeCacheStore": false,
+    "finalPolicyDecision": false,
+    "rawContentStorage": false,
+    "aiCache": false,
+    "connectorDataStorage": false,
+    "uiDelivery": false,
+    "nativeAppControl": false,
+    "enforcement": false
+  }
+}
