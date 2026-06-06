@@ -1,10 +1,10 @@
 # AI-25 URL/Video AI Proof Gate
 
-Generated: 2026-06-05T09:46:08.865Z
+Generated: 2026-06-06T01:48:04.455Z
 
 Rows checked: 24
-Contract-proof rows: 22
-Partial/manual-required rows: 2
+Contract-proof rows: 24
+Partial/manual-required rows: 0
 Product claimed: false
 
 | Row | State | Proof Directory | Files |
@@ -27,13 +27,15 @@ Product claimed: false
 | AI-16 | contract-proof-present | `ai-16-knowledge-graph-references` | 5 |
 | AI-17 | contract-proof-present | `ai-17-policy-evaluator-integration` | 5 |
 | AI-18 | contract-proof-present | `ai-18-post-analysis-action-model` | 5 |
-| AI-19 | partial-manual-required | `ai-19-child-facing-checking-warning-ux` | 5 |
-| AI-20 | partial-manual-required | `ai-20-parent-explanation-audit-ux` | 5 |
+| AI-19 | contract-proof-present | `ai-19-child-facing-checking-warning-ux` | 11 |
+| AI-20 | contract-proof-present | `ai-20-parent-explanation-audit-ux` | 5 |
 | AI-21 | contract-proof-present | `ai-21-youtube-parser-metadata-adapter` | 6 |
 | AI-22 | contract-proof-present | `ai-22-vimeo-generic-video-parser` | 7 |
 | AI-23 | contract-proof-present | `ai-23-dynamic-feed-social-url-handling` | 7 |
 | AI-24 | contract-proof-present | `ai-24-provider-degraded-fallback-behavior` | 5 |
 
-Rollout state: partial/manual-required. The gate proves proof-pack coverage
-for AI-01 through AI-24, not runtime model execution, UI delivery, policy
-authority, enforcement, or product completion.
+Rollout state: browser AI proof gate complete; product rollout is not claimed.
+The gate proves proof-pack coverage for AI-01 through AI-24, including
+rendered child/parent UI proof artifacts for AI-19 and AI-20. It does not
+claim runtime model execution, final policy authority, enforcement, or
+product completion.
