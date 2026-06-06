@@ -70,7 +70,11 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   unsupported sources, but they reject account identity, credentials, form
   submission, completed account creation, login success, parent approval
   decisions, policy decisions, connector access, native app control, UI
-  delivery, and enforcement.
+  delivery, and enforcement. `social-account-flow-live-evidence-proof` now
+  consumes the real public SOCIAL-13 account captures, parses 4 signup/login
+  rows through URL-shape, social-route, and account-flow contracts, and rejects
+  feed-route, identity, credential, form-value, form-submit, account-complete,
+  policy-decision, and enforcement promotion attempts.
 - Browser-plan SOCIAL-05 now adds a sanitized form-shape detector contract for
   signup, login, and account-switch forms. It accepts control-kind hints linked
   to route-only account-flow evidence and rejects field values, raw DOM,

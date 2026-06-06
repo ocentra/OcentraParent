@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-06T15:56:04.298Z",
+  "generatedAt": "2026-06-06T16:20:01.636Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -57,17 +57,18 @@
     {
       "rowNumber": 4,
       "rowId": "SOCIAL-04",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
       "proofDirectory": "social-04-account-flow-evidence-contracts",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-contract-proof.md",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
+        "11-live-account-flow-proof.json",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "proof-present",
       "failures": []
     },
     {
@@ -392,8 +393,8 @@
   ],
   "summary": {
     "totalRows": 22,
-    "completeRows": 16,
-    "partialRows": 6,
+    "completeRows": 17,
+    "partialRows": 5,
     "failures": 0,
     "playwrightState": "rendered-proof-bundle-ui-present-runtime-delivery-manual-required",
     "productClaimed": false
@@ -405,6 +406,7 @@
     "serviceBackedExplanationReadModel": "proof-present",
     "livePlatformRouteBoundary": "proof-present",
     "liveSocialUrlPatternBoundary": "proof-present",
+    "liveAccountFlowBoundary": "proof-present",
     "liveRouteClassification": "proof-present",
     "liveMetadataExtraction": "proof-present",
     "liveEvidenceAiBoundary": "proof-present",
