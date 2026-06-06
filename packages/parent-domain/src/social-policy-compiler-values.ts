@@ -8,7 +8,12 @@ export const SocialPolicyEvidenceRefsSchema = Schema.Array(ParentEvidenceReferen
 );
 export const SocialPolicySignalSetRefsSchema = Schema.Array(NonEmptySocialPolicyText);
 export const SocialPolicyParentRuleRefsSchema = Schema.Array(NonEmptySocialPolicyText);
-export const SocialPolicyScheduleRefsSchema = Schema.Array(NonEmptySocialPolicyText);
+export const SocialPolicyScheduleRefsSchema = Schema.Array(NonEmptySocialPolicyText).pipe(
+  Schema.filter((value) => value.length > 0 || 'Expected social policy schedule refs')
+);
+export const SocialPolicyTimeBudgetRefsSchema = Schema.Array(NonEmptySocialPolicyText).pipe(
+  Schema.filter((value) => value.length > 0 || 'Expected social policy time budget refs')
+);
 
 export const SocialParentPolicyCompileRequestIdSchema = withParser(
   NonEmptySocialPolicyText.pipe(Schema.brand('SocialParentPolicyCompileRequestId'))
@@ -63,6 +68,12 @@ export const SocialParentPolicyCompilerModeSchema = withParser(
   Schema.Literal('contract-only', 'manual-required', 'unavailable')
 );
 export const SocialParentPolicyConfidenceSchema = withParser(Schema.Literal('high', 'medium', 'low', 'unknown'));
+export const SocialParentPolicyScheduleStateSchema = withParser(
+  Schema.Literal('inside-allowed-window', 'outside-allowed-window', 'manual-required', 'unavailable')
+);
+export const SocialParentPolicyTimeBudgetStateSchema = withParser(
+  Schema.Literal('budget-available', 'budget-low', 'budget-exhausted', 'manual-required', 'unavailable')
+);
 
 export const SocialParentPolicyReasonCodesSchema = Schema.Array(SocialParentPolicyReasonCodeSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social policy reason codes')

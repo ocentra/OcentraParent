@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T07:56:30.293Z
+Generated: 2026-06-06T08:15:19.436Z
 
 Rows checked: 23
 Proof-present rows: 7
@@ -39,5 +39,6 @@ Product checklist upgrade is not claimed.
 Rendered proof-bundle social UI exists for dashboard, child intervention,
 and parent explanation states. Service-backed dashboard and explanation
 read-model delivery is present. Ref-only social alert/report intent proof
-is present; connector/native runtime, provider/report delivery, final
-policy execution, and enforcement remain unclaimed.
+is present. Schedule/time-budget compiler proof is present; connector/native
+runtime, provider/report delivery, applied schedules/budgets, final policy
+execution, and enforcement remain unclaimed.
