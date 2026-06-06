@@ -73,7 +73,7 @@ const proof = {
   commit: runText('git', ['rev-parse', 'HEAD']).trim(),
   originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
   mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
-  statusShort: runText('git', ['status', '--short']),
+  sourceStatusShort: sourceStatusShort(),
   proofRoot,
   testRoot,
   commands: commandResults,
@@ -159,4 +159,21 @@ function runText(command, args) {
     throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}`);
   }
   return `${result.stdout ?? ''}${result.stderr ?? ''}`;
+}
+
+function sourceStatusShort() {
+  const status = runText('git', ['status', '--short']);
+  return status
+    .split(/\r?\n/)
+    .filter((line) => {
+      if (line.trim().length === 0) {
+        return false;
+      }
+      const path = line.slice(3).replaceAll('\\', '/');
+      return (
+        !path.startsWith('output/network-plan-proof/22a-risk-target-policy-handoff-proof/') &&
+        !path.startsWith('test-results/network-risk-target-policy-handoff-proof/')
+      );
+    })
+    .join('\n');
 }
