@@ -121,6 +121,18 @@ Focused Rust proof builds a binary `.lnk` fixture with a local Edge executable
 target and verifies the resulting managed candidate row still has exact URL
 unavailable. OS policy apply/rollback artifacts remain pending.
 
+2026-06-06 codex-d continuation: `scripts/test/browser-windows-inventory-adapter-completion-proof.mjs`
+now closes the Windows inventory adapter checklist row by verifying the live
+Windows inventory proof, the Browser-route portal/read-model consumption proof,
+and the WP20 AppLocker/App Control state-representation artifact together. The
+gate requires known-path, registry uninstall, Start Menu shortcut,
+store-package, and running-process inventory evidence; verifies portal labels
+for inventory, exact URL capability, active-tab proof, and not-claimed states;
+and rejects accidental exact URL, active-tab, broad browser control, AppLocker
+prevention, policy mutation, or rollback-execution claims. Real AppLocker/WDAC
+policy creation, apply, rollback execution, launch prevention, browser content
+capture, and enforcement remain unclaimed product/platform proof gaps.
+
 ## Where We Want To Be
 
 Windows inventory can detect supported, candidate, unsupported, packaged,
@@ -173,6 +185,8 @@ Fill this before reporting `DONE` or PR-ready:
 ## Manual-Required Gaps
 
 Detecting a browser does not claim exact URL or app-control blocking.
-Remaining adapter work requires OS policy apply/rollback artifacts and any
-additional portal/read-model consumption proof before this workpack can be
-marked complete.
+The browser inventory adapter row is complete with no-claim boundaries after
+the completion gate verifies live Windows inventory evidence, portal/read-model
+consumption, and AppLocker/App Control state artifacts. Real AppLocker/WDAC
+policy creation, apply, rollback execution, launch prevention, browser content
+capture, and enforcement remain unclaimed product/platform proof gaps.

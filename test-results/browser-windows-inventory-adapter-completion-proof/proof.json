@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "browser-windows-inventory-adapter-completion-proof",
+  "generatedAt": "2026-06-06T23:20:28.238Z",
+  "sourceWorkpack": "docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md",
+  "evidenceWorkpacks": [
+    "docs/plans/browser-plan/workpacks/14-portal-browser-status-surfaces.md",
+    "docs/plans/browser-plan/workpacks/20-windows-applocker-app-control-proof.md"
+  ],
+  "summary": {
+    "status": "complete-with-no-claim-boundaries",
+    "proofFilesChecked": 11,
+    "checksPassed": 5,
+    "failures": 0,
+    "productChecklistUpgradeClaimed": false,
+    "exactUrlClaimed": false,
+    "appControlPreventionClaimed": false,
+    "appControlPolicyMutationClaimed": false
+  },
+  "checks": [
+    {
+      "id": "required-proof-files-exist",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "id": "live-windows-inventory-evidence",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "id": "portal-inventory-read-model-consumption",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "id": "app-control-state-artifacts-keep-no-claim-boundary",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "id": "workpack-records-no-claim-boundary",
+      "status": "pass",
+      "failures": []
+    }
+  ],
+  "proofFiles": [
+    {
+      "path": "output/browser-plan-proof/04-windows-browser-inventory-adapter/00-source-snapshot.md",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/04-windows-browser-inventory-adapter/01-contract-proof.log",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/04-windows-browser-inventory-adapter/02-rust-protocol-proof.log",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/04-windows-browser-inventory-adapter/03-runtime-evidence.json",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/04-windows-browser-inventory-adapter/08-security-negative-proof.log",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/04-windows-browser-inventory-adapter/09-manual-platform-proof.md",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/04-windows-browser-inventory-adapter/10-validation-commands.log",
+      "exists": true
+    },
+    {
+      "path": "test-results/browser-windows-live-inventory-proof/proof.json",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/14-portal-browser-status-surfaces/06-ui-snapshots/browser-route-inventory-status.json",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/14-portal-browser-status-surfaces/06-ui-snapshots/browser-route-inventory-status.png",
+      "exists": true
+    },
+    {
+      "path": "test-results/v0-8-browser-domain-adapter-proof/proof.json",
+      "exists": true
+    }
+  ],
+  "noClaimBoundaries": [
+    "windows-inventory-detects-browsers-without-url-or-tab-capture",
+    "portal-consumes-inventory-read-model-with-not-claimed-exact-url-and-active-tab-labels",
+    "app-control-state-artifacts-remain-representation-only",
+    "real-applocker-wdac-apply-rollback-and-launch-prevention-remain-unclaimed",
+    "cross-platform-non-windows-adapters-remain-in-wp05"
+  ],
+  "failures": []
+}

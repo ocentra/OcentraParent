@@ -139,6 +139,12 @@ control while being more honest about managed versus unmanaged sources.
   through existing browser executable normalization, and preserves the same
   no-claim boundary for exact URL/tab, browser content, blocking, rollback, and
   enforcement.
+- Browser-plan WP04 now has a completion proof gate that verifies live Windows
+  inventory evidence, Browser-route portal/read-model consumption, and WP20
+  AppLocker/App Control state artifacts together. It completes the inventory
+  adapter row without upgrading product claims: exact URL/tab, browser content,
+  AppLocker/WDAC policy creation/apply/rollback execution, launch prevention,
+  and enforcement remain unclaimed.
 - Browser-plan WP14 now surfaces the browser inventory read model in the parent
   portal route through service-backed inventory, exact URL capability, active-tab
   proof, and unmanaged fallback rows. The visible route shows inventory, exact
