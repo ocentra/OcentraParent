@@ -1,0 +1,69 @@
+cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game-launcher.test.ts
+exit=0
+
+> @ocentra-parent/activity-domain@0.1.1 test
+> vitest run app-game-launcher.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/activity-domain
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  15:50:25
+   Duration  1.05s (transform 249ms, setup 0ms, import 801ms, tests 13ms, environment 0ms)
+
+
+
+cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game-evidence-claim.test.ts
+exit=0
+
+> @ocentra-parent/activity-domain@0.1.1 test
+> vitest run app-game-evidence-claim.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/activity-domain
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  15:50:27
+   Duration  1.22s (transform 251ms, setup 0ms, import 939ms, tests 15ms, environment 0ms)
+
+
+
+cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game-identity.test.ts
+exit=0
+
+> @ocentra-parent/activity-domain@0.1.1 test
+> vitest run app-game-identity.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/activity-domain
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  15:50:30
+   Duration  1.20s (transform 286ms, setup 0ms, import 914ms, tests 17ms, environment 0ms)
+
+
+
+cmd /c npm run test --workspace @ocentra-parent/portal -- activity-ui-app-game-dashboard-intent.test.ts
+exit=0
+
+> @ocentra-parent/portal@0.1.1 test
+> vitest run tests activity-ui-app-game-dashboard-intent.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/apps/portal
+
+
+ Test Files  16 passed (16)
+      Tests  69 passed (69)
+   Start at  15:50:34
+   Duration  3.89s (transform 20.58s, setup 0ms, import 44.93s, tests 327ms, environment 3ms)
+
+[2m3:50:34 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
+[2m3:50:34 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
+[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`

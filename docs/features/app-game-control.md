@@ -412,6 +412,11 @@ control with better evidence and local audit.
   the App/Game Sessions dashboard renders foreground state as source/read-model
   refs and counts without exposing window title refs, raw titles, or executable
   paths.
+- The launcher/child-game merge-blocking display gate is now backed by
+  `output/app-game-plan-proof/merge-gates/launcher-child-game-boundary`: launcher
+  contracts require child-game proof before known-game classification, and the
+  App/Game Sessions dashboard keeps launcher rows as launcher-only counts rather
+  than active child-game usage.
 
 ## Current Gap
 
