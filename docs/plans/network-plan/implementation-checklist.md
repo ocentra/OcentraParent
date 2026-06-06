@@ -372,6 +372,13 @@ manual-required/N/A file.
   parser invariants that reject lifecycle missing-artifact count mismatches,
   non-manual lifecycle blocker refs, broker/family-hub requirement count
   mismatches, and duplicate-proof regressions.
+- Workpack 10 rollup: row10e is part of the Workpack 10 remote-delivery
+  status proof set. The main row10 eventing/read-model summary is supplemented
+  by `output/network-plan-proof/10e-remote-delivery-durable-envelope-status/proof-summary.json`,
+  `test-results/network-remote-delivery-durable-envelope-proof/proof.json`, and
+  parser invariants that reject missing durable-envelope refs, non-row10e refs,
+  durable-envelope missing artifact drift, provider/child-device delivery
+  claims, and product-ready remote delivery claims.
 
 - [x] 10b broker/family-hub remote delivery status: E-D added
       `output/network-plan-proof/10b-broker-family-hub-delivery-status/proof-summary.json`
@@ -413,6 +420,18 @@ manual-required/N/A file.
       implementation, remote retention/delete/export propagation
       implementation, authority, enforcement-command publication, adapter
       execution, and host filtering false.
+- [x] 10e remote delivery durable-envelope readiness status: E-D added
+      `output/network-plan-proof/10e-remote-delivery-durable-envelope-status/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-durable-envelope-proof/proof.json`.
+      The Rust protocol/core/service status and shared TypeScript parser now
+      carry durable-envelope schema, journal, replay-readiness,
+      delete/export-readiness, and support-status refs with
+      `durable_envelope_ready=true` and missing artifact count 0. The proof
+      keeps live broker/family-hub delivery, remote provider delivery,
+      child-device delivery, product-ready remote delivery, policy authority,
+      side-effect authority, enforcement-command publication, adapter execution,
+      and host filtering false.
 - [x] 33a network local-AI runtime result bridge: E-D added
       `output/network-plan-proof/33a-network-local-ai-runtime-result/proof-summary.json`
       and `test-results/network-local-ai-runtime-result-proof/proof.json`.

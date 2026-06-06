@@ -472,6 +472,16 @@ compete on control while staying clear about attribution confidence and privacy.
   broker/family-hub transport, cross-process replay, remote
   retention/delete/export propagation, policy authority, adapter execution,
   host filtering, or enforcement commands.
+- E-D added row10e remote delivery durable-envelope readiness proof. The Rust
+  protocol, `agent-core` proof report, Rust service product-readiness event,
+  shared TypeScript parser, and portal status summary now carry typed
+  durable-envelope schema, journal, replay-readiness, delete/export-readiness,
+  and support-status refs in
+  `network-remote-delivery-durable-envelope-proof`. This proves the stored
+  envelope/status boundary that future broker/family-hub delivery would consume,
+  not live broker transport, family-hub relay, remote provider delivery,
+  child-device delivery, product-ready remote delivery, policy authority,
+  adapter execution, host filtering, or enforcement commands.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -514,7 +524,8 @@ adds a platform-claim manifest that names exact Windows, Android, Apple
 macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
 follow-ups for missing artifacts.
 Broker/family-hub delivery implementation beyond the row10b status proof,
-row10c service/portal status visibility, and row10d lifecycle blocker status,
+row10c service/portal status visibility, row10d lifecycle blocker status, and
+row10e durable-envelope readiness status,
 live local-AI model execution beyond the row33a runtime result bridge and row33b service status, full policy engine execution beyond
 the current stored-flow dry-run preview and stored-flow service unavailable-result proof,
 notification provider delivery, broader parent-facing rule UX, live host DNS
@@ -524,8 +535,8 @@ VpnService filtering, live Apple Network Extension behavior, live Linux adapter
 execution, platform adapter execution, and production risk-budget/SLO execution
 remain open beyond the row51c product-readiness status drawer proof, row52a
 platform-claim manifest matrix proof, row51d risk/performance detail proof,
-row10c remote-delivery status drawer proof, and row10d lifecycle blocker
-status proof.
+row10c remote-delivery status drawer proof, row10d lifecycle blocker status
+proof, and row10e durable-envelope readiness proof.
 
 ## Checklist
 

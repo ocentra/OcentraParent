@@ -162,10 +162,25 @@ fn network_remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
             .to_string(),
         remote_lifecycle_missing_artifact_count: 3,
         remote_lifecycle_manual_required: true,
+        durable_envelope_schema_ref:
+            constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_SCHEMA_REF.to_string(),
+        durable_envelope_journal_ref:
+            constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_JOURNAL_REF.to_string(),
+        durable_envelope_replay_readiness_ref:
+            constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_REPLAY_REF.to_string(),
+        durable_envelope_delete_export_readiness_ref:
+            constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_DELETE_EXPORT_REF.to_string(),
+        durable_envelope_support_status_ref:
+            constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_SUPPORT_STATUS_REF.to_string(),
+        durable_envelope_ready: true,
+        durable_envelope_missing_artifact_count: 0,
         external_transport_delivery_implemented: false,
         family_hub_delivery_implemented: false,
         cross_process_replay_implemented: false,
         remote_retention_delete_export_propagation_implemented: false,
+        provider_delivery_implemented: false,
+        child_device_delivery_implemented: false,
+        product_ready_claimed: false,
         policy_authority: false,
         side_effect_authority: false,
         enforcement_command_event_count: 0,
@@ -206,6 +221,28 @@ fn network_remote_delivery_status_serializes_false_claim_boundary() {
     );
     assert_eq!(serialized["remote_lifecycle_missing_artifact_count"], 3);
     assert_eq!(serialized["remote_lifecycle_manual_required"], true);
+    assert_eq!(
+        serialized["durable_envelope_schema_ref"],
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_SCHEMA_REF
+    );
+    assert_eq!(
+        serialized["durable_envelope_journal_ref"],
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_JOURNAL_REF
+    );
+    assert_eq!(
+        serialized["durable_envelope_replay_readiness_ref"],
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_REPLAY_REF
+    );
+    assert_eq!(
+        serialized["durable_envelope_delete_export_readiness_ref"],
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_DELETE_EXPORT_REF
+    );
+    assert_eq!(
+        serialized["durable_envelope_support_status_ref"],
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_SUPPORT_STATUS_REF
+    );
+    assert_eq!(serialized["durable_envelope_ready"], true);
+    assert_eq!(serialized["durable_envelope_missing_artifact_count"], 0);
     assert_eq!(serialized["external_transport_delivery_implemented"], false);
     assert_eq!(serialized["family_hub_delivery_implemented"], false);
     assert_eq!(serialized["cross_process_replay_implemented"], false);
@@ -213,6 +250,9 @@ fn network_remote_delivery_status_serializes_false_claim_boundary() {
         serialized["remote_retention_delete_export_propagation_implemented"],
         false
     );
+    assert_eq!(serialized["provider_delivery_implemented"], false);
+    assert_eq!(serialized["child_device_delivery_implemented"], false);
+    assert_eq!(serialized["product_ready_claimed"], false);
     assert_eq!(serialized["policy_authority"], false);
     assert_eq!(serialized["side_effect_authority"], false);
     assert_eq!(serialized["enforcement_command_event_count"], 0);
