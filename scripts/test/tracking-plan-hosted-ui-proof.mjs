@@ -51,6 +51,7 @@ const retentionSettingsScreenshot = path.join(
   '11-ui-snapshots',
   'hosted-policy-tracking-retention-settings.png'
 );
+const evidenceDrawerScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-evidence-drawer.png');
 const childCheckInScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-child-check-in.png');
 const childRuntimeUiScreenshot = path.join(
   workpack30,
@@ -58,6 +59,7 @@ const childRuntimeUiScreenshot = path.join(
   'hosted-policy-tracking-child-runtime-ui.png'
 );
 const childRuntimeUiProofPath = path.join(workpack30, '19-child-runtime-ui-proof.json');
+const evidenceDrawerHostedUiProofPath = path.join(workpack30, '20-evidence-drawer-hosted-ui-proof.json');
 const unsupportedManualScreenshot = path.join(workpack31, '19-unsupported-manual-hosted-ui.png');
 const unsupportedManualHostedProofPath = path.join(workpack31, '19-unsupported-manual-hosted-ui-proof.json');
 const accessibilitySummaryPath = path.join(proofResultDir, 'accessibility-summary.json');
@@ -377,6 +379,8 @@ async function writeProof(playwright) {
       mobileScreenshot: relativePath(mobileScreenshot),
       familyDashboardScreenshot: relativePath(familyDashboardScreenshot),
       retentionSettingsScreenshot: relativePath(retentionSettingsScreenshot),
+      evidenceDrawerScreenshot: relativePath(evidenceDrawerScreenshot),
+      evidenceDrawerHostedUiProof: relativePath(evidenceDrawerHostedUiProofPath),
       childCheckInScreenshot: relativePath(childCheckInScreenshot),
       childRuntimeUiScreenshot: relativePath(childRuntimeUiScreenshot),
       childRuntimeUiProof: relativePath(childRuntimeUiProofPath),
@@ -432,6 +436,21 @@ async function writeProof(playwright) {
       productClaimReadyRows: 0,
       productClaimReady: false,
     },
+    evidenceDrawerHostedUiProof: {
+      sourceEventId: 'tracking-hosted-expected-place-event',
+      sourceProof:
+        'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json',
+      screenshot: relativePath(evidenceDrawerScreenshot),
+      evidenceReferenceIds: ['location-evidence-hosted-1', 'location-evidence-hosted-2'],
+      drawerMode: 'read-only evidence drawer',
+      policyEvaluatorClaimedRows: 0,
+      actionDispatchClaimedRows: 0,
+      childDeviceDeliveryClaimedRows: 0,
+      providerDeliveryClaimedRows: 0,
+      physicalDeviceClaimedRows: 0,
+      authorityClaimedRows: 0,
+      productClaimReady: false,
+    },
     unsupportedManualPlatformProof: {
       sourceProof: 'output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json',
       screenshot: relativePath(unsupportedManualScreenshot),
@@ -451,6 +470,7 @@ async function writeProof(playwright) {
       'This proof does not claim Android or iOS physical background tracking behavior.',
       'This proof does not claim real physical-device location, geofence, provider, or notification delivery.',
       'This proof uses a seeded temporary ActivityStore SQLite database to prove hosted portal rendering against the real Rust service command.',
+      'This proof renders a read-only evidence drawer from the selected service-backed citation but does not claim policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, or product readiness.',
       'This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.',
       'This proof renders retention settings read-model rows but does not claim writable product settings, service mutation, or platform runtime execution.',
       'This proof renders unsupported/manual platform rows in the hosted portal but does not claim physical-device execution, authority enrollment, provider delivery, or product-ready tracking.',
@@ -467,6 +487,7 @@ async function writeProof(playwright) {
   await writeFile(outputProofPath, proofContent);
   await writeFile(gateProofPath, proofContent);
   await writeFile(childRuntimeUiProofPath, proofContent);
+  await writeFile(evidenceDrawerHostedUiProofPath, proofContent);
   await writeFile(unsupportedManualHostedProofPath, proofContent);
   await writeFile(
     securityLogPath,
@@ -476,6 +497,8 @@ async function writeProof(playwright) {
       'asserted=no product-ready or physical-device-proved route copy',
       'asserted=family dashboard rollup rows render from existing proof refs without product-ready claim',
       'asserted=family dashboard rollup screenshot captured',
+      'asserted=evidence drawer renders selected service-backed citation without evaluator or dispatch claims',
+      'asserted=evidence drawer screenshot captured',
       'asserted=manual proof required and physical device proof required labels visible',
       'asserted=child check-in copy and actions visible without child-device delivery claim',
       'asserted=child runtime UI disclosure, safe/help response, and location-share consent copy visible',

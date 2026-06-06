@@ -33,6 +33,10 @@ export const PortalDevTextToken = {
   TrackingStatusSurfaceBody: decodeTextTokenId('portal.dev.trackingStatusSurfaceBody'),
   TrackingServiceReadModel: decodeTextTokenId('portal.dev.trackingServiceReadModel'),
   TrackingServiceDataCoverage: decodeTextTokenId('portal.dev.trackingServiceDataCoverage'),
+  TrackingEvidenceDrawerHostedUi: decodeTextTokenId('portal.dev.trackingEvidenceDrawerHostedUi'),
+  TrackingEvidenceDrawerHostedUiBody: decodeTextTokenId('portal.dev.trackingEvidenceDrawerHostedUiBody'),
+  TrackingEvidenceDrawerReadOnly: decodeTextTokenId('portal.dev.trackingEvidenceDrawerReadOnly'),
+  TrackingEvidenceDrawerBoundary: decodeTextTokenId('portal.dev.trackingEvidenceDrawerBoundary'),
   TrackingFamilyDashboardRollup: decodeTextTokenId('portal.dev.trackingFamilyDashboardRollup'),
   TrackingFamilyDashboardRollupBody: decodeTextTokenId('portal.dev.trackingFamilyDashboardRollupBody'),
   TrackingFamilyDashboardActiveSummary: decodeTextTokenId('portal.dev.trackingFamilyDashboardActiveSummary'),
@@ -225,6 +229,14 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.TrackingStatusSurfaceBody]: decodeDisplayText('Location states are fixture proof only.'),
   [PortalDevTextToken.TrackingServiceReadModel]: decodeDisplayText('Service read model'),
   [PortalDevTextToken.TrackingServiceDataCoverage]: decodeDisplayText('Service data coverage'),
+  [PortalDevTextToken.TrackingEvidenceDrawerHostedUi]: decodeDisplayText('Evidence drawer proof'),
+  [PortalDevTextToken.TrackingEvidenceDrawerHostedUiBody]: decodeDisplayText(
+    'Hosted route renders a read-only evidence drawer from the selected service-backed citation without evaluating policy or dispatching actions.'
+  ),
+  [PortalDevTextToken.TrackingEvidenceDrawerReadOnly]: decodeDisplayText('read-only evidence drawer'),
+  [PortalDevTextToken.TrackingEvidenceDrawerBoundary]: decodeDisplayText(
+    'Display-only evidence drill-in; policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.'
+  ),
   [PortalDevTextToken.TrackingFamilyDashboardRollup]: decodeDisplayText('Family dashboard tracking rollup'),
   [PortalDevTextToken.TrackingFamilyDashboardRollupBody]: decodeDisplayText(
     'Hosted route renders family active, child attention, and retention audit rollups from existing tracking proof refs without claiming device delivery.'

@@ -25,6 +25,11 @@ import {
   renderTrackingRetentionSettingsHostedUiProof,
   trackingRetentionSettingsHostedUiProof,
 } from './tracking-retention-settings-hosted-ui-proof';
+import {
+  TrackingEvidenceDrawerHostedUiProofDetails,
+  trackingEvidenceDrawerHostedUiProof,
+  type TrackingEvidenceDrawerHostedUiProof,
+} from './tracking-evidence-drawer-hosted-ui-proof';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 import { renderDashboard } from './portal-dashboard';
@@ -470,6 +475,9 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
     dashboard.append(renderTrackingStatusServiceDataCoverage(trackingStatusServiceDataCoverage(liveActivity)));
     dashboard.append(renderTrackingFamilyDashboardHostedRollupProof(trackingFamilyDashboardHostedRollupProof()));
     dashboard.append(renderTrackingRetentionSettingsHostedUiProof(trackingRetentionSettingsHostedUiProof()));
+    dashboard.append(
+      renderTrackingEvidenceDrawerHostedUiProof(trackingEvidenceDrawerHostedUiProof(liveSummary.citations[0] ?? null))
+    );
     for (const citation of liveSummary.citations) {
       dashboard.append(renderTrackingStatusLiveCitation(citation));
     }
@@ -702,6 +710,51 @@ function renderTrackingStatusServiceDataCoverage(coverage: TrackingStatusService
 
   panel.append(title, metadata);
   return panel;
+}
+
+function renderTrackingEvidenceDrawerHostedUiProof(proof: TrackingEvidenceDrawerHostedUiProof): HTMLElement {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+  panel.setAttribute(PortalDom.Attributes.DataTrackingProof, PortalDom.Attributes.TrackingProofEvidenceDrawer);
+
+  const title = document.createElement(PortalDom.Tags.HeadingTwo);
+  title.textContent = proof.title;
+
+  const body = document.createElement(PortalDom.Tags.Paragraph);
+  body.className = PortalDom.Classes.CommandResultEmpty;
+  body.textContent = proof.body;
+
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendEvidenceDrawerDetails(metadata, proof);
+
+  panel.append(title, body, metadata);
+  return panel;
+}
+
+function appendEvidenceDrawerDetails(metadata: HTMLDListElement, proof: TrackingEvidenceDrawerHostedUiProof): void {
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.ProofTier, toDetail(proof.proofTier));
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.DrawerMode, toDetail(proof.drawerMode));
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.SourceEvent, proof.sourceEventId);
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.EvidenceReferences, proof.evidenceReferences);
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.DeletedEvidence, proof.deletedEvidence);
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.ProofArtifact, toDetail(proof.proofArtifact));
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.Boundary, toDetail(proof.boundary));
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.MissingProof, toDetail(proof.missingProof));
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.ProductClaim, toDetail(proof.productClaim));
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.PolicyEvaluator, proof.policyEvaluatorClaimedRows);
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.ActionDispatch, proof.actionDispatchClaimedRows);
+  appendDetail(
+    metadata,
+    TrackingEvidenceDrawerHostedUiProofDetails.ChildDelivery,
+    proof.childDeviceDeliveryClaimedRows
+  );
+  appendDetail(
+    metadata,
+    TrackingEvidenceDrawerHostedUiProofDetails.ProviderDelivery,
+    proof.providerDeliveryClaimedRows
+  );
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.PhysicalDevice, proof.physicalDeviceClaimedRows);
+  appendDetail(metadata, TrackingEvidenceDrawerHostedUiProofDetails.Authority, proof.authorityClaimedRows);
 }
 
 function renderTrackingStatusLiveCitation(citation: TrackingStatusLiveCitation): HTMLElement {

@@ -19,6 +19,7 @@ const screenshotDir = path.join(proofRoot, '11-ui-snapshots');
 const desktopScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary.png');
 const mobileScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary-mobile.png');
 const familyDashboardScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-family-dashboard-rollup.png');
+const evidenceDrawerScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-evidence-drawer.png');
 const citationDetailScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-citation-detail.png');
 const retentionSettingsScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-retention-settings.png');
 const childCheckInScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-check-in.png');
@@ -66,6 +67,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await expect(trackingProofRegion.getByText('Physical device proof required').first()).toBeVisible();
   await expect(trackingProofRegion.getByText('No product claim').first()).toBeVisible();
   await assertHostedFamilyDashboardRollupProof(trackingProofRegion);
+  await assertHostedEvidenceDrawerProof(trackingProofRegion);
   await assertHostedCitationDetailProof(trackingProofRegion);
   await assertHostedRetentionSettingsProof(trackingProofRegion);
   await expect(page.getByRole('heading', { name: 'Child check-in request' })).toBeVisible();
@@ -81,6 +83,21 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   const routeText = await trackingProofRegion.textContent();
   expect(routeText ?? '').not.toMatch(/(?:product ready|physical device proved|background geofence proved)/iu);
   expect(routeText ?? '').not.toMatch(/(?:trouble|lying|bad place|delivered to child device)/iu);
+}
+
+async function assertHostedEvidenceDrawerProof(trackingProofRegion: Locator): Promise<void> {
+  const evidenceDrawerCard = trackingProofRegion
+    .locator('[data-ocentra-tracking-proof="service-backed-evidence-drawer"]')
+    .first();
+  await expect(evidenceDrawerCard).toBeVisible();
+  await expect(evidenceDrawerCard.getByRole('heading', { name: 'Evidence drawer proof' })).toBeVisible();
+  await expect(evidenceDrawerCard.getByText('read-only evidence drawer', { exact: true })).toBeVisible();
+  await expect(evidenceDrawerCard.getByText('tracking-hosted-expected-place-event')).toBeVisible();
+  await expect(evidenceDrawerCard.getByText('location-evidence-hosted-1 | location-evidence-hosted-2')).toBeVisible();
+  await expect(evidenceDrawerCard.getByText('Display-only evidence drill-in')).toBeVisible();
+  await expect(evidenceDrawerCard.getByText('20-evidence-drawer-hosted-ui-proof.json')).toBeVisible();
+  await expect(evidenceDrawerCard.getByText('No product claim')).toBeVisible();
+  await expect(evidenceDrawerCard.locator('dd').filter({ hasText: /^0$/u }).first()).toBeVisible();
 }
 
 async function assertHostedCitationDetailProof(trackingProofRegion: Locator): Promise<void> {
@@ -191,6 +208,9 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   const familyDashboardCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="family-dashboard-rollup"]')
     .first();
+  const evidenceDrawerCard = trackingProofRegion
+    .locator('[data-ocentra-tracking-proof="service-backed-evidence-drawer"]')
+    .first();
   const citationDetailCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="service-backed-citation-detail"]')
     .first();
@@ -202,14 +222,18 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   const unsupportedManualCard = trackingProofRegion
     .getByRole('heading', { name: 'Unsupported/manual tracking platform proof' })
     .locator('xpath=ancestor::article[1]');
-  await page.evaluate(() => {
-    const grid = document.querySelector('.tracking-status-overlay-grid');
-    const familyDashboard = document.querySelector('[data-ocentra-tracking-proof="family-dashboard-rollup"]');
-    if (grid instanceof HTMLElement && familyDashboard instanceof HTMLElement) {
-      grid.scrollTop = Math.max(0, familyDashboard.offsetTop - 48);
-    }
-  });
-  await captureTrackingProofCardScreenshot(familyDashboardCard, familyDashboardScreenshotPath);
+  await captureScrolledTrackingProofCardScreenshot(
+    page,
+    familyDashboardCard,
+    '[data-ocentra-tracking-proof="family-dashboard-rollup"]',
+    familyDashboardScreenshotPath
+  );
+  await captureScrolledTrackingProofCardScreenshot(
+    page,
+    evidenceDrawerCard,
+    '[data-ocentra-tracking-proof="service-backed-evidence-drawer"]',
+    evidenceDrawerScreenshotPath
+  );
   await captureScrolledTrackingProofCardScreenshot(
     page,
     citationDetailCard,
@@ -317,6 +341,7 @@ async function writeAccessibilitySummary(
         screenshots: {
           desktop: path.relative(repoRoot, desktopScreenshotPath).replace(/\\/gu, '/'),
           familyDashboard: path.relative(repoRoot, familyDashboardScreenshotPath).replace(/\\/gu, '/'),
+          evidenceDrawer: path.relative(repoRoot, evidenceDrawerScreenshotPath).replace(/\\/gu, '/'),
           citationDetail: path.relative(repoRoot, citationDetailScreenshotPath).replace(/\\/gu, '/'),
           retentionSettings: path.relative(repoRoot, retentionSettingsScreenshotPath).replace(/\\/gu, '/'),
           childCheckIn: path.relative(repoRoot, childCheckInScreenshotPath).replace(/\\/gu, '/'),
@@ -340,6 +365,7 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'Service data coverage',
     'Family dashboard tracking rollup',
     'Retention settings read-model UI',
+    'Evidence drawer proof',
     'Child check-in request',
     'Child runtime UI proof',
     'Unsupported/manual tracking platform proof',
@@ -372,6 +398,9 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'location-evidence-hosted-1 | location-evidence-hosted-2',
     'tracking-retention-settings-evidence-window',
     'tracking-retention-settings-evidence-remote-ai-disabled',
+    'read-only evidence drawer',
+    'Display-only evidence drill-in; policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
+    'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json',
     'Need help',
     'Share current location',
     'Call parent',
@@ -406,6 +435,8 @@ function hostedTrackingAssertions(): readonly string[] {
     'service-data-coverage-visible',
     'family-dashboard-rollup-visible',
     'family-dashboard-rollup-screenshot',
+    'service-backed-evidence-drawer-visible',
+    'service-backed-evidence-drawer-screenshot',
     'service-backed-citation-detail-visible',
     'service-backed-citation-detail-screenshot',
     'retention-settings-read-model-visible',

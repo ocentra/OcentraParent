@@ -24,6 +24,11 @@ import {
   type TrackingRetentionSettingsHostedUiProof,
 } from './tracking-retention-settings-hosted-ui-proof';
 import {
+  TrackingEvidenceDrawerHostedUiProofDetails,
+  trackingEvidenceDrawerHostedUiProof,
+  type TrackingEvidenceDrawerHostedUiProof,
+} from './tracking-evidence-drawer-hosted-ui-proof';
+import {
   trackingFamilyDashboardHostedRollupProof,
   trackingStatusLiveSummary,
   trackingStatusServiceDataCoverage,
@@ -83,6 +88,9 @@ export function TrackingStatusRoutePanel({
           <TrackingStatusServiceDataCoverageCard coverage={serviceDataCoverage} />
           <TrackingFamilyDashboardHostedRollupProofCard proof={trackingFamilyDashboardHostedRollupProof()} />
           <TrackingRetentionSettingsHostedUiProofCard proof={trackingRetentionSettingsHostedUiProof()} />
+          <TrackingEvidenceDrawerHostedUiProofCard
+            proof={trackingEvidenceDrawerHostedUiProof(liveSummary.citations[0] ?? null)}
+          />
           {liveSummary.citations.map((citation) => (
             <TrackingStatusLiveCitationCard key={String(citation.eventId)} citation={citation} />
           ))}
@@ -253,6 +261,78 @@ function TrackingRetentionSettingsHostedUiRow({
       <TrackingStatusDetail label={PortalDetails.Status} value={proofRow.status} />
       <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={proofRow.evidence} />
     </>
+  );
+}
+
+function TrackingEvidenceDrawerHostedUiProofCard({
+  proof,
+}: {
+  readonly proof: TrackingEvidenceDrawerHostedUiProof;
+}): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article
+      className={className}
+      {...{ [PortalDom.Attributes.DataTrackingProof]: PortalDom.Attributes.TrackingProofEvidenceDrawer }}
+    >
+      <h2>{proof.title}</h2>
+      <p>{proof.body}</p>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <TrackingStatusDetail label={TrackingEvidenceDrawerHostedUiProofDetails.ProofTier} value={proof.proofTier} />
+        <TrackingStatusDetail label={TrackingEvidenceDrawerHostedUiProofDetails.DrawerMode} value={proof.drawerMode} />
+        <TrackingStatusDetail
+          label={TrackingEvidenceDrawerHostedUiProofDetails.SourceEvent}
+          value={proof.sourceEventId}
+        />
+        <TrackingStatusDetail
+          label={TrackingEvidenceDrawerHostedUiProofDetails.EvidenceReferences}
+          value={proof.evidenceReferences}
+        />
+        <TrackingStatusDetail
+          label={TrackingEvidenceDrawerHostedUiProofDetails.DeletedEvidence}
+          value={proof.deletedEvidence}
+        />
+        <TrackingStatusDetail
+          label={TrackingEvidenceDrawerHostedUiProofDetails.ProofArtifact}
+          value={proof.proofArtifact}
+        />
+        <TrackingStatusDetail label={TrackingEvidenceDrawerHostedUiProofDetails.Boundary} value={proof.boundary} />
+        <TrackingStatusDetail
+          label={TrackingEvidenceDrawerHostedUiProofDetails.MissingProof}
+          value={proof.missingProof}
+        />
+        <TrackingStatusDetail
+          label={TrackingEvidenceDrawerHostedUiProofDetails.ProductClaim}
+          value={proof.productClaim}
+        />
+        <TrackingStatusDetail
+          label={TrackingEvidenceDrawerHostedUiProofDetails.PolicyEvaluator}
+          value={proof.policyEvaluatorClaimedRows}
+        />
+        <TrackingStatusDetail
+          label={TrackingEvidenceDrawerHostedUiProofDetails.ActionDispatch}
+          value={proof.actionDispatchClaimedRows}
+        />
+        <TrackingStatusDetail
+          label={TrackingEvidenceDrawerHostedUiProofDetails.ChildDelivery}
+          value={proof.childDeviceDeliveryClaimedRows}
+        />
+        <TrackingStatusDetail
+          label={TrackingEvidenceDrawerHostedUiProofDetails.ProviderDelivery}
+          value={proof.providerDeliveryClaimedRows}
+        />
+        <TrackingStatusDetail
+          label={TrackingEvidenceDrawerHostedUiProofDetails.PhysicalDevice}
+          value={proof.physicalDeviceClaimedRows}
+        />
+        <TrackingStatusDetail
+          label={TrackingEvidenceDrawerHostedUiProofDetails.Authority}
+          value={proof.authorityClaimedRows}
+        />
+      </dl>
+    </article>
   );
 }
 
