@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-url-video-ai-proof-gates",
-  "generatedAt": "2026-06-05T09:46:08.865Z",
+  "generatedAt": "2026-06-06T01:48:04.455Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -312,35 +312,41 @@
     {
       "rowNumber": 19,
       "rowId": "AI-19",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "contract-proof-present",
       "requiresUiMarker": true,
       "proofDirectory": "ai-19-child-facing-checking-warning-ux",
       "proofFiles": [
         "00-source-snapshot.md",
-        "01-child-ux-contract-proof.md",
-        "08-security-negative-proof.md",
-        "10-validation-commands.log",
-        "ui-not-applicable.md"
+        "01-contract-proof.log",
+        "02-rust-protocol-proof.log",
+        "03-runtime-evidence.json",
+        "04-journal-sqlite-proof.json",
+        "05-policy-action-proof.json",
+        "06-ui-snapshots",
+        "07-playwright-ui-proof.log",
+        "08-security-negative-proof.log",
+        "09-manual-platform-proof.md",
+        "10-validation-commands.log"
       ],
-      "state": "partial-manual-required",
+      "state": "contract-proof-present",
       "failures": []
     },
     {
       "rowNumber": 20,
       "rowId": "AI-20",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "contract-proof-present",
       "requiresUiMarker": true,
       "proofDirectory": "ai-20-parent-explanation-audit-ux",
       "proofFiles": [
         "00-source-snapshot.md",
-        "01-parent-explanation-contract-proof.md",
-        "08-security-negative-proof.md",
-        "10-validation-commands.log",
-        "ui-not-applicable.md"
+        "03-runtime-evidence.json",
+        "06-ui-snapshots",
+        "08-security-negative-proof.log",
+        "10-validation-commands.log"
       ],
-      "state": "partial-manual-required",
+      "state": "contract-proof-present",
       "failures": []
     },
     {
@@ -419,10 +425,10 @@
   ],
   "summary": {
     "totalRows": 24,
-    "completeRows": 22,
-    "partialRows": 2,
+    "completeRows": 24,
+    "partialRows": 0,
     "failures": 0,
-    "rolloutState": "partial-manual-required",
+    "rolloutState": "browser-ai-proof-gate-complete-product-rollout-not-claimed",
     "productClaimed": false
   },
   "noClaimGuards": [
