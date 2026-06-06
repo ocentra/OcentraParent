@@ -88,6 +88,19 @@ but it still does not apply AppLocker/App Control, parse `.lnk` files inside the
 Rust adapter, claim exact URL/tab visibility, capture browser content, or prove
 blocking/enforcement.
 
+2026-06-06 codex-d continuation: the Rust browser inventory service path now
+has a browser-owned live Windows registry source. On Windows it enumerates
+uninstall registry DisplayIcon and InstallLocation entries, feeds them through
+the existing browser candidate-path normalization, and then uses the existing
+browser observation/read-model conversion. Focused Rust tests prove
+fixture-backed registry display-icon/install-location candidates, shortcut
+target ingress through the same helper, and service default rows while allowing
+additional live host registry rows. This moves registry enumeration into the
+Rust browser inventory path without adding exact URL/tab capture, page content,
+AppLocker/App Control application, blocking, rollback, or enforcement claims.
+Rust `.lnk` binary parsing, live AppX/MSIX enumeration, and OS policy
+apply/rollback artifacts remain pending.
+
 ## Where We Want To Be
 
 Windows inventory can detect supported, candidate, unsupported, packaged,
@@ -127,8 +140,8 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Before-state source snapshot recorded in `output/browser-plan-proof/04-windows-browser-inventory-adapter/00-source-snapshot.md`.
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service parity updated only after contracts exist; portal parity remains deferred because no UI surface changed.
-- [x] Raw evidence artifacts captured or marked N/A for this fixture-backed/root-expansion slice: known-path fixtures, deduplicated candidate roots, packaged path-shape fixtures, process executable-path identity fixtures, duplicate installed/running executable collapse fixtures, caller-provided registry display-icon/install-location values, caller-provided shortcut target values including unquoted command targets with launch arguments and leading environment-variable prefixes, default-root service read-model consumption through temp `PROGRAMFILES` fixture roots, process observations feed the adapter, and the live Windows proof records redacted known-path, registry uninstall, Start Menu shortcut, running-process, file-hash, and signature-status evidence; no raw paths, raw URLs, page content, journal, SQLite, policy, or action behavior changed.
-- [x] Tests/proof listed in this workpack are implemented for known-path/process fixture parsing, deduplicated root expansion, packaged path-shape classification, process executable-path identity, duplicate installed/running executable collapse, registry display-icon/install-location target normalization, shortcut target normalization including unquoted command target arguments and leading environment-variable prefixes, service default-root candidate consumption, service row conversion, and a live Windows proof harness that captures redacted registry/shortcut/process/file-hash/signature evidence; live AppX/MSIX enumeration, Rust `.lnk` binary parsing, OS policy application, UI, and enforcement remain manual-required.
+- [x] Raw evidence artifacts captured or marked N/A for this fixture-backed/root-expansion slice: known-path fixtures, deduplicated candidate roots, packaged path-shape fixtures, process executable-path identity fixtures, duplicate installed/running executable collapse fixtures, caller-provided registry display-icon/install-location values, caller-provided shortcut target values including unquoted command targets with launch arguments and leading environment-variable prefixes, Rust live Windows registry DisplayIcon/InstallLocation enumeration for service default candidates, default-root service read-model consumption through temp `PROGRAMFILES` fixture roots, process observations feed the adapter, and the live Windows proof records redacted known-path, registry uninstall, Start Menu shortcut, running-process, file-hash, and signature-status evidence; no raw paths, raw URLs, page content, journal, SQLite, policy, or action behavior changed.
+- [x] Tests/proof listed in this workpack are implemented for known-path/process fixture parsing, deduplicated root expansion, packaged path-shape classification, process executable-path identity, duplicate installed/running executable collapse, registry display-icon/install-location target normalization, shortcut target normalization including unquoted command target arguments and leading environment-variable prefixes, Rust live registry source ingestion, service default-root and live registry candidate consumption, service row conversion, and a live Windows proof harness that captures redacted registry/shortcut/process/file-hash/signature evidence; live AppX/MSIX enumeration, Rust `.lnk` binary parsing, OS policy application, UI, and enforcement remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured for this slice: unmanaged running processes remain process-only, unproved Chromium forks are manual-required, unsupported browsers stay unsupported, and no URL collection path was added.
@@ -140,7 +153,6 @@ Fill this before reporting `DONE` or PR-ready:
 ## Manual-Required Gaps
 
 Detecting a browser does not claim exact URL or app-control blocking.
-Remaining adapter work requires moving live registry and Start Menu shortcut
-enumeration into the Rust adapter path, `.lnk` binary parsing where needed,
-live AppX/MSIX package enumeration, OS policy apply/rollback artifacts, and
-portal/read-model consumption before this workpack can be marked complete.
+Remaining adapter work requires Rust Start Menu `.lnk` target parsing where
+needed, live AppX/MSIX package enumeration, OS policy apply/rollback artifacts,
+and portal/read-model consumption before this workpack can be marked complete.
