@@ -212,7 +212,11 @@ consumes the same results.
 
 - [x] TypeScript contract tests.
 - [x] Rust parity tests.
-- [ ] Stored-evidence integration tests.
+- [x] Stored-evidence integration tests cover
+      `buildLocalAiEvidenceContext` -> local text adapter/parser -> read-model
+      -> dry-run policy handoff using deleted-source screen-summary evidence,
+      with raw retention, remote/API AI, policy authority, model execution, and
+      enforcement overclaims rejected by the existing contracts.
 - [x] Provider route/status tests.
 - [x] Model output parser tests exist in
       `packages/parent-domain/tests/screen-ai-model-output-parser-proof.test.ts`
@@ -345,4 +349,6 @@ consumes the same results.
 - [x] local text parser policy handoff proof run:
       `node --check scripts/test/local-ai-text-parser-policy-handoff-proof.mjs`
       and `node scripts/test/local-ai-text-parser-policy-handoff-proof.mjs`.
+- [x] stored-evidence parser/policy integration test:
+      `npm run test --workspace @ocentra-parent/parent-domain -- local-ai-stored-evidence-parser-policy-integration`.
 - [ ] `npm run validate` or explicit approved omission.

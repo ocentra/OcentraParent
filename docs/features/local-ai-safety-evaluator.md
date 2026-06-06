@@ -139,6 +139,13 @@ claim needs proof, not slogans.
   manual-required and cannot create policy decisions. The proof keeps raw model
   output retention, model execution, remote/API AI, policy authority,
   enforcement, portal UI, and production-quality claims out of scope.
+- `packages/parent-domain/tests/local-ai-stored-evidence-parser-policy-integration.test.ts`
+  now adds a stored-evidence integration test over the real
+  `buildLocalAiEvidenceContext` -> local text adapter -> parser -> read-model ->
+  policy handoff path. The test proves a deleted-source screen-summary evidence
+  ref can remain cited through parser and dry-run policy handoff without raw
+  model-output retention, remote/API AI, policy authority, model execution, or
+  enforcement claims.
 - `LocalAiPromptTemplateVersionProofSchema` and
   `scripts/test/local-ai-prompt-template-version-proof.mjs` now prove the
   prompt/template version contract boundary. The proof reconciles one
@@ -382,6 +389,10 @@ production external evidence variants.
       create dry-run policy decisions, while rejected/manual rows remain
       manual-required without model-execution, remote/API, raw output retention,
       policy-authority, enforcement, portal UI, or production-quality claims.
+- [x] Stored-evidence integration test proves deleted-source screen-summary
+      evidence can flow through the local AI text parser, read-model, and
+      dry-run policy handoff without raw retention or authority/enforcement
+      overclaims.
 - [x] Local prompt/template version proof path without model-execution,
       model-quality, remote/API, policy-authority, enforcement, portal UI, raw
       prompt, or raw model-output retention claims.
