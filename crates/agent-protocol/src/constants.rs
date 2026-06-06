@@ -491,6 +491,8 @@ pub mod enforcement;
 pub mod lan_pairing;
 #[path = "constants/network_flow.rs"]
 pub mod network_flow;
+#[path = "constants/screen_flow.rs"]
+pub mod screen_flow;
 
 #[path = "constants/sqlite.rs"]
 pub mod sqlite;
