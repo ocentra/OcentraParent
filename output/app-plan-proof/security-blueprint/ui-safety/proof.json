@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-plan-ui-security-blueprint-proof",
+  "generatedAt": "2026-06-06T22:05:54.874Z",
+  "branch": "codex/app-game-inventory-display-gate-proof",
+  "commit": "c3802e53010cbd2cc3cc063f17c4533a56e6f28b",
+  "gitStatusShort": "M docs/features/app-game-control.md\n M docs/plans/app-plan/implementation-checklist.md\n?? scripts/test/app-plan-ui-security-blueprint-proof.mjs",
+  "commands": [
+    "cmd /c npm run test --workspace @ocentra-parent/portal -- activity-ui-app-game-dashboard-intent.test.ts\n> @ocentra-parent/portal@0.1.1 test\n> vitest run tests activity-ui-app-game-dashboard-intent.test.ts\n\n\u001b[2m6:05:51 p.m.\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `esbuild` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `oxc` instead.\u001b[39m\n\u001b[2m6:05:51 p.m.\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `optimizeDeps.esbuildOptions` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.\u001b[39m\n\u001b[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.\u001b[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/apps/portal\n\n\n Test Files  16 passed (16)\n      Tests  69 passed (69)\n   Start at  18:05:51\n   Duration  2.78s (transform 13.48s, setup 0ms, import 32.47s, tests 291ms, environment 3ms)"
+  ],
+  "scope": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "browserGameWorkDuplicated": false,
+    "appPlanRows": [
+      "Security: path redaction.",
+      "Security: malicious metadata escaping."
+    ],
+    "productChecklistChanged": false,
+    "packageExportsChanged": false,
+    "adapterDispatchClaimed": false,
+    "policyExecutionClaimed": false
+  },
+  "sourceProofs": [
+    {
+      "appPlanRow": "Security: path redaction.",
+      "sourceProof": "output\\app-game-plan-proof\\merge-gates\\raw-executable-path-ui-leak\\proof.json",
+      "sourceProofMode": "app-game-raw-executable-path-ui-leak-gate-proof",
+      "gateState": "prevented-by-dashboard-intent-redaction-and-render-source-proof",
+      "proofPaths": {
+        "proof": "test-results/app-game-raw-executable-path-ui-leak-gate-proof/proof.json",
+        "appGameProofPack": "output/app-game-plan-proof/merge-gates/raw-executable-path-ui-leak",
+        "harness": "scripts/test/app-game-raw-executable-path-ui-leak-gate-proof.mjs"
+      },
+      "productBoundaries": {
+        "sharedEvidenceSpine": true,
+        "nativeAppMeaningProven": true,
+        "nativeGameMeaningProven": true,
+        "rawPrivateExecutablePathExposed": false,
+        "executablePathRefRendered": false,
+        "evidenceRefsRendered": true,
+        "browserGameWorkDuplicated": false,
+        "adapterDispatchClaimed": false,
+        "policyExecutionClaimed": false,
+        "packageExportsChanged": false
+      }
+    },
+    {
+      "appPlanRow": "Security: malicious metadata escaping.",
+      "sourceProof": "output\\app-game-plan-proof\\merge-gates\\malicious-metadata-ui-safety\\proof.json",
+      "sourceProofMode": "app-game-malicious-metadata-ui-safety-gate-proof",
+      "gateState": "prevented-by-react-text-rendering-bounded-svg-layout-and-manual-required-row-proof",
+      "proofPaths": {
+        "proof": "test-results/app-game-malicious-metadata-ui-safety-gate-proof/proof.json",
+        "appGameProofPack": "output/app-game-plan-proof/merge-gates/malicious-metadata-ui-safety",
+        "harness": "scripts/test/app-game-malicious-metadata-ui-safety-gate-proof.mjs"
+      },
+      "productBoundaries": {
+        "sharedEvidenceSpine": true,
+        "nativeAppMeaningProven": true,
+        "nativeGameMeaningProven": true,
+        "maliciousMetadataExecuted": false,
+        "dangerousHtmlSinkUsed": false,
+        "layoutRowsBounded": true,
+        "labelsTruncated": true,
+        "manualRequiredPreserved": true,
+        "browserGameWorkDuplicated": false,
+        "adapterDispatchClaimed": false,
+        "policyExecutionClaimed": false,
+        "packageExportsChanged": false
+      }
+    }
+  ],
+  "proofPaths": {
+    "proof": "test-results\\app-plan-ui-security-blueprint-proof\\proof.json",
+    "appPlanProofPack": "output\\app-plan-proof\\security-blueprint\\ui-safety",
+    "harness": "scripts/test/app-plan-ui-security-blueprint-proof.mjs"
+  }
+}

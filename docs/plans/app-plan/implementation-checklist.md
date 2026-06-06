@@ -138,8 +138,8 @@ reason.
 - [ ] Security: weak evidence no-upgrade.
 - [ ] Security: manual-required guard.
 - [ ] Security: platform authority guard.
-- [ ] Security: path redaction.
-- [ ] Security: malicious metadata escaping.
+- [x] Security: path redaction.
+- [x] Security: malicious metadata escaping.
 - [ ] Security: stale evidence rejection.
 - [ ] E2E: Windows app inventory to portal.
 - [ ] E2E: Windows runtime session.

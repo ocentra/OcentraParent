@@ -80,6 +80,12 @@ control with better evidence and local audit.
   display label remains a manual-required/risk text row in the parent dashboard
   intent, while the SVG dashboard source renders labels through bounded text
   sizing/truncation and avoids app/game dashboard HTML injection sinks.
+- The app-plan UI security blueprint reconciliation now cross-records native app
+  path-redaction and malicious-metadata escaping rows from the shared app/game
+  raw-path and malicious-metadata UI safety proof artifacts. This is a
+  proof/readiness reconciliation only: it does not add a new UI code path,
+  product checklist status move, package export, adapter dispatch, policy
+  execution, platform support claim, or browser-game scope.
 - The app-plan merge-blocking gate reconciliation now cross-records the
   native-app side of those shared app/game proofs into the app-plan checklist:
   each gate cites the current shared evidence spine, preserves native app and
