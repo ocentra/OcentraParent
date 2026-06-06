@@ -469,6 +469,20 @@ only with explicit parent settings.
   project/docs/license direction and records that this Windows lane does not
   have `tesseract` on `PATH`, so extraction, packaging, quality,
   CPU/memory/runtime measurement, and PaddleOCR comparison remain open.
+- `scripts/test/screen-ocr-paddleocr-evaluation-proof.mjs` refreshes the
+  PaddleOCR/PP-OCR candidate readiness check against current local package
+  availability and PyPI candidate versions. It keeps remote OCR disabled by
+  default and records the preferred next host as child-device or trusted
+  household mesh only after install/runtime proof. It does not install
+  packages, download models, run OCR inference, compare quality against
+  Tesseract, or select a production OCR runtime.
+- `scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs` records the
+  small guided VLM classifier readiness boundary for screen-plan WP36 by
+  reusing the typed execution-readiness proof. It proves local-only custody,
+  guided worker template/version pinning, bounded image pixels, deleted
+  query-store custody before completed status, and manual-required behavior
+  when runtime is unavailable. It does not run live VLM inference, measure
+  classifier quality, prove crop extraction, or select a production VLM model.
 - `scripts/test/screen-ai-service-winrt-ocr-proof.mjs` now proves the
   service-owned Windows WinRT OCR analysis path over real live Chrome/Wikipedia
   pixels: the Rust service cadence loop captures an active-window frame into
@@ -606,6 +620,13 @@ parity, and UI remain separate proof gates.
 - [~] Tesseract baseline source/license/runtime readiness is recorded, but the
   local runtime is unavailable on this Windows lane and extraction/quality
   comparison remains open.
+- [~] PaddleOCR/PP-OCR candidate readiness records current package availability
+  and local-only/household-mesh routing non-claims, but install/runtime,
+  quality, and resource comparison remain open.
+- [~] Small guided VLM classifier readiness records local-only handoff,
+  template/version, max-pixel, deletion, and manual-required gates, but live
+  model execution, crop extraction, quality, and resource measurement remain
+  open.
 - [x] Service WinRT OCR proof analyzes live public browser pixels through the
       encrypted service queue, records a `localOcr` Activity Screen row, drains
       the queue, and deletes adapter temp image material.
