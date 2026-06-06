@@ -1,7 +1,7 @@
 # app-game WP75 Source Snapshot
 
-- Branch: codex/app-game-source-gated-policy-preview-read-model
-- Commit: 6cfda24221614446748553033398b9e218c8fc44
+- Branch: codex/app-game-source-freshness-preview-gate
+- Commit: e453c57f9de4182221ac84fb8038f18209cf568a
 - Git status at proof generation:
 
 ```text
