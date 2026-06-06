@@ -27,7 +27,7 @@ The repo already has these pieces:
   states, and duplicate same-device model-load blocking.
 - LAN pairing and LAN AI job protocol pieces in `crates/agent-protocol` and
   `crates/agent-service/src/lan_pairing/lan_ai_job.rs`.
-- Screen family AI hub route/runtime-discovery proof rows that preserve
+- Legacy screen family-hub route/runtime-discovery proof rows that preserve
   child-local first attempt, redacted crop route, no raw screenshot transfer, no
   retention, and no remote/API child-safety fallback.
 
