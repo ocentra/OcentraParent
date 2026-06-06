@@ -26,6 +26,7 @@ use crate::{
     screen_ai_foreground_runtime_config::{
         foreground_key, pending_queue_record_count, ScreenAiForegroundRuntimeConfig,
     },
+    screen_ai_service_event_bridge::publish_screen_capture_queue_events_for_queue_job,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -72,6 +73,7 @@ async fn run_screen_ai_foreground_runtime(config: ScreenAiForegroundRuntimeConfi
         interval.tick().await;
         tick_count += 1;
         let clock = ScreenAiForegroundTickClock::from_system_time();
+        let observed_at = clock.timestamp.clone();
         let epoch_seconds = clock.epoch_seconds;
         let outcome = record_screen_ai_foreground_tick(
             &config,
@@ -82,7 +84,16 @@ async fn run_screen_ai_foreground_runtime(config: ScreenAiForegroundRuntimeConfi
         );
         if let Ok(outcome) = outcome {
             match outcome {
-                ScreenAiForegroundTickOutcome::Recorded { foreground_key, .. } => {
+                ScreenAiForegroundTickOutcome::Recorded {
+                    queue_job_id,
+                    foreground_key,
+                } => {
+                    let _ = publish_screen_capture_queue_events_for_queue_job(
+                        &config.store_path,
+                        &queue_job_id,
+                        &observed_at,
+                    )
+                    .await;
                     state.last_capture_at_epoch_seconds = Some(epoch_seconds);
                     last_foreground_key = Some(foreground_key);
                     capture_count += 1;

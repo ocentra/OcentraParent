@@ -7,7 +7,8 @@ use ocentra_parent_agent_protocol::{
 };
 
 use super::screen_ai_service_event_bridge::{
-    publish_screen_service_row_event_chain, screen_runtime_input_from_service_row,
+    publish_screen_capture_queue_event_chain, publish_screen_service_row_event_chain,
+    screen_runtime_capture_input_from_service_row, screen_runtime_input_from_service_row,
     ScreenAiServiceEventBridgeError, ScreenAiServiceEventBridgeRefs,
 };
 
@@ -77,12 +78,50 @@ async fn screen_service_event_bridge_publishes_ordered_chain_from_service_read_m
     assert!(!report.raw_image_escaped());
 }
 
+#[tokio::test]
+async fn screen_service_event_bridge_publishes_capture_queue_events_from_capture_row() {
+    let report = publish_screen_capture_queue_event_chain(
+        service_screen_row(),
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    )
+    .await
+    .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES);
+    let phases = report
+        .stored_events
+        .iter()
+        .map(|event| {
+            event
+                .decode::<ScreenRuntimeEventPayload>()
+                .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
+                .payload
+                .phase
+        })
+        .collect::<Vec<_>>();
+
+    assert_eq!(
+        phases,
+        vec![
+            ScreenRuntimePhase::CaptureObserved,
+            ScreenRuntimePhase::QueueEncrypted
+        ]
+    );
+    assert_eq!(report.publish_reports.len(), phases.len());
+    assert_eq!(report.dead_letters.len(), 0);
+    assert!(!report.raw_image_escaped());
+}
+
 #[test]
 fn screen_service_event_bridge_rejects_raw_retention_and_missing_policy_refs() {
     let mut raw_retained = service_screen_row();
     raw_retained.raw_image_retained = true;
     assert!(matches!(
         screen_runtime_input_from_service_row(raw_retained, service_bridge_refs()),
+        Err(ScreenAiServiceEventBridgeError::RawImageRetained)
+    ));
+    let mut raw_capture = service_screen_row();
+    raw_capture.raw_image_retained = true;
+    assert!(matches!(
+        screen_runtime_capture_input_from_service_row(raw_capture),
         Err(ScreenAiServiceEventBridgeError::RawImageRetained)
     ));
 
