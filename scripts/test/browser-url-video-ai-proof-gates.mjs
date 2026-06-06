@@ -7,8 +7,9 @@ const outputDirectory = join(root, 'output', 'browser-plan-proof', 'ai-25-proof-
 const resultDirectory = join(root, 'test-results', 'browser-url-video-ai-proof-gates');
 const proofRoot = join(root, 'output', 'browser-plan-proof');
 
-const partialRows = new Set([19, 20]);
-const requiredProofFiles = ['00-source-snapshot.md', '08-security-negative-proof.md', '10-validation-commands.log'];
+const partialRows = new Set();
+const renderedUiRows = new Set([19, 20]);
+const requiredProofFiles = ['00-source-snapshot.md', '10-validation-commands.log'];
 const rolloutGuardTexts = [
   'AI cannot enforce directly.',
   'Remote AI cannot run by default.',
@@ -127,13 +128,57 @@ function validateProofFiles(row, proofFiles) {
       failures.push(`${row.rowId} proof is missing ${requiredFile}`);
     }
   }
-  if (!proofFiles.some((file) => /^01-.*proof\.(md|log)$/.test(file))) {
-    failures.push(`${row.rowId} proof is missing a 01-* proof artifact`);
+  if (!proofFiles.includes('08-security-negative-proof.md') && !proofFiles.includes('08-security-negative-proof.log')) {
+    failures.push(`${row.rowId} proof is missing 08-security-negative-proof`);
   }
-  if (row.requiresUiMarker && !proofFiles.includes('ui-not-applicable.md')) {
+  if (!proofFiles.some((file) => /^01-.*proof\.(md|log)$/.test(file))) {
+    failures.push(...validateRenderedUiProofFiles(row, proofFiles));
+  }
+  if (row.requiresUiMarker && !renderedUiRows.has(row.rowNumber) && !proofFiles.includes('ui-not-applicable.md')) {
     failures.push(`${row.rowId} proof is missing ui-not-applicable.md`);
   }
   return failures;
+}
+
+function validateRenderedUiProofFiles(row, proofFiles) {
+  if (row.rowNumber === 19) {
+    const failures = [];
+    if (!proofFiles.includes('03-runtime-evidence.json') || !proofFiles.includes('07-playwright-ui-proof.log')) {
+      failures.push(`${row.rowId} rendered UI proof is missing runtime evidence or Playwright proof log`);
+    }
+    for (const path of [
+      'test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z.json',
+      'test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z-screenshots/chrome-stable-child-ux-checking.png',
+      'test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z-screenshots/chrome-stable-child-ux-warning.png',
+      'test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z-screenshots/chrome-stable-child-ux-approval_required.png',
+      'test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z-screenshots/chrome-stable-child-ux-limited.png',
+      'test-results/browser-ai-child-ux-rendered-proof/2026-06-06T00-57-51-063Z-screenshots/chrome-stable-child-ux-blocked.png',
+    ]) {
+      if (!existsSync(join(root, path))) {
+        failures.push(`${row.rowId} rendered UI proof is missing ${path}`);
+      }
+    }
+    return failures;
+  }
+  if (row.rowNumber === 20) {
+    const failures = [];
+    if (!proofFiles.includes('03-runtime-evidence.json')) {
+      failures.push(`${row.rowId} rendered UI proof is missing runtime evidence`);
+    }
+    for (const path of [
+      'test-results/browser-ai-parent-explanation-rendered-proof/proof.json',
+      'test-results/browser-ai-parent-explanation-rendered-proof/accessibility-summary.json',
+      'output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/browser-parent-explanation-route.png',
+      'output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/browser-parent-explanation-route-mobile.png',
+      'output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/browser-parent-explanation-ui-playwright.log',
+    ]) {
+      if (!existsSync(join(root, path))) {
+        failures.push(`${row.rowId} rendered UI proof is missing ${path}`);
+      }
+    }
+    return failures;
+  }
+  return [`${row.rowId} proof is missing a 01-* proof artifact`];
 }
 
 function validatePlanMention(row, plan) {
@@ -158,7 +203,7 @@ function manifestFor(rows, failures) {
       completeRows: rows.filter((row) => row.expectedState === 'contract-proof-present').length,
       partialRows: rows.filter((row) => row.expectedState === 'partial-manual-required').length,
       failures: failures.length,
-      rolloutState: 'partial-manual-required',
+      rolloutState: 'browser-ai-proof-gate-complete-product-rollout-not-claimed',
       productClaimed: false,
     },
     noClaimGuards: rolloutGuardTexts,
@@ -184,9 +229,11 @@ function markdownFor(manifest) {
     '| --- | --- | --- | --- |',
     rows,
     '',
-    'Rollout state: partial/manual-required. The gate proves proof-pack coverage',
-    'for AI-01 through AI-24, not runtime model execution, UI delivery, policy',
-    'authority, enforcement, or product completion.',
+    'Rollout state: browser AI proof gate complete; product rollout is not claimed.',
+    'The gate proves proof-pack coverage for AI-01 through AI-24, including',
+    'rendered child/parent UI proof artifacts for AI-19 and AI-20. It does not',
+    'claim runtime model execution, final policy authority, enforcement, or',
+    'product completion.',
   ].join('\n');
 }
 
