@@ -368,14 +368,17 @@ notification delivery, final policy decisions, applied time limits,
 cloud-frame analysis, native game control, and enforcement. Package subpath exports are now present.
 
 GAME-19 now adds parent-domain browser-game child checking/block UX contracts in
-`packages/parent-domain/src/browser-game-child-checking-block-ux.ts`. The
-snapshot covers checking unknown games, parent approval, blocked game
-candidates, educational-game allowed copy state, time-limit candidates,
-cloud-gaming manual-required state, and native game control unavailable state.
-It uses schema-known browser-game child text-token refs and rejects raw child
-copy, rendered child UI, notification delivery, browser navigation block,
-block-page rendering, applied time limits, final policy decisions,
-cloud-frame analysis, native game control, and enforcement. Package subpath exports are now present.
+`packages/parent-domain/src/browser-game-child-checking-block-ux.ts` and a live
+public child UX surface proof in
+`output/browser-plan-proof/game-19-child-game-checking-block-ux/02-live-child-checking-block-ux-shape-proof.json`.
+The proof fetches real Scratch games, Roblox Discover, Hooda unblocked games,
+Code.org Minecraft, Coolmath Run, Xbox Cloud Gaming, and Steam Store surfaces,
+persists only response hashes, evidence refs, child UX surface refs, and
+no-authority flags, and parses checking, approval, blocked, educational
+allowed, time-limit, cloud-gaming manual-required, and native unavailable rows.
+It rejects raw child copy, rendered child UI, notification delivery, browser
+navigation block, block-page rendering, applied time limits, final policy
+decisions, cloud-frame analysis, native game control, and enforcement. Package subpath exports are now present.
 
 GAME-20 now adds parent-domain parent browser-game dashboard UX contracts in
 `packages/parent-domain/src/browser-game-dashboard-ux.ts`. The dashboard
@@ -434,7 +437,8 @@ live-cloud-gaming-gate-proof-present, GAME-15 as
 live-unblocked-site-detection-proof-present, GAME-16 as
 live-ugc-multiplayer-chat-risk-proof-present, GAME-17 as
 live-policy-compiler-proof-present, GAME-18 as
-live-hold-block-adapter-proof-present, GAME-19 through GAME-24 as
+live-hold-block-adapter-proof-present, GAME-19 as
+live-child-checking-block-ux-proof-present, GAME-20 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
 Product checklist upgrade is not claimed; child/parent UI,
 cloud-streamed frame analysis, native game control, and

@@ -492,13 +492,15 @@ unmanaged exact URL claims, browser mutation, rendered child pages,
 notification delivery, final policy decisions, applied time limits,
 cloud-frame analysis, native game control, and enforcement are rejected.
 Browser-game/cloud-gaming GAME-19 now adds parent-domain child checking/block
-UX contracts for browser games. The contracts cover unknown-game checking,
-parent approval, blocked candidates, educational allowed messaging, time-limit
-candidates, cloud-gaming manual-required state, and native game control
-unavailable state while rejecting raw child copy, rendered child UI,
-notification delivery, runtime browser blocking, block-page rendering, applied
-time limits, final policy decisions, cloud-frame analysis, native game control,
-and enforcement.
+UX contracts plus live public proof for child UX surface rows. The proof covers
+real Scratch games, Roblox Discover, Hooda unblocked games, Code.org Minecraft,
+Coolmath Run, Xbox Cloud Gaming, and Steam Store surfaces with only response
+hashes, evidence refs, child UX surface refs, and no-authority flags persisted.
+Checking, approval, blocked, educational allowed, time-limit, cloud-gaming
+manual-required, and native unavailable rows parse while raw child copy,
+rendered child UI, notification delivery, runtime browser blocking, block-page
+rendering, applied time limits, final policy decisions, cloud-frame analysis,
+native game control, and enforcement are rejected.
 Browser-game/cloud-gaming GAME-20 now adds parent-domain parent dashboard UX
 contracts for browser-game review surfaces. The contracts cover detected game
 review, unknown-game approval queue, cloud-gaming approval, educational-game
@@ -542,7 +544,8 @@ live-cloud-gaming-gate-proof-present. GAME-15 is
 live-unblocked-site-detection-proof-present. GAME-16 is
 live-ugc-multiplayer-chat-risk-proof-present. GAME-17 is
 live-policy-compiler-proof-present. GAME-18 is
-live-hold-block-adapter-proof-present. GAME-19 through GAME-24 are
+live-hold-block-adapter-proof-present. GAME-19 is
+live-child-checking-block-ux-proof-present. GAME-20 through GAME-24 are
 partial/manual-required. UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.

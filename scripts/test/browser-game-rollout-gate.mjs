@@ -235,7 +235,16 @@ function expectedRows() {
         expectedState: 'live-hold-block-adapter-proof-present',
       };
     }
-    if (rowNumber >= 19) {
+    if (rowNumber === 19) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-child-checking-block-ux-proof-present',
+      };
+    }
+    if (rowNumber >= 20) {
       return {
         rowNumber,
         rowId,
@@ -315,6 +324,7 @@ function manifestFor(rows, failures) {
       'browser-game-live-ugc-multiplayer-chat-risk-proof-present',
       'browser-game-live-policy-compiler-proof-present',
       'browser-game-live-hold-block-adapter-proof-present',
+      'browser-game-live-child-checking-block-ux-proof-present',
       'proof-artifact-coverage-contract-only',
       'playwright-manual-required-no-rendered-browser-game-ui',
       'runtime-signal-proof-manual-required',
@@ -365,6 +375,7 @@ function markdownFor(manifest) {
     'GAME-16 live UGC/multiplayer/chat risk proof is present.',
     'GAME-17 live policy compiler proof is present.',
     'GAME-18 live hold/block adapter proof is present.',
+    'GAME-19 live child checking/block UX proof is present.',
     'Product checklist upgrade is not claimed.',
     'Browser-game child/parent UI, cloud-streamed frame analysis, native',
     'game control, and enforcement remain open or manual-required until',
