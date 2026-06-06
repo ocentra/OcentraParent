@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T10:52:00.390Z",
-  "commit": "1888285d784edc0b305012dfe7fc555aca8c1a77",
+  "checkedAt": "2026-06-06T10:57:35.137Z",
+  "commit": "7b7886f1e46b2ccb9379e6579218e7ee650a2aa6",
   "proofMode": "app-install-purchase-product-claim-gate-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-06T10:51:54.567Z",
+      "startedAt": "2026-06-06T10:57:29.415Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-product-claim-gate-proof.test.ts",
-      "startedAt": "2026-06-06T10:51:57.670Z",
+      "startedAt": "2026-06-06T10:57:32.371Z",
       "exitCode": 0
     }
   ],
