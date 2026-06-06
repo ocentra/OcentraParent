@@ -136,6 +136,15 @@ claim needs proof, not slogans.
   capability metadata while rejecting model-execution, model-quality, portal
   UI, policy-authority, enforcement, remote/API AI, raw-prompt, and
   raw-evidence claims.
+- `LocalAiRemoteAssistantBoundaryProofSchema` and
+  `scripts/test/local-ai-remote-assistant-boundary-proof.mjs` now prove the
+  remote assistant child-safety boundary. Parent-authorized remote report
+  requests must cite approved stored evidence and parent-owned report bundles,
+  remain outside the child-safety decision path, preserve local AI and
+  deterministic policy authority, degrade to a local-only fallback, and reject
+  raw retention, policy-authority, enforcement, and remote-override overclaims.
+  This does not execute a remote provider, render portal UI, prove model
+  quality, or change local safety decisions.
 - The service WinRT OCR policy proof now reruns the real Windows service
   OCR path over live public Wikipedia pixels and consumes that exact
   `localOcr` Activity Screen row through `PolicyDecisionSchema`, producing an
@@ -277,6 +286,7 @@ proof, confidence handling, authenticated-account social proof beyond
 public/live surface proof, production parent explanation portal rendering,
 broader enforcement handoff, production browser-trigger producers, physical
 household family AI hub runtime/discovery beyond the loopback proof,
+production remote assistant provider execution and portal assistant UI,
 cloud-streamed frame proof, mobile browser parity, and validation against
 production external evidence variants.
 
@@ -301,6 +311,9 @@ production external evidence variants.
       contract-completeness proof path without model-execution, model-quality,
       remote/API, policy-authority, enforcement, portal UI, raw-prompt, or
       raw-evidence claims.
+- [x] Remote assistant contract boundary is separated from child safety for
+      parent-authorized report/explanation requests, with local-policy
+      authority preserved and remote-provider execution/UI still unclaimed.
 - [x] Local result contract with confidence/degraded state.
 - [x] Deterministic policy integration.
 - [x] Service WinRT OCR row consumed by typed parent policy dry-run.
