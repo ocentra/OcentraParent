@@ -237,6 +237,16 @@ fn remote_delivery_status() -> NetworkRemoteDeliveryStatus {
         dropped_event_dead_letter_count: 1,
         queued_duplicate_rejected: true,
         completed_duplicate_rejected: true,
+        cross_process_replay_ref:
+            constants::network_flow::TEST_REMOTE_LIFECYCLE_CROSS_PROCESS_REPLAY_REF.to_owned(),
+        remote_retention_delete_export_ref:
+            constants::network_flow::TEST_REMOTE_LIFECYCLE_RETENTION_DELETE_EXPORT_REF.to_owned(),
+        remote_delivery_ack_ref: constants::network_flow::TEST_REMOTE_LIFECYCLE_DELIVERY_ACK_REF
+            .to_owned(),
+        remote_lifecycle_followup_ref: constants::network_flow::TEST_REMOTE_LIFECYCLE_FOLLOWUP_REF
+            .to_owned(),
+        remote_lifecycle_missing_artifact_count: 3,
+        remote_lifecycle_manual_required: true,
         external_transport_delivery_implemented: false,
         family_hub_delivery_implemented: false,
         cross_process_replay_implemented: false,

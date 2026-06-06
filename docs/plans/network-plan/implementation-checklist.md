@@ -279,10 +279,13 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   state, and false production-SLO/adapter/host-filtering values. Broader
   parent-facing rule UX, live adapter execution, and production SLO
   validation remain open. Row10c now renders broker/family-hub remote delivery
-  status refs from the service product-readiness event while keeping live
-  broker delivery, family-hub relay delivery, cross-process replay, remote
-  retention/delete/export propagation, policy authority, side-effect authority,
-  adapter execution, and host filtering unclaimed.
+  status refs from the service product-readiness event, and row10d renders
+  lifecycle blocker refs/manual-required state for cross-process replay,
+  remote retention/delete/export propagation, and family-hub delivery
+  acknowledgement while keeping live broker delivery, family-hub relay
+  delivery, cross-process replay implementation, remote retention/delete/export
+  propagation implementation, policy authority, side-effect authority, adapter
+  execution, and host filtering unclaimed.
 - [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
       reasons for every applicable gate. Workpack 03 proof lives under
       `output/network-plan-proof/03-contract-boundary-and-effect-schemas/`.
@@ -389,6 +392,19 @@ manual-required/N/A file.
       relay delivery, cross-process replay, remote retention/delete/export
       propagation, policy authority, side-effect authority, adapter execution,
       host filtering, and full network-plan completion remain unclaimed.
+- [x] 10d remote delivery lifecycle blocker status: E-D added
+      `output/network-plan-proof/10d-remote-delivery-lifecycle-status/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-lifecycle-status-proof/proof.json`.
+      The Rust protocol/core/service status and shared TypeScript parser now
+      carry cross-process replay, remote retention/delete/export, family-hub
+      delivery acknowledgement, and lifecycle follow-up refs with
+      `remote_lifecycle_manual_required=true` and missing artifact count 3.
+      The Activity drawer renders those refs through the real service path
+      while keeping live broker/family-hub delivery, cross-process replay
+      implementation, remote retention/delete/export propagation
+      implementation, authority, enforcement-command publication, adapter
+      execution, and host filtering false.
 - [x] 33a network local-AI runtime result bridge: E-D added
       `output/network-plan-proof/33a-network-local-ai-runtime-result/proof-summary.json`
       and `test-results/network-local-ai-runtime-result-proof/proof.json`.
@@ -469,8 +485,9 @@ manual-required/N/A file.
       production-SLO, UI policy authority, portal adapter dispatch, live capture
       execution, live broker/family-hub delivery, live adapter execution, and
       enforcement-command claims false. Row51c now covers portal status
-      rendering, row52a covers platform-entry matrix rendering, and row10c
-      covers remote-delivery status rendering of this service status.
+      rendering, row52a covers platform-entry matrix rendering, row10c covers
+      remote-delivery status rendering, and row10d covers remote lifecycle
+      blocker rendering of this service status.
 - [x] 51c network product-readiness portal rendering: E-D added
       `output/network-plan-proof/51c-product-readiness-portal/proof-summary.json`
       and

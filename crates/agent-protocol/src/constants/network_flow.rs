@@ -124,6 +124,14 @@ pub const TEST_BROKER_DROPPED_EVENT_AUDIT_REF: &str = "broker.network.dropped-ev
 pub const TEST_BROKER_ADAPTER_ACTION_LEDGER_REF: &str = "broker.network.adapter-action-ledger.1";
 pub const TEST_FAMILY_HUB_IDENTITY_REF: &str = "family-hub.network.identity.1";
 pub const TEST_FAMILY_HUB_RELAY_POLICY_REF: &str = "family-hub.network.relay-policy.1";
+pub const TEST_REMOTE_LIFECYCLE_CROSS_PROCESS_REPLAY_REF: &str =
+    "broker.network.cross-process-replay.manual-required.10d";
+pub const TEST_REMOTE_LIFECYCLE_RETENTION_DELETE_EXPORT_REF: &str =
+    "broker.network.remote-retention-delete-export.manual-required.10d";
+pub const TEST_REMOTE_LIFECYCLE_DELIVERY_ACK_REF: &str =
+    "family-hub.network.delivery-ack.manual-required.10d";
+pub const TEST_REMOTE_LIFECYCLE_FOLLOWUP_REF: &str =
+    "network.remote-delivery.lifecycle-followup.10d";
 pub const UNCERTAINTY_NETWORK_ONLY_NO_EXACT_URL: &str = "network-only-no-exact-url";
 pub const UNSUPPORTED_CLAIM_DECRYPTED_HTTPS_PAYLOAD: &str = "decrypted-https-payload";
 pub const UNAVAILABLE_REASON_MANUAL_REQUIRED: &str = "manual-required";

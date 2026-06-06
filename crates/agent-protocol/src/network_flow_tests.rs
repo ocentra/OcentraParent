@@ -128,9 +128,8 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
     assert_eq!(serialized["rows"].as_array().map(Vec::len), Some(0));
 }
 
-#[test]
-fn network_remote_delivery_status_serializes_false_claim_boundary() {
-    let status = NetworkRemoteDeliveryStatus {
+fn network_remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
+    NetworkRemoteDeliveryStatus {
         status_ref: constants::network_flow::TEST_REMOTE_DELIVERY_STATUS_REF.to_string(),
         broker_status: NetworkRemoteDeliveryStatusState::RequirementsSatisfiedButNotImplemented,
         family_hub_status: NetworkRemoteDeliveryStatusState::RequirementsSatisfiedButNotImplemented,
@@ -153,6 +152,16 @@ fn network_remote_delivery_status_serializes_false_claim_boundary() {
         dropped_event_dead_letter_count: 1,
         queued_duplicate_rejected: true,
         completed_duplicate_rejected: true,
+        cross_process_replay_ref:
+            constants::network_flow::TEST_REMOTE_LIFECYCLE_CROSS_PROCESS_REPLAY_REF.to_string(),
+        remote_retention_delete_export_ref:
+            constants::network_flow::TEST_REMOTE_LIFECYCLE_RETENTION_DELETE_EXPORT_REF.to_string(),
+        remote_delivery_ack_ref: constants::network_flow::TEST_REMOTE_LIFECYCLE_DELIVERY_ACK_REF
+            .to_string(),
+        remote_lifecycle_followup_ref: constants::network_flow::TEST_REMOTE_LIFECYCLE_FOLLOWUP_REF
+            .to_string(),
+        remote_lifecycle_missing_artifact_count: 3,
+        remote_lifecycle_manual_required: true,
         external_transport_delivery_implemented: false,
         family_hub_delivery_implemented: false,
         cross_process_replay_implemented: false,
@@ -161,8 +170,12 @@ fn network_remote_delivery_status_serializes_false_claim_boundary() {
         side_effect_authority: false,
         enforcement_command_event_count: 0,
         adapter_action_executed_count: 0,
-    };
+    }
+}
 
+#[test]
+fn network_remote_delivery_status_serializes_false_claim_boundary() {
+    let status = network_remote_delivery_status_fixture();
     let serialized = serde_json::to_value(status).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
@@ -175,6 +188,24 @@ fn network_remote_delivery_status_serializes_false_claim_boundary() {
     );
     assert_eq!(serialized["accepted_event_type_count"], 3);
     assert_eq!(serialized["dropped_event_dead_letter_count"], 1);
+    assert_eq!(
+        serialized["cross_process_replay_ref"],
+        constants::network_flow::TEST_REMOTE_LIFECYCLE_CROSS_PROCESS_REPLAY_REF
+    );
+    assert_eq!(
+        serialized["remote_retention_delete_export_ref"],
+        constants::network_flow::TEST_REMOTE_LIFECYCLE_RETENTION_DELETE_EXPORT_REF
+    );
+    assert_eq!(
+        serialized["remote_delivery_ack_ref"],
+        constants::network_flow::TEST_REMOTE_LIFECYCLE_DELIVERY_ACK_REF
+    );
+    assert_eq!(
+        serialized["remote_lifecycle_followup_ref"],
+        constants::network_flow::TEST_REMOTE_LIFECYCLE_FOLLOWUP_REF
+    );
+    assert_eq!(serialized["remote_lifecycle_missing_artifact_count"], 3);
+    assert_eq!(serialized["remote_lifecycle_manual_required"], true);
     assert_eq!(serialized["external_transport_delivery_implemented"], false);
     assert_eq!(serialized["family_hub_delivery_implemented"], false);
     assert_eq!(serialized["cross_process_replay_implemented"], false);

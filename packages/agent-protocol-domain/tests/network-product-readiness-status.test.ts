@@ -171,6 +171,14 @@ function assertRemoteDeliveryStatus(status: AgentNetworkRemoteDeliveryStatus) {
   expect(status.dropped_event_dead_letter_count).toBe(1);
   expect(status.queued_duplicate_rejected).toBe(true);
   expect(status.completed_duplicate_rejected).toBe(true);
+  expect(status.cross_process_replay_ref).toBe('broker.network.cross-process-replay.manual-required.10d');
+  expect(status.remote_retention_delete_export_ref).toBe(
+    'broker.network.remote-retention-delete-export.manual-required.10d'
+  );
+  expect(status.remote_delivery_ack_ref).toBe('family-hub.network.delivery-ack.manual-required.10d');
+  expect(status.remote_lifecycle_followup_ref).toBe('network.remote-delivery.lifecycle-followup.10d');
+  expect(status.remote_lifecycle_missing_artifact_count).toBe(3);
+  expect(status.remote_lifecycle_manual_required).toBe(true);
   expect(status.external_transport_delivery_implemented).toBe(false);
   expect(status.family_hub_delivery_implemented).toBe(false);
   expect(status.cross_process_replay_implemented).toBe(false);
@@ -558,6 +566,12 @@ function remoteDeliveryStatus() {
     dropped_event_dead_letter_count: 1,
     queued_duplicate_rejected: true,
     completed_duplicate_rejected: true,
+    cross_process_replay_ref: 'broker.network.cross-process-replay.manual-required.10d',
+    remote_retention_delete_export_ref: 'broker.network.remote-retention-delete-export.manual-required.10d',
+    remote_delivery_ack_ref: 'family-hub.network.delivery-ack.manual-required.10d',
+    remote_lifecycle_followup_ref: 'network.remote-delivery.lifecycle-followup.10d',
+    remote_lifecycle_missing_artifact_count: 3,
+    remote_lifecycle_manual_required: true,
     external_transport_delivery_implemented: false,
     family_hub_delivery_implemented: false,
     cross_process_replay_implemented: false,

@@ -41,9 +41,11 @@ transports.
   materializer outputs, row48 risk-budget details, row49 performance benchmark
   metrics, row52 platform-claim manifest entries, row33b local-AI runtime result
   status, and row10c
-  broker/family-hub remote-delivery status with enforced false production-SLO,
-  live delivery, live model execution, raw model output, adapter,
-  host-filtering, authority, and enforcement-command publication.
+  broker/family-hub remote-delivery status plus row10d lifecycle blocker refs
+  for remote replay, retention/delete/export propagation, delivery
+  acknowledgement, and follow-up proof with enforced false production-SLO, live
+  delivery, live model execution, raw model output, adapter, host-filtering,
+  authority, and enforcement-command publication.
 - Network runtime event contracts for the local eventing spine, including
   flow/domain/classification, AI advisory, policy, enforcement dry-run/result,
   audit, and portal read-model update shapes mirrored from `crates/agent-protocol`.
@@ -133,8 +135,11 @@ flowchart LR
   policy, adapter, and enforcement claims plus row10c regressions that reject
   live broker/family-hub delivery, remote retention/delete/export propagation,
   production-SLO, host-filtering, adapter, authority, and enforcement-command
-  claims; the Activity route now has separate row51c status, row52a manifest,
-  row51d risk/performance, and row10c remote-delivery rendering proofs. Live
-  model execution, broker/family-hub transport, policy execution, adapter
-  execution, host filtering, live capture, and production SLO validation remain
-  separate proof-gated work.
+  claims; row10d adds lifecycle blocker refs and manual-required visibility for
+  replay and remote delete/export propagation. The Activity route now has
+  separate row51c status, row52a manifest, row51d risk/performance, row10c
+  remote-delivery, and row10d lifecycle rendering proofs. Live model execution,
+  broker/family-hub transport, cross-process remote replay, remote
+  retention/delete/export propagation, policy execution, adapter execution,
+  host filtering, live capture, and production SLO validation remain separate
+  proof-gated work.
