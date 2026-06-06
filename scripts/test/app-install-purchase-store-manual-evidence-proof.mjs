@@ -46,12 +46,11 @@ const proof = {
   nonClaims: AppInstallPurchaseStoreManualEvidenceProofReadModel.nonClaims,
   knownGaps: AppInstallPurchaseStoreManualEvidenceProofReadModel.knownGaps,
   docs: {
-    feature:
-      'docs/features/app-install-purchase-approval.md not edited on this non-overlapping continuation while PR443 owns the active app-install product-doc branch',
+    feature: 'docs/features/app-install-purchase-approval.md updated for store manual evidence proof movement',
     expectation:
-      'docs/expectations/app-install-purchase-approval.md not edited on this non-overlapping continuation while PR443 owns the active app-install product-doc branch',
+      'docs/expectations/app-install-purchase-approval.md updated for store manual evidence acceptance coverage',
     checklist:
-      'docs/product-capability-checklist.md not edited on this non-overlapping continuation while PR443 owns the active app-install checklist branch',
+      'docs/product-capability-checklist.md blocked by current E-C lock for production-support provider-secret custody status proof; checklist delta is to add app-install store manual evidence proof to the app install/purchase row evidence and keep provider/store execution gaps explicit',
   },
   evidence: {
     source: 'packages/parent-domain/src/app-install-purchase-store-manual-evidence-proof.ts',

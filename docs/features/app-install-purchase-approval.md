@@ -271,6 +271,19 @@ generic app blocking covers this concern.
   platform proof readiness proof under
   `test-results/app-install-purchase-platform-proof-readiness/proof.json` when
   run.
+- `packages/parent-domain/src/app-install-purchase-store-manual-evidence-proof.ts`
+  now links platform proof readiness rows to Microsoft Store, Mac App Store,
+  Linux package manager, Google Play, and Apple App Store manual evidence
+  states while preserving no provider/store execution, no store integration, no
+  platform adapter implementation, no runtime writer/report delivery, no
+  child-device delivery, no app blocking, no child activity data, and no
+  Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-store-manual-evidence-proof.mjs` records
+  that store manual evidence proof under
+  `test-results/app-install-purchase-store-manual-evidence-proof/proof.json`
+  when run. The proof records the product checklist row as a pending
+  lock-gated delta because E-C currently owns
+  `docs/product-capability-checklist.md`.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -525,6 +538,12 @@ Ocentra-hosted family data custody.
       product claims without Google Play, Apple App Store, Microsoft Store,
       provider/store execution, platform adapters, child delivery, report
       delivery, app blocking, child activity data, or hosted custody claims.
+- [x] Store manual evidence proof linking platform proof readiness rows to
+      Microsoft Store, Mac App Store, Linux package manager, Google Play, and
+      Apple App Store manual evidence states without provider/store execution,
+      store integration, platform adapters, runtime writer/report delivery,
+      child delivery, app blocking, child activity data, or hosted custody
+      claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
