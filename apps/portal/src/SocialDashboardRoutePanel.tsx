@@ -1,10 +1,13 @@
 import type { ReactElement } from 'react';
+import { AgentCommand, AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { parseAgentSocialDashboardReadModelEvent } from '@ocentra-parent/agent-protocol-domain/social-dashboard-read-model';
 import {
   PortalDetails,
   PortalDom,
   PortalRoute,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import type { PortalRenderActions } from './portal-actions';
 import {
   createSocialDashboardPanelIntent,
   type SocialDashboardPanelDetail,
@@ -16,7 +19,16 @@ export function shouldRenderSocialDashboardRoute(route: PortalRouteValue): boole
   return route === PortalRoute.Browser;
 }
 
-export function SocialDashboardRoutePanel({ snapshot }: { readonly snapshot: unknown }): ReactElement {
+export function SocialDashboardRoutePanel({
+  actions,
+  commandEnabled,
+  events,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly commandEnabled: boolean;
+  readonly events: readonly AgentEventEnvelope[];
+}): ReactElement {
+  const snapshot = latestSocialDashboardSnapshot(events);
   const intent = createSocialDashboardPanelIntent(snapshot);
   return (
     <section aria-label={intent.title} className={PortalDom.Classes.TrackingStatusOverlay}>
@@ -25,6 +37,17 @@ export function SocialDashboardRoutePanel({ snapshot }: { readonly snapshot: unk
           <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
           <h2>{intent.title}</h2>
           <p>{intent.body}</p>
+          <button
+            className={PortalDom.Classes.CommandResultTab}
+            disabled={!commandEnabled}
+            type={PortalDom.ButtonType.Button}
+            onClick={() => {
+              actions.selectCommandResult(AgentEvent.BrowserSocialDashboardReadModelReported);
+              actions.sendCommand(AgentCommand.BrowserSocialDashboardReadModelGet, {});
+            }}
+          >
+            {intent.title}
+          </button>
         </header>
         <div
           className={[PortalDom.Classes.ProductDashboard, PortalDom.Classes.TrackingStatusOverlayGrid].join(
@@ -41,6 +64,35 @@ export function SocialDashboardRoutePanel({ snapshot }: { readonly snapshot: unk
       </div>
     </section>
   );
+}
+
+function latestSocialDashboardSnapshot(events: readonly AgentEventEnvelope[]): unknown {
+  const event = latestSocialDashboardEvent(events);
+  if (event === null) {
+    return null;
+  }
+  const parsed = parseAgentSocialDashboardReadModelEvent(event);
+  return parsed.ok ? parsed.value : null;
+}
+
+function latestSocialDashboardEvent(events: readonly AgentEventEnvelope[]): AgentEventEnvelope | null {
+  let latest: AgentEventEnvelope | null = null;
+  let latestTime = Number.NEGATIVE_INFINITY;
+  let latestIndex = -1;
+  for (let index = 0; index < events.length; index += 1) {
+    const event = events[index];
+    if (event === undefined || event.event !== AgentEvent.BrowserSocialDashboardReadModelReported) {
+      continue;
+    }
+    const sentAt = Date.parse(event.sentAt);
+    const eventTime = Number.isFinite(sentAt) ? sentAt : index;
+    if (eventTime > latestTime || (eventTime === latestTime && index > latestIndex)) {
+      latest = event;
+      latestTime = eventTime;
+      latestIndex = index;
+    }
+  }
+  return latest;
 }
 
 function SocialDashboardSummaryCard({ intent }: { readonly intent: SocialDashboardPanelIntent }): ReactElement {

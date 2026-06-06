@@ -19,10 +19,12 @@ const accessibilitySummaryPath = path.join(
   'accessibility-summary.json'
 );
 
-test('browser route renders honest social dashboard unavailable state', async ({ page }) => {
+test('browser route renders service-backed honest social dashboard rows', async ({ page }) => {
   const browserFailures = collectBrowserFailures(page);
 
   await assertSocialDashboardRoute(page);
+  await requestSocialDashboardReadModel(page);
+  await assertServiceBackedSocialRows(page);
   await captureSocialDashboardScreenshots(page);
   await writeAccessibilitySummary(await collectAccessibilitySummary(page));
 
@@ -46,6 +48,33 @@ async function assertSocialDashboardRoute(page: Page): Promise<void> {
   const routeText = await socialRegion.textContent();
   expect(routeText ?? '').not.toMatch(/(?:product ready|policy execution proved|enforcement active)/iu);
   expect(routeText ?? '').not.toMatch(/(?:connector authorized|native app controlled|notification delivered)/iu);
+}
+
+async function requestSocialDashboardReadModel(page: Page): Promise<void> {
+  const socialRegion = page.getByRole('region', { name: 'Social review' });
+  await socialRegion.getByRole('button', { name: 'Social review' }).click();
+  await expect(socialRegion.getByRole('heading', { name: '6 social dashboard rows' })).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
+}
+
+async function assertServiceBackedSocialRows(page: Page): Promise<void> {
+  const socialRegion = page.getByRole('region', { name: 'Social review' });
+  await expect(socialRegion.getByRole('heading', { name: 'Account approvals' })).toBeVisible();
+  await expect(socialRegion.getByRole('heading', { name: 'Feed and video route gates' })).toBeVisible();
+  await expect(socialRegion.getByRole('heading', { name: 'Native app capability' })).toBeVisible();
+  await expect(socialRegion.getByRole('heading', { name: 'Connected account boundaries' })).toBeVisible();
+  await expect(socialRegion.getByRole('heading', { name: 'Remembered decisions' })).toBeVisible();
+  await expect(socialRegion.getByRole('heading', { name: 'Needs manual proof' })).toBeVisible();
+  await expect(socialRegion.getByText('Ready for parent review').first()).toBeVisible();
+  await expect(socialRegion.getByText('Manual proof required').first()).toBeVisible();
+  await expect(socialRegion.getByText('Contract proof only').first()).toBeVisible();
+  await expect(socialRegion.getByText('social-13-managed-browser-account-creation-gate').first()).toBeVisible();
+  await expect(socialRegion.getByText('social-14-managed-browser-feed-video-route-gate').first()).toBeVisible();
+
+  const routeText = await socialRegion.textContent();
+  expect(routeText ?? '').not.toMatch(/(?:policy execution proved|enforcement active|native app controlled)/iu);
+  expect(routeText ?? '').not.toMatch(/(?:connector authorized|notification delivered|runtime feed fetched)/iu);
 }
 
 async function captureSocialDashboardScreenshots(page: Page): Promise<void> {
@@ -90,14 +119,21 @@ async function writeAccessibilitySummary(
   expect(summary.hasNamedRegion).toBe(true);
   expect(summary.unlabeledButtons).toBe(0);
   expect(summary.headings).toContain('Social review');
-  expect(summary.headings).toContain('0 social dashboard rows');
-  expect(summary.headings).toContain('No social dashboard snapshot has been reported yet.');
+  expect(summary.headings).toContain('6 social dashboard rows');
+  expect(summary.headings).toContain('Account approvals');
+  expect(summary.headings).toContain('Feed and video route gates');
+  expect(summary.headings).toContain('Native app capability');
+  expect(summary.headings).toContain('Connected account boundaries');
+  expect(summary.headings).toContain('Remembered decisions');
+  expect(summary.headings).toContain('Needs manual proof');
   expect(summary.labels).toContain('Rows returned');
+  expect(summary.labels).toContain('Generated at');
   expect(summary.labels).toContain('Status');
   expect(summary.labels).toContain('Product claim');
-  expect(summary.values).toContain('0');
-  expect(summary.values).toContain('not reported');
-  expect(summary.values).toContain('unavailable');
+  expect(summary.values).toContain('6');
+  expect(summary.values).toContain('Ready for parent review');
+  expect(summary.values).toContain('Manual proof required');
+  expect(summary.values).toContain('Contract proof only');
 
   await mkdir(path.dirname(accessibilitySummaryPath), { recursive: true });
   await writeFile(
@@ -108,9 +144,14 @@ async function writeAccessibilitySummary(
         assertions: [
           'named-region',
           'visible-social-review-heading',
-          'zero-row-summary-visible',
-          'unavailable-state-visible',
-          'no-service-backed-social-snapshot-visible',
+          'zero-row-before-command-visible',
+          'service-backed-six-row-summary-visible',
+          'account-approval-row-visible',
+          'feed-video-gate-row-visible',
+          'native-app-manual-required-visible',
+          'connector-boundary-manual-required-visible',
+          'decision-memory-contract-only-visible',
+          'manual-required-gap-visible',
           'runtime-social-claims-not-visible',
           'no-unlabeled-buttons',
           'desktop-screenshot',

@@ -53,6 +53,10 @@
       "import": "./dist/app-game-notification-readiness.js",
       "types": "./dist/app-game-notification-readiness.d.ts"
     },
+    "./social-dashboard-read-model": {
+      "import": "./dist/social-dashboard-read-model.js",
+      "types": "./dist/social-dashboard-read-model.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
