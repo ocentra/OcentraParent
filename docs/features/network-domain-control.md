@@ -51,6 +51,12 @@ compete on control while staying clear about attribution confidence and privacy.
 - The V0.8 supported-adapter runtime proof now marks Windows network/domain as
   an implemented observe-only policy handoff over stored flow evidence while
   host DNS/filter enforcement remains manual-required.
+- E-D now renders those service-backed supported-adapter status rows in the
+  Activity route network drawer. The proof shows observe-only network policy
+  handoff, host-domain manual-required gates, degraded dependency,
+  unavailable/unsupported platform states, exact active-tab not-claimed state,
+  and a false adapter-dispatch claim from
+  `network-adapter-capability-status-proof`.
 - The V0.8 enforcement integrity runtime audit now includes a
   network-domain-observe-only result with flow evidence refs and an explicit
   host-network-domain-filter manual-required row with required apply/rollback
@@ -549,16 +555,23 @@ performance, and platform capability UI rendering remain open.
       `test-results/network-stored-flow-enforcement-result-proof/proof.json`.
       Live block/terminate execution, policy UI, notification delivery, and
       platform adapter execution remain unclaimed.
-- [ ] Adapter capability status.
-      Row37 DNS adapter, Row38 Windows Firewall, Row39 WFP, and Row40 Android
-      VpnService plus Row41 Apple Network Extension and Row42 Linux proof gates
-      model supported/lab-ready/physical-device-ready/Apple-device-ready/
-      distro-ready, manual-required, and unavailable capability states for their
-      adapter boundaries. Row11 now records the aggregate manual/platform proof
-      pack for OS/device/permission artifacts and exact manual steps, and Row52
-      accounts for those claims in one exact OS/device/permission manifest with
-      manual follow-ups, but broader
-      platform capability status and parent UI surfacing remain open.
+- [~] Adapter capability status.
+  Row37 DNS adapter, Row38 Windows Firewall, Row39 WFP, and Row40 Android
+  VpnService plus Row41 Apple Network Extension and Row42 Linux proof gates
+  model supported/lab-ready/physical-device-ready/Apple-device-ready/
+  distro-ready, manual-required, and unavailable capability states for their
+  adapter boundaries. Row11 now records the aggregate manual/platform proof
+  pack for OS/device/permission artifacts and exact manual steps, and Row52
+  accounts for those claims in one exact OS/device/permission manifest with
+  manual follow-ups. E-D 36b now surfaces the existing service-backed
+  supported-adapter runtime proof in the Network activity drawer with
+  observe-only, manual-required, degraded, unavailable, unsupported, and
+  not-claimed states. Proof:
+  `output/network-plan-proof/36b-adapter-capability-status/proof-summary.json`
+  and
+  `test-results/network-adapter-capability-status-proof/proof.json`.
+  Broader Row52 platform-claim manifest UI and risk-budget/performance
+  platform-state rendering remain open.
 - [x] DNS proxy/block/redirect adapter proof boundary.
       The Rust proof accepts apply-ready only with grade-A policy, parent-rule
       refs, evidence refs, supported capability, adapter authorization,

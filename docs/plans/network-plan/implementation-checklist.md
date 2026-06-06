@@ -254,7 +254,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       same Activity route consumes service `agent.network.runtime.event-chain`
       output for AI audit, policy, enforcement handoff, audit, retention
       counters, event history, evidence grade, confidence, and
-      manual/unavailable state refs. Exact URL/content and live adapter claims
+      manual/unavailable state refs. Row36b now renders the service-backed
+      supported-adapter runtime proof in the same drawer, including observe-only
+      policy handoff, manual-required host-domain gates, degraded dependency,
+      unavailable Linux, unsupported macOS, exact active-tab not-claimed, and
+      false adapter-dispatch state. Exact URL/content and live adapter claims
       remain unrendered; broader risk-budget/performance/platform UI coverage
       remains open.
 - [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
@@ -373,6 +377,16 @@ manual-required/N/A file.
       AI/policy/enforcement/audit/portal refs plus retention counters and
       manual-required state in the parent drawer, and keeps exact URL/content,
       live adapter mutation, and enforcement-action claims out of the UI.
+- [x] 36b parent UI adapter capability status: E-D added
+      `output/network-plan-proof/36b-adapter-capability-status/proof-summary.json`
+      and `test-results/network-adapter-capability-status-proof/proof.json`.
+      The portal overview refresh now requests the existing service
+      `agent.enforcement.supported-adapter-runtime-proof.get` read model, parses
+      it through `agent-protocol-domain`, and renders network-relevant
+      observe-only, manual-required, degraded, unavailable, unsupported, and
+      not-claimed capability rows in the Activity route network drawer. The UI
+      still shows adapter dispatch as false and does not publish policy,
+      enforcement, adapter, host-filter, exact URL, or decrypted-content claims.
 
 ## Worker Report Template
 

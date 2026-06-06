@@ -79,6 +79,10 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
+    command: AgentCommand.EnforcementSupportedAdapterRuntimeProofGet,
+    payload: {},
+  },
+  {
     command: AgentCommand.ActivityTrackingReadModelGet,
     payload: {},
   },
