@@ -441,6 +441,13 @@ only with explicit parent settings.
   production OCR quality tuning, cross-platform OCR parity,
   authenticated-account surfaces, enforcement, live view, and raw retention
   remain separate gates.
+- `ScreenOcrRedactionPolicySchema`,
+  `ScreenOcrRedactionResultSchema`, and
+  `scripts/test/screen-ocr-redaction-proof.mjs` now prove the OCR sensitive text
+  redaction contract. Parent-controlled OCR text settings enforce a bounded
+  snippet cap, disabled OCR text state, credential-like suppression, PII-like
+  redaction, no raw text retention, no raw image retention, and no remote AI.
+  Service persistence and portal screenshot rendering remain separate gates.
 - `scripts/test/screen-ai-service-winrt-ocr-proof.mjs` now proves the
   service-owned Windows WinRT OCR analysis path over real live Chrome/Wikipedia
   pixels: the Rust service cadence loop captures an active-window frame into
@@ -536,6 +543,9 @@ parity, and UI remain separate proof gates.
 - [x] Local OCR/vision summary proof route.
 - [x] Image deletion and retention state proof.
 - [x] Confidence and unknown handling.
+- [x] OCR sensitive text redaction contract proves parent-controlled snippet
+      limits, disabled OCR text, credential-like suppression, PII-like
+      redaction, and no raw text or remote AI retention.
 - [x] Policy decision references summary evidence.
 - [x] Service WinRT OCR row feeds a typed parent policy dry-run without raw
       image retention.
