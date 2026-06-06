@@ -1,10 +1,11 @@
 use ocentra_parent_agent_protocol::constants;
 
 use super::{
-    publish_screen_capture_queue_events_for_input, publish_screen_runtime_chain_for_input,
-    ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
-    ScreenPolicyState, ScreenRuntimeCaptureInput, ScreenRuntimeEventPayload, ScreenRuntimeInput,
-    ScreenRuntimePhase, ScreenRuntimeReport,
+    publish_screen_capture_queue_events_for_input, publish_screen_deletion_event_for_input,
+    publish_screen_runtime_chain_for_input, ScreenActionState, ScreenAiAuditState,
+    ScreenDeletionState, ScreenEvidenceScope, ScreenPolicyState, ScreenRuntimeCaptureInput,
+    ScreenRuntimeDeletionInput, ScreenRuntimeEventPayload, ScreenRuntimeInput, ScreenRuntimePhase,
+    ScreenRuntimeReport,
 };
 
 #[tokio::test]
@@ -76,6 +77,43 @@ async fn screen_capture_queue_events_publish_without_ai_policy_or_action_refs() 
     assert_eq!(
         payloads[1].queue_event_ref,
         Some(constants::screen_flow::SCREEN_QUEUE_EVENT_REF.to_string())
+    );
+    assert!(!report.raw_image_escaped());
+}
+
+#[tokio::test]
+async fn screen_deletion_event_publishes_without_policy_or_action_claims() {
+    let input = ScreenRuntimeDeletionInput::from(&ScreenRuntimeInput::proof_fixture());
+    let report = publish_screen_deletion_event_for_input(
+        input,
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    )
+    .await
+    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    let payloads = decode_payloads(&report);
+
+    assert_eq!(report.publish_reports.len(), 1);
+    assert_eq!(report.stored_events.len(), 1);
+    assert!(report.dead_letters.is_empty());
+    assert_eq!(payloads[0].phase, ScreenRuntimePhase::DeletionCommitted);
+    assert_eq!(
+        payloads[0].previous_phase_ref,
+        Some(constants::screen_flow::SCREEN_QUEUE_EVENT_REF.to_string())
+    );
+    assert_eq!(payloads[0].policy_decision_ref, None);
+    assert_eq!(payloads[0].policy_action, None);
+    assert_eq!(payloads[0].action_ref, None);
+    assert_eq!(
+        payloads[0].deletion_proof_ref,
+        Some(constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string())
+    );
+    assert_eq!(payloads[0].ai_audit_state, ScreenAiAuditState::NotRequested);
+    assert_eq!(payloads[0].policy_state, ScreenPolicyState::NotReady);
+    assert_eq!(payloads[0].action_state, ScreenActionState::NotReady);
+    assert_eq!(payloads[0].deletion_state, ScreenDeletionState::Committed);
+    assert_eq!(
+        payloads[0].evidence_scope,
+        ScreenEvidenceScope::DeletedQueryStoreSummary
     );
     assert!(!report.raw_image_escaped());
 }

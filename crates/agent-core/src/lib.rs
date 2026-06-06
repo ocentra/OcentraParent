@@ -72,6 +72,8 @@ mod parent_child_event_runtime_phase;
 mod policy_dry_run_evaluator;
 mod process_capture;
 mod screen_event_runtime;
+mod screen_event_runtime_input;
+mod screen_event_runtime_metadata;
 mod screen_event_runtime_phase;
 mod screen_event_runtime_refs;
 mod screen_event_runtime_state;
@@ -194,8 +196,11 @@ pub use process_capture::{
     ProcessObservation,
 };
 pub use screen_event_runtime::{
-    publish_screen_capture_queue_events_for_input, publish_screen_runtime_chain_for_input,
-    ScreenRuntimeCaptureInput, ScreenRuntimeEventPayload, ScreenRuntimeInput, ScreenRuntimeReport,
+    publish_screen_capture_queue_events_for_input, publish_screen_deletion_event_for_input,
+    publish_screen_runtime_chain_for_input, ScreenRuntimeEventPayload, ScreenRuntimeReport,
+};
+pub use screen_event_runtime_input::{
+    ScreenRuntimeCaptureInput, ScreenRuntimeDeletionInput, ScreenRuntimeInput,
 };
 pub use screen_event_runtime_phase::ScreenRuntimePhase;
 pub use screen_event_runtime_state::{
