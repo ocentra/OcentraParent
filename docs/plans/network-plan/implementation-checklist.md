@@ -359,6 +359,18 @@ manual-required/N/A file.
       policy authority, adapter authority, and enforcement commands false. This
       does not claim service WebSocket exposure yet because shared protocol and
       service files were locked by another lane.
+- [x] 51a network product readiness status materializer: E-D added
+      `output/network-plan-proof/51a-product-readiness-status/proof-summary.json`
+      and
+      `test-results/network-product-readiness-status-proof/proof.json`. The
+      Rust `ocentra-network-evidence` materializer composes row48 risk-budget,
+      row49 performance benchmark, and row52 platform-claim manifest proofs
+      into one portal-safe readiness status with risk state, performance
+      regression state, platform manual follow-ups, portal read-model refs, and
+      retention/export refs. The proof rejects exact URL/content, decrypted
+      payload, production-SLO, UI policy authority, portal adapter dispatch,
+      live adapter execution, and enforcement-command claims. Service WebSocket
+      exposure and portal rendering of this status remain separate work.
 - [x] 22a network risk target policy handoff: E-D added
       `output/network-plan-proof/22a-risk-target-policy-handoff-proof/proof-summary.json`
       and `test-results/network-risk-target-policy-handoff-proof/proof.json`.
