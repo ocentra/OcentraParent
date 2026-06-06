@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T06:27:20.154Z
+Generated: 2026-06-06T06:42:26.595Z
 
 Rows checked: 22
 Proof-present rows: 6
@@ -26,7 +26,7 @@ Product claimed: false
 | SOCIAL-14 | proof-present | `social-14-managed-browser-feed-short-video-gate` | 7 |
 | SOCIAL-15 | proof-present | `social-15-unmanaged-social-bypass-detector` | 6 |
 | SOCIAL-16 | partial-manual-required | `social-16-android-native-app-capability-matrix` | 6 |
-| SOCIAL-17 | partial-manual-required | `social-17-ios-screentime-managedsettings-matrix` | 5 |
+| SOCIAL-17 | partial-manual-required | `social-17-ios-screentime-managedsettings-matrix` | 6 |
 | SOCIAL-18 | partial-manual-required | `social-18-platform-connector-authorization-boundary` | 5 |
 | SOCIAL-19 | partial-manual-required | `social-19-memory-cache-account-video-channel-decisions` | 5 |
 | SOCIAL-20 | proof-present | `social-20-parent-social-dashboard-ux` | 9 |
