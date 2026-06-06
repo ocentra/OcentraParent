@@ -235,6 +235,13 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   and local-outbox refs while rejecting raw account/video/message content,
   screenshots, provider delivery, report delivery, parent notification UI,
   final policy decisions, and enforcement.
+- `social-parent-sensitivity-settings-proof` now adds parent-domain sensitivity
+  setting contracts for high-risk alerts, feed/video review, account-flow review,
+  connector data use, native-app gap review, and weekly summary sensitivity
+  rows. Contract-only policy candidate rows require source/privacy refs, AI
+  aggregate refs, dashboard refs, evidence refs, schedule refs, and time-budget
+  refs while rejecting raw messages/video, screenshots, connector tokens/API
+  calls, runtime settings UI, final policy decisions, and enforcement.
 - Browser-plan AI-23 now adds live dynamic social URL proof for real public
   Instagram, TikTok, Facebook, Twitch, X/Twitter, Reddit, and Discord route
   surfaces. The proof stores only response statuses, content types, lengths,
@@ -280,7 +287,9 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
 - [ ] Local AI analysis path with confidence. AI signal aggregate proof now
       links source/privacy, candidate AI analysis, candidate signals, and route
       gate/action refs without claiming runtime AI execution or final policy.
-- [ ] Parent sensitivity settings.
+- [ ] Parent sensitivity settings. Sensitivity settings contract proof exists
+      for ref-only policy/alert candidates; runtime settings UI, runtime
+      custody mutation, final policy, and enforcement remain.
 - [ ] Alert and report integration. Alert/report intent proof exists with
       ref-only local-outbox/report linkage; provider delivery, rendered
       notification UI, final policy, and enforcement remain.

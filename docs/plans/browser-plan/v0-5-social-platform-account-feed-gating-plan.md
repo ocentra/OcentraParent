@@ -1438,6 +1438,15 @@ worker messages before code changes. Do not mix all 24 into one PR.
   without claiming raw account/video/message content, screenshots, provider
   delivery, report delivery, parent notification UI, final policy decisions, or
   enforcement.
+- `social-parent-sensitivity-settings-proof` now adds parent-domain Parent sensitivity settings
+  contracts and focused tests for high-risk alerts,
+  feed/video review, account-flow review, connector data use, native-app gap
+  review, and weekly summary sensitivity rows. Contract-only policy candidate
+  input requires source/privacy refs, AI aggregate refs, dashboard refs,
+  evidence refs, schedule refs, and time-budget refs; manual/unavailable rows
+  stay out of policy input. The proof does not claim raw content custody,
+  connector API calls, runtime settings UI, final policy decisions, or
+  enforcement.
 
 ## 21. Must-Not-Claim List
 
