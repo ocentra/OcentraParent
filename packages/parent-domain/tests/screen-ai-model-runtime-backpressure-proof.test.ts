@@ -88,7 +88,41 @@ function parsesWith(overrides: Record<string, unknown>): boolean {
     ...overrides,
   }).success;
 }
-describe('screen AI model runtime backpressure accepted state', () => {
+
+const unsafeProofCases = [
+  {
+    name: 'duplicate active heavy model runtimes on one physical device',
+    overrides: {
+      rows: [{ ...runningRow, activeHeavyRuntimeCount: 2 }, queuedRow, overflowRow],
+    },
+  },
+  {
+    name: 'queued work beyond the model runtime queue cap',
+    overrides: {
+      rows: [runningRow, { ...queuedRow, queuedHeavyJobCount: 3 }, overflowRow],
+    },
+  },
+  {
+    name: 'overload rows that become policy eligible before analysis exists',
+    overrides: {
+      rows: [runningRow, queuedRow, { ...overflowRow, policyEligible: true }],
+    },
+  },
+  {
+    name: 'remote provider fallback during flood control',
+    overrides: {
+      rows: [{ ...runningRow, remoteProviderUsed: true }, queuedRow, overflowRow],
+    },
+  },
+  {
+    name: 'raw image retention during flood control',
+    overrides: {
+      rows: [runningRow, queuedRow, { ...overflowRow, rawImageRetained: true }],
+    },
+  },
+] as const;
+
+describe('screen AI model runtime backpressure proof', () => {
   it('accepts one active heavy screen model runtime with bounded queued work and overload rejection', () => {
     const proof = buildScreenAiModelRuntimeBackpressureProof(readyProof);
     const summary = screenAiModelRuntimeBackpressureSummary(proof);
@@ -104,78 +138,10 @@ describe('screen AI model runtime backpressure accepted state', () => {
       overflowRowsPolicyIneligible: true,
     });
   });
-});
 
-describe('screen AI model runtime backpressure rejection states', () => {
-  it('rejects duplicate active heavy model runtimes on one physical device', () => {
-    expect(
-      parsesWith({
-        rows: [
-          {
-            ...runningRow,
-            activeHeavyRuntimeCount: 2,
-          },
-          queuedRow,
-          overflowRow,
-        ],
-      })
-    ).toBe(false);
-  });
-
-  it('rejects queued work beyond the model runtime queue cap', () => {
-    expect(
-      parsesWith({
-        rows: [
-          runningRow,
-          {
-            ...queuedRow,
-            queuedHeavyJobCount: 3,
-          },
-          overflowRow,
-        ],
-      })
-    ).toBe(false);
-  });
-
-  it('rejects overload rows that become policy eligible before analysis exists', () => {
-    expect(
-      parsesWith({
-        rows: [
-          runningRow,
-          queuedRow,
-          {
-            ...overflowRow,
-            policyEligible: true,
-          },
-        ],
-      })
-    ).toBe(false);
-  });
-
-  it('rejects remote provider fallback or raw image retention during flood control', () => {
-    expect(
-      parsesWith({
-        rows: [
-          {
-            ...runningRow,
-            remoteProviderUsed: true,
-          },
-          queuedRow,
-          overflowRow,
-        ],
-      })
-    ).toBe(false);
-    expect(
-      parsesWith({
-        rows: [
-          runningRow,
-          queuedRow,
-          {
-            ...overflowRow,
-            rawImageRetained: true,
-          },
-        ],
-      })
-    ).toBe(false);
+  it('rejects unsafe backpressure rows before policy eligibility', () => {
+    for (const proofCase of unsafeProofCases) {
+      expect(parsesWith(proofCase.overrides), proofCase.name).toBe(false);
+    }
   });
 });
