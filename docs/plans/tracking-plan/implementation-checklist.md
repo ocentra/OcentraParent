@@ -361,7 +361,13 @@ Every implementation workpack must update, or explicitly justify not updating:
       accessibility, physical-device behavior, and production persistence
       remain unclaimed.
 - [x] Parent acknowledgement/exception fixture proof exists at P1 tier;
-      alert delivery and portal acknowledgement UI remain pending.
+      alert delivery and portal acknowledgement UI remain pending. WP17 parent
+      acknowledgement action readiness rows now preserve acknowledgement,
+      exception, false-alarm, child check-in request, escalation, expiry,
+      evidence, policy, audit, and UI surface refs without claiming rendered
+      portal acknowledgement UI, live service mutation, provider delivery,
+      receipt runtime, child-device runtime, physical-device proof, authority,
+      production workers, or adapter dispatch.
 - [x] Child check-in fixture proof exists at P1 tier; child-device UI,
       delivery, timeout escalation wiring, and screenshots remain pending.
 - [x] Android emulator package launch, foreground-service scaffold, battery,
