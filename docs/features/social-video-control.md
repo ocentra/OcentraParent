@@ -136,7 +136,10 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   They turn redacted unmanaged/browser-like process evidence into bypass-only
   managed-browser-required social evidence while rejecting exact URLs, route
   proof, account/feed/video/message proof, UI delivery, process control,
-  connector/native claims, and enforcement.
+  connector/native claims, and enforcement. SOCIAL-15 also has a local
+  live-process proof that launches a real system browser against public
+  social/video surfaces, records only redacted executable/process/command/target
+  refs, and feeds that process-only evidence through the detector contract.
 - Browser-plan SOCIAL-16 now adds Android native social app capability matrix
   contracts. They keep Android social native app support at app-level,
   permission-required, manual-required, unavailable, or not-implemented states
