@@ -282,6 +282,16 @@ compete on control while staying clear about attribution confidence and privacy.
   live model execution, provider scheduling, raw model text, portal rendering,
   policy execution, adapter execution, broker/family-hub delivery, or host
   filtering.
+- E-D added `network-local-ai-runtime-result-portal-proof`: the Activity route
+  network drawer now renders that service-backed row33b status with bridge,
+  queue, runtime, model, prompt, policy, parent-rule, evidence, summary,
+  managed-browser exact-URL evidence, local result, and output-summary refs.
+  The drawer keeps model-execution, raw-PCAP, exact-URL, decrypted-payload,
+  page-content, private-message, search-query, remote-AI, policy-authority,
+  adapter-authority, and enforcement-command rows false. This does not claim
+  live model execution, raw model output, remote AI, policy execution, adapter
+  execution, broker/family-hub delivery, host filtering, or full network-plan
+  completion.
 - E-D added deterministic network AI detection fixture evaluation in
   `ocentra-network-evidence`: fixture labels, structured summary refs, evidence
   refs, and analyzer alert refs can be compared against model predictions with
