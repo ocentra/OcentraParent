@@ -237,6 +237,10 @@ mod screen_ai_service_capture_event_builder;
 mod screen_ai_service_event_bridge;
 #[cfg(test)]
 mod screen_ai_service_event_bridge_tests;
+#[cfg(test)]
+mod screen_ai_service_event_subscription;
+#[cfg(test)]
+mod screen_ai_service_event_subscription_tests;
 mod snapshot;
 mod time;
 mod tracking_read_model_payload;
