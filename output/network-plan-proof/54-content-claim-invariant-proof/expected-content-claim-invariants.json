@@ -1,0 +1,31 @@
+{
+  "rejectedNetworkOnlyClaims": [
+    "raw network payload",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private message",
+    "search query",
+    "exact URL"
+  ],
+  "rejectedBypassClaims": [
+    "AI policy authority",
+    "UI policy authority",
+    "network adapter authority",
+    "enforcement command publication"
+  ],
+  "downstreamNoClaimBoundaries": [
+    "local AI receives summary and evidence refs only",
+    "AI audit rejects private message and search query claims",
+    "risk budget rejects private message and search query claims",
+    "DNS adapter proof rejects exact URL, page content, and decrypted payload claims"
+  ],
+  "notClaimed": [
+    "network-only exact page/video/message/search content",
+    "decrypted payload inspection",
+    "raw packet payload sent to AI",
+    "policy execution",
+    "adapter action execution",
+    "enforcement command publication"
+  ]
+}

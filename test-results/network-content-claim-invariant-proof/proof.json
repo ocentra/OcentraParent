@@ -1,0 +1,66 @@
+{
+  "proof": "network-content-claim-invariant-proof",
+  "checkedAt": "2026-06-06T23:13:39.903Z",
+  "branch": "codex/network-content-claim-invariant-proof",
+  "commit": "8cad8a79f311ea1333a1fd846f367a41ddb6d6b9",
+  "originMain": "f2e736e478441743c82fd29c3fcc8a9b8d247812",
+  "mergeBase": "f2e736e478441743c82fd29c3fcc8a9b8d247812",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\54-content-claim-invariant-proof",
+  "testRoot": "test-results\\network-content-claim-invariant-proof",
+  "commands": [
+    {
+      "name": "network-content-claim-pipeline-tests",
+      "command": "cargo test -p ocentra-network-evidence end_to_end_pipeline",
+      "status": 0,
+      "log": "output\\network-plan-proof\\54-content-claim-invariant-proof\\pipeline-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\54-content-claim-invariant-proof\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\54-content-claim-invariant-proof\\source-shape.log"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\54-content-claim-invariant-proof\\diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "expectedContentClaimInvariants": "output\\network-plan-proof\\54-content-claim-invariant-proof\\expected-content-claim-invariants.json",
+    "proofSummary": "output\\network-plan-proof\\54-content-claim-invariant-proof\\proof-summary.json",
+    "testProof": "test-results\\network-content-claim-invariant-proof\\proof.json"
+  },
+  "provenRows": [
+    "54 Content claim invariant proof"
+  ],
+  "provenRootGates": [
+    "09-security-negative-proof.log"
+  ],
+  "provenInvariants": [
+    "network-only evidence cannot claim exact URL",
+    "network-only evidence cannot claim page content",
+    "network-only evidence cannot claim video content",
+    "network-only evidence cannot claim private message content",
+    "network-only evidence cannot claim search query content",
+    "raw packet or decrypted payload claims are rejected before the product path composes",
+    "AI, UI, and network surfaces cannot bypass policy or publish enforcement commands"
+  ],
+  "notClaimed": [
+    "live packet capture driver invocation",
+    "local model execution",
+    "full policy engine execution",
+    "host adapter mutation",
+    "broker or family-hub delivery",
+    "portal risk-budget/performance UI rendering",
+    "production enforcement"
+  ]
+}
