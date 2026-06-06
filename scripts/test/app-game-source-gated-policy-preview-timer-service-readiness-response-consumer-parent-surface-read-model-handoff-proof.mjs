@@ -6,11 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const proofSlug =
   '96-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff';
-const testOutputDir = join(
-  repoRoot,
-  'test-results',
-  'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-proof'
-);
+const testOutputDir = join(repoRoot, 'test-results', 'app-game-timer-parent-rm-proof');
 const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', proofSlug);
 const appProofDir = join(repoRoot, 'output', 'app-plan-proof', proofSlug);
 const timestamp = '2026-06-06T09:45:00Z';
@@ -40,12 +36,7 @@ const readModelContract = await importDist(
 );
 const refs = await importDist('reference-primitives.js');
 const parentSurfaceHandoff = await readJson(
-  join(
-    repoRoot,
-    'test-results',
-    'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-proof',
-    'timer-service-readiness-response-consumer-parent-surface-handoff.json'
-  )
+  join(repoRoot, 'test-results', 'app-game-timer-parent-surface-proof', 'handoff.json')
 );
 const parentSurfaceReadModelHandoff =
   readModelContract.buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelHandoff(
@@ -100,10 +91,8 @@ const proof = {
     rules:
       'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-rules.ts',
     test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff.test.ts',
-    harness:
-      'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-proof.mjs',
-    evidence:
-      'test-results/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-proof/proof.json',
+    harness: 'scripts/test/app-game-timer-parent-rm-proof.mjs',
+    evidence: 'test-results/app-game-timer-parent-rm-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
     appProofPack: `output/app-plan-proof/${proofSlug}`,
   },
@@ -111,24 +100,13 @@ const proof = {
 };
 
 assertProof(proof);
-await writeJson(
-  join(testOutputDir, 'timer-service-readiness-response-consumer-parent-surface-read-model-handoff.json'),
-  parentSurfaceReadModelHandoff
-);
+await writeJson(join(testOutputDir, 'handoff.json'), parentSurfaceReadModelHandoff);
 await writeJson(join(testOutputDir, 'proof.json'), proof);
 await writeProofPack(appGameProofDir, proof, 'app-game WP96');
 await writeProofPack(appProofDir, proof, 'app WP96');
 
-console.log(
-  'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-proof-ok'
-);
-console.log(
-  `evidence=${join(
-    'test-results',
-    'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-proof',
-    'proof.json'
-  )}`
-);
+console.log('app-game-timer-parent-rm-proof-ok');
+console.log(`evidence=${join('test-results', 'app-game-timer-parent-rm-proof', 'proof.json')}`);
 
 function importDist(name) {
   return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
@@ -137,8 +115,7 @@ function importDist(name) {
 function parentSurfaceReadModelHandoffOptions(refs) {
   return {
     schemaVersion: refs.ParentContractSchemaVersion.V0_6,
-    responseConsumerParentSurfaceReadModelHandoffId:
-      'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-proof',
+    responseConsumerParentSurfaceReadModelHandoffId: 'app-game-timer-parent-rm-proof',
     generatedAt: timestamp,
     sourceContractRefs: [
       'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff',

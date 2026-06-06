@@ -1,7 +1,7 @@
 {
   "schemaVersion": "v0.6",
   "responseConsumerParentSurfaceStatusReadModelParentSurfaceHandoffId": "app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff-proof",
-  "sourceResponseConsumerParentSurfaceStatusReadModelHandoffId": "app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff-proof",
+  "sourceResponseConsumerParentSurfaceStatusReadModelHandoffId": "app-game-timer-parent-status-rm-proof",
   "generatedAt": "2026-06-06T10:45:00Z",
   "sourceContractRefs": [
     "app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff",
