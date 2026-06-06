@@ -429,6 +429,11 @@ control with better evidence and local audit.
   and evidence/session refs; local-AI category candidates require digest refs
   and remain `notEnforcement`; and parent-domain category/risk policy routes
   keep adapter dispatch `not-dispatched`.
+- The dry-run no-action merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/dry-run-no-action`: time-budget
+  runtime decisions stay dry-run-only, preview handoff rows require disabled
+  enforcement handoff and `not-dispatched` adapter state, and unproved
+  block-launch decisions remain manual-required instead of executable blocks.
 
 ## Current Gap
 

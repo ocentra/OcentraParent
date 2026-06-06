@@ -1,0 +1,48 @@
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-time-budget-policy-runtime.test.ts
+exit=0
+
+> @ocentra-parent/parent-domain@0.1.1 test
+> vitest run app-game-time-budget-policy-runtime.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  16:18:03
+   Duration  759ms (transform 119ms, setup 0ms, import 546ms, tests 11ms, environment 0ms)
+
+
+
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-policy-preview-handoff.test.ts
+exit=0
+
+> @ocentra-parent/parent-domain@0.1.1 test
+> vitest run app-game-policy-preview-handoff.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  16:18:05
+   Duration  761ms (transform 127ms, setup 0ms, import 548ms, tests 16ms, environment 0ms)
+
+
+
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-policy-target-compiler.test.ts
+exit=0
+
+> @ocentra-parent/parent-domain@0.1.1 test
+> vitest run app-game-policy-target-compiler.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  16:18:06
+   Duration  703ms (transform 99ms, setup 0ms, import 505ms, tests 11ms, environment 0ms)
