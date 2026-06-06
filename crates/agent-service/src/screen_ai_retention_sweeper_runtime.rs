@@ -28,6 +28,7 @@ use crate::{
     activity_capture::{record_activity_events_to_paths, ActivityCaptureError},
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
     fields::fields_from_pairs,
+    screen_ai_service_event_bridge::publish_screen_deletion_event_for_queue_job,
     time::timestamp_now,
 };
 
@@ -76,9 +77,21 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
     loop {
         interval.tick().await;
         tick_count += 1;
-        let outcome =
-            record_screen_ai_retention_sweeper_tick(&config, ScreenAiRetentionSweeperClock::now());
-        if matches!(outcome, Ok(ScreenAiRetentionSweeperOutcome::Swept { .. })) {
+        let clock = ScreenAiRetentionSweeperClock::now();
+        let observed_at = clock.timestamp.clone();
+        let outcome = record_screen_ai_retention_sweeper_tick(&config, clock);
+        if let Ok(ScreenAiRetentionSweeperOutcome::Swept {
+            expired_entries, ..
+        }) = outcome
+        {
+            for entry in &expired_entries {
+                let _ = publish_screen_deletion_event_for_queue_job(
+                    &config.store_path,
+                    &entry.queue_job_id,
+                    &observed_at,
+                )
+                .await;
+            }
             sweep_count += 1;
         }
         if config.max_sweeps.is_some_and(|max| sweep_count >= max) {
