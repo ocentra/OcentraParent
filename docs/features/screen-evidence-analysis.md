@@ -448,6 +448,14 @@ only with explicit parent settings.
   snippet cap, disabled OCR text state, credential-like suppression, PII-like
   redaction, no raw text retention, no raw image retention, and no remote AI.
   Service persistence and portal screenshot rendering remain separate gates.
+- `scripts/test/screen-local-ocr-vision-runtime-model-proof.mjs` now aggregates
+  the existing WinRT OCR worker, service OCR, guided VLM worker, VLM execution
+  readiness, VLM journal/read-model, and local resource scheduler artifacts into
+  the WP17 local OCR/vision runtime model proof. It proves local-only OCR/VLM
+  contracts, worker input/output boundaries, structured output, no remote AI,
+  no raw retention, model/runtime/template metadata, and
+  degraded/manual-required states without claiming production model quality or
+  cross-platform parity.
 - `scripts/test/screen-ai-service-winrt-ocr-proof.mjs` now proves the
   service-owned Windows WinRT OCR analysis path over real live Chrome/Wikipedia
   pixels: the Rust service cadence loop captures an active-window frame into
@@ -541,6 +549,8 @@ parity, and UI remain separate proof gates.
 - [x] Capability/status contract.
 - [x] Encrypted temporary image queue.
 - [x] Local OCR/vision summary proof route.
+- [x] Local OCR/vision runtime model aggregates OCR/VLM worker, readiness,
+      read-model, and scheduler proof without remote AI or raw retention.
 - [x] Image deletion and retention state proof.
 - [x] Confidence and unknown handling.
 - [x] OCR sensitive text redaction contract proves parent-controlled snippet
