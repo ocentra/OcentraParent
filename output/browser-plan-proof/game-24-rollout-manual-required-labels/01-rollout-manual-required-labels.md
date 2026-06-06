@@ -1,10 +1,10 @@
 # GAME-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T22:03:57.667Z
+Generated: 2026-06-06T22:13:25.314Z
 
 Rows checked: 24
-Proof-present rows: 19
-Partial/manual-required rows: 5
+Proof-present rows: 20
+Partial/manual-required rows: 4
 Open/manual-required rows: 0
 Rollout state: partial/manual-required
 Product claimed: false
@@ -30,7 +30,7 @@ Product claimed: false
 | GAME-17 | live-policy-compiler-proof-present | [x] |
 | GAME-18 | live-hold-block-adapter-proof-present | [x] |
 | GAME-19 | live-child-checking-block-ux-proof-present | [x] |
-| GAME-20 | partial-manual-required | [~] |
+| GAME-20 | live-parent-dashboard-ux-proof-present | [x] |
 | GAME-21 | partial-manual-required | [~] |
 | GAME-22 | partial-manual-required | [~] |
 | GAME-23 | partial-manual-required | [~] |
@@ -55,6 +55,7 @@ GAME-16 live UGC/multiplayer/chat risk proof is present.
 GAME-17 live policy compiler proof is present.
 GAME-18 live hold/block adapter proof is present.
 GAME-19 live child checking/block UX proof is present.
+GAME-20 live parent dashboard UX proof is present.
 Product checklist upgrade is not claimed.
 Browser-game child/parent UI, cloud-streamed frame analysis, native
 game control, and enforcement remain open or manual-required until

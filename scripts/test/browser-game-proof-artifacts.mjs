@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 19;
+    const isComplete = rowNumber <= 20;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -104,7 +104,9 @@ function expectedRows() {
                                           ? 'live-policy-compiler-proof-present'
                                           : rowNumber === 18
                                             ? 'live-hold-block-adapter-proof-present'
-                                            : 'live-child-checking-block-ux-proof-present'
+                                            : rowNumber === 19
+                                              ? 'live-child-checking-block-ux-proof-present'
+                                              : 'live-parent-dashboard-ux-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -219,6 +221,7 @@ function manifestFor(rows, failures) {
       livePolicyCompilerEvidence: 'game-17-live-policy-compiler-proof-present',
       liveHoldBlockAdapterEvidence: 'game-18-live-hold-block-adapter-proof-present',
       liveChildCheckingBlockUxEvidence: 'game-19-live-child-checking-block-ux-proof-present',
+      liveParentDashboardUxEvidence: 'game-20-live-parent-dashboard-ux-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -285,6 +288,8 @@ function markdownFor(manifest) {
     'browser-game route surfaces with ref-only adapter proof plans.',
     'GAME-19 live child checking/block UX proof is present for real public',
     'browser-game route surfaces with ref-only child UX surface rows.',
+    'GAME-20 live parent dashboard UX proof is present for real public',
+    'browser-game route surfaces with ref-only dashboard panel rows.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

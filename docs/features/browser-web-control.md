@@ -502,12 +502,14 @@ rendered child UI, notification delivery, runtime browser blocking, block-page
 rendering, applied time limits, final policy decisions, cloud-frame analysis,
 native game control, and enforcement are rejected.
 Browser-game/cloud-gaming GAME-20 now adds parent-domain parent dashboard UX
-contracts for browser-game review surfaces. The contracts cover detected game
-review, unknown-game approval queue, cloud-gaming approval, educational-game
-allowlist, game time-budget candidates, mobile/native capability gaps, and
-manual-required gaps while rejecting rendered portal UI, notification delivery,
-runtime data fetch, final policy decisions, cloud-frame analysis, native game
-control, and enforcement.
+contracts plus live public proof for dashboard panel rows. The proof covers real
+Scratch games, Roblox Discover, Xbox Cloud Gaming, Code.org Minecraft, Coolmath
+Run, Steam Store, and Rec Room surfaces with only response hashes, evidence
+refs, dashboard panel refs, and no-authority flags persisted. Detected-game,
+approval queue, cloud approval, educational allowlist, time-budget,
+mobile/native gap, and manual-required gap panels parse while rendered portal
+UI, notification delivery, runtime data fetch, final policy decisions,
+cloud-frame analysis, native game control, and enforcement are rejected.
 Browser-game/cloud-gaming GAME-21 now adds parent-domain journal/SQLite
 read-model contracts for browser-game proof refs. The snapshot indexes managed
 browser evidence journal replay, app-game session report proof, adapter audit
@@ -545,7 +547,8 @@ live-unblocked-site-detection-proof-present. GAME-16 is
 live-ugc-multiplayer-chat-risk-proof-present. GAME-17 is
 live-policy-compiler-proof-present. GAME-18 is
 live-hold-block-adapter-proof-present. GAME-19 is
-live-child-checking-block-ux-proof-present. GAME-20 through GAME-24 are
+live-child-checking-block-ux-proof-present. GAME-20 is
+live-parent-dashboard-ux-proof-present. GAME-21 through GAME-24 are
 partial/manual-required. UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.

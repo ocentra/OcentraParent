@@ -1,10 +1,10 @@
 # GAME-22 Browser-Game Proof Artifact Manifest
 
-Generated: 2026-06-06T22:03:57.626Z
+Generated: 2026-06-06T22:13:25.292Z
 
 Rows checked: 21
-Proof-present rows: 19
-Partial/manual-required rows: 2
+Proof-present rows: 20
+Partial/manual-required rows: 1
 Playwright state: manual-required-no-rendered-browser-game-ui
 Product claimed: false
 
@@ -29,7 +29,7 @@ Product claimed: false
 | GAME-17 | live-policy-compiler-proof-present | `game-17-parent-game-policy-compiler` | 6 |
 | GAME-18 | live-hold-block-adapter-proof-present | `game-18-managed-browser-game-hold-block-adapter` | 6 |
 | GAME-19 | live-child-checking-block-ux-proof-present | `game-19-child-game-checking-block-ux` | 6 |
-| GAME-20 | partial-manual-required | `game-20-parent-browser-game-dashboard-ux` | 5 |
+| GAME-20 | live-parent-dashboard-ux-proof-present | `game-20-parent-browser-game-dashboard-ux` | 6 |
 | GAME-21 | partial-manual-required | `game-21-journal-sqlite-read-model` | 5 |
 
 GAME-22 proves proof-pack coverage for GAME-01 through GAME-21.
@@ -69,6 +69,8 @@ GAME-18 live hold/block adapter proof is present for real public
 browser-game route surfaces with ref-only adapter proof plans.
 GAME-19 live child checking/block UX proof is present for real public
 browser-game route surfaces with ref-only child UX surface rows.
+GAME-20 live parent dashboard UX proof is present for real public
+browser-game route surfaces with ref-only dashboard panel rows.
 It does not prove rendered browser-game UI, Playwright screenshots,
 runtime browser-game detection, cloud-streamed frame analysis, native
 game control, final policy execution, enforcement, or product checklist

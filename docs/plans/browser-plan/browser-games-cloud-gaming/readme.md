@@ -381,12 +381,16 @@ navigation block, block-page rendering, applied time limits, final policy
 decisions, cloud-frame analysis, native game control, and enforcement. Package subpath exports are now present.
 
 GAME-20 now adds parent-domain parent browser-game dashboard UX contracts in
-`packages/parent-domain/src/browser-game-dashboard-ux.ts`. The dashboard
-snapshot covers detected game review, unknown-game approval queue, cloud-gaming
-approval, educational-game allowlist, game time-budget candidates,
-mobile/native capability gaps, and manual-required gaps. It rejects rendered
-portal UI, notification delivery, runtime data fetch, final policy decisions,
-cloud-frame analysis, native game control, and enforcement. Package subpath exports are now present.
+`packages/parent-domain/src/browser-game-dashboard-ux.ts` and a live public
+dashboard panel proof in
+`output/browser-plan-proof/game-20-parent-browser-game-dashboard-ux/02-live-dashboard-ux-shape-proof.json`.
+The proof fetches real Scratch games, Roblox Discover, Xbox Cloud Gaming,
+Code.org Minecraft, Coolmath Run, Steam Store, and Rec Room surfaces, persists
+only response hashes, evidence refs, dashboard panel refs, and no-authority
+flags, and parses detected-game, approval queue, cloud approval, educational
+allowlist, time-budget, mobile/native gap, and manual-required gap panels. It
+rejects rendered portal UI, notification delivery, runtime data fetch, final
+policy decisions, cloud-frame analysis, native game control, and enforcement. Package subpath exports are now present.
 
 GAME-21 now adds parent-domain browser-game journal/SQLite read-model contracts
 in `packages/parent-domain/src/browser-game-journal-sqlite-read-model.ts`. The
@@ -438,7 +442,8 @@ live-unblocked-site-detection-proof-present, GAME-16 as
 live-ugc-multiplayer-chat-risk-proof-present, GAME-17 as
 live-policy-compiler-proof-present, GAME-18 as
 live-hold-block-adapter-proof-present, GAME-19 as
-live-child-checking-block-ux-proof-present, GAME-20 through GAME-24 as
+live-child-checking-block-ux-proof-present, GAME-20 as
+live-parent-dashboard-ux-proof-present, GAME-21 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
 Product checklist upgrade is not claimed; child/parent UI,
 cloud-streamed frame analysis, native game control, and
