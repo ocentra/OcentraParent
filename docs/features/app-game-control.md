@@ -209,6 +209,12 @@ control with better evidence and local audit.
   preview-ready, source-manual-required, and compiler-manual-required states
   without service runtime, portal UI, raw private source rows, adapter dispatch,
   child delivery, or platform enforcement claims.
+- Parent-domain source-gated policy preview export-readiness contracts now name
+  the future WP76 package subpath and public symbols, preserve native
+  app/native game projection counts, and keep package-manifest, service runtime,
+  portal UI, policy evaluator, timer, adapter dispatch, child delivery,
+  platform enforcement, and raw private source-row claims false while the shared
+  package manifest edit is sequenced by the owning lane.
 - The portal App/Game Sessions route now renders that service-backed policy
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy
