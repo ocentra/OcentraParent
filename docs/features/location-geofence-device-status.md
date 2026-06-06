@@ -297,6 +297,14 @@ expose location or device-status features. Parents expect this category.
   export, rendered report UI, service mutation, platform runtime, child-device
   delivery, provider delivery, notification receipt ingestion, authority,
   physical-device, production, and product-complete claims false.
+- Hosted report/export packet rendering now exists through
+  `npm run test:tracking-plan-hosted-ui-proof`. The parent `policy-tracking`
+  route renders those redacted report/export packet rows and captures
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-export.png`,
+  while raw location payload export, service mutation, platform runtime,
+  child-device delivery, provider delivery, notification receipt ingestion,
+  authority, physical-device proof, production, and product-ready export behavior
+  remain unclaimed.
 - Unsupported and not-yet-proved tracking platform states now have a
   parent-domain manual-required/unavailable render-state proof through
   `node scripts/test/tracking-unsupported-platform-manual-proof.mjs`. It proves
@@ -560,10 +568,11 @@ are proved.
       product-complete proof.
 - [x] WP32 report/export read-model proof for redacted report export,
       retention audit export, family dashboard summary, and policy drill-in
-      export packet rows. This is evidence-ref packet readiness only; it is not
-      raw location payload export, rendered report UI, service mutation,
-      platform runtime, child-device delivery/runtime execution, provider
-      delivery, notification receipt ingestion, authority, physical-device, or
+      export packet rows, plus narrow hosted parent-route rendering of those
+      rows. This is evidence-ref packet readiness and hosted packet rendering
+      only; it is not raw location payload export, service mutation, platform
+      runtime, child-device delivery/runtime execution, provider delivery,
+      notification receipt ingestion, authority, physical-device, or
       product-complete proof.
 - [x] WP32 family dashboard rollup proof for active family summary,
       child-attention summary, and retention-audit summary rows, plus narrow

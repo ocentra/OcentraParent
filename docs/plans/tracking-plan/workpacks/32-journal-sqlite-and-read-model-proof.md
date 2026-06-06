@@ -179,6 +179,16 @@ consumer, family dashboard rollup, and retention settings proof refs. It keeps
 raw location payload export, portal UI, service mutation, platform runtime,
 child-device delivery, provider delivery, notification receipt ingestion,
 physical-device behavior, authority, and product-ready claims false.
+The hosted parent `policy-tracking` route now renders those redacted
+report/export packet rows, captures
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-export.png`,
+and records
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/21-report-export-hosted-ui-proof.json`
+plus
+`output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/29-report-export-hosted-ui-proof.json`
+without changing the raw-location export, service mutation, platform runtime,
+child-device delivery, provider delivery, notification receipt, authority,
+physical-device, production, or product-ready export gaps.
 The pre-device proof gate now reruns this service proof and records the
 remaining broader read-model, full UI, hosted accessibility, and platform replay
 gaps before device work starts.
@@ -220,9 +230,10 @@ This workpack can be assigned independently, implemented against the owning doma
   live retention UI proof.
 - Retention settings write-command proof is command/transport preflight proof,
   not live writable UI or product-ready service execution proof.
-- Report/export read-model proof is redacted evidence-ref packet readiness only,
-  not raw location payload export, rendered report UI, child-device/runtime
-  execution, or product-ready export delivery.
+- Report/export read-model proof is redacted evidence-ref packet readiness plus
+  hosted packet rendering only, not raw location payload export, service
+  mutation, platform runtime, child-device/runtime execution, or product-ready
+  export delivery.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready

@@ -19,6 +19,7 @@ const screenshotDir = path.join(proofRoot, '11-ui-snapshots');
 const desktopScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary.png');
 const mobileScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary-mobile.png');
 const familyDashboardScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-family-dashboard-rollup.png');
+const reportExportScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-report-export.png');
 const evidenceDrawerScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-evidence-drawer.png');
 const citationDetailScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-citation-detail.png');
 const retentionSettingsScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-retention-settings.png');
@@ -77,6 +78,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await expect(trackingProofRegion.getByText('Physical device proof required').first()).toBeVisible();
   await expect(trackingProofRegion.getByText('No product claim').first()).toBeVisible();
   await assertHostedFamilyDashboardRollupProof(trackingProofRegion);
+  await assertHostedReportExportProof(trackingProofRegion);
   await assertHostedEvidenceDrawerProof(trackingProofRegion);
   await assertHostedCitationDetailProof(trackingProofRegion);
   await assertHostedRetentionSettingsProof(page, trackingProofRegion);
@@ -93,6 +95,22 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   const routeText = await trackingProofRegion.textContent();
   expect(routeText ?? '').not.toMatch(/(?:product ready|physical device proved|background geofence proved)/iu);
   expect(routeText ?? '').not.toMatch(/(?:trouble|lying|bad place|delivered to child device)/iu);
+}
+
+async function assertHostedReportExportProof(trackingProofRegion: Locator): Promise<void> {
+  const reportExportCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="report-export-ui"]').first();
+  await expect(reportExportCard).toBeVisible();
+  await expect(reportExportCard.getByRole('heading', { name: 'Report export read-model UI' })).toBeVisible();
+  await expect(reportExportCard.getByText('Redacted report packet')).toBeVisible();
+  await expect(reportExportCard.getByText('Retention audit export packet')).toBeVisible();
+  await expect(reportExportCard.getByText('Family dashboard summary packet')).toBeVisible();
+  await expect(reportExportCard.getByText('Policy drill-in export packet')).toBeVisible();
+  await expect(reportExportCard.getByText('report-export-read-model-ready').first()).toBeVisible();
+  await expect(reportExportCard.getByText('tracking-report-export-evidence-redacted-report')).toBeVisible();
+  await expect(reportExportCard.getByText('tracking-report-export-evidence-policy-drill-in')).toBeVisible();
+  await expect(reportExportCard.getByText('28-report-export-read-model-proof.json')).toBeVisible();
+  await expect(reportExportCard.getByText('Hosted report/export packet rendering only')).toBeVisible();
+  await expect(reportExportCard.getByText('No product claim')).toBeVisible();
 }
 
 async function assertHostedEvidenceDrawerProof(trackingProofRegion: Locator): Promise<void> {
@@ -229,6 +247,7 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   const familyDashboardCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="family-dashboard-rollup"]')
     .first();
+  const reportExportCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="report-export-ui"]').first();
   const evidenceDrawerCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="service-backed-evidence-drawer"]')
     .first();
@@ -248,6 +267,12 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
     familyDashboardCard,
     '[data-ocentra-tracking-proof="family-dashboard-rollup"]',
     familyDashboardScreenshotPath
+  );
+  await captureScrolledTrackingProofCardScreenshot(
+    page,
+    reportExportCard,
+    '[data-ocentra-tracking-proof="report-export-ui"]',
+    reportExportScreenshotPath
   );
   await captureScrolledTrackingProofCardScreenshot(
     page,
@@ -338,6 +363,7 @@ async function collectAccessibilitySummary(page: Page): Promise<{
     }));
     const requiredProofIds = [
       'family-dashboard-rollup',
+      'report-export-ui',
       'service-backed-evidence-drawer',
       'service-backed-citation-detail',
       'retention-settings-ui',
@@ -390,6 +416,7 @@ async function writeAccessibilitySummary(
         screenshots: {
           desktop: path.relative(repoRoot, desktopScreenshotPath).replace(/\\/gu, '/'),
           familyDashboard: path.relative(repoRoot, familyDashboardScreenshotPath).replace(/\\/gu, '/'),
+          reportExport: path.relative(repoRoot, reportExportScreenshotPath).replace(/\\/gu, '/'),
           evidenceDrawer: path.relative(repoRoot, evidenceDrawerScreenshotPath).replace(/\\/gu, '/'),
           citationDetail: path.relative(repoRoot, citationDetailScreenshotPath).replace(/\\/gu, '/'),
           retentionSettings: path.relative(repoRoot, retentionSettingsScreenshotPath).replace(/\\/gu, '/'),
@@ -412,6 +439,7 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'Service read model',
     'Service data coverage',
     'Family dashboard tracking rollup',
+    'Report export read-model UI',
     'Retention settings read-model UI',
     'Evidence drawer proof',
     'Child check-in request',
@@ -435,6 +463,15 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'Family active summary',
     'Child attention summary',
     'Retention audit summary',
+    'Redacted report packet',
+    'Retention audit export packet',
+    'Family dashboard summary packet',
+    'Policy drill-in export packet',
+    'report-export-read-model-ready',
+    'tracking-report-export-evidence-redacted-report',
+    'tracking-report-export-evidence-policy-drill-in',
+    'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json',
+    'Hosted report/export packet rendering only; raw location payload export, service mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.',
     'Retention window setting',
     'Delete-after-alert setting',
     'Parent export setting',
@@ -492,6 +529,7 @@ function assertHostedTrackingLayoutBoxes(layoutBoxes: readonly HostedTrackingLay
       'child-check-in',
       'child-runtime-ui',
       'family-dashboard-rollup',
+      'report-export-ui',
       'retention-settings-ui',
       'service-backed-citation-detail',
       'service-backed-evidence-drawer',
@@ -523,6 +561,8 @@ function hostedTrackingAssertions(): readonly string[] {
     'service-data-coverage-visible',
     'family-dashboard-rollup-visible',
     'family-dashboard-rollup-screenshot',
+    'report-export-read-model-visible',
+    'report-export-read-model-screenshot',
     'service-backed-evidence-drawer-visible',
     'service-backed-evidence-drawer-screenshot',
     'service-backed-citation-detail-visible',

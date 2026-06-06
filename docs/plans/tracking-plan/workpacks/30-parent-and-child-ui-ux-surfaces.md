@@ -73,6 +73,10 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - [x] Render and screenshot hosted family dashboard rollup rows without claiming
       full dashboard UI, child-device delivery, authority, provider delivery,
       physical-device execution, or production readiness.
+- [x] Render and screenshot hosted report/export read-model packet rows without
+      claiming raw location payload export, service mutation, platform runtime,
+      child-device delivery, provider delivery, notification receipt ingestion,
+      physical-device proof, authority, or product readiness.
 - [x] Render and screenshot hosted retention settings read-model rows without
       claiming writable settings, service mutation, platform runtime,
       child-device delivery, provider delivery, authority, physical-device
