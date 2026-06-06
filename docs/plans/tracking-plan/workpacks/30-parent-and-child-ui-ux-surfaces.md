@@ -28,6 +28,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`
+- `11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`
 - `12-playwright-proof.log`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
@@ -61,6 +62,9 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - [x] Render and screenshot hosted child-runtime disclosure, safe/help response,
       location-share consent, and delivery-boundary copy without claiming
       child-device delivery or runtime execution.
+- [x] Render and screenshot hosted family dashboard rollup rows without claiming
+      full dashboard UI, child-device delivery, authority, provider delivery,
+      physical-device execution, or production readiness.
 - [x] Ensure child copy avoids accusation.
 - [ ] Keep portal as authoring/display surface, not evaluator.
 
@@ -108,7 +112,12 @@ captures it at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`
 and writes
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json`.
-This is not product-complete UI proof: full service-data UI beyond the hosted
+The hosted route now also renders a family dashboard rollup proof card for the
+existing active family, child-attention, and retention-audit summary rows. The
+repeatable hosted proof captures it at
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`
+and records the same no-product-claim boundary in hosted proof output.
+This is not product-complete UI proof: full dashboard UI beyond the hosted
 parent route, actual child-device delivery/runtime execution, physical-device
 evidence, authority, provider delivery, and production proof remain pending.
 `node scripts/test/tracking-plan-pre-device-proof.mjs` now records those UI
@@ -145,7 +154,7 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Full service-data UI beyond the hosted parent route, actual child-device
+- Full dashboard UI beyond the hosted parent route, actual child-device
   delivery/runtime execution, physical-device proof, authority proof, provider
   delivery, and production proof remain manual-required until the assigned proof
   artifacts exist.
@@ -207,6 +216,28 @@ This workpack can be assigned independently, implemented against the owning doma
       through the hub instead of editing `docs/product-capability-checklist.md`.
 - [x] Known gaps/manual-required states: actual child-device delivery/runtime
       execution, full parent/child UI beyond the hosted route, Android/iOS
+      physical-device proof, authority, provider delivery, notifications, and
+      production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-family-dashboard-hosted-ui-proof`.
+- [x] Touched files: hosted parent route renderer, tracking status renderer,
+      portal/text/domain constants, hosted Playwright proof spec, hosted proof
+      script, owning tracking feature doc, implementation checklist, WP30, and
+      generated hosted proof artifacts.
+- [x] Validation commands and results: focused portal/text/domain tests and
+      `node scripts/test/tracking-plan-hosted-ui-proof.mjs` pass locally after
+      proof refresh.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`,
+      `test-results/tracking-plan-hosted-ui-proof/`, and companion WP30/WP33
+      hosted proof JSON files.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and WP30 updated. Central capability checklist row delta is
+      queued/reported through hub because E-C owns
+      `docs/product-capability-checklist.md`; portal README was not edited
+      because E-D owns `apps/portal/README.md`.
+- [x] Known gaps/manual-required states: actual child-device delivery/runtime
+      execution, full dashboard UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
 - [x] Workpack id and branch:

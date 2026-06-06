@@ -33,6 +33,20 @@ export const PortalDevTextToken = {
   TrackingStatusSurfaceBody: decodeTextTokenId('portal.dev.trackingStatusSurfaceBody'),
   TrackingServiceReadModel: decodeTextTokenId('portal.dev.trackingServiceReadModel'),
   TrackingServiceDataCoverage: decodeTextTokenId('portal.dev.trackingServiceDataCoverage'),
+  TrackingFamilyDashboardRollup: decodeTextTokenId('portal.dev.trackingFamilyDashboardRollup'),
+  TrackingFamilyDashboardRollupBody: decodeTextTokenId('portal.dev.trackingFamilyDashboardRollupBody'),
+  TrackingFamilyDashboardActiveSummary: decodeTextTokenId('portal.dev.trackingFamilyDashboardActiveSummary'),
+  TrackingFamilyDashboardChildAttention: decodeTextTokenId('portal.dev.trackingFamilyDashboardChildAttention'),
+  TrackingFamilyDashboardRetentionAudit: decodeTextTokenId('portal.dev.trackingFamilyDashboardRetentionAudit'),
+  TrackingFamilyDashboardRollupReady: decodeTextTokenId('portal.dev.trackingFamilyDashboardRollupReady'),
+  TrackingFamilyDashboardActiveEvidence: decodeTextTokenId('portal.dev.trackingFamilyDashboardActiveEvidence'),
+  TrackingFamilyDashboardChildAttentionEvidence: decodeTextTokenId(
+    'portal.dev.trackingFamilyDashboardChildAttentionEvidence'
+  ),
+  TrackingFamilyDashboardRetentionAuditEvidence: decodeTextTokenId(
+    'portal.dev.trackingFamilyDashboardRetentionAuditEvidence'
+  ),
+  TrackingFamilyDashboardHostedBoundary: decodeTextTokenId('portal.dev.trackingFamilyDashboardHostedBoundary'),
   TrackingFirstTarget: decodeTextTokenId('portal.dev.trackingFirstTarget'),
   TrackingProofFixture: decodeTextTokenId('portal.dev.trackingProofFixture'),
   TrackingProofService: decodeTextTokenId('portal.dev.trackingProofService'),
@@ -189,6 +203,26 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.TrackingStatusSurfaceBody]: decodeDisplayText('Location states are fixture proof only.'),
   [PortalDevTextToken.TrackingServiceReadModel]: decodeDisplayText('Service read model'),
   [PortalDevTextToken.TrackingServiceDataCoverage]: decodeDisplayText('Service data coverage'),
+  [PortalDevTextToken.TrackingFamilyDashboardRollup]: decodeDisplayText('Family dashboard tracking rollup'),
+  [PortalDevTextToken.TrackingFamilyDashboardRollupBody]: decodeDisplayText(
+    'Hosted route renders family active, child attention, and retention audit rollups from existing tracking proof refs without claiming device delivery.'
+  ),
+  [PortalDevTextToken.TrackingFamilyDashboardActiveSummary]: decodeDisplayText('Family active summary'),
+  [PortalDevTextToken.TrackingFamilyDashboardChildAttention]: decodeDisplayText('Child attention summary'),
+  [PortalDevTextToken.TrackingFamilyDashboardRetentionAudit]: decodeDisplayText('Retention audit summary'),
+  [PortalDevTextToken.TrackingFamilyDashboardRollupReady]: decodeDisplayText('rollup-ready'),
+  [PortalDevTextToken.TrackingFamilyDashboardActiveEvidence]: decodeDisplayText(
+    'tracking-family-dashboard-evidence-active-summary'
+  ),
+  [PortalDevTextToken.TrackingFamilyDashboardChildAttentionEvidence]: decodeDisplayText(
+    'tracking-family-dashboard-evidence-child-attention'
+  ),
+  [PortalDevTextToken.TrackingFamilyDashboardRetentionAuditEvidence]: decodeDisplayText(
+    'tracking-family-dashboard-evidence-retention-audit'
+  ),
+  [PortalDevTextToken.TrackingFamilyDashboardHostedBoundary]: decodeDisplayText(
+    'Hosted dashboard rollup rendering only; child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.'
+  ),
   [PortalDevTextToken.TrackingFirstTarget]: decodeDisplayText('First target'),
   [PortalDevTextToken.TrackingProofFixture]: decodeDisplayText('P1 fixture proof'),
   [PortalDevTextToken.TrackingProofService]: decodeDisplayText('P2 service proof'),

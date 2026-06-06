@@ -18,6 +18,7 @@ const workpack31Root = path.join(
 const screenshotDir = path.join(proofRoot, '11-ui-snapshots');
 const desktopScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary.png');
 const mobileScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-live-summary-mobile.png');
+const familyDashboardScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-family-dashboard-rollup.png');
 const childCheckInScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-check-in.png');
 const childRuntimeUiScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-runtime-ui.png');
 const unsupportedManualScreenshotPath = path.join(workpack31Root, '19-unsupported-manual-hosted-ui.png');
@@ -62,6 +63,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await expect(trackingProofRegion.getByText('Manual proof required').first()).toBeVisible();
   await expect(trackingProofRegion.getByText('Physical device proof required').first()).toBeVisible();
   await expect(trackingProofRegion.getByText('No product claim').first()).toBeVisible();
+  await assertHostedFamilyDashboardRollupProof(trackingProofRegion);
   await expect(page.getByRole('heading', { name: 'Child check-in request' })).toBeVisible();
   await expect(trackingProofRegion.getByText('Your parent is asking you to check in. Are you safe?')).toBeVisible();
   await expect(trackingProofRegion.getByText("I'm safe")).toBeVisible();
@@ -75,6 +77,22 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   const routeText = await trackingProofRegion.textContent();
   expect(routeText ?? '').not.toMatch(/(?:product ready|physical device proved|background geofence proved)/iu);
   expect(routeText ?? '').not.toMatch(/(?:trouble|lying|bad place|delivered to child device)/iu);
+}
+
+async function assertHostedFamilyDashboardRollupProof(trackingProofRegion: Locator): Promise<void> {
+  await expect(trackingProofRegion.getByRole('heading', { name: 'Family dashboard tracking rollup' })).toBeVisible();
+  await expect(trackingProofRegion.getByText('Family active summary')).toBeVisible();
+  await expect(trackingProofRegion.getByText('Child attention summary')).toBeVisible();
+  await expect(trackingProofRegion.getByText('Retention audit summary')).toBeVisible();
+  await expect(trackingProofRegion.getByText('tracking-family-dashboard-evidence-active-summary')).toBeVisible();
+  await expect(trackingProofRegion.getByText('tracking-family-dashboard-evidence-child-attention')).toBeVisible();
+  await expect(trackingProofRegion.getByText('tracking-family-dashboard-evidence-retention-audit')).toBeVisible();
+  await expect(trackingProofRegion.getByText('23-family-dashboard-rollup-proof.json')).toBeVisible();
+  await expect(
+    trackingProofRegion.getByText(
+      'Hosted dashboard rollup rendering only; child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.'
+    )
+  ).toBeVisible();
 }
 
 async function assertHostedChildRuntimeUiProof(trackingProofRegion: Locator): Promise<void> {
@@ -137,11 +155,24 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 960 });
   const trackingProofRegion = page.getByRole('region', { name: 'Tracking status proof' });
   await expect(trackingProofRegion).toBeVisible();
+  const familyDashboardCard = trackingProofRegion
+    .locator('[data-ocentra-tracking-proof="family-dashboard-rollup"]')
+    .first();
   const childCheckInCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="child-check-in"]').first();
   const childRuntimeUiCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="child-runtime-ui"]').first();
   const unsupportedManualCard = trackingProofRegion
     .getByRole('heading', { name: 'Unsupported/manual tracking platform proof' })
     .locator('xpath=ancestor::article[1]');
+  await page.evaluate(() => {
+    const grid = document.querySelector('.tracking-status-overlay-grid');
+    const familyDashboard = document.querySelector('[data-ocentra-tracking-proof="family-dashboard-rollup"]');
+    if (grid instanceof HTMLElement && familyDashboard instanceof HTMLElement) {
+      grid.scrollTop = Math.max(0, familyDashboard.offsetTop - 48);
+    }
+  });
+  await page.waitForTimeout(250);
+  await expect(familyDashboardCard).toBeVisible();
+  await familyDashboardCard.screenshot({ path: familyDashboardScreenshotPath });
   await page.evaluate(() => {
     const grid = document.querySelector('.tracking-status-overlay-grid');
     const childCheckIn = document.querySelector('[data-ocentra-tracking-proof="child-check-in"]');
@@ -214,6 +245,7 @@ async function writeAccessibilitySummary(
         summary,
         screenshots: {
           desktop: path.relative(repoRoot, desktopScreenshotPath).replace(/\\/gu, '/'),
+          familyDashboard: path.relative(repoRoot, familyDashboardScreenshotPath).replace(/\\/gu, '/'),
           childCheckIn: path.relative(repoRoot, childCheckInScreenshotPath).replace(/\\/gu, '/'),
           childRuntimeUi: path.relative(repoRoot, childRuntimeUiScreenshotPath).replace(/\\/gu, '/'),
           unsupportedManualPlatform: path.relative(repoRoot, unsupportedManualScreenshotPath).replace(/\\/gu, '/'),
@@ -232,6 +264,7 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
   expect(summary.headings).toContain('Tracking status proof');
   expect(summary.headings).toContain('Service read model');
   expect(summary.headings).toContain('Service data coverage');
+  expect(summary.headings).toContain('Family dashboard tracking rollup');
   expect(summary.headings).toContain('Child check-in request');
   expect(summary.headings).toContain('Child runtime UI proof');
   expect(summary.headings).toContain('Unsupported/manual tracking platform proof');
@@ -240,11 +273,16 @@ function assertAccessibilitySummary(summary: Awaited<ReturnType<typeof collectAc
     'Child sees a clear tracking request, safe response, help response, and location-share consent copy.'
   );
   expect(summary.labels).toContain('Evidence references');
+  expect(summary.labels).toContain('Row count');
   expect(summary.labels).toContain('Child copy');
   expect(summary.labels).toContain('Child delivery');
   expect(summary.labels).toContain('Readiness kind');
   expect(summary.labels).toContain('Product claim');
   expect(summary.values).toContain("I'm safe");
+  expect(summary.values).toContain('Family active summary');
+  expect(summary.values).toContain('Child attention summary');
+  expect(summary.values).toContain('Retention audit summary');
+  expect(summary.values).toContain('tracking-family-dashboard-evidence-active-summary');
   expect(summary.values).toContain('Need help');
   expect(summary.values).toContain('Share current location');
   expect(summary.values).toContain('Call parent');
@@ -270,6 +308,8 @@ function hostedTrackingAssertions(): readonly string[] {
     'enabled-refresh-button',
     'service-backed-row-citation-visible',
     'service-data-coverage-visible',
+    'family-dashboard-rollup-visible',
+    'family-dashboard-rollup-screenshot',
     'manual-required-visible',
     'physical-device-required-visible',
     'no-product-claim-visible',

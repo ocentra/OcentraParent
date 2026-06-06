@@ -12,6 +12,7 @@ import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
 import { trackingChildCheckInProof, trackingChildRuntimeUiProof } from '../src/tracking-child-check-in-proof';
 import {
+  trackingFamilyDashboardHostedRollupProof,
   trackingStatusLiveSummary,
   trackingStatusProofRows,
   trackingStatusServiceDataCoverage,
@@ -214,6 +215,33 @@ const ExpectedUnsupportedManualRows = [
   },
 ] as const;
 
+const ExpectedFamilyDashboardHostedRollupRows = [
+  {
+    title: 'Family active summary',
+    status: 'rollup-ready',
+    visibleChildren: '2',
+    attentionItems: '1',
+    retainedAuditItems: '0',
+    evidence: 'tracking-family-dashboard-evidence-active-summary',
+  },
+  {
+    title: 'Child attention summary',
+    status: 'rollup-ready',
+    visibleChildren: '1',
+    attentionItems: '2',
+    retainedAuditItems: '0',
+    evidence: 'tracking-family-dashboard-evidence-child-attention',
+  },
+  {
+    title: 'Retention audit summary',
+    status: 'rollup-ready',
+    visibleChildren: '0',
+    attentionItems: '0',
+    retainedAuditItems: '2',
+    evidence: 'tracking-family-dashboard-evidence-retention-audit',
+  },
+] as const;
+
 describe('tracking status proof surface', () => {
   it('lists the first-target tracking states as fixture proof without product claims', () => {
     const rows = trackingStatusProofRows();
@@ -250,6 +278,32 @@ describe('tracking status proof surface', () => {
     const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
 
     expect(trackingStatusServiceDataCoverage(liveActivity)).toEqual(ExpectedTrackingServiceDataCoverage);
+  });
+});
+
+describe('tracking dashboard and platform proof surface', () => {
+  it('renders family dashboard rollup rows without provider, device, authority, or product-ready claims', () => {
+    const proof = trackingFamilyDashboardHostedRollupProof();
+
+    expect(proof).toEqual({
+      title: 'Family dashboard tracking rollup',
+      body: 'Hosted route renders family active, child attention, and retention audit rollups from existing tracking proof refs without claiming device delivery.',
+      proofTier: 'P2 service proof',
+      rowsReturned: '3',
+      proofArtifact: TrackingStatusProofArtifacts.FamilyDashboardRollup,
+      boundary:
+        'Hosted dashboard rollup rendering only; child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.',
+      missingProof: 'Manual proof required',
+      productClaim: 'No product claim',
+      childDeviceDeliveryClaimedRows: '0',
+      providerDeliveryClaimedRows: '0',
+      notificationReceiptClaimedRows: '0',
+      physicalDeviceClaimedRows: '0',
+      authorityClaimedRows: '0',
+      productClaimReadyRows: '0',
+      rows: ExpectedFamilyDashboardHostedRollupRows,
+    });
+    expect(JSON.stringify(proof)).not.toMatch(/(?:product ready|physical device proved|provider delivered)/iu);
   });
 
   it('renders unsupported/manual platform rows without invented capability or product claims', () => {

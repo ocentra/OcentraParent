@@ -41,6 +41,11 @@ const securityLogPath = path.join(workpack30, '13-security-negative-proof.log');
 const validationLogPath = path.join(workpack30, '16-validation-commands.log');
 const desktopScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-live-summary.png');
 const mobileScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-live-summary-mobile.png');
+const familyDashboardScreenshot = path.join(
+  workpack30,
+  '11-ui-snapshots',
+  'hosted-policy-tracking-family-dashboard-rollup.png'
+);
 const childCheckInScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-child-check-in.png');
 const childRuntimeUiScreenshot = path.join(
   workpack30,
@@ -365,6 +370,7 @@ async function writeProof(playwright) {
       validationCommands: relativePath(validationLogPath),
       desktopScreenshot: relativePath(desktopScreenshot),
       mobileScreenshot: relativePath(mobileScreenshot),
+      familyDashboardScreenshot: relativePath(familyDashboardScreenshot),
       childCheckInScreenshot: relativePath(childCheckInScreenshot),
       childRuntimeUiScreenshot: relativePath(childRuntimeUiScreenshot),
       childRuntimeUiProof: relativePath(childRuntimeUiProofPath),
@@ -385,6 +391,19 @@ async function writeProof(playwright) {
         'child-device-delivery-not-claimed',
         'no-product-claim-visible',
       ],
+      productClaimReady: false,
+    },
+    familyDashboardHostedRollupProof: {
+      sourceProof:
+        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json',
+      screenshot: relativePath(familyDashboardScreenshot),
+      renderedRows: ['family-active-summary', 'child-attention-summary', 'retention-audit-summary'],
+      childDeviceDeliveryClaimedRows: 0,
+      providerDeliveryClaimedRows: 0,
+      notificationReceiptClaimedRows: 0,
+      physicalDeviceClaimedRows: 0,
+      authorityClaimedRows: 0,
+      productClaimReadyRows: 0,
       productClaimReady: false,
     },
     unsupportedManualPlatformProof: {
@@ -428,6 +447,8 @@ async function writeProof(playwright) {
       `checkedAt=${checkedAt}`,
       'asserted=no browser console or page errors',
       'asserted=no product-ready or physical-device-proved route copy',
+      'asserted=family dashboard rollup rows render from existing proof refs without product-ready claim',
+      'asserted=family dashboard rollup screenshot captured',
       'asserted=manual proof required and physical device proof required labels visible',
       'asserted=child check-in copy and actions visible without child-device delivery claim',
       'asserted=child runtime UI disclosure, safe/help response, and location-share consent copy visible',
