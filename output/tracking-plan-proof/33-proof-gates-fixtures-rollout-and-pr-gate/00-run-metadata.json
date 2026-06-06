@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T18:51:51.358Z",
+  "checkedAt": "2026-06-06T19:24:38.930Z",
   "requiredProofTier": "P2_HOSTED_CI",
   "currentProofTier": "P1_FIXTURE_SIMULATION",
   "currentStatus": "simulated",
@@ -106,7 +106,7 @@
         "status": "proved_at_p1_fixture",
         "artifactPath": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json",
         "screenshotPath": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png",
-        "missingProofReason": "Full child/parent UI beyond the hosted parent route, child-device delivery, physical-device proof, authority, provider delivery, and production proof remain pending."
+        "missingProofReason": "Live service data, child-device UI, hosted Playwright/a11y output, and physical-device proof remain pending."
       },
       {
         "requirement": "Rust SQLite tracking ingest",
@@ -117,7 +117,6 @@
     ],
     "uiStateCoverage": [
       "Tracking off",
-      "Fresh live",
       "Permission required",
       "Stale last known",
       "Offline last known",
@@ -128,15 +127,12 @@
       "Exception active",
       "Child check-in",
       "Temporary live",
-      "Temporary live expired",
       "Missing device",
-      "Remote sync disabled",
-      "Remote AI disabled",
-      "Unsupported manual-required",
       "Retention deleted"
     ],
     "blockingGapsBeforeProductOrPrReady": [
-      "Full parent/child UI beyond the hosted route remains pending.",
+      "Hosted Playwright/a11y proof is pending.",
+      "Live parent service-data UI proof is pending.",
       "Child-device UI proof is pending.",
       "Android/iOS physical background proof is manual-required.",
       "Authority-enrolled and production-pilot proof are not present."

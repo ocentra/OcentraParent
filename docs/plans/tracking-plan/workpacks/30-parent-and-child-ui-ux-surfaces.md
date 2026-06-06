@@ -104,7 +104,7 @@ The fixture is implemented in `apps/portal/src/tracking-status-panel.ts` and
 covered by `apps/portal/tests/tracking-status-panel.test.ts`, and recorded in
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json`.
 The repeatable `node scripts/test/tracking-plan-runtime-proof.mjs` command now
-captures and records the local rendered screenshot at
+captures and records the local rendered full-page screenshot at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`.
 The same route now has a narrow live service summary and service-backed
 citation rows for the P2 `trackingReadModel` event, covered by

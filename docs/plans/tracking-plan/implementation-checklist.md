@@ -210,7 +210,7 @@ runtime, and journal proof files remain unchecked until those implementations
 exist. WP30 additionally has P1 parent portal
 fixture evidence in `11-ui-fixture-state-matrix.json`; the repeatable
 `node scripts/test/tracking-plan-runtime-proof.mjs` command also captures a
-local rendered route screenshot at
+local rendered full-page route screenshot at
 `11-ui-snapshots/policy-tracking-parent-fixture.png`. WP30 additionally has
 hosted parent `policy-tracking` Playwright screenshot and accessibility proof
 from `npm run test:tracking-plan-hosted-ui-proof`, written to
@@ -558,6 +558,14 @@ Every implementation workpack must update, or explicitly justify not updating:
 - [x] Hosted parent route screenshots render unsupported/manual platform states
       without invented capability or product-ready claims. Proof:
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui-proof.json`.
+- [x] WP31 platform extension inventory proof ties the existing Android
+      emulator/status/manual-required rows, iOS simulator/manual-required rows,
+      desktop hint-only row, and hosted unsupported/manual UI row together
+      without claiming physical-device, background runtime, authority,
+      provider-delivery, production, or product-ready tracking behavior. Proof:
+      `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/20-platform-extension-inventory-proof.json`;
+      command:
+      `node scripts/test/tracking-platform-extension-inventory-proof.mjs`.
 
 ## Explicit Merge-Blocking Checklist
 

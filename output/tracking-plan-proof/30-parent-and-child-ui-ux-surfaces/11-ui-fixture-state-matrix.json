@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-06T19:24:38.930Z",
+  "workpackId": "30-parent-and-child-ui-ux-surfaces",
+  "requiredProofTier": "P2_HOSTED_CI",
+  "currentProofTier": "P1_FIXTURE_SIMULATION",
+  "currentStatus": "simulated",
+  "artifactPath": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/",
+  "missingProofReason": "P4/P5/P6 product proof remains manual-required or authority-required where applicable.",
+  "proof": {
+    "route": "/#/policy-tracking",
+    "surface": "apps/portal/src/tracking-status-panel.ts",
+    "test": "apps/portal/tests/tracking-status-panel.test.ts",
+    "states": [
+      "Tracking off",
+      "Permission required",
+      "Stale last known",
+      "Offline last known",
+      "Low accuracy",
+      "Nearby place ambiguous",
+      "Policy alert",
+      "Parent acknowledged",
+      "Exception active",
+      "Child check-in",
+      "Temporary live",
+      "Missing device",
+      "Retention deleted"
+    ],
+    "deletedHistoryProof": {
+      "historyVisibilityText": "Deleted history hidden",
+      "deletedEvidenceText": "Deleted evidence not rendered",
+      "deletedEvidenceProbe": "location-evidence-1",
+      "deletedEvidenceRendered": false
+    },
+    "evidenceCitationProof": {
+      "runtimeReferenceLabel": "Runtime reference",
+      "requiredPrefix": "output/tracking-plan-proof/",
+      "requiredArtifacts": [
+        "output/tracking-plan-proof/03-contract-boundary-and-effect-schemas/proof-summary.json",
+        "output/tracking-plan-proof/06-permission-and-capability-status-model/proof-summary.json",
+        "output/tracking-plan-proof/04-location-evidence-model/03-runtime-location-evidence.json",
+        "output/tracking-plan-proof/05-device-status-model/04-device-status-proof.json",
+        "output/tracking-plan-proof/19-nearby-place-provider-abstraction/proof-summary.json",
+        "output/tracking-plan-proof/26-alert-severity-and-notification-model/proof-summary.json",
+        "output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/09-policy-alert-proof.json",
+        "output/tracking-plan-proof/18-child-check-in-flow/09-policy-alert-proof.json",
+        "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json",
+        "output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json",
+        "output/tracking-plan-proof/28-temporary-live-tracking-mode/proof-summary.json",
+        "output/tracking-plan-proof/29-missing-device-mode/proof-summary.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json"
+      ],
+      "artifactCount": 16
+    },
+    "productClaimReady": false,
+    "missingProofReason": "This is UI fixture proof only. Live service data, hosted Playwright/a11y proof, child-device UI, and physical-device proof remain pending.",
+    "routeScreenshotProof": {
+      "route": "http://127.0.0.1:4578/#/policy-tracking",
+      "screenshotPath": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png",
+      "logPath": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/12-playwright-proof.log",
+      "viewport": "1440x1800",
+      "gridColumns": "1065.41px",
+      "rowCount": 21,
+      "minimumExpectedRowCount": 14,
+      "allRowsVisible": true,
+      "deletedHistoryProof": {
+        "historyVisibilityText": "Deleted history hidden",
+        "deletedEvidenceText": "Deleted evidence not rendered",
+        "deletedEvidenceProbe": "location-evidence-1",
+        "deletedEvidenceRendered": false
+      },
+      "proofArtifactProof": {
+        "runtimeReferenceLabel": "Runtime reference",
+        "requiredPrefix": "output/tracking-plan-proof/",
+        "requiredArtifacts": [
+          "output/tracking-plan-proof/03-contract-boundary-and-effect-schemas/proof-summary.json",
+          "output/tracking-plan-proof/06-permission-and-capability-status-model/proof-summary.json",
+          "output/tracking-plan-proof/04-location-evidence-model/03-runtime-location-evidence.json",
+          "output/tracking-plan-proof/05-device-status-model/04-device-status-proof.json",
+          "output/tracking-plan-proof/19-nearby-place-provider-abstraction/proof-summary.json",
+          "output/tracking-plan-proof/26-alert-severity-and-notification-model/proof-summary.json",
+          "output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/09-policy-alert-proof.json",
+          "output/tracking-plan-proof/18-child-check-in-flow/09-policy-alert-proof.json",
+          "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+          "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
+          "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+          "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json",
+          "output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json",
+          "output/tracking-plan-proof/28-temporary-live-tracking-mode/proof-summary.json",
+          "output/tracking-plan-proof/29-missing-device-mode/proof-summary.json",
+          "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json"
+        ],
+        "artifactCount": 16
+      },
+      "productClaimReady": false
+    },
+    "commands": [
+      {
+        "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run build",
+        "exitCode": 0
+      },
+      {
+        "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run build",
+        "exitCode": 0
+      },
+      {
+        "command": "cmd /c npm --workspace @ocentra-parent/text-domain run build",
+        "exitCode": 0
+      },
+      {
+        "command": "cmd /c npm --workspace @ocentra-parent/portal-domain run build",
+        "exitCode": 0
+      },
+      {
+        "command": "cmd /c node --input-type=module -e const module = await import('@ocentra-parent/activity-domain/tracking'); if (typeof module.evaluateTrackingGeofenceTransition !== 'function') throw new Error('tracking export missing runtime helper'); if (typeof module.TrackingReadModelSchema?.parse !== 'function') throw new Error('tracking export missing read model schema');",
+        "exitCode": 0
+      },
+      {
+        "command": "cmd /c npm exec --workspace @ocentra-parent/activity-domain -- vitest run tests/tracking.test.ts",
+        "exitCode": 0
+      },
+      {
+        "command": "cmd /c npm exec --workspace @ocentra-parent/parent-domain -- vitest run tests/tracking-location-policy.test.ts",
+        "exitCode": 0
+      },
+      {
+        "command": "cmd /c npm exec --workspace @ocentra-parent/portal -- vitest run tests/tracking-status-panel.test.ts",
+        "exitCode": 0
+      },
+      {
+        "command": "cmd /c npm exec --workspace @ocentra-parent/portal -- tsc -p tsconfig.json --noEmit",
+        "exitCode": 0
+      },
+      {
+        "command": "npm exec --workspace @ocentra-parent/portal -- vite --host 127.0.0.1 --port 4578 --strictPort",
+        "exitCode": 0
+      },
+      {
+        "command": "cargo test -p ocentra-parent-agent-core activity_store_ingests_tracking_mvp_events_into_sqlite",
+        "exitCode": 0
+      }
+    ]
+  }
+}
