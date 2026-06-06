@@ -92,6 +92,15 @@ compete on control while staying clear about attribution confidence and privacy.
   enforcement-command or adapter-action counts. This remains a proof boundary
   only; live broker/family-hub transport, policy execution, adapter execution,
   and host filtering remain unclaimed.
+- E-D added row10b broker/family-hub remote delivery status proof in
+  `agent-core`: broker and family-hub relay routes now materialize custody,
+  publisher/subscriber auth, encryption, retention, replay, deletion, offset,
+  dedupe, broker config, family-hub identity, and relay-policy refs into an
+  explicit requirements-satisfied-but-not-implemented status. The proof also
+  carries local idempotency/dead-letter evidence and keeps cross-process replay,
+  remote retention/delete/export propagation, live broker/family-hub delivery,
+  policy authority, side-effect authority, enforcement commands, adapter
+  execution, and host filtering false.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,
@@ -454,9 +463,9 @@ and manual-required labels before any platform claim can be upgraded. Row52 now
 adds a platform-claim manifest that names exact Windows, Android, Apple
 macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
 follow-ups for missing artifacts.
-Broker/family-hub delivery implementation, local-AI model execution/worker
-runtime, full policy engine execution beyond the current stored-flow dry-run
-preview and stored-flow service unavailable-result proof,
+Broker/family-hub delivery implementation beyond the row10b status proof,
+local-AI model execution/worker runtime, full policy engine execution beyond
+the current stored-flow dry-run preview and stored-flow service unavailable-result proof,
 notification provider delivery, broader parent-facing rule UX, live host DNS
 mutation/proxy installation, live Windows
 Firewall mutation, live WFP driver/callout/packet blocking, live Android
