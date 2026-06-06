@@ -298,6 +298,13 @@ control with better evidence and local audit.
   source-kind capability state, latest observed timestamps, and evidence ref
   counts through the existing metric/evidence surfaces without adding backend,
   policy, or adapter claims.
+- Parent-domain source-freshness policy-consumption contracts now validate
+  native app policy requests against fresh inventory, runtime, and foreground
+  source rows and native game requests against fresh inventory, runtime,
+  foreground, and launcher rows before policy compile. Stale, missing,
+  permission-limited, unavailable, adapter-error, manual-required, and
+  not-claimed rows remain manual-required, with no raw private source rows or
+  adapter dispatch.
 - The App/Game Sessions dashboard intent now also exposes grouped source-panel
   sections for app-use and game source rows with fresh/manual/evidence counts,
   source labels, and last-observed labels, preparing the dedicated source panel

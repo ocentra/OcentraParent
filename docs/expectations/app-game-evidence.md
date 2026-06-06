@@ -142,6 +142,12 @@ The common game-control path should be:
   disclosure, and supporting evidence refs exist; local-AI routes cite digest
   refs, manual-review routes stay manual-required, and no category/risk route
   dispatches an adapter.
+- Policy readiness consumes only service-backed app/game `sourceStatusRows`.
+  Native app policy compile requires fresh inventory, runtime, and foreground
+  evidence; native game policy compile also requires fresh launcher evidence.
+  Stale, missing, permission-limited, unavailable, adapter-error,
+  manual-required, and not-claimed rows block policy compile without exposing
+  raw private source rows or calling adapters.
 - Enforcement, when enabled, records whether the game/app was terminated, already
   exited, unavailable, blocked, or left running in observe-only mode.
 
