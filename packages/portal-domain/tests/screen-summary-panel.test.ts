@@ -26,6 +26,16 @@ describe('screen summary panel intent', () => {
       label: 'Enforcement handoff',
       value: 'Not claimed',
     });
+    expect(intent.rows[0]?.details).toContainEqual({
+      label: 'OCR snippets',
+      value: 'Homework research page [redacted]',
+    });
+    expect(intent.rows[0]?.details).toContainEqual({
+      label: 'Redaction notes',
+      value: 'credentialLikeTextRedacted | piiLikeTextRedacted',
+    });
+    expect(JSON.stringify(intent.rows[0])).not.toContain('student@example.com');
+    expect(JSON.stringify(intent.rows[0])).not.toContain('hunter2');
   });
 
   it('keeps unavailable or parser-failed screen rows visible without inventing data', () => {
@@ -74,6 +84,8 @@ function screenReadModel() {
         policyReasonCodes: ['screen-school-allow'],
         parentRuleRefs: ['screen-parent-rule-ref'],
         parentExplanationRefs: ['screen-parent-explanation-ref'],
+        ocrTextSnippets: ['Homework research page [redacted]'],
+        redactionNotes: ['credentialLikeTextRedacted', 'piiLikeTextRedacted'],
       },
     ],
   } as const;
