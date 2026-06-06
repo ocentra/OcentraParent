@@ -186,6 +186,12 @@ export {
   type BrowserChildInterventionPageModel,
   type BrowserChildInterventionPageTheme,
 } from './browser-child-intervention-page';
+export {
+  createSocialChildInterventionPageModels,
+  type SocialChildInterventionPageModelOptions,
+  type SocialChildInterventionPageModelResult,
+  type SocialChildInterventionRequestedUrlResolver,
+} from './social-child-intervention-page-model';
 
 export type PortalDisplayText = DisplayText;
 
