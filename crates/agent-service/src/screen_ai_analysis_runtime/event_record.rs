@@ -20,6 +20,8 @@ use super::{
     ScreenAiAnalysisCycleOutcome,
 };
 
+mod policy_refs;
+
 #[derive(Clone, Debug)]
 pub(super) struct ScreenAiAnalysisEventRecord {
     queue_job_id: String,
@@ -36,6 +38,13 @@ pub(super) struct ScreenAiAnalysisEventRecord {
     capture_reason: String,
     capture_scope: String,
     capability_status: String,
+    policy_decision_ref: Option<String>,
+    policy_action: Option<String>,
+    policy_reason_codes: Vec<String>,
+    parent_rule_refs: Vec<String>,
+    parent_explanation_refs: Vec<String>,
+    explanation_reasons: Vec<String>,
+    deletion_reasons: Vec<String>,
 }
 
 pub(super) fn analysis_event_record(
@@ -91,6 +100,7 @@ pub(super) fn analysis_event_record(
             SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION.to_string(),
         ),
     };
+    let policy = policy_refs::service_policy_refs(&image.queue_job_id, policy_eligible);
     ScreenAiAnalysisEventRecord {
         queue_job_id: image.queue_job_id.clone(),
         image_digest: image.image_digest.clone(),
@@ -105,10 +115,14 @@ pub(super) fn analysis_event_record(
         prompt_or_template_version: template_version,
         capture_reason: capture_reason(metadata).to_string(),
         capture_scope: capture_scope(metadata).to_string(),
-        capability_status: metadata
-            .map(|result| result.capability_status.as_str())
-            .unwrap_or(ActivityCaptureCapabilityStatus::Available.as_protocol_str())
-            .to_string(),
+        capability_status: capability_status(metadata).to_string(),
+        policy_decision_ref: policy.policy_decision_ref,
+        policy_action: policy.policy_action,
+        policy_reason_codes: policy.policy_reason_codes,
+        parent_rule_refs: policy.parent_rule_refs,
+        parent_explanation_refs: policy.parent_explanation_refs,
+        explanation_reasons: policy.explanation_reasons,
+        deletion_reasons: policy.deletion_reasons,
     }
 }
 
@@ -173,7 +187,7 @@ pub(super) fn screen_analysis_event(record: &ScreenAiAnalysisEventRecord) -> Act
 fn screen_analysis_fields(
     record: &ScreenAiAnalysisEventRecord,
 ) -> Vec<(&'static str, LogFieldValue)> {
-    vec![
+    let mut fields = vec![
         string_field(
             constants::field::SCREEN_ANALYSIS_RESULT_ID,
             prefixed_id(
@@ -232,7 +246,9 @@ fn screen_analysis_fields(
             constants::field::SCREEN_CUSTODY_STATE,
             SCREEN_CUSTODY_JOURNAL,
         ),
-    ]
+    ];
+    fields.extend(policy_refs::screen_analysis_policy_fields(record));
+    fields
 }
 
 fn capture_reason(metadata: Option<&ScreenAnalysisResult>) -> &str {
@@ -245,6 +261,12 @@ fn capture_scope(metadata: Option<&ScreenAnalysisResult>) -> &str {
     metadata
         .map(|result| result.capture_scope.as_str())
         .unwrap_or(SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW)
+}
+
+fn capability_status(metadata: Option<&ScreenAnalysisResult>) -> &str {
+    metadata
+        .map(|result| result.capability_status.as_str())
+        .unwrap_or(ActivityCaptureCapabilityStatus::Available.as_protocol_str())
 }
 
 fn prefixed_id(prefix: &str, value: &str) -> String {
