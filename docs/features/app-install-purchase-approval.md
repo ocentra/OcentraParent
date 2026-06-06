@@ -355,6 +355,18 @@ generic app blocking covers this concern.
   records that product-claim store handoff proof under
   `test-results/app-install-purchase-product-claim-store-handoff-proof/proof.json`
   when run and validates the public parent-domain package export.
+- `packages/parent-domain/src/app-install-purchase-product-claim-store-upgrade-readiness-proof.ts`
+  now links product-claim gate, portal test readiness, and provider/store proof
+  rows into product-claim store upgrade blocked, manual-required, and
+  unsupported states. It preserves no product claim approval, provider/store
+  execution, store integration, billing/provider contact, platform
+  interception/adapters, runtime writer/report delivery, child-device delivery,
+  portal approval/report UI, app blocking, child activity data, or hosted family
+  data custody claims.
+- `scripts/test/app-install-purchase-product-claim-store-upgrade-readiness-proof.mjs`
+  records that product-claim store upgrade readiness proof under
+  `test-results/app-install-purchase-product-claim-store-upgrade-readiness-proof/proof.json`
+  when run and validates the public parent-domain package export.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -655,6 +667,12 @@ Ocentra-hosted family data custody.
       claiming portal UI, provider/store execution, platform adapters, child
       delivery, runtime writer/report delivery, app blocking, child activity
       data, or hosted custody.
+- [x] Product-claim store upgrade readiness proof linking product-claim gate,
+      portal test readiness, and provider/store proof rows into
+      blocked/manual/unsupported upgrade states without product claim approval,
+      provider/store execution, store integration, portal approval/report UI,
+      platform adapters, child delivery, app blocking, child activity data, or
+      hosted custody claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
