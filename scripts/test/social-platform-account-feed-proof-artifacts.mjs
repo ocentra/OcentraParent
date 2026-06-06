@@ -59,7 +59,7 @@ async function socialProofDirectories() {
 }
 
 function expectedRows() {
-  const completeRows = new Set([1, 8, 9, 10, 11, 13, 14, 15, 18, 20, 21, 22]);
+  const completeRows = new Set([1, 8, 9, 10, 11, 12, 13, 14, 15, 18, 20, 21, 22]);
   return Array.from({ length: 22 }, (_, index) => {
     const rowNumber = index + 1;
     const complete = completeRows.has(rowNumber);
