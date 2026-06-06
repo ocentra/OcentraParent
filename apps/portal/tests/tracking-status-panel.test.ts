@@ -12,6 +12,7 @@ import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
 import { trackingChildCheckInProof, trackingChildRuntimeUiProof } from '../src/tracking-child-check-in-proof';
 import { trackingEvidenceDrawerHostedUiProof } from '../src/tracking-evidence-drawer-hosted-ui-proof';
+import { trackingNotificationParentSurfaceHostedUiProof } from '../src/tracking-notification-parent-surface-hosted-ui-proof';
 import { trackingReportExportHostedUiProof } from '../src/tracking-report-export-hosted-ui-proof';
 import { trackingRetentionSettingsHostedUiProof } from '../src/tracking-retention-settings-hosted-ui-proof';
 import {
@@ -280,6 +281,42 @@ const ExpectedReportExportHostedUiRows = [
   },
 ] as const;
 
+const ExpectedNotificationParentSurfaceRows = [
+  {
+    title: 'Notification history ready',
+    status: 'history-intent-ready',
+    policyDecisionRef: 'tracking-decision-home-arrival',
+    evidenceRefs: 'location-evidence-geofence-entry',
+    providerAttemptRef: 'tracking-provider-attempt-home-arrival',
+    receiptRequirementRefs: 'receipt-ingestion-required-home-arrival',
+    preferenceRequirementRefs: 'parent-notification-preference-required-home-arrival',
+    manualProofRequirements: 'provider-delivery-runtime-required | receipt-webhook-runtime-required',
+    redactedSummaryRef: 'tracking-notification-redacted-summary-tracking-alert-home-arrival',
+  },
+  {
+    title: 'Manual notification action required',
+    status: 'manual-action-required',
+    policyDecisionRef: 'tracking-decision-left-expected-place',
+    evidenceRefs: 'location-evidence-geofence-entry',
+    providerAttemptRef: 'tracking-provider-attempt-left-school',
+    receiptRequirementRefs: 'manual-receipt-required-left-school',
+    preferenceRequirementRefs: 'quiet-hours-requirement-left-school',
+    manualProofRequirements: 'manual-provider-review-required | quiet-hours-runtime-required',
+    redactedSummaryRef: 'tracking-notification-redacted-summary-tracking-alert-left-expected-place',
+  },
+  {
+    title: 'Notification provider unavailable',
+    status: 'provider-unavailable',
+    policyDecisionRef: 'tracking-decision-provider-unavailable',
+    evidenceRefs: 'location-evidence-geofence-entry',
+    providerAttemptRef: 'tracking-provider-attempt-unavailable',
+    receiptRequirementRefs: 'provider-receipt-unavailable',
+    preferenceRequirementRefs: 'source-unavailable-preference-required',
+    manualProofRequirements: 'provider-adapter-unavailable | manual-parent-history-review-required',
+    redactedSummaryRef: 'tracking-notification-redacted-summary-tracking-alert-provider-unavailable',
+  },
+] as const;
+
 const TrackingRetentionSettingsWriteResult = {
   schemaVersion: AgentProtocolSchemaVersion,
   commandId: 'tracking-retention-settings-write-command',
@@ -481,6 +518,36 @@ describe('tracking dashboard and platform proof surface', () => {
       rows: ExpectedUnsupportedManualRows,
     });
     expect(JSON.stringify(proof)).not.toMatch(/(?:product ready|physical device proved|authority proved)/iu);
+  });
+});
+
+describe('tracking notification parent-surface hosted proof surface', () => {
+  it('renders notification history rows without delivery, receipt, or product claims', () => {
+    const proof = trackingNotificationParentSurfaceHostedUiProof();
+
+    expect(proof).toEqual({
+      title: 'Notification history intent UI',
+      body: 'Hosted route renders parent notification history, manual action, and provider unavailable rows from existing tracking notification proof refs without claiming provider delivery or receipt runtime.',
+      proofTier: 'P2 service proof',
+      rowsReturned: '3',
+      proofArtifact: TrackingStatusProofArtifacts.NotificationParentSurfaceHistory,
+      boundary:
+        'Hosted notification history rendering only; preference mutation, quiet-hours runtime, provider delivery, receipt ingestion, child-device delivery, physical-device proof, authority, production storage, adapter dispatch, and product readiness remain unclaimed.',
+      missingProof: 'Manual proof required',
+      productClaim: 'No product claim',
+      renderedParentNotificationUiRows: '3',
+      parentPreferenceMutationRows: '0',
+      providerDeliveryClaimedRows: '0',
+      receiptIngestionClaimedRows: '0',
+      childDeviceDeliveryClaimedRows: '0',
+      physicalDeviceClaimedRows: '0',
+      authorityClaimedRows: '0',
+      productionStorageClaimedRows: '0',
+      adapterDispatchClaimedRows: '0',
+      productClaimReadyRows: '0',
+      rows: ExpectedNotificationParentSurfaceRows,
+    });
+    expect(JSON.stringify(proof)).not.toMatch(/(?:provider delivered|receipt ingested|product ready)/iu);
   });
 });
 

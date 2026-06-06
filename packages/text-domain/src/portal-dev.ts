@@ -73,6 +73,88 @@ export const PortalDevTextToken = {
   TrackingReportExportFamilySummaryEvidence: decodeTextTokenId('portal.dev.trackingReportExportFamilySummaryEvidence'),
   TrackingReportExportPolicyDrillInEvidence: decodeTextTokenId('portal.dev.trackingReportExportPolicyDrillInEvidence'),
   TrackingReportExportHostedBoundary: decodeTextTokenId('portal.dev.trackingReportExportHostedBoundary'),
+  TrackingNotificationParentSurfaceHostedUi: decodeTextTokenId('portal.dev.trackingNotificationParentSurfaceHostedUi'),
+  TrackingNotificationParentSurfaceHostedUiBody: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceHostedUiBody'
+  ),
+  TrackingNotificationParentSurfaceHistoryIntent: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceHistoryIntent'
+  ),
+  TrackingNotificationParentSurfaceManualAction: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceManualAction'
+  ),
+  TrackingNotificationParentSurfaceProviderUnavailable: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceProviderUnavailable'
+  ),
+  TrackingNotificationParentSurfaceHistoryIntentReady: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceHistoryIntentReady'
+  ),
+  TrackingNotificationParentSurfaceManualActionRequired: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceManualActionRequired'
+  ),
+  TrackingNotificationParentSurfaceProviderUnavailableStatus: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceProviderUnavailableStatus'
+  ),
+  TrackingNotificationParentSurfaceHomeDecision: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceHomeDecision'
+  ),
+  TrackingNotificationParentSurfaceSchoolDecision: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceSchoolDecision'
+  ),
+  TrackingNotificationParentSurfaceUnavailableDecision: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceUnavailableDecision'
+  ),
+  TrackingNotificationParentSurfaceLocationEvidence: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceLocationEvidence'
+  ),
+  TrackingNotificationParentSurfaceHomeAttempt: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceHomeAttempt'
+  ),
+  TrackingNotificationParentSurfaceSchoolAttempt: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceSchoolAttempt'
+  ),
+  TrackingNotificationParentSurfaceUnavailableAttempt: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceUnavailableAttempt'
+  ),
+  TrackingNotificationParentSurfaceHomeReceiptRequirement: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceHomeReceiptRequirement'
+  ),
+  TrackingNotificationParentSurfaceSchoolReceiptRequirement: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceSchoolReceiptRequirement'
+  ),
+  TrackingNotificationParentSurfaceUnavailableReceiptRequirement: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceUnavailableReceiptRequirement'
+  ),
+  TrackingNotificationParentSurfaceHomePreferenceRequirement: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceHomePreferenceRequirement'
+  ),
+  TrackingNotificationParentSurfaceSchoolPreferenceRequirement: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceSchoolPreferenceRequirement'
+  ),
+  TrackingNotificationParentSurfaceUnavailablePreferenceRequirement: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceUnavailablePreferenceRequirement'
+  ),
+  TrackingNotificationParentSurfaceHomeManualProof: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceHomeManualProof'
+  ),
+  TrackingNotificationParentSurfaceSchoolManualProof: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceSchoolManualProof'
+  ),
+  TrackingNotificationParentSurfaceUnavailableManualProof: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceUnavailableManualProof'
+  ),
+  TrackingNotificationParentSurfaceHomeSummary: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceHomeSummary'
+  ),
+  TrackingNotificationParentSurfaceSchoolSummary: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceSchoolSummary'
+  ),
+  TrackingNotificationParentSurfaceUnavailableSummary: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceUnavailableSummary'
+  ),
+  TrackingNotificationParentSurfaceHostedBoundary: decodeTextTokenId(
+    'portal.dev.trackingNotificationParentSurfaceHostedBoundary'
+  ),
   TrackingRetentionSettingsHostedUi: decodeTextTokenId('portal.dev.trackingRetentionSettingsHostedUi'),
   TrackingRetentionSettingsHostedUiBody: decodeTextTokenId('portal.dev.trackingRetentionSettingsHostedUiBody'),
   TrackingRetentionSettingsWindow: decodeTextTokenId('portal.dev.trackingRetentionSettingsWindow'),
@@ -350,6 +432,81 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   ),
   [PortalDevTextToken.TrackingReportExportHostedBoundary]: decodeDisplayText(
     'Hosted report/export packet rendering only; raw location payload export, service mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceHostedUi]: decodeDisplayText('Notification history intent UI'),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceHostedUiBody]: decodeDisplayText(
+    'Hosted route renders parent notification history, manual action, and provider unavailable rows from existing tracking notification proof refs without claiming provider delivery or receipt runtime.'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceHistoryIntent]: decodeDisplayText('Notification history ready'),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceManualAction]: decodeDisplayText(
+    'Manual notification action required'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceProviderUnavailable]: decodeDisplayText(
+    'Notification provider unavailable'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceHistoryIntentReady]: decodeDisplayText('history-intent-ready'),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceManualActionRequired]:
+    decodeDisplayText('manual-action-required'),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceProviderUnavailableStatus]:
+    decodeDisplayText('provider-unavailable'),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceHomeDecision]: decodeDisplayText(
+    'tracking-decision-home-arrival'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceSchoolDecision]: decodeDisplayText(
+    'tracking-decision-left-expected-place'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceUnavailableDecision]: decodeDisplayText(
+    'tracking-decision-provider-unavailable'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceLocationEvidence]: decodeDisplayText(
+    'location-evidence-geofence-entry'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceHomeAttempt]: decodeDisplayText(
+    'tracking-provider-attempt-home-arrival'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceSchoolAttempt]: decodeDisplayText(
+    'tracking-provider-attempt-left-school'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceUnavailableAttempt]: decodeDisplayText(
+    'tracking-provider-attempt-unavailable'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceHomeReceiptRequirement]: decodeDisplayText(
+    'receipt-ingestion-required-home-arrival'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceSchoolReceiptRequirement]: decodeDisplayText(
+    'manual-receipt-required-left-school'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceUnavailableReceiptRequirement]:
+    decodeDisplayText('provider-receipt-unavailable'),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceHomePreferenceRequirement]: decodeDisplayText(
+    'parent-notification-preference-required-home-arrival'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceSchoolPreferenceRequirement]: decodeDisplayText(
+    'quiet-hours-requirement-left-school'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceUnavailablePreferenceRequirement]: decodeDisplayText(
+    'source-unavailable-preference-required'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceHomeManualProof]: decodeDisplayText(
+    'provider-delivery-runtime-required | receipt-webhook-runtime-required'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceSchoolManualProof]: decodeDisplayText(
+    'manual-provider-review-required | quiet-hours-runtime-required'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceUnavailableManualProof]: decodeDisplayText(
+    'provider-adapter-unavailable | manual-parent-history-review-required'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceHomeSummary]: decodeDisplayText(
+    'tracking-notification-redacted-summary-tracking-alert-home-arrival'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceSchoolSummary]: decodeDisplayText(
+    'tracking-notification-redacted-summary-tracking-alert-left-expected-place'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceUnavailableSummary]: decodeDisplayText(
+    'tracking-notification-redacted-summary-tracking-alert-provider-unavailable'
+  ),
+  [PortalDevTextToken.TrackingNotificationParentSurfaceHostedBoundary]: decodeDisplayText(
+    'Hosted notification history rendering only; preference mutation, quiet-hours runtime, provider delivery, receipt ingestion, child-device delivery, physical-device proof, authority, production storage, adapter dispatch, and product readiness remain unclaimed.'
   ),
   [PortalDevTextToken.TrackingRetentionSettingsHostedUi]: decodeDisplayText('Retention settings read-model UI'),
   [PortalDevTextToken.TrackingRetentionSettingsHostedUiBody]: decodeDisplayText(

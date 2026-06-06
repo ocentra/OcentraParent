@@ -84,6 +84,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 - Notification preference preflight proof:
   `24-notification-preference-preflight-proof.json`
+- Hosted notification parent-surface proof:
+  `35-notification-parent-surface-hosted-ui-proof.json`
 
 ## Merge Blockers
 
@@ -149,12 +151,14 @@ authority claims.
 This branch adds `npm run test:tracking-plan-hosted-ui-proof`, which starts the
 real Rust service against a seeded temporary ActivityStore SQLite database and
 drives the hosted parent `policy-tracking` route through Playwright. It writes
-desktop/mobile screenshots, a hosted child-safe check-in screenshot, an
-accessibility summary, WP30 hosted UI proof, and WP33 hosted UI gate proof while
-keeping `productClaimReady=false`. It is a hosted route proof only and does not
-claim child-device delivery/runtime UI, full service-data UI, Android/iOS
-physical-device behavior, authority, provider delivery, or production
-readiness.
+desktop/mobile screenshots, hosted child-safe check-in, child-runtime,
+retention/settings, evidence drawer, and notification parent-surface screenshots,
+an accessibility summary, WP30 hosted UI proof, and WP33 hosted UI gate proof
+while keeping `productClaimReady=false`. It is a hosted route proof only and
+does not claim writable parent notification preferences, provider delivery,
+receipt ingestion runtime, child-device delivery/runtime UI, Android/iOS
+physical-device behavior, authority, adapter dispatch, production storage, or
+production readiness.
 
 This branch adds `npm run test:tracking-plan-evidence-quality-gate-proof`,
 which validates location UI evidence refs, geofence rule/source refs,
@@ -253,6 +257,10 @@ This workpack can be assigned independently, implemented against the owning doma
   proof exists.
 - Parent notification preferences and quiet-hours must remain manual-required
   until runtime/UI mutation proof exists.
+- Hosted notification parent-surface rows are read-only rendering proof only;
+  writable preference mutation, provider delivery, receipt ingestion runtime,
+  child-device delivery, physical-device proof, authority, production storage,
+  adapter dispatch, and product-ready behavior remain manual-required.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
@@ -457,6 +465,36 @@ This workpack can be assigned independently, implemented against the owning doma
       cloud routing, child-device delivery, physical-device proof, authority
       proof, retry workers, production durable history/outbox storage, adapter
       dispatch, and product-ready notification behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: hosted notification parent-surface proof model, portal
+      tracking status route renderer, portal hosted Playwright proof spec,
+      portal tests, hosted proof script, portal/text/domain constants, owning
+      tracking feature doc, implementation checklist, WP26/WP30/WP33 docs, and
+      generated hosted proof artifacts.
+- [x] Validation commands and results:
+      `cmd /c npm run build --workspace @ocentra-parent/text-domain` passed;
+      `cmd /c npm run build --workspace @ocentra-parent/portal-domain` passed;
+      `cmd /c npm run test --workspace @ocentra-parent/portal --
+tracking-status-panel` passed; `cmd /c npm run lint --workspace
+@ocentra-parent/portal` passed; `cmd /c npm run
+test:tracking-plan-hosted-ui-proof` passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/35-notification-parent-surface-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/22-notification-parent-surface-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/26-alert-severity-and-notification-model/27-notification-parent-surface-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png`,
+      and `test-results/tracking-plan-hosted-ui-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP26, WP30, and WP33 updated. Central
+      `docs/product-capability-checklist.md` update remains hub-sequenced
+      because E-B owns that lock.
+- [x] Known gaps/manual-required states: hosted notification parent-surface rows
+      are read-only rendering proof only; writable preference mutation,
+      provider delivery, receipt ingestion runtime, credentials, cloud routing,
+      child-device delivery, physical-device proof, authority proof, retry
+      workers, production durable history/outbox storage, adapter dispatch, and
+      product-ready notification behavior remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: parent-domain expected-place alert policy proof/test,
