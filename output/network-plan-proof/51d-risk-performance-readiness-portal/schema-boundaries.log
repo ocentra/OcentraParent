@@ -2,13 +2,13 @@
 > @ocentra-parent/workspace@0.1.1 lint:schema-boundaries
 > node scripts/check-no-zod-source.mjs && node scripts/check-no-naked-domain-strings.mjs && node scripts/check-no-app-string-literals.mjs && node scripts/check-vendor-portal-asset-imports.mjs && node scripts/check-rust-string-boundaries.mjs && node scripts/check-required-tests.mjs && node scripts/check-no-test-doubles.mjs && node scripts/check-source-shape.mjs && node scripts/check-ai-rule-index.mjs
 
-No direct Zod source usage found across 1575 checked files.
+No direct Zod source usage found across 1580 checked files.
 No manual string brands or naked domain string aliases found.
 No inline app domain strings or UI boundary violations found across 74 checked files.
 No ParentPortal vendor page imports use portal asset aliases.
 No inline Rust service/core string literals found across 416 checked files.
 Required test scaffold is present for all source workspaces.
-No test doubles found across 1869 checked source files.
+No test doubles found across 1873 checked source files.
 Source shape warnings: files/functions are near their size limits.
 apps/portal/e2e/portal-route-scaffold-assertions.ts:1 file has 760 lines; crossed 750-line advisory band; maximum is 1000
 apps/portal/e2e/portal-ui.spec.ts:1 file has 321 lines; crossed 250-line advisory band; maximum is 1000
