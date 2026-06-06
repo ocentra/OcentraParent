@@ -1,10 +1,10 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-06T05:50:01.649Z
+Generated: 2026-06-06T06:15:04.879Z
 
 Rows checked: 22
-Proof-present rows: 5
-Partial/manual-required rows: 17
+Proof-present rows: 6
+Partial/manual-required rows: 16
 Playwright state: rendered-proof-bundle-ui-present-runtime-delivery-manual-required
 Product claimed: false
 
@@ -24,7 +24,7 @@ Product claimed: false
 | SOCIAL-12 | partial-manual-required | `social-12-parent-policy-compiler-social-targets` | 5 |
 | SOCIAL-13 | proof-present | `social-13-managed-browser-account-creation-gate` | 8 |
 | SOCIAL-14 | proof-present | `social-14-managed-browser-feed-short-video-gate` | 7 |
-| SOCIAL-15 | partial-manual-required | `social-15-unmanaged-social-bypass-detector` | 5 |
+| SOCIAL-15 | proof-present | `social-15-unmanaged-social-bypass-detector` | 6 |
 | SOCIAL-16 | partial-manual-required | `social-16-android-native-app-capability-matrix` | 5 |
 | SOCIAL-17 | partial-manual-required | `social-17-ios-screentime-managedsettings-matrix` | 5 |
 | SOCIAL-18 | partial-manual-required | `social-18-platform-connector-authorization-boundary` | 5 |

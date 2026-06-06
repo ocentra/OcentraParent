@@ -199,6 +199,14 @@ managed-browser-required state. It rejects exact URL proof, managed-session
 boundaries, route evidence, social account proof, feed/video route proof,
 messages, account identity, native app control, connector access, child/parent
 UI, process termination, managed browser relaunch, and enforcement. Activity-domain package subpath exports are now present.
+`scripts/test/social-unmanaged-bypass-live-process-proof.mjs` now adds the
+live-process proof: it launches a real local system browser against public
+social/video surfaces, stores only redacted executable/process/command/target
+refs, writes
+`test-results/social-unmanaged-bypass-live-process-proof/proof.json` and
+`output/browser-plan-proof/social-15-unmanaged-social-bypass-detector/11-live-process-proof.json`,
+and keeps exact URL, route/content, UI, native, connector, process-control, and
+enforcement claims false.
 
 SOCIAL-16 now adds
 `packages/parent-domain/src/social-android-native-app-capability-matrix-values.ts`
