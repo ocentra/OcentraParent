@@ -44,6 +44,28 @@ fn network_product_readiness_status_payload_serializes_materializer_outputs() {
     );
     assert!(product_status.portal_read_model_ready);
     assert!(product_status.retention_export_refs_visible);
+    assert_eq!(
+        product_status.risk_evaluation_ref,
+        constants::network_flow::TEST_RISK_EVALUATION_REF
+    );
+    assert_eq!(product_status.risk_total_points, 42);
+    assert_eq!(
+        product_status.risk_cited_evidence_refs,
+        vec![constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_owned()]
+    );
+    assert!(product_status.risk_budget_advisory_only);
+    assert_eq!(
+        product_status.performance_benchmark_run_ref,
+        constants::network_flow::TEST_PERFORMANCE_BENCHMARK_REF
+    );
+    assert_eq!(product_status.performance_packet_count, 2_000);
+    assert_eq!(
+        product_status.performance_event_throughput_per_second,
+        3_200
+    );
+    assert!(!product_status.performance_realtime_response_claimed);
+    assert!(!product_status.performance_adapter_action_executed);
+    assert!(!product_status.performance_host_filtering_executed);
     assert_eq!(product_status.platform_manual_required_claims, 1);
     assert_eq!(product_status.platform_entries.len(), 2);
     assert_eq!(

@@ -16,7 +16,19 @@ describe('network product readiness status protocol adapter', () => {
     expect(parsed.liveCaptureCustodyStatus.exact_url_available).toBe(false);
     expect(parsed.productReadinessStatus.status_ref).toBe('network.product-readiness.status.51a');
     expect(parsed.productReadinessStatus.readiness_state).toBe('ManualRequired');
+    expect(parsed.productReadinessStatus.risk_evaluation_ref).toBe('network.risk-evaluation.51a');
+    expect(parsed.productReadinessStatus.risk_age_band).toBe('UnderTwelve');
     expect(parsed.productReadinessStatus.risk_budget_state).toBe('AskParentThreshold');
+    expect(parsed.productReadinessStatus.risk_total_points).toBe(42);
+    expect(parsed.productReadinessStatus.risk_cited_evidence_refs).toEqual(['network.flow-evidence.51a']);
+    expect(parsed.productReadinessStatus.risk_adapter_proof_state).toBe('Ready');
+    expect(parsed.productReadinessStatus.risk_budget_advisory_only).toBe(true);
+    expect(parsed.productReadinessStatus.performance_benchmark_run_ref).toBe('network.performance.51a');
+    expect(parsed.productReadinessStatus.performance_packet_count).toBe(2000);
+    expect(parsed.productReadinessStatus.performance_event_throughput_per_second).toBe(3200);
+    expect(parsed.productReadinessStatus.performance_realtime_response_claimed).toBe(false);
+    expect(parsed.productReadinessStatus.performance_adapter_action_executed).toBe(false);
+    expect(parsed.productReadinessStatus.performance_host_filtering_executed).toBe(false);
     expect(parsed.productReadinessStatus.platform_entries).toHaveLength(4);
     expect(parsed.productReadinessStatus.platform_entries[0]?.target).toBe('WindowsFirewall');
     expect(parsed.productReadinessStatus.platform_entries[0]?.adapter_authorized_by_proof).toBe(true);
@@ -141,6 +153,7 @@ function claimRegressionEvent() {
         ...productReadinessStatus(),
         exact_url_available: true,
         portal_adapter_dispatch_claimed: true,
+        performance_host_filtering_executed: true,
       }),
     },
   });
@@ -223,26 +236,9 @@ function productReadinessStatus() {
     portal_read_model_ref: 'network.portal-read-model.51a',
     retention_export_ref: 'network.retention-export.51a',
     readiness_state: 'ManualRequired',
-    risk_budget_ref: 'network.risk-budget.51a',
-    risk_budget_state: 'AskParentThreshold',
-    risk_intervention_state: 'AskParent',
-    risk_total_points: 42,
-    risk_budget_advisory_only: true,
-    performance_state: 'MeetsBenchmarkGate',
-    performance_regression_codes: [],
-    performance_path_states: ['DryRun'],
-    platform_ready_claims: 1,
-    platform_dry_run_claims: 1,
-    platform_research_only_claims: 0,
-    platform_manual_required_claims: 1,
-    platform_unavailable_claims: 1,
-    platform_manual_followups: [
-      {
-        target: 'WindowsWfp',
-        missing_required_artifacts: ['network.live-capture.permission-proof.13'],
-      },
-    ],
-    platform_entries: platformEntries(),
+    ...riskDetails(),
+    ...performanceDetails(),
+    ...platformDetails(),
     portal_read_model_ready: true,
     retention_export_refs_visible: true,
     policy_authority: false,
@@ -255,6 +251,82 @@ function productReadinessStatus() {
     exact_url_available: false,
     decrypted_payload_available: false,
     page_content_available: false,
+  };
+}
+
+function riskDetails() {
+  return {
+    risk_evaluation_ref: 'network.risk-evaluation.51a',
+    risk_child_profile_ref: 'child-profile.51a',
+    risk_household_policy_ref: 'household-policy.51a',
+    risk_budget_ref: 'network.risk-budget.51a',
+    risk_cascade_ref: 'network.cascade.51a',
+    risk_age_band: 'UnderTwelve',
+    risk_budget_state: 'AskParentThreshold',
+    risk_intervention_state: 'AskParent',
+    risk_total_points: 42,
+    risk_age_profile_points: 15,
+    risk_active_signal_points: 27,
+    risk_prior_event_points: 0,
+    risk_safe_behavior_credit_applied_points: 0,
+    risk_triggered_threshold_points: 40,
+    risk_cited_signal_refs: ['network.signal.51a'],
+    risk_cited_audit_refs: ['network.audit.51a'],
+    risk_cited_evidence_refs: ['network.flow-evidence.51a'],
+    risk_cited_parent_rule_refs: ['network.parent-rule.51a'],
+    risk_cited_prior_event_refs: [],
+    risk_adapter_proof_state: 'Ready',
+    risk_budget_advisory_only: true,
+  };
+}
+
+function performanceDetails() {
+  return {
+    performance_benchmark_run_ref: 'network.performance.51a',
+    performance_fixture_set_ref: 'network.performance.fixtures.51a',
+    performance_event_history_ref: 'network.performance.event-history.51a',
+    performance_resource_snapshot_ref: 'network.performance.resource-snapshot.51a',
+    performance_state: 'MeetsBenchmarkGate',
+    performance_regression_codes: [],
+    performance_scenario_count: 2,
+    performance_fixture_count: 20,
+    performance_packet_count: 2000,
+    performance_flow_count: 600,
+    performance_event_count: 1200,
+    performance_max_packet_to_summary_latency_ms: 80,
+    performance_max_packet_to_detection_latency_ms: 700,
+    performance_max_detection_to_cascade_latency_ms: 90,
+    performance_max_cascade_to_command_latency_ms: null,
+    performance_event_throughput_per_second: 3200,
+    performance_max_cpu_millis: 120,
+    performance_max_memory_peak_kib: 40000,
+    performance_total_disk_written_bytes: 20000,
+    performance_max_queue_depth: 4,
+    performance_dropped_event_count: 0,
+    performance_high_concurrency_flow_count: 2100,
+    performance_false_positive_count: 0,
+    performance_false_negative_count: 0,
+    performance_path_states: ['DryRun'],
+    performance_realtime_response_claimed: false,
+    performance_adapter_action_executed: false,
+    performance_host_filtering_executed: false,
+  };
+}
+
+function platformDetails() {
+  return {
+    platform_ready_claims: 1,
+    platform_dry_run_claims: 1,
+    platform_research_only_claims: 0,
+    platform_manual_required_claims: 1,
+    platform_unavailable_claims: 1,
+    platform_manual_followups: [
+      {
+        target: 'WindowsWfp',
+        missing_required_artifacts: ['network.live-capture.permission-proof.13'],
+      },
+    ],
+    platform_entries: platformEntries(),
   };
 }
 

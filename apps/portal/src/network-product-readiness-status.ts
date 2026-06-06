@@ -25,10 +25,37 @@ export type NetworkProductReadinessStatusSummary = {
   readonly missingArtifactCount: PortalDetailValue;
   readonly readinessStatusRef: PortalDetailValue;
   readonly readinessState: PortalDetailValue;
+  readonly riskEvaluationRef: PortalDetailValue;
+  readonly riskChildProfileRef: PortalDetailValue;
+  readonly riskHouseholdPolicyRef: PortalDetailValue;
+  readonly riskCascadeRef: PortalDetailValue;
+  readonly riskAgeBand: PortalDetailValue;
   readonly riskBudgetState: PortalDetailValue;
   readonly riskInterventionState: PortalDetailValue;
+  readonly riskTotalPoints: PortalDetailValue;
+  readonly riskPointBreakdown: PortalDetailValue;
+  readonly riskCitedSignalRefs: PortalDetailValue;
+  readonly riskCitedAuditRefs: PortalDetailValue;
+  readonly riskCitedEvidenceRefs: PortalDetailValue;
+  readonly riskCitedParentRuleRefs: PortalDetailValue;
+  readonly riskCitedPriorEventRefs: PortalDetailValue;
+  readonly riskAdapterProofState: PortalDetailValue;
+  readonly riskBudgetAdvisoryOnly: PortalDetailValue;
+  readonly performanceBenchmarkRunRef: PortalDetailValue;
+  readonly performanceFixtureSetRef: PortalDetailValue;
+  readonly performanceEventHistoryRef: PortalDetailValue;
+  readonly performanceResourceSnapshotRef: PortalDetailValue;
   readonly performanceState: PortalDetailValue;
+  readonly performanceRegressionCodes: PortalDetailValue;
+  readonly performanceScenarioCounts: PortalDetailValue;
+  readonly performanceLatencyMetrics: PortalDetailValue;
+  readonly performanceThroughputMetrics: PortalDetailValue;
+  readonly performanceResourceMetrics: PortalDetailValue;
+  readonly performanceQualityMetrics: PortalDetailValue;
   readonly performancePathStates: PortalDetailValue;
+  readonly performanceProductionSloClaimed: PortalDetailValue;
+  readonly performanceAdapterExecutionClaimed: PortalDetailValue;
+  readonly performanceHostFilteringClaimed: PortalDetailValue;
   readonly platformReadyClaims: PortalDetailValue;
   readonly platformDryRunClaims: PortalDetailValue;
   readonly platformResearchOnlyClaims: PortalDetailValue;
@@ -83,10 +110,37 @@ export function emptyNetworkProductReadinessStatusSummary(): NetworkProductReadi
     missingArtifactCount: notReported(),
     readinessStatusRef: notReported(),
     readinessState: notReported(),
+    riskEvaluationRef: notReported(),
+    riskChildProfileRef: notReported(),
+    riskHouseholdPolicyRef: notReported(),
+    riskCascadeRef: notReported(),
+    riskAgeBand: notReported(),
     riskBudgetState: notReported(),
     riskInterventionState: notReported(),
+    riskTotalPoints: notReported(),
+    riskPointBreakdown: notReported(),
+    riskCitedSignalRefs: notReported(),
+    riskCitedAuditRefs: notReported(),
+    riskCitedEvidenceRefs: notReported(),
+    riskCitedParentRuleRefs: notReported(),
+    riskCitedPriorEventRefs: notReported(),
+    riskAdapterProofState: notReported(),
+    riskBudgetAdvisoryOnly: notReported(),
+    performanceBenchmarkRunRef: notReported(),
+    performanceFixtureSetRef: notReported(),
+    performanceEventHistoryRef: notReported(),
+    performanceResourceSnapshotRef: notReported(),
     performanceState: notReported(),
+    performanceRegressionCodes: notReported(),
+    performanceScenarioCounts: notReported(),
+    performanceLatencyMetrics: notReported(),
+    performanceThroughputMetrics: notReported(),
+    performanceResourceMetrics: notReported(),
+    performanceQualityMetrics: notReported(),
     performancePathStates: notReported(),
+    performanceProductionSloClaimed: notReported(),
+    performanceAdapterExecutionClaimed: notReported(),
+    performanceHostFilteringClaimed: notReported(),
     platformReadyClaims: notReported(),
     platformDryRunClaims: notReported(),
     platformResearchOnlyClaims: notReported(),
@@ -115,6 +169,19 @@ function networkProductReadinessStatusSummary(
 ): NetworkProductReadinessStatusSummary {
   return {
     parserStatus: detailFromValue(true),
+    ...liveCaptureCustodySummary(custody),
+    ...riskReadinessSummary(product),
+    ...performanceReadinessSummary(product),
+    ...platformReadinessSummary(product),
+    portalReadModelReady: detailFromValue(product.portal_read_model_ready),
+    retentionExportRefsVisible: detailFromValue(product.retention_export_refs_visible),
+    noClaimBoundary: detailFromValue(noClaimBoundaryUpgraded(custody, product)),
+    platformEntries: product.platform_entries.map(platformEntrySummary),
+  };
+}
+
+function liveCaptureCustodySummary(custody: AgentNetworkLiveCaptureCustodyStatus) {
+  return {
     custodyStatusRef: detailFromValue(custody.status_ref),
     custodyState: detailFromValue(custody.state),
     liveCaptureState: detailFromValue(custody.live_capture_state),
@@ -122,22 +189,89 @@ function networkProductReadinessStatusSummary(
     captureReady: detailFromValue(custody.capture_ready),
     rawArtifactStorageAuthorized: detailFromValue(custody.raw_artifact_storage_authorized),
     missingArtifactCount: detailFromValue(custody.missing_artifacts.length),
+  };
+}
+
+function riskReadinessSummary(product: AgentNetworkProductReadinessStatus) {
+  return {
     readinessStatusRef: detailFromValue(product.status_ref),
     readinessState: detailFromValue(product.readiness_state),
+    riskEvaluationRef: detailFromValue(product.risk_evaluation_ref),
+    riskChildProfileRef: detailFromValue(product.risk_child_profile_ref),
+    riskHouseholdPolicyRef: detailFromValue(product.risk_household_policy_ref),
+    riskCascadeRef: detailFromValue(product.risk_cascade_ref),
+    riskAgeBand: detailFromValue(product.risk_age_band),
     riskBudgetState: detailFromValue(product.risk_budget_state),
     riskInterventionState: detailFromValue(product.risk_intervention_state),
+    riskTotalPoints: detailFromValue(product.risk_total_points),
+    riskPointBreakdown: joinedDetail([
+      product.risk_age_profile_points,
+      product.risk_active_signal_points,
+      product.risk_prior_event_points,
+      product.risk_safe_behavior_credit_applied_points,
+      product.risk_triggered_threshold_points,
+    ]),
+    riskCitedSignalRefs: joinedDetail(product.risk_cited_signal_refs),
+    riskCitedAuditRefs: joinedDetail(product.risk_cited_audit_refs),
+    riskCitedEvidenceRefs: joinedDetail(product.risk_cited_evidence_refs),
+    riskCitedParentRuleRefs: joinedDetail(product.risk_cited_parent_rule_refs),
+    riskCitedPriorEventRefs: joinedDetail(product.risk_cited_prior_event_refs),
+    riskAdapterProofState: detailFromValue(product.risk_adapter_proof_state),
+    riskBudgetAdvisoryOnly: detailFromValue(product.risk_budget_advisory_only),
+  };
+}
+
+function performanceReadinessSummary(product: AgentNetworkProductReadinessStatus) {
+  return {
+    performanceBenchmarkRunRef: detailFromValue(product.performance_benchmark_run_ref),
+    performanceFixtureSetRef: detailFromValue(product.performance_fixture_set_ref),
+    performanceEventHistoryRef: detailFromValue(product.performance_event_history_ref),
+    performanceResourceSnapshotRef: detailFromValue(product.performance_resource_snapshot_ref),
     performanceState: detailFromValue(product.performance_state),
+    performanceRegressionCodes: joinedDetail(product.performance_regression_codes),
+    performanceScenarioCounts: joinedDetail([
+      product.performance_scenario_count,
+      product.performance_fixture_count,
+      product.performance_packet_count,
+      product.performance_flow_count,
+      product.performance_event_count,
+    ]),
+    performanceLatencyMetrics: joinedNullableDetail([
+      product.performance_max_packet_to_summary_latency_ms,
+      product.performance_max_packet_to_detection_latency_ms,
+      product.performance_max_detection_to_cascade_latency_ms,
+      product.performance_max_cascade_to_command_latency_ms,
+    ]),
+    performanceThroughputMetrics: joinedDetail([
+      product.performance_event_throughput_per_second,
+      product.performance_max_queue_depth,
+      product.performance_dropped_event_count,
+      product.performance_high_concurrency_flow_count,
+    ]),
+    performanceResourceMetrics: joinedDetail([
+      product.performance_max_cpu_millis,
+      product.performance_max_memory_peak_kib,
+      product.performance_total_disk_written_bytes,
+    ]),
+    performanceQualityMetrics: joinedDetail([
+      product.performance_false_positive_count,
+      product.performance_false_negative_count,
+    ]),
     performancePathStates: joinedDetail(product.performance_path_states),
+    performanceProductionSloClaimed: detailFromValue(product.production_slo_claimed),
+    performanceAdapterExecutionClaimed: detailFromValue(product.performance_adapter_action_executed),
+    performanceHostFilteringClaimed: detailFromValue(product.performance_host_filtering_executed),
+  };
+}
+
+function platformReadinessSummary(product: AgentNetworkProductReadinessStatus) {
+  return {
     platformReadyClaims: detailFromValue(product.platform_ready_claims),
     platformDryRunClaims: detailFromValue(product.platform_dry_run_claims),
     platformResearchOnlyClaims: detailFromValue(product.platform_research_only_claims),
     platformManualRequiredClaims: detailFromValue(product.platform_manual_required_claims),
     platformUnavailableClaims: detailFromValue(product.platform_unavailable_claims),
     platformManualFollowups: platformManualFollowups(product),
-    portalReadModelReady: detailFromValue(product.portal_read_model_ready),
-    retentionExportRefsVisible: detailFromValue(product.retention_export_refs_visible),
-    noClaimBoundary: detailFromValue(noClaimBoundaryUpgraded(custody, product)),
-    platformEntries: product.platform_entries.map(platformEntrySummary),
   };
 }
 
@@ -202,6 +336,9 @@ function unsupportedProductClaims(product: AgentNetworkProductReadinessStatus): 
       product.exact_url_available ||
       product.decrypted_payload_available ||
       product.page_content_available,
+    product.performance_realtime_response_claimed ||
+      product.performance_adapter_action_executed ||
+      product.performance_host_filtering_executed,
     product.platform_entries.some((entry) => entry.enforcement_command_published),
   ];
 }
@@ -211,6 +348,14 @@ function joinedDetail(values: readonly unknown[]): PortalDetailValue {
   if (normalized.length === 0) {
     return notReported();
   }
+  return decodePortalDetailValue(normalized.join(PortalFormatting.EventDetailSeparator));
+}
+
+function joinedNullableDetail(values: readonly unknown[]): PortalDetailValue {
+  if (values.length === 0) {
+    return notReported();
+  }
+  const normalized = values.map((value) => (isReportedValue(value) ? String(value) : String(notReported())));
   return decodePortalDetailValue(normalized.join(PortalFormatting.EventDetailSeparator));
 }
 

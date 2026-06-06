@@ -76,37 +76,11 @@ function defineNetworkProductReadinessStatusTests(): void {
     const state = resolveLiveActivityState([networkProductReadinessStatusEvent()]);
     const summary = requireNetworkProductReadinessStatus(state.networkProductReadinessStatus);
 
-    expect(summary.parserStatus).toBe('true');
-    expect(summary.custodyStatusRef).toBe('network.live-capture.custody-status.13a');
-    expect(summary.custodyState).toBe('CustodyReady');
-    expect(summary.liveCaptureState).toBe('ProofReady');
-    expect(summary.rawCaptureStorageState).toBe('CustodyReady');
-    expect(summary.captureReady).toBe('true');
-    expect(summary.rawArtifactStorageAuthorized).toBe('true');
-    expect(summary.missingArtifactCount).toBe('0');
-    expect(summary.readinessStatusRef).toBe('network.product-readiness.status.51a');
-    expect(summary.readinessState).toBe('ManualRequired');
-    expect(summary.riskBudgetState).toBe('AskParentThreshold');
-    expect(summary.riskInterventionState).toBe('AskParent');
-    expect(summary.performanceState).toBe('MeetsBenchmarkGate');
-    expect(summary.performancePathStates).toBe('DryRun');
-    expect(summary.platformReadyClaims).toBe('1');
-    expect(summary.platformDryRunClaims).toBe('1');
-    expect(summary.platformResearchOnlyClaims).toBe('0');
-    expect(summary.platformManualRequiredClaims).toBe('1');
-    expect(summary.platformUnavailableClaims).toBe('1');
-    expect(summary.platformManualFollowups).toBe('WindowsWfp | network.live-capture.permission-proof.13');
-    expect(summary.platformEntries).toHaveLength(4);
-    expect(summary.platformEntries[0]?.target).toBe('WindowsFirewall');
-    expect(summary.platformEntries[0]?.adapterAuthorizedByProof).toBe('true');
-    expect(summary.platformEntries[0]?.enforcementCommandPublished).toBe('false');
-    expect(summary.platformEntries[1]?.state).toBe('DryRun');
-    expect(summary.platformEntries[2]?.target).toBe('WindowsWfp');
-    expect(summary.platformEntries[2]?.missingRequiredArtifacts).toBe('network.platform-claim.manual-followup.51a');
-    expect(summary.platformEntries[3]?.state).toBe('Unavailable');
-    expect(summary.portalReadModelReady).toBe('true');
-    expect(summary.retentionExportRefsVisible).toBe('true');
-    expect(summary.noClaimBoundary).toBe('false');
+    expectProductReadinessCustodySummary(summary);
+    expectProductReadinessRiskSummary(summary);
+    expectProductReadinessPerformanceSummary(summary);
+    expectProductReadinessPlatformSummary(summary);
+    expectProductReadinessNoClaimSummary(summary);
   });
 
   it('keeps malformed product-readiness status visible as a parser failure', () => {
@@ -117,6 +91,72 @@ function defineNetworkProductReadinessStatusTests(): void {
     expect(summary.readinessStatusRef).toBe('Not reported');
     expect(summary.noClaimBoundary).toBe('Not reported');
   });
+}
+
+function expectProductReadinessCustodySummary(summary: NetworkProductReadinessStatusSummary): void {
+  expect(summary.parserStatus).toBe('true');
+  expect(summary.custodyStatusRef).toBe('network.live-capture.custody-status.13a');
+  expect(summary.custodyState).toBe('CustodyReady');
+  expect(summary.liveCaptureState).toBe('ProofReady');
+  expect(summary.rawCaptureStorageState).toBe('CustodyReady');
+  expect(summary.captureReady).toBe('true');
+  expect(summary.rawArtifactStorageAuthorized).toBe('true');
+  expect(summary.missingArtifactCount).toBe('0');
+  expect(summary.readinessStatusRef).toBe('network.product-readiness.status.51a');
+  expect(summary.readinessState).toBe('ManualRequired');
+}
+
+function expectProductReadinessRiskSummary(summary: NetworkProductReadinessStatusSummary): void {
+  expect(summary.riskEvaluationRef).toBe('network.risk-evaluation.51a');
+  expect(summary.riskAgeBand).toBe('UnderTwelve');
+  expect(summary.riskBudgetState).toBe('AskParentThreshold');
+  expect(summary.riskInterventionState).toBe('AskParent');
+  expect(summary.riskTotalPoints).toBe('42');
+  expect(summary.riskPointBreakdown).toBe('15 | 27 | 0 | 0 | 40');
+  expect(summary.riskCitedSignalRefs).toBe('network.signal.51a');
+  expect(summary.riskCitedAuditRefs).toBe('network.audit.51a');
+  expect(summary.riskCitedEvidenceRefs).toBe('network.flow-evidence.51a');
+  expect(summary.riskCitedParentRuleRefs).toBe('network.parent-rule.51a');
+  expect(summary.riskAdapterProofState).toBe('Ready');
+  expect(summary.riskBudgetAdvisoryOnly).toBe('true');
+}
+
+function expectProductReadinessPerformanceSummary(summary: NetworkProductReadinessStatusSummary): void {
+  expect(summary.performanceBenchmarkRunRef).toBe('network.performance.51a');
+  expect(summary.performanceState).toBe('MeetsBenchmarkGate');
+  expect(summary.performanceRegressionCodes).toBe('Not reported');
+  expect(summary.performanceScenarioCounts).toBe('2 | 20 | 2000 | 600 | 1200');
+  expect(summary.performanceLatencyMetrics).toBe('80 | 700 | 90 | Not reported');
+  expect(summary.performanceThroughputMetrics).toBe('3200 | 4 | 0 | 2100');
+  expect(summary.performanceResourceMetrics).toBe('120 | 40000 | 20000');
+  expect(summary.performanceQualityMetrics).toBe('0 | 0');
+  expect(summary.performancePathStates).toBe('DryRun');
+  expect(summary.performanceProductionSloClaimed).toBe('false');
+  expect(summary.performanceAdapterExecutionClaimed).toBe('false');
+  expect(summary.performanceHostFilteringClaimed).toBe('false');
+}
+
+function expectProductReadinessPlatformSummary(summary: NetworkProductReadinessStatusSummary): void {
+  expect(summary.platformReadyClaims).toBe('1');
+  expect(summary.platformDryRunClaims).toBe('1');
+  expect(summary.platformResearchOnlyClaims).toBe('0');
+  expect(summary.platformManualRequiredClaims).toBe('1');
+  expect(summary.platformUnavailableClaims).toBe('1');
+  expect(summary.platformManualFollowups).toBe('WindowsWfp | network.live-capture.permission-proof.13');
+  expect(summary.platformEntries).toHaveLength(4);
+  expect(summary.platformEntries[0]?.target).toBe('WindowsFirewall');
+  expect(summary.platformEntries[0]?.adapterAuthorizedByProof).toBe('true');
+  expect(summary.platformEntries[0]?.enforcementCommandPublished).toBe('false');
+  expect(summary.platformEntries[1]?.state).toBe('DryRun');
+  expect(summary.platformEntries[2]?.target).toBe('WindowsWfp');
+  expect(summary.platformEntries[2]?.missingRequiredArtifacts).toBe('network.platform-claim.manual-followup.51a');
+  expect(summary.platformEntries[3]?.state).toBe('Unavailable');
+}
+
+function expectProductReadinessNoClaimSummary(summary: NetworkProductReadinessStatusSummary): void {
+  expect(summary.portalReadModelReady).toBe('true');
+  expect(summary.retentionExportRefsVisible).toBe('true');
+  expect(summary.noClaimBoundary).toBe('false');
 }
 
 function defineNetworkRouteMountTests(): void {
@@ -430,26 +470,9 @@ function productReadinessStatus() {
     portal_read_model_ref: 'network.portal-read-model.51a',
     retention_export_ref: 'network.retention-export.51a',
     readiness_state: 'ManualRequired',
-    risk_budget_ref: 'network.risk-budget.51a',
-    risk_budget_state: 'AskParentThreshold',
-    risk_intervention_state: 'AskParent',
-    risk_total_points: 42,
-    risk_budget_advisory_only: true,
-    performance_state: 'MeetsBenchmarkGate',
-    performance_regression_codes: [],
-    performance_path_states: ['DryRun'],
-    platform_ready_claims: 1,
-    platform_dry_run_claims: 1,
-    platform_research_only_claims: 0,
-    platform_manual_required_claims: 1,
-    platform_unavailable_claims: 1,
-    platform_manual_followups: [
-      {
-        target: 'WindowsWfp',
-        missing_required_artifacts: ['network.live-capture.permission-proof.13'],
-      },
-    ],
-    platform_entries: platformEntries(),
+    ...riskDetails(),
+    ...performanceDetails(),
+    ...platformDetails(),
     portal_read_model_ready: true,
     retention_export_refs_visible: true,
     policy_authority: false,
@@ -462,6 +485,82 @@ function productReadinessStatus() {
     exact_url_available: false,
     decrypted_payload_available: false,
     page_content_available: false,
+  };
+}
+
+function riskDetails() {
+  return {
+    risk_evaluation_ref: 'network.risk-evaluation.51a',
+    risk_child_profile_ref: 'child-profile.51a',
+    risk_household_policy_ref: 'household-policy.51a',
+    risk_budget_ref: 'network.risk-budget.51a',
+    risk_cascade_ref: 'network.cascade.51a',
+    risk_age_band: 'UnderTwelve',
+    risk_budget_state: 'AskParentThreshold',
+    risk_intervention_state: 'AskParent',
+    risk_total_points: 42,
+    risk_age_profile_points: 15,
+    risk_active_signal_points: 27,
+    risk_prior_event_points: 0,
+    risk_safe_behavior_credit_applied_points: 0,
+    risk_triggered_threshold_points: 40,
+    risk_cited_signal_refs: ['network.signal.51a'],
+    risk_cited_audit_refs: ['network.audit.51a'],
+    risk_cited_evidence_refs: ['network.flow-evidence.51a'],
+    risk_cited_parent_rule_refs: ['network.parent-rule.51a'],
+    risk_cited_prior_event_refs: [],
+    risk_adapter_proof_state: 'Ready',
+    risk_budget_advisory_only: true,
+  };
+}
+
+function performanceDetails() {
+  return {
+    performance_benchmark_run_ref: 'network.performance.51a',
+    performance_fixture_set_ref: 'network.performance.fixtures.51a',
+    performance_event_history_ref: 'network.performance.event-history.51a',
+    performance_resource_snapshot_ref: 'network.performance.resource-snapshot.51a',
+    performance_state: 'MeetsBenchmarkGate',
+    performance_regression_codes: [],
+    performance_scenario_count: 2,
+    performance_fixture_count: 20,
+    performance_packet_count: 2000,
+    performance_flow_count: 600,
+    performance_event_count: 1200,
+    performance_max_packet_to_summary_latency_ms: 80,
+    performance_max_packet_to_detection_latency_ms: 700,
+    performance_max_detection_to_cascade_latency_ms: 90,
+    performance_max_cascade_to_command_latency_ms: null,
+    performance_event_throughput_per_second: 3200,
+    performance_max_cpu_millis: 120,
+    performance_max_memory_peak_kib: 40000,
+    performance_total_disk_written_bytes: 20000,
+    performance_max_queue_depth: 4,
+    performance_dropped_event_count: 0,
+    performance_high_concurrency_flow_count: 2100,
+    performance_false_positive_count: 0,
+    performance_false_negative_count: 0,
+    performance_path_states: ['DryRun'],
+    performance_realtime_response_claimed: false,
+    performance_adapter_action_executed: false,
+    performance_host_filtering_executed: false,
+  };
+}
+
+function platformDetails() {
+  return {
+    platform_ready_claims: 1,
+    platform_dry_run_claims: 1,
+    platform_research_only_claims: 0,
+    platform_manual_required_claims: 1,
+    platform_unavailable_claims: 1,
+    platform_manual_followups: [
+      {
+        target: 'WindowsWfp',
+        missing_required_artifacts: ['network.live-capture.permission-proof.13'],
+      },
+    ],
+    platform_entries: platformEntries(),
   };
 }
 
