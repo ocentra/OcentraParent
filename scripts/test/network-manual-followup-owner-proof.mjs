@@ -24,7 +24,7 @@ const ledgerEntries = [
     sourceRefs: [
       'docs/features/network-domain-control.md',
       'docs/plans/network-plan/implementation-checklist.md',
-      'output/network-plan-proof/45-eventing-delivery-decision-proof/proof-summary.json',
+      'docs/plans/network-plan/workpacks/README.md',
     ],
     noClaimBoundary: ['no live broker transport', 'no family-hub relay delivery', 'no remote adapter action'],
   }),
@@ -55,8 +55,7 @@ const ledgerEntries = [
     followUpPath: 'live analyzer/model/policy execution proof after local runtime integration',
     sourceRefs: [
       'docs/features/network-domain-control.md',
-      'output/network-plan-proof/46-ai-detection-fixture-proof/proof-summary.json',
-      'output/network-plan-proof/47-ai-audit-narrative-proof/proof-summary.json',
+      'docs/plans/network-plan/implementation-checklist.md',
       'output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json',
     ],
     noClaimBoundary: ['no live local model execution', 'no remote AI invocation', 'no policy engine execution claim'],
@@ -98,7 +97,7 @@ const ledgerEntries = [
     followUpPath: 'external audit/support rollout proof after production scope is authorized',
     sourceRefs: [
       'docs/features/network-domain-control.md',
-      'output/network-plan-proof/50-security-readiness-proof/proof-summary.json',
+      'docs/plans/network-plan/implementation-checklist.md',
       'output/network-plan-proof/11a-hardening-support-proof/proof-summary.json',
     ],
     noClaimBoundary: [
@@ -201,7 +200,18 @@ function validateLedger(entries) {
       if (!existsSync(sourceRef)) {
         throw new Error(`${entry.id}.sourceRefs missing file: ${sourceRef}`);
       }
+      assertTrackedSourceRef(entry.id, sourceRef);
     }
+  }
+}
+
+function assertTrackedSourceRef(id, sourceRef) {
+  const tracked = spawnSync('git', ['ls-files', '--error-unmatch', sourceRef], {
+    encoding: 'utf8',
+    shell: false,
+  });
+  if (tracked.status !== 0) {
+    throw new Error(`${id}.sourceRefs untracked file: ${sourceRef}`);
   }
 }
 
