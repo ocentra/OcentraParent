@@ -1,0 +1,97 @@
+{
+  "proof": "screen-vlm-guided-classifier-readiness-proof",
+  "generatedAt": "2026-06-06T23:46:38.004Z",
+  "proofTier": "P3_CONTRACT_LOCAL_VLM_READINESS",
+  "modelConstants": {
+    "modelRuntimeRef": "screen-local-vlm-runtime",
+    "modelId": "screen-local-vlm-safety-model",
+    "promptOrTemplateVersion": "screen-vlm-worker-guided-v1",
+    "maxImagePixels": 2073600
+  },
+  "statusRows": [
+    {
+      "statusId": "screen-vlm-guided-classifier-readiness-queued",
+      "queueJobId": "screen-vlm-guided-classifier-readiness-job",
+      "status": "queued",
+      "custodyState": "child-device-temp-queue",
+      "queueAccepted": true,
+      "hasResult": false,
+      "degradedReasons": [],
+      "nonClaims": {
+        "liveModelExecutionClaimed": false,
+        "productionVlmQualityClaimed": false,
+        "portalRuntimeClaimed": false,
+        "enforcementClaimed": false,
+        "remoteAiUsed": false,
+        "rawImageRetained": false
+      }
+    },
+    {
+      "statusId": "screen-vlm-guided-classifier-readiness-completed",
+      "queueJobId": "screen-vlm-guided-classifier-readiness-job",
+      "status": "completed",
+      "custodyState": "child-device-query-store",
+      "queueAccepted": true,
+      "hasResult": true,
+      "degradedReasons": [],
+      "nonClaims": {
+        "liveModelExecutionClaimed": false,
+        "productionVlmQualityClaimed": false,
+        "portalRuntimeClaimed": false,
+        "enforcementClaimed": false,
+        "remoteAiUsed": false,
+        "rawImageRetained": false
+      }
+    },
+    {
+      "statusId": "screen-vlm-guided-classifier-readiness-manual",
+      "queueJobId": "screen-vlm-guided-classifier-readiness-manual-job",
+      "status": "manual-required",
+      "custodyState": "child-device-temp-queue",
+      "queueAccepted": false,
+      "hasResult": false,
+      "degradedReasons": [
+        "local-vlm-runtime-unavailable"
+      ],
+      "nonClaims": {
+        "liveModelExecutionClaimed": false,
+        "productionVlmQualityClaimed": false,
+        "portalRuntimeClaimed": false,
+        "enforcementClaimed": false,
+        "remoteAiUsed": false,
+        "rawImageRetained": false
+      }
+    }
+  ],
+  "assertions": {
+    "sourceReadinessProofPassed": true,
+    "localOnly": true,
+    "noLiveModelExecutionClaim": true,
+    "manualRequiredCovered": true,
+    "completedRowsRequireDeletedQueryStore": true,
+    "maxImagePixelsBounded": true,
+    "guidedTemplateVersionPinned": true
+  },
+  "validationCommands": [
+    "npm run build --workspace @ocentra-parent/activity-domain",
+    "npm run test --workspace @ocentra-parent/activity-domain -- screen-vlm-execution-readiness",
+    "node scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs"
+  ],
+  "completedChecklistClaims": [
+    "guided VLM worker template/version is pinned",
+    "image pixel budget is bounded for local worker handoff",
+    "manual-required behavior is represented when runtime is unavailable",
+    "completed status rows require deleted query-store custody before policy eligibility"
+  ],
+  "openChecklistClaims": [
+    "configured local Gemma-family or Qwen image runtime is not executed by this proof",
+    "detector-specific prompt-pack quality is not measured by this proof",
+    "real crop extraction and visual classifier quality are not measured by this proof",
+    "CPU/GPU/memory/runtime measurements remain unclaimed"
+  ],
+  "nonClaims": [
+    "This screen-plan proof reuses the VLM execution-readiness contract proof and does not run live VLM inference.",
+    "This proof does not claim production model quality, portal runtime rendering, enforcement, or final screen-AI pipeline completion.",
+    "This proof does not upload raw screenshots or retain raw images."
+  ]
+}
