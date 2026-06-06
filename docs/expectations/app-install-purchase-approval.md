@@ -255,6 +255,14 @@ Expected contract families:
   integration, platform adapter implementation, child-device delivery, runtime
   writer/report delivery, app blocking, child activity custody, and
   Ocentra-hosted family data custody stay unclaimed.
+- Product-claim provider/store rows consume product-claim gate rows and
+  provider/store execution preflight rows so provider/store proof remains
+  required, manual-required, or unsupported before any product claim while
+  Google Play execution, Apple App Store execution, Microsoft Store execution,
+  billing/provider contact, provider API execution, store integration, platform
+  interception, platform adapter implementation, runtime device delivery,
+  child-device delivery, portal approval/report UI, app blocking, child
+  activity custody, and Ocentra-hosted family data custody stay unclaimed.
 
 ## Validation Gates
 
@@ -420,6 +428,12 @@ Expected contract families:
   required child/provider/platform follow-up refs, portal/provider/store/
   platform/child delivery/runtime/app-blocking/custody overclaim rejection, and
   required non-claim coverage.
+- TypeScript schema tests and a proof harness for product-claim provider/store
+  rows, product-claim gate linkage, provider/store preflight linkage, required
+  provider/store execution refs, provider evidence refs, runtime receipt refs,
+  portal/provider/store/platform/child delivery/runtime/app-blocking/custody
+  overclaim rejection, public package export visibility, and required non-claim
+  coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -565,6 +579,12 @@ Expected contract families:
   implementation, child-device delivery, runtime writer delivery, runtime
   report delivery, app blocking, child activity custody, Ocentra-hosted family
   data custody, or an approved product claim.
+- Do not treat product-claim provider/store proof refs as Google Play, Apple
+  App Store, Microsoft Store, or billing provider execution/contact, provider
+  API execution, store integration, platform interception, platform adapter
+  implementation, runtime device delivery, child-device delivery, portal
+  approval/report UI, app blocking, child activity custody, Ocentra-hosted
+  family data custody, or an approved product claim.
 
 ## Done Signal
 
