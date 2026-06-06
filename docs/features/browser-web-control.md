@@ -281,7 +281,12 @@ platforms, and unknown/manual-required platforms through route surface kinds,
 route source kinds, custody labels, pattern refs, evidence refs, confidence, and
 status. They do not store raw domains, URLs, paths, page bodies, claim live URL
 parsing, runtime detection, AI classification, policy decisions, native game
-control, cloud-frame analysis, or enforcement.
+control, cloud-frame analysis, or enforcement. The live route proof fetches real
+public CrazyGames, Poki, Coolmath Games, Xbox Cloud Gaming, itch.io HTML5
+catalog, and Chess.com play surfaces, stores only response metadata plus hashed
+origin/path/body refs, parses six route contracts plus a reviewed catalog, and
+rejects raw-data/runtime/parser/AI/policy/native/cloud-frame/enforcement
+overclaims.
 Browser-game/cloud-gaming GAME-03 now adds parent-domain portal pattern library
 contracts. Entries model known-game, educational, UGC, indie, classic archive,
 school, and unknown portal families through route kinds, signal kinds, pattern
@@ -452,10 +457,11 @@ content, cloud-streamed frame analysis, native game control, UI delivery, or
 enforcement.
 Browser-game/cloud-gaming GAME-24 now labels the game track
 partial/manual-required through the rollout gate. Product checklist upgrade is
-not claimed. GAME-01 is scaffold-proof-present and GAME-02 through GAME-24 are
-partial/manual-required. Route, runtime, metadata, AI, memory, UI,
-cloud-streamed frame-analysis, native-control, and enforcement proof still need
-separate release-grade artifacts before product completion can be claimed.
+not claimed. GAME-01 is scaffold-proof-present, GAME-02 is
+live-route-proof-present, and GAME-03 through GAME-24 are
+partial/manual-required. Runtime, metadata, AI, memory, UI, cloud-streamed
+frame-analysis, native-control, and enforcement proof still need separate
+release-grade artifacts before product completion can be claimed.
 Browser AI enhancement rows AI-01 and AI-02 now add plan linkage and
 schema-backed URL shape classification contracts. These contracts classify URL
 shape, platform, and stable ids only from exact managed-browser URL evidence and

@@ -62,11 +62,16 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
+    const isComplete = rowNumber <= 2;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
-      expectedStatus: rowNumber === 1 ? '[x]' : '[~]',
-      expectedState: rowNumber === 1 ? 'scaffold-proof-present' : 'partial-manual-required',
+      expectedStatus: isComplete ? '[x]' : '[~]',
+      expectedState: isComplete
+        ? rowNumber === 1
+          ? 'scaffold-proof-present'
+          : 'live-route-proof-present'
+        : 'partial-manual-required',
     };
   });
 }
@@ -153,7 +158,7 @@ function manifestFor(rows, failures) {
     rows,
     summary: {
       totalRows: rows.length,
-      completeRows: rows.filter((row) => row.expectedState === 'scaffold-proof-present').length,
+      completeRows: rows.filter((row) => row.expectedStatus === '[x]').length,
       partialRows: rows.filter((row) => row.expectedState === 'partial-manual-required').length,
       failures: failures.length,
       playwrightState: 'manual-required-no-rendered-browser-game-ui',
@@ -162,6 +167,7 @@ function manifestFor(rows, failures) {
     manualProofBoundary: {
       screenshots: 'not-applicable-contract-only',
       playwright: 'manual-required-no-rendered-browser-game-ui',
+      liveRouteEvidence: 'game-02-live-route-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -182,7 +188,7 @@ function markdownFor(manifest) {
     `Generated: ${manifest.generatedAt}`,
     '',
     `Rows checked: ${manifest.summary.totalRows}`,
-    `Scaffold-proof rows: ${manifest.summary.completeRows}`,
+    `Proof-present rows: ${manifest.summary.completeRows}`,
     `Partial/manual-required rows: ${manifest.summary.partialRows}`,
     `Playwright state: ${manifest.summary.playwrightState}`,
     `Product claimed: ${manifest.summary.productClaimed}`,
@@ -192,6 +198,8 @@ function markdownFor(manifest) {
     rows,
     '',
     'GAME-22 proves proof-pack coverage for GAME-01 through GAME-21.',
+    'GAME-02 live route proof is present for real public browser-game and',
+    'cloud-gaming route surfaces with ref-only/hash-only custody.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

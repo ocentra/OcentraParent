@@ -1,0 +1,364 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "browser-game-proof-artifacts",
+  "generatedAt": "2026-06-06T18:28:10.265Z",
+  "proofRoot": "output/browser-plan-proof",
+  "rows": [
+    {
+      "rowNumber": 1,
+      "rowId": "GAME-01",
+      "expectedStatus": "[x]",
+      "expectedState": "scaffold-proof-present",
+      "proofDirectory": "game-01-browser-game-plan-folder-readme",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-plan-folder-readme-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "scaffold-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 2,
+      "rowId": "GAME-02",
+      "expectedStatus": "[x]",
+      "expectedState": "live-route-proof-present",
+      "proofDirectory": "game-02-browser-game-platform-route-contracts",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-route-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-route-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 3,
+      "rowId": "GAME-03",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-03-known-game-portal-pattern-library",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 4,
+      "rowId": "GAME-04",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-04-cloud-gaming-pattern-library",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 5,
+      "rowId": "GAME-05",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-05-game-url-shape-parser",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 6,
+      "rowId": "GAME-06",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-06-game-runtime-signal-detector",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 7,
+      "rowId": "GAME-07",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-07-game-metadata-extractor",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 8,
+      "rowId": "GAME-08",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-08-hidden-analysis-profile-safety",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 9,
+      "rowId": "GAME-09",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-09-educational-game-classifier-contract",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 10,
+      "rowId": "GAME-10",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-10-browser-game-ai-analysis-contract",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 11,
+      "rowId": "GAME-11",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-11-game-risk-benefit-signal-model",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 12,
+      "rowId": "GAME-12",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-12-browser-game-memory-cache",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 13,
+      "rowId": "GAME-13",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-13-game-account-signup-purchase-gating",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 14,
+      "rowId": "GAME-14",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-14-cloud-gaming-gating",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 15,
+      "rowId": "GAME-15",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-15-unblocked-game-site-detection",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 16,
+      "rowId": "GAME-16",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-16-ugc-multiplayer-chat-risk-model",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 17,
+      "rowId": "GAME-17",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-17-parent-game-policy-compiler",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 18,
+      "rowId": "GAME-18",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-18-managed-browser-game-hold-block-adapter",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 19,
+      "rowId": "GAME-19",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-19-child-game-checking-block-ux",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 20,
+      "rowId": "GAME-20",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-20-parent-browser-game-dashboard-ux",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 21,
+      "rowId": "GAME-21",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "game-21-journal-sqlite-read-model",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    }
+  ],
+  "summary": {
+    "totalRows": 21,
+    "completeRows": 2,
+    "partialRows": 19,
+    "failures": 0,
+    "playwrightState": "manual-required-no-rendered-browser-game-ui",
+    "productClaimed": false
+  },
+  "manualProofBoundary": {
+    "screenshots": "not-applicable-contract-only",
+    "playwright": "manual-required-no-rendered-browser-game-ui",
+    "liveRouteEvidence": "game-02-live-route-proof-present",
+    "renderedUi": "not-claimed",
+    "cloudStreamedFrameAnalysis": "not-claimed",
+    "nativeGameControl": "not-claimed",
+    "enforcement": "not-claimed",
+    "productChecklistUpgrade": "not-claimed"
+  },
+  "failures": []
+}
