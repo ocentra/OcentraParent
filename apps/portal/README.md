@@ -50,11 +50,12 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   Activity/Network review.
 - Displays the tracking service read-model event, hosted service-backed citation
   detail proof, hosted child-safe check-in proof, hosted child-runtime UI
-  disclosure/consent proof, and
+  disclosure/consent proof, hosted missing-device read-only state proof, and
   unsupported/manual platform rendered states as narrow Policy Tracking route
   cards; this is not actual child-device delivery/runtime execution,
-  physical-device execution, authority enrollment, provider delivery, or full
-  parent/child tracking UI proof.
+  current-location runtime, OS lost-mode runtime, physical-device execution,
+  authority enrollment, provider delivery, or full parent/child tracking UI
+  proof.
 - Displays app/game source freshness counts and source-kind evidence summaries
   from the service-backed App/Game Sessions read model without adding policy or
   adapter claims.

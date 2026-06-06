@@ -53,6 +53,6 @@ export const TrackingStatusProofArtifacts = {
   ),
   UnsupportedManualPlatform: artifact('output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json'),
   TemporaryLiveMode: artifact('output/tracking-plan-proof/28-temporary-live-tracking-mode/proof-summary.json'),
-  MissingDeviceMode: artifact('output/tracking-plan-proof/29-missing-device-mode/proof-summary.json'),
+  MissingDeviceMode: artifact('output/tracking-plan-proof/29-missing-device-mode/proof.json'),
   RetentionDelete: artifact('output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json'),
 } as const;

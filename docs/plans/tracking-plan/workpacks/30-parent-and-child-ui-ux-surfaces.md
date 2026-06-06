@@ -48,6 +48,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
 - `11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png`
 - `11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`
+- `11-ui-snapshots/hosted-policy-tracking-missing-device.png`
 - `12-playwright-proof.log`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
@@ -57,6 +58,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `20-evidence-drawer-hosted-ui-proof.json`
 - `21-hosted-ui-artifact-inventory-proof.json`
 - `23-parent-action-readiness-hosted-ui-proof.json`
+- `24-missing-device-hosted-ui-proof.json`
 - Accessibility summary:
   `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`
 - Pre-device gate:
@@ -115,6 +117,11 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       claiming live service mutation, alert/provider delivery, receipt
       ingestion, child-device runtime, physical-device proof, authority,
       production workers, adapter dispatch, or product readiness.
+- [x] Render and screenshot hosted missing-device state rows for last-known,
+      offline/powered-off, contact-requested, and manual-required states without
+      claiming current-location runtime, powered-off tracking, remote sync,
+      provider delivery, physical-device proof, OS lost-mode API execution,
+      authority, production workers, or product readiness.
 - [x] Verify hosted screenshot PNG artifacts, evidence drawer proof output,
       accessibility assertions, and no-overlap layout geometry are present and
       non-empty through a dedicated artifact inventory proof without claiming
@@ -171,6 +178,15 @@ and writes
 without claiming live mutation, alert/provider delivery, receipt ingestion,
 child-device runtime, physical-device proof, authority, production workers,
 adapter dispatch, or product readiness.
+The hosted route now also renders a missing-device state proof card for WP29
+last-known-only, offline/powered-off, contact-requested, and manual-required
+rows. The repeatable hosted proof captures it at
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-missing-device.png`
+and writes
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/24-missing-device-hosted-ui-proof.json`
+without claiming current-location runtime, powered-off tracking, remote sync,
+provider delivery, physical-device proof, OS lost-mode API execution,
+authority, production workers, or product readiness.
 The hosted route now also renders a child-runtime UI proof card with tracking
 disclosure, safe/help response labels, location-share consent copy, a hosted-only
 adapter boundary, and no child-device delivery claim. The repeatable hosted proof

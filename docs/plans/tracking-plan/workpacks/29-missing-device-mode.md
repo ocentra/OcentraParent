@@ -38,6 +38,7 @@ Proof root: `output/tracking-plan-proof/29-missing-device-mode/`
 - `03-runtime-location-evidence.json`
 - `04-device-status-proof.json`
 - `11-ui-snapshots/`
+- `20-missing-device-hosted-ui-proof.json`
 - `12-playwright-proof.log`
 - `16-validation-commands.log`
 
@@ -51,7 +52,20 @@ Proof root: `output/tracking-plan-proof/29-missing-device-mode/`
 
 ## Where We Are
 
-This workpack now has focused parent-domain proof from `codex/tracking-missing-device-mode-proof` under the proof root below. Runtime, platform, provider, and portal UI behavior is not claimed beyond the proof state recorded in `proof.json`, `03-runtime-location-evidence.json`, `04-device-status-proof.json`, `11-ui-snapshots/missing-device-ui-state-matrix.json`, and the implementation checklist.
+This workpack now has focused parent-domain proof from
+`codex/tracking-missing-device-mode-proof` under the proof root below. Runtime,
+platform, and provider behavior is not claimed beyond the proof state recorded
+in `proof.json`, `03-runtime-location-evidence.json`,
+`04-device-status-proof.json`,
+`11-ui-snapshots/missing-device-ui-state-matrix.json`, and the implementation
+checklist. The hosted parent `policy-tracking` route now also renders those
+last-known-only, offline/powered-off, contact-requested, and manual-required
+rows through `npm run test:tracking-plan-hosted-ui-proof`, capturing
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-missing-device.png`
+and writing `20-missing-device-hosted-ui-proof.json` without claiming current
+location runtime, powered-off tracking, remote sync, provider delivery,
+physical-device proof, OS lost-mode API execution, authority, production
+workers, or product readiness.
 
 ## Where We Want To Be
 
@@ -73,14 +87,15 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Platform, provider, UI, retention, or runtime claims remain manual-required until the assigned proof artifacts exist.
+- Platform, provider, retention, or runtime claims remain manual-required until the assigned proof artifacts exist.
+- Hosted route rendering is now proved only for the read-only missing-device rows; child-device delivery/runtime execution and platform behavior remain manual-required.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-missing-device-mode-proof`.
+- [x] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: `packages/parent-domain/src/tracking-missing-device-mode-proof.ts`, `packages/parent-domain/tests/tracking-missing-device-mode-proof.test.ts`, `scripts/test/tracking-missing-device-mode-proof.mjs`, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `cmd /c node scripts/test/tracking-missing-device-mode-proof.mjs` passed.
+- [x] Validation commands and results: `cmd /c node scripts/test/tracking-missing-device-mode-proof.mjs` passed for the parent-domain proof; `npm run test:tracking-plan-hosted-ui-proof` is the hosted route proof for the rendered missing-device rows.
 - [x] Proof artifacts under `output/tracking-plan-proof/29-missing-device-mode/`.
 - [x] Product doc/checklist updates: owning feature doc, product capability checklist, implementation checklist, and this workpack doc updated.
-- [x] Known gaps/manual-required states: portal runtime UI/screenshots, child-device delivery/runtime execution, Android/iOS physical-device proof, provider delivery, remote sync runtime, OS lost-mode APIs, notification delivery, and production proof remain proof-gated.
+- [x] Known gaps/manual-required states: child-device delivery/runtime execution, Android/iOS physical-device proof, provider delivery, remote sync runtime, OS lost-mode APIs, notification delivery, production proof, and product-ready behavior remain proof-gated.
