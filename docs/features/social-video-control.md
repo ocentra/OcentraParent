@@ -196,6 +196,12 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   policy input. The contracts reject runtime cache stores, AI caches, raw
   account/video/message content, connector data, UI delivery, native app
   control, final policy decisions, and enforcement.
+- `social-decision-memory-live-evidence-proof` now consumes SOCIAL-12
+  live-evidence policy candidate refs and emits a bounded ref-only SOCIAL-19
+  snapshot with account miss, video fresh-hit, and channel stale-hit entries.
+  It proves schema acceptance and dishonest-claim rejection while keeping the
+  runtime cache store, raw content storage, connector data storage, UI delivery,
+  native app control, final policy execution, and enforcement unclaimed.
 - Browser-plan SOCIAL-20 now adds parent-domain parent social dashboard UX
   contracts for the account approval queue, feed/video gates, native app
   capability, connector boundaries, decision memory, and manual-required gaps.
