@@ -59,7 +59,7 @@ async function socialProofDirectories() {
 }
 
 function expectedRows() {
-  const completeRows = new Set([1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19, 20, 21, 22]);
+  const completeRows = new Set([1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19, 20, 21, 22]);
   return Array.from({ length: 22 }, (_, index) => {
     const rowNumber = index + 1;
     const complete = completeRows.has(rowNumber);
@@ -168,6 +168,7 @@ function manifestFor(rows, failures) {
       livePlatformRouteBoundary: 'proof-present',
       liveSocialUrlPatternBoundary: 'proof-present',
       liveAccountFlowBoundary: 'proof-present',
+      liveFormShapeBoundary: 'proof-present',
       liveRouteClassification: 'proof-present',
       liveMetadataExtraction: 'proof-present',
       liveEvidenceAiBoundary: 'proof-present',
@@ -212,6 +213,7 @@ function markdownFor(manifest) {
     'Live platform route boundary proof is present for SOCIAL-02 managed, unmanaged, and native/manual rows.',
     'Live social URL pattern proof is present for SOCIAL-03 real public route and account captures.',
     'Live account-flow proof is present for SOCIAL-04 real public account captures.',
+    'Live form-shape proof is present for SOCIAL-05 real public account captures with sanitized controls.',
     'Live route classification proof is present for SOCIAL-08 public feed surfaces.',
     'Live metadata extraction proof is present for SOCIAL-09 public social/video surfaces.',
     'Live-evidence AI boundary proof is present for SOCIAL-10 degraded model-unavailable rows.',
