@@ -112,8 +112,8 @@ const proof = {
   gitStatusShort: initialGitStatusShort,
   commands,
   stackedOn: {
-    requiredBranch: 'codex/app-game-source-freshness-policy-consumption-v2',
-    reason: 'WP75 consumes WP74 source freshness contracts that are not on origin/main yet.',
+    requiredBranch: 'origin/main',
+    reason: 'WP74 source freshness policy-consumption contracts have landed on main; WP75 targets current main.',
   },
   summary: summarize(readModel),
   nonClaims: {
@@ -304,7 +304,7 @@ async function writeProofPack(proofDir, proof, label) {
       '```',
       '',
       '- Scope: app/game source freshness readiness gating before read-only policy preview handoff.',
-      '- Stack note: this branch depends on WP74 source freshness policy-consumption contracts until WP74 lands on main.',
+      '- Stack note: WP74 source freshness policy-consumption contracts have landed on main, so this proof targets current main.',
       '',
     ].join('\n'),
     'utf8'
