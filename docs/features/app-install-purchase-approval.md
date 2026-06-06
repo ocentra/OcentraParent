@@ -379,6 +379,19 @@ generic app blocking covers this concern.
   records that platform preclaim proof under
   `test-results/app-install-purchase-product-claim-platform-preclaim-proof/proof.json`
   when run and validates the public parent-domain package export.
+- `packages/parent-domain/src/app-install-purchase-product-claim-platform-limitation-fallback-proof.ts`
+  now links product-claim platform preclaim rows, safe parent workflow rows, and
+  platform limitation action rows into fallback-ready, manual-required, and
+  unsupported rows so parents retain the closest safe workflow while product
+  claims remain blocked or manual. It preserves no product-claim approval,
+  portal approval/report UI, Google Play, Apple App Store, Microsoft Store,
+  billing provider contact, provider API execution, store integration, platform
+  interception/adapters, child-device delivery, runtime writer/report delivery,
+  app blocking, child activity data, or hosted custody claims.
+- `scripts/test/app-install-purchase-product-claim-platform-limitation-fallback-proof.mjs`
+  records that platform limitation fallback proof under
+  `test-results/app-install-purchase-product-claim-platform-limitation-fallback-proof/proof.json`
+  when run and validates the public parent-domain package export.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -690,6 +703,12 @@ Ocentra-hosted family data custody.
       with platform proof readiness while keeping product claims manual or
       unsupported until real portal UI tests, platform adapters, child delivery,
       and provider/store execution proof exist.
+- [x] Product-claim platform limitation fallback proof linking platform
+      preclaim, safe parent workflow, and platform limitation action rows into
+      fallback-ready/manual/unsupported rows while keeping product claims,
+      portal UI, provider/store execution, platform interception/adapters,
+      child delivery, runtime delivery, app blocking, child activity data, and
+      hosted custody unclaimed.
 
 ## Next AI Instructions
 

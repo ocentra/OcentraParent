@@ -121,6 +121,10 @@
       "import": "./dist/app-install-purchase-product-claim-platform-preclaim-proof.js",
       "types": "./dist/app-install-purchase-product-claim-platform-preclaim-proof.d.ts"
     },
+    "./app-install-purchase-product-claim-platform-limitation-fallback-proof": {
+      "import": "./dist/app-install-purchase-product-claim-platform-limitation-fallback-proof.js",
+      "types": "./dist/app-install-purchase-product-claim-platform-limitation-fallback-proof.d.ts"
+    },
     "./billing-entitlement": {
       "import": "./dist/billing-entitlement.js",
       "types": "./dist/billing-entitlement.d.ts"
