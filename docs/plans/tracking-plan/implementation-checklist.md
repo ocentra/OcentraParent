@@ -465,20 +465,25 @@ Every implementation workpack must update, or explicitly justify not updating:
       replay with deleted evidence citation summaries, and narrow parent portal
       summary consumption plus service-data coverage and report/policy
       consumer-readiness rows plus family dashboard rollup rows; rendered
-      dashboard UI, report/export UI delivery, child/full UI beyond the hosted
-      parent route, and platform replay proof remain pending. Redacted
+      dashboard UI, hosted report/export packet rendering, child/full UI beyond
+      the hosted parent route, and platform replay proof remain pending. Redacted
       report/export read-model packet rows now exist in
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json`,
-      but raw location payload export and product-ready report delivery remain
-      unclaimed.
+      and the hosted parent route now renders and screenshots those packet rows
+      without raw location payload export or product-ready report delivery
+      claims.
 - [x] Tracking report/export read-model packet proof exists for redacted report
       export, retention audit export, family dashboard summary, and policy
       drill-in export packet rows. Proof:
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json`;
       gate artifact:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/34-report-export-read-model-proof.json`.
-      This is evidence-ref packet readiness only; raw location payload export,
-      rendered report UI, service mutation, platform runtime, child-device
+      Hosted parent route rendering/screenshot proof:
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/21-report-export-hosted-ui-proof.json`;
+      WP32 hosted artifact:
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/29-report-export-hosted-ui-proof.json`.
+      This is evidence-ref packet readiness plus hosted packet rendering only;
+      raw location payload export, service mutation, platform runtime, child-device
       delivery/runtime execution, provider delivery, notification receipt
       ingestion, authority, physical-device proof, production, and
       product-ready export behavior remain pending.
@@ -486,7 +491,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       fixture, local parent-route screenshot, hosted parent `policy-tracking`
       route screenshot/accessibility proof, hosted service-backed citation detail
       screenshot proof, hosted read-only evidence drawer screenshot proof,
-      hosted child-safe check-in screenshot proof, and hosted child-runtime
+      hosted report/export packet screenshot proof, hosted child-safe check-in
+      screenshot proof, and hosted child-runtime
       disclosure/safe-help/location-share consent screenshot proof exist; hosted
       retention settings write-preflight command/result rendering is proved, and
       hosted React service-data coverage from the parsed tracking read model is

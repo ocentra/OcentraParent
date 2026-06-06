@@ -12,6 +12,7 @@ import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
 import { trackingChildCheckInProof, trackingChildRuntimeUiProof } from '../src/tracking-child-check-in-proof';
 import { trackingEvidenceDrawerHostedUiProof } from '../src/tracking-evidence-drawer-hosted-ui-proof';
+import { trackingReportExportHostedUiProof } from '../src/tracking-report-export-hosted-ui-proof';
 import { trackingRetentionSettingsHostedUiProof } from '../src/tracking-retention-settings-hosted-ui-proof';
 import {
   trackingFamilyDashboardHostedRollupProof,
@@ -244,6 +245,41 @@ const ExpectedFamilyDashboardHostedRollupRows = [
   },
 ] as const;
 
+const ExpectedReportExportHostedUiRows = [
+  {
+    title: 'Redacted report packet',
+    status: 'report-export-read-model-ready',
+    exportedRows: '6',
+    redactedEvidenceRefs: '6',
+    custody: 'parent-owned-redacted-report',
+    evidence: 'tracking-report-export-evidence-redacted-report',
+  },
+  {
+    title: 'Retention audit export packet',
+    status: 'report-export-read-model-ready',
+    exportedRows: '5',
+    redactedEvidenceRefs: '5',
+    custody: 'parent-owned-local-export',
+    evidence: 'tracking-report-export-evidence-retention-audit',
+  },
+  {
+    title: 'Family dashboard summary packet',
+    status: 'report-export-read-model-ready',
+    exportedRows: '3',
+    redactedEvidenceRefs: '3',
+    custody: 'parent-owned-redacted-report',
+    evidence: 'tracking-report-export-evidence-family-dashboard',
+  },
+  {
+    title: 'Policy drill-in export packet',
+    status: 'report-export-read-model-ready',
+    exportedRows: '2',
+    redactedEvidenceRefs: '2',
+    custody: 'parent-owned-redacted-report',
+    evidence: 'tracking-report-export-evidence-policy-drill-in',
+  },
+] as const;
+
 const TrackingRetentionSettingsWriteResult = {
   schemaVersion: AgentProtocolSchemaVersion,
   commandId: 'tracking-retention-settings-write-command',
@@ -390,6 +426,35 @@ describe('tracking dashboard and platform proof surface', () => {
       rows: ExpectedFamilyDashboardHostedRollupRows,
     });
     expect(JSON.stringify(proof)).not.toMatch(/(?:product ready|physical device proved|provider delivered)/iu);
+  });
+
+  it('renders report export read-model packets without raw export, mutation, runtime, or product claims', () => {
+    const proof = trackingReportExportHostedUiProof();
+
+    expect(proof).toEqual({
+      title: 'Report export read-model UI',
+      body: 'Hosted route renders redacted report/export packet rows from existing read-model proof refs without exposing raw location payloads or claiming product-ready export.',
+      proofTier: 'P2 service proof',
+      rowsReturned: '4',
+      proofArtifact: TrackingStatusProofArtifacts.ReportExportReadModel,
+      boundary:
+        'Hosted report/export packet rendering only; raw location payload export, service mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.',
+      missingProof: 'Manual proof required',
+      productClaim: 'No product claim',
+      rawLocationPayloadClaimedRows: '0',
+      serviceMutationClaimedRows: '0',
+      platformRuntimeClaimedRows: '0',
+      childDeviceDeliveryClaimedRows: '0',
+      providerDeliveryClaimedRows: '0',
+      notificationReceiptClaimedRows: '0',
+      physicalDeviceClaimedRows: '0',
+      authorityClaimedRows: '0',
+      productClaimReadyRows: '0',
+      rows: ExpectedReportExportHostedUiRows,
+    });
+    expect(JSON.stringify(proof)).not.toMatch(
+      /(?:raw location payload exported|service mutation executed|product-ready export delivered)/iu
+    );
   });
 
   it('renders unsupported/manual platform rows without invented capability or product claims', () => {

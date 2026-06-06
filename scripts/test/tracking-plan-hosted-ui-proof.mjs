@@ -31,6 +31,7 @@ const workpack31 = path.join(
   'tracking-plan-proof',
   '31-platform-extension-checklists-and-proof-routing'
 );
+const workpack32 = path.join(repoRoot, 'output', 'tracking-plan-proof', '32-journal-sqlite-and-read-model-proof');
 const workpack33 = path.join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
 const proofResultDir = path.join(repoRoot, 'test-results', 'tracking-plan-hosted-ui-proof');
 const proofPath = path.join(proofResultDir, 'proof.json');
@@ -46,6 +47,7 @@ const familyDashboardScreenshot = path.join(
   '11-ui-snapshots',
   'hosted-policy-tracking-family-dashboard-rollup.png'
 );
+const reportExportScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-report-export.png');
 const retentionSettingsScreenshot = path.join(
   workpack30,
   '11-ui-snapshots',
@@ -60,6 +62,8 @@ const childRuntimeUiScreenshot = path.join(
 );
 const childRuntimeUiProofPath = path.join(workpack30, '19-child-runtime-ui-proof.json');
 const evidenceDrawerHostedUiProofPath = path.join(workpack30, '20-evidence-drawer-hosted-ui-proof.json');
+const reportExportHostedUiProofPath = path.join(workpack30, '21-report-export-hosted-ui-proof.json');
+const reportExportWp32HostedUiProofPath = path.join(workpack32, '29-report-export-hosted-ui-proof.json');
 const unsupportedManualScreenshot = path.join(workpack31, '19-unsupported-manual-hosted-ui.png');
 const unsupportedManualHostedProofPath = path.join(workpack31, '19-unsupported-manual-hosted-ui-proof.json');
 const accessibilitySummaryPath = path.join(proofResultDir, 'accessibility-summary.json');
@@ -86,6 +90,7 @@ try {
   await mkdir(devLogDir, { recursive: true });
   await mkdir(workpack30, { recursive: true });
   await mkdir(workpack31, { recursive: true });
+  await mkdir(workpack32, { recursive: true });
   await mkdir(workpack33, { recursive: true });
   await mkdir(proofResultDir, { recursive: true });
   await seedActivityStore();
@@ -376,6 +381,9 @@ async function writeProof(playwright) {
       desktopScreenshot: relativePath(desktopScreenshot),
       mobileScreenshot: relativePath(mobileScreenshot),
       familyDashboardScreenshot: relativePath(familyDashboardScreenshot),
+      reportExportScreenshot: relativePath(reportExportScreenshot),
+      reportExportHostedUiProof: relativePath(reportExportHostedUiProofPath),
+      reportExportWp32HostedUiProof: relativePath(reportExportWp32HostedUiProofPath),
       retentionSettingsScreenshot: relativePath(retentionSettingsScreenshot),
       evidenceDrawerScreenshot: relativePath(evidenceDrawerScreenshot),
       evidenceDrawerHostedUiProof: relativePath(evidenceDrawerHostedUiProofPath),
@@ -406,6 +414,27 @@ async function writeProof(playwright) {
         'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json',
       screenshot: relativePath(familyDashboardScreenshot),
       renderedRows: ['family-active-summary', 'child-attention-summary', 'retention-audit-summary'],
+      childDeviceDeliveryClaimedRows: 0,
+      providerDeliveryClaimedRows: 0,
+      notificationReceiptClaimedRows: 0,
+      physicalDeviceClaimedRows: 0,
+      authorityClaimedRows: 0,
+      productClaimReadyRows: 0,
+      productClaimReady: false,
+    },
+    reportExportHostedUiProof: {
+      sourceProof:
+        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json',
+      screenshot: relativePath(reportExportScreenshot),
+      renderedRows: [
+        'redacted-report-packet',
+        'retention-audit-export-packet',
+        'family-dashboard-summary-packet',
+        'policy-drill-in-export-packet',
+      ],
+      rawLocationPayloadClaimedRows: 0,
+      serviceMutationClaimedRows: 0,
+      platformRuntimeClaimedRows: 0,
       childDeviceDeliveryClaimedRows: 0,
       providerDeliveryClaimedRows: 0,
       notificationReceiptClaimedRows: 0,
@@ -485,6 +514,7 @@ async function writeProof(playwright) {
       'This proof uses a seeded temporary ActivityStore SQLite database to prove hosted portal rendering against the real Rust service command.',
       'This proof renders a read-only evidence drawer from the selected service-backed citation but does not claim policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, or product readiness.',
       'This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.',
+      'This proof renders report/export read-model packet rows but does not claim raw location payload export, service mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, or product-ready export behavior.',
       'This proof renders retention settings read-model rows but does not claim writable product settings, service mutation, or platform runtime execution.',
       'This proof sends and renders a typed retention settings write-preflight result but does not claim product-ready service mutation, platform runtime execution, child-device delivery, provider delivery, physical-device proof, authority, or production behavior.',
       'This proof renders unsupported/manual platform rows in the hosted portal but does not claim physical-device execution, authority enrollment, provider delivery, or product-ready tracking.',
@@ -502,6 +532,8 @@ async function writeProof(playwright) {
   await writeFile(gateProofPath, proofContent);
   await writeFile(childRuntimeUiProofPath, proofContent);
   await writeFile(evidenceDrawerHostedUiProofPath, proofContent);
+  await writeFile(reportExportHostedUiProofPath, proofContent);
+  await writeFile(reportExportWp32HostedUiProofPath, proofContent);
   await writeFile(unsupportedManualHostedProofPath, proofContent);
   await writeFile(
     securityLogPath,
@@ -511,6 +543,8 @@ async function writeProof(playwright) {
       'asserted=no product-ready or physical-device-proved route copy',
       'asserted=family dashboard rollup rows render from existing proof refs without product-ready claim',
       'asserted=family dashboard rollup screenshot captured',
+      'asserted=report export packet rows render from existing read-model proof refs without product-ready claim',
+      'asserted=report export packet screenshot captured',
       'asserted=evidence drawer renders selected service-backed citation without evaluator or dispatch claims',
       'asserted=evidence drawer screenshot captured',
       'asserted=retention settings write-preflight command button clicked',

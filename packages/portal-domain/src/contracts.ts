@@ -464,6 +464,7 @@ const PortalDom = {
     TrackingProofChildRuntimeUi: 'child-runtime-ui',
     TrackingProofEvidenceDrawer: 'service-backed-evidence-drawer',
     TrackingProofFamilyDashboard: 'family-dashboard-rollup',
+    TrackingProofReportExport: 'report-export-ui',
     TrackingProofRetentionSettings: 'retention-settings-ui',
   },
   Events: {
