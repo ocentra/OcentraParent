@@ -147,6 +147,17 @@ dev-only repo when it claims consumer readiness.
   upload execution, account lookup execution, billing provider contact,
   production SLA, legal disclosure execution, remote support sessions, and child
   activity custody.
+- `production-support-publication-runtime-readiness-proof` adds source-backed
+  readiness rows for the same support/publication runtime handoffs without
+  duplicating the publication freshness source-contract proof. It proves the
+  current public runtime, support runbook publication runner, incident status
+  publication runner, support upload publication runtime, privacy/legal
+  publication runtime, and public support contact runtime remain
+  source-contract/manual-required/backend-required or legal-review-required,
+  while rejecting real public runtime execution, publication runner execution,
+  support backend upload execution, account lookup execution, billing provider
+  contact, production SLA, legal disclosure execution, remote support sessions,
+  and child activity custody.
 - `public-support-contact-status-proof` adds parent-domain public support
   contact/status boundary rows for public support contact, support status page
   contact, support runbook contact, incident status contact, backend-upload
@@ -448,6 +459,16 @@ package/runtime proof.
       upload execution, account lookup execution, billing provider contact,
       production SLA, legal disclosure execution, remote support sessions, and
       child activity custody remain unimplemented or unclaimed.
+- [ ] Production support publication runtime readiness proof. Current
+      `production-support-publication-runtime-readiness-proof` covers public
+      runtime, support runbook publication runner, incident status publication
+      runner, support upload publication runtime, privacy/legal publication
+      runtime, and public support contact runtime readiness as source-backed
+      manual-required/backend-required/legal-review-required rows. It keeps real
+      public runtime execution, publication runner execution, support backend
+      upload execution, account lookup execution, billing provider contact,
+      production SLA, legal disclosure execution, remote support sessions, and
+      child activity custody unimplemented or unclaimed.
 - [ ] Public support contact/status boundary proof. Current
       `public-support-contact-status-proof` covers public support contact,
       support status page contact, support runbook contact, incident status
