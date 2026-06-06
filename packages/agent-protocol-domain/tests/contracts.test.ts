@@ -25,6 +25,8 @@ const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['ActivityAppGameBoundaryReadModelGet', 'agent.activity.app-game.boundary.read-model.get'],
   ['ActivityAppGamePolicyReadinessReadModelGet', 'agent.activity.app-game.policy-readiness.read-model.get'],
   ['ActivityAppGameNotificationReadinessReadModelGet', 'agent.activity.app-game.notification-readiness.read-model.get'],
+  ['BrowserSocialDashboardReadModelGet', 'agent.browser.social-dashboard.read-model.get'],
+  ['BrowserSocialAuditExplanationReadModelGet', 'agent.browser.social-audit-explanation.read-model.get'],
   ['ActivityNetworkReadModelGet', 'agent.activity.network.read-model.get'],
   ['ActivityTrackingReadModelGet', 'agent.activity.tracking.read-model.get'],
   ['BrowserEvidenceRecentGet', 'agent.browser.evidence.recent.get'],
@@ -90,6 +92,8 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
     'ActivityAppGameNotificationReadinessReadModelReported',
     'agent.activity.app-game.notification-readiness.read-model.reported',
   ],
+  ['BrowserSocialDashboardReadModelReported', 'agent.browser.social-dashboard.read-model.reported'],
+  ['BrowserSocialAuditExplanationReadModelReported', 'agent.browser.social-audit-explanation.read-model.reported'],
   ['ActivityNetworkReadModelReported', 'agent.activity.network.read-model.reported'],
   ['ActivityTrackingReadModelReported', 'agent.activity.tracking.read-model.reported'],
   ['BrowserEvidenceRecentReported', 'agent.browser.evidence.recent.reported'],
@@ -338,6 +342,10 @@ function expectReadModelBridgeAndActivityFields() {
   expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
   expect(AgentProtocolDefaults.Field.ActivityDigest).toBe('activityDigest');
   expect(AgentProtocolDefaults.Field.ActivityTrackingReadModel).toBe('trackingReadModel');
+  expect(AgentProtocolDefaults.Field.BrowserSocialDashboardReadModel).toBe('browserSocialDashboardReadModel');
+  expect(AgentProtocolDefaults.Field.BrowserSocialAuditExplanationReadModel).toBe(
+    'browserSocialAuditExplanationReadModel'
+  );
   expect(AgentProtocolDefaults.Field.ActivityAppGameNotificationReadinessReadModel).toBe(
     'appGameNotificationReadinessReadModel'
   );

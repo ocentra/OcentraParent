@@ -140,7 +140,12 @@
       "parent-evidence-audit-ref-rendered",
       "Rendered parent explanation surface only; runtime audit-store delivery, notifications, connector authorization, native app control, final policy execution, and enforcement remain unclaimed."
     ],
-    "buttons": [],
+    "buttons": [
+      {
+        "text": "Social explanations",
+        "disabled": false
+      }
+    ],
     "unlabeledButtons": 0
   },
   "screenshots": {

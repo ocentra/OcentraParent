@@ -120,7 +120,13 @@ export function ParentPortalRoute({
         />
       ) : null}
       {shouldRenderBrowserParentExplanationRoute(route) ? <BrowserParentExplanationRoutePanel /> : null}
-      {shouldRenderSocialAuditExplanationRoute(route) ? <SocialAuditExplanationRoutePanel /> : null}
+      {shouldRenderSocialAuditExplanationRoute(route) ? (
+        <SocialAuditExplanationRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          events={state.events}
+        />
+      ) : null}
       {shouldRenderSocialDashboardRoute(route) ? (
         <SocialDashboardRoutePanel
           actions={actions}
