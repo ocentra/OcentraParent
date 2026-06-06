@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 11;
+    const isComplete = rowNumber <= 12;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -88,7 +88,9 @@ function expectedRows() {
                           ? 'live-educational-classifier-proof-present'
                           : rowNumber === 10
                             ? 'live-ai-analysis-proof-present'
-                            : 'live-riskbenefit-signal-proof-present'
+                            : rowNumber === 11
+                              ? 'live-riskbenefit-signal-proof-present'
+                              : 'live-memory-cache-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -195,6 +197,7 @@ function manifestFor(rows, failures) {
       liveEducationalClassifierEvidence: 'game-09-live-educational-classifier-proof-present',
       liveAiAnalysisEvidence: 'game-10-live-ai-analysis-proof-present',
       liveRiskBenefitSignalEvidence: 'game-11-live-riskbenefit-signal-proof-present',
+      liveMemoryCacheEvidence: 'game-12-live-memory-cache-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -245,6 +248,8 @@ function markdownFor(manifest) {
     'surfaces with typed evidence refs and candidate-only results.',
     'GAME-11 live risk/benefit signal proof is present for real public',
     'browser-game and cloud-gaming pages with typed candidate-only signal sets.',
+    'GAME-12 live memory/cache proof is present for real public browser-game',
+    'and cloud-gaming pages with bounded cache-key refs and no runtime store.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

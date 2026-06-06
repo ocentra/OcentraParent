@@ -1,10 +1,10 @@
 # GAME-22 Browser-Game Proof Artifact Manifest
 
-Generated: 2026-06-06T20:23:32.810Z
+Generated: 2026-06-06T20:33:38.083Z
 
 Rows checked: 21
-Proof-present rows: 11
-Partial/manual-required rows: 10
+Proof-present rows: 12
+Partial/manual-required rows: 9
 Playwright state: manual-required-no-rendered-browser-game-ui
 Product claimed: false
 
@@ -21,7 +21,7 @@ Product claimed: false
 | GAME-09 | live-educational-classifier-proof-present | `game-09-educational-game-classifier-contract` | 6 |
 | GAME-10 | live-ai-analysis-proof-present | `game-10-browser-game-ai-analysis-contract` | 6 |
 | GAME-11 | live-riskbenefit-signal-proof-present | `game-11-game-risk-benefit-signal-model` | 6 |
-| GAME-12 | partial-manual-required | `game-12-browser-game-memory-cache` | 5 |
+| GAME-12 | live-memory-cache-proof-present | `game-12-browser-game-memory-cache` | 6 |
 | GAME-13 | partial-manual-required | `game-13-game-account-signup-purchase-gating` | 5 |
 | GAME-14 | partial-manual-required | `game-14-cloud-gaming-gating` | 5 |
 | GAME-15 | partial-manual-required | `game-15-unblocked-game-site-detection` | 5 |
@@ -53,6 +53,8 @@ GAME-10 live AI analysis proof is present for real public browser-game
 surfaces with typed evidence refs and candidate-only results.
 GAME-11 live risk/benefit signal proof is present for real public
 browser-game and cloud-gaming pages with typed candidate-only signal sets.
+GAME-12 live memory/cache proof is present for real public browser-game
+and cloud-gaming pages with bounded cache-key refs and no runtime store.
 It does not prove rendered browser-game UI, Playwright screenshots,
 runtime browser-game detection, cloud-streamed frame analysis, native
 game control, final policy execution, enforcement, or product checklist

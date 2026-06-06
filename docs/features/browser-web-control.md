@@ -407,15 +407,19 @@ Roblox Discover pages; stores only response hashes and evidence refs; validates
 5 signal sets with 7 risk signals and 8 benefit signals; and rejects 30
 overclaims.
 Browser-game/cloud-gaming GAME-12 now adds parent-domain memory/cache contracts
-for browser-game decision refs. Cache keys are schema-backed refs or hashes for
-canonical URL, platform game, domain path, cloud title, parent decision, game
-category, policy version, child profile, parent rule set, and evidence. Fresh
-hits can feed policy input only when bounded TTL, required subject keys,
-evidence refs, and decision refs are present; stale, miss, and manual-required
-rows cannot drive policy input. It does not store raw URLs, raw game IDs, raw
-cloud titles, raw game payloads, raw model text, or claim runtime cache store,
-AI cache, UI, native game control, cloud-frame analysis, final policy, or
-enforcement.
+for browser-game decision refs plus a live public memory/cache shape proof.
+Cache keys are schema-backed refs or hashes for canonical URL, platform game,
+domain path, cloud title, parent decision, game category, policy version, child
+profile, parent rule set, and evidence. Fresh hits can feed policy input only
+when bounded TTL, required subject keys, evidence refs, and decision refs are
+present; stale, miss, and manual-required rows cannot drive policy input. The
+live proof fetches real public Poki Subway Surfers, Code.org Minecraft,
+Chess.com play, Xbox Cloud Gaming, and Roblox Discover pages; stores only
+response hashes, cache-key refs, evidence refs, snapshots, and no-authority
+flags; validates 5 snapshots with 15 entries; and rejects 20 overclaims. It
+does not store raw URLs, raw game IDs, raw cloud titles, raw game payloads, raw
+model text, or claim runtime cache store, AI cache, UI, native game control,
+cloud-frame analysis, final policy, or enforcement.
 Browser-game/cloud-gaming GAME-13 now adds parent-domain browser-game
 account/signup/purchase gate contracts. The contracts cover account creation,
 login, secondary account, purchase, subscription, loot box/random item, virtual
@@ -513,8 +517,9 @@ live-metadata-shape-proof-present. GAME-08 is
 live-hidden-analysis-profile-safety-proof-present. GAME-09 is
 live-educational-classifier-proof-present. GAME-10 is
 live-ai-analysis-proof-present. GAME-11 is
-live-riskbenefit-signal-proof-present. GAME-12 through GAME-24 are
-partial/manual-required. Memory, UI, cloud-streamed
+live-riskbenefit-signal-proof-present. GAME-12 is
+live-memory-cache-proof-present. GAME-13 through GAME-24 are
+partial/manual-required. UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.
 Browser AI enhancement rows AI-01 and AI-02 now add plan linkage and

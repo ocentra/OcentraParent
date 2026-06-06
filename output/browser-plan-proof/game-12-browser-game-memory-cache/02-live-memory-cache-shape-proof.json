@@ -1,0 +1,1241 @@
+{
+  "schemaVersion": 1,
+  "proofId": "browser-game-memory-cache-live-evidence-proof",
+  "generatedAt": "2026-06-06T20:33:38.484Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "6b585676561d05cbea302251c574c31dabbbd723",
+  "baseCommit": "e9118e91b1be80973a3fb75c5ae8ff76f0d6718c",
+  "captureMode": "real-public-browser-game-memory-cache-shapes",
+  "targets": [
+    {
+      "targetId": "poki-subway-surfers",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 350473,
+      "bodySha256": "2cd536e96d5e6c1172a044fa0fd47fe0207fb68fa3fa05e1e0a0292c866cc573",
+      "inputOriginSha256": "f9b232b1f68e6833e5875b782274f5aeb719a114cedc674ea2fddc4fbc258da7",
+      "inputPathSha256": "c9e4e52602ab9978fa98f3cebaa2efe5ecb447763240abefa740170da024aadc",
+      "finalOriginSha256": "f9b232b1f68e6833e5875b782274f5aeb719a114cedc674ea2fddc4fbc258da7",
+      "finalPathSha256": "c9e4e52602ab9978fa98f3cebaa2efe5ecb447763240abefa740170da024aadc",
+      "rawUrlPersisted": false,
+      "rawPlatformGameIdPersisted": false,
+      "rawCloudGameTitlePersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawModelTextPersisted": false
+    },
+    {
+      "targetId": "code-org-minecraft",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 471212,
+      "bodySha256": "b58565af5124f5ecc1a54bc554279778727d9447e14eb2bb833b3641c28a6d61",
+      "inputOriginSha256": "6785ad3888129d98da7c78600a0670a8dbb63d42ec8ef5071f272d15ad3c87a1",
+      "inputPathSha256": "8108e2eb5112e5264cb0e8bfff7a06f4af8e1d25e9f106adf4e352db485e5111",
+      "finalOriginSha256": "6785ad3888129d98da7c78600a0670a8dbb63d42ec8ef5071f272d15ad3c87a1",
+      "finalPathSha256": "8d772dcbb300b6aaf55d75ec2d8d474796d3d05c216c89970b2983aecc2338f8",
+      "rawUrlPersisted": false,
+      "rawPlatformGameIdPersisted": false,
+      "rawCloudGameTitlePersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawModelTextPersisted": false
+    },
+    {
+      "targetId": "chess-play-online",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=UTF-8",
+      "contentLength": 114928,
+      "bodySha256": "3c9af5e977d25170d4805e633a58e3567192027982976b64e6a761e41f51d4b6",
+      "inputOriginSha256": "1e76d9acdaa1d09f7881b8ef8a593a6b926a3cd57d263a84ce6cf6edf900e283",
+      "inputPathSha256": "c98a6799eead2719f98cf1973c99a48a29ccdfb2e8cbaef51f160c6e894260fb",
+      "finalOriginSha256": "1e76d9acdaa1d09f7881b8ef8a593a6b926a3cd57d263a84ce6cf6edf900e283",
+      "finalPathSha256": "c98a6799eead2719f98cf1973c99a48a29ccdfb2e8cbaef51f160c6e894260fb",
+      "rawUrlPersisted": false,
+      "rawPlatformGameIdPersisted": false,
+      "rawCloudGameTitlePersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawModelTextPersisted": false
+    },
+    {
+      "targetId": "xbox-cloud-play",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 6391971,
+      "bodySha256": "2f40fad66b2ee6ef2b96c2324f1de3f3c5e81c0802db0f32fcd15121dde4b67a",
+      "inputOriginSha256": "c671f65a7182028d27403cb4710407c2b099fba7fcc1921b6ca6e49b450e7244",
+      "inputPathSha256": "5b26e27ee6ed081569893464078e64733cd44843e86d270083ae31be5f1751a4",
+      "finalOriginSha256": "c671f65a7182028d27403cb4710407c2b099fba7fcc1921b6ca6e49b450e7244",
+      "finalPathSha256": "5b26e27ee6ed081569893464078e64733cd44843e86d270083ae31be5f1751a4",
+      "rawUrlPersisted": false,
+      "rawPlatformGameIdPersisted": false,
+      "rawCloudGameTitlePersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawModelTextPersisted": false
+    },
+    {
+      "targetId": "roblox-discover",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 69384,
+      "bodySha256": "19ed329e889936dbc533a3897747e8cf438ab08d012f2d8ac115d5b67ba88513",
+      "inputOriginSha256": "14647379c0b84766cd19a0f3cd89f3e40591b98a52ed4c6a2d51e4a5e3b1d5be",
+      "inputPathSha256": "0bafeafd1e1b8070062af4236700f29becf6adaa4bc4d3429cfd58c4ca7c6cd8",
+      "finalOriginSha256": "14647379c0b84766cd19a0f3cd89f3e40591b98a52ed4c6a2d51e4a5e3b1d5be",
+      "finalPathSha256": "5745fa814ed227575d66a75222624a63feb35b7023afaa405b84de12f3506538",
+      "rawUrlPersisted": false,
+      "rawPlatformGameIdPersisted": false,
+      "rawCloudGameTitlePersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawModelTextPersisted": false
+    }
+  ],
+  "snapshots": [
+    {
+      "schemaVersion": "browser-game-memory-cache-contract",
+      "snapshotId": "browser-game-memory-cache-snapshot-poki-subway-surfers",
+      "familyId": "family-browser-game-memory-live-proof",
+      "childProfileId": "child-browser-game-memory-live-proof",
+      "capturedAt": "2026-06-06T20:33:38.484Z",
+      "entries": [
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-url-poki-subway-surfers",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-06T20:43:38.484Z",
+          "ttlMs": 600000,
+          "ttlClass": "short-dynamic-game-page",
+          "subjectKind": "game-url-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "parent-review-candidate",
+          "reasonCodes": [
+            "parent-rule-match"
+          ],
+          "confidence": "medium",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-poki-subway-surfers"
+            },
+            {
+              "keyKind": "canonical-url-ref",
+              "keyValue": "canonical-url-ref-f9b232b1f68e6833"
+            },
+            {
+              "keyKind": "domain-path-hash",
+              "keyValue": "domain-path-hash-c9e4e52602ab9978"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-poki-subway-surfers"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-poki-subway-surfers-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-decision-poki-subway-surfers"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-category-poki-subway-surfers",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-06T20:43:38.484Z",
+          "ttlMs": 600000,
+          "ttlClass": "short-dynamic-game-page",
+          "subjectKind": "category-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "parent-review-candidate",
+          "reasonCodes": [
+            "parent-rule-match"
+          ],
+          "confidence": "medium",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-poki-subway-surfers"
+            },
+            {
+              "keyKind": "game-category-ref",
+              "keyValue": "game-category-browser-arcade-ref"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-poki-subway-surfers-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-category-decision-poki-subway-surfers"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-parent-decision-poki-subway-surfers",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-07T08:33:38.484Z",
+          "ttlMs": 43200000,
+          "ttlClass": "parent-approved-account-page",
+          "subjectKind": "parent-decision-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "parent-review-candidate",
+          "reasonCodes": [
+            "parent-rule-match"
+          ],
+          "confidence": "medium",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-poki-subway-surfers"
+            },
+            {
+              "keyKind": "parent-decision-ref",
+              "keyValue": "parent-decision-ref-poki-subway-surfers"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-poki-subway-surfers-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-parent-decision-poki-subway-surfers"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "retentionBounded": true,
+      "rawGameContentStored": false,
+      "runtimeStoreClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-memory-cache-contract",
+      "snapshotId": "browser-game-memory-cache-snapshot-code-org-minecraft",
+      "familyId": "family-browser-game-memory-live-proof",
+      "childProfileId": "child-browser-game-memory-live-proof",
+      "capturedAt": "2026-06-06T20:33:38.484Z",
+      "entries": [
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-url-code-org-minecraft",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-07T20:33:38.484Z",
+          "ttlMs": 86400000,
+          "ttlClass": "stable-approved-game",
+          "subjectKind": "game-url-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "allow-candidate",
+          "reasonCodes": [
+            "educational-benefit-present",
+            "parent-rule-match"
+          ],
+          "confidence": "high",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-code-org-minecraft"
+            },
+            {
+              "keyKind": "canonical-url-ref",
+              "keyValue": "canonical-url-ref-6785ad3888129d98"
+            },
+            {
+              "keyKind": "domain-path-hash",
+              "keyValue": "domain-path-hash-8108e2eb5112e526"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-code-org-minecraft"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-code-org-minecraft-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-decision-code-org-minecraft"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-category-code-org-minecraft",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-06T20:43:38.484Z",
+          "ttlMs": 600000,
+          "ttlClass": "short-dynamic-game-page",
+          "subjectKind": "category-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "allow-candidate",
+          "reasonCodes": [
+            "educational-benefit-present",
+            "parent-rule-match"
+          ],
+          "confidence": "high",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-code-org-minecraft"
+            },
+            {
+              "keyKind": "game-category-ref",
+              "keyValue": "game-category-educational-ref"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-code-org-minecraft-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-category-decision-code-org-minecraft"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-parent-decision-code-org-minecraft",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-07T08:33:38.484Z",
+          "ttlMs": 43200000,
+          "ttlClass": "parent-approved-account-page",
+          "subjectKind": "parent-decision-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "allow-candidate",
+          "reasonCodes": [
+            "educational-benefit-present",
+            "parent-rule-match"
+          ],
+          "confidence": "high",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-code-org-minecraft"
+            },
+            {
+              "keyKind": "parent-decision-ref",
+              "keyValue": "parent-decision-ref-code-org-minecraft"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-code-org-minecraft-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-parent-decision-code-org-minecraft"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "retentionBounded": true,
+      "rawGameContentStored": false,
+      "runtimeStoreClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-memory-cache-contract",
+      "snapshotId": "browser-game-memory-cache-snapshot-chess-play-online",
+      "familyId": "family-browser-game-memory-live-proof",
+      "childProfileId": "child-browser-game-memory-live-proof",
+      "capturedAt": "2026-06-06T20:33:38.484Z",
+      "entries": [
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-url-chess-play-online",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-07T20:33:38.484Z",
+          "ttlMs": 86400000,
+          "ttlClass": "stable-approved-game",
+          "subjectKind": "game-url-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "time-limit-candidate",
+          "reasonCodes": [
+            "educational-benefit-present",
+            "parent-rule-match"
+          ],
+          "confidence": "medium",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-chess-play-online"
+            },
+            {
+              "keyKind": "canonical-url-ref",
+              "keyValue": "canonical-url-ref-1e76d9acdaa1d09f"
+            },
+            {
+              "keyKind": "domain-path-hash",
+              "keyValue": "domain-path-hash-c98a6799eead2719"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-chess-play-online"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-chess-play-online-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-decision-chess-play-online"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-category-chess-play-online",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-06T20:43:38.484Z",
+          "ttlMs": 600000,
+          "ttlClass": "short-dynamic-game-page",
+          "subjectKind": "category-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "time-limit-candidate",
+          "reasonCodes": [
+            "educational-benefit-present",
+            "parent-rule-match"
+          ],
+          "confidence": "medium",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-chess-play-online"
+            },
+            {
+              "keyKind": "game-category-ref",
+              "keyValue": "game-category-skill-ref"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-chess-play-online-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-category-decision-chess-play-online"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-parent-decision-chess-play-online",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-07T08:33:38.484Z",
+          "ttlMs": 43200000,
+          "ttlClass": "parent-approved-account-page",
+          "subjectKind": "parent-decision-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "time-limit-candidate",
+          "reasonCodes": [
+            "educational-benefit-present",
+            "parent-rule-match"
+          ],
+          "confidence": "medium",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-chess-play-online"
+            },
+            {
+              "keyKind": "parent-decision-ref",
+              "keyValue": "parent-decision-ref-chess-play-online"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-chess-play-online-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-parent-decision-chess-play-online"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "retentionBounded": true,
+      "rawGameContentStored": false,
+      "runtimeStoreClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-memory-cache-contract",
+      "snapshotId": "browser-game-memory-cache-snapshot-xbox-cloud-play",
+      "familyId": "family-browser-game-memory-live-proof",
+      "childProfileId": "child-browser-game-memory-live-proof",
+      "capturedAt": "2026-06-06T20:33:38.484Z",
+      "entries": [
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-url-xbox-cloud-play",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-06T20:43:38.484Z",
+          "ttlMs": 600000,
+          "ttlClass": "cloud-launcher-page",
+          "subjectKind": "game-url-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "manual-review-candidate",
+          "reasonCodes": [
+            "cloud-gaming-risk",
+            "manual-required"
+          ],
+          "confidence": "low",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-xbox-cloud-play"
+            },
+            {
+              "keyKind": "canonical-url-ref",
+              "keyValue": "canonical-url-ref-c671f65a7182028d"
+            },
+            {
+              "keyKind": "domain-path-hash",
+              "keyValue": "domain-path-hash-5b26e27ee6ed0815"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-xbox-cloud-play"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-xbox-cloud-play-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-decision-xbox-cloud-play"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-category-xbox-cloud-play",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-06T20:43:38.484Z",
+          "ttlMs": 600000,
+          "ttlClass": "short-dynamic-game-page",
+          "subjectKind": "category-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "manual-review-candidate",
+          "reasonCodes": [
+            "cloud-gaming-risk",
+            "manual-required"
+          ],
+          "confidence": "low",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-xbox-cloud-play"
+            },
+            {
+              "keyKind": "game-category-ref",
+              "keyValue": "game-category-cloud-ref"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-xbox-cloud-play-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-category-decision-xbox-cloud-play"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-parent-decision-xbox-cloud-play",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-07T08:33:38.484Z",
+          "ttlMs": 43200000,
+          "ttlClass": "parent-approved-account-page",
+          "subjectKind": "parent-decision-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "manual-review-candidate",
+          "reasonCodes": [
+            "cloud-gaming-risk",
+            "manual-required"
+          ],
+          "confidence": "low",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-xbox-cloud-play"
+            },
+            {
+              "keyKind": "parent-decision-ref",
+              "keyValue": "parent-decision-ref-xbox-cloud-play"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-xbox-cloud-play-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-parent-decision-xbox-cloud-play"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "retentionBounded": true,
+      "rawGameContentStored": false,
+      "runtimeStoreClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-memory-cache-contract",
+      "snapshotId": "browser-game-memory-cache-snapshot-roblox-discover",
+      "familyId": "family-browser-game-memory-live-proof",
+      "childProfileId": "child-browser-game-memory-live-proof",
+      "capturedAt": "2026-06-06T20:33:38.484Z",
+      "entries": [
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-url-roblox-discover",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-06T20:43:38.484Z",
+          "ttlMs": 600000,
+          "ttlClass": "ugc-game-page",
+          "subjectKind": "game-url-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "parent-review-candidate",
+          "reasonCodes": [
+            "ugc-chat-risk",
+            "parent-rule-match"
+          ],
+          "confidence": "medium",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-roblox-discover"
+            },
+            {
+              "keyKind": "canonical-url-ref",
+              "keyValue": "canonical-url-ref-14647379c0b84766"
+            },
+            {
+              "keyKind": "domain-path-hash",
+              "keyValue": "domain-path-hash-0bafeafd1e1b8070"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-roblox-discover"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-roblox-discover-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-decision-roblox-discover"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-category-roblox-discover",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-06T20:43:38.484Z",
+          "ttlMs": 600000,
+          "ttlClass": "short-dynamic-game-page",
+          "subjectKind": "category-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "parent-review-candidate",
+          "reasonCodes": [
+            "ugc-chat-risk",
+            "parent-rule-match"
+          ],
+          "confidence": "medium",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-roblox-discover"
+            },
+            {
+              "keyKind": "game-category-ref",
+              "keyValue": "game-category-ugc-ref"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-roblox-discover-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-category-decision-roblox-discover"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "schemaVersion": "browser-game-memory-cache-contract",
+          "entryId": "browser-game-memory-parent-decision-roblox-discover",
+          "familyId": "family-browser-game-memory-live-proof",
+          "childProfileId": "child-browser-game-memory-live-proof",
+          "policyVersionRef": "policy-version-browser-game-memory-live-proof",
+          "storedAt": "2026-06-06T20:33:38.484Z",
+          "expiresAt": "2026-06-07T08:33:38.484Z",
+          "ttlMs": 43200000,
+          "ttlClass": "parent-approved-account-page",
+          "subjectKind": "parent-decision-ref",
+          "memoryState": "fresh-hit",
+          "decisionSource": "parent-decision-candidate",
+          "actionCandidate": "parent-review-candidate",
+          "reasonCodes": [
+            "ugc-chat-risk",
+            "parent-rule-match"
+          ],
+          "confidence": "medium",
+          "cacheKeys": [
+            {
+              "keyKind": "policy-version",
+              "keyValue": "policy-version-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "child-profile",
+              "keyValue": "child-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "parent-rule-set",
+              "keyValue": "parent-rule-set-browser-game-memory-live-proof"
+            },
+            {
+              "keyKind": "evidence-ref",
+              "keyValue": "evidence-ref-roblox-discover"
+            },
+            {
+              "keyKind": "parent-decision-ref",
+              "keyValue": "parent-decision-ref-roblox-discover"
+            }
+          ],
+          "sourceEvidenceRefs": [
+            "parent-proof-browser-game-memory-cache-live-evidence-proof-roblox-discover-source"
+          ],
+          "decisionRefs": [
+            "browser-game-memory-parent-decision-roblox-discover"
+          ],
+          "invalidationReasons": [],
+          "canReuseForPolicyInput": true,
+          "finalPolicyDecisionClaimed": false,
+          "runtimeCacheStoreClaimed": false,
+          "aiCacheClaimed": false,
+          "rawCanonicalUrlStored": false,
+          "rawPlatformGameIdStored": false,
+          "rawCloudGameTitleStored": false,
+          "rawGamePayloadStored": false,
+          "rawModelTextStored": false,
+          "uiDeliveredClaimed": false,
+          "nativeGameControlClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "retentionBounded": true,
+      "rawGameContentStored": false,
+      "runtimeStoreClaimed": false
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "snapshot-raw-game-content",
+      "rejected": true
+    },
+    {
+      "name": "snapshot-runtime-store",
+      "rejected": true
+    },
+    {
+      "name": "snapshot-missing-category-row",
+      "rejected": true
+    },
+    {
+      "name": "entry-final-policy-decision",
+      "rejected": true
+    },
+    {
+      "name": "entry-runtime-cache-store",
+      "rejected": true
+    },
+    {
+      "name": "entry-ai-cache",
+      "rejected": true
+    },
+    {
+      "name": "entry-raw-canonical-url",
+      "rejected": true
+    },
+    {
+      "name": "entry-raw-platform-game-id",
+      "rejected": true
+    },
+    {
+      "name": "entry-raw-cloud-title",
+      "rejected": true
+    },
+    {
+      "name": "entry-raw-game-payload",
+      "rejected": true
+    },
+    {
+      "name": "entry-raw-model-text",
+      "rejected": true
+    },
+    {
+      "name": "entry-ui-delivered",
+      "rejected": true
+    },
+    {
+      "name": "entry-native-game-control",
+      "rejected": true
+    },
+    {
+      "name": "entry-cloud-frame-analysis",
+      "rejected": true
+    },
+    {
+      "name": "entry-enforcement",
+      "rejected": true
+    },
+    {
+      "name": "entry-missing-subject-key",
+      "rejected": true
+    },
+    {
+      "name": "entry-overlong-dynamic-ttl",
+      "rejected": true
+    },
+    {
+      "name": "entry-fresh-no-decision-ref",
+      "rejected": true
+    },
+    {
+      "name": "entry-stale-reuse",
+      "rejected": true
+    },
+    {
+      "name": "entry-miss-with-decision-ref",
+      "rejected": true
+    }
+  ],
+  "summary": {
+    "targetCount": 5,
+    "snapshotCount": 5,
+    "entryCount": 15,
+    "negativeChecks": 20,
+    "subjectKinds": [
+      "game-url-ref",
+      "category-ref",
+      "parent-decision-ref"
+    ],
+    "cacheKeyKinds": [
+      "policy-version",
+      "child-profile",
+      "parent-rule-set",
+      "evidence-ref",
+      "canonical-url-ref",
+      "domain-path-hash",
+      "game-category-ref",
+      "parent-decision-ref"
+    ],
+    "rawUrlStored": false,
+    "rawPlatformGameIdStored": false,
+    "rawCloudGameTitleStored": false,
+    "rawGamePayloadStored": false,
+    "rawModelTextStored": false,
+    "runtimeCacheStoreClaimed": false,
+    "aiCacheClaimed": false,
+    "uiDeliveredClaimed": false,
+    "nativeGameControlClaimed": false,
+    "cloudFrameAnalysisClaimed": false,
+    "finalPolicyDecisionClaimed": false,
+    "enforcementClaimed": false,
+    "productChecklistUpgradeClaimed": false
+  }
+}

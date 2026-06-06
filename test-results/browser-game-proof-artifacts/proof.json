@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-proof-artifacts",
-  "generatedAt": "2026-06-06T20:23:32.810Z",
+  "generatedAt": "2026-06-06T20:33:38.083Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -193,17 +193,18 @@
     {
       "rowNumber": 12,
       "rowId": "GAME-12",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "live-memory-cache-proof-present",
       "proofDirectory": "game-12-browser-game-memory-cache",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-contract-proof.md",
+        "02-live-memory-cache-shape-proof.json",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "live-memory-cache-proof-present",
       "failures": []
     },
     {
@@ -353,8 +354,8 @@
   ],
   "summary": {
     "totalRows": 21,
-    "completeRows": 11,
-    "partialRows": 10,
+    "completeRows": 12,
+    "partialRows": 9,
     "failures": 0,
     "playwrightState": "manual-required-no-rendered-browser-game-ui",
     "productClaimed": false
@@ -372,6 +373,7 @@
     "liveEducationalClassifierEvidence": "game-09-live-educational-classifier-proof-present",
     "liveAiAnalysisEvidence": "game-10-live-ai-analysis-proof-present",
     "liveRiskBenefitSignalEvidence": "game-11-live-riskbenefit-signal-proof-present",
+    "liveMemoryCacheEvidence": "game-12-live-memory-cache-proof-present",
     "renderedUi": "not-claimed",
     "cloudStreamedFrameAnalysis": "not-claimed",
     "nativeGameControl": "not-claimed",

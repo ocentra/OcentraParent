@@ -250,8 +250,9 @@ risk/benefit signal rows, and no-authority flags; validates 5 signal sets with
 subpath exports are now present.
 
 GAME-12 now adds parent-domain browser-game memory/cache contracts in
-`packages/parent-domain/src/browser-game-memory-cache.ts`. The cache uses
-schema-backed ref/hash key kinds for canonical URL refs, platform game refs,
+`packages/parent-domain/src/browser-game-memory-cache.ts` and a live public
+memory/cache shape proof. The cache uses schema-backed ref/hash key kinds for
+canonical URL refs, platform game refs,
 domain path hashes, cloud game title refs, parent decision refs, game category
 refs, policy versions, child profiles, parent rule sets, and evidence refs.
 Entries model bounded fresh-hit, stale-hit, miss, and manual-required states
@@ -262,7 +263,11 @@ are present; stale/miss/manual rows cannot drive policy input. The contracts
 reject raw canonical URLs, raw platform game IDs, raw cloud game titles, raw
 game payloads, raw model text, runtime cache-store claims, AI cache claims, UI
 delivery, native game control, cloud-frame analysis, final policy decisions, and
-enforcement. Package subpath exports are now present.
+enforcement. The live proof fetches real public Poki Subway Surfers, Code.org
+Minecraft, Chess.com play, Xbox Cloud Gaming, and Roblox Discover pages; stores
+only response metadata, hashed origin/path/body refs, cache-key refs, evidence
+refs, snapshots, and no-authority flags; validates 5 snapshots with 15 bounded
+entries; and rejects 20 overclaims. Package subpath exports are now present.
 
 GAME-13 now adds parent-domain browser-game account/signup/purchase gate
 contracts in
@@ -396,8 +401,9 @@ live-metadata-shape-proof-present, GAME-08 as
 live-hidden-analysis-profile-safety-proof-present, GAME-09 as
 live-educational-classifier-proof-present, GAME-10 as
 live-ai-analysis-proof-present, GAME-11 as
-live-riskbenefit-signal-proof-present, GAME-12 through GAME-24 as
+live-riskbenefit-signal-proof-present, GAME-12 as
+live-memory-cache-proof-present, GAME-13 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
-Product checklist upgrade is not claimed; memory, child/parent UI,
+Product checklist upgrade is not claimed; child/parent UI,
 cloud-streamed frame analysis, native game control, and
 enforcement remain open or manual-required until separate proof exists.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-rollout-gate",
-  "generatedAt": "2026-06-06T20:23:32.841Z",
+  "generatedAt": "2026-06-06T20:33:38.218Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -105,10 +105,10 @@
     {
       "rowNumber": 12,
       "rowId": "GAME-12",
-      "expectedStatus": "[~]",
+      "expectedStatus": "[x]",
       "expectedOwner": "codex-d",
-      "expectedState": "partial-manual-required",
-      "state": "partial-manual-required",
+      "expectedState": "live-memory-cache-proof-present",
+      "state": "live-memory-cache-proof-present",
       "failures": []
     },
     {
@@ -222,8 +222,8 @@
   ],
   "summary": {
     "totalRows": 24,
-    "completeRows": 11,
-    "partialRows": 13,
+    "completeRows": 12,
+    "partialRows": 12,
     "openRows": 0,
     "failures": 0,
     "rolloutState": "partial/manual-required",
@@ -243,6 +243,7 @@
     "browser-game-live-runtime-signal-shape-proof-present",
     "browser-game-live-metadata-shape-proof-present",
     "browser-game-live-riskbenefit-signal-proof-present",
+    "browser-game-live-memory-cache-proof-present",
     "proof-artifact-coverage-contract-only",
     "playwright-manual-required-no-rendered-browser-game-ui",
     "runtime-signal-proof-manual-required",

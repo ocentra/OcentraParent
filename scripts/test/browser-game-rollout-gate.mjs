@@ -172,7 +172,16 @@ function expectedRows() {
         expectedState: 'live-riskbenefit-signal-proof-present',
       };
     }
-    if (rowNumber >= 12) {
+    if (rowNumber === 12) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-memory-cache-proof-present',
+      };
+    }
+    if (rowNumber >= 13) {
       return {
         rowNumber,
         rowId,
@@ -245,6 +254,7 @@ function manifestFor(rows, failures) {
       'browser-game-live-runtime-signal-shape-proof-present',
       'browser-game-live-metadata-shape-proof-present',
       'browser-game-live-riskbenefit-signal-proof-present',
+      'browser-game-live-memory-cache-proof-present',
       'proof-artifact-coverage-contract-only',
       'playwright-manual-required-no-rendered-browser-game-ui',
       'runtime-signal-proof-manual-required',
@@ -288,10 +298,11 @@ function markdownFor(manifest) {
     'GAME-09 live educational classifier proof is present.',
     'GAME-10 live AI analysis proof is present.',
     'GAME-11 live risk/benefit signal proof is present.',
+    'GAME-12 live memory/cache proof is present.',
     'Product checklist upgrade is not claimed.',
-    'Browser-game memory, child/parent UI, cloud-streamed frame analysis,',
-    'native game control, and enforcement remain open or manual-required',
-    'until separate proof exists.',
+    'Browser-game child/parent UI, cloud-streamed frame analysis, native',
+    'game control, and enforcement remain open or manual-required until',
+    'separate proof exists.',
   ].join('\n');
 }
 
