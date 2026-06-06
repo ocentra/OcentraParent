@@ -42,6 +42,17 @@ proof root below. Child-device UI, delivery, timeout escalation wiring, and
 physical device behavior are not claimed beyond the proof state recorded in
 `proof-summary.json`, `09-policy-alert-proof.json`, and the implementation
 checklist.
+Child check-in timeout escalation proof now maps existing child check-in
+requests and responses through the runtime resolver into waiting, safe response,
+help response escalation, call-parent escalation, and expired timeout escalation
+rows through
+`node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`. It
+preserves request refs, response refs, alert refs, evidence refs, policy refs,
+audit refs, parent action refs, timeout refs, and optional location-evidence
+refs without claiming child-device delivery/runtime execution, rendered child
+UI, provider delivery, notification receipt runtime, live location sample
+runtime, physical-device proof, authority proof, production timeout workers, or
+adapter dispatch.
 
 ## Where We Want To Be
 
@@ -63,8 +74,10 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Child-device UI, delivery, timeout escalation wiring, platform, and provider
-  claims remain manual-required until the assigned proof artifacts exist.
+- Child-device UI, delivery/runtime execution, platform, provider delivery,
+  notification receipt runtime, live location sample runtime, physical-device,
+  authority, production timeout worker, and adapter-dispatch claims remain
+  manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -83,3 +96,26 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Known gaps/manual-required states: child-device UI, delivery, timeout
       escalation wiring, Android/iOS physical proof, provider delivery, and
       notifications remain proof-gated as applicable.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain child check-in timeout escalation
+      proof/test, proof script, owning tracking feature doc, implementation
+      checklist, this workpack doc, WP33 proof-gate doc, generated WP18/WP33
+      proof artifacts, and hub doc delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/18-child-check-in-flow/31-child-check-in-timeout-escalation-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/31-child-check-in-timeout-escalation-proof.json`,
+      and
+      `test-results/tracking-child-check-in-timeout-escalation-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, this workpack doc, and WP33 proof-gate doc updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta.
+- [x] Known gaps/manual-required states: child-device delivery/runtime
+      execution, rendered child UI, provider delivery, notification receipt
+      runtime, live location sample runtime, Android/iOS physical proof,
+      authority, production timeout workers, adapter dispatch, and
+      product-ready child check-in behavior remain proof-gated.
