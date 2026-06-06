@@ -45,6 +45,11 @@ only with explicit parent settings.
   capture/queue/deletion/summary work must publish typed events for AI, policy,
   action, audit, read-model, and deletion consumers instead of wiring direct
   screen-to-AI calls.
+- `scripts/test/screen-ai-event-driven-runtime-proof.mjs` now proves the first
+  screen eventing runtime chain over typed capture, encrypted queue, AI result,
+  summary, policy, action dry-run, deletion, and portal-read-model events
+  without raw-image escape. This is an in-process runtime proof; live service
+  producers/subscribers and household mesh execution remain separate gates.
 - Household mesh screen AI execution is planned through the
   [Household AI Provider Mesh Plan](../plans/ai-plan/household-ai-provider-mesh-plan.md)
   and [Screen AI Pipeline Plan](../plans/screen-ai-pipeline-plan/README.md).
@@ -488,11 +493,15 @@ separate proof gates.
 - [x] Final screen-AI product path artifact gate validates retained real-run
       trigger, capture, AI, policy, action/read-model, and deletion/custody
       artifacts without raw screenshot retention.
+- [x] Screen eventing runtime proof publishes typed capture, queue, AI-result,
+      summary, policy, action dry-run, deletion, and portal-read-model events
+      through `ocentra-eventing` without raw-image escape.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof,
-physical household family AI hub runtime/discovery, broad adapters, and
-production explanation portal rendering remain in the Current Gap section above.
+live service event producers/subscribers, physical household family AI hub
+runtime/discovery, broad adapters, and production explanation portal rendering
+remain in the Current Gap section above.
 
 ## Next AI Instructions
 

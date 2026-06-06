@@ -1,0 +1,171 @@
+use ocentra_parent_agent_protocol::constants;
+
+use super::{
+    publish_screen_runtime_chain_for_input, ScreenActionState, ScreenAiAuditState,
+    ScreenDeletionState, ScreenEvidenceScope, ScreenPolicyState, ScreenRuntimeEventPayload,
+    ScreenRuntimeInput, ScreenRuntimePhase, ScreenRuntimeReport,
+};
+
+#[tokio::test]
+async fn screen_runtime_chain_publishes_uncoupled_lifecycle_flow() {
+    let report = publish_screen_runtime_chain_for_input(
+        ScreenRuntimeInput::proof_fixture(),
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    )
+    .await
+    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    let payloads = decode_payloads(&report);
+
+    assert_eq!(
+        report.publish_reports.len(),
+        ScreenRuntimePhase::ordered_chain().len()
+    );
+    assert_eq!(
+        report.stored_events.len(),
+        ScreenRuntimePhase::ordered_chain().len()
+    );
+    assert!(report.dead_letters.is_empty());
+    assert!(!report.raw_image_escaped());
+    assert_eq!(payloads[0].phase, ScreenRuntimePhase::CaptureObserved);
+    assert_eq!(payloads[2].ai_audit_state, ScreenAiAuditState::Requested);
+    assert_eq!(payloads[3].ai_audit_state, ScreenAiAuditState::Completed);
+    assert_eq!(
+        count_event_type(
+            &report,
+            constants::screen_flow::EVENT_SCREEN_ACTION_DRY_RUN_RECORDED
+        ),
+        1
+    );
+    assert_eq!(
+        count_event_type(
+            &report,
+            constants::screen_flow::EVENT_SCREEN_DELETION_COMMITTED
+        ),
+        1
+    );
+}
+
+#[tokio::test]
+async fn screen_runtime_chain_carries_refs_without_direct_ai_to_policy_shortcut() {
+    let report = publish_screen_runtime_chain_for_input(
+        ScreenRuntimeInput::proof_fixture(),
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    )
+    .await
+    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    let payloads = decode_payloads(&report);
+
+    let ai_request = payload_for_phase(&payloads, ScreenRuntimePhase::AiAnalysisRequested);
+    assert_eq!(
+        ai_request.previous_phase_ref,
+        Some(constants::screen_flow::SCREEN_QUEUE_EVENT_REF.to_string())
+    );
+    assert_eq!(ai_request.policy_decision_ref, None);
+    assert_eq!(ai_request.action_ref, None);
+
+    let policy = payload_for_phase(&payloads, ScreenRuntimePhase::PolicyDecisionCompleted);
+    assert_eq!(
+        policy.previous_phase_ref,
+        Some(constants::screen_flow::SCREEN_SUMMARY_EVENT_REF.to_string())
+    );
+    assert_eq!(
+        policy.ai_result_ref,
+        Some(constants::screen_flow::SCREEN_AI_RESULT_EVENT_REF.to_string())
+    );
+    assert_eq!(
+        policy.summary_ref,
+        Some(constants::screen_flow::SCREEN_SUMMARY_EVENT_REF.to_string())
+    );
+    assert_eq!(
+        policy.policy_decision_ref,
+        Some(constants::activity_store::TEST_POLICY_DECISION_ID.to_string())
+    );
+    assert_eq!(policy.action_ref, None);
+
+    let action = payload_for_phase(&payloads, ScreenRuntimePhase::ActionDryRunRecorded);
+    assert_eq!(
+        action.previous_phase_ref,
+        Some(constants::screen_flow::SCREEN_POLICY_EVENT_REF.to_string())
+    );
+    assert_eq!(
+        action.policy_decision_ref,
+        Some(constants::activity_store::TEST_POLICY_DECISION_ID.to_string())
+    );
+    assert_eq!(
+        action.action_ref,
+        Some(constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string())
+    );
+}
+
+#[tokio::test]
+async fn screen_runtime_chain_keeps_raw_image_out_of_policy_portal_and_provider() {
+    let report = publish_screen_runtime_chain_for_input(
+        ScreenRuntimeInput::proof_fixture(),
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    )
+    .await
+    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    let payloads = decode_payloads(&report);
+
+    assert!(payloads.iter().all(|payload| {
+        !payload.claim_boundary.raw_image_available_to_ai_provider
+            && !payload.claim_boundary.raw_image_available_to_policy
+            && !payload.claim_boundary.raw_image_available_to_portal
+            && !payload.claim_boundary.adapter_action_executed
+    }));
+
+    let queue = payload_for_phase(&payloads, ScreenRuntimePhase::QueueEncrypted);
+    assert_eq!(
+        queue.evidence_scope,
+        ScreenEvidenceScope::EncryptedLocalImage
+    );
+    assert_eq!(queue.deletion_state, ScreenDeletionState::Pending);
+
+    let portal = payload_for_phase(&payloads, ScreenRuntimePhase::PortalReadModelUpdated);
+    assert_eq!(
+        portal.evidence_scope,
+        ScreenEvidenceScope::DeletedQueryStoreSummary
+    );
+    assert_eq!(portal.policy_state, ScreenPolicyState::Completed);
+    assert_eq!(portal.action_state, ScreenActionState::DryRunRecorded);
+    assert_eq!(portal.deletion_state, ScreenDeletionState::Committed);
+    assert_eq!(
+        portal.deletion_proof_ref,
+        Some(constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string())
+    );
+    assert_eq!(
+        portal.portal_read_model_ref,
+        Some(constants::screen_flow::TEST_SCREEN_PORTAL_READ_MODEL_REF.to_string())
+    );
+}
+
+fn decode_payloads(report: &ScreenRuntimeReport) -> Vec<ScreenRuntimeEventPayload> {
+    report
+        .stored_events
+        .iter()
+        .map(|event| {
+            let envelope: ocentra_eventing::EventEnvelope<ScreenRuntimeEventPayload> = event
+                .decode()
+                .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES);
+            envelope.payload
+        })
+        .collect()
+}
+
+fn count_event_type(report: &ScreenRuntimeReport, event_type: &str) -> usize {
+    report
+        .stored_events
+        .iter()
+        .filter(|event| event.contract.event_type.as_str() == event_type)
+        .count()
+}
+
+fn payload_for_phase(
+    payloads: &[ScreenRuntimeEventPayload],
+    phase: ScreenRuntimePhase,
+) -> &ScreenRuntimeEventPayload {
+    payloads
+        .iter()
+        .find(|payload| payload.phase == phase)
+        .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
+}
