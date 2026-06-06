@@ -20,6 +20,8 @@ use crate::{
     NetworkRiskBudgetThresholdInput, NetworkRiskBudgetThresholds,
 };
 
+const REMOTE_HANDOFF_CANDIDATE_COUNT: usize = 1;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NetworkEndToEndPipelineRefs {
     pub trigger_ref: String,
@@ -483,7 +485,7 @@ fn remote_delivery_handoff(
         )?,
         evidence_refs: evidence_refs.to_vec(),
         same_product_path: true,
-        prepared_not_dispatched_count: evidence_refs.len(),
+        prepared_not_dispatched_count: REMOTE_HANDOFF_CANDIDATE_COUNT,
         dispatch_attempt_count: 0,
         remote_ack_count: 0,
         broker_delivery_implemented: false,
@@ -537,7 +539,7 @@ fn validate_refs(refs: &NetworkEndToEndPipelineRefs) -> Result<(), NetworkEndToE
         &refs.typed_event_ref,
         NetworkEndToEndPipelineError::EmptyTypedEventRef,
     )?;
-    remote_delivery_handoff(refs, &[])?;
+    validate_remote_delivery_handoff_refs(refs)?;
     normalized_refs(
         &refs.summary_refs,
         NetworkEndToEndPipelineError::EmptySummaryRef,
@@ -547,6 +549,45 @@ fn validate_refs(refs: &NetworkEndToEndPipelineRefs) -> Result<(), NetworkEndToE
         NetworkEndToEndPipelineError::EmptyAnalyzerAlertRef,
     )?;
     retention_delete_export(refs, &[])?;
+    Ok(())
+}
+
+fn validate_remote_delivery_handoff_refs(
+    refs: &NetworkEndToEndPipelineRefs,
+) -> Result<(), NetworkEndToEndPipelineError> {
+    let remote_refs = &refs.remote_delivery_handoff_refs;
+    required_ref(
+        &remote_refs.event_chain_journal_ref,
+        NetworkEndToEndPipelineError::EmptyRemoteEventChainJournalRef,
+    )?;
+    required_ref(
+        &remote_refs.event_chain_export_ref,
+        NetworkEndToEndPipelineError::EmptyRemoteEventChainExportRef,
+    )?;
+    required_ref(
+        &remote_refs.receipt_ledger_ref,
+        NetworkEndToEndPipelineError::EmptyRemoteReceiptLedgerRef,
+    )?;
+    required_ref(
+        &remote_refs.local_receipt_ack_ref,
+        NetworkEndToEndPipelineError::EmptyRemoteReceiptAckRef,
+    )?;
+    required_ref(
+        &remote_refs.outbox_ref,
+        NetworkEndToEndPipelineError::EmptyRemoteOutboxRef,
+    )?;
+    required_ref(
+        &remote_refs.handoff_ref,
+        NetworkEndToEndPipelineError::EmptyRemoteHandoffRef,
+    )?;
+    required_ref(
+        &remote_refs.outbox_replay_ref,
+        NetworkEndToEndPipelineError::EmptyRemoteOutboxReplayRef,
+    )?;
+    required_ref(
+        &remote_refs.outbox_support_status_ref,
+        NetworkEndToEndPipelineError::EmptyRemoteOutboxSupportStatusRef,
+    )?;
     Ok(())
 }
 

@@ -8,6 +8,11 @@ use crate::{
     NetworkRemoteDeliveryHandoffRefs, NetworkRiskBudgetState,
 };
 
+type RemoteHandoffMissingCase = (
+    fn(&mut NetworkRemoteDeliveryHandoffRefs),
+    NetworkEndToEndPipelineError,
+);
+
 #[test]
 fn end_to_end_pipeline_carries_refs_from_trigger_to_retention_export() {
     let proof =
@@ -173,13 +178,100 @@ fn end_to_end_pipeline_keeps_unavailable_evidence_non_enforcing() {
 }
 
 #[test]
-fn end_to_end_pipeline_rejects_missing_remote_handoff_refs() {
+fn end_to_end_pipeline_keeps_remote_handoff_candidate_count_explicit() {
     let mut input = pipeline_input();
-    input.refs.remote_delivery_handoff_refs.handoff_ref.clear();
+    input.sources.push(NetworkCrossSliceEvidenceSource {
+        source_kind: NetworkCascadeSourceKind::DomainCategory,
+        signal_strength: NetworkCascadeSignalStrength::Candidate,
+        evidence_grade: NetworkEvidenceGrade::B,
+        evidence_ref: "evidence:network:domain:2".to_owned(),
+        exact_url_available: false,
+        decrypted_payload_available: false,
+        policy_action_authority: false,
+        adapter_action_authority: false,
+    });
+
+    let proof = prove_network_end_to_end_pipeline(input).expect("pipeline proof should build");
 
     assert_eq!(
-        prove_network_end_to_end_pipeline(input),
-        Err(NetworkEndToEndPipelineError::EmptyRemoteHandoffRef)
+        proof.evidence_bundle.evidence_refs,
+        vec![
+            "evidence:network:tunnel:1".to_owned(),
+            "evidence:network:domain:2".to_owned(),
+        ]
+    );
+    assert_eq!(
+        proof.remote_delivery_handoff.evidence_refs,
+        proof.evidence_bundle.evidence_refs
+    );
+    assert_eq!(
+        proof.remote_delivery_handoff.prepared_not_dispatched_count,
+        1
+    );
+}
+
+#[test]
+fn end_to_end_pipeline_rejects_each_missing_remote_handoff_ref() {
+    let cases: Vec<RemoteHandoffMissingCase> = vec![
+        (
+            |refs| refs.event_chain_journal_ref.clear(),
+            NetworkEndToEndPipelineError::EmptyRemoteEventChainJournalRef,
+        ),
+        (
+            |refs| refs.event_chain_export_ref.clear(),
+            NetworkEndToEndPipelineError::EmptyRemoteEventChainExportRef,
+        ),
+        (
+            |refs| refs.receipt_ledger_ref.clear(),
+            NetworkEndToEndPipelineError::EmptyRemoteReceiptLedgerRef,
+        ),
+        (
+            |refs| refs.local_receipt_ack_ref.clear(),
+            NetworkEndToEndPipelineError::EmptyRemoteReceiptAckRef,
+        ),
+        (
+            |refs| refs.outbox_ref.clear(),
+            NetworkEndToEndPipelineError::EmptyRemoteOutboxRef,
+        ),
+        (
+            |refs| refs.handoff_ref.clear(),
+            NetworkEndToEndPipelineError::EmptyRemoteHandoffRef,
+        ),
+        (
+            |refs| refs.outbox_replay_ref.clear(),
+            NetworkEndToEndPipelineError::EmptyRemoteOutboxReplayRef,
+        ),
+        (
+            |refs| refs.outbox_support_status_ref.clear(),
+            NetworkEndToEndPipelineError::EmptyRemoteOutboxSupportStatusRef,
+        ),
+    ];
+
+    for (clear_ref, expected_error) in cases {
+        let mut input = pipeline_input();
+        clear_ref(&mut input.refs.remote_delivery_handoff_refs);
+
+        assert_eq!(
+            prove_network_end_to_end_pipeline(input),
+            Err(expected_error)
+        );
+    }
+}
+
+#[test]
+fn end_to_end_pipeline_rejects_missing_remote_typed_event_and_audit_refs() {
+    let mut missing_typed_event = pipeline_input();
+    missing_typed_event.refs.typed_event_ref.clear();
+    assert_eq!(
+        prove_network_end_to_end_pipeline(missing_typed_event),
+        Err(NetworkEndToEndPipelineError::EmptyTypedEventRef)
+    );
+
+    let mut missing_audit = pipeline_input();
+    missing_audit.refs.audit_event_ref.clear();
+    assert_eq!(
+        prove_network_end_to_end_pipeline(missing_audit),
+        Err(NetworkEndToEndPipelineError::EmptyAuditEventRef)
     );
 }
 
