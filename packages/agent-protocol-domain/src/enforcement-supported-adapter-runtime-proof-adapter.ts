@@ -74,6 +74,16 @@ export function parseEnforcementSupportedAdapterRuntimeProofEvent(
   };
 }
 
+export function parseEnforcementSupportedAdapterRuntimeProofReadModel(
+  event: AgentEventEnvelope
+): V08SupportedAdapterRuntimeProofReadModel | null {
+  const parsed = parseEnforcementSupportedAdapterRuntimeProofEvent(event);
+  if (parsed.status === 'rejected') {
+    return null;
+  }
+  return parsed.readModel;
+}
+
 function parseJson(value: string):
   | {
       readonly status: 'accepted';

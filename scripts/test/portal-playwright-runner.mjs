@@ -25,6 +25,7 @@ import { seedPortalNetworkActivityStore } from './portal-network-activity-seed.m
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const portalRoot = path.join(repoRoot, 'apps', 'portal');
+const forwardedPlaywrightArgs = process.argv.slice(2);
 const agentPort = resolveParentDevPort(
   process.env[ParentDevEnv.AgentPort],
   ParentDevPort.PortalSmokeAgent,
@@ -106,7 +107,14 @@ function runPlaywright() {
   const cliPath = path.join(repoRoot, 'node_modules', '@playwright', 'test', 'cli.js');
   const child = spawn(
     process.execPath,
-    [cliPath, 'test', '--config', path.join(portalRoot, 'playwright.config.ts'), '--workers=1'],
+    [
+      cliPath,
+      'test',
+      '--config',
+      path.join(portalRoot, 'playwright.config.ts'),
+      '--workers=1',
+      ...forwardedPlaywrightArgs,
+    ],
     {
       cwd: portalRoot,
       env: {
