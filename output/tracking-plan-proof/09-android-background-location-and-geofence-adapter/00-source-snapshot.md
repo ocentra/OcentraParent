@@ -1,7 +1,7 @@
 # WP09 Android Background Location And Geofence Adapter Source Snapshot
 
 - Branch: codex/tracking-android-permission-background-proof
-- Base commit at generation: b77ef0085a1881853ffdba15cdbdf91b81eff30c
+- Base commit at generation: 02702c9782f0337fb4e7dd38031956ea45784cfa
 - Git status at proof generation:
 
 ```text
