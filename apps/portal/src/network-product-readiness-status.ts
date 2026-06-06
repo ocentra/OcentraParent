@@ -1,6 +1,7 @@
 import {
   parseAgentNetworkProductReadinessStatusEvent,
   type AgentNetworkLiveCaptureCustodyStatus,
+  type AgentNetworkLocalAiRuntimeResultStatus,
   type AgentNetworkPlatformClaimEntry,
   type AgentNetworkProductReadinessStatusFailureReason,
   type AgentNetworkProductReadinessStatus,
@@ -85,6 +86,34 @@ export type NetworkProductReadinessStatusSummary = {
   readonly remoteSideEffectAuthority: PortalDetailValue;
   readonly remoteEnforcementCommandEventCount: PortalDetailValue;
   readonly remoteAdapterActionExecutedCount: PortalDetailValue;
+  readonly localAiRuntimeResultStatusRef: PortalDetailValue;
+  readonly localAiBridgeState: PortalDetailValue;
+  readonly localAiQueueStatus: PortalDetailValue;
+  readonly localAiTriggerRef: PortalDetailValue;
+  readonly localAiQueueRefs: PortalDetailValue;
+  readonly localAiRuntimeRefs: PortalDetailValue;
+  readonly localAiModelRefs: PortalDetailValue;
+  readonly localAiPromptPolicyRefs: PortalDetailValue;
+  readonly localAiParentRuleRefs: PortalDetailValue;
+  readonly localAiEvidenceRefs: PortalDetailValue;
+  readonly localAiSummaryRefs: PortalDetailValue;
+  readonly localAiManagedBrowserExactUrlEvidenceRefs: PortalDetailValue;
+  readonly localAiResultRef: PortalDetailValue;
+  readonly localAiOutputSummaryRef: PortalDetailValue;
+  readonly localAiRuntimeResultObserved: PortalDetailValue;
+  readonly localAiAuditInputReady: PortalDetailValue;
+  readonly localAiModelOutputAvailable: PortalDetailValue;
+  readonly localAiModelExecutionProved: PortalDetailValue;
+  readonly localAiRawPcapAvailable: PortalDetailValue;
+  readonly localAiExactUrlClaimed: PortalDetailValue;
+  readonly localAiDecryptedPayloadAvailable: PortalDetailValue;
+  readonly localAiPageContentAvailable: PortalDetailValue;
+  readonly localAiPrivateMessageAvailable: PortalDetailValue;
+  readonly localAiSearchQueryAvailable: PortalDetailValue;
+  readonly localAiRemoteAiUsed: PortalDetailValue;
+  readonly localAiPolicyAuthority: PortalDetailValue;
+  readonly localAiAdapterAuthority: PortalDetailValue;
+  readonly localAiEnforcementCommandsPublished: PortalDetailValue;
   readonly noClaimBoundary: PortalDetailValue;
   readonly platformEntries: readonly NetworkPlatformClaimManifestEntrySummary[];
 };
@@ -118,6 +147,7 @@ export function parseNetworkProductReadinessStatus(
 
   return networkProductReadinessStatusSummary(
     parsed.liveCaptureCustodyStatus,
+    parsed.localAiRuntimeResultStatus,
     parsed.productReadinessStatus,
     parsed.remoteDeliveryStatus
   );
@@ -126,6 +156,21 @@ export function parseNetworkProductReadinessStatus(
 export function emptyNetworkProductReadinessStatusSummary(): NetworkProductReadinessStatusSummary {
   return {
     parserStatus: notReported(),
+    ...emptyLiveCaptureCustodySummary(),
+    ...emptyRiskReadinessSummary(),
+    ...emptyPerformanceReadinessSummary(),
+    ...emptyPlatformReadinessSummary(),
+    portalReadModelReady: notReported(),
+    retentionExportRefsVisible: notReported(),
+    ...emptyRemoteDeliverySummary(),
+    ...emptyLocalAiRuntimeResultSummary(),
+    noClaimBoundary: notReported(),
+    platformEntries: [],
+  };
+}
+
+function emptyLiveCaptureCustodySummary() {
+  return {
     custodyStatusRef: notReported(),
     custodyState: notReported(),
     liveCaptureState: notReported(),
@@ -133,6 +178,11 @@ export function emptyNetworkProductReadinessStatusSummary(): NetworkProductReadi
     captureReady: notReported(),
     rawArtifactStorageAuthorized: notReported(),
     missingArtifactCount: notReported(),
+  };
+}
+
+function emptyRiskReadinessSummary() {
+  return {
     readinessStatusRef: notReported(),
     readinessState: notReported(),
     riskEvaluationRef: notReported(),
@@ -151,6 +201,11 @@ export function emptyNetworkProductReadinessStatusSummary(): NetworkProductReadi
     riskCitedPriorEventRefs: notReported(),
     riskAdapterProofState: notReported(),
     riskBudgetAdvisoryOnly: notReported(),
+  };
+}
+
+function emptyPerformanceReadinessSummary() {
+  return {
     performanceBenchmarkRunRef: notReported(),
     performanceFixtureSetRef: notReported(),
     performanceEventHistoryRef: notReported(),
@@ -166,14 +221,22 @@ export function emptyNetworkProductReadinessStatusSummary(): NetworkProductReadi
     performanceProductionSloClaimed: notReported(),
     performanceAdapterExecutionClaimed: notReported(),
     performanceHostFilteringClaimed: notReported(),
+  };
+}
+
+function emptyPlatformReadinessSummary() {
+  return {
     platformReadyClaims: notReported(),
     platformDryRunClaims: notReported(),
     platformResearchOnlyClaims: notReported(),
     platformManualRequiredClaims: notReported(),
     platformUnavailableClaims: notReported(),
     platformManualFollowups: notReported(),
-    portalReadModelReady: notReported(),
-    retentionExportRefsVisible: notReported(),
+  };
+}
+
+function emptyRemoteDeliverySummary() {
+  return {
     remoteDeliveryStatusRef: notReported(),
     remoteBrokerStatus: notReported(),
     remoteFamilyHubStatus: notReported(),
@@ -194,8 +257,39 @@ export function emptyNetworkProductReadinessStatusSummary(): NetworkProductReadi
     remoteSideEffectAuthority: notReported(),
     remoteEnforcementCommandEventCount: notReported(),
     remoteAdapterActionExecutedCount: notReported(),
-    noClaimBoundary: notReported(),
-    platformEntries: [],
+  };
+}
+
+function emptyLocalAiRuntimeResultSummary() {
+  return {
+    localAiRuntimeResultStatusRef: notReported(),
+    localAiBridgeState: notReported(),
+    localAiQueueStatus: notReported(),
+    localAiTriggerRef: notReported(),
+    localAiQueueRefs: notReported(),
+    localAiRuntimeRefs: notReported(),
+    localAiModelRefs: notReported(),
+    localAiPromptPolicyRefs: notReported(),
+    localAiParentRuleRefs: notReported(),
+    localAiEvidenceRefs: notReported(),
+    localAiSummaryRefs: notReported(),
+    localAiManagedBrowserExactUrlEvidenceRefs: notReported(),
+    localAiResultRef: notReported(),
+    localAiOutputSummaryRef: notReported(),
+    localAiRuntimeResultObserved: notReported(),
+    localAiAuditInputReady: notReported(),
+    localAiModelOutputAvailable: notReported(),
+    localAiModelExecutionProved: notReported(),
+    localAiRawPcapAvailable: notReported(),
+    localAiExactUrlClaimed: notReported(),
+    localAiDecryptedPayloadAvailable: notReported(),
+    localAiPageContentAvailable: notReported(),
+    localAiPrivateMessageAvailable: notReported(),
+    localAiSearchQueryAvailable: notReported(),
+    localAiRemoteAiUsed: notReported(),
+    localAiPolicyAuthority: notReported(),
+    localAiAdapterAuthority: notReported(),
+    localAiEnforcementCommandsPublished: notReported(),
   };
 }
 
@@ -210,6 +304,7 @@ function failedNetworkProductReadinessStatusSummary(
 
 function networkProductReadinessStatusSummary(
   custody: AgentNetworkLiveCaptureCustodyStatus,
+  localAi: AgentNetworkLocalAiRuntimeResultStatus,
   product: AgentNetworkProductReadinessStatus,
   remote: AgentNetworkRemoteDeliveryStatus
 ): NetworkProductReadinessStatusSummary {
@@ -220,9 +315,10 @@ function networkProductReadinessStatusSummary(
     ...performanceReadinessSummary(product),
     ...platformReadinessSummary(product),
     ...remoteDeliverySummary(remote),
+    ...localAiRuntimeResultSummary(localAi),
     portalReadModelReady: detailFromValue(product.portal_read_model_ready),
     retentionExportRefsVisible: detailFromValue(product.retention_export_refs_visible),
-    noClaimBoundary: detailFromValue(noClaimBoundaryUpgraded(custody, product, remote)),
+    noClaimBoundary: detailFromValue(noClaimBoundaryUpgraded(custody, localAi, product, remote)),
     platformEntries: product.platform_entries.map(platformEntrySummary),
   };
 }
@@ -363,6 +459,39 @@ function remoteDeliverySummary(remote: AgentNetworkRemoteDeliveryStatus) {
   };
 }
 
+function localAiRuntimeResultSummary(localAi: AgentNetworkLocalAiRuntimeResultStatus) {
+  return {
+    localAiRuntimeResultStatusRef: detailFromValue(localAi.status_ref),
+    localAiBridgeState: detailFromValue(localAi.bridge_state),
+    localAiQueueStatus: detailFromValue(localAi.queue_status),
+    localAiTriggerRef: detailFromValue(localAi.trigger_ref),
+    localAiQueueRefs: joinedDetail([localAi.queue_job_ref, localAi.queue_ref]),
+    localAiRuntimeRefs: joinedDetail([localAi.model_runtime_ref, localAi.runtime_reference_id]),
+    localAiModelRefs: joinedDetail([localAi.model_reference, localAi.model_version_ref]),
+    localAiPromptPolicyRefs: joinedDetail([localAi.prompt_template_ref, localAi.policy_context_ref]),
+    localAiParentRuleRefs: joinedDetail(localAi.parent_rule_refs),
+    localAiEvidenceRefs: joinedDetail(localAi.evidence_refs),
+    localAiSummaryRefs: joinedDetail(localAi.summary_refs),
+    localAiManagedBrowserExactUrlEvidenceRefs: joinedDetail(localAi.managed_browser_exact_url_evidence_refs),
+    localAiResultRef: detailFromValue(localAi.local_ai_result_ref),
+    localAiOutputSummaryRef: detailFromValue(localAi.output_summary_ref),
+    localAiRuntimeResultObserved: detailFromValue(localAi.local_runtime_result_observed),
+    localAiAuditInputReady: detailFromValue(localAi.audit_input_ready),
+    localAiModelOutputAvailable: detailFromValue(localAi.local_model_output_available),
+    localAiModelExecutionProved: detailFromValue(localAi.model_execution_proved),
+    localAiRawPcapAvailable: detailFromValue(localAi.raw_pcap_available),
+    localAiExactUrlClaimed: detailFromValue(localAi.exact_url_claimed),
+    localAiDecryptedPayloadAvailable: detailFromValue(localAi.decrypted_payload_available),
+    localAiPageContentAvailable: detailFromValue(localAi.page_content_available),
+    localAiPrivateMessageAvailable: detailFromValue(localAi.private_message_available),
+    localAiSearchQueryAvailable: detailFromValue(localAi.search_query_available),
+    localAiRemoteAiUsed: detailFromValue(localAi.remote_ai_used),
+    localAiPolicyAuthority: detailFromValue(localAi.policy_authority),
+    localAiAdapterAuthority: detailFromValue(localAi.adapter_authority),
+    localAiEnforcementCommandsPublished: detailFromValue(localAi.enforcement_commands_published),
+  };
+}
+
 function platformEntrySummary(entry: AgentNetworkPlatformClaimEntry): NetworkPlatformClaimManifestEntrySummary {
   return {
     target: detailFromValue(entry.target),
@@ -390,11 +519,13 @@ function platformManualFollowups(product: AgentNetworkProductReadinessStatus): P
 
 function noClaimBoundaryUpgraded(
   custody: AgentNetworkLiveCaptureCustodyStatus,
+  localAi: AgentNetworkLocalAiRuntimeResultStatus,
   product: AgentNetworkProductReadinessStatus,
   remote: AgentNetworkRemoteDeliveryStatus
 ): boolean {
   return (
     unsupportedCustodyClaims(custody).some(Boolean) ||
+    unsupportedLocalAiClaims(localAi).some(Boolean) ||
     unsupportedProductClaims(product).some(Boolean) ||
     unsupportedRemoteDeliveryClaims(remote).some(Boolean)
   );
@@ -433,6 +564,20 @@ function unsupportedProductClaims(product: AgentNetworkProductReadinessStatus): 
       product.performance_adapter_action_executed ||
       product.performance_host_filtering_executed,
     product.platform_entries.some((entry) => entry.enforcement_command_published),
+  ];
+}
+
+function unsupportedLocalAiClaims(localAi: AgentNetworkLocalAiRuntimeResultStatus): readonly boolean[] {
+  return [
+    localAi.model_execution_proved || localAi.raw_pcap_available,
+    localAi.exact_url_claimed ||
+      localAi.decrypted_payload_available ||
+      localAi.page_content_available ||
+      localAi.private_message_available ||
+      localAi.search_query_available,
+    localAi.remote_ai_used,
+    localAi.policy_authority || localAi.adapter_authority,
+    localAi.enforcement_commands_published > 0,
   ];
 }
 

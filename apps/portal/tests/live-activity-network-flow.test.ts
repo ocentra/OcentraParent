@@ -81,6 +81,7 @@ function defineNetworkProductReadinessStatusTests(): void {
     expectProductReadinessPerformanceSummary(summary);
     expectProductReadinessPlatformSummary(summary);
     expectProductReadinessRemoteDeliverySummary(summary);
+    expectProductReadinessLocalAiRuntimeResultSummary(summary);
     expectProductReadinessNoClaimSummary(summary);
   });
 
@@ -179,6 +180,41 @@ function expectProductReadinessRemoteDeliverySummary(summary: NetworkProductRead
   expect(summary.remoteSideEffectAuthority).toBe('false');
   expect(summary.remoteEnforcementCommandEventCount).toBe('0');
   expect(summary.remoteAdapterActionExecutedCount).toBe('0');
+}
+
+function expectProductReadinessLocalAiRuntimeResultSummary(summary: NetworkProductReadinessStatusSummary): void {
+  expect(summary.localAiRuntimeResultStatusRef).toBe('network.local-ai.runtime-result.status.33b');
+  expect(summary.localAiBridgeState).toBe('ResultReady');
+  expect(summary.localAiQueueStatus).toBe('Queued');
+  expect(summary.localAiTriggerRef).toBe('network.local-ai.trigger.33b');
+  expect(summary.localAiQueueRefs).toBe('network.local-ai.queue-job.33b | network.local-ai.queue.33b');
+  expect(summary.localAiRuntimeRefs).toBe('network.local-ai.model-runtime.33b | network.local-ai.runtime-ref.33b');
+  expect(summary.localAiModelRefs).toBe('network.local-ai.model.33b | network.local-ai.model-version.33b');
+  expect(summary.localAiPromptPolicyRefs).toBe(
+    'network.local-ai.prompt-template.33b | network.local-ai.policy-context.33b'
+  );
+  expect(summary.localAiParentRuleRefs).toBe('policy.rule.network-domain.1');
+  expect(summary.localAiEvidenceRefs).toBe('network.local-ai.managed-browser-exact-url-evidence.33b');
+  expect(summary.localAiSummaryRefs).toBe('network.local-ai.network-summary.33b | network.local-ai.screen-summary.33b');
+  expect(summary.localAiManagedBrowserExactUrlEvidenceRefs).toBe(
+    'network.local-ai.managed-browser-exact-url-evidence.33b'
+  );
+  expect(summary.localAiResultRef).toBe('network.local-ai.result.33b');
+  expect(summary.localAiOutputSummaryRef).toBe('network.local-ai.output-summary.33b');
+  expect(summary.localAiRuntimeResultObserved).toBe('true');
+  expect(summary.localAiAuditInputReady).toBe('true');
+  expect(summary.localAiModelOutputAvailable).toBe('true');
+  expect(summary.localAiModelExecutionProved).toBe('false');
+  expect(summary.localAiRawPcapAvailable).toBe('false');
+  expect(summary.localAiExactUrlClaimed).toBe('false');
+  expect(summary.localAiDecryptedPayloadAvailable).toBe('false');
+  expect(summary.localAiPageContentAvailable).toBe('false');
+  expect(summary.localAiPrivateMessageAvailable).toBe('false');
+  expect(summary.localAiSearchQueryAvailable).toBe('false');
+  expect(summary.localAiRemoteAiUsed).toBe('false');
+  expect(summary.localAiPolicyAuthority).toBe('false');
+  expect(summary.localAiAdapterAuthority).toBe('false');
+  expect(summary.localAiEnforcementCommandsPublished).toBe('0');
 }
 
 function expectProductReadinessNoClaimSummary(summary: NetworkProductReadinessStatusSummary): void {

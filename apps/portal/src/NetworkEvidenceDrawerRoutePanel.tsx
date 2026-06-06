@@ -59,6 +59,7 @@ export function NetworkEvidenceDrawerRoutePanel({
           <NetworkEvidenceUnsupportedClaimCard summary={summary} />
           <NetworkAdapterCapabilityStatusCard status={liveActivity.networkAdapterCapabilityStatus} />
           <NetworkProductReadinessStatusCard status={liveActivity.networkProductReadinessStatus} />
+          <NetworkLocalAiRuntimeResultStatusCard status={liveActivity.networkProductReadinessStatus} />
           <NetworkRiskPerformanceReadinessCard status={liveActivity.networkProductReadinessStatus} />
           <NetworkRemoteDeliveryStatusCard status={liveActivity.networkProductReadinessStatus} />
           <NetworkPlatformClaimManifestCard
@@ -202,6 +203,72 @@ function NetworkProductReadinessStatusCard({
         <NetworkEvidenceDrawerDetail label={PortalDetails.NetworkFlow} value={summary.portalReadModelReady} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.DeletedEvidence} value={summary.retentionExportRefsVisible} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.AdapterDispatch} value={summary.noClaimBoundary} />
+      </dl>
+    </article>
+  );
+}
+
+function NetworkLocalAiRuntimeResultStatusCard({
+  status,
+}: {
+  readonly status: NetworkProductReadinessStatusSummary | null;
+}): ReactElement {
+  const summary = status ?? emptyNetworkProductReadinessStatusSummary();
+  return (
+    <article className={networkEvidenceDrawerCardClassName()}>
+      <h2>{PortalDetails.LocalAiResult}</h2>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.ReadinessKind}
+          value={summary.localAiRuntimeResultStatusRef}
+        />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Bridge} value={summary.localAiBridgeState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.LocalQueue} value={summary.localAiQueueStatus} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.EventId} value={summary.localAiTriggerRef} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Database} value={summary.localAiQueueRefs} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.RuntimeReference} value={summary.localAiRuntimeRefs} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Model} value={summary.localAiModelRefs} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.PolicyPreview} value={summary.localAiPromptPolicyRefs} />
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.ParentRuleContextReferences}
+          value={summary.localAiParentRuleRefs}
+        />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.EvidenceReferences} value={summary.localAiEvidenceRefs} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.EventHistory} value={summary.localAiSummaryRefs} />
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.ExactUrlCapability}
+          value={summary.localAiManagedBrowserExactUrlEvidenceRefs}
+        />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.LocalAiResult} value={summary.localAiResultRef} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.OutputSummary} value={summary.localAiOutputSummaryRef} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Audit} value={summary.localAiAuditInputReady} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ModelOutput} value={summary.localAiModelOutputAvailable} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ExecutionState} value={summary.localAiModelExecutionProved} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.RawPcapClaim} value={summary.localAiRawPcapAvailable} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ExactUrlClaim} value={summary.localAiExactUrlClaimed} />
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.DecryptedPayloadClaim}
+          value={summary.localAiDecryptedPayloadAvailable}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.PageContentClaim}
+          value={summary.localAiPageContentAvailable}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.PrivateMessageClaim}
+          value={summary.localAiPrivateMessageAvailable}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.SearchQueryClaim}
+          value={summary.localAiSearchQueryAvailable}
+        />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Transport} value={summary.localAiRemoteAiUsed} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.PolicyAuthority} value={summary.localAiPolicyAuthority} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.AdapterDispatch} value={summary.localAiAdapterAuthority} />
+        <NetworkEvidenceDrawerDetail
+          label={PortalDetails.Enforcement}
+          value={summary.localAiEnforcementCommandsPublished}
+        />
       </dl>
     </article>
   );
