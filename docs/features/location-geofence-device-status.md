@@ -107,6 +107,16 @@ expose location or device-status features. Parents expect this category.
   claiming provider delivery, receipts, credentials, parent notification UI,
   child-device delivery, physical-device proof, retry/runtime workers, or
   adapter dispatch.
+- WP26 tracking notification receipt boundary proof now exists through
+  `node scripts/test/tracking-notification-receipt-boundary-proof.mjs`. It
+  derives receipt-ingestion-required, manual-receipt-required, and
+  provider-unavailable rows from the tracking provider-notification proof,
+  preserves provider proof refs, evidence refs, policy decision refs,
+  notification status refs, reason refs, provider attempt refs, and audit refs,
+  and cites the V0.8 delivered-provider receipt-required contract while keeping
+  webhook receipt ingestion runtime, provider delivery, credentials, adapter
+  dispatch, child-device delivery, authority, physical-device proof, and
+  production durable outbox storage unclaimed.
 - WP27 escalation readiness proof now exists through
   `node scripts/test/tracking-escalation-readiness-proof.mjs`. It derives
   parent acknowledgement, child check-in, urgent second-guardian, and critical

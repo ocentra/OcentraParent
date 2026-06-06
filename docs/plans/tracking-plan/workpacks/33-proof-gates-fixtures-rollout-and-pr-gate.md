@@ -54,6 +54,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `19-evidence-quality-gate-proof.json`
 - Evidence quality gate validation log:
   `20-evidence-quality-gate-validation.log`
+- Tracking notification receipt boundary proof:
+  `22-notification-receipt-boundary-proof.json`
 - Hosted child-safe check-in screenshot:
   `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 
@@ -139,6 +141,15 @@ helpers, parent-domain contracts, and the portal citation test. It writes
 `test-results/tracking-plan-evidence-quality-gate-proof/proof.json` while
 keeping live device/provider delivery and production behavior unclaimed.
 
+This branch adds `node scripts/test/tracking-notification-receipt-boundary-proof.mjs`,
+which derives tracking notification receipt boundary rows from the WP26
+provider-notification proof and writes WP26/WP33 companion proof artifacts. It
+preserves provider proof refs, evidence refs, policy decision refs,
+notification status refs, reason refs, provider attempt refs, and audit refs
+while keeping actual webhook/provider receipt ingestion, provider delivery,
+credentials, adapter dispatch, child-device delivery, authority, physical-device
+proof, and production durable outbox storage unclaimed.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.
@@ -160,6 +171,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - scripts/test/tracking-plan-evidence-quality-gate-proof.mjs
 - packages/activity-domain/src/tracking-evidence-quality-gate.ts
 - packages/activity-domain/tests/tracking-evidence-quality-gate.test.ts
+- scripts/test/tracking-notification-receipt-boundary-proof.mjs
 - `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`
 - Implementation paths listed by the worker before editing.
 
@@ -168,6 +180,10 @@ This workpack can be assigned independently, implemented against the owning doma
 - Platform, provider, live UI, or runtime claims remain
   manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
+- Actual webhook/provider receipt ingestion, provider delivery, credentials,
+  adapter dispatch, child-device delivery, authority, physical-device proof,
+  and production durable outbox storage remain manual-required until matching
+  proof exists.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
@@ -304,3 +320,26 @@ This workpack can be assigned independently, implemented against the owning doma
       parent/child UI beyond the hosted route, Android/iOS physical-device
       proof, authority, provider delivery, notifications, and production proof
       remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-notification-receipt-boundary-proof`.
+- [x] Touched files: parent-domain receipt boundary proof contract, focused
+      tests, proof script, owning tracking feature doc, implementation
+      checklist, WP26, WP33, and generated receipt boundary proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-notification-receipt-boundary-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/22-notification-receipt-boundary-proof.json`,
+      `output/tracking-plan-proof/26-alert-severity-and-notification-model/22-notification-receipt-boundary-proof.json`,
+      `output/tracking-plan-proof/tracking-notification-receipt-boundary-proof/proof.json`,
+      and
+      `test-results/tracking-notification-receipt-boundary-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP26, and WP33 updated. Central
+      `docs/product-capability-checklist.md` was not edited because E-C
+      currently owns that lock.
+- [x] Known gaps/manual-required states: actual webhook/provider receipt
+      ingestion runtime, provider delivery, credentials, adapter dispatch,
+      retry/quiet-hours workers, parent notification UI, child-device delivery,
+      physical-device proof, authority proof, durable outbox storage, and
+      product-ready notification behavior remain proof-gated.
