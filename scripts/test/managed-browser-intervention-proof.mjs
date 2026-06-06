@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { setTimeout as delay } from 'node:timers/promises';
 
 import { removeDirectoryWithRetry } from './agent-service-process.mjs';
+import { renderBrowserChildInterventionPage } from './browser-child-intervention-page-renderer.mjs';
 
 const runId = new Date().toISOString().replaceAll(':', '-').replaceAll('.', '-');
 const evidenceDirectory = join(process.cwd(), 'test-results', 'managed-browser-intervention-proof');
@@ -426,38 +427,7 @@ async function launchFirefoxProfile(browser) {
 }
 
 function blockPageHtml(rule, requestedUrl, bridge) {
-  const pageTitle = pageTitleForRule(rule);
-  return `<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>${pageTitle}</title>
-  </head>
-  <body>
-    <main>
-      <h1>${escapeHtml(rule.marker)}</h1>
-      <p hidden>${blockMarker}</p>
-      <p>Rule: ${escapeHtml(rule.id)}</p>
-      <p>Label: ${escapeHtml(rule.label)}</p>
-      <p>Action: ${escapeHtml(rule.action)}</p>
-      <p>Target type: ${escapeHtml(rule.targetType)}</p>
-      <p>Outcome: ${escapeHtml(rule.outcome)}</p>
-      <p>Delivery: ${escapeHtml(rule.deliveryState)}</p>
-      <p>Bridge: ${escapeHtml(bridge)}</p>
-      <p>Requested URL: ${escapeHtml(requestedUrl)}</p>
-    </main>
-  </body>
-</html>`;
-}
-
-function pageTitleForRule(rule) {
-  if (rule.action === 'block') {
-    return 'Ocentra managed browser blocked';
-  }
-  if (rule.action === 'warn') {
-    return 'Ocentra managed browser warning';
-  }
-  return 'Ocentra managed browser hold';
+  return renderBrowserChildInterventionPage({ blockMarker, bridge, requestedUrl, rule });
 }
 
 function interventionRecord(rule, requestedUrl, bridge, method) {
@@ -700,15 +670,6 @@ function hostMatches(expectedHost, observedUrl) {
 
 function capturedUrl(value) {
   return value.startsWith('http://') || value.startsWith('https://');
-}
-
-function escapeHtml(value) {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
 }
 
 async function fileExists(pathValue) {

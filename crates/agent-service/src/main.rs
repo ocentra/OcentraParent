@@ -37,6 +37,7 @@ mod activity_surface_request;
 mod activity_surface_store;
 mod app;
 mod browser_evidence_payload;
+mod browser_intervention_page;
 #[cfg_attr(not(test), allow(dead_code))]
 mod browser_inventory_read_model;
 #[cfg(test)]

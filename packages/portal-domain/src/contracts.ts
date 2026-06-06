@@ -170,6 +170,15 @@ export {
   portalBackgroundSvgContent,
   portalBackgroundSvgMarkup,
 } from './portal-background-svg-markup';
+export {
+  BrowserChildInterventionPageDefaults,
+  BrowserChildInterventionPageSamples,
+  renderBrowserChildInterventionPage,
+  type BrowserChildInterventionPageAction,
+  type BrowserChildInterventionPageBackdrop,
+  type BrowserChildInterventionPageModel,
+  type BrowserChildInterventionPageTheme,
+} from './browser-child-intervention-page';
 
 export type PortalDisplayText = DisplayText;
 

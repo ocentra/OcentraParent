@@ -8,6 +8,7 @@ use axum::{
 use ocentra_parent_agent_protocol::{constants, AgentLogSnapshot, LogFields};
 
 use crate::{
+    browser_intervention_page::serve_browser_intervention_page,
     browser_policy_runtime::BrowserPolicyRuntime, dev_log::write_agent_info,
     lan_pairing::LanPairingRuntime, network::NetworkPolicy, snapshot::build_dev_log_snapshot,
     websocket::handle_socket,
@@ -29,6 +30,10 @@ pub fn router(network: NetworkPolicy) -> Router {
     };
     Router::new()
         .route(constants::endpoint::HEALTH, get(health))
+        .route(
+            constants::endpoint::BROWSER_INTERVENTION_PAGE,
+            get(serve_browser_intervention_page),
+        )
         .route(constants::endpoint::DEV_LOG_SNAPSHOT, get(log_snapshot))
         .route(constants::endpoint::DEV_WS, get(websocket))
         .with_state(state)

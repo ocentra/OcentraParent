@@ -1,7 +1,13 @@
 pub mod endpoint {
+    pub const BROWSER_INTERVENTION_PAGE: &str = "/api/browser/intervention/page";
     pub const HEALTH: &str = "/health";
     pub const DEV_LOG_SNAPSHOT: &str = "/api/dev/log-snapshot";
     pub const DEV_WS: &str = "/api/dev/ws";
+}
+
+pub mod http {
+    pub const CACHE_CONTROL_NO_STORE: &str = "no-store";
+    pub const CONTENT_TYPE_TEXT_HTML_UTF8: &str = "text/html; charset=utf-8";
 }
 
 pub mod env_var {
@@ -20,6 +26,8 @@ pub mod env_var {
     pub const LOCAL_APP_DATA: &str = "LOCALAPPDATA";
     pub const MANAGED_BROWSER_BRIDGE_PORT: &str = "OCENTRA_PARENT_MANAGED_BROWSER_BRIDGE_PORT";
     pub const MANAGED_BROWSER_EXECUTABLE: &str = "OCENTRA_PARENT_MANAGED_BROWSER_EXECUTABLE";
+    pub const MANAGED_BROWSER_INTERVENTION_HTML_PATH: &str =
+        "OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_HTML_PATH";
     pub const MANAGED_BROWSER_LAUNCH_ON_STATUS: &str =
         "OCENTRA_PARENT_MANAGED_BROWSER_LAUNCH_ON_STATUS";
     pub const MANAGED_BROWSER_PROFILE_DIR: &str = "OCENTRA_PARENT_MANAGED_BROWSER_PROFILE_DIR";
