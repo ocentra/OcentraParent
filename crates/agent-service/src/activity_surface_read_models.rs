@@ -40,7 +40,11 @@ pub(crate) fn screen_read_model(
             summary: summary
                 .latest_summary
                 .unwrap_or_else(|| constants::activity_surface::SUMMARY_READY.to_string()),
-            rows: summary.results.into_iter().map(screen_row).collect(),
+            rows: summary
+                .results
+                .into_iter()
+                .map(activity_screen_row_from_result)
+                .collect(),
         },
         Some(summary) => empty_screen_read_model(request, summary.generated_at),
         None => unavailable_screen_read_model(request),
@@ -112,7 +116,7 @@ pub(crate) fn network_read_model(
     }
 }
 
-fn screen_row(
+pub(crate) fn activity_screen_row_from_result(
     result: ocentra_parent_agent_protocol::ScreenAnalysisResult,
 ) -> ActivityScreenReadModelRow {
     ActivityScreenReadModelRow {
