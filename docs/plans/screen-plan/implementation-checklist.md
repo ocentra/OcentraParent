@@ -230,7 +230,7 @@ bridge before downstream publication
 | [x]    | 24 Enforcement handoff guard                       |
 | [x]    | 25 Parent portal summary UI                        |
 | [x]    | 26 Child disclosure UX                             |
-| [~]    | 27 Screenshot retention optional mode              |
+| [x]    | 27 Screenshot retention optional mode              |
 | [~]    | 28 Live view optional mode                         |
 | [x]    | 29 Proof tiers and proof packs                     |
 | [~]    | 30 Test suite, Playwright, rollout, PR gate        |
