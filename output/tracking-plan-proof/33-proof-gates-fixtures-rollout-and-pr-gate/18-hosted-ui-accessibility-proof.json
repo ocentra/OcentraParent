@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T18:58:09.740Z",
-  "commit": "b803b37b2213c2eda95aa33338ac6637b8024f2f",
+  "checkedAt": "2026-06-06T20:39:10.040Z",
+  "commit": "05821a7c1617edd090627952872c89568d9ca243",
   "workpackIds": [
     "30-parent-and-child-ui-ux-surfaces",
     "31-platform-extension-checklists-and-proof-routing",
@@ -64,6 +64,8 @@
       "service-backed-citation-detail-visible",
       "service-backed-citation-detail-screenshot",
       "retention-settings-read-model-visible",
+      "retention-settings-write-preflight-clicked",
+      "retention-settings-write-preflight-result-visible",
       "retention-settings-screenshot",
       "manual-required-visible",
       "physical-device-required-visible",
@@ -116,7 +118,7 @@
         "First target",
         "Location states are fixture proof only.",
         "Hosted route renders family active, child attention, and retention audit rollups from existing tracking proof refs without claiming device delivery.",
-        "Hosted route renders existing retention settings read-model rows without writable settings or service mutation.",
+        "Hosted route renders existing retention settings read-model rows and can send a local write-preflight command without claiming product-ready mutation.",
         "Hosted route renders a read-only evidence drawer from the selected service-backed citation without evaluating policy or dispatching actions.",
         "Your parent is asking you to check in. Are you safe?",
         "Child sees a clear tracking request, safe response, help response, and location-share consent copy.",
@@ -202,6 +204,24 @@
         "Title",
         "Status",
         "Evidence references",
+        "Title",
+        "Subject ID",
+        "Activity kind",
+        "Execution state",
+        "Last observed",
+        "Source",
+        "Transport",
+        "Events",
+        "Database",
+        "Status",
+        "Child delivery",
+        "Provider",
+        "Adapter dispatch",
+        "Device",
+        "Enforcement",
+        "Policy readiness",
+        "Reason",
+        "Adapter boundary",
         "Proof tier",
         "Status",
         "Event ID",
@@ -455,6 +475,24 @@
         "Remote AI disabled setting",
         "settings-read-model-ready",
         "tracking-retention-settings-evidence-remote-ai-disabled",
+        "Retention write preflight result",
+        "tracking-retention-settings-write-command",
+        "retention-window-setting",
+        "service-write-command-accepted",
+        "2026-06-06T19:50:00Z",
+        "output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json",
+        "1",
+        "1",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "Not reported",
+        "Portal command/result rendering only; service mutation execution, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.",
         "P2 service proof",
         "read-only evidence drawer",
         "tracking-hosted-expected-place-event",
@@ -632,15 +670,19 @@
         {
           "text": "Refresh tracking status",
           "disabled": false
+        },
+        {
+          "text": "Send retention write preflight",
+          "disabled": false
         }
       ],
       "layoutBoxes": [
         {
           "proofId": "family-dashboard-rollup",
           "left": 21,
-          "top": -5121,
+          "top": -5902,
           "right": 366,
-          "bottom": -3793,
+          "bottom": -4574,
           "width": 345,
           "height": 1328
         },
@@ -649,14 +691,14 @@
           "left": 21,
           "top": -2548,
           "right": 366,
-          "bottom": -1775,
+          "bottom": -1774,
           "width": 345,
           "height": 773
         },
         {
           "proofId": "service-backed-citation-detail",
           "left": 21,
-          "top": -1769,
+          "top": -1768,
           "right": 366,
           "bottom": -1323,
           "width": 345,
@@ -665,16 +707,16 @@
         {
           "proofId": "retention-settings-ui",
           "left": 21,
-          "top": -3787,
+          "top": -4568,
           "right": 366,
           "bottom": -2554,
           "width": 345,
-          "height": 1233
+          "height": 2014
         },
         {
           "proofId": "child-check-in",
           "left": 21,
-          "top": -866,
+          "top": -865,
           "right": 366,
           "bottom": -322,
           "width": 345,
@@ -706,7 +748,7 @@
   },
   "commands": [
     {
-      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-vf6tmY\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-vf6tmY\\seed-tracking.sql",
+      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-lFM0JG\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-lFM0JG\\seed-tracking.sql",
       "exitCode": 0
     },
     {
@@ -757,6 +799,8 @@
   },
   "retentionSettingsHostedUiProof": {
     "sourceProof": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+    "writeCommandProof": "output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json",
+    "mutationProof": "output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json",
     "screenshot": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png",
     "renderedRows": [
       "retention-window-setting",
@@ -765,6 +809,17 @@
       "remote-sync-disabled-setting",
       "remote-ai-disabled-setting"
     ],
+    "writePreflight": {
+      "command": "agent.activity.tracking.retention-settings.write",
+      "event": "agent.activity.tracking.retention-settings.write.reported",
+      "settingsKind": "retention-window-setting",
+      "writeState": "service-write-command-accepted",
+      "commandTransportClaimedRows": 1,
+      "serviceWritePreflightClaimedRows": 1,
+      "serviceMutationExecutedRows": 0,
+      "portalResultRendered": true,
+      "productClaimReady": false
+    },
     "serviceMutationClaimedRows": 0,
     "platformRuntimeClaimedRows": 0,
     "childDeviceDeliveryClaimedRows": 0,
@@ -813,6 +868,7 @@
     "This proof renders a read-only evidence drawer from the selected service-backed citation but does not claim policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, or product readiness.",
     "This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.",
     "This proof renders retention settings read-model rows but does not claim writable product settings, service mutation, or platform runtime execution.",
+    "This proof sends and renders a typed retention settings write-preflight result but does not claim product-ready service mutation, platform runtime execution, child-device delivery, provider delivery, physical-device proof, authority, or production behavior.",
     "This proof renders unsupported/manual platform rows in the hosted portal but does not claim physical-device execution, authority enrollment, provider delivery, or product-ready tracking.",
     "This proof does not claim full child-device UI or authority-enrolled hard-control readiness."
   ],

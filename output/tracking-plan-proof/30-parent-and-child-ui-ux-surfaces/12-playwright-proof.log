@@ -1,32 +1,6 @@
-Tracking Plan WP30 parent-route fixture proof
 
-Date: 2026-06-06T19:25:04.218Z
-Route: http://127.0.0.1:4578/#/policy-tracking
-Command: npm exec --workspace @ocentra-parent/portal -- vite --host 127.0.0.1 --port 4578 --strictPort
-Viewport: 1440x1000
-Screenshot: output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png
+Running 1 test using 1 worker
 
-Checks:
-- Waited for selector: .tracking-status-overlay-grid
-- Computed grid columns: 1065.41px
-- Row count: 21
-- All rows visible in viewport: true
-- Overlay text included every first-target tracking state
-- Overlay text included: No product claim
-- Overlay text included: Deleted history hidden
-- Overlay text included: Deleted evidence not rendered
-- Overlay text omitted deleted evidence id: location-evidence-1
-- Overlay text included: Runtime reference
-- Overlay text included proof artifact references: output/tracking-plan-proof/03-contract-boundary-and-effect-schemas/proof-summary.json, output/tracking-plan-proof/06-permission-and-capability-status-model/proof-summary.json, output/tracking-plan-proof/04-location-evidence-model/03-runtime-location-evidence.json, output/tracking-plan-proof/05-device-status-model/04-device-status-proof.json, output/tracking-plan-proof/19-nearby-place-provider-abstraction/proof-summary.json, output/tracking-plan-proof/26-alert-severity-and-notification-model/proof-summary.json, output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/09-policy-alert-proof.json, output/tracking-plan-proof/18-child-check-in-flow/09-policy-alert-proof.json, output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json, output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json, output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json, output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json, output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json, output/tracking-plan-proof/28-temporary-live-tracking-mode/proof-summary.json, output/tracking-plan-proof/29-missing-device-mode/proof-summary.json, output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json
+  ok 1 [chromium] › e2e\tracking-hosted-ui-proof.spec.ts:45:1 › hosted policy tracking route renders real-service proof without product claims (45.9s)
 
-Scope:
-This is local rendered fixture proof only. It does not prove live service data, child-device UI, hosted Playwright/a11y output, or physical-device behavior.
-
-Server output:
-  VITE v7.3.3  ready in 778 ms
-    Local:   http://127.0.0.1:4578/
-Assets in public directory cannot be imported from JavaScript.
-If you intend to import that asset, put the file in the src directory, and use /src/portal-background-config.json instead of /public/portal-background-config.json.
-If you intend to use the URL of that asset, use /portal-background-config.json?url.
-[BABEL] Note: The code generator has deoptimised the styling of C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-a\OcentraParent\vendor\ocentra-parent-core-ui\AppPages\ParentPortal\ParentPortalSvgSurface.tsx as it exceeds the max of 500KB.
-
+  1 passed (47.0s)

@@ -87,7 +87,11 @@ export function TrackingStatusRoutePanel({
           <TrackingStatusLiveSummaryCard summary={liveSummary} />
           <TrackingStatusServiceDataCoverageCard coverage={serviceDataCoverage} />
           <TrackingFamilyDashboardHostedRollupProofCard proof={trackingFamilyDashboardHostedRollupProof()} />
-          <TrackingRetentionSettingsHostedUiProofCard proof={trackingRetentionSettingsHostedUiProof()} />
+          <TrackingRetentionSettingsHostedUiProofCard
+            actions={actions}
+            commandEnabled={commandEnabled}
+            proof={trackingRetentionSettingsHostedUiProof(liveActivity.activityTrackingRetentionSettingsWriteResult)}
+          />
           <TrackingEvidenceDrawerHostedUiProofCard
             proof={trackingEvidenceDrawerHostedUiProof(liveSummary.citations[0] ?? null)}
           />
@@ -214,8 +218,12 @@ function TrackingFamilyDashboardHostedRollupRow({
 }
 
 function TrackingRetentionSettingsHostedUiProofCard({
+  actions,
+  commandEnabled,
   proof,
 }: {
+  readonly actions: PortalRenderActions;
+  readonly commandEnabled: boolean;
   readonly proof: TrackingRetentionSettingsHostedUiProof;
 }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
@@ -228,6 +236,17 @@ function TrackingRetentionSettingsHostedUiProofCard({
     >
       <h2>{proof.title}</h2>
       <p>{proof.body}</p>
+      <button
+        className={PortalDom.Classes.CommandResultTab}
+        disabled={!commandEnabled}
+        type={PortalDom.ButtonType.Button}
+        onClick={() => {
+          actions.selectCommandResult(AgentEvent.ActivityTrackingRetentionSettingsWriteReported);
+          actions.sendCommand(AgentCommand.ActivityTrackingRetentionSettingsWrite, {});
+        }}
+      >
+        {PortalText.Resolve(PortalTextToken.TrackingRetentionSettingsWritePreflightButton)}
+      </button>
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         <TrackingStatusDetail label={PortalDetails.ProofTier} value={proof.proofTier} />
         <TrackingStatusDetail label={PortalDetails.RowsReturned} value={proof.rowsReturned} />
@@ -245,8 +264,47 @@ function TrackingRetentionSettingsHostedUiProofCard({
         {proof.rows.map((proofRow) => (
           <TrackingRetentionSettingsHostedUiRow key={String(proofRow.title)} proofRow={proofRow} />
         ))}
+        <TrackingRetentionSettingsWritePreflightRow proof={proof} />
       </dl>
     </article>
+  );
+}
+
+function TrackingRetentionSettingsWritePreflightRow({
+  proof,
+}: {
+  readonly proof: TrackingRetentionSettingsHostedUiProof;
+}): ReactElement {
+  return (
+    <>
+      <TrackingStatusDetail label={PortalDetails.Title} value={proof.writePreflight.title} />
+      <TrackingStatusDetail label={PortalDetails.SubjectId} value={proof.writePreflight.commandId} />
+      <TrackingStatusDetail label={PortalDetails.ActivityKind} value={proof.writePreflight.settingsKind} />
+      <TrackingStatusDetail label={PortalDetails.ExecutionState} value={proof.writePreflight.writeState} />
+      <TrackingStatusDetail label={PortalDetails.LastObserved} value={proof.writePreflight.acceptedAt} />
+      <TrackingStatusDetail label={PortalDetails.Source} value={proof.writePreflight.sourceMutationProofRefs} />
+      <TrackingStatusDetail label={PortalDetails.Transport} value={proof.writePreflight.commandTransportClaimedRows} />
+      <TrackingStatusDetail
+        label={PortalDetails.Events}
+        value={proof.writePreflight.serviceWritePreflightClaimedRows}
+      />
+      <TrackingStatusDetail label={PortalDetails.Database} value={proof.writePreflight.serviceMutationExecutedRows} />
+      <TrackingStatusDetail label={PortalDetails.Status} value={proof.writePreflight.platformRuntimeClaimedRows} />
+      <TrackingStatusDetail
+        label={PortalDetails.ChildDelivery}
+        value={proof.writePreflight.childDeviceDeliveryClaimedRows}
+      />
+      <TrackingStatusDetail label={PortalDetails.Provider} value={proof.writePreflight.providerDeliveryClaimedRows} />
+      <TrackingStatusDetail
+        label={PortalDetails.AdapterDispatch}
+        value={proof.writePreflight.notificationReceiptClaimedRows}
+      />
+      <TrackingStatusDetail label={PortalDetails.Device} value={proof.writePreflight.physicalDeviceClaimedRows} />
+      <TrackingStatusDetail label={PortalDetails.Enforcement} value={proof.writePreflight.authorityClaimedRows} />
+      <TrackingStatusDetail label={PortalDetails.PolicyReadiness} value={proof.writePreflight.productClaimReadyRows} />
+      <TrackingStatusDetail label={PortalDetails.Reason} value={proof.writePreflight.parserReason} />
+      <TrackingStatusDetail label={PortalDetails.AdapterBoundary} value={proof.writePreflight.boundary} />
+    </>
   );
 }
 

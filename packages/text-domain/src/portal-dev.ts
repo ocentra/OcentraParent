@@ -73,6 +73,16 @@ export const PortalDevTextToken = {
   ),
   TrackingRetentionSettingsRemoteAiEvidence: decodeTextTokenId('portal.dev.trackingRetentionSettingsRemoteAiEvidence'),
   TrackingRetentionSettingsHostedBoundary: decodeTextTokenId('portal.dev.trackingRetentionSettingsHostedBoundary'),
+  TrackingRetentionSettingsWritePreflight: decodeTextTokenId('portal.dev.trackingRetentionSettingsWritePreflight'),
+  TrackingRetentionSettingsWritePreflightBody: decodeTextTokenId(
+    'portal.dev.trackingRetentionSettingsWritePreflightBody'
+  ),
+  TrackingRetentionSettingsWritePreflightButton: decodeTextTokenId(
+    'portal.dev.trackingRetentionSettingsWritePreflightButton'
+  ),
+  TrackingRetentionSettingsWritePreflightBoundary: decodeTextTokenId(
+    'portal.dev.trackingRetentionSettingsWritePreflightBoundary'
+  ),
   TrackingFirstTarget: decodeTextTokenId('portal.dev.trackingFirstTarget'),
   TrackingProofFixture: decodeTextTokenId('portal.dev.trackingProofFixture'),
   TrackingProofService: decodeTextTokenId('portal.dev.trackingProofService'),
@@ -259,7 +269,7 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   ),
   [PortalDevTextToken.TrackingRetentionSettingsHostedUi]: decodeDisplayText('Retention settings read-model UI'),
   [PortalDevTextToken.TrackingRetentionSettingsHostedUiBody]: decodeDisplayText(
-    'Hosted route renders existing retention settings read-model rows without writable settings or service mutation.'
+    'Hosted route renders existing retention settings read-model rows and can send a local write-preflight command without claiming product-ready mutation.'
   ),
   [PortalDevTextToken.TrackingRetentionSettingsWindow]: decodeDisplayText('Retention window setting'),
   [PortalDevTextToken.TrackingRetentionSettingsDeleteAfterAlert]: decodeDisplayText('Delete-after-alert setting'),
@@ -284,6 +294,16 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   ),
   [PortalDevTextToken.TrackingRetentionSettingsHostedBoundary]: decodeDisplayText(
     'Hosted retention settings rendering only; writable product settings, service mutation, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.'
+  ),
+  [PortalDevTextToken.TrackingRetentionSettingsWritePreflight]: decodeDisplayText('Retention write preflight result'),
+  [PortalDevTextToken.TrackingRetentionSettingsWritePreflightBody]: decodeDisplayText(
+    'Portal sends the typed retention settings write command and renders the service preflight result; product-ready mutation remains unclaimed.'
+  ),
+  [PortalDevTextToken.TrackingRetentionSettingsWritePreflightButton]: decodeDisplayText(
+    'Send retention write preflight'
+  ),
+  [PortalDevTextToken.TrackingRetentionSettingsWritePreflightBoundary]: decodeDisplayText(
+    'Portal command/result rendering only; service mutation execution, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.'
   ),
   [PortalDevTextToken.TrackingFirstTarget]: decodeDisplayText('First target'),
   [PortalDevTextToken.TrackingProofFixture]: decodeDisplayText('P1 fixture proof'),

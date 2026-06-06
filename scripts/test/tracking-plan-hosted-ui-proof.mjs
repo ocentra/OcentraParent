@@ -419,6 +419,10 @@ async function writeProof(playwright) {
     retentionSettingsHostedUiProof: {
       sourceProof:
         'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json',
+      writeCommandProof:
+        'output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json',
+      mutationProof:
+        'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
       screenshot: relativePath(retentionSettingsScreenshot),
       renderedRows: [
         'retention-window-setting',
@@ -427,6 +431,17 @@ async function writeProof(playwright) {
         'remote-sync-disabled-setting',
         'remote-ai-disabled-setting',
       ],
+      writePreflight: {
+        command: 'agent.activity.tracking.retention-settings.write',
+        event: 'agent.activity.tracking.retention-settings.write.reported',
+        settingsKind: 'retention-window-setting',
+        writeState: 'service-write-command-accepted',
+        commandTransportClaimedRows: 1,
+        serviceWritePreflightClaimedRows: 1,
+        serviceMutationExecutedRows: 0,
+        portalResultRendered: true,
+        productClaimReady: false,
+      },
       serviceMutationClaimedRows: 0,
       platformRuntimeClaimedRows: 0,
       childDeviceDeliveryClaimedRows: 0,
@@ -473,6 +488,7 @@ async function writeProof(playwright) {
       'This proof renders a read-only evidence drawer from the selected service-backed citation but does not claim policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, or product readiness.',
       'This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.',
       'This proof renders retention settings read-model rows but does not claim writable product settings, service mutation, or platform runtime execution.',
+      'This proof sends and renders a typed retention settings write-preflight result but does not claim product-ready service mutation, platform runtime execution, child-device delivery, provider delivery, physical-device proof, authority, or production behavior.',
       'This proof renders unsupported/manual platform rows in the hosted portal but does not claim physical-device execution, authority enrollment, provider delivery, or product-ready tracking.',
       'This proof does not claim full child-device UI or authority-enrolled hard-control readiness.',
     ],
@@ -499,6 +515,9 @@ async function writeProof(playwright) {
       'asserted=family dashboard rollup screenshot captured',
       'asserted=evidence drawer renders selected service-backed citation without evaluator or dispatch claims',
       'asserted=evidence drawer screenshot captured',
+      'asserted=retention settings write-preflight command button clicked',
+      'asserted=retention settings write-preflight service result rendered',
+      'asserted=retention settings write-preflight keeps serviceMutationExecutedRows=0 and productClaimReady=false',
       'asserted=manual proof required and physical device proof required labels visible',
       'asserted=child check-in copy and actions visible without child-device delivery claim',
       'asserted=child runtime UI disclosure, safe/help response, and location-share consent copy visible',

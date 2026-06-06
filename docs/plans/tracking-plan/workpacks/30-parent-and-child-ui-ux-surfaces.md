@@ -77,6 +77,10 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       claiming writable settings, service mutation, platform runtime,
       child-device delivery, provider delivery, authority, physical-device
       execution, or production readiness.
+- [x] Send and render hosted retention settings write-preflight result from the
+      typed service command while keeping applied mutation, platform runtime,
+      child-device delivery, provider delivery, authority, physical-device
+      execution, and product-ready claims false.
 - [x] Render and screenshot hosted read-only evidence drawer drill-in from the
       selected service-backed citation without claiming policy evaluation,
       action dispatch, child-device delivery, provider delivery, physical-device
@@ -144,9 +148,12 @@ The hosted route now also renders a retention settings read-model proof card for
 retention window, delete-after-alert, parent export, remote-sync disabled, and
 remote-AI disabled rows. The repeatable hosted proof captures it at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
-and records no writable settings, service mutation, platform runtime,
-child-device delivery, provider delivery, authority, physical-device, or product
-readiness claim.
+and now also clicks the hosted write-preflight button, renders the typed service
+accepted result, command id, setting kind, mutation proof refs, and explicit
+no-product-claim boundary. It still records no applied product settings,
+product-ready service mutation execution, platform runtime, child-device
+delivery, provider delivery, authority, physical-device, or product readiness
+claim.
 The hosted route now also renders a read-only evidence drawer card from the
 selected service-backed citation. The repeatable hosted proof captures it at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png`
@@ -165,9 +172,9 @@ without claiming full parent/child UI, child-device runtime, physical-device
 proof, authority, provider delivery, production proof, or product-ready
 tracking.
 This is not product-complete UI proof: full dashboard UI beyond the hosted
-parent route, actual child-device delivery/runtime execution, writable retention
-settings, physical-device evidence, authority, provider delivery, and production
-proof remain pending.
+parent route, actual child-device delivery/runtime execution, applied
+product-ready retention settings execution, physical-device evidence, authority,
+provider delivery, and production proof remain pending.
 `node scripts/test/tracking-plan-pre-device-proof.mjs` now records those UI
 gaps in the aggregate pre-device gate so the next pass can run actual
 child-device runtime execution and full parent/child UI proof beyond the hosted
@@ -266,6 +273,36 @@ This workpack can be assigned independently, implemented against the owning doma
       execution, full parent/child UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: hosted retention settings UI proof model, React route
+      panel, DOM tracking status panel, live activity state, event-result
+      routing, hosted Playwright proof, portal tests, text-domain tokens,
+      portal-domain artifact marker, hosted UI proof harness, tracking feature
+      doc, implementation checklist, WP07, WP30, WP32, and regenerated hosted UI
+      proof screenshots/results.
+- [x] Validation commands and results:
+      `cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain`
+      passed; `cmd /c npm run build --workspace @ocentra-parent/text-domain`
+      passed; `cmd /c npm run build --workspace @ocentra-parent/portal-domain`
+      passed; `cmd /c npm run test --workspace @ocentra-parent/portal --
+tracking-status-panel` passed; `cmd /c npm run build --workspace
+@ocentra-parent/portal` passed; `cmd /c npm run format:check` passed;
+      `cmd /c npm run test:tracking-plan-hosted-ui-proof` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/18-hosted-ui-accessibility-proof.json`,
+      and `test-results/tracking-plan-hosted-ui-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, WP30, and WP32 updated; central product capability
+      checklist remains hub/primary sequenced.
+- [x] Known gaps/manual-required states: hosted route only proves command/result
+      rendering. Applied product-ready service mutation execution, platform
+      runtime, child-device delivery/runtime execution, Android/iOS physical
+      proof, authority, provider delivery, notification receipts, production
+      workers, and full parent/child UI beyond the hosted route remain
+      proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-evidence-drawer-hosted-ui-proof`.
 - [x] Touched files: hosted evidence drawer proof model, React and DOM tracking

@@ -85,6 +85,10 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [x] Add typed service transport proof for a retention settings write
       command/preflight result while preserving no live UI, platform, device,
       provider, authority, notification receipt, or product-ready claims.
+- [x] Render the service-backed retention write-preflight result in hosted
+      portal proof from the typed command response without claiming applied
+      mutation, platform, device, provider, authority, notification receipt, or
+      product-ready behavior.
 
 ## Where We Are
 
@@ -117,7 +121,15 @@ state recorded in `proof-summary.json`, `10-journal-sqlite-proof.json`,
 `14-retention-delete-proof.json`, `18-service-read-model-proof.json`,
 `20-service-data-ui-proof.json`, `21-product-surface-summary-proof.json`,
 `22-report-policy-consumer-proof.json`,
-`23-family-dashboard-rollup-proof.json`, and the implementation checklist.
+`23-family-dashboard-rollup-proof.json`, `27-retention-settings-write-command-proof.json`,
+the hosted UI proof output, and the implementation checklist.
+The hosted parent route now consumes the typed retention settings write
+preflight response as a command/result rendering path and captures the accepted
+result plus mutation proof refs in
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`.
+It does not claim applied service mutation, platform replay, child-device
+delivery, provider delivery, authority, notification receipt ingestion, or
+product-ready behavior.
 The family dashboard rollup proof derives active family summary,
 child-attention summary, and retention-audit summary rows from the existing
 service read-model/product-surface/report-consumer proof refs while keeping
@@ -431,3 +443,33 @@ This workpack can be assigned independently, implemented against the owning doma
       delivery, Android/iOS physical proof, authority, provider delivery,
       notification receipts, production workers, and product-ready retention
       behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: hosted retention settings UI proof model, live activity
+      state, portal event-result routing, React route panel, DOM tracking status
+      panel, hosted Playwright proof, portal tests, text-domain tokens,
+      portal-domain proof artifact marker, hosted UI proof harness, tracking
+      feature doc, implementation checklist, WP07, WP30, WP32, and regenerated
+      hosted UI proof screenshots/results.
+- [x] Validation commands and results:
+      `cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain`
+      passed; `cmd /c npm run build --workspace @ocentra-parent/text-domain`
+      passed; `cmd /c npm run build --workspace @ocentra-parent/portal-domain`
+      passed; `cmd /c npm run test --workspace @ocentra-parent/portal --
+tracking-status-panel` passed; `cmd /c npm run build --workspace
+@ocentra-parent/portal` passed; `cmd /c npm run format:check` passed;
+      `cmd /c npm run test:tracking-plan-hosted-ui-proof` passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/18-hosted-ui-accessibility-proof.json`,
+      and `test-results/tracking-plan-hosted-ui-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, WP30, and WP32 updated; central product capability
+      checklist remains hub/primary sequenced.
+- [x] Known gaps/manual-required states: hosted route only consumes and renders
+      the typed service write-preflight response. Applied product-ready service
+      mutation execution, platform replay/runtime, child-device delivery/runtime
+      execution, Android/iOS physical-device proof, authority, provider delivery,
+      notification receipt ingestion, production workers, and full parent/child
+      UI beyond the hosted route remain proof-gated.

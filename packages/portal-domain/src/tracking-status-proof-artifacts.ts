@@ -33,6 +33,9 @@ export const TrackingStatusProofArtifacts = {
   RetentionSettingsReadModel: artifact(
     'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json'
   ),
+  RetentionSettingsWriteCommand: artifact(
+    'output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json'
+  ),
   HostedEvidenceDrawer: artifact(
     'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json'
   ),
