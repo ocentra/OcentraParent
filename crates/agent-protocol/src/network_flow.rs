@@ -146,6 +146,60 @@ pub struct NetworkRemoteDeliveryStatus {
     pub adapter_action_executed_count: u64,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkLocalAiRuntimeResultBridgeState {
+    ResultReady,
+    RuntimeUnavailable,
+    RuntimeFailed,
+    RuntimeTimedOut,
+    QueueNotReady,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkLocalAiRuntimeResultQueueStatus {
+    Queued,
+    NotRecommended,
+    DisabledByParent,
+    ModelUnavailable,
+    QueueUnavailable,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct NetworkLocalAiRuntimeResultStatus {
+    pub status_ref: String,
+    pub bridge_state: NetworkLocalAiRuntimeResultBridgeState,
+    pub queue_status: NetworkLocalAiRuntimeResultQueueStatus,
+    pub trigger_ref: String,
+    pub queue_job_ref: Option<String>,
+    pub queue_ref: Option<String>,
+    pub model_runtime_ref: Option<String>,
+    pub local_ai_result_ref: Option<String>,
+    pub runtime_reference_id: Option<String>,
+    pub model_reference: Option<String>,
+    pub model_version_ref: Option<String>,
+    pub prompt_template_ref: String,
+    pub policy_context_ref: String,
+    pub parent_rule_refs: Vec<String>,
+    pub evidence_refs: Vec<String>,
+    pub summary_refs: Vec<String>,
+    pub managed_browser_exact_url_evidence_refs: Vec<String>,
+    pub output_summary_ref: Option<String>,
+    pub local_runtime_result_observed: bool,
+    pub audit_input_ready: bool,
+    pub local_model_output_available: bool,
+    pub model_execution_proved: bool,
+    pub raw_pcap_available: bool,
+    pub exact_url_claimed: bool,
+    pub decrypted_payload_available: bool,
+    pub page_content_available: bool,
+    pub private_message_available: bool,
+    pub search_query_available: bool,
+    pub remote_ai_used: bool,
+    pub policy_authority: bool,
+    pub adapter_authority: bool,
+    pub enforcement_commands_published: u64,
+}
+
 #[path = "network_flow_events.rs"]
 mod network_flow_events;
 

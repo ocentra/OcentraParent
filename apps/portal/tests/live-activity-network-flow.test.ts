@@ -447,6 +447,7 @@ function networkProductReadinessStatusEvent() {
     payload: {
       [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
       [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
     snapshot: null,
@@ -462,6 +463,7 @@ function malformedNetworkProductReadinessStatusEvent() {
         ...productReadinessStatus(),
         portal_adapter_dispatch_claimed: true,
       }),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
@@ -515,6 +517,43 @@ function productReadinessStatus() {
     exact_url_available: false,
     decrypted_payload_available: false,
     page_content_available: false,
+  };
+}
+
+function localAiRuntimeResultStatus() {
+  return {
+    status_ref: 'network.local-ai.runtime-result.status.33b',
+    bridge_state: 'ResultReady',
+    queue_status: 'Queued',
+    trigger_ref: 'network.local-ai.trigger.33b',
+    queue_job_ref: 'network.local-ai.queue-job.33b',
+    queue_ref: 'network.local-ai.queue.33b',
+    model_runtime_ref: 'network.local-ai.model-runtime.33b',
+    local_ai_result_ref: 'network.local-ai.result.33b',
+    runtime_reference_id: 'network.local-ai.runtime-ref.33b',
+    model_reference: 'network.local-ai.model.33b',
+    model_version_ref: 'network.local-ai.model-version.33b',
+    prompt_template_ref: 'network.local-ai.prompt-template.33b',
+    policy_context_ref: 'network.local-ai.policy-context.33b',
+    parent_rule_refs: ['policy.rule.network-domain.1'],
+    evidence_refs: ['network.local-ai.managed-browser-exact-url-evidence.33b'],
+    summary_refs: ['network.local-ai.network-summary.33b', 'network.local-ai.screen-summary.33b'],
+    managed_browser_exact_url_evidence_refs: ['network.local-ai.managed-browser-exact-url-evidence.33b'],
+    output_summary_ref: 'network.local-ai.output-summary.33b',
+    local_runtime_result_observed: true,
+    audit_input_ready: true,
+    local_model_output_available: true,
+    model_execution_proved: false,
+    raw_pcap_available: false,
+    exact_url_claimed: false,
+    decrypted_payload_available: false,
+    page_content_available: false,
+    private_message_available: false,
+    search_query_available: false,
+    remote_ai_used: false,
+    policy_authority: false,
+    adapter_authority: false,
+    enforcement_commands_published: 0,
   };
 }
 

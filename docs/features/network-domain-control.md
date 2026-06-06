@@ -273,6 +273,15 @@ compete on control while staying clear about attribution confidence and privacy.
   network-only evidence, page content, private message, search query, decrypted
   payload, remote AI, policy, adapter, enforcement-command, and
   model-execution-proof claims.
+- E-D added row33b service/protocol visibility for that local-AI runtime result
+  bridge: `agent.network.product-readiness.status.reported` now carries
+  `networkLocalAiRuntimeResultStatus` with queue refs, local runtime result
+  refs, output-summary refs, prompt/policy/parent-rule refs, evidence refs, and
+  false model-execution, raw-content, remote-AI, authority, adapter, and
+  enforcement-command fields. This is status visibility only; it does not claim
+  live model execution, provider scheduling, raw model text, portal rendering,
+  policy execution, adapter execution, broker/family-hub delivery, or host
+  filtering.
 - E-D added deterministic network AI detection fixture evaluation in
   `ocentra-network-evidence`: fixture labels, structured summary refs, evidence
   refs, and analyzer alert refs can be compared against model predictions with
@@ -486,7 +495,7 @@ macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
 follow-ups for missing artifacts.
 Broker/family-hub delivery implementation beyond the row10b status proof and
 row10c service/portal status visibility,
-live local-AI model execution beyond the row33a runtime result bridge, full policy engine execution beyond
+live local-AI model execution beyond the row33a runtime result bridge and row33b service status, full policy engine execution beyond
 the current stored-flow dry-run preview and stored-flow service unavailable-result proof,
 notification provider delivery, broader parent-facing rule UX, live host DNS
 mutation/proxy installation, live Windows
@@ -547,7 +556,10 @@ row10c remote-delivery status drawer proof.
       network-triggered local-AI queue planning now keeps AI inputs to refs
       only. Row33a now bridges queued local-AI jobs to runtime result refs and
       output-summary refs without raw model text or model-execution-proof
-      claims. Evidence-grade policy mapping now proves dry-run/parent-review/
+      claims, and row33b exposes that bridge through the service
+      product-readiness event as read-only status without live model execution,
+      raw output, policy, adapter, or enforcement authority. Evidence-grade
+      policy mapping now proves dry-run/parent-review/
       observe-only handoffs with parent rule refs. Parent notification
       candidate mapping now preserves refs without provider delivery, and the
       Activity route now renders a service-backed network evidence drawer with
