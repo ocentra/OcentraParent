@@ -1,8 +1,8 @@
 {
   "proof": "network-manual-followup-owner-proof",
-  "checkedAt": "2026-06-06T21:33:12.349Z",
+  "checkedAt": "2026-06-06T21:52:23.910Z",
   "branch": "codex/network-manual-followup-owner-ledger-proof",
-  "commit": "62e9935e8185e80af4bd34281cfc3e99bbb33dd6",
+  "commit": "fc54f4d5d4cf2c9a5ea1352545b697378c2c7a88",
   "originMain": "5c630a4b7e848489c5d833414be647f8b62c144a",
   "mergeBase": "5c630a4b7e848489c5d833414be647f8b62c144a",
   "sourceStatusShort": "",
