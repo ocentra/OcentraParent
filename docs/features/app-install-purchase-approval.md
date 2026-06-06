@@ -252,6 +252,17 @@ generic app blocking covers this concern.
   records that runtime report writer delivery proof under
   `test-results/app-install-purchase-runtime-report-writer-delivery-proof/proof.json`
   when run and validates the public parent-domain package export.
+- `packages/parent-domain/src/app-install-purchase-report-status-read-model-handoff-proof.ts`
+  now links approval/report domain rows and runtime report writer delivery rows
+  into parent-visible report status ready/manual-required rows while preserving
+  no portal report UI, external runtime report delivery, provider/store
+  execution, platform adapters, child-device delivery, app blocking, child
+  activity data, or Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-report-status-read-model-handoff-proof.mjs`
+  records that report status read-model handoff proof under
+  `test-results/app-install-purchase-report-status-read-model-handoff-proof/proof.json`
+  when run. The proof records the public package export, product checklist row,
+  and parent-domain README deltas as pending behind the active shared locks.
 
 ## Current Gap
 
@@ -281,7 +292,9 @@ link parent review actions and report-runtime rows into approval/report domain
 rows, and
 convert parent-owned runtime writer delivery rows into deterministic envelope
 and delivery result receipt rows, and link those receipts to parent-owned
-runtime report writer delivery-ready rows and report receipts, but do not
+runtime report writer delivery-ready rows and report receipts, and expose
+parent-visible report status read-model rows for ready/manual-required handoff,
+but do not
 implement Google Play, Apple App Store, Microsoft Store, billing entitlement,
 provider/store execution, provider contact, platform interception, runtime
 status reader, portal approval/report UI, external runtime writer delivery,
@@ -399,6 +412,11 @@ Ocentra-hosted family data custody.
       parent-owned report delivery-ready rows and report receipts without
       portal report UI, external runtime report delivery, provider/store
       execution, platform interception/adapters, child-device delivery, app
+      blocking, child activity data, or hosted family data custody claims.
+- [x] Report status read-model handoff proof linking approval/report domain rows
+      and runtime report writer delivery rows into parent-visible ready/manual
+      status rows without portal report UI, external runtime report delivery,
+      provider/store execution, platform adapters, child-device delivery, app
       blocking, child activity data, or hosted family data custody claims.
 - [ ] Portal tests and platform proof before product claim.
 
