@@ -30,6 +30,8 @@ claims.
 | Service-owned retention sweeper runtime  | P3 local-machine proved   | `output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json`                 | Rust service opt-in retention sweeper removes one expired encrypted queue record created by the service cadence runtime and surfaces an `expiredDeleted` Activity Screen row for the original queue job over the real WebSocket read model; it does not claim parent retention UI or cloud retention policy.                                                                                                                                                                                                                                     |
 | Local VLM analysis of captured screens   | P3 harness proved         | `output/ai-plan-proof/real-analysis/proof-summary.json`                                        | Covers 16 real window captures of controlled video/social/game/shopping/bypass/school/native/cadence fixture content; live external URL/account proof remains before product-complete claims.                                                                                                                                                                                                                                                                                                                                                    |
 | Guided VLM worker contract               | P3 contract proved        | `output/screen-ai-pipeline-proof/screen-vlm-worker-contract-proof/proof-summary.json`          | Proves guided local VLM worker jobs/results are contract-bound before runtime use: source-cited encrypted queue input, bounded local image pixels, schema-bound model output, conversion to screen-analysis evidence, policy eligibility only after deleted-image/query-store custody, and no raw retention or remote AI. It does not claim live model execution, production VLM quality, portal UI, or enforcement.                                                                                                                             |
+| VLM execution readiness/status handoff   | P3 contract proved        | `output/screen-ai-pipeline-proof/screen-vlm-execution-readiness-proof/proof-summary.json`      | Proves guided local VLM worker queue jobs can publish accepted readiness handoffs and queued/completed/manual-required status rows with preserved runtime/model/template refs, encrypted temp custody before execution, and deleted query-store custody after completion. It does not claim live model execution, production VLM quality, portal runtime rendering, policy authority, or enforcement.                                                                                                                                            |
+| VLM journal/read-model projection        | P3 contract proved        | `output/screen-ai-pipeline-proof/screen-vlm-journal-read-model-proof/proof-summary.json`       | Proves completed VLM readiness status rows can publish encrypted journal lines and Activity Screen read-model rows that preserve local model/runtime/template refs, policy refs, parent-rule refs, explanation refs, deletion refs, journal evidence refs, and no raw image retention. It does not claim live model execution, production VLM quality, portal runtime rendering, policy authority, or enforcement.                                                                                                                               |
 | Local AI safety result                   | P3 contract proved        | `output/ai-plan-proof/real-analysis/youtube-ordinary-video/06-ai-result.json`                  | Scenario results validate local AI safety output from captured fixture evidence; service runtime and live-site proof remain separate.                                                                                                                                                                                                                                                                                                                                                                                                            |
 | Invalid model output guard               | P3 proved                 | `output/screen-ai-pipeline-proof/invalid-output/proof-summary.json`                            | Proves malformed local model output cannot become a screen analysis result or policy candidate; this is a contract guard, not a model-quality claim.                                                                                                                                                                                                                                                                                                                                                                                             |
 | Stricter parent policy guard             | P3 proved                 | `output/screen-ai-pipeline-proof/stricter-rule/proof-summary.json`                             | Proves local AI recommendations cannot weaken stricter parent policy actions before policy handoff; enforcement adapter execution remains a separate gate.                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -85,6 +87,8 @@ claims.
       capture.
 - [x] Guided VLM route proof where visual classification is needed.
 - [x] Guided VLM worker contract proof before runtime use.
+- [x] VLM execution readiness/status handoff proof before runtime queue
+      integration.
 - [x] Service-owned local adapter analysis over an encrypted screen queue job.
 - [x] Local text model route proof over typed context.
 - [x] Deterministic route proof where structured evidence is enough.
@@ -135,6 +139,10 @@ claims.
       `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`.
 - [x] Guided VLM worker contract proof completed:
       `output/screen-ai-pipeline-proof/screen-vlm-worker-contract-proof/proof-summary.json`.
+- [x] VLM execution readiness/status handoff proof completed:
+      `output/screen-ai-pipeline-proof/screen-vlm-execution-readiness-proof/proof-summary.json`.
+- [x] VLM journal/read-model proof completed:
+      `output/screen-ai-pipeline-proof/screen-vlm-journal-read-model-proof/proof-summary.json`.
 - [x] Service WinRT OCR proof completed:
       `output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json`.
 - [x] Service WinRT OCR policy dry-run proof completed:
@@ -165,6 +173,12 @@ claims.
 - [x] Guided VLM worker contract proof run:
       `node --check scripts/test/screen-ai-vlm-worker-contract-proof.mjs` and
       `node scripts/test/screen-ai-vlm-worker-contract-proof.mjs`.
+- [x] VLM execution readiness/status handoff proof run:
+      `node --check scripts/test/screen-ai-vlm-execution-readiness-proof.mjs`
+      and `node scripts/test/screen-ai-vlm-execution-readiness-proof.mjs`.
+- [x] VLM journal/read-model proof run:
+      `node --check scripts/test/screen-ai-vlm-journal-read-model-proof.mjs`
+      and `node scripts/test/screen-ai-vlm-journal-read-model-proof.mjs`.
 - [x] Service WinRT OCR policy proof run:
       `node --check scripts/test/screen-ai-service-winrt-ocr-policy-proof.mjs` and
       `node scripts/test/screen-ai-service-winrt-ocr-policy-proof.mjs`.

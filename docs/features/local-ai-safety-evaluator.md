@@ -61,6 +61,13 @@ claim needs proof, not slogans.
   deleted-image/query-store custody before policy eligibility, and no raw
   retention or remote/API AI. This is contract proof, not live model-quality or
   production inference proof.
+- `ScreenVlmExecutionReadinessProofSchema` and
+  `scripts/test/screen-ai-vlm-execution-readiness-proof.mjs` now prove the
+  next VLM handoff/status layer: accepted encrypted temp-queue handoffs,
+  queued/completed/manual-required status rows, preserved local
+  model/runtime/template refs, deleted query-store custody for completed rows,
+  and explicit non-claims for live model execution, production VLM quality,
+  portal runtime rendering, policy authority, and enforcement.
 - `local-ai-parent-assistant-runtime-proof` now ties the provider scheduler
   proof to Parent Assistant answer/status/action contracts, including cited
   local answer, queued/degraded/unavailable lifecycle, child-safety priority,
@@ -208,6 +215,7 @@ production external evidence variants.
 - [x] Screen parent explanation service read-model proof path.
 - [x] Screen service WinRT OCR local adapter proof path.
 - [x] Screen guided VLM worker contract proof path.
+- [x] Screen VLM execution readiness/status handoff proof path.
 - [x] Screen-derived adapter readiness keeps unsupported/broad adapters
       manual-required, not-claimed, or unavailable without claim upgrades.
 - [x] Final screen-AI product path artifact gate.

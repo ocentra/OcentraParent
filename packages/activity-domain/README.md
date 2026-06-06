@@ -56,6 +56,16 @@ Shared activity and evidence contracts for child-device observations.
   conversion to screen-analysis evidence, child-device query-store custody,
   policy eligibility only after raw image deletion, and no raw retention or
   remote AI.
+- Screen VLM execution readiness contracts that turn guided local VLM jobs into
+  accepted queue handoffs plus queued/completed/manual-required status rows
+  while preserving local model/runtime/template refs, encrypted temp custody,
+  deleted query-store custody after completion, and explicit non-claims for
+  live model execution, production quality, portal UI, policy authority, and
+  enforcement.
+- Screen VLM journal/read-model projection contracts that require completed
+  deleted-query-store VLM status rows before writing encrypted journal lines and
+  Activity Screen read-model rows with model/runtime/template, policy,
+  parent-rule, explanation, deletion, and no-raw-retention refs.
 - Screen-AI browser trigger proof rows that compose typed browser AI
   input/result contracts with screen-analysis result contracts for managed URL,
   browser-video, social-feed, and cloud-game trigger states without claiming UI,
@@ -143,6 +153,14 @@ flowchart LR
 - Screen guided VLM worker now has `screen-ai-vlm-worker-contract-proof`;
   production VLM inference quality, live model execution, portal rendering,
   final policy authority, and enforcement remain separate proof gates.
+- Screen VLM execution readiness now has
+  `screen-ai-vlm-execution-readiness-proof`; service queue integration, live
+  model execution, production VLM quality, portal rendering, final policy
+  authority, and enforcement remain separate proof gates.
+- Screen VLM journal/read-model projection now has
+  `screen-ai-vlm-journal-read-model-proof`; production portal rendering, live
+  VLM execution, production model quality, final policy authority, and
+  enforcement remain separate proof gates.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime, local parent-defined place store proof, and Rust ActivityStore ingest
   proof; platform adapters, provider runtime, and live service-backed UI proof

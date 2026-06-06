@@ -18,6 +18,8 @@ consumes the same results.
 | Local AI provider per-device runtime lane         | P3 runtime proved   | `output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json`; `output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json` | Proves one provider/runtime lane per physical device, parent/child same-device sharing, child-safety priority, queued/degraded/unavailable states, and no duplicate same-device model load. It does not prove LAN cross-device routing, model quality, Portal UI, or API/remote provider availability.                                                                                                                                                                                                       |
 | Windows WinRT OCR worker over captured pixels     | P3 real OCR proved  | `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`                                                                      | Proves real selected-window browser/native captures can run through Windows WinRT OCR, become schema-valid `ScreenAnalysisResult` evidence, feed allow dry-run policy decisions, and delete raw temp images. It does not claim production OCR quality, service runtime integration, or cross-platform OCR parity.                                                                                                                                                                                            |
 | Guided VLM worker contract                        | P3 contract proved  | `output/ai-plan-proof/screen-vlm-worker-contract-proof/proof-summary.json`                                                             | Proves source-cited encrypted queue jobs can enter a guided local VLM worker contract, schema-bound model output can convert into `ScreenAnalysisResult` evidence, policy eligibility requires deleted-image/query-store custody, and raw retention/remote AI are rejected. It does not claim live model execution, production VLM quality, portal UI, or enforcement.                                                                                                                                       |
+| VLM execution readiness/status handoff            | P3 contract proved  | `output/ai-plan-proof/screen-vlm-execution-readiness-proof/proof-summary.json`                                                         | Proves encrypted temp-queue VLM jobs can become accepted readiness handoffs, queued/completed/manual-required status rows preserve local model/runtime/template refs, and completed rows require deleted-image/query-store custody. It explicitly does not claim live model execution, production VLM quality, portal runtime rendering, policy authority, or enforcement.                                                                                                                                   |
+| VLM journal/read-model projection                 | P3 contract proved  | `output/ai-plan-proof/screen-vlm-journal-read-model-proof/proof-summary.json`                                                          | Proves completed VLM readiness status rows can become encrypted journal lines and Activity Screen read-model rows while preserving local model/runtime/template refs, policy refs, parent-rule refs, explanation refs, deletion refs, journal evidence refs, and no raw image retention. It does not claim live VLM execution, production model quality, portal runtime rendering, policy authority, or enforcement.                                                                                         |
 | Service WinRT OCR over live browser capture       | P3 service proved   | `output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json`                                                                 | Starts the real Rust service, captures a live public Wikipedia Chrome window through timed cadence into the encrypted queue, invokes a Windows WinRT OCR adapter through the service analysis runtime, records a `localOcr` Activity Screen row with runtime/model/template metadata and a `school` result, drains the queue, and deletes adapter temp image material. It does not claim production OCR quality, authenticated-account coverage, enforcement, or cross-platform OCR parity.                  |
 | Service WinRT OCR policy consumption              | P3 service proved   | `output/screen-ai-pipeline-proof/service-winrt-ocr-policy/proof-summary.json`                                                          | Reruns the real service WinRT OCR proof and consumes that exact `localOcr` Activity Screen row through typed parent-domain policy contracts, proving allow dry-run policy refs, evidence refs, parent rule refs, disabled enforcement handoff, and deleted-image/no-raw-retention custody. It does not claim final enforcement, broad adapters, production OCR quality, or authenticated-account coverage.                                                                                                   |
 | Screen AI model artifact manifest                 | P3 contract proved  | `output/ai-plan-proof/screen-ai-model-artifact-manifest-proof/proof-summary.json`                                                      | Proves the screen AI local model artifact manifest/config boundary uses existing opaque artifact and manifest refs, verified cache status, local-only runtime status, and provider capability contracts. It does not download a production model, run inference, prove model quality, use remote/API AI, or embed raw evidence.                                                                                                                                                                              |
@@ -51,7 +53,9 @@ consumes the same results.
 - [ ] Prompt/template version contract complete.
 - [ ] Memory reference contract complete.
 - [ ] Graph reference contract complete.
-- [ ] AI journal/read-model contract complete.
+- [x] AI journal/read-model contract complete for screen VLM status
+      projection; broader AI journal/read-model surfaces remain product-scope
+      follow-ups.
 - [ ] Remote assistant contract separated from child safety.
 
 ## V0.7 Runtime And Context
@@ -88,6 +92,7 @@ consumes the same results.
 - [x] Service WinRT OCR policy-consumption proof exists.
 - [x] Guided VLM worker contract implemented.
 - [x] VLM worker execution proof exists.
+- [x] VLM execution readiness/status handoff proof exists.
 - [x] Raw image deletion proof exists.
 - [x] Screen summary feeds AI context builder.
 - [x] Real browser-use capture artifact feeds AI analysis.
@@ -157,6 +162,16 @@ consumes the same results.
 - [x] guided VLM worker contract proof run:
       `node --check scripts/test/screen-ai-vlm-worker-contract-proof.mjs` and
       `node scripts/test/screen-ai-vlm-worker-contract-proof.mjs`.
+- [x] VLM execution readiness/status handoff proof artifacts under
+      `output/ai-plan-proof/screen-vlm-execution-readiness-proof`.
+- [x] VLM execution readiness/status handoff proof run:
+      `node --check scripts/test/screen-ai-vlm-execution-readiness-proof.mjs`
+      and `node scripts/test/screen-ai-vlm-execution-readiness-proof.mjs`.
+- [x] VLM journal/read-model proof artifacts under
+      `output/ai-plan-proof/screen-vlm-journal-read-model-proof`.
+- [x] VLM journal/read-model proof run:
+      `node --check scripts/test/screen-ai-vlm-journal-read-model-proof.mjs`
+      and `node scripts/test/screen-ai-vlm-journal-read-model-proof.mjs`.
 - [x] service WinRT OCR runtime proof artifacts under
       `output/screen-ai-pipeline-proof/service-winrt-ocr`.
 - [x] service WinRT OCR policy proof artifacts under
