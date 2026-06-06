@@ -190,6 +190,13 @@ Expected contract families:
   billing provider contact, platform adapter implementation, child-device
   delivery, app blocking, child activity data custody, or Ocentra-hosted family
   data custody.
+- Platform limitation action proof rows link provider/store report status rows
+  and report status read-model rows into parent-visible follow-up action rows
+  for ready, manual-required, and unavailable platforms without claiming portal
+  approval UI, portal report UI, external runtime report delivery, provider API
+  execution, store integration, billing provider contact, platform adapter
+  implementation, child-device delivery, app blocking, child activity data
+  custody, or Ocentra-hosted family data custody.
 
 ## Validation Gates
 
@@ -309,6 +316,12 @@ Expected contract families:
   approval/report UI/external delivery/provider/store/billing contact/platform
   adapter/child delivery/app-blocking/custody overclaim rejection, and required
   non-claim coverage.
+- TypeScript schema tests and a proof harness for platform limitation action
+  rows, missing ready/manual/unavailable follow-up coverage rejection, missing
+  provider/store status and report status read-model refs, portal approval/
+  report UI/external delivery/provider/store/billing contact/platform adapter/
+  child delivery/app-blocking/custody overclaim rejection, and required
+  non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -411,6 +424,11 @@ Expected contract families:
   external runtime report delivery, provider API execution, store integration,
   platform adapter implementation, child-device delivery, app blocking, child
   activity custody, or Ocentra-hosted family data custody.
+- Do not treat platform limitation action proof refs as portal approval UI,
+  portal report UI, external runtime report delivery, provider API execution,
+  store integration, billing provider contact, platform adapter implementation,
+  child-device delivery, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
 
 ## Done Signal
 
