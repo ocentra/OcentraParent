@@ -1,11 +1,11 @@
 {
   "proof": "network-risk-performance-readiness-portal-proof",
-  "checkedAt": "2026-06-06T08:34:22.567Z",
+  "checkedAt": "2026-06-06T08:44:49.989Z",
   "branch": "codex/network-risk-target-policy-handoff-proof",
-  "commit": "b530717da62145673c0ad804f368d1ffec5b2347",
-  "originMain": "ca66a418379387c55ed39b15d63d495ef5718885",
-  "mergeBase": "ca66a418379387c55ed39b15d63d495ef5718885",
-  "sourceStatusShort": " M apps/portal/README.md\n M apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx\n M apps/portal/src/network-product-readiness-status.ts\n M apps/portal/tests/live-activity-network-flow.test.ts\n M crates/agent-service/README.md\n M crates/agent-service/src/network_product_readiness_status_service_tests.rs\n M crates/ocentra-network-evidence/README.md\n M crates/ocentra-network-evidence/src/product_readiness_status.rs\n M crates/ocentra-network-evidence/src/tests/product_readiness_status.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n M packages/agent-protocol-domain/README.md\n M packages/agent-protocol-domain/src/network-product-readiness-status.ts\n M packages/agent-protocol-domain/tests/network-product-readiness-status.test.ts\n M packages/portal-domain/README.md\n M packages/portal-domain/src/details.ts\n?? apps/portal/e2e/network-risk-performance-readiness-portal-proof.spec.ts\n?? apps/portal/src/network-risk-performance-readiness-card.tsx\n?? scripts/test/network-risk-performance-readiness-portal-proof.mjs",
+  "commit": "53651ad5f48f850c69948ec1a6c5e315347e135a",
+  "originMain": "62dd70dfbeec0fcc93b1f1d9d094e389df825b22",
+  "mergeBase": "62dd70dfbeec0fcc93b1f1d9d094e389df825b22",
+  "sourceStatusShort": "",
   "proofRoot": "output\\network-plan-proof\\51d-risk-performance-readiness-portal",
   "testRoot": "test-results\\network-risk-performance-readiness-portal-proof",
   "commands": [
