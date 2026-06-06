@@ -18,6 +18,11 @@ async fn network_runtime_remote_delivery_status_preserves_broker_family_hub_refs
     let report =
         proof_result.expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DELIVERY_STATUS);
 
+    assert_remote_delivery_route_state(&report);
+    assert_remote_delivery_refs(&report);
+}
+
+fn assert_remote_delivery_route_state(report: &NetworkRuntimeRemoteDeliveryStatusReport) {
     assert_eq!(
         report.broker_status,
         NetworkRuntimeRemoteDeliveryState::RequirementsSatisfiedButNotImplemented
@@ -37,6 +42,9 @@ async fn network_runtime_remote_delivery_status_preserves_broker_family_hub_refs
     assert_eq!(report.broker_missing_artifact_count, 0);
     assert_eq!(report.family_hub_missing_artifact_count, 0);
     assert_eq!(report.accepted_event_type_count, 3);
+}
+
+fn assert_remote_delivery_refs(report: &NetworkRuntimeRemoteDeliveryStatusReport) {
     assert_eq!(
         report.custody_proof_ref.as_str(),
         constants::network_flow::TEST_BROKER_CUSTODY_PROOF_REF
@@ -85,6 +93,22 @@ async fn network_runtime_remote_delivery_status_preserves_broker_family_hub_refs
         report.relay_policy_ref.as_str(),
         constants::network_flow::TEST_FAMILY_HUB_RELAY_POLICY_REF
     );
+    assert_eq!(
+        report.cross_process_replay_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_LIFECYCLE_CROSS_PROCESS_REPLAY_REF
+    );
+    assert_eq!(
+        report.remote_retention_delete_export_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_LIFECYCLE_RETENTION_DELETE_EXPORT_REF
+    );
+    assert_eq!(
+        report.remote_delivery_ack_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_LIFECYCLE_DELIVERY_ACK_REF
+    );
+    assert_eq!(
+        report.remote_lifecycle_followup_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_LIFECYCLE_FOLLOWUP_REF
+    );
 }
 
 #[tokio::test]
@@ -101,6 +125,8 @@ async fn network_runtime_remote_delivery_status_rejects_authority_and_side_effec
     assert!(!report.family_hub_delivery_implemented);
     assert!(!report.cross_process_replay_implemented);
     assert!(!report.remote_retention_delete_export_propagation_implemented);
+    assert!(report.remote_lifecycle_manual_required);
+    assert_eq!(report.remote_lifecycle_missing_artifact_count, 3);
     assert!(!report.policy_authority);
     assert!(!report.side_effect_authority);
     assert_eq!(report.enforcement_command_event_count, 0);

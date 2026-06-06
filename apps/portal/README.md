@@ -91,6 +91,10 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   Activity route drawer, including refs, score breakdown, latency/throughput/
   resource counters, and false production-SLO, adapter, and host-filtering
   claims.
+- Displays service-backed row10d remote-delivery lifecycle blockers in the same
+  network drawer, including cross-process replay, remote retention/delete/export
+  propagation, family-hub delivery acknowledgement, follow-up proof refs, and
+  manual-required state without claiming live broker/family-hub transport.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own
@@ -123,3 +127,6 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   service-backed social rows only after the runtime snapshot path exists.
 - Add live policy evaluator, authoring UI, persistence, notification/child UX,
   and platform adapter proof after readiness rendering.
+- Broker/family-hub delivery, cross-process remote replay, and remote
+  retention/delete/export propagation remain separate service/runtime gaps; the
+  Activity drawer only renders the current manual-required blocker refs.

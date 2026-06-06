@@ -78,6 +78,10 @@ export type NetworkProductReadinessStatusSummary = {
   readonly remoteLocalQueueProof: PortalDetailValue;
   readonly remoteDuplicateProof: PortalDetailValue;
   readonly remoteDeadLetterCount: PortalDetailValue;
+  readonly remoteLifecycleBlockerRefs: PortalDetailValue;
+  readonly remoteLifecycleFollowupRef: PortalDetailValue;
+  readonly remoteLifecycleMissingArtifactCount: PortalDetailValue;
+  readonly remoteLifecycleManualRequired: PortalDetailValue;
   readonly remoteExternalTransportImplemented: PortalDetailValue;
   readonly remoteFamilyHubDeliveryImplemented: PortalDetailValue;
   readonly remoteCrossProcessReplayImplemented: PortalDetailValue;
@@ -249,6 +253,10 @@ function emptyRemoteDeliverySummary() {
     remoteLocalQueueProof: notReported(),
     remoteDuplicateProof: notReported(),
     remoteDeadLetterCount: notReported(),
+    remoteLifecycleBlockerRefs: notReported(),
+    remoteLifecycleFollowupRef: notReported(),
+    remoteLifecycleMissingArtifactCount: notReported(),
+    remoteLifecycleManualRequired: notReported(),
     remoteExternalTransportImplemented: notReported(),
     remoteFamilyHubDeliveryImplemented: notReported(),
     remoteCrossProcessReplayImplemented: notReported(),
@@ -437,15 +445,27 @@ function remoteDeliverySummary(remote: AgentNetworkRemoteDeliveryStatus) {
       remote.deletion_plan_ref,
       remote.offset_policy_ref,
       remote.dedupe_policy_ref,
+      remote.cross_process_replay_ref,
+      remote.remote_retention_delete_export_ref,
+      remote.remote_delivery_ack_ref,
     ]),
     remoteMissingArtifactCounts: joinedDetail([
       remote.broker_missing_artifact_count,
       remote.family_hub_missing_artifact_count,
+      remote.remote_lifecycle_missing_artifact_count,
     ]),
     remoteAcceptedEventTypeCount: detailFromValue(remote.accepted_event_type_count),
     remoteLocalQueueProof: detailFromValue(remote.local_idempotency_queue_proved),
     remoteDuplicateProof: joinedDetail([remote.queued_duplicate_rejected, remote.completed_duplicate_rejected]),
     remoteDeadLetterCount: detailFromValue(remote.dropped_event_dead_letter_count),
+    remoteLifecycleBlockerRefs: joinedDetail([
+      remote.cross_process_replay_ref,
+      remote.remote_retention_delete_export_ref,
+      remote.remote_delivery_ack_ref,
+    ]),
+    remoteLifecycleFollowupRef: detailFromValue(remote.remote_lifecycle_followup_ref),
+    remoteLifecycleMissingArtifactCount: detailFromValue(remote.remote_lifecycle_missing_artifact_count),
+    remoteLifecycleManualRequired: detailFromValue(remote.remote_lifecycle_manual_required),
     remoteExternalTransportImplemented: detailFromValue(remote.external_transport_delivery_implemented),
     remoteFamilyHubDeliveryImplemented: detailFromValue(remote.family_hub_delivery_implemented),
     remoteCrossProcessReplayImplemented: detailFromValue(remote.cross_process_replay_implemented),

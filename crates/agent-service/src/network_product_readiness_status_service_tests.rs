@@ -197,6 +197,24 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(status.dropped_event_dead_letter_count, 1);
     assert!(status.queued_duplicate_rejected);
     assert!(status.completed_duplicate_rejected);
+    assert_eq!(
+        status.cross_process_replay_ref,
+        constants::network_flow::TEST_REMOTE_LIFECYCLE_CROSS_PROCESS_REPLAY_REF
+    );
+    assert_eq!(
+        status.remote_retention_delete_export_ref,
+        constants::network_flow::TEST_REMOTE_LIFECYCLE_RETENTION_DELETE_EXPORT_REF
+    );
+    assert_eq!(
+        status.remote_delivery_ack_ref,
+        constants::network_flow::TEST_REMOTE_LIFECYCLE_DELIVERY_ACK_REF
+    );
+    assert_eq!(
+        status.remote_lifecycle_followup_ref,
+        constants::network_flow::TEST_REMOTE_LIFECYCLE_FOLLOWUP_REF
+    );
+    assert_eq!(status.remote_lifecycle_missing_artifact_count, 3);
+    assert!(status.remote_lifecycle_manual_required);
     assert!(!status.external_transport_delivery_implemented);
     assert!(!status.family_hub_delivery_implemented);
     assert!(!status.cross_process_replay_implemented);
@@ -250,6 +268,7 @@ async fn websocket_network_product_readiness_status_command_reports_payload() {
         NetworkRemoteDeliveryStatusState::RequirementsSatisfiedButNotImplemented
     );
     assert!(!remote_delivery_status.family_hub_delivery_implemented);
+    assert!(remote_delivery_status.remote_lifecycle_manual_required);
     assert_eq!(remote_delivery_status.adapter_action_executed_count, 0);
 }
 

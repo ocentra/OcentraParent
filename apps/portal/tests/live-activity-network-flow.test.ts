@@ -165,13 +165,19 @@ function expectProductReadinessRemoteDeliverySummary(summary: NetworkProductRead
     'broker.network.encryption.1 | broker.network.config.1 | family-hub.network.identity.1 | family-hub.network.relay-policy.1'
   );
   expect(summary.remoteLifecycleRefs).toBe(
-    'broker.network.retention-policy.1 | broker.network.replay-plan.1 | broker.network.deletion-plan.1 | broker.network.offset-policy.1 | broker.network.dedupe-policy.1'
+    'broker.network.retention-policy.1 | broker.network.replay-plan.1 | broker.network.deletion-plan.1 | broker.network.offset-policy.1 | broker.network.dedupe-policy.1 | broker.network.cross-process-replay.manual-required.10d | broker.network.remote-retention-delete-export.manual-required.10d | family-hub.network.delivery-ack.manual-required.10d'
   );
-  expect(summary.remoteMissingArtifactCounts).toBe('0 | 0');
+  expect(summary.remoteMissingArtifactCounts).toBe('0 | 0 | 3');
   expect(summary.remoteAcceptedEventTypeCount).toBe('3');
   expect(summary.remoteLocalQueueProof).toBe('true');
   expect(summary.remoteDuplicateProof).toBe('true | true');
   expect(summary.remoteDeadLetterCount).toBe('1');
+  expect(summary.remoteLifecycleBlockerRefs).toBe(
+    'broker.network.cross-process-replay.manual-required.10d | broker.network.remote-retention-delete-export.manual-required.10d | family-hub.network.delivery-ack.manual-required.10d'
+  );
+  expect(summary.remoteLifecycleFollowupRef).toBe('network.remote-delivery.lifecycle-followup.10d');
+  expect(summary.remoteLifecycleMissingArtifactCount).toBe('3');
+  expect(summary.remoteLifecycleManualRequired).toBe('true');
   expect(summary.remoteExternalTransportImplemented).toBe('false');
   expect(summary.remoteFamilyHubDeliveryImplemented).toBe('false');
   expect(summary.remoteCrossProcessReplayImplemented).toBe('false');
@@ -617,6 +623,12 @@ function remoteDeliveryStatus() {
     dropped_event_dead_letter_count: 1,
     queued_duplicate_rejected: true,
     completed_duplicate_rejected: true,
+    cross_process_replay_ref: 'broker.network.cross-process-replay.manual-required.10d',
+    remote_retention_delete_export_ref: 'broker.network.remote-retention-delete-export.manual-required.10d',
+    remote_delivery_ack_ref: 'family-hub.network.delivery-ack.manual-required.10d',
+    remote_lifecycle_followup_ref: 'network.remote-delivery.lifecycle-followup.10d',
+    remote_lifecycle_missing_artifact_count: 3,
+    remote_lifecycle_manual_required: true,
     external_transport_delivery_implemented: false,
     family_hub_delivery_implemented: false,
     cross_process_replay_implemented: false,
