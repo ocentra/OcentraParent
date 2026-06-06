@@ -34,6 +34,7 @@ consumes the same results.
 | Screen summary parent explanation read model      | P3 replay proved    | `output/ai-plan-proof/screen-summary-parent-explanation-read-model/proof-summary.json`                                                 | Converts the screen-summary parent explanation proof rows into parent-visible read-model rows that preserve screen-summary refs, audit refs, policy refs, parent rules, runtime refs, custody, and deleted-image state without raw image display, production portal runtime UI, policy authority, or enforcement claims.                                                                                                                                                                                     |
 | Screen parent explanation service read model      | P3 service proved   | `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json`                                         | Starts the real Rust service against a seeded ActivityStore and requests the Activity Screen read model over WebSocket, proving policy refs, parent rules, local runtime refs, parent explanation refs, deletion reasons, deleted-image state, and child-device custody survive service/query projection. It does not claim production portal rendering, new capture/model inference, remote/API AI, policy authority, or enforcement.                                                                       |
 | Screen family AI hub runtime discovery            | P3 loopback proved  | `output/screen-ai-pipeline-proof/family-ai-hub-runtime-discovery/proof-summary.json`                                                   | Starts a real loopback family-hub endpoint, discovers it through existing LAN evidence schemas, links it to the selected screen family-hub route, and submits a redacted-crop job payload without raw screenshot transfer, raw retention, remote/API provider use, or Ocentra-hosted processing. Physical household LAN, production model quality, portal UI, policy authority, and enforcement remain separate gates.                                                                                       |
+| Local text inference dry-run                      | P3 dry-run proved   | `output/ai-plan-proof/local-ai-text-inference-dry-run/proof-summary.json`                                                              | Proves schema-valid local AI input and matching local runtime metadata can produce ready, unavailable, and missing-evidence `LocalAiSafetyResult` rows while preserving typed evidence refs, parent-rule refs, runtime refs, prompt version refs, no raw prompt retention, and explicit no model-execution, no remote/API AI, no policy-authority, no enforcement, and no production-model-quality claims.                                                                                                   |
 
 ## Contract And Source Truth
 
@@ -68,7 +69,9 @@ consumes the same results.
 - [ ] Parent-rule context builder implemented.
 - [ ] Deterministic classifier lane implemented.
 - [ ] Local text LLM adapter boundary implemented.
-- [ ] Local text inference dry-run implemented.
+- [x] Local text inference dry-run implemented without model-execution,
+      remote/API, policy-authority, enforcement, production-model-quality, or
+      raw prompt-retention claims.
 - [ ] Output parser implemented.
 - [x] Invalid output and timeout degrade safely.
 - [x] Provider queue and routing implemented.
