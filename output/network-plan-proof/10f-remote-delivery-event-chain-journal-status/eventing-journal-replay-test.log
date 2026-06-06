@@ -9,7 +9,7 @@ test tests::journal_replay::file::ndjson_journal_reopen_continues_sequence_and_h
 test tests::journal_replay::file::concurrent_ndjson_appends_do_not_hold_state_lock_across_file_write ... ok
 test tests::journal_replay::replay::replay_cursor_and_filters_read_ordered_projection_records ... ok
 
-test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 70 filtered out; finished in 0.03s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 70 filtered out; finished in 0.02s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
      Running unittests src\lib.rs (target\debug\deps\ocentra_eventing-927d6221c7fa57e1.exe)

@@ -1,8 +1,8 @@
 {
   "proof": "network-remote-delivery-event-chain-journal-proof",
-  "checkedAt": "2026-06-06T18:47:28.164Z",
-  "branch": "codex/network-remote-event-chain-journal-proof-on-row10b",
-  "commit": "9f21f52be1c9d18af8321fac6579a50c8d170a7f",
+  "checkedAt": "2026-06-06T20:50:53.479Z",
+  "branch": "codex/network-remote-receipt-ledger-proof-on-row10f",
+  "commit": "41e05beed5bc947cdc66fd41620bf734982ac77f",
   "originMain": "e9118e91b1be80973a3fb75c5ae8ff76f0d6718c",
   "mergeBase": "e9118e91b1be80973a3fb75c5ae8ff76f0d6718c",
   "sourceStatusShort": "",

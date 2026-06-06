@@ -473,9 +473,12 @@ crates/agent-core/src/enforcement_timer_state_tests.rs:1 file has 17 functions; 
 crates/agent-core/src/enforcement_unavailable_adapter_tests.rs:1 file has 256 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/lib.rs:1 file has 275 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/network_event_runtime/broker_delivery.rs:48 function has 68 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger.rs:16 function has 65 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_status.rs:62 function has 73 lines; warning starts at 64 of 80
-crates/agent-core/src/network_event_runtime.rs:1 file has 310 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:12 function has 77 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime.rs:1 file has 332 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:1 file has 312 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:16 function has 77 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:204 function has 66 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime_tests.rs:1 file has 434 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/network_event_runtime_tests.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-core/src/screen_evidence_queue.rs:1 file has 289 lines; crossed 250-line advisory band; maximum is 1000
