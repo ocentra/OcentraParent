@@ -315,9 +315,21 @@ generic app blocking covers this concern.
   integration, platform adapters, child-device delivery, runtime writer/report
   delivery, app blocking, child activity data, or hosted family data custody
   claims.
+- `packages/parent-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts`
+  now consumes product-claim gate rows into portal-test-ready,
+  manual-portal-test-required, and unsupported-portal-test-blocked rows that
+  name portal approval/report test refs required before product claims. It
+  preserves no portal approval/report UI, provider/store execution, store
+  integration, platform adapters, child-device delivery, runtime writer/report
+  delivery, app blocking, child activity data, or hosted family data custody
+  claims.
 - `scripts/test/app-install-purchase-product-claim-safe-parent-workflow-proof.mjs`
   records that safe parent workflow proof under
   `test-results/app-install-purchase-product-claim-safe-parent-workflow-proof/proof.json`
+  when run.
+- `scripts/test/app-install-purchase-product-claim-portal-test-readiness-proof.mjs`
+  records that portal test readiness proof under
+  `test-results/app-install-purchase-product-claim-portal-test-readiness-proof/proof.json`
   when run.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
@@ -598,6 +610,10 @@ Ocentra-hosted family data custody.
       without portal approval/report UI, provider/store execution, store
       integration, platform adapters, child delivery, runtime writer/report
       delivery, app blocking, child activity data, or hosted custody claims.
+- [x] Product-claim portal test readiness proof linking product-claim gate rows
+      to portal approval/report test refs without portal approval/report UI,
+      provider/store execution, platform adapters, child delivery, app
+      blocking, child activity data, or hosted custody claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
