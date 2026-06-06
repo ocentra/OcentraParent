@@ -116,7 +116,13 @@ export function ParentPortalRoute({
         />
       ) : null}
       {shouldRenderBrowserParentExplanationRoute(route) ? <BrowserParentExplanationRoutePanel /> : null}
-      {shouldRenderSocialDashboardRoute(route) ? <SocialDashboardRoutePanel snapshot={null} /> : null}
+      {shouldRenderSocialDashboardRoute(route) ? (
+        <SocialDashboardRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          events={state.events}
+        />
+      ) : null}
       {shouldRenderScreenSettingsRoute(route) ? <ScreenSettingsRoutePanel /> : null}
     </div>
   );
