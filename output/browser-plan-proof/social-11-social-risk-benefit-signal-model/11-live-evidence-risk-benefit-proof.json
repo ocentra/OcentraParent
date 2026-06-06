@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofId": "social-risk-benefit-live-evidence-proof",
-  "generatedAt": "2026-06-06T09:53:40.356Z",
+  "generatedAt": "2026-06-06T11:12:38.368Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "b64b93077f66cf7c00209453e565896a132e46e9",
-  "baseCommit": "e2203ab8a1f6606d8e445c70ba4e979fb810ae94",
+  "commit": "c59d212311d01524e781758564d4743c83722e70",
+  "baseCommit": "9fd09abad222a33e3755ca3d1108d5b9cfd5b5a3",
   "sourceProof": "test-results/social-ai-analysis-live-evidence-proof/proof.json",
   "liveEvidenceBoundary": {
     "sourceAiProofUsesLiveSocial09Refs": true,
