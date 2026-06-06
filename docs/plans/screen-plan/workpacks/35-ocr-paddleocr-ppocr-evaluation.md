@@ -15,7 +15,8 @@ This is AI-pass work. Do not block capture MVP on final OCR selection.
 - [~] Test local-only execution.
 - [ ] Compare UI text extraction quality against Tesseract.
 - [ ] Measure CPU/GPU/memory/runtime.
-- [~] Decide whether child device or family hub should run it.
+- [~] Decide whether the child device or a trusted household mesh provider
+  should run it.
 
 ## Proof
 
@@ -47,5 +48,6 @@ install packages, download models, call hosted OCR, or claim production quality.
 - Continue to treat this as an evaluation candidate until local package install,
   model-cache custody, no-upload inference, Tesseract comparison, and
   CPU/GPU/memory/runtime measurements pass.
-- If the candidate is heavy on child devices, route hard OCR cases through the
-  family AI hub only after that LAN/local custody path is runtime-proved.
+- If the candidate is heavy on child devices, route hard OCR cases through a
+  trusted household mesh provider only after that LAN/local custody path is
+  runtime-proved and leased through the mesh bridge.
