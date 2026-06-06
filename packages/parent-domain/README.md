@@ -454,6 +454,12 @@ flowchart LR
   read-model contract rows and keep future service read-model/event/API proof
   visible while keeping package exports, service runtime, protocol, rendering,
   portal rendering, persistence, and adapter dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface status read-model
+  parent-surface read-model service read-model handoff rows consume service
+  handoff rows and keep future service read-model proof visible while keeping
+  package exports, service read-model runtime emission, service events, read
+  APIs, response consumers, service runtime, protocol, rendering, portal
+  rendering, persistence, and adapter dispatch unclaimed.
   Portal authoring or preview UI, live evaluator execution, persistence,
   timers, child notification delivery, adapter dispatch, broad installed-app
   blocking, and platform enforcement remain unimplemented.
