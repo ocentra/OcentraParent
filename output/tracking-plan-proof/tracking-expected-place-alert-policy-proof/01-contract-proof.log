@@ -1,0 +1,5 @@
+Contract proof:
+
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-expected-place-alert-policy-proof: PASS
+- Expected-place policy decisions preserve schedule rule refs, alert refs, evidence refs, reason refs, audit refs, and UI-readiness refs.

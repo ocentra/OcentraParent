@@ -41,6 +41,14 @@ the proof root below. Alert policy integration, exception/holiday integration,
 platform behavior, and UI behavior are not claimed beyond the proof state
 recorded in `proof-summary.json`, `06-expected-place-proof.json`, and the
 implementation checklist.
+Expected-place alert policy proof now maps expected-place policy decisions into
+parent alert, child check-in, suppression, and manual-required UI-readiness
+rows through `node scripts/test/tracking-expected-place-alert-policy-proof.mjs`.
+It preserves schedule rule refs, policy decision refs, alert intent refs,
+evidence refs, reason refs, audit refs, and UI surface refs without claiming
+rendered parent UI, alert delivery runtime, provider delivery, notification
+receipt runtime, child-device runtime, physical-device proof, authority proof,
+production workers, or adapter dispatch.
 
 ## Where We Want To Be
 
@@ -62,8 +70,10 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Alert policy, exception/holiday integration, UI, and platform claims remain
-  manual-required until the assigned proof artifacts exist.
+- Exception/holiday integration, rendered UI, platform claims, delivery
+  runtime, child-device runtime, physical-device proof, authority proof,
+  production workers, and adapter dispatch remain manual-required until the
+  assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -82,3 +92,26 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Known gaps/manual-required states: alert policy integration,
       exception/holiday integration, Android/iOS physical proof, notifications,
       and UI remain proof-gated as applicable.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain expected-place alert policy proof/test,
+      proof script, owning tracking feature doc, implementation checklist,
+      this workpack doc, WP33 proof-gate doc, generated WP16/WP33 proof
+      artifacts, and hub doc delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-expected-place-alert-policy-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/16-expected-place-schedule-engine/29-expected-place-alert-policy-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/29-expected-place-alert-policy-proof.json`,
+      `output/tracking-plan-proof/tracking-expected-place-alert-policy-proof/proof.json`,
+      and `test-results/tracking-expected-place-alert-policy-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, this workpack doc, and WP33 proof-gate doc updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta.
+- [x] Known gaps/manual-required states: rendered parent UI, alert delivery
+      runtime, provider delivery, notification receipt runtime, child-device
+      runtime, physical-device proof, authority proof, production workers,
+      adapter dispatch, exception/holiday integration, and product-ready
+      expected-place behavior remain proof-gated.

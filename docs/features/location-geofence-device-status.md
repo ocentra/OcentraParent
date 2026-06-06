@@ -180,6 +180,15 @@ expose location or device-status features. Parents expect this category.
   suppress/no-action, and manual-required outcomes, keeps AI as evidence rather
   than final authority, and records no runtime enforcement, provider delivery,
   platform adapter, production worker, UI-complete, or physical-device claims.
+- WP16 expected-place alert policy proof now exists through
+  `node scripts/test/tracking-expected-place-alert-policy-proof.mjs`. It maps
+  expected-place policy decisions into parent alert, child check-in,
+  suppression, and manual-required UI-readiness rows while preserving schedule
+  rule refs, policy decision refs, alert intent refs, evidence refs, reason
+  refs, audit refs, and UI surface refs. It does not claim rendered parent UI,
+  alert delivery runtime, provider delivery, notification receipt runtime,
+  child-device runtime, physical-device proof, authority proof, production
+  workers, or adapter dispatch.
 - Required fixture-state coverage proof now exists through
   `node scripts/test/tracking-fixture-coverage-proof.mjs`. It records fresh,
   stale, offline, permission-denied, low-accuracy, ambiguous nearby place,
@@ -355,6 +364,11 @@ snapshots/accessibility beyond the hosted parent route are proved.
       disabled write intents; actual live service mutation UI and service
       execution remain pending.
 - [x] Alert intent contract.
+- [x] Expected-place alert policy UI-readiness rows. This proves parent
+      alert/check-in/suppression/manual readiness rows from expected-place
+      decisions and schedule rule refs. It is not rendered parent UI, alert
+      delivery runtime, provider delivery, receipt runtime, child runtime,
+      physical-device, authority, production worker, or adapter dispatch proof.
 - [x] Tracking notification parent-surface history intent rows. This proves
       redacted parent history/preference readiness rows over the existing
       provider, receipt, and preference proof refs. It is not rendered
