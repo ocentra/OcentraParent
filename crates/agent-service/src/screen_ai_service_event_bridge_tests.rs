@@ -1,0 +1,140 @@
+use ocentra_parent_agent_core::{ScreenRuntimeEventPayload, ScreenRuntimePhase};
+use ocentra_parent_agent_protocol::{
+    constants, ActivityEvidenceRef, ActivityReadModelState, ActivityScreenReadModelRow,
+    SCREEN_CAPABILITY_READY, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CATEGORY_SCHOOL,
+    SCREEN_CUSTODY_JOURNAL, SCREEN_DELETION_DELETED, SCREEN_POLICY_CONFIDENCE_READY,
+    SCREEN_PROVIDER_LOCAL_OCR,
+};
+
+use super::screen_ai_service_event_bridge::{
+    publish_screen_service_row_event_chain, screen_runtime_input_from_service_row,
+    ScreenAiServiceEventBridgeError, ScreenAiServiceEventBridgeRefs,
+};
+
+#[test]
+fn screen_service_event_bridge_maps_service_row_to_existing_screen_runtime_input() {
+    let input = screen_runtime_input_from_service_row(service_screen_row(), service_bridge_refs())
+        .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_MAPS);
+
+    assert_eq!(
+        input.queue_job_id,
+        constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID
+    );
+    assert_eq!(
+        input.screen_analysis_result_id,
+        constants::activity_store::TEST_SCREEN_RESULT_ID
+    );
+    assert_eq!(
+        input.model_runtime_ref,
+        constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF
+    );
+    assert_eq!(
+        input.model_id,
+        constants::activity_store::TEST_SCREEN_MODEL_ID
+    );
+    assert_eq!(
+        input.prompt_or_template_version,
+        constants::activity_store::TEST_SCREEN_TEMPLATE_VERSION
+    );
+    assert_eq!(
+        input.policy_decision_ref,
+        constants::activity_store::TEST_POLICY_DECISION_ID
+    );
+    assert_eq!(
+        input.parent_rule_ref,
+        constants::screen_flow::TEST_SCREEN_POLICY_RULE_REF
+    );
+    assert_eq!(
+        input.portal_read_model_ref,
+        constants::activity_store::TEST_SCREEN_RESULT_ID
+    );
+}
+
+#[tokio::test]
+async fn screen_service_event_bridge_publishes_ordered_chain_from_service_read_model_row() {
+    let report = publish_screen_service_row_event_chain(
+        service_screen_row(),
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        service_bridge_refs(),
+    )
+    .await
+    .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES);
+    let phases = report
+        .stored_events
+        .iter()
+        .map(|event| {
+            event
+                .decode::<ScreenRuntimeEventPayload>()
+                .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
+                .payload
+                .phase
+        })
+        .collect::<Vec<_>>();
+
+    assert_eq!(phases, ScreenRuntimePhase::ordered_chain());
+    assert_eq!(report.publish_reports.len(), phases.len());
+    assert_eq!(report.dead_letters.len(), 0);
+    assert!(!report.raw_image_escaped());
+}
+
+#[test]
+fn screen_service_event_bridge_rejects_raw_retention_and_missing_policy_refs() {
+    let mut raw_retained = service_screen_row();
+    raw_retained.raw_image_retained = true;
+    assert!(matches!(
+        screen_runtime_input_from_service_row(raw_retained, service_bridge_refs()),
+        Err(ScreenAiServiceEventBridgeError::RawImageRetained)
+    ));
+
+    let mut missing_policy = service_screen_row();
+    missing_policy.policy_decision_ref = None;
+    assert!(matches!(
+        screen_runtime_input_from_service_row(missing_policy, service_bridge_refs()),
+        Err(ScreenAiServiceEventBridgeError::MissingPolicyDecision)
+    ));
+}
+
+fn service_screen_row() -> ActivityScreenReadModelRow {
+    ActivityScreenReadModelRow {
+        row_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
+        label: constants::activity_store::TEST_SCREEN_SUMMARY.to_string(),
+        device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+        state: ActivityReadModelState::Ready,
+        total_ms: 0,
+        foreground_ms: 0,
+        background_ms: 0,
+        capture_reason: constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE.to_string(),
+        capture_scope: SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW.to_string(),
+        capability_status: SCREEN_CAPABILITY_READY.to_string(),
+        queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
+        model_runtime_ref: constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string(),
+        model_id: constants::activity_store::TEST_SCREEN_MODEL_ID.to_string(),
+        provider_kind: SCREEN_PROVIDER_LOCAL_OCR.to_string(),
+        prompt_or_template_version: constants::activity_store::TEST_SCREEN_TEMPLATE_VERSION
+            .to_string(),
+        primary_category: Some(SCREEN_CATEGORY_SCHOOL.to_string()),
+        confidence: SCREEN_POLICY_CONFIDENCE_READY,
+        image_deletion_state: SCREEN_DELETION_DELETED.to_string(),
+        raw_image_retained: false,
+        policy_eligible: true,
+        image_digest: constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string(),
+        custody_state: SCREEN_CUSTODY_JOURNAL.to_string(),
+        evidence: Vec::<ActivityEvidenceRef>::new(),
+        policy_decision_ref: Some(constants::activity_store::TEST_POLICY_DECISION_ID.to_string()),
+        policy_action: Some(constants::activity_store::TEST_POLICY_ACTION_ALLOW.to_string()),
+        policy_reason_codes: Vec::new(),
+        parent_rule_refs: vec![constants::screen_flow::TEST_SCREEN_POLICY_RULE_REF.to_string()],
+        local_model_runtime_refs: vec![
+            constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string()
+        ],
+        parent_explanation_refs: Vec::new(),
+        explanation_reasons: Vec::new(),
+        deletion_reasons: vec![constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string()],
+    }
+}
+
+fn service_bridge_refs() -> ScreenAiServiceEventBridgeRefs {
+    ScreenAiServiceEventBridgeRefs {
+        action_ref: constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
+    }
+}
