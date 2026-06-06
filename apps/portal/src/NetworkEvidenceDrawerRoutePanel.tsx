@@ -21,7 +21,10 @@ export function NetworkEvidenceDrawerRoutePanel({
 }: {
   readonly liveActivity: PortalLiveActivityState;
 }): ReactElement {
-  const summary = networkEvidenceDrawerSummary(liveActivity.networkFlowReadModel);
+  const summary = networkEvidenceDrawerSummary(
+    liveActivity.networkFlowReadModel,
+    liveActivity.networkRuntimeEventChain
+  );
   return (
     <section
       aria-label={PortalText.Resolve(PortalTextToken.NetworkFlow)}
@@ -70,6 +73,7 @@ function NetworkEvidenceDrawerCard({ summary }: { readonly summary: NetworkEvide
         <NetworkEvidenceDrawerDetail label={PortalDetails.EvidenceReferences} value={summary.evidenceReferences} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.ReasonCodes} value={summary.uncertaintyReasonCodes} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.Custody} value={summary.custody} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.EventHistory} value={summary.eventHistoryRef} />
       </dl>
     </article>
   );
@@ -87,11 +91,15 @@ function NetworkEvidenceUnsupportedClaimCard({
         <NetworkEvidenceDrawerDetail label={PortalDetails.BrowserEvidence} value={summary.browserRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.ExactUrlClaim} value={summary.exactUrlClaim} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.LocalAiResult} value={summary.aiAuditRef} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Audit} value={summary.auditRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.UnknownState} value={summary.riskBudgetRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.PolicyPreview} value={summary.policyDecisionRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.EnforcementHandoff} value={summary.interventionResultRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.DeletedEvidence} value={summary.retentionState} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.Level} value={summary.evidenceGrade} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Confidence} value={summary.confidence} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ManualRequired} value={summary.manualRequiredState} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.UnavailableState} value={summary.unavailableState} />
       </dl>
     </article>
   );

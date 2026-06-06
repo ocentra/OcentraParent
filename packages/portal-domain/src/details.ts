@@ -42,6 +42,7 @@ export const PortalDetails = {
   ChildHelpAction: decodeDisplayText('Help action'),
   ChildSafeAction: decodeDisplayText('Safe action'),
   ChildShareLocationAction: decodeDisplayText('Share location action'),
+  Confidence: decodeDisplayText('Confidence'),
   Connections: decodeDisplayText('Connections'),
   Custody: decodeDisplayText('Custody'),
   Database: decodeDisplayText('Database'),
@@ -55,6 +56,7 @@ export const PortalDetails = {
   EventId: decodeDisplayText('Event ID'),
   EventsIngested: decodeDisplayText('Events ingested'),
   EventsStored: decodeDisplayText('Events stored'),
+  EventHistory: decodeDisplayText('Event history'),
   ExactUrlCapability: decodeDisplayText('Exact URL capability'),
   ExactUrlClaim: decodeDisplayText('Exact URL claim'),
   FirstObserved: decodeDisplayText('First observed'),
@@ -99,7 +101,9 @@ export const PortalDetails = {
   PolicyReadiness: decodeDisplayText('Policy readiness'),
   PolicyEvaluation: decodeDisplayText('Policy evaluation'),
   ManualReview: decodeDisplayText('Manual review'),
+  ManualRequired: decodeDisplayText('Manual required'),
   AdapterDispatch: decodeDisplayText('Adapter dispatch'),
+  Audit: decodeDisplayText('Audit'),
   ReadinessKind: decodeDisplayText('Readiness kind'),
   RowCount: decodeDisplayText('Row count'),
   PreviewStatus: decodeDisplayText('Decision status'),
@@ -148,6 +152,7 @@ export const PortalDetails = {
   TcpState: decodeDisplayText('TCP state'),
   Title: decodeDisplayText('Title'),
   UnknownState: decodeDisplayText('Unknown state'),
+  UnavailableState: decodeDisplayText('Unavailable state'),
   Url: decodeDisplayText('URL'),
 } as const;
 
