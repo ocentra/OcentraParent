@@ -61,6 +61,17 @@ pub const TEST_BROKER_DROPPED_EVENT_AUDIT_REF: &str = "broker.network.dropped-ev
 pub const TEST_BROKER_ADAPTER_ACTION_LEDGER_REF: &str = "broker.network.adapter-action-ledger.1";
 pub const TEST_FAMILY_HUB_IDENTITY_REF: &str = "family-hub.network.identity.1";
 pub const TEST_FAMILY_HUB_RELAY_POLICY_REF: &str = "family-hub.network.relay-policy.1";
+pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_REF: &str =
+    "network.remote-delivery.event-chain-journal.10f";
+pub const TEST_REMOTE_EVENT_CHAIN_REPLAY_REF: &str =
+    "network.remote-delivery.event-chain-replay.10f";
+pub const TEST_REMOTE_EVENT_CHAIN_EXPORT_REF: &str =
+    "network.remote-delivery.event-chain-export.10f";
+pub const TEST_REMOTE_EVENT_CHAIN_SUPPORT_STATUS_REF: &str =
+    "network.remote-delivery.event-chain.support-status.10f";
+pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_PATH_PREFIX: &str =
+    "ocentra-network-remote-event-chain-journal";
+pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION: &str = "ndjson";
 pub const UNCERTAINTY_NETWORK_ONLY_NO_EXACT_URL: &str = "network-only-no-exact-url";
 pub const UNSUPPORTED_CLAIM_DECRYPTED_HTTPS_PAYLOAD: &str = "decrypted-https-payload";
 pub const UNAVAILABLE_REASON_MANUAL_REQUIRED: &str = "manual-required";
@@ -112,3 +123,5 @@ pub const ERROR_NETWORK_RUNTIME_BROKER_DELIVERY_SEMANTICS: &str =
     "network runtime broker delivery semantics proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_DELIVERY_STATUS: &str =
     "network runtime remote delivery status proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_EVENT_CHAIN_JOURNAL: &str =
+    "network runtime remote event-chain journal proof";

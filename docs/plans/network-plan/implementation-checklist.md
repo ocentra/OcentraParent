@@ -230,7 +230,9 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   preserving local deletion refs and exportable-row counts. Row10a now proves
   broker route delivery semantics, duplicate idempotency rejection, replay plan
   refs, dropped-event audit refs, and zero duplicate adapter-action counts
-  without live broker/family-hub transport. Live broker/family-hub delivery,
+  without live broker/family-hub transport. Row10f now proves local
+  event-chain journal/export projection through reusable `ocentra-eventing`
+  NDJSON records without action replay. Live broker/family-hub delivery,
   cross-process durable replay, raw PCAP/live-capture retention and remote
   delete/export propagation, live analyzer/model/policy execution, adapter
   execution, and host filtering remain open.
@@ -345,6 +347,18 @@ manual-required/N/A file.
       remote retention/delete/export propagation, policy authority, side-effect
       authority, enforcement-command publication, adapter execution, and host
       filtering false.
+- [x] 10f remote delivery event-chain journal/export boundary status: E-D added
+      `output/network-plan-proof/10f-remote-delivery-event-chain-journal-status/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-event-chain-journal-proof/proof.json`.
+      The `agent-core` proof materializes the local network runtime event chain
+      into reusable `ocentra-eventing` NDJSON journal and projection
+      replay/export records with row10f refs. This proves a local
+      stored-envelope/export boundary only; live broker/family-hub transport,
+      action replay, cross-process transport, remote retention/delete/export
+      propagation, policy authority, side-effect authority, enforcement-command
+      publication, adapter execution, exact-content claims, and host filtering
+      remain false.
 
 ## Worker Report Template
 

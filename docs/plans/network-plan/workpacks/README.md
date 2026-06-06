@@ -60,9 +60,10 @@ can be split further when source-shape, platform proof, or validation needs it.
 
 ## Supplemental Proof Rows
 
-| Row | Workpack                                 | Priority | Notes                                                                                                                                                                                                                                                                                                      |
-| --- | ---------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 10b | Broker/family-hub remote delivery status | P6       | Broker and family-hub relay route requirements materialize into requirements-satisfied-but-not-implemented status with custody, auth, encryption, retention, replay, deletion, offset, dedupe, broker config, identity, relay policy, idempotency, and dead-letter refs while live delivery remains false. |
+| Row | Workpack                                          | Priority | Notes                                                                                                                                                                                                                                                                                                                |
+| --- | ------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 10b | Broker/family-hub remote delivery status          | P6       | Broker and family-hub relay route requirements materialize into requirements-satisfied-but-not-implemented status with custody, auth, encryption, retention, replay, deletion, offset, dedupe, broker config, identity, relay policy, idempotency, and dead-letter refs while live delivery remains false.           |
+| 10f | Remote delivery event-chain journal/export status | P3       | Agent-core materializes the local network runtime event chain into reusable `ocentra-eventing` NDJSON journal and projection replay/export records with row10f refs while live broker/family-hub transport, action replay, policy, adapter, enforcement-command, exact-content, and host-filter claims remain false. |
 
 ## Required Workpack Record
 
