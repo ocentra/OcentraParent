@@ -70,6 +70,11 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   unavailable zero-row state while service-backed social snapshots, connector
   runtime, native app control, final policy execution, notifications, and
   enforcement remain unclaimed.
+- Displays the Browser-route social audit explanation proof panel when a
+  dedicated proof env bundle is supplied. The panel renders only schema-decoded
+  SOCIAL-22 explanation snapshots and keeps service-backed explanation
+  delivery, notification delivery, connector authorization, native app control,
+  final policy execution, and enforcement unclaimed.
 - Displays the Browser-route parent explanation proof panel when a dedicated
   proof env bundle is supplied. The panel renders only schema-decoded browser AI
   parent explanation bundles and keeps runtime service delivery, final policy

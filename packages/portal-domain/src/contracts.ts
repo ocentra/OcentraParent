@@ -146,6 +146,12 @@ export {
   type SocialDashboardPanelRow,
 } from './social-dashboard-panel';
 export {
+  createSocialAuditExplanationPanelIntent,
+  type SocialAuditExplanationPanelDetail,
+  type SocialAuditExplanationPanelIntent,
+  type SocialAuditExplanationPanelRow,
+} from './social-audit-explanation-panel';
+export {
   PortalRoute,
   PortalDevToolWindow,
   PortalRouteDescriptors,
@@ -435,6 +441,7 @@ export const PortalTiming = {
 export const PortalEnvironment = {
   AgentWebSocketUrl: 'VITE_AGENT_WS_URL',
   BrowserParentExplanationProofBundle: 'VITE_BROWSER_PARENT_EXPLANATION_PROOF_BUNDLE',
+  SocialAuditExplanationProofBundle: 'VITE_SOCIAL_AUDIT_EXPLANATION_PROOF_BUNDLE',
 } as const;
 
 export const PortalText = {
