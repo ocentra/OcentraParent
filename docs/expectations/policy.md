@@ -298,6 +298,9 @@ The evaluator must define and test conflict resolution before enforcement is pos
 - Integration tests use real stored evidence and real policy contracts, not mocks or fake provider output.
 - Dry-run tests prove preview and enforcement modes return consistent decisions with different enforcement handoff state.
 - Portal tests, when UI exists, prove rule authoring sends typed intents and does not run evaluation in the browser.
+- Source-gated policy preview read-model tests prove source-manual-required
+  rows remain visible without preview decision refs, compiler-manual-required
+  rows stay distinct, and service/runtime/UI/adapter claims remain false.
 
 ## Non-Goals
 
