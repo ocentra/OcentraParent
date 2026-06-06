@@ -493,6 +493,16 @@ compete on control while staying clear about attribution confidence and privacy.
   policy authority, side-effect authority, enforcement-command publication,
   adapter execution, exact URL, decrypted payload, page content, or host
   filtering.
+- E-D added row10g remote delivery receipt ledger/local ack proof. The
+  `agent-core` proof builds deterministic local receipt records from the row10f
+  `ocentra-eventing` projection replay/export records and preserves replay
+  sequence, event id, event type, and correlation id through
+  `network-remote-delivery-receipt-ledger-proof`. This proves a local
+  receipt-ledger boundary that future broker/family-hub transport can consume,
+  not live broker transport, family-hub relay, provider delivery, child-device
+  delivery, family-hub delivery acknowledgement implementation, product-ready
+  remote delivery, policy authority, side-effect authority, adapter execution,
+  exact URL, decrypted payload, page content, or host filtering.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -536,8 +546,8 @@ macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
 follow-ups for missing artifacts.
 Broker/family-hub delivery implementation beyond the row10b status proof,
 row10c service/portal status visibility, row10d lifecycle blocker status,
-row10e durable-envelope readiness status, and row10f event-chain journal/export
-boundary status,
+row10e durable-envelope readiness status, row10f event-chain journal/export
+boundary status, and row10g receipt ledger/local ack status,
 live local-AI model execution beyond the row33a runtime result bridge and row33b service status, full policy engine execution beyond
 the current stored-flow dry-run preview and stored-flow service unavailable-result proof,
 notification provider delivery, broader parent-facing rule UX, live host DNS
@@ -658,6 +668,11 @@ proof, and row10e durable-envelope readiness proof.
       journal records and projection replay/export records while keeping action
       replay, live transport, provider delivery, child delivery, product-ready,
       policy, adapter, enforcement-command, and exact-content claims false.
+      Row10g now builds local receipt-ledger records from those projection
+      replay/export records while preserving sequence, event id, event type, and
+      correlation id and keeping live transport, provider delivery, child
+      delivery, delivery acknowledgement implementation, product-ready, policy,
+      adapter, enforcement-command, and exact-content claims false.
       Service
       network read-model delivery now publishes stored
       ActivityStore network rows through the local eventing runtime and exposes
@@ -709,7 +724,9 @@ proof, and row10e durable-envelope readiness proof.
       broker/family-hub remote-delivery status in that drawer, and row10d
       renders lifecycle blocker refs/manual-required state while preserving
       false live-delivery, remote replay, remote retention/delete/export,
-      authority, enforcement, adapter, and host-filter boundaries.
+      authority, enforcement, adapter, and host-filter boundaries. Row10f and
+      row10g remain local event-chain export and receipt-ledger boundaries only,
+      not live remote delivery.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and

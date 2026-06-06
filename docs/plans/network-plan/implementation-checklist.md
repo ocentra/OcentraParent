@@ -237,6 +237,9 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   without live broker/family-hub transport. Row10f now materializes the local
   network runtime event chain into reusable `ocentra-eventing` NDJSON journal
   and projection replay/export records for the future remote-delivery boundary.
+  Row10g now builds a deterministic local receipt ledger from those projection
+  replay/export records, preserving sequence, event id, event type, and
+  correlation id for the future remote-delivery acknowledgement boundary.
   Live broker/family-hub delivery, cross-process durable replay, raw
   PCAP/live-capture retention and remote delete/export propagation, live
   analyzer/model/policy execution, adapter execution, and host filtering remain
@@ -392,6 +395,16 @@ manual-required/N/A file.
   replay, live transport, provider delivery, child-device delivery,
   product-ready, exact-content, policy, adapter, enforcement-command, and
   host-filter claims.
+- Workpack 10 rollup: row10g is part of the Workpack 10 remote-delivery
+  status proof set. The main row10 eventing/read-model summary is supplemented
+  by
+  `output/network-plan-proof/10g-remote-delivery-receipt-ledger/proof-summary.json`,
+  `test-results/network-remote-delivery-receipt-ledger-proof/proof.json`,
+  and Rust proof invariants that require local receipt records to preserve
+  projection replay sequence, event id, event type, and correlation id while
+  rejecting live transport, family-hub delivery acknowledgement implementation,
+  provider delivery, child-device delivery, product-ready, exact-content,
+  policy, adapter, enforcement-command, and host-filter claims.
 
 - [x] 10b broker/family-hub remote delivery status: E-D added
       `output/network-plan-proof/10b-broker-family-hub-delivery-status/proof-summary.json`
@@ -457,6 +470,19 @@ manual-required/N/A file.
       product-ready remote delivery, policy authority, side-effect authority,
       enforcement-command publication, adapter execution, exact URL, decrypted
       payload, page content, and host filtering false.
+- [x] 10g remote delivery receipt ledger/local ack status: E-D added
+      `output/network-plan-proof/10g-remote-delivery-receipt-ledger/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-receipt-ledger-proof/proof.json`.
+      The `agent-core` proof builds deterministic local receipt-ledger records
+      from row10f projection replay/export records, preserving replay sequence,
+      event id, event type, and correlation id with row10g ledger, local ack,
+      replay, and support-status refs. The proof keeps live broker/family-hub
+      delivery, family-hub delivery acknowledgement implementation, remote
+      provider delivery, child-device delivery, product-ready remote delivery,
+      policy authority, side-effect authority, enforcement-command publication,
+      adapter execution, exact URL, decrypted payload, page content, and host
+      filtering false.
 - [x] 33a network local-AI runtime result bridge: E-D added
       `output/network-plan-proof/33a-network-local-ai-runtime-result/proof-summary.json`
       and `test-results/network-local-ai-runtime-result-proof/proof.json`.
