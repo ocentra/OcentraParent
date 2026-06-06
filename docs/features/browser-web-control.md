@@ -312,7 +312,17 @@ signal kinds, pattern fingerprints, evidence refs, confidence, and review
 states. They do not store raw cloud domains, URLs, titles, stream frames, claim
 runtime detection, inspect cloud-streamed frames, claim per-game cloud-title
 certainty, control native launchers or games, make final policy decisions, or
-enforce actions.
+enforce actions. GAME-04 also now includes live public-surface proof in
+`output/browser-plan-proof/game-04-cloud-gaming-pattern-library/06-live-cloud-pattern-proof.json`
+and
+`test-results/browser-game-cloud-pattern-library-live-evidence-proof/proof.json`.
+The proof fetches real Xbox Cloud Gaming, NVIDIA GeForce Now, Amazon Luna,
+Boosteroid, PlayStation Plus games catalog, Shadow cloud PC, and now.gg
+surfaces; stores only response metadata plus hashed origin/path/body refs;
+parses seven reviewed cloud pattern rows plus a reviewed library; and rejects 20
+overclaims. It does not claim a runtime detector, cloud-frame analyzer, native
+launcher controller, UI, final policy, product checklist update, release
+readiness, native game control, or enforcement.
 Browser-game/cloud-gaming GAME-05 now adds a parent-domain redacted URL-shape
 parser. It accepts unknown input, uses URL parsing only transiently, emits shape
 and fingerprint fields, and does not store raw URLs, domains, paths, queries, or
@@ -470,7 +480,8 @@ Browser-game/cloud-gaming GAME-24 now labels the game track
 partial/manual-required through the rollout gate. Product checklist upgrade is
 not claimed. GAME-01 is scaffold-proof-present, GAME-02 is
 live-route-proof-present, GAME-03 is live-portal-pattern-proof-present, and
-GAME-04 through GAME-24 are partial/manual-required. Runtime, metadata, AI, memory, UI, cloud-streamed
+GAME-04 is live-cloud-pattern-proof-present. GAME-05 through GAME-24 are
+partial/manual-required. Runtime, metadata, AI, memory, UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.
 Browser AI enhancement rows AI-01 and AI-02 now add plan linkage and

@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 3;
+    const isComplete = rowNumber <= 4;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -72,7 +72,9 @@ function expectedRows() {
           ? 'scaffold-proof-present'
           : rowNumber === 2
             ? 'live-route-proof-present'
-            : 'live-portal-pattern-proof-present'
+            : rowNumber === 3
+              ? 'live-portal-pattern-proof-present'
+              : 'live-cloud-pattern-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -171,6 +173,7 @@ function manifestFor(rows, failures) {
       playwright: 'manual-required-no-rendered-browser-game-ui',
       liveRouteEvidence: 'game-02-live-route-proof-present',
       livePortalPatternEvidence: 'game-03-live-portal-pattern-proof-present',
+      liveCloudPatternEvidence: 'game-04-live-cloud-pattern-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -205,6 +208,8 @@ function markdownFor(manifest) {
     'cloud-gaming route surfaces with ref-only/hash-only custody.',
     'GAME-03 live portal pattern library proof is present for real public',
     'browser-game portal and archive surfaces with ref-only/hash-only custody.',
+    'GAME-04 live cloud pattern library proof is present for real public',
+    'cloud-gaming and cloud-PC surfaces with ref-only/hash-only custody.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

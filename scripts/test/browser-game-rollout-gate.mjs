@@ -100,7 +100,16 @@ function expectedRows() {
         expectedState: 'live-portal-pattern-proof-present',
       };
     }
-    if (rowNumber >= 4) {
+    if (rowNumber === 4) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-cloud-pattern-proof-present',
+      };
+    }
+    if (rowNumber >= 5) {
       return {
         rowNumber,
         rowId,
@@ -168,6 +177,7 @@ function manifestFor(rows, failures) {
     noClaimLabels: [
       'browser-game-live-route-contracts-proof-present',
       'browser-game-live-portal-pattern-proof-present',
+      'browser-game-live-cloud-pattern-proof-present',
       'proof-artifact-coverage-contract-only',
       'playwright-manual-required-no-rendered-browser-game-ui',
       'runtime-signal-proof-manual-required',
@@ -203,6 +213,7 @@ function markdownFor(manifest) {
     'GAME rollout state: partial/manual-required.',
     'GAME-02 live route contract proof is present.',
     'GAME-03 live portal pattern library proof is present.',
+    'GAME-04 live cloud pattern library proof is present.',
     'Product checklist upgrade is not claimed.',
     'Browser-game route contracts, runtime signals, metadata, AI, memory,',
     'child/parent UI, cloud-streamed frame analysis, native game control,',

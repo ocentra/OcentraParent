@@ -1221,7 +1221,18 @@ worker messages before code changes. Do not mix all 24 into one PR.
   states. They reject raw cloud domains, raw cloud URLs, raw cloud titles, raw
   stream frames, runtime detection claims, cloud-streamed frame analysis,
   per-game cloud-title certainty, native launcher/game control, final policy
-  decisions, and enforcement.
+  decisions, and enforcement. GAME-04 also now includes live public-surface
+  proof in
+  `output/browser-plan-proof/game-04-cloud-gaming-pattern-library/06-live-cloud-pattern-proof.json`
+  and
+  `test-results/browser-game-cloud-pattern-library-live-evidence-proof/proof.json`.
+  That proof fetches real Xbox Cloud Gaming, NVIDIA GeForce Now, Amazon Luna,
+  Boosteroid, PlayStation Plus games catalog, Shadow cloud PC, and now.gg
+  surfaces; stores only response metadata plus hashed origin/path/body refs;
+  parses seven reviewed cloud pattern rows plus a reviewed library; and rejects
+  20 overclaims. No runtime detector, cloud-frame analyzer, native launcher
+  controller, final policy, UI, product checklist update, release claim, native
+  game control, or enforcement is made.
 - GAME-05 now adds a parent-domain redacted URL-shape parser. It accepts
   unknown input, uses the platform URL parser only transiently, and emits
   protocol/host/path-depth shape, route surface kind, route hint booleans,
@@ -1403,8 +1414,9 @@ worker messages before code changes. Do not mix all 24 into one PR.
 - GAME-24 now adds the browser-game rollout/manual-required gate. GAME rollout
   state: partial/manual-required. The gate labels GAME-01 as
   scaffold-proof-present, GAME-02 as live-route-proof-present, GAME-03 as
-  live-portal-pattern-proof-present, GAME-04 through GAME-24 as
-  partial/manual-required, and no browser-game rows as open/manual-required.
+  live-portal-pattern-proof-present, GAME-04 as live-cloud-pattern-proof-present,
+  GAME-05 through GAME-24 as partial/manual-required, and no browser-game rows as
+  open/manual-required.
   Product checklist upgrade is not claimed, and runtime
   signals, metadata, AI, memory, child/parent UI, cloud-streamed frame analysis,
   native game control, and enforcement remain open or manual-required until

@@ -122,7 +122,19 @@ unknown/manual-required cloud surfaces through route kinds, signal kinds,
 pattern fingerprints, evidence refs, confidence, and review states. They reject
 raw cloud domains, raw cloud URLs, raw cloud titles, raw stream frames, runtime
 detection claims, cloud-streamed frame analysis, per-game cloud-title certainty,
-native launcher/game control, final policy decisions, and enforcement. Package subpath exports are now present.
+native launcher/game control, final policy decisions, and enforcement. Package
+subpath exports are now present. GAME-04 also now includes live public-surface
+proof in
+`output/browser-plan-proof/game-04-cloud-gaming-pattern-library/06-live-cloud-pattern-proof.json`
+and
+`test-results/browser-game-cloud-pattern-library-live-evidence-proof/proof.json`.
+That proof fetches real Xbox Cloud Gaming, NVIDIA GeForce Now, Amazon Luna,
+Boosteroid, PlayStation Plus games catalog, Shadow cloud PC, and now.gg
+surfaces; stores only response metadata plus hashed origin/path/body refs;
+parses seven reviewed cloud pattern rows plus a reviewed library; and rejects 20
+overclaims. It does not claim a runtime detector, cloud-frame analyzer, native
+launcher controller, UI, final policy, product checklist update, release
+readiness, native game control, or enforcement.
 
 GAME-05 now adds a parent-domain redacted URL-shape parser in
 `packages/parent-domain/src/browser-game-url-shape-parser.ts`. It accepts
@@ -343,7 +355,8 @@ GAME-24 now adds the browser-game rollout/manual-required gate in
 `scripts/test/browser-game-rollout-gate.mjs`. GAME rollout state:
 partial/manual-required. The gate labels GAME-01 as scaffold-proof-present,
 GAME-02 as live-route-proof-present, GAME-03 as
-live-portal-pattern-proof-present, GAME-04 through GAME-24 as
+live-portal-pattern-proof-present, GAME-04 as live-cloud-pattern-proof-present,
+GAME-05 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
 Product checklist upgrade is not claimed; runtime signals, metadata, AI,
 memory, child/parent UI, cloud-streamed frame analysis, native game control, and
