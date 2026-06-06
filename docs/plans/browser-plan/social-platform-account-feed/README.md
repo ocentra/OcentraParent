@@ -127,7 +127,11 @@ route-only classifier for dynamic feeds, short-video feed surfaces, and exact
 single-short-video routes. It consumes validated route evidence and sanitized
 surface hints only, without claiming feed content, recommendations, messages, AI
 decisions, policy decisions, connector access, native app control, UI delivery,
-or enforcement. Activity-domain package subpath exports are now present.
+or enforcement. `scripts/test/social-feed-route-classification-live-proof.mjs`
+now captures real public Reddit, Twitch, TikTok, Instagram, and YouTube Shorts
+routes with Playwright, stores route-only hashes plus screenshots, and parses
+the captures through the classifier. Activity-domain package subpath exports are
+now present.
 
 SOCIAL-09 now adds
 `packages/activity-domain/src/browser-social-video-metadata.ts`, a bounded

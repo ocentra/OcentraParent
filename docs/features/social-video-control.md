@@ -86,7 +86,11 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   single-short-video routes from managed-browser route evidence plus sanitized
   surface hints, while rejecting feed content, recommendations, messages, AI
   decisions, policy decisions, connector access, native app control, UI
-  delivery, and enforcement.
+  delivery, and enforcement. The SOCIAL-08 live proof captures real public
+  Reddit, Twitch, TikTok, Instagram, and YouTube Shorts route surfaces with
+  Playwright, stores route-only URL/title hashes and screenshots, and parses the
+  captures through the classifier without storing page body, DOM, feed content,
+  messages, credentials, or recommendation semantics.
 - Browser-plan SOCIAL-09 now adds bounded social/video metadata-ref extraction
   contracts for managed social video, post, or feed routes. They can record
   title, description, author hash, thumbnail hash, duration, publish date,

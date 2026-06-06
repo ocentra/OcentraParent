@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-06T08:57:47.230Z",
+  "generatedAt": "2026-06-06T09:11:50.354Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -206,6 +206,7 @@
   "noClaimLabels": [
     "rendered-proof-bundle-social-ui-present",
     "service-backed-dashboard-and-explanation-read-model-proof-present",
+    "social-live-route-classification-proof-present",
     "social-alert-report-intent-proof-present",
     "social-schedule-time-budget-compiler-proof-present",
     "social-parent-sensitivity-settings-proof-present",
