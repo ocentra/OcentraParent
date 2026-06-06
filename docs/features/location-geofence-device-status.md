@@ -275,6 +275,14 @@ expose location or device-status features. Parents expect this category.
   execution, full parent/child UI beyond the hosted parent route, and broader
   read-model product surfaces beyond the report/policy consumer-readiness rows
   and hosted service-data coverage remain not product-complete.
+- Hosted parent route screenshot and accessibility artifacts now have a focused
+  inventory proof through
+  `node scripts/test/tracking-hosted-ui-artifact-inventory-proof.mjs`. It
+  verifies the stored hosted screenshot PNGs, hosted evidence drawer proof,
+  accessibility assertions, and no-product-claim boundary while keeping full
+  parent/child UI beyond the hosted route, child-device runtime, physical-device
+  proof, authority, provider delivery, production proof, and product-ready
+  tracking unclaimed.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
@@ -452,6 +460,11 @@ snapshots/accessibility beyond the hosted parent route are proved.
       and authority-required rendered states. This is not physical-device
       execution, authority enrollment, provider delivery, or product-ready
       tracking proof.
+- [x] Hosted UI artifact inventory proof verifies the stored hosted screenshot
+      PNGs, evidence drawer proof output, and accessibility assertions without
+      claiming full parent/child UI, child-device runtime, physical-device
+      proof, authority, provider delivery, production proof, or product-ready
+      tracking.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence
       source refs, nearby-place context fields, AI no-final-action constraints,
       alert policy-decision refs, and retention before/after proof. This is not

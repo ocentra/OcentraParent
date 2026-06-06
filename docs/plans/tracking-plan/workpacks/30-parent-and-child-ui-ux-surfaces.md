@@ -39,6 +39,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `18-service-data-ui-proof.json`
 - `19-child-runtime-ui-proof.json`
 - `20-evidence-drawer-hosted-ui-proof.json`
+- `21-hosted-ui-artifact-inventory-proof.json`
 - Accessibility summary:
   `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`
 - Pre-device gate:
@@ -80,6 +81,10 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       selected service-backed citation without claiming policy evaluation,
       action dispatch, child-device delivery, provider delivery, physical-device
       proof, authority, or product readiness.
+- [x] Verify hosted screenshot PNG artifacts, evidence drawer proof output, and
+      accessibility assertions are present and non-empty through a dedicated
+      artifact inventory proof without claiming full parent/child UI or device
+      runtime execution.
 - [x] Ensure child copy avoids accusation.
 - [x] Keep portal as authoring/display surface, not evaluator for the hosted
       evidence drawer proof; broader UI/product paths remain separately gated.
@@ -150,6 +155,15 @@ and writes
 while keeping policy evaluation, action dispatch, child-device delivery,
 provider delivery, physical-device proof, authority, and product readiness
 unclaimed.
+`node scripts/test/tracking-hosted-ui-artifact-inventory-proof.mjs` now verifies
+the hosted screenshot PNG artifacts, hosted proof outputs, and accessibility
+assertions as a separate inventory gate. It writes
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/21-hosted-ui-artifact-inventory-proof.json`
+and
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/28-hosted-ui-artifact-inventory-proof.json`
+without claiming full parent/child UI, child-device runtime, physical-device
+proof, authority, provider delivery, production proof, or product-ready
+tracking.
 This is not product-complete UI proof: full dashboard UI beyond the hosted
 parent route, actual child-device delivery/runtime execution, writable retention
 settings, physical-device evidence, authority, provider delivery, and production
