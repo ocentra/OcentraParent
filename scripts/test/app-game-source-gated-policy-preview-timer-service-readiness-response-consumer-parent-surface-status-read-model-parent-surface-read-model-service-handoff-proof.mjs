@@ -4,13 +4,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
-const proofSlug =
-  '102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff';
-const testOutputDir = join(
-  repoRoot,
-  'test-results',
-  'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-proof'
-);
+const proofSlug = '102-timer-service-handoff';
+const testOutputDir = join(repoRoot, 'test-results', 'app-game-timer-service-handoff-proof');
 const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', proofSlug);
 const appProofDir = join(repoRoot, 'output', 'app-plan-proof', proofSlug);
 const timestamp = '2026-06-06T11:45:00Z';
@@ -31,21 +26,14 @@ run('cmd', [
   '--workspace',
   '@ocentra-parent/parent-domain',
   '--',
-  'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff',
+  'app-game-timer-service-handoff',
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model',
 ]);
 
-const contract = await importDist(
-  'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.js'
-);
+const contract = await importDist('app-game-timer-service-handoff.js');
 const refs = await importDist('reference-primitives.js');
 const sourceReadModel = await readJson(
-  join(
-    repoRoot,
-    'test-results',
-    'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-proof',
-    'timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.json'
-  )
+  join(repoRoot, 'test-results', 'app-game-timer-parent-read-model-proof', 'handoff.json')
 );
 const serviceHandoff =
   contract.buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceHandoff(
@@ -53,8 +41,7 @@ const serviceHandoff =
     sourceReadModel
   );
 const proof = {
-  proofMode:
-    'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff',
+  proofMode: 'app-game-timer-service-handoff',
   generatedAt: timestamp,
   branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
   commit: gitOutput(['rev-parse', 'HEAD']),
@@ -97,15 +84,11 @@ const proof = {
     rawPrivateSourceRowsIncluded: serviceHandoff.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.ts',
-    rules:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.test.ts',
-    harness:
-      'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-proof.mjs',
-    evidence:
-      'test-results/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-proof/proof.json',
+    source: 'packages/parent-domain/src/app-game-timer-service-handoff.ts',
+    rules: 'packages/parent-domain/src/app-game-timer-service-handoff-rules.ts',
+    test: 'packages/parent-domain/tests/app-game-timer-service-handoff.test.ts',
+    harness: 'scripts/test/app-game-timer-service-handoff-proof.mjs',
+    evidence: 'test-results/app-game-timer-service-handoff-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
     appProofPack: `output/app-plan-proof/${proofSlug}`,
   },
@@ -113,27 +96,13 @@ const proof = {
 };
 
 assertProof(proof);
-await writeJson(
-  join(
-    testOutputDir,
-    'timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.json'
-  ),
-  serviceHandoff
-);
+await writeJson(join(testOutputDir, 'handoff.json'), serviceHandoff);
 await writeJson(join(testOutputDir, 'proof.json'), proof);
 await writeProofPack(appGameProofDir, proof, 'app-game WP102');
 await writeProofPack(appProofDir, proof, 'app WP102');
 
-console.log(
-  'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-proof-ok'
-);
-console.log(
-  `evidence=${join(
-    'test-results',
-    'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-proof',
-    'proof.json'
-  )}`
-);
+console.log('app-game-timer-service-handoff-proof-ok');
+console.log(`evidence=${join('test-results', 'app-game-timer-service-handoff-proof', 'proof.json')}`);
 
 function importDist(name) {
   return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
@@ -142,8 +111,7 @@ function importDist(name) {
 function serviceHandoffOptions(refs) {
   return {
     schemaVersion: refs.ParentContractSchemaVersion.V0_6,
-    parentSurfaceReadModelServiceHandoffId:
-      'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-proof',
+    parentSurfaceReadModelServiceHandoffId: 'app-game-timer-service-handoff-proof',
     generatedAt: timestamp,
     sourceContractRefs: [
       'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model',
