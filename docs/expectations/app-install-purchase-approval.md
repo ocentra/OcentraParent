@@ -248,6 +248,13 @@ Expected contract families:
   implementation, child-device delivery, runtime writer/report delivery, app
   blocking, child activity custody, and Ocentra-hosted family data custody stay
   unclaimed.
+- Product-claim portal test readiness rows consume product-claim gate rows into
+  portal-test-ready, manual-portal-test-required, and unsupported portal test
+  states that name portal approval/report test refs before product claims while
+  portal approval UI, portal report UI, provider API execution, store
+  integration, platform adapter implementation, child-device delivery, runtime
+  writer/report delivery, app blocking, child activity custody, and
+  Ocentra-hosted family data custody stay unclaimed.
 
 ## Validation Gates
 
@@ -408,6 +415,11 @@ Expected contract families:
   workflow rows, source gate linkage, workflow coverage, required follow-up
   refs, portal/provider/store/platform/child delivery/runtime/app-blocking/
   custody overclaim rejection, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for product-claim portal test
+  readiness rows, source gate linkage, portal approval/report test refs,
+  required child/provider/platform follow-up refs, portal/provider/store/
+  platform/child delivery/runtime/app-blocking/custody overclaim rejection, and
+  required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -544,6 +556,11 @@ Expected contract families:
   report delivery, app blocking, child activity custody, Ocentra-hosted family
   data custody, or an approved product claim.
 - Do not treat product-claim safe parent workflow refs as portal approval UI,
+  portal report UI, provider API execution, store integration, platform adapter
+  implementation, child-device delivery, runtime writer delivery, runtime
+  report delivery, app blocking, child activity custody, Ocentra-hosted family
+  data custody, or an approved product claim.
+- Do not treat product-claim portal test readiness refs as portal approval UI,
   portal report UI, provider API execution, store integration, platform adapter
   implementation, child-device delivery, runtime writer delivery, runtime
   report delivery, app blocking, child activity custody, Ocentra-hosted family
