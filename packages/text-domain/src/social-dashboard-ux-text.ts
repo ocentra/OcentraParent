@@ -7,6 +7,7 @@ export const SocialDashboardUxTextToken = {
   NativeAppCapability: decodeTextTokenId('browser.social.dashboard.section.nativeAppCapability'),
   ConnectorBoundaries: decodeTextTokenId('browser.social.dashboard.section.connectorBoundaries'),
   DecisionMemory: decodeTextTokenId('browser.social.dashboard.section.decisionMemory'),
+  SettingsCustody: decodeTextTokenId('browser.social.dashboard.section.settingsCustody'),
   ManualRequiredGaps: decodeTextTokenId('browser.social.dashboard.section.manualRequiredGaps'),
   ReadyForReviewStatus: decodeTextTokenId('browser.social.dashboard.status.readyForReview'),
   ManualRequiredStatus: decodeTextTokenId('browser.social.dashboard.status.manualRequired'),
@@ -17,6 +18,7 @@ export const SocialDashboardUxTextToken = {
   ReviewNativeCapabilityAction: decodeTextTokenId('browser.social.dashboard.action.reviewNativeCapability'),
   ReviewConnectorBoundaryAction: decodeTextTokenId('browser.social.dashboard.action.reviewConnectorBoundary'),
   ReviewDecisionMemoryAction: decodeTextTokenId('browser.social.dashboard.action.reviewDecisionMemory'),
+  ReviewSettingsCustodyAction: decodeTextTokenId('browser.social.dashboard.action.reviewSettingsCustody'),
   ManualReviewAction: decodeTextTokenId('browser.social.dashboard.action.manualReview'),
 } as const;
 
@@ -30,6 +32,7 @@ export const SocialDashboardUxText: Record<SocialDashboardUxTextTokenValue, Disp
   [SocialDashboardUxTextToken.NativeAppCapability]: decodeDisplayText('Native app capability'),
   [SocialDashboardUxTextToken.ConnectorBoundaries]: decodeDisplayText('Connected account boundaries'),
   [SocialDashboardUxTextToken.DecisionMemory]: decodeDisplayText('Remembered decisions'),
+  [SocialDashboardUxTextToken.SettingsCustody]: decodeDisplayText('Settings and custody'),
   [SocialDashboardUxTextToken.ManualRequiredGaps]: decodeDisplayText('Needs manual proof'),
   [SocialDashboardUxTextToken.ReadyForReviewStatus]: decodeDisplayText('Ready for parent review'),
   [SocialDashboardUxTextToken.ManualRequiredStatus]: decodeDisplayText('Manual proof required'),
@@ -40,6 +43,7 @@ export const SocialDashboardUxText: Record<SocialDashboardUxTextTokenValue, Disp
   [SocialDashboardUxTextToken.ReviewNativeCapabilityAction]: decodeDisplayText('Review device capability'),
   [SocialDashboardUxTextToken.ReviewConnectorBoundaryAction]: decodeDisplayText('Review connected account boundary'),
   [SocialDashboardUxTextToken.ReviewDecisionMemoryAction]: decodeDisplayText('Review remembered decision'),
+  [SocialDashboardUxTextToken.ReviewSettingsCustodyAction]: decodeDisplayText('Review settings custody'),
   [SocialDashboardUxTextToken.ManualReviewAction]: decodeDisplayText('Manual review'),
 };
 

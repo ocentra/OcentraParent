@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T04:33:22.449Z",
-  "commit": "c1b7d36291bfa069efccdf4bf66373ac74a5aa22",
+  "checkedAt": "2026-06-06T12:56:30.004Z",
+  "commit": "a2a40d2eaa2ec4e26d21766e5205fdde53f46fd2",
   "workpackIds": [
     "social-20-parent-social-dashboard-ux",
     "social-23-tests-fixtures-playwright-manual-proof"
@@ -26,12 +26,12 @@
     "command": "agent.browser.social-dashboard.read-model.get",
     "event": "agent.browser.social-dashboard.read-model.reported",
     "socialSnapshot": "reported",
-    "renderedState": "six service-backed social rows"
+    "renderedState": "seven service-backed social rows"
   },
   "assertions": [
     "Portal browser route renders the social dashboard region from the real app shell.",
     "The route starts with zero rows, then requests the service-backed social dashboard read model over the real WebSocket path.",
-    "The reported service snapshot renders account approval, feed/video gate, native capability, connector boundary, decision memory, and manual-required gap rows.",
+    "The reported service snapshot renders account approval, feed/video gate, native capability, connector boundary, decision memory, settings/custody, and manual-required gap rows.",
     "The rendered copy explicitly keeps runtime social data, connector authorization, native app control, policy execution, and enforcement unclaimed.",
     "Desktop and mobile screenshots were captured from the real portal route."
   ],
@@ -42,7 +42,7 @@
     "This proof does not claim product readiness for social/video control."
   ],
   "remainingGapsBeforeProductReady": [
-    "Child social/video UI and audit explanation surfaces remain pending.",
+    "Runtime settings custody mutation remains pending.",
     "Connector-native runtime and final enforcement proof remain pending."
   ],
   "accessibilitySummary": {
@@ -51,12 +51,13 @@
       "named-region",
       "visible-social-review-heading",
       "zero-row-before-command-visible",
-      "service-backed-six-row-summary-visible",
+      "service-backed-seven-row-summary-visible",
       "account-approval-row-visible",
       "feed-video-gate-row-visible",
       "native-app-manual-required-visible",
       "connector-boundary-manual-required-visible",
       "decision-memory-contract-only-visible",
+      "settings-custody-manual-required-visible",
       "manual-required-gap-visible",
       "runtime-social-claims-not-visible",
       "no-unlabeled-buttons",
@@ -67,12 +68,13 @@
       "hasNamedRegion": true,
       "headings": [
         "Social review",
-        "6 social dashboard rows",
+        "7 social dashboard rows",
         "Account approvals",
         "Feed and video route gates",
         "Native app capability",
         "Connected account boundaries",
         "Remembered decisions",
+        "Settings and custody",
         "Needs manual proof"
       ],
       "paragraphs": [
@@ -112,11 +114,16 @@
         "Capability",
         "Evidence references",
         "Reason",
+        "Product claim",
+        "Status",
+        "Capability",
+        "Evidence references",
+        "Reason",
         "Product claim"
       ],
       "values": [
-        "6",
-        "2026-06-06T04:33:13.536Z",
+        "7",
+        "2026-06-06T12:56:25.627Z",
         "Rendered parent surface only; social runtime data fetch, notifications, connector authorization, native app control, policy execution, and enforcement remain unclaimed.",
         "Ready for parent review",
         "open-parent-approval",
@@ -142,6 +149,11 @@
         "review-memory-entry",
         "social-19-memory-cache-account-video-channel-decisions",
         "memory-contract-only",
+        "Rendered parent surface only; social runtime data fetch, notifications, connector authorization, native app control, policy execution, and enforcement remain unclaimed.",
+        "Manual proof required",
+        "review-settings-custody",
+        "social-video-source-custody-settings-proof",
+        "settings-custody-runtime-gap",
         "Rendered parent surface only; social runtime data fetch, notifications, connector authorization, native app control, policy execution, and enforcement remain unclaimed.",
         "Manual proof required",
         "manual-review",

@@ -322,11 +322,11 @@ SOCIAL-20 now adds `packages/parent-domain/src/social-dashboard-ux-values.ts`,
 `packages/text-domain/src/social-dashboard-ux-text.ts`, parent social dashboard
 UX section contracts and schema-backed copy tokens for account approvals,
 feed/video gates, native app capability, connector boundaries, decision memory,
-and manual-required gaps. It now also renders the parent Browser-route social
-dashboard shell in `apps/portal` and records desktop/mobile screenshots for the
-honest unavailable zero-row state. It does not claim service-backed social
-snapshots, runtime fetches, notifications, connector authorization, native
-control, policy execution, or enforcement.
+settings/custody, and manual-required gaps. It now also renders the parent
+Browser-route social dashboard shell in `apps/portal`, requests a real Rust
+service-backed snapshot, and records desktop/mobile screenshots for the
+seven-row state. It does not claim settings mutation, notifications, connector
+authorization, native control, policy execution, or enforcement.
 
 SOCIAL-21 now adds
 `packages/parent-domain/src/social-child-approval-block-ux-values.ts`,
@@ -362,21 +362,22 @@ ownership, proof directory references, required proof files, README references,
 and feature/expectation coverage, then writes
 `test-results/social-platform-account-feed-proof-artifacts/proof.json` and
 `output/browser-plan-proof/social-23-tests-fixtures-playwright-manual-proof/01-social-proof-artifact-manifest.md`.
-SOCIAL-20 now has rendered parent Browser-route screenshots, SOCIAL-21 has
-child-agent-served intervention screenshots, and SOCIAL-22 has Browser-route
-social explanation screenshots plus service-backed read-model command proof.
-Playwright remains manual-required for connector/native runtime, final policy
-execution, and enforcement.
+SOCIAL-20 now has rendered parent Browser-route screenshots with a service-backed
+settings/custody manual-required row, SOCIAL-21 has child-agent-served
+intervention screenshots, and SOCIAL-22 has Browser-route social explanation
+screenshots plus service-backed read-model command proof. Playwright remains
+manual-required for connector/native runtime, runtime custody mutation, final
+policy execution, and enforcement.
 
 SOCIAL-24 now adds `scripts/test/social-platform-account-feed-rollout-gate.mjs`,
 a rollout/manual-required label gate for SOCIAL-01 through SOCIAL-23. It writes
 `test-results/social-platform-account-feed-rollout-gate/proof.json` and
 `output/browser-plan-proof/social-24-rollout-manual-required-labels/01-rollout-manual-required-labels.md`.
 SOCIAL rollout state: partial/manual-required. Product checklist upgrade is not
-claimed. Service-backed social rows, child intervention UI, and social
-explanation delivery now have proof, but connector/native runtime, final policy
-execution, enforcement, release readiness, and product completion remain
-unclaimed.
+claimed. Service-backed social rows including settings/custody, child
+intervention UI, and social explanation delivery now have proof, but
+connector/native runtime, runtime custody mutation, final policy execution,
+enforcement, release readiness, and product completion remain unclaimed.
 
 The follow-up `social-alert-report-intent-proof` adds
 `packages/parent-domain/src/social-alert-report-intent-values.ts`,

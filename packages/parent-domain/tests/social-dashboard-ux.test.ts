@@ -12,7 +12,7 @@ function acceptsHonestSnapshot() {
   const parsed = SocialDashboardUxSnapshotSchema.parse(validSnapshot());
 
   expect(parsed.schemaVersion).toBe('social-dashboard-ux-contract');
-  expect(parsed.panels).toHaveLength(6);
+  expect(parsed.panels).toHaveLength(7);
   expect(panelState(parsed, 'account-approval-queue')).toEqual({
     status: 'ready-for-review',
     primaryAction: 'open-parent-approval',
@@ -20,6 +20,10 @@ function acceptsHonestSnapshot() {
   expect(panelState(parsed, 'decision-memory')).toEqual({
     status: 'contract-only',
     primaryAction: 'review-memory-entry',
+  });
+  expect(panelState(parsed, 'settings-custody')).toEqual({
+    status: 'manual-required',
+    primaryAction: 'review-settings-custody',
   });
 }
 
@@ -93,6 +97,7 @@ function validSnapshot(): SocialDashboardUxSnapshot {
         'connector-boundary-manual-required',
       ]),
       panel('decision-memory', 'contract-only', 'review-memory-entry', ['memory-contract-only']),
+      panel('settings-custody', 'manual-required', 'review-settings-custody', ['settings-custody-runtime-gap']),
       panel('manual-required-gaps', 'manual-required', 'manual-review', ['platform-proof-gap']),
     ],
     claimBoundaries: {
@@ -139,7 +144,8 @@ function panelSortOrder(panelKind: SocialDashboardUxSnapshot['panels'][number]['
     'native-app-capability': 2,
     'connector-boundaries': 3,
     'decision-memory': 4,
-    'manual-required-gaps': 5,
+    'settings-custody': 5,
+    'manual-required-gaps': 6,
   } as const satisfies Record<SocialDashboardUxSnapshot['panels'][number]['panelKind'], number>;
   return order[panelKind];
 }

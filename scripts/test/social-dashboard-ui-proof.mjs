@@ -225,12 +225,12 @@ async function writeProof(playwright) {
       command: 'agent.browser.social-dashboard.read-model.get',
       event: 'agent.browser.social-dashboard.read-model.reported',
       socialSnapshot: 'reported',
-      renderedState: 'six service-backed social rows',
+      renderedState: 'seven service-backed social rows',
     },
     assertions: [
       'Portal browser route renders the social dashboard region from the real app shell.',
       'The route starts with zero rows, then requests the service-backed social dashboard read model over the real WebSocket path.',
-      'The reported service snapshot renders account approval, feed/video gate, native capability, connector boundary, decision memory, and manual-required gap rows.',
+      'The reported service snapshot renders account approval, feed/video gate, native capability, connector boundary, decision memory, settings/custody, and manual-required gap rows.',
       'The rendered copy explicitly keeps runtime social data, connector authorization, native app control, policy execution, and enforcement unclaimed.',
       'Desktop and mobile screenshots were captured from the real portal route.',
     ],
@@ -241,7 +241,7 @@ async function writeProof(playwright) {
       'This proof does not claim product readiness for social/video control.',
     ],
     remainingGapsBeforeProductReady: [
-      'Child social/video UI and audit explanation surfaces remain pending.',
+      'Runtime settings custody mutation remains pending.',
       'Connector-native runtime and final enforcement proof remain pending.',
     ],
     accessibilitySummary,
