@@ -593,6 +593,13 @@ mobile UI, or prove platform support.
       shows missing-service state otherwise, while provider delivery, parent
       preference mutation, child delivery, scheduler/outbox runtime, adapter
       dispatch, broad blocking, mobile UI, and platform claims remain false.
+      Source-gated policy preview timer-status proof now classifies WP78
+      timer-handoff rows by the proof still required before scheduling:
+      timer-runtime proof, source-freshness proof, or compiler-decision proof.
+      It remains parent-domain proof only and does not claim service events,
+      portal UI, evaluator runtime, timer scheduling, adapter dispatch, child
+      delivery, broad blocking, platform enforcement, or raw private source
+      rows.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
