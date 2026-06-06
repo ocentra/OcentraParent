@@ -412,6 +412,10 @@ control with better evidence and local audit.
   and evidence/session refs; local-AI category candidates require digest refs
   and remain `notEnforcement`; and parent-domain category/risk policy routes
   keep adapter dispatch `not-dispatched`.
+- The Android normal-mode suspend/hide merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/android-normal-mode-no-suspend-hide`:
+  Android package suspend remains manual-required and blocked before adapter
+  dispatch unless Device Owner or Profile Owner proof exists.
 
 ## Current Gap
 
