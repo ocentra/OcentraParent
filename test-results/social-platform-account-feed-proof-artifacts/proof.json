@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-06T15:38:26.624Z",
+  "generatedAt": "2026-06-06T15:56:04.298Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -40,17 +40,18 @@
     {
       "rowNumber": 3,
       "rowId": "SOCIAL-03",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
       "proofDirectory": "social-03-social-url-pattern-library",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-pattern-library-proof.md",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
+        "11-live-url-pattern-proof.json",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "proof-present",
       "failures": []
     },
     {
@@ -391,8 +392,8 @@
   ],
   "summary": {
     "totalRows": 22,
-    "completeRows": 15,
-    "partialRows": 7,
+    "completeRows": 16,
+    "partialRows": 6,
     "failures": 0,
     "playwrightState": "rendered-proof-bundle-ui-present-runtime-delivery-manual-required",
     "productClaimed": false
@@ -403,6 +404,7 @@
     "renderedUi": "parent-dashboard-child-intervention-parent-explanation-proof-present",
     "serviceBackedExplanationReadModel": "proof-present",
     "livePlatformRouteBoundary": "proof-present",
+    "liveSocialUrlPatternBoundary": "proof-present",
     "liveRouteClassification": "proof-present",
     "liveMetadataExtraction": "proof-present",
     "liveEvidenceAiBoundary": "proof-present",

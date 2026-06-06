@@ -57,9 +57,13 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   evidence. It covers known social domains and route patterns for signup,
   login, account switch, settings/privacy, messaging, upload/post, livestream,
   feed, profile, post, and video routes, while rejecting unmanaged browser
-  rows and fake-domain rows. It does not prove account identity, message/feed
-  content, AI decisions, policy decisions, connector access, native app control,
-  UI delivery, or enforcement.
+  rows and fake-domain rows. `social-url-pattern-live-evidence-proof` now
+  consumes the real public SOCIAL-08/SOCIAL-13 route and account captures,
+  parses 9 managed URL rows through the pattern library, and rejects unmanaged,
+  fake-domain, null-URL, raw feed/content, policy-decision, and enforcement
+  promotion attempts. It does not prove account identity, message/feed content,
+  AI decisions, policy decisions, connector access, native app control, UI
+  delivery, or enforcement.
 - Browser-plan SOCIAL-04 now adds route-only signup/login/account-switch
   evidence contracts. These contracts can link managed-browser account-flow
   signals back to social route evidence and can represent manual-required

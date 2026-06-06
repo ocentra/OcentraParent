@@ -59,7 +59,7 @@ async function socialProofDirectories() {
 }
 
 function expectedRows() {
-  const completeRows = new Set([1, 2, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19, 20, 21, 22]);
+  const completeRows = new Set([1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19, 20, 21, 22]);
   return Array.from({ length: 22 }, (_, index) => {
     const rowNumber = index + 1;
     const complete = completeRows.has(rowNumber);
@@ -166,6 +166,7 @@ function manifestFor(rows, failures) {
       renderedUi: 'parent-dashboard-child-intervention-parent-explanation-proof-present',
       serviceBackedExplanationReadModel: 'proof-present',
       livePlatformRouteBoundary: 'proof-present',
+      liveSocialUrlPatternBoundary: 'proof-present',
       liveRouteClassification: 'proof-present',
       liveMetadataExtraction: 'proof-present',
       liveEvidenceAiBoundary: 'proof-present',
@@ -208,6 +209,7 @@ function markdownFor(manifest) {
     'child-agent-served social intervention page, and parent explanation panel.',
     'Service-backed dashboard and explanation read-model delivery is present.',
     'Live platform route boundary proof is present for SOCIAL-02 managed, unmanaged, and native/manual rows.',
+    'Live social URL pattern proof is present for SOCIAL-03 real public route and account captures.',
     'Live route classification proof is present for SOCIAL-08 public feed surfaces.',
     'Live metadata extraction proof is present for SOCIAL-09 public social/video surfaces.',
     'Live-evidence AI boundary proof is present for SOCIAL-10 degraded model-unavailable rows.',
