@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-macos-hard-block-proof-gate",
+  "generatedAt": "deterministic-proof-artifact",
+  "branch": "codex/app-game-macos-hard-block-gate-proof-split",
+  "commit": "branch-head-validated-by-harness",
+  "commitMetadata": "This proof intentionally avoids embedding HEAD because a committed artifact cannot contain its own final commit hash.",
+  "gitStatusShort": "validated-by-explicit-handoff-status-check",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/schema-domain\nexit=0\n\n> @ocentra-parent/schema-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-broad-blocking-proof-gates.test.ts\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-broad-blocking-proof-gates.test.ts\n\n\n RUN  v4.1.6 <repo-root>/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  6 passed (6)\n   Start at <normalized>\n   Duration <normalized>\n\n"
+  ],
+  "gate": "macOS hard block is claimed without MDM/Endpoint/System Extension proof.",
+  "gateState": "prevented-by-macos-manual-required-platform-proof-gate",
+  "evidence": {
+    "macosGate": "packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts defines macos-hard-block-endpoint-mdm-manual-required as macOS block-launch, manual-required, system-extension-required, blocked-before-adapter, canCallAdapter=false, and broadBlockingClaimed=false.",
+    "macosGateRules": "packages/parent-domain/src/app-game-broad-blocking-proof-gate-rules.ts requires setup, authority, rollback, audit, and macOS MDM/Endpoint/System Extension proof before broad block upgrades.",
+    "macosGateTests": "packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts asserts macOS hard-block gates require Endpoint Security, rollback, and audit proof.",
+    "catalogBoundary": "packages/parent-domain/src/app-control-guide-catalog-data.ts names privileged macOS control paths and rejects assuming Windows process control maps directly to macOS."
+  },
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "macosHardBlockClaimed": false,
+    "macosMdmProfileProofAttached": false,
+    "macosEndpointSecurityProofAttached": false,
+    "macosSystemExtensionProofAttached": false,
+    "rollbackProofAttached": false,
+    "auditProofAttached": false,
+    "adapterDispatchClaimed": false,
+    "platformEnforcementClaimed": false,
+    "broadBlockingClaimed": false,
+    "browserGameWorkDuplicated": false,
+    "packageExportsChanged": false
+  },
+  "proofPaths": {
+    "proof": "test-results/app-game-macos-hard-block-proof-gate/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/merge-gates/macos-hard-block-proof",
+    "harness": "scripts/test/app-game-macos-hard-block-proof-gate.mjs"
+  }
+}

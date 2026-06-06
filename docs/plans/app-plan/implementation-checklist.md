@@ -194,7 +194,7 @@ Block `DONE`, PR-ready, or merge if any of these are true:
 - [ ] Manual-required action calls an adapter.
 - [ ] Android normal mode claims package suspend/hide.
 - [ ] iOS claims process scanning/killing.
-- [ ] macOS hard block is claimed without entitlement/profile proof.
+- [x] macOS hard block is claimed without entitlement/profile proof.
 - [ ] Linux universal block is claimed without mechanism/distro proof.
 - [ ] Session duration changes after journal replay.
 - [ ] Portal hides stale, permission-limited, manual-required, or not-claimed

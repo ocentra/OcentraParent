@@ -465,6 +465,11 @@ control with better evidence and local audit.
   the App/Game Sessions dashboard renders foreground state as source/read-model
   refs and counts without exposing window title refs, raw titles, or executable
   paths.
+- The macOS hard-block merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/macos-hard-block-proof`: macOS
+  broad block-launch behavior remains manual-required and blocked before
+  adapter dispatch unless MDM profile, Endpoint Security, or System Extension
+  proof plus rollback and audit proof exists.
 - The Linux universal-block merge-blocking gate is now backed by
   `output/app-game-plan-proof/merge-gates/linux-universal-block-proof`: Linux
   broad block-launch behavior remains unavailable/manual-required without a
