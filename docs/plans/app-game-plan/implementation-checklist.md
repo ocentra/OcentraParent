@@ -167,7 +167,7 @@ Required files:
 - [x] Android normal mode claims package suspend/hide.
 - [x] iOS claims process scanning/killing.
 - [x] macOS hard block is claimed without MDM/Endpoint/System Extension proof.
-- [ ] Linux universal block is claimed without mechanism/distro proof.
+- [x] Linux universal block is claimed without mechanism/distro proof.
 - [ ] Session duration changes after journal replay.
 - [ ] Portal hides stale, permission-limited, manual-required, or not-claimed
       states.

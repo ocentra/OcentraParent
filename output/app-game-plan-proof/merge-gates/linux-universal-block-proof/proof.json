@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-linux-universal-block-proof-gate",
+  "generatedAt": "2026-06-06T20:53:18.121Z",
+  "branch": "codex/app-game-inventory-display-gate-proof",
+  "commit": "434771e5d2464789f4b2beb62db6d3bf64407579",
+  "gitStatusShort": "M docs/features/app-game-control.md\n M docs/plans/app-game-plan/implementation-checklist.md\n?? scripts/test/app-game-linux-universal-block-proof-gate.mjs",
+  "commands": [
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-broad-blocking-proof-gates.test.ts\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-broad-blocking-proof-gates.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  6 passed (6)\n   Start at  16:53:17\n   Duration  875ms (transform 152ms, setup 0ms, import 639ms, tests 15ms, environment 0ms)\n\n"
+  ],
+  "gate": "Linux universal block is claimed without mechanism/distro proof.",
+  "gateState": "prevented-by-linux-unavailable-mechanism-distro-session-proof-gate",
+  "evidence": {
+    "linuxGate": "packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts defines linux-hard-block-mechanism-unavailable as Linux block-launch, manual-required, adapter-unavailable, admin-or-root-required, canCallAdapter=false, and broadBlockingClaimed=false.",
+    "linuxGateRules": "packages/parent-domain/src/app-game-broad-blocking-proof-gate-rules.ts requires setup, authority, rollback, audit, and Linux mechanism/distro/session proof before broad block upgrades.",
+    "linuxGateTests": "packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts asserts Linux hard-block gates require mechanism, distro, and session proof.",
+    "catalogBoundary": "packages/parent-domain/src/app-control-guide-catalog-data.ts keeps Linux broad app blocking manual-required until a concrete adapter is proven on the target distro and desktop."
+  },
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "linuxUniversalBlockClaimed": false,
+    "linuxMechanismProofAttached": false,
+    "linuxDistroProofAttached": false,
+    "linuxSessionProofAttached": false,
+    "rollbackProofAttached": false,
+    "auditProofAttached": false,
+    "adapterDispatchClaimed": false,
+    "platformEnforcementClaimed": false,
+    "broadBlockingClaimed": false,
+    "browserGameWorkDuplicated": false,
+    "packageExportsChanged": false
+  },
+  "proofPaths": {
+    "proof": "test-results/app-game-linux-universal-block-proof-gate/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/merge-gates/linux-universal-block-proof",
+    "harness": "scripts/test/app-game-linux-universal-block-proof-gate.mjs"
+  }
+}

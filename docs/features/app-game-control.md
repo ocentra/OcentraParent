@@ -453,6 +453,10 @@ control with better evidence and local audit.
   broad block-launch behavior remains manual-required and blocked before
   adapter dispatch unless MDM profile, Endpoint Security, or System Extension
   proof plus rollback and audit proof exists.
+- The Linux universal-block merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/linux-universal-block-proof`: Linux
+  broad block-launch behavior remains unavailable/manual-required without a
+  named mechanism, target distro, session, rollback, and audit proof.
 
 ## Current Gap
 
