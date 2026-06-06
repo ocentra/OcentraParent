@@ -63,6 +63,10 @@ import {
   type PortalActivityMemoryGraphReadModel,
 } from '@ocentra-parent/portal-domain/contracts';
 import { parseBrowserInterventionReadModel } from './browser-intervention-read-model';
+import {
+  parseNetworkAdapterCapabilityStatus,
+  type NetworkAdapterCapabilityStatusSummary,
+} from './network-adapter-capability-status';
 import { parseNetworkFlowReadModel } from './network-flow-read-model';
 import { parseNetworkRuntimeEventChain, type NetworkRuntimeEventChainSummary } from './network-runtime-event-chain';
 import { parsePolicyPreviewReadModel, type PortalPolicyPreviewReadModel } from './policy-preview-read-model';
@@ -110,6 +114,8 @@ export interface PortalLiveActivityState {
   readonly networkFlowReadModel: ActivityNetworkFlowReadModel | null;
   readonly networkRuntimeEventChainEvent: AgentEventEnvelope | null;
   readonly networkRuntimeEventChain: NetworkRuntimeEventChainSummary | null;
+  readonly networkAdapterCapabilityStatusEvent: AgentEventEnvelope | null;
+  readonly networkAdapterCapabilityStatus: NetworkAdapterCapabilityStatusSummary | null;
   readonly activityTrackingReadModelEvent: AgentEventEnvelope | null;
   readonly activityTrackingReadModel: AgentActivityTrackingReadModelResult | null;
   readonly lanPairingStatusEvent: AgentEventEnvelope | null;
@@ -121,7 +127,7 @@ export interface PortalLiveActivityState {
   readonly appGamePolicyReadinessReadModel: AgentAppGamePolicyReadinessResult | null;
 }
 
-export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]): PortalLiveActivityState {
+function resolveLiveActivityEventRefs(events: readonly AgentEventEnvelope[]) {
   const ingestEvent = latestEvent(events, AgentEvent.ActivityIngestStatusReported);
   const recentSummaryEvent = latestEvent(events, AgentEvent.ActivityRecentSummaryReported);
   const browserEvidenceEvent = latestEvent(events, AgentEvent.BrowserEvidenceRecentReported);
@@ -151,54 +157,97 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
   const appGamePolicyReadinessEvent = latestEvent(events, AgentEvent.ActivityAppGamePolicyReadinessReadModelReported);
 
   return {
-    activityServiceUiSpine: parseActivityServiceUiSpineEvents(events),
     ingestEvent,
-    ingestStatus: ingestEvent === null ? null : parseIngestStatus(ingestEvent.payload),
     recentSummaryEvent,
-    recentSummary: recentSummaryEvent === null ? null : parseRecentSummary(recentSummaryEvent.payload),
     browserEvidenceEvent,
-    browserEvidenceReadModel:
-      browserEvidenceEvent === null ? null : parseBrowserEvidenceReadModel(browserEvidenceEvent.payload),
     browserInventoryEvent,
-    browserInventoryReadModel:
-      browserInventoryEvent === null ? null : parseBrowserInventoryReadModel(browserInventoryEvent.payload),
     browserManagedEvent,
-    browserManagedStatus: browserManagedEvent === null ? null : parseBrowserManagedStatus(browserManagedEvent.payload),
     activityMemoryGraphEvent,
-    activityMemoryGraphReadModel:
-      activityMemoryGraphEvent === null ? null : parseActivityMemoryGraphReadModel(activityMemoryGraphEvent.payload),
     activityReportEvent,
-    activityReport: parseNullableActivityReportEvent(activityReportEvent),
     activityReportHistoryEvent,
-    activityReportHistory: parseNullableActivityReportHistoryEvent(activityReportHistoryEvent),
-    ...parseActivityReadModelEvents(
-      activityScreenReadModelEvent,
-      activityAppUseReadModelEvent,
-      activityBrowserReadModelEvent,
-      activityGamesReadModelEvent,
-      activityNetworkReadModelEvent
-    ),
+    activityScreenReadModelEvent,
+    activityAppUseReadModelEvent,
+    activityBrowserReadModelEvent,
+    activityGamesReadModelEvent,
     appGameNotificationReadinessEvent,
-    appGameNotificationParentSurfaceIntentReadModel: parseNullableAppGameNotificationParentSurfaceReadModel(
-      appGameNotificationReadinessEvent
-    ),
+    activityNetworkReadModelEvent,
     browserInterventionEvent,
-    browserInterventionReadModel:
-      browserInterventionEvent === null ? null : parseBrowserInterventionReadModel(browserInterventionEvent.payload),
     networkFlowEvent,
-    networkFlowReadModel: networkFlowEvent === null ? null : parseNetworkFlowReadModel(networkFlowEvent.payload),
-    ...resolveNetworkRuntimeEventChain(events),
-    ...resolveActivityTrackingReadModel(events),
     lanPairingStatusEvent,
     lanPairingBrowserDiscoveryEvent,
-    lanAddDeviceReadModel:
-      lanPairingStatusEvent === null ? null : parseLanAddDeviceReadModel(lanPairingStatusEvent.payload),
     policyPreviewEvent,
-    policyPreviewReadModel:
-      policyPreviewEvent === null ? null : parsePolicyPreviewReadModel(policyPreviewEvent.payload),
     appGamePolicyReadinessEvent,
+  };
+}
+
+export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]): PortalLiveActivityState {
+  const eventRefs = resolveLiveActivityEventRefs(events);
+
+  return {
+    activityServiceUiSpine: parseActivityServiceUiSpineEvents(events),
+    ingestEvent: eventRefs.ingestEvent,
+    ingestStatus: eventRefs.ingestEvent === null ? null : parseIngestStatus(eventRefs.ingestEvent.payload),
+    recentSummaryEvent: eventRefs.recentSummaryEvent,
+    recentSummary:
+      eventRefs.recentSummaryEvent === null ? null : parseRecentSummary(eventRefs.recentSummaryEvent.payload),
+    browserEvidenceEvent: eventRefs.browserEvidenceEvent,
+    browserEvidenceReadModel:
+      eventRefs.browserEvidenceEvent === null
+        ? null
+        : parseBrowserEvidenceReadModel(eventRefs.browserEvidenceEvent.payload),
+    browserInventoryEvent: eventRefs.browserInventoryEvent,
+    browserInventoryReadModel:
+      eventRefs.browserInventoryEvent === null
+        ? null
+        : parseBrowserInventoryReadModel(eventRefs.browserInventoryEvent.payload),
+    browserManagedEvent: eventRefs.browserManagedEvent,
+    browserManagedStatus:
+      eventRefs.browserManagedEvent === null ? null : parseBrowserManagedStatus(eventRefs.browserManagedEvent.payload),
+    activityMemoryGraphEvent: eventRefs.activityMemoryGraphEvent,
+    activityMemoryGraphReadModel:
+      eventRefs.activityMemoryGraphEvent === null
+        ? null
+        : parseActivityMemoryGraphReadModel(eventRefs.activityMemoryGraphEvent.payload),
+    activityReportEvent: eventRefs.activityReportEvent,
+    activityReport: parseNullableActivityReportEvent(eventRefs.activityReportEvent),
+    activityReportHistoryEvent: eventRefs.activityReportHistoryEvent,
+    activityReportHistory: parseNullableActivityReportHistoryEvent(eventRefs.activityReportHistoryEvent),
+    ...parseActivityReadModelEvents(
+      eventRefs.activityScreenReadModelEvent,
+      eventRefs.activityAppUseReadModelEvent,
+      eventRefs.activityBrowserReadModelEvent,
+      eventRefs.activityGamesReadModelEvent,
+      eventRefs.activityNetworkReadModelEvent
+    ),
+    appGameNotificationReadinessEvent: eventRefs.appGameNotificationReadinessEvent,
+    appGameNotificationParentSurfaceIntentReadModel: parseNullableAppGameNotificationParentSurfaceReadModel(
+      eventRefs.appGameNotificationReadinessEvent
+    ),
+    browserInterventionEvent: eventRefs.browserInterventionEvent,
+    browserInterventionReadModel:
+      eventRefs.browserInterventionEvent === null
+        ? null
+        : parseBrowserInterventionReadModel(eventRefs.browserInterventionEvent.payload),
+    networkFlowEvent: eventRefs.networkFlowEvent,
+    networkFlowReadModel:
+      eventRefs.networkFlowEvent === null ? null : parseNetworkFlowReadModel(eventRefs.networkFlowEvent.payload),
+    ...resolveNetworkRuntimeEventChain(events),
+    ...resolveNetworkAdapterCapabilityStatus(events),
+    ...resolveActivityTrackingReadModel(events),
+    lanPairingStatusEvent: eventRefs.lanPairingStatusEvent,
+    lanPairingBrowserDiscoveryEvent: eventRefs.lanPairingBrowserDiscoveryEvent,
+    lanAddDeviceReadModel:
+      eventRefs.lanPairingStatusEvent === null
+        ? null
+        : parseLanAddDeviceReadModel(eventRefs.lanPairingStatusEvent.payload),
+    policyPreviewEvent: eventRefs.policyPreviewEvent,
+    policyPreviewReadModel:
+      eventRefs.policyPreviewEvent === null ? null : parsePolicyPreviewReadModel(eventRefs.policyPreviewEvent.payload),
+    appGamePolicyReadinessEvent: eventRefs.appGamePolicyReadinessEvent,
     appGamePolicyReadinessReadModel:
-      appGamePolicyReadinessEvent === null ? null : parseAgentAppGamePolicyReadinessEvent(appGamePolicyReadinessEvent),
+      eventRefs.appGamePolicyReadinessEvent === null
+        ? null
+        : parseAgentAppGamePolicyReadinessEvent(eventRefs.appGamePolicyReadinessEvent),
   };
 }
 
@@ -207,6 +256,14 @@ function resolveNetworkRuntimeEventChain(events: readonly AgentEventEnvelope[]) 
   return {
     networkRuntimeEventChainEvent: event,
     networkRuntimeEventChain: event === null ? null : parseNetworkRuntimeEventChain(event.payload),
+  };
+}
+
+function resolveNetworkAdapterCapabilityStatus(events: readonly AgentEventEnvelope[]) {
+  const event = latestEvent(events, AgentEvent.EnforcementSupportedAdapterRuntimeProofReported);
+  return {
+    networkAdapterCapabilityStatusEvent: event,
+    networkAdapterCapabilityStatus: parseNetworkAdapterCapabilityStatus(event),
   };
 }
 
