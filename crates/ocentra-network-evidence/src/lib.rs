@@ -18,6 +18,7 @@ pub mod linux_adapter_gate;
 pub mod live_capture;
 pub mod live_capture_custody_status;
 pub mod local_ai_queue;
+pub mod local_ai_runtime_result;
 pub mod managed_browser;
 pub mod notification;
 pub mod packet;
@@ -151,6 +152,12 @@ pub use local_ai_queue::{
     plan_network_local_ai_queue, NetworkLocalAiQueueError, NetworkLocalAiQueueInput,
     NetworkLocalAiQueueInputKind, NetworkLocalAiQueueJob, NetworkLocalAiQueuePlan,
     NetworkLocalAiQueueStatus,
+};
+pub use local_ai_runtime_result::{
+    bridge_network_local_ai_runtime_result, NetworkLocalAiRuntimeBridgeState,
+    NetworkLocalAiRuntimeGenerationState, NetworkLocalAiRuntimeResultBridge,
+    NetworkLocalAiRuntimeResultError, NetworkLocalAiRuntimeResultInput,
+    NetworkLocalAiRuntimeResultRef,
 };
 pub use managed_browser::{
     correlate_managed_browser_activity, ManagedBrowserCorrelation, ManagedBrowserCorrelationBasis,
