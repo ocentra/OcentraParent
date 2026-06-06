@@ -12,7 +12,7 @@ use ocentra_network_evidence::{
 };
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel,
+    LogLevel, NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState,
 };
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
@@ -34,6 +34,7 @@ pub(crate) fn build_network_product_readiness_status_report(
 pub fn network_product_readiness_status_payload() -> LogFields {
     let live_capture_status = live_capture_custody_status();
     let product_status = product_readiness_status();
+    let remote_delivery_status = remote_delivery_status();
 
     fields_from_pairs(vec![
         (
@@ -43,6 +44,10 @@ pub fn network_product_readiness_status_payload() -> LogFields {
         (
             constants::field::NETWORK_PRODUCT_READINESS_STATUS,
             status_field(&product_status),
+        ),
+        (
+            constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
+            status_field(&remote_delivery_status),
         ),
     ])
 }
@@ -198,6 +203,41 @@ fn product_readiness_status() -> NetworkProductReadinessStatus {
         enforcement_command_claimed: false,
     })
     .expect(constants::error::AGENT_EVENT_SERIALIZES)
+}
+
+fn remote_delivery_status() -> NetworkRemoteDeliveryStatus {
+    NetworkRemoteDeliveryStatus {
+        status_ref: constants::network_flow::TEST_REMOTE_DELIVERY_STATUS_REF.to_owned(),
+        broker_status: NetworkRemoteDeliveryStatusState::RequirementsSatisfiedButNotImplemented,
+        family_hub_status: NetworkRemoteDeliveryStatusState::RequirementsSatisfiedButNotImplemented,
+        custody_proof_ref: constants::network_flow::TEST_BROKER_CUSTODY_PROOF_REF.to_owned(),
+        publisher_auth_ref: constants::network_flow::TEST_BROKER_PUBLISHER_AUTH_REF.to_owned(),
+        subscriber_auth_ref: constants::network_flow::TEST_BROKER_SUBSCRIBER_AUTH_REF.to_owned(),
+        encryption_ref: constants::network_flow::TEST_BROKER_ENCRYPTION_REF.to_owned(),
+        retention_policy_ref: constants::network_flow::TEST_BROKER_RETENTION_POLICY_REF.to_owned(),
+        replay_plan_ref: constants::network_flow::TEST_BROKER_REPLAY_PLAN_REF.to_owned(),
+        deletion_plan_ref: constants::network_flow::TEST_BROKER_DELETION_PLAN_REF.to_owned(),
+        offset_policy_ref: constants::network_flow::TEST_BROKER_OFFSET_POLICY_REF.to_owned(),
+        dedupe_policy_ref: constants::network_flow::TEST_BROKER_DEDUPE_POLICY_REF.to_owned(),
+        transport_config_ref: constants::network_flow::TEST_BROKER_CONFIG_REF.to_owned(),
+        relay_identity_ref: constants::network_flow::TEST_FAMILY_HUB_IDENTITY_REF.to_owned(),
+        relay_policy_ref: constants::network_flow::TEST_FAMILY_HUB_RELAY_POLICY_REF.to_owned(),
+        broker_missing_artifact_count: 0,
+        family_hub_missing_artifact_count: 0,
+        accepted_event_type_count: 3,
+        local_idempotency_queue_proved: true,
+        dropped_event_dead_letter_count: 1,
+        queued_duplicate_rejected: true,
+        completed_duplicate_rejected: true,
+        external_transport_delivery_implemented: false,
+        family_hub_delivery_implemented: false,
+        cross_process_replay_implemented: false,
+        remote_retention_delete_export_propagation_implemented: false,
+        policy_authority: false,
+        side_effect_authority: false,
+        enforcement_command_event_count: 0,
+        adapter_action_executed_count: 0,
+    }
 }
 
 fn risk_budget() -> NetworkRiskBudgetEvaluation {
