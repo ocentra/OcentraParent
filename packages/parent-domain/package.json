@@ -529,6 +529,10 @@
       "import": "./dist/local-ai-parent-assistant-runtime-proof-values.js",
       "types": "./dist/local-ai-parent-assistant-runtime-proof-values.d.ts"
     },
+    "./local-ai-parent-rule-context-builder-proof": {
+      "import": "./dist/local-ai-parent-rule-context-builder-proof.js",
+      "types": "./dist/local-ai-parent-rule-context-builder-proof.d.ts"
+    },
     "./local-ai-references": {
       "import": "./dist/local-ai-references.js",
       "types": "./dist/local-ai-references.d.ts"
