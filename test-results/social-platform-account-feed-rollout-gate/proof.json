@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-platform-account-feed-rollout-gate",
+  "generatedAt": "2026-06-06T05:50:01.683Z",
+  "rows": [
+    {
+      "rowNumber": 1,
+      "rowId": "SOCIAL-01",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 2,
+      "rowId": "SOCIAL-02",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 3,
+      "rowId": "SOCIAL-03",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 4,
+      "rowId": "SOCIAL-04",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 5,
+      "rowId": "SOCIAL-05",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 6,
+      "rowId": "SOCIAL-06",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 7,
+      "rowId": "SOCIAL-07",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 8,
+      "rowId": "SOCIAL-08",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 9,
+      "rowId": "SOCIAL-09",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 10,
+      "rowId": "SOCIAL-10",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 11,
+      "rowId": "SOCIAL-11",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 12,
+      "rowId": "SOCIAL-12",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 13,
+      "rowId": "SOCIAL-13",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 14,
+      "rowId": "SOCIAL-14",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 15,
+      "rowId": "SOCIAL-15",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 16,
+      "rowId": "SOCIAL-16",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 17,
+      "rowId": "SOCIAL-17",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 18,
+      "rowId": "SOCIAL-18",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 19,
+      "rowId": "SOCIAL-19",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 20,
+      "rowId": "SOCIAL-20",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 21,
+      "rowId": "SOCIAL-21",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 22,
+      "rowId": "SOCIAL-22",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 23,
+      "rowId": "SOCIAL-23",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    }
+  ],
+  "summary": {
+    "totalRows": 23,
+    "completeRows": 5,
+    "partialRows": 18,
+    "failures": 0,
+    "rolloutState": "partial/manual-required",
+    "productClaimed": false
+  },
+  "guardTexts": [
+    "SOCIAL rollout state: partial/manual-required.",
+    "SOCIAL rollout state: partial/manual-required.",
+    "Product completion remains unclaimed;",
+    "Product checklist upgrade is not claimed.",
+    "Rollout/manual-required gates may label rows as partial/manual-required only."
+  ],
+  "noClaimLabels": [
+    "rendered-proof-bundle-social-ui-present",
+    "service-backed-social-ui-delivery-not-claimed",
+    "connector-native-runtime-not-claimed",
+    "final-policy-execution-not-claimed",
+    "enforcement-not-claimed",
+    "product-checklist-upgrade-not-claimed"
+  ],
+  "failures": []
+}

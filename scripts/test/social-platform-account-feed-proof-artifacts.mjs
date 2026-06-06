@@ -59,13 +59,15 @@ async function socialProofDirectories() {
 }
 
 function expectedRows() {
+  const completeRows = new Set([1, 13, 14, 20, 21]);
   return Array.from({ length: 22 }, (_, index) => {
     const rowNumber = index + 1;
+    const complete = completeRows.has(rowNumber);
     return {
       rowNumber,
       rowId: `SOCIAL-${String(rowNumber).padStart(2, '0')}`,
-      expectedStatus: rowNumber === 1 ? '[x]' : '[~]',
-      expectedState: rowNumber === 1 ? 'scaffold-proof-present' : 'partial-manual-required',
+      expectedStatus: complete ? '[x]' : '[~]',
+      expectedState: complete ? 'proof-present' : 'partial-manual-required',
     };
   });
 }
@@ -152,16 +154,17 @@ function manifestFor(rows, failures) {
     rows,
     summary: {
       totalRows: rows.length,
-      completeRows: rows.filter((row) => row.expectedState === 'scaffold-proof-present').length,
+      completeRows: rows.filter((row) => row.expectedState === 'proof-present').length,
       partialRows: rows.filter((row) => row.expectedState === 'partial-manual-required').length,
       failures: failures.length,
-      playwrightState: 'manual-required-no-rendered-social-ui',
+      playwrightState: 'rendered-proof-bundle-ui-present-runtime-delivery-manual-required',
       productClaimed: false,
     },
     manualProofBoundary: {
-      screenshots: 'not-applicable-contract-only',
-      playwright: 'manual-required-no-rendered-social-ui',
-      renderedUi: 'not-claimed',
+      screenshots: 'rendered-proof-bundle-ui-screenshots-present',
+      playwright: 'proof-bundle-playwright-present-runtime-delivery-manual-required',
+      renderedUi: 'parent-dashboard-child-intervention-parent-explanation-proof-bundles-only',
+      serviceBackedDelivery: 'not-claimed',
       enforcement: 'not-claimed',
       productChecklistUpgrade: 'not-claimed',
     },
@@ -179,7 +182,7 @@ function markdownFor(manifest) {
     `Generated: ${manifest.generatedAt}`,
     '',
     `Rows checked: ${manifest.summary.totalRows}`,
-    `Scaffold-proof rows: ${manifest.summary.completeRows}`,
+    `Proof-present rows: ${manifest.summary.completeRows}`,
     `Partial/manual-required rows: ${manifest.summary.partialRows}`,
     `Playwright state: ${manifest.summary.playwrightState}`,
     `Product claimed: ${manifest.summary.productClaimed}`,
@@ -189,7 +192,9 @@ function markdownFor(manifest) {
     rows,
     '',
     'SOCIAL-23 proves proof-pack coverage for SOCIAL-01 through SOCIAL-22.',
-    'It does not prove rendered UI, Playwright screenshots, runtime connector',
+    'Rendered proof-bundle UI exists for the parent social dashboard,',
+    'child-agent-served social intervention page, and parent explanation panel.',
+    'It does not prove service-backed explanation delivery, runtime connector',
     'behavior, native app control, final policy execution, enforcement, or',
     'product checklist completion.',
   ].join('\n');
