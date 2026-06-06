@@ -194,7 +194,15 @@ typed-event-ref, evidence bundle, local-AI refs-only queue, AI detection/audit,
 risk-budget, policy mapping, adapter proof-state, audit, portal read-model, and
 retention/delete/export refs into one product-path artifact while proving weak
 or unavailable evidence cannot authorize adapter apply, AI remains advisory, and
-UI/network surfaces cannot bypass policy.
+UI/network surfaces cannot bypass policy. The platform-claim manifest proof
+composes Windows Firewall/WFP, Android VpnService, Apple Network Extension, and
+Linux nftables/eBPF/TUN gates into exact platform rows, including Apple
+macOS/iOS and separate Linux nftables, eBPF, and TUN targets, with OS/device
+refs, permission or entitlement refs, adapter capability refs, audit refs,
+unavailable-state accounting, and manual follow-ups for missing required
+artifacts while rejecting generic platform support, live adapter execution, UI
+policy authority, exact URL, page content, decrypted payload, and
+enforcement-command claims.
 
 Live Npcap/libpcap driver invocation and packet capture, full vendor category
 feeds, production CDN intelligence, unmanaged browser exact URL or active-tab

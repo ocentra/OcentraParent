@@ -95,6 +95,10 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       The proof records required OS/device/permission artifacts and exact manual
       steps while keeping live platform execution, screenshots, and adapter
       action unclaimed until host/device proof is attached.
+      Row52 proof also writes
+      `output/network-plan-proof/52-platform-claims-proof/11-manual-platform-proof.md`
+      with exact Windows, Android, Apple, and Linux target rows, manual follow-up
+      labels, screenshot N/A reason, and production-platform follow-up owner.
 - [x] `11a-hardening-support-proof.md`: key rotation, secret handling,
       rule/model provenance and rollback, external audit or pen-test signoff
       for production claims, parent/user guide, FAQ, support playbook, and
@@ -109,8 +113,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       audit/pen-test signoff refs while keeping production deployment, external
       audit execution, default evidence upload, policy authority, adapter
       authority, and enforcement commands unclaimed.
-- [ ] `12-validation-commands.log`: focused validation plus any requested
+- [x] `12-validation-commands.log`: focused validation plus any requested
       `npm run validate`/`ci:local`/manual command output.
+      Row52 proof now writes
+      `output/network-plan-proof/52-platform-claims-proof/12-validation-commands.log`
+      from the platform-claims harness.
 
 ## Evidence Quality Gates
 
@@ -184,6 +191,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       Extension, and Linux nftables/eBPF/TUN host/device permission artifacts,
       logs, and manual-required labels. Live platform execution and screenshots
       remain unclaimed until real host/device evidence is supplied.
+      Row52 platform-claim manifest proof records exact Windows Firewall/WFP,
+      Android VpnService, Apple Network Extension macOS/iOS, and Linux
+      nftables/eBPF/TUN OS/device/permission refs, manual follow-ups for missing
+      artifacts, and rejected generic platform, live adapter execution, UI
+      policy authority, and enforcement-command claims.
 - [ ] Every failed, skipped, manual, or deferred test has a reason and follow-up
       owner recorded.
 
@@ -316,6 +328,8 @@ manual-required/N/A file.
 | 50   | Security, privacy, compliance, deployment, support, and staged rollout proof                                              | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/50-security-readiness-proof/proof-summary.json`, `test-results/network-security-readiness-proof/proof.json`, `readiness_proof_accepts_internal_security_privacy_support_and_rollout_gates`, `readiness_proof_blocks_production_claim_without_external_signoff`, `readiness_proof_allows_production_ready_only_with_external_signoff`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Deterministic network security readiness proof now records threat-model, privacy/compliance, retention/delete/export custody, key-rotation, secret-handling, rule/model provenance and rollback, support material, staff-training, staged-rollout, incident-response, and known-gap signoff refs. It returns internal-ready, production-blocked-pending-external-signoff, or production-ready-with-external-signoff states, so production rollout remains blocked unless external audit or penetration-test signoff is supplied. Default remote upload, raw PCAP without custody, exact URL, page content, private message, search query, decrypted payload, policy-authority, adapter-authority, and enforcement-command claims are rejected. This does not claim production deployment, external audit execution, full support-material authoring, default evidence upload, or live enforcement.                                                                                                                                                                                             |
 
 | 51 | Integrated event + network product path proof | [x] | E-D | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json`, `test-results/network-end-to-end-pipeline-proof/proof.json`, `end_to_end_pipeline_carries_refs_from_trigger_to_retention_export`, `end_to_end_pipeline_keeps_weak_evidence_non_enforcing`, `end_to_end_pipeline_keeps_unavailable_evidence_non_enforcing`, `end_to_end_pipeline_rejects_ai_ui_and_network_bypass_claims`, `network_runtime_chain_carries_exact_refs_without_direct_enforcement_shortcut`, `manual_required_network_evidence_does_not_publish_enforcement_command` | Integrated proof now composes existing typed event-chain refs, evidence bundle refs, local-AI refs-only queue, AI detection/audit refs, risk-budget and policy refs, DNS adapter proof-state refs, audit refs, portal read-model refs, and retention/delete/export refs into one deterministic product path. Weak or unavailable evidence cannot authorize adapter apply or publish enforcement commands, and AI/UI/network surfaces cannot bypass policy. This does not claim live capture driver invocation, local model execution, full policy engine execution, host adapter mutation, broker/family-hub delivery, or broader portal risk-budget/performance UI rendering. |
+
+| 52 | Platform claim manifest proof | [x] | E-D | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/52-platform-claims-proof/proof-summary.json`, `output/network-plan-proof/52-platform-claims-proof/11-manual-platform-proof.md`, `output/network-plan-proof/52-platform-claims-proof/12-validation-commands.log`, `test-results/network-platform-claims-proof/proof.json`, `platform_claim_manifest_names_exact_platform_permission_and_device_refs`, `platform_claim_manifest_reports_unavailable_states_without_execution`, `platform_claim_manifest_records_missing_permission_artifacts_as_manual_followup`, `platform_claim_manifest_rejects_broad_or_live_platform_claims`, `platform_claim_manifest_rejects_proof_source_that_publishes_enforcement_command` | Deterministic platform-claim manifest proof now composes Windows Firewall, Windows WFP, Android VpnService, Apple Network Extension macOS/iOS, and Linux nftables/eBPF/TUN proof gates into exact platform rows with OS/device refs, permission or entitlement refs, adapter capability refs, audit refs, unavailable-state accounting, and missing required artifacts captured as manual follow-ups. Generic platform support, live adapter execution, UI policy authority, exact URL, page content, decrypted payload, and enforcement-command claims are rejected. This does not claim production platform support, live host adapter mutation, packet blocking, policy engine execution, or portal platform-state rendering. |
 
 ## Worker Report Template
 
