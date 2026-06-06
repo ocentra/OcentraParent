@@ -215,6 +215,12 @@ control with better evidence and local audit.
   compiler-manual rows blocked before timer runtime without claiming service
   runtime, portal UI, policy evaluator execution, adapter dispatch, child
   delivery, platform enforcement, or raw private source-row access.
+- Parent-domain source-gated policy preview timer scheduler-persistence
+  contracts now consume the timer runtime-readiness rows, record which native
+  app/native game rows still need service timer runtime, scheduler persistence,
+  durable scheduler state-store, audit, and rollback proof, and keep source or
+  compiler blockers blocked before scheduling without claiming runtime storage
+  or enforcement.
 - The portal App/Game Sessions route now renders that service-backed policy
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy
@@ -607,6 +613,16 @@ mobile UI, or prove platform support.
       It remains parent-domain proof only and does not claim service events,
       portal UI, evaluator runtime, timer runtime/scheduling, scheduler
       persistence runtime, audit/rollback runtime, adapter dispatch, child
+      delivery, broad blocking, platform enforcement, or raw private source
+      rows.
+      Source-gated policy preview timer scheduler-persistence proof now consumes
+      those runtime-readiness rows and records that future scheduling still
+      requires service timer runtime, scheduler persistence, durable scheduler
+      state-store, audit, and rollback proof, while source and compiler blockers
+      remain blocked before scheduler persistence. It remains parent-domain
+      proof only and does not claim service events, portal UI, evaluator
+      runtime, timer runtime/scheduling, scheduler persistence runtime, durable
+      scheduler storage, audit/rollback runtime, adapter dispatch, child
       delivery, broad blocking, platform enforcement, or raw private source
       rows.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
