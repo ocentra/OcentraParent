@@ -171,8 +171,12 @@ expose location or device-status features. Parents expect this category.
   bounded Google Places Nearby Search request contract with a production-safe
   field mask, maps real-shaped provider response rows into nearby-place
   category/distance/confidence/ambiguity evidence, and records provider
-  unavailable degradation without claiming live Google execution, credentials,
-  exact place, or physical-device proof.
+  unavailable degradation. The same proof now emits provider parity readiness
+  rows for Google, Apple MapKit, and OpenStreetMap/Nominatim: Google is
+  request-mapped from the bounded contract proof, while Apple and OSM remain
+  manual-required until provider terms, runtime, and authorization proof exist.
+  It does not claim live Google/Apple/OSM execution, credentials, exact place,
+  or physical-device proof.
 - WP25 tracking policy compiler runtime proof now exists through
   `node scripts/test/tracking-policy-compiler-runtime-proof.mjs`. It compiles
   parent-owned tracking rules for observe, notify, child check-in, parent

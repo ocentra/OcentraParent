@@ -25,6 +25,7 @@ Proof root: `output/tracking-plan-proof/20-google-places-and-poi-provider-adapte
 
 - `01-contract-proof.log`
 - `07-nearby-place-proof.json`
+- `08-provider-parity-readiness-proof.json`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
 
@@ -45,8 +46,14 @@ This workpack now has focused P1 provider-adapter contract proof from
 Places Nearby Search request with a production-safe field mask, maps
 real-shaped provider response rows into nearby-place category, distance,
 confidence, and ambiguity evidence, and records provider unavailable
-degradation. Live Google provider execution, credentials, exact-place claims,
-physical-device proof, UI, and production persistence remain unclaimed.
+degradation. The current continuation branch also records provider parity
+readiness rows in
+`output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/08-provider-parity-readiness-proof.json`:
+Google is request-mapped from the existing contract proof, while Apple MapKit
+and OpenStreetMap/Nominatim remain manual-required until provider terms,
+runtime, and authorization proof exist. Live Google/Apple/OSM provider
+execution, credentials, exact-place claims, physical-device proof, UI, and
+production persistence remain unclaimed.
 
 ## Where We Want To Be
 
@@ -86,6 +93,9 @@ This workpack can be assigned independently, implemented against the owning doma
       tests.
 - [x] Proof artifacts under
       `output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/`.
+- [x] Provider parity readiness rows preserve Google request-mapped status and
+      Apple MapKit/OpenStreetMap manual-required status without claiming live
+      execution.
 - [x] Product doc/checklist updates: owning feature doc and implementation
       checklist updated. Product capability checklist update is queued because
       another lane currently owns that file lock.

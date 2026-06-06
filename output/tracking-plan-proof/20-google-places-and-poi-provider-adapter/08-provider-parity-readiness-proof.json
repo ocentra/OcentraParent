@@ -1,0 +1,32 @@
+[
+  {
+    "provider": "google-places-nearby",
+    "status": "request-mapped",
+    "termsReviewRequired": false,
+    "credentialsRequired": true,
+    "reasonCodes": [
+      "google-places-provider-contract-ready",
+      "nearby-place-ambiguity-preserved"
+    ]
+  },
+  {
+    "provider": "apple-mapkit-search",
+    "status": "manual-required",
+    "termsReviewRequired": true,
+    "credentialsRequired": true,
+    "reasonCodes": [
+      "apple-mapkit-provider-parity-manual-required",
+      "provider-runtime-not-proved"
+    ]
+  },
+  {
+    "provider": "openstreetmap-nominatim",
+    "status": "manual-required",
+    "termsReviewRequired": true,
+    "credentialsRequired": false,
+    "reasonCodes": [
+      "osm-provider-parity-manual-required",
+      "provider-runtime-not-proved"
+    ]
+  }
+]

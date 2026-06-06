@@ -5,3 +5,4 @@ Security/no-claim proof:
 - Credentials are not stored and live Google provider execution is not claimed.
 - Mapped nearby-place rows preserve ambiguity and do not claim exact child location or physical-device proof.
 - Provider quota/unavailable errors degrade to provider-unavailable instead of silent success.
+- Apple MapKit and OSM parity rows are manual-required and do not claim live execution, credentials, exact-place proof, or physical-device proof.

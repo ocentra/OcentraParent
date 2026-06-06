@@ -14,9 +14,12 @@ const ResultCountSchema = Schema.Number.pipe(Schema.int(), Schema.between(1, 20)
 const ConfidenceSchema = Schema.Number.pipe(Schema.between(0, 1));
 const DistanceMetersSchema = Schema.Number.pipe(Schema.nonNegative());
 const IncludedTypesSchema = Schema.Array(ProviderText).pipe(Schema.minItems(1), Schema.maxItems(50));
+const TrackingPolicyAuditRefParsedSchema = withParser(TrackingPolicyAuditRefSchema);
 
 export const TrackingPoiProviderId = {
   GooglePlacesNearby: 'google-places-nearby',
+  AppleMapKitSearch: 'apple-mapkit-search',
+  OpenStreetMapNominatim: 'openstreetmap-nominatim',
 } as const;
 
 export const TrackingPoiProviderStatus = {
@@ -24,6 +27,12 @@ export const TrackingPoiProviderStatus = {
   ResponseMapped: 'response-mapped',
   ProviderUnavailable: 'provider-unavailable',
   ManualRequired: 'manual-required',
+} as const;
+
+export const TrackingPoiProviderParityStatus = {
+  RequestMapped: 'request-mapped',
+  ManualRequired: 'manual-required',
+  ProviderUnavailable: 'provider-unavailable',
 } as const;
 
 export const TrackingPoiCategory = {
@@ -54,6 +63,9 @@ export const GooglePlacesNearbyFieldMask = [
 
 export const TrackingPoiProviderIdSchema = withParser(Schema.Literal(...Object.values(TrackingPoiProviderId)));
 export const TrackingPoiProviderStatusSchema = withParser(Schema.Literal(...Object.values(TrackingPoiProviderStatus)));
+export const TrackingPoiProviderParityStatusSchema = withParser(
+  Schema.Literal(...Object.values(TrackingPoiProviderParityStatus))
+);
 export const TrackingPoiCategorySchema = withParser(Schema.Literal(...Object.values(TrackingPoiCategory)));
 export const TrackingPoiAmbiguityStateSchema = withParser(Schema.Literal(...Object.values(TrackingPoiAmbiguityState)));
 export const GooglePlacesNearbyFieldMaskSchema = withParser(Schema.Literal(...GooglePlacesNearbyFieldMask));
@@ -185,10 +197,31 @@ export const TrackingPoiProviderReadModelSchema = withParser(
   )
 );
 
+export const TrackingPoiProviderParityRowSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
+    provider: TrackingPoiProviderIdSchema,
+    status: TrackingPoiProviderParityStatusSchema,
+    generatedAt: ParentTimestampSchema,
+    sourceProofRef: TrackingPolicyAuditRefSchema,
+    providerTermsReviewRequired: Schema.Boolean,
+    providerCredentialsRequired: Schema.Boolean,
+    boundedLocationRestrictionRequired: Schema.Literal(true),
+    ambiguityPreservedRequired: Schema.Literal(true),
+    exactPlaceClaimed: Schema.Literal(false),
+    liveProviderRequestClaimed: Schema.Literal(false),
+    credentialsStored: Schema.Literal(false),
+    physicalDeviceProofClaimed: Schema.Literal(false),
+    reasonCodes: Schema.Array(TrackingPolicyReasonCodeSchema),
+    auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
+  })
+);
+
 export type TrackingGooglePlacesNearbySearchInput = Infer<typeof TrackingGooglePlacesNearbySearchInputSchema>;
 export type TrackingGooglePlacesNearbyRequest = Infer<typeof TrackingGooglePlacesNearbyRequestSchema>;
 export type GooglePlacesNearbySearchResponse = Infer<typeof GooglePlacesNearbySearchResponseSchema>;
 export type TrackingPoiProviderReadModel = Infer<typeof TrackingPoiProviderReadModelSchema>;
+export type TrackingPoiProviderParityRow = Infer<typeof TrackingPoiProviderParityRowSchema>;
 type TrackingPoiAmbiguityStateValue = Infer<typeof TrackingPoiAmbiguityStateSchema>;
 type TrackingPoiCategoryValue = Infer<typeof TrackingPoiCategorySchema>;
 
@@ -286,6 +319,73 @@ export function buildGooglePlacesProviderFailureReadModel(
   });
 }
 
+export function buildTrackingPoiProviderParityRows(
+  readModel: TrackingPoiProviderReadModel
+): readonly TrackingPoiProviderParityRow[] {
+  const parsed = TrackingPoiProviderReadModelSchema.parse(readModel);
+  const sourceProofRef = parsed.auditRefs[0] ?? auditRef('nearby-place-provider-proof');
+
+  return [
+    providerParityRow({
+      schemaVersion: TrackingPolicySchemaVersion,
+      provider: TrackingPoiProviderId.GooglePlacesNearby,
+      status: TrackingPoiProviderParityStatus.RequestMapped,
+      generatedAt: parsed.generatedAt,
+      sourceProofRef,
+      providerTermsReviewRequired: false,
+      providerCredentialsRequired: true,
+      boundedLocationRestrictionRequired: true,
+      ambiguityPreservedRequired: true,
+      exactPlaceClaimed: false,
+      liveProviderRequestClaimed: false,
+      credentialsStored: false,
+      physicalDeviceProofClaimed: false,
+      reasonCodes: [
+        reasonCode('google-places-provider-contract-ready'),
+        reasonCode('nearby-place-ambiguity-preserved'),
+      ],
+      auditRefs: parsed.auditRefs,
+    }),
+    providerParityRow({
+      schemaVersion: TrackingPolicySchemaVersion,
+      provider: TrackingPoiProviderId.AppleMapKitSearch,
+      status: TrackingPoiProviderParityStatus.ManualRequired,
+      generatedAt: parsed.generatedAt,
+      sourceProofRef,
+      providerTermsReviewRequired: true,
+      providerCredentialsRequired: true,
+      boundedLocationRestrictionRequired: true,
+      ambiguityPreservedRequired: true,
+      exactPlaceClaimed: false,
+      liveProviderRequestClaimed: false,
+      credentialsStored: false,
+      physicalDeviceProofClaimed: false,
+      reasonCodes: [
+        reasonCode('apple-mapkit-provider-parity-manual-required'),
+        reasonCode('provider-runtime-not-proved'),
+      ],
+      auditRefs: [auditRef('apple-mapkit-provider-parity-required'), ...parsed.auditRefs],
+    }),
+    providerParityRow({
+      schemaVersion: TrackingPolicySchemaVersion,
+      provider: TrackingPoiProviderId.OpenStreetMapNominatim,
+      status: TrackingPoiProviderParityStatus.ManualRequired,
+      generatedAt: parsed.generatedAt,
+      sourceProofRef,
+      providerTermsReviewRequired: true,
+      providerCredentialsRequired: false,
+      boundedLocationRestrictionRequired: true,
+      ambiguityPreservedRequired: true,
+      exactPlaceClaimed: false,
+      liveProviderRequestClaimed: false,
+      credentialsStored: false,
+      physicalDeviceProofClaimed: false,
+      reasonCodes: [reasonCode('osm-provider-parity-manual-required'), reasonCode('provider-runtime-not-proved')],
+      auditRefs: [auditRef('osm-provider-parity-required'), ...parsed.auditRefs],
+    }),
+  ];
+}
+
 export function googlePlacesFieldMaskIsProductionSafe(fieldMask: readonly string[]): boolean {
   return (
     fieldMask.length === GooglePlacesNearbyFieldMask.length &&
@@ -294,6 +394,18 @@ export function googlePlacesFieldMaskIsProductionSafe(fieldMask: readonly string
       GooglePlacesNearbyFieldMask.includes(field as (typeof GooglePlacesNearbyFieldMask)[number])
     )
   );
+}
+
+function providerParityRow(input: TrackingPoiProviderParityRow): TrackingPoiProviderParityRow {
+  return TrackingPoiProviderParityRowSchema.parse(input);
+}
+
+function reasonCode(value: string): Infer<typeof TrackingPolicyReasonCodeSchema> {
+  return TrackingPolicyReasonCodeSchema.parse(value);
+}
+
+function auditRef(value: string): Infer<typeof TrackingPolicyAuditRefSchema> {
+  return TrackingPolicyAuditRefParsedSchema.parse(value);
 }
 
 function candidateFor(

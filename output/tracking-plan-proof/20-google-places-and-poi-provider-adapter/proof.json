@@ -1,9 +1,9 @@
 {
   "proofMode": "tracking-poi-provider-adapter-proof",
   "generatedAt": "2026-06-05T14:45:00.000Z",
-  "branch": "codex/tracking-google-poi-provider-proof",
-  "commit": "27d8df3c37017dac94fab00ccf8348f4bc7cda68",
-  "gitStatusShort": "",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "commit": "9390ecc636426582e04cc78c7c13a481eec9f63a",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/20-google-places-and-poi-provider-adapter.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/00-source-snapshot.md\n M output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/01-contract-proof.log\n M output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/13-security-negative-proof.log\n M output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/proof.json\n M packages/parent-domain/src/tracking-poi-provider-adapter.ts\n M packages/parent-domain/tests/tracking-poi-provider-adapter.test.ts\n M scripts/test/tracking-poi-provider-adapter-proof.mjs\n M test-results/tracking-poi-provider-adapter-proof/proof.json",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-poi-provider-adapter tracking-location-policy"
@@ -37,6 +37,38 @@
     "failureStatus": "provider-unavailable",
     "failureReason": "google-places-quota-unavailable"
   },
+  "providerParitySummary": [
+    {
+      "provider": "google-places-nearby",
+      "status": "request-mapped",
+      "termsReviewRequired": false,
+      "credentialsRequired": true,
+      "reasonCodes": [
+        "google-places-provider-contract-ready",
+        "nearby-place-ambiguity-preserved"
+      ]
+    },
+    {
+      "provider": "apple-mapkit-search",
+      "status": "manual-required",
+      "termsReviewRequired": true,
+      "credentialsRequired": true,
+      "reasonCodes": [
+        "apple-mapkit-provider-parity-manual-required",
+        "provider-runtime-not-proved"
+      ]
+    },
+    {
+      "provider": "openstreetmap-nominatim",
+      "status": "manual-required",
+      "termsReviewRequired": true,
+      "credentialsRequired": false,
+      "reasonCodes": [
+        "osm-provider-parity-manual-required",
+        "provider-runtime-not-proved"
+      ]
+    }
+  ],
   "nonClaims": {
     "credentialsStored": false,
     "liveProviderRequestClaimed": false,
@@ -247,5 +279,78 @@
       "google-places-field-mask-reviewed",
       "nearby-place-provider-proof"
     ]
-  }
+  },
+  "parityRows": [
+    {
+      "schemaVersion": "v0.5-tracking",
+      "provider": "google-places-nearby",
+      "status": "request-mapped",
+      "generatedAt": "2026-06-05T14:45:00.000Z",
+      "sourceProofRef": "google-places-field-mask-reviewed",
+      "providerTermsReviewRequired": false,
+      "providerCredentialsRequired": true,
+      "boundedLocationRestrictionRequired": true,
+      "ambiguityPreservedRequired": true,
+      "exactPlaceClaimed": false,
+      "liveProviderRequestClaimed": false,
+      "credentialsStored": false,
+      "physicalDeviceProofClaimed": false,
+      "reasonCodes": [
+        "google-places-provider-contract-ready",
+        "nearby-place-ambiguity-preserved"
+      ],
+      "auditRefs": [
+        "google-places-field-mask-reviewed",
+        "nearby-place-provider-proof"
+      ]
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "provider": "apple-mapkit-search",
+      "status": "manual-required",
+      "generatedAt": "2026-06-05T14:45:00.000Z",
+      "sourceProofRef": "google-places-field-mask-reviewed",
+      "providerTermsReviewRequired": true,
+      "providerCredentialsRequired": true,
+      "boundedLocationRestrictionRequired": true,
+      "ambiguityPreservedRequired": true,
+      "exactPlaceClaimed": false,
+      "liveProviderRequestClaimed": false,
+      "credentialsStored": false,
+      "physicalDeviceProofClaimed": false,
+      "reasonCodes": [
+        "apple-mapkit-provider-parity-manual-required",
+        "provider-runtime-not-proved"
+      ],
+      "auditRefs": [
+        "apple-mapkit-provider-parity-required",
+        "google-places-field-mask-reviewed",
+        "nearby-place-provider-proof"
+      ]
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "provider": "openstreetmap-nominatim",
+      "status": "manual-required",
+      "generatedAt": "2026-06-05T14:45:00.000Z",
+      "sourceProofRef": "google-places-field-mask-reviewed",
+      "providerTermsReviewRequired": true,
+      "providerCredentialsRequired": false,
+      "boundedLocationRestrictionRequired": true,
+      "ambiguityPreservedRequired": true,
+      "exactPlaceClaimed": false,
+      "liveProviderRequestClaimed": false,
+      "credentialsStored": false,
+      "physicalDeviceProofClaimed": false,
+      "reasonCodes": [
+        "osm-provider-parity-manual-required",
+        "provider-runtime-not-proved"
+      ],
+      "auditRefs": [
+        "osm-provider-parity-required",
+        "google-places-field-mask-reviewed",
+        "nearby-place-provider-proof"
+      ]
+    }
+  ]
 }

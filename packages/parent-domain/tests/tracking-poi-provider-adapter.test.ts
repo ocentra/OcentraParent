@@ -7,6 +7,7 @@ import {
   buildGooglePlacesNearbyReadModel,
   buildGooglePlacesNearbySearchRequest,
   buildGooglePlacesProviderFailureReadModel,
+  buildTrackingPoiProviderParityRows,
   googlePlacesFieldMaskIsProductionSafe,
 } from '../src/tracking-poi-provider-adapter';
 import { TrackingPolicySchemaVersion } from '../src/tracking-location-policy';
@@ -121,5 +122,25 @@ describe('tracking POI provider adapter', () => {
         liveProviderRequestClaimed: true,
       }).success
     ).toBe(false);
+  });
+});
+
+describe('tracking POI provider parity readiness', () => {
+  it('keeps provider parity rows explicit without upgrading Apple or OSM claims', () => {
+    const parityRows = buildTrackingPoiProviderParityRows(
+      buildGooglePlacesNearbyReadModel(SearchInput, GoogleResponse)
+    );
+
+    expect(parityRows.map((row) => row.provider)).toEqual([
+      'google-places-nearby',
+      'apple-mapkit-search',
+      'openstreetmap-nominatim',
+    ]);
+    expect(parityRows.map((row) => row.status)).toEqual(['request-mapped', 'manual-required', 'manual-required']);
+    expect(parityRows.map((row) => row.liveProviderRequestClaimed)).toEqual([false, false, false]);
+    expect(parityRows.map((row) => row.exactPlaceClaimed)).toEqual([false, false, false]);
+    expect(parityRows.map((row) => row.physicalDeviceProofClaimed)).toEqual([false, false, false]);
+    expect(parityRows[1]?.reasonCodes).toContain('apple-mapkit-provider-parity-manual-required');
+    expect(parityRows[2]?.reasonCodes).toContain('osm-provider-parity-manual-required');
   });
 });
