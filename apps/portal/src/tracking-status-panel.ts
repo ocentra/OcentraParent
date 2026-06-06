@@ -111,6 +111,33 @@ export type TrackingUnsupportedManualPlatformProof = {
   readonly rows: readonly TrackingUnsupportedManualPlatformRow[];
 };
 
+export type TrackingFamilyDashboardHostedRollupRow = {
+  readonly title: PortalDisplayText;
+  readonly status: PortalDisplayText;
+  readonly visibleChildren: PortalDetailValue;
+  readonly attentionItems: PortalDetailValue;
+  readonly retainedAuditItems: PortalDetailValue;
+  readonly evidence: PortalDisplayText;
+};
+
+export type TrackingFamilyDashboardHostedRollupProof = {
+  readonly title: PortalDisplayText;
+  readonly body: PortalDisplayText;
+  readonly proofTier: PortalDisplayText;
+  readonly rowsReturned: PortalDetailValue;
+  readonly proofArtifact: TrackingStatusProofArtifact;
+  readonly boundary: PortalDisplayText;
+  readonly missingProof: PortalDisplayText;
+  readonly productClaim: PortalDisplayText;
+  readonly childDeviceDeliveryClaimedRows: PortalDetailValue;
+  readonly providerDeliveryClaimedRows: PortalDetailValue;
+  readonly notificationReceiptClaimedRows: PortalDetailValue;
+  readonly physicalDeviceClaimedRows: PortalDetailValue;
+  readonly authorityClaimedRows: PortalDetailValue;
+  readonly productClaimReadyRows: PortalDetailValue;
+  readonly rows: readonly TrackingFamilyDashboardHostedRollupRow[];
+};
+
 type TrackingStatusRetentionProofDefinition = {
   readonly historyVisibility: PortalTextTokenValue;
   readonly deletedEvidence: PortalTextTokenValue;
@@ -127,6 +154,14 @@ type TrackingUnsupportedManualPlatformDefinition = {
   readonly titleToken: PortalTextTokenValue;
   readonly supportStateToken: PortalTextTokenValue;
   readonly renderedStateToken: PortalTextTokenValue;
+};
+
+type TrackingFamilyDashboardHostedRollupDefinition = {
+  readonly titleToken: PortalTextTokenValue;
+  readonly evidenceToken: PortalTextTokenValue;
+  readonly visibleChildren: number;
+  readonly attentionItems: number;
+  readonly retainedAuditItems: number;
 };
 
 const TrackingStatusProofRowDefinitions = [
@@ -239,8 +274,53 @@ const TrackingUnsupportedManualPlatformDefinitions = [
   },
 ] as const satisfies readonly TrackingUnsupportedManualPlatformDefinition[];
 
+const TrackingFamilyDashboardHostedRollupDefinitions = [
+  {
+    titleToken: PortalTextToken.TrackingFamilyDashboardActiveSummary,
+    evidenceToken: PortalTextToken.TrackingFamilyDashboardActiveEvidence,
+    visibleChildren: 2,
+    attentionItems: 1,
+    retainedAuditItems: 0,
+  },
+  {
+    titleToken: PortalTextToken.TrackingFamilyDashboardChildAttention,
+    evidenceToken: PortalTextToken.TrackingFamilyDashboardChildAttentionEvidence,
+    visibleChildren: 1,
+    attentionItems: 2,
+    retainedAuditItems: 0,
+  },
+  {
+    titleToken: PortalTextToken.TrackingFamilyDashboardRetentionAudit,
+    evidenceToken: PortalTextToken.TrackingFamilyDashboardRetentionAuditEvidence,
+    visibleChildren: 0,
+    attentionItems: 0,
+    retainedAuditItems: 2,
+  },
+] as const satisfies readonly TrackingFamilyDashboardHostedRollupDefinition[];
+
 export function trackingStatusProofRows(): readonly TrackingStatusProofRow[] {
   return TrackingStatusProofRowDefinitions.map((definition) => row(definition));
+}
+
+export function trackingFamilyDashboardHostedRollupProof(): TrackingFamilyDashboardHostedRollupProof {
+  const rows = TrackingFamilyDashboardHostedRollupDefinitions.map((definition) => familyDashboardRollupRow(definition));
+  return {
+    title: PortalText.Resolve(PortalTextToken.TrackingFamilyDashboardRollup),
+    body: PortalText.Resolve(PortalTextToken.TrackingFamilyDashboardRollupBody),
+    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofService),
+    rowsReturned: detailFromValue(rows.length),
+    proofArtifact: TrackingStatusProofArtifacts.FamilyDashboardRollup,
+    boundary: PortalText.Resolve(PortalTextToken.TrackingFamilyDashboardHostedBoundary),
+    missingProof: PortalText.Resolve(PortalTextToken.TrackingManualRequired),
+    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
+    childDeviceDeliveryClaimedRows: detailFromValue(0),
+    providerDeliveryClaimedRows: detailFromValue(0),
+    notificationReceiptClaimedRows: detailFromValue(0),
+    physicalDeviceClaimedRows: detailFromValue(0),
+    authorityClaimedRows: detailFromValue(0),
+    productClaimReadyRows: detailFromValue(0),
+    rows,
+  };
 }
 
 export function trackingUnsupportedManualPlatformProof(): TrackingUnsupportedManualPlatformProof {
@@ -384,6 +464,7 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
     const liveSummary = trackingStatusLiveSummary(liveActivity);
     dashboard.append(renderTrackingStatusLiveSummary(liveSummary));
     dashboard.append(renderTrackingStatusServiceDataCoverage(trackingStatusServiceDataCoverage(liveActivity)));
+    dashboard.append(renderTrackingFamilyDashboardHostedRollupProof(trackingFamilyDashboardHostedRollupProof()));
     for (const citation of liveSummary.citations) {
       dashboard.append(renderTrackingStatusLiveCitation(citation));
     }
@@ -425,6 +506,19 @@ function unsupportedManualRow(
     title: PortalText.Resolve(definition.titleToken),
     supportState: PortalText.Resolve(definition.supportStateToken),
     renderedState: PortalText.Resolve(definition.renderedStateToken),
+  };
+}
+
+function familyDashboardRollupRow(
+  definition: TrackingFamilyDashboardHostedRollupDefinition
+): TrackingFamilyDashboardHostedRollupRow {
+  return {
+    title: PortalText.Resolve(definition.titleToken),
+    status: PortalText.Resolve(PortalTextToken.TrackingFamilyDashboardRollupReady),
+    visibleChildren: detailFromValue(definition.visibleChildren),
+    attentionItems: detailFromValue(definition.attentionItems),
+    retainedAuditItems: detailFromValue(definition.retainedAuditItems),
+    evidence: PortalText.Resolve(definition.evidenceToken),
   };
 }
 
@@ -508,6 +602,53 @@ function appendUnsupportedManualSummary(
   appendDetail(metadata, PortalDetails.Device, proof.physicalDeviceClaimedRows);
   appendDetail(metadata, PortalDetails.Enforcement, proof.authorityClaimedRows);
   appendDetail(metadata, PortalDetails.ManualReview, proof.authorityRequiredRows);
+}
+
+function renderTrackingFamilyDashboardHostedRollupProof(
+  proof: TrackingFamilyDashboardHostedRollupProof
+): HTMLElement {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+  panel.setAttribute(PortalDom.Attributes.DataTrackingProof, PortalDom.Attributes.TrackingProofFamilyDashboard);
+
+  const title = document.createElement(PortalDom.Tags.HeadingTwo);
+  title.textContent = proof.title;
+
+  const body = document.createElement(PortalDom.Tags.Paragraph);
+  body.className = PortalDom.Classes.CommandResultEmpty;
+  body.textContent = proof.body;
+
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendFamilyDashboardRollupSummary(metadata, proof);
+  for (const proofRow of proof.rows) {
+    appendDetail(metadata, PortalDetails.Title, toDetail(proofRow.title));
+    appendDetail(metadata, PortalDetails.Status, toDetail(proofRow.status));
+    appendDetail(metadata, PortalDetails.Device, proofRow.visibleChildren);
+    appendDetail(metadata, PortalDetails.RowCount, proofRow.attentionItems);
+    appendDetail(metadata, PortalDetails.HistoryVisibility, proofRow.retainedAuditItems);
+    appendDetail(metadata, PortalDetails.EvidenceReferences, toDetail(proofRow.evidence));
+  }
+
+  panel.append(title, body, metadata);
+  return panel;
+}
+
+function appendFamilyDashboardRollupSummary(
+  metadata: HTMLDListElement,
+  proof: TrackingFamilyDashboardHostedRollupProof
+): void {
+  appendDetail(metadata, PortalDetails.ProofTier, toDetail(proof.proofTier));
+  appendDetail(metadata, PortalDetails.RowsReturned, proof.rowsReturned);
+  appendDetail(metadata, PortalDetails.RuntimeReference, toDetail(proof.proofArtifact));
+  appendDetail(metadata, PortalDetails.AdapterBoundary, toDetail(proof.boundary));
+  appendDetail(metadata, PortalDetails.MissingProof, toDetail(proof.missingProof));
+  appendDetail(metadata, PortalDetails.ProductClaim, toDetail(proof.productClaim));
+  appendDetail(metadata, PortalDetails.ChildDelivery, proof.childDeviceDeliveryClaimedRows);
+  appendDetail(metadata, PortalDetails.Provider, proof.providerDeliveryClaimedRows);
+  appendDetail(metadata, PortalDetails.Events, proof.notificationReceiptClaimedRows);
+  appendDetail(metadata, PortalDetails.Device, proof.physicalDeviceClaimedRows);
+  appendDetail(metadata, PortalDetails.Enforcement, proof.authorityClaimedRows);
+  appendDetail(metadata, PortalDetails.PolicyReadiness, proof.productClaimReadyRows);
 }
 
 function renderTrackingStatusLiveSummary(summary: TrackingStatusLiveSummary): HTMLElement {
