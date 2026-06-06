@@ -25,6 +25,12 @@ import { resolveDebugAgentServicePath, spawnVitePortal, stopProcessTreeAndWait }
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const portalRoot = path.join(repoRoot, 'apps', 'portal');
 const workpack30 = path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces');
+const workpack31 = path.join(
+  repoRoot,
+  'output',
+  'tracking-plan-proof',
+  '31-platform-extension-checklists-and-proof-routing'
+);
 const workpack33 = path.join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
 const proofResultDir = path.join(repoRoot, 'test-results', 'tracking-plan-hosted-ui-proof');
 const proofPath = path.join(proofResultDir, 'proof.json');
@@ -42,6 +48,8 @@ const childRuntimeUiScreenshot = path.join(
   'hosted-policy-tracking-child-runtime-ui.png'
 );
 const childRuntimeUiProofPath = path.join(workpack30, '19-child-runtime-ui-proof.json');
+const unsupportedManualScreenshot = path.join(workpack31, '19-unsupported-manual-hosted-ui.png');
+const unsupportedManualHostedProofPath = path.join(workpack31, '19-unsupported-manual-hosted-ui-proof.json');
 const accessibilitySummaryPath = path.join(proofResultDir, 'accessibility-summary.json');
 const runRoot = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-tracking-hosted-ui-'));
 const devLogDir = path.join(runRoot, 'dev-log');
@@ -65,6 +73,7 @@ let stopping = false;
 try {
   await mkdir(devLogDir, { recursive: true });
   await mkdir(workpack30, { recursive: true });
+  await mkdir(workpack31, { recursive: true });
   await mkdir(workpack33, { recursive: true });
   await mkdir(proofResultDir, { recursive: true });
   await seedActivityStore();
@@ -325,6 +334,7 @@ async function writeProof(playwright) {
     commit: await gitHead(),
     workpackIds: [
       '30-parent-and-child-ui-ux-surfaces',
+      '31-platform-extension-checklists-and-proof-routing',
       '32-journal-sqlite-and-read-model-proof',
       '33-proof-gates-fixtures-rollout-and-pr-gate',
     ],
@@ -358,6 +368,8 @@ async function writeProof(playwright) {
       childCheckInScreenshot: relativePath(childCheckInScreenshot),
       childRuntimeUiScreenshot: relativePath(childRuntimeUiScreenshot),
       childRuntimeUiProof: relativePath(childRuntimeUiProofPath),
+      unsupportedManualPlatformScreenshot: relativePath(unsupportedManualScreenshot),
+      unsupportedManualPlatformProof: relativePath(unsupportedManualHostedProofPath),
       accessibilitySummary: relativePath(accessibilitySummaryPath),
     },
     accessibilitySummary,
@@ -375,11 +387,27 @@ async function writeProof(playwright) {
       ],
       productClaimReady: false,
     },
+    unsupportedManualPlatformProof: {
+      sourceProof: 'output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json',
+      screenshot: relativePath(unsupportedManualScreenshot),
+      rowCount: 7,
+      renderedStates: {
+        manualRequired: 5,
+        unavailable: 1,
+        authorityRequired: 1,
+      },
+      fakeCapabilityRows: 0,
+      productClaimReadyRows: 0,
+      physicalDeviceClaimedRows: 0,
+      authorityClaimedRows: 0,
+      productClaimReady: false,
+    },
     nonClaims: [
       'This proof does not claim Android or iOS physical background tracking behavior.',
       'This proof does not claim real physical-device location, geofence, provider, or notification delivery.',
       'This proof uses a seeded temporary ActivityStore SQLite database to prove hosted portal rendering against the real Rust service command.',
       'This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.',
+      'This proof renders unsupported/manual platform rows in the hosted portal but does not claim physical-device execution, authority enrollment, provider delivery, or product-ready tracking.',
       'This proof does not claim full child-device UI or authority-enrolled hard-control readiness.',
     ],
     remainingGapsBeforeProductReady: [
@@ -393,6 +421,7 @@ async function writeProof(playwright) {
   await writeFile(outputProofPath, proofContent);
   await writeFile(gateProofPath, proofContent);
   await writeFile(childRuntimeUiProofPath, proofContent);
+  await writeFile(unsupportedManualHostedProofPath, proofContent);
   await writeFile(
     securityLogPath,
     [
@@ -403,6 +432,8 @@ async function writeProof(playwright) {
       'asserted=child check-in copy and actions visible without child-device delivery claim',
       'asserted=child runtime UI disclosure, safe/help response, and location-share consent copy visible',
       'asserted=hosted proof only boundary visible for child runtime UI',
+      'asserted=unsupported/manual platform rows render manual-required, unavailable, and authority-required states',
+      'asserted=unsupported/manual platform rows keep fakeCapabilityRows=0 and productClaimReady=false',
       'asserted=productClaimReady=false',
     ].join('\n') + '\n'
   );

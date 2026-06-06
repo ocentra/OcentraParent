@@ -15,6 +15,7 @@ import {
   trackingStatusLiveSummary,
   trackingStatusProofRows,
   trackingStatusServiceDataCoverage,
+  trackingUnsupportedManualPlatformProof,
 } from '../src/tracking-status-panel';
 
 const ExpectedTrackingStateTitles = [
@@ -175,6 +176,44 @@ const ExpectedTrackingServiceDataCoverage = {
   productClaim: 'No product claim',
 } as const;
 
+const ExpectedUnsupportedManualRows = [
+  {
+    title: 'Android background location manual required',
+    supportState: 'manual-required',
+    renderedState: 'manual-required',
+  },
+  {
+    title: 'Android geofence transition manual required',
+    supportState: 'manual-required',
+    renderedState: 'manual-required',
+  },
+  {
+    title: 'iOS background location manual required',
+    supportState: 'manual-required',
+    renderedState: 'manual-required',
+  },
+  {
+    title: 'iOS geofence transition manual required',
+    supportState: 'manual-required',
+    renderedState: 'manual-required',
+  },
+  {
+    title: 'Windows desktop OS location manual required',
+    supportState: 'manual-required',
+    renderedState: 'manual-required',
+  },
+  {
+    title: 'Web child agent location unavailable',
+    supportState: 'platform-unsupported',
+    renderedState: 'unavailable',
+  },
+  {
+    title: 'Authority hard-control proof required',
+    supportState: 'real-device-required',
+    renderedState: 'authority-required',
+  },
+] as const;
+
 describe('tracking status proof surface', () => {
   it('lists the first-target tracking states as fixture proof without product claims', () => {
     const rows = trackingStatusProofRows();
@@ -211,6 +250,32 @@ describe('tracking status proof surface', () => {
     const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
 
     expect(trackingStatusServiceDataCoverage(liveActivity)).toEqual(ExpectedTrackingServiceDataCoverage);
+  });
+
+  it('renders unsupported/manual platform rows without invented capability or product claims', () => {
+    const proof = trackingUnsupportedManualPlatformProof();
+
+    expect(proof).toEqual({
+      title: 'Unsupported/manual tracking platform proof',
+      body: 'Unsupported platform and manual-required adapter rows render as degraded states without invented capability.',
+      proofTier: 'P1 fixture proof',
+      rowsReturned: '7',
+      manualRequiredRows: '5',
+      unavailableRows: '1',
+      authorityRequiredRows: '1',
+      fakeCapabilityRows: '0',
+      productClaimReadyRows: '0',
+      physicalDeviceClaimedRows: '0',
+      authorityClaimedRows: '0',
+      evidence: 'UI fixture proof',
+      proofArtifact: TrackingStatusProofArtifacts.UnsupportedManualPlatform,
+      missingProof: 'Manual proof required',
+      boundary:
+        'Hosted render-state proof only; physical-device, authority, provider delivery, and product readiness remain unclaimed.',
+      productClaim: 'No product claim',
+      rows: ExpectedUnsupportedManualRows,
+    });
+    expect(JSON.stringify(proof)).not.toMatch(/(?:product ready|physical device proved|authority proved)/iu);
   });
 });
 

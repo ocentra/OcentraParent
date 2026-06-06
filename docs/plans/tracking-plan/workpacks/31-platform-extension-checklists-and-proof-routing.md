@@ -24,6 +24,8 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
 - `18-ios-simulator-proof.json`
+- `19-unsupported-manual-hosted-ui-proof.json`
+- `19-unsupported-manual-hosted-ui.png`
 
 ## AI Worker Checklist
 
@@ -54,6 +56,16 @@ iOS simulator build/install/launch smoke. It keeps Core Location,
 background/region, notification, entitlement, signing, TestFlight/App Store,
 physical-device, and authority behavior as separate manual-required claims.
 
+Hosted unsupported/manual platform UI proof now exists through
+`npm run test:tracking-plan-hosted-ui-proof`. The hosted parent
+`policy-tracking` route renders the existing unsupported-platform manual proof
+rows for Android/iOS background and geofence gaps, desktop OS location, web
+child-agent unavailability, and authority-required hard control. The proof
+captures `19-unsupported-manual-hosted-ui.png` and writes
+`19-unsupported-manual-hosted-ui-proof.json` under this workpack root while
+keeping physical-device execution, authority enrollment, provider delivery, and
+product-ready tracking unclaimed.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.
@@ -71,6 +83,10 @@ This workpack can be assigned independently, implemented against the owning doma
 - docs/plans/tracking-plan/implementation-checklist.md
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
 - `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`
+- `apps/portal/src/tracking-status-panel.ts`
+- `apps/portal/src/TrackingStatusRoutePanel.tsx`
+- `apps/portal/e2e/tracking-hosted-ui-proof.spec.ts`
+- `scripts/test/tracking-plan-hosted-ui-proof.mjs`
 - Implementation paths listed by the worker before editing.
 
 ## Manual-Required Gaps
@@ -100,3 +116,19 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Known gaps/manual-required states: Core Location, background/region,
       notifications, entitlements, signing/TestFlight/App Store, physical-device,
       authority, and production proof remain unclaimed.
+- [x] Workpack id and branch:
+      `codex/tracking-unsupported-manual-hosted-ui-proof`.
+- [x] Touched files: hosted tracking portal proof renderer, text/artifact
+      domain constants, Playwright hosted proof, proof script, portal README,
+      feature doc, tracking implementation checklist, and this workpack doc.
+- [x] Validation commands and results: `npm run build:contracts` passed; focused
+      portal tracking-status-panel test passed before hosted proof validation.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`.
+- [x] Product doc/checklist updates: owning feature doc and tracking
+      implementation checklist updated; central product capability checklist
+      remains E-C/primary-owned and should receive the same row delta through
+      hub.
+- [x] Known gaps/manual-required states: physical-device execution, authority
+      enrollment, provider delivery, production worker, and product-ready
+      tracking remain unclaimed.

@@ -85,6 +85,32 @@ export type TrackingStatusServiceDataCoverage = {
   readonly productClaim: PortalDisplayText;
 };
 
+export type TrackingUnsupportedManualPlatformRow = {
+  readonly title: PortalDisplayText;
+  readonly supportState: PortalDisplayText;
+  readonly renderedState: PortalDisplayText;
+};
+
+export type TrackingUnsupportedManualPlatformProof = {
+  readonly title: PortalDisplayText;
+  readonly body: PortalDisplayText;
+  readonly proofTier: PortalDisplayText;
+  readonly rowsReturned: PortalDetailValue;
+  readonly manualRequiredRows: PortalDetailValue;
+  readonly unavailableRows: PortalDetailValue;
+  readonly authorityRequiredRows: PortalDetailValue;
+  readonly fakeCapabilityRows: PortalDetailValue;
+  readonly productClaimReadyRows: PortalDetailValue;
+  readonly physicalDeviceClaimedRows: PortalDetailValue;
+  readonly authorityClaimedRows: PortalDetailValue;
+  readonly evidence: PortalDisplayText;
+  readonly proofArtifact: TrackingStatusProofArtifact;
+  readonly missingProof: PortalDisplayText;
+  readonly boundary: PortalDisplayText;
+  readonly productClaim: PortalDisplayText;
+  readonly rows: readonly TrackingUnsupportedManualPlatformRow[];
+};
+
 type TrackingStatusRetentionProofDefinition = {
   readonly historyVisibility: PortalTextTokenValue;
   readonly deletedEvidence: PortalTextTokenValue;
@@ -95,6 +121,12 @@ type TrackingStatusProofRowDefinition = {
   readonly evidenceToken: PortalTextTokenValue;
   readonly proofArtifact: TrackingStatusProofArtifact;
   readonly retentionProof?: TrackingStatusRetentionProofDefinition;
+};
+
+type TrackingUnsupportedManualPlatformDefinition = {
+  readonly titleToken: PortalTextTokenValue;
+  readonly supportStateToken: PortalTextTokenValue;
+  readonly renderedStateToken: PortalTextTokenValue;
 };
 
 const TrackingStatusProofRowDefinitions = [
@@ -169,8 +201,69 @@ const TrackingStatusProofRowDefinitions = [
   },
 ] as const satisfies readonly TrackingStatusProofRowDefinition[];
 
+const TrackingUnsupportedManualPlatformDefinitions = [
+  {
+    titleToken: PortalTextToken.TrackingUnsupportedManualAndroidBackground,
+    supportStateToken: PortalTextToken.TrackingSupportManualRequired,
+    renderedStateToken: PortalTextToken.TrackingRenderedManualRequired,
+  },
+  {
+    titleToken: PortalTextToken.TrackingUnsupportedManualAndroidGeofence,
+    supportStateToken: PortalTextToken.TrackingSupportManualRequired,
+    renderedStateToken: PortalTextToken.TrackingRenderedManualRequired,
+  },
+  {
+    titleToken: PortalTextToken.TrackingUnsupportedManualIosBackground,
+    supportStateToken: PortalTextToken.TrackingSupportManualRequired,
+    renderedStateToken: PortalTextToken.TrackingRenderedManualRequired,
+  },
+  {
+    titleToken: PortalTextToken.TrackingUnsupportedManualIosGeofence,
+    supportStateToken: PortalTextToken.TrackingSupportManualRequired,
+    renderedStateToken: PortalTextToken.TrackingRenderedManualRequired,
+  },
+  {
+    titleToken: PortalTextToken.TrackingUnsupportedManualDesktopOs,
+    supportStateToken: PortalTextToken.TrackingSupportManualRequired,
+    renderedStateToken: PortalTextToken.TrackingRenderedManualRequired,
+  },
+  {
+    titleToken: PortalTextToken.TrackingUnsupportedManualWebChildAgent,
+    supportStateToken: PortalTextToken.TrackingSupportPlatformUnsupported,
+    renderedStateToken: PortalTextToken.TrackingRenderedUnavailable,
+  },
+  {
+    titleToken: PortalTextToken.TrackingUnsupportedManualAuthorityHardControl,
+    supportStateToken: PortalTextToken.TrackingSupportRealDeviceRequired,
+    renderedStateToken: PortalTextToken.TrackingRenderedAuthorityRequired,
+  },
+] as const satisfies readonly TrackingUnsupportedManualPlatformDefinition[];
+
 export function trackingStatusProofRows(): readonly TrackingStatusProofRow[] {
   return TrackingStatusProofRowDefinitions.map((definition) => row(definition));
+}
+
+export function trackingUnsupportedManualPlatformProof(): TrackingUnsupportedManualPlatformProof {
+  const rows = TrackingUnsupportedManualPlatformDefinitions.map((definition) => unsupportedManualRow(definition));
+  return {
+    title: PortalText.Resolve(PortalTextToken.TrackingUnsupportedManualProofTitle),
+    body: PortalText.Resolve(PortalTextToken.TrackingUnsupportedManualProofBody),
+    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofFixture),
+    rowsReturned: detailFromValue(rows.length),
+    manualRequiredRows: renderedStateCount(rows, PortalTextToken.TrackingRenderedManualRequired),
+    unavailableRows: renderedStateCount(rows, PortalTextToken.TrackingRenderedUnavailable),
+    authorityRequiredRows: renderedStateCount(rows, PortalTextToken.TrackingRenderedAuthorityRequired),
+    fakeCapabilityRows: detailFromValue(0),
+    productClaimReadyRows: detailFromValue(0),
+    physicalDeviceClaimedRows: detailFromValue(0),
+    authorityClaimedRows: detailFromValue(0),
+    evidence: PortalText.Resolve(PortalTextToken.TrackingEvidenceUiFixture),
+    proofArtifact: TrackingStatusProofArtifacts.UnsupportedManualPlatform,
+    missingProof: PortalText.Resolve(PortalTextToken.TrackingManualRequired),
+    boundary: PortalText.Resolve(PortalTextToken.TrackingUnsupportedManualBoundary),
+    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
+    rows,
+  };
 }
 
 export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState): TrackingStatusLiveSummary {
@@ -296,6 +389,7 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
     }
     dashboard.append(renderTrackingChildCheckInProof(trackingChildCheckInProof()));
     dashboard.append(renderTrackingChildRuntimeUiProof(trackingChildRuntimeUiProof()));
+    dashboard.append(renderTrackingUnsupportedManualPlatformProof(trackingUnsupportedManualPlatformProof()));
     for (const proofRow of trackingStatusProofRows()) {
       dashboard.append(renderTrackingStatusRow(proofRow));
     }
@@ -322,6 +416,24 @@ function row(definition: TrackingStatusProofRowDefinition): TrackingStatusProofR
     historyVisibility: PortalText.Resolve(retentionProof.historyVisibility),
     deletedEvidence: PortalText.Resolve(retentionProof.deletedEvidence),
   };
+}
+
+function unsupportedManualRow(
+  definition: TrackingUnsupportedManualPlatformDefinition
+): TrackingUnsupportedManualPlatformRow {
+  return {
+    title: PortalText.Resolve(definition.titleToken),
+    supportState: PortalText.Resolve(definition.supportStateToken),
+    renderedState: PortalText.Resolve(definition.renderedStateToken),
+  };
+}
+
+function renderedStateCount(
+  rows: readonly TrackingUnsupportedManualPlatformRow[],
+  renderedStateToken: PortalTextTokenValue
+): PortalDetailValue {
+  const renderedState = PortalText.Resolve(renderedStateToken);
+  return detailFromValue(rows.filter((rowValue) => rowValue.renderedState === renderedState).length);
 }
 
 function missingProofForEvidence(evidenceToken: PortalTextTokenValue): PortalDisplayText {
@@ -354,6 +466,48 @@ function renderTrackingStatusRow(proofRow: TrackingStatusProofRow): HTMLElement 
 
   panel.append(title, metadata);
   return panel;
+}
+
+function renderTrackingUnsupportedManualPlatformProof(proof: TrackingUnsupportedManualPlatformProof): HTMLElement {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+
+  const title = document.createElement(PortalDom.Tags.HeadingTwo);
+  title.textContent = proof.title;
+
+  const body = document.createElement(PortalDom.Tags.Paragraph);
+  body.className = PortalDom.Classes.CommandResultEmpty;
+  body.textContent = proof.body;
+
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendUnsupportedManualSummary(metadata, proof);
+  for (const proofRow of proof.rows) {
+    appendDetail(metadata, PortalDetails.Title, toDetail(proofRow.title));
+    appendDetail(metadata, PortalDetails.ReadinessKind, toDetail(proofRow.supportState));
+    appendDetail(metadata, PortalDetails.Status, toDetail(proofRow.renderedState));
+  }
+
+  panel.append(title, body, metadata);
+  return panel;
+}
+
+function appendUnsupportedManualSummary(
+  metadata: HTMLDListElement,
+  proof: TrackingUnsupportedManualPlatformProof
+): void {
+  appendDetail(metadata, PortalDetails.ProofTier, toDetail(proof.proofTier));
+  appendDetail(metadata, PortalDetails.RowsReturned, proof.rowsReturned);
+  appendDetail(metadata, PortalDetails.Status, sequenceDetail([proof.manualRequiredRows, proof.unavailableRows]));
+  appendDetail(metadata, PortalDetails.AdapterBoundary, toDetail(proof.boundary));
+  appendDetail(metadata, PortalDetails.EvidenceReferences, toDetail(proof.evidence));
+  appendDetail(metadata, PortalDetails.RuntimeReference, toDetail(proof.proofArtifact));
+  appendDetail(metadata, PortalDetails.MissingProof, toDetail(proof.missingProof));
+  appendDetail(metadata, PortalDetails.ProductClaim, toDetail(proof.productClaim));
+  appendDetail(metadata, PortalDetails.Provider, proof.fakeCapabilityRows);
+  appendDetail(metadata, PortalDetails.PolicyReadiness, proof.productClaimReadyRows);
+  appendDetail(metadata, PortalDetails.Device, proof.physicalDeviceClaimedRows);
+  appendDetail(metadata, PortalDetails.Enforcement, proof.authorityClaimedRows);
+  appendDetail(metadata, PortalDetails.ManualReview, proof.authorityRequiredRows);
 }
 
 function renderTrackingStatusLiveSummary(summary: TrackingStatusLiveSummary): HTMLElement {
