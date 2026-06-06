@@ -2,7 +2,7 @@
   "proofMode": "tracking-notification-receipt-boundary-proof",
   "generatedAt": "2026-06-06T07:04:00.000Z",
   "branch": "codex/tracking-notification-receipt-boundary-proof",
-  "commit": "373624f7b15f0b00fe39aa805c668d997507eef7",
+  "commit": "730ddc8d01c5cd82d62c1d47d1e4a5b80b7a2187",
   "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",

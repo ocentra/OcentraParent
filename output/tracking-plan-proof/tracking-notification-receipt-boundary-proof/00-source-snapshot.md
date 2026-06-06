@@ -1,7 +1,7 @@
 # Tracking Notification Receipt Boundary Source Snapshot
 
 - Branch: codex/tracking-notification-receipt-boundary-proof
-- Commit: 373624f7b15f0b00fe39aa805c668d997507eef7
+- Commit: 730ddc8d01c5cd82d62c1d47d1e4a5b80b7a2187
 - Git status at proof generation:
 
 ```text
