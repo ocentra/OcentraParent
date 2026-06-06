@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-06T07:37:43.620Z",
+  "generatedAt": "2026-06-06T07:56:30.295Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -391,6 +391,7 @@
     "playwright": "service-backed-dashboard-and-explanation-playwright-present",
     "renderedUi": "parent-dashboard-child-intervention-parent-explanation-proof-present",
     "serviceBackedExplanationReadModel": "proof-present",
+    "alertReportIntent": "proof-present",
     "enforcement": "not-claimed",
     "productChecklistUpgrade": "not-claimed"
   },

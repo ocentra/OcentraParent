@@ -493,6 +493,14 @@
       "import": "./dist/social-audit-explanation-read-model.js",
       "types": "./dist/social-audit-explanation-read-model.d.ts"
     },
+    "./social-alert-report-intent-values": {
+      "import": "./dist/social-alert-report-intent-values.js",
+      "types": "./dist/social-alert-report-intent-values.d.ts"
+    },
+    "./social-alert-report-intent": {
+      "import": "./dist/social-alert-report-intent.js",
+      "types": "./dist/social-alert-report-intent.d.ts"
+    },
     "./social-child-approval-block-ux-values": {
       "import": "./dist/social-child-approval-block-ux-values.js",
       "types": "./dist/social-child-approval-block-ux-values.d.ts"
