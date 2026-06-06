@@ -96,6 +96,14 @@ Release features are product features because parents need install/update paths 
   public publication, legal execution, support backend upload execution, account
   lookup, billing provider contact, remote support sessions, production SLA,
   provider secrets, and child-activity custody unclaimed.
+- V8 production support publication runtime readiness proof that records public
+  runtime, support runbook publication runner, incident status publication
+  runner, support upload publication runtime, privacy/legal publication runtime,
+  and public support contact runtime readiness rows while keeping real public
+  runtime execution, publication runner execution, support backend upload
+  execution, account lookup, billing provider contact, remote support sessions,
+  production SLA, legal disclosure execution, provider secrets, and
+  child-activity custody unclaimed.
 
 ## Acceptance
 
@@ -215,6 +223,16 @@ Release features are product features because parents need install/update paths 
   contact, remote support session execution, production SLA, raw child activity
   custody, provider secrets, default Ocentra-hosted family data, or raw support
   bundle payloads.
+- `production-support-publication-runtime-readiness-proof` may prove
+  source-backed runtime readiness rows for public runtime, support runbook
+  publication runner, incident status publication runner, support upload
+  publication runtime, privacy/legal publication runtime, and public support
+  contact runtime handoffs, but it must not claim real public runtime execution,
+  publication runner execution, support backend upload execution, account lookup
+  execution, billing provider contact, remote support session execution,
+  production SLA, legal disclosure execution, raw child activity custody,
+  provider secrets, default Ocentra-hosted family data, or raw support bundle
+  payloads.
 - `production-support-account-sla-status-proof` may prove account lookup,
   billing provider contact, remote support request/session, and production SLA
   status rows as manual-required or not-implemented support boundaries, but it

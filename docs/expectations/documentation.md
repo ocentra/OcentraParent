@@ -59,6 +59,16 @@ replace the constitution, roadmap, or capability checklist.
   provider secrets, remote support transcripts, real backend upload execution,
   account lookup execution, billing provider execution, default Ocentra-hosted
   family data, and production SLA as gaps until real evidence exists.
+- `production-support-publication-runtime-readiness-proof` may prove
+  source-backed publication/runtime readiness rows for public runtime, support
+  runbook publication runner, incident status publication runner, support upload
+  publication runtime, privacy/legal publication runtime, and public support
+  contact runtime handoffs, but docs must still label real public runtime
+  execution, publication runner execution, support backend upload execution,
+  account lookup execution, billing provider contact execution, remote support
+  sessions, legal disclosure execution, provider secrets, raw child activity
+  custody, default Ocentra-hosted family data, and production SLA as gaps until
+  real evidence exists.
 
 ## Required Structure
 
