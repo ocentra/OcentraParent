@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 5;
+    const isComplete = rowNumber <= 6;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -76,7 +76,9 @@ function expectedRows() {
               ? 'live-portal-pattern-proof-present'
               : rowNumber === 4
                 ? 'live-cloud-pattern-proof-present'
-                : 'live-url-shape-proof-present'
+                : rowNumber === 5
+                  ? 'live-url-shape-proof-present'
+                  : 'live-runtime-signal-shape-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -177,6 +179,7 @@ function manifestFor(rows, failures) {
       livePortalPatternEvidence: 'game-03-live-portal-pattern-proof-present',
       liveCloudPatternEvidence: 'game-04-live-cloud-pattern-proof-present',
       liveUrlShapeEvidence: 'game-05-live-url-shape-proof-present',
+      liveRuntimeSignalEvidence: 'game-06-live-runtime-signal-shape-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -215,6 +218,8 @@ function markdownFor(manifest) {
     'cloud-gaming and cloud-PC surfaces with ref-only/hash-only custody.',
     'GAME-05 live URL-shape parser proof is present for real public',
     'browser-game and cloud-gaming route surfaces with ref-only/hash-only custody.',
+    'GAME-06 live runtime signal shape proof is present for real public',
+    'browser-game and cloud-gaming pages through Playwright with ref-only/hash-only custody.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

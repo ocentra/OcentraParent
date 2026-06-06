@@ -158,7 +158,12 @@ runtime shapes through fingerprints, evidence refs, source kinds, confidence,
 status, and reason codes. They reject raw DOM, canvas frame, stream frame,
 audio, and gamepad input storage; browser instrumentation, runtime detection
 execution, AI classification, final policy decisions, cloud-frame analysis,
-native game control, and enforcement. Package subpath exports are now present.
+native game control, and enforcement. The live Playwright proof opens real
+public Poki, Coolmath Games, Chess.com play, and Xbox Cloud Gaming pages in
+Chromium; stores only response metadata, hashed origin/path refs, shape booleans,
+and fingerprints; parses 12 runtime signal rows plus a detection bundle; and
+rejects 27 raw-runtime-data/instrumentation, AI, policy, native, cloud-frame, and
+enforcement overclaims. Package subpath exports are now present.
 
 GAME-07 now adds parent-domain metadata extractor contracts in
 `packages/parent-domain/src/browser-game-metadata-extractor.ts`. Field rows
@@ -361,7 +366,8 @@ GAME-24 now adds the browser-game rollout/manual-required gate in
 partial/manual-required. The gate labels GAME-01 as scaffold-proof-present,
 GAME-02 as live-route-proof-present, GAME-03 as
 live-portal-pattern-proof-present, GAME-04 as live-cloud-pattern-proof-present,
-GAME-05 as live-url-shape-proof-present, GAME-06 through GAME-24 as
+GAME-05 as live-url-shape-proof-present, GAME-06 as
+live-runtime-signal-shape-proof-present, GAME-07 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
 Product checklist upgrade is not claimed; runtime signals, metadata, AI,
 memory, child/parent UI, cloud-streamed frame analysis, native game control, and

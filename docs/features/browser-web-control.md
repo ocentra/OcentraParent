@@ -338,7 +338,10 @@ pointer-lock, audio, animation-loop, iframe surface, cloud-streaming, and
 unknown/manual-required states through fingerprints and evidence refs. They do
 not store raw runtime data, instrument browsers, execute runtime detection, run
 AI, decide policy, inspect cloud frames, control native games, or enforce
-actions.
+actions. The live Playwright proof opens real public Poki, Coolmath Games,
+Chess.com play, and Xbox Cloud Gaming pages in Chromium; stores only response
+metadata, hashed origin/path refs, shape booleans, and fingerprints; parses 12
+runtime signal rows plus a detection bundle; and rejects 27 overclaims.
 Browser-game/cloud-gaming GAME-07 now adds parent-domain metadata extractor
 contracts. Field rows model redacted title, description, genre, age-rating,
 publisher, thumbnail, educational subject, cloud platform title, and
@@ -484,7 +487,8 @@ partial/manual-required through the rollout gate. Product checklist upgrade is
 not claimed. GAME-01 is scaffold-proof-present, GAME-02 is
 live-route-proof-present, GAME-03 is live-portal-pattern-proof-present, GAME-04
 is live-cloud-pattern-proof-present, and GAME-05 is live-url-shape-proof-present.
-GAME-06 through GAME-24 are partial/manual-required. Runtime, metadata, AI, memory, UI, cloud-streamed
+GAME-06 is live-runtime-signal-shape-proof-present. GAME-07 through GAME-24 are
+partial/manual-required. Metadata, AI, memory, UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.
 Browser AI enhancement rows AI-01 and AI-02 now add plan linkage and
