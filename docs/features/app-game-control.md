@@ -753,6 +753,20 @@ mobile UI, or prove platform support.
       storage, audit runtime, durable audit logs, rollback runtime/execution,
       adapter dispatch, child delivery, broad blocking, platform enforcement,
       or raw private source rows.
+      Source-gated policy preview timer service-readiness protocol command
+      handoff proof now consumes those protocol read-model rows and records
+      that future command/service visibility still requires agent-protocol
+      command proof, reported-event proof, Rust protocol mirror proof, service
+      handler proof, and service read-API proof, while source and compiler
+      blockers remain blocked before service command registration. It remains
+      parent-domain proof only and does not claim agent-protocol
+      implementation, Rust protocol mirror, service command registration,
+      service handler implementation, service event emission, service read API
+      implementation, portal UI, evaluator runtime, timer runtime/scheduling,
+      scheduler persistence runtime, durable scheduler storage, audit runtime,
+      durable audit logs, rollback runtime/execution, adapter dispatch, child
+      delivery, broad blocking, platform enforcement, or raw private source
+      rows.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
