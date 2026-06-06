@@ -56,13 +56,15 @@ target refs, audit refs, child-facing delivery proof, and portal proof.
 - Proof pack:
   `output/browser-plan-proof/17-managed-intervention-and-block-page/`
 - Latest real browser proof:
-  `test-results/managed-browser-intervention-proof/2026-06-02T23-29-49-841Z.json`
+  `test-results/managed-browser-intervention-proof/2026-06-06T03-40-32-849Z.json`
 - Latest endpoint-backed composited blocker proof:
-  `test-results/managed-browser-composited-block-proof/2026-06-06T01-28-21-082Z.json`
+  `test-results/managed-browser-composited-block-proof/2026-06-06T03-39-49-777Z.json`
+- Latest child-agent endpoint proof:
+  `test-results/child-agent-browser-intervention-page-proof/2026-06-06T03-39-01-991Z.json`
 - Endpoint-backed blocker screenshot:
-  `test-results/managed-browser-composited-block-proof/2026-06-06T01-28-21-082Z-screenshots/chrome-stable-composited-block-youtube.png`
+  `test-results/managed-browser-composited-block-proof/2026-06-06T03-39-49-777Z-screenshots/chrome-stable-composited-block-youtube.png`
 - Screenshot directory:
-  `test-results/managed-browser-intervention-proof/2026-06-02T23-29-49-841Z-screenshots`
+  `test-results/managed-browser-intervention-proof/2026-06-06T03-40-32-849Z-screenshots`
 - Focused validation:
   `cmd /c npm run build:contracts`,
   `cmd /c npm run test --workspace @ocentra-parent/activity-domain -- browser-intervention.test.ts`,
