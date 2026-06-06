@@ -204,6 +204,11 @@ control with better evidence and local audit.
   source freshness readiness before WP70 policy preview rows are accepted:
   source-manual rows block preview before compiled decisions, and
   source-fresh native game rows can still remain compiler-manual-required.
+- Parent-domain source-gated policy preview read-model contracts now project
+  those gated rows into redacted future service/portal rows, preserving
+  preview-ready, source-manual-required, and compiler-manual-required states
+  without service runtime, portal UI, raw private source rows, adapter dispatch,
+  child delivery, or platform enforcement claims.
 - The portal App/Game Sessions route now renders that service-backed policy
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy

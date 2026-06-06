@@ -140,6 +140,11 @@ The common game-control path should be:
 - Source freshness readiness must gate policy preview output: stale, missing,
   manual-required, unavailable, or not-claimed inventory/runtime/foreground/
   launcher source rows cannot become preview-ready policy rows.
+- Source-gated policy preview read models must derive from source freshness
+  preview-gate rows, expose redacted evidence refs rather than raw private
+  source rows, and keep source-manual-required rows separate from
+  compiler-manual-required rows before any service runtime or portal renderer
+  claims exist.
 - Category, risk, and game-context candidates can route into parent policy
   compiler targets only when active category proof, confidence/source
   disclosure, and supporting evidence refs exist; local-AI routes cite digest
