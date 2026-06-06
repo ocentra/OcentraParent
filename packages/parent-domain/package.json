@@ -677,6 +677,10 @@
       "import": "./dist/screen-ai-stricter-parent-rule-proof.js",
       "types": "./dist/screen-ai-stricter-parent-rule-proof.d.ts"
     },
+    "./screen-ai-model-runtime-backpressure-proof": {
+      "import": "./dist/screen-ai-model-runtime-backpressure-proof.js",
+      "types": "./dist/screen-ai-model-runtime-backpressure-proof.d.ts"
+    },
     "./tamper-uninstall-artifact-status": {
       "import": "./dist/tamper-uninstall-artifact-status.js",
       "types": "./dist/tamper-uninstall-artifact-status.d.ts"

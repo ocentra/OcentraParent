@@ -208,6 +208,13 @@ claim needs proof, not slogans.
   screen evidence before model input, ungrounded derived refs are rejected, and
   the proof keeps remote/API AI, policy authority, raw evidence embedding, and
   enforcement unclaimed.
+- `scripts/test/screen-ai-model-runtime-backpressure-proof.mjs` now proves the
+  screen model runtime flood-control contract: one heavy local screen AI job can
+  run per physical child device, queued heavy jobs stay bounded, lower-priority
+  cadence/background work degrades as overloaded when the queue is full, and no
+  overload row can become policy eligible, retain raw images, or fall back to a
+  remote/API provider. This is backpressure contract proof, not live model
+  execution, production model quality, portal UI, or enforcement.
 
 ## Current Gap
 
@@ -256,6 +263,9 @@ production external evidence variants.
       non-local runtime shapes.
 - [x] Screen AI recent-memory and graph refs require selected stored screen
       evidence citations before model input.
+- [x] Screen AI model runtime flood-control/backpressure proof rejects duplicate
+      active heavy runtimes, queue overflow, policy-eligible overload rows,
+      remote provider fallback, and raw image retention.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub
