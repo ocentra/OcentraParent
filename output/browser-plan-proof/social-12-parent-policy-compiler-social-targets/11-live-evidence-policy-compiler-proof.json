@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofId": "social-policy-live-evidence-compiler-proof",
-  "generatedAt": "2026-06-06T10:18:58.806Z",
+  "generatedAt": "2026-06-06T11:22:31.622Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "620e9bbbfc940cc32910445941fc26783a8810eb",
-  "baseCommit": "fe1b6c4d0f5f487b0e10ab97ea7cc9cf8e3ad76d",
+  "commit": "62798e023221726d6bceac75db7a29be080b971f",
+  "baseCommit": "b363a2e205c0b2fc0dc22c0b92131da1177f3fdb",
   "sourceProof": "test-results/social-risk-benefit-live-evidence-proof/proof.json",
   "liveEvidenceBoundary": {
     "sourceRiskBenefitProofUsesLiveSocial10Refs": true,
