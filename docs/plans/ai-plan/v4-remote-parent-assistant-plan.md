@@ -5,6 +5,12 @@
 Define remote/API AI as an optional parent-approved explanation and report layer,
 not as normal child-device safety.
 
+Household LAN AI provider execution is separate. A household provider is local
+household child-safety compute sharing, remains worker-only, and still returns
+results to the evidence-owning child agent for validation. Remote/API assistant
+use remains parent-approved explanation/report help outside the normal child
+safety path.
+
 ## Allowed Uses
 
 - Parent report explanation.

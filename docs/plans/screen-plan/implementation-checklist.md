@@ -47,6 +47,16 @@ trigger ownership unless the row explicitly says so.
 | Windows service WinRT OCR runtime         | P3 real OCR service proved | `output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json`                             | Proves timed cadence service capture from a live public Wikipedia Chrome window through the encrypted queue, Windows WinRT OCR, `localOcr` Activity Screen read model, queue drain, and temp image deletion; no production OCR quality, authenticated/social, cross-platform, enforcement, live view, or raw retention claim. |
 | Final screen-AI product path gate         | P3 stacked proof proved    | `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`                            | Validates retained real-run artifacts from live/operator trigger rows through capture, local VLM/OCR analysis, policy dry-run, Windows action handoff, portal/read model, and deletion/custody proof; it does not rerun the live operator session or claim managed-browser trigger ownership/broad adapters.                  |
 
+## Planned Household Mesh Screen Custody Rows
+
+These rows are planned only. They do not change the status of the existing
+family-hub route or runtime-discovery proofs.
+
+| Proof                                 | Status  | Artifact                                                                      | Non-claim                                                                                                                                                                                              |
+| ------------------------------------- | ------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Household mesh screen payload custody | planned | `output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json`         | Screen-derived household provider jobs must default to no raw screenshot transfer, use metadata/summary/OCR/redacted-crop/local-artifact refs, and return provider results for child-agent validation. |
+| Household mesh screen claim/lease     | planned | `output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json` | Must prove provider claim/lease, child-agent result validation, duplicate/expired/wrong-provider rejection, and custody before a screen-derived household provider route can be product-ready.         |
+
 ## Main Gates
 
 - [x] Screen analysis starts disabled.
@@ -84,6 +94,8 @@ trigger ownership unless the row explicitly says so.
 - [x] Family AI hub is used before remote/API for hard visual cases.
 - [ ] Screen capture, queue, deletion, and summary lifecycle transitions publish
       typed `ocentra-eventing` events before AI/policy/action consumers run.
+- [ ] Screen-derived household provider jobs prove no raw screenshot transfer,
+      claim/lease, child-agent result validation, and custody before policy.
 - [x] Platform capture proof exists before platform claim.
 - [x] Operator live URL/app proof is recorded before product-complete claim.
 - [x] Playwright UI proof exists.

@@ -17,9 +17,16 @@ proof before claiming always-on local intelligence.
 - [ ] Add battery/thermal degraded state where platform supports it.
 - [ ] Add queue backpressure behavior.
 - [ ] Add portal/service responsiveness proof.
+- [ ] Add provider class eligibility: desktop-preferred, laptop-preferred,
+      mobile-dormant, mobile-fallback.
+- [ ] Add foreground/user-active degraded state where relevant.
+- [ ] Add school/out-of-LAN minimal local AI fallback policy.
 
 ## Proof
 
 - Queue stress proof.
 - Resource degraded-state tests.
 - Portal remains responsive screenshot/proof.
+- Mobile dormant proof.
+- Mobile low-battery rejection proof.
+- Desktop provider preferred proof.

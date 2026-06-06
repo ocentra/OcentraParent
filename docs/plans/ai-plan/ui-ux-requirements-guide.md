@@ -29,7 +29,30 @@ decision or explanation exists. AI UI must not hide uncertainty.
 - Source evidence refs.
 - Task scope.
 - Provider route.
+- Claim owner.
+- Claim id.
+- Lease expiry.
+- Claim rejection reason.
+- Requeue/dead-letter state.
+- Result validation state.
+- Child-agent authority state.
+- Payload/custody mode.
 - Result ref.
+
+### Household AI Providers
+
+- Discovered AI-capable devices.
+- Device role: child-agent, parent-controller, parent-observer, ai-provider.
+- Provider class: desktop, laptop, mobile-dormant, or mobile-fallback.
+- Provider trust and pairing state.
+- Provider capability flags.
+- Supported job kinds.
+- Queue depth.
+- Current job state.
+- Last heartbeat and reachability.
+- Battery, thermal, and resource degraded state.
+- Whether provider is eligible for child-safety work.
+- Whether provider is worker-only and not policy authority.
 
 ### AI Decisions
 
@@ -79,6 +102,16 @@ Before claiming UI done, capture screenshots for:
 - runtime configured but unavailable;
 - local model ready;
 - job queued/running;
+- no provider available;
+- desktop provider available;
+- mobile provider dormant;
+- job claimed by provider;
+- competing claim rejected;
+- lease expired and requeued;
+- provider result accepted;
+- provider result rejected;
+- child-agent authority shown;
+- raw screenshot transfer disabled/default-forbidden;
 - timeout/degraded;
 - AI result with explanation;
 - memory source-citation state;

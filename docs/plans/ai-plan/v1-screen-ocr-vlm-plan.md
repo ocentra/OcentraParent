@@ -11,7 +11,11 @@ tracking context when needed.
 ```text
 approved capture scope
   -> temporary encrypted screen job
-  -> OCR and/or guided VLM
+  -> screen evidence / redacted crop / screen summary
+  -> AI work item queued by child agent
+  -> same-device OCR/VLM or trusted household provider route
+  -> provider returns typed OCR/VLM/screen result
+  -> child agent validates result and custody
   -> local screen summary
   -> AI evidence context builder
   -> text model or deterministic policy support
@@ -25,6 +29,22 @@ approved capture scope
 - Guided VLM answers scoped visual safety questions.
 - Local text LLM reasons over typed OCR/screen-summary JSON.
 - Deterministic classifier handles known labels and policy schedules.
+- Household AI providers may execute bounded OCR/VLM work only through the
+  mesh claim/lease/result-validation path.
+
+## Screen Payload Modes
+
+Screen-derived AI jobs default to `raw-image-forbidden`.
+
+Allowed payload modes:
+
+- metadata-only;
+- screen-summary-only;
+- OCR-text-only;
+- redacted-crop;
+- encrypted-local-artifact-ref;
+- raw-image-forbidden;
+- raw-image-explicit-opt-in-only.
 
 ## Screen Scope Rules
 
@@ -40,7 +60,11 @@ approved capture scope
 - Guided VLM summary from approved scope.
 - Raw image deletion proof.
 - Screenshot never sent remote by default.
+- Raw screenshot is not sent to LAN providers by default.
+- Redacted crop payload is bounded and evidence-cited.
 - Screen summary cites image digest and evidence refs.
+- Child agent validates deletion/custody before policy.
+- Provider cannot retain raw payload unless explicit opt-in contract exists.
 - Screen result cannot directly enforce.
 - Portal screenshot shows supported, unavailable, permission-required, deleted,
   and degraded states.

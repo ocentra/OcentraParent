@@ -11,12 +11,13 @@ prerequisite branches are merged or explicitly stacked.
 
 ## Proof Layers
 
-| Layer                       | Purpose                                                                         | Required before done                                                        |
-| --------------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Controlled AI fixture proof | Local deterministic pages/apps/images with known expected labels                | Yes                                                                         |
-| Real capture analysis proof | Analyze real screen captures produced by screen triggers                        | Yes                                                                         |
-| Live operator proof         | User/worker opens real URLs/apps and records AI output                          | Required before product-complete claim                                      |
-| Pipeline action proof       | Capture, analysis, policy decision, and action/dry-run output happen in one run | Required in `screen-ai-pipeline-plan` before product-complete/action claims |
+| Layer                         | Purpose                                                                                                                                        | Required before done                                                        |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Controlled AI fixture proof   | Local deterministic pages/apps/images with known expected labels                                                                               | Yes                                                                         |
+| Real capture analysis proof   | Analyze real screen captures produced by screen triggers                                                                                       | Yes                                                                         |
+| Household provider mesh proof | Child agent owns evidence/work, a trusted provider claims one job under lease, returns a typed result, and child agent validates before policy | Required before household mesh execution claims                             |
+| Live operator proof           | User/worker opens real URLs/apps and records AI output                                                                                         | Required before product-complete claim                                      |
+| Pipeline action proof         | Capture, analysis, policy decision, and action/dry-run output happen in one run                                                                | Required in `screen-ai-pipeline-plan` before product-complete/action claims |
 
 ## Required Analysis Scenarios
 
@@ -35,6 +36,20 @@ output/ai-plan-proof/real-analysis/<scenario-id>/
   08-journal-read-model-proof.json
   09-parent-explanation.json
   10-ui-snapshot.png
+```
+
+When a household provider mesh route is used, the scenario must also write:
+
+```text
+  11-ai-work-item.json
+  12-provider-discovery.json
+  13-provider-selection.json
+  14-claim-lease-proof.json
+  15-provider-execution-result.json
+  16-result-validation.json
+  17-event-chain-proof.json
+  18-policy-authority-proof.json
+  19-custody-proof.json
 ```
 
 | Scenario id                            | Input                                                               | Expected AI evidence                                                                                    |
@@ -68,6 +83,19 @@ Every AI analysis proof must show:
 - parent explanation cites evidence and rules;
 - raw screen image deletion proof remains linked when screen capture was used.
 
+Household provider mesh acceptance additionally requires:
+
+- AI work is created from typed evidence, not direct scanning;
+- provider is selected by capability, custody, resource state, and parent
+  policy;
+- claim is granted exactly once;
+- competing claims are rejected;
+- expired leases cannot complete accepted results;
+- results are rejected if provider, claim, evidence, or custody mismatches;
+- child agent validates results before policy;
+- providers cannot publish policy or enforcement;
+- raw screenshots are not sent by default.
+
 ## Final Pipeline Hand-Off
 
 The final pipeline pass must run the whole chain:
@@ -76,8 +104,9 @@ The final pipeline pass must run the whole chain:
 real trigger
   -> real capture or structured skip
   -> encrypted queue
-  -> OCR/VLM/text/deterministic route
-  -> schema-valid AI result
+  -> OCR/VLM/text/deterministic or household provider route
+  -> claim/lease/result-validation when mesh route is used
+  -> schema-valid child-accepted AI result
   -> deterministic parent policy
   -> action or dry-run action
   -> journal/read model

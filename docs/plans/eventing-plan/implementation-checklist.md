@@ -67,6 +67,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       publish/routing, queue/drain, request-response, and runtime event-chain
       streaming without moving network, AI, policy, enforcement, or portal
       business logic into the reusable bus.
+- [ ] `12-household-mesh-consumer-proof.log`: consumer-layer proof that a
+      Household Mesh Bridge exports only selected local events into typed
+      authenticated LAN messages, validates incoming messages before local
+      republish, rejects remote direct publish into another runtime's bus, and
+      preserves child-agent-only AI policy authority.
 
 Reusable event bus phase-1 E-D proof pack:
 `output/eventing-plan-proof/reusable-eventing-runtime/proof-summary.json`,
@@ -85,6 +90,11 @@ Consumer integration proof packs for parent/controller, child-agent, portal,
 service, network, AI, policy, enforcement, audit, broker, and relay-hub flows
 remain separate phase-2+ evidence. They must not be required for the reusable
 event bus merge gate.
+
+Household AI Provider Mesh is also separate consumer-layer evidence. The
+reusable crate proof does not claim provider discovery, AI work claim/lease,
+cross-device idempotency, payload custody, result validation, child-agent
+policy authority, or mobile dormant/fallback behavior.
 
 ## Evidence Quality Gates
 

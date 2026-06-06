@@ -29,6 +29,21 @@ output/screen-ai-pipeline-proof/<scenario-id>/
   13-validation-log.txt
 ```
 
+When a household provider mesh route is used, the same scenario must also
+write:
+
+```text
+  14-ai-work-item.json
+  15-provider-discovery.json
+  16-provider-selection.json
+  17-claim-lease-proof.json
+  18-provider-execution-result.json
+  19-result-validation.json
+  20-event-chain-proof.json
+  21-policy-authority-proof.json
+  22-custody-proof.json
+```
+
 ## Required Scenarios
 
 | Scenario                           | Input                                                                | Required result                                                                               |
@@ -56,6 +71,9 @@ Separate PR-ready requirements:
   controlled capture refs.
 - Pipeline PR-ready: same branch contains both screen and AI implementations and
   proves the live combined path.
+- Mesh pipeline PR-ready: the same path additionally proves provider
+  discovery, claim/lease, result validation, child-agent-only policy authority,
+  event topology, and no raw screenshot transfer by default.
 
 ## Merge-Blocking Failures
 
@@ -64,6 +82,11 @@ pipeline starts without screen prerequisite proof
 pipeline starts without AI prerequisite proof
 capture succeeds but AI analysis is not invoked
 AI analysis succeeds but policy does not consume result
+household provider route bypasses child-agent result validation
+provider can publish policy or enforcement events
+duplicate provider claims execute the same job twice
+expired lease result is accepted
+raw screenshot transfers to household provider by default
 policy decision exists but portal/read model cannot explain it
 timed cadence floods queue or skips deletion proof
 disabled screen analysis still creates capture or AI jobs

@@ -12,6 +12,12 @@ Child-safety AI runs in the child-device safety path. It consumes typed evidence
 and parent rules, produces typed results, and feeds deterministic policy. It
 does not directly enforce.
 
+AI safety authority is local to the evidence-owning child agent. AI execution
+may run on the same device or on a trusted paired household AI provider, but the
+provider is worker-only. The child agent owns evidence truth, AI work ledger,
+result validation, deterministic parent policy evaluation, enforcement handoff,
+audit, and read models.
+
 ## Roadmap And Expectations
 
 - Roadmap: V0.6 local AI contracts, V0.7 local AI policy evaluator, V5 policy
@@ -50,6 +56,12 @@ claim needs proof, not slogans.
   should consume typed evidence events and publish typed result/degraded events
   for policy, action, audit, read-model, and deletion consumers instead of
   depending on direct capture-to-AI or AI-to-policy calls.
+- The [Household AI Provider Mesh Plan](../plans/ai-plan/household-ai-provider-mesh-plan.md)
+  now defines trusted household AI providers, the Household Mesh Bridge,
+  provider advertisement/heartbeat, claim/lease, result validation, no raw
+  screenshot transfer by default, mobile dormant/fallback rules, and
+  child-agent-only policy authority. These are planned gaps, not completed
+  product claims.
 - `LocalAiRuntimeStatusSurfaceReadModelSchema` and
   `scripts/test/local-ai-runtime-status-read-model-proof.mjs` now project the
   existing provider proof rows into parent-facing runtime status rows. The proof

@@ -13,6 +13,12 @@ projects.
 Network, AI, policy, enforcement, audit, parent-controller, child-agent, portal,
 and sync events are consumer contracts layered on top of the bus.
 
+`ocentra-eventing` is local runtime infrastructure only. Cross-device
+coordination, including the Household AI Provider Mesh, is handled by consumer
+bridges that convert selected local events into typed authenticated transport
+messages and republish validated incoming messages into the receiving runtime's
+local bus.
+
 ## Scope
 
 Build a solid reusable Rust eventing system that supports:
@@ -44,6 +50,9 @@ Build a solid reusable Rust eventing system that supports:
 - Do not copy the TypeScript implementation directly.
 - Do not make the reusable crate depend on Ocentra Parent product types.
 - Do not put network, AI, policy, or enforcement business logic into the bus.
+- Do not make the reusable crate a shared LAN-wide event bus or cross-device
+  broker.
+- Do not let remote peers publish directly into another runtime's local bus.
 - Do not put evidence, policy, AI, enforcement, cascade, or audit business logic
   in Vite/TypeScript UI code.
 - Do not let AI, UI, or network evidence directly enforce anything.

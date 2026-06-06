@@ -2,8 +2,9 @@
 
 ## Target State
 
-AI jobs are bounded, prioritized, cancellable, auditable, source-referenced, and
-safe under backpressure.
+AI jobs are event-driven, bounded, prioritized, cancellable, auditable,
+source-referenced, lease-aware, deduplicated, replayable, and safe under local
+and household mesh backpressure.
 
 ## Where We Are
 
@@ -11,19 +12,30 @@ Provider scheduler proof exists and now proves child-safety priority,
 same-device parent/child sharing, queued/degraded/unavailable provider states,
 and one independent runtime access lane per physical device. A broader
 cross-slice AI job contract still needs to own task scope, evidence refs, parent
-rule refs, provider route, timeout, and result journal refs.
+rule refs, provider route, timeout, result journal refs, claim/lease state,
+idempotency, and child-agent authority.
 
 ## Checklist
 
-- [ ] Define AI job input contract.
+- [ ] Define `AiWorkItem` contract.
+- [ ] Define `AiWorkState` state machine.
+- [ ] Define deterministic `dedupeKey` rules.
+- [ ] Define aggregate key rules for ordered work transitions.
+- [ ] Define idempotency key rules for duplicate jobs, claims, and results.
 - [x] Define provider scheduler queue state and child-safety priority for the
       local runtime lane.
-- [ ] Add timeout, cancellation, retry, and resource class.
-- [ ] Require evidence refs and custody labels.
-- [ ] Journal queue start/finish/fail states.
+- [ ] Add timeout, cancellation, retry, TTL, deadline, and max attempts.
+- [ ] Define payload mode and custody policy.
+- [ ] Require evidence refs, parent-rule refs, and child-agent authority refs.
+- [ ] Journal queue, claim, lease, start, complete, fail, validate, accept,
+      reject, requeue, and dead-letter states.
+- [ ] Prove no direct capture-to-worker call path.
 
 ## Proof
 
 - Queue parser tests.
 - Backpressure/cancel tests.
 - Invalid job rejection tests.
+- Duplicate dedupe key tests.
+- Replay rebuilds work state without duplicate execution.
+- Job expiry/dead-letter tests.

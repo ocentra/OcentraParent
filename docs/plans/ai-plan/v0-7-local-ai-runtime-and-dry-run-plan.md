@@ -21,6 +21,11 @@ The runtime owns:
 - model cache status;
 - dry-run result journal.
 
+The runtime may execute AI locally or delegate execution to a trusted household
+provider through the Household Mesh Bridge. Delegation changes execution
+location only. It does not move evidence ownership, policy authority,
+enforcement authority, or audit ownership away from the child agent.
+
 The runtime does not own:
 
 - capture;
@@ -60,6 +65,20 @@ stored browser/app/game/network/screen/tracking evidence
 - failed;
 - disabled by parent;
 - disabled by platform.
+- provider-discovered;
+- provider-stale;
+- provider-offline;
+- provider-revoked;
+- claim-requested;
+- claim-granted;
+- claim-rejected;
+- lease-active;
+- lease-expired;
+- result-received;
+- result-accepted;
+- result-rejected;
+- mobile-dormant;
+- mobile-fallback-eligible.
 
 ## Validation
 
@@ -69,4 +88,10 @@ stored browser/app/game/network/screen/tracking evidence
 - Timeout/cancel tests.
 - Dry-run policy integration tests.
 - Journal/replay proof.
+- Same-device dry-run proof.
+- LAN provider route dry-run proof.
+- Claim/lease proof.
+- Expired lease rejection proof.
+- Wrong-provider result rejection proof.
+- Child-agent policy authority proof.
 - Portal degraded-state screenshot if UI changes.

@@ -61,6 +61,17 @@ claims.
 | Raw image deletion after analysis        | P3 proved                 | `output/ai-plan-proof/real-analysis/proof-summary.json`                                        | Every captured row deletes the raw temp image after analysis; retention/live-view opt-in modes are separate implementation work and are not claimed here.                                                                                                                                                                                                                                                                                                                                                                                        |
 | Disabled no-capture no-AI suppression    | P3 local-machine proved   | `output/screen-ai-pipeline-proof/service-disabled-suppression/proof-summary.json`              | Proves the real Rust service honors the parent-disabled setting across cadence capture, foreground capture, and queued analysis processing: no new screen rows, no new queue records, no local vision row, and no pending queue drain while disabled. Product settings UI remains separate.                                                                                                                                                                                                                                                      |
 
+## Planned Household Mesh Proof Rows
+
+These rows are planned only. They do not upgrade the existing family-hub route
+or runtime-discovery proofs into full household mesh execution.
+
+| Proof                          | Status  | Artifact                                                                          | Non-claim                                                                                                                                                                                                                                    |
+| ------------------------------ | ------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Household mesh screen AI route | planned | `output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json`     | Must prove screen-derived child-owned AI work can route to a trusted household provider through claim/lease, return a typed result, validate on the child agent before policy, preserve deletion/custody, and avoid raw screenshot transfer. |
+| No raw screen transfer mesh    | planned | `output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json`             | Must prove raw screenshot payloads are forbidden by default for LAN providers and redacted/summary payloads cite evidence refs and custody state.                                                                                            |
+| Child provider result validity | planned | `output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json` | Must prove duplicate, expired, wrong-provider, wrong-claim, evidence-mismatch, and custody-mismatch results are rejected before policy.                                                                                                      |
+
 ## Prerequisite Gates
 
 - [x] Screen capture proof PR merged or explicitly stacked.
@@ -70,6 +81,8 @@ claims.
 - [ ] Pipeline branch proves the screen -> AI -> policy -> action/read-model/
       deletion handoff through `crates/ocentra-eventing`, not direct module
       calls.
+- [ ] Mesh route proof, when household provider execution is used, proves
+      provider claim/lease/result-validation and no raw screenshot transfer.
 
 ## Real Trigger Gates
 
@@ -99,6 +112,8 @@ claims.
 - [x] Service-owned local adapter analysis over an encrypted screen queue job.
 - [ ] AI analysis starts from a typed screen evidence event and publishes a
       typed AI result/degraded event.
+- [ ] Household provider route, when used, starts from child-owned AI work,
+      grants one lease, and returns only a provider result for child validation.
 - [x] Local text model route proof over typed context.
 - [x] Deterministic route proof where structured evidence is enough.
 - [x] Low confidence degrades safely.
@@ -117,6 +132,8 @@ claims.
 - [x] AI cannot override stricter parent rule.
 - [x] Service WinRT OCR Activity Screen row feeds a typed parent policy dry-run.
 - [ ] Policy consumes a typed AI result event from the eventing runtime.
+- [ ] Policy consumes only child-accepted provider results, never raw provider
+      output or provider-originated policy/enforcement events.
 - [x] Real Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination proof.
 - [x] Screen-derived broad/browser/network/mobile adapter readiness states
       remain manual-required, not-claimed, or unavailable without claim
@@ -145,6 +162,9 @@ claims.
 - [ ] Fresh event-driven final product path rerun proves capture event, AI
       result event, policy event, action/dry-run event, portal/read-model event,
       and deletion/custody event in one runtime chain.
+- [ ] Household mesh screen AI proof, when mesh route is used, records provider
+      discovery, provider selection, claim/lease, provider result,
+      child-agent validation, policy authority, and custody artifacts.
 - [x] Parent explanation refs survive service-backed Activity Screen read-model
       projection:
       `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json`.
@@ -224,6 +244,9 @@ claims.
       `node --check scripts/test/screen-ai-final-product-path-proof.mjs` and
       `node scripts/test/screen-ai-final-product-path-proof.mjs`.
 - [ ] Event-driven Screen-AI runtime chain proof run.
+- [ ] Household mesh screen AI route proof run.
+- [ ] No-raw-screen-transfer mesh proof run.
+- [ ] Child-agent provider-result validation proof run.
 - [x] Dependency policy rerun after capture dependency narrowing.
 - [x] Android emulator MediaProjection proof run.
 - [x] `git diff --check`.

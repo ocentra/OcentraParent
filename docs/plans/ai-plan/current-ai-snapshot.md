@@ -22,6 +22,11 @@ Already present:
 - Reusable Rust eventing infrastructure in `crates/ocentra-eventing`, with
   existing network and parent/child consumer examples that AI work should
   follow instead of adding direct capture-to-AI coupling.
+- LAN AI job submit/status and screen family AI hub proof primitives exist, but
+  they do not yet prove a decentralized household AI provider mesh with
+  provider advertisement, claim/lease, duplicate prevention, result validation,
+  retry/dead-letter, mobile dormant/fallback policy, or child-agent-only policy
+  authority.
 - Activity memory graph contracts and read-model proof pieces.
 - Policy dry-run evaluator and enforcement policy dispatch proof pieces.
 
@@ -33,6 +38,10 @@ Still missing or incomplete:
 - Verified local model artifact download, integrity, cache, and retention flow.
 - Product-grade local inference execution path for safety decisions.
 - Cross-slice AI job queue and resource scheduler.
+- Household AI provider mesh contracts and runtime proof. Existing local
+  provider scheduler proof does not prove cross-device provider discovery,
+  claim/lease, idempotency, result validation, two-device LAN execution, no raw
+  screenshot transfer, or child-agent policy authority.
 - Model quality validation and confidence calibration.
 - OCR execution path.
 - Guided local VLM execution path.
@@ -65,6 +74,9 @@ This plan prevents that by making AI a shared local safety subsystem with:
 - one event-driven AI consumer boundary on top of `crates/ocentra-eventing`,
   so capture, AI, policy, action, audit, read-model, and deletion steps remain
   uncoupled.
+- one Household Mesh Bridge boundary for cross-device AI execution, keeping
+  `ocentra-eventing` local to each runtime and translating only selected,
+  validated local events into authenticated LAN messages.
 
 ## Target State
 
@@ -74,8 +86,9 @@ The target product state is:
 Typed evidence from capture slices
   -> encrypted custody/journal/read-model records
   -> typed `ocentra-eventing` evidence event
-  -> AI job/provider route
-  -> deterministic/text/OCR/VLM worker
+  -> AI work item and provider route
+  -> same-device deterministic/text/OCR/VLM worker or trusted household provider
+  -> child-agent result validation
   -> schema-valid AI result event
   -> deterministic parent policy event
   -> audit, parent explanation, and deletion/read-model events
@@ -92,10 +105,12 @@ shared spine:
 3. Real stored-evidence context builder.
 4. Local model/runtime status plus provider queue.
 5. Event-driven AI consumer contracts on `crates/ocentra-eventing`.
-6. Local text model dry-run execution with invalid-output rejection.
-7. Deterministic policy integration.
-8. AI result journal and parent explanation read model.
-9. Screen OCR/VLM lanes aligned to the same queue and result contracts.
+6. Household AI provider mesh contracts: provider advertisement/heartbeat,
+   work item, claim/lease, result validation, custody, and child-agent authority.
+7. Local text model dry-run execution with invalid-output rejection.
+8. Deterministic policy integration.
+9. AI result journal and parent explanation read model.
+10. Screen OCR/VLM lanes aligned to the same queue and result contracts.
 
 ## Non-Claims Until Proven
 
@@ -106,3 +121,8 @@ shared spine:
 - No claim that a model artifact is safe, fast, or high quality before model
   quality proof exists.
 - No claim that browser/app/game/tracking AI sees raw sources directly.
+- No claim that `ocentra-eventing` is one shared LAN-wide event bus.
+- No claim that household mesh execution works until provider claim/lease,
+  result-validation, topology, no-raw-screen-transfer, and child-agent authority
+  proofs exist.
+- No claim that mobile providers process heavy work by default.

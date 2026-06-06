@@ -50,8 +50,10 @@ browser/app/timed trigger
   -> real capture or structured-skip proof
   -> encrypted queue
   -> typed screen evidence/custody event on `crates/ocentra-eventing`
-  -> OCR/VLM/text/deterministic AI consumer
-  -> schema-valid AI result or degraded-state event
+  -> child-owned AI work item
+  -> same-device OCR/VLM/text/deterministic consumer or Household Mesh Bridge provider route
+  -> claim/lease/result-validation when a household provider is used
+  -> child-accepted schema-valid AI result or degraded-state event
   -> deterministic parent policy consumer
   -> action or dry-run action event
   -> audit/journal/read-model/deletion consumers
@@ -66,10 +68,31 @@ be typed consumers layered on the reusable Rust event bus. Cross-process parent
 to child or peer-to-peer delivery still uses typed service, WebSocket, LAN,
 relay, or journal/replay boundaries before publishing into each local bus.
 
+When a household AI provider is used, the screen pipeline must stay
+child-agent-owned:
+
+```text
+screen trigger
+  -> child-owned encrypted screen queue
+  -> screen summary/redacted crop payload
+  -> ai.work.queued
+  -> household provider claim/lease
+  -> provider OCR/VLM/text result
+  -> child result validation
+  -> policy dry-run/action handoff
+  -> audit/read model
+  -> deletion/custody proof
+```
+
+Screen AI pipeline is not product-complete for household mesh execution until
+provider claim/lease/result-validation proof and no-raw-screen-transfer proof
+both pass.
+
 ## Source Plans
 
 - [Screen Plan](../screen-plan/README.md)
 - [AI Plan](../ai-plan/README.md)
+- [Household AI Provider Mesh Plan](../ai-plan/household-ai-provider-mesh-plan.md)
 - [Screen Real Capture Proof Matrix](../screen-plan/v0-5-real-capture-proof-matrix.md)
 - [AI Real Analysis Proof Matrix](../ai-plan/real-ai-analysis-and-pipeline-proof-matrix.md)
 - [Proof Tiers](proof-tiers.md)

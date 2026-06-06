@@ -24,6 +24,16 @@ gate because it is a core safety subsystem.
 - [ ] Timed cadence capture analysis proof exists when screen-derived AI is in scope.
 - [ ] Final capture plus analysis plus policy/action proof is either out of scope for this AI PR or completed under `docs/plans/screen-ai-pipeline-plan`.
 - [ ] Security negative tests run where boundary touched.
+- [ ] Event topology manifest includes AI mesh events.
+- [ ] No AI mesh event is orphaned unless explicitly accepted.
+- [ ] Mesh bridge proof exists if cross-device behavior is touched.
+- [ ] AI work lifecycle replay proof exists.
+- [ ] Claim/lease/idempotency proof exists.
+- [ ] Cross-device provider rejection proof exists.
+- [ ] Child policy authority proof exists.
+- [ ] Mobile dormant/fallback proof exists if mobile behavior touched.
+- [ ] Raw screenshot transfer negative proof exists for screen-derived jobs.
+- [ ] Remote/API child-safety rejection still passes.
 - [ ] `git diff --check` run.
 - [ ] lane/hub guards run.
 - [ ] `npm run validate` run or omission approved.

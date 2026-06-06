@@ -12,6 +12,12 @@ LAN and remote are route/custody problems, not excuses to centralize child
 activity data. Mobile support must separate parent app claims from child-agent
 claims.
 
+Household AI provider mesh is a LAN/local route and custody problem, not a
+central queue. Each runtime keeps its own local event bus. The Household Mesh
+Bridge may export selected validated events into typed LAN messages and
+republish validated incoming messages locally. Child-agent policy authority
+does not move to the provider device.
+
 ## Roadmap And Expectations
 
 - Roadmap: V0.9 LAN pairing, V2 remote access/cloud relay, V6 mobile agents,
@@ -37,6 +43,11 @@ PC while preserving local-first custody.
 ## Current Ocentra State
 
 - LAN pairing/control proof and add-device state are in progress.
+- Household AI provider mesh is now planned as a child-agent-owned AI work
+  ledger plus trusted provider advertisement, claim/lease, result validation,
+  custody, and mobile dormant/fallback rules. Existing degraded/unavailable LAN
+  AI provider rows and screen family-hub runtime discovery do not yet prove
+  full decentralized provider execution across physical household devices.
 - The parent service now emits a typed LAN scan summary, merges the local
   child-agent device with matching passive LAN evidence, and keeps passive
   neighbors/router rows separate from controllable child-agent targets.
@@ -119,6 +130,10 @@ agent hello/heartbeat artifacts, and stronger name discovery such as
 mDNS/SSDP/router DHCP integration. Browser screenshot proof now exists for the
 current B-lane Devices/LAN, Activity/Network source-matrix diagnostics, and
 Network policy surfaces, but that is not two-physical-child household proof.
+Household AI provider mesh additionally needs provider advertisement/heartbeat,
+claim/lease, duplicate prevention, child-agent result validation, no raw
+screenshot transfer, mobile dormant/fallback, and provider-cannot-publish-policy
+proof.
 Optional remote relay, cache route, parent-owned sync/export transfer runtime,
 connector OAuth/revocation, mobile permissions, Android Device
 Owner/Accessibility/VPN/DNS/UsageStats proof, iOS Family

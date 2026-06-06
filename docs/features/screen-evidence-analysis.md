@@ -12,6 +12,13 @@ Screen evidence is opt-in, local-first, temporary, encrypted, summarized, and
 deleted according to visible retention rules. Policy consumes summaries and
 evidence refs, not retained screenshots or raw model text.
 
+When screen-derived AI work routes to a trusted household provider, the child
+agent still owns the AI work ledger, result validation, policy authority,
+audit, and deletion/custody proof. Raw screenshot transfer to LAN providers is
+forbidden by default; allowed mesh payloads must be metadata, screen summaries,
+OCR text, redacted crops, or encrypted local artifact refs with explicit custody
+rules.
+
 ## Roadmap And Expectations
 
 - Roadmap: V0.5.3 screen evidence, V0.7 local AI policy, V5 policy product.
@@ -38,6 +45,12 @@ only with explicit parent settings.
   capture/queue/deletion/summary work must publish typed events for AI, policy,
   action, audit, read-model, and deletion consumers instead of wiring direct
   screen-to-AI calls.
+- Household mesh screen AI execution is planned through the
+  [Household AI Provider Mesh Plan](../plans/ai-plan/household-ai-provider-mesh-plan.md)
+  and [Screen AI Pipeline Plan](../plans/screen-ai-pipeline-plan/README.md).
+  Existing family-hub route/runtime-discovery proof does not yet prove full
+  provider claim/lease/result-validation, no-raw-screen-transfer, or
+  child-agent-only policy authority.
 - `@ocentra-parent/activity-domain` now proves parent opt-in settings, cadence
   and trigger gates, temporary encrypted queue custody, deletion/expiry/delete
   failure states, raw-image non-retention, confidence/unknown handling, and

@@ -77,6 +77,12 @@ Current truth:
   service transport delivery are not implemented by the reusable crate. They
   must publish into a local bus on each side after typed transport/API
   boundaries.
+- Household AI Provider Mesh is consumer-layer work. The reusable eventing
+  crate supplies local bus semantics, typed envelopes, idempotency, TTL, retry,
+  dead-letter, aggregate ordering, request/response, journal/replay, and
+  topology proof. It does not provide cross-device transport, peer discovery,
+  provider trust, job authority, payload custody, policy behavior, or
+  enforcement behavior.
 - Network AI classification, policy decisions, enforcement commands, adapter
   side effects, audit storage, and portal rendering remain network/service/UI
   consumer work, not event bus responsibilities.
@@ -101,6 +107,15 @@ Vite/TypeScript UI
   -> Rust child-agent runtime
   -> child-agent event bus instance
   -> evidence, AI, policy, enforcement, audit, read-model events
+```
+
+Household mesh rule:
+
+```text
+ocentra-eventing is local runtime infrastructure only. Cross-device
+coordination is handled by a Household Mesh Bridge that converts selected local
+events into typed authenticated LAN messages and republishes validated incoming
+messages into the receiving runtime's local bus.
 ```
 
 Incorrect flow:

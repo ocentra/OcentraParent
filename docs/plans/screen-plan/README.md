@@ -54,7 +54,9 @@ Use this order:
 
 4. Bigger local/family-hub VLM:
    only for hard cases when cheap local evidence is uncertain;
-   route through event contracts, not a direct capture-to-model call.
+   route through event contracts, not a direct capture-to-model call. Household
+   provider execution uses the AI plan's Household Mesh Bridge with child-agent
+   claim/lease/result validation and no raw screenshot transfer by default.
 
 5. Remote/API VLM:
    disabled for raw screenshots by default;
@@ -146,6 +148,9 @@ Ocentra needs a screen subsystem that can:
 - emit screen capture, queue, deletion, and summary lifecycle transitions as
   typed Rust eventing consumers on `crates/ocentra-eventing`, without creating a
   second Screen-only event bus.
+- treat household AI providers as worker-only execution routes for bounded
+  screen-derived AI jobs; the child agent still owns evidence truth, result
+  validation, policy authority, and deletion/custody proof.
 
 ## Plan Files
 

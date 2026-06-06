@@ -161,6 +161,12 @@ typed boundary first, such as local API, WebSocket, IPC, LAN, relay,
 parent-owned export, or journal replay, then publish into the destination
 runtime's local bus.
 
+Household mesh coordination must not be implemented as a shared in-memory or
+shared LAN event bus. Each runtime publishes local events to its own bus. A
+Household Mesh Bridge may subscribe to selected local events, convert them to
+typed authenticated transport messages, and publish validated incoming messages
+into the destination runtime's local bus.
+
 ## Required Runtime Behaviors
 
 ### Dispatch Modes
