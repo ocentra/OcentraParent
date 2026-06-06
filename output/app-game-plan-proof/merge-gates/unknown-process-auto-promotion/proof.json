@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-unknown-process-auto-promotion-gate-proof",
+  "generatedAt": "2026-06-06T20:01:42.411Z",
+  "branch": "codex/app-game-inventory-display-gate-proof",
+  "commit": "605cdaec94fa7ce732d02f4f3e61739696819ab9",
+  "gitStatusShort": "M docs/features/app-game-control.md\n M docs/plans/app-game-plan/implementation-checklist.md\n?? scripts/test/app-game-unknown-process-auto-promotion-gate-proof.mjs",
+  "commands": [
+    "cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game.test.ts\nexit=0\n\n> @ocentra-parent/activity-domain@0.1.1 test\n> vitest run app-game.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/activity-domain\n\n\n Test Files  1 passed (1)\n      Tests  9 passed (9)\n   Start at  16:01:32\n   Duration  910ms (transform 219ms, setup 0ms, import 679ms, tests 16ms, environment 0ms)\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game-identity.test.ts\nexit=0\n\n> @ocentra-parent/activity-domain@0.1.1 test\n> vitest run app-game-identity.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/activity-domain\n\n\n Test Files  1 passed (1)\n      Tests  6 passed (6)\n   Start at  16:01:34\n   Duration  1.12s (transform 267ms, setup 0ms, import 833ms, tests 13ms, environment 0ms)\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game-category-risk.test.ts\nexit=0\n\n> @ocentra-parent/activity-domain@0.1.1 test\n> vitest run app-game-category-risk.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/activity-domain\n\n\n Test Files  1 passed (1)\n      Tests  8 passed (8)\n   Start at  16:01:36\n   Duration  1.03s (transform 240ms, setup 0ms, import 770ms, tests 20ms, environment 0ms)\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/portal -- activity-ui-app-game-dashboard-intent.test.ts\nexit=0\n\n> @ocentra-parent/portal@0.1.1 test\n> vitest run tests activity-ui-app-game-dashboard-intent.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/apps/portal\n\n\n Test Files  16 passed (16)\n      Tests  69 passed (69)\n   Start at  16:01:39\n   Duration  3.05s (transform 15.67s, setup 0ms, import 36.06s, tests 268ms, environment 3ms)\n\n\u001b[2m4:01:39 p.m.\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `esbuild` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `oxc` instead.\u001b[39m\n\u001b[2m4:01:39 p.m.\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `optimizeDeps.esbuildOptions` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.\u001b[39m\n\u001b[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.\u001b[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`\n"
+  ],
+  "gate": "Unknown process is auto-promoted to known game.",
+  "gateState": "prevented-by-weak-unknown-identity-and-manual-review-contracts",
+  "evidence": {
+    "identityContract": "packages/activity-domain/src/app-game.ts keeps display-label-only identities weak, unknownProcess, and unknownExecutable.",
+    "evidenceClaimContract": "packages/activity-domain/src/app-game.ts keeps displayNameOnly claims weak and unlinked from inventory, process, launcher, and catalog refs.",
+    "identityTests": "packages/activity-domain/tests/app-game-identity.test.ts rejects deterministic known-game promotion from display-only identity.",
+    "categoryRiskTests": "packages/activity-domain/tests/app-game-category-risk.test.ts keeps heuristic unknown executable labels as manual-review candidates and rejects direct block.",
+    "portalIntent": "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts surfaces unknown/possible-game rows as unknownApproval/manual review state.",
+    "portalTest": "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts renders unknown-process and possible-game rows as manual-required/review state."
+  },
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "unknownProcessPromotedToKnownGame": false,
+    "heuristicLabelDispatchesAdapter": false,
+    "manualReviewRequired": true,
+    "browserGameWorkDuplicated": false,
+    "packageExportsChanged": false,
+    "runtimeAdapterClaimed": false
+  },
+  "proofPaths": {
+    "proof": "test-results/app-game-unknown-process-auto-promotion-gate-proof/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/merge-gates/unknown-process-auto-promotion",
+    "harness": "scripts/test/app-game-unknown-process-auto-promotion-gate-proof.mjs"
+  }
+}

@@ -417,6 +417,12 @@ control with better evidence and local audit.
   contracts require child-game proof before known-game classification, and the
   App/Game Sessions dashboard keeps launcher rows as launcher-only counts rather
   than active child-game usage.
+- The unknown-process auto-promotion merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/unknown-process-auto-promotion`:
+  display-label-only identities remain weak, unknown, and unknown-executable;
+  heuristic category/risk labels stay manual-review candidates; and the
+  App/Game Sessions dashboard renders unknown-process and possible-game rows as
+  manual-required review state instead of known native-game usage.
 
 ## Current Gap
 
