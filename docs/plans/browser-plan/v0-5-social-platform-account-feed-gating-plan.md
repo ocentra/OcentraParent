@@ -1373,13 +1373,11 @@ worker messages before code changes. Do not mix all 24 into one PR.
   tokens in `packages/text-domain/src/social-dashboard-ux-text.ts`. The
   snapshot covers account approval queue, feed/video gates, native app
   capability, connector boundaries, decision memory, and manual-required gaps
-  as section/action/status contracts. It rejects rendered portal UI,
-  notification delivery, runtime data fetch, policy decisions, native app
-  control, connector authorization, and enforcement. This row intentionally
-  avoids apps/portal and portal-domain rendered UI because those areas are
-  active in other lanes. Package subpath exports are now present; no rendered
-  dashboard, UI proof, runtime fetch, notification, connector authorization, or
-  enforcement is claimed.
+  as section/action/status contracts. The real Browser route now requests the
+  service-backed social dashboard read-model and captures desktop/mobile
+  screenshots for the six-row parent social snapshot. Package subpath exports
+  are now present; no notification delivery, connector authorization, native app
+  control, final policy execution, or enforcement is claimed.
 - SOCIAL-21 now adds parent-domain child approval/block UX contracts in
   `packages/parent-domain/src/social-child-approval-block-ux-values.ts` and
   `packages/parent-domain/src/social-child-approval-block-ux.ts`, plus
@@ -1387,13 +1385,12 @@ worker messages before code changes. Do not mix all 24 into one PR.
   `packages/text-domain/src/social-child-approval-block-ux-text.ts`. The
   snapshot covers approval-request pending, blocked social route candidate,
   warning social route candidate, manual-review required, time-limit candidate,
-  and native-app unavailable states as child-facing state/action contracts. It
-  rejects rendered child UI, notification delivery, browser navigation block
-  execution, block page rendering, applied time limits, final policy decisions,
-  connector authorization, native app control, and enforcement. Package subpath
-  exports are now present; no rendered child UI, notification, browser block
-  page, final policy execution, connector, native app control, or enforcement is
-  claimed.
+  and native-app unavailable states as child-facing state/action contracts. The
+  current proof maps those states into the shared child intervention renderer,
+  serves them through the Rust child-agent endpoint, and captures screenshots.
+  Package subpath exports are now present; no notification delivery, browser
+  navigation block execution, applied time limits, final policy decisions,
+  connector authorization, native app control, or enforcement is claimed.
 - SOCIAL-22 now adds parent-domain social audit/explanation read-model
   contracts in
   `packages/parent-domain/src/social-audit-explanation-read-model-values.ts`
@@ -1401,32 +1398,33 @@ worker messages before code changes. Do not mix all 24 into one PR.
   snapshot covers account approval, feed/video gate, native-app gap, connector
   boundary, decision memory, and manual-required gap rows with evidence links,
   policy refs, parent approval refs, memory refs, manual gap refs, and audit
-  refs. It rejects runtime audit store claims, rendered explanation UI,
+  refs. The Rust service now answers the social audit/explanation read-model
+  command with a schema-backed event consumed by the Browser route, and
+  desktop/mobile screenshots prove the rendered parent explanation panel.
+  Package subpath exports are now present; no logging-domain runtime store,
   notification delivery, raw account/video/message content, connector
-  authorization, native app control, final policy decisions, and enforcement.
-  Package subpath exports are now present; no
-  logging-domain runtime store, portal UI, notification, connector, native app
-  control, final policy execution, or enforcement is claimed.
+  authorization, native app control, final policy execution, or enforcement is
+  claimed.
 - SOCIAL-23 now adds `scripts/test/social-platform-account-feed-proof-artifacts.mjs`,
   a proof artifact gate that verifies SOCIAL-01 through SOCIAL-22 checklist
   ownership, proof directory references, required proof files, social workpack
   README references, and feature/expectation coverage. It emits
   `test-results/social-platform-account-feed-proof-artifacts/proof.json` and
   `output/browser-plan-proof/social-23-tests-fixtures-playwright-manual-proof/01-social-proof-artifact-manifest.md`.
-  The manifest records one scaffold-proof row and 21 partial/manual-required
-  rows. Playwright stays manual-required because no rendered social UI exists in
-  this slice. No screenshot, runtime connector, native app control, final policy
-  execution, enforcement, or product checklist claim is made.
+  The manifest records rendered parent dashboard, child intervention, and parent
+  explanation proof coverage while the overall rollout stays partial. No runtime
+  connector, native app control, final policy execution, enforcement, or product
+  checklist claim is made.
 - SOCIAL-24 now adds `scripts/test/social-platform-account-feed-rollout-gate.mjs`,
   a rollout/manual-required label gate that verifies SOCIAL-01 through SOCIAL-23
   checklist labels and required no-claim guard text. It emits
   `test-results/social-platform-account-feed-rollout-gate/proof.json` and
   `output/browser-plan-proof/social-24-rollout-manual-required-labels/01-rollout-manual-required-labels.md`.
-  The manifest records one scaffold-proof row and 22 partial/manual-required
-  rows. SOCIAL rollout state: partial/manual-required. Product checklist upgrade
-  is not claimed. No rendered social UI, Playwright screenshots,
-  connector/native runtime, final policy execution, enforcement, release
-  readiness, or product completion claim is made.
+  SOCIAL rollout state: partial/manual-required. Product checklist upgrade is
+  not claimed. Service-backed dashboard and explanation read-model delivery plus
+  child-agent-served intervention rendering are present, but connector/native
+  runtime, final policy execution, enforcement, release readiness, and product
+  completion remain unclaimed.
 
 ## 21. Must-Not-Claim List
 
