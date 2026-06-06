@@ -45,6 +45,12 @@ fn assert_remote_delivery_route_state(report: &NetworkRuntimeRemoteDeliveryStatu
 }
 
 fn assert_remote_delivery_refs(report: &NetworkRuntimeRemoteDeliveryStatusReport) {
+    assert_broker_delivery_refs(report);
+    assert_remote_lifecycle_refs(report);
+    assert_durable_envelope_refs(report);
+}
+
+fn assert_broker_delivery_refs(report: &NetworkRuntimeRemoteDeliveryStatusReport) {
     assert_eq!(
         report.custody_proof_ref.as_str(),
         constants::network_flow::TEST_BROKER_CUSTODY_PROOF_REF
@@ -93,6 +99,9 @@ fn assert_remote_delivery_refs(report: &NetworkRuntimeRemoteDeliveryStatusReport
         report.relay_policy_ref.as_str(),
         constants::network_flow::TEST_FAMILY_HUB_RELAY_POLICY_REF
     );
+}
+
+fn assert_remote_lifecycle_refs(report: &NetworkRuntimeRemoteDeliveryStatusReport) {
     assert_eq!(
         report.cross_process_replay_ref.as_str(),
         constants::network_flow::TEST_REMOTE_LIFECYCLE_CROSS_PROCESS_REPLAY_REF
@@ -108,6 +117,29 @@ fn assert_remote_delivery_refs(report: &NetworkRuntimeRemoteDeliveryStatusReport
     assert_eq!(
         report.remote_lifecycle_followup_ref.as_str(),
         constants::network_flow::TEST_REMOTE_LIFECYCLE_FOLLOWUP_REF
+    );
+}
+
+fn assert_durable_envelope_refs(report: &NetworkRuntimeRemoteDeliveryStatusReport) {
+    assert_eq!(
+        report.durable_envelope_schema_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_SCHEMA_REF
+    );
+    assert_eq!(
+        report.durable_envelope_journal_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_JOURNAL_REF
+    );
+    assert_eq!(
+        report.durable_envelope_replay_readiness_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_REPLAY_REF
+    );
+    assert_eq!(
+        report.durable_envelope_delete_export_readiness_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_DELETE_EXPORT_REF
+    );
+    assert_eq!(
+        report.durable_envelope_support_status_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_SUPPORT_STATUS_REF
     );
 }
 
@@ -127,10 +159,15 @@ async fn network_runtime_remote_delivery_status_rejects_authority_and_side_effec
     assert!(!report.remote_retention_delete_export_propagation_implemented);
     assert!(report.remote_lifecycle_manual_required);
     assert_eq!(report.remote_lifecycle_missing_artifact_count, 3);
+    assert!(report.durable_envelope_ready);
+    assert_eq!(report.durable_envelope_missing_artifact_count, 0);
     assert!(!report.policy_authority);
     assert!(!report.side_effect_authority);
     assert_eq!(report.enforcement_command_event_count, 0);
     assert_eq!(report.adapter_action_executed_count, 0);
+    assert!(!report.provider_delivery_implemented);
+    assert!(!report.child_device_delivery_implemented);
+    assert!(!report.product_ready_claimed);
     assert_eq!(
         report.broker_semantics.delivery_decision.required_artifacts,
         vec![

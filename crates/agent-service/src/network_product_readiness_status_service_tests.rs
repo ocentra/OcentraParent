@@ -166,6 +166,14 @@ fn assert_local_ai_runtime_result_status(status: &NetworkLocalAiRuntimeResultSta
 }
 
 fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
+    assert_remote_delivery_route_status(status);
+    assert_remote_delivery_broker_refs(status);
+    assert_remote_lifecycle_status(status);
+    assert_remote_durable_envelope_status(status);
+    assert_remote_delivery_non_claims(status);
+}
+
+fn assert_remote_delivery_route_status(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(
         status.status_ref,
         constants::network_flow::TEST_REMOTE_DELIVERY_STATUS_REF
@@ -178,6 +186,16 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
         status.family_hub_status,
         NetworkRemoteDeliveryStatusState::RequirementsSatisfiedButNotImplemented
     );
+    assert_eq!(status.broker_missing_artifact_count, 0);
+    assert_eq!(status.family_hub_missing_artifact_count, 0);
+    assert_eq!(status.accepted_event_type_count, 3);
+    assert!(status.local_idempotency_queue_proved);
+    assert_eq!(status.dropped_event_dead_letter_count, 1);
+    assert!(status.queued_duplicate_rejected);
+    assert!(status.completed_duplicate_rejected);
+}
+
+fn assert_remote_delivery_broker_refs(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(
         status.custody_proof_ref,
         constants::network_flow::TEST_BROKER_CUSTODY_PROOF_REF
@@ -190,13 +208,9 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
         status.relay_identity_ref,
         constants::network_flow::TEST_FAMILY_HUB_IDENTITY_REF
     );
-    assert_eq!(status.broker_missing_artifact_count, 0);
-    assert_eq!(status.family_hub_missing_artifact_count, 0);
-    assert_eq!(status.accepted_event_type_count, 3);
-    assert!(status.local_idempotency_queue_proved);
-    assert_eq!(status.dropped_event_dead_letter_count, 1);
-    assert!(status.queued_duplicate_rejected);
-    assert!(status.completed_duplicate_rejected);
+}
+
+fn assert_remote_lifecycle_status(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(
         status.cross_process_replay_ref,
         constants::network_flow::TEST_REMOTE_LIFECYCLE_CROSS_PROCESS_REPLAY_REF
@@ -215,10 +229,41 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     );
     assert_eq!(status.remote_lifecycle_missing_artifact_count, 3);
     assert!(status.remote_lifecycle_manual_required);
+}
+
+fn assert_remote_durable_envelope_status(status: &NetworkRemoteDeliveryStatus) {
+    assert_eq!(
+        status.durable_envelope_schema_ref,
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_SCHEMA_REF
+    );
+    assert_eq!(
+        status.durable_envelope_journal_ref,
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_JOURNAL_REF
+    );
+    assert_eq!(
+        status.durable_envelope_replay_readiness_ref,
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_REPLAY_REF
+    );
+    assert_eq!(
+        status.durable_envelope_delete_export_readiness_ref,
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_DELETE_EXPORT_REF
+    );
+    assert_eq!(
+        status.durable_envelope_support_status_ref,
+        constants::network_flow::TEST_REMOTE_DURABLE_ENVELOPE_SUPPORT_STATUS_REF
+    );
+    assert!(status.durable_envelope_ready);
+    assert_eq!(status.durable_envelope_missing_artifact_count, 0);
+}
+
+fn assert_remote_delivery_non_claims(status: &NetworkRemoteDeliveryStatus) {
     assert!(!status.external_transport_delivery_implemented);
     assert!(!status.family_hub_delivery_implemented);
     assert!(!status.cross_process_replay_implemented);
     assert!(!status.remote_retention_delete_export_propagation_implemented);
+    assert!(!status.provider_delivery_implemented);
+    assert!(!status.child_device_delivery_implemented);
+    assert!(!status.product_ready_claimed);
     assert!(!status.policy_authority);
     assert!(!status.side_effect_authority);
     assert_eq!(status.enforcement_command_event_count, 0);
@@ -269,6 +314,8 @@ async fn websocket_network_product_readiness_status_command_reports_payload() {
     );
     assert!(!remote_delivery_status.family_hub_delivery_implemented);
     assert!(remote_delivery_status.remote_lifecycle_manual_required);
+    assert!(remote_delivery_status.durable_envelope_ready);
+    assert!(!remote_delivery_status.product_ready_claimed);
     assert_eq!(remote_delivery_status.adapter_action_executed_count, 0);
 }
 

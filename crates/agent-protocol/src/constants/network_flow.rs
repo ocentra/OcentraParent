@@ -132,6 +132,16 @@ pub const TEST_REMOTE_LIFECYCLE_DELIVERY_ACK_REF: &str =
     "family-hub.network.delivery-ack.manual-required.10d";
 pub const TEST_REMOTE_LIFECYCLE_FOLLOWUP_REF: &str =
     "network.remote-delivery.lifecycle-followup.10d";
+pub const TEST_REMOTE_DURABLE_ENVELOPE_SCHEMA_REF: &str =
+    "broker.network.durable-envelope.schema.10e";
+pub const TEST_REMOTE_DURABLE_ENVELOPE_JOURNAL_REF: &str =
+    "broker.network.durable-envelope.journal-readiness.10e";
+pub const TEST_REMOTE_DURABLE_ENVELOPE_REPLAY_REF: &str =
+    "broker.network.durable-envelope.replay-readiness.10e";
+pub const TEST_REMOTE_DURABLE_ENVELOPE_DELETE_EXPORT_REF: &str =
+    "broker.network.durable-envelope.delete-export-readiness.10e";
+pub const TEST_REMOTE_DURABLE_ENVELOPE_SUPPORT_STATUS_REF: &str =
+    "network.remote-delivery.durable-envelope.support-status.10e";
 pub const UNCERTAINTY_NETWORK_ONLY_NO_EXACT_URL: &str = "network-only-no-exact-url";
 pub const UNSUPPORTED_CLAIM_DECRYPTED_HTTPS_PAYLOAD: &str = "decrypted-https-payload";
 pub const UNAVAILABLE_REASON_MANUAL_REQUIRED: &str = "manual-required";
