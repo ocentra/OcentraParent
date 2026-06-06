@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-06T09:43:25.344Z",
+  "generatedAt": "2026-06-06T09:55:00.824Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -180,6 +180,7 @@
         "01-contract-proof.md",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
+        "11-live-evidence-risk-benefit-proof.json",
         "ui-not-applicable.md"
       ],
       "state": "partial-manual-required",
@@ -399,6 +400,7 @@
     "liveRouteClassification": "proof-present",
     "liveMetadataExtraction": "proof-present",
     "liveEvidenceAiBoundary": "proof-present",
+    "liveEvidenceRiskBenefitBoundary": "proof-present",
     "alertReportIntent": "proof-present",
     "scheduleTimeBudgetCompiler": "proof-present",
     "parentSensitivitySettings": "proof-present",

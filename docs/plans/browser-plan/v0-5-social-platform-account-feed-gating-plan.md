@@ -1275,7 +1275,9 @@ worker messages before code changes. Do not mix all 24 into one PR.
   manual-required/unavailable states. Signal sets copy provenance from typed
   SOCIAL-10 AI analysis results while rejecting raw message/feed/page/model use,
   account identity verification claims, final policy decisions, connector/native
-  claims, and enforcement. Package subpath exports are now present; no policy compiler, runtime gate, UI, native app
+  claims, and enforcement. The live-evidence proof consumes SOCIAL-10 degraded
+  AI result refs and emits unavailable risk/benefit signal sets without
+  classifying content or claiming final policy/enforcement authority. Package subpath exports are now present; no policy compiler, runtime gate, UI, native app
   support, connector, or enforcement is claimed.
 - SOCIAL-12 now adds parent-domain social policy compiler contracts in
   `social-policy-compiler-values.ts` and `social-policy-compiler.ts`. The
