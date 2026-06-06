@@ -66,6 +66,10 @@ pub const TEST_SCREEN_ACTION_REF: &str = "screen-action-dry-run-1";
 pub const TEST_SCREEN_POLICY_RULE_REF: &str = "policy-rule.screen.school.1";
 pub const ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES: &str = "screen runtime chain publishes";
 pub const ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES: &str = "screen runtime payload decodes";
+pub const ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES: &str =
+    "screen service event bridge publishes";
+pub const ERROR_SCREEN_SERVICE_EVENT_BRIDGE_REJECTS: &str = "screen service event bridge rejects";
+pub const ERROR_SCREEN_SERVICE_EVENT_BRIDGE_MAPS: &str = "screen service event bridge maps";
 pub const IDEMPOTENCY_SCREEN_MESH_PREFIX: &str = "screen-mesh-idempotency-";
 pub const SCREEN_MESH_WORK_EVENT_REF: &str = "event.screen.mesh.work.queued.1";
 pub const SCREEN_MESH_OFFER_EVENT_REF: &str = "event.screen.mesh.offer.published.1";

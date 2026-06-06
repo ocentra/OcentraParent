@@ -41,6 +41,7 @@ trigger ownership unless the row explicitly says so.
 | Local AI resource scheduler proof         | P2 contract + runtime      | `output/screen-plan-proof/local-ai-resource-scheduler/proof-summary.json`                          | Proves screen OCR/VLM priority, singleton heavy-lane admission, timeout/skipped/degraded states, caps, and reuse of the provider scheduler proof; not a final capture-to-policy pipeline claim.                                                                                                                               |
 | Family AI hub screen route proof          | P2 contract proved         | `output/screen-plan-proof/37-family-ai-hub-screen-analysis-queue/proof-summary.json`               | Proves hard screen-analysis cases route child-local first, then local household family hub with no retention and no remote/API fallback; no real LAN hub runtime or production model quality claimed.                                                                                                                         |
 | Screen eventing consumer boundary         | P2 runtime proof           | `output/screen-plan-proof/screen-eventing-consumer-boundary/proof-summary.json`                    | Proves an ordered typed `ocentra-eventing` runtime chain for capture, encrypted queue, AI request/result, summary, policy, action dry-run, deletion, and portal-read-model events without raw-image escape. Live service producers/subscribers and household mesh execution remain separate gates.                            |
+| Screen service event bridge               | P2 service bridge proof    | `output/screen-plan-proof/screen-service-event-bridge/proof-summary.json`                          | Proves service Activity Screen read-model rows map into the existing typed screen event chain, reject raw retention and missing policy refs before publication, and reuse the core event path without a duplicate service event bus. Always-on production subscriptions remain separate.                                      |
 | Router/structured extraction proof        | P2 contract proved         | `output/screen-plan-proof/31-32-screen-router-structured-extraction/proof-summary.json`            | Proves typed screen routing checks existing evidence and managed-browser structured extraction before screenshots; no live producer, portal, policy, or enforcement claim.                                                                                                                                                    |
 | Managed-browser CDP screenshot capture    | P3 live local proved       | `output/screen-plan-proof/33-managed-browser-cdp-screenshot-capture-path/proof-summary.json`       | Proves real Chromium CDP page/viewport/crop screenshot capture tied to a managed page target with encrypted temp queue handoff and deletion; no URL-trigger ownership, OCR/VLM, policy, enforcement, live view, or raw retention claim.                                                                                       |
 | Windows WinRT OCR worker capture analysis | P3 real OCR proved         | `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`                                  | Proves real selected-window browser/native captured pixels run through Windows WinRT OCR, become typed screen-analysis evidence, feed allow dry-run policy decisions, and delete raw temp images; no production OCR quality, service runtime, cross-platform, enforcement, live view, or raw retention claim.                 |
@@ -94,6 +95,8 @@ family-hub route or runtime-discovery proofs.
 - [x] Family AI hub is used before remote/API for hard visual cases.
 - [x] Screen capture, queue, deletion, and summary lifecycle transitions publish
       typed `ocentra-eventing` events before AI/policy/action consumers run.
+- [x] Service Activity Screen rows bridge into the typed screen event chain
+      without raw retention, missing policy refs, or duplicate event buses.
 - [x] Screen-derived household provider jobs prove no raw screenshot transfer,
       claim/lease, child-agent result validation, and custody before policy.
 - [x] Platform capture proof exists before platform claim.
@@ -159,6 +162,8 @@ remote API receives raw screenshot
 local heavy OCR/VLM jobs run without priority/resource guard
 screen capture directly calls AI/policy/action instead of publishing typed
 eventing records for consumers
+service screen row creates a second event bus instead of reusing the core screen
+runtime chain
 ```
 
 ## Workpack Status
