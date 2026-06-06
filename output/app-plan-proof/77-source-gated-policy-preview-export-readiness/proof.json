@@ -1,0 +1,105 @@
+{
+  "proofMode": "app-game-source-gated-policy-preview-export-readiness",
+  "generatedAt": "2026-06-06T01:30:00Z",
+  "branch": "codex/app-game-source-gated-policy-preview-export-readiness",
+  "commit": "8037bdbe5f7478acbf867944c4608ed6ad614e42",
+  "gitStatusShort": "",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/parent-domain\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-gated-policy-preview-export-readiness app-game-source-gated-policy-preview-read-model\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-source-gated-policy-preview-export-readiness app-game-source-gated-policy-preview-read-model\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  2 passed (2)\n      Tests  7 passed (7)\n   Start at  21:38:21\n   Duration  1.18s (transform 524ms, setup 0ms, import 1.68s, tests 94ms, environment 0ms)\n\n"
+  ],
+  "stackedOn": {
+    "wp76Branch": "codex/app-game-source-gated-policy-preview-read-model",
+    "wp75Branch": "codex/app-game-source-freshness-preview-gate",
+    "reason": "WP77 consumes WP76 source-gated policy preview read-model contracts. Package manifest export is intentionally deferred while another lane owns packages/parent-domain/package.json."
+  },
+  "manifestCheck": {
+    "packagePath": "packages/parent-domain/package.json",
+    "requiredExportSubpath": "./app-game-source-gated-policy-preview-read-model",
+    "packageManifestHasDeferredExport": false,
+    "packageManifestUpdatedByThisProof": false
+  },
+  "summary": {
+    "requiredExportSubpath": "./app-game-source-gated-policy-preview-read-model",
+    "requiredExportSymbolCount": 6,
+    "readinessState": "ready-for-manifest-sequencing",
+    "manifestState": "deferred-by-package-manifest-lock",
+    "nativeAppRowCount": 1,
+    "nativeGameRowCount": 2,
+    "previewReadyVisibleCount": 1,
+    "sourceManualRequiredVisibleCount": 1,
+    "compilerManualRequiredVisibleCount": 1
+  },
+  "nonClaims": {
+    "packageManifestUpdated": false,
+    "serviceRuntimeEventClaimed": false,
+    "portalUiRendered": false,
+    "policyEvaluatorRuntimeClaimed": false,
+    "timerRuntimeClaimed": false,
+    "adapterDispatchClaimed": false,
+    "childDeliveryClaimed": false,
+    "platformEnforcementClaimed": false,
+    "rawPrivateSourceRowsIncluded": false
+  },
+  "proofPaths": {
+    "source": "packages/parent-domain/src/app-game-source-gated-policy-preview-export-readiness.ts",
+    "rules": "packages/parent-domain/src/app-game-source-gated-policy-preview-export-readiness-rules.ts",
+    "test": "packages/parent-domain/tests/app-game-source-gated-policy-preview-export-readiness.test.ts",
+    "harness": "scripts/test/app-game-source-gated-policy-preview-export-readiness-proof.mjs",
+    "evidence": "test-results/app-game-source-gated-policy-preview-export-readiness-proof/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/77-source-gated-policy-preview-export-readiness",
+    "appProofPack": "output/app-plan-proof/77-source-gated-policy-preview-export-readiness"
+  },
+  "readiness": {
+    "schemaVersion": "v0.6",
+    "readinessId": "app-game-source-gated-policy-preview-export-readiness-proof",
+    "sourceReadModelId": "app-game-source-gated-policy-preview-read-model-proof",
+    "generatedAt": "2026-06-06T01:30:00Z",
+    "sourceContractRefs": [
+      "app-game-source-gated-policy-preview-read-model",
+      "docs/expectations/app-game-evidence.md",
+      "docs/expectations/policy.md"
+    ],
+    "requiredExportSubpath": "./app-game-source-gated-policy-preview-read-model",
+    "requiredExportSymbols": [
+      "AppGameSourceGatedPolicyPreviewReadModelSchema",
+      "AppGameSourceGatedPolicyPreviewReadModelRowSchema",
+      "buildAppGameSourceGatedPolicyPreviewReadModel",
+      "decodeAppGameSourceGatedPolicyPreviewReadModel",
+      "AppGameSourceGatedPolicyPreviewReadModelProjectionState",
+      "AppGameSourceGatedPolicyPreviewReadModelSensitiveBoundary"
+    ],
+    "readinessState": "ready-for-manifest-sequencing",
+    "manifestState": "deferred-by-package-manifest-lock",
+    "nativeAppRowCount": 1,
+    "nativeGameRowCount": 2,
+    "previewReadyVisibleCount": 1,
+    "sourceManualRequiredVisibleCount": 1,
+    "compilerManualRequiredVisibleCount": 1,
+    "projectionStates": [
+      "preview-ready-visible",
+      "source-manual-required-visible",
+      "compiler-manual-required-visible"
+    ],
+    "exportNonClaims": [
+      "no-package-manifest-edit",
+      "no-service-runtime-event",
+      "no-portal-ui-rendered",
+      "no-policy-evaluator-runtime",
+      "no-timer-runtime",
+      "no-adapter-dispatch",
+      "no-child-delivery",
+      "no-platform-enforcement",
+      "no-raw-private-source-rows"
+    ],
+    "packageManifestUpdated": false,
+    "serviceRuntimeEventClaimed": false,
+    "portalUiRendered": false,
+    "policyEvaluatorRuntimeClaimed": false,
+    "timerRuntimeClaimed": false,
+    "adapterDispatchClaimed": false,
+    "childDeliveryClaimed": false,
+    "platformEnforcementClaimed": false,
+    "rawPrivateSourceRowsIncluded": false
+  }
+}
