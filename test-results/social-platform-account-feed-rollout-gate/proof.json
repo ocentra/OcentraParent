@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-06T13:47:47.458Z",
+  "generatedAt": "2026-06-06T14:14:52.891Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -78,9 +78,9 @@
     {
       "rowNumber": 10,
       "rowId": "SOCIAL-10",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
-      "state": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "state": "proof-present",
       "failures": []
     },
     {
@@ -190,8 +190,8 @@
   ],
   "summary": {
     "totalRows": 23,
-    "completeRows": 10,
-    "partialRows": 13,
+    "completeRows": 11,
+    "partialRows": 12,
     "failures": 0,
     "rolloutState": "partial/manual-required",
     "productClaimed": false
