@@ -1,5 +1,6 @@
 import type {
   ActivityNetworkEndpoint,
+  ActivityNetworkFlowDigest,
   ActivityNetworkFlowObservation,
   ActivityNetworkFlowReadModel,
 } from '@ocentra-parent/activity-domain/network-flow';
@@ -46,12 +47,15 @@ export type NetworkEvidenceDrawerSummary = {
   readonly unavailableState: PortalDetailValue;
   readonly uncertaintyReasonCodes: PortalDetailValue;
   readonly evidenceReferences: PortalDetailValue;
+  readonly digestIndicators: PortalDetailValue;
+  readonly digestIndicatorEvidence: PortalDetailValue;
   readonly exactUrlClaim: PortalDetailValue;
 };
 
 export function networkEvidenceDrawerSummary(
   readModel: ActivityNetworkFlowReadModel | null,
-  eventChain: NetworkRuntimeEventChainSummary | null = null
+  eventChain: NetworkRuntimeEventChainSummary | null = null,
+  digest: ActivityNetworkFlowDigest | null = null
 ): NetworkEvidenceDrawerSummary {
   const row = firstNetworkFlowRow(readModel);
   const runtime = runtimeEventChainDetails(eventChain, row);
@@ -88,6 +92,8 @@ export function networkEvidenceDrawerSummary(
     unavailableState: runtime.unavailableState,
     uncertaintyReasonCodes: uncertaintyReasonCodes(row),
     evidenceReferences: evidenceReferenceDetail(row),
+    digestIndicators: digestIndicatorDetail(digest),
+    digestIndicatorEvidence: digestIndicatorEvidenceDetail(digest),
     exactUrlClaim: notReported(),
   };
 }
@@ -184,6 +190,21 @@ function evidenceReferenceDetail(row: ActivityNetworkFlowObservation | null): Po
     return notReported();
   }
   return joinedDetail(row.evidence.map((evidence) => evidence.evidenceId));
+}
+
+function digestIndicatorDetail(digest: ActivityNetworkFlowDigest | null): PortalDetailValue {
+  if (digest === null || digest.unusualIndicators.length === 0) {
+    return notReported();
+  }
+  return joinedDetail(digest.unusualIndicators.map((indicator) => indicator.kind));
+}
+
+function digestIndicatorEvidenceDetail(digest: ActivityNetworkFlowDigest | null): PortalDetailValue {
+  if (digest === null || digest.unusualIndicators.length === 0) {
+    return notReported();
+  }
+  const evidenceIds = digest.unusualIndicators.flatMap((indicator) => indicator.evidenceIds);
+  return joinedDetail([...new Set(evidenceIds)]);
 }
 
 function endpointDetail(endpoint: ActivityNetworkEndpoint | null | undefined): PortalDetailValue {
