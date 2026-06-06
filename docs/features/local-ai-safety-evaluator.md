@@ -100,6 +100,15 @@ claim needs proof, not slogans.
   refs, parent-rule refs, runtime refs, prompt version refs, no raw prompt
   retention, and explicit no model-execution, no remote/API AI, no
   policy-authority, no enforcement, and no production-model-quality claims.
+- `LocalAiResultReadModelSnapshotSchema` and
+  `scripts/test/local-ai-result-journal-sqlite-proof.mjs` now prove local AI
+  safety results can flow into journal entries, SQLite-ingest rows, and a
+  parent-facing read-model snapshot while preserving result, request, evidence,
+  parent-rule, runtime, provider, model, prompt, and proof refs. The proof keeps
+  ready, unavailable, and manual-required rows visible; rejects raw prompt/model
+  output retention plus remote/API, policy-authority, and enforcement claims;
+  and does not claim production storage runtime, model execution, model quality,
+  portal UI, or enforcement.
 - The service WinRT OCR policy proof now reruns the real Windows service
   OCR path over live public Wikipedia pixels and consumes that exact
   `localOcr` Activity Screen row through `PolicyDecisionSchema`, producing an
@@ -255,6 +264,9 @@ production external evidence variants.
 - [x] Local text inference dry-run proof path without model-execution,
       remote/API, policy-authority, enforcement, production-quality, or raw
       prompt-retention claims.
+- [x] Local AI result journal/SQLite ingest proof path without production
+      storage runtime, raw prompt/model-output retention, policy authority,
+      remote/API AI, or enforcement claims.
 - [x] Local result contract with confidence/degraded state.
 - [x] Deterministic policy integration.
 - [x] Service WinRT OCR row consumed by typed parent policy dry-run.

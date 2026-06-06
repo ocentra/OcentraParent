@@ -35,6 +35,7 @@ consumes the same results.
 | Screen parent explanation service read model      | P3 service proved   | `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json`                                         | Starts the real Rust service against a seeded ActivityStore and requests the Activity Screen read model over WebSocket, proving policy refs, parent rules, local runtime refs, parent explanation refs, deletion reasons, deleted-image state, and child-device custody survive service/query projection. It does not claim production portal rendering, new capture/model inference, remote/API AI, policy authority, or enforcement.                                                                       |
 | Screen family AI hub runtime discovery            | P3 loopback proved  | `output/screen-ai-pipeline-proof/family-ai-hub-runtime-discovery/proof-summary.json`                                                   | Starts a real loopback family-hub endpoint, discovers it through existing LAN evidence schemas, links it to the selected screen family-hub route, and submits a redacted-crop job payload without raw screenshot transfer, raw retention, remote/API provider use, or Ocentra-hosted processing. Physical household LAN, production model quality, portal UI, policy authority, and enforcement remain separate gates.                                                                                       |
 | Local text inference dry-run                      | P3 dry-run proved   | `output/ai-plan-proof/local-ai-text-inference-dry-run/proof-summary.json`                                                              | Proves schema-valid local AI input and matching local runtime metadata can produce ready, unavailable, and missing-evidence `LocalAiSafetyResult` rows while preserving typed evidence refs, parent-rule refs, runtime refs, prompt version refs, no raw prompt retention, and explicit no model-execution, no remote/API AI, no policy-authority, no enforcement, and no production-model-quality claims.                                                                                                   |
+| Local AI result journal/SQLite ingest             | P3 contract proved  | `output/ai-plan-proof/local-ai-result-journal-sqlite-proof/proof-summary.json`                                                         | Proves ready, unavailable, and manual-required `LocalAiSafetyResult` rows can become journal entries, SQLite-ingest rows, and a parent-facing read-model snapshot while preserving result, request, evidence, parent-rule, runtime, provider, model, prompt, and proof refs. It does not claim production storage runtime, model execution, model quality, raw prompt/model-output retention, remote/API AI, policy authority, portal UI, or enforcement.                                                    |
 
 ## Contract And Source Truth
 
@@ -77,7 +78,9 @@ consumes the same results.
 - [x] Provider queue and routing implemented.
 - [x] Runtime status parent-facing read-model proof implemented; production
       service and portal rendering remain follow-up runtime work.
-- [ ] AI result journal and SQLite ingest implemented.
+- [x] AI result journal and SQLite ingest proof implemented without production
+      storage runtime, raw prompt/model-output retention, remote/API AI,
+      policy authority, portal UI, or enforcement claims.
 - [x] Parent explanation read-model proof contract implemented; production
       portal consumption remains a UI/runtime gap.
 - [x] Screen parent explanation refs preserved through service-backed Activity
@@ -177,6 +180,11 @@ consumes the same results.
 - [x] local AI runtime status read-model proof run:
       `node --check scripts/test/local-ai-runtime-status-read-model-proof.mjs`
       and `node scripts/test/local-ai-runtime-status-read-model-proof.mjs`.
+- [x] local AI result journal/SQLite ingest proof artifacts under
+      `output/ai-plan-proof/local-ai-result-journal-sqlite-proof`.
+- [x] local AI result journal/SQLite ingest proof run:
+      `node --check scripts/test/local-ai-result-journal-sqlite-proof.mjs` and
+      `node scripts/test/local-ai-result-journal-sqlite-proof.mjs`.
 - [x] local AI stored-evidence context proof artifacts under
       `output/ai-plan-proof/local-ai-stored-evidence-context`.
 - [x] local AI stored-evidence context proof run:
