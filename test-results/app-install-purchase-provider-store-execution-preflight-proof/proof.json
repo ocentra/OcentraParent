@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T07:58:33.954Z",
-  "commit": "58b33a6fd84bb31a5f752204f08d4ca231804dfc",
+  "checkedAt": "2026-06-06T08:08:10.235Z",
+  "commit": "43063cd33599da5df1d09394c5fd1a190d70ddd8",
   "proofMode": "app-install-purchase-provider-store-execution-preflight-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-06T07:58:27.413Z",
+      "startedAt": "2026-06-06T08:08:03.939Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-provider-store-execution-preflight-proof.test.ts",
-      "startedAt": "2026-06-06T07:58:31.045Z",
+      "startedAt": "2026-06-06T08:08:07.476Z",
       "exitCode": 0
     }
   ],
   "packageExportState": "not-claimed-new-public-export-deferred",
-  "checklistState": "blocked-by-current-e-c-docs-product-capability-checklist-lock",
+  "checklistState": "updated-docs-product-capability-checklist-app-install-row",
   "evidence": {
     "providerStoreExecutionPreflightContract": "packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts",
     "sourceProviderStoreExecutionReadinessContract": "packages/parent-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts",
@@ -24,7 +24,7 @@
     "contractTest": "packages/parent-domain/tests/app-install-purchase-provider-store-execution-preflight-proof.test.ts",
     "featureDoc": "docs/features/app-install-purchase-approval.md",
     "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
-    "checklistBlocked": "docs/product-capability-checklist.md is not edited in this slice because E-C currently owns that lock; this proof names the current blocker instead of stale PR overlap.",
+    "checklistDoc": "docs/product-capability-checklist.md",
     "output": "test-results\\app-install-purchase-provider-store-execution-preflight-proof\\proof.json"
   },
   "providerStoreExecutionPreflightSummary": {
@@ -359,7 +359,6 @@
   ],
   "knownGaps": [
     "Provider/store execution preflight rows record parent-owned evidence readiness only; no Google Play Apple App Store Microsoft Store or billing provider execution is implemented.",
-    "Runtime writer receipt refs are parent-owned proof rows only; runtime device delivery, child-device delivery, platform adapters, app blocking, child activity data, and hosted custody remain unimplemented.",
-    "Product capability checklist update is deferred while E-C owns docs/product-capability-checklist.md; feature and expectation docs now record this preflight proof."
+    "Runtime writer receipt refs are parent-owned proof rows only; runtime device delivery, child-device delivery, platform adapters, app blocking, child activity data, and hosted custody remain unimplemented."
   ]
 }

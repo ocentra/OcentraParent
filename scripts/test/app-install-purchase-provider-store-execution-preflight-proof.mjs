@@ -61,7 +61,7 @@ async function main() {
     proofMode: 'app-install-purchase-provider-store-execution-preflight-proof',
     commands,
     packageExportState: 'not-claimed-new-public-export-deferred',
-    checklistState: 'blocked-by-current-e-c-docs-product-capability-checklist-lock',
+    checklistState: 'updated-docs-product-capability-checklist-app-install-row',
     evidence: {
       providerStoreExecutionPreflightContract:
         'packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
@@ -73,8 +73,7 @@ async function main() {
         'packages/parent-domain/tests/app-install-purchase-provider-store-execution-preflight-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
-      checklistBlocked:
-        'docs/product-capability-checklist.md is not edited in this slice because E-C currently owns that lock; this proof names the current blocker instead of stale PR overlap.',
+      checklistDoc: 'docs/product-capability-checklist.md',
       output: relative(repoRoot, proofPath),
     },
     providerStoreExecutionPreflightSummary: summary,
