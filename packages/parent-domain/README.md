@@ -434,6 +434,11 @@ flowchart LR
   parent-surface status read-model proof refs visible while keeping status
   read-model implementation, status implementation, parent-surface rendering,
   portal rendering, service runtime, and adapter dispatch unclaimed.
+  Timer service-readiness response consumer parent-surface status read-model
+  parent-surface handoff rows consume status read-model handoff rows and keep
+  future parent-surface proof refs visible while keeping parent-surface
+  rendering, portal rendering, service runtime, and adapter dispatch
+  unclaimed.
   Portal authoring or preview UI, live evaluator execution, persistence,
   timers, child notification delivery, adapter dispatch, broad installed-app
   blocking, and platform enforcement remain unimplemented.
