@@ -18,6 +18,12 @@ run('npx', [
   'apps/portal/tests/screen-summary-route-panel.test.ts',
 ]);
 run('npm', ['run', 'build', '--workspace=@ocentra-parent/portal']);
+run('node', ['scripts/test/portal-playwright-runner.mjs'], {
+  env: {
+    OCENTRA_PARENT_PORTAL_PLAYWRIGHT_SPEC: 'e2e/screen-summary-ui-proof.spec.ts',
+    SCREEN_PARENT_PORTAL_SUMMARY_UI_PROOF: '1',
+  },
+});
 
 const proof = {
   proofId: 'screen-parent-portal-summary-ui-proof',
@@ -32,9 +38,14 @@ const proof = {
   parsed: {
     route: 'screen-analysis',
     renderSharedActivityRoute: false,
-    productClaim: 'Product surface pending',
+    productClaim: 'No family setting is configured for this area yet.',
     rawScreenshotDisplayed: false,
     adapterExecutionClaimed: false,
+  },
+  screenshots: {
+    desktop: 'output/screen-plan-proof/screen-parent-portal-summary-ui/screenshots/screen-analysis-route-desktop.png',
+    mobile: 'output/screen-plan-proof/screen-parent-portal-summary-ui/screenshots/screen-analysis-route-mobile.png',
+    accessibilitySummary: 'test-results/screen-parent-portal-summary-ui-proof/accessibility-summary.json',
   },
 };
 
@@ -44,9 +55,10 @@ writeFileSync(outputPath, `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(planOutputPath, `${JSON.stringify(proof, null, 2)}\n`);
 console.log(`screen-parent-portal-summary-ui-proof-ok: ${outputPath}`);
 
-function run(command, args) {
+function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: repoRoot,
+    env: { ...process.env, ...options.env },
     shell: process.platform === 'win32',
     stdio: 'inherit',
   });
