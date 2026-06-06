@@ -3,6 +3,7 @@ import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '../
 import {
   parseAgentNetworkProductReadinessStatusEvent,
   type AgentNetworkLiveCaptureCustodyStatus,
+  type AgentNetworkLocalAiRuntimeResultStatus,
   type AgentNetworkProductReadinessStatus,
   type AgentNetworkRemoteDeliveryStatus,
 } from '../src/network-product-readiness-status';
@@ -16,6 +17,7 @@ describe('network product readiness status protocol adapter', () => {
       throw new Error(parsed.reason);
     }
     assertLiveCaptureCustodyStatus(parsed.liveCaptureCustodyStatus);
+    assertLocalAiRuntimeResultStatus(parsed.localAiRuntimeResultStatus);
     assertProductReadinessStatus(parsed.productReadinessStatus);
     assertRemoteDeliveryStatus(parsed.remoteDeliveryStatus);
   });
@@ -29,6 +31,18 @@ describe('network product readiness status protocol adapter', () => {
     expect(parseAgentNetworkProductReadinessStatusEvent(invalidJsonEvent())).toEqual({
       ok: false,
       reason: 'invalid-product-readiness-status-json',
+    });
+    expect(parseAgentNetworkProductReadinessStatusEvent(missingLocalAiRuntimeResultStatusEvent())).toEqual({
+      ok: false,
+      reason: 'missing-local-ai-runtime-result-status',
+    });
+    expect(parseAgentNetworkProductReadinessStatusEvent(invalidLocalAiRuntimeResultJsonEvent())).toEqual({
+      ok: false,
+      reason: 'invalid-local-ai-runtime-result-status-json',
+    });
+    expect(parseAgentNetworkProductReadinessStatusEvent(localAiRuntimeResultClaimRegressionEvent())).toEqual({
+      ok: false,
+      reason: 'invalid-local-ai-runtime-result-status',
     });
     expect(parseAgentNetworkProductReadinessStatusEvent(missingRemoteDeliveryStatusEvent())).toEqual({
       ok: false,
@@ -65,6 +79,21 @@ describe('network product readiness status protocol adapter', () => {
   });
 });
 
+it('rejects local AI runtime result state/ref mismatches', () => {
+  expect(parseAgentNetworkProductReadinessStatusEvent(resultReadyMissingOutputSummaryEvent())).toEqual({
+    ok: false,
+    reason: 'invalid-local-ai-runtime-result-status',
+  });
+  expect(parseAgentNetworkProductReadinessStatusEvent(runtimeUnavailableOutputSummaryEvent())).toEqual({
+    ok: false,
+    reason: 'invalid-local-ai-runtime-result-status',
+  });
+  expect(parseAgentNetworkProductReadinessStatusEvent(queueNotReadyResultRefsEvent())).toEqual({
+    ok: false,
+    reason: 'invalid-local-ai-runtime-result-status',
+  });
+});
+
 function assertLiveCaptureCustodyStatus(status: AgentNetworkLiveCaptureCustodyStatus) {
   expect(status.status_ref).toBe('network.live-capture.custody-status.13a');
   expect(status.state).toBe('CustodyReady');
@@ -96,6 +125,34 @@ function assertProductReadinessStatus(status: AgentNetworkProductReadinessStatus
     'network.platform-claim.manual-followup.51a',
   ]);
   expect(status.portal_adapter_dispatch_claimed).toBe(false);
+  expect(status.enforcement_commands_published).toBe(0);
+}
+
+function assertLocalAiRuntimeResultStatus(status: AgentNetworkLocalAiRuntimeResultStatus) {
+  expect(status.status_ref).toBe('network.local-ai.runtime-result.status.33b');
+  expect(status.bridge_state).toBe('ResultReady');
+  expect(status.queue_status).toBe('Queued');
+  expect(status.trigger_ref).toBe('network.local-ai.trigger.33b');
+  expect(status.queue_job_ref).toBe('network.local-ai.queue-job.33b');
+  expect(status.model_runtime_ref).toBe('network.local-ai.model-runtime.33b');
+  expect(status.local_ai_result_ref).toBe('network.local-ai.result.33b');
+  expect(status.output_summary_ref).toBe('network.local-ai.output-summary.33b');
+  expect(status.managed_browser_exact_url_evidence_refs).toEqual([
+    'network.local-ai.managed-browser-exact-url-evidence.33b',
+  ]);
+  expect(status.local_runtime_result_observed).toBe(true);
+  expect(status.audit_input_ready).toBe(true);
+  expect(status.local_model_output_available).toBe(true);
+  expect(status.model_execution_proved).toBe(false);
+  expect(status.raw_pcap_available).toBe(false);
+  expect(status.exact_url_claimed).toBe(false);
+  expect(status.decrypted_payload_available).toBe(false);
+  expect(status.page_content_available).toBe(false);
+  expect(status.private_message_available).toBe(false);
+  expect(status.search_query_available).toBe(false);
+  expect(status.remote_ai_used).toBe(false);
+  expect(status.policy_authority).toBe(false);
+  expect(status.adapter_authority).toBe(false);
   expect(status.enforcement_commands_published).toBe(0);
 }
 
@@ -140,6 +197,7 @@ function productReadinessEvent() {
     payload: {
       [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
       [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
     snapshot: null,
@@ -169,6 +227,7 @@ function missingProductStatusEvent() {
     ...productReadinessEvent(),
     payload: {
       [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
@@ -180,6 +239,30 @@ function invalidJsonEvent() {
     payload: {
       [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
       [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: '{',
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
+    },
+  });
+}
+
+function missingLocalAiRuntimeResultStatusEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...productReadinessEvent(),
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
+    },
+  });
+}
+
+function invalidLocalAiRuntimeResultJsonEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...productReadinessEvent(),
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: '{',
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
@@ -191,6 +274,7 @@ function missingRemoteDeliveryStatusEvent() {
     payload: {
       [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
       [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
     },
   });
 }
@@ -201,6 +285,7 @@ function invalidRemoteDeliveryJsonEvent() {
     payload: {
       [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
       [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: '{',
     },
   });
@@ -215,6 +300,7 @@ function invalidProductStatusEvent() {
         ...productReadinessStatus(),
         readiness_state: null,
       }),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
@@ -231,6 +317,65 @@ function claimRegressionEvent() {
         portal_adapter_dispatch_claimed: true,
         performance_host_filtering_executed: true,
       }),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
+    },
+  });
+}
+
+function localAiRuntimeResultClaimRegressionEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...productReadinessEvent(),
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify({
+        ...localAiRuntimeResultStatus(),
+        model_execution_proved: true,
+        remote_ai_used: true,
+        enforcement_commands_published: 1,
+      }),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
+    },
+  });
+}
+
+function resultReadyMissingOutputSummaryEvent() {
+  return localAiRuntimeResultStatusEvent({
+    output_summary_ref: null,
+    local_model_output_available: false,
+  });
+}
+
+function runtimeUnavailableOutputSummaryEvent() {
+  return localAiRuntimeResultStatusEvent({
+    bridge_state: 'RuntimeUnavailable',
+    output_summary_ref: 'network.local-ai.output-summary.33b',
+    audit_input_ready: true,
+    local_model_output_available: true,
+  });
+}
+
+function queueNotReadyResultRefsEvent() {
+  return localAiRuntimeResultStatusEvent({
+    bridge_state: 'QueueNotReady',
+    queue_status: 'ModelUnavailable',
+    local_runtime_result_observed: false,
+    audit_input_ready: false,
+    local_model_output_available: false,
+  });
+}
+
+function localAiRuntimeResultStatusEvent(statusPatch: Partial<ReturnType<typeof localAiRuntimeResultStatus>>) {
+  return AgentEventEnvelopeSchema.parse({
+    ...productReadinessEvent(),
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify({
+        ...localAiRuntimeResultStatus(),
+        ...statusPatch,
+      }),
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
@@ -242,6 +387,7 @@ function remoteDeliveryClaimRegressionEvent() {
     payload: {
       [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
       [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify({
         ...remoteDeliveryStatus(),
         family_hub_delivery_implemented: true,
@@ -259,6 +405,7 @@ function unknownReadinessStateEvent() {
         ...productReadinessStatus(),
         readiness_state: 'ReadyMaybe',
       }),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
@@ -278,6 +425,7 @@ function platformEntryCommandRegressionEvent() {
           },
         ],
       }),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
@@ -292,6 +440,7 @@ function platformCountRegressionEvent() {
         ...productReadinessStatus(),
         platform_ready_claims: 2,
       }),
+      [AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus]: JSON.stringify(localAiRuntimeResultStatus()),
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
@@ -345,6 +494,43 @@ function productReadinessStatus() {
     exact_url_available: false,
     decrypted_payload_available: false,
     page_content_available: false,
+  };
+}
+
+function localAiRuntimeResultStatus() {
+  return {
+    status_ref: 'network.local-ai.runtime-result.status.33b',
+    bridge_state: 'ResultReady',
+    queue_status: 'Queued',
+    trigger_ref: 'network.local-ai.trigger.33b',
+    queue_job_ref: 'network.local-ai.queue-job.33b',
+    queue_ref: 'network.local-ai.queue.33b',
+    model_runtime_ref: 'network.local-ai.model-runtime.33b',
+    local_ai_result_ref: 'network.local-ai.result.33b',
+    runtime_reference_id: 'network.local-ai.runtime-ref.33b',
+    model_reference: 'network.local-ai.model.33b',
+    model_version_ref: 'network.local-ai.model-version.33b',
+    prompt_template_ref: 'network.local-ai.prompt-template.33b',
+    policy_context_ref: 'network.local-ai.policy-context.33b',
+    parent_rule_refs: ['policy.rule.network-domain.1'],
+    evidence_refs: ['network.local-ai.managed-browser-exact-url-evidence.33b'],
+    summary_refs: ['network.local-ai.network-summary.33b', 'network.local-ai.screen-summary.33b'],
+    managed_browser_exact_url_evidence_refs: ['network.local-ai.managed-browser-exact-url-evidence.33b'],
+    output_summary_ref: 'network.local-ai.output-summary.33b',
+    local_runtime_result_observed: true,
+    audit_input_ready: true,
+    local_model_output_available: true,
+    model_execution_proved: false,
+    raw_pcap_available: false,
+    exact_url_claimed: false,
+    decrypted_payload_available: false,
+    page_content_available: false,
+    private_message_available: false,
+    search_query_available: false,
+    remote_ai_used: false,
+    policy_authority: false,
+    adapter_authority: false,
+    enforcement_commands_published: 0,
   };
 }
 

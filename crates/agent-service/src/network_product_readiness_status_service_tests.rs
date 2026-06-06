@@ -5,7 +5,9 @@ use ocentra_network_evidence::{
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState, AGENT_PROTOCOL_SCHEMA_VERSION,
+    NetworkLocalAiRuntimeResultBridgeState, NetworkLocalAiRuntimeResultQueueStatus,
+    NetworkLocalAiRuntimeResultStatus, NetworkRemoteDeliveryStatus,
+    NetworkRemoteDeliveryStatusState, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use serde::de::DeserializeOwned;
 
@@ -24,11 +26,16 @@ fn network_product_readiness_status_payload_serializes_materializer_outputs() {
     );
     let product_status: NetworkProductReadinessStatus =
         status_value(&payload, constants::field::NETWORK_PRODUCT_READINESS_STATUS);
+    let local_ai_runtime_result_status: NetworkLocalAiRuntimeResultStatus = status_value(
+        &payload,
+        constants::field::NETWORK_LOCAL_AI_RUNTIME_RESULT_STATUS,
+    );
     let remote_delivery_status: NetworkRemoteDeliveryStatus =
         status_value(&payload, constants::field::NETWORK_REMOTE_DELIVERY_STATUS);
 
     assert_live_capture_status(&live_capture_status);
     assert_product_readiness_status(&product_status);
+    assert_local_ai_runtime_result_status(&local_ai_runtime_result_status);
     assert_remote_delivery_status(&remote_delivery_status);
 }
 
@@ -102,6 +109,62 @@ fn assert_platform_claim_status(status: &NetworkProductReadinessStatus) {
         .is_empty());
 }
 
+fn assert_local_ai_runtime_result_status(status: &NetworkLocalAiRuntimeResultStatus) {
+    assert_eq!(
+        status.status_ref,
+        constants::network_flow::TEST_LOCAL_AI_RUNTIME_RESULT_STATUS_REF
+    );
+    assert_eq!(
+        status.bridge_state,
+        NetworkLocalAiRuntimeResultBridgeState::ResultReady
+    );
+    assert_eq!(
+        status.queue_status,
+        NetworkLocalAiRuntimeResultQueueStatus::Queued
+    );
+    assert_eq!(
+        status.trigger_ref,
+        constants::network_flow::TEST_LOCAL_AI_TRIGGER_REF
+    );
+    assert_eq!(
+        status.queue_job_ref,
+        Some(constants::network_flow::TEST_LOCAL_AI_QUEUE_JOB_REF.to_owned())
+    );
+    assert_eq!(
+        status.model_runtime_ref,
+        Some(constants::network_flow::TEST_LOCAL_AI_MODEL_RUNTIME_REF.to_owned())
+    );
+    assert_eq!(
+        status.local_ai_result_ref,
+        Some(constants::network_flow::TEST_LOCAL_AI_RESULT_REF.to_owned())
+    );
+    assert_eq!(
+        status.output_summary_ref,
+        Some(constants::network_flow::TEST_LOCAL_AI_OUTPUT_SUMMARY_REF.to_owned())
+    );
+    assert_eq!(
+        status.managed_browser_exact_url_evidence_refs,
+        vec![
+            constants::network_flow::TEST_LOCAL_AI_MANAGED_BROWSER_EXACT_URL_EVIDENCE_REF
+                .to_owned()
+        ]
+    );
+    assert!(status.local_runtime_result_observed);
+    assert!(status.audit_input_ready);
+    assert!(status.local_model_output_available);
+    assert!(!status.model_execution_proved);
+    assert!(!status.raw_pcap_available);
+    assert!(!status.exact_url_claimed);
+    assert!(!status.decrypted_payload_available);
+    assert!(!status.page_content_available);
+    assert!(!status.private_message_available);
+    assert!(!status.search_query_available);
+    assert!(!status.remote_ai_used);
+    assert!(!status.policy_authority);
+    assert!(!status.adapter_authority);
+    assert_eq!(status.enforcement_commands_published, 0);
+}
+
 fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(
         status.status_ref,
@@ -153,6 +216,10 @@ async fn websocket_network_product_readiness_status_command_reports_payload() {
         &event.payload,
         constants::field::NETWORK_PRODUCT_READINESS_STATUS,
     );
+    let local_ai_runtime_result_status: NetworkLocalAiRuntimeResultStatus = status_value(
+        &event.payload,
+        constants::field::NETWORK_LOCAL_AI_RUNTIME_RESULT_STATUS,
+    );
     let remote_delivery_status: NetworkRemoteDeliveryStatus = status_value(
         &event.payload,
         constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
@@ -169,6 +236,15 @@ async fn websocket_network_product_readiness_status_command_reports_payload() {
     assert_eq!(product_status.platform_entries.len(), 2);
     assert!(!product_status.policy_authority);
     assert!(!product_status.adapter_authority);
+    assert_eq!(
+        local_ai_runtime_result_status.bridge_state,
+        NetworkLocalAiRuntimeResultBridgeState::ResultReady
+    );
+    assert!(!local_ai_runtime_result_status.remote_ai_used);
+    assert_eq!(
+        local_ai_runtime_result_status.enforcement_commands_published,
+        0
+    );
     assert_eq!(
         remote_delivery_status.family_hub_status,
         NetworkRemoteDeliveryStatusState::RequirementsSatisfiedButNotImplemented

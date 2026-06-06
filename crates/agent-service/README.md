@@ -52,10 +52,11 @@ development paths and orchestrates runtime commands.
   live-capture/raw-custody status, row51a product-readiness status, and row52
   platform-claim manifest entries from `ocentra-network-evidence` materializers.
   The payload also carries row48 risk-budget refs/score breakdown and row49
-  performance benchmark metrics plus row10c broker/family-hub remote-delivery
-  status for portal visibility without live capture, live broker/family-hub
-  delivery, production SLO validation, policy execution, adapter dispatch, host
-  filtering, or enforcement-command claims.
+  performance benchmark metrics plus row33b local-AI runtime result status and
+  row10c broker/family-hub remote-delivery status for visibility without live
+  capture, live model execution, live broker/family-hub delivery, production SLO
+  validation, policy execution, adapter dispatch, host filtering, or
+  enforcement-command claims.
 - App/game live process capture bridge rows through the existing activity
   capture journal/store path, exposing runtime-only app/game rows to the
   existing app-use/games read models without foreground, policy, or adapter
@@ -160,9 +161,10 @@ flowchart LR
 - Network product-readiness status output is service-local status exposure only;
   parent portal rendering now covers the row51c status card, row52a platform
   claim manifest matrix, row51d risk/performance detail card, and row10c
-  remote-delivery status card, while live broker/family-hub delivery,
-  production SLO validation, live capture execution, policy execution, adapter
-  execution, and host filtering remain separate gaps.
+  remote-delivery status card; row33b local-AI runtime result status is exposed
+  through the service protocol but not rendered yet. Live local model execution,
+  broker/family-hub delivery, production SLO validation, live capture execution,
+  policy execution, adapter execution, and host filtering remain separate gaps.
 - App/game live process, optional foreground, Windows shortcut inventory,
   Windows packaged-app manifest capture, and Windows registry inventory capture
   have bounded service proof; subscribed foreground transitions, policy
