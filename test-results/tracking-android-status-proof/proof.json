@@ -2,7 +2,7 @@
   "proofMode": "tracking-android-status-proof",
   "generatedAt": "2026-06-05T22:36:00.000Z",
   "branch": "codex/tracking-android-status-proof",
-  "baseCommitAtGeneration": "79abb5ff630934111e28953006cc54d8ea48871a",
+  "baseCommitAtGeneration": "0533702a4f066026e6d8fa01f7214f66700ca78d",
   "gitStatusShort": "",
   "commands": [
     {
@@ -14,7 +14,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-android-status-proof",
       "status": 0,
-      "stdout": "\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-android-status-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  19:40:11\n   Duration  1.41s (transform 163ms, setup 0ms, import 861ms, tests 21ms, environment 0ms)\n\n",
+      "stdout": "\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-android-status-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  20:51:41\n   Duration  937ms (transform 111ms, setup 0ms, import 649ms, tests 21ms, environment 0ms)\n\n",
       "stderr": ""
     }
   ],
