@@ -1,0 +1,4 @@
+cmd /c npm run build:contracts
+cmd /c npm run test --workspace @ocentra-parent/portal-domain -- social-child-intervention-page-model.test.ts
+cargo build -p ocentra-parent-agent-service
+cmd /c node scripts/test/social-child-intervention-page-proof.mjs
