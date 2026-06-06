@@ -2,7 +2,7 @@
   "proofMode": "app-game-source-freshness-preview-gate",
   "generatedAt": "2026-06-05T23:45:00Z",
   "branch": "codex/app-game-source-gated-policy-preview-read-model",
-  "commit": "0132df7aaac34993764680a646494e5931e51d50",
+  "commit": "6cfda24221614446748553033398b9e218c8fc44",
   "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
