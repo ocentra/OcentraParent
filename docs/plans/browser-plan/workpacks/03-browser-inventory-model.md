@@ -25,6 +25,14 @@ and reject empty identity refs. This is still reference-level proof only: live
 OS scanning, live publisher/signature/hash extraction, portal dashboard
 consumption, and manual platform artifacts remain outside this sub-slice.
 
+2026-06-06 codex-d completion: the browser inventory model is now proof-gated as
+complete by `scripts/test/browser-inventory-model-completion-proof.mjs`. The
+gate verifies the WP03 contract/Rust/service proof pack, the WP04 live Windows
+inventory proof with redacted registry/process/file-hash/signature evidence,
+and the WP14 parent portal Browser-route inventory screenshot/Playwright proof.
+This closes the inventory model row without claiming exact URL, known active
+tab, browser blocking, enforcement, or cross-platform adapter completion.
+
 ## Where We Want To Be
 
 The service can represent installed and running browsers with support tier,
@@ -77,8 +85,11 @@ Fill this before reporting `DONE` or PR-ready:
 
 ## Manual-Required Gaps
 
-Inventory does not prove URL visibility or blocking capability by itself.
-Remaining inventory work requires the Windows inventory adapter, cross-platform
-inventory matrix, real installed-browser scanning, live publisher/signature/hash
-extraction artifacts, portal dashboard consumption, and manual platform proof
-before this workpack can be marked complete.
+Inventory does not prove URL visibility or blocking capability by itself. This
+workpack is complete for the shared inventory model because contract,
+Rust/service, live Windows inventory, and parent portal consumption proof now
+exist. Remaining browser inventory adapter work stays in WP04 and WP05:
+Rust `.lnk` binary parsing, AppX/MSIX enumeration, non-Windows platform
+adapters, and platform-specific manual proof. Exact URL, active-tab certainty,
+policy actions, blocking, rollback, and enforcement stay in their separate
+browser-plan workpacks.
