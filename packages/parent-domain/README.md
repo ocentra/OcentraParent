@@ -17,6 +17,10 @@ mobile readiness, and control catalogs.
   app and native game decisions into read-only parent preview rows while
   keeping evaluator runtime, timers, child delivery, adapter dispatch, broad
   blocking, and platform enforcement unclaimed.
+- App/game source-gated policy preview timer-handoff contracts that consume the
+  redacted source-gated read model, identify future timer sequencing candidates,
+  and keep manual rows blocked before timer runtime without service, UI,
+  adapter, child delivery, platform, or raw source-row claims.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.
