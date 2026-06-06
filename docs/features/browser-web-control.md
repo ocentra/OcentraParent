@@ -817,12 +817,14 @@ manual-required, or contract-only status only. This does not claim social
 runtime data fetch, notification delivery, connector authorization, native app
 control, final policy execution, enforcement, product checklist completion, or
 release readiness.
-SOCIAL-21 now adds parent-domain child approval/block UX state contracts and
-text-domain calm copy tokens for approval pending, blocked route candidates,
-warnings, manual review, time-limit candidates, and native-app unavailable
-states. This does not claim rendered child UI, notifications, browser block
-execution, block-page rendering, applied time limits, final policy execution,
-native control, enforcement, or product checklist status.
+SOCIAL-21 now maps parent-domain child approval/block UX state contracts to the
+shared PR399 child intervention renderer and Rust child-agent
+`/api/browser/intervention/page` endpoint. Proof covers approval-hold, block,
+warn, parent-review/manual-required, time-limit candidate, and native-app
+unavailable social states rendered from the endpoint with no-store caching,
+ask-parent bridge payload, and screenshots. This does not claim browser
+navigation block execution, notification delivery, applied time limits, final
+policy execution, native control, enforcement, or product checklist status.
 SOCIAL-22 now adds parent-domain social audit/explanation read-model contracts
 for account approval, feed/video gate, native-app gap, connector boundary,
 decision memory, and manual-required gap rows. This does not claim a runtime
@@ -831,12 +833,15 @@ content, connector authorization, native control, final policy execution,
 enforcement, or product checklist status.
 SOCIAL-23 now adds a social proof artifact gate that checks SOCIAL-01 through
 SOCIAL-22 proof-pack coverage. SOCIAL-20 now has rendered parent Browser-route
-screenshots for a service-backed six-row social dashboard snapshot, but child
-UI, explanation UI, runtime connector behavior, native control, final policy
-execution, enforcement, and product checklist status remain manual-required.
+screenshots for a service-backed six-row social dashboard snapshot, and
+SOCIAL-21 now has child-agent-served social intervention page screenshots. The
+social track remains partial/manual-required because explanation UI, runtime
+connector behavior, native control, final policy execution, enforcement, and
+product checklist status remain manual-required.
 SOCIAL-24 now labels the social track partial/manual-required through the
 rollout gate. Product checklist upgrade is not claimed. Parent social dashboard
-rows can now come from the local Rust service snapshot path, but child/
+rows can now come from the local Rust service snapshot path and child social
+intervention states can render through the child-agent page endpoint, but
 explanation UI, connector/native runtime, final policy execution, enforcement,
 and product readiness remain unclaimed.
 
