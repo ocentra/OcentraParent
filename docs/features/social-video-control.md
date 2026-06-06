@@ -128,6 +128,11 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   time-budget refs plus schedule/time-budget states. Manual-required or
   unavailable schedule/time-budget states remain non-final fallback candidates;
   final policy execution, runtime gates, and enforcement remain unclaimed.
+- `social-policy-live-evidence-compiler-proof` now bridges SOCIAL-11
+  live-evidence signal refs into SOCIAL-12 parent-domain compiler candidates.
+  The proof emits non-final manual-review candidates from the degraded signal
+  sets and rejects final policy, runtime gate, UI, enforcement, native app,
+  connector, raw signal payload, and raw model text claims.
 - Browser-plan SOCIAL-13 now adds managed-browser account gate-plan contracts
   from route-only account-flow evidence, sanitized form-shape evidence, and
   policy/approval refs. They model candidate holds, blocks, manual review, and
