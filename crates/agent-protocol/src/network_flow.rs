@@ -96,6 +96,19 @@ pub struct ActivityNetworkFlowIndicator {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ActivityNetworkRuntimeDelivery {
+    pub observed_rows: u64,
+    pub delivered_rows: u64,
+    pub failed_rows: u64,
+    pub publish_reports: u64,
+    pub stored_events: u64,
+    pub dead_letters: u64,
+    pub manual_required_rows: u64,
+    pub enforcement_command_events: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ActivityNetworkFlowDigest {
     pub schema_version: u16,
     pub generated_at: String,
@@ -104,6 +117,8 @@ pub struct ActivityNetworkFlowDigest {
     pub top_processes: Vec<ActivityNetworkFlowRollup>,
     pub top_destinations: Vec<ActivityNetworkFlowRollup>,
     pub unusual_indicators: Vec<ActivityNetworkFlowIndicator>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub runtime_delivery: Option<ActivityNetworkRuntimeDelivery>,
 }
 
 #[path = "network_flow_events.rs"]

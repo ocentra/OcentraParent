@@ -20,7 +20,7 @@ pub fn network_flow_read_model_payload_with_runtime_delivery(
     delivery: Option<&NetworkRuntimeServiceDeliveryReport>,
 ) -> LogFields {
     let latest = read_model.rows.first();
-    let mut pairs = read_model_pairs(read_model);
+    let mut pairs = read_model_pairs(read_model, delivery);
     pairs.extend(runtime_delivery_pairs(delivery));
     pairs.extend(row_identity_pairs(latest));
     pairs.extend(endpoint_pairs(latest));
@@ -29,7 +29,10 @@ pub fn network_flow_read_model_payload_with_runtime_delivery(
     fields_from_pairs(pairs)
 }
 
-fn read_model_pairs(read_model: &ActivityNetworkFlowReadModel) -> Vec<FieldPair> {
+fn read_model_pairs(
+    read_model: &ActivityNetworkFlowReadModel,
+    delivery: Option<&NetworkRuntimeServiceDeliveryReport>,
+) -> Vec<FieldPair> {
     let separator = constants::delimiter::LIST.to_string();
     vec![
         (
@@ -91,7 +94,7 @@ fn read_model_pairs(read_model: &ActivityNetworkFlowReadModel) -> Vec<FieldPair>
         (
             constants::field::ACTIVITY_DIGEST,
             LogFieldValue::String(
-                serde_json::to_string(&network_flow_digest(read_model))
+                serde_json::to_string(&network_flow_digest(read_model, delivery))
                     .expect(constants::error::AGENT_EVENT_SERIALIZES),
             ),
         ),

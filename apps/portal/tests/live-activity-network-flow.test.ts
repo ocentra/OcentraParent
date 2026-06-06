@@ -20,18 +20,23 @@ describe('portal live activity network flow state', () => {
     const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel);
 
     expect(summary.evidenceId).toBe('activity-network-flow-1');
+    expect(summary.rowCounts).toBe('1 | 1 | 0 | 1');
     expect(summary.sourceAdapter).toBe('windows-network-snapshot');
     expect(summary.sourceQuality).toBe('available');
     expect(summary.localEndpoint).toBe('127.0.0.1 | 4242');
     expect(summary.remoteEndpoint).toBe('203.0.113.10 | 443');
     expect(summary.domainEvidenceRef).toBe('example-network.test | domain-observed');
     expect(summary.processRef).toBe('notepad.exe | 4242 | process-attributed');
+    expect(summary.runtimeDelivery).toBe('1 | 1 | 0 | 11');
+    expect(summary.runtimeStorage).toBe('11 | 0');
+    expect(summary.manualReview).toBe('1');
+    expect(summary.enforcementCommands).toBe('0');
     expect(summary.evidenceReferences).toBe('network-evidence-1 | network-journal-1');
     expect(summary.exactUrlClaim).toBe('Not reported');
     expect(summary.aiAuditRef).toBe('Not reported');
     expect(summary.policyDecisionRef).toBe('Not reported');
     expect(summary.interventionResultRef).toBe('Not reported');
-    expect(summary.retentionState).toBe('Not reported');
+    expect(summary.retentionState).toBe('0 | 1');
   });
 
   it('keeps empty network flow read models visible without inventing destinations', () => {
@@ -42,6 +47,9 @@ describe('portal live activity network flow state', () => {
     expectNetworkReadModelCounts(readModel, 0);
     expect(readModel.rows).toEqual([]);
     expect(readModel.capabilityStatus).toBe('no-network-observations');
+    expect(readModel.runtimeDelivery).toBeNull();
+    expect(summary.rowCounts).toBe('0 | 0 | 0 | 0');
+    expect(summary.runtimeDelivery).toBe('Not reported');
     expect(summary.evidenceReferences).toBe('Not reported');
     expect(summary.exactUrlClaim).toBe('Not reported');
   });
@@ -155,6 +163,16 @@ function networkFlowDigest() {
     topProcesses: [],
     topDestinations: [],
     unusualIndicators: [],
+    runtimeDelivery: {
+      observedRows: 1,
+      deliveredRows: 1,
+      failedRows: 0,
+      publishReports: 11,
+      storedEvents: 11,
+      deadLetters: 0,
+      manualRequiredRows: 1,
+      enforcementCommandEvents: 0,
+    },
   };
 }
 

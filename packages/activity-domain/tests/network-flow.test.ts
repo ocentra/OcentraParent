@@ -111,6 +111,16 @@ const NetworkFlowDigestSample = {
       evidenceIds: ['journal-entry-network-1'],
     },
   ],
+  runtimeDelivery: {
+    observedRows: 1,
+    deliveredRows: 1,
+    failedRows: 0,
+    publishReports: 11,
+    storedEvents: 11,
+    deadLetters: 0,
+    manualRequiredRows: 1,
+    enforcementCommandEvents: 0,
+  },
 } as const;
 
 describe('network flow query contracts', () => {
@@ -122,6 +132,7 @@ describe('network flow query contracts', () => {
     expect(readModel.rows[0]?.processName).toBe('chrome.exe');
     expect(readModel.activeRows).toBe(1);
     expect(readModel.exportableRows).toBe(1);
+    expect(readModel.runtimeDelivery).toBeNull();
   });
 
   it('parses network retention tombstone state without exposing deleted rows', () => {
@@ -137,6 +148,17 @@ describe('network flow query contracts', () => {
 
     expect(digest.topProcesses[0]?.label).toBe('chrome.exe');
     expect(digest.unusualIndicators[0]?.kind).toBe('encrypted-content-unavailable');
+    expect(digest.runtimeDelivery?.manualRequiredRows).toBe(1);
+    expect(digest.runtimeDelivery?.enforcementCommandEvents).toBe(0);
+  });
+
+  it('keeps older network flow digests valid without runtime delivery', () => {
+    const digest = ActivityNetworkFlowDigestSchema.parse({
+      ...NetworkFlowDigestSample,
+      runtimeDelivery: undefined,
+    });
+
+    expect(digest.runtimeDelivery).toBeNull();
   });
 
   it('rejects read models with untyped custody states', () => {
@@ -181,11 +203,19 @@ describe('network flow numeric bounds', () => {
         },
       ],
     });
+    const negativeManualRows = ActivityNetworkFlowDigestSchema.safeParse({
+      ...NetworkFlowDigestSample,
+      runtimeDelivery: {
+        ...NetworkFlowDigestSample.runtimeDelivery,
+        manualRequiredRows: -1,
+      },
+    });
 
     expect(negativePort.success).toBe(false);
     expect(negativeConnectionCount.success).toBe(false);
     expect(negativeBytesSent.success).toBe(false);
     expect(negativeBytesReceived.success).toBe(false);
+    expect(negativeManualRows.success).toBe(false);
   });
 
   it('rejects negative read-model counts and process identifiers', () => {

@@ -319,6 +319,14 @@ compete on control while staying clear about attribution confidence and privacy.
   `apps/portal/src` plus `packages/portal-domain/src` do not import eventing,
   publish network/policy/enforcement events, compute evidence grades, decide
   policy, or execute adapter/enforcement commands.
+- E-D added a network portal manual/runtime state proof. The Rust service now
+  carries runtime delivery counts inside the existing network activity digest,
+  the TypeScript read-model schema parses that optional `runtimeDelivery`
+  object, and the Activity network drawer renders row counts,
+  observed/delivered/failed runtime counts, stored/dead-letter counts,
+  manual-required rows, enforcement-command event counts, and retention
+  tombstone/export/delete state without claiming risk-budget/performance UI or
+  policy/adapter authority.
 - E-D added an integrated event-plus-network product-path proof in
   `ocentra-network-evidence`: one deterministic artifact carries trigger refs,
   typed-event refs, evidence refs, local-AI queue refs, AI detection/audit refs,
@@ -501,6 +509,10 @@ UI rendering remain open.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
       unsupported-claim states without publishing policy or adapter commands.
+      The 36c supplemental proof also renders service-carried runtime delivery,
+      manual-required, enforcement-command count, and retention row state from
+      the typed network activity digest; risk-budget/performance rendering
+      remains a gap.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
       Row37 DNS adapter, Row38 Windows Firewall, Row39 WFP, and Row40 Android

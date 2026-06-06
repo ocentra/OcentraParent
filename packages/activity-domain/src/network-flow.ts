@@ -100,6 +100,19 @@ export const ActivityNetworkFlowObservationSchema = withParser(
   })
 );
 
+export const ActivityNetworkRuntimeDeliverySchema = withParser(
+  Schema.Struct({
+    observedRows: NetworkNonNegativeInteger,
+    deliveredRows: NetworkNonNegativeInteger,
+    failedRows: NetworkNonNegativeInteger,
+    publishReports: NetworkNonNegativeInteger,
+    storedEvents: NetworkNonNegativeInteger,
+    deadLetters: NetworkNonNegativeInteger,
+    manualRequiredRows: NetworkNonNegativeInteger,
+    enforcementCommandEvents: NetworkNonNegativeInteger,
+  })
+);
+
 export const ActivityNetworkFlowReadModelSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ActivityQuerySchemaVersion),
@@ -116,6 +129,9 @@ export const ActivityNetworkFlowReadModelSchema = withParser(
     latestTombstoneEventId: Schema.Union(ActivityEventIdSchema, Schema.Null),
     latestTombstoneObservedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
     deletedEvidenceReferenceIds: Schema.Array(ActivityEvidenceIdSchema),
+    runtimeDelivery: Schema.optionalWith(Schema.Union(ActivityNetworkRuntimeDeliverySchema, Schema.Null), {
+      default: () => null,
+    }),
     rows: Schema.Array(ActivityNetworkFlowObservationSchema),
   })
 );
@@ -149,6 +165,9 @@ export const ActivityNetworkFlowDigestSchema = withParser(
     topProcesses: Schema.Array(ActivityNetworkFlowRollupSchema),
     topDestinations: Schema.Array(ActivityNetworkFlowRollupSchema),
     unusualIndicators: Schema.Array(ActivityNetworkFlowIndicatorSchema),
+    runtimeDelivery: Schema.optionalWith(Schema.Union(ActivityNetworkRuntimeDeliverySchema, Schema.Null), {
+      default: () => null,
+    }),
   })
 );
 
@@ -165,4 +184,5 @@ export type ActivityNetworkFlowObservation = Infer<typeof ActivityNetworkFlowObs
 export type ActivityNetworkFlowReadModel = Infer<typeof ActivityNetworkFlowReadModelSchema>;
 export type ActivityNetworkFlowRollup = Infer<typeof ActivityNetworkFlowRollupSchema>;
 export type ActivityNetworkFlowIndicator = Infer<typeof ActivityNetworkFlowIndicatorSchema>;
+export type ActivityNetworkRuntimeDelivery = Infer<typeof ActivityNetworkRuntimeDeliverySchema>;
 export type ActivityNetworkFlowDigest = Infer<typeof ActivityNetworkFlowDigestSchema>;

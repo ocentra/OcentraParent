@@ -109,6 +109,18 @@ fn network_flow_payload_includes_runtime_delivery_counts_when_supplied() {
 
     let payload =
         network_flow_read_model_payload_with_runtime_delivery(&read_model, Some(&delivery));
+    let digest_json = payload
+        .get(constants::field::ACTIVITY_DIGEST)
+        .and_then(|value| match value {
+            LogFieldValue::String(text) => Some(text),
+            _ => None,
+        })
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let digest: ocentra_parent_agent_protocol::ActivityNetworkFlowDigest =
+        serde_json::from_str(digest_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let runtime_delivery = digest
+        .runtime_delivery
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         payload.get(constants::field::NETWORK_RUNTIME_OBSERVED_ROWS),
@@ -122,6 +134,9 @@ fn network_flow_payload_includes_runtime_delivery_counts_when_supplied() {
         payload.get(constants::field::NETWORK_RUNTIME_ENFORCEMENT_COMMAND_EVENTS),
         Some(&LogFieldValue::Number(1.0))
     );
+    assert_eq!(runtime_delivery.observed_rows, 1);
+    assert_eq!(runtime_delivery.delivered_rows, 1);
+    assert_eq!(runtime_delivery.enforcement_command_events, 1);
 }
 
 fn read_model() -> ActivityNetworkFlowReadModel {

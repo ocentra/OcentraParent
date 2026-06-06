@@ -28,6 +28,7 @@ export function parseNetworkFlowReadModel(payload: AgentProtocolLogFields): Acti
     latestTombstoneEventId: nullIfMissing(payload[AgentProtocolDefaults.Field.LatestTombstoneEventId]),
     latestTombstoneObservedAt: nullIfMissing(payload[AgentProtocolDefaults.Field.LatestTombstoneObservedAt]),
     deletedEvidenceReferenceIds: evidenceReferenceIds(payload[AgentProtocolDefaults.Field.DeletedEvidenceReferenceIds]),
+    runtimeDelivery: digest?.runtimeDelivery ?? null,
     rows: row,
   });
 

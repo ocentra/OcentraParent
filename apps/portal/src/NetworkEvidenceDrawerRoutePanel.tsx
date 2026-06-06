@@ -54,6 +54,7 @@ function NetworkEvidenceDrawerCard({ summary }: { readonly summary: NetworkEvide
       <h2>{PortalText.Resolve(PortalTextToken.NetworkFlow)}</h2>
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         <NetworkEvidenceDrawerDetail label={PortalDetails.EventId} value={summary.evidenceId} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.RowsReturned} value={summary.rowCounts} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.LastObserved} value={summary.observedAt} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.FirstObserved} value={summary.firstSeenAt} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.LastChecked} value={summary.lastSeenAt} />
@@ -67,6 +68,10 @@ function NetworkEvidenceDrawerCard({ summary }: { readonly summary: NetworkEvide
         <NetworkEvidenceDrawerDetail label={PortalDetails.Process} value={summary.processRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.Domain} value={summary.domainEvidenceRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.Connections} value={summary.byteSummary} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.EventsIngested} value={summary.runtimeDelivery} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.EventsStored} value={summary.runtimeStorage} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.ManualReview} value={summary.manualReview} />
+        <NetworkEvidenceDrawerDetail label={PortalDetails.Enforcement} value={summary.enforcementCommands} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.EvidenceReferences} value={summary.evidenceReferences} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.ReasonCodes} value={summary.uncertaintyReasonCodes} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.Custody} value={summary.custody} />

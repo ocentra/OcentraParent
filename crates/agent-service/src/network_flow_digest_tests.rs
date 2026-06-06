@@ -35,7 +35,7 @@ fn network_flow_digest_rolls_up_processes_destinations_and_evidence_refs() {
         }),
     ]);
 
-    let digest = network_flow_digest(&read_model);
+    let digest = network_flow_digest(&read_model, None);
 
     assert_eq!(digest.generated_at, read_model.generated_at);
     assert_eq!(
@@ -55,6 +55,7 @@ fn network_flow_digest_rolls_up_processes_destinations_and_evidence_refs() {
         constants::activity_store::TEST_NETWORK_DOMAIN
     );
     assert_eq!(digest.top_destinations[0].connection_count, 3);
+    assert_eq!(digest.runtime_delivery, None);
 }
 
 #[test]
@@ -72,7 +73,7 @@ fn network_flow_digest_reports_direct_indicators_without_new_destination_guessin
         tcp_state: Some(constants::activity_capture::TCP_STATE_CLOSE_WAIT),
     })]);
 
-    let digest = network_flow_digest(&read_model);
+    let digest = network_flow_digest(&read_model, None);
     let kinds: Vec<&str> = digest
         .unusual_indicators
         .iter()

@@ -14,6 +14,7 @@ import {
 
 export type NetworkEvidenceDrawerSummary = {
   readonly evidenceId: PortalDetailValue;
+  readonly rowCounts: PortalDetailValue;
   readonly observedAt: PortalDetailValue;
   readonly firstSeenAt: PortalDetailValue;
   readonly lastSeenAt: PortalDetailValue;
@@ -29,6 +30,10 @@ export type NetworkEvidenceDrawerSummary = {
   readonly browserRef: PortalDetailValue;
   readonly domainEvidenceRef: PortalDetailValue;
   readonly byteSummary: PortalDetailValue;
+  readonly runtimeDelivery: PortalDetailValue;
+  readonly runtimeStorage: PortalDetailValue;
+  readonly manualReview: PortalDetailValue;
+  readonly enforcementCommands: PortalDetailValue;
   readonly analyzerAlertRef: PortalDetailValue;
   readonly detectionResultRef: PortalDetailValue;
   readonly aiAuditRef: PortalDetailValue;
@@ -51,6 +56,7 @@ export function networkEvidenceDrawerSummary(
   const row = firstNetworkFlowRow(readModel);
   return {
     evidenceId: detailFromRowValue(row, (value) => value.eventId),
+    rowCounts: rowCountsDetail(readModel),
     observedAt: detailFromRowValue(row, (value) => value.observedAt),
     firstSeenAt: detailFromRowValue(row, (value) => value.counters.firstSeenAt),
     lastSeenAt: detailFromRowValue(row, (value) => value.counters.lastSeenAt),
@@ -66,6 +72,10 @@ export function networkEvidenceDrawerSummary(
     browserRef: notReported(),
     domainEvidenceRef: domainDetail(row),
     byteSummary: byteSummary(row),
+    runtimeDelivery: runtimeDeliveryDetail(readModel),
+    runtimeStorage: runtimeStorageDetail(readModel),
+    manualReview: detailFromValue(readModel?.runtimeDelivery?.manualRequiredRows),
+    enforcementCommands: detailFromValue(readModel?.runtimeDelivery?.enforcementCommandEvents),
     analyzerAlertRef: notReported(),
     detectionResultRef: notReported(),
     aiAuditRef: notReported(),
@@ -73,7 +83,7 @@ export function networkEvidenceDrawerSummary(
     policyDecisionRef: notReported(),
     interventionResultRef: notReported(),
     eventHistoryRef: detailFromValue(row?.eventId),
-    retentionState: notReported(),
+    retentionState: retentionStateDetail(readModel),
     custody: readModelCustodyDetail(readModel),
     evidenceGrade: notReported(),
     confidence: notReported(),
@@ -139,6 +149,36 @@ function byteSummary(row: ActivityNetworkFlowObservation | null): PortalDetailVa
     return notReported();
   }
   return joinedDetail([row.counters.connectionCount, row.counters.bytesSent, row.counters.bytesReceived]);
+}
+
+function rowCountsDetail(readModel: ActivityNetworkFlowReadModel | null): PortalDetailValue {
+  if (readModel === null) {
+    return notReported();
+  }
+  return joinedDetail([readModel.returned, readModel.activeRows, readModel.tombstoneRows, readModel.exportableRows]);
+}
+
+function runtimeDeliveryDetail(readModel: ActivityNetworkFlowReadModel | null): PortalDetailValue {
+  const delivery = readModel?.runtimeDelivery;
+  if (delivery === null || delivery === undefined) {
+    return notReported();
+  }
+  return joinedDetail([delivery.observedRows, delivery.deliveredRows, delivery.failedRows, delivery.publishReports]);
+}
+
+function runtimeStorageDetail(readModel: ActivityNetworkFlowReadModel | null): PortalDetailValue {
+  const delivery = readModel?.runtimeDelivery;
+  if (delivery === null || delivery === undefined) {
+    return notReported();
+  }
+  return joinedDetail([delivery.storedEvents, delivery.deadLetters]);
+}
+
+function retentionStateDetail(readModel: ActivityNetworkFlowReadModel | null): PortalDetailValue {
+  if (readModel === null) {
+    return notReported();
+  }
+  return joinedDetail([readModel.tombstoneRows, readModel.exportableRows, ...readModel.deletedEvidenceReferenceIds]);
 }
 
 function uncertaintyReasonCodes(row: ActivityNetworkFlowObservation | null): PortalDetailValue {
