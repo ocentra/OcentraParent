@@ -21,12 +21,12 @@ Add a parent-domain service handoff that consumes WP101 parent-safe read-model r
 
 ## Evidence
 
-- `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.ts`
-- `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-rules.ts`
-- `packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.test.ts`
-- `scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-proof.mjs`
-- `output/app-game-plan-proof/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff`
-- `test-results/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-proof/proof.json`
+- `packages/parent-domain/src/app-game-timer-service-handoff.ts`
+- `packages/parent-domain/src/app-game-timer-service-handoff-rules.ts`
+- `packages/parent-domain/tests/app-game-timer-service-handoff.test.ts`
+- `scripts/test/app-game-timer-service-handoff-proof.mjs`
+- `output/app-game-plan-proof/102-timer-service-handoff`
+- `test-results/app-game-timer-service-handoff-proof/proof.json`
 
 ## Known Gaps
 

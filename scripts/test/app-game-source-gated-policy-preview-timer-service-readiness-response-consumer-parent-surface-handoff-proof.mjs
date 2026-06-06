@@ -5,11 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const proofSlug = '95-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff';
-const testOutputDir = join(
-  repoRoot,
-  'test-results',
-  'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-proof'
-);
+const testOutputDir = join(repoRoot, 'test-results', 'app-game-timer-parent-surface-proof');
 const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', proofSlug);
 const appProofDir = join(repoRoot, 'output', 'app-plan-proof', proofSlug);
 const timestamp = '2026-06-06T08:56:00Z';
@@ -97,10 +93,8 @@ const proof = {
     rules:
       'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-rules.ts',
     test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.test.ts',
-    harness:
-      'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-proof.mjs',
-    evidence:
-      'test-results/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-proof/proof.json',
+    harness: 'scripts/test/app-game-timer-parent-surface-proof.mjs',
+    evidence: 'test-results/app-game-timer-parent-surface-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
     appProofPack: `output/app-plan-proof/${proofSlug}`,
   },
@@ -108,24 +102,13 @@ const proof = {
 };
 
 assertProof(proof);
-await writeJson(
-  join(testOutputDir, 'timer-service-readiness-response-consumer-parent-surface-handoff.json'),
-  ResponseConsumerParentSurfaceHandoff
-);
+await writeJson(join(testOutputDir, 'handoff.json'), ResponseConsumerParentSurfaceHandoff);
 await writeJson(join(testOutputDir, 'proof.json'), proof);
 await writeProofPack(appGameProofDir, proof, 'app-game WP95');
 await writeProofPack(appProofDir, proof, 'app WP95');
 
-console.log(
-  'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-proof-ok'
-);
-console.log(
-  `evidence=${join(
-    'test-results',
-    'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-proof',
-    'proof.json'
-  )}`
-);
+console.log('app-game-timer-parent-surface-proof-ok');
+console.log(`evidence=${join('test-results', 'app-game-timer-parent-surface-proof', 'proof.json')}`);
 
 function importDist(name) {
   return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
@@ -134,8 +117,7 @@ function importDist(name) {
 function ResponseConsumerParentSurfaceHandoffOptions(refs) {
   return {
     schemaVersion: refs.ParentContractSchemaVersion.V0_6,
-    responseConsumerParentSurfaceHandoffId:
-      'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-proof',
+    responseConsumerParentSurfaceHandoffId: 'app-game-timer-parent-surface-proof',
     generatedAt: timestamp,
     sourceContractRefs: [
       'app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff',

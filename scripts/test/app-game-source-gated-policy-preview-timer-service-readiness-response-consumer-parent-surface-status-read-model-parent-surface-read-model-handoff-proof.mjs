@@ -4,8 +4,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
-const proofSlug =
-  '100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff';
+const proofSlug = '100-timer-parent-read-model';
 const testOutputDir = join(
   repoRoot,
   'test-results',
