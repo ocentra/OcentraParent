@@ -123,6 +123,14 @@ claim needs proof, not slogans.
   runtime, provider, model, prompt, evidence, and parent-rule refs match the
   adapter proof; malformed, remote, mismatched, or manual-required output is
   rejected before policy eligibility without retaining raw model output.
+- `LocalAiTextParserReadModelSnapshotSchema` and
+  `scripts/test/local-ai-text-parser-read-model-proof.mjs` now prove the
+  parent-visible read-model projection over generic local text parser rows.
+  Parsed local output becomes ready read-model rows with parser, runtime,
+  provider, model, prompt, evidence, parent-rule, and source-proof refs, while
+  rejected or manual parser rows remain visible as manual-required without raw
+  output retention, model execution, remote/API AI, policy authority,
+  enforcement, portal UI, or production-quality claims.
 - `LocalAiPromptTemplateVersionProofSchema` and
   `scripts/test/local-ai-prompt-template-version-proof.mjs` now prove the
   prompt/template version contract boundary. The proof reconciles one
@@ -358,6 +366,10 @@ production external evidence variants.
 - [x] Local text output parser proof path without model-execution, remote/API,
       policy-authority, enforcement, production-quality, or raw model-output
       retention claims.
+- [x] Local text parser read-model proof path for ready and manual-required
+      parent-visible rows without model-execution, remote/API, raw output
+      retention, policy-authority, enforcement, portal UI, or production-quality
+      claims.
 - [x] Local prompt/template version proof path without model-execution,
       model-quality, remote/API, policy-authority, enforcement, portal UI, raw
       prompt, or raw model-output retention claims.

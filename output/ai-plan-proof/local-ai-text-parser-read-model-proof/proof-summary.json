@@ -1,0 +1,133 @@
+{
+  "status": "ok",
+  "proofKind": "local-ai-text-parser-read-model-proof",
+  "generatedAt": "2026-06-06T14:31:47.241Z",
+  "output": "output/ai-plan-proof/local-ai-text-parser-read-model-proof/proof-summary.json",
+  "readModelRows": [
+    {
+      "readModelRowId": "local-ai-text-parser-read-model:0:local-ai-text-parser:screen-summary-wiki-ocr",
+      "parserRunId": "local-ai-text-parser:screen-summary-wiki-ocr",
+      "parserState": "parsed-local-result",
+      "readModelState": "ready",
+      "action": "warn",
+      "confidence": 0.68,
+      "sourceResultId": "local-ai-text-result:screen-summary-wiki-ocr",
+      "parserRejectedOutput": false,
+      "resultPolicyEligible": true,
+      "manualRequiredReasons": [],
+      "evidenceReferenceCount": 1,
+      "parentRuleReferenceCount": 1,
+      "runtimeReferenceId": "local-ai-runtime-local-llama-cli",
+      "providerId": "local-provider-llama-cli",
+      "modelId": "gemma-4-e2b-it-q4-k-m",
+      "promptVersion": "prompt:screen-safety:v1",
+      "parserTraceRefs": [
+        "local-ai-text-output-parser:local-ai-text-parser:screen-summary-wiki-ocr"
+      ],
+      "sourceProofRefs": [
+        "proof:local-ai-text-output-parser"
+      ],
+      "rawModelOutputRetained": false,
+      "modelExecuted": false,
+      "remoteApiClaimed": false,
+      "policyAuthorityClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "readModelRowId": "local-ai-text-parser-read-model:1:local-ai-text-parser:screen-summary-wiki-ocr",
+      "parserRunId": "local-ai-text-parser:screen-summary-wiki-ocr",
+      "parserState": "rejected-invalid-output",
+      "readModelState": "manual-required",
+      "action": null,
+      "confidence": null,
+      "sourceResultId": null,
+      "parserRejectedOutput": true,
+      "resultPolicyEligible": false,
+      "manualRequiredReasons": [
+        "manual:parser:rejected-invalid-output",
+        "manual:parser-rejected-output"
+      ],
+      "evidenceReferenceCount": 0,
+      "parentRuleReferenceCount": 0,
+      "runtimeReferenceId": null,
+      "providerId": null,
+      "modelId": null,
+      "promptVersion": null,
+      "parserTraceRefs": [
+        "local-ai-text-output-parser:local-ai-text-parser:screen-summary-wiki-ocr"
+      ],
+      "sourceProofRefs": [
+        "proof:local-ai-text-output-parser"
+      ],
+      "rawModelOutputRetained": false,
+      "modelExecuted": false,
+      "remoteApiClaimed": false,
+      "policyAuthorityClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "readModelRowId": "local-ai-text-parser-read-model:2:local-ai-text-parser:screen-summary-wiki-ocr",
+      "parserRunId": "local-ai-text-parser:screen-summary-wiki-ocr",
+      "parserState": "manual-required",
+      "readModelState": "manual-required",
+      "action": null,
+      "confidence": null,
+      "sourceResultId": null,
+      "parserRejectedOutput": true,
+      "resultPolicyEligible": false,
+      "manualRequiredReasons": [
+        "manual:parser:manual-required",
+        "manual:parser-rejected-output"
+      ],
+      "evidenceReferenceCount": 0,
+      "parentRuleReferenceCount": 0,
+      "runtimeReferenceId": null,
+      "providerId": null,
+      "modelId": null,
+      "promptVersion": null,
+      "parserTraceRefs": [
+        "local-ai-text-output-parser:local-ai-text-parser:screen-summary-wiki-ocr"
+      ],
+      "sourceProofRefs": [
+        "proof:local-ai-text-output-parser"
+      ],
+      "rawModelOutputRetained": false,
+      "modelExecuted": false,
+      "remoteApiClaimed": false,
+      "policyAuthorityClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "assertions": {
+    "readyParsedOutputVisible": true,
+    "rejectedParserOutputManualRequired": true,
+    "sourceProofRefsPreserved": true,
+    "rawModelOutputNotRetained": true,
+    "noModelPolicyOrEnforcementClaim": true,
+    "overclaimsRejected": true
+  },
+  "counts": {
+    "readyRowCount": 1,
+    "manualRequiredRowCount": 2,
+    "rejectedParserRowCount": 2
+  },
+  "rejectionChecks": [
+    {
+      "name": "raw-model-output-retention",
+      "rejected": true
+    },
+    {
+      "name": "policy-authority-overclaim",
+      "rejected": true
+    },
+    {
+      "name": "snapshot-count-mismatch",
+      "rejected": true
+    }
+  ],
+  "nonClaims": [
+    "This proof projects local text parser outputs into parent-visible read-model rows.",
+    "Rejected or manual parser rows stay visible as manual-required and never become policy authority.",
+    "This proof does not execute a model, prove model quality, render portal UI, dispatch enforcement, or retain raw model output."
+  ]
+}
