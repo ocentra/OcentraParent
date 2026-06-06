@@ -226,6 +226,18 @@ dev-only repo when it claims consumer readiness.
   execution, remote support sessions, production SLA, provider-secret custody,
   status backend payload custody, and child activity custody as explicit
   non-claims.
+- `production-support-status-backend-queue-audit-persistence-proof` adds
+  parent-domain status backend queue audit/persistence rows for support runbook,
+  incident, public support contact, support upload, privacy/legal, and
+  account/billing targets across requested, authorized, queued,
+  retry-scheduled, audit-ready, failed, manual-required, and
+  backend-unavailable labels. It proves support-safe queue, retry, audit, and
+  manual proof references while preserving real status backend execution,
+  durable queue storage, retry worker execution, audit persistence, public
+  runtime execution, provider execution, support backend upload execution,
+  account lookup, billing provider contact, legal disclosure execution, remote
+  support sessions, production SLA, provider-secret custody, status backend
+  payload custody, and child activity custody as explicit non-claims.
 - `production-support-privacy-legal-disclosure-status-proof` adds
   logging-domain privacy/legal disclosure status rows for disclosure requested,
   parent-authorized, legal-review queued, legal-review running,
@@ -625,6 +637,19 @@ package/runtime proof.
       provider contact, legal disclosure execution, remote support sessions,
       production SLA, provider-secret custody, status backend payload custody,
       and child activity custody remain unimplemented or unclaimed.
+- [ ] Production support status backend queue audit/persistence proof. Current
+      `production-support-status-backend-queue-audit-persistence-proof` covers
+      support runbook, incident, public support contact, support upload,
+      privacy/legal, and account/billing status backend queue audit persistence
+      labels for requested, authorized, queued, retry-scheduled, audit-ready,
+      failed, manual-required, and backend-unavailable rows. It remains
+      deterministic contract/status proof only: real status backend execution,
+      durable queue storage, retry worker execution, audit persistence, public
+      runtime execution, provider execution, support backend upload execution,
+      account lookup, billing provider contact, legal disclosure execution,
+      remote support sessions, production SLA, provider-secret custody, status
+      backend payload custody, and child activity custody remain unimplemented
+      or unclaimed.
 - [ ] Production support privacy/legal disclosure status proof. Current
       `production-support-privacy-legal-disclosure-status-proof` covers
       privacy/legal disclosure requested, parent-authorized, legal-review
