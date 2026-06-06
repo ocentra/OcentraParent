@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-malicious-metadata-ui-safety-gate-proof",
+  "generatedAt": "2026-06-06T21:43:54.341Z",
+  "branch": "codex/app-game-inventory-display-gate-proof",
+  "commit": "7679bdc38ca253fa84d38a5367d69aa6ea0212b4",
+  "gitStatusShort": "M apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts\n M docs/features/app-game-control.md\n M docs/plans/app-game-plan/implementation-checklist.md\n?? scripts/test/app-game-malicious-metadata-ui-safety-gate-proof.mjs",
+  "commands": [
+    "cmd /c npm run test --workspace @ocentra-parent/portal -- activity-ui-app-game-dashboard-intent.test.ts\nexit=0\n\n> @ocentra-parent/portal@0.1.1 test\n> vitest run tests activity-ui-app-game-dashboard-intent.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/apps/portal\n\n\n Test Files  16 passed (16)\n      Tests  69 passed (69)\n   Start at  17:43:51\n   Duration  3.08s (transform 14.96s, setup 0ms, import 34.89s, tests 301ms, environment 3ms)\n\n\u001b[2m5:43:51 p.m.\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `esbuild` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `oxc` instead.\u001b[39m\n\u001b[2m5:43:51 p.m.\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `optimizeDeps.esbuildOptions` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.\u001b[39m\n\u001b[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.\u001b[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`\n"
+  ],
+  "gate": "Malicious app/game metadata causes XSS or layout breakage.",
+  "gateState": "prevented-by-react-text-rendering-bounded-svg-layout-and-manual-required-row-proof",
+  "evidence": {
+    "dashboardTest": "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts feeds a script-like long app label and asserts it remains a manual-required/risk text row in the parent dashboard intent.",
+    "dashboardIntent": "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts maps app/game metadata into text fields and manual-required/risk state without action execution.",
+    "dashboardSurface": "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx renders app/game labels through SVG text nodes, fitSingleLineTextSize, truncateTextForWidth, and visible row bounds; no app/game dashboard HTML sinks are used."
+  },
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "maliciousMetadataExecuted": false,
+    "dangerousHtmlSinkUsed": false,
+    "layoutRowsBounded": true,
+    "labelsTruncated": true,
+    "manualRequiredPreserved": true,
+    "browserGameWorkDuplicated": false,
+    "adapterDispatchClaimed": false,
+    "policyExecutionClaimed": false,
+    "packageExportsChanged": false
+  },
+  "proofPaths": {
+    "proof": "test-results/app-game-malicious-metadata-ui-safety-gate-proof/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/merge-gates/malicious-metadata-ui-safety",
+    "harness": "scripts/test/app-game-malicious-metadata-ui-safety-gate-proof.mjs"
+  }
+}

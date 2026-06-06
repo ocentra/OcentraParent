@@ -96,6 +96,7 @@ function expectPopulatedDashboard(dashboard: ActivityUiIntent['appGameDashboard'
   expectSourceStatusRows(dashboard);
   expectSourcePanelSections(dashboard);
   expectNoRawExecutablePathLeak(dashboard);
+  expectMaliciousMetadataStaysTextOnly(dashboard);
 }
 
 function expectSourceStatusRows(dashboard: ActivityUiIntent['appGameDashboard']) {
@@ -154,6 +155,18 @@ function expectNoRawExecutablePathLeak(dashboard: ActivityUiIntent['appGameDashb
   expect(serializedDashboard).not.toContain('C:\\Users\\child\\AppData\\Local\\Study Timer\\study-timer.exe');
   expect(serializedDashboard).not.toContain('C:\\Program Files\\VoxelQuest\\VoxelQuest.exe');
   expect(serializedDashboard).not.toContain('executablePathRef');
+}
+
+function expectMaliciousMetadataStaysTextOnly(dashboard: ActivityUiIntent['appGameDashboard']) {
+  const maliciousLabel =
+    'VPN Proxy Portable <script>alert(1)</script> with a display name that is deliberately too long for one row';
+  const maliciousRow = dashboard.rows.find((row) => row.rowId === 'app-row-malicious-name');
+  expect(maliciousRow?.label).toBe(maliciousLabel);
+  expect(maliciousRow?.manualRequired).toBe(true);
+  expect(maliciousRow?.riskCandidate).toBe(true);
+  expect(maliciousRow?.tone).toBe('gold');
+  expect(dashboard.rows.length).toBe(4);
+  expect(dashboard.rows.map((row) => row.rowId)).toContain('app-row-malicious-name');
 }
 
 function appUseReadModel() {

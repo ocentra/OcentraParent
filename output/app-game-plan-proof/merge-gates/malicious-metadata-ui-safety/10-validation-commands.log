@@ -1,0 +1,18 @@
+cmd /c npm run test --workspace @ocentra-parent/portal -- activity-ui-app-game-dashboard-intent.test.ts
+exit=0
+
+> @ocentra-parent/portal@0.1.1 test
+> vitest run tests activity-ui-app-game-dashboard-intent.test.ts
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/apps/portal
+
+
+ Test Files  16 passed (16)
+      Tests  69 passed (69)
+   Start at  17:43:51
+   Duration  3.08s (transform 14.96s, setup 0ms, import 34.89s, tests 301ms, environment 3ms)
+
+[2m5:43:51 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
+[2m5:43:51 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
+[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`

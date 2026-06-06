@@ -76,6 +76,10 @@ control with better evidence and local audit.
   refs while the parent-visible intent and SVG dashboard omit the raw path and
   `executablePathRef` field, rendering only labels, state, counts, capability,
   durations, and evidence refs.
+- The malicious metadata UI safety gate now proves a long script-like app/game
+  display label remains a manual-required/risk text row in the parent dashboard
+  intent, while the SVG dashboard source renders labels through bounded text
+  sizing/truncation and avoids app/game dashboard HTML injection sinks.
 - App/game unknown approval contracts now represent new inventory apps, unknown
   runtime processes, portable/installer candidates, launcher-game candidates,
   unknown game-like executables, child status/reason refs, parent response
