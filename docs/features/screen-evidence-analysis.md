@@ -50,6 +50,13 @@ only with explicit parent settings.
   summary, policy, action dry-run, deletion, and portal-read-model events
   without raw-image escape. This is an in-process runtime proof; live service
   producers/subscribers and household mesh execution remain separate gates.
+- `scripts/test/screen-service-event-bridge-proof.mjs` now proves the service
+  bridge from an Activity Screen read-model row into the existing typed screen
+  event runtime chain. The bridge rejects raw-image-retained rows and missing
+  policy refs before publication, then reuses the core screen event path for
+  capture, encrypted queue, AI request/result, summary, policy, dry-run action,
+  deletion, and portal-read-model events. This is service bridge proof, not a
+  new live capture run or always-on production subscription claim.
 - `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
   screen-derived household mesh contract/runtime boundary: redacted
   summary/custody payloads, no raw screenshot transfer, provider claim/lease,
@@ -443,8 +450,8 @@ screen-derived decisions, physical household family AI hub discovery/runtime
 proof beyond the loopback runtime exchange, and production parent explanation
 portal rendering remain. Browser-trigger proof now covers contract flow into
 screen evidence and local-AI context only; live trigger producers,
-authenticated surfaces, cloud-streamed frames, mobile parity, and UI remain
-separate proof gates.
+always-on production screen event subscriptions, authenticated surfaces,
+cloud-streamed frames, mobile parity, and UI remain separate proof gates.
 
 ## Checklist
 
@@ -502,15 +509,18 @@ separate proof gates.
 - [x] Screen eventing runtime proof publishes typed capture, queue, AI-result,
       summary, policy, action dry-run, deletion, and portal-read-model events
       through `ocentra-eventing` without raw-image escape.
+- [x] Screen service event bridge proof maps service Activity Screen read-model
+      rows into the existing typed screen event chain, rejects raw retention and
+      missing policy refs, and avoids a duplicate service event bus.
 - [x] Screen household mesh proof keeps raw screenshots off LAN provider
       payloads, grants one child-owned lease, validates provider results on the
       child agent before policy, and rejects invalid provider results.
 
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof,
-live service event producers/subscribers, production household mesh transport
-over physical LAN, broad adapters, and production explanation portal rendering
-remain in the Current Gap section above.
+always-on production screen event subscriptions, production household mesh
+transport over physical LAN, broad adapters, and production explanation portal
+rendering remain in the Current Gap section above.
 
 ## Next AI Instructions
 

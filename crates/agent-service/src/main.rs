@@ -230,6 +230,10 @@ mod screen_ai_retention_sweeper_runtime;
 #[cfg(test)]
 mod screen_ai_retention_sweeper_runtime_tests;
 mod screen_ai_service_capture_event_builder;
+#[cfg(test)]
+mod screen_ai_service_event_bridge;
+#[cfg(test)]
+mod screen_ai_service_event_bridge_tests;
 mod snapshot;
 mod time;
 mod tracking_read_model_payload;
