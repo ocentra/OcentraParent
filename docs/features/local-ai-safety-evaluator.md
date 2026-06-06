@@ -83,6 +83,15 @@ claim needs proof, not slogans.
   degraded, unavailable, API authorized-unavailable, and API authorized-degraded
   states without making remote/API AI part of child safety decisions.
 - Dry-run policy evaluator and evidence context builder exist in proof form.
+- `scripts/test/local-ai-stored-evidence-context-proof.mjs` now proves the
+  general stored-evidence context-builder path over existing stored browser,
+  app/game, network-flow, and screen-summary proof artifacts. The proof builds a
+  ready mixed context with child-device custody, local runtime refs, parent-rule
+  refs, and audit evidence refs; rejects Ocentra-hosted non-activity custody
+  before child-activity evidence can enter local model input; and degrades to a
+  partial context with explicit missing evidence kinds. It consumes existing
+  proof artifacts and does not create fresh capture, execute a model, prove
+  model quality, render portal UI, dispatch enforcement, or use remote/API AI.
 - The service WinRT OCR policy proof now reruns the real Windows service
   OCR path over live public Wikipedia pixels and consumes that exact
   `localOcr` Activity Screen row through `PolicyDecisionSchema`, producing an
