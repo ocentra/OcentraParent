@@ -63,6 +63,10 @@ mod parent_child_event_runtime;
 mod parent_child_event_runtime_phase;
 mod policy_dry_run_evaluator;
 mod process_capture;
+mod screen_event_runtime;
+mod screen_event_runtime_phase;
+mod screen_event_runtime_refs;
+mod screen_event_runtime_state;
 mod screen_evidence_queue;
 mod trusted_device_registry;
 mod trusted_device_registry_selection;
@@ -156,6 +160,15 @@ pub use policy_dry_run_evaluator::{evaluate_policy_dry_run, PolicyDryRunEvaluati
 pub use process_capture::{
     collect_process_snapshot, process_observation_event, process_snapshot_events,
     ProcessObservation,
+};
+pub use screen_event_runtime::{
+    publish_screen_runtime_chain_for_input, ScreenRuntimeEventPayload, ScreenRuntimeInput,
+    ScreenRuntimeReport,
+};
+pub use screen_event_runtime_phase::ScreenRuntimePhase;
+pub use screen_event_runtime_state::{
+    ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
+    ScreenPolicyState, ScreenRuntimeClaimBoundary,
 };
 pub use screen_evidence_queue::{
     ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue, ScreenEvidenceQueueSweep,
@@ -254,6 +267,8 @@ mod policy_dry_run_evaluator_fixture;
 mod policy_dry_run_evaluator_rule_tests;
 #[cfg(test)]
 mod process_capture_tests;
+#[cfg(test)]
+mod screen_event_runtime_tests;
 #[cfg(test)]
 mod screen_evidence_queue_tests;
 #[cfg(test)]
