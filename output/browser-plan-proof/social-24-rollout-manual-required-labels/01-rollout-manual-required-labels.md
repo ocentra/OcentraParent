@@ -1,10 +1,10 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T16:41:28.290Z
+Generated: 2026-06-06T16:58:27.718Z
 
 Rows checked: 23
-Proof-present rows: 19
-Partial/manual-required rows: 4
+Proof-present rows: 20
+Partial/manual-required rows: 3
 Rollout state: partial/manual-required
 Product claimed: false
 
@@ -16,7 +16,7 @@ Product claimed: false
 | SOCIAL-04 | proof-present | [x] |
 | SOCIAL-05 | proof-present | [x] |
 | SOCIAL-06 | proof-present | [x] |
-| SOCIAL-07 | partial-manual-required | [~] |
+| SOCIAL-07 | proof-present | [x] |
 | SOCIAL-08 | proof-present | [x] |
 | SOCIAL-09 | proof-present | [x] |
 | SOCIAL-10 | proof-present | [x] |
@@ -43,6 +43,7 @@ proof is present. Live SOCIAL-03 URL pattern proof is present.
 Live SOCIAL-04 account-flow proof is present.
 Live SOCIAL-05 form-shape proof is present.
 Live SOCIAL-06 identity registry proof is present.
+Live SOCIAL-07 parent approval contract proof is present.
 Live SOCIAL-08 route classification proof is present.
 Live SOCIAL-09 metadata extraction proof is present.
 Live SOCIAL-10 evidence-bound AI degradation proof is present.

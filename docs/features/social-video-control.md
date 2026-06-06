@@ -103,6 +103,14 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   activity-domain and reject raw account data, credentials, notification
   delivery, UI rendering, child notification, policy/action execution, connector
   authorization, native app control, and enforcement.
+  `social-parent-approval-live-evidence-proof` now consumes the real public
+  SOCIAL-06 identity proof rows, parses 4 social signup/login rows into
+  contract-only approval requests plus manual-required decision rows, and
+  rejects raw message/account identity capture, credentials, notification
+  delivery, UI rendering, child notification, policy/action execution,
+  connector, native-app, and enforcement promotion attempts. It does not claim
+  a real parent decision, runtime approval store, notification delivery, UI, or
+  enforcement.
 - Browser-plan SOCIAL-08 now adds route-only feed/reels/shorts classification
   contracts. They distinguish dynamic feeds, short-video feed surfaces, and exact
   single-short-video routes from managed-browser route evidence plus sanitized
