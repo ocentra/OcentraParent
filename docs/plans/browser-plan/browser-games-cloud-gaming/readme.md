@@ -232,8 +232,9 @@ native, cloud-frame, policy, runtime, UI, and enforcement overclaims. Package
 subpath exports are now present.
 
 GAME-11 now adds parent-domain browser-game risk/benefit signal contracts in
-`packages/parent-domain/src/browser-game-riskbenefit-signal.ts`. The signal
-set models evidence-backed risk rows for violence, horror, adult themes,
+`packages/parent-domain/src/browser-game-riskbenefit-signal.ts` and a live
+public risk/benefit signal shape proof. The signal set models evidence-backed
+risk rows for violence, horror, adult themes,
 addictive loops, multiplayer/contact, chat, purchase, loot box/random item, UGC,
 privacy, unblocked-bypass, and unknown risk; and benefit rows for educational
 value, homework relevance, skill building, creativity, problem solving,
@@ -241,7 +242,12 @@ parent-approved game, neutral, and unknown benefit. It returns candidate
 recommended policy inputs only and rejects raw game payloads, chat content, page
 body, raw model text, account/purchase execution, cloud-frame analysis, native
 game control, final policy decisions, runtime gate execution, and enforcement.
-Package subpath exports are now present.
+The live proof fetches real public Poki Subway Surfers, Code.org Minecraft,
+Chess.com play, Xbox Cloud Gaming, and Roblox Discover pages; stores only
+response metadata, hashed origin/path/body refs, typed evidence refs, candidate
+risk/benefit signal rows, and no-authority flags; validates 5 signal sets with
+7 risk signals and 8 benefit signals; and rejects 30 overclaims. Package
+subpath exports are now present.
 
 GAME-12 now adds parent-domain browser-game memory/cache contracts in
 `packages/parent-domain/src/browser-game-memory-cache.ts`. The cache uses
@@ -389,8 +395,9 @@ live-runtime-signal-shape-proof-present, GAME-07 as
 live-metadata-shape-proof-present, GAME-08 as
 live-hidden-analysis-profile-safety-proof-present, GAME-09 as
 live-educational-classifier-proof-present, GAME-10 as
-live-ai-analysis-proof-present, GAME-11 through GAME-24 as
+live-ai-analysis-proof-present, GAME-11 as
+live-riskbenefit-signal-proof-present, GAME-12 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
-Product checklist upgrade is not claimed; runtime signals, metadata, memory,
-child/parent UI, cloud-streamed frame analysis, native game control, and
+Product checklist upgrade is not claimed; memory, child/parent UI,
+cloud-streamed frame analysis, native game control, and
 enforcement remain open or manual-required until separate proof exists.

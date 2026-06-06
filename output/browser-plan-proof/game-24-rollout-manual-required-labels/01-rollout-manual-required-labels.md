@@ -1,10 +1,10 @@
 # GAME-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T20:11:08.608Z
+Generated: 2026-06-06T20:23:32.841Z
 
 Rows checked: 24
-Proof-present rows: 10
-Partial/manual-required rows: 14
+Proof-present rows: 11
+Partial/manual-required rows: 13
 Open/manual-required rows: 0
 Rollout state: partial/manual-required
 Product claimed: false
@@ -21,7 +21,7 @@ Product claimed: false
 | GAME-08 | live-hidden-analysis-profile-safety-proof-present | [x] |
 | GAME-09 | live-educational-classifier-proof-present | [x] |
 | GAME-10 | live-ai-analysis-proof-present | [x] |
-| GAME-11 | partial-manual-required | [~] |
+| GAME-11 | live-riskbenefit-signal-proof-present | [x] |
 | GAME-12 | partial-manual-required | [~] |
 | GAME-13 | partial-manual-required | [~] |
 | GAME-14 | partial-manual-required | [~] |
@@ -46,7 +46,8 @@ GAME-07 live metadata shape proof is present.
 GAME-08 live hidden analysis profile safety proof is present.
 GAME-09 live educational classifier proof is present.
 GAME-10 live AI analysis proof is present.
+GAME-11 live risk/benefit signal proof is present.
 Product checklist upgrade is not claimed.
-Browser-game route contracts, runtime signals, metadata, AI, memory,
-child/parent UI, cloud-streamed frame analysis, native game control,
-and enforcement remain open or manual-required until separate proof exists.
+Browser-game memory, child/parent UI, cloud-streamed frame analysis,
+native game control, and enforcement remain open or manual-required
+until separate proof exists.

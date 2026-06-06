@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 10;
+    const isComplete = rowNumber <= 11;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -86,7 +86,9 @@ function expectedRows() {
                         ? 'live-hidden-analysis-profile-safety-proof-present'
                         : rowNumber === 9
                           ? 'live-educational-classifier-proof-present'
-                          : 'live-ai-analysis-proof-present'
+                          : rowNumber === 10
+                            ? 'live-ai-analysis-proof-present'
+                            : 'live-riskbenefit-signal-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -192,6 +194,7 @@ function manifestFor(rows, failures) {
       liveHiddenAnalysisProfileSafetyEvidence: 'game-08-live-hidden-analysis-profile-safety-proof-present',
       liveEducationalClassifierEvidence: 'game-09-live-educational-classifier-proof-present',
       liveAiAnalysisEvidence: 'game-10-live-ai-analysis-proof-present',
+      liveRiskBenefitSignalEvidence: 'game-11-live-riskbenefit-signal-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -240,6 +243,8 @@ function markdownFor(manifest) {
     'educational, entertainment, misleading, and manual-required candidate shapes.',
     'GAME-10 live AI analysis proof is present for real public browser-game',
     'surfaces with typed evidence refs and candidate-only results.',
+    'GAME-11 live risk/benefit signal proof is present for real public',
+    'browser-game and cloud-gaming pages with typed candidate-only signal sets.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

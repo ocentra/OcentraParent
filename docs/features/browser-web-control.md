@@ -393,7 +393,7 @@ store raw URLs, page body, game payloads, screen frames, model text, execute
 account/purchase flows, control native games, inspect cloud frames, render UI,
 make final policy/runtime decisions, or enforce actions.
 Browser-game/cloud-gaming GAME-11 now adds parent-domain browser-game
-risk/benefit signal contracts. The signal set covers evidence-backed risk rows
+risk/benefit signal contracts plus a live public signal-shape proof. The signal set covers evidence-backed risk rows
 for violence, horror, adult themes, addictive loops, multiplayer/contact, chat,
 purchase, loot box/random item, UGC, privacy, unblocked-bypass, and unknown
 risk; and benefit rows for educational value, homework relevance, skill
@@ -401,7 +401,11 @@ building, creativity, problem solving, parent-approved game, neutral, and
 unknown benefit. It returns candidate recommended policy inputs only and rejects
 raw game payloads, chat content, page body, raw model text, account/purchase
 execution, cloud-frame analysis, native game control, final policy decisions,
-runtime gate execution, and enforcement.
+runtime gate execution, and enforcement. The live proof fetches real public
+Poki Subway Surfers, Code.org Minecraft, Chess.com play, Xbox Cloud Gaming, and
+Roblox Discover pages; stores only response hashes and evidence refs; validates
+5 signal sets with 7 risk signals and 8 benefit signals; and rejects 30
+overclaims.
 Browser-game/cloud-gaming GAME-12 now adds parent-domain memory/cache contracts
 for browser-game decision refs. Cache keys are schema-backed refs or hashes for
 canonical URL, platform game, domain path, cloud title, parent decision, game
@@ -508,7 +512,8 @@ GAME-06 is live-runtime-signal-shape-proof-present. GAME-07 is
 live-metadata-shape-proof-present. GAME-08 is
 live-hidden-analysis-profile-safety-proof-present. GAME-09 is
 live-educational-classifier-proof-present. GAME-10 is
-live-ai-analysis-proof-present. GAME-11 through GAME-24 are
+live-ai-analysis-proof-present. GAME-11 is
+live-riskbenefit-signal-proof-present. GAME-12 through GAME-24 are
 partial/manual-required. Memory, UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.
