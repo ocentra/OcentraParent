@@ -27,6 +27,7 @@ pub mod pipeline;
 pub mod platform_claims;
 pub mod policy;
 pub mod process;
+pub mod product_readiness_status;
 pub mod raw_capture_storage;
 pub mod readiness;
 pub mod risk_budget;
@@ -196,6 +197,11 @@ pub use process::{
     NetworkProcessAppCorrelation, NetworkProcessAppCorrelationInput,
     NetworkProcessCorrelationBasis, NetworkProcessCorrelationError, NetworkProcessCorrelationState,
     NetworkProcessCorrelationUncertainty, NetworkProcessSnapshot,
+};
+pub use product_readiness_status::{
+    materialize_network_product_readiness_status, NetworkProductReadinessStatus,
+    NetworkProductReadinessStatusError, NetworkProductReadinessStatusInput,
+    NetworkProductReadinessStatusState,
 };
 pub use raw_capture_storage::{
     plan_network_raw_capture_storage, NetworkRawCaptureStorageError, NetworkRawCaptureStorageInput,
