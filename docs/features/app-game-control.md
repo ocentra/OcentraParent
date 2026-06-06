@@ -245,6 +245,12 @@ control with better evidence and local audit.
   app/native game rows, and keep source or compiler blockers blocked without
   claiming service runtime events, service read API implementation, portal UI,
   durable audit logs, rollback execution, adapter dispatch, or enforcement.
+- Parent-domain source-gated policy preview timer service-readiness read-model
+  contracts now consume those handoff rows, keep future service-readiness and
+  service read-API proof refs visible for eligible native app/native game rows,
+  and keep source or compiler blockers blocked without claiming agent protocol,
+  service runtime events, service read API implementation, portal UI, durable
+  audit logs, rollback execution, adapter dispatch, or enforcement.
 - The portal App/Game Sessions route now renders that service-backed policy
   readiness read model as route cards with summary rows, readiness-kind rows,
   evidence refs, parser-failure visibility, and explicit no policy
@@ -695,6 +701,19 @@ mobile UI, or prove platform support.
       durable audit logs, rollback runtime/execution, adapter dispatch, child
       delivery, broad blocking, platform enforcement, or raw private source
       rows.
+      Source-gated policy preview timer service-readiness read-model proof now
+      consumes those handoff rows and records that future service read-model
+      visibility still requires service timer runtime, scheduler persistence,
+      durable scheduler state-store, audit trail, rollback plan,
+      audit/rollback read-model proof, parent-surface proof, service-readiness
+      proof, and service read-API proof, while source and compiler blockers
+      remain blocked before service/read-model visibility. It remains
+      parent-domain proof only and does not claim agent protocol, service
+      events/read API implementation, portal UI, evaluator runtime, timer
+      runtime/scheduling, scheduler persistence runtime, durable scheduler
+      storage, audit runtime, durable audit logs, rollback runtime/execution,
+      adapter dispatch, child delivery, broad blocking, platform enforcement,
+      or raw private source rows.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
