@@ -293,6 +293,15 @@ claim needs proof, not slogans.
   overload row can become policy eligible, retain raw images, or fall back to a
   remote/API provider. This is backpressure contract proof, not live model
   execution, production model quality, portal UI, or enforcement.
+- `runLocalAiDeterministicClassifier` and
+  `scripts/test/local-ai-deterministic-classifier-proof.mjs` now prove a
+  deterministic local classifier lane over typed `LocalAiEvaluationInput`
+  records. The proof emits schema-valid `LocalAiSafetyResult` rows for video,
+  productivity/window, network-review, missing-evidence, and
+  runtime-unavailable paths while preserving evidence refs, parent rule refs,
+  runtime/model refs, prompt refs, and trace refs. It does not execute a model,
+  prove production model quality, use remote/API AI, retain raw evidence, grant
+  policy authority, render portal UI, or dispatch enforcement.
 
 ## Current Gap
 
@@ -334,6 +343,10 @@ production external evidence variants.
 - [x] Remote assistant contract boundary is separated from child safety for
       parent-authorized report/explanation requests, with local-policy
       authority preserved and remote-provider execution/UI still unclaimed.
+- [x] Local deterministic classifier proof path for dry-run classify, allow,
+      warn, ask-parent, time-limit, and block rows without model-execution,
+      remote/API, raw-evidence retention, policy-authority, enforcement, portal
+      UI, or production-quality claims.
 - [x] Local result contract with confidence/degraded state.
 - [x] Deterministic policy integration.
 - [x] Service WinRT OCR row consumed by typed parent policy dry-run.
