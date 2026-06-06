@@ -1,8 +1,8 @@
 {
   "proof": "network-policy-preview-stored-flow-proof",
-  "checkedAt": "2026-06-06T21:12:15.070Z",
+  "checkedAt": "2026-06-06T21:15:42.969Z",
   "branch": "codex/network-policy-preview-stored-flow-proof",
-  "commit": "c1461606777be9e50f3a19c6643af44ba7fc4764",
+  "commit": "8e67ff75c6462ba98be3a91a6489a6d48816ed18",
   "originMain": "5c630a4b7e848489c5d833414be647f8b62c144a",
   "mergeBase": "5c630a4b7e848489c5d833414be647f8b62c144a",
   "sourceStatusShort": "",
