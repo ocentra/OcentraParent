@@ -481,14 +481,16 @@ refs, candidate decision refs, and no-authority flags. These candidates are not
 final policy decisions, runtime gate executions, UI delivery, native game
 control, cloud-frame analysis, or enforcement.
 Browser-game/cloud-gaming GAME-18 now adds parent-domain managed browser-game
-hold/block adapter contracts that link policy candidate refs, child UX refs,
-managed intervention adapter proof refs, and audit refs for hold, approval,
-block, and warn paths. Candidate-only allow/time-limit, manual-required cloud,
-and unavailable native/unmanaged rows remain non-executing, and the contracts
-reject raw URL/page/game payloads, child cookie/session reuse, unmanaged exact
-URL claims, browser mutation, rendered child pages, notification delivery,
-final policy decisions, applied time limits, cloud-frame analysis, native game
-control, and enforcement.
+hold/block adapter contracts plus live public proof for adapter plan shapes. The
+proof covers real Scratch games, Roblox Discover, Hooda unblocked games, Poki
+Subway Surfers, Code.org Minecraft, Coolmath Run, Xbox Cloud Gaming, and Steam
+Store surfaces with only response hashes, evidence refs, adapter plan refs, and
+no-authority flags persisted. Managed hold, approval, block, warning,
+candidate-only allow/time-limit, manual-required cloud, and unavailable native
+rows parse while raw URL/page/game payloads, child cookie/session reuse,
+unmanaged exact URL claims, browser mutation, rendered child pages,
+notification delivery, final policy decisions, applied time limits,
+cloud-frame analysis, native game control, and enforcement are rejected.
 Browser-game/cloud-gaming GAME-19 now adds parent-domain child checking/block
 UX contracts for browser games. The contracts cover unknown-game checking,
 parent approval, blocked candidates, educational allowed messaging, time-limit
@@ -539,7 +541,8 @@ live-account-purchase-gate-proof-present. GAME-14 is
 live-cloud-gaming-gate-proof-present. GAME-15 is
 live-unblocked-site-detection-proof-present. GAME-16 is
 live-ugc-multiplayer-chat-risk-proof-present. GAME-17 is
-live-policy-compiler-proof-present. GAME-18 through GAME-24 are
+live-policy-compiler-proof-present. GAME-18 is
+live-hold-block-adapter-proof-present. GAME-19 through GAME-24 are
 partial/manual-required. UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.

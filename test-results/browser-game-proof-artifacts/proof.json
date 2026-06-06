@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-proof-artifacts",
-  "generatedAt": "2026-06-06T21:41:23.584Z",
+  "generatedAt": "2026-06-06T21:53:17.116Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -295,17 +295,18 @@
     {
       "rowNumber": 18,
       "rowId": "GAME-18",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "live-hold-block-adapter-proof-present",
       "proofDirectory": "game-18-managed-browser-game-hold-block-adapter",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-contract-proof.md",
+        "02-live-hold-block-adapter-shape-proof.json",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "live-hold-block-adapter-proof-present",
       "failures": []
     },
     {
@@ -359,8 +360,8 @@
   ],
   "summary": {
     "totalRows": 21,
-    "completeRows": 17,
-    "partialRows": 4,
+    "completeRows": 18,
+    "partialRows": 3,
     "failures": 0,
     "playwrightState": "manual-required-no-rendered-browser-game-ui",
     "productClaimed": false
@@ -384,6 +385,7 @@
     "liveUnblockedSiteDetectionEvidence": "game-15-live-unblocked-site-detection-proof-present",
     "liveUgcMultiplayerChatRiskEvidence": "game-16-live-ugc-multiplayer-chat-risk-proof-present",
     "livePolicyCompilerEvidence": "game-17-live-policy-compiler-proof-present",
+    "liveHoldBlockAdapterEvidence": "game-18-live-hold-block-adapter-proof-present",
     "renderedUi": "not-claimed",
     "cloudStreamedFrameAnalysis": "not-claimed",
     "nativeGameControl": "not-claimed",
