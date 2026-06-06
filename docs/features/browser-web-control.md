@@ -109,6 +109,12 @@ control while being more honest about managed versus unmanaged sources.
   unsupported catalog rows and reject empty identity refs. This does not upgrade
   live OS scanning, live signature/hash extraction, portal dashboard rendering,
   exact URL evidence, or blocking claims.
+- Browser-plan WP03 now has a completion proof gate that verifies the inventory
+  contract/Rust/service proof pack, the WP04 live Windows inventory proof, and
+  the WP14 parent portal Browser-route inventory screenshot/Playwright proof.
+  The inventory model is complete as a parent-visible model while exact URL,
+  known active tab, blocking, enforcement, `.lnk` parsing, AppX/MSIX, and
+  non-Windows adapters remain separate proof gates.
 - Browser-plan WP04 default-root service proof now feeds the service inventory
   read-model scan with default Windows candidate roots and live Windows
   uninstall registry DisplayIcon/InstallLocation entries before process
