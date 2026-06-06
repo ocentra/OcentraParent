@@ -26,6 +26,7 @@ const SocialDashboardSnapshot = {
       'connector-boundary-manual-required',
     ]),
     panel('decision-memory', 'contract-only', 'review-memory-entry', ['memory-contract-only']),
+    panel('settings-custody', 'manual-required', 'review-settings-custody', ['settings-custody-runtime-gap']),
     panel('manual-required-gaps', 'manual-required', 'manual-review', ['platform-proof-gap']),
   ],
   claimBoundaries: {
@@ -107,6 +108,7 @@ function panel(
     | 'native-app-capability'
     | 'connector-boundaries'
     | 'decision-memory'
+    | 'settings-custody'
     | 'manual-required-gaps',
   status: 'ready-for-review' | 'manual-required' | 'contract-only',
   primaryAction:
@@ -115,6 +117,7 @@ function panel(
     | 'review-native-capability'
     | 'review-connector-boundary'
     | 'review-memory-entry'
+    | 'review-settings-custody'
     | 'manual-review',
   reasons: readonly (
     | 'parent-review-needed'
@@ -122,6 +125,7 @@ function panel(
     | 'native-app-manual-required'
     | 'connector-boundary-manual-required'
     | 'memory-contract-only'
+    | 'settings-custody-runtime-gap'
     | 'platform-proof-gap'
   )[]
 ) {
@@ -151,6 +155,7 @@ function panelSortOrder(
     | 'native-app-capability'
     | 'connector-boundaries'
     | 'decision-memory'
+    | 'settings-custody'
     | 'manual-required-gaps'
 ): number {
   return {
@@ -159,6 +164,7 @@ function panelSortOrder(
     'native-app-capability': 2,
     'connector-boundaries': 3,
     'decision-memory': 4,
-    'manual-required-gaps': 5,
+    'settings-custody': 5,
+    'manual-required-gaps': 6,
   }[panelKind];
 }

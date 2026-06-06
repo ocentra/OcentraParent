@@ -30,6 +30,7 @@ describe('social dashboard UX text', () => {
   it('keeps parent dashboard labels aligned with the social proof boundary', () => {
     expect(SocialDashboardUxText[SocialDashboardUxTextToken.Title]).toBe('Social review');
     expect(SocialDashboardUxText[SocialDashboardUxTextToken.NativeAppCapability]).toBe('Native app capability');
+    expect(SocialDashboardUxText[SocialDashboardUxTextToken.SettingsCustody]).toBe('Settings and custody');
     expect(SocialDashboardUxText[SocialDashboardUxTextToken.ManualRequiredStatus]).toBe('Manual proof required');
     expect(SocialDashboardUxText[SocialDashboardUxTextToken.ContractOnlyStatus]).toBe('Contract proof only');
   });

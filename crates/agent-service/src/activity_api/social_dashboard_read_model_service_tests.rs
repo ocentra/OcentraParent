@@ -2,6 +2,7 @@ use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
     AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields, SocialDashboardUxSnapshot,
     AGENT_PROTOCOL_SCHEMA_VERSION, SOCIAL_DASHBOARD_PANEL_FEED_VIDEO_GATES,
+    SOCIAL_DASHBOARD_PANEL_SETTINGS_CUSTODY,
 };
 
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
@@ -19,7 +20,7 @@ async fn social_dashboard_command_reports_service_backed_snapshot_rows() {
         event.event,
         AgentEventName::AgentBrowserSocialDashboardReadModelReported
     );
-    assert_eq!(read_model.panels.len(), 6);
+    assert_eq!(read_model.panels.len(), 7);
     assert_eq!(
         read_model.panels[1].panel_kind,
         SOCIAL_DASHBOARD_PANEL_FEED_VIDEO_GATES
@@ -27,6 +28,13 @@ async fn social_dashboard_command_reports_service_backed_snapshot_rows() {
     assert!(!read_model.panels[1].runtime_data_fetch_claimed);
     assert!(!read_model.panels[1].policy_decision_claimed);
     assert!(!read_model.panels[1].enforcement_claimed);
+    assert_eq!(
+        read_model.panels[5].panel_kind,
+        SOCIAL_DASHBOARD_PANEL_SETTINGS_CUSTODY
+    );
+    assert!(!read_model.panels[5].runtime_data_fetch_claimed);
+    assert!(!read_model.panels[5].policy_decision_claimed);
+    assert!(!read_model.panels[5].enforcement_claimed);
 }
 
 fn command_envelope() -> AgentCommandEnvelope {

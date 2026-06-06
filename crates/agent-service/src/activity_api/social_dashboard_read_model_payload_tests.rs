@@ -2,6 +2,7 @@ use ocentra_parent_agent_protocol::{
     constants, LogFieldValue, SocialDashboardUxSnapshot, SOCIAL_DASHBOARD_CAPABILITY_READY,
     SOCIAL_DASHBOARD_CLAIM_NOT_CLAIMED, SOCIAL_DASHBOARD_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     SOCIAL_DASHBOARD_PANEL_ACCOUNT_APPROVAL_QUEUE, SOCIAL_DASHBOARD_PANEL_FEED_VIDEO_GATES,
+    SOCIAL_DASHBOARD_PANEL_SETTINGS_CUSTODY, SOCIAL_DASHBOARD_REASON_SETTINGS_CUSTODY_RUNTIME_GAP,
     SOCIAL_DASHBOARD_SCHEMA_VERSION,
 };
 
@@ -10,7 +11,7 @@ use super::social_dashboard_read_model_payload::{
 };
 
 #[test]
-fn social_dashboard_payload_reports_six_honest_service_rows() {
+fn social_dashboard_payload_reports_seven_honest_service_rows() {
     let read_model = social_dashboard_read_model_from_service();
     let payload = social_dashboard_read_model_payload(&read_model);
     let read_model_json = string_payload(
@@ -21,7 +22,7 @@ fn social_dashboard_payload_reports_six_honest_service_rows() {
         serde_json::from_str(read_model_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(decoded.schema_version, SOCIAL_DASHBOARD_SCHEMA_VERSION);
-    assert_eq!(decoded.panels.len(), 6);
+    assert_eq!(decoded.panels.len(), 7);
     assert_eq!(
         decoded.panels[0].panel_kind,
         SOCIAL_DASHBOARD_PANEL_ACCOUNT_APPROVAL_QUEUE
@@ -32,6 +33,15 @@ fn social_dashboard_payload_reports_six_honest_service_rows() {
     );
     assert!(!decoded.panels[1].policy_decision_claimed);
     assert!(!decoded.panels[1].enforcement_claimed);
+    assert_eq!(
+        decoded.panels[5].panel_kind,
+        SOCIAL_DASHBOARD_PANEL_SETTINGS_CUSTODY
+    );
+    assert!(decoded.panels[5]
+        .reasons
+        .contains(&SOCIAL_DASHBOARD_REASON_SETTINGS_CUSTODY_RUNTIME_GAP.to_string()));
+    assert!(!decoded.panels[5].policy_decision_claimed);
+    assert!(!decoded.panels[5].enforcement_claimed);
     assert_eq!(
         decoded.claim_boundaries.enforcement,
         SOCIAL_DASHBOARD_CLAIM_NOT_CLAIMED
