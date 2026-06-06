@@ -32,6 +32,13 @@ fn product_readiness_status_composes_ready_proofs_without_runtime_authority() {
         NetworkPerformanceBenchmarkState::MeetsBenchmarkGate
     );
     assert_eq!(status.platform_ready_claims, 8);
+    assert_eq!(status.platform_entries.len(), 8);
+    assert_eq!(
+        status.platform_entries[0].permission_or_entitlement_refs,
+        vec!["permission-row51a-ready-0".to_owned()]
+    );
+    assert!(status.platform_entries[0].adapter_authorized_by_proof);
+    assert!(!status.platform_entries[0].enforcement_command_published);
     assert!(status.portal_read_model_ready);
     assert!(status.retention_export_refs_visible);
     assert!(!status.policy_authority);
@@ -75,6 +82,16 @@ fn product_readiness_status_preserves_manual_followups() {
     assert_eq!(status.platform_manual_required_claims, 1);
     assert_eq!(status.platform_unavailable_claims, 1);
     assert_eq!(status.platform_manual_followups.len(), 1);
+    assert_eq!(status.platform_entries.len(), 8);
+    assert!(!status.platform_entries[6].adapter_authorized_by_proof);
+    assert_eq!(
+        status.platform_entries[6].missing_required_artifacts,
+        vec!["windows-wfp.administrator-permission".to_owned()]
+    );
+    assert_eq!(
+        status.platform_entries[7].claim_state,
+        NetworkPlatformClaimState::Unavailable
+    );
     assert_eq!(
         status.platform_manual_followups[0].target,
         NetworkPlatformClaimTarget::WindowsWfp
@@ -164,6 +181,17 @@ fn product_readiness_status_rejects_content_authority_adapter_and_production_cla
             )
         }),
         Err(NetworkProductReadinessStatusError::PortalAdapterDispatchClaimRejected)
+    );
+
+    let mut mismatched_platform = platform_claims(8, 0, 0, 0, vec![]);
+    mismatched_platform.ready_claims += 1;
+    assert_eq!(
+        materialize_network_product_readiness_status(status_input(
+            risk_budget(NetworkInterventionState::AskParent),
+            performance(NetworkPerformanceBenchmarkState::MeetsBenchmarkGate, vec![]),
+            mismatched_platform,
+        )),
+        Err(NetworkProductReadinessStatusError::PlatformCountMismatch)
     );
 }
 
@@ -279,7 +307,12 @@ fn platform_claims(
 ) -> NetworkPlatformClaimManifestProof {
     NetworkPlatformClaimManifestProof {
         manifest_ref: "network-platform-manifest-row51a".to_owned(),
-        entries: platform_entries(ready_claims, manual_required_claims),
+        entries: platform_entries(
+            ready_claims,
+            manual_required_claims,
+            research_only_claims,
+            unavailable_claims,
+        ),
         ready_claims,
         dry_run_claims: 0,
         research_only_claims,
@@ -297,6 +330,8 @@ fn platform_claims(
 fn platform_entries(
     ready_claims: usize,
     manual_required_claims: usize,
+    research_only_claims: usize,
+    unavailable_claims: usize,
 ) -> Vec<NetworkPlatformClaimEntry> {
     let mut entries = Vec::new();
     for index in 0..ready_claims {
@@ -309,6 +344,18 @@ fn platform_entries(
         entries.push(platform_entry(
             format!("manual-{index}"),
             NetworkPlatformClaimState::ManualRequired,
+        ));
+    }
+    for index in 0..research_only_claims {
+        entries.push(platform_entry(
+            format!("research-{index}"),
+            NetworkPlatformClaimState::ResearchOnly,
+        ));
+    }
+    for index in 0..unavailable_claims {
+        entries.push(platform_entry(
+            format!("unavailable-{index}"),
+            NetworkPlatformClaimState::Unavailable,
         ));
     }
     entries
@@ -327,9 +374,21 @@ fn platform_entry(
         device_or_os_refs: vec![format!("windows-row51a-{suffix}")],
         permission_or_entitlement_refs: vec![format!("permission-row51a-{suffix}")],
         adapter_capability_refs: vec![format!("adapter-row51a-{suffix}")],
-        missing_required_artifacts: vec![],
+        missing_required_artifacts: platform_missing_artifacts(claim_state),
         audit_refs: vec![format!("audit-row51a-{suffix}")],
         adapter_authorized_by_proof: claim_state == NetworkPlatformClaimState::Ready,
         enforcement_command_published: false,
+    }
+}
+
+fn platform_missing_artifacts(claim_state: NetworkPlatformClaimState) -> Vec<String> {
+    match claim_state {
+        NetworkPlatformClaimState::ManualRequired => {
+            vec!["windows-wfp.administrator-permission".to_owned()]
+        }
+        NetworkPlatformClaimState::Ready
+        | NetworkPlatformClaimState::DryRun
+        | NetworkPlatformClaimState::ResearchOnly
+        | NetworkPlatformClaimState::Unavailable => vec![],
     }
 }

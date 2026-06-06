@@ -24,6 +24,9 @@ contracts.
 - Portal overview refresh command descriptors for service-backed network
   product-readiness status visibility, without defining policy or adapter
   authority.
+- Shared detail labels for service-backed network platform-claim manifest rows,
+  including OS/device refs, permission or entitlement refs, adapter capability
+  refs, and false enforcement-command publication.
 
 ## Must Not Own
 
@@ -63,3 +66,6 @@ flowchart LR
 - Keep social dashboard rows unavailable until a real service-backed social
   snapshot path exists; do not promote connector/native/final-policy/enforcement
   claims from portal-only rendering.
+- Keep network platform-claim labels tied to service-backed status rows only;
+  do not promote manifest rendering into policy authority, adapter execution, or
+  host filtering claims.

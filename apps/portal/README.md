@@ -75,6 +75,11 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   route network drawer by projecting row13a custody and row51a readiness service
   events into portal-visible refs and false no-claim values, without policy
   authority or adapter dispatch.
+- Displays service-backed Row52 network platform-claim manifest entries in the
+  same Activity route drawer, including platform target, proof state, OS/device
+  refs, permission/entitlement refs, adapter capability refs, missing artifacts,
+  audit refs, and false enforcement-command publication without live adapter
+  execution or host filtering claims.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own
