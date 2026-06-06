@@ -1,10 +1,10 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T15:56:04.294Z
+Generated: 2026-06-06T16:20:30.194Z
 
 Rows checked: 23
-Proof-present rows: 16
-Partial/manual-required rows: 7
+Proof-present rows: 17
+Partial/manual-required rows: 6
 Rollout state: partial/manual-required
 Product claimed: false
 
@@ -13,7 +13,7 @@ Product claimed: false
 | SOCIAL-01 | proof-present | [x] |
 | SOCIAL-02 | proof-present | [x] |
 | SOCIAL-03 | proof-present | [x] |
-| SOCIAL-04 | partial-manual-required | [~] |
+| SOCIAL-04 | proof-present | [x] |
 | SOCIAL-05 | partial-manual-required | [~] |
 | SOCIAL-06 | partial-manual-required | [~] |
 | SOCIAL-07 | partial-manual-required | [~] |
@@ -40,6 +40,7 @@ Rendered proof-bundle social UI exists for dashboard, child intervention,
 and parent explanation states. Service-backed dashboard and explanation
 read-model delivery is present. Live SOCIAL-02 platform route boundary
 proof is present. Live SOCIAL-03 URL pattern proof is present.
+Live SOCIAL-04 account-flow proof is present.
 Live SOCIAL-08 route classification proof is present.
 Live SOCIAL-09 metadata extraction proof is present.
 Live SOCIAL-10 evidence-bound AI degradation proof is present.
