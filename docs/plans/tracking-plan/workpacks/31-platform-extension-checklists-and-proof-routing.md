@@ -26,10 +26,14 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 - `18-ios-simulator-proof.json`
 - `19-unsupported-manual-hosted-ui-proof.json`
 - `19-unsupported-manual-hosted-ui.png`
+- `25-android-static-permission-readiness-proof.json`
 
 ## AI Worker Checklist
 
 - [ ] Maintain Android extension rows.
+- [x] Route Android static permission package-readiness proof separately from
+      runtime permission grants, samples, background delivery, geofence
+      transitions, physical-device proof, and authority proof.
 - [ ] Maintain iOS extension rows.
 - [ ] Maintain desktop extension rows.
 - [ ] Add managed-device proof only when real enrollment/control exists.
@@ -65,6 +69,15 @@ captures `19-unsupported-manual-hosted-ui.png` and writes
 `19-unsupported-manual-hosted-ui-proof.json` under this workpack root while
 keeping physical-device execution, authority enrollment, provider delivery, and
 product-ready tracking unclaimed.
+
+Android static permission readiness routing now exists through
+`node scripts/test/tracking-android-static-permission-readiness-proof.mjs`. It builds the
+Android debug APK, verifies the manifest-declared location permission and
+foreground-service type set, writes
+`25-android-static-permission-readiness-proof.json`, and keeps Android runtime
+permission grant, foreground sample, background delivery, geofence transition,
+physical-device, authority, provider delivery, and product-ready tracking claims
+separate/manual-required.
 
 ## Where We Want To Be
 
@@ -131,4 +144,28 @@ This workpack can be assigned independently, implemented against the owning doma
       hub.
 - [x] Known gaps/manual-required states: physical-device execution, authority
       enrollment, provider delivery, production worker, and product-ready
+      tracking remain unclaimed.
+- [x] Workpack id and branch:
+      `codex/tracking-android-static-permission-readiness-proof`.
+- [x] Touched files: Android manifest/source readiness bundle, root script
+      wiring, focused proof script, Android README, tracking feature doc,
+      implementation checklist, WP08, WP09, WP31, and generated Android static
+      permission proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-android-static-permission-readiness-proof.mjs` passed
+      locally and built the Android debug APK.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/08-android-foreground-location-adapter/`,
+      `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`,
+      `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`,
+      and
+      `test-results/tracking-android-static-permission-readiness-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP08, WP09, WP31, and Android README updated; product
+      capability checklist not edited because product status remains
+      manual-required/not product-ready.
+- [x] Known gaps/manual-required states: foreground permission grants,
+      foreground location samples, background permission grants, background
+      location runtime, geofence transitions, physical-device proof, authority,
+      provider delivery, notification delivery, and product-ready Android
       tracking remain unclaimed.

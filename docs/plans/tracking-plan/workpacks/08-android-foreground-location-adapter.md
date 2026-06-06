@@ -24,8 +24,11 @@ Proof root: `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 - `03-runtime-location-evidence.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- `18-static-permission-readiness-proof.json`
 - Local emulator proof command:
   `npm run test:tracking-plan-android-emulator-proof`
+- Static permission readiness command:
+  `node scripts/test/tracking-android-static-permission-readiness-proof.mjs`
 - Pre-device plan:
   `output/tracking-plan-proof/pre-device-gap-closure/android-studio-local-proof-plan.json`
 
@@ -40,6 +43,9 @@ Proof root: `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 - [x] Generate the Android Studio/local proof artifact plan before device work.
 - [x] Record parent-domain manual-required proof rows for missing foreground
       permission grant and foreground location sample before device/runtime work.
+- [x] Prove the Android package statically declares foreground-service location,
+      coarse location, and fine location permissions and builds the debug APK
+      without claiming runtime permission grants or samples.
 
 ## Where We Are
 
@@ -66,6 +72,15 @@ foreground location sample gaps. The proof writes
 and keeps foreground permission/location sample, physical-device behavior,
 authority, notification/provider delivery, and product-ready Android tracking
 unclaimed.
+
+`node scripts/test/tracking-android-static-permission-readiness-proof.mjs` now fills the
+static package-readiness layer: it builds the Android debug APK, verifies
+`AndroidManifest.xml` declares `FOREGROUND_SERVICE_LOCATION`,
+`ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION`, and the location foreground
+service type, writes `18-static-permission-readiness-proof.json`, and keeps
+runtime foreground permission grants, foreground location samples,
+physical-device behavior, authority, notification/provider delivery, and
+product-ready Android tracking unclaimed.
 
 ## Where We Want To Be
 

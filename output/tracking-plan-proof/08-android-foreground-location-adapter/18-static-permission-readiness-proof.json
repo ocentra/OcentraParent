@@ -1,0 +1,24 @@
+{
+  "proofMode": "tracking-android-static-permission-readiness-proof",
+  "generatedAt": "2026-06-06T10:18:00.000Z",
+  "manifestPath": "platforms/android/agent/app/src/main/AndroidManifest.xml",
+  "declaredManifestPermissions": [
+    "android.permission.FOREGROUND_SERVICE_LOCATION",
+    "android.permission.ACCESS_COARSE_LOCATION",
+    "android.permission.ACCESS_FINE_LOCATION"
+  ],
+  "foregroundServiceTypes": [
+    "dataSync",
+    "location"
+  ],
+  "staticReadinessClaimed": true,
+  "runtimeClaims": {
+    "foregroundPermissionGrantClaimed": false,
+    "foregroundLocationSampleClaimed": false,
+    "backgroundPermissionGrantClaimed": false,
+    "backgroundLocationRuntimeClaimed": false,
+    "geofenceTransitionRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "productReadyAndroidTrackingClaimed": false
+  }
+}

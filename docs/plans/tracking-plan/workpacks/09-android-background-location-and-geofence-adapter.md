@@ -24,8 +24,11 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 - `05-geofence-transition-proof.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- `18-static-permission-readiness-proof.json`
 - Local emulator proof command:
   `npm run test:tracking-plan-android-emulator-proof`
+- Static permission readiness command:
+  `node scripts/test/tracking-android-static-permission-readiness-proof.mjs`
 - Pre-device plan:
   `output/tracking-plan-proof/pre-device-gap-closure/android-studio-local-proof-plan.json`
 
@@ -42,6 +45,9 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
       before device work.
 - [x] Record parent-domain manual-required proof rows for missing background
       permission grant and geofence transition runtime before device/runtime work.
+- [x] Prove the Android package statically declares background location and
+      location foreground-service readiness while keeping runtime background
+      delivery and geofence transitions unclaimed.
 
 ## Where We Are
 
@@ -64,6 +70,14 @@ WP09 parent-domain manual-required rows for the background permission grant and
 geofence transition gaps. The proof writes `02-platform-permission-proof.md`,
 refreshes `05-geofence-transition-proof.json`, and keeps background permission,
 background runtime, geofence runtime, physical-device behavior, authority,
+notification/provider delivery, and product-ready Android tracking unclaimed.
+
+`node scripts/test/tracking-android-static-permission-readiness-proof.mjs` now fills the
+static package-readiness layer: it builds the Android debug APK, verifies
+`AndroidManifest.xml` declares `ACCESS_BACKGROUND_LOCATION` and the location
+foreground-service type, writes `18-static-permission-readiness-proof.json`, and
+keeps Android background permission grants, background location runtime,
+geofence transitions, physical-device behavior, authority,
 notification/provider delivery, and product-ready Android tracking unclaimed.
 
 ## Where We Want To Be

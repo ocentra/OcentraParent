@@ -56,6 +56,13 @@ area.
   connectivity dump. It records foreground location, background/geofence,
   notification delivery, physical-device, Device Owner, and managed-profile
   behavior as not claimed/manual-required.
+- `node scripts/test/tracking-android-static-permission-readiness-proof.mjs`
+  covers Android tracking static permission readiness: debug APK build,
+  manifest-declared foreground-service location plus coarse/fine/background
+  location permissions, and the Java readiness bundle surfaced by
+  `MainActivity`. It does not claim runtime permission grants, foreground
+  samples, background delivery, geofence transitions, Device Owner,
+  physical-device proof, or product-ready tracking.
 
 ## Gaps To Fill
 

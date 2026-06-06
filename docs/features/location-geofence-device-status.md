@@ -237,6 +237,14 @@ expose location or device-status features. Parents expect this category.
   permission, foreground sample, background permission, background runtime,
   geofence runtime, physical-device, authority, notification delivery, provider
   delivery, and product-ready Android tracking claims false.
+- WP08/WP09 Android static permission readiness proof now exists through
+  `node scripts/test/tracking-android-static-permission-readiness-proof.mjs`. It builds
+  the Android debug APK, verifies the manifest declares foreground-service
+  location plus coarse/fine/background location permissions, records the
+  location foreground-service type, and writes WP08/WP09/WP31 proof artifacts
+  while still keeping foreground permission grants, foreground samples,
+  background runtime, geofence transitions, physical-device proof, and
+  product-ready Android tracking unclaimed.
 - P3 WSL/local replay proof now exists through
   `npm run test:tracking-plan-wsl-local-proof`. It records WSL2/Ubuntu
   toolchain evidence, the linked-worktree Git mapping needed for this

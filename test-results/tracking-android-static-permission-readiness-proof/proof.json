@@ -1,0 +1,51 @@
+{
+  "proofMode": "tracking-android-static-permission-readiness-proof",
+  "generatedAt": "2026-06-06T10:18:00.000Z",
+  "branch": "codex/tracking-android-static-permission-readiness-proof",
+  "baseCommitAtGeneration": "a99de85ccd54947ec48a1b0dd92d69a0e8f335dc",
+  "gitStatusShort": "",
+  "commands": [
+    {
+      "command": "cmd /c gradlew.bat :app:assembleDebug --console=plain",
+      "status": 0,
+      "stdout": "> Task :app:preBuild UP-TO-DATE\r\n> Task :app:preDebugBuild UP-TO-DATE\r\n> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE\r\n> Task :app:javaPreCompileDebug UP-TO-DATE\r\n> Task :app:checkDebugAarMetadata UP-TO-DATE\r\n> Task :app:generateDebugResValues UP-TO-DATE\r\n> Task :app:mapDebugSourceSetPaths UP-TO-DATE\r\n> Task :app:generateDebugResources UP-TO-DATE\r\n> Task :app:mergeDebugResources UP-TO-DATE\r\n> Task :app:packageDebugResources UP-TO-DATE\r\n> Task :app:parseDebugLocalResources UP-TO-DATE\r\n> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE\r\n> Task :app:extractDeepLinksDebug UP-TO-DATE\r\n> Task :app:processDebugMainManifest UP-TO-DATE\r\n> Task :app:processDebugManifest UP-TO-DATE\r\n> Task :app:processDebugManifestForPackage UP-TO-DATE\r\n> Task :app:processDebugResources UP-TO-DATE\r\n> Task :app:compileDebugJavaWithJavac UP-TO-DATE\r\n> Task :app:mergeDebugShaders UP-TO-DATE\r\n> Task :app:compileDebugShaders NO-SOURCE\r\n> Task :app:generateDebugAssets UP-TO-DATE\r\n> Task :app:mergeDebugAssets UP-TO-DATE\r\n> Task :app:compressDebugAssets UP-TO-DATE\r\n> Task :app:desugarDebugFileDependencies UP-TO-DATE\r\n> Task :app:dexBuilderDebug UP-TO-DATE\r\n> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE\r\n> Task :app:processDebugJavaRes NO-SOURCE\r\n> Task :app:mergeDebugJavaResource UP-TO-DATE\r\n> Task :app:checkDebugDuplicateClasses UP-TO-DATE\r\n> Task :app:mergeExtDexDebug UP-TO-DATE\r\n> Task :app:mergeLibDexDebug UP-TO-DATE\r\n> Task :app:mergeProjectDexDebug UP-TO-DATE\r\n> Task :app:mergeDebugJniLibFolders UP-TO-DATE\r\n> Task :app:mergeDebugNativeLibs NO-SOURCE\r\n> Task :app:stripDebugDebugSymbols NO-SOURCE\r\n> Task :app:validateSigningDebug UP-TO-DATE\r\n> Task :app:writeDebugAppMetadata UP-TO-DATE\r\n> Task :app:writeDebugSigningConfigVersions UP-TO-DATE\r\n> Task :app:packageDebug UP-TO-DATE\r\n> Task :app:createDebugApkListingFileRedirect UP-TO-DATE\r\n> Task :app:assembleDebug UP-TO-DATE\r\n\r\nBUILD SUCCESSFUL in 1s\r\n32 actionable tasks: 32 up-to-date\r\n",
+      "stderr": ""
+    }
+  ],
+  "manifestPath": "platforms/android/agent/app/src/main/AndroidManifest.xml",
+  "readinessClassPath": "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/TrackingAndroidLocationPermissionReadinessProof.java",
+  "declaredManifestPermissions": [
+    "android.permission.FOREGROUND_SERVICE_LOCATION",
+    "android.permission.ACCESS_COARSE_LOCATION",
+    "android.permission.ACCESS_FINE_LOCATION",
+    "android.permission.ACCESS_BACKGROUND_LOCATION"
+  ],
+  "missingManifestPermissions": [],
+  "foregroundServiceTypes": [
+    "dataSync",
+    "location"
+  ],
+  "missingForegroundServiceTypes": [],
+  "readinessClassSignals": {
+    "hasStaticReadinessState": true,
+    "hasManualRuntimeState": true,
+    "hasForegroundLocationGap": true,
+    "hasGeofenceRuntimeGap": true
+  },
+  "staticReadinessClaimed": true,
+  "runtimeClaims": {
+    "foregroundPermissionGrantClaimed": false,
+    "foregroundLocationSampleClaimed": false,
+    "backgroundPermissionGrantClaimed": false,
+    "backgroundLocationRuntimeClaimed": false,
+    "geofenceTransitionRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "productReadyAndroidTrackingClaimed": false
+  },
+  "proofPaths": {
+    "foreground": "output/tracking-plan-proof/08-android-foreground-location-adapter/18-static-permission-readiness-proof.json",
+    "background": "output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/18-static-permission-readiness-proof.json",
+    "platformRouting": "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/25-android-static-permission-readiness-proof.json",
+    "evidence": "test-results/tracking-android-static-permission-readiness-proof/proof.json"
+  }
+}

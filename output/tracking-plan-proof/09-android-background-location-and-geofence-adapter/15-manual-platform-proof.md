@@ -1,8 +1,9 @@
-# WP09 Manual Platform Proof
+# WP09 background and geofence Manual Platform Proof
 
-Current status: manual_required.
+Static Android manifest readiness is present after the debug APK build, but runtime proof is still manual-required.
 
-- background-permission-manual-required: tracking-android-background-permission-grant-not-captured
-- geofence-transition-manual-required: tracking-android-geofence-transition-not-captured
-
-Required before product claim: real Android device or emulator evidence that captures permission grant state, runtime location samples or geofence transitions, OS version, app build, logs, screenshots, and adb commands.
+- Foreground permission grant: not claimed.
+- Foreground location sample: not claimed.
+- Background permission grant: not claimed.
+- Geofence transition runtime: not claimed.
+- Physical-device proof: not claimed.

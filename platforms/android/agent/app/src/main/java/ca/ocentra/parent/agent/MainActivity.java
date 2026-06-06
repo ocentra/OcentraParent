@@ -24,6 +24,8 @@ public final class MainActivity extends Activity {
         Bundle permissionProof = ChildAndroidPermissionCapabilityProof.createPermissionCapabilityBundle();
         Bundle privilegedProof = ChildAndroidPrivilegedCapabilityProof.createPrivilegedCapabilityBundle();
         Bundle screenProof = ChildAndroidScreenCaptureProof.createScreenCaptureBundle();
+        Bundle trackingLocationProof =
+            TrackingAndroidLocationPermissionReadinessProof.createReadinessBundle();
 
         TextView status = new TextView(this);
         String statusText = getString(R.string.agent_status) +
@@ -39,6 +41,11 @@ public final class MainActivity extends Activity {
             privilegedProof.getString(ChildAndroidPrivilegedCapabilityProof.FIELD_PRIVILEGED_BRIDGE_STATE) +
             "\n" +
             screenProof.getString(ChildAndroidScreenCaptureProof.FIELD_SCREEN_CAPTURE_STATE);
+        statusText = statusText +
+            "\n" +
+            trackingLocationProof.getString(
+                TrackingAndroidLocationPermissionReadinessProof.FIELD_STATIC_READINESS_STATE
+            );
         status.setText(statusText);
         status.setBackgroundColor(Color.rgb(249, 250, 251));
         status.setTextColor(Color.rgb(17, 24, 39));
