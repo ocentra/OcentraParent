@@ -420,8 +420,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       P1 read-model proof, parent-owned export has P1 snapshot proof,
       UI-visible deleted-history hiding has P1 route fixture proof, and P2
       retention settings read-model rows exist, and writer-boundary preflight
-      rows now validate the intended retention setting writes; actual live
-      service mutation UI and service execution remain pending.
+      rows now validate the intended retention setting writes. Local executed
+      retention settings mutation proof now applies those five write intents
+      while preserving remote sync and remote AI disabled; live writable
+      retention UI, platform runtime, and product-ready retention behavior
+      remain pending.
 - [x] Tracking service read-model command has P2 proof for SQLite tracking rows,
       citation IDs through `trackingReadModel`, retention-delete tombstone
       replay with deleted evidence citation summaries, and narrow parent portal
