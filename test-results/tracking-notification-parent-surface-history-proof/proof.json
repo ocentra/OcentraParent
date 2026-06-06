@@ -2,8 +2,8 @@
   "proofMode": "tracking-notification-parent-surface-history-proof",
   "generatedAt": "2026-06-06T16:16:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "commit": "404543f494e699d4c0e81565180911438a3c6dad",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/features/reports-notifications-sync.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/26-alert-severity-and-notification-model.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n?? packages/parent-domain/src/tracking-notification-parent-surface-history-proof.ts\n?? packages/parent-domain/tests/tracking-notification-parent-surface-history-proof.test.ts\n?? scripts/test/tracking-notification-parent-surface-history-proof.mjs",
+  "commit": "43a4361c4ef49d53d4c07943388610daa0400e82",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/16-expected-place-schedule-engine.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n?? packages/parent-domain/src/tracking-expected-place-alert-policy-proof.ts\n?? packages/parent-domain/tests/tracking-expected-place-alert-policy-proof.test.ts\n?? scripts/test/tracking-expected-place-alert-policy-proof.mjs",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-notification-parent-surface-history-proof tracking-notification-receipt-boundary-proof tracking-notification-preference-preflight-proof tracking-provider-notification-proof"

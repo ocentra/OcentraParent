@@ -1,0 +1,4 @@
+Security/no-claim proof:
+
+- Rendered parent UI, alert delivery runtime, provider delivery, notification receipt runtime, child-device runtime, physical-device proof, authority proof, production workers, and adapter dispatch remain false.
+- UI-readiness rows do not expose raw child evidence; evidence remains referenced through typed evidence refs.

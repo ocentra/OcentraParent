@@ -415,3 +415,25 @@ This workpack can be assigned independently, implemented against the owning doma
       cloud routing, child-device delivery, physical-device proof, authority
       proof, retry workers, production durable history/outbox storage, adapter
       dispatch, and product-ready notification behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain expected-place alert policy proof/test,
+      proof script, owning tracking feature doc, implementation checklist,
+      WP16, WP33, generated WP16/WP33 proof artifacts, and hub doc delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-expected-place-alert-policy-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/29-expected-place-alert-policy-proof.json`,
+      `output/tracking-plan-proof/16-expected-place-schedule-engine/29-expected-place-alert-policy-proof.json`,
+      `output/tracking-plan-proof/tracking-expected-place-alert-policy-proof/proof.json`,
+      and `test-results/tracking-expected-place-alert-policy-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP16, and WP33 updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta.
+- [x] Known gaps/manual-required states: rendered parent UI, alert delivery
+      runtime, provider delivery, notification receipt runtime, child-device
+      runtime, physical-device proof, authority proof, production workers,
+      adapter dispatch, exception/holiday integration, and product-ready
+      expected-place behavior remain proof-gated.
