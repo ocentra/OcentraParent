@@ -69,6 +69,17 @@ while keeping parent notification preference UI/history UI, frequency controls,
 quiet-hours timer runtime, provider delivery, receipt runtime, credentials,
 adapter dispatch, child-device delivery, physical-device proof, and durable
 outbox storage unclaimed.
+Tracking notification parent-surface history intent proof now joins the
+provider-notification, receipt boundary, and preference preflight proof rows
+through
+`node scripts/test/tracking-notification-parent-surface-history-proof.mjs`.
+The proof produces redacted parent history/preference intent rows with
+provider, receipt, preference, quiet-hours, evidence, policy, notification
+status, reason, audit, manual-proof, and authenticated drill-in refs preserved.
+It is not rendered parent notification UI, preference mutation runtime,
+provider delivery, receipt ingestion runtime, child-device delivery,
+physical-device proof, authority proof, production durable history/outbox
+storage, retry workers, or adapter dispatch.
 
 ## Where We Want To Be
 
@@ -105,6 +116,10 @@ This workpack can be assigned independently, implemented against the owning doma
 - Parent notification preference UI/history UI, parent preference mutation
   runtime, frequency-control UI, and quiet-hours timer runtime remain
   manual-required until runtime/UI proof exists.
+- Parent-surface history intent rows are read-model intent proof only; rendered
+  notification history UI, writable preference controls, provider delivery,
+  receipt ingestion runtime, production durable storage, child delivery,
+  physical-device proof, authority, and adapter dispatch remain manual-required.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
@@ -175,3 +190,28 @@ This workpack can be assigned independently, implemented against the owning doma
       credentials, adapter dispatch, child-device delivery, physical-device
       proof, authority proof, durable outbox storage, and product-ready
       notification behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain tracking notification parent-surface history
+      proof/test, proof script, owning tracking feature docs, implementation
+      checklist, this workpack doc, WP33 proof-gate doc, and generated WP26/WP33
+      proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-notification-parent-surface-history-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/26-alert-severity-and-notification-model/26-notification-parent-surface-history-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/26-notification-parent-surface-history-proof.json`,
+      `output/tracking-plan-proof/tracking-notification-parent-surface-history-proof/proof.json`,
+      and
+      `test-results/tracking-notification-parent-surface-history-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature docs, implementation
+      checklist, this workpack doc, and WP33 proof-gate doc updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta.
+- [x] Known gaps/manual-required states: rendered parent notification UI,
+      parent preference mutation runtime, frequency-control UI, quiet-hours
+      timer runtime, provider delivery, receipt ingestion runtime, credentials,
+      cloud routing, child-device delivery, physical-device proof, authority
+      proof, retry workers, production durable history/outbox storage, adapter
+      dispatch, and product-ready notification behavior remain proof-gated.

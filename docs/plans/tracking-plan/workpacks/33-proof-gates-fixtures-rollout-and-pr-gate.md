@@ -376,3 +376,28 @@ This workpack can be assigned independently, implemented against the owning doma
       runtime, provider delivery/receipt runtime, credentials, child-device
       delivery, physical-device proof, authority, durable outbox storage, and
       product-ready notification behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain tracking notification parent-surface history
+      proof/test, proof script, owning tracking feature docs, implementation
+      checklist, WP26, WP33, generated WP26/WP33 proof artifacts, and hub doc
+      delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-notification-parent-surface-history-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/26-notification-parent-surface-history-proof.json`,
+      `output/tracking-plan-proof/26-alert-severity-and-notification-model/26-notification-parent-surface-history-proof.json`,
+      `output/tracking-plan-proof/tracking-notification-parent-surface-history-proof/proof.json`,
+      and
+      `test-results/tracking-notification-parent-surface-history-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature docs, implementation
+      checklist, WP26, and WP33 updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta.
+- [x] Known gaps/manual-required states: rendered parent notification UI,
+      parent preference mutation runtime, frequency-control UI, quiet-hours
+      timer runtime, provider delivery, receipt ingestion runtime, credentials,
+      cloud routing, child-device delivery, physical-device proof, authority
+      proof, retry workers, production durable history/outbox storage, adapter
+      dispatch, and product-ready notification behavior remain proof-gated.

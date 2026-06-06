@@ -136,6 +136,20 @@ expose location or device-status features. Parents expect this category.
   frequency controls, quiet-hours timer runtime, provider delivery, receipt
   runtime, credentials, adapter dispatch, child-device delivery,
   physical-device proof, and production durable outbox storage unclaimed.
+- WP26 tracking notification parent-surface history intent proof now exists
+  through
+  `node scripts/test/tracking-notification-parent-surface-history-proof.mjs`.
+  It joins tracking provider-notification, receipt boundary, and preference
+  preflight proof rows into redacted parent history/preference intent rows,
+  preserving provider attempt refs, receipt requirements, preference and
+  quiet-hours requirements, evidence refs, policy decision refs, notification
+  status refs, reason refs, audit refs, manual-proof requirements, and
+  authenticated drill-in refs. It is a parent-domain/read-model intent proof
+  only; rendered parent notification UI, parent preference mutation runtime,
+  frequency controls, quiet-hours timer runtime, provider delivery, receipt
+  ingestion runtime, credentials, cloud routing, child-device delivery,
+  physical-device proof, authority proof, retry workers, durable production
+  history/outbox storage, and adapter dispatch remain unclaimed.
 - WP27 escalation readiness proof now exists through
   `node scripts/test/tracking-escalation-readiness-proof.mjs`. It derives
   parent acknowledgement, child check-in, urgent second-guardian, and critical
@@ -300,8 +314,9 @@ settings read-model card, P1 local parent-defined place
 store proof, pre-device proof-gate progress, Android emulator package/service/status
 scaffold proof, WP08/WP09 Android permission/background manual-required proof,
 WP11/WP12 iOS Core Location manual-required proof, P3 WSL/local replay proof,
-P1 evidence-quality gate proof, WP26 tracking alert-to-provider-status handoff
-and notification preference preflight proof, P1 escalation readiness proof for
+P1 evidence-quality gate proof, WP26 tracking alert-to-provider-status handoff,
+notification receipt boundary proof, notification preference preflight proof,
+and parent-surface notification history intent proof, P1 escalation readiness proof for
 acknowledgement/check-in/manual
 escalation states, WP28 temporary live tracking mode proof for authorization/
 duration/cadence/degraded/auto-stop/retention states, and WP20 Google Places/
@@ -340,6 +355,12 @@ snapshots/accessibility beyond the hosted parent route are proved.
       disabled write intents; actual live service mutation UI and service
       execution remain pending.
 - [x] Alert intent contract.
+- [x] Tracking notification parent-surface history intent rows. This proves
+      redacted parent history/preference readiness rows over the existing
+      provider, receipt, and preference proof refs. It is not rendered
+      notification UI, parent preference mutation, provider delivery, receipt
+      runtime, child-device delivery, physical-device, authority, or
+      product-ready notification behavior.
 - [ ] Android permission/background runtime proof. WP08/WP09 parent-domain
       manual-required proof rows now exist for foreground permission,
       foreground sample, background permission, and geofence transition gaps;
