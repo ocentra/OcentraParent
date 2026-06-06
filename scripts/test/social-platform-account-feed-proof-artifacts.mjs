@@ -168,6 +168,7 @@ function manifestFor(rows, failures) {
       alertReportIntent: 'proof-present',
       scheduleTimeBudgetCompiler: 'proof-present',
       parentSensitivitySettings: 'proof-present',
+      sourceCustodySettings: 'proof-present',
       enforcement: 'not-claimed',
       productChecklistUpgrade: 'not-claimed',
     },
@@ -201,9 +202,10 @@ function markdownFor(manifest) {
     'Ref-only social alert/report intent proof is present.',
     'Schedule/time-budget compiler contract proof is present.',
     'Parent sensitivity settings contract proof is present.',
+    'Source custody settings contract proof is present over source/privacy refs.',
     'It does not prove runtime connector behavior, native app control, final',
     'policy execution, provider/report delivery, applied schedules/budgets,',
-    'enforcement, or product checklist completion.',
+    'runtime custody mutation, enforcement, or product checklist completion.',
   ].join('\n');
 }
 

@@ -269,6 +269,15 @@ parent authorization, custody, scopes, expiry, revocation, manual-required
 state, and proof refs without token storage, OAuth clients, provider APIs, raw
 account/message/feed data, policy decisions, UI, native control, or enforcement.
 
+`social-video-source-custody-settings-proof` now adds
+`packages/activity-domain/src/social-video-source-custody-settings.ts`, an
+activity-domain source custody settings contract over source/privacy refs. It
+models enabled redacted-ref use, parent-review connector refs,
+disabled/manual-required/unavailable states, retention labels, and manual proof
+requirements without raw message/video custody, screenshots, connector tokens,
+connector APIs, runtime settings UI, runtime custody mutation, final policy
+decisions, or enforcement.
+
 SOCIAL-19 now adds
 `packages/parent-domain/src/social-decision-memory-cache-values.ts` and
 `packages/parent-domain/src/social-decision-memory-cache.ts`, a bounded

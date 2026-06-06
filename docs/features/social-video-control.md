@@ -257,6 +257,13 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   rejecting raw content, raw messages, raw video, screenshots, connector tokens,
   connector API calls, native app control, final policy decisions, and
   enforcement.
+- `social-video-source-custody-settings-proof` now adds an activity-domain
+  source permission and custody settings contract over source/privacy evidence
+  refs. It can model enabled redacted-ref use, parent-review-required connector
+  refs, disabled/manual-required/unavailable source states, retention labels,
+  and parent review refs while rejecting raw message/video custody, screenshots,
+  connector tokens/API calls, runtime settings UI, runtime custody mutation,
+  final policy decisions, and enforcement.
 - `social-video-ai-signal-aggregate-proof` now adds an activity-domain
   aggregate contract that links the source/privacy summary ref to existing
   bounded social AI analysis result refs, candidate risk/benefit signal-set
@@ -279,8 +286,10 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
 ## Checklist
 
 - [ ] Social platform and video target contracts.
-- [ ] Source permissions and custody settings. Source/privacy evidence-summary
-      proof exists; parent settings UI and runtime custody settings remain.
+- [ ] Source permissions and custody settings.
+      `social-video-source-custody-settings-proof` exists for contract-only
+      source permission and custody rows over source/privacy refs; parent
+      settings UI, runtime custody settings remain.
 - [ ] URL/video/channel/app evidence summaries. Source/privacy summary proof can
       cite URL/channel refs and existing managed-browser refs; full app/native
       and rendered explanation proof remain.
