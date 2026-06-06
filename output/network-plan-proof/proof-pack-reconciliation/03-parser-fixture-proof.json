@@ -1,0 +1,26 @@
+{
+  "gate": "03-parser-fixture-proof.json",
+  "status": "current-main-proved",
+  "summary": "PCAP replay, parser fixtures, visibility parsers, and analyzer comparison artifacts are cited",
+  "sources": [
+    "crates/ocentra-network-evidence/src/pcap.rs",
+    "crates/ocentra-network-evidence/src/packet.rs",
+    "crates/ocentra-network-evidence/src/dns.rs",
+    "crates/ocentra-network-evidence/src/tls.rs",
+    "crates/ocentra-network-evidence/src/http.rs",
+    "crates/ocentra-network-evidence/src/encrypted_dns.rs",
+    "crates/ocentra-network-evidence/src/zeek.rs",
+    "crates/ocentra-network-evidence/src/tests/visibility.rs",
+    "crates/ocentra-network-evidence/src/tests/zeek.rs",
+    "scripts/test/network-pcap-replay-proof.mjs",
+    "scripts/test/network-packet-dns-parser-proof.mjs",
+    "scripts/test/network-visibility-parser-proof.mjs",
+    "scripts/test/network-zeek-analyzer-comparison-proof.mjs"
+  ],
+  "notClaimed": [
+    "exact URL/page/content from network-only evidence",
+    "decrypted payload capture",
+    "UI, AI, or network bypass of policy authority",
+    "weak-evidence enforcement"
+  ]
+}

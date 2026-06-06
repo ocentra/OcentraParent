@@ -1,0 +1,58 @@
+{
+  "status": "current-main-partial",
+  "currentMainCoverage": [
+    "proof-pack reconciliation records manual-required and unavailable gaps for adapter, journal, UI, security, and production gates",
+    "existing proof summaries name not-claimed boundaries and manual-required platform rows"
+  ],
+  "pendingBranchEvidence": [
+    {
+      "branch": "codex/network-content-claim-invariant-proof",
+      "expectedHead": "5f883b36ec717b5347340fb13cc2613c63e8a7e3",
+      "reason": "pipeline-level unsupported video/private-message/search content claim fields are branch-only until integrated",
+      "remoteHead": "5f883b36ec717b5347340fb13cc2613c63e8a7e3",
+      "currentMainEvidence": false
+    },
+    {
+      "branch": "codex/network-manual-followup-owner-ledger-proof",
+      "expectedHead": "c6477df42f815f52fc769166fa9275dbdd666d4d",
+      "reason": "manual/deferred follow-up owner ledger sourceRef fix is branch-only until integrated",
+      "remoteHead": "c6477df42f815f52fc769166fa9275dbdd666d4d",
+      "currentMainEvidence": false
+    }
+  ],
+  "followUps": [
+    {
+      "owner": "E-D network runtime lane",
+      "gap": "broker/family-hub delivery implementation",
+      "requiredBeforeClaim": [
+        "custody refs",
+        "auth/encryption refs",
+        "retention/replay/delete refs",
+        "relay/family identity refs"
+      ]
+    },
+    {
+      "owner": "platform adapter lanes",
+      "gap": "live DNS/firewall/WFP/VpnService/NetworkExtension/Linux adapter execution",
+      "requiredBeforeClaim": [
+        "device/permission artifacts",
+        "apply/result/rollback logs",
+        "audit refs"
+      ]
+    },
+    {
+      "owner": "E-D or primary integration",
+      "gap": "pipeline-level exact video/private-message/search content-claim invariant",
+      "requiredBeforeClaim": [
+        "merge codex/network-content-claim-invariant-proof or equivalent current-main proof"
+      ]
+    },
+    {
+      "owner": "E-D or primary integration",
+      "gap": "manual/deferred follow-up owner ledger",
+      "requiredBeforeClaim": [
+        "merge codex/network-manual-followup-owner-ledger-proof or equivalent current-main proof"
+      ]
+    }
+  ]
+}

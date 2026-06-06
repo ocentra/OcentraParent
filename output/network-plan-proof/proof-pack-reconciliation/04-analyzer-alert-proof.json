@@ -1,0 +1,19 @@
+{
+  "gate": "04-analyzer-alert-proof.json",
+  "status": "current-main-proved",
+  "summary": "Zeek-style summaries and Suricata/Snort-compatible signature alert fixtures are cited",
+  "sources": [
+    "crates/ocentra-network-evidence/src/zeek.rs",
+    "crates/ocentra-network-evidence/src/signature_alert.rs",
+    "crates/ocentra-network-evidence/src/tests/zeek.rs",
+    "crates/ocentra-network-evidence/src/tests/signature_alert.rs",
+    "scripts/test/network-zeek-analyzer-comparison-proof.mjs",
+    "scripts/test/network-signature-alert-ingestion-proof.mjs"
+  ],
+  "notClaimed": [
+    "exact URL/page/content from network-only evidence",
+    "decrypted payload capture",
+    "UI, AI, or network bypass of policy authority",
+    "weak-evidence enforcement"
+  ]
+}

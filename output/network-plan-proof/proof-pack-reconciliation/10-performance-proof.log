@@ -1,0 +1,16 @@
+10-performance-proof.log
+status=current-main-proved
+summary=deterministic latency, throughput, resource, queue, and high-concurrency fixture metrics are cited
+
+sources:
+- crates/ocentra-network-evidence/src/performance.rs
+- crates/ocentra-network-evidence/src/tests/performance.rs
+- scripts/test/network-performance-benchmark-proof.mjs
+
+not-claimed:
+- exact URL/page/content from network-only evidence
+- decrypted payload capture
+- UI, AI, or network bypass of policy authority
+- weak-evidence enforcement
+- production SLO validation
+- real-time production guarantee

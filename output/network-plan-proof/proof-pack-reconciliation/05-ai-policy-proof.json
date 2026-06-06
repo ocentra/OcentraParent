@@ -1,0 +1,29 @@
+{
+  "gate": "05-ai-policy-proof.json",
+  "status": "current-main-proved",
+  "summary": "AI detection/audit, risk budget, policy mapping, and end-to-end bypass guards are cited",
+  "sources": [
+    "crates/ocentra-network-evidence/src/ai_detection.rs",
+    "crates/ocentra-network-evidence/src/ai_audit.rs",
+    "crates/ocentra-network-evidence/src/risk_budget.rs",
+    "crates/ocentra-network-evidence/src/policy.rs",
+    "crates/ocentra-network-evidence/src/pipeline.rs",
+    "crates/ocentra-network-evidence/src/tests/ai_detection.rs",
+    "crates/ocentra-network-evidence/src/tests/ai_audit.rs",
+    "crates/ocentra-network-evidence/src/tests/risk_budget.rs",
+    "crates/ocentra-network-evidence/src/tests/policy.rs",
+    "crates/ocentra-network-evidence/src/tests/pipeline.rs",
+    "scripts/test/network-ai-detection-fixture-proof.mjs",
+    "scripts/test/network-ai-audit-narrative-proof.mjs",
+    "scripts/test/network-risk-budget-threshold-proof.mjs",
+    "scripts/test/network-evidence-policy-mapping-proof.mjs",
+    "scripts/test/network-end-to-end-pipeline-proof.mjs",
+    "output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json"
+  ],
+  "notClaimed": [
+    "exact URL/page/content from network-only evidence",
+    "decrypted payload capture",
+    "UI, AI, or network bypass of policy authority",
+    "weak-evidence enforcement"
+  ]
+}

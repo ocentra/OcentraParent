@@ -1,0 +1,24 @@
+09-security-negative-proof.log
+status=current-main-partial
+summary=main proves no exact URL/page/message/search/decrypted-payload, no weak-evidence enforcement, and no UI/AI/network bypass; explicit pipeline video-content invariant is pending branch-only evidence
+
+sources:
+- packages/activity-domain/tests/network-contracts.test.ts
+- packages/agent-protocol-domain/tests/network-runtime-events.test.ts
+- crates/ocentra-network-evidence/src/tests/pipeline.rs
+- crates/ocentra-network-evidence/src/tests/action_result.rs
+- crates/ocentra-network-evidence/src/tests/readiness.rs
+- scripts/test/network-portal-source-gate-proof.mjs
+- scripts/test/network-security-readiness-proof.mjs
+- scripts/test/network-end-to-end-pipeline-proof.mjs
+- scripts/test/network-action-result-state-proof.mjs
+- output/network-plan-proof/36-portal-source-gate/proof-summary.json
+- output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json
+- output/network-plan-proof/53-action-result-state-proof/proof-summary.json
+
+not-claimed:
+- exact URL/page/content from network-only evidence
+- decrypted payload capture
+- UI, AI, or network bypass of policy authority
+- weak-evidence enforcement
+- pipeline-level exact video content rejection on current main

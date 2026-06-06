@@ -1,0 +1,14 @@
+network-proof-pack-reconciliation validation commands
+
+Inside this harness:
+- git ls-files --error-unmatch for every cited source path
+- JSON.parse for every cited JSON source path
+- git ls-remote origin for pending branch heads
+
+Expected handoff validation outside this harness:
+- node --check scripts/test/network-proof-pack-reconciliation.mjs
+- node scripts/test/network-proof-pack-reconciliation.mjs
+- git diff --check
+- git diff --check origin/main..HEAD
+- cmd /c npm run lanes:guard
+- cmd /c npm run hub:guard

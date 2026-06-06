@@ -1,0 +1,20 @@
+01-contract-proof.log
+status=current-main-proved
+summary=TypeScript network contracts, Rust protocol parity, and public TS event-contract parity are cited
+
+sources:
+- packages/activity-domain/src/network-contracts.ts
+- packages/activity-domain/tests/network-contracts.test.ts
+- packages/agent-protocol-domain/src/network-runtime-events.ts
+- packages/agent-protocol-domain/tests/network-runtime-events.test.ts
+- crates/agent-protocol/src/network_flow_events.rs
+- crates/agent-protocol/src/network_flow_tests.rs
+- scripts/test/network-contract-boundary-proof.mjs
+- scripts/test/eventing-network-ts-event-parity-proof.mjs
+- output/eventing-plan-proof/45-50-network-protocol-contracts/proof-summary.json
+
+not-claimed:
+- exact URL/page/content from network-only evidence
+- decrypted payload capture
+- UI, AI, or network bypass of policy authority
+- weak-evidence enforcement

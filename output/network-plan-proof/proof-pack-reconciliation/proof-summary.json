@@ -1,0 +1,852 @@
+{
+  "proof": "network-proof-pack-reconciliation",
+  "checkedAt": "2026-06-06T23:40:39.697Z",
+  "branch": "codex/network-proof-pack-reconciliation",
+  "commit": "36ccb0f8b167a2c1c541d50f2d346d76cf45ab23",
+  "originMain": "aa4d770c6bf326ef6ecb991e91b697d4be803b8e",
+  "mergeBase": "aa4d770c6bf326ef6ecb991e91b697d4be803b8e",
+  "sourceStatusShort": "",
+  "proofRoot": "output/network-plan-proof/proof-pack-reconciliation",
+  "testRoot": "test-results/network-proof-pack-reconciliation",
+  "sourceChecks": [
+    {
+      "path": ".ocentra-ai/rules/ocentra-parent-rules.mdc",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": ".ocentra-ai/rules/ocentra-parent-validation.mdc",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": ".ocentra-ai/rules/ocentra-parent-source-shape.mdc",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": ".ocentra-ai/rules/ocentra-parent-test-rules.mdc",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": ".ocentra-ai/rules/ocentra-parent-domain-boundaries.mdc",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "docs/feature-list.md",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "docs/features/network-domain-control.md",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "docs/expectations/network-flow-evidence.md",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "docs/expectations/enforcement.md",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "docs/plans/network-plan/README.md",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "docs/plans/network-plan/implementation-checklist.md",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "docs/plans/network-plan/workpacks/README.md",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "packages/activity-domain/src/network-contracts.ts",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "packages/activity-domain/tests/network-contracts.test.ts",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "packages/agent-protocol-domain/src/network-runtime-events.ts",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "packages/agent-protocol-domain/tests/network-runtime-events.test.ts",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-protocol/src/network_flow_events.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-protocol/src/network_flow_tests.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-contract-boundary-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/eventing-network-ts-event-parity-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "output/eventing-plan-proof/45-50-network-protocol-contracts/proof-summary.json",
+      "tracked": true,
+      "jsonParsed": true
+    },
+    {
+      "path": "crates/ocentra-eventing/src/lib.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-eventing/src/bus.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-eventing/src/envelope.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-eventing/src/queue.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-eventing/src/request.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-eventing/src/replay.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-eventing/src/testkit.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-core/src/network_event_runtime.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-core/src/network_event_runtime/queue.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-core/src/network_event_runtime_tests.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-core/src/network_event_runtime_queue_tests.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-core/src/network_event_runtime_broker_delivery_tests.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-service/src/network_runtime_delivery.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-service/src/network_runtime_delivery_tests.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-service/src/network_runtime_stream_payload.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-service/src/network_runtime_stream_tests.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/eventing-network-runtime-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/eventing-network-service-runtime-delivery-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/eventing-network-service-event-chain-stream-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-broker-delivery-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "output/eventing-plan-proof/reusable-eventing-runtime/proof-summary.json",
+      "tracked": true,
+      "jsonParsed": true
+    },
+    {
+      "path": "output/eventing-plan-proof/57-network-workpack-10-reusable-crate/proof-summary.json",
+      "tracked": true,
+      "jsonParsed": true
+    },
+    {
+      "path": "output/eventing-plan-proof/58-network-event-chain-exact-refs/proof-summary.json",
+      "tracked": true,
+      "jsonParsed": true
+    },
+    {
+      "path": "output/eventing-plan-proof/63-delivery-decision-proof/proof-summary.json",
+      "tracked": true,
+      "jsonParsed": true
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/pcap.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/packet.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/dns.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tls.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/http.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/encrypted_dns.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/zeek.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/visibility.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/zeek.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-pcap-replay-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-packet-dns-parser-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-visibility-parser-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-zeek-analyzer-comparison-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/signature_alert.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/signature_alert.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-signature-alert-ingestion-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/ai_detection.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/ai_audit.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/risk_budget.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/policy.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/pipeline.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/ai_detection.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/ai_audit.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/risk_budget.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/policy.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/pipeline.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-ai-detection-fixture-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-ai-audit-narrative-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-risk-budget-threshold-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-evidence-policy-mapping-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-end-to-end-pipeline-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json",
+      "tracked": true,
+      "jsonParsed": true
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/dns_adapter.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/windows_firewall_adapter.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/windows_wfp_gate.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/android_vpn_service_gate.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/apple_network_extension_gate.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/linux_adapter_gate.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/platform_claims.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/action_result.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/dns_adapter.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/windows_firewall_adapter.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/windows_wfp_gate.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/android_vpn_service_gate.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/apple_network_extension_gate.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/linux_adapter_gate.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/platform_claims.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/action_result.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "output/network-plan-proof/52-platform-claims-proof/proof-summary.json",
+      "tracked": true,
+      "jsonParsed": true
+    },
+    {
+      "path": "output/network-plan-proof/53-action-result-state-proof/proof-summary.json",
+      "tracked": true,
+      "jsonParsed": true
+    },
+    {
+      "path": "crates/agent-core/src/activity_store_network_flow.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-core/src/activity_store_network_flow_rows.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/agent-core/src/activity_store_network_flow_tests.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "output/network-plan-proof/03a-live-capture-storage-proof/proof-summary.json",
+      "tracked": true,
+      "jsonParsed": true
+    },
+    {
+      "path": "apps/portal/e2e/network-evidence-drawer-proof.spec.ts",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "apps/portal/src/network-evidence-drawer.ts",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "apps/portal/src/network-flow-read-model.ts",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "apps/portal/tests/live-activity-network-flow.test.ts",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "output/network-plan-proof/portal-risk-performance-platform-status/proof-summary.json",
+      "tracked": true,
+      "jsonParsed": true
+    },
+    {
+      "path": "test-results/network-portal-risk-performance-platform-proof/proof.json",
+      "tracked": true,
+      "jsonParsed": true
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/readiness.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-portal-source-gate-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-security-readiness-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-action-result-state-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "output/network-plan-proof/36-portal-source-gate/proof-summary.json",
+      "tracked": true,
+      "jsonParsed": true
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/performance.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "crates/ocentra-network-evidence/src/tests/performance.rs",
+      "tracked": true,
+      "jsonParsed": false
+    },
+    {
+      "path": "scripts/test/network-performance-benchmark-proof.mjs",
+      "tracked": true,
+      "jsonParsed": false
+    }
+  ],
+  "gates": [
+    {
+      "id": "00-source-snapshot.md",
+      "status": "current-main-proved",
+      "sources": [
+        ".ocentra-ai/rules/ocentra-parent-rules.mdc",
+        ".ocentra-ai/rules/ocentra-parent-validation.mdc",
+        ".ocentra-ai/rules/ocentra-parent-source-shape.mdc",
+        ".ocentra-ai/rules/ocentra-parent-test-rules.mdc",
+        ".ocentra-ai/rules/ocentra-parent-domain-boundaries.mdc",
+        "docs/feature-list.md",
+        "docs/features/network-domain-control.md",
+        "docs/expectations/network-flow-evidence.md",
+        "docs/expectations/enforcement.md",
+        "docs/plans/network-plan/README.md",
+        "docs/plans/network-plan/implementation-checklist.md",
+        "docs/plans/network-plan/workpacks/README.md"
+      ],
+      "summary": "current branch, commit, inspected docs, and pre-reconciliation gaps are recorded"
+    },
+    {
+      "id": "01-contract-proof.log",
+      "status": "current-main-proved",
+      "sources": [
+        "packages/activity-domain/src/network-contracts.ts",
+        "packages/activity-domain/tests/network-contracts.test.ts",
+        "packages/agent-protocol-domain/src/network-runtime-events.ts",
+        "packages/agent-protocol-domain/tests/network-runtime-events.test.ts",
+        "crates/agent-protocol/src/network_flow_events.rs",
+        "crates/agent-protocol/src/network_flow_tests.rs",
+        "scripts/test/network-contract-boundary-proof.mjs",
+        "scripts/test/eventing-network-ts-event-parity-proof.mjs",
+        "output/eventing-plan-proof/45-50-network-protocol-contracts/proof-summary.json"
+      ],
+      "summary": "TypeScript network contracts, Rust protocol parity, and public TS event-contract parity are cited"
+    },
+    {
+      "id": "02-eventing-proof.log",
+      "status": "current-main-proved",
+      "sources": [
+        "crates/ocentra-eventing/src/lib.rs",
+        "crates/ocentra-eventing/src/bus.rs",
+        "crates/ocentra-eventing/src/envelope.rs",
+        "crates/ocentra-eventing/src/queue.rs",
+        "crates/ocentra-eventing/src/request.rs",
+        "crates/ocentra-eventing/src/replay.rs",
+        "crates/ocentra-eventing/src/testkit.rs",
+        "crates/agent-core/src/network_event_runtime.rs",
+        "crates/agent-core/src/network_event_runtime/queue.rs",
+        "crates/agent-core/src/network_event_runtime_tests.rs",
+        "crates/agent-core/src/network_event_runtime_queue_tests.rs",
+        "crates/agent-core/src/network_event_runtime_broker_delivery_tests.rs",
+        "crates/agent-service/src/network_runtime_delivery.rs",
+        "crates/agent-service/src/network_runtime_delivery_tests.rs",
+        "crates/agent-service/src/network_runtime_stream_payload.rs",
+        "crates/agent-service/src/network_runtime_stream_tests.rs",
+        "scripts/test/eventing-network-runtime-proof.mjs",
+        "scripts/test/eventing-network-service-runtime-delivery-proof.mjs",
+        "scripts/test/eventing-network-service-event-chain-stream-proof.mjs",
+        "scripts/test/network-broker-delivery-proof.mjs",
+        "output/eventing-plan-proof/reusable-eventing-runtime/proof-summary.json",
+        "output/eventing-plan-proof/57-network-workpack-10-reusable-crate/proof-summary.json",
+        "output/eventing-plan-proof/58-network-event-chain-exact-refs/proof-summary.json",
+        "output/eventing-plan-proof/63-delivery-decision-proof/proof-summary.json"
+      ],
+      "summary": "network consumes reusable Rust eventing and keeps broker/family-hub transport requirement-gated"
+    },
+    {
+      "id": "03-parser-fixture-proof.json",
+      "status": "current-main-proved",
+      "sources": [
+        "crates/ocentra-network-evidence/src/pcap.rs",
+        "crates/ocentra-network-evidence/src/packet.rs",
+        "crates/ocentra-network-evidence/src/dns.rs",
+        "crates/ocentra-network-evidence/src/tls.rs",
+        "crates/ocentra-network-evidence/src/http.rs",
+        "crates/ocentra-network-evidence/src/encrypted_dns.rs",
+        "crates/ocentra-network-evidence/src/zeek.rs",
+        "crates/ocentra-network-evidence/src/tests/visibility.rs",
+        "crates/ocentra-network-evidence/src/tests/zeek.rs",
+        "scripts/test/network-pcap-replay-proof.mjs",
+        "scripts/test/network-packet-dns-parser-proof.mjs",
+        "scripts/test/network-visibility-parser-proof.mjs",
+        "scripts/test/network-zeek-analyzer-comparison-proof.mjs"
+      ],
+      "summary": "PCAP replay, parser fixtures, visibility parsers, and analyzer comparison artifacts are cited"
+    },
+    {
+      "id": "04-analyzer-alert-proof.json",
+      "status": "current-main-proved",
+      "sources": [
+        "crates/ocentra-network-evidence/src/zeek.rs",
+        "crates/ocentra-network-evidence/src/signature_alert.rs",
+        "crates/ocentra-network-evidence/src/tests/zeek.rs",
+        "crates/ocentra-network-evidence/src/tests/signature_alert.rs",
+        "scripts/test/network-zeek-analyzer-comparison-proof.mjs",
+        "scripts/test/network-signature-alert-ingestion-proof.mjs"
+      ],
+      "summary": "Zeek-style summaries and Suricata/Snort-compatible signature alert fixtures are cited"
+    },
+    {
+      "id": "05-ai-policy-proof.json",
+      "status": "current-main-proved",
+      "sources": [
+        "crates/ocentra-network-evidence/src/ai_detection.rs",
+        "crates/ocentra-network-evidence/src/ai_audit.rs",
+        "crates/ocentra-network-evidence/src/risk_budget.rs",
+        "crates/ocentra-network-evidence/src/policy.rs",
+        "crates/ocentra-network-evidence/src/pipeline.rs",
+        "crates/ocentra-network-evidence/src/tests/ai_detection.rs",
+        "crates/ocentra-network-evidence/src/tests/ai_audit.rs",
+        "crates/ocentra-network-evidence/src/tests/risk_budget.rs",
+        "crates/ocentra-network-evidence/src/tests/policy.rs",
+        "crates/ocentra-network-evidence/src/tests/pipeline.rs",
+        "scripts/test/network-ai-detection-fixture-proof.mjs",
+        "scripts/test/network-ai-audit-narrative-proof.mjs",
+        "scripts/test/network-risk-budget-threshold-proof.mjs",
+        "scripts/test/network-evidence-policy-mapping-proof.mjs",
+        "scripts/test/network-end-to-end-pipeline-proof.mjs",
+        "output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json"
+      ],
+      "summary": "AI detection/audit, risk budget, policy mapping, and end-to-end bypass guards are cited"
+    },
+    {
+      "id": "06-adapter-action-proof.json",
+      "status": "current-main-partial",
+      "sources": [
+        "crates/ocentra-network-evidence/src/dns_adapter.rs",
+        "crates/ocentra-network-evidence/src/windows_firewall_adapter.rs",
+        "crates/ocentra-network-evidence/src/windows_wfp_gate.rs",
+        "crates/ocentra-network-evidence/src/android_vpn_service_gate.rs",
+        "crates/ocentra-network-evidence/src/apple_network_extension_gate.rs",
+        "crates/ocentra-network-evidence/src/linux_adapter_gate.rs",
+        "crates/ocentra-network-evidence/src/platform_claims.rs",
+        "crates/ocentra-network-evidence/src/action_result.rs",
+        "crates/ocentra-network-evidence/src/tests/dns_adapter.rs",
+        "crates/ocentra-network-evidence/src/tests/windows_firewall_adapter.rs",
+        "crates/ocentra-network-evidence/src/tests/windows_wfp_gate.rs",
+        "crates/ocentra-network-evidence/src/tests/android_vpn_service_gate.rs",
+        "crates/ocentra-network-evidence/src/tests/apple_network_extension_gate.rs",
+        "crates/ocentra-network-evidence/src/tests/linux_adapter_gate.rs",
+        "crates/ocentra-network-evidence/src/tests/platform_claims.rs",
+        "crates/ocentra-network-evidence/src/tests/action_result.rs",
+        "output/network-plan-proof/52-platform-claims-proof/proof-summary.json",
+        "output/network-plan-proof/53-action-result-state-proof/proof-summary.json"
+      ],
+      "summary": "dry-run/manual/apply-ready/result states are proved; live adapter execution remains unclaimed"
+    },
+    {
+      "id": "07-journal-sqlite-proof.json",
+      "status": "current-main-partial",
+      "sources": [
+        "crates/agent-core/src/activity_store_network_flow.rs",
+        "crates/agent-core/src/activity_store_network_flow_rows.rs",
+        "crates/agent-core/src/activity_store_network_flow_tests.rs",
+        "crates/agent-service/src/network_runtime_delivery.rs",
+        "crates/agent-service/src/network_runtime_delivery_tests.rs",
+        "crates/agent-service/src/network_runtime_stream_payload.rs",
+        "crates/agent-service/src/network_runtime_stream_tests.rs",
+        "scripts/test/eventing-network-service-runtime-delivery-proof.mjs",
+        "scripts/test/eventing-network-service-event-chain-stream-proof.mjs",
+        "output/network-plan-proof/03a-live-capture-storage-proof/proof-summary.json",
+        "output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json"
+      ],
+      "summary": "service-local read-model, event-chain projection, tombstones, and retention refs are proved; raw PCAP remote delete/export propagation remains open"
+    },
+    {
+      "id": "08-ui-snapshots/README.md",
+      "status": "current-main-partial",
+      "sources": [
+        "apps/portal/e2e/network-evidence-drawer-proof.spec.ts",
+        "apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx",
+        "apps/portal/src/network-evidence-drawer.ts",
+        "apps/portal/src/network-flow-read-model.ts",
+        "apps/portal/tests/live-activity-network-flow.test.ts",
+        "output/network-plan-proof/portal-risk-performance-platform-status/proof-summary.json",
+        "test-results/network-portal-risk-performance-platform-proof/proof.json"
+      ],
+      "summary": "service-backed drawer and platform/status UI are proved; broader risk-budget, audit narrative, and performance SLO UI remain open"
+    },
+    {
+      "id": "09-security-negative-proof.log",
+      "status": "current-main-partial",
+      "sources": [
+        "packages/activity-domain/tests/network-contracts.test.ts",
+        "packages/agent-protocol-domain/tests/network-runtime-events.test.ts",
+        "crates/ocentra-network-evidence/src/tests/pipeline.rs",
+        "crates/ocentra-network-evidence/src/tests/action_result.rs",
+        "crates/ocentra-network-evidence/src/tests/readiness.rs",
+        "scripts/test/network-portal-source-gate-proof.mjs",
+        "scripts/test/network-security-readiness-proof.mjs",
+        "scripts/test/network-end-to-end-pipeline-proof.mjs",
+        "scripts/test/network-action-result-state-proof.mjs",
+        "output/network-plan-proof/36-portal-source-gate/proof-summary.json",
+        "output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json",
+        "output/network-plan-proof/53-action-result-state-proof/proof-summary.json"
+      ],
+      "summary": "main proves no exact URL/page/message/search/decrypted-payload, no weak-evidence enforcement, and no UI/AI/network bypass; explicit pipeline video-content invariant is pending branch-only evidence"
+    },
+    {
+      "id": "10-performance-proof.log",
+      "status": "current-main-proved",
+      "sources": [
+        "crates/ocentra-network-evidence/src/performance.rs",
+        "crates/ocentra-network-evidence/src/tests/performance.rs",
+        "scripts/test/network-performance-benchmark-proof.mjs"
+      ],
+      "summary": "deterministic latency, throughput, resource, queue, and high-concurrency fixture metrics are cited"
+    }
+  ],
+  "pendingBranchChecks": [
+    {
+      "branch": "codex/network-content-claim-invariant-proof",
+      "expectedHead": "5f883b36ec717b5347340fb13cc2613c63e8a7e3",
+      "reason": "pipeline-level unsupported video/private-message/search content claim fields are branch-only until integrated",
+      "remoteHead": "5f883b36ec717b5347340fb13cc2613c63e8a7e3",
+      "currentMainEvidence": false
+    },
+    {
+      "branch": "codex/network-manual-followup-owner-ledger-proof",
+      "expectedHead": "c6477df42f815f52fc769166fa9275dbdd666d4d",
+      "reason": "manual/deferred follow-up owner ledger sourceRef fix is branch-only until integrated",
+      "remoteHead": "c6477df42f815f52fc769166fa9275dbdd666d4d",
+      "currentMainEvidence": false
+    }
+  ],
+  "artifacts": {
+    "sourceSnapshot": "output/network-plan-proof/proof-pack-reconciliation/00-source-snapshot.md",
+    "contractProof": "output/network-plan-proof/proof-pack-reconciliation/01-contract-proof.log",
+    "eventingProof": "output/network-plan-proof/proof-pack-reconciliation/02-eventing-proof.log",
+    "parserFixtureProof": "output/network-plan-proof/proof-pack-reconciliation/03-parser-fixture-proof.json",
+    "analyzerAlertProof": "output/network-plan-proof/proof-pack-reconciliation/04-analyzer-alert-proof.json",
+    "aiPolicyProof": "output/network-plan-proof/proof-pack-reconciliation/05-ai-policy-proof.json",
+    "adapterActionProof": "output/network-plan-proof/proof-pack-reconciliation/06-adapter-action-proof.json",
+    "journalSqliteProof": "output/network-plan-proof/proof-pack-reconciliation/07-journal-sqlite-proof.json",
+    "uiSnapshotReadme": "output/network-plan-proof/proof-pack-reconciliation/08-ui-snapshots/README.md",
+    "securityNegativeProof": "output/network-plan-proof/proof-pack-reconciliation/09-security-negative-proof.log",
+    "performanceProof": "output/network-plan-proof/proof-pack-reconciliation/10-performance-proof.log",
+    "manualDeferredFollowups": "output/network-plan-proof/proof-pack-reconciliation/11-manual-deferred-followups.json",
+    "validationCommands": "output/network-plan-proof/proof-pack-reconciliation/12-validation-commands.log",
+    "proofSummary": "output/network-plan-proof/proof-pack-reconciliation/proof-summary.json",
+    "testProof": "test-results/network-proof-pack-reconciliation/proof.json"
+  },
+  "provenRootGates": [
+    "00-source-snapshot.md",
+    "01-contract-proof.log",
+    "02-eventing-proof.log",
+    "03-parser-fixture-proof.json",
+    "04-analyzer-alert-proof.json",
+    "05-ai-policy-proof.json",
+    "10-performance-proof.log"
+  ],
+  "partialRootGates": [
+    "06-adapter-action-proof.json",
+    "07-journal-sqlite-proof.json",
+    "08-ui-snapshots/README.md",
+    "09-security-negative-proof.log"
+  ],
+  "currentMainNotClaimed": [
+    "live broker or family-hub delivery",
+    "live packet capture driver invocation",
+    "raw PCAP remote delete/export propagation",
+    "live local-AI model execution",
+    "full production policy engine execution",
+    "live DNS/firewall/WFP/VpnService/NetworkExtension/Linux adapter execution",
+    "host mutation or packet blocking",
+    "production SLO validation",
+    "production rollout or external audit execution"
+  ]
+}

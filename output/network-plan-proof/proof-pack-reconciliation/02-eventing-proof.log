@@ -1,0 +1,35 @@
+02-eventing-proof.log
+status=current-main-proved
+summary=network consumes reusable Rust eventing and keeps broker/family-hub transport requirement-gated
+
+sources:
+- crates/ocentra-eventing/src/lib.rs
+- crates/ocentra-eventing/src/bus.rs
+- crates/ocentra-eventing/src/envelope.rs
+- crates/ocentra-eventing/src/queue.rs
+- crates/ocentra-eventing/src/request.rs
+- crates/ocentra-eventing/src/replay.rs
+- crates/ocentra-eventing/src/testkit.rs
+- crates/agent-core/src/network_event_runtime.rs
+- crates/agent-core/src/network_event_runtime/queue.rs
+- crates/agent-core/src/network_event_runtime_tests.rs
+- crates/agent-core/src/network_event_runtime_queue_tests.rs
+- crates/agent-core/src/network_event_runtime_broker_delivery_tests.rs
+- crates/agent-service/src/network_runtime_delivery.rs
+- crates/agent-service/src/network_runtime_delivery_tests.rs
+- crates/agent-service/src/network_runtime_stream_payload.rs
+- crates/agent-service/src/network_runtime_stream_tests.rs
+- scripts/test/eventing-network-runtime-proof.mjs
+- scripts/test/eventing-network-service-runtime-delivery-proof.mjs
+- scripts/test/eventing-network-service-event-chain-stream-proof.mjs
+- scripts/test/network-broker-delivery-proof.mjs
+- output/eventing-plan-proof/reusable-eventing-runtime/proof-summary.json
+- output/eventing-plan-proof/57-network-workpack-10-reusable-crate/proof-summary.json
+- output/eventing-plan-proof/58-network-event-chain-exact-refs/proof-summary.json
+- output/eventing-plan-proof/63-delivery-decision-proof/proof-summary.json
+
+not-claimed:
+- exact URL/page/content from network-only evidence
+- decrypted payload capture
+- UI, AI, or network bypass of policy authority
+- weak-evidence enforcement

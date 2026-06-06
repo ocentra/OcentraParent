@@ -1,0 +1,34 @@
+{
+  "gate": "06-adapter-action-proof.json",
+  "status": "current-main-partial",
+  "summary": "dry-run/manual/apply-ready/result states are proved; live adapter execution remains unclaimed",
+  "sources": [
+    "crates/ocentra-network-evidence/src/dns_adapter.rs",
+    "crates/ocentra-network-evidence/src/windows_firewall_adapter.rs",
+    "crates/ocentra-network-evidence/src/windows_wfp_gate.rs",
+    "crates/ocentra-network-evidence/src/android_vpn_service_gate.rs",
+    "crates/ocentra-network-evidence/src/apple_network_extension_gate.rs",
+    "crates/ocentra-network-evidence/src/linux_adapter_gate.rs",
+    "crates/ocentra-network-evidence/src/platform_claims.rs",
+    "crates/ocentra-network-evidence/src/action_result.rs",
+    "crates/ocentra-network-evidence/src/tests/dns_adapter.rs",
+    "crates/ocentra-network-evidence/src/tests/windows_firewall_adapter.rs",
+    "crates/ocentra-network-evidence/src/tests/windows_wfp_gate.rs",
+    "crates/ocentra-network-evidence/src/tests/android_vpn_service_gate.rs",
+    "crates/ocentra-network-evidence/src/tests/apple_network_extension_gate.rs",
+    "crates/ocentra-network-evidence/src/tests/linux_adapter_gate.rs",
+    "crates/ocentra-network-evidence/src/tests/platform_claims.rs",
+    "crates/ocentra-network-evidence/src/tests/action_result.rs",
+    "output/network-plan-proof/52-platform-claims-proof/proof-summary.json",
+    "output/network-plan-proof/53-action-result-state-proof/proof-summary.json"
+  ],
+  "notClaimed": [
+    "exact URL/page/content from network-only evidence",
+    "decrypted payload capture",
+    "UI, AI, or network bypass of policy authority",
+    "weak-evidence enforcement",
+    "live adapter execution",
+    "host mutation",
+    "published enforcement command"
+  ]
+}
