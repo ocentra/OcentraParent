@@ -224,6 +224,14 @@ mobile readiness, and control catalogs.
   execution, store integration, platform adapters, child-device delivery,
   runtime writer/report delivery, app blocking, child activity data, and
   Ocentra-hosted family data custody unclaimed.
+- App install/purchase product-claim platform limitation fallback proof
+  contracts that link platform preclaim rows, safe parent workflow rows, and
+  platform limitation action rows into fallback-ready, manual-required, and
+  unsupported parent-visible workflow states while keeping product claims,
+  portal approval/report UI, provider/store execution, store integration,
+  platform interception/adapters, child-device delivery, runtime writer/report
+  delivery, app blocking, child activity data, and Ocentra-hosted family data
+  custody unclaimed.
 - App install/purchase package-source capture status proof contracts that link
   child package-source artifact refs and store status handoff rows to captured,
   blocked, manual-required, and unavailable capture rows with artifact, audit,

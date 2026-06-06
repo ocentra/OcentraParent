@@ -46,6 +46,10 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Windows app-install package-source capture status rows may classify local
   package-source proof refs as captured, but provider/store integration and
   platform adapter execution remain separate proof gates.
+- Windows app-install product-claim platform limitation fallback rows may expose
+  a parent-visible fallback workflow only; they do not prove Microsoft Store
+  integration, provider execution, platform interception, child delivery, app
+  blocking, or product-claim approval.
 - Validation needs real Windows adapter tests or guarded integration/manual evidence for each claimed OS capability, plus contract tests for every event shape crossing TypeScript and Rust.
 
 ## macOS

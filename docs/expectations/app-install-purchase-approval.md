@@ -287,6 +287,15 @@ Expected contract families:
   platform adapter implementation, child-device delivery, runtime writer/report
   delivery, app blocking, child activity custody, and Ocentra-hosted family data
   custody stay unclaimed.
+- Product-claim platform limitation fallback rows consume platform preclaim
+  rows, safe parent workflow rows, and platform limitation action rows so
+  parent-visible fallback workflow refs stay available while product claims
+  remain blocked or manual and product claim approval, portal approval/report
+  UI, Google Play execution, Apple App Store execution, Microsoft Store
+  execution, billing provider contact, provider API execution, store
+  integration, platform interception, platform adapter implementation,
+  child-device delivery, runtime writer/report delivery, app blocking, child
+  activity custody, and Ocentra-hosted family data custody stay unclaimed.
 
 ## Validation Gates
 
@@ -476,6 +485,13 @@ Expected contract families:
   product-claim approval, portal UI, provider/store/platform/child delivery/
   runtime/app-blocking/custody overclaim rejection, public package export
   visibility, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for product-claim platform
+  limitation fallback rows, platform-preclaim linkage, safe-parent-workflow
+  linkage, platform-limitation-action linkage, required portal/manual-platform/
+  child/provider/platform/report refs, product-claim approval, portal UI,
+  provider/store/platform interception/adapter/child delivery/runtime/
+  app-blocking/custody overclaim rejection, public package export visibility,
+  and required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -645,6 +661,13 @@ Expected contract families:
   writer/report delivery, app blocking, child activity custody,
   Ocentra-hosted family data custody, or proof that platform/store claims are
   product-ready.
+- Do not treat product-claim platform limitation fallback proof refs as product
+  claim approval, portal approval UI, portal report UI, Google Play execution,
+  Apple App Store execution, Microsoft Store execution, billing provider
+  contact, provider API execution, store integration, platform interception,
+  platform adapter implementation, child-device delivery, runtime writer/report
+  delivery, app blocking, child activity custody, Ocentra-hosted family data
+  custody, or proof that platform/store claims are product-ready.
 
 ## Done Signal
 

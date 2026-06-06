@@ -1,0 +1,462 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-06T22:55:43.063Z",
+  "commit": "c1654bc3d7fc8291d6544e64e99e307fcd49b61d",
+  "proofMode": "app-install-purchase-product-claim-platform-limitation-fallback-proof",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "startedAt": "2026-06-06T22:55:36.937Z",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-product-claim-platform-limitation-fallback-proof.test.ts",
+      "startedAt": "2026-06-06T22:55:40.022Z",
+      "exitCode": 0
+    }
+  ],
+  "packageExportState": "validated-via-public-parent-domain-subpath-export",
+  "checklistState": "updated-docs-product-capability-checklist-app-install-row",
+  "evidence": {
+    "platformLimitationFallbackContract": "packages/parent-domain/src/app-install-purchase-product-claim-platform-limitation-fallback-proof.ts",
+    "sourcePlatformPreclaimContract": "packages/parent-domain/src/app-install-purchase-product-claim-platform-preclaim-proof.ts",
+    "sourceSafeParentWorkflowContract": "packages/parent-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts",
+    "sourcePlatformLimitationActionContract": "packages/parent-domain/src/app-install-purchase-platform-limitation-action-proof.ts",
+    "contractTest": "packages/parent-domain/tests/app-install-purchase-product-claim-platform-limitation-fallback-proof.test.ts",
+    "featureDoc": "docs/features/app-install-purchase-approval.md",
+    "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
+    "platformExpectationDoc": "docs/expectations/platforms.md",
+    "checklistDoc": "docs/product-capability-checklist.md",
+    "packageReadme": "packages/parent-domain/README.md",
+    "packageExport": "@ocentra-parent/parent-domain/app-install-purchase-product-claim-platform-limitation-fallback-proof",
+    "output": "test-results\\app-install-purchase-product-claim-platform-limitation-fallback-proof\\proof.json"
+  },
+  "platformLimitationFallbackSummary": {
+    "platformLimitationFallbackRows": 5,
+    "fallbackParentWorkflowReadyRows": 1,
+    "manualPlatformLimitationFallbackRequiredRows": 1,
+    "unsupportedPlatformLimitationFallbackBlockedRows": 3,
+    "productClaimApprovedRows": 0,
+    "providerExecutedRows": 0,
+    "platformAdapterImplementedRows": 0
+  },
+  "platformLimitationFallbackRows": [
+    {
+      "schemaVersion": "app-install-purchase-product-claim-platform-limitation-fallback-proof",
+      "platformLimitationFallbackRowId": "app-install-product-claim-platform-limitation-fallback-windows-microsoft-store",
+      "sourcePlatformPreclaimProofVersion": "app-install-purchase-product-claim-platform-preclaim-proof",
+      "sourcePlatformPreclaimRowId": "app-install-product-claim-platform-preclaim-windows-microsoft-store",
+      "sourcePlatformPreclaimState": "manual-platform-preclaim-required",
+      "sourceSafeParentWorkflowProofVersion": "app-install-purchase-product-claim-safe-parent-workflow-proof",
+      "sourceSafeParentWorkflowRowId": "app-install-product-claim-safe-parent-workflow-windows-microsoft-store",
+      "sourceSafeParentWorkflowState": "safe-parent-review-ready",
+      "sourcePlatformLimitationActionProofVersion": "app-install-purchase-platform-limitation-action-proof",
+      "sourcePlatformLimitationActionRowId": "platform-limitation-action-windows-microsoft-store",
+      "sourcePlatformLimitationActionState": "parent-action-ready",
+      "platform": "windows",
+      "storeSurface": "microsoft-store",
+      "fallbackState": "fallback-parent-workflow-ready",
+      "fallbackParentWorkflowRefs": [
+        "parent-review-manual-evidence-windows-microsoft-store",
+        "parent-report-product-claim-not-approved-windows-microsoft-store"
+      ],
+      "parentLimitationActionRef": "parent-limitation-action-windows-microsoft-store",
+      "requiredPortalTestRefs": [
+        "portal-approval-report-test-windows-microsoft-store",
+        "portal-report-test-windows-microsoft-store"
+      ],
+      "requiredManualPlatformEvidenceRefs": [
+        "windows-host-package-source-proof",
+        "windows-guarded-adapter-proof"
+      ],
+      "requiredChildDeliveryRefs": [
+        "child-device-delivery-proof-windows-microsoft-store"
+      ],
+      "requiredProviderStoreExecutionRefs": [
+        "provider-store-api-execution-proof-windows-microsoft-store"
+      ],
+      "requiredPlatformAdapterRefs": [
+        "platform-adapter-proof-windows-microsoft-store"
+      ],
+      "limitationRefs": [
+        "windows-host-package-source-proof",
+        "windows-guarded-adapter-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "app-install-purchase-request-audit-report-ref",
+        "app-install-purchase-decision-audit-report-ref",
+        "app-install-purchase-child-facing-report-ref",
+        "app-install-purchase-platform-limitation-report-ref"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "billingProviderContactClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "product claim platform limitation fallback proof only; links platform preclaim safe parent workflow and platform limitation action rows so product claims remain blocked or manual while parent-visible fallback workflow refs stay available no product claim approval no portal approval UI no portal report UI no Google Play execution no Apple App Store execution no Microsoft Store execution no billing provider contact no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime writer delivery no runtime report delivery no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-06T22:35:00.000Z"
+    },
+    {
+      "schemaVersion": "app-install-purchase-product-claim-platform-limitation-fallback-proof",
+      "platformLimitationFallbackRowId": "app-install-product-claim-platform-limitation-fallback-macos-mac-app-store",
+      "sourcePlatformPreclaimProofVersion": "app-install-purchase-product-claim-platform-preclaim-proof",
+      "sourcePlatformPreclaimRowId": "app-install-product-claim-platform-preclaim-macos-mac-app-store",
+      "sourcePlatformPreclaimState": "manual-platform-preclaim-required",
+      "sourceSafeParentWorkflowProofVersion": "app-install-purchase-product-claim-safe-parent-workflow-proof",
+      "sourceSafeParentWorkflowRowId": "app-install-product-claim-safe-parent-workflow-macos-mac-app-store",
+      "sourceSafeParentWorkflowState": "manual-parent-review-required",
+      "sourcePlatformLimitationActionProofVersion": "app-install-purchase-platform-limitation-action-proof",
+      "sourcePlatformLimitationActionRowId": "platform-limitation-action-macos-mac-app-store",
+      "sourcePlatformLimitationActionState": "manual-required",
+      "platform": "macos",
+      "storeSurface": "mac-app-store",
+      "fallbackState": "manual-platform-limitation-fallback-required",
+      "fallbackParentWorkflowRefs": [
+        "parent-review-manual-evidence-macos-mac-app-store",
+        "parent-report-product-claim-not-approved-macos-mac-app-store"
+      ],
+      "parentLimitationActionRef": "parent-limitation-action-macos-mac-app-store",
+      "requiredPortalTestRefs": [
+        "portal-approval-report-test-macos-mac-app-store",
+        "portal-report-test-macos-mac-app-store"
+      ],
+      "requiredManualPlatformEvidenceRefs": [
+        "macos-signing-receipt-proof",
+        "macos-store-source-manual-proof"
+      ],
+      "requiredChildDeliveryRefs": [
+        "child-device-delivery-proof-macos-mac-app-store"
+      ],
+      "requiredProviderStoreExecutionRefs": [
+        "provider-store-api-execution-proof-macos-mac-app-store"
+      ],
+      "requiredPlatformAdapterRefs": [
+        "platform-adapter-proof-macos-mac-app-store"
+      ],
+      "limitationRefs": [
+        "macos-signing-receipt-proof",
+        "macos-store-source-manual-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "app-install-purchase-request-audit-report-ref",
+        "app-install-purchase-decision-audit-report-ref",
+        "app-install-purchase-child-facing-report-ref",
+        "app-install-purchase-platform-limitation-report-ref"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "billingProviderContactClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "product claim platform limitation fallback proof only; links platform preclaim safe parent workflow and platform limitation action rows so product claims remain blocked or manual while parent-visible fallback workflow refs stay available no product claim approval no portal approval UI no portal report UI no Google Play execution no Apple App Store execution no Microsoft Store execution no billing provider contact no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime writer delivery no runtime report delivery no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-06T22:35:00.000Z"
+    },
+    {
+      "schemaVersion": "app-install-purchase-product-claim-platform-limitation-fallback-proof",
+      "platformLimitationFallbackRowId": "app-install-product-claim-platform-limitation-fallback-linux-linux-package-manager",
+      "sourcePlatformPreclaimProofVersion": "app-install-purchase-product-claim-platform-preclaim-proof",
+      "sourcePlatformPreclaimRowId": "app-install-product-claim-platform-preclaim-linux-linux-package-manager",
+      "sourcePlatformPreclaimState": "unsupported-platform-preclaim-blocked",
+      "sourceSafeParentWorkflowProofVersion": "app-install-purchase-product-claim-safe-parent-workflow-proof",
+      "sourceSafeParentWorkflowRowId": "app-install-product-claim-safe-parent-workflow-linux-linux-package-manager",
+      "sourceSafeParentWorkflowState": "unsupported-store-workflow-blocked",
+      "sourcePlatformLimitationActionProofVersion": "app-install-purchase-platform-limitation-action-proof",
+      "sourcePlatformLimitationActionRowId": "platform-limitation-action-linux-linux-package-manager",
+      "sourcePlatformLimitationActionState": "unavailable",
+      "platform": "linux",
+      "storeSurface": "linux-package-manager",
+      "fallbackState": "unsupported-platform-limitation-fallback-blocked",
+      "fallbackParentWorkflowRefs": [
+        "parent-review-manual-evidence-linux-linux-package-manager",
+        "parent-report-product-claim-not-approved-linux-linux-package-manager"
+      ],
+      "parentLimitationActionRef": "parent-limitation-action-linux-linux-package-manager",
+      "requiredPortalTestRefs": [
+        "portal-approval-report-test-linux-linux-package-manager",
+        "portal-report-test-linux-linux-package-manager"
+      ],
+      "requiredManualPlatformEvidenceRefs": [
+        "linux-package-manager-source-path-proof"
+      ],
+      "requiredChildDeliveryRefs": [
+        "child-device-delivery-proof-linux-linux-package-manager"
+      ],
+      "requiredProviderStoreExecutionRefs": [
+        "provider-store-api-execution-proof-linux-linux-package-manager"
+      ],
+      "requiredPlatformAdapterRefs": [
+        "platform-adapter-proof-linux-linux-package-manager"
+      ],
+      "limitationRefs": [
+        "linux-package-manager-source-path-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "app-install-purchase-request-audit-report-ref",
+        "app-install-purchase-decision-audit-report-ref",
+        "app-install-purchase-child-facing-report-ref",
+        "app-install-purchase-platform-limitation-report-ref"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "billingProviderContactClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "product claim platform limitation fallback proof only; links platform preclaim safe parent workflow and platform limitation action rows so product claims remain blocked or manual while parent-visible fallback workflow refs stay available no product claim approval no portal approval UI no portal report UI no Google Play execution no Apple App Store execution no Microsoft Store execution no billing provider contact no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime writer delivery no runtime report delivery no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-06T22:35:00.000Z"
+    },
+    {
+      "schemaVersion": "app-install-purchase-product-claim-platform-limitation-fallback-proof",
+      "platformLimitationFallbackRowId": "app-install-product-claim-platform-limitation-fallback-android-google-play",
+      "sourcePlatformPreclaimProofVersion": "app-install-purchase-product-claim-platform-preclaim-proof",
+      "sourcePlatformPreclaimRowId": "app-install-product-claim-platform-preclaim-android-google-play",
+      "sourcePlatformPreclaimState": "unsupported-platform-preclaim-blocked",
+      "sourceSafeParentWorkflowProofVersion": "app-install-purchase-product-claim-safe-parent-workflow-proof",
+      "sourceSafeParentWorkflowRowId": "app-install-product-claim-safe-parent-workflow-android-google-play",
+      "sourceSafeParentWorkflowState": "unsupported-store-workflow-blocked",
+      "sourcePlatformLimitationActionProofVersion": "app-install-purchase-platform-limitation-action-proof",
+      "sourcePlatformLimitationActionRowId": "platform-limitation-action-android-google-play",
+      "sourcePlatformLimitationActionState": "manual-required",
+      "platform": "android",
+      "storeSurface": "google-play",
+      "fallbackState": "unsupported-platform-limitation-fallback-blocked",
+      "fallbackParentWorkflowRefs": [
+        "parent-review-manual-evidence-android-google-play",
+        "parent-report-product-claim-not-approved-android-google-play"
+      ],
+      "parentLimitationActionRef": "parent-limitation-action-android-google-play",
+      "requiredPortalTestRefs": [
+        "portal-approval-report-test-android-google-play",
+        "portal-report-test-android-google-play"
+      ],
+      "requiredManualPlatformEvidenceRefs": [
+        "android-device-owner-or-managed-profile-proof",
+        "google-play-policy-review-proof"
+      ],
+      "requiredChildDeliveryRefs": [
+        "child-device-delivery-proof-android-google-play"
+      ],
+      "requiredProviderStoreExecutionRefs": [
+        "provider-store-api-execution-proof-android-google-play"
+      ],
+      "requiredPlatformAdapterRefs": [
+        "platform-adapter-proof-android-google-play"
+      ],
+      "limitationRefs": [
+        "android-device-owner-or-managed-profile-proof",
+        "google-play-policy-review-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "app-install-purchase-request-audit-report-ref",
+        "app-install-purchase-decision-audit-report-ref",
+        "app-install-purchase-child-facing-report-ref",
+        "app-install-purchase-platform-limitation-report-ref"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "billingProviderContactClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "product claim platform limitation fallback proof only; links platform preclaim safe parent workflow and platform limitation action rows so product claims remain blocked or manual while parent-visible fallback workflow refs stay available no product claim approval no portal approval UI no portal report UI no Google Play execution no Apple App Store execution no Microsoft Store execution no billing provider contact no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime writer delivery no runtime report delivery no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-06T22:35:00.000Z"
+    },
+    {
+      "schemaVersion": "app-install-purchase-product-claim-platform-limitation-fallback-proof",
+      "platformLimitationFallbackRowId": "app-install-product-claim-platform-limitation-fallback-ios-apple-app-store",
+      "sourcePlatformPreclaimProofVersion": "app-install-purchase-product-claim-platform-preclaim-proof",
+      "sourcePlatformPreclaimRowId": "app-install-product-claim-platform-preclaim-ios-apple-app-store",
+      "sourcePlatformPreclaimState": "unsupported-platform-preclaim-blocked",
+      "sourceSafeParentWorkflowProofVersion": "app-install-purchase-product-claim-safe-parent-workflow-proof",
+      "sourceSafeParentWorkflowRowId": "app-install-product-claim-safe-parent-workflow-ios-apple-app-store",
+      "sourceSafeParentWorkflowState": "unsupported-store-workflow-blocked",
+      "sourcePlatformLimitationActionProofVersion": "app-install-purchase-platform-limitation-action-proof",
+      "sourcePlatformLimitationActionRowId": "platform-limitation-action-ios-apple-app-store",
+      "sourcePlatformLimitationActionState": "manual-required",
+      "platform": "ios",
+      "storeSurface": "apple-app-store",
+      "fallbackState": "unsupported-platform-limitation-fallback-blocked",
+      "fallbackParentWorkflowRefs": [
+        "parent-review-manual-evidence-ios-apple-app-store",
+        "parent-report-product-claim-not-approved-ios-apple-app-store"
+      ],
+      "parentLimitationActionRef": "parent-limitation-action-ios-apple-app-store",
+      "requiredPortalTestRefs": [
+        "portal-approval-report-test-ios-apple-app-store",
+        "portal-report-test-ios-apple-app-store"
+      ],
+      "requiredManualPlatformEvidenceRefs": [
+        "ios-family-controls-entitlement-proof",
+        "apple-review-proof"
+      ],
+      "requiredChildDeliveryRefs": [
+        "child-device-delivery-proof-ios-apple-app-store"
+      ],
+      "requiredProviderStoreExecutionRefs": [
+        "provider-store-api-execution-proof-ios-apple-app-store"
+      ],
+      "requiredPlatformAdapterRefs": [
+        "platform-adapter-proof-ios-apple-app-store"
+      ],
+      "limitationRefs": [
+        "ios-family-controls-entitlement-proof",
+        "apple-review-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "app-install-purchase-request-audit-report-ref",
+        "app-install-purchase-decision-audit-report-ref",
+        "app-install-purchase-child-facing-report-ref",
+        "app-install-purchase-platform-limitation-report-ref"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "billingProviderContactClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "product claim platform limitation fallback proof only; links platform preclaim safe parent workflow and platform limitation action rows so product claims remain blocked or manual while parent-visible fallback workflow refs stay available no product claim approval no portal approval UI no portal report UI no Google Play execution no Apple App Store execution no Microsoft Store execution no billing provider contact no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime writer delivery no runtime report delivery no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-06T22:35:00.000Z"
+    }
+  ],
+  "nonClaims": [
+    "no-product-claim-approval",
+    "no-portal-approval-ui",
+    "no-portal-report-ui",
+    "no-google-play-execution",
+    "no-apple-app-store-execution",
+    "no-microsoft-store-execution",
+    "no-billing-provider-contact",
+    "no-provider-api-execution",
+    "no-store-integration",
+    "no-platform-interception",
+    "no-platform-adapter-implementation",
+    "no-child-device-delivery",
+    "no-runtime-writer-delivery",
+    "no-runtime-report-delivery",
+    "no-app-blocking",
+    "no-child-activity-data",
+    "no-ocentra-hosted-family-data-custody"
+  ],
+  "knownGaps": [
+    "Platform limitation fallback rows consume platform preclaim, safe parent workflow, and limitation action rows but do not approve any product claim.",
+    "Windows keeps fallback-parent-workflow-ready status for parent-visible manual review, while macOS remains manual-platform-limitation-fallback-required.",
+    "Linux, Android, and iOS remain unsupported-platform-limitation-fallback-blocked until store/provider APIs, platform adapters, child delivery, and portal UI proof exist."
+  ]
+}
