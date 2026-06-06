@@ -1,12 +1,3 @@
-use ocentra_parent_agent_core::{
-    collect_process_snapshot, tracking_read_model_for_store,
-    windows_browser_inventory_observations, ActivityStore, ProcessObservation,
-};
-use ocentra_parent_agent_protocol::{
-    constants, ActivityIngestStatus, ActivityRecentSummary, AgentCommandEnvelope,
-    AgentEventEnvelope, AgentEventName, BrowserInventoryReadModel, LogLevel,
-};
-
 use crate::{
     activity_network_flow_payload::network_flow_read_model_payload_with_runtime_delivery,
     activity_payload::{
@@ -26,6 +17,15 @@ use crate::{
     },
     time::timestamp_now,
     tracking_read_model_payload::tracking_read_model_payload,
+};
+use ocentra_parent_agent_core::{
+    collect_process_snapshot, tracking_read_model_for_store,
+    windows_browser_inventory_observations, windows_browser_package_observations, ActivityStore,
+    ProcessObservation,
+};
+use ocentra_parent_agent_protocol::{
+    constants, ActivityIngestStatus, ActivityRecentSummary, AgentCommandEnvelope,
+    AgentEventEnvelope, AgentEventName, BrowserInventoryReadModel, LogLevel,
 };
 
 mod activity_memory_graph_report;
@@ -298,8 +298,13 @@ pub(crate) fn browser_inventory_read_model_from_service_defaults(
     process_observations: Vec<ProcessObservation>,
 ) -> BrowserInventoryReadModel {
     let candidate_paths = system_browser_candidate_paths();
-    let observations =
+    let mut observations =
         windows_browser_inventory_observations(&candidate_paths, &process_observations, None);
+    let package_identities =
+        ocentra_parent_agent_core::live_windows_browser_package_entries_with_limit(
+            constants::browser::PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY,
+        );
+    observations.extend(windows_browser_package_observations(&package_identities));
     browser_inventory_read_model_from_windows_inventory(generated_at, &observations)
 }
 

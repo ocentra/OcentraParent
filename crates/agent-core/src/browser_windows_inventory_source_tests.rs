@@ -1,10 +1,14 @@
-use std::path::PathBuf;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use ocentra_parent_agent_protocol::constants;
 
 use crate::{
     browser_windows_inventory_candidate_paths_from_live_sources,
-    browser_windows_live_registry_entry, windows_browser_inventory_observations,
+    browser_windows_live_registry_entry, live_windows_browser_package_entries_from_roots,
+    windows_browser_inventory_observations, windows_browser_package_observations,
 };
 
 #[test]
@@ -67,6 +71,50 @@ fn browser_windows_live_sources_feed_shortcut_targets_without_url_claims() {
     let _ = std::fs::remove_dir_all(root);
 }
 
+#[test]
+fn browser_windows_live_sources_feed_packaged_browser_manifest_without_url_claims() {
+    let root = temp_inventory_source_root(3);
+    let package_root = root
+        .join(constants::browser::PATH_SEGMENT_WINDOWS_APPS)
+        .join(constants::browser::DEVTOOLS_TEST_EDGE_STORE_PACKAGE_NAME);
+    write_manifest(
+        &package_root,
+        constants::browser::DEVTOOLS_TEST_EDGE_STORE_PACKAGE_MANIFEST_XML,
+    );
+
+    let packages = live_windows_browser_package_entries_from_roots(
+        &[root.join(constants::browser::PATH_SEGMENT_WINDOWS_APPS)],
+        constants::browser::PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY,
+    );
+    let observations = windows_browser_package_observations(&packages);
+
+    assert_eq!(packages.len(), 1);
+    assert_eq!(
+        packages[0].package_name,
+        constants::browser::DEVTOOLS_TEST_EDGE_STORE_PACKAGE_NAME
+    );
+    assert_eq!(
+        packages[0].app_user_model_id.as_deref(),
+        Some(constants::browser::DEVTOOLS_TEST_EDGE_STORE_PACKAGE_USER_MODEL_ID)
+    );
+    assert_eq!(observations.len(), 1);
+    assert_eq!(observations[0].executable_path, None);
+    assert_eq!(
+        observations[0].install_state,
+        ocentra_parent_agent_protocol::BrowserInventoryInstallState::Packaged
+    );
+    assert_eq!(
+        observations[0].exact_url_capability,
+        ocentra_parent_agent_protocol::BrowserExactUrlCapability::ManualRequired
+    );
+    assert_eq!(
+        observations[0].reason_code,
+        constants::browser::INVENTORY_REASON_WINDOWS_PACKAGE_MANUAL_REQUIRED
+    );
+
+    let _ = std::fs::remove_dir_all(root);
+}
+
 fn temp_inventory_source_root(index: u32) -> PathBuf {
     let root = std::env::temp_dir()
         .join(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR)
@@ -83,6 +131,15 @@ fn create_executable_fixture(path: &PathBuf) {
     )
     .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
     std::fs::write(path, []).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+}
+
+fn write_manifest(root: &Path, manifest: &str) {
+    fs::create_dir_all(root).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    fs::write(
+        root.join(ocentra_parent_agent_protocol::APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME),
+        manifest,
+    )
+    .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
 }
 
 fn quoted_display_icon(path: &PathBuf) -> String {
