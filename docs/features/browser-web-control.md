@@ -145,6 +145,11 @@ control while being more honest about managed versus unmanaged sources.
   adapter row without upgrading product claims: exact URL/tab, browser content,
   AppLocker/WDAC policy creation/apply/rollback execution, launch prevention,
   and enforcement remain unclaimed.
+- Browser-plan WP05 now has the missing manual platform proof artifact required
+  by its matrix proof gate. The gate verifies the platform matrix and
+  manual-required/unsupported boundaries, but macOS, Linux, Android, and iOS
+  support remain partial until real host/device artifacts prove those platform
+  adapters.
 - Browser-plan WP14 now surfaces the browser inventory read model in the parent
   portal route through service-backed inventory, exact URL capability, active-tab
   proof, and unmanaged fallback rows. The visible route shows inventory, exact
