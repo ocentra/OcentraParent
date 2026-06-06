@@ -129,7 +129,7 @@ function manifestFor(rows, failures) {
     guardTexts: rolloutGuards.map((guard) => guard.text),
     noClaimLabels: [
       'rendered-proof-bundle-social-ui-present',
-      'service-backed-social-ui-delivery-not-claimed',
+      'service-backed-dashboard-and-explanation-read-model-proof-present',
       'connector-native-runtime-not-claimed',
       'final-policy-execution-not-claimed',
       'enforcement-not-claimed',
@@ -159,8 +159,9 @@ function markdownFor(manifest) {
     'SOCIAL rollout state: partial/manual-required.',
     'Product checklist upgrade is not claimed.',
     'Rendered proof-bundle social UI exists for dashboard, child intervention,',
-    'and parent explanation states. Service-backed delivery, connector/native',
-    'runtime, final policy execution, and enforcement remain unclaimed.',
+    'and parent explanation states. Service-backed dashboard and explanation',
+    'read-model delivery is present; connector/native runtime, final policy',
+    'execution, and enforcement remain unclaimed.',
   ].join('\n');
 }
 

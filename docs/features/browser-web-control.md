@@ -826,27 +826,28 @@ ask-parent bridge payload, and screenshots. This does not claim browser
 navigation block execution, notification delivery, applied time limits, final
 policy execution, native control, enforcement, or product checklist status.
 SOCIAL-22 now renders the parent-domain social audit/explanation read-model
-contracts in the real Browser route when a dedicated proof bundle is supplied.
-The proof captures desktop/mobile Playwright screenshots for account approval,
-feed/video gate, native-app gap, connector boundary, decision memory, and
-manual-required gap rows. This does not claim a runtime audit store,
-service-backed explanation delivery, notifications, raw account/video/message
-content, connector authorization, native control, final policy execution,
-enforcement, or product checklist status.
+contracts in the real Browser route from the service-backed Rust WebSocket
+`agent.browser.social-audit-explanation.read-model.reported` event, with a
+dedicated proof bundle retained only as fallback evidence. The proof captures
+desktop/mobile Playwright screenshots for account approval, feed/video gate,
+native-app gap, connector boundary, decision memory, and manual-required gap
+rows. This does not claim a runtime audit store, notifications, raw
+account/video/message content, connector authorization, native control, final
+policy execution, enforcement, or product checklist status.
 SOCIAL-23 now adds a social proof artifact gate that checks SOCIAL-01 through
 SOCIAL-22 proof-pack coverage. SOCIAL-20 now has rendered parent Browser-route
 screenshots for a service-backed six-row social dashboard snapshot, SOCIAL-21
 has child-agent-served social intervention page screenshots, and SOCIAL-22 has
 Browser-route social explanation screenshots from a schema-decoded proof bundle.
-The social track remains partial/manual-required because service-backed
-explanation delivery, runtime connector behavior, native control, final policy
-execution, enforcement, and product checklist status remain manual-required.
+The social track remains partial/manual-required because runtime connector
+behavior, native control, final policy execution, enforcement, and product
+checklist status remain manual-required.
 SOCIAL-24 now labels the social track partial/manual-required through the
 rollout gate. Product checklist upgrade is not claimed. Parent social dashboard
 rows can now come from the local Rust service snapshot path, child social
 intervention states can render through the child-agent page endpoint, and social
-explanation rows can render through the Browser route proof bundle. Connector/
-native runtime, service-backed explanation delivery, final policy execution,
+explanation rows can render through the service-backed Browser route read-model
+with proof-bundle fallback. Connector/native runtime, final policy execution,
 enforcement, and product readiness remain unclaimed.
 
 ## Checklist
