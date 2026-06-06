@@ -54,6 +54,11 @@ mobile readiness, and control catalogs.
   service read-API proof refs visible without claiming protocol implementation,
   service command registration, service event emission, rendered UI, durable
   audit storage, rollback execution, or timer scheduling.
+- App/game source-gated policy preview timer service-readiness protocol
+  read-model contracts that consume protocol handoff rows and keep future
+  protocol proof refs visible without claiming protocol implementation, service
+  command registration, service event/read-model emission, rendered UI, durable
+  audit storage, rollback execution, or timer scheduling.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.
@@ -375,6 +380,9 @@ flowchart LR
   registration, service event emission, service read API implementation,
   rendered UI, durable audit storage, rollback execution, and timer scheduling
   unclaimed.
+  Timer service-readiness protocol read-model rows project those same proof
+  requirements into a future consumer-facing contract while keeping service
+  read-model event emission and read API implementation unclaimed.
   Portal authoring or preview UI, live evaluator execution, persistence,
   timers, child notification delivery, adapter dispatch, broad installed-app
   blocking, and platform enforcement remain unimplemented.
