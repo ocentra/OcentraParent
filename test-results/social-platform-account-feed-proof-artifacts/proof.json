@@ -1,0 +1,392 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-platform-account-feed-proof-artifacts",
+  "generatedAt": "2026-06-06T05:50:01.649Z",
+  "proofRoot": "output/browser-plan-proof",
+  "rows": [
+    {
+      "rowNumber": 1,
+      "rowId": "SOCIAL-01",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-01-social-video-gating-plan-folder-readme",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-plan-folder-readme-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 2,
+      "rowId": "SOCIAL-02",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-02-platform-route-contracts",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 3,
+      "rowId": "SOCIAL-03",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-03-social-url-pattern-library",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-pattern-library-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 4,
+      "rowId": "SOCIAL-04",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-04-account-flow-evidence-contracts",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 5,
+      "rowId": "SOCIAL-05",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-05-managed-dom-form-shape-detector",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-detector-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 6,
+      "rowId": "SOCIAL-06",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-06-social-account-identity-registry",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-registry-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 7,
+      "rowId": "SOCIAL-07",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-07-parent-approval-contracts",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 8,
+      "rowId": "SOCIAL-08",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-08-feed-reels-shorts-route-classification",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-classification-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 9,
+      "rowId": "SOCIAL-09",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-09-video-social-metadata-extractor",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-metadata-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 10,
+      "rowId": "SOCIAL-10",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-10-social-ai-analysis-contracts",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 11,
+      "rowId": "SOCIAL-11",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-11-social-risk-benefit-signal-model",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 12,
+      "rowId": "SOCIAL-12",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-12-parent-policy-compiler-social-targets",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 13,
+      "rowId": "SOCIAL-13",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-13-managed-browser-account-creation-gate",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-surface-proof.md",
+        "06-live-screenshots",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 14,
+      "rowId": "SOCIAL-14",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-14-managed-browser-feed-short-video-gate",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "06-live-screenshots",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-route-gate-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 15,
+      "rowId": "SOCIAL-15",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-15-unmanaged-social-bypass-detector",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 16,
+      "rowId": "SOCIAL-16",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-16-android-native-app-capability-matrix",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 17,
+      "rowId": "SOCIAL-17",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-17-ios-screentime-managedsettings-matrix",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 18,
+      "rowId": "SOCIAL-18",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-18-platform-connector-authorization-boundary",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 19,
+      "rowId": "SOCIAL-19",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-19-memory-cache-account-video-channel-decisions",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 20,
+      "rowId": "SOCIAL-20",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-20-parent-social-dashboard-ux",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "06-ui-snapshots",
+        "07-rendered-portal-ui-proof.json",
+        "08-security-negative-proof.md",
+        "08-validation-commands.log",
+        "09-security-negative-proof.log",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 21,
+      "rowId": "SOCIAL-21",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-21-child-approval-block-ux",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "06-ui-snapshots",
+        "07-rendered-child-ui-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 22,
+      "rowId": "SOCIAL-22",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-22-audit-explanation-read-model",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.log",
+        "01-contract-proof.md",
+        "06-ui-snapshots",
+        "07-rendered-explanation-ui-proof.json",
+        "08-security-negative-proof.log",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    }
+  ],
+  "summary": {
+    "totalRows": 22,
+    "completeRows": 5,
+    "partialRows": 17,
+    "failures": 0,
+    "playwrightState": "rendered-proof-bundle-ui-present-runtime-delivery-manual-required",
+    "productClaimed": false
+  },
+  "manualProofBoundary": {
+    "screenshots": "rendered-proof-bundle-ui-screenshots-present",
+    "playwright": "proof-bundle-playwright-present-runtime-delivery-manual-required",
+    "renderedUi": "parent-dashboard-child-intervention-parent-explanation-proof-bundles-only",
+    "serviceBackedDelivery": "not-claimed",
+    "enforcement": "not-claimed",
+    "productChecklistUpgrade": "not-claimed"
+  },
+  "failures": []
+}
