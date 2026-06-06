@@ -1,6 +1,6 @@
 
 Running 1 test using 1 worker
 
-  ok 1 [chromium] › e2e\tracking-hosted-ui-proof.spec.ts:32:1 › hosted policy tracking route renders real-service proof without product claims (37.9s)
+  ok 1 [chromium] › e2e\tracking-hosted-ui-proof.spec.ts:32:1 › hosted policy tracking route renders real-service proof without product claims (41.4s)
 
-  1 passed (39.1s)
+  1 passed (42.7s)
