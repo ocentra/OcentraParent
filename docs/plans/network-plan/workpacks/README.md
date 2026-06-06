@@ -58,6 +58,12 @@ can be split further when source-shape, platform proof, or validation needs it.
 | 49  | Performance, latency, resource, and high-concurrency benchmark proof                                                      | P3/P6               | Packet-to-detection latency, event throughput, CPU/memory/disk/queue metrics, and high-concurrency fixture results.                                                                                                                                                                                                                          |
 | 50  | Security, privacy, compliance, deployment, support, and staged rollout proof                                              | P6                  | Threat model, retention/delete/export, key rotation, secret handling, signature/rule-set provenance and rollback, AI model/version promotion gates, penetration test or external audit signoff for production claims, parent/user guide, FAQ, support playbook, staff-training material, rollout gates, and known-gap signoff.               |
 
+## Supplemental Proof Rows
+
+| Row | Workpack                                 | Priority | Notes                                                                                                                                                                                                                                                                                                      |
+| --- | ---------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 10b | Broker/family-hub remote delivery status | P6       | Broker and family-hub relay route requirements materialize into requirements-satisfied-but-not-implemented status with custody, auth, encryption, retention, replay, deletion, offset, dedupe, broker config, identity, relay policy, idempotency, and dead-letter refs while live delivery remains false. |
+
 ## Required Workpack Record
 
 Each workpack should include:

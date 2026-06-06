@@ -26,6 +26,8 @@ mod broker_delivery;
 mod queue;
 mod refs;
 #[cfg(test)]
+mod remote_delivery_status;
+#[cfg(test)]
 mod review;
 
 #[cfg(test)]
@@ -43,6 +45,11 @@ pub use queue::{
     NetworkRuntimeQueueTtlReport,
 };
 use refs::NetworkRuntimeChainRefs;
+#[cfg(test)]
+pub use remote_delivery_status::{
+    prove_network_runtime_remote_delivery_status, NetworkRuntimeRemoteDeliveryState,
+    NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
+};
 #[cfg(test)]
 pub use review::{
     request_network_runtime_review_for_observation, NetworkRuntimeReviewReport,
