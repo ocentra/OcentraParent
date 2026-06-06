@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-launcher-child-game-boundary-gate-proof",
+  "generatedAt": "deterministic-proof-artifact",
+  "branch": "codex/app-game-launcher-child-boundary-gate-proof-split",
+  "commit": "branch-head-validated-by-harness",
+  "commitMetadata": "This proof intentionally avoids embedding HEAD because a committed artifact cannot contain its own final commit hash.",
+  "gitStatusShort": "validated-by-explicit-handoff-status-check",
+  "commands": [
+    "cmd /c npm run build:contracts\nexit=0\n\n> @ocentra-parent/workspace@0.1.1 build:contracts\n> npm run build --workspace @ocentra-parent/schema-domain && npm run build --workspace @ocentra-parent/logging-domain && npm run build --workspace @ocentra-parent/parent-domain && npm run build --workspace @ocentra-parent/activity-domain && npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain\n\n\n> @ocentra-parent/schema-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/logging-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/parent-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/activity-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/agent-protocol-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/text-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/portal-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game-launcher.test.ts\nexit=0\n\n> @ocentra-parent/activity-domain@0.1.1 test\n> vitest run app-game-launcher.test.ts\n\n\n RUN  v4.1.6 <repo-root>/packages/activity-domain\n\n\n Test Files  1 passed (1)\n      Tests  4 passed (4)\n   Start at <normalized>\n   Duration <normalized>\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game-evidence-claim.test.ts\nexit=0\n\n> @ocentra-parent/activity-domain@0.1.1 test\n> vitest run app-game-evidence-claim.test.ts\n\n\n RUN  v4.1.6 <repo-root>/packages/activity-domain\n\n\n Test Files  1 passed (1)\n      Tests  4 passed (4)\n   Start at <normalized>\n   Duration <normalized>\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game-identity.test.ts\nexit=0\n\n> @ocentra-parent/activity-domain@0.1.1 test\n> vitest run app-game-identity.test.ts\n\n\n RUN  v4.1.6 <repo-root>/packages/activity-domain\n\n\n Test Files  1 passed (1)\n      Tests  6 passed (6)\n   Start at <normalized>\n   Duration <normalized>\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/portal -- activity-ui-app-game-dashboard-intent.test.ts\nexit=0\n\n> @ocentra-parent/portal@0.1.1 test\n> vitest run tests activity-ui-app-game-dashboard-intent.test.ts\n\n\n RUN  v4.1.6 <repo-root>/apps/portal\n\n\n Test Files  16 passed (16)\n      Tests  70 passed (70)\n   Start at <normalized>\n   Duration <normalized>\n\n\u001b[2m<normalized>\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `esbuild` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `oxc` instead.\u001b[39m\n\u001b[2m<normalized>\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `optimizeDeps.esbuildOptions` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.\u001b[39m\n\u001b[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.\u001b[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`\n"
+  ],
+  "gate": "Launcher evidence is displayed as active game without child-game proof.",
+  "gateState": "prevented-by-launcher-contracts-and-portal-launcher-only-display",
+  "evidence": {
+    "launcherContract": "packages/activity-domain/src/app-game-launcher.ts requires child-game proof before knownGame and keeps launcherOnly evidence knownLauncher.",
+    "evidenceClaimContract": "packages/activity-domain/src/app-game.ts blocks launcher evidence from knownGame unless identityStrength is childGameProof.",
+    "launcherTests": "packages/activity-domain/tests/app-game-launcher.test.ts rejects launcher candidate overclaims and missing child-game proof ids.",
+    "identityTests": "packages/activity-domain/tests/app-game-identity.test.ts rejects launcher-as-game identity without childGameEvidenceClaimId.",
+    "portalIntent": "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts renders launcher rows as launcherOnly/Launcher metrics, separate from active child-game proof.",
+    "portalTest": "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts includes a productKind launcher row with known-launcher classification and launcherRowCount."
+  },
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "launcherEvidencePromotedToActiveGame": false,
+    "knownGameRequiresChildGameProof": true,
+    "browserGameWorkDuplicated": false,
+    "packageExportsChanged": false,
+    "runtimeAdapterClaimed": false
+  },
+  "proofPaths": {
+    "proof": "test-results/app-game-launcher-child-game-boundary-gate-proof/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/merge-gates/launcher-child-game-boundary",
+    "harness": "scripts/test/app-game-launcher-child-game-boundary-gate-proof.mjs"
+  }
+}
