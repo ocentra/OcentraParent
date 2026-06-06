@@ -154,7 +154,11 @@ evidence refs, candidate classifications, confidence, uncertainty, model runtime
 refs, and degraded states for managed-browser social route evidence. They reject
 raw browser/page/feed/message/transcript/screenshot/native/connector state,
 final policy actions, enforcement, raw model text/content storage, native app
-control, connector claims, and inconsistent degraded states. Activity-domain package subpath exports are now present.
+control, connector claims, and inconsistent degraded states.
+`scripts/test/social-ai-analysis-live-evidence-proof.mjs` consumes the live
+SOCIAL-09 metadata proof refs and emits degraded `model-unavailable` AI
+input/result rows without executing a model or claiming provider selection.
+Activity-domain package subpath exports are now present.
 
 SOCIAL-11 now adds
 `packages/activity-domain/src/browser-social-riskbenefit-values.ts` and
