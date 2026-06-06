@@ -4,8 +4,11 @@ use ocentra_eventing::{
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::{
+    prove_network_runtime_remote_delivery_outbox_handoff,
     prove_network_runtime_remote_delivery_receipt_ledger,
     prove_network_runtime_remote_delivery_status, prove_network_runtime_remote_event_chain_journal,
+    NetworkRuntimeRemoteDeliveryOutboxHandoffError,
+    NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryOutboxState,
     NetworkRuntimeRemoteDeliveryReceiptLedgerError,
     NetworkRuntimeRemoteDeliveryReceiptLedgerReport, NetworkRuntimeRemoteDeliveryState,
     NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
@@ -360,6 +363,116 @@ async fn network_runtime_remote_delivery_receipt_ledger_rejects_transport_action
     assert_eq!(report.receipt_event_id_mismatch_count, 0);
     assert_eq!(report.receipt_event_type_mismatch_count, 0);
     assert_eq!(report.receipt_correlation_mismatch_count, 0);
+    assert_eq!(report.enforcement_command_event_count, 0);
+    assert_eq!(report.adapter_action_executed_count, 0);
+    assert_eq!(report.exact_url_available_count, 0);
+    assert_eq!(report.decrypted_payload_available_count, 0);
+    assert_eq!(report.page_content_available_count, 0);
+}
+
+#[tokio::test]
+async fn network_runtime_remote_delivery_outbox_handoff_preserves_projection_and_receipt_refs_without_dispatch(
+) {
+    let proof_result: Result<
+        NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
+        NetworkRuntimeRemoteDeliveryOutboxHandoffError,
+    > = prove_network_runtime_remote_delivery_outbox_handoff().await;
+    let report =
+        proof_result.expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF);
+
+    assert_eq!(
+        report.event_chain_export_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_EXPORT_REF
+    );
+    assert_eq!(
+        report.receipt_ledger_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_LEDGER_REF
+    );
+    assert_eq!(
+        report.outbox_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_OUTBOX_REF
+    );
+    assert_eq!(
+        report.handoff_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_HANDOFF_REF
+    );
+    assert_eq!(
+        report.outbox_replay_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_OUTBOX_REPLAY_REF
+    );
+    assert_eq!(
+        report.outbox_support_status_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_OUTBOX_SUPPORT_STATUS_REF
+    );
+    assert!(report.outbox_candidates_match_projection);
+    assert!(report.outbox_candidates_match_receipts);
+    assert!(report.outbox_candidate_count > 0);
+    assert_eq!(
+        report.source_projection_replay_record_count,
+        report.outbox_candidate_count
+    );
+    assert_eq!(report.receipt_record_count, report.outbox_candidate_count);
+    assert_eq!(
+        report.prepared_not_dispatched_count,
+        report.outbox_candidate_count
+    );
+    assert_eq!(report.unique_event_id_count, report.outbox_candidate_count);
+    assert_eq!(
+        report.unique_idempotency_key_count,
+        report.outbox_candidate_count
+    );
+    assert_eq!(report.target_handler_count, report.outbox_candidate_count);
+    assert_eq!(report.receipt_ref_count, report.outbox_candidate_count);
+    assert_eq!(report.broker_requirement_ref_count, 12);
+    assert_eq!(report.lifecycle_blocker_ref_count, 4);
+    assert_eq!(report.durable_envelope_ref_count, 5);
+    assert_eq!(report.projection_replay_mode, ReplayMode::ProjectionOnly);
+    assert!(report.remote_delivery_status.durable_envelope_ready);
+    for candidate in &report.candidates {
+        assert_eq!(
+            candidate.state,
+            NetworkRuntimeRemoteDeliveryOutboxState::PreparedNotDispatched
+        );
+        assert_eq!(
+            candidate.event_chain_export_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_EVENT_CHAIN_EXPORT_REF
+        );
+        assert_eq!(
+            candidate.receipt_ledger_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_LEDGER_REF
+        );
+        assert_eq!(
+            candidate.outbox_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_EVENT_CHAIN_OUTBOX_REF
+        );
+        assert_eq!(
+            candidate.handoff_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_EVENT_CHAIN_HANDOFF_REF
+        );
+    }
+}
+
+#[tokio::test]
+async fn network_runtime_remote_delivery_outbox_handoff_rejects_dispatch_ack_action_and_content_claims(
+) {
+    let report = prove_network_runtime_remote_delivery_outbox_handoff()
+        .await
+        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF);
+
+    assert_eq!(report.dispatch_attempt_count, 0);
+    assert_eq!(report.remote_ack_count, 0);
+    assert!(!report.broker_delivery_implemented);
+    assert!(!report.family_hub_delivery_implemented);
+    assert!(!report.provider_delivery_implemented);
+    assert!(!report.child_device_delivery_implemented);
+    assert!(!report.remote_delivery_ack_implemented);
+    assert!(!report.product_ready_claimed);
+    assert!(!report.policy_authority);
+    assert!(!report.side_effect_authority);
+    assert_eq!(report.sequence_gap_count, 0);
+    assert_eq!(report.event_id_mismatch_count, 0);
+    assert_eq!(report.event_type_mismatch_count, 0);
+    assert_eq!(report.correlation_mismatch_count, 0);
     assert_eq!(report.enforcement_command_event_count, 0);
     assert_eq!(report.adapter_action_executed_count, 0);
     assert_eq!(report.exact_url_available_count, 0);

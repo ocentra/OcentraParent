@@ -50,9 +50,11 @@ service shell.
   retention/delete/export propagation, delivery-acknowledgement, and follow-up
   proof refs, row10e preserves durable-envelope readiness, and row10f preserves
   the remote event-chain journal/export boundary. Row10g preserves the remote
-  receipt ledger/local ack boundary while keeping live transport, delivery
-  acknowledgement implementation, policy authority, side effects, enforcement
-  commands, adapter execution, and host filtering false.
+  receipt ledger/local ack boundary, and row10h preserves the remote
+  outbox/handoff boundary while keeping live transport, dispatch attempts,
+  remote acknowledgements, delivery acknowledgement implementation, policy
+  authority, side effects, enforcement commands, adapter execution, and host
+  filtering false.
 
 ## Must Not Own
 
@@ -97,7 +99,7 @@ flowchart LR
   consumption exists, while platform replay, deletion/tombstone behavior, richer
   UI, and physical-device artifacts remain separate proof gaps.
 - Network remote delivery is status, local journal/export, and receipt
-  ledger/local ack boundary proof only; live broker/family-hub transport,
-  cross-process replay, remote retention/delete/export propagation, delivery
-  acknowledgements, and production transport configuration remain separate
-  implementation gaps.
+  ledger/local ack plus outbox/handoff boundary proof only; live
+  broker/family-hub transport, cross-process replay, remote
+  retention/delete/export propagation, delivery acknowledgements, and
+  production transport configuration remain separate implementation gaps.

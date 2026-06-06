@@ -240,6 +240,9 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   Row10g now builds a deterministic local receipt ledger from those projection
   replay/export records, preserving sequence, event id, event type, and
   correlation id for the future remote-delivery acknowledgement boundary.
+  Row10h now builds deterministic local outbox/handoff candidates from those
+  projection and receipt records, preserving idempotency keys and target
+  handlers while keeping dispatch attempts and remote acknowledgements at zero.
   Live broker/family-hub delivery, cross-process durable replay, raw
   PCAP/live-capture retention and remote delete/export propagation, live
   analyzer/model/policy execution, adapter execution, and host filtering remain
@@ -405,6 +408,17 @@ manual-required/N/A file.
   rejecting live transport, family-hub delivery acknowledgement implementation,
   provider delivery, child-device delivery, product-ready, exact-content,
   policy, adapter, enforcement-command, and host-filter claims.
+- Workpack 10 rollup: row10h is part of the Workpack 10 remote-delivery
+  status proof set. The main row10 eventing/read-model summary is supplemented
+  by
+  `output/network-plan-proof/10h-remote-delivery-outbox-handoff/proof-summary.json`,
+  `test-results/network-remote-delivery-outbox-handoff-proof/proof.json`,
+  and Rust proof invariants that require outbox candidates to preserve
+  projection replay sequence, event id, event type, correlation id, idempotency
+  key, and target handler while rejecting dispatch attempts, remote
+  acknowledgements, live transport, provider delivery, child-device delivery,
+  product-ready, exact-content, policy, adapter, enforcement-command, and
+  host-filter claims.
 
 - [x] 10b broker/family-hub remote delivery status: E-D added
       `output/network-plan-proof/10b-broker-family-hub-delivery-status/proof-summary.json`
@@ -481,6 +495,20 @@ manual-required/N/A file.
       delivery, family-hub delivery acknowledgement implementation, remote
       provider delivery, child-device delivery, product-ready remote delivery,
       policy authority, side-effect authority, enforcement-command publication,
+      adapter execution, exact URL, decrypted payload, page content, and host
+      filtering false.
+- [x] 10h remote delivery outbox/handoff readiness status: E-D added
+      `output/network-plan-proof/10h-remote-delivery-outbox-handoff/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-outbox-handoff-proof/proof.json`.
+      The `agent-core` proof builds deterministic local outbox candidates from
+      row10f projection replay/export records and row10g receipt records,
+      preserving replay sequence, event id, event type, correlation id,
+      idempotency key, and target handler with row10h outbox, handoff, replay,
+      and support-status refs. The proof keeps dispatch attempts, remote
+      acknowledgements, live broker/family-hub delivery, remote provider
+      delivery, child-device delivery, product-ready remote delivery, policy
+      authority, side-effect authority, enforcement-command publication,
       adapter execution, exact URL, decrypted payload, page content, and host
       filtering false.
 - [x] 33a network local-AI runtime result bridge: E-D added
