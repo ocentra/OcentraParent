@@ -1,0 +1,97 @@
+{
+  "status": "ok",
+  "proofKind": "local-ai-text-output-parser-proof",
+  "generatedAt": "2026-06-06T13:13:35.473Z",
+  "output": "output/ai-plan-proof/local-ai-text-output-parser-proof/proof-summary.json",
+  "parserRows": [
+    {
+      "name": "parsed",
+      "parserRunId": "local-ai-text-parser:screen-summary-wiki-ocr",
+      "state": "parsed-local-result",
+      "adapterRequestId": "local-ai-text-adapter:screen-summary-wiki-ocr",
+      "action": "warn",
+      "confidence": 0.68,
+      "resultPolicyEligible": true,
+      "parserRejectedOutput": false,
+      "modelExecuted": false,
+      "remoteApiClaimed": false,
+      "policyAuthorityClaimed": false,
+      "enforcementClaimed": false,
+      "rawModelOutputRetained": false
+    },
+    {
+      "name": "malformed-rejected",
+      "parserRunId": "local-ai-text-parser:screen-summary-wiki-ocr",
+      "state": "rejected-invalid-output",
+      "adapterRequestId": "local-ai-text-adapter:screen-summary-wiki-ocr",
+      "action": null,
+      "confidence": null,
+      "resultPolicyEligible": false,
+      "parserRejectedOutput": true,
+      "modelExecuted": false,
+      "remoteApiClaimed": false,
+      "policyAuthorityClaimed": false,
+      "enforcementClaimed": false,
+      "rawModelOutputRetained": false
+    },
+    {
+      "name": "remote-rejected",
+      "parserRunId": "local-ai-text-parser:screen-summary-wiki-ocr",
+      "state": "rejected-invalid-output",
+      "adapterRequestId": "local-ai-text-adapter:screen-summary-wiki-ocr",
+      "action": null,
+      "confidence": null,
+      "resultPolicyEligible": false,
+      "parserRejectedOutput": true,
+      "modelExecuted": false,
+      "remoteApiClaimed": false,
+      "policyAuthorityClaimed": false,
+      "enforcementClaimed": false,
+      "rawModelOutputRetained": false
+    },
+    {
+      "name": "manual-required",
+      "parserRunId": "local-ai-text-parser:screen-summary-wiki-ocr",
+      "state": "manual-required",
+      "adapterRequestId": "local-ai-text-adapter:screen-summary-wiki-ocr",
+      "action": null,
+      "confidence": null,
+      "resultPolicyEligible": false,
+      "parserRejectedOutput": true,
+      "modelExecuted": false,
+      "remoteApiClaimed": false,
+      "policyAuthorityClaimed": false,
+      "enforcementClaimed": false,
+      "rawModelOutputRetained": false
+    }
+  ],
+  "assertions": {
+    "validOutputBecomesPolicyEligible": true,
+    "malformedOutputRejectedBeforePolicy": true,
+    "remoteOutputRejectedBeforePolicy": true,
+    "manualAdapterOutputNotPolicyEligible": true,
+    "rawModelOutputNotRetained": true,
+    "noModelExecutionClaim": true,
+    "noRemotePolicyOrEnforcementClaim": true,
+    "overclaimsRejected": true
+  },
+  "rejectionChecks": [
+    {
+      "name": "raw-model-output-retention",
+      "rejected": true
+    },
+    {
+      "name": "model-execution-overclaim",
+      "rejected": true
+    },
+    {
+      "name": "policy-authority-overclaim",
+      "rejected": true
+    }
+  ],
+  "nonClaims": [
+    "This proof validates the local text output parser boundary without executing a model.",
+    "Malformed, remote, or metadata-mismatched output is rejected before policy eligibility.",
+    "Raw model output, remote/API AI, policy authority, enforcement, portal UI, and model quality are unclaimed."
+  ]
+}
