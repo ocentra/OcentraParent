@@ -17,7 +17,7 @@ consumes the same results.
 | Parent explanation snapshots                      | P3 artifact proved      | `output/ai-plan-proof/real-analysis/youtube-ordinary-video/10-ui-snapshot.png` and peer rows                                           | These are proof artifact snapshots rendered from scenario outputs, not the production portal runtime.                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Local AI provider per-device runtime lane         | P3 runtime proved       | `output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json`; `output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json` | Proves one provider/runtime lane per physical device, parent/child same-device sharing, child-safety priority, queued/degraded/unavailable states, and no duplicate same-device model load. It does not prove LAN cross-device routing, model quality, Portal UI, or API/remote provider availability.                                                                                                                                                                                                       |
 | Event-driven AI consumer boundary                 | P2 screen runtime proof | `output/screen-ai-pipeline-proof/event-driven-runtime/proof-summary.json`                                                              | Proves the screen successful path can consume typed evidence events and publish typed AI result events through the reusable Rust eventing runtime, with policy/action/read-model/deletion phases carrying prior event refs. General AI job contracts, degraded-result events, live service consumers, and household mesh event bridge remain planned.                                                                                                                                                        |
-| Household AI provider mesh contracts              | planned                 | `output/ai-plan-proof/household-ai-provider-mesh-contract/proof-summary.json`                                                          | Must prove provider advertisement, capability, AI work item, claim, lease, result validation, custody, child-agent authority, and event-driven state transitions. Does not claim physical household LAN product readiness.                                                                                                                                                                                                                                                                                   |
+| Household AI provider mesh contracts              | P2 screen runtime proof | `output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json`                                                          | Proves screen-derived AI work item, claim, lease, worker-only result, child validation, custody, and event-driven state transitions. Provider advertisement/capability contracts and physical household LAN product readiness remain planned.                                                                                                                                                                                                                                                                |
 | Household mesh event bridge                       | planned                 | `output/ai-plan-proof/household-mesh-event-bridge-proof/proof-summary.json`                                                            | Must prove selected local events become typed LAN messages, incoming LAN messages are validated before local republish, and remote peers cannot publish directly into another runtime's bus.                                                                                                                                                                                                                                                                                                                 |
 | Household LAN AI provider claim lease             | planned                 | `output/ai-plan-proof/household-ai-provider-claim-lease-proof/proof-summary.json`                                                      | Must prove one lease per job, duplicate claim rejection, lease expiry requeue, max-attempt dead-letter, and idempotent duplicate message behavior.                                                                                                                                                                                                                                                                                                                                                           |
 | Child-agent AI policy authority proof             | planned                 | `output/ai-plan-proof/child-agent-ai-policy-authority-proof/proof-summary.json`                                                        | Must prove provider returns worker result only, child agent validates/stores result, policy consumes only accepted result, and provider cannot publish policy/enforcement events.                                                                                                                                                                                                                                                                                                                            |
@@ -79,9 +79,9 @@ consumes the same results.
 - [x] Eventing consumer contract complete for the screen successful-path
       evidence-event -> AI-result event flow on `crates/ocentra-eventing`;
       general AI job contracts and degraded-result events remain follow-up work.
-- [ ] Household AI provider mesh contracts complete for provider advertisement,
-      heartbeat, capability, work item, claim, lease, result, validation,
-      custody, and child-agent authority.
+- [x] Household AI provider mesh contracts complete for screen work item, claim,
+      lease, result validation, custody, and child-agent authority. Provider
+      advertisement, heartbeat, and capability contracts remain follow-up work.
 - [ ] Mesh transport envelope contract complete for selected event export/import
       through the Household Mesh Bridge.
 - [x] Context builder contracts complete, including stored-evidence replay,
@@ -129,8 +129,10 @@ consumes the same results.
 - [ ] Household provider route selection implemented and proved with desktop/
       laptop preference, mobile dormant/fallback, stale/offline/revoked
       rejection, and custody mismatch rejection.
-- [ ] Provider claim/lease/idempotency lifecycle implemented and proved.
-- [ ] Provider result validation implemented and proved before policy
+- [x] Provider claim/lease lifecycle implemented and proved for screen-derived
+      household mesh work. Idempotent duplicate result rejection is proved;
+      production retry lifecycle remains follow-up work.
+- [x] Provider result validation implemented and proved before policy
       consumption.
 - [x] Runtime status parent-facing read-model proof implemented; production
       service and portal rendering remain follow-up runtime work.
@@ -343,12 +345,20 @@ consumes the same results.
 - [x] local text LLM adapter boundary proof run:
       `node --check scripts/test/local-ai-text-llm-adapter-boundary-proof.mjs`
       and `node scripts/test/local-ai-text-llm-adapter-boundary-proof.mjs`.
-- [ ] Household AI provider mesh contract proof run.
+- [x] Household AI provider mesh contract proof run for screen-derived work:
+      `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
+      `node scripts/test/screen-ai-household-mesh-proof.mjs`.
 - [ ] Household mesh event bridge proof run.
-- [ ] Household AI provider claim/lease proof run.
-- [ ] Household AI provider result validation proof run.
+- [x] Household AI provider claim/lease proof run:
+      `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
+      `node scripts/test/screen-ai-household-mesh-proof.mjs`.
+- [x] Household AI provider result validation proof run:
+      `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
+      `node scripts/test/screen-ai-household-mesh-proof.mjs`.
 - [ ] Child-agent AI policy authority proof run.
 - [ ] Mobile dormant AI provider proof run.
-- [ ] No-raw-screen-transfer mesh proof run.
+- [x] No-raw-screen-transfer mesh proof run:
+      `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
+      `node scripts/test/screen-ai-household-mesh-proof.mjs`.
 - [ ] AI mesh event topology proof run.
 - [ ] `npm run validate` or explicit approved omission.

@@ -68,6 +68,10 @@ mod screen_event_runtime_phase;
 mod screen_event_runtime_refs;
 mod screen_event_runtime_state;
 mod screen_evidence_queue;
+mod screen_household_mesh_runtime;
+mod screen_household_mesh_runtime_phase;
+mod screen_household_mesh_runtime_refs;
+mod screen_household_mesh_runtime_state;
 mod trusted_device_registry;
 mod trusted_device_registry_selection;
 mod window_capture;
@@ -173,6 +177,17 @@ pub use screen_event_runtime_state::{
 pub use screen_evidence_queue::{
     ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue, ScreenEvidenceQueueSweep,
 };
+pub use screen_household_mesh_runtime::{
+    publish_screen_household_mesh_chain_for_input, validate_screen_household_mesh_result,
+    ScreenHouseholdMeshEventPayload, ScreenHouseholdMeshInput, ScreenHouseholdMeshReport,
+    ScreenHouseholdMeshResultSubmission, ScreenHouseholdMeshResultValidation,
+};
+pub use screen_household_mesh_runtime_phase::ScreenHouseholdMeshPhase;
+pub use screen_household_mesh_runtime_state::{
+    ScreenMeshChildValidationState, ScreenMeshClaimState, ScreenMeshCustodyBoundary,
+    ScreenMeshLeaseState, ScreenMeshPayloadMode, ScreenMeshPolicyState,
+    ScreenMeshProviderResultState, ScreenMeshResultRejectionReason,
+};
 pub use trusted_device_registry::TrustedDeviceRegistry;
 pub use window_capture::{collect_foreground_window_observation, ForegroundWindowObservation};
 pub use window_capture_event::{foreground_window_event, foreground_window_observation_event};
@@ -271,6 +286,8 @@ mod process_capture_tests;
 mod screen_event_runtime_tests;
 #[cfg(test)]
 mod screen_evidence_queue_tests;
+#[cfg(test)]
+mod screen_household_mesh_runtime_tests;
 #[cfg(test)]
 mod trusted_device_registry_test_fixtures;
 #[cfg(test)]

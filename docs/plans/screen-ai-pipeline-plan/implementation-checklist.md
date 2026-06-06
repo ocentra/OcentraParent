@@ -66,11 +66,11 @@ claims.
 These rows are planned only. They do not upgrade the existing family-hub route
 or runtime-discovery proofs into full household mesh execution.
 
-| Proof                          | Status  | Artifact                                                                          | Non-claim                                                                                                                                                                                                                                    |
-| ------------------------------ | ------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Household mesh screen AI route | planned | `output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json`     | Must prove screen-derived child-owned AI work can route to a trusted household provider through claim/lease, return a typed result, validate on the child agent before policy, preserve deletion/custody, and avoid raw screenshot transfer. |
-| No raw screen transfer mesh    | planned | `output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json`             | Must prove raw screenshot payloads are forbidden by default for LAN providers and redacted/summary payloads cite evidence refs and custody state.                                                                                            |
-| Child provider result validity | planned | `output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json` | Must prove duplicate, expired, wrong-provider, wrong-claim, evidence-mismatch, and custody-mismatch results are rejected before policy.                                                                                                      |
+| Proof                          | Status           | Artifact                                                                          | Non-claim                                                                                                                                                                                                                                        |
+| ------------------------------ | ---------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Household mesh screen AI route | P2 runtime proof | `output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json`     | Proves screen-derived child-owned AI work routes through typed local mesh events, claim/lease, provider worker result, child-agent validation, policy-after-acceptance, and no raw screenshot transfer. Physical LAN execution remains separate. |
+| No raw screen transfer mesh    | P2 runtime proof | `output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json`             | Proves raw screenshot payloads are forbidden by default for provider workers and redacted summary/custody refs are used instead. Production bridge transport remains separate.                                                                   |
+| Child provider result validity | P2 runtime proof | `output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json` | Proves duplicate, expired, wrong-provider, wrong-claim, evidence-mismatch, custody-mismatch, raw-transfer, and provider-authority-invalid results are rejected before policy.                                                                    |
 
 ## Prerequisite Gates
 
@@ -82,7 +82,7 @@ or runtime-discovery proofs into full household mesh execution.
       deletion handoff through `crates/ocentra-eventing`, not direct module
       calls, for the in-process successful runtime chain. Live service
       producer/subscriber wiring remains a follow-up gate.
-- [ ] Mesh route proof, when household provider execution is used, proves
+- [x] Mesh route proof, when household provider execution is used, proves
       provider claim/lease/result-validation and no raw screenshot transfer.
 
 ## Real Trigger Gates
@@ -114,7 +114,7 @@ or runtime-discovery proofs into full household mesh execution.
 - [x] AI analysis starts from a typed screen evidence event and publishes a
       typed AI result event for the successful event-chain path. The degraded
       event path remains a follow-up gate.
-- [ ] Household provider route, when used, starts from child-owned AI work,
+- [x] Household provider route, when used, starts from child-owned AI work,
       grants one lease, and returns only a provider result for child validation.
 - [x] Local text model route proof over typed context.
 - [x] Deterministic route proof where structured evidence is enough.
@@ -135,7 +135,7 @@ or runtime-discovery proofs into full household mesh execution.
 - [x] Service WinRT OCR Activity Screen row feeds a typed parent policy dry-run.
 - [x] Policy consumes a typed AI result event from the eventing runtime in the
       successful event-chain proof path.
-- [ ] Policy consumes only child-accepted provider results, never raw provider
+- [x] Policy consumes only child-accepted provider results, never raw provider
       output or provider-originated policy/enforcement events.
 - [x] Real Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination proof.
 - [x] Screen-derived broad/browser/network/mobile adapter readiness states
@@ -166,7 +166,7 @@ or runtime-discovery proofs into full household mesh execution.
       result event, policy event, action/dry-run event, portal/read-model event,
       and deletion/custody event in one in-process runtime chain. Live trigger
       rerun through the service loop remains a follow-up product-complete gate.
-- [ ] Household mesh screen AI proof, when mesh route is used, records provider
+- [x] Household mesh screen AI proof, when mesh route is used, records provider
       discovery, provider selection, claim/lease, provider result,
       child-agent validation, policy authority, and custody artifacts.
 - [x] Parent explanation refs survive service-backed Activity Screen read-model
@@ -250,9 +250,15 @@ or runtime-discovery proofs into full household mesh execution.
 - [x] Event-driven Screen-AI runtime chain proof run:
       `node --check scripts/test/screen-ai-event-driven-runtime-proof.mjs` and
       `node scripts/test/screen-ai-event-driven-runtime-proof.mjs`.
-- [ ] Household mesh screen AI route proof run.
-- [ ] No-raw-screen-transfer mesh proof run.
-- [ ] Child-agent provider-result validation proof run.
+- [x] Household mesh screen AI route proof run:
+      `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
+      `node scripts/test/screen-ai-household-mesh-proof.mjs`.
+- [x] No-raw-screen-transfer mesh proof run:
+      `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
+      `node scripts/test/screen-ai-household-mesh-proof.mjs`.
+- [x] Child-agent provider-result validation proof run:
+      `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
+      `node scripts/test/screen-ai-household-mesh-proof.mjs`.
 - [x] Dependency policy rerun after capture dependency narrowing.
 - [x] Android emulator MediaProjection proof run.
 - [x] `git diff --check`.
