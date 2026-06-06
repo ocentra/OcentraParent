@@ -84,6 +84,8 @@ const ScreenChainFields = {
   parentExplanationRefs: ['screen-parent-explanation-1'],
   explanationReasons: ['screen-summary-cited', 'policy-decision-cited'],
   deletionReasons: ['screen-image-deleted'],
+  ocrTextSnippets: ['Homework research page [redacted]'],
+  redactionNotes: ['credentialLikeTextRedacted', 'piiLikeTextRedacted'],
 } as const;
 
 function screenReadModelRow(overrides = {}) {
@@ -377,6 +379,8 @@ function specifyActivityScreenReadModelContracts() {
     expect(row.rawImageRetained).toBe(false);
     expect(row.policyDecisionRef).toBe('screen-policy-decision-1');
     expect(row.parentExplanationRefs).toEqual(['screen-parent-explanation-1']);
+    expect(row.ocrTextSnippets).toEqual(['Homework research page [redacted]']);
+    expect(row.redactionNotes).toEqual(['credentialLikeTextRedacted', 'piiLikeTextRedacted']);
   });
 
   it('ActivityScreenReadModelSchema: accepts service WinRT OCR and capture metadata rows', () => {
@@ -440,6 +444,8 @@ function specifyActivityScreenLegacyReadModelContracts() {
           parentExplanationRefs: undefined,
           explanationReasons: undefined,
           deletionReasons: undefined,
+          ocrTextSnippets: undefined,
+          redactionNotes: undefined,
         })
       )
     );
@@ -447,6 +453,8 @@ function specifyActivityScreenLegacyReadModelContracts() {
     expect(parsed.rows[0]?.policyDecisionRef).toBeNull();
     expect(parsed.rows[0]?.parentRuleRefs).toEqual([]);
     expect(parsed.rows[0]?.parentExplanationRefs).toEqual([]);
+    expect(parsed.rows[0]?.ocrTextSnippets).toEqual([]);
+    expect(parsed.rows[0]?.redactionNotes).toEqual([]);
   });
 
   it('ActivityScreenReadModelSchema: defaults raw image retention to false for older rows', () => {

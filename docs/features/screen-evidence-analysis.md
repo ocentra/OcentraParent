@@ -451,7 +451,11 @@ only with explicit parent settings.
   redaction contract. Parent-controlled OCR text settings enforce a bounded
   snippet cap, disabled OCR text state, credential-like suppression, PII-like
   redaction, no raw text retention, no raw image retention, and no remote AI.
-  Service persistence and portal screenshot rendering remain separate gates.
+  `scripts/test/screen-ocr-redaction-portal-intent-proof.mjs` now proves
+  Activity Screen read-model rows carry redacted OCR snippets and redaction
+  notes into the Screen Analysis portal intent while omitting raw email, phone,
+  credential, raw image retention, and remote AI. Service persistence and a
+  real service-emitted portal screenshot remain separate gates.
 - `scripts/test/screen-local-ocr-vision-runtime-model-proof.mjs` now aggregates
   the existing WinRT OCR worker, service OCR, guided VLM worker, VLM execution
   readiness, VLM journal/read-model, and local resource scheduler artifacts into
@@ -560,6 +564,9 @@ parity, and UI remain separate proof gates.
 - [x] OCR sensitive text redaction contract proves parent-controlled snippet
       limits, disabled OCR text, credential-like suppression, PII-like
       redaction, and no raw text or remote AI retention.
+- [x] OCR redaction read-model/portal intent proof renders redacted snippets
+      and redaction notes without raw email, phone, credential, raw image
+      retention, or remote AI.
 - [x] Policy decision references summary evidence.
 - [x] Service WinRT OCR row feeds a typed parent policy dry-run without raw
       image retention.

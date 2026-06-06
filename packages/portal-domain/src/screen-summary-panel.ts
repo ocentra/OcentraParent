@@ -34,6 +34,8 @@ type ScreenReadModelRow = {
   readonly policyReasonCodes?: readonly string[];
   readonly parentRuleRefs?: readonly string[];
   readonly parentExplanationRefs?: readonly string[];
+  readonly ocrTextSnippets?: readonly string[];
+  readonly redactionNotes?: readonly string[];
 };
 
 export type ScreenSummaryPanelDetail = {
@@ -161,6 +163,8 @@ function screenSummaryRow(row: ScreenReadModelRow, productClaim: DisplayText): S
       detail(PortalDetails.EvidenceReferences, evidenceReferences(row)),
       detail(PortalDetails.ReasonCodes, referenceList(row.policyReasonCodes ?? [])),
       detail(PortalDetails.ParentRuleContextReferences, referenceList(row.parentRuleRefs ?? [])),
+      detail(PortalDetails.OcrSnippets, referenceList(row.ocrTextSnippets ?? [])),
+      detail(PortalDetails.RedactionNotes, referenceList(row.redactionNotes ?? [])),
       detail(PortalDetails.LocalAiResult, referenceList(row.parentExplanationRefs ?? [])),
       detail(PortalDetails.ProductClaim, productClaim),
     ],
@@ -246,6 +250,8 @@ function screenReadModelRowFromUnknown(value: unknown): ScreenReadModelRow | nul
     policyReasonCodes: textListValue(value['policyReasonCodes']),
     parentRuleRefs: textListValue(value['parentRuleRefs']),
     parentExplanationRefs: textListValue(value['parentExplanationRefs']),
+    ocrTextSnippets: textListValue(value['ocrTextSnippets']),
+    redactionNotes: textListValue(value['redactionNotes']),
   };
 }
 

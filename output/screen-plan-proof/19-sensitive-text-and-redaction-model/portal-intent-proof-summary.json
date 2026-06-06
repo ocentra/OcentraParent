@@ -1,0 +1,31 @@
+{
+  "proof": "screen-ocr-redaction-portal-intent-proof",
+  "proofTier": "P2_CONTRACT_SCREEN_OCR_REDACTION_PORTAL_INTENT",
+  "artifact": "output/screen-plan-proof/19-sensitive-text-and-redaction-model/portal-intent-proof-summary.json",
+  "source": {
+    "activityReadModelSchema": "@ocentra-parent/activity-domain/activity-surface",
+    "portalIntent": "@ocentra-parent/portal-domain/screen-summary-panel"
+  },
+  "assertions": {
+    "activityScreenReadModelCarriesRedactedOcrSnippets": true,
+    "activityScreenReadModelCarriesRedactionNotes": true,
+    "portalIntentRendersRedactedOcrSnippets": true,
+    "portalIntentRendersRedactionNotes": true,
+    "rawEmailOmitted": true,
+    "rawPhoneOmitted": true,
+    "rawCredentialOmitted": true,
+    "rawImageRetained": false
+  },
+  "nonClaims": [
+    "This is Activity Screen read-model and portal intent proof, not a live service persistence proof.",
+    "This proof does not claim a real portal screenshot from a service-emitted redaction row.",
+    "This proof does not retain raw OCR text, raw screenshots, or use remote AI."
+  ],
+  "validationCommands": [
+    "node scripts/test/screen-ocr-redaction-portal-intent-proof.mjs",
+    "cmd /c npm run build --workspace=@ocentra-parent/activity-domain",
+    "cmd /c npm run build --workspace=@ocentra-parent/portal-domain",
+    "cmd /c npm run test --workspace=@ocentra-parent/activity-domain -- tests/activity-surface.test.ts",
+    "cmd /c npm run test --workspace=@ocentra-parent/portal-domain -- tests/screen-summary-panel.test.ts"
+  ]
+}
