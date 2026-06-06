@@ -57,10 +57,33 @@ const NetworkPlatformClaimTargetSchema = Schema.Literal(
   'LinuxEbpf',
   'LinuxTun'
 );
+const NetworkPlatformClaimStateSchema = Schema.Literal(
+  'Ready',
+  'DryRun',
+  'ResearchOnly',
+  'ManualRequired',
+  'Unavailable'
+);
 const NetworkProductReadinessManualFollowupSchema = withParser(
   Schema.Struct({
     target: NetworkPlatformClaimTargetSchema,
     missing_required_artifacts: Schema.Array(NetworkProductReadinessProtocolText),
+  })
+);
+const NetworkPlatformClaimEntrySchema = withParser(
+  Schema.Struct({
+    target: NetworkPlatformClaimTargetSchema,
+    claim_state: NetworkPlatformClaimStateSchema,
+    policy_decision_ref: NetworkProductReadinessProtocolText,
+    parent_rule_ref: NetworkProductReadinessProtocolText,
+    evidence_refs: Schema.Array(NetworkProductReadinessProtocolText),
+    device_or_os_refs: Schema.Array(NetworkProductReadinessProtocolText),
+    permission_or_entitlement_refs: Schema.Array(NetworkProductReadinessProtocolText),
+    adapter_capability_refs: Schema.Array(NetworkProductReadinessProtocolText),
+    missing_required_artifacts: Schema.Array(NetworkProductReadinessProtocolText),
+    audit_refs: Schema.Array(NetworkProductReadinessProtocolText),
+    adapter_authorized_by_proof: Schema.Boolean,
+    enforcement_command_published: Schema.Literal(false),
   })
 );
 const NetworkProductReadinessMissingArtifactSchema = withParser(
@@ -117,6 +140,7 @@ export const AgentNetworkProductReadinessStatusSchema = withParser(
     platform_manual_required_claims: NetworkProductReadinessProtocolCount,
     platform_unavailable_claims: NetworkProductReadinessProtocolCount,
     platform_manual_followups: Schema.Array(NetworkProductReadinessManualFollowupSchema),
+    platform_entries: Schema.Array(NetworkPlatformClaimEntrySchema),
     portal_read_model_ready: Schema.Boolean,
     retention_export_refs_visible: Schema.Boolean,
     policy_authority: Schema.Literal(false),
@@ -133,6 +157,7 @@ export const AgentNetworkProductReadinessStatusSchema = withParser(
 );
 
 export type AgentNetworkLiveCaptureCustodyStatus = Infer<typeof AgentNetworkLiveCaptureCustodyStatusSchema>;
+export type AgentNetworkPlatformClaimEntry = Infer<typeof NetworkPlatformClaimEntrySchema>;
 export type AgentNetworkProductReadinessStatus = Infer<typeof AgentNetworkProductReadinessStatusSchema>;
 
 export type AgentNetworkProductReadinessStatusParseResult =
@@ -193,12 +218,32 @@ export function parseAgentNetworkProductReadinessStatusEvent(
   if (!parsedProduct.success) {
     return parserFailure('invalid-product-readiness-status');
   }
+  if (!platformEntryCountsMatch(parsedProduct.data)) {
+    return parserFailure('invalid-product-readiness-status');
+  }
 
   return {
     ok: true,
     liveCaptureCustodyStatus: parsedLiveCapture.data,
     productReadinessStatus: parsedProduct.data,
   };
+}
+
+function platformEntryCountsMatch(product: AgentNetworkProductReadinessStatus): boolean {
+  return (
+    platformEntryCount(product, 'Ready') === product.platform_ready_claims &&
+    platformEntryCount(product, 'DryRun') === product.platform_dry_run_claims &&
+    platformEntryCount(product, 'ResearchOnly') === product.platform_research_only_claims &&
+    platformEntryCount(product, 'ManualRequired') === product.platform_manual_required_claims &&
+    platformEntryCount(product, 'Unavailable') === product.platform_unavailable_claims
+  );
+}
+
+function platformEntryCount(
+  product: AgentNetworkProductReadinessStatus,
+  claimState: AgentNetworkPlatformClaimEntry['claim_state']
+): number {
+  return product.platform_entries.filter((entry) => entry.claim_state === claimState).length;
 }
 
 function parseJsonField(

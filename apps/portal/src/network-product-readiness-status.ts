@@ -1,6 +1,7 @@
 import {
   parseAgentNetworkProductReadinessStatusEvent,
   type AgentNetworkLiveCaptureCustodyStatus,
+  type AgentNetworkPlatformClaimEntry,
   type AgentNetworkProductReadinessStatusFailureReason,
   type AgentNetworkProductReadinessStatus,
 } from '@ocentra-parent/agent-protocol-domain/network-product-readiness-status';
@@ -37,6 +38,22 @@ export type NetworkProductReadinessStatusSummary = {
   readonly portalReadModelReady: PortalDetailValue;
   readonly retentionExportRefsVisible: PortalDetailValue;
   readonly noClaimBoundary: PortalDetailValue;
+  readonly platformEntries: readonly NetworkPlatformClaimManifestEntrySummary[];
+};
+
+export type NetworkPlatformClaimManifestEntrySummary = {
+  readonly target: PortalDetailValue;
+  readonly state: PortalDetailValue;
+  readonly policyDecisionRef: PortalDetailValue;
+  readonly parentRuleRef: PortalDetailValue;
+  readonly evidenceRefs: PortalDetailValue;
+  readonly deviceOrOsRefs: PortalDetailValue;
+  readonly permissionOrEntitlementRefs: PortalDetailValue;
+  readonly adapterCapabilityRefs: PortalDetailValue;
+  readonly missingRequiredArtifacts: PortalDetailValue;
+  readonly auditRefs: PortalDetailValue;
+  readonly adapterAuthorizedByProof: PortalDetailValue;
+  readonly enforcementCommandPublished: PortalDetailValue;
 };
 
 export function parseNetworkProductReadinessStatus(
@@ -79,6 +96,7 @@ export function emptyNetworkProductReadinessStatusSummary(): NetworkProductReadi
     portalReadModelReady: notReported(),
     retentionExportRefsVisible: notReported(),
     noClaimBoundary: notReported(),
+    platformEntries: [],
   };
 }
 
@@ -119,6 +137,24 @@ function networkProductReadinessStatusSummary(
     portalReadModelReady: detailFromValue(product.portal_read_model_ready),
     retentionExportRefsVisible: detailFromValue(product.retention_export_refs_visible),
     noClaimBoundary: detailFromValue(noClaimBoundaryUpgraded(custody, product)),
+    platformEntries: product.platform_entries.map(platformEntrySummary),
+  };
+}
+
+function platformEntrySummary(entry: AgentNetworkPlatformClaimEntry): NetworkPlatformClaimManifestEntrySummary {
+  return {
+    target: detailFromValue(entry.target),
+    state: detailFromValue(entry.claim_state),
+    policyDecisionRef: detailFromValue(entry.policy_decision_ref),
+    parentRuleRef: detailFromValue(entry.parent_rule_ref),
+    evidenceRefs: joinedDetail(entry.evidence_refs),
+    deviceOrOsRefs: joinedDetail(entry.device_or_os_refs),
+    permissionOrEntitlementRefs: joinedDetail(entry.permission_or_entitlement_refs),
+    adapterCapabilityRefs: joinedDetail(entry.adapter_capability_refs),
+    missingRequiredArtifacts: joinedDetail(entry.missing_required_artifacts),
+    auditRefs: joinedDetail(entry.audit_refs),
+    adapterAuthorizedByProof: detailFromValue(entry.adapter_authorized_by_proof),
+    enforcementCommandPublished: detailFromValue(entry.enforcement_command_published),
   };
 }
 
@@ -166,6 +202,7 @@ function unsupportedProductClaims(product: AgentNetworkProductReadinessStatus): 
       product.exact_url_available ||
       product.decrypted_payload_available ||
       product.page_content_available,
+    product.platform_entries.some((entry) => entry.enforcement_command_published),
   ];
 }
 
