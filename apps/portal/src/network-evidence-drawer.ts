@@ -11,6 +11,7 @@ import {
   decodePortalDetailValue,
   type PortalDetailValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import type { NetworkRuntimeEventChainSummary } from './network-runtime-event-chain';
 
 export type NetworkEvidenceDrawerSummary = {
   readonly evidenceId: PortalDetailValue;
@@ -32,6 +33,7 @@ export type NetworkEvidenceDrawerSummary = {
   readonly analyzerAlertRef: PortalDetailValue;
   readonly detectionResultRef: PortalDetailValue;
   readonly aiAuditRef: PortalDetailValue;
+  readonly auditRef: PortalDetailValue;
   readonly riskBudgetRef: PortalDetailValue;
   readonly policyDecisionRef: PortalDetailValue;
   readonly interventionResultRef: PortalDetailValue;
@@ -40,15 +42,19 @@ export type NetworkEvidenceDrawerSummary = {
   readonly custody: PortalDetailValue;
   readonly evidenceGrade: PortalDetailValue;
   readonly confidence: PortalDetailValue;
+  readonly manualRequiredState: PortalDetailValue;
+  readonly unavailableState: PortalDetailValue;
   readonly uncertaintyReasonCodes: PortalDetailValue;
   readonly evidenceReferences: PortalDetailValue;
   readonly exactUrlClaim: PortalDetailValue;
 };
 
 export function networkEvidenceDrawerSummary(
-  readModel: ActivityNetworkFlowReadModel | null
+  readModel: ActivityNetworkFlowReadModel | null,
+  eventChain: NetworkRuntimeEventChainSummary | null = null
 ): NetworkEvidenceDrawerSummary {
   const row = firstNetworkFlowRow(readModel);
+  const runtime = runtimeEventChainDetails(eventChain, row);
   return {
     evidenceId: detailFromRowValue(row, (value) => value.eventId),
     observedAt: detailFromRowValue(row, (value) => value.observedAt),
@@ -68,18 +74,43 @@ export function networkEvidenceDrawerSummary(
     byteSummary: byteSummary(row),
     analyzerAlertRef: notReported(),
     detectionResultRef: notReported(),
-    aiAuditRef: notReported(),
+    aiAuditRef: runtime.aiAuditRef,
+    auditRef: runtime.auditRef,
     riskBudgetRef: notReported(),
+    policyDecisionRef: runtime.policyDecisionRef,
+    interventionResultRef: runtime.interventionResultRef,
+    eventHistoryRef: runtime.eventHistoryRef,
+    retentionState: runtime.retentionState,
+    custody: readModelCustodyDetail(readModel),
+    evidenceGrade: runtime.evidenceGrade,
+    confidence: runtime.confidence,
+    manualRequiredState: runtime.manualRequiredState,
+    unavailableState: runtime.unavailableState,
+    uncertaintyReasonCodes: uncertaintyReasonCodes(row),
+    evidenceReferences: evidenceReferenceDetail(row),
+    exactUrlClaim: notReported(),
+  };
+}
+
+function runtimeEventChainDetails(
+  eventChain: NetworkRuntimeEventChainSummary | null,
+  row: ActivityNetworkFlowObservation | null
+): NetworkRuntimeEventChainSummary {
+  if (eventChain !== null) {
+    return eventChain;
+  }
+
+  return {
+    aiAuditRef: notReported(),
+    auditRef: notReported(),
     policyDecisionRef: notReported(),
     interventionResultRef: notReported(),
     eventHistoryRef: detailFromValue(row?.eventId),
     retentionState: notReported(),
-    custody: readModelCustodyDetail(readModel),
     evidenceGrade: notReported(),
     confidence: notReported(),
-    uncertaintyReasonCodes: uncertaintyReasonCodes(row),
-    evidenceReferences: evidenceReferenceDetail(row),
-    exactUrlClaim: notReported(),
+    manualRequiredState: notReported(),
+    unavailableState: notReported(),
   };
 }
 

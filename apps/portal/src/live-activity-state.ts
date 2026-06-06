@@ -64,6 +64,7 @@ import {
 } from '@ocentra-parent/portal-domain/contracts';
 import { parseBrowserInterventionReadModel } from './browser-intervention-read-model';
 import { parseNetworkFlowReadModel } from './network-flow-read-model';
+import { parseNetworkRuntimeEventChain, type NetworkRuntimeEventChainSummary } from './network-runtime-event-chain';
 import { parsePolicyPreviewReadModel, type PortalPolicyPreviewReadModel } from './policy-preview-read-model';
 
 type ActivitySurfaceReadModel =
@@ -107,6 +108,8 @@ export interface PortalLiveActivityState {
   readonly browserInterventionReadModel: BrowserInterventionReadModel | null;
   readonly networkFlowEvent: AgentEventEnvelope | null;
   readonly networkFlowReadModel: ActivityNetworkFlowReadModel | null;
+  readonly networkRuntimeEventChainEvent: AgentEventEnvelope | null;
+  readonly networkRuntimeEventChain: NetworkRuntimeEventChainSummary | null;
   readonly activityTrackingReadModelEvent: AgentEventEnvelope | null;
   readonly activityTrackingReadModel: AgentActivityTrackingReadModelResult | null;
   readonly lanPairingStatusEvent: AgentEventEnvelope | null;
@@ -184,6 +187,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
       browserInterventionEvent === null ? null : parseBrowserInterventionReadModel(browserInterventionEvent.payload),
     networkFlowEvent,
     networkFlowReadModel: networkFlowEvent === null ? null : parseNetworkFlowReadModel(networkFlowEvent.payload),
+    ...resolveNetworkRuntimeEventChain(events),
     ...resolveActivityTrackingReadModel(events),
     lanPairingStatusEvent,
     lanPairingBrowserDiscoveryEvent,
@@ -195,6 +199,14 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     appGamePolicyReadinessEvent,
     appGamePolicyReadinessReadModel:
       appGamePolicyReadinessEvent === null ? null : parseAgentAppGamePolicyReadinessEvent(appGamePolicyReadinessEvent),
+  };
+}
+
+function resolveNetworkRuntimeEventChain(events: readonly AgentEventEnvelope[]) {
+  const event = latestEvent(events, AgentEvent.NetworkRuntimeEventChainStreamReported);
+  return {
+    networkRuntimeEventChainEvent: event,
+    networkRuntimeEventChain: event === null ? null : parseNetworkRuntimeEventChain(event.payload),
   };
 }
 

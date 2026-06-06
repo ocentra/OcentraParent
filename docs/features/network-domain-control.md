@@ -284,6 +284,12 @@ compete on control while staying clear about attribution confidence and privacy.
   refs from the network activity digest, shows metadata-only endpoint/domain/
   process attribution, and keeps exact URL, AI, policy, intervention, and
   retention facets explicitly not reported when no service refs exist.
+- E-D extended the parent portal network evidence drawer to consume the service
+  `agent.network.runtime.event-chain.stream.reported` payload. The Activity
+  route now renders typed AI-audit, policy-decision, enforcement-handoff,
+  audit, event-history, retention-counter, evidence-grade, confidence, and
+  manual/unavailable state refs from the runtime event chain while continuing
+  to reject exact URL/content and live adapter/enforcement claims.
 - E-D added a deterministic DNS proxy/block/redirect adapter proof boundary in
   `ocentra-network-evidence`: grade-A block policy plus parent-rule, evidence,
   capability, adapter authorization, apply, result, rollback, and audit refs can
@@ -384,8 +390,8 @@ runtime, full policy engine execution, notification provider delivery, broader
 parent-facing rule UX, live host DNS mutation/proxy installation, live Windows
 Firewall mutation, live WFP driver/callout/packet blocking, live Android
 VpnService filtering, live Apple Network Extension behavior, live Linux adapter
-execution, platform adapter execution, and broader portal risk-budget/performance
-UI rendering remain open.
+execution, platform adapter execution, and broader portal risk-budget,
+performance, and platform capability UI rendering remain open.
 
 ## Checklist
 
@@ -508,7 +514,9 @@ UI rendering remain open.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
-      unsupported-claim states without publishing policy or adapter commands.
+      service runtime event-chain refs for AI audit, policy, enforcement
+      handoff, audit, retention counters, event history, and manual/unavailable
+      states without publishing policy or adapter commands.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
       Row37 DNS adapter, Row38 Windows Firewall, Row39 WFP, and Row40 Android
