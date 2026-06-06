@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '../src/contracts';
-import { parseAgentNetworkProductReadinessStatusEvent } from '../src/network-product-readiness-status';
+import {
+  parseAgentNetworkProductReadinessStatusEvent,
+  type AgentNetworkLiveCaptureCustodyStatus,
+  type AgentNetworkProductReadinessStatus,
+  type AgentNetworkRemoteDeliveryStatus,
+} from '../src/network-product-readiness-status';
 
 describe('network product readiness status protocol adapter', () => {
   it('parses the service-backed live-capture custody and product readiness status payloads', () => {
@@ -10,34 +15,9 @@ describe('network product readiness status protocol adapter', () => {
     if (!parsed.ok) {
       throw new Error(parsed.reason);
     }
-    expect(parsed.liveCaptureCustodyStatus.status_ref).toBe('network.live-capture.custody-status.13a');
-    expect(parsed.liveCaptureCustodyStatus.state).toBe('CustodyReady');
-    expect(parsed.liveCaptureCustodyStatus.live_capture_executed).toBe(false);
-    expect(parsed.liveCaptureCustodyStatus.exact_url_available).toBe(false);
-    expect(parsed.productReadinessStatus.status_ref).toBe('network.product-readiness.status.51a');
-    expect(parsed.productReadinessStatus.readiness_state).toBe('ManualRequired');
-    expect(parsed.productReadinessStatus.risk_evaluation_ref).toBe('network.risk-evaluation.51a');
-    expect(parsed.productReadinessStatus.risk_age_band).toBe('UnderTwelve');
-    expect(parsed.productReadinessStatus.risk_budget_state).toBe('AskParentThreshold');
-    expect(parsed.productReadinessStatus.risk_total_points).toBe(42);
-    expect(parsed.productReadinessStatus.risk_cited_evidence_refs).toEqual(['network.flow-evidence.51a']);
-    expect(parsed.productReadinessStatus.risk_adapter_proof_state).toBe('Ready');
-    expect(parsed.productReadinessStatus.risk_budget_advisory_only).toBe(true);
-    expect(parsed.productReadinessStatus.performance_benchmark_run_ref).toBe('network.performance.51a');
-    expect(parsed.productReadinessStatus.performance_packet_count).toBe(2000);
-    expect(parsed.productReadinessStatus.performance_event_throughput_per_second).toBe(3200);
-    expect(parsed.productReadinessStatus.performance_realtime_response_claimed).toBe(false);
-    expect(parsed.productReadinessStatus.performance_adapter_action_executed).toBe(false);
-    expect(parsed.productReadinessStatus.performance_host_filtering_executed).toBe(false);
-    expect(parsed.productReadinessStatus.platform_entries).toHaveLength(4);
-    expect(parsed.productReadinessStatus.platform_entries[0]?.target).toBe('WindowsFirewall');
-    expect(parsed.productReadinessStatus.platform_entries[0]?.adapter_authorized_by_proof).toBe(true);
-    expect(parsed.productReadinessStatus.platform_entries[2]?.target).toBe('WindowsWfp');
-    expect(parsed.productReadinessStatus.platform_entries[2]?.missing_required_artifacts).toEqual([
-      'network.platform-claim.manual-followup.51a',
-    ]);
-    expect(parsed.productReadinessStatus.portal_adapter_dispatch_claimed).toBe(false);
-    expect(parsed.productReadinessStatus.enforcement_commands_published).toBe(0);
+    assertLiveCaptureCustodyStatus(parsed.liveCaptureCustodyStatus);
+    assertProductReadinessStatus(parsed.productReadinessStatus);
+    assertRemoteDeliveryStatus(parsed.remoteDeliveryStatus);
   });
 
   it('rejects wrong events and malformed payloads without inventing status rows', () => {
@@ -49,6 +29,18 @@ describe('network product readiness status protocol adapter', () => {
     expect(parseAgentNetworkProductReadinessStatusEvent(invalidJsonEvent())).toEqual({
       ok: false,
       reason: 'invalid-product-readiness-status-json',
+    });
+    expect(parseAgentNetworkProductReadinessStatusEvent(missingRemoteDeliveryStatusEvent())).toEqual({
+      ok: false,
+      reason: 'missing-remote-delivery-status',
+    });
+    expect(parseAgentNetworkProductReadinessStatusEvent(invalidRemoteDeliveryJsonEvent())).toEqual({
+      ok: false,
+      reason: 'invalid-remote-delivery-status-json',
+    });
+    expect(parseAgentNetworkProductReadinessStatusEvent(remoteDeliveryClaimRegressionEvent())).toEqual({
+      ok: false,
+      reason: 'invalid-remote-delivery-status',
     });
     expect(parseAgentNetworkProductReadinessStatusEvent(invalidProductStatusEvent())).toEqual({
       ok: false,
@@ -73,6 +65,65 @@ describe('network product readiness status protocol adapter', () => {
   });
 });
 
+function assertLiveCaptureCustodyStatus(status: AgentNetworkLiveCaptureCustodyStatus) {
+  expect(status.status_ref).toBe('network.live-capture.custody-status.13a');
+  expect(status.state).toBe('CustodyReady');
+  expect(status.live_capture_executed).toBe(false);
+  expect(status.exact_url_available).toBe(false);
+}
+
+function assertProductReadinessStatus(status: AgentNetworkProductReadinessStatus) {
+  expect(status.status_ref).toBe('network.product-readiness.status.51a');
+  expect(status.readiness_state).toBe('ManualRequired');
+  expect(status.risk_evaluation_ref).toBe('network.risk-evaluation.51a');
+  expect(status.risk_age_band).toBe('UnderTwelve');
+  expect(status.risk_budget_state).toBe('AskParentThreshold');
+  expect(status.risk_total_points).toBe(42);
+  expect(status.risk_cited_evidence_refs).toEqual(['network.flow-evidence.51a']);
+  expect(status.risk_adapter_proof_state).toBe('Ready');
+  expect(status.risk_budget_advisory_only).toBe(true);
+  expect(status.performance_benchmark_run_ref).toBe('network.performance.51a');
+  expect(status.performance_packet_count).toBe(2000);
+  expect(status.performance_event_throughput_per_second).toBe(3200);
+  expect(status.performance_realtime_response_claimed).toBe(false);
+  expect(status.performance_adapter_action_executed).toBe(false);
+  expect(status.performance_host_filtering_executed).toBe(false);
+  expect(status.platform_entries).toHaveLength(4);
+  expect(status.platform_entries[0]?.target).toBe('WindowsFirewall');
+  expect(status.platform_entries[0]?.adapter_authorized_by_proof).toBe(true);
+  expect(status.platform_entries[2]?.target).toBe('WindowsWfp');
+  expect(status.platform_entries[2]?.missing_required_artifacts).toEqual([
+    'network.platform-claim.manual-followup.51a',
+  ]);
+  expect(status.portal_adapter_dispatch_claimed).toBe(false);
+  expect(status.enforcement_commands_published).toBe(0);
+}
+
+function assertRemoteDeliveryStatus(status: AgentNetworkRemoteDeliveryStatus) {
+  expect(status.status_ref).toBe('network.remote-delivery.status.10c');
+  expect(status.broker_status).toBe('RequirementsSatisfiedButNotImplemented');
+  expect(status.family_hub_status).toBe('RequirementsSatisfiedButNotImplemented');
+  expect(status.custody_proof_ref).toBe('broker.network.custody-proof.1');
+  expect(status.publisher_auth_ref).toBe('broker.network.publisher-auth.1');
+  expect(status.subscriber_auth_ref).toBe('broker.network.subscriber-auth.1');
+  expect(status.relay_identity_ref).toBe('family-hub.network.identity.1');
+  expect(status.broker_missing_artifact_count).toBe(0);
+  expect(status.family_hub_missing_artifact_count).toBe(0);
+  expect(status.accepted_event_type_count).toBe(3);
+  expect(status.local_idempotency_queue_proved).toBe(true);
+  expect(status.dropped_event_dead_letter_count).toBe(1);
+  expect(status.queued_duplicate_rejected).toBe(true);
+  expect(status.completed_duplicate_rejected).toBe(true);
+  expect(status.external_transport_delivery_implemented).toBe(false);
+  expect(status.family_hub_delivery_implemented).toBe(false);
+  expect(status.cross_process_replay_implemented).toBe(false);
+  expect(status.remote_retention_delete_export_propagation_implemented).toBe(false);
+  expect(status.policy_authority).toBe(false);
+  expect(status.side_effect_authority).toBe(false);
+  expect(status.enforcement_command_event_count).toBe(0);
+  expect(status.adapter_action_executed_count).toBe(0);
+}
+
 function productReadinessEvent() {
   return AgentEventEnvelopeSchema.parse({
     schemaVersion: 1,
@@ -89,6 +140,7 @@ function productReadinessEvent() {
     payload: {
       [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
       [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
     snapshot: null,
   });
@@ -117,6 +169,7 @@ function missingProductStatusEvent() {
     ...productReadinessEvent(),
     payload: {
       [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
 }
@@ -127,6 +180,28 @@ function invalidJsonEvent() {
     payload: {
       [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
       [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: '{',
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
+    },
+  });
+}
+
+function missingRemoteDeliveryStatusEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...productReadinessEvent(),
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+    },
+  });
+}
+
+function invalidRemoteDeliveryJsonEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...productReadinessEvent(),
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: '{',
     },
   });
 }
@@ -140,6 +215,7 @@ function invalidProductStatusEvent() {
         ...productReadinessStatus(),
         readiness_state: null,
       }),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
 }
@@ -155,6 +231,21 @@ function claimRegressionEvent() {
         portal_adapter_dispatch_claimed: true,
         performance_host_filtering_executed: true,
       }),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
+    },
+  });
+}
+
+function remoteDeliveryClaimRegressionEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...productReadinessEvent(),
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkLiveCaptureCustodyStatus]: JSON.stringify(liveCaptureCustodyStatus()),
+      [AgentProtocolDefaults.Field.NetworkProductReadinessStatus]: JSON.stringify(productReadinessStatus()),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify({
+        ...remoteDeliveryStatus(),
+        family_hub_delivery_implemented: true,
+      }),
     },
   });
 }
@@ -168,6 +259,7 @@ function unknownReadinessStateEvent() {
         ...productReadinessStatus(),
         readiness_state: 'ReadyMaybe',
       }),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
 }
@@ -186,6 +278,7 @@ function platformEntryCommandRegressionEvent() {
           },
         ],
       }),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
 }
@@ -199,6 +292,7 @@ function platformCountRegressionEvent() {
         ...productReadinessStatus(),
         platform_ready_claims: 2,
       }),
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(remoteDeliveryStatus()),
     },
   });
 }
@@ -251,6 +345,41 @@ function productReadinessStatus() {
     exact_url_available: false,
     decrypted_payload_available: false,
     page_content_available: false,
+  };
+}
+
+function remoteDeliveryStatus() {
+  return {
+    status_ref: 'network.remote-delivery.status.10c',
+    broker_status: 'RequirementsSatisfiedButNotImplemented',
+    family_hub_status: 'RequirementsSatisfiedButNotImplemented',
+    custody_proof_ref: 'broker.network.custody-proof.1',
+    publisher_auth_ref: 'broker.network.publisher-auth.1',
+    subscriber_auth_ref: 'broker.network.subscriber-auth.1',
+    encryption_ref: 'broker.network.encryption.1',
+    retention_policy_ref: 'broker.network.retention-policy.1',
+    replay_plan_ref: 'broker.network.replay-plan.1',
+    deletion_plan_ref: 'broker.network.deletion-plan.1',
+    offset_policy_ref: 'broker.network.offset-policy.1',
+    dedupe_policy_ref: 'broker.network.dedupe-policy.1',
+    transport_config_ref: 'broker.network.config.1',
+    relay_identity_ref: 'family-hub.network.identity.1',
+    relay_policy_ref: 'family-hub.network.relay-policy.1',
+    broker_missing_artifact_count: 0,
+    family_hub_missing_artifact_count: 0,
+    accepted_event_type_count: 3,
+    local_idempotency_queue_proved: true,
+    dropped_event_dead_letter_count: 1,
+    queued_duplicate_rejected: true,
+    completed_duplicate_rejected: true,
+    external_transport_delivery_implemented: false,
+    family_hub_delivery_implemented: false,
+    cross_process_replay_implemented: false,
+    remote_retention_delete_export_propagation_implemented: false,
+    policy_authority: false,
+    side_effect_authority: false,
+    enforcement_command_event_count: 0,
+    adapter_action_executed_count: 0,
   };
 }
 

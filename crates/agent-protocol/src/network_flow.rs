@@ -106,6 +106,46 @@ pub struct ActivityNetworkFlowDigest {
     pub unusual_indicators: Vec<ActivityNetworkFlowIndicator>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkRemoteDeliveryStatusState {
+    RequirementsSatisfiedButNotImplemented,
+    ManualRequired,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct NetworkRemoteDeliveryStatus {
+    pub status_ref: String,
+    pub broker_status: NetworkRemoteDeliveryStatusState,
+    pub family_hub_status: NetworkRemoteDeliveryStatusState,
+    pub custody_proof_ref: String,
+    pub publisher_auth_ref: String,
+    pub subscriber_auth_ref: String,
+    pub encryption_ref: String,
+    pub retention_policy_ref: String,
+    pub replay_plan_ref: String,
+    pub deletion_plan_ref: String,
+    pub offset_policy_ref: String,
+    pub dedupe_policy_ref: String,
+    pub transport_config_ref: String,
+    pub relay_identity_ref: String,
+    pub relay_policy_ref: String,
+    pub broker_missing_artifact_count: u64,
+    pub family_hub_missing_artifact_count: u64,
+    pub accepted_event_type_count: u64,
+    pub local_idempotency_queue_proved: bool,
+    pub dropped_event_dead_letter_count: u64,
+    pub queued_duplicate_rejected: bool,
+    pub completed_duplicate_rejected: bool,
+    pub external_transport_delivery_implemented: bool,
+    pub family_hub_delivery_implemented: bool,
+    pub cross_process_replay_implemented: bool,
+    pub remote_retention_delete_export_propagation_implemented: bool,
+    pub policy_authority: bool,
+    pub side_effect_authority: bool,
+    pub enforcement_command_event_count: u64,
+    pub adapter_action_executed_count: u64,
+}
+
 #[path = "network_flow_events.rs"]
 mod network_flow_events;
 

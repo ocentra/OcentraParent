@@ -12,6 +12,10 @@ const NetworkLiveCaptureCustodyStatusStateSchema = Schema.Literal(
 const NetworkLiveCaptureProofStateSchema = Schema.Literal('ProofReady', 'ManualRequired', 'Unavailable', 'Degraded');
 const NetworkRawCaptureStorageStateSchema = Schema.Literal('CustodyReady', 'ManualRequired', 'Unavailable', 'Degraded');
 const NetworkProductReadinessStatusStateSchema = Schema.Literal('ReadyForPortal', 'ManualRequired', 'Degraded');
+const NetworkRemoteDeliveryStatusStateSchema = Schema.Literal(
+  'RequirementsSatisfiedButNotImplemented',
+  'ManualRequired'
+);
 const NetworkRiskBudgetStateSchema = Schema.Literal(
   'WithinBudget',
   'MonitorThreshold',
@@ -204,15 +208,52 @@ export const AgentNetworkProductReadinessStatusSchema = withParser(
   })
 );
 
+export const AgentNetworkRemoteDeliveryStatusSchema = withParser(
+  Schema.Struct({
+    status_ref: NetworkProductReadinessProtocolText,
+    broker_status: NetworkRemoteDeliveryStatusStateSchema,
+    family_hub_status: NetworkRemoteDeliveryStatusStateSchema,
+    custody_proof_ref: NetworkProductReadinessProtocolText,
+    publisher_auth_ref: NetworkProductReadinessProtocolText,
+    subscriber_auth_ref: NetworkProductReadinessProtocolText,
+    encryption_ref: NetworkProductReadinessProtocolText,
+    retention_policy_ref: NetworkProductReadinessProtocolText,
+    replay_plan_ref: NetworkProductReadinessProtocolText,
+    deletion_plan_ref: NetworkProductReadinessProtocolText,
+    offset_policy_ref: NetworkProductReadinessProtocolText,
+    dedupe_policy_ref: NetworkProductReadinessProtocolText,
+    transport_config_ref: NetworkProductReadinessProtocolText,
+    relay_identity_ref: NetworkProductReadinessProtocolText,
+    relay_policy_ref: NetworkProductReadinessProtocolText,
+    broker_missing_artifact_count: NetworkProductReadinessProtocolCount,
+    family_hub_missing_artifact_count: NetworkProductReadinessProtocolCount,
+    accepted_event_type_count: NetworkProductReadinessProtocolCount,
+    local_idempotency_queue_proved: Schema.Boolean,
+    dropped_event_dead_letter_count: NetworkProductReadinessProtocolCount,
+    queued_duplicate_rejected: Schema.Boolean,
+    completed_duplicate_rejected: Schema.Boolean,
+    external_transport_delivery_implemented: Schema.Literal(false),
+    family_hub_delivery_implemented: Schema.Literal(false),
+    cross_process_replay_implemented: Schema.Literal(false),
+    remote_retention_delete_export_propagation_implemented: Schema.Literal(false),
+    policy_authority: Schema.Literal(false),
+    side_effect_authority: Schema.Literal(false),
+    enforcement_command_event_count: Schema.Literal(0),
+    adapter_action_executed_count: Schema.Literal(0),
+  })
+);
+
 export type AgentNetworkLiveCaptureCustodyStatus = Infer<typeof AgentNetworkLiveCaptureCustodyStatusSchema>;
 export type AgentNetworkPlatformClaimEntry = Infer<typeof NetworkPlatformClaimEntrySchema>;
 export type AgentNetworkProductReadinessStatus = Infer<typeof AgentNetworkProductReadinessStatusSchema>;
+export type AgentNetworkRemoteDeliveryStatus = Infer<typeof AgentNetworkRemoteDeliveryStatusSchema>;
 
 export type AgentNetworkProductReadinessStatusParseResult =
   | {
       readonly ok: true;
       readonly liveCaptureCustodyStatus: AgentNetworkLiveCaptureCustodyStatus;
       readonly productReadinessStatus: AgentNetworkProductReadinessStatus;
+      readonly remoteDeliveryStatus: AgentNetworkRemoteDeliveryStatus;
     }
   | {
       readonly ok: false;
@@ -220,10 +261,13 @@ export type AgentNetworkProductReadinessStatusParseResult =
         | 'wrong-event'
         | 'missing-live-capture-custody-status'
         | 'missing-product-readiness-status'
+        | 'missing-remote-delivery-status'
         | 'invalid-live-capture-custody-status-json'
         | 'invalid-product-readiness-status-json'
+        | 'invalid-remote-delivery-status-json'
         | 'invalid-live-capture-custody-status'
-        | 'invalid-product-readiness-status';
+        | 'invalid-product-readiness-status'
+        | 'invalid-remote-delivery-status';
     };
 export type AgentNetworkProductReadinessStatusFailureReason = Extract<
   AgentNetworkProductReadinessStatusParseResult,
@@ -257,6 +301,16 @@ export function parseAgentNetworkProductReadinessStatusEvent(
     return productStatus;
   }
 
+  const remoteDeliveryStatus = parseJsonField(
+    event,
+    AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus,
+    'missing-remote-delivery-status',
+    'invalid-remote-delivery-status-json'
+  );
+  if (!remoteDeliveryStatus.ok) {
+    return remoteDeliveryStatus;
+  }
+
   const parsedLiveCapture = AgentNetworkLiveCaptureCustodyStatusSchema.safeParse(liveCaptureStatus.value);
   if (!parsedLiveCapture.success) {
     return parserFailure('invalid-live-capture-custody-status');
@@ -270,10 +324,16 @@ export function parseAgentNetworkProductReadinessStatusEvent(
     return parserFailure('invalid-product-readiness-status');
   }
 
+  const parsedRemoteDelivery = AgentNetworkRemoteDeliveryStatusSchema.safeParse(remoteDeliveryStatus.value);
+  if (!parsedRemoteDelivery.success) {
+    return parserFailure('invalid-remote-delivery-status');
+  }
+
   return {
     ok: true,
     liveCaptureCustodyStatus: parsedLiveCapture.data,
     productReadinessStatus: parsedProduct.data,
+    remoteDeliveryStatus: parsedRemoteDelivery.data,
   };
 }
 

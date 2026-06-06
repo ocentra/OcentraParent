@@ -248,6 +248,7 @@ pub const NETWORK_MODE: &str = "networkMode";
 pub const NETWORK_LIVE_CAPTURE_CUSTODY_STATUS: &str = "networkLiveCaptureCustodyStatus";
 pub const NETWORK_PROTOCOL: &str = "networkProtocol";
 pub const NETWORK_PRODUCT_READINESS_STATUS: &str = "networkProductReadinessStatus";
+pub const NETWORK_REMOTE_DELIVERY_STATUS: &str = "networkRemoteDeliveryStatus";
 pub const NETWORK_RUNTIME_EVENT_CHAIN_STREAM: &str = "networkRuntimeEventChainStream";
 pub const NETWORK_RUNTIME_DEAD_LETTERS: &str = "networkRuntimeDeadLetters";
 pub const NETWORK_RUNTIME_DELIVERED_ROWS: &str = "networkRuntimeDeliveredRows";

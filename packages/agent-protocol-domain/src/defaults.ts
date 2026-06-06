@@ -362,6 +362,7 @@ export const AgentProtocolDefaults = {
     NetworkProtocol: 'networkProtocol',
     NetworkLiveCaptureCustodyStatus: 'networkLiveCaptureCustodyStatus',
     NetworkProductReadinessStatus: 'networkProductReadinessStatus',
+    NetworkRemoteDeliveryStatus: 'networkRemoteDeliveryStatus',
     NetworkRuntimeDeadLetters: 'networkRuntimeDeadLetters',
     NetworkRuntimeDeliveredRows: 'networkRuntimeDeliveredRows',
     NetworkRuntimeEnforcementCommandEvents: 'networkRuntimeEnforcementCommandEvents',

@@ -5,7 +5,7 @@ use ocentra_network_evidence::{
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
+    NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use serde::de::DeserializeOwned;
 
@@ -24,70 +24,124 @@ fn network_product_readiness_status_payload_serializes_materializer_outputs() {
     );
     let product_status: NetworkProductReadinessStatus =
         status_value(&payload, constants::field::NETWORK_PRODUCT_READINESS_STATUS);
+    let remote_delivery_status: NetworkRemoteDeliveryStatus =
+        status_value(&payload, constants::field::NETWORK_REMOTE_DELIVERY_STATUS);
 
+    assert_live_capture_status(&live_capture_status);
+    assert_product_readiness_status(&product_status);
+    assert_remote_delivery_status(&remote_delivery_status);
+}
+
+fn assert_live_capture_status(status: &NetworkLiveCaptureCustodyStatus) {
     assert_eq!(
-        live_capture_status.state,
+        status.state,
         NetworkLiveCaptureCustodyStatusState::CustodyReady
     );
-    assert!(!live_capture_status.driver_invoked);
-    assert!(!live_capture_status.live_capture_executed);
-    assert!(!live_capture_status.raw_artifact_created);
-    assert!(!live_capture_status.remote_upload_enabled);
-    assert!(!live_capture_status.exact_url_available);
-    assert!(!live_capture_status.decrypted_payload_available);
-    assert!(!live_capture_status.policy_authority);
-    assert!(!live_capture_status.adapter_authority);
-    assert_eq!(live_capture_status.enforcement_commands_published, 0);
+    assert!(!status.driver_invoked);
+    assert!(!status.live_capture_executed);
+    assert!(!status.raw_artifact_created);
+    assert!(!status.remote_upload_enabled);
+    assert!(!status.exact_url_available);
+    assert!(!status.decrypted_payload_available);
+    assert!(!status.policy_authority);
+    assert!(!status.adapter_authority);
+    assert_eq!(status.enforcement_commands_published, 0);
+}
+
+fn assert_product_readiness_status(status: &NetworkProductReadinessStatus) {
     assert_eq!(
-        product_status.readiness_state,
+        status.readiness_state,
         NetworkProductReadinessStatusState::ManualRequired
     );
-    assert!(product_status.portal_read_model_ready);
-    assert!(product_status.retention_export_refs_visible);
+    assert!(status.portal_read_model_ready);
+    assert!(status.retention_export_refs_visible);
     assert_eq!(
-        product_status.risk_evaluation_ref,
+        status.risk_evaluation_ref,
         constants::network_flow::TEST_RISK_EVALUATION_REF
     );
-    assert_eq!(product_status.risk_total_points, 42);
+    assert_eq!(status.risk_total_points, 42);
     assert_eq!(
-        product_status.risk_cited_evidence_refs,
+        status.risk_cited_evidence_refs,
         vec![constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_owned()]
     );
-    assert!(product_status.risk_budget_advisory_only);
+    assert!(status.risk_budget_advisory_only);
     assert_eq!(
-        product_status.performance_benchmark_run_ref,
+        status.performance_benchmark_run_ref,
         constants::network_flow::TEST_PERFORMANCE_BENCHMARK_REF
     );
-    assert_eq!(product_status.performance_packet_count, 2_000);
+    assert_eq!(status.performance_packet_count, 2_000);
+    assert_eq!(status.performance_event_throughput_per_second, 3_200);
+    assert!(!status.performance_realtime_response_claimed);
+    assert!(!status.performance_adapter_action_executed);
+    assert!(!status.performance_host_filtering_executed);
+    assert_platform_claim_status(status);
+    assert!(!status.exact_url_available);
+    assert!(!status.decrypted_payload_available);
+    assert!(!status.ui_policy_authority);
+    assert!(!status.portal_adapter_dispatch_claimed);
+    assert!(!status.live_adapter_execution_claimed);
+    assert_eq!(status.enforcement_commands_published, 0);
+}
+
+fn assert_platform_claim_status(status: &NetworkProductReadinessStatus) {
+    assert_eq!(status.platform_manual_required_claims, 1);
+    assert_eq!(status.platform_entries.len(), 2);
     assert_eq!(
-        product_status.performance_event_throughput_per_second,
-        3_200
-    );
-    assert!(!product_status.performance_realtime_response_claimed);
-    assert!(!product_status.performance_adapter_action_executed);
-    assert!(!product_status.performance_host_filtering_executed);
-    assert_eq!(product_status.platform_manual_required_claims, 1);
-    assert_eq!(product_status.platform_entries.len(), 2);
-    assert_eq!(
-        product_status.platform_entries[0].target,
+        status.platform_entries[0].target,
         ocentra_network_evidence::NetworkPlatformClaimTarget::WindowsFirewall
     );
-    assert!(product_status.platform_entries[0].adapter_authorized_by_proof);
-    assert!(!product_status.platform_entries[0].enforcement_command_published);
+    assert!(status.platform_entries[0].adapter_authorized_by_proof);
+    assert!(!status.platform_entries[0].enforcement_command_published);
     assert_eq!(
-        product_status.platform_entries[1].target,
+        status.platform_entries[1].target,
         ocentra_network_evidence::NetworkPlatformClaimTarget::WindowsWfp
     );
-    assert!(!product_status.platform_entries[1].adapter_authorized_by_proof);
-    assert!(!product_status.platform_entries[1]
+    assert!(!status.platform_entries[1].adapter_authorized_by_proof);
+    assert!(!status.platform_entries[1]
         .missing_required_artifacts
         .is_empty());
-    assert!(!product_status.exact_url_available);
-    assert!(!product_status.decrypted_payload_available);
-    assert!(!product_status.ui_policy_authority);
-    assert!(!product_status.portal_adapter_dispatch_claimed);
-    assert!(!product_status.live_adapter_execution_claimed);
-    assert_eq!(product_status.enforcement_commands_published, 0);
+}
+
+fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
+    assert_eq!(
+        status.status_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_STATUS_REF
+    );
+    assert_eq!(
+        status.broker_status,
+        NetworkRemoteDeliveryStatusState::RequirementsSatisfiedButNotImplemented
+    );
+    assert_eq!(
+        status.family_hub_status,
+        NetworkRemoteDeliveryStatusState::RequirementsSatisfiedButNotImplemented
+    );
+    assert_eq!(
+        status.custody_proof_ref,
+        constants::network_flow::TEST_BROKER_CUSTODY_PROOF_REF
+    );
+    assert_eq!(
+        status.publisher_auth_ref,
+        constants::network_flow::TEST_BROKER_PUBLISHER_AUTH_REF
+    );
+    assert_eq!(
+        status.relay_identity_ref,
+        constants::network_flow::TEST_FAMILY_HUB_IDENTITY_REF
+    );
+    assert_eq!(status.broker_missing_artifact_count, 0);
+    assert_eq!(status.family_hub_missing_artifact_count, 0);
+    assert_eq!(status.accepted_event_type_count, 3);
+    assert!(status.local_idempotency_queue_proved);
+    assert_eq!(status.dropped_event_dead_letter_count, 1);
+    assert!(status.queued_duplicate_rejected);
+    assert!(status.completed_duplicate_rejected);
+    assert!(!status.external_transport_delivery_implemented);
+    assert!(!status.family_hub_delivery_implemented);
+    assert!(!status.cross_process_replay_implemented);
+    assert!(!status.remote_retention_delete_export_propagation_implemented);
+    assert!(!status.policy_authority);
+    assert!(!status.side_effect_authority);
+    assert_eq!(status.enforcement_command_event_count, 0);
+    assert_eq!(status.adapter_action_executed_count, 0);
 }
 
 #[tokio::test]
@@ -98,6 +152,10 @@ async fn websocket_network_product_readiness_status_command_reports_payload() {
     let product_status: NetworkProductReadinessStatus = status_value(
         &event.payload,
         constants::field::NETWORK_PRODUCT_READINESS_STATUS,
+    );
+    let remote_delivery_status: NetworkRemoteDeliveryStatus = status_value(
+        &event.payload,
+        constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
     );
 
     assert_eq!(
@@ -111,6 +169,12 @@ async fn websocket_network_product_readiness_status_command_reports_payload() {
     assert_eq!(product_status.platform_entries.len(), 2);
     assert!(!product_status.policy_authority);
     assert!(!product_status.adapter_authority);
+    assert_eq!(
+        remote_delivery_status.family_hub_status,
+        NetworkRemoteDeliveryStatusState::RequirementsSatisfiedButNotImplemented
+    );
+    assert!(!remote_delivery_status.family_hub_delivery_implemented);
+    assert_eq!(remote_delivery_status.adapter_action_executed_count, 0);
 }
 
 fn command_envelope() -> AgentCommandEnvelope {

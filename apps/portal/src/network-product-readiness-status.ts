@@ -4,6 +4,7 @@ import {
   type AgentNetworkPlatformClaimEntry,
   type AgentNetworkProductReadinessStatusFailureReason,
   type AgentNetworkProductReadinessStatus,
+  type AgentNetworkRemoteDeliveryStatus,
 } from '@ocentra-parent/agent-protocol-domain/network-product-readiness-status';
 import type { AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
@@ -64,6 +65,26 @@ export type NetworkProductReadinessStatusSummary = {
   readonly platformManualFollowups: PortalDetailValue;
   readonly portalReadModelReady: PortalDetailValue;
   readonly retentionExportRefsVisible: PortalDetailValue;
+  readonly remoteDeliveryStatusRef: PortalDetailValue;
+  readonly remoteBrokerStatus: PortalDetailValue;
+  readonly remoteFamilyHubStatus: PortalDetailValue;
+  readonly remoteCustodyProofRef: PortalDetailValue;
+  readonly remoteAuthRefs: PortalDetailValue;
+  readonly remoteTransportRefs: PortalDetailValue;
+  readonly remoteLifecycleRefs: PortalDetailValue;
+  readonly remoteMissingArtifactCounts: PortalDetailValue;
+  readonly remoteAcceptedEventTypeCount: PortalDetailValue;
+  readonly remoteLocalQueueProof: PortalDetailValue;
+  readonly remoteDuplicateProof: PortalDetailValue;
+  readonly remoteDeadLetterCount: PortalDetailValue;
+  readonly remoteExternalTransportImplemented: PortalDetailValue;
+  readonly remoteFamilyHubDeliveryImplemented: PortalDetailValue;
+  readonly remoteCrossProcessReplayImplemented: PortalDetailValue;
+  readonly remoteRetentionDeleteExportImplemented: PortalDetailValue;
+  readonly remotePolicyAuthority: PortalDetailValue;
+  readonly remoteSideEffectAuthority: PortalDetailValue;
+  readonly remoteEnforcementCommandEventCount: PortalDetailValue;
+  readonly remoteAdapterActionExecutedCount: PortalDetailValue;
   readonly noClaimBoundary: PortalDetailValue;
   readonly platformEntries: readonly NetworkPlatformClaimManifestEntrySummary[];
 };
@@ -95,7 +116,11 @@ export function parseNetworkProductReadinessStatus(
     return failedNetworkProductReadinessStatusSummary(parsed.reason);
   }
 
-  return networkProductReadinessStatusSummary(parsed.liveCaptureCustodyStatus, parsed.productReadinessStatus);
+  return networkProductReadinessStatusSummary(
+    parsed.liveCaptureCustodyStatus,
+    parsed.productReadinessStatus,
+    parsed.remoteDeliveryStatus
+  );
 }
 
 export function emptyNetworkProductReadinessStatusSummary(): NetworkProductReadinessStatusSummary {
@@ -149,6 +174,26 @@ export function emptyNetworkProductReadinessStatusSummary(): NetworkProductReadi
     platformManualFollowups: notReported(),
     portalReadModelReady: notReported(),
     retentionExportRefsVisible: notReported(),
+    remoteDeliveryStatusRef: notReported(),
+    remoteBrokerStatus: notReported(),
+    remoteFamilyHubStatus: notReported(),
+    remoteCustodyProofRef: notReported(),
+    remoteAuthRefs: notReported(),
+    remoteTransportRefs: notReported(),
+    remoteLifecycleRefs: notReported(),
+    remoteMissingArtifactCounts: notReported(),
+    remoteAcceptedEventTypeCount: notReported(),
+    remoteLocalQueueProof: notReported(),
+    remoteDuplicateProof: notReported(),
+    remoteDeadLetterCount: notReported(),
+    remoteExternalTransportImplemented: notReported(),
+    remoteFamilyHubDeliveryImplemented: notReported(),
+    remoteCrossProcessReplayImplemented: notReported(),
+    remoteRetentionDeleteExportImplemented: notReported(),
+    remotePolicyAuthority: notReported(),
+    remoteSideEffectAuthority: notReported(),
+    remoteEnforcementCommandEventCount: notReported(),
+    remoteAdapterActionExecutedCount: notReported(),
     noClaimBoundary: notReported(),
     platformEntries: [],
   };
@@ -165,7 +210,8 @@ function failedNetworkProductReadinessStatusSummary(
 
 function networkProductReadinessStatusSummary(
   custody: AgentNetworkLiveCaptureCustodyStatus,
-  product: AgentNetworkProductReadinessStatus
+  product: AgentNetworkProductReadinessStatus,
+  remote: AgentNetworkRemoteDeliveryStatus
 ): NetworkProductReadinessStatusSummary {
   return {
     parserStatus: detailFromValue(true),
@@ -173,9 +219,10 @@ function networkProductReadinessStatusSummary(
     ...riskReadinessSummary(product),
     ...performanceReadinessSummary(product),
     ...platformReadinessSummary(product),
+    ...remoteDeliverySummary(remote),
     portalReadModelReady: detailFromValue(product.portal_read_model_ready),
     retentionExportRefsVisible: detailFromValue(product.retention_export_refs_visible),
-    noClaimBoundary: detailFromValue(noClaimBoundaryUpgraded(custody, product)),
+    noClaimBoundary: detailFromValue(noClaimBoundaryUpgraded(custody, product, remote)),
     platformEntries: product.platform_entries.map(platformEntrySummary),
   };
 }
@@ -275,6 +322,47 @@ function platformReadinessSummary(product: AgentNetworkProductReadinessStatus) {
   };
 }
 
+function remoteDeliverySummary(remote: AgentNetworkRemoteDeliveryStatus) {
+  return {
+    remoteDeliveryStatusRef: detailFromValue(remote.status_ref),
+    remoteBrokerStatus: detailFromValue(remote.broker_status),
+    remoteFamilyHubStatus: detailFromValue(remote.family_hub_status),
+    remoteCustodyProofRef: detailFromValue(remote.custody_proof_ref),
+    remoteAuthRefs: joinedDetail([remote.publisher_auth_ref, remote.subscriber_auth_ref]),
+    remoteTransportRefs: joinedDetail([
+      remote.encryption_ref,
+      remote.transport_config_ref,
+      remote.relay_identity_ref,
+      remote.relay_policy_ref,
+    ]),
+    remoteLifecycleRefs: joinedDetail([
+      remote.retention_policy_ref,
+      remote.replay_plan_ref,
+      remote.deletion_plan_ref,
+      remote.offset_policy_ref,
+      remote.dedupe_policy_ref,
+    ]),
+    remoteMissingArtifactCounts: joinedDetail([
+      remote.broker_missing_artifact_count,
+      remote.family_hub_missing_artifact_count,
+    ]),
+    remoteAcceptedEventTypeCount: detailFromValue(remote.accepted_event_type_count),
+    remoteLocalQueueProof: detailFromValue(remote.local_idempotency_queue_proved),
+    remoteDuplicateProof: joinedDetail([remote.queued_duplicate_rejected, remote.completed_duplicate_rejected]),
+    remoteDeadLetterCount: detailFromValue(remote.dropped_event_dead_letter_count),
+    remoteExternalTransportImplemented: detailFromValue(remote.external_transport_delivery_implemented),
+    remoteFamilyHubDeliveryImplemented: detailFromValue(remote.family_hub_delivery_implemented),
+    remoteCrossProcessReplayImplemented: detailFromValue(remote.cross_process_replay_implemented),
+    remoteRetentionDeleteExportImplemented: detailFromValue(
+      remote.remote_retention_delete_export_propagation_implemented
+    ),
+    remotePolicyAuthority: detailFromValue(remote.policy_authority),
+    remoteSideEffectAuthority: detailFromValue(remote.side_effect_authority),
+    remoteEnforcementCommandEventCount: detailFromValue(remote.enforcement_command_event_count),
+    remoteAdapterActionExecutedCount: detailFromValue(remote.adapter_action_executed_count),
+  };
+}
+
 function platformEntrySummary(entry: AgentNetworkPlatformClaimEntry): NetworkPlatformClaimManifestEntrySummary {
   return {
     target: detailFromValue(entry.target),
@@ -302,9 +390,14 @@ function platformManualFollowups(product: AgentNetworkProductReadinessStatus): P
 
 function noClaimBoundaryUpgraded(
   custody: AgentNetworkLiveCaptureCustodyStatus,
-  product: AgentNetworkProductReadinessStatus
+  product: AgentNetworkProductReadinessStatus,
+  remote: AgentNetworkRemoteDeliveryStatus
 ): boolean {
-  return unsupportedCustodyClaims(custody).some(Boolean) || unsupportedProductClaims(product).some(Boolean);
+  return (
+    unsupportedCustodyClaims(custody).some(Boolean) ||
+    unsupportedProductClaims(product).some(Boolean) ||
+    unsupportedRemoteDeliveryClaims(remote).some(Boolean)
+  );
 }
 
 function unsupportedCustodyClaims(custody: AgentNetworkLiveCaptureCustodyStatus): readonly boolean[] {
@@ -340,6 +433,16 @@ function unsupportedProductClaims(product: AgentNetworkProductReadinessStatus): 
       product.performance_adapter_action_executed ||
       product.performance_host_filtering_executed,
     product.platform_entries.some((entry) => entry.enforcement_command_published),
+  ];
+}
+
+function unsupportedRemoteDeliveryClaims(remote: AgentNetworkRemoteDeliveryStatus): readonly boolean[] {
+  return [
+    remote.external_transport_delivery_implemented || remote.family_hub_delivery_implemented,
+    remote.cross_process_replay_implemented || remote.remote_retention_delete_export_propagation_implemented,
+    remote.policy_authority || remote.side_effect_authority,
+    remote.enforcement_command_event_count > 0,
+    remote.adapter_action_executed_count > 0,
   ];
 }
 

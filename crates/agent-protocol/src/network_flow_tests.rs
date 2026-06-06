@@ -6,8 +6,8 @@ use super::{
     NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
     NetworkEnforcementResultStatus, NetworkFlowObservedEvent, NetworkPolicyDecisionCompletedEvent,
     NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
-    NetworkRuntimeEventContract, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    NETWORK_FLOW_SCHEMA_VERSION,
+    NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState, NetworkRuntimeEventContract,
+    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
 };
 
 #[path = "network_flow_event_fixtures.rs"]
@@ -124,6 +124,66 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
     );
     assert_eq!(serialized["tombstoneRows"], 1);
     assert_eq!(serialized["rows"].as_array().map(Vec::len), Some(0));
+}
+
+#[test]
+fn network_remote_delivery_status_serializes_false_claim_boundary() {
+    let status = NetworkRemoteDeliveryStatus {
+        status_ref: constants::network_flow::TEST_REMOTE_DELIVERY_STATUS_REF.to_string(),
+        broker_status: NetworkRemoteDeliveryStatusState::RequirementsSatisfiedButNotImplemented,
+        family_hub_status: NetworkRemoteDeliveryStatusState::RequirementsSatisfiedButNotImplemented,
+        custody_proof_ref: constants::network_flow::TEST_BROKER_CUSTODY_PROOF_REF.to_string(),
+        publisher_auth_ref: constants::network_flow::TEST_BROKER_PUBLISHER_AUTH_REF.to_string(),
+        subscriber_auth_ref: constants::network_flow::TEST_BROKER_SUBSCRIBER_AUTH_REF.to_string(),
+        encryption_ref: constants::network_flow::TEST_BROKER_ENCRYPTION_REF.to_string(),
+        retention_policy_ref: constants::network_flow::TEST_BROKER_RETENTION_POLICY_REF.to_string(),
+        replay_plan_ref: constants::network_flow::TEST_BROKER_REPLAY_PLAN_REF.to_string(),
+        deletion_plan_ref: constants::network_flow::TEST_BROKER_DELETION_PLAN_REF.to_string(),
+        offset_policy_ref: constants::network_flow::TEST_BROKER_OFFSET_POLICY_REF.to_string(),
+        dedupe_policy_ref: constants::network_flow::TEST_BROKER_DEDUPE_POLICY_REF.to_string(),
+        transport_config_ref: constants::network_flow::TEST_BROKER_CONFIG_REF.to_string(),
+        relay_identity_ref: constants::network_flow::TEST_FAMILY_HUB_IDENTITY_REF.to_string(),
+        relay_policy_ref: constants::network_flow::TEST_FAMILY_HUB_RELAY_POLICY_REF.to_string(),
+        broker_missing_artifact_count: 0,
+        family_hub_missing_artifact_count: 0,
+        accepted_event_type_count: 3,
+        local_idempotency_queue_proved: true,
+        dropped_event_dead_letter_count: 1,
+        queued_duplicate_rejected: true,
+        completed_duplicate_rejected: true,
+        external_transport_delivery_implemented: false,
+        family_hub_delivery_implemented: false,
+        cross_process_replay_implemented: false,
+        remote_retention_delete_export_propagation_implemented: false,
+        policy_authority: false,
+        side_effect_authority: false,
+        enforcement_command_event_count: 0,
+        adapter_action_executed_count: 0,
+    };
+
+    let serialized = serde_json::to_value(status).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized["status_ref"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_STATUS_REF
+    );
+    assert_eq!(
+        serialized["broker_status"],
+        "RequirementsSatisfiedButNotImplemented"
+    );
+    assert_eq!(serialized["accepted_event_type_count"], 3);
+    assert_eq!(serialized["dropped_event_dead_letter_count"], 1);
+    assert_eq!(serialized["external_transport_delivery_implemented"], false);
+    assert_eq!(serialized["family_hub_delivery_implemented"], false);
+    assert_eq!(serialized["cross_process_replay_implemented"], false);
+    assert_eq!(
+        serialized["remote_retention_delete_export_propagation_implemented"],
+        false
+    );
+    assert_eq!(serialized["policy_authority"], false);
+    assert_eq!(serialized["side_effect_authority"], false);
+    assert_eq!(serialized["enforcement_command_event_count"], 0);
+    assert_eq!(serialized["adapter_action_executed_count"], 0);
 }
 
 #[test]
