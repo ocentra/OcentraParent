@@ -1,0 +1,43 @@
+WP04 Rust live Windows registry inventory source refresh - 2026-06-06
+
+PASS cargo fmt --all --check
+
+PASS cargo test -p ocentra-parent-agent-core windows_browser_inventory --quiet
+  running 15 tests
+  test result: ok. 15 passed; 0 failed
+
+PASS cargo test -p ocentra-parent-agent-service browser_inventory_read_model --quiet
+  running 6 tests
+  test result: ok. 6 passed; 0 failed
+
+PASS cmd /c node scripts/test/browser-windows-live-inventory-proof.mjs
+  browser-windows-live-inventory-proof-ok=true
+  proof=test-results/browser-windows-live-inventory-proof/proof.json
+  manualProof=output/browser-plan-proof/04-windows-browser-inventory-adapter/09-manual-platform-proof.md
+  rows=4 managed=3 manualRequired=0 unsupported=1
+
+PASS cmd /c npm run format:check
+  All matched files use Prettier code style.
+
+PASS cmd /c npm run lint:schema-boundaries
+  Boundary checks passed. Existing source-shape advisory warnings remain.
+
+PASS git diff --check
+
+PASS cmd /c npm run lanes:guard
+  lane-guard-ok: lane=codex-d owner=sujan thread=browser-social-ui-proof-d branch=codex/browser-child-intervention-endpoint-flow
+
+PASS cmd /c npm run hub:guard
+  hub-guard-ok: lane=codex-d
+
+Scope:
+  Added a browser-owned Rust live Windows registry source that reads uninstall
+  DisplayIcon and InstallLocation entries on Windows, normalizes them through
+  the existing browser inventory candidate path helper, and feeds the existing
+  service read-model conversion without exact URL, active tab, page content, or
+  enforcement claims.
+
+Remaining no-claims:
+  Rust `.lnk` binary parsing, live AppX/MSIX enumeration, exact URL/tab
+  evidence, browser content capture, AppLocker/App Control application,
+  blocking, rollback, and enforcement remain unclaimed.
