@@ -160,6 +160,12 @@ compete on control while staying clear about attribution confidence and privacy.
   source-custody category records, freshness/staleness is explicit, and signed
   snapshot update policy rejects unsigned or older inputs without claiming live
   vendor feeds, exact URLs, or decrypted content.
+- E-D added deterministic network risk-target policy handoff in
+  `ocentra-network-evidence`: category risk targets feed the existing
+  evidence-grade policy mapper, B-grade block/limit requests route to parent
+  review, monitor requests stay dry-run, unknown categories stay observe-only,
+  and exact URL, decrypted payload, live adapter mutation, enforcement command,
+  and broad-platform claims are rejected.
 - E-D added deterministic social/video/game/cloud-gaming classification in
   `ocentra-network-evidence`: fresh domain categories classify directly,
   CDN/process hints remain browser-confirmation-required, and matching browser
@@ -391,11 +397,13 @@ UI rendering remain open.
       Deterministic indicator classification now exists for VPN adapter,
       proxy-port, Tor, and tunnel-protocol candidates, with encrypted-DNS-only
       negative proof and no hidden-destination claim.
-- [ ] Network category/risk targets.
-      Domain normalization, public-suffix, and source-custody category
-      intelligence proof now exist, along with deterministic
-      social/video/game/cloud-gaming classifier candidates. Broader anomaly/risk
-      targets and policy handoff remain open.
+- [x] Network category/risk targets.
+      Domain normalization, public-suffix, source-custody category
+      intelligence, classifier candidates, and risk-target policy handoff proof
+      now exist. Category labels can feed typed dry-run, parent-review, or
+      observe-only handoff states with evidence refs, but network-only exact
+      URLs, decrypted payload, live adapter mutation, enforcement commands, and
+      broad platform support remain unclaimed.
 - [x] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
       proof.
       First deterministic DNS query PCAP replay, packet/DNS parser fixtures,
