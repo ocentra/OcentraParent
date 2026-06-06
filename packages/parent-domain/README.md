@@ -38,6 +38,11 @@ mobile readiness, and control catalogs.
   intent contracts that consume audit/rollback read-model rows and attach
   future parent-surface proof/drill-in refs without claiming rendered UI or
   service read APIs.
+- App/game source-gated policy preview timer service-readiness handoff
+  contracts that consume audit/rollback parent-surface intent rows and attach
+  future service-readiness/read-API proof refs without claiming service runtime
+  events, read API implementation, rendered UI, durable audit storage, rollback
+  execution, or timer scheduling.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.
