@@ -11,6 +11,20 @@ const outputDir = join(repoRoot, 'output', proofMode);
 const proofPath = join(resultDir, 'proof.json');
 const summaryPath = join(outputDir, 'proof-summary.json');
 const commands = [];
+const packageExports = {
+  './production-support-publication-execution-status': {
+    import: './dist/production-support-publication-execution-status-proof.js',
+    types: './dist/production-support-publication-execution-status-proof.d.ts',
+  },
+  './production-support-publication-execution-status-read-model': {
+    import: './dist/production-support-publication-execution-status-read-model.js',
+    types: './dist/production-support-publication-execution-status-read-model.d.ts',
+  },
+  './production-support-publication-execution-status-values': {
+    import: './dist/production-support-publication-execution-status-values.js',
+    types: './dist/production-support-publication-execution-status-values.d.ts',
+  },
+};
 
 await main();
 
@@ -31,6 +45,7 @@ async function main() {
 
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
+  const exportedPackagePaths = await assertPackageExports();
   const commit = await gitHead();
   const proof = {
     schemaVersion: 1,
@@ -46,7 +61,7 @@ async function main() {
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
-      packageExport: 'not-added-package-json-locked-by-another-lane',
+      packageExports: exportedPackagePaths,
     },
     rowCount: contract.rows.length,
     rows: contract.rows,
@@ -159,6 +174,14 @@ async function assertDocumentationProof() {
     assertIncludes(await readRepoFile(path), proofMode, `${path} proof note`);
   }
   return docs;
+}
+
+async function assertPackageExports() {
+  const packageJson = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
+  for (const [exportPath, expectedTarget] of Object.entries(packageExports)) {
+    assert.deepEqual(packageJson.exports[exportPath], expectedTarget, `${exportPath} package export`);
+  }
+  return packageExports;
 }
 
 async function importBuiltModule(fileName) {

@@ -605,6 +605,18 @@
       "import": "./dist/production-support-publication-workflow-values.js",
       "types": "./dist/production-support-publication-workflow-values.d.ts"
     },
+    "./production-support-publication-execution-status": {
+      "import": "./dist/production-support-publication-execution-status-proof.js",
+      "types": "./dist/production-support-publication-execution-status-proof.d.ts"
+    },
+    "./production-support-publication-execution-status-read-model": {
+      "import": "./dist/production-support-publication-execution-status-read-model.js",
+      "types": "./dist/production-support-publication-execution-status-read-model.d.ts"
+    },
+    "./production-support-publication-execution-status-values": {
+      "import": "./dist/production-support-publication-execution-status-values.js",
+      "types": "./dist/production-support-publication-execution-status-values.d.ts"
+    },
     "./parent-mobile-runtime": {
       "import": "./dist/parent-mobile-runtime.js",
       "types": "./dist/parent-mobile-runtime.d.ts"
