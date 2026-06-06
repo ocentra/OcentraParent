@@ -29,7 +29,7 @@ pub async fn prove_network_runtime_remote_event_chain_journal(
         .await
         .map_err(NetworkRuntimeRemoteEventChainJournalError::RemoteDeliveryStatus)?;
     let (stored_events, projection) = publish_event_chain_to_journal().await?;
-    assert_projection_matches(stored_events.len(), projection.records.len())?;
+    assert_projection_matches(&stored_events, &projection.records)?;
     let payloads = decode_payloads(&projection.records)?;
     let unsupported = unsupported_claim_counts(&payloads, &projection.records);
     if unsupported.has_any() {
@@ -77,14 +77,22 @@ async fn publish_event_chain_to_journal(
     Ok((stored_events, projection))
 }
 fn assert_projection_matches(
-    stored_count: usize,
-    record_count: usize,
+    stored_events: &[StoredEventEnvelope],
+    records: &[ReplayRecord],
 ) -> Result<(), NetworkRuntimeRemoteEventChainJournalError> {
-    if stored_count == 0 || record_count == 0 {
+    if stored_events.is_empty() || records.is_empty() {
         return Err(NetworkRuntimeRemoteEventChainJournalError::EmptyJournal);
     }
-    if stored_count != record_count {
+    if stored_events.len() != records.len() {
         return Err(NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch);
+    }
+    for (index, (stored_event, record)) in stored_events.iter().zip(records.iter()).enumerate() {
+        let expected_sequence = u64::try_from(index)
+            .map(|value| value.saturating_add(1))
+            .map_err(|_| NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch)?;
+        if record.sequence != expected_sequence || &record.envelope != stored_event {
+            return Err(NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch);
+        }
     }
     Ok(())
 }
