@@ -17,6 +17,8 @@ export const SupportBundleIncidentStatusSchema = withParser(
     'support-bundle-ready',
     'manual-review-required',
     'backend-upload-manual-required',
+    'status-backend-redaction-ready',
+    'status-backend-redaction-manual-required',
     'billing-escalation-manual-required',
     'account-lookup-manual-required'
   )
@@ -46,6 +48,9 @@ export const SupportBundleDataClassSchema = withParser(
     'redaction-summary',
     'manual-proof-ref',
     'incident-status',
+    'status-backend-target',
+    'status-backend-redaction-manifest',
+    'status-backend-queue-ref',
     'billing-status-ref',
     'account-status-ref'
   )
@@ -63,6 +68,9 @@ export const SupportBundlePayloadFieldSchema = withParser(
     'capability-state',
     'degraded-state',
     'redaction-summary-ref',
+    'status-backend-target-ref',
+    'status-backend-redaction-manifest-ref',
+    'status-backend-queue-ref',
     'billing-status-ref',
     'account-status-ref',
     'manual-proof-ref'
@@ -70,7 +78,14 @@ export const SupportBundlePayloadFieldSchema = withParser(
 );
 
 export const SupportBundleDiagnosticReferenceKindSchema = withParser(
-  Schema.Literal('proof-json-ref', 'workflow-ref', 'redaction-summary-ref', 'manual-runbook-ref', 'status-row-ref')
+  Schema.Literal(
+    'proof-json-ref',
+    'workflow-ref',
+    'redaction-summary-ref',
+    'status-backend-redaction-manifest-ref',
+    'manual-runbook-ref',
+    'status-row-ref'
+  )
 );
 
 export const SupportBundleRequiredDataClasses = [
@@ -85,6 +100,9 @@ export const SupportBundleRequiredDataClasses = [
   'redaction-summary',
   'manual-proof-ref',
   'incident-status',
+  'status-backend-target',
+  'status-backend-redaction-manifest',
+  'status-backend-queue-ref',
   'billing-status-ref',
   'account-status-ref',
 ] as const satisfies ReadonlyArray<SupportBundleDataClass>;
@@ -100,6 +118,9 @@ export const SupportBundleRequiredPayloadFields = [
   'capability-state',
   'degraded-state',
   'redaction-summary-ref',
+  'status-backend-target-ref',
+  'status-backend-redaction-manifest-ref',
+  'status-backend-queue-ref',
   'billing-status-ref',
   'account-status-ref',
   'manual-proof-ref',
@@ -109,6 +130,7 @@ export const SupportBundleRequiredDiagnosticReferenceKinds = [
   'proof-json-ref',
   'workflow-ref',
   'redaction-summary-ref',
+  'status-backend-redaction-manifest-ref',
   'manual-runbook-ref',
   'status-row-ref',
 ] as const satisfies ReadonlyArray<SupportBundleDiagnosticReferenceKind>;
@@ -131,6 +153,7 @@ const SupportBundleRedactionEntryBaseSchema = Schema.Struct({
   incidentRefs: Schema.Array(SupportBundleRedactionReferenceSchema),
   releaseRefs: Schema.Array(SupportBundleRedactionReferenceSchema),
   diagnosticRefs: Schema.Array(SupportBundleRedactionReferenceSchema),
+  statusBackendRefs: Schema.Array(SupportBundleRedactionReferenceSchema),
   billingRefs: Schema.Array(SupportBundleRedactionReferenceSchema),
   accountRefs: Schema.Array(SupportBundleRedactionReferenceSchema),
   manualProofRequirements: Schema.Array(SupportBundleRedactionRequirementSchema),
@@ -145,8 +168,11 @@ const SupportBundleRedactionEntryBaseSchema = Schema.Struct({
   containsKeystrokes: Schema.Boolean,
   containsClipboardData: Schema.Boolean,
   containsMessageContents: Schema.Boolean,
+  containsStatusBackendPayload: Schema.Boolean,
+  publicRuntimePayloadIncluded: Schema.Boolean,
   providerSecretPresent: Schema.Boolean,
   backendUploadExecuted: Schema.Boolean,
+  statusBackendExecutionClaimed: Schema.Boolean,
   billingProviderContacted: Schema.Boolean,
   accountLookupExecuted: Schema.Boolean,
   remoteSupportSessionStarted: Schema.Boolean,
@@ -161,7 +187,7 @@ export const SupportBundleRedactionEntrySchema = withParser(
     Schema.filter(
       (entry) =>
         supportBundleRedactionEntryIsSafe(entry) ||
-        'Expected support bundle incident rows to disclose only support-safe metadata, require parent consent, keep billing/account support manual-required, and exclude secrets, child activity, raw URLs, screenshots, journals, SQLite snapshots, private paths, commands, keystrokes, clipboard data, and message contents'
+        'Expected support bundle incident rows to disclose only support-safe metadata, require parent consent, keep status backend, billing, and account support manual-required, and exclude secrets, child activity, raw URLs, screenshots, journals, SQLite snapshots, private paths, commands, keystrokes, clipboard data, message contents, status backend payloads, and public runtime payloads'
     )
   )
 );
@@ -182,7 +208,7 @@ export const SupportBundleRedactionReadModelSchema = withParser(
     Schema.filter(
       (readModel) =>
         supportBundleRedactionCoversIncidentStatuses(readModel.entries) ||
-        'Expected support bundle redaction proof to cover consent, ready, review, backend-upload, billing-escalation, and account-lookup states'
+        'Expected support bundle redaction proof to cover consent, ready, review, backend-upload, status-backend redaction, billing-escalation, and account-lookup states'
     )
   )
 );
@@ -211,8 +237,11 @@ function supportBundleRedactionHasClaimUpgrade(entry: SupportBundleRedactionEntr
     entry.containsKeystrokes,
     entry.containsClipboardData,
     entry.containsMessageContents,
+    entry.containsStatusBackendPayload,
+    entry.publicRuntimePayloadIncluded,
     entry.providerSecretPresent,
     entry.backendUploadExecuted,
+    entry.statusBackendExecutionClaimed,
     entry.billingProviderContacted,
     entry.accountLookupExecuted,
     entry.remoteSupportSessionStarted,
@@ -228,6 +257,7 @@ function supportBundleRedactionStatesAreCoherent(entry: SupportBundleRedactionEn
   return (
     supportBundleRedactionConsentStateIsCoherent(entry) &&
     supportBundleRedactionBackendStateIsCoherent(entry) &&
+    supportBundleRedactionStatusBackendStateIsCoherent(entry) &&
     supportBundleRedactionBillingStateIsCoherent(entry) &&
     supportBundleRedactionAccountStateIsCoherent(entry)
   );
@@ -244,6 +274,15 @@ function supportBundleRedactionBackendStateIsCoherent(entry: SupportBundleRedact
   return (
     entry.incidentStatus !== 'backend-upload-manual-required' ||
     (entry.backendUploadState === 'manual-required' && entry.manualProofRequirements.length > 0)
+  );
+}
+
+function supportBundleRedactionStatusBackendStateIsCoherent(entry: SupportBundleRedactionEntryCandidate): boolean {
+  return (
+    (entry.incidentStatus !== 'status-backend-redaction-ready' ||
+      (entry.parentConsentState === 'parent-approved' && entry.statusBackendRefs.length > 0)) &&
+    (entry.incidentStatus !== 'status-backend-redaction-manual-required' ||
+      (entry.statusBackendRefs.length > 0 && entry.manualProofRequirements.length > 0))
   );
 }
 
@@ -272,6 +311,8 @@ function supportBundleRedactionCoversIncidentStatuses(entries: readonly SupportB
     'support-bundle-ready',
     'manual-review-required',
     'backend-upload-manual-required',
+    'status-backend-redaction-ready',
+    'status-backend-redaction-manual-required',
     'billing-escalation-manual-required',
     'account-lookup-manual-required',
   ].every((status) => statuses.has(status as SupportBundleIncidentStatus));

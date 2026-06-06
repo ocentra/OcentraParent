@@ -17,6 +17,7 @@ type SupportBundleRedactionEntryInput = {
   backendUploadState: SupportBundleManualBoundaryState;
   billingEscalationState: SupportBundleManualBoundaryState;
   accountLookupState: SupportBundleManualBoundaryState;
+  statusBackendRefs?: readonly string[];
   billingRefs: readonly string[];
   accountRefs: readonly string[];
   manualProofRequirements: readonly string[];
@@ -31,6 +32,8 @@ export const SupportBundleRedactionReadModel = SupportBundleRedactionReadModelSc
   sourceContractRefs: [
     'production-distribution-support-feature-doc',
     'release-installer-support-diagnostics-expectation',
+    'production-support-status-backend-execution-queue-proof',
+    'production-support-status-backend-queue-audit-persistence-proof',
     'billing-account-support-manual-boundary',
     'static-analysis-security-redaction-boundary',
   ],
@@ -80,6 +83,36 @@ export const SupportBundleRedactionReadModel = SupportBundleRedactionReadModelSc
       manualProofRequirements: ['production support backend upload implementation before upload can be claimed'],
     }),
     supportBundleRedactionEntry({
+      incidentId: 'support-incident-status-backend-redaction-ready',
+      incidentStatus: 'status-backend-redaction-ready',
+      parentConsentState: 'parent-approved',
+      backendUploadState: 'not-applicable',
+      billingEscalationState: 'not-applicable',
+      accountLookupState: 'not-applicable',
+      statusBackendRefs: [
+        'status-backend-execution-queue-ref',
+        'status-backend-queue-audit-persistence-ref',
+        'status-backend-redaction-manifest-ref',
+      ],
+      billingRefs: [],
+      accountRefs: [],
+      manualProofRequirements: ['status backend receives only redacted manifest refs before publication'],
+    }),
+    supportBundleRedactionEntry({
+      incidentId: 'support-incident-status-backend-redaction-manual-required',
+      incidentStatus: 'status-backend-redaction-manual-required',
+      parentConsentState: 'parent-approved',
+      backendUploadState: 'not-applicable',
+      billingEscalationState: 'not-applicable',
+      accountLookupState: 'not-applicable',
+      statusBackendRefs: ['status-backend-redaction-runbook-manual-required-ref'],
+      billingRefs: [],
+      accountRefs: [],
+      manualProofRequirements: [
+        'manual status backend redaction review before any status backend payload storage can be claimed',
+      ],
+    }),
+    supportBundleRedactionEntry({
       incidentId: 'support-incident-billing-escalation-manual-required',
       incidentStatus: 'billing-escalation-manual-required',
       parentConsentState: 'parent-approved',
@@ -120,9 +153,11 @@ function supportBundleRedactionEntry(input: SupportBundleRedactionEntryInput): S
       'support-safe-proof-json-ref',
       'package-preview-workflow-ref',
       'support-redaction-summary-ref',
+      'status-backend-redaction-manifest-ref',
       'manual-support-runbook-ref',
       'production-support-status-row-ref',
     ],
+    statusBackendRefs: input.statusBackendRefs ?? ['status-backend-redaction-manifest-ref'],
     remoteSupportState: 'not-implemented',
     productionSlaState: 'not-implemented',
     containsTokens: false,
@@ -136,8 +171,11 @@ function supportBundleRedactionEntry(input: SupportBundleRedactionEntryInput): S
     containsKeystrokes: false,
     containsClipboardData: false,
     containsMessageContents: false,
+    containsStatusBackendPayload: false,
+    publicRuntimePayloadIncluded: false,
     providerSecretPresent: false,
     backendUploadExecuted: false,
+    statusBackendExecutionClaimed: false,
     billingProviderContacted: false,
     accountLookupExecuted: false,
     remoteSupportSessionStarted: false,

@@ -327,6 +327,16 @@ Release features are product features because parents need install/update paths 
   session execution, production SLA, legal disclosure execution, raw child
   activity custody, provider secrets, default Ocentra-hosted family data, or raw
   support bundle payloads.
+- `production-support-status-backend-redaction-manifest-proof` may prove
+  support-safe status backend redaction manifest labels for redaction-ready and
+  manual-required states, but it must not claim real status backend execution,
+  status backend payload custody, durable payload storage, payload deletion,
+  retry worker execution, audit persistence execution, public runtime
+  execution, provider execution, support backend upload execution, account
+  lookup execution, billing provider contact execution, remote support session
+  execution, production SLA, legal disclosure execution, raw child activity
+  custody, provider secrets, default Ocentra-hosted family data, or raw support
+  bundle payloads.
 - `production-support-privacy-legal-disclosure-status-proof` may prove
   support-safe privacy/legal disclosure status labels for requested,
   parent-authorized, legal-review queued/running, parent-notification-ready,

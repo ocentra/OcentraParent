@@ -76,6 +76,14 @@ production SLA, provider secrets, tokens, child activity, raw URLs, screenshots,
 journals, SQLite snapshots, private paths, command lines, keystrokes, clipboard
 data, or message contents.
 
+The `production-support-status-backend-redaction-manifest-proof` slice extends
+this same exported contract with status backend redaction manifest readiness
+rows. It proves only support-safe status target, queue/audit, redaction summary,
+and manual proof references. It does not claim status backend execution, status
+backend payload custody, durable payload storage, payload deletion, retry worker
+execution, audit persistence execution, public runtime execution, or child
+activity custody.
+
 ## Support Incident Workflow Contract
 
 `src/support-incident-workflow.ts` owns the logging-domain schema proof for the
