@@ -1,4 +1,4 @@
-C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\sqlite3.exe C:\Users\sujan\AppData\Local\Temp\ocentra-parent-network-runtime-ui-5qmvMR\activity.sqlite .read C:\Users\sujan\AppData\Local\Temp\ocentra-parent-network-runtime-ui-5qmvMR\seed-network-runtime-ui.sql -> 0
+C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\sqlite3.exe C:\Users\sujan\AppData\Local\Temp\ocentra-parent-network-runtime-ui-S6qfDf\activity.sqlite .read C:\Users\sujan\AppData\Local\Temp\ocentra-parent-network-runtime-ui-S6qfDf\seed-network-runtime-ui.sql -> 0
 cmd /c npm run build:contracts -> 0
 cmd /c npm --workspace @ocentra-parent/portal run test -- live-activity-network-flow -> 0
 cargo build -p ocentra-parent-agent-service -> 0
