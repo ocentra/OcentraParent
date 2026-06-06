@@ -1425,6 +1425,14 @@ worker messages before code changes. Do not mix all 24 into one PR.
   child-agent-served intervention rendering are present, but connector/native
   runtime, final policy execution, enforcement, release readiness, and product
   completion remain unclaimed.
+- `social-alert-report-intent-proof` now adds parent-domain social alert/report
+  intent contracts and focused tests for high-risk signal, account approval,
+  feed/video gate, weekly summary, manual-required, and unavailable states. It
+  links dashboard panel refs, social explanation refs, evidence refs, policy
+  refs, audit refs, optional parent report/action refs, and local-outbox refs
+  without claiming raw account/video/message content, screenshots, provider
+  delivery, report delivery, parent notification UI, final policy decisions, or
+  enforcement.
 
 ## 21. Must-Not-Claim List
 

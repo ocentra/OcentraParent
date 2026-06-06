@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T07:37:43.727Z
+Generated: 2026-06-06T07:56:30.293Z
 
 Rows checked: 23
 Proof-present rows: 7
@@ -38,5 +38,6 @@ SOCIAL rollout state: partial/manual-required.
 Product checklist upgrade is not claimed.
 Rendered proof-bundle social UI exists for dashboard, child intervention,
 and parent explanation states. Service-backed dashboard and explanation
-read-model delivery is present; connector/native runtime, final policy
-execution, and enforcement remain unclaimed.
+read-model delivery is present. Ref-only social alert/report intent proof
+is present; connector/native runtime, provider/report delivery, final
+policy execution, and enforcement remain unclaimed.
