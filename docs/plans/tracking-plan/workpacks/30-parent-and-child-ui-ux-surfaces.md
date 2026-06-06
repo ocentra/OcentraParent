@@ -31,6 +31,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 - `11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`
 - `11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`
+- `11-ui-snapshots/hosted-policy-tracking-report-export.png`
 - `11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
 - `11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png`
 - `11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`
@@ -42,9 +43,13 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `18-service-data-ui-proof.json`
 - `19-child-runtime-ui-proof.json`
 - `20-evidence-drawer-hosted-ui-proof.json`
+- `21-report-export-hosted-ui-proof.json`
 - `21-hosted-ui-artifact-inventory-proof.json`
+- `22-notification-parent-surface-hosted-ui-proof.json`
 - `23-parent-action-readiness-hosted-ui-proof.json`
 - `24-missing-device-hosted-ui-proof.json`
+- Unsupported/manual platform screenshot:
+  `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui.png`
 - Accessibility summary:
   `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`
 - Pre-device gate:
@@ -108,10 +113,11 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       claiming current-location runtime, powered-off tracking, remote sync,
       provider delivery, physical-device proof, OS lost-mode API execution,
       authority, production workers, or product readiness.
-- [x] Verify hosted screenshot PNG artifacts, evidence drawer proof output,
-      accessibility assertions, and no-overlap layout geometry are present and
-      non-empty through a dedicated artifact inventory proof without claiming
-      full parent/child UI or device runtime execution.
+- [x] Verify all current hosted screenshot PNG artifacts, evidence drawer proof
+      output, unsupported/manual platform proof output, accessibility
+      assertions, and no-overlap layout geometry are present and non-empty
+      through a dedicated artifact inventory proof without claiming full
+      parent/child UI or device runtime execution.
 - [x] Ensure child copy avoids accusation.
 - [x] Keep portal as authoring/display surface, not evaluator for the hosted
       evidence drawer proof; broader UI/product paths remain separately gated.
@@ -213,8 +219,9 @@ while keeping writable preference mutation, provider delivery, receipt
 ingestion runtime, child-device delivery, physical-device proof, authority,
 production storage, adapter dispatch, and product readiness unclaimed.
 `node scripts/test/tracking-hosted-ui-artifact-inventory-proof.mjs` now verifies
-the hosted screenshot PNG artifacts, hosted proof outputs, and accessibility
-assertions as a separate inventory gate. It writes
+the full current hosted screenshot PNG inventory, hosted proof outputs,
+unsupported/manual platform screenshot/proof output, accessibility assertions,
+and 10-card no-overlap layout geometry as a separate inventory gate. It writes
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/21-hosted-ui-artifact-inventory-proof.json`
 and
 `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/28-hosted-ui-artifact-inventory-proof.json`

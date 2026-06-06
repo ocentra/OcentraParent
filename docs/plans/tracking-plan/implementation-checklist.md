@@ -262,14 +262,16 @@ dashboard rollup proof from
 `test-results/tracking-family-dashboard-rollup-proof/proof.json`; rendered
 dashboard UI and full parent/child UI beyond the hosted parent route remain
 pending.
-WP30/WP33 additionally have hosted UI artifact inventory proof from
+WP30/WP33 additionally have refreshed hosted UI artifact inventory proof from
 `node scripts/test/tracking-hosted-ui-artifact-inventory-proof.mjs`, written to
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/21-hosted-ui-artifact-inventory-proof.json`,
 `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/28-hosted-ui-artifact-inventory-proof.json`,
 and `test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json`. It
-verifies hosted screenshot PNG files, accessibility assertions, no-overlap
-layout geometry, and no-product-claim boundaries without claiming full
-parent/child UI, child-device runtime, physical-device proof, authority,
+verifies the current hosted screenshot PNG files, including report/export,
+notification parent-surface, parent action readiness, missing-device, and
+unsupported/manual platform screenshots, accessibility assertions, 10-card
+no-overlap layout geometry, and no-product-claim boundaries without claiming
+full parent/child UI, child-device runtime, physical-device proof, authority,
 provider delivery, or production proof.
 WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
 The runtime proof command also records the full `minimumSeriousMvpAudit` in
@@ -523,9 +525,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       desktop/mobile screenshots plus hosted evidence drawer, child-safe
       check-in, child-runtime UI, notification parent-surface history, parent
       action readiness, and retention settings write-preflight proof
-      screenshots; hosted artifact inventory proof verifies the stored PNG files and accessibility
-      assertions; actual child-device runtime execution and full parent/child UI
-      beyond that route remain pending.
+      screenshots; hosted artifact inventory proof verifies the stored PNG
+      files, unsupported/manual platform PNG, and full current hosted
+      accessibility assertions; actual child-device runtime execution and full
+      parent/child UI beyond that route remain pending.
 - [ ] Child-device runtime snapshots cover actual delivery/execution,
       disclosure, safe/help responses, and location-share consent. Hosted proof
       covers the copy and delivery-boundary card only.
@@ -550,7 +553,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png`;
       the hosted parent action readiness screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`;
-      hosted artifact inventory proof verifies these PNG artifacts under
+      the refreshed hosted artifact inventory proof verifies these PNG artifacts
+      plus the unsupported/manual platform screenshot under
       `test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json`;
       actual child-device runtime and full parent/child screenshots remain
       pending.
@@ -561,8 +565,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       hosted notification parent-surface history rows, hosted parent action
       readiness rows, plus the retention
       settings write-preflight result card, and hosted
-      artifact inventory proof verifies the required assertions while actual
-      child-device runtime/full UI accessibility remains pending.
+      artifact inventory proof verifies the required hosted assertions and
+      10-card no-overlap layout geometry while actual child-device runtime/full
+      UI accessibility remains pending.
 
 ## Evidence Quality Gates
 

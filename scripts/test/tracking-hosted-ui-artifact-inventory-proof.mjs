@@ -7,37 +7,112 @@ const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const outputDir = join(repoRoot, 'test-results', 'tracking-hosted-ui-artifact-inventory-proof');
 const proofDir = join(repoRoot, 'output', 'tracking-plan-proof', 'tracking-hosted-ui-artifact-inventory-proof');
 const wp30ProofDir = join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces');
+const wp31ProofDir = join(
+  repoRoot,
+  'output',
+  'tracking-plan-proof',
+  '31-platform-extension-checklists-and-proof-routing'
+);
 const wp33ProofDir = join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
-const generatedAt = '2026-06-06T14:40:00.000Z';
+const generatedAt = '2026-06-06T23:45:00.000Z';
 
 const requiredScreenshots = [
-  '11-ui-snapshots/hosted-policy-tracking-live-summary.png',
-  '11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png',
-  '11-ui-snapshots/hosted-policy-tracking-citation-detail.png',
-  '11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png',
-  '11-ui-snapshots/hosted-policy-tracking-child-check-in.png',
-  '11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png',
-  '11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png',
-  '11-ui-snapshots/hosted-policy-tracking-retention-settings.png',
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-live-summary.png',
+  },
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png',
+  },
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-citation-detail.png',
+  },
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png',
+  },
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-child-check-in.png',
+  },
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png',
+  },
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png',
+  },
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-report-export.png',
+  },
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png',
+  },
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png',
+  },
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-missing-device.png',
+  },
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-retention-settings.png',
+  },
+  {
+    root: wp31ProofDir,
+    path: '19-unsupported-manual-hosted-ui.png',
+  },
 ];
 
 const requiredAssertions = [
   'named-region',
   'visible-heading',
+  'enabled-refresh-button',
   'service-backed-row-citation-visible',
   'service-data-coverage-visible',
-  'service-backed-citation-detail-screenshot',
-  'service-backed-evidence-drawer-screenshot',
+  'family-dashboard-rollup-visible',
   'family-dashboard-rollup-screenshot',
+  'report-export-read-model-visible',
+  'report-export-read-model-screenshot',
+  'notification-parent-surface-history-visible',
+  'notification-parent-surface-history-screenshot',
+  'parent-action-readiness-visible',
+  'parent-action-readiness-screenshot',
+  'missing-device-visible',
+  'missing-device-screenshot',
+  'service-backed-evidence-drawer-visible',
+  'service-backed-evidence-drawer-screenshot',
+  'service-backed-citation-detail-visible',
+  'service-backed-citation-detail-screenshot',
+  'retention-settings-read-model-visible',
+  'retention-settings-write-preflight-clicked',
+  'retention-settings-write-preflight-result-visible',
   'retention-settings-screenshot',
-  'child-check-in-screenshot',
-  'child-runtime-ui-screenshot',
-  'desktop-screenshot',
-  'mobile-screenshot',
+  'manual-required-visible',
+  'physical-device-required-visible',
   'no-product-claim-visible',
+  'child-check-in-copy-visible',
+  'child-check-in-actions-visible',
   'child-device-delivery-not-claimed',
+  'child-runtime-disclosure-visible',
+  'child-runtime-safe-help-response-visible',
+  'child-runtime-location-share-consent-visible',
+  'child-runtime-hosted-only-boundary-visible',
+  'unsupported-manual-platform-render-state-visible',
+  'unsupported-manual-platform-screenshot',
   'no-unlabeled-buttons',
   'no-proof-card-overlap',
+  'desktop-screenshot',
+  'child-check-in-screenshot',
+  'child-runtime-ui-screenshot',
+  'mobile-screenshot',
 ];
 
 await rm(outputDir, { recursive: true, force: true });
@@ -66,6 +141,9 @@ async function buildProof() {
   const evidenceDrawerProof = await readJson(
     'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json'
   );
+  const unsupportedManualProof = await readJson(
+    'output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui-proof.json'
+  );
   const accessibilitySummary = await readJson('test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json');
   const screenshots = await Promise.all(requiredScreenshots.map(readScreenshot));
 
@@ -82,6 +160,7 @@ async function buildProof() {
     sourceProofs: {
       hostedProof: proofSummary(hostedProof),
       evidenceDrawerProof: proofSummary(evidenceDrawerProof),
+      unsupportedManualProof: proofSummary(unsupportedManualProof),
       accessibilitySummary: accessibilitySummarySummary(accessibilitySummary),
     },
     screenshots,
@@ -107,14 +186,14 @@ async function buildProof() {
   };
 }
 
-async function readScreenshot(relativePath) {
-  const absolutePath = join(wp30ProofDir, relativePath);
+async function readScreenshot(screenshot) {
+  const absolutePath = join(screenshot.root, screenshot.path);
   const buffer = await readFile(absolutePath);
   const stats = await stat(absolutePath);
-  const dimensions = pngDimensions(buffer, relativePath);
+  const dimensions = pngDimensions(buffer, screenshot.path);
 
   return {
-    path: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/${relativePath}`,
+    path: relativeProofPath(screenshot),
     bytes: stats.size,
     width: dimensions.width,
     height: dimensions.height,
@@ -135,18 +214,31 @@ function assertProof(proof) {
   if (proof.sourceProofs.evidenceDrawerProof.productClaimReady !== false) {
     throw new Error('Evidence drawer proof must keep productClaimReady=false.');
   }
+  if (proof.sourceProofs.unsupportedManualProof.productClaimReady !== false) {
+    throw new Error('Unsupported/manual platform proof must keep productClaimReady=false.');
+  }
   const missingAssertions = requiredAssertions.filter(
     (assertion) => !proof.sourceProofs.accessibilitySummary.assertions.includes(assertion)
   );
   if (missingAssertions.length > 0) {
     throw new Error(`Missing hosted accessibility assertions: ${missingAssertions.join(', ')}`);
   }
-  if (!proof.layoutProof.noOverlap || proof.layoutProof.boxes.length !== 6) {
+  if (!proof.layoutProof.noOverlap || proof.layoutProof.boxes.length !== 10) {
     throw new Error(`Hosted UI layout proof did not prove non-overlap: ${JSON.stringify(proof.layoutProof)}`);
   }
   if (Object.values(proof.nonClaims).some((value) => value !== false)) {
     throw new Error(`Hosted UI inventory proof overclaimed behavior: ${JSON.stringify(proof.nonClaims)}`);
   }
+}
+
+function relativeProofPath(screenshot) {
+  if (screenshot.root === wp30ProofDir) {
+    return `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/${screenshot.path}`;
+  }
+  if (screenshot.root === wp31ProofDir) {
+    return `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/${screenshot.path}`;
+  }
+  throw new Error(`Unknown screenshot root: ${screenshot.root}`);
 }
 
 function proofSummary(proof) {
@@ -173,7 +265,7 @@ function layoutProof(summary) {
   const boxes = summary.summary?.layoutBoxes ?? [];
   return {
     proofMode: 'hosted-tracking-no-overlap-layout-proof',
-    noOverlap: boxes.length === 6 && !boxesOverlap(boxes),
+    noOverlap: boxes.length === 10 && !boxesOverlap(boxes),
     boxes,
   };
 }
@@ -206,7 +298,7 @@ function sourceSnapshot(proof) {
     `- Branch: ${proof.branch}`,
     `- Base commit at generation: ${proof.baseCommitAtGeneration}`,
     '- Source proof: existing hosted UI Playwright proof artifacts, accessibility summary, and layout geometry.',
-    '- Scope: verify stored hosted screenshots, evidence drawer proof, accessibility assertions, and no-overlap layout boxes for WP30/WP33 handoff.',
+    '- Scope: verify stored hosted screenshots, evidence drawer proof, unsupported/manual platform proof, accessibility assertions, and no-overlap layout boxes for WP30/WP33 handoff.',
     '- Boundary: inventory proof only; child-device runtime, physical-device proof, authority, provider delivery, full parent/child UI beyond the hosted route, production proof, and product-ready tracking remain unclaimed.',
     '',
   ].join('\n');

@@ -427,11 +427,14 @@ expose location or device-status features. Parents expect this category.
 - Hosted parent route screenshot and accessibility artifacts now have a focused
   inventory proof through
   `node scripts/test/tracking-hosted-ui-artifact-inventory-proof.mjs`. It
-  verifies the stored hosted screenshot PNGs, hosted evidence drawer proof,
-  accessibility assertions, no-overlap layout geometry, and no-product-claim
-  boundary while keeping full parent/child UI beyond the hosted route,
-  child-device runtime, physical-device proof, authority, provider delivery,
-  production proof, and product-ready tracking unclaimed.
+  verifies the stored hosted screenshot PNGs, including report/export,
+  notification parent-surface, parent action readiness, missing-device, and
+  unsupported/manual platform screenshots, hosted evidence drawer proof,
+  unsupported/manual platform proof, accessibility assertions, 10-card
+  no-overlap layout geometry, and no-product-claim boundary while keeping full
+  parent/child UI beyond the hosted route, child-device runtime,
+  physical-device proof, authority, provider delivery, production proof, and
+  product-ready tracking unclaimed.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
@@ -678,10 +681,13 @@ accessibility beyond the hosted parent route are proved.
       execution, authority enrollment, provider delivery, or product-ready
       tracking proof.
 - [x] Hosted UI artifact inventory proof verifies the stored hosted screenshot
-      PNGs, evidence drawer proof output, accessibility assertions, and
-      no-overlap layout geometry without claiming full parent/child UI,
-      child-device runtime, physical-device proof, authority, provider
-      delivery, production proof, or product-ready tracking.
+      PNGs, including report/export, notification parent-surface, parent action
+      readiness, missing-device, and unsupported/manual platform screenshots,
+      evidence drawer proof output, unsupported/manual platform proof output,
+      accessibility assertions, and 10-card no-overlap layout geometry without
+      claiming full parent/child UI, child-device runtime, physical-device
+      proof, authority, provider delivery, production proof, or product-ready
+      tracking.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence
       source refs, nearby-place context fields, AI no-final-action constraints,
       alert policy-decision refs, and retention before/after proof. This is not

@@ -142,15 +142,24 @@ This branch adds `npm run test:tracking-plan-hosted-ui-proof`, which starts the
 real Rust service against a seeded temporary ActivityStore SQLite database and
 drives the hosted parent `policy-tracking` route through Playwright. It writes
 desktop/mobile screenshots, hosted child-safe check-in, child-runtime,
-retention/settings, evidence drawer, notification parent-surface, parent action
-readiness, and missing-device screenshots, an accessibility summary, WP30 hosted
-UI proof, and WP33 hosted UI gate proof while keeping
+retention/settings, evidence drawer, report/export, notification
+parent-surface, parent action readiness, missing-device, and unsupported/manual
+platform screenshots, an accessibility summary, WP30 hosted UI proof, and WP33
+hosted UI gate proof while keeping
 `productClaimReady=false`. It is a hosted route proof only and does not claim
 writable parent notification preferences, live service mutation, current
 location runtime, powered-off tracking, remote sync, provider delivery, receipt
 ingestion runtime, child-device delivery/runtime UI, Android/iOS physical-device
 behavior, OS lost-mode API execution, authority, adapter dispatch, production
 storage/workers, or production readiness.
+
+This branch refreshes
+`node scripts/test/tracking-hosted-ui-artifact-inventory-proof.mjs` so the
+WP30/WP33 inventory gate verifies the current hosted screenshot PNG inventory,
+the unsupported/manual platform screenshot/proof, all current hosted
+accessibility assertions, and 10-card no-overlap layout geometry while keeping
+full parent/child UI, child-device runtime, physical-device, authority,
+provider delivery, production, and product-ready tracking unclaimed.
 
 This branch adds `npm run test:tracking-plan-evidence-quality-gate-proof`,
 which validates location UI evidence refs, geofence rule/source refs,
