@@ -94,6 +94,11 @@ model-unavailable, queue-unavailable, and not-recommended states remain explicit
 and do not carry jobs. The evidence-grade policy mapper turns A/B/C/D evidence
 plus parent rule/policy refs into dry-run, parent-review, or observe-only
 handoff states while keeping adapter and enforcement command authorization false.
+The risk-target policy handoff mapper consumes category lookup risk targets and
+routes fresh high-confidence block/limit requests to parent review, monitor
+requests to dry-run, and unknown categories to observe-only while rejecting exact
+URL, decrypted payload, live adapter mutation, enforcement-command, and broad
+platform claims.
 The parent notification candidate mapper converts those handoff states into
 candidate-only parent notification records with policy, rule, evidence, and
 local-AI refs while rejecting provider delivery, sensitive payload, adapter, and
