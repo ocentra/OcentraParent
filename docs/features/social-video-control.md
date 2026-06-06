@@ -91,7 +91,12 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   parent-declared hash refs, and manual-required state, while rejecting raw
   handles, display names, platform account ids, credentials, platform
   verification, connector authorization, policy decisions, native app control,
-  UI delivery, and enforcement.
+  UI delivery, and enforcement. `social-account-identity-live-evidence-proof`
+  now consumes the real public SOCIAL-13 account captures, parses 4
+  signup/login rows through URL-shape, social-route, account-flow, and
+  unverified route-context identity contracts, and rejects raw identity,
+  credential, platform-verification, parent/child-declared identity,
+  connector, policy, native-app, and enforcement promotion attempts.
 - Browser-plan SOCIAL-07 now adds parent-domain approval request/decision
   contracts for social account signup, login, account switch, and
   manual-required states. They reference evidence ids without importing
