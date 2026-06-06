@@ -1,7 +1,8 @@
 use std::path::Path;
 
 use ocentra_parent_agent_core::{
-    ActivityStore, ScreenRuntimeCaptureInput, ScreenRuntimeInput, ScreenRuntimeReport,
+    ActivityStore, ScreenRuntimeCaptureInput, ScreenRuntimeDeletionInput, ScreenRuntimeInput,
+    ScreenRuntimeReport,
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityScreenReadModelRow, SCREEN_DELETION_DELETED, SCREEN_DELETION_EXPIRED_DELETED,
@@ -49,6 +50,16 @@ pub(crate) async fn publish_screen_capture_queue_event_chain(
         .map_err(|_| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }
 
+pub(crate) async fn publish_screen_deletion_event_chain(
+    row: ActivityScreenReadModelRow,
+    observed_at: &str,
+) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
+    let input = screen_runtime_deletion_input_from_service_row(row)?;
+    ocentra_parent_agent_core::publish_screen_deletion_event_for_input(input, observed_at)
+        .await
+        .map_err(|_| ScreenAiServiceEventBridgeError::EventPublishFailed)
+}
+
 pub(crate) async fn publish_screen_capture_queue_events_for_queue_job(
     store_path: &Path,
     queue_job_id: &str,
@@ -58,6 +69,19 @@ pub(crate) async fn publish_screen_capture_queue_events_for_queue_job(
         return Ok(None);
     };
     Ok(publish_screen_capture_queue_event_chain(row, observed_at)
+        .await
+        .ok())
+}
+
+pub(crate) async fn publish_screen_deletion_event_for_queue_job(
+    store_path: &Path,
+    queue_job_id: &str,
+    observed_at: &str,
+) -> Result<Option<ScreenRuntimeReport>, ActivityCaptureError> {
+    let Some(row) = latest_screen_row_for_queue_job(store_path, queue_job_id, observed_at)? else {
+        return Ok(None);
+    };
+    Ok(publish_screen_deletion_event_chain(row, observed_at)
         .await
         .ok())
 }
@@ -105,6 +129,31 @@ pub(crate) fn screen_runtime_input_from_service_row(
         action_ref: refs.action_ref,
         deletion_proof_ref,
         portal_read_model_ref: row.row_id,
+    })
+}
+
+pub(crate) fn screen_runtime_deletion_input_from_service_row(
+    row: ActivityScreenReadModelRow,
+) -> Result<ScreenRuntimeDeletionInput, ScreenAiServiceEventBridgeError> {
+    if row.raw_image_retained {
+        return Err(ScreenAiServiceEventBridgeError::RawImageRetained);
+    }
+    let deletion_proof_ref = row
+        .deletion_reasons
+        .first()
+        .cloned()
+        .ok_or(ScreenAiServiceEventBridgeError::MissingDeletionProof)?;
+    Ok(ScreenRuntimeDeletionInput {
+        queue_job_id: row.queue_job_id,
+        screen_analysis_result_id: row.row_id,
+        capture_reason: row.capture_reason,
+        capture_scope: row.capture_scope,
+        image_digest: row.image_digest,
+        summary: row.label,
+        model_runtime_ref: row.model_runtime_ref,
+        model_id: row.model_id,
+        prompt_or_template_version: row.prompt_or_template_version,
+        deletion_proof_ref,
     })
 }
 

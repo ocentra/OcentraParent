@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::constants;
 
 use crate::{
-    screen_event_runtime::ScreenRuntimeInput, screen_event_runtime_phase::ScreenRuntimePhase,
+    screen_event_runtime_input::ScreenRuntimeInput, screen_event_runtime_phase::ScreenRuntimePhase,
 };
 
 pub(crate) fn screen_aggregate_key(queue_job_id: &str) -> String {
