@@ -262,6 +262,12 @@ Any feature that can be disabled for billing must define its degraded local beha
   billing provider contact execution, provider secrets, support backend upload
   execution, remote support sessions, production SLA commitments, and child
   activity custody.
+- `production-support-runtime-gap-proof` proves the account/billing provider
+  runtime remains backend-required/provider-required inside the wider
+  production-support gap map; it rejects account backend runtime claims, account
+  lookup execution, billing provider runtime/contact execution, provider
+  secrets, hosted family data, support backend upload execution, remote support
+  sessions, production SLA, and child activity custody.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   prove account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries before provider/backend code exists.

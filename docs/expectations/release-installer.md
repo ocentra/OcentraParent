@@ -222,6 +222,14 @@ Release features are product features because parents need install/update paths 
   remote support sessions, production SLA commitments, support backend upload
   execution, `family.ocentra.ca` runtime, provider secrets, or child-activity
   custody.
+- `production-support-runtime-gap-proof` may prove a combined runtime-gap
+  status boundary for public website runtime, support publication execution,
+  support backend upload execution, account/billing provider runtime, legal
+  export/delete runtime, and remote support/SLA rows, but it must not claim
+  public runtime execution, account backend runtime, billing provider runtime or
+  contact, legal/export/delete execution, support backend upload execution,
+  remote support sessions, production SLA, hosted family data, provider secrets,
+  or child-activity custody.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play

@@ -230,6 +230,15 @@ dev-only repo when it claims consumer readiness.
   support publication execution, support backend upload execution, account
   lookup execution, billing provider contact, production SLA, legal disclosure
   execution, remote support sessions, and child-activity custody unclaimed.
+- `production-support-runtime-gap-proof` adds parent-domain runtime-gap rows for
+  public website runtime, support publication execution, support backend upload
+  execution, account/billing provider runtime, legal export/delete runtime, and
+  remote support/SLA runtime. It proves only source-contract/manual status
+  summaries and keeps public runtime, support publication execution, backend
+  upload execution, account backend runtime, account lookup, billing provider
+  runtime/contact, legal/export/delete execution, remote support sessions,
+  production SLA, provider secrets, hosted family data, and child-activity
+  custody unclaimed.
 - `billing-entitlement-contract-proof` defines parent-domain contracts for
   plan entitlement rows, entitlement snapshots, subscription status sync events,
   device-limit decisions, parent-visible failure states, local-safety fallback,
@@ -495,6 +504,15 @@ package/runtime proof.
       runtime, support publication execution, support upload execution, account
       lookup execution, billing provider contact, production SLA, legal
       execution, remote support sessions, and child-activity custody unclaimed.
+  - Current `production-support-runtime-gap-proof` adds a combined runtime-gap
+    boundary for public website runtime, support publication execution,
+    support backend upload execution, account/billing provider runtime, legal
+    export/delete runtime, and remote support/SLA runtime while keeping public
+    runtime, support publication execution, backend upload execution, account
+    backend runtime, account lookup, billing provider runtime/contact,
+    legal/export/delete execution, remote support sessions, production SLA,
+    provider secrets, hosted family data, and child-activity custody
+    unclaimed.
 
 ## Next AI Instructions
 

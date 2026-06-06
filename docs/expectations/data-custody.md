@@ -157,6 +157,13 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   provider secrets, support backend payloads, payment provider tokens, remote
   support session transcripts, production SLA commitments, default
   Ocentra-hosted family data, or raw support bundle payloads.
+- `production-support-runtime-gap-proof` may summarize public/support/account/
+  billing/legal/remote-support runtime gap rows, source refs, manual proof refs,
+  and support-safe status summaries, but it must not include raw child activity,
+  raw support bundles, provider secrets, account lookup results, billing
+  provider contact records, remote support session transcripts, hosted family
+  data, backend upload payloads, private paths, screenshots, journals, or SQLite
+  snapshots.
 - Any future feature that stores family activity in Ocentra infrastructure
   requires a new explicit product, privacy, security, retention, and deletion
   design before implementation.
