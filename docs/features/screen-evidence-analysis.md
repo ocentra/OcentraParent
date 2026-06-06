@@ -34,6 +34,10 @@ only with explicit parent settings.
 ## Current Ocentra State
 
 - Local screen-analysis queue direction and contracts exist.
+- Reusable Rust eventing now exists in `crates/ocentra-eventing`; screen
+  capture/queue/deletion/summary work must publish typed events for AI, policy,
+  action, audit, read-model, and deletion consumers instead of wiring direct
+  screen-to-AI calls.
 - `@ocentra-parent/activity-domain` now proves parent opt-in settings, cadence
   and trigger gates, temporary encrypted queue custody, deletion/expiry/delete
   failure states, raw-image non-retention, confidence/unknown handling, and

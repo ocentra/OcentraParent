@@ -46,6 +46,10 @@ claim needs proof, not slogans.
   parent/child jobs still share one lane, and tracked proof artifacts live under
   `output/ai-plan-proof/local-ai-runtime-provider-proof` and
   `output/ai-plan-proof/local-ai-provider-scheduler-proof`.
+- `crates/ocentra-eventing` is now the reusable Rust event bus. AI analysis
+  should consume typed evidence events and publish typed result/degraded events
+  for policy, action, audit, read-model, and deletion consumers instead of
+  depending on direct capture-to-AI or AI-to-policy calls.
 - `LocalAiRuntimeStatusSurfaceReadModelSchema` and
   `scripts/test/local-ai-runtime-status-read-model-proof.mjs` now project the
   existing provider proof rows into parent-facing runtime status rows. The proof

@@ -40,6 +40,7 @@ trigger ownership unless the row explicitly says so.
 | Detector prompt pack proof                | P2 contract proved         | `output/screen-plan-proof/40-detector-prompt-packs-and-schema-tests/proof-summary.json`            | Proves guided detector prompt pack/output contracts reject open-ended prompts, raw/private fields, policy authority, and enforcement claims; no production model quality or live inference claimed.                                                                                                                           |
 | Local AI resource scheduler proof         | P2 contract + runtime      | `output/screen-plan-proof/local-ai-resource-scheduler/proof-summary.json`                          | Proves screen OCR/VLM priority, singleton heavy-lane admission, timeout/skipped/degraded states, caps, and reuse of the provider scheduler proof; not a final capture-to-policy pipeline claim.                                                                                                                               |
 | Family AI hub screen route proof          | P2 contract proved         | `output/screen-plan-proof/37-family-ai-hub-screen-analysis-queue/proof-summary.json`               | Proves hard screen-analysis cases route child-local first, then local household family hub with no retention and no remote/API fallback; no real LAN hub runtime or production model quality claimed.                                                                                                                         |
+| Screen eventing consumer boundary         | planned                    | `docs/plans/eventing-plan/README.md`; `crates/ocentra-eventing`                                    | Screen capture/queue/deletion/summary transitions must publish typed events through the reusable Rust eventing runtime before AI/policy/action consumers react. Current screen proofs still include direct proof-harness/service chains and must not be treated as the final uncoupled event-driven product path.             |
 | Router/structured extraction proof        | P2 contract proved         | `output/screen-plan-proof/31-32-screen-router-structured-extraction/proof-summary.json`            | Proves typed screen routing checks existing evidence and managed-browser structured extraction before screenshots; no live producer, portal, policy, or enforcement claim.                                                                                                                                                    |
 | Managed-browser CDP screenshot capture    | P3 live local proved       | `output/screen-plan-proof/33-managed-browser-cdp-screenshot-capture-path/proof-summary.json`       | Proves real Chromium CDP page/viewport/crop screenshot capture tied to a managed page target with encrypted temp queue handoff and deletion; no URL-trigger ownership, OCR/VLM, policy, enforcement, live view, or raw retention claim.                                                                                       |
 | Windows WinRT OCR worker capture analysis | P3 real OCR proved         | `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`                                  | Proves real selected-window browser/native captured pixels run through Windows WinRT OCR, become typed screen-analysis evidence, feed allow dry-run policy decisions, and delete raw temp images; no production OCR quality, service runtime, cross-platform, enforcement, live view, or raw retention claim.                 |
@@ -81,6 +82,8 @@ trigger ownership unless the row explicitly says so.
 - [x] Remote/API path accepts only parent-approved redacted summaries by default.
 - [x] Local AI resource scheduler prevents multiple heavy jobs on normal PCs.
 - [x] Family AI hub is used before remote/API for hard visual cases.
+- [ ] Screen capture, queue, deletion, and summary lifecycle transitions publish
+      typed `ocentra-eventing` events before AI/policy/action consumers run.
 - [x] Platform capture proof exists before platform claim.
 - [x] Operator live URL/app proof is recorded before product-complete claim.
 - [x] Playwright UI proof exists.
@@ -142,6 +145,8 @@ VLM runs before structured/OCR evidence when not needed
 open-ended "describe screen" prompt used
 remote API receives raw screenshot
 local heavy OCR/VLM jobs run without priority/resource guard
+screen capture directly calls AI/policy/action instead of publishing typed
+eventing records for consumers
 ```
 
 ## Workpack Status

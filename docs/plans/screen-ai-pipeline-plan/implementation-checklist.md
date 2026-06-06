@@ -45,6 +45,7 @@ claims.
 | Live operator full matrix                | P3 local operator proved  | `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`                             | Proves all nine required operator-supplied rows: ordinary YouTube `video`/`warn`, education YouTube `school`/`allow`, Vimeo `video`/`warn`, Facebook/social `chat`/`warn`, browser game `game`/`time-limit`, shopping `shopping`/`ask-parent`, school/productivity `school`/`allow`, native Notepad `productivity`/`allow`, and protected-surface degraded state with no raw image, AI, or policy claim. Browser rows use selected browser-window capture to avoid foreground contamination; raw image material is deleted after local analysis. |
 | Live operator artifact gate              | P3 artifact gate proved   | `output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json`               | Rechecks the existing live operator proof artifacts by command: all nine required rows, redacted live URL/title/text readiness for browser surfaces, local VLM runtime evidence, policy dry-run links, protected-surface non-claims, parent explanation screenshots, and raw image deletion/no-retention custody. It does not rerun the operator capture session or claim managed-browser trigger ownership.                                                                                                                                     |
 | Final product path artifact gate         | P3 stacked proof proved   | `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`                        | Validates retained real-run artifacts across live/operator real triggers, local VLM analysis, policy dry-runs, Windows action handoff proofs, portal/read-model proof, retention/deletion custody, and protected-surface non-claims. It does not rerun the live operator session, claim authenticated-account social proof, own managed-browser trigger producers, or claim broad browser/network/mobile adapters.                                                                                                                               |
+| Event-driven Screen-AI runtime chain     | planned                   | `docs/plans/eventing-plan/README.md`; `crates/ocentra-eventing`                                | Must prove a fresh uncoupled chain where screen capture publishes typed events, AI subscribes and publishes typed result events, policy/action/audit/read-model/deletion consumers react through the reusable Rust eventing runtime, and cross-process/LAN boundaries publish into their local buses. Existing artifact gates do not prove this final bus-backed product path.                                                                                                                                                                   |
 | Parent explanation service read model    | P3 service proved         | `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json` | Starts the real Rust service against a seeded ActivityStore and requests the Activity Screen read model over WebSocket, proving policy refs, parent rules, local runtime refs, parent explanation refs, deletion reasons, deleted-image state, and child-device custody survive service/query projection. It does not claim production portal rendering, new capture/model inference, remote/API AI, or enforcement.                                                                                                                             |
 | Family AI hub runtime discovery          | P3 loopback runtime proof | `output/screen-ai-pipeline-proof/family-ai-hub-runtime-discovery/proof-summary.json`           | Starts a real loopback family-hub endpoint, discovers it, records child-agent hello/heartbeat/route evidence, selects the existing screen family-hub route after a child-local degraded attempt, and submits a redacted-crop job with no raw screenshot bytes, no retention, no remote/API provider, and no Ocentra-hosted processing. Physical household LAN, production VLM quality, portal UI, policy authority, cloud relay, and enforcement remain separate gates.                                                                          |
 | Unknown native process trigger           | P3 local-machine proved   | `output/screen-ai-pipeline-proof/unknown-native-process/03-capture-proof.json`                 | Proves a controlled unknown native process window can trigger selected-window capture, local VLM unknown classification, low-confidence handling, and ask-parent dry-run without retaining raw image.                                                                                                                                                                                                                                                                                                                                            |
@@ -66,6 +67,9 @@ claims.
 - [x] AI analysis proof PR merged or explicitly stacked.
 - [x] Pipeline branch contains both prerequisite implementations.
 - [x] Prerequisite commits recorded in proof artifacts.
+- [ ] Pipeline branch proves the screen -> AI -> policy -> action/read-model/
+      deletion handoff through `crates/ocentra-eventing`, not direct module
+      calls.
 
 ## Real Trigger Gates
 
@@ -93,6 +97,8 @@ claims.
 - [x] Model-runtime flood-control/backpressure proof before high-cadence local
       model execution claims.
 - [x] Service-owned local adapter analysis over an encrypted screen queue job.
+- [ ] AI analysis starts from a typed screen evidence event and publishes a
+      typed AI result/degraded event.
 - [x] Local text model route proof over typed context.
 - [x] Deterministic route proof where structured evidence is enough.
 - [x] Low confidence degrades safely.
@@ -110,6 +116,7 @@ claims.
 - [x] Unknown/manual-required result.
 - [x] AI cannot override stricter parent rule.
 - [x] Service WinRT OCR Activity Screen row feeds a typed parent policy dry-run.
+- [ ] Policy consumes a typed AI result event from the eventing runtime.
 - [x] Real Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination proof.
 - [x] Screen-derived broad/browser/network/mobile adapter readiness states
       remain manual-required, not-claimed, or unavailable without claim
@@ -135,6 +142,9 @@ claims.
       AI, policy, action, portal/read-model, service-backed Activity Screen
       read-model, retention, and deletion custody artifacts:
       `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`.
+- [ ] Fresh event-driven final product path rerun proves capture event, AI
+      result event, policy event, action/dry-run event, portal/read-model event,
+      and deletion/custody event in one runtime chain.
 - [x] Parent explanation refs survive service-backed Activity Screen read-model
       projection:
       `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json`.
@@ -213,6 +223,7 @@ claims.
 - [x] Final product path artifact gate run:
       `node --check scripts/test/screen-ai-final-product-path-proof.mjs` and
       `node scripts/test/screen-ai-final-product-path-proof.mjs`.
+- [ ] Event-driven Screen-AI runtime chain proof run.
 - [x] Dependency policy rerun after capture dependency narrowing.
 - [x] Android emulator MediaProjection proof run.
 - [x] `git diff --check`.

@@ -19,6 +19,9 @@ Already present:
 - Screen capture and screen-intelligence planning inside `screen-plan`.
 - Runtime/provider status, local AI chat generation, provider scheduler, and
   parent assistant proof scripts.
+- Reusable Rust eventing infrastructure in `crates/ocentra-eventing`, with
+  existing network and parent/child consumer examples that AI work should
+  follow instead of adding direct capture-to-AI coupling.
 - Activity memory graph contracts and read-model proof pieces.
 - Policy dry-run evaluator and enforcement policy dispatch proof pieces.
 
@@ -59,6 +62,9 @@ This plan prevents that by making AI a shared local safety subsystem with:
 - one memory/graph source-citation rule;
 - one portal explanation model;
 - one remote/API boundary.
+- one event-driven AI consumer boundary on top of `crates/ocentra-eventing`,
+  so capture, AI, policy, action, audit, read-model, and deletion steps remain
+  uncoupled.
 
 ## Target State
 
@@ -66,15 +72,14 @@ The target product state is:
 
 ```text
 Typed evidence from capture slices
-  -> encrypted journal
-  -> SQLite read models
-  -> evidence context builder
-  -> AI queue/provider route
+  -> encrypted custody/journal/read-model records
+  -> typed `ocentra-eventing` evidence event
+  -> AI job/provider route
   -> deterministic/text/OCR/VLM worker
-  -> schema-valid AI result
-  -> deterministic parent policy
-  -> audit and parent explanation
-  -> later enforcement handoff only from policy
+  -> schema-valid AI result event
+  -> deterministic parent policy event
+  -> audit, parent explanation, and deletion/read-model events
+  -> later enforcement handoff only from policy events
 ```
 
 ## Immediate Priority
@@ -86,10 +91,11 @@ shared spine:
 2. Rust parity.
 3. Real stored-evidence context builder.
 4. Local model/runtime status plus provider queue.
-5. Local text model dry-run execution with invalid-output rejection.
-6. Deterministic policy integration.
-7. AI result journal and parent explanation read model.
-8. Screen OCR/VLM lanes aligned to the same queue and result contracts.
+5. Event-driven AI consumer contracts on `crates/ocentra-eventing`.
+6. Local text model dry-run execution with invalid-output rejection.
+7. Deterministic policy integration.
+8. AI result journal and parent explanation read model.
+9. Screen OCR/VLM lanes aligned to the same queue and result contracts.
 
 ## Non-Claims Until Proven
 

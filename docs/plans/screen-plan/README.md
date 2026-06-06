@@ -27,6 +27,9 @@ Raw screenshot retention and live view are separate opt-in product modes.
 Remote/cloud screenshot upload is not default.
 AI is evidence, not authority.
 Parent policy decides action.
+Screen capture does not directly call AI or policy.
+Screen capture publishes typed evidence/custody events into the Rust eventing
+runtime, and AI/policy/action consumers subscribe through that boundary.
 ```
 
 ## Tiered Screen Intelligence Rule
@@ -50,7 +53,8 @@ Use this order:
    yes/no/multi-label classification from the smallest safe image.
 
 4. Bigger local/family-hub VLM:
-   only for hard cases when cheap local evidence is uncertain.
+   only for hard cases when cheap local evidence is uncertain;
+   route through event contracts, not a direct capture-to-model call.
 
 5. Remote/API VLM:
    disabled for raw screenshots by default;
@@ -87,8 +91,10 @@ Final architecture:
 ```text
 App/Game/Browser evidence says what surface is active.
 Screen evidence helps understand what is visible.
-AI summarizes only from approved capture.
-Policy decides what to do.
+Screen publishes approved capture/evidence events.
+AI subscribers summarize only from approved evidence refs.
+Policy subscribers decide what to do from validated AI result events.
+Action, audit, read-model, and deletion consumers react after policy.
 ```
 
 ## Where We Are
@@ -137,6 +143,9 @@ Ocentra needs a screen subsystem that can:
 - prove retention/delete behavior;
 - keep screenshot retention and live view as separate explicit modes;
 - keep remote relay/cloud upload disabled by default.
+- emit screen capture, queue, deletion, and summary lifecycle transitions as
+  typed Rust eventing consumers on `crates/ocentra-eventing`, without creating a
+  second Screen-only event bus.
 
 ## Plan Files
 
