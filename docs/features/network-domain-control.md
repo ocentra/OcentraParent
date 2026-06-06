@@ -154,6 +154,13 @@ compete on control while staying clear about attribution confidence and privacy.
   remain visible, and live capture execution, remote upload, raw PCAP without
   custody, exact-content, policy/adapter authority, and enforcement-command
   claims are rejected.
+- E-D added a deterministic live-capture/raw-custody status materializer in
+  `ocentra-network-evidence`: row13 live-capture readiness and row03a raw
+  storage custody proofs compose into one custody-ready/manual-required/
+  unavailable/degraded status with combined missing-artifact refs. The proof
+  rejects mismatched proof refs and still reports no driver invocation, raw
+  artifact creation, remote upload, exact-content, policy/adapter authority, or
+  enforcement-command publication.
 - E-D added fixture-backed visibility parsers for TLS ClientHello SNI, plain
   HTTP Host, QUIC limited-visibility detection, and DoH/DoT resolver-candidate
   detection. These parsers keep exact URL, visited domain, page content, and
@@ -411,7 +418,8 @@ notification provider delivery, broader parent-facing rule UX, live host DNS
 mutation/proxy installation, live Windows
 Firewall mutation, live WFP driver/callout/packet blocking, live Android
 VpnService filtering, live Apple Network Extension behavior, live Linux adapter
-execution, platform adapter execution, and broader portal risk-budget,
+execution, platform adapter execution, service WebSocket exposure for the new
+live-capture/raw-custody status materializer, and broader portal risk-budget,
 performance, and platform capability UI rendering remain open.
 
 ## Checklist
