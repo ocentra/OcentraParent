@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "browser-game-rollout-gate",
+  "generatedAt": "2026-06-06T18:28:10.265Z",
+  "rows": [
+    {
+      "rowNumber": 1,
+      "rowId": "GAME-01",
+      "expectedStatus": "[x]",
+      "expectedOwner": "codex-d",
+      "expectedState": "scaffold-proof-present",
+      "state": "scaffold-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 2,
+      "rowId": "GAME-02",
+      "expectedStatus": "[x]",
+      "expectedOwner": "codex-d",
+      "expectedState": "live-route-proof-present",
+      "state": "live-route-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 3,
+      "rowId": "GAME-03",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 4,
+      "rowId": "GAME-04",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 5,
+      "rowId": "GAME-05",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 6,
+      "rowId": "GAME-06",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 7,
+      "rowId": "GAME-07",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 8,
+      "rowId": "GAME-08",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 9,
+      "rowId": "GAME-09",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 10,
+      "rowId": "GAME-10",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 11,
+      "rowId": "GAME-11",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 12,
+      "rowId": "GAME-12",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 13,
+      "rowId": "GAME-13",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 14,
+      "rowId": "GAME-14",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 15,
+      "rowId": "GAME-15",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 16,
+      "rowId": "GAME-16",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 17,
+      "rowId": "GAME-17",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 18,
+      "rowId": "GAME-18",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 19,
+      "rowId": "GAME-19",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 20,
+      "rowId": "GAME-20",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 21,
+      "rowId": "GAME-21",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 22,
+      "rowId": "GAME-22",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 23,
+      "rowId": "GAME-23",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 24,
+      "rowId": "GAME-24",
+      "expectedStatus": "[~]",
+      "expectedOwner": "codex-d",
+      "expectedState": "partial-manual-required",
+      "state": "partial-manual-required",
+      "failures": []
+    }
+  ],
+  "summary": {
+    "totalRows": 24,
+    "completeRows": 2,
+    "partialRows": 22,
+    "openRows": 0,
+    "failures": 0,
+    "rolloutState": "partial/manual-required",
+    "productClaimed": false
+  },
+  "guardTexts": [
+    "GAME rollout state: partial/manual-required.",
+    "GAME rollout state: partial/manual-required.",
+    "Browser-game/cloud-gaming GAME-24 now labels the game track partial/manual-required through the rollout gate.",
+    "Browser-game rollout gates may label rows as complete, partial/manual-required, or open/manual-required only."
+  ],
+  "noClaimLabels": [
+    "browser-game-live-route-contracts-proof-present",
+    "proof-artifact-coverage-contract-only",
+    "playwright-manual-required-no-rendered-browser-game-ui",
+    "runtime-signal-proof-manual-required",
+    "metadata-ai-memory-proof-manual-required",
+    "child-parent-ui-not-claimed",
+    "cloud-streamed-frame-analysis-not-claimed",
+    "native-game-control-not-claimed",
+    "enforcement-not-claimed",
+    "product-checklist-upgrade-not-claimed"
+  ],
+  "failures": []
+}

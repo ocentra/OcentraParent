@@ -1188,6 +1188,14 @@ worker messages before code changes. Do not mix all 24 into one PR.
   and status. They reject raw domains, raw URLs, raw paths, raw page bodies,
   live URL parser claims, runtime detection claims, AI classification claims,
   policy decisions, native game control, cloud-frame analysis, and enforcement.
+  The live route proof fetches real public CrazyGames, Poki, Coolmath Games,
+  Xbox Cloud Gaming, itch.io HTML5 catalog, and Chess.com play surfaces, stores
+  only response metadata plus hashed origin/path/body refs, parses six route
+  contracts plus a reviewed catalog, and rejects raw-data/runtime/parser/AI/
+  policy/native/cloud-frame/enforcement overclaims. Package subpath exports are
+  present; no live URL parser, runtime detector, AI classifier, UI, product
+  checklist update, release claim, cloud-frame analysis, native game control,
+  final policy, or enforcement is made.
 - GAME-03 now adds parent-domain browser-game portal pattern library contracts.
   Entries model known-game, educational, UGC, indie, classic archive, school,
   and unknown portal families through route kinds, signal kinds, pattern
@@ -1384,11 +1392,12 @@ worker messages before code changes. Do not mix all 24 into one PR.
   app-level, or domain-level until real device/platform proof exists.
 - GAME-24 now adds the browser-game rollout/manual-required gate. GAME rollout
   state: partial/manual-required. The gate labels GAME-01 as
-  scaffold-proof-present, GAME-02 through GAME-24 as partial/manual-required,
-  and no browser-game rows as open/manual-required. Product checklist upgrade
-  is not claimed, and route contracts, runtime signals, metadata, AI, memory,
-  child/parent UI, cloud-streamed frame analysis, native game control, and
-  enforcement remain open or manual-required until separate proof exists.
+  scaffold-proof-present, GAME-02 as live-route-proof-present, GAME-03 through
+  GAME-24 as partial/manual-required, and no browser-game rows as
+  open/manual-required. Product checklist upgrade is not claimed, and runtime
+  signals, metadata, AI, memory, child/parent UI, cloud-streamed frame analysis,
+  native game control, and enforcement remain open or manual-required until
+  separate proof exists.
 
 ## 21. Must-Not-Claim List
 

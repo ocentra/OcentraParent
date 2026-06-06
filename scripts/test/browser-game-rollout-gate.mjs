@@ -82,6 +82,15 @@ function expectedRows() {
         expectedState: 'scaffold-proof-present',
       };
     }
+    if (rowNumber === 2) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-route-proof-present',
+      };
+    }
     if (rowNumber >= 2) {
       return {
         rowNumber,
@@ -139,7 +148,7 @@ function manifestFor(rows, failures) {
     rows,
     summary: {
       totalRows: rows.length,
-      completeRows: rows.filter((row) => row.expectedState === 'scaffold-proof-present').length,
+      completeRows: rows.filter((row) => row.expectedStatus === '[x]').length,
       partialRows: rows.filter((row) => row.expectedState === 'partial-manual-required').length,
       openRows: rows.filter((row) => row.expectedState === 'open-manual-required').length,
       failures: failures.length,
@@ -148,7 +157,7 @@ function manifestFor(rows, failures) {
     },
     guardTexts: rolloutGuards.map((guard) => guard.text),
     noClaimLabels: [
-      'browser-game-route-contracts-open',
+      'browser-game-live-route-contracts-proof-present',
       'proof-artifact-coverage-contract-only',
       'playwright-manual-required-no-rendered-browser-game-ui',
       'runtime-signal-proof-manual-required',
@@ -171,7 +180,7 @@ function markdownFor(manifest) {
     `Generated: ${manifest.generatedAt}`,
     '',
     `Rows checked: ${manifest.summary.totalRows}`,
-    `Scaffold-proof rows: ${manifest.summary.completeRows}`,
+    `Proof-present rows: ${manifest.summary.completeRows}`,
     `Partial/manual-required rows: ${manifest.summary.partialRows}`,
     `Open/manual-required rows: ${manifest.summary.openRows}`,
     `Rollout state: ${manifest.summary.rolloutState}`,
@@ -182,6 +191,7 @@ function markdownFor(manifest) {
     rows,
     '',
     'GAME rollout state: partial/manual-required.',
+    'GAME-02 live route contract proof is present.',
     'Product checklist upgrade is not claimed.',
     'Browser-game route contracts, runtime signals, metadata, AI, memory,',
     'child/parent UI, cloud-streamed frame analysis, native game control,',
