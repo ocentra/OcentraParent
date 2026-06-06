@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T15:33:15.679Z",
-  "commit": "712a457fe18e0c7f0a960e6c02aef62cd691b8c2",
+  "checkedAt": "2026-06-06T15:37:00.552Z",
+  "commit": "f2f647a841c335fc2f8faa1e6217c0a33afc1b3a",
   "proofMode": "production-support-status-backend-dead-letter-proof",
   "rowCount": 48,
   "targets": [
