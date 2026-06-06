@@ -155,6 +155,7 @@ export const AgentProtocolDefaults = {
     ActivityAppGamePolicyReadinessReadModel: 'appGamePolicyReadinessReadModel',
     ActivityAppGameNotificationReadinessReadModel: 'appGameNotificationReadinessReadModel',
     ActivityTrackingReadModel: 'trackingReadModel',
+    ActivityTrackingRetentionSettingsMutation: 'trackingRetentionSettingsMutation',
     AdapterActionExecuted: 'adapterActionExecuted',
     BridgeEndpointRef: 'bridgeEndpointRef',
     BridgeKind: 'bridgeKind',

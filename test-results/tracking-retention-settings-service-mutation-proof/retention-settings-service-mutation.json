@@ -1,0 +1,202 @@
+[
+  {
+    "schemaVersion": "v0.5-tracking",
+    "requestId": "tracking-retention-settings-write-retention-window-request",
+    "mutationId": "tracking-retention-settings-write-retention-window-request-service-result",
+    "intentId": "tracking-retention-settings-write-retention-window",
+    "settingsKind": "retention-window-setting",
+    "writeAction": "set-retention-window",
+    "requestedValue": "168",
+    "mutationState": "accepted",
+    "generatedAt": "2026-06-06T15:41:00.000Z",
+    "sourceReadModelProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "writerBoundaryProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/19-retention-settings-writer-boundary-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-settings-writer-boundary-proof.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-retention-writer-evidence-window",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T15:41:00.000Z"
+      }
+    ],
+    "auditRefs": [
+      "tracking-retention-writer-audit-window"
+    ],
+    "serviceCommandRegisteredClaimed": true,
+    "serviceMutationExecuted": true,
+    "durablePersistenceClaimed": false,
+    "portalUiClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "requestId": "tracking-retention-settings-write-delete-after-alert-request",
+    "mutationId": "tracking-retention-settings-write-delete-after-alert-request-service-result",
+    "intentId": "tracking-retention-settings-write-delete-after-alert",
+    "settingsKind": "delete-after-alert-setting",
+    "writeAction": "enable-delete-after-alert",
+    "requestedValue": "true",
+    "mutationState": "accepted",
+    "generatedAt": "2026-06-06T15:41:00.000Z",
+    "sourceReadModelProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "writerBoundaryProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/19-retention-settings-writer-boundary-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-settings-writer-boundary-proof.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-retention-writer-evidence-delete-after-alert",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T15:41:00.000Z"
+      }
+    ],
+    "auditRefs": [
+      "tracking-retention-writer-audit-delete-after-alert"
+    ],
+    "serviceCommandRegisteredClaimed": true,
+    "serviceMutationExecuted": true,
+    "durablePersistenceClaimed": false,
+    "portalUiClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "requestId": "tracking-retention-settings-write-parent-export-request",
+    "mutationId": "tracking-retention-settings-write-parent-export-request-service-result",
+    "intentId": "tracking-retention-settings-write-parent-export",
+    "settingsKind": "parent-export-setting",
+    "writeAction": "prepare-parent-export",
+    "requestedValue": "true",
+    "mutationState": "accepted",
+    "generatedAt": "2026-06-06T15:41:00.000Z",
+    "sourceReadModelProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "writerBoundaryProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/19-retention-settings-writer-boundary-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-settings-writer-boundary-proof.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-retention-writer-evidence-export",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T15:41:00.000Z"
+      }
+    ],
+    "auditRefs": [
+      "tracking-retention-writer-audit-export"
+    ],
+    "serviceCommandRegisteredClaimed": true,
+    "serviceMutationExecuted": true,
+    "durablePersistenceClaimed": false,
+    "portalUiClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "requestId": "tracking-retention-settings-write-remote-sync-disabled-request",
+    "mutationId": "tracking-retention-settings-write-remote-sync-disabled-request-service-result",
+    "intentId": "tracking-retention-settings-write-remote-sync-disabled",
+    "settingsKind": "remote-sync-disabled-setting",
+    "writeAction": "keep-remote-sync-disabled",
+    "requestedValue": "false",
+    "mutationState": "accepted",
+    "generatedAt": "2026-06-06T15:41:00.000Z",
+    "sourceReadModelProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "writerBoundaryProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/19-retention-settings-writer-boundary-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-settings-writer-boundary-proof.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-retention-writer-evidence-remote-sync-disabled",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T15:41:00.000Z"
+      }
+    ],
+    "auditRefs": [
+      "tracking-retention-writer-audit-remote-sync"
+    ],
+    "serviceCommandRegisteredClaimed": true,
+    "serviceMutationExecuted": true,
+    "durablePersistenceClaimed": false,
+    "portalUiClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "requestId": "tracking-retention-settings-write-remote-ai-disabled-request",
+    "mutationId": "tracking-retention-settings-write-remote-ai-disabled-request-service-result",
+    "intentId": "tracking-retention-settings-write-remote-ai-disabled",
+    "settingsKind": "remote-ai-disabled-setting",
+    "writeAction": "keep-remote-ai-disabled",
+    "requestedValue": "false",
+    "mutationState": "accepted",
+    "generatedAt": "2026-06-06T15:41:00.000Z",
+    "sourceReadModelProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "writerBoundaryProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/19-retention-settings-writer-boundary-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-settings-writer-boundary-proof.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-retention-writer-evidence-remote-ai-disabled",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-06T15:41:00.000Z"
+      }
+    ],
+    "auditRefs": [
+      "tracking-retention-writer-audit-remote-ai"
+    ],
+    "serviceCommandRegisteredClaimed": true,
+    "serviceMutationExecuted": true,
+    "durablePersistenceClaimed": false,
+    "portalUiClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productClaimReady": false
+  }
+]

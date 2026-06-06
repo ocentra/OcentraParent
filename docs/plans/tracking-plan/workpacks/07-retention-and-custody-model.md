@@ -28,6 +28,7 @@ Proof root: `output/tracking-plan-proof/07-retention-and-custody-model/`
 - `17-retention-export-proof.json`
 - `18-retention-settings-read-model-proof.json`
 - `19-retention-settings-writer-boundary-proof.json`
+- `20-retention-settings-service-mutation-proof.json`
 - `16-validation-commands.log`
 
 ## AI Worker Checklist
@@ -48,13 +49,16 @@ window, delete-after-alert, parent export, remote-sync disabled, and remote-AI
 disabled state through
 `node scripts/test/tracking-retention-settings-read-model-proof.mjs`, plus
 writer-boundary preflight rows for those five setting write intents through
-`node scripts/test/tracking-retention-settings-writer-boundary-proof.mjs`.
-Platform behavior, executed service mutation, actual writable live
+`node scripts/test/tracking-retention-settings-writer-boundary-proof.mjs`, plus
+local service mutation command execution for the same setting rows through
+`node scripts/test/tracking-retention-settings-service-mutation-proof.mjs`.
+Platform behavior, durable settings persistence, actual writable live
 service-backed retention UI, and product claim readiness are not claimed beyond
 the proof state recorded in
 `proof-summary.json`, `14-retention-delete-proof.json`,
 `17-retention-export-proof.json`, `18-retention-settings-read-model-proof.json`,
 `19-retention-settings-writer-boundary-proof.json`,
+`20-retention-settings-service-mutation-proof.json`,
 the WP30 UI fixture artifact, and the implementation checklist.
 
 ## Where We Want To Be
@@ -78,8 +82,8 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Platform, provider, executed service mutation, live service-backed retention
-  UI, and product claims remain manual-required until the assigned proof
+- Platform, provider, durable settings persistence, live service-backed
+  retention UI, and product claims remain manual-required until the assigned proof
   artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
@@ -138,3 +142,26 @@ This workpack can be assigned independently, implemented against the owning doma
       service-backed retention UI, platform runtime, child-device delivery,
       Android/iOS physical proof, authority, provider delivery, notification
       receipts, and production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-retention-settings-service-mutation-proof`.
+- [x] Touched files: agent-protocol-domain, Rust agent protocol/service
+      retention settings service mutation source/tests, parent-domain service
+      mutation proof source/test, proof harness, tracking feature doc,
+      implementation checklist, WP07, WP32, and generated WP07/WP32/WP33 proof
+      artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-retention-settings-service-mutation-proof.mjs`
+      passed locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-service-mutation-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-service-mutation-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/28-retention-settings-service-mutation-proof.json`,
+      and
+      `test-results/tracking-retention-settings-service-mutation-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, and WP32 updated; central capability checklist row delta
+      is queued through the hub instead of editing the checklist directly.
+- [x] Known gaps/manual-required states: actual writable product UI, durable
+      settings persistence, platform runtime, child-device delivery/runtime
+      execution, Android/iOS physical-device proof, authority, provider
+      delivery, notification receipts, and production proof remain proof-gated.

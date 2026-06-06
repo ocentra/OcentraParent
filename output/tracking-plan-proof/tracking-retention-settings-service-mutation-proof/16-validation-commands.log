@@ -1,0 +1,6 @@
+cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain
+cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- tracking-retention-settings-service-mutation
+cargo test -p ocentra-parent-agent-protocol tracking_retention_settings_mutation
+cargo test -p ocentra-parent-agent-service tracking_retention_settings_mutation
+cmd /c npm run build --workspace @ocentra-parent/parent-domain
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-settings-service-mutation-proof tracking-retention-settings-writer-boundary-proof

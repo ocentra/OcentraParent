@@ -41,6 +41,7 @@ use crate::{
     parent_assistant_runtime::build_parent_assistant_answer_report,
     policy_preview_api::build_policy_preview_read_model_report,
     snapshot::build_dev_log_snapshot,
+    tracking_retention_settings_service_mutation_payload::build_tracking_retention_settings_mutation_report,
 };
 
 pub async fn handle_socket(
@@ -187,7 +188,8 @@ async fn build_command_event(
         | AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet
         | AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet
         | AgentCommandName::AgentActivityNetworkReadModelGet
-        | AgentCommandName::AgentActivityTrackingReadModelGet => {
+        | AgentCommandName::AgentActivityTrackingReadModelGet
+        | AgentCommandName::AgentActivityTrackingRetentionSettingsMutate => {
             build_activity_command_report(command).await
         }
         AgentCommandName::AgentBrowserInventoryReadModelGet
@@ -331,6 +333,9 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         }
         AgentCommandName::AgentActivityTrackingReadModelGet => {
             build_activity_tracking_read_model_report(command).await
+        }
+        AgentCommandName::AgentActivityTrackingRetentionSettingsMutate => {
+            build_tracking_retention_settings_mutation_report(command).await
         }
         _ => build_log_snapshot_report(command),
     }

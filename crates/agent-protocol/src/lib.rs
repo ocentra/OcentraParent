@@ -56,6 +56,7 @@ mod parent_assistant;
 mod parent_controller;
 mod screen_evidence;
 mod tracking_read_model;
+mod tracking_retention_settings_service_mutation;
 mod transport;
 mod windows_adapter_artifact_gate;
 mod windows_adapter_artifact_ingestion;
@@ -113,6 +114,7 @@ pub use parent_assistant::*;
 pub use parent_controller::*;
 pub use screen_evidence::*;
 pub use tracking_read_model::*;
+pub use tracking_retention_settings_service_mutation::*;
 pub use transport::*;
 pub use windows_adapter_artifact_gate::*;
 pub use windows_adapter_artifact_ingestion::*;
@@ -237,6 +239,8 @@ mod screen_evidence_tests;
 mod tests;
 #[cfg(test)]
 mod tracking_read_model_tests;
+#[cfg(test)]
+mod tracking_retention_settings_service_mutation_tests;
 #[cfg(test)]
 mod windows_adapter_artifact_gate_tests;
 #[cfg(test)]

@@ -74,8 +74,14 @@ Every checked item must cite one or more proof artifacts.
       `output/tracking-plan-proof/07-retention-and-custody-model/19-retention-settings-writer-boundary-proof.json`
       and
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-settings-writer-boundary-proof.json`.
-      The hosted route now renders those read-model rows; actual live service
-      mutation UI and service execution remain pending.
+      Local service mutation command execution proof now covers those same five
+      setting rows in
+      `output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-service-mutation-proof.json`
+      and
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-service-mutation-proof.json`.
+      The hosted route now renders those read-model rows; actual writable
+      product UI, durable settings persistence, platform runtime, and
+      device/provider delivery remain pending.
 - [x] Remote sync and remote AI are disabled by default. Contract proof:
       `output/tracking-plan-proof/07-retention-and-custody-model/`,
       `output/tracking-plan-proof/24-ai-provider-routing/`.
@@ -389,9 +395,11 @@ Every implementation workpack must update, or explicitly justify not updating:
 - [x] Retention/delete/export P1 checkpoint proof exists. Retention delete has
       P1 read-model proof, parent-owned export has P1 snapshot proof,
       UI-visible deleted-history hiding has P1 route fixture proof, and P2
-      retention settings read-model rows exist, and writer-boundary preflight
-      rows now validate the intended retention setting writes; actual live
-      service mutation UI and service execution remain pending.
+      retention settings read-model rows exist, writer-boundary preflight rows
+      validate the intended retention setting writes, and local service mutation
+      command execution now has proof; actual writable product UI, durable
+      settings persistence, platform runtime, and device/provider delivery remain
+      pending.
 - [x] Tracking service read-model command has P2 proof for SQLite tracking rows,
       citation IDs through `trackingReadModel`, retention-delete tombstone
       replay with deleted evidence citation summaries, and narrow parent portal

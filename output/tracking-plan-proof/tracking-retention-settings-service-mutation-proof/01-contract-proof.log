@@ -1,0 +1,9 @@
+Contract proof:
+
+- cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- tracking-retention-settings-service-mutation: PASS
+- cargo test -p ocentra-parent-agent-protocol tracking_retention_settings_mutation: PASS
+- cargo test -p ocentra-parent-agent-service tracking_retention_settings_mutation: PASS
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-settings-service-mutation-proof tracking-retention-settings-writer-boundary-proof: PASS
+- The WebSocket command routes a retention settings mutation payload into a typed reported event.

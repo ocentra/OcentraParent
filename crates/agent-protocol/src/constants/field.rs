@@ -13,6 +13,7 @@ pub const APP_GAME_POLICY_READINESS_READ_MODEL: &str = "appGamePolicyReadinessRe
 pub const APP_GAME_NOTIFICATION_READINESS_READ_MODEL: &str =
     "appGameNotificationReadinessReadModel";
 pub const ACTIVITY_TRACKING_READ_MODEL: &str = "trackingReadModel";
+pub const ACTIVITY_TRACKING_RETENTION_SETTINGS_MUTATION: &str = "trackingRetentionSettingsMutation";
 pub const ACTIVE_TAB_CAPABILITY: &str = "activeTabCapability";
 pub const ACTIVE_PROOF_SOURCE: &str = "activeProofSource";
 pub const ACTIVE_STATE: &str = "activeState";

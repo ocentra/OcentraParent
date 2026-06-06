@@ -82,6 +82,12 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/07-retention-and-custody-model/19-retention-settings-writer-boundary-proof.json`
   and
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-settings-writer-boundary-proof.json`,
+  plus retention settings service mutation proof through
+  `node scripts/test/tracking-retention-settings-service-mutation-proof.mjs`,
+  with artifacts
+  `output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-service-mutation-proof.json`
+  and
+  `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-service-mutation-proof.json`,
   plus `npm run test:tracking-plan-service-data-ui-proof`, with artifacts
   `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json`,
@@ -316,11 +322,13 @@ proof for active family, child-attention, and retention-audit summary rows with
 narrow hosted-route rendering, and retention settings read-model proof for
 retention window, delete-after-alert, parent export, remote-sync disabled, and
 remote-AI disabled rows plus narrow hosted-route rendering, plus
-retention-settings writer-boundary preflight proof for the same five settings
-rows. It remains a tracked product gap until platform
+retention-settings writer-boundary preflight proof and local service mutation
+command execution proof for the same five settings rows. It remains a tracked
+product gap until platform
 location and geofence runtime adapters, broader product read models beyond
 these rows, full dashboard UI beyond the hosted parent route, actual
-writable live service mutation UI and service execution, actual live provider
+writable live service mutation UI, durable retention settings persistence,
+actual live provider
 execution/delivery, notification receipt ingestion, physical-device proof,
 actual child-device delivery/runtime execution, remote sync runtime, OS
 lost-mode APIs, production upload workers, and full parent/child UI
@@ -337,8 +345,10 @@ snapshots/accessibility beyond the hosted parent route are proved.
       P2 retention settings read-model rows plus hosted route rendering now
       exist. Writer-boundary preflight proof now validates the retention window,
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
-      disabled write intents; actual live service mutation UI and service
-      execution remain pending.
+      disabled write intents; local service mutation command execution is now
+      proven for those five settings rows. Actual writable product UI, durable
+      settings persistence, platform runtime, and device/provider delivery remain
+      pending.
 - [x] Alert intent contract.
 - [ ] Android permission/background runtime proof. WP08/WP09 parent-domain
       manual-required proof rows now exist for foreground permission,
@@ -434,6 +444,13 @@ snapshots/accessibility beyond the hosted parent route are proved.
       platform runtime, child-device delivery/runtime execution, provider
       delivery, notification receipt ingestion, authority, physical-device, or
       product-complete proof.
+- [x] WP07/WP32 retention settings service mutation proof for retention window,
+      delete-after-alert, parent export, remote-sync disabled, and remote-AI
+      disabled write intents. This proves local protocol/domain/service command
+      execution only; it is not writable product UI, durable settings
+      persistence, platform runtime, child-device delivery/runtime execution,
+      provider delivery, notification receipt ingestion, authority,
+      physical-device, or product-complete proof.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
 - [x] P3 WSL/local replay proof for the tracking read-model proof stack and

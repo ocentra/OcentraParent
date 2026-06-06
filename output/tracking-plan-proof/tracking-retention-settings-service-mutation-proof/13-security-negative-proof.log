@@ -1,0 +1,5 @@
+Security/no-claim proof:
+
+- Service mutation rows claim local command registration and service mutation execution only.
+- Rows do not claim durable persistence, portal UI completion, platform runtime, child-device delivery, provider delivery, notification receipts, authority enrollment, physical-device behavior, or product completion.
+- Remote sync and remote AI requested values stay false.

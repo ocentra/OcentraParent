@@ -237,6 +237,9 @@ mod tracking_read_model_payload;
 mod tracking_read_model_payload_tests;
 #[cfg(test)]
 mod tracking_read_model_service_tests;
+mod tracking_retention_settings_service_mutation_payload;
+#[cfg(test)]
+mod tracking_retention_settings_service_mutation_service_tests;
 mod websocket;
 #[cfg_attr(not(test), allow(dead_code))]
 mod windows_adapter_artifact_gate_read_model;
