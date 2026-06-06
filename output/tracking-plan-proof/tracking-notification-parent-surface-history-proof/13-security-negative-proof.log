@@ -1,0 +1,4 @@
+Security/no-claim proof:
+
+- Rendered parent notification UI, parent preference mutation runtime, frequency-control UI, quiet-hours timer runtime, provider delivery, receipt ingestion, credentials, cloud routing, child delivery, physical-device proof, authority proof, retry runtime, durable production history/outbox storage, and adapter dispatch remain false.
+- Parent summary refs are redacted intent refs; raw child evidence remains behind evidence refs and authenticated drill-in refs.
