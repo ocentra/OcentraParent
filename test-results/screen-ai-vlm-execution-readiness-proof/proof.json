@@ -2,7 +2,7 @@
   "status": "ok",
   "proof": "screen-ai-vlm-execution-readiness-proof",
   "proofTier": "P3_CONTRACT_LOCAL_VLM_EXECUTION_READINESS",
-  "generatedAt": "2026-06-06T00:36:22.673Z",
+  "generatedAt": "2026-06-06T00:47:12.667Z",
   "artifactRoots": {
     "aiPlan": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\ai-plan-proof\\screen-vlm-execution-readiness-proof",
     "screenAiPipelinePlan": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\screen-vlm-execution-readiness-proof",
