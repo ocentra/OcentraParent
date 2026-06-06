@@ -23,6 +23,7 @@ consumes the same results.
 | VLM journal/read-model projection                 | P3 contract proved  | `output/ai-plan-proof/screen-vlm-journal-read-model-proof/proof-summary.json`                                                          | Proves completed VLM readiness status rows can become encrypted journal lines and Activity Screen read-model rows while preserving local model/runtime/template refs, policy refs, parent-rule refs, explanation refs, deletion refs, journal evidence refs, and no raw image retention. It does not claim live VLM execution, production model quality, portal runtime rendering, policy authority, or enforcement.                                                                                         |
 | Service WinRT OCR over live browser capture       | P3 service proved   | `output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json`                                                                 | Starts the real Rust service, captures a live public Wikipedia Chrome window through timed cadence into the encrypted queue, invokes a Windows WinRT OCR adapter through the service analysis runtime, records a `localOcr` Activity Screen row with runtime/model/template metadata and a `school` result, drains the queue, and deletes adapter temp image material. It does not claim production OCR quality, authenticated-account coverage, enforcement, or cross-platform OCR parity.                  |
 | Service WinRT OCR policy consumption              | P3 service proved   | `output/screen-ai-pipeline-proof/service-winrt-ocr-policy/proof-summary.json`                                                          | Reruns the real service WinRT OCR proof and consumes that exact `localOcr` Activity Screen row through typed parent-domain policy contracts, proving allow dry-run policy refs, evidence refs, parent rule refs, disabled enforcement handoff, and deleted-image/no-raw-retention custody. It does not claim final enforcement, broad adapters, production OCR quality, or authenticated-account coverage.                                                                                                   |
+| Screen AI stricter parent-rule override           | P3 policy proved    | `output/ai-plan-proof/screen-ai-stricter-parent-rule-proof/proof-summary.json`                                                         | Consumes the real service WinRT OCR policy decision and proves a stricter parent-authored screen category rule overrides the local AI allow output while preserving evidence refs, the local AI result ref, dry-run policy shape, and disabled enforcement handoff. It does not rerun live capture, retain raw screenshots, use remote/API AI, claim local AI authority, or claim enforcement.                                                                                                               |
 | Screen AI model artifact manifest                 | P3 contract proved  | `output/ai-plan-proof/screen-ai-model-artifact-manifest-proof/proof-summary.json`                                                      | Proves the screen AI local model artifact manifest/config boundary uses existing opaque artifact and manifest refs, verified cache status, local-only runtime status, and provider capability contracts. It does not download a production model, run inference, prove model quality, use remote/API AI, or embed raw evidence.                                                                                                                                                                              |
 | Screen AI invalid output degradation              | P3 contract proved  | `output/ai-plan-proof/screen-ai-invalid-output-degrade-proof/proof-summary.json`                                                       | Proves malformed, unparseable, or timed-out screen AI local model output degrades into typed non-enforcing local AI safety results: invalid output is rejected before it becomes a result, unparseable output falls back to `unknown` with `invalid-output` degradation, and timeout falls back to `ask-parent` with overloaded runtime metadata while preserving evidence and parent rule refs. It does not execute a model, prove model quality, rerun capture, render portal UI, or dispatch enforcement. |
 | Screen AI model output parser                     | P3 contract proved  | `output/ai-plan-proof/screen-ai-model-output-parser-proof/proof-summary.json`                                                          | Proves existing local AI evaluation input and safety result parser contracts accept schema-valid screen-derived video evidence with local-only runtime metadata and reject malformed action, confidence, unknown/degraded state, evidence/rule list, remote runtime, and missing observation-evidence shapes. It does not execute a model, prove model quality, rerun capture, render portal UI, or dispatch enforcement.                                                                                    |
@@ -124,7 +125,8 @@ consumes the same results.
 
 - [x] Deterministic policy consumes valid AI results only.
 - [x] Service WinRT OCR Activity Screen row feeds typed parent policy dry-run.
-- [ ] AI cannot override stricter parent rules.
+- [x] AI cannot override stricter parent rules for the screen service WinRT OCR
+      policy proof path.
 - [x] Policy decisions are journaled.
 - [ ] Enforcement consumes policy decision only.
 - [x] Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination tested from a screen-derived policy decision.
@@ -150,7 +152,8 @@ consumes the same results.
 - [ ] Stored-evidence integration tests.
 - [x] Provider route/status tests.
 - [ ] Model output parser tests.
-- [ ] Policy integration tests.
+- [x] Policy integration tests for stricter parent-rule override on screen AI
+      policy decisions.
 - [x] Memory/graph source guard tests.
 - [ ] Remote boundary tests.
 - [x] Playwright UI proof.
@@ -196,6 +199,11 @@ consumes the same results.
 - [x] screen AI model output parser proof run:
       `node --check scripts/test/screen-ai-model-output-parser-proof.mjs` and
       `node scripts/test/screen-ai-model-output-parser-proof.mjs`.
+- [x] screen AI stricter parent-rule proof artifacts under
+      `output/ai-plan-proof/screen-ai-stricter-parent-rule-proof`.
+- [x] screen AI stricter parent-rule proof run:
+      `node --check scripts/test/screen-ai-stricter-parent-rule-proof.mjs` and
+      `node scripts/test/screen-ai-stricter-parent-rule-proof.mjs`.
 - [x] screen AI adapter readiness proof artifacts under
       `output/screen-ai-pipeline-proof/adapter-readiness`.
 - [x] screen AI adapter readiness proof run:
