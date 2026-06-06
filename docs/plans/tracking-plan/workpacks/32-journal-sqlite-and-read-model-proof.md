@@ -34,6 +34,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `22-report-policy-consumer-proof.json`
 - `23-family-dashboard-rollup-proof.json`
 - `24-retention-settings-read-model-proof.json`
+- `25-retention-settings-writer-boundary-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -67,6 +68,12 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       without claiming writable settings, service mutation, platform runtime,
       child-device delivery, provider delivery, authority, physical-device
       execution, or production readiness.
+- [x] Add retention settings writer-boundary preflight rows for retention
+      window, delete-after-alert, parent export, remote-sync disabled, and
+      remote-AI disabled write intents without claiming executed service
+      mutation, live retention UI, platform runtime, child-device delivery,
+      provider delivery, authority, physical-device execution, or production
+      readiness.
 
 ## Where We Are
 
@@ -108,6 +115,11 @@ rows from the existing WP07 retention/delete/export and WP32 service read-model
 proof refs while keeping service mutation, portal UI, platform runtime,
 child-device delivery, provider delivery, notification receipt, physical-device,
 authority, and product-ready claims false.
+The retention settings writer-boundary proof derives preflight write intents for
+the same five setting rows from the existing WP07/WP32 read-model proof refs,
+keeps remote sync and remote AI disabled, and keeps executed service mutation,
+live retention UI, platform runtime, child-device delivery, provider delivery,
+notification receipt, physical-device, authority, and product-ready claims false.
 The hosted parent route now renders those retention settings read-model rows as
 a narrow proof card and captures
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
@@ -293,6 +305,26 @@ This workpack can be assigned independently, implemented against the owning doma
       child-device delivery/runtime execution, Android/iOS physical-device
       proof, authority, provider delivery, notification receipts, and
       production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-retention-settings-writer-boundary-proof`.
+- [x] Touched files: parent-domain retention settings writer-boundary proof
+      source/test, proof harness, tracking feature doc, implementation
+      checklist, WP07, WP32, and generated WP07/WP32/WP33 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-retention-settings-writer-boundary-proof.mjs`
+      passed locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/07-retention-and-custody-model/19-retention-settings-writer-boundary-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-settings-writer-boundary-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/25-retention-settings-writer-boundary-proof.json`,
+      and `test-results/tracking-retention-settings-writer-boundary-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, and WP32 updated; central capability checklist row is
+      not edited by this worker while another lane owns it.
+- [x] Known gaps/manual-required states: executed service mutation, live
+      service-backed retention UI, platform runtime, child-device delivery,
+      Android/iOS physical-device proof, authority, provider delivery,
+      notification receipts, and production proof remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-hosted-citation-detail-proof`.
 - [x] Touched files: portal renderers, portal-domain proof marker, hosted
