@@ -54,6 +54,10 @@ control with better evidence and local audit.
   foreground, and launcher evidence through SQLite and projects inventory,
   running-now, foreground-now, launcher, and daily rollup rows while preserving
   the no-use/no-content/no-launcher-promotion boundaries.
+- The session-duration replay gate now ties those staged journal/SQLite rows
+  back to the shared sessionization contracts: replayed runtime and foreground
+  evidence produces daily rollup duration changes, replay order reconstructs the
+  same summary, and duplicate replay cannot double-count duration or sessions.
 - The service now exposes those staged app/game journal and SQLite projections
   through typed app-use and games activity-surface read models, including
   inventory, runtime, foreground, launcher/source-count, daily rollup,

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-session-duration-replay-gate-proof",
+  "generatedAt": "2026-06-06T21:09:25.097Z",
+  "branch": "codex/app-game-inventory-display-gate-proof",
+  "commit": "67e8c18c84a5a7c16168bc8fd7fe6658ac335e5f",
+  "gitStatusShort": "",
+  "commands": [
+    "cmd /c npm run test --workspace @ocentra-parent/activity-domain -- app-game.test.ts\nexit=0\n\n> @ocentra-parent/activity-domain@0.1.1 test\n> vitest run app-game.test.ts\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/activity-domain\n\n\n Test Files  1 passed (1)\n      Tests  9 passed (9)\n   Start at  17:09:22\n   Duration  1.05s (transform 241ms, setup 0ms, import 794ms, tests 17ms, environment 0ms)\n\n",
+    "cargo test -p ocentra-parent-agent-core app_game_sessionization --no-default-features\nexit=0\n\nrunning 6 tests\ntest activity_store_app_game::app_game_sessionization_tests::stale_gap_closes_and_reopens_same_process_identity ... ok\ntest activity_store_app_game::app_game_sessionization_tests::foreground_duration_uses_window_focus_and_stays_within_running_duration ... ok\ntest activity_store_app_game::app_game_sessionization_tests::process_exit_closes_running_session ... ok\ntest activity_store_app_game::app_game_sessionization_tests::daily_rollup_sums_session_durations_by_day_and_classification ... ok\ntest activity_store_app_game::app_game_sessionization_tests::process_observations_start_and_continue_session_duration ... ok\ntest activity_store_app_game::app_game_sessionization_tests::replay_order_reconstructs_same_summary ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 242 filtered out; finished in 0.01s\n\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s\n     Running unittests src\\lib.rs (target\\debug\\deps\\ocentra_parent_agent_core-98ce409322ace2ff.exe)\n",
+    "cargo test -p ocentra-parent-agent-core app_game_journal_sqlite_ingest --no-default-features\nexit=0\n\nrunning 3 tests\ntest activity_store_app_game::app_game_journal_sqlite_ingest_tests::invalid_inventory_evidence_is_rejected_before_sqlite_ingest ... ok\ntest activity_store_app_game::app_game_journal_sqlite_ingest_tests::duplicate_runtime_observations_do_not_double_count_duration_after_replay ... ok\ntest activity_store_app_game::app_game_journal_sqlite_ingest_tests::journal_replay_produces_app_game_sqlite_read_model_rows ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 245 filtered out; finished in 0.07s\n\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s\n     Running unittests src\\lib.rs (target\\debug\\deps\\ocentra_parent_agent_core-98ce409322ace2ff.exe)\n"
+  ],
+  "gate": "Session duration changes after journal replay.",
+  "gateState": "prevented-by-replay-duration-contract-and-dedupe-proof",
+  "evidence": {
+    "typeScriptContracts": "packages/activity-domain/src/app-game.ts requires session and daily-rollup foreground + background duration to equal running duration, with tests covering invalid totals and evidence timestamp requirements.",
+    "rustSessionization": "crates/agent-core/src/activity_store_app_game/app_game_sessionization.rs sorts replayed rows, derives running duration from observation timestamps, and derives background duration from running minus foreground duration.",
+    "rustSessionizationTests": "crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs proves replay order reconstructs the same summary and daily rollups sum durations by day/classification.",
+    "journalReplayTests": "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs proves encrypted journal replay projects app/game SQLite rows whose daily rollup durations become 60000ms, and duplicate runtime replay does not double-count duration."
+  },
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "journalReplayChangesDuration": true,
+    "duplicateReplayDoubleCountsDuration": false,
+    "inventoryClaimsUse": false,
+    "rawPrivateExecutablePathExposed": false,
+    "portalUiChanged": false,
+    "browserGameWorkDuplicated": false,
+    "adapterDispatchClaimed": false,
+    "policyEnforcementClaimed": false,
+    "packageExportsChanged": false
+  },
+  "expectedReplayProjection": {
+    "rollupRunningDurationMs": 60000,
+    "rollupForegroundDurationMs": 60000,
+    "duplicateReplayRunningDurationMs": 60000,
+    "duplicateReplaySessionCount": 1
+  },
+  "proofPaths": {
+    "proof": "test-results/app-game-session-duration-replay-gate-proof/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/merge-gates/session-duration-replay",
+    "harness": "scripts/test/app-game-session-duration-replay-gate-proof.mjs"
+  }
+}

@@ -168,7 +168,7 @@ Required files:
 - [x] iOS claims process scanning/killing.
 - [x] macOS hard block is claimed without MDM/Endpoint/System Extension proof.
 - [x] Linux universal block is claimed without mechanism/distro proof.
-- [ ] Session duration changes after journal replay.
+- [x] Session duration changes after journal replay.
 - [ ] Portal hides stale, permission-limited, manual-required, or not-claimed
       states.
 - [ ] Raw private executable paths leak into parent UI.
