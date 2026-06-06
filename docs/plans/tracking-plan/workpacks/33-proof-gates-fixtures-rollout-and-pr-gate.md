@@ -58,6 +58,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `../20-google-places-and-poi-provider-adapter/08-provider-parity-readiness-proof.json`
 - WP21 place-category ambiguity no-accusation proof:
   `../21-place-category-taxonomy-and-ambiguity-model/17-category-ambiguity-no-accusation-proof.json`
+- WP24 AI provider routing custody proof:
+  `../24-ai-provider-routing/18-ai-provider-routing-custody-proof.json`
 - WP25 policy compiler runtime proof:
   `../25-policy-compiler-for-tracking-rules/proof.json`
 - Tracking notification receipt boundary proof:
@@ -174,6 +176,14 @@ zone override as policy-review input only while keeping live provider
 execution, provider delivery, exact-place presence, automatic action,
 physical-device proof, authority, production behavior, and full UI unclaimed.
 
+This branch adds `node scripts/test/tracking-ai-provider-routing-proof.mjs`,
+which derives WP24 AI provider routing rows for child-local default safety,
+parent-approved remote-only data movement, degraded/unavailable/disabled
+provider states, assistant preview-only no-write/no-enforcement boundaries, and
+evidence/custody refs on every AI context. It keeps model execution,
+child-device runtime, provider delivery, assistant policy writes, enforcement,
+physical-device proof, production behavior, and UI unclaimed.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.
@@ -200,6 +210,9 @@ This workpack can be assigned independently, implemented against the owning doma
 - packages/parent-domain/src/tracking-place-category-ambiguity-proof.ts
 - packages/parent-domain/tests/tracking-place-category-ambiguity-proof.test.ts
 - scripts/test/tracking-place-category-ambiguity-proof.mjs
+- packages/parent-domain/src/tracking-ai-provider-routing-proof.ts
+- packages/parent-domain/tests/tracking-ai-provider-routing-proof.test.ts
+- scripts/test/tracking-ai-provider-routing-proof.mjs
 - `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`
 - Implementation paths listed by the worker before editing.
 

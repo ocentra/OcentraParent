@@ -1,0 +1,230 @@
+[
+  {
+    "schemaVersion": "v0.5-tracking",
+    "purpose": "child-safety-default",
+    "route": {
+      "schemaVersion": "v0.5-tracking",
+      "providerRouteId": "child-local-tracking-ai-route",
+      "mode": "child-local",
+      "capabilityState": "available",
+      "remoteDataAllowed": false,
+      "unavailableReason": null,
+      "auditRefs": [
+        "tracking-ai-provider-route-proof"
+      ]
+    },
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "child-local-evidence-ref",
+        "kind": "journal-event",
+        "observedAt": "2026-06-06T18:32:00.000Z"
+      }
+    ],
+    "custodyRefs": [
+      "child-local-local-custody-ref"
+    ],
+    "defaultChildSafetyPath": true,
+    "explicitParentApprovalRequired": false,
+    "parentApprovalRecorded": false,
+    "assistantPreviewOnly": true,
+    "assistantCanWritePolicyDirectly": false,
+    "assistantCanEnforceDirectly": false,
+    "childAgentValidationRequired": true,
+    "reasonCodes": [
+      "child-local-ai-default-safety-path"
+    ],
+    "auditRefs": [
+      "tracking-ai-provider-routing-proof"
+    ]
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "purpose": "parent-device-context",
+    "route": {
+      "schemaVersion": "v0.5-tracking",
+      "providerRouteId": "parent-local-tracking-ai-route",
+      "mode": "parent-local",
+      "capabilityState": "available",
+      "remoteDataAllowed": false,
+      "unavailableReason": null,
+      "auditRefs": [
+        "tracking-ai-provider-route-proof"
+      ]
+    },
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "parent-local-evidence-ref",
+        "kind": "journal-event",
+        "observedAt": "2026-06-06T18:32:00.000Z"
+      }
+    ],
+    "custodyRefs": [
+      "parent-local-local-custody-ref"
+    ],
+    "defaultChildSafetyPath": false,
+    "explicitParentApprovalRequired": false,
+    "parentApprovalRecorded": false,
+    "assistantPreviewOnly": true,
+    "assistantCanWritePolicyDirectly": false,
+    "assistantCanEnforceDirectly": false,
+    "childAgentValidationRequired": true,
+    "reasonCodes": [
+      "parent-local-context-route"
+    ],
+    "auditRefs": [
+      "tracking-ai-provider-routing-proof"
+    ]
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "purpose": "family-hub-local",
+    "route": {
+      "schemaVersion": "v0.5-tracking",
+      "providerRouteId": "family-ai-hub-tracking-ai-route",
+      "mode": "family-ai-hub",
+      "capabilityState": "degraded",
+      "remoteDataAllowed": false,
+      "unavailableReason": "family-ai-hub-degraded",
+      "auditRefs": [
+        "tracking-ai-provider-route-proof"
+      ]
+    },
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "family-ai-hub-evidence-ref",
+        "kind": "journal-event",
+        "observedAt": "2026-06-06T18:32:00.000Z"
+      }
+    ],
+    "custodyRefs": [
+      "family-ai-hub-local-custody-ref"
+    ],
+    "defaultChildSafetyPath": false,
+    "explicitParentApprovalRequired": false,
+    "parentApprovalRecorded": false,
+    "assistantPreviewOnly": true,
+    "assistantCanWritePolicyDirectly": false,
+    "assistantCanEnforceDirectly": false,
+    "childAgentValidationRequired": true,
+    "reasonCodes": [
+      "family-ai-hub-degraded"
+    ],
+    "auditRefs": [
+      "tracking-ai-provider-routing-proof"
+    ]
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "purpose": "parent-approved-remote-report",
+    "route": {
+      "schemaVersion": "v0.5-tracking",
+      "providerRouteId": "parent-approved-remote-tracking-ai-route",
+      "mode": "parent-approved-remote",
+      "capabilityState": "manual-required",
+      "remoteDataAllowed": true,
+      "unavailableReason": null,
+      "auditRefs": [
+        "tracking-ai-provider-route-proof"
+      ]
+    },
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "parent-approved-remote-evidence-ref",
+        "kind": "journal-event",
+        "observedAt": "2026-06-06T18:32:00.000Z"
+      }
+    ],
+    "custodyRefs": [
+      "parent-approved-remote-local-custody-ref"
+    ],
+    "defaultChildSafetyPath": false,
+    "explicitParentApprovalRequired": true,
+    "parentApprovalRecorded": true,
+    "assistantPreviewOnly": true,
+    "assistantCanWritePolicyDirectly": false,
+    "assistantCanEnforceDirectly": false,
+    "childAgentValidationRequired": true,
+    "reasonCodes": [
+      "remote-ai-parent-approved-report-only"
+    ],
+    "auditRefs": [
+      "tracking-ai-provider-routing-proof"
+    ]
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "purpose": "metadata-only-fallback",
+    "route": {
+      "schemaVersion": "v0.5-tracking",
+      "providerRouteId": "metadata-only-tracking-ai-route",
+      "mode": "metadata-only",
+      "capabilityState": "disabled-by-default",
+      "remoteDataAllowed": false,
+      "unavailableReason": "remote-ai-disabled-by-default",
+      "auditRefs": [
+        "tracking-ai-provider-route-proof"
+      ]
+    },
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "metadata-only-evidence-ref",
+        "kind": "journal-event",
+        "observedAt": "2026-06-06T18:32:00.000Z"
+      }
+    ],
+    "custodyRefs": [
+      "metadata-only-local-custody-ref"
+    ],
+    "defaultChildSafetyPath": false,
+    "explicitParentApprovalRequired": false,
+    "parentApprovalRecorded": false,
+    "assistantPreviewOnly": true,
+    "assistantCanWritePolicyDirectly": false,
+    "assistantCanEnforceDirectly": false,
+    "childAgentValidationRequired": true,
+    "reasonCodes": [
+      "metadata-only-ai-fallback"
+    ],
+    "auditRefs": [
+      "tracking-ai-provider-routing-proof"
+    ]
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "purpose": "no-ai-unavailable",
+    "route": {
+      "schemaVersion": "v0.5-tracking",
+      "providerRouteId": "no-ai-tracking-ai-route",
+      "mode": "no-ai",
+      "capabilityState": "unavailable",
+      "remoteDataAllowed": false,
+      "unavailableReason": "ai-provider-unavailable",
+      "auditRefs": [
+        "tracking-ai-provider-route-proof"
+      ]
+    },
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "no-ai-evidence-ref",
+        "kind": "journal-event",
+        "observedAt": "2026-06-06T18:32:00.000Z"
+      }
+    ],
+    "custodyRefs": [
+      "no-ai-local-custody-ref"
+    ],
+    "defaultChildSafetyPath": false,
+    "explicitParentApprovalRequired": false,
+    "parentApprovalRecorded": false,
+    "assistantPreviewOnly": true,
+    "assistantCanWritePolicyDirectly": false,
+    "assistantCanEnforceDirectly": false,
+    "childAgentValidationRequired": true,
+    "reasonCodes": [
+      "ai-provider-unavailable"
+    ],
+    "auditRefs": [
+      "tracking-ai-provider-routing-proof"
+    ]
+  }
+]
