@@ -1,0 +1,708 @@
+{
+  "schemaVersion": 1,
+  "proofId": "browser-game-ai-analysis-live-evidence-proof",
+  "generatedAt": "2026-06-06T20:11:08.910Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "d872b910727125aea2a3a49bc44093acbe170a40",
+  "baseCommit": "e9118e91b1be80973a3fb75c5ae8ff76f0d6718c",
+  "captureMode": "real-public-browser-game-ai-analysis-shapes",
+  "targets": [
+    {
+      "targetId": "poki-subway-surfers",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 350474,
+      "bodySha256": "7e8f8f3954df107f993e2fa332d709f2fcb1410c4d6c94b91c10588d778bfb89",
+      "inputOriginSha256": "f9b232b1f68e6833e5875b782274f5aeb719a114cedc674ea2fddc4fbc258da7",
+      "inputPathSha256": "c9e4e52602ab9978fa98f3cebaa2efe5ecb447763240abefa740170da024aadc",
+      "finalOriginSha256": "f9b232b1f68e6833e5875b782274f5aeb719a114cedc674ea2fddc4fbc258da7",
+      "finalPathSha256": "c9e4e52602ab9978fa98f3cebaa2efe5ecb447763240abefa740170da024aadc",
+      "task": "risk-classification",
+      "custodyLabel": "managed-browser",
+      "gameSurfaceKind": "game-portal",
+      "rawUrlPersisted": false,
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawScreenFramePersisted": false,
+      "rawModelTextPersisted": false
+    },
+    {
+      "targetId": "code-org-minecraft",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 471212,
+      "bodySha256": "b58565af5124f5ecc1a54bc554279778727d9447e14eb2bb833b3641c28a6d61",
+      "inputOriginSha256": "6785ad3888129d98da7c78600a0670a8dbb63d42ec8ef5071f272d15ad3c87a1",
+      "inputPathSha256": "8108e2eb5112e5264cb0e8bfff7a06f4af8e1d25e9f106adf4e352db485e5111",
+      "finalOriginSha256": "6785ad3888129d98da7c78600a0670a8dbb63d42ec8ef5071f272d15ad3c87a1",
+      "finalPathSha256": "8d772dcbb300b6aaf55d75ec2d8d474796d3d05c216c89970b2983aecc2338f8",
+      "task": "educational-game-check",
+      "custodyLabel": "hidden-analysis-profile",
+      "gameSurfaceKind": "educational-game",
+      "rawUrlPersisted": false,
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawScreenFramePersisted": false,
+      "rawModelTextPersisted": false
+    },
+    {
+      "targetId": "chess-play-online",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=UTF-8",
+      "contentLength": 114936,
+      "bodySha256": "47af7cb46f95c99fff2b97dbdbcbf332bd96f175d807820b13354cac1fd2b2fb",
+      "inputOriginSha256": "1e76d9acdaa1d09f7881b8ef8a593a6b926a3cd57d263a84ce6cf6edf900e283",
+      "inputPathSha256": "c98a6799eead2719f98cf1973c99a48a29ccdfb2e8cbaef51f160c6e894260fb",
+      "finalOriginSha256": "1e76d9acdaa1d09f7881b8ef8a593a6b926a3cd57d263a84ce6cf6edf900e283",
+      "finalPathSha256": "c98a6799eead2719f98cf1973c99a48a29ccdfb2e8cbaef51f160c6e894260fb",
+      "task": "game-classification",
+      "custodyLabel": "managed-browser",
+      "gameSurfaceKind": "browser-game",
+      "rawUrlPersisted": false,
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawScreenFramePersisted": false,
+      "rawModelTextPersisted": false
+    },
+    {
+      "targetId": "xbox-cloud-play",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 6386597,
+      "bodySha256": "c3bfbb7b8ca1a2c441536e2662aa8f2bfa3ed3e4addf13e81b40d31bafa007c1",
+      "inputOriginSha256": "c671f65a7182028d27403cb4710407c2b099fba7fcc1921b6ca6e49b450e7244",
+      "inputPathSha256": "5b26e27ee6ed081569893464078e64733cd44843e86d270083ae31be5f1751a4",
+      "finalOriginSha256": "c671f65a7182028d27403cb4710407c2b099fba7fcc1921b6ca6e49b450e7244",
+      "finalPathSha256": "5b26e27ee6ed081569893464078e64733cd44843e86d270083ae31be5f1751a4",
+      "task": "cloud-gaming-detection",
+      "custodyLabel": "manual-required",
+      "gameSurfaceKind": "cloud-gaming",
+      "rawUrlPersisted": false,
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawScreenFramePersisted": false,
+      "rawModelTextPersisted": false
+    },
+    {
+      "targetId": "roblox-discover",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 69384,
+      "bodySha256": "f86faf46c7bf1ea1f5628a1592dabac2844c456293ad37d5a014484c223b0e09",
+      "inputOriginSha256": "14647379c0b84766cd19a0f3cd89f3e40591b98a52ed4c6a2d51e4a5e3b1d5be",
+      "inputPathSha256": "0bafeafd1e1b8070062af4236700f29becf6adaa4bc4d3429cfd58c4ca7c6cd8",
+      "finalOriginSha256": "14647379c0b84766cd19a0f3cd89f3e40591b98a52ed4c6a2d51e4a5e3b1d5be",
+      "finalPathSha256": "5745fa814ed227575d66a75222624a63feb35b7023afaa405b84de12f3506538",
+      "task": "ugc-game-risk",
+      "custodyLabel": "unmanaged-browser-bypass",
+      "gameSurfaceKind": "ugc-multiplayer-game",
+      "rawUrlPersisted": false,
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawScreenFramePersisted": false,
+      "rawModelTextPersisted": false
+    }
+  ],
+  "inputs": [
+    {
+      "schemaVersion": "browser-game-ai-analysis-contract",
+      "requestId": "ai-analysis-request-poki-subway-surfers",
+      "familyId": "family-browser-game-ai-live-proof",
+      "childProfileId": "child-browser-game-ai-live-proof",
+      "deviceId": "device-browser-game-ai-live-proof",
+      "requestedAt": "2026-06-06T20:11:08.910Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-source"
+      ],
+      "browserEvidenceRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-browser-evidence",
+      "urlShapeRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-url-shape",
+      "runtimeSignalRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-runtime-signal",
+      "metadataEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-metadata"
+      ],
+      "screenSummaryRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-screen-summary"
+      ],
+      "parentRuleRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-parent-rule"
+      ],
+      "recentActivityRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-recent-activity",
+      "memoryRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-memory"
+      ],
+      "task": "risk-classification",
+      "custodyLabel": "managed-browser",
+      "rawUrlIncluded": false,
+      "rawPageBodyIncluded": false,
+      "rawGamePayloadIncluded": false,
+      "rawScreenFrameIncluded": false,
+      "rawModelTextIncluded": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-ai-analysis-contract",
+      "requestId": "ai-analysis-request-code-org-minecraft",
+      "familyId": "family-browser-game-ai-live-proof",
+      "childProfileId": "child-browser-game-ai-live-proof",
+      "deviceId": "device-browser-game-ai-live-proof",
+      "requestedAt": "2026-06-06T20:11:08.910Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-source"
+      ],
+      "browserEvidenceRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-browser-evidence",
+      "urlShapeRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-url-shape",
+      "runtimeSignalRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-runtime-signal",
+      "metadataEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-metadata"
+      ],
+      "screenSummaryRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-screen-summary"
+      ],
+      "parentRuleRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-parent-rule"
+      ],
+      "recentActivityRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-recent-activity",
+      "memoryRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-memory"
+      ],
+      "task": "educational-game-check",
+      "custodyLabel": "hidden-analysis-profile",
+      "rawUrlIncluded": false,
+      "rawPageBodyIncluded": false,
+      "rawGamePayloadIncluded": false,
+      "rawScreenFrameIncluded": false,
+      "rawModelTextIncluded": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-ai-analysis-contract",
+      "requestId": "ai-analysis-request-chess-play-online",
+      "familyId": "family-browser-game-ai-live-proof",
+      "childProfileId": "child-browser-game-ai-live-proof",
+      "deviceId": "device-browser-game-ai-live-proof",
+      "requestedAt": "2026-06-06T20:11:08.910Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-source"
+      ],
+      "browserEvidenceRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-browser-evidence",
+      "urlShapeRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-url-shape",
+      "runtimeSignalRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-runtime-signal",
+      "metadataEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-metadata"
+      ],
+      "screenSummaryRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-screen-summary"
+      ],
+      "parentRuleRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-parent-rule"
+      ],
+      "recentActivityRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-recent-activity",
+      "memoryRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-memory"
+      ],
+      "task": "game-classification",
+      "custodyLabel": "managed-browser",
+      "rawUrlIncluded": false,
+      "rawPageBodyIncluded": false,
+      "rawGamePayloadIncluded": false,
+      "rawScreenFrameIncluded": false,
+      "rawModelTextIncluded": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-ai-analysis-contract",
+      "requestId": "ai-analysis-request-xbox-cloud-play",
+      "familyId": "family-browser-game-ai-live-proof",
+      "childProfileId": "child-browser-game-ai-live-proof",
+      "deviceId": "device-browser-game-ai-live-proof",
+      "requestedAt": "2026-06-06T20:11:08.910Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-source"
+      ],
+      "browserEvidenceRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-browser-evidence",
+      "urlShapeRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-url-shape",
+      "runtimeSignalRef": null,
+      "metadataEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-metadata"
+      ],
+      "screenSummaryRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-screen-summary"
+      ],
+      "parentRuleRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-parent-rule"
+      ],
+      "recentActivityRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-recent-activity",
+      "memoryRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-memory"
+      ],
+      "task": "cloud-gaming-detection",
+      "custodyLabel": "manual-required",
+      "rawUrlIncluded": false,
+      "rawPageBodyIncluded": false,
+      "rawGamePayloadIncluded": false,
+      "rawScreenFrameIncluded": false,
+      "rawModelTextIncluded": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-ai-analysis-contract",
+      "requestId": "ai-analysis-request-roblox-discover",
+      "familyId": "family-browser-game-ai-live-proof",
+      "childProfileId": "child-browser-game-ai-live-proof",
+      "deviceId": "device-browser-game-ai-live-proof",
+      "requestedAt": "2026-06-06T20:11:08.910Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-source"
+      ],
+      "browserEvidenceRef": null,
+      "urlShapeRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-url-shape",
+      "runtimeSignalRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-runtime-signal",
+      "metadataEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-metadata"
+      ],
+      "screenSummaryRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-screen-summary"
+      ],
+      "parentRuleRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-parent-rule"
+      ],
+      "recentActivityRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-recent-activity",
+      "memoryRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-memory"
+      ],
+      "task": "ugc-game-risk",
+      "custodyLabel": "unmanaged-browser-bypass",
+      "rawUrlIncluded": false,
+      "rawPageBodyIncluded": false,
+      "rawGamePayloadIncluded": false,
+      "rawScreenFrameIncluded": false,
+      "rawModelTextIncluded": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "results": [
+    {
+      "schemaVersion": "browser-game-ai-analysis-contract",
+      "analysisId": "ai-analysis-result-poki-subway-surfers",
+      "requestId": "ai-analysis-request-poki-subway-surfers",
+      "familyId": "family-browser-game-ai-live-proof",
+      "childProfileId": "child-browser-game-ai-live-proof",
+      "deviceId": "device-browser-game-ai-live-proof",
+      "analyzedAt": "2026-06-06T20:11:08.910Z",
+      "expiresAt": "2026-06-06T20:41:08.910Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-source"
+      ],
+      "parentRuleRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-parent-rule"
+      ],
+      "task": "risk-classification",
+      "isGame": true,
+      "gameSurfaceKind": "game-portal",
+      "modifiers": [
+        "canvas",
+        "iframe-embedded"
+      ],
+      "benefitSignals": [
+        "problem-solving"
+      ],
+      "riskSignals": [
+        "addiction-loop",
+        "privacy-risk"
+      ],
+      "recommendedPolicyInput": "parent-review-candidate",
+      "confidence": "medium",
+      "uncertaintyReasons": [],
+      "parentSummaryRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-parent-summary",
+      "childSafeSummaryRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-child-summary",
+      "modelRuntimeRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-poki-subway-surfers-model-runtime-ref",
+      "promptTemplateVersion": "browser-game-ai-analysis-live-proof-template-v1",
+      "degradedState": "none",
+      "rawModelTextStored": false,
+      "rawPageBodyStored": false,
+      "rawGamePayloadStored": false,
+      "rawScreenFrameStored": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-ai-analysis-contract",
+      "analysisId": "ai-analysis-result-code-org-minecraft",
+      "requestId": "ai-analysis-request-code-org-minecraft",
+      "familyId": "family-browser-game-ai-live-proof",
+      "childProfileId": "child-browser-game-ai-live-proof",
+      "deviceId": "device-browser-game-ai-live-proof",
+      "analyzedAt": "2026-06-06T20:11:08.910Z",
+      "expiresAt": "2026-06-06T20:41:08.910Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-source"
+      ],
+      "parentRuleRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-parent-rule"
+      ],
+      "task": "educational-game-check",
+      "isGame": true,
+      "gameSurfaceKind": "educational-game",
+      "modifiers": [
+        "school-context"
+      ],
+      "benefitSignals": [
+        "educational-value",
+        "homework-relevance",
+        "skill-building"
+      ],
+      "riskSignals": [],
+      "recommendedPolicyInput": "allow-candidate",
+      "confidence": "high",
+      "uncertaintyReasons": [],
+      "parentSummaryRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-parent-summary",
+      "childSafeSummaryRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-child-summary",
+      "modelRuntimeRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-code-org-minecraft-model-runtime-ref",
+      "promptTemplateVersion": "browser-game-ai-analysis-live-proof-template-v1",
+      "degradedState": "none",
+      "rawModelTextStored": false,
+      "rawPageBodyStored": false,
+      "rawGamePayloadStored": false,
+      "rawScreenFrameStored": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-ai-analysis-contract",
+      "analysisId": "ai-analysis-result-chess-play-online",
+      "requestId": "ai-analysis-request-chess-play-online",
+      "familyId": "family-browser-game-ai-live-proof",
+      "childProfileId": "child-browser-game-ai-live-proof",
+      "deviceId": "device-browser-game-ai-live-proof",
+      "analyzedAt": "2026-06-06T20:11:08.910Z",
+      "expiresAt": "2026-06-06T20:41:08.910Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-source"
+      ],
+      "parentRuleRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-parent-rule"
+      ],
+      "task": "game-classification",
+      "isGame": true,
+      "gameSurfaceKind": "browser-game",
+      "modifiers": [
+        "multiplayer"
+      ],
+      "benefitSignals": [
+        "problem-solving",
+        "skill-building"
+      ],
+      "riskSignals": [
+        "multiplayer-contact"
+      ],
+      "recommendedPolicyInput": "time-limit-candidate",
+      "confidence": "medium",
+      "uncertaintyReasons": [],
+      "parentSummaryRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-parent-summary",
+      "childSafeSummaryRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-child-summary",
+      "modelRuntimeRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-chess-play-online-model-runtime-ref",
+      "promptTemplateVersion": "browser-game-ai-analysis-live-proof-template-v1",
+      "degradedState": "none",
+      "rawModelTextStored": false,
+      "rawPageBodyStored": false,
+      "rawGamePayloadStored": false,
+      "rawScreenFrameStored": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-ai-analysis-contract",
+      "analysisId": "ai-analysis-result-xbox-cloud-play",
+      "requestId": "ai-analysis-request-xbox-cloud-play",
+      "familyId": "family-browser-game-ai-live-proof",
+      "childProfileId": "child-browser-game-ai-live-proof",
+      "deviceId": "device-browser-game-ai-live-proof",
+      "analyzedAt": "2026-06-06T20:11:08.910Z",
+      "expiresAt": null,
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-source"
+      ],
+      "parentRuleRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-parent-rule"
+      ],
+      "task": "cloud-gaming-detection",
+      "isGame": true,
+      "gameSurfaceKind": "cloud-gaming",
+      "modifiers": [
+        "cloud-streaming",
+        "gamepad",
+        "fullscreen"
+      ],
+      "benefitSignals": [],
+      "riskSignals": [
+        "unknown-risk"
+      ],
+      "recommendedPolicyInput": "manual-review-candidate",
+      "confidence": "low",
+      "uncertaintyReasons": [
+        "manual-required",
+        "missing-runtime-signal"
+      ],
+      "parentSummaryRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-parent-summary",
+      "childSafeSummaryRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-child-summary",
+      "modelRuntimeRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-xbox-cloud-play-model-runtime-ref",
+      "promptTemplateVersion": "browser-game-ai-analysis-live-proof-template-v1",
+      "degradedState": "manual-required",
+      "rawModelTextStored": false,
+      "rawPageBodyStored": false,
+      "rawGamePayloadStored": false,
+      "rawScreenFrameStored": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-ai-analysis-contract",
+      "analysisId": "ai-analysis-result-roblox-discover",
+      "requestId": "ai-analysis-request-roblox-discover",
+      "familyId": "family-browser-game-ai-live-proof",
+      "childProfileId": "child-browser-game-ai-live-proof",
+      "deviceId": "device-browser-game-ai-live-proof",
+      "analyzedAt": "2026-06-06T20:11:08.910Z",
+      "expiresAt": "2026-06-06T20:41:08.910Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-source"
+      ],
+      "parentRuleRefs": [
+        "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-parent-rule"
+      ],
+      "task": "ugc-game-risk",
+      "isGame": true,
+      "gameSurfaceKind": "ugc-multiplayer-game",
+      "modifiers": [
+        "multiplayer",
+        "chat",
+        "unknown"
+      ],
+      "benefitSignals": [
+        "creativity"
+      ],
+      "riskSignals": [
+        "user-generated-content-risk",
+        "chat-risk",
+        "privacy-risk"
+      ],
+      "recommendedPolicyInput": "parent-review-candidate",
+      "confidence": "medium",
+      "uncertaintyReasons": [],
+      "parentSummaryRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-parent-summary",
+      "childSafeSummaryRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-child-summary",
+      "modelRuntimeRef": "parent-proof-browser-game-ai-analysis-live-evidence-proof-roblox-discover-model-runtime-ref",
+      "promptTemplateVersion": "browser-game-ai-analysis-live-proof-template-v1",
+      "degradedState": "none",
+      "rawModelTextStored": false,
+      "rawPageBodyStored": false,
+      "rawGamePayloadStored": false,
+      "rawScreenFrameStored": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false,
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "uiRenderedClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "input-raw-url",
+      "rejected": true
+    },
+    {
+      "name": "input-raw-page-body",
+      "rejected": true
+    },
+    {
+      "name": "input-raw-game-payload",
+      "rejected": true
+    },
+    {
+      "name": "input-raw-screen-frame",
+      "rejected": true
+    },
+    {
+      "name": "input-raw-model-text",
+      "rejected": true
+    },
+    {
+      "name": "input-account-purchase-execution",
+      "rejected": true
+    },
+    {
+      "name": "input-native-game-control",
+      "rejected": true
+    },
+    {
+      "name": "input-cloud-frame-analysis",
+      "rejected": true
+    },
+    {
+      "name": "input-final-policy-decision",
+      "rejected": true
+    },
+    {
+      "name": "input-runtime-gate",
+      "rejected": true
+    },
+    {
+      "name": "input-enforcement",
+      "rejected": true
+    },
+    {
+      "name": "input-managed-missing-browser-ref",
+      "rejected": true
+    },
+    {
+      "name": "input-unmanaged-with-browser-ref",
+      "rejected": true
+    },
+    {
+      "name": "result-raw-model-text",
+      "rejected": true
+    },
+    {
+      "name": "result-raw-page-body",
+      "rejected": true
+    },
+    {
+      "name": "result-raw-game-payload",
+      "rejected": true
+    },
+    {
+      "name": "result-raw-screen-frame",
+      "rejected": true
+    },
+    {
+      "name": "result-account-purchase-execution",
+      "rejected": true
+    },
+    {
+      "name": "result-native-game-control",
+      "rejected": true
+    },
+    {
+      "name": "result-cloud-frame-analysis",
+      "rejected": true
+    },
+    {
+      "name": "result-final-policy-decision",
+      "rejected": true
+    },
+    {
+      "name": "result-runtime-gate",
+      "rejected": true
+    },
+    {
+      "name": "result-ui-rendered",
+      "rejected": true
+    },
+    {
+      "name": "result-enforcement",
+      "rejected": true
+    },
+    {
+      "name": "result-no-expiry",
+      "rejected": true
+    },
+    {
+      "name": "result-allow-with-high-risk",
+      "rejected": true
+    },
+    {
+      "name": "result-block-without-signal",
+      "rejected": true
+    },
+    {
+      "name": "result-degraded-high-confidence",
+      "rejected": true
+    }
+  ],
+  "summary": {
+    "targetCount": 5,
+    "inputs": 5,
+    "results": 5,
+    "negativeChecks": 28,
+    "tasks": [
+      "risk-classification",
+      "educational-game-check",
+      "game-classification",
+      "cloud-gaming-detection",
+      "ugc-game-risk"
+    ],
+    "candidatePolicyInputs": [
+      "parent-review-candidate",
+      "allow-candidate",
+      "time-limit-candidate",
+      "manual-review-candidate"
+    ],
+    "rawUrlIncluded": false,
+    "rawPageBodyIncluded": false,
+    "rawGamePayloadIncluded": false,
+    "rawScreenFrameIncluded": false,
+    "rawModelTextIncluded": false,
+    "rawModelTextStored": false,
+    "finalPolicyDecisionClaimed": false,
+    "runtimeGateExecutedClaimed": false,
+    "uiRenderedClaimed": false,
+    "accountOrPurchaseExecutionClaimed": false,
+    "nativeGameControlClaimed": false,
+    "cloudFrameAnalysisClaimed": false,
+    "enforcementClaimed": false,
+    "modelExecutionClaimed": false,
+    "productChecklistUpgradeClaimed": false
+  }
+}

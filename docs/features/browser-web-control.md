@@ -377,13 +377,18 @@ rejects 23 overclaims. It does not treat platform labels as authority and does
 not claim raw page/game/model capture, final policy decisions, runtime gates, UI
 rendering, native game control, cloud-frame analysis, or enforcement.
 Browser-game/cloud-gaming GAME-10 now adds parent-domain AI analysis contracts
-for browser games. Inputs consume typed evidence refs only for browser
-evidence, URL shape, runtime signals, metadata, screen summaries, parent rules,
-recent activity, memory, task, and custody labels. Results model game
-classification, educational check, risk classification, cloud-gaming detection,
-UGC risk, purchase risk, and policy-support outputs as candidate-only signals,
-recommended policy input, confidence, uncertainty, summary refs, model runtime
-refs, prompt template version, expiry, and degraded/manual states. They do not
+plus a live public AI-analysis shape proof. Inputs consume typed evidence refs
+only for browser evidence, URL shape, runtime signals, metadata, screen
+summaries, parent rules, recent activity, memory, task, and custody labels.
+Results model game classification, educational check, risk classification,
+cloud-gaming detection, UGC risk, purchase risk, and policy-support outputs as
+candidate-only signals, recommended policy input, confidence, uncertainty,
+summary refs, model runtime refs, prompt template version, expiry, and
+degraded/manual states. The live proof fetches real public Poki Subway Surfers,
+Code.org Minecraft, Chess.com play, Xbox Cloud Gaming, and Roblox discover
+pages; stores only response metadata, hashed origin/path/body refs, typed
+evidence refs, candidate policy inputs, and no-authority flags; validates 5
+inputs plus 5 candidate-only results; and rejects 28 overclaims. It does not
 store raw URLs, page body, game payloads, screen frames, model text, execute
 account/purchase flows, control native games, inspect cloud frames, render UI,
 make final policy/runtime decisions, or enforce actions.
@@ -502,8 +507,9 @@ is live-cloud-pattern-proof-present, and GAME-05 is live-url-shape-proof-present
 GAME-06 is live-runtime-signal-shape-proof-present. GAME-07 is
 live-metadata-shape-proof-present. GAME-08 is
 live-hidden-analysis-profile-safety-proof-present. GAME-09 is
-live-educational-classifier-proof-present. GAME-10 through GAME-24 are
-partial/manual-required. AI, memory, UI, cloud-streamed
+live-educational-classifier-proof-present. GAME-10 is
+live-ai-analysis-proof-present. GAME-11 through GAME-24 are
+partial/manual-required. Memory, UI, cloud-streamed
 frame-analysis, native-control, and enforcement proof still need separate
 release-grade artifacts before product completion can be claimed.
 Browser AI enhancement rows AI-01 and AI-02 now add plan linkage and

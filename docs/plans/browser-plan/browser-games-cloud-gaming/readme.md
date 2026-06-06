@@ -213,18 +213,23 @@ account/purchase, policy, runtime, UI, native, cloud-frame, and enforcement
 overclaims. Package subpath exports are now present.
 
 GAME-10 now adds parent-domain browser-game AI analysis contracts in
-`packages/parent-domain/src/browser-game-ai-analysis.ts`. Inputs consume typed
-evidence refs only for browser evidence, URL shape, runtime signals, metadata,
-screen summaries, parent rules, recent activity, memory, task, and custody
-labels. Results model game classification, educational check, risk
+`packages/parent-domain/src/browser-game-ai-analysis.ts` and a live public
+AI-analysis shape proof in
+`scripts/test/browser-game-ai-analysis-live-evidence-proof.mjs`. Inputs consume
+typed evidence refs only for browser evidence, URL shape, runtime signals,
+metadata, screen summaries, parent rules, recent activity, memory, task, and
+custody labels. Results model game classification, educational check, risk
 classification, cloud-gaming detection, UGC risk, purchase risk, and
 policy-support outputs as candidate-only benefit/risk signals, surface kind,
 modifiers, recommended policy input, confidence, uncertainty, summary refs,
 model runtime refs, prompt template version, expiry, and degraded/manual states.
-They reject raw URLs, raw page body, raw game payloads, raw screen frames, raw
-model text, account/purchase execution, native game control, cloud-frame
-analysis, final policy decisions, runtime gate execution, rendered UI, and
-enforcement. Package subpath exports are now present.
+The live proof fetches real public Poki Subway Surfers, Code.org Minecraft,
+Chess.com play, Xbox Cloud Gaming, and Roblox discover pages; stores only
+response metadata, hashed origin/path/body refs, typed evidence refs, candidate
+policy inputs, and no-authority flags; validates 5 inputs plus 5 candidate-only
+results; and rejects 28 raw URL/page/game/frame/model text, account/purchase,
+native, cloud-frame, policy, runtime, UI, and enforcement overclaims. Package
+subpath exports are now present.
 
 GAME-11 now adds parent-domain browser-game risk/benefit signal contracts in
 `packages/parent-domain/src/browser-game-riskbenefit-signal.ts`. The signal
@@ -383,8 +388,9 @@ GAME-05 as live-url-shape-proof-present, GAME-06 as
 live-runtime-signal-shape-proof-present, GAME-07 as
 live-metadata-shape-proof-present, GAME-08 as
 live-hidden-analysis-profile-safety-proof-present, GAME-09 as
-live-educational-classifier-proof-present, GAME-10 through GAME-24 as
+live-educational-classifier-proof-present, GAME-10 as
+live-ai-analysis-proof-present, GAME-11 through GAME-24 as
 partial/manual-required, and no browser-game rows as open/manual-required.
-Product checklist upgrade is not claimed; runtime signals, metadata, AI,
-memory, child/parent UI, cloud-streamed frame analysis, native game control, and
+Product checklist upgrade is not claimed; runtime signals, metadata, memory,
+child/parent UI, cloud-streamed frame analysis, native game control, and
 enforcement remain open or manual-required until separate proof exists.

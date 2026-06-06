@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 21 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 9;
+    const isComplete = rowNumber <= 10;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -84,7 +84,9 @@ function expectedRows() {
                       ? 'live-metadata-shape-proof-present'
                       : rowNumber === 8
                         ? 'live-hidden-analysis-profile-safety-proof-present'
-                        : 'live-educational-classifier-proof-present'
+                        : rowNumber === 9
+                          ? 'live-educational-classifier-proof-present'
+                          : 'live-ai-analysis-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -189,6 +191,7 @@ function manifestFor(rows, failures) {
       liveMetadataEvidence: 'game-07-live-metadata-shape-proof-present',
       liveHiddenAnalysisProfileSafetyEvidence: 'game-08-live-hidden-analysis-profile-safety-proof-present',
       liveEducationalClassifierEvidence: 'game-09-live-educational-classifier-proof-present',
+      liveAiAnalysisEvidence: 'game-10-live-ai-analysis-proof-present',
       renderedUi: 'not-claimed',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
@@ -235,6 +238,8 @@ function markdownFor(manifest) {
     'browser-game and cloud-gaming pages with isolated-profile, no-capture custody.',
     'GAME-09 live educational classifier proof is present for real public',
     'educational, entertainment, misleading, and manual-required candidate shapes.',
+    'GAME-10 live AI analysis proof is present for real public browser-game',
+    'surfaces with typed evidence refs and candidate-only results.',
     'It does not prove rendered browser-game UI, Playwright screenshots,',
     'runtime browser-game detection, cloud-streamed frame analysis, native',
     'game control, final policy execution, enforcement, or product checklist',

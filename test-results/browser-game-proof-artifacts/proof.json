@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-proof-artifacts",
-  "generatedAt": "2026-06-06T19:58:31.334Z",
+  "generatedAt": "2026-06-06T20:11:08.466Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -159,17 +159,18 @@
     {
       "rowNumber": 10,
       "rowId": "GAME-10",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "live-ai-analysis-proof-present",
       "proofDirectory": "game-10-browser-game-ai-analysis-contract",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-contract-proof.md",
+        "02-live-ai-analysis-shape-proof.json",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "live-ai-analysis-proof-present",
       "failures": []
     },
     {
@@ -351,8 +352,8 @@
   ],
   "summary": {
     "totalRows": 21,
-    "completeRows": 9,
-    "partialRows": 12,
+    "completeRows": 10,
+    "partialRows": 11,
     "failures": 0,
     "playwrightState": "manual-required-no-rendered-browser-game-ui",
     "productClaimed": false
@@ -368,6 +369,7 @@
     "liveMetadataEvidence": "game-07-live-metadata-shape-proof-present",
     "liveHiddenAnalysisProfileSafetyEvidence": "game-08-live-hidden-analysis-profile-safety-proof-present",
     "liveEducationalClassifierEvidence": "game-09-live-educational-classifier-proof-present",
+    "liveAiAnalysisEvidence": "game-10-live-ai-analysis-proof-present",
     "renderedUi": "not-claimed",
     "cloudStreamedFrameAnalysis": "not-claimed",
     "nativeGameControl": "not-claimed",

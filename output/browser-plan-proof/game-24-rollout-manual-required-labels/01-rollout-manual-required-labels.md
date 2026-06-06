@@ -1,10 +1,10 @@
 # GAME-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T19:58:32.279Z
+Generated: 2026-06-06T20:11:08.608Z
 
 Rows checked: 24
-Proof-present rows: 9
-Partial/manual-required rows: 15
+Proof-present rows: 10
+Partial/manual-required rows: 14
 Open/manual-required rows: 0
 Rollout state: partial/manual-required
 Product claimed: false
@@ -20,7 +20,7 @@ Product claimed: false
 | GAME-07 | live-metadata-shape-proof-present | [x] |
 | GAME-08 | live-hidden-analysis-profile-safety-proof-present | [x] |
 | GAME-09 | live-educational-classifier-proof-present | [x] |
-| GAME-10 | partial-manual-required | [~] |
+| GAME-10 | live-ai-analysis-proof-present | [x] |
 | GAME-11 | partial-manual-required | [~] |
 | GAME-12 | partial-manual-required | [~] |
 | GAME-13 | partial-manual-required | [~] |
@@ -45,6 +45,7 @@ GAME-06 live runtime signal shape proof is present.
 GAME-07 live metadata shape proof is present.
 GAME-08 live hidden analysis profile safety proof is present.
 GAME-09 live educational classifier proof is present.
+GAME-10 live AI analysis proof is present.
 Product checklist upgrade is not claimed.
 Browser-game route contracts, runtime signals, metadata, AI, memory,
 child/parent UI, cloud-streamed frame analysis, native game control,
