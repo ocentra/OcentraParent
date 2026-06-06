@@ -1,10 +1,10 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T12:56:46.746Z
+Generated: 2026-06-06T13:17:04.974Z
 
 Rows checked: 23
-Proof-present rows: 7
-Partial/manual-required rows: 16
+Proof-present rows: 8
+Partial/manual-required rows: 15
 Rollout state: partial/manual-required
 Product claimed: false
 
@@ -27,7 +27,7 @@ Product claimed: false
 | SOCIAL-15 | proof-present | [x] |
 | SOCIAL-16 | partial-manual-required | [~] |
 | SOCIAL-17 | partial-manual-required | [~] |
-| SOCIAL-18 | partial-manual-required | [~] |
+| SOCIAL-18 | proof-present | [x] |
 | SOCIAL-19 | partial-manual-required | [~] |
 | SOCIAL-20 | proof-present | [x] |
 | SOCIAL-21 | proof-present | [x] |
@@ -43,6 +43,7 @@ is present. Live SOCIAL-09 metadata extraction proof is present.
 Live SOCIAL-10 evidence-bound AI degradation proof is present.
 Live SOCIAL-11 evidence-bound risk/benefit degradation proof is present.
 Live SOCIAL-12 evidence-bound policy compiler proof is present.
+Live SOCIAL-18 public connector boundary proof is present.
 Live SOCIAL-19 evidence-bound decision memory proof is present.
 Ref-only social alert/report intent proof is present.
 Schedule/time-budget compiler proof and parent sensitivity
