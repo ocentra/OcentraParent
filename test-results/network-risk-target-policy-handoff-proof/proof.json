@@ -1,11 +1,11 @@
 {
   "proof": "network-risk-target-policy-handoff-proof",
-  "checkedAt": "2026-06-06T00:08:46.630Z",
+  "checkedAt": "2026-06-06T00:29:04.201Z",
   "branch": "codex/network-risk-target-policy-handoff-proof",
-  "commit": "d50b8f08728ee43cccc9553127b8e3e75ad00d58",
-  "originMain": "fba3fa6c6b38682ecf771bef3d8233c991435b7e",
-  "mergeBase": "fba3fa6c6b38682ecf771bef3d8233c991435b7e",
-  "statusShort": "",
+  "commit": "486154aa9c253e5b00d00607a78cca0dafce84fd",
+  "originMain": "1620947e25eb8ddd169488d28b8a5923d0e0733c",
+  "mergeBase": "1620947e25eb8ddd169488d28b8a5923d0e0733c",
+  "sourceStatusShort": "",
   "proofRoot": "output\\network-plan-proof\\22a-risk-target-policy-handoff-proof",
   "testRoot": "test-results\\network-risk-target-policy-handoff-proof",
   "commands": [
