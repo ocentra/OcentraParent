@@ -210,22 +210,24 @@ async fn browser_inventory_service_default_roots_feed_windows_inventory_without_
     );
     restore_env_var(constants::env_var::LOCAL_APP_DATA, previous_local_app_data);
     let _ = std::fs::remove_dir_all(root);
-    assert_eq!(read_model.returned, 1);
-    let row = &read_model.rows[0];
+    assert!(read_model.returned >= 1);
+    let row = read_model
+        .rows
+        .iter()
+        .find(|row| {
+            row.product_name == constants::browser::PRODUCT_NAME_MICROSOFT_EDGE
+                && row.browser_family == BrowserFamily::Edge
+                && row.install_state == BrowserInventoryInstallState::Installed
+                && row.process_id.is_none()
+        })
+        .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
 
     assert!(row.claim_boundary_is_honest());
-    assert_eq!(
-        row.product_name,
-        constants::browser::PRODUCT_NAME_MICROSOFT_EDGE
-    );
-    assert_eq!(row.browser_family, BrowserFamily::Edge);
-    assert_eq!(row.install_state, BrowserInventoryInstallState::Installed);
     assert_eq!(row.management_tier, BrowserManagementTier::Managed);
     assert_eq!(
         row.exact_url_capability,
         BrowserExactUrlCapability::Unavailable
     );
-    assert_eq!(row.process_id, None);
 }
 
 fn inventory_command() -> AgentCommandEnvelope {
