@@ -162,9 +162,9 @@ function manifestFor(rows, failures) {
     },
     manualProofBoundary: {
       screenshots: 'rendered-proof-bundle-ui-screenshots-present',
-      playwright: 'proof-bundle-playwright-present-runtime-delivery-manual-required',
-      renderedUi: 'parent-dashboard-child-intervention-parent-explanation-proof-bundles-only',
-      serviceBackedDelivery: 'not-claimed',
+      playwright: 'service-backed-dashboard-and-explanation-playwright-present',
+      renderedUi: 'parent-dashboard-child-intervention-parent-explanation-proof-present',
+      serviceBackedExplanationReadModel: 'proof-present',
       enforcement: 'not-claimed',
       productChecklistUpgrade: 'not-claimed',
     },
@@ -194,9 +194,9 @@ function markdownFor(manifest) {
     'SOCIAL-23 proves proof-pack coverage for SOCIAL-01 through SOCIAL-22.',
     'Rendered proof-bundle UI exists for the parent social dashboard,',
     'child-agent-served social intervention page, and parent explanation panel.',
-    'It does not prove service-backed explanation delivery, runtime connector',
-    'behavior, native app control, final policy execution, enforcement, or',
-    'product checklist completion.',
+    'Service-backed dashboard and explanation read-model delivery is present.',
+    'It does not prove runtime connector behavior, native app control, final',
+    'policy execution, enforcement, or product checklist completion.',
   ].join('\n');
 }
 
