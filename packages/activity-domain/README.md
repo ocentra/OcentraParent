@@ -51,6 +51,11 @@ Shared activity and evidence contracts for child-device observations.
   queue jobs, bounded retained OCR snippets, conversion to screen-analysis
   evidence, child-device query-store custody, policy eligibility only after raw
   image deletion, and no raw retention or remote AI.
+- Screen guided VLM worker contracts that require source-cited encrypted temp
+  queue jobs, bounded local image inputs, schema-bound model output,
+  conversion to screen-analysis evidence, child-device query-store custody,
+  policy eligibility only after raw image deletion, and no raw retention or
+  remote AI.
 - Screen-AI browser trigger proof rows that compose typed browser AI
   input/result contracts with screen-analysis result contracts for managed URL,
   browser-video, social-feed, and cloud-game trigger states without claiming UI,
@@ -135,6 +140,9 @@ flowchart LR
   policy authority. Production OCR quality, unavailable/permission-required
   state proof, broader trigger OCR, cross-platform OCR parity, and enforcement
   remain separate proof gates.
+- Screen guided VLM worker now has `screen-ai-vlm-worker-contract-proof`;
+  production VLM inference quality, live model execution, portal rendering,
+  final policy authority, and enforcement remain separate proof gates.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime, local parent-defined place store proof, and Rust ActivityStore ingest
   proof; platform adapters, provider runtime, and live service-backed UI proof
