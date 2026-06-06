@@ -1,0 +1,27 @@
+[
+  {
+    "schemaVersion": "v0.5-tracking",
+    "providerPlaceId": "google-place-school-1",
+    "displayName": "Central School",
+    "category": "school",
+    "ambiguityState": "low-accuracy",
+    "confidence": 0.45,
+    "safeCopy": {
+      "headline": "Nearby place context needs review",
+      "body": "Possible nearby school context: Central School. Review location evidence and parent policy before action.",
+      "accusationFree": true,
+      "allowsAutomaticAction": false,
+      "reasonCodes": [
+        "low-accuracy-location",
+        "category-is-policy-input-only"
+      ]
+    },
+    "reviewState": "manual-required",
+    "categoryCanTriggerActionDirectly": false,
+    "parentDefinedZoneOverrideCanTriggerActionDirectly": false,
+    "requiresPolicyDecision": true,
+    "auditRefs": [
+      "place-category-ambiguity-proof"
+    ]
+  }
+]

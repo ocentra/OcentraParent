@@ -56,6 +56,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `20-evidence-quality-gate-validation.log`
 - WP20 provider parity readiness proof:
   `../20-google-places-and-poi-provider-adapter/08-provider-parity-readiness-proof.json`
+- WP21 place-category ambiguity no-accusation proof:
+  `../21-place-category-taxonomy-and-ambiguity-model/17-category-ambiguity-no-accusation-proof.json`
 - WP25 policy compiler runtime proof:
   `../25-policy-compiler-for-tracking-rules/proof.json`
 - Tracking notification receipt boundary proof:
@@ -164,6 +166,14 @@ while keeping actual webhook/provider receipt ingestion, provider delivery,
 credentials, adapter dispatch, child-device delivery, authority, physical-device
 proof, and production durable outbox storage unclaimed.
 
+This branch adds `node scripts/test/tracking-place-category-ambiguity-proof.mjs`,
+which derives WP21 place-category ambiguity review rows from the existing POI
+provider adapter. It proves no-accusation copy, low-accuracy ambiguity,
+multiple-place ambiguity, category as policy input only, and parent-defined
+zone override as policy-review input only while keeping live provider
+execution, provider delivery, exact-place presence, automatic action,
+physical-device proof, authority, production behavior, and full UI unclaimed.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.
@@ -187,6 +197,9 @@ This workpack can be assigned independently, implemented against the owning doma
 - packages/activity-domain/src/tracking-evidence-quality-gate.ts
 - packages/activity-domain/tests/tracking-evidence-quality-gate.test.ts
 - scripts/test/tracking-notification-receipt-boundary-proof.mjs
+- packages/parent-domain/src/tracking-place-category-ambiguity-proof.ts
+- packages/parent-domain/tests/tracking-place-category-ambiguity-proof.test.ts
+- scripts/test/tracking-place-category-ambiguity-proof.mjs
 - `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`
 - Implementation paths listed by the worker before editing.
 
