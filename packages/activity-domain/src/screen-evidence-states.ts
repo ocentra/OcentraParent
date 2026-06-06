@@ -139,7 +139,13 @@ export const ScreenRedactionModeSchema = withParser(
   Schema.Literal('disabled', 'localSensitiveText', 'localSensitiveRegions')
 );
 export const ScreenRedactionNoteSchema = withParser(
-  Schema.Literal('credentialLikeTextRedacted', 'protectedRegionSkipped', 'ocrDisabled', 'noTextExtracted')
+  Schema.Literal(
+    'credentialLikeTextRedacted',
+    'piiLikeTextRedacted',
+    'protectedRegionSkipped',
+    'ocrDisabled',
+    'noTextExtracted'
+  )
 );
 export const ScreenUncertaintyReasonSchema = withParser(
   Schema.Literal(
@@ -163,3 +169,4 @@ export type ScreenDeletionState = Infer<typeof ScreenDeletionStateSchema>;
 export type ScreenEvidenceCustodyState = Infer<typeof ScreenEvidenceCustodyStateSchema>;
 export type ScreenVisibleCategory = Infer<typeof ScreenVisibleCategorySchema>;
 export type ScreenRiskSignal = Infer<typeof ScreenRiskSignalSchema>;
+export type ScreenRedactionNote = Infer<typeof ScreenRedactionNoteSchema>;
