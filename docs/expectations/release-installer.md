@@ -112,6 +112,13 @@ Release features are product features because parents need install/update paths 
   backend execution, support backend upload execution, account lookup, billing
   provider contact, remote support sessions, production SLA, legal disclosure
   execution, provider secrets, and child-activity custody unclaimed.
+- V8 production support privacy/legal disclosure status proof that records
+  disclosure requested, parent-authorized, legal-review queued,
+  legal-review running, parent-notification-ready, publication-ready, failed,
+  and manual-required rows while keeping legal disclosure execution, public
+  runtime execution, support backend upload execution, account lookup, billing
+  provider contact, remote support sessions, production SLA, provider secrets,
+  remote support transcripts, and child-activity custody unclaimed.
 - V8 production support legal/provider readiness proof that records
   privacy/legal review, data export/delete runtime, provider-secret custody,
   billing provider contact, remote-support legal/session boundary, and
@@ -266,6 +273,15 @@ Release features are product features because parents need install/update paths 
   execution, production SLA, legal disclosure execution, raw child activity
   custody, provider secrets, default Ocentra-hosted family data, or raw support
   bundle payloads.
+- `production-support-privacy-legal-disclosure-status-proof` may prove
+  support-safe privacy/legal disclosure status labels for requested,
+  parent-authorized, legal-review queued/running, parent-notification-ready,
+  publication-ready, failed, and manual-required states, but it must not claim
+  legal disclosure execution, public runtime execution, support backend upload
+  execution, account lookup execution, billing provider contact execution,
+  remote support session execution, production SLA, raw child activity custody,
+  provider secrets, remote support transcripts, default Ocentra-hosted family
+  data, or raw support bundle payloads.
 - `production-support-account-sla-status-proof` may prove account lookup,
   billing provider contact, remote support request/session, and production SLA
   status rows as manual-required or not-implemented support boundaries, but it

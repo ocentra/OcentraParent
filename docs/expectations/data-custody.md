@@ -194,6 +194,16 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   bundles, provider secrets, account lookup results, billing contact records,
   backend upload payloads, public runtime payloads, remote support transcripts,
   production SLA commitments, or default Ocentra-hosted family data.
+- `production-support-privacy-legal-disclosure-status-proof` may summarize
+  parent-authorized privacy/legal disclosure requested, legal-review
+  queued/running, parent-notification-ready, publication-ready, failed, and
+  manual-required status rows with privacy policy refs, legal review refs,
+  publication refs, support runbook refs, audit refs, failure refs, and manual
+  proof refs, but it must not include raw child activity, raw support bundles,
+  provider secrets, account lookup results, billing contact records, backend
+  upload payloads, public runtime payloads, remote support transcripts, legal
+  execution payloads, production SLA commitments, or default Ocentra-hosted
+  family data.
 - Any future feature that stores family activity in Ocentra infrastructure
   requires a new explicit product, privacy, security, retention, and deletion
   design before implementation.

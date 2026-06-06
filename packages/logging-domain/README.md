@@ -178,6 +178,22 @@ execution, revocation execution, support backend upload execution, account
 lookup execution, billing provider contact execution, remote support session
 execution, production SLA, or default Ocentra-hosted family data.
 
+## Privacy Legal Disclosure Status Contract
+
+`src/privacy-legal-disclosure-status.ts` owns the logging-domain schema proof
+for production support privacy/legal disclosure status rows, while
+`src/privacy-legal-disclosure-status-read-model.ts` owns the current fixture
+rows. They record disclosure requested, parent-authorized, legal-review queued,
+legal-review running, parent-notification ready, publication-ready, failed, and
+manual-required states with parent consent, privacy policy, legal review,
+publication, support runbook, audit, failure, and manual proof refs.
+
+This contract is metadata-only. It does not claim legal disclosure execution,
+public runtime execution, support backend upload execution, account lookup,
+billing provider contact, remote support sessions, production SLA, provider
+secrets, remote support transcripts, raw child activity custody, or raw support
+bundle payloads.
+
 ## Data Export/Delete Lifecycle Contract
 
 `src/data-export-delete-lifecycle.ts` owns the logging-domain schema proof for
