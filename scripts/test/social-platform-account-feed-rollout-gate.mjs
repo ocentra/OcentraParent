@@ -73,7 +73,7 @@ async function loadDocs() {
 }
 
 function expectedRows() {
-  const completeRows = new Set([1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19, 20, 21, 22]);
+  const completeRows = new Set([1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19, 20, 21, 22]);
   return Array.from({ length: 23 }, (_, index) => {
     const rowNumber = index + 1;
     const complete = completeRows.has(rowNumber);
@@ -132,6 +132,7 @@ function manifestFor(rows, failures) {
       'service-backed-dashboard-and-explanation-read-model-proof-present',
       'social-live-platform-route-boundary-proof-present',
       'social-live-url-pattern-boundary-proof-present',
+      'social-live-account-flow-boundary-proof-present',
       'social-live-route-classification-proof-present',
       'social-live-metadata-extraction-proof-present',
       'social-live-evidence-ai-boundary-proof-present',
@@ -178,6 +179,7 @@ function markdownFor(manifest) {
     'and parent explanation states. Service-backed dashboard and explanation',
     'read-model delivery is present. Live SOCIAL-02 platform route boundary',
     'proof is present. Live SOCIAL-03 URL pattern proof is present.',
+    'Live SOCIAL-04 account-flow proof is present.',
     'Live SOCIAL-08 route classification proof is present.',
     'Live SOCIAL-09 metadata extraction proof is present.',
     'Live SOCIAL-10 evidence-bound AI degradation proof is present.',
