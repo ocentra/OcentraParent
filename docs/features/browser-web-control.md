@@ -129,6 +129,11 @@ control while being more honest about managed versus unmanaged sources.
   using redacted path refs only. This improves manual platform evidence for
   inventory discovery while still making no exact URL/tab, page content,
   AppLocker/App Control, blocking, rollback, or enforcement claim.
+- Browser-plan WP04 now also enumerates Windows Store package manifests as
+  package-ref-only browser inventory rows. The Rust service path can consume
+  AppX/MSIX package evidence, and the live Windows proof captured store-package
+  rows with no executable path, exact URL/tab, browser content, AppLocker/App
+  Control, blocking, rollback, or enforcement claim.
 - Browser-plan WP14 now surfaces the browser inventory read model in the parent
   portal route through service-backed inventory, exact URL capability, active-tab
   proof, and unmanaged fallback rows. The visible route shows inventory, exact

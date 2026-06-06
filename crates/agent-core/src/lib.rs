@@ -41,6 +41,8 @@ mod browser_performance_health;
 mod browser_windows_inventory;
 mod browser_windows_inventory_paths;
 mod browser_windows_inventory_source;
+mod browser_windows_package_inventory;
+mod browser_windows_package_source;
 mod enforcement_adapter;
 mod enforcement_app_time_limit;
 mod enforcement_boundary;
@@ -116,6 +118,13 @@ pub use browser_windows_inventory_source::{
     browser_windows_inventory_candidate_paths_from_live_sources,
     browser_windows_live_registry_entry, live_windows_browser_inventory_candidate_paths_with_limit,
     BrowserWindowsLiveRegistryInstallEntry,
+};
+pub use browser_windows_package_inventory::{
+    windows_browser_package_observations, BrowserWindowsPackageIdentity,
+};
+pub use browser_windows_package_source::{
+    live_windows_browser_package_entries_from_roots,
+    live_windows_browser_package_entries_with_limit, BrowserWindowsLivePackageEntry,
 };
 pub use enforcement_adapter::{
     app_block_control_capability, managed_browser_control_capability, network_control_capability,
