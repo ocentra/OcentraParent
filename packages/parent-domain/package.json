@@ -553,6 +553,10 @@
       "import": "./dist/local-ai-remote-assistant-boundary-proof.js",
       "types": "./dist/local-ai-remote-assistant-boundary-proof.d.ts"
     },
+    "./local-ai-text-llm-adapter-boundary-proof": {
+      "import": "./dist/local-ai-text-llm-adapter-boundary-proof.js",
+      "types": "./dist/local-ai-text-llm-adapter-boundary-proof.d.ts"
+    },
     "./local-ai-text-inference-dry-run-proof": {
       "import": "./dist/local-ai-text-inference-dry-run-proof.js",
       "types": "./dist/local-ai-text-inference-dry-run-proof.d.ts"
