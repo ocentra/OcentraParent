@@ -43,6 +43,11 @@ mobile readiness, and control catalogs.
   future service-readiness/read-API proof refs without claiming service runtime
   events, read API implementation, rendered UI, durable audit storage, rollback
   execution, or timer scheduling.
+- App/game source-gated policy preview timer service-readiness read-model
+  contracts that consume service-readiness handoff rows and keep future
+  service-readiness/read-API proof refs visible without claiming agent protocol,
+  service runtime events, read API implementation, rendered UI, durable audit
+  storage, rollback execution, or timer scheduling.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.
