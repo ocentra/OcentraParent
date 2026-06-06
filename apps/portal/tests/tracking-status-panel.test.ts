@@ -13,6 +13,7 @@ import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel
 import { trackingChildCheckInProof, trackingChildRuntimeUiProof } from '../src/tracking-child-check-in-proof';
 import { trackingEvidenceDrawerHostedUiProof } from '../src/tracking-evidence-drawer-hosted-ui-proof';
 import { trackingNotificationParentSurfaceHostedUiProof } from '../src/tracking-notification-parent-surface-hosted-ui-proof';
+import { trackingParentActionReadinessHostedUiProof } from '../src/tracking-parent-action-readiness-hosted-ui-proof';
 import { trackingReportExportHostedUiProof } from '../src/tracking-report-export-hosted-ui-proof';
 import { trackingRetentionSettingsHostedUiProof } from '../src/tracking-retention-settings-hosted-ui-proof';
 import {
@@ -317,6 +318,90 @@ const ExpectedNotificationParentSurfaceRows = [
   },
 ] as const;
 
+const ExpectedParentActionReadinessRows = [
+  {
+    title: 'Expected-place parent alert ready',
+    status: 'alert-policy-ready',
+    primaryActionRef: 'notify-parent',
+    policyDecisionRef: 'expected-place-decision-school',
+    evidenceRefs: 'expected-place-evidence-school-arrival',
+    uiSurfaceRef: 'tracking-expected-place-ui-readiness-expected-place-decision-school',
+    manualProofRequirements: 'hosted-read-only-parent-action-proof',
+  },
+  {
+    title: 'Expected-place child check-in ready',
+    status: 'check-in-policy-ready',
+    primaryActionRef: 'ask-child-check-in',
+    policyDecisionRef: 'expected-place-decision-late-bus',
+    evidenceRefs: 'expected-place-evidence-late-bus',
+    uiSurfaceRef: 'tracking-expected-place-ui-readiness-expected-place-decision-late-bus',
+    manualProofRequirements: 'hosted-read-only-parent-action-proof',
+  },
+  {
+    title: 'Expected-place suppressed no action',
+    status: 'suppressed-no-action',
+    primaryActionRef: 'no-action',
+    policyDecisionRef: 'expected-place-decision-holiday',
+    evidenceRefs: 'expected-place-evidence-holiday',
+    uiSurfaceRef: 'tracking-expected-place-ui-readiness-expected-place-decision-holiday',
+    manualProofRequirements: 'hosted-read-only-parent-action-proof',
+  },
+  {
+    title: 'Expected-place manual review required',
+    status: 'manual-required',
+    primaryActionRef: 'manual-review',
+    policyDecisionRef: 'expected-place-decision-low-accuracy',
+    evidenceRefs: 'expected-place-evidence-low-accuracy',
+    uiSurfaceRef: 'tracking-expected-place-ui-readiness-expected-place-decision-low-accuracy',
+    manualProofRequirements: 'tracking-expected-place-manual-proof-expected-place-decision-low-accuracy',
+  },
+  {
+    title: 'Parent acknowledgement recorded',
+    status: 'acknowledgement-recorded',
+    primaryActionRef: 'acknowledge-safe',
+    policyDecisionRef: 'tracking-decision-safe',
+    evidenceRefs: 'tracking-parent-action-evidence-1',
+    uiSurfaceRef: 'tracking-parent-action-surface-tracking-alert-safe',
+    manualProofRequirements: 'live-service-mutation-proof-required | rendered-portal-acknowledgement-ui-proof-required',
+  },
+  {
+    title: 'Expected exception active',
+    status: 'exception-active',
+    primaryActionRef: 'mark-expected',
+    policyDecisionRef: 'tracking-decision-expected',
+    evidenceRefs: 'tracking-parent-action-evidence-2',
+    uiSurfaceRef: 'tracking-parent-action-surface-tracking-alert-expected',
+    manualProofRequirements: 'live-service-mutation-proof-required | rendered-portal-acknowledgement-ui-proof-required',
+  },
+  {
+    title: 'False alarm recorded',
+    status: 'false-alarm-recorded',
+    primaryActionRef: 'mark-false-alarm',
+    policyDecisionRef: 'tracking-decision-false-alarm',
+    evidenceRefs: 'tracking-parent-action-evidence-3',
+    uiSurfaceRef: 'tracking-parent-action-surface-tracking-alert-false-alarm',
+    manualProofRequirements: 'live-service-mutation-proof-required | rendered-portal-acknowledgement-ui-proof-required',
+  },
+  {
+    title: 'Child check-in action ready',
+    status: 'child-check-in-request-ready',
+    primaryActionRef: 'request-child-check-in',
+    policyDecisionRef: 'tracking-decision-check-in',
+    evidenceRefs: 'tracking-parent-action-evidence-4',
+    uiSurfaceRef: 'tracking-parent-action-surface-tracking-alert-check-in',
+    manualProofRequirements: 'child-device-runtime-proof-required | rendered-portal-acknowledgement-ui-proof-required',
+  },
+  {
+    title: 'Critical escalation review ready',
+    status: 'escalation-review-ready',
+    primaryActionRef: 'escalate-manual-review',
+    policyDecisionRef: 'tracking-decision-critical-review',
+    evidenceRefs: 'tracking-parent-action-evidence-5',
+    uiSurfaceRef: 'tracking-parent-action-surface-tracking-alert-critical-review',
+    manualProofRequirements: 'critical-escalation-runtime-proof-required | second-guardian-provider-proof-required',
+  },
+] as const;
+
 const TrackingRetentionSettingsWriteResult = {
   schemaVersion: AgentProtocolSchemaVersion,
   commandId: 'tracking-retention-settings-write-command',
@@ -548,6 +633,40 @@ describe('tracking notification parent-surface hosted proof surface', () => {
       rows: ExpectedNotificationParentSurfaceRows,
     });
     expect(JSON.stringify(proof)).not.toMatch(/(?:provider delivered|receipt ingested|product ready)/iu);
+  });
+});
+
+describe('tracking parent action readiness hosted proof surface', () => {
+  it('renders expected-place and acknowledgement action rows without runtime, delivery, or product claims', () => {
+    const proof = trackingParentActionReadinessHostedUiProof();
+
+    expect(proof).toEqual({
+      title: 'Parent action readiness UI',
+      body: 'Hosted route renders expected-place alert policy and parent acknowledgement action readiness rows from existing tracking proof refs without claiming live mutation or delivery runtime.',
+      proofTier: 'P2 service proof',
+      expectedPlaceProofArtifact: TrackingStatusProofArtifacts.ExpectedPlaceAlertPolicy,
+      acknowledgementProofArtifact: TrackingStatusProofArtifacts.ParentAcknowledgementActionReadiness,
+      boundary:
+        'Hosted parent action readiness rendering only; live service mutation, alert delivery, provider delivery, receipt ingestion, child-device runtime, physical-device proof, authority, production workers, adapter dispatch, and product readiness remain unclaimed.',
+      missingProof: 'Manual proof required',
+      productClaim: 'No product claim',
+      expectedPlaceRows: '4',
+      acknowledgementActionRows: '5',
+      renderedParentActionRows: '9',
+      liveServiceMutationRows: '0',
+      providerDeliveryClaimedRows: '0',
+      notificationReceiptClaimedRows: '0',
+      childDeviceRuntimeClaimedRows: '0',
+      physicalDeviceClaimedRows: '0',
+      authorityClaimedRows: '0',
+      productionWorkerClaimedRows: '0',
+      adapterDispatchClaimedRows: '0',
+      productClaimReadyRows: '0',
+      rows: ExpectedParentActionReadinessRows,
+    });
+    expect(JSON.stringify(proof)).not.toMatch(
+      /(?:service mutation executed|provider delivered|receipt ingested|product ready)/iu
+    );
   });
 });
 

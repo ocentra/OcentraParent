@@ -155,6 +155,116 @@ export const PortalDevTextToken = {
   TrackingNotificationParentSurfaceHostedBoundary: decodeTextTokenId(
     'portal.dev.trackingNotificationParentSurfaceHostedBoundary'
   ),
+  TrackingParentActionReadinessHostedUi: decodeTextTokenId('portal.dev.trackingParentActionReadinessHostedUi'),
+  TrackingParentActionReadinessHostedUiBody: decodeTextTokenId('portal.dev.trackingParentActionReadinessHostedUiBody'),
+  TrackingParentActionReadinessHostedBoundary: decodeTextTokenId(
+    'portal.dev.trackingParentActionReadinessHostedBoundary'
+  ),
+  TrackingParentActionExpectedPlaceAlert: decodeTextTokenId('portal.dev.trackingParentActionExpectedPlaceAlert'),
+  TrackingParentActionExpectedPlaceCheckIn: decodeTextTokenId('portal.dev.trackingParentActionExpectedPlaceCheckIn'),
+  TrackingParentActionExpectedPlaceSuppressed: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceSuppressed'
+  ),
+  TrackingParentActionExpectedPlaceManual: decodeTextTokenId('portal.dev.trackingParentActionExpectedPlaceManual'),
+  TrackingParentActionAcknowledgementRecorded: decodeTextTokenId(
+    'portal.dev.trackingParentActionAcknowledgementRecorded'
+  ),
+  TrackingParentActionExceptionActive: decodeTextTokenId('portal.dev.trackingParentActionExceptionActive'),
+  TrackingParentActionFalseAlarmRecorded: decodeTextTokenId('portal.dev.trackingParentActionFalseAlarmRecorded'),
+  TrackingParentActionChildCheckInReady: decodeTextTokenId('portal.dev.trackingParentActionChildCheckInReady'),
+  TrackingParentActionCriticalReviewReady: decodeTextTokenId('portal.dev.trackingParentActionCriticalReviewReady'),
+  TrackingParentActionAlertPolicyReady: decodeTextTokenId('portal.dev.trackingParentActionAlertPolicyReady'),
+  TrackingParentActionCheckInPolicyReady: decodeTextTokenId('portal.dev.trackingParentActionCheckInPolicyReady'),
+  TrackingParentActionSuppressedNoAction: decodeTextTokenId('portal.dev.trackingParentActionSuppressedNoAction'),
+  TrackingParentActionManualRequired: decodeTextTokenId('portal.dev.trackingParentActionManualRequired'),
+  TrackingParentActionAcknowledgementRecordedStatus: decodeTextTokenId(
+    'portal.dev.trackingParentActionAcknowledgementRecordedStatus'
+  ),
+  TrackingParentActionExceptionActiveStatus: decodeTextTokenId('portal.dev.trackingParentActionExceptionActiveStatus'),
+  TrackingParentActionFalseAlarmRecordedStatus: decodeTextTokenId(
+    'portal.dev.trackingParentActionFalseAlarmRecordedStatus'
+  ),
+  TrackingParentActionChildCheckInRequestReady: decodeTextTokenId(
+    'portal.dev.trackingParentActionChildCheckInRequestReady'
+  ),
+  TrackingParentActionEscalationReviewReady: decodeTextTokenId('portal.dev.trackingParentActionEscalationReviewReady'),
+  TrackingParentActionNotifyParent: decodeTextTokenId('portal.dev.trackingParentActionNotifyParent'),
+  TrackingParentActionAskChildCheckIn: decodeTextTokenId('portal.dev.trackingParentActionAskChildCheckIn'),
+  TrackingParentActionNoAction: decodeTextTokenId('portal.dev.trackingParentActionNoAction'),
+  TrackingParentActionManualReview: decodeTextTokenId('portal.dev.trackingParentActionManualReview'),
+  TrackingParentActionAcknowledgeSafe: decodeTextTokenId('portal.dev.trackingParentActionAcknowledgeSafe'),
+  TrackingParentActionMarkExpected: decodeTextTokenId('portal.dev.trackingParentActionMarkExpected'),
+  TrackingParentActionMarkFalseAlarm: decodeTextTokenId('portal.dev.trackingParentActionMarkFalseAlarm'),
+  TrackingParentActionRequestChildCheckIn: decodeTextTokenId('portal.dev.trackingParentActionRequestChildCheckIn'),
+  TrackingParentActionEscalateManualReview: decodeTextTokenId('portal.dev.trackingParentActionEscalateManualReview'),
+  TrackingParentActionExpectedPlaceSchoolDecision: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceSchoolDecision'
+  ),
+  TrackingParentActionExpectedPlaceLateBusDecision: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceLateBusDecision'
+  ),
+  TrackingParentActionExpectedPlaceHolidayDecision: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceHolidayDecision'
+  ),
+  TrackingParentActionExpectedPlaceLowAccuracyDecision: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceLowAccuracyDecision'
+  ),
+  TrackingParentActionSafeDecision: decodeTextTokenId('portal.dev.trackingParentActionSafeDecision'),
+  TrackingParentActionExpectedDecision: decodeTextTokenId('portal.dev.trackingParentActionExpectedDecision'),
+  TrackingParentActionFalseAlarmDecision: decodeTextTokenId('portal.dev.trackingParentActionFalseAlarmDecision'),
+  TrackingParentActionChildCheckInDecision: decodeTextTokenId('portal.dev.trackingParentActionChildCheckInDecision'),
+  TrackingParentActionCriticalReviewDecision: decodeTextTokenId(
+    'portal.dev.trackingParentActionCriticalReviewDecision'
+  ),
+  TrackingParentActionExpectedPlaceSchoolEvidence: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceSchoolEvidence'
+  ),
+  TrackingParentActionExpectedPlaceLateBusEvidence: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceLateBusEvidence'
+  ),
+  TrackingParentActionExpectedPlaceHolidayEvidence: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceHolidayEvidence'
+  ),
+  TrackingParentActionExpectedPlaceLowAccuracyEvidence: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceLowAccuracyEvidence'
+  ),
+  TrackingParentActionSafeEvidence: decodeTextTokenId('portal.dev.trackingParentActionSafeEvidence'),
+  TrackingParentActionExpectedEvidence: decodeTextTokenId('portal.dev.trackingParentActionExpectedEvidence'),
+  TrackingParentActionFalseAlarmEvidence: decodeTextTokenId('portal.dev.trackingParentActionFalseAlarmEvidence'),
+  TrackingParentActionChildCheckInEvidence: decodeTextTokenId('portal.dev.trackingParentActionChildCheckInEvidence'),
+  TrackingParentActionCriticalReviewEvidence: decodeTextTokenId(
+    'portal.dev.trackingParentActionCriticalReviewEvidence'
+  ),
+  TrackingParentActionExpectedPlaceSchoolSurface: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceSchoolSurface'
+  ),
+  TrackingParentActionExpectedPlaceLateBusSurface: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceLateBusSurface'
+  ),
+  TrackingParentActionExpectedPlaceHolidaySurface: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceHolidaySurface'
+  ),
+  TrackingParentActionExpectedPlaceLowAccuracySurface: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceLowAccuracySurface'
+  ),
+  TrackingParentActionSafeSurface: decodeTextTokenId('portal.dev.trackingParentActionSafeSurface'),
+  TrackingParentActionExpectedSurface: decodeTextTokenId('portal.dev.trackingParentActionExpectedSurface'),
+  TrackingParentActionFalseAlarmSurface: decodeTextTokenId('portal.dev.trackingParentActionFalseAlarmSurface'),
+  TrackingParentActionChildCheckInSurface: decodeTextTokenId('portal.dev.trackingParentActionChildCheckInSurface'),
+  TrackingParentActionCriticalReviewSurface: decodeTextTokenId('portal.dev.trackingParentActionCriticalReviewSurface'),
+  TrackingParentActionHostedReadOnlyManualProof: decodeTextTokenId(
+    'portal.dev.trackingParentActionHostedReadOnlyManualProof'
+  ),
+  TrackingParentActionExpectedPlaceManualProof: decodeTextTokenId(
+    'portal.dev.trackingParentActionExpectedPlaceManualProof'
+  ),
+  TrackingParentActionServiceMutationManualProof: decodeTextTokenId(
+    'portal.dev.trackingParentActionServiceMutationManualProof'
+  ),
+  TrackingParentActionChildRuntimeManualProof: decodeTextTokenId(
+    'portal.dev.trackingParentActionChildRuntimeManualProof'
+  ),
+  TrackingParentActionEscalationManualProof: decodeTextTokenId('portal.dev.trackingParentActionEscalationManualProof'),
   TrackingRetentionSettingsHostedUi: decodeTextTokenId('portal.dev.trackingRetentionSettingsHostedUi'),
   TrackingRetentionSettingsHostedUiBody: decodeTextTokenId('portal.dev.trackingRetentionSettingsHostedUiBody'),
   TrackingRetentionSettingsWindow: decodeTextTokenId('portal.dev.trackingRetentionSettingsWindow'),
@@ -507,6 +617,128 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   ),
   [PortalDevTextToken.TrackingNotificationParentSurfaceHostedBoundary]: decodeDisplayText(
     'Hosted notification history rendering only; preference mutation, quiet-hours runtime, provider delivery, receipt ingestion, child-device delivery, physical-device proof, authority, production storage, adapter dispatch, and product readiness remain unclaimed.'
+  ),
+  [PortalDevTextToken.TrackingParentActionReadinessHostedUi]: decodeDisplayText('Parent action readiness UI'),
+  [PortalDevTextToken.TrackingParentActionReadinessHostedUiBody]: decodeDisplayText(
+    'Hosted route renders expected-place alert policy and parent acknowledgement action readiness rows from existing tracking proof refs without claiming live mutation or delivery runtime.'
+  ),
+  [PortalDevTextToken.TrackingParentActionReadinessHostedBoundary]: decodeDisplayText(
+    'Hosted parent action readiness rendering only; live service mutation, alert delivery, provider delivery, receipt ingestion, child-device runtime, physical-device proof, authority, production workers, adapter dispatch, and product readiness remain unclaimed.'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceAlert]: decodeDisplayText('Expected-place parent alert ready'),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceCheckIn]: decodeDisplayText(
+    'Expected-place child check-in ready'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceSuppressed]: decodeDisplayText(
+    'Expected-place suppressed no action'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceManual]: decodeDisplayText(
+    'Expected-place manual review required'
+  ),
+  [PortalDevTextToken.TrackingParentActionAcknowledgementRecorded]: decodeDisplayText(
+    'Parent acknowledgement recorded'
+  ),
+  [PortalDevTextToken.TrackingParentActionExceptionActive]: decodeDisplayText('Expected exception active'),
+  [PortalDevTextToken.TrackingParentActionFalseAlarmRecorded]: decodeDisplayText('False alarm recorded'),
+  [PortalDevTextToken.TrackingParentActionChildCheckInReady]: decodeDisplayText('Child check-in action ready'),
+  [PortalDevTextToken.TrackingParentActionCriticalReviewReady]: decodeDisplayText('Critical escalation review ready'),
+  [PortalDevTextToken.TrackingParentActionAlertPolicyReady]: decodeDisplayText('alert-policy-ready'),
+  [PortalDevTextToken.TrackingParentActionCheckInPolicyReady]: decodeDisplayText('check-in-policy-ready'),
+  [PortalDevTextToken.TrackingParentActionSuppressedNoAction]: decodeDisplayText('suppressed-no-action'),
+  [PortalDevTextToken.TrackingParentActionManualRequired]: decodeDisplayText('manual-required'),
+  [PortalDevTextToken.TrackingParentActionAcknowledgementRecordedStatus]: decodeDisplayText('acknowledgement-recorded'),
+  [PortalDevTextToken.TrackingParentActionExceptionActiveStatus]: decodeDisplayText('exception-active'),
+  [PortalDevTextToken.TrackingParentActionFalseAlarmRecordedStatus]: decodeDisplayText('false-alarm-recorded'),
+  [PortalDevTextToken.TrackingParentActionChildCheckInRequestReady]: decodeDisplayText('child-check-in-request-ready'),
+  [PortalDevTextToken.TrackingParentActionEscalationReviewReady]: decodeDisplayText('escalation-review-ready'),
+  [PortalDevTextToken.TrackingParentActionNotifyParent]: decodeDisplayText('notify-parent'),
+  [PortalDevTextToken.TrackingParentActionAskChildCheckIn]: decodeDisplayText('ask-child-check-in'),
+  [PortalDevTextToken.TrackingParentActionNoAction]: decodeDisplayText('no-action'),
+  [PortalDevTextToken.TrackingParentActionManualReview]: decodeDisplayText('manual-review'),
+  [PortalDevTextToken.TrackingParentActionAcknowledgeSafe]: decodeDisplayText('acknowledge-safe'),
+  [PortalDevTextToken.TrackingParentActionMarkExpected]: decodeDisplayText('mark-expected'),
+  [PortalDevTextToken.TrackingParentActionMarkFalseAlarm]: decodeDisplayText('mark-false-alarm'),
+  [PortalDevTextToken.TrackingParentActionRequestChildCheckIn]: decodeDisplayText('request-child-check-in'),
+  [PortalDevTextToken.TrackingParentActionEscalateManualReview]: decodeDisplayText('escalate-manual-review'),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceSchoolDecision]: decodeDisplayText(
+    'expected-place-decision-school'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceLateBusDecision]: decodeDisplayText(
+    'expected-place-decision-late-bus'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceHolidayDecision]: decodeDisplayText(
+    'expected-place-decision-holiday'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceLowAccuracyDecision]: decodeDisplayText(
+    'expected-place-decision-low-accuracy'
+  ),
+  [PortalDevTextToken.TrackingParentActionSafeDecision]: decodeDisplayText('tracking-decision-safe'),
+  [PortalDevTextToken.TrackingParentActionExpectedDecision]: decodeDisplayText('tracking-decision-expected'),
+  [PortalDevTextToken.TrackingParentActionFalseAlarmDecision]: decodeDisplayText('tracking-decision-false-alarm'),
+  [PortalDevTextToken.TrackingParentActionChildCheckInDecision]: decodeDisplayText('tracking-decision-check-in'),
+  [PortalDevTextToken.TrackingParentActionCriticalReviewDecision]: decodeDisplayText(
+    'tracking-decision-critical-review'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceSchoolEvidence]: decodeDisplayText(
+    'expected-place-evidence-school-arrival'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceLateBusEvidence]: decodeDisplayText(
+    'expected-place-evidence-late-bus'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceHolidayEvidence]: decodeDisplayText(
+    'expected-place-evidence-holiday'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceLowAccuracyEvidence]: decodeDisplayText(
+    'expected-place-evidence-low-accuracy'
+  ),
+  [PortalDevTextToken.TrackingParentActionSafeEvidence]: decodeDisplayText('tracking-parent-action-evidence-1'),
+  [PortalDevTextToken.TrackingParentActionExpectedEvidence]: decodeDisplayText('tracking-parent-action-evidence-2'),
+  [PortalDevTextToken.TrackingParentActionFalseAlarmEvidence]: decodeDisplayText('tracking-parent-action-evidence-3'),
+  [PortalDevTextToken.TrackingParentActionChildCheckInEvidence]: decodeDisplayText('tracking-parent-action-evidence-4'),
+  [PortalDevTextToken.TrackingParentActionCriticalReviewEvidence]: decodeDisplayText(
+    'tracking-parent-action-evidence-5'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceSchoolSurface]: decodeDisplayText(
+    'tracking-expected-place-ui-readiness-expected-place-decision-school'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceLateBusSurface]: decodeDisplayText(
+    'tracking-expected-place-ui-readiness-expected-place-decision-late-bus'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceHolidaySurface]: decodeDisplayText(
+    'tracking-expected-place-ui-readiness-expected-place-decision-holiday'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceLowAccuracySurface]: decodeDisplayText(
+    'tracking-expected-place-ui-readiness-expected-place-decision-low-accuracy'
+  ),
+  [PortalDevTextToken.TrackingParentActionSafeSurface]: decodeDisplayText(
+    'tracking-parent-action-surface-tracking-alert-safe'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedSurface]: decodeDisplayText(
+    'tracking-parent-action-surface-tracking-alert-expected'
+  ),
+  [PortalDevTextToken.TrackingParentActionFalseAlarmSurface]: decodeDisplayText(
+    'tracking-parent-action-surface-tracking-alert-false-alarm'
+  ),
+  [PortalDevTextToken.TrackingParentActionChildCheckInSurface]: decodeDisplayText(
+    'tracking-parent-action-surface-tracking-alert-check-in'
+  ),
+  [PortalDevTextToken.TrackingParentActionCriticalReviewSurface]: decodeDisplayText(
+    'tracking-parent-action-surface-tracking-alert-critical-review'
+  ),
+  [PortalDevTextToken.TrackingParentActionHostedReadOnlyManualProof]: decodeDisplayText(
+    'hosted-read-only-parent-action-proof'
+  ),
+  [PortalDevTextToken.TrackingParentActionExpectedPlaceManualProof]: decodeDisplayText(
+    'tracking-expected-place-manual-proof-expected-place-decision-low-accuracy'
+  ),
+  [PortalDevTextToken.TrackingParentActionServiceMutationManualProof]: decodeDisplayText(
+    'live-service-mutation-proof-required | rendered-portal-acknowledgement-ui-proof-required'
+  ),
+  [PortalDevTextToken.TrackingParentActionChildRuntimeManualProof]: decodeDisplayText(
+    'child-device-runtime-proof-required | rendered-portal-acknowledgement-ui-proof-required'
+  ),
+  [PortalDevTextToken.TrackingParentActionEscalationManualProof]: decodeDisplayText(
+    'critical-escalation-runtime-proof-required | second-guardian-provider-proof-required'
   ),
   [PortalDevTextToken.TrackingRetentionSettingsHostedUi]: decodeDisplayText('Retention settings read-model UI'),
   [PortalDevTextToken.TrackingRetentionSettingsHostedUiBody]: decodeDisplayText(

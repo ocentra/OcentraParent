@@ -400,13 +400,15 @@ Every implementation workpack must update, or explicitly justify not updating:
       accessibility, physical-device behavior, and production persistence
       remain unclaimed.
 - [x] Parent acknowledgement/exception fixture proof exists at P1 tier;
-      alert delivery and portal acknowledgement UI remain pending. WP17 parent
+      alert delivery and product-ready portal acknowledgement UI remain pending. WP17 parent
       acknowledgement action readiness rows now preserve acknowledgement,
       exception, false-alarm, child check-in request, escalation, expiry,
       evidence, policy, audit, and UI surface refs without claiming rendered
-      portal acknowledgement UI, live service mutation, provider delivery,
-      receipt runtime, child-device runtime, physical-device proof, authority,
-      production workers, or adapter dispatch.
+      product-ready portal acknowledgement UI, live service mutation, provider
+      delivery, receipt runtime, child-device runtime, physical-device proof,
+      authority, production workers, or adapter dispatch. Hosted read-only
+      parent action readiness rendering now exists under the hosted
+      `policy-tracking` route proof.
 - [x] Child check-in fixture proof exists at P1 tier; child-device UI,
       delivery, timeout escalation wiring, and screenshots remain pending. WP18
       child check-in timeout escalation rows now preserve request, response,
@@ -493,7 +495,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       screenshot proof, hosted read-only evidence drawer screenshot proof,
       hosted report/export packet screenshot proof, hosted notification
       parent-surface history/preference-intent screenshot proof, hosted
-      child-safe check-in screenshot proof, and hosted child-runtime
+      parent action readiness screenshot proof, hosted child-safe check-in
+      screenshot proof, and hosted child-runtime
       disclosure/safe-help/location-share consent screenshot proof exist; hosted
       retention settings write-preflight command/result rendering is proved, and
       hosted React service-data coverage from the parsed tracking read model is
@@ -528,9 +531,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       proof, live service-backed portal citation rows, iOS simulator package
       routing, hosted parent route screenshot/accessibility proof, hosted
       notification parent-surface history/preference-intent screenshot proof,
-      hosted child-safe check-in screenshot proof, hosted child-runtime UI proof,
-      hosted read-only evidence drawer proof, hosted UI artifact inventory
-      proof, and
+      hosted parent action readiness proof, hosted child-safe check-in screenshot
+      proof, hosted child-runtime UI proof, hosted read-only evidence drawer
+      proof, hosted UI artifact inventory proof, and
       remaining Android foreground/background location, physical-device,
       authority, actual child-device delivery/runtime execution, full
       child/parent UI beyond the hosted parent route, provider-delivery, and
@@ -545,8 +548,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       runtime proof command captures a local rendered parent-route screenshot;
       hosted parent route Playwright/a11y proof now captures live service-data
       desktop/mobile screenshots plus hosted evidence drawer, child-safe
-      check-in, child-runtime UI, notification parent-surface history, and
-      retention settings write-preflight proof
+      check-in, child-runtime UI, notification parent-surface history, parent
+      action readiness, and retention settings write-preflight proof
       screenshots; hosted artifact inventory proof verifies the stored PNG files and accessibility
       assertions; actual child-device runtime execution and full parent/child UI
       beyond that route remain pending.
@@ -572,6 +575,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`;
       the hosted notification parent-surface history screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png`;
+      the hosted parent action readiness screenshot is stored at
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`;
       hosted artifact inventory proof verifies these PNG artifacts under
       `test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json`;
       actual child-device runtime and full parent/child screenshots remain
@@ -580,7 +585,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`;
       it includes the service-backed citation detail, hosted read-only evidence
       drawer, hosted child-safe check-in, and hosted child-runtime UI cards,
-      hosted notification parent-surface history rows, plus the retention
+      hosted notification parent-surface history rows, hosted parent action
+      readiness rows, plus the retention
       settings write-preflight result card, and hosted
       artifact inventory proof verifies the required assertions while actual
       child-device runtime/full UI accessibility remains pending.

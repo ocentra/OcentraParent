@@ -47,6 +47,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`
 - `11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
 - `11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png`
+- `11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`
 - `12-playwright-proof.log`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
@@ -55,6 +56,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `19-child-runtime-ui-proof.json`
 - `20-evidence-drawer-hosted-ui-proof.json`
 - `21-hosted-ui-artifact-inventory-proof.json`
+- `23-parent-action-readiness-hosted-ui-proof.json`
 - Accessibility summary:
   `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`
 - Pre-device gate:
@@ -108,6 +110,11 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       history/preference-intent rows without claiming writable preference
       mutation, provider delivery, receipt ingestion, child-device delivery,
       physical-device proof, authority, production storage, or product readiness.
+- [x] Render and screenshot hosted parent action readiness rows for
+      expected-place alert policy and parent acknowledgement actions without
+      claiming live service mutation, alert/provider delivery, receipt
+      ingestion, child-device runtime, physical-device proof, authority,
+      production workers, adapter dispatch, or product readiness.
 - [x] Verify hosted screenshot PNG artifacts, evidence drawer proof output,
       accessibility assertions, and no-overlap layout geometry are present and
       non-empty through a dedicated artifact inventory proof without claiming
@@ -155,6 +162,15 @@ copy, safe/help/share/call actions, and an explicit "child-device delivery not
 proved" boundary. The repeatable hosted proof captures it at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 and records the non-claim in proof output.
+The hosted route now also renders a parent action readiness proof card for WP16
+expected-place alert policy rows and WP17 parent acknowledgement action rows.
+The repeatable hosted proof captures it at
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`
+and writes
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/23-parent-action-readiness-hosted-ui-proof.json`
+without claiming live mutation, alert/provider delivery, receipt ingestion,
+child-device runtime, physical-device proof, authority, production workers,
+adapter dispatch, or product readiness.
 The hosted route now also renders a child-runtime UI proof card with tracking
 disclosure, safe/help response labels, location-share consent copy, a hosted-only
 adapter boundary, and no child-device delivery claim. The repeatable hosted proof
@@ -305,6 +321,30 @@ This workpack can be assigned independently, implemented against the owning doma
       execution, full parent/child UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: hosted parent action readiness proof model, portal route
+      renderer/tests, hosted Playwright proof spec, hosted proof script,
+      portal/text/domain constants, owning tracking feature doc, implementation
+      checklist, WP16, WP17, WP30, WP33, and generated hosted proof artifacts.
+- [x] Validation commands and results: pending final hosted proof refresh after
+      focused text-domain, portal-domain, and portal tracking-status tests
+      passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/23-parent-action-readiness-hosted-ui-proof.json`,
+      `test-results/tracking-plan-hosted-ui-proof/`, and companion WP16/WP17/WP33
+      hosted proof JSON files.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP16, WP17, WP30, and WP33 updated; central capability row
+      delta remains hub-sequenced because E-B owns
+      `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: hosted parent action readiness is
+      read-only rendering proof only; actual child-device delivery/runtime
+      execution, full parent/child UI beyond the hosted route, Android/iOS
+      physical-device proof, authority, provider delivery, notifications,
+      production workers, adapter dispatch, and product-ready behavior remain
+      proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: hosted notification parent-surface proof model, portal

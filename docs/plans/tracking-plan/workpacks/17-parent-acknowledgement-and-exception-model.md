@@ -67,6 +67,14 @@ and UI surface refs without claiming rendered portal acknowledgement UI, live
 service mutation, provider delivery, notification receipt runtime,
 child-device runtime, physical-device proof, authority proof, production
 workers, or adapter dispatch.
+The hosted parent route now renders those acknowledgement, exception,
+false-alarm, child check-in request, and escalation rows as read-only parent
+action readiness UI through `npm run test:tracking-plan-hosted-ui-proof`. The
+hosted proof writes `31-parent-acknowledgement-action-hosted-ui-proof.json`
+while keeping live service mutation, alert/provider delivery, receipt
+ingestion, child-device runtime, physical-device proof, authority proof,
+production workers, adapter dispatch, and product-ready parent action behavior
+unclaimed.
 
 ## Where We Want To Be
 
@@ -133,3 +141,26 @@ This workpack can be assigned independently, implemented against the owning doma
       runtime, child-device runtime, Android/iOS physical proof, authority,
       production workers, adapter dispatch, and product-ready parent action
       behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: hosted parent action readiness proof model, portal route
+      renderer/tests, hosted Playwright proof spec, hosted proof script,
+      portal/text/domain constants, owning tracking feature doc, implementation
+      checklist, WP16, WP17, WP30, WP33, and generated hosted proof artifacts.
+- [x] Validation commands and results: pending final hosted proof refresh after
+      focused text-domain, portal-domain, and portal tracking-status tests
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/31-parent-acknowledgement-action-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/23-parent-action-readiness-hosted-ui-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/36-parent-action-readiness-hosted-ui-proof.json`,
+      and `test-results/tracking-plan-hosted-ui-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP16, WP17, WP30, and WP33 updated. Central
+      `docs/product-capability-checklist.md` remains hub-sequenced because E-B
+      owns that lock.
+- [x] Known gaps/manual-required states: hosted parent action readiness is
+      read-only rendering proof only; live service mutation, alert/provider
+      delivery, receipt ingestion, child-device runtime, Android/iOS physical
+      proof, authority, production workers, adapter dispatch, and product-ready
+      parent action behavior remain proof-gated.

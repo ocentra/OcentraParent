@@ -39,6 +39,12 @@ export const TrackingStatusProofArtifacts = {
   NotificationParentSurfaceHistory: artifact(
     'output/tracking-plan-proof/26-alert-severity-and-notification-model/26-notification-parent-surface-history-proof.json'
   ),
+  ExpectedPlaceAlertPolicy: artifact(
+    'output/tracking-plan-proof/16-expected-place-schedule-engine/29-expected-place-alert-policy-proof.json'
+  ),
+  ParentAcknowledgementActionReadiness: artifact(
+    'output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/30-parent-acknowledgement-action-readiness-proof.json'
+  ),
   RetentionSettingsWriteCommand: artifact(
     'output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json'
   ),

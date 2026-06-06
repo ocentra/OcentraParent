@@ -38,6 +38,11 @@ import {
   type TrackingNotificationParentSurfaceHostedUiProof,
 } from './tracking-notification-parent-surface-hosted-ui-proof';
 import {
+  TrackingParentActionReadinessHostedUiDetails,
+  trackingParentActionReadinessHostedUiProof,
+  type TrackingParentActionReadinessHostedUiProof,
+} from './tracking-parent-action-readiness-hosted-ui-proof';
+import {
   trackingFamilyDashboardHostedRollupProof,
   trackingStatusLiveSummary,
   trackingStatusServiceDataCoverage,
@@ -100,6 +105,7 @@ export function TrackingStatusRoutePanel({
           <TrackingNotificationParentSurfaceHostedUiProofCard
             proof={trackingNotificationParentSurfaceHostedUiProof()}
           />
+          <TrackingParentActionReadinessHostedUiProofCard proof={trackingParentActionReadinessHostedUiProof()} />
           <TrackingRetentionSettingsHostedUiProofCard
             actions={actions}
             commandEnabled={commandEnabled}
@@ -356,6 +362,76 @@ function TrackingNotificationParentSurfaceHostedUiRow({
         label={TrackingNotificationParentSurfaceHostedUiDetails.RedactedSummary}
         value={proofRow.redactedSummaryRef}
       />
+    </>
+  );
+}
+
+function TrackingParentActionReadinessHostedUiProofCard({
+  proof,
+}: {
+  readonly proof: TrackingParentActionReadinessHostedUiProof;
+}): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article
+      className={className}
+      {...{
+        [PortalDom.Attributes.DataTrackingProof]: PortalDom.Attributes.TrackingProofParentActionReadiness,
+      }}
+    >
+      <h2>{proof.title}</h2>
+      <p>{proof.body}</p>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <TrackingStatusDetail label={PortalDetails.ProofTier} value={proof.proofTier} />
+        <TrackingStatusDetail label={PortalDetails.RowsReturned} value={proof.renderedParentActionRows} />
+        <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proof.expectedPlaceProofArtifact} />
+        <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proof.acknowledgementProofArtifact} />
+        <TrackingStatusDetail label={PortalDetails.AdapterBoundary} value={proof.boundary} />
+        <TrackingStatusDetail label={PortalDetails.MissingProof} value={proof.missingProof} />
+        <TrackingStatusDetail label={PortalDetails.ProductClaim} value={proof.productClaim} />
+        <TrackingStatusDetail
+          label={TrackingParentActionReadinessHostedUiDetails.ExpectedPlaceProof}
+          value={proof.expectedPlaceRows}
+        />
+        <TrackingStatusDetail
+          label={TrackingParentActionReadinessHostedUiDetails.AcknowledgementProof}
+          value={proof.acknowledgementActionRows}
+        />
+        <TrackingStatusDetail label={PortalDetails.Database} value={proof.liveServiceMutationRows} />
+        <TrackingStatusDetail label={PortalDetails.Provider} value={proof.providerDeliveryClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.Events} value={proof.notificationReceiptClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.ChildDelivery} value={proof.childDeviceRuntimeClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.Device} value={proof.physicalDeviceClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.Enforcement} value={proof.authorityClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.Transport} value={proof.adapterDispatchClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.PolicyReadiness} value={proof.productClaimReadyRows} />
+        {proof.rows.map((proofRow) => (
+          <TrackingParentActionReadinessHostedUiRow key={String(proofRow.title)} proofRow={proofRow} />
+        ))}
+      </dl>
+    </article>
+  );
+}
+
+function TrackingParentActionReadinessHostedUiRow({
+  proofRow,
+}: {
+  readonly proofRow: TrackingParentActionReadinessHostedUiProof['rows'][number];
+}): ReactElement {
+  return (
+    <>
+      <TrackingStatusDetail label={PortalDetails.Title} value={proofRow.title} />
+      <TrackingStatusDetail label={PortalDetails.ReadinessKind} value={proofRow.status} />
+      <TrackingStatusDetail label={PortalDetails.DecisionAction} value={proofRow.primaryActionRef} />
+      <TrackingStatusDetail label={PortalDetails.DecisionId} value={proofRow.policyDecisionRef} />
+      <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={proofRow.evidenceRefs} />
+      <TrackingStatusDetail
+        label={TrackingParentActionReadinessHostedUiDetails.UiSurface}
+        value={proofRow.uiSurfaceRef}
+      />
+      <TrackingStatusDetail label={PortalDetails.MissingProof} value={proofRow.manualProofRequirements} />
     </>
   );
 }

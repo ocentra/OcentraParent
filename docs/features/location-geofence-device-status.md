@@ -131,8 +131,8 @@ expose location or device-status features. Parents expect this category.
   read/write preflight card beside the service read-model summary, captures
   desktop, mobile, hosted service-backed citation detail, hosted evidence
   drawer, hosted child-safe check-in, hosted child-runtime UI, hosted family
-  dashboard rollup, hosted retention settings, and unsupported/manual platform
-  render-state proof screenshots, writes accessibility summary output, proves
+  dashboard rollup, hosted retention settings, hosted parent action readiness,
+  and unsupported/manual platform render-state proof screenshots, writes accessibility summary output, proves
   calm child check-in copy/actions plus child disclosure, safe/help response,
   location-share consent copy, typed retention settings write-preflight command
   rendering, and manual-required/unavailable/authority-required unsupported
@@ -205,6 +205,15 @@ expose location or device-status features. Parents expect this category.
   provider delivery, receipt ingestion runtime, child-device delivery,
   physical-device proof, authority, production storage, adapter dispatch, and
   product-ready tracking unclaimed.
+- Hosted parent route parent action readiness screenshot/accessibility proof now
+  exists through `npm run test:tracking-plan-hosted-ui-proof`. It renders the
+  existing WP16 expected-place alert policy rows and WP17 parent acknowledgement
+  action readiness rows on the hosted `policy-tracking` route, captures the
+  parent action readiness screenshot, records accessibility/no-overlap
+  assertions, and writes WP16/WP17/WP30/WP33 proof artifacts while keeping live
+  service mutation, alert delivery, provider delivery, receipt ingestion,
+  child-device runtime, physical-device proof, authority, production workers,
+  adapter dispatch, and product-ready tracking unclaimed.
 - WP27 escalation readiness proof now exists through
   `node scripts/test/tracking-escalation-readiness-proof.mjs`. It derives
   parent acknowledgement, child check-in, urgent second-guardian, and critical
@@ -540,6 +549,11 @@ accessibility beyond the hosted parent route are proved.
       acknowledgement contracts. It is not rendered portal acknowledgement UI,
       live service mutation, provider delivery, receipt runtime, child runtime,
       physical-device, authority, production worker, or adapter dispatch proof.
+- [x] Hosted parent action readiness rendering for expected-place alert policy
+      rows and parent acknowledgement action rows. This is hosted read-only UI
+      proof only; it is not live service mutation, alert/provider delivery,
+      receipt ingestion, child-device runtime, physical-device, authority,
+      production worker, adapter dispatch, or product-ready tracking proof.
 - [x] WP25 P1 parent-policy compiler/evaluator runtime proof for tracking
       rules, deterministic parent-policy final authority, AI non-authority,
       manual-required fallback, and dry-run/preview output. This is not runtime
@@ -643,8 +657,8 @@ accessibility beyond the hosted parent route are proved.
       detail card, hosted read-only evidence drawer card, hosted child-safe
       check-in copy/actions card, hosted
       child-runtime disclosure/safe-help/location-share consent card, plus a
-      family dashboard rollup card and retention settings write-preflight
-      result card. This is not
+      family dashboard rollup card, parent action readiness card, and retention
+      settings write-preflight result card. This is not
       child-device delivery/runtime execution, full dashboard UI beyond the
       hosted route, or physical-device proof.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
