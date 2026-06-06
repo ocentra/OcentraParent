@@ -164,6 +164,14 @@ claim needs proof, not slogans.
   overloaded runtime metadata. Both retain evidence and parent rule refs and do
   not claim model execution, model quality, new capture, portal UI, or
   enforcement dispatch.
+- `scripts/test/screen-ai-model-output-parser-proof.mjs` now proves the screen
+  AI model input/output parser boundary uses existing local AI evaluation and
+  safety result contracts. The proof accepts schema-valid screen-derived video
+  evidence with local-only runtime metadata and rejects malformed action,
+  confidence, unknown/degraded state, evidence/rule list, remote runtime, and
+  missing current-observation evidence shapes. This does not execute a model,
+  prove model quality, rerun capture, render portal UI, or dispatch
+  enforcement.
 
 ## Current Gap
 
@@ -203,6 +211,8 @@ production external evidence variants.
       raw/remote/Ocentra-hosted processing.
 - [x] Screen AI invalid output and timeout degrade to typed non-enforcing
       local AI safety results.
+- [x] Screen AI model output parser proof rejects malformed model output and
+      non-local runtime shapes.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub
