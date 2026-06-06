@@ -6,18 +6,31 @@ No enforcement from raw pixels or raw AI text; dry-run and manual-required guard
 
 ## Current State
 
-Complete enforcement handoff proof is open.
+The domain-level enforcement handoff guard proof now exists in
+`@ocentra-parent/parent-domain` and writes
+`output/screen-plan-proof/screen-ai-enforcement-handoff-guard/proof-summary.json`.
+It proves a screen-derived policy decision can create only a guarded dry-run or
+manual-required handoff payload when summary, local-AI result, parent-rule,
+confidence, and audit refs are present. It does not claim adapter execution or
+broad browser/network/mobile enforcement.
 
 ## Checklist
 
-- [ ] Define enforcement handoff payload.
-- [ ] Include summary ref.
-- [ ] Include parent policy rule.
-- [ ] Include confidence/unknown state.
-- [ ] Block raw model text/pixel handoff.
-- [ ] Add audit event.
+- [x] Define enforcement handoff payload.
+- [x] Include summary ref.
+- [x] Include parent policy rule.
+- [x] Include confidence/unknown state.
+- [x] Block raw model text/pixel handoff.
+- [x] Add audit event.
 
 ## Proof
 
-- Tests showing AI output alone cannot enforce.
-- Tests showing policy decision includes summary ref.
+- `packages/parent-domain/tests/screen-ai-enforcement-handoff-guard-proof.test.ts`
+  shows AI output alone cannot enforce: the input must include a dry-run policy
+  decision that has not already been handed off, an enabled parent policy rule,
+  summary/local-AI/audit evidence refs already present on the decision, and
+  `rawPixelsIncluded:false`, `rawModelTextIncluded:false`,
+  `rawScreenshotRetained:false`, and `localAiAuthorityClaimed:false`.
+- `scripts/test/screen-ai-enforcement-handoff-guard-proof.mjs` builds the
+  payload from the real schema, writes proof artifacts, and confirms the
+  payload carries refs and an audit event only.

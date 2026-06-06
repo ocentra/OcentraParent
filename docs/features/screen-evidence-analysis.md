@@ -110,6 +110,14 @@ only with explicit parent settings.
   and rejects hidden capture, raw screenshot display, remote viewer, and
   policy-authority claims. This is contract proof, not rendered child-agent
   delivery or platform screenshot proof.
+- `scripts/test/screen-ai-enforcement-handoff-guard-proof.mjs` now proves the
+  screen enforcement handoff guard contract. It builds a schema-valid handoff
+  payload only from a dry-run policy decision that has not already been handed
+  off, an enabled parent policy rule, summary/local-AI/audit refs already on the
+  policy decision, a confidence state, and a guard audit event. Raw pixels, raw
+  model text, retained screenshots, and local-AI authority claims are rejected.
+  This is contract proof only; downstream adapter execution and
+  broad/browser/network/mobile enforcement remain separate gates.
 - `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
   screen-derived household mesh contract/runtime boundary: redacted
   summary/custody payloads, no raw screenshot transfer, provider claim/lease,
@@ -587,6 +595,10 @@ parity, and UI remain separate proof gates.
 - [x] Screen child disclosure proof defines child-visible disabled, paused,
       active capture, protected-surface, and deleted-summary status while
       rejecting hidden capture/raw screenshot display claims.
+- [x] Screen enforcement handoff guard proof requires dry-run policy,
+      summary/local-AI/audit refs, enabled parent rule, confidence state, and a
+      guard audit event while rejecting raw pixels, raw model text, retained
+      screenshot, and local-AI authority claims.
 - [x] Screen household mesh proof keeps raw screenshots off LAN provider
       payloads, grants one child-owned lease, validates provider results on the
       child agent before policy, and rejects invalid provider results.
