@@ -8,6 +8,7 @@ pub const EVENT_SCREEN_POLICY_DECISION_COMPLETED: &str = "screen.policy.decision
 pub const EVENT_SCREEN_ACTION_DRY_RUN_RECORDED: &str = "screen.action.dry-run.recorded";
 pub const EVENT_SCREEN_DELETION_COMMITTED: &str = "screen.deletion.committed";
 pub const EVENT_SCREEN_PORTAL_READ_MODEL_UPDATED: &str = "screen.portal-read-model.updated";
+pub const EVENT_SCREEN_SERVICE_ROW_READY: &str = "screen.service.row.ready";
 pub const EVENT_SCREEN_MESH_WORK_QUEUED: &str = "screen.mesh.work.queued";
 pub const EVENT_SCREEN_MESH_OFFER_PUBLISHED: &str = "screen.mesh.offer.published";
 pub const EVENT_SCREEN_MESH_CLAIM_REQUESTED: &str = "screen.mesh.claim.requested";
@@ -25,6 +26,7 @@ pub const TARGET_SCREEN_POLICY_ENGINE: &str = "screen-policy-engine";
 pub const TARGET_SCREEN_ACTION_DRY_RUN: &str = "screen-action-dry-run";
 pub const TARGET_SCREEN_DELETION_WORKER: &str = "screen-deletion-worker";
 pub const TARGET_SCREEN_PORTAL_READ_MODEL: &str = "screen-portal-read-model";
+pub const TARGET_SCREEN_SERVICE_EVENT_SUBSCRIBER: &str = "screen-service-event-subscriber";
 pub const TARGET_SCREEN_MESH_BRIDGE: &str = "screen-household-mesh-bridge";
 pub const TARGET_SCREEN_MESH_CHILD_LEDGER: &str = "screen-household-child-ledger";
 pub const TARGET_SCREEN_MESH_PROVIDER_WORKER: &str = "screen-household-provider-worker";
@@ -39,6 +41,7 @@ pub const SUBSCRIBER_SCREEN_POLICY_DECISION: &str = "screen-runtime-policy-decis
 pub const SUBSCRIBER_SCREEN_ACTION_DRY_RUN: &str = "screen-runtime-action-dry-run-subscriber";
 pub const SUBSCRIBER_SCREEN_DELETION_WORKER: &str = "screen-runtime-deletion-worker-subscriber";
 pub const SUBSCRIBER_SCREEN_PORTAL_READ_MODEL: &str = "screen-runtime-portal-read-model-subscriber";
+pub const SUBSCRIBER_SCREEN_SERVICE_ROW_READY: &str = "screen-service-row-ready-subscriber";
 pub const SUBSCRIBER_SCREEN_MESH_WORK_QUEUE: &str = "screen-mesh-work-queue-subscriber";
 pub const SUBSCRIBER_SCREEN_MESH_OFFER: &str = "screen-mesh-offer-subscriber";
 pub const SUBSCRIBER_SCREEN_MESH_CLAIM_REQUEST: &str = "screen-mesh-claim-request-subscriber";
@@ -49,10 +52,12 @@ pub const SUBSCRIBER_SCREEN_MESH_CHILD_VALIDATION: &str = "screen-mesh-child-val
 pub const SUBSCRIBER_SCREEN_MESH_POLICY_REQUEST: &str = "screen-mesh-policy-request-subscriber";
 
 pub const RUNTIME_COMPONENT_SCREEN_SPINE: &str = "screen-runtime-spine";
+pub const RUNTIME_COMPONENT_SCREEN_SERVICE_SUBSCRIBER: &str = "screen-service-event-subscriber";
 pub const RUNTIME_INSTANCE_LOCAL_CHILD_AGENT: &str = "local-child-agent";
 pub const AGGREGATE_SCREEN_QUEUE_PREFIX: &str = "screen-queue-";
 pub const CORRELATION_SCREEN_RUNTIME_PREFIX: &str = "screen-runtime-correlation-";
 pub const IDEMPOTENCY_SCREEN_RUNTIME_PREFIX: &str = "screen-runtime-idempotency-";
+pub const IDEMPOTENCY_SCREEN_SERVICE_ROW_READY_PREFIX: &str = "screen-service-row-ready-";
 pub const SCREEN_CAPTURE_EVENT_REF: &str = "event.screen.capture.observed.1";
 pub const SCREEN_QUEUE_EVENT_REF: &str = "event.screen.queue.encrypted.1";
 pub const SCREEN_AI_REQUEST_EVENT_REF: &str = "event.screen.ai.analysis.requested.1";
@@ -70,6 +75,14 @@ pub const ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES: &str =
     "screen service event bridge publishes";
 pub const ERROR_SCREEN_SERVICE_EVENT_BRIDGE_REJECTS: &str = "screen service event bridge rejects";
 pub const ERROR_SCREEN_SERVICE_EVENT_BRIDGE_MAPS: &str = "screen service event bridge maps";
+pub const ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES: &str = "screen service event subscriber registers";
+pub const ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_PUBLISHES: &str =
+    "screen service event subscriber publishes";
+pub const ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS: &str =
+    "screen service event subscriber rejects";
+pub const ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_RECORDS: &str =
+    "screen service event subscriber records";
+pub const FIELD_SCREEN_SERVICE_ROW_READY: &str = "screenServiceRowReady";
 pub const IDEMPOTENCY_SCREEN_MESH_PREFIX: &str = "screen-mesh-idempotency-";
 pub const SCREEN_MESH_WORK_EVENT_REF: &str = "event.screen.mesh.work.queued.1";
 pub const SCREEN_MESH_OFFER_EVENT_REF: &str = "event.screen.mesh.offer.published.1";

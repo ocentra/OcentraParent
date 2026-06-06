@@ -8,7 +8,7 @@ pub(crate) struct ScreenAiServiceEventBridgeRefs {
     pub(crate) action_ref: String,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) enum ScreenAiServiceEventBridgeError {
     RawImageRetained,
     MissingPolicyDecision,
