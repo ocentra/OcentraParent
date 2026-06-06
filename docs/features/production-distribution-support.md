@@ -204,6 +204,17 @@ dev-only repo when it claims consumer readiness.
   account lookup, billing provider contact, production SLA, legal disclosure
   execution, remote support sessions, provider-secret custody, and child
   activity custody.
+- `production-support-privacy-legal-disclosure-status-proof` adds
+  logging-domain privacy/legal disclosure status rows for disclosure requested,
+  parent-authorized, legal-review queued, legal-review running,
+  parent-notification-ready, publication-ready, failed, and manual-required
+  states. It proves support-safe status metadata, parent consent refs, privacy
+  policy refs, legal review refs, publication/support runbook refs, audit refs,
+  failure refs, and manual proof requirements while rejecting legal disclosure
+  execution, public runtime execution, support backend upload execution, account
+  lookup, billing provider contact, remote support sessions, production SLA,
+  provider secrets, remote support transcripts, raw child activity custody, and
+  raw support bundle payloads.
 - `public-support-contact-status-proof` adds parent-domain public support
   contact/status boundary rows for public support contact, support status page
   contact, support runbook contact, incident status contact, backend-upload
@@ -567,6 +578,18 @@ package/runtime proof.
       disclosure execution, remote support sessions, production SLA,
       provider-secret custody, and child activity custody remain unimplemented
       or unclaimed.
+- [ ] Production support privacy/legal disclosure status proof. Current
+      `production-support-privacy-legal-disclosure-status-proof` covers
+      privacy/legal disclosure requested, parent-authorized, legal-review
+      queued, legal-review running, parent-notification-ready,
+      publication-ready, failed, and manual-required rows with support-safe
+      status refs, legal review refs, audit refs, failure refs, and manual proof
+      requirements. It is status-contract proof only: real legal disclosure
+      execution, public runtime execution, support backend upload execution,
+      account lookup, billing provider contact, remote support sessions,
+      production SLA, provider secrets, remote support transcripts, raw child
+      activity custody, and raw support bundle payloads remain unimplemented or
+      unclaimed.
 - [ ] Public support contact/status boundary proof. Current
       `public-support-contact-status-proof` covers public support contact,
       support status page contact, support runbook contact, incident status

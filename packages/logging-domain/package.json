@@ -65,6 +65,14 @@
       "import": "./dist/provider-secret-custody-status-read-model.js",
       "types": "./dist/provider-secret-custody-status-read-model.d.ts"
     },
+    "./privacy-legal-disclosure-status": {
+      "import": "./dist/privacy-legal-disclosure-status.js",
+      "types": "./dist/privacy-legal-disclosure-status.d.ts"
+    },
+    "./privacy-legal-disclosure-status-read-model": {
+      "import": "./dist/privacy-legal-disclosure-status-read-model.js",
+      "types": "./dist/privacy-legal-disclosure-status-read-model.d.ts"
+    },
     "./support-incident-workflow": {
       "import": "./dist/support-incident-workflow.js",
       "types": "./dist/support-incident-workflow.d.ts"

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-06T09:10:26.176Z",
+  "commit": "bde3b77fe37544f514e98f3d3a6648204999ed82",
+  "proofMode": "production-support-privacy-legal-disclosure-status-proof",
+  "statesCovered": [
+    "disclosure-requested",
+    "parent-authorized",
+    "legal-review-queued",
+    "legal-review-running",
+    "parent-notification-ready",
+    "publication-ready",
+    "disclosure-failed",
+    "manual-required"
+  ],
+  "output": "test-results\\production-support-privacy-legal-disclosure-status-proof\\proof.json",
+  "claimsNotProved": [
+    "legal disclosure execution",
+    "public runtime execution",
+    "support backend upload execution",
+    "account lookup execution",
+    "billing provider contact execution",
+    "remote support sessions",
+    "production SLA",
+    "provider secrets",
+    "child activity custody"
+  ]
+}
