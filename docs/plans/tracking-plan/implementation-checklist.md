@@ -69,6 +69,11 @@ Every checked item must cite one or more proof artifacts.
       `output/tracking-plan-proof/07-retention-and-custody-model/`,
       `output/tracking-plan-proof/24-ai-provider-routing/`.
 - [ ] Android background claims have real device permission/background proof.
+      WP08/WP09 parent-domain manual-required proof rows now exist under
+      `output/tracking-plan-proof/08-android-foreground-location-adapter/` and
+      `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`;
+      real permission grant/sample/transition runtime and physical-device proof
+      remain required before this can be checked.
 - [ ] iOS background/region claims have real device permission/background
       proof.
 - [x] Desktop LAN/IP/Wi-Fi presence is labelled hint-only unless OS location
@@ -252,6 +257,15 @@ proof artifacts under their assigned proof roots. It proves emulator package
 mechanics and status scaffold behavior only; foreground location samples,
 background/geofence transitions, notification delivery, physical-device, and
 authority claims remain manual-required.
+WP08/WP09 additionally have parent-domain manual-required proof from
+`node scripts/test/tracking-android-permission-background-proof.mjs`, written to
+`output/tracking-plan-proof/08-android-foreground-location-adapter/`,
+`output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`,
+and `test-results/tracking-android-permission-background-proof/proof.json`.
+That proof records foreground permission grant, foreground location sample,
+background permission grant, and geofence transition gaps as explicit
+manual-required rows; it is not foreground/background/geofence runtime or
+physical-device proof.
 WP32/WP33 additionally have P3 WSL/local replay proof from
 `npm run test:tracking-plan-wsl-local-proof`, written to
 `output/tracking-plan-proof/wsl-local-replay/`,
@@ -320,7 +334,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       TestFlight/App Store, physical-device, and authority behavior remain
       unclaimed.
 - [ ] Android background permission proof is not complete. The emulator proof
-      records this as manual-required instead of product-ready.
+      and WP08/WP09 parent-domain manual-required proof record this as
+      manual-required instead of product-ready.
 - [ ] iOS background/region proof is not complete.
 - [x] Retention/delete/export P1 checkpoint proof exists. Retention delete has
       P1 read-model proof, parent-owned export has P1 snapshot proof, and

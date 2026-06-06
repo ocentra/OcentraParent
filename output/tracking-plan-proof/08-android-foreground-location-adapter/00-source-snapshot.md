@@ -1,11 +1,13 @@
-# Android tracking emulator source snapshot
+# WP08 Android Foreground Location Adapter Source Snapshot
 
-- Checked at: 2026-06-04T15:19:02.543Z
-- Commit: d2ebdf2f87602d9860fc90f9eec1c9ab485679ab
-- Branch: codex/tracking-android-emulator-proof
-- Proof command: `npm run test:tracking-plan-android-emulator-proof`
-- Proof script: `scripts/test/tracking-plan-android-emulator-proof.mjs`
-- APK: `target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk`
-- Required proof tier: P3_LOCAL_DEV_MACHINE
-- Current proof tier: P3_LOCAL_DEV_MACHINE
-- Product claim ready: false
+- Branch: codex/tracking-android-permission-background-proof
+- Base commit at generation: e3a950498e05524d92a229f51b8a2b1d58098a7a
+- Git status at proof generation:
+
+```text
+clean
+```
+
+- Scope: parent-domain Android foreground permission and sample gaps read model against existing emulator scaffold/manual proof plans.
+- Source inspected: location/geofence feature doc, location/geofence expectations, platform expectations, WP08 workpack, and WP09 workpack.
+- Boundary: this proof keeps Android foreground permission, foreground sample, background permission, and geofence transitions manual-required until device/runtime artifacts exist.

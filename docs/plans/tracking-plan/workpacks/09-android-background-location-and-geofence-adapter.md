@@ -40,6 +40,8 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
       no-geofence-transition state before physical-device work.
 - [x] Generate the Android Studio/local and physical-device proof artifact plan
       before device work.
+- [x] Record parent-domain manual-required proof rows for missing background
+      permission grant and geofence transition runtime before device/runtime work.
 
 ## Where We Are
 
@@ -56,6 +58,13 @@ emulator scaffold layer for this workpack. The generated
 service observation while keeping `geofenceTransitionCount` at `0` and
 `currentStatus` as `manual_required` when background permission and transition
 adapters are absent. This is not Android background/geofence proof.
+
+`node scripts/test/tracking-android-permission-background-proof.mjs` now records
+WP09 parent-domain manual-required rows for the background permission grant and
+geofence transition gaps. The proof writes `02-platform-permission-proof.md`,
+refreshes `05-geofence-transition-proof.json`, and keeps background permission,
+background runtime, geofence runtime, physical-device behavior, authority,
+notification/provider delivery, and product-ready Android tracking unclaimed.
 
 ## Where We Want To Be
 
