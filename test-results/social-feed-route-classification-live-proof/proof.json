@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofId": "social-feed-route-classification-live-proof",
-  "generatedAt": "2026-06-06T11:49:46.295Z",
+  "generatedAt": "2026-06-06T13:31:53.105Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "182268de4c3bf90468c77d6653a066defb6426b8",
-  "baseCommit": "b363a2e205c0b2fc0dc22c0b92131da1177f3fdb",
+  "commit": "067fe2917336eff2a6a3d81e14047b09ab7b8379",
+  "baseCommit": "94ada961b5a6be48c8adcf146c294059ac1c3de4",
   "liveCaptureSummary": {
     "realPublicSocialSurfacesUsed": true,
     "generatedOrFixturePageUsed": false,
@@ -38,8 +38,8 @@
       "titleLength": 9,
       "titleSha256": "7eb83e0654e30e86bce4572ff21c0af6c26f45e0c41f69faaec3f73ecd704df9",
       "screenshotPath": "output/browser-plan-proof/social-08-feed-reels-shorts-route-classification/06-live-screenshots/reddit-popular-feed.png",
-      "screenshotSha256": "7c8517413ad0359e0e997ceb301fc54bfa1dcf1bbf2e6da188c15b9d12f90589",
-      "screenshotBytes": 419191,
+      "screenshotSha256": "ac9a6317336e73ff52b728db0f5eb5e172485e4f6233b5069fe037a89a15f68e",
+      "screenshotBytes": 442677,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -49,7 +49,7 @@
       "classificationSummary": {
         "schemaVersion": 1,
         "feedRouteClassificationId": "reddit-popular-feed-live-feed-route-classification",
-        "observedAt": "2026-06-06T11:49:46.295Z",
+        "observedAt": "2026-06-06T13:31:53.105Z",
         "sourceEvidenceIds": [
           "reddit-popular-feed-live-feed-route-evidence"
         ],
@@ -83,8 +83,8 @@
       "titleLength": 23,
       "titleSha256": "049c10ef52a14482bbcd72e9cdb80c263d0bffab9002531cdc9b2c55af7f5292",
       "screenshotPath": "output/browser-plan-proof/social-08-feed-reels-shorts-route-classification/06-live-screenshots/twitch-directory-feed.png",
-      "screenshotSha256": "358f42295bf8f868b263516fca4a96f6c7a91022557a1410c735bb25d16b83b2",
-      "screenshotBytes": 636618,
+      "screenshotSha256": "e9c1f60180b57ddc248e9166f910c6c6810fc6be3ca97867845cd9d298487909",
+      "screenshotBytes": 563044,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -94,7 +94,7 @@
       "classificationSummary": {
         "schemaVersion": 1,
         "feedRouteClassificationId": "twitch-directory-feed-live-feed-route-classification",
-        "observedAt": "2026-06-06T11:49:46.295Z",
+        "observedAt": "2026-06-06T13:31:53.105Z",
         "sourceEvidenceIds": [
           "twitch-directory-feed-live-feed-route-evidence"
         ],
@@ -128,8 +128,8 @@
       "titleLength": 46,
       "titleSha256": "10345dc402e4eb8a3e421bdb479dba5450f5f9b6a902947b319c855af3d35139",
       "screenshotPath": "output/browser-plan-proof/social-08-feed-reels-shorts-route-classification/06-live-screenshots/tiktok-explore-feed.png",
-      "screenshotSha256": "f48fd9810c5e1d510af84b0a5378dc7e99e1dd710353640e43242d345ae199ec",
-      "screenshotBytes": 938888,
+      "screenshotSha256": "b4b30a8662ef6e9a7d0a5955d15476793e2b6820d9b4fb9232afbc80ca0146b3",
+      "screenshotBytes": 940769,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -139,7 +139,7 @@
       "classificationSummary": {
         "schemaVersion": 1,
         "feedRouteClassificationId": "tiktok-explore-feed-live-feed-route-classification",
-        "observedAt": "2026-06-06T11:49:46.295Z",
+        "observedAt": "2026-06-06T13:31:53.105Z",
         "sourceEvidenceIds": [
           "tiktok-explore-feed-live-feed-route-evidence"
         ],
@@ -164,8 +164,8 @@
     {
       "targetId": "instagram-reels-feed",
       "requestedUrl": "https://www.instagram.com/reels/",
-      "finalUrl": "https://www.instagram.com/reels/DZFwHN2xeHB/",
-      "finalUrlSha256": "1a39ab71198ca96b60a8d8e8bb6a96f1f9b2043bf4e036b7bface263853a6163",
+      "finalUrl": "https://www.instagram.com/reels/DZEH6QGNeGQ/",
+      "finalUrlSha256": "5f13f7b02330877055ada8fe488b0d2bc61576799ae4b9f52f7dad64a8b84175",
       "finalUrlQueryOrHashRemoved": false,
       "responseStatus": 200,
       "responseUrl": "https://www.instagram.com/reels/",
@@ -173,8 +173,8 @@
       "titleLength": 9,
       "titleSha256": "bad57ef7837c8e6bf99c2a5935cc9d6fe5324a53d88744ad5551db0e46b03cd6",
       "screenshotPath": "output/browser-plan-proof/social-08-feed-reels-shorts-route-classification/06-live-screenshots/instagram-reels-feed.png",
-      "screenshotSha256": "7d34d756cb08c5c6c3a18c2e8c29a1bbfa8f47e5e7a05cc282d2e3321ddf8825",
-      "screenshotBytes": 90701,
+      "screenshotSha256": "0b8b1da9de57601640ddf63a75d0dd727b3a8e2b53cacc5303fd4b87be82a05e",
+      "screenshotBytes": 560947,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -184,7 +184,7 @@
       "classificationSummary": {
         "schemaVersion": 1,
         "feedRouteClassificationId": "instagram-reels-feed-live-feed-route-classification",
-        "observedAt": "2026-06-06T11:49:46.295Z",
+        "observedAt": "2026-06-06T13:31:53.105Z",
         "sourceEvidenceIds": [
           "instagram-reels-feed-live-feed-route-evidence"
         ],
@@ -218,8 +218,8 @@
       "titleLength": 23,
       "titleSha256": "78292aae02101a86107be6e03dda218f2b8d74670659730284c8026a86629e89",
       "screenshotPath": "output/browser-plan-proof/social-08-feed-reels-shorts-route-classification/06-live-screenshots/youtube-shorts-video.png",
-      "screenshotSha256": "045fb0a2b44924c959ff65a08537e2ea7fcbbf9f7768c5c7bd13adad9edfe8e4",
-      "screenshotBytes": 840156,
+      "screenshotSha256": "e6e7b7447f992fc27e44f0d00cd4b8094bf62175937cb525b317ef68539b0241",
+      "screenshotBytes": 869098,
       "rawPageBodyPersisted": false,
       "rawDomPersisted": false,
       "rawTitlePersisted": false,
@@ -229,7 +229,7 @@
       "classificationSummary": {
         "schemaVersion": 1,
         "feedRouteClassificationId": "youtube-shorts-video-live-feed-route-classification",
-        "observedAt": "2026-06-06T11:49:46.295Z",
+        "observedAt": "2026-06-06T13:31:53.105Z",
         "sourceEvidenceIds": [
           "youtube-shorts-video-live-feed-route-evidence"
         ],
