@@ -102,6 +102,14 @@ only with explicit parent settings.
   calls the shared producer after queue removal. This closes the TTL deletion
   event producer hop without claiming parent retention UI persistence, final
   enforcement, a new live capture run, or model quality.
+- `scripts/test/screen-child-disclosure-proof.mjs` now proves the screen child
+  disclosure contract. It defines child-visible disabled, paused, active
+  capture, protected-surface, and deleted-summary states with calm tokenized
+  copy; requires active capture to be ready, scoped, and represented as a child
+  capture banner; requires deleted-summary state to cite deleted local custody;
+  and rejects hidden capture, raw screenshot display, remote viewer, and
+  policy-authority claims. This is contract proof, not rendered child-agent
+  delivery or platform screenshot proof.
 - `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
   screen-derived household mesh contract/runtime boundary: redacted
   summary/custody payloads, no raw screenshot transfer, provider claim/lease,
@@ -483,7 +491,8 @@ only with explicit parent settings.
 
 Service persistence for parent setting changes, parent retention controls,
 optional raw-retention runtime enablement, live-view transport/relay/cache,
-platform permission prompt proof, privacy/legal approval, authenticated-account
+platform permission prompt proof, rendered child-agent disclosure delivery,
+privacy/legal approval, authenticated-account
 social proof beyond public/live surface proof, production OCR/VLM quality beyond
 the WinRT OCR service proof, controlled fixtures, and the full live operator
 matrix, production local vision adapter quality beyond the service proof
@@ -575,6 +584,9 @@ parity, and UI remain separate proof gates.
 - [x] Screen service deletion event producer proof publishes deletion-committed
       events from the retention sweeper after expired queue deletion without
       fabricating policy/action refs.
+- [x] Screen child disclosure proof defines child-visible disabled, paused,
+      active capture, protected-surface, and deleted-summary status while
+      rejecting hidden capture/raw screenshot display claims.
 - [x] Screen household mesh proof keeps raw screenshots off LAN provider
       payloads, grants one child-owned lease, validates provider results on the
       child agent before policy, and rejects invalid provider results.
@@ -582,9 +594,10 @@ parity, and UI remain separate proof gates.
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof,
 remaining production startup subscriptions for live producers beyond the service
-capture/queue, deletion, and analysis row-ready/policy-ref handoffs, production household mesh transport over
-physical LAN, broad adapters, and production explanation portal rendering remain in the
-Current Gap section above.
+capture/queue, deletion, and analysis row-ready/policy-ref handoffs, rendered
+child-agent disclosure delivery, production household mesh transport over
+physical LAN, broad adapters, and production explanation portal rendering remain
+in the Current Gap section above.
 
 ## Next AI Instructions
 

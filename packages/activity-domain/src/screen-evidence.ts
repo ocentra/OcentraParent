@@ -1,5 +1,6 @@
 export * from './screen-evidence-primitives';
 export * from './screen-evidence-states';
+export * from './screen-child-disclosure';
 export * from './screen-evidence-settings';
 export * from './screen-evidence-settings-ui-proof';
 export * from './screen-evidence-queue';
