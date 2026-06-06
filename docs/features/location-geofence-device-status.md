@@ -190,6 +190,14 @@ expose location or device-status features. Parents expect this category.
   manual-required until provider terms, runtime, and authorization proof exist.
   It does not claim live Google/Apple/OSM execution, credentials, exact place,
   or physical-device proof.
+- WP21 place-category ambiguity proof now exists through
+  `node scripts/test/tracking-place-category-ambiguity-proof.mjs`. It builds
+  parent-domain review rows from the existing POI adapter and proves
+  no-accusation copy, low-accuracy ambiguity, multiple-place ambiguity,
+  category-as-policy-input-only, and parent-defined zone override as
+  policy-review input only. It does not claim live provider execution,
+  provider delivery, exact-place presence, automatic action, physical-device
+  proof, authority proof, production behavior, or full UI.
 - WP25 tracking policy compiler runtime proof now exists through
   `node scripts/test/tracking-policy-compiler-runtime-proof.mjs`. It compiles
   parent-owned tracking rules for observe, notify, child check-in, parent

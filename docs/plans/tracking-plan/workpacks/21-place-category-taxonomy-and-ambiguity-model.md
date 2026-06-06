@@ -38,19 +38,28 @@ Proof root: `output/tracking-plan-proof/21-place-category-taxonomy-and-ambiguity
 
 - `01-contract-proof.log`
 - `07-nearby-place-proof.json`
+- `17-category-ambiguity-no-accusation-proof.json`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
 
 ## AI Worker Checklist
 
-- [ ] Add no-accusation copy validator cases.
-- [ ] Test low accuracy and multiple-place ambiguity.
-- [ ] Keep category as policy input, not action.
-- [ ] Let parent-defined safe/restricted zones override only through policy.
+- [x] Add no-accusation copy validator cases.
+- [x] Test low accuracy and multiple-place ambiguity.
+- [x] Keep category as policy input, not action.
+- [x] Let parent-defined safe/restricted zones override only through policy.
 
 ## Where We Are
 
-This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+This workpack has focused contract proof from `codex/tracking-plan-full-scope`
+under the proof root below. This continuation adds
+`node scripts/test/tracking-place-category-ambiguity-proof.mjs`, which builds
+parent-domain proof rows from the existing POI provider adapter and proves
+no-accusation copy, low-accuracy ambiguity, multiple-place ambiguity, category
+as policy input only, and parent-defined zone override as policy-review input
+only. Runtime, platform, provider delivery, physical-device, production, and
+UI behavior is not claimed beyond the proof state recorded in
+`proof-summary.json` and the implementation checklist.
 
 ## Where We Want To Be
 
@@ -67,7 +76,11 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - docs/plans/tracking-plan/workpacks/21-place-category-taxonomy-and-ambiguity-model.md
 - docs/plans/tracking-plan/implementation-checklist.md
+- packages/parent-domain/src/tracking-place-category-ambiguity-proof.ts
+- packages/parent-domain/tests/tracking-place-category-ambiguity-proof.test.ts
+- scripts/test/tracking-place-category-ambiguity-proof.mjs
 - `output/tracking-plan-proof/21-place-category-taxonomy-and-ambiguity-model/`
+- `test-results/tracking-place-category-ambiguity-proof/`
 - Implementation paths listed by the worker before editing.
 
 ## Manual-Required Gaps
@@ -83,3 +96,19 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Proof artifacts under `output/tracking-plan-proof/21-place-category-taxonomy-and-ambiguity-model/`.
 - [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
 - [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: WP21 proof source, tests, proof harness, feature doc,
+      implementation checklist, WP21/WP33 docs, and generated proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-place-category-ambiguity-proof.mjs` passed
+      locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/21-place-category-taxonomy-and-ambiguity-model/`
+      and `test-results/tracking-place-category-ambiguity-proof/`.
+- [x] Product doc/checklist updates: owning tracking feature doc, tracking
+      implementation checklist, WP21, and WP33 updated; central product
+      checklist row remains unchanged because this does not upgrade product
+      support beyond the existing local proof tier.
+- [x] Known gaps/manual-required states: live provider execution, provider
+      delivery, exact-place claims, Android/iOS physical-device proof,
+      authority, production, full UI, and automatic action remain unclaimed.
