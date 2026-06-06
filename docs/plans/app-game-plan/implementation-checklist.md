@@ -161,7 +161,7 @@ Required files:
 - [ ] Foreground evidence is displayed as content knowledge.
 - [ ] Launcher evidence is displayed as active game without child-game proof.
 - [ ] Unknown process is auto-promoted to known game.
-- [ ] AI output directly enforces.
+- [x] AI output directly enforces.
 - [ ] Dry-run terminates or blocks app/game.
 - [ ] Manual-required action calls an adapter.
 - [ ] Android normal mode claims package suspend/hide.
