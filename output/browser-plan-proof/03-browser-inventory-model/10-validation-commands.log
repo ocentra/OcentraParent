@@ -33,3 +33,13 @@ PASS.
 
 git diff --check
 PASS.
+
+2026-06-06 completion refresh on codex/browser-child-intervention-endpoint-flow:
+
+cmd /c node scripts/test/browser-inventory-model-completion-proof.mjs
+PASS: browser-inventory-model-completion-proof-ok=true; checks=9; proofFiles=16.
+
+The completion proof verifies the existing WP03 contract/Rust/service proof pack,
+the WP04 live Windows inventory proof, and the WP14 parent portal Browser-route
+inventory screenshot/Playwright proof while preserving no-claim boundaries for
+exact URL, active tab, blocking, enforcement, and cross-platform adapters.
