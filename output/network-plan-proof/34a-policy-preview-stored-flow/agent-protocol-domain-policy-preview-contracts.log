@@ -1,0 +1,13 @@
+
+> @ocentra-parent/agent-protocol-domain@0.1.1 test
+> vitest run policy-preview-contracts
+
+
+ RUN  v4.1.6 E:/OcentraParentWorktrees/E-D/OcentraParent/packages/agent-protocol-domain
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  21:58:21
+   Duration  766ms (transform 163ms, setup 0ms, import 567ms, tests 6ms, environment 0ms)
+
