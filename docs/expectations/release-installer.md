@@ -215,6 +215,13 @@ Release features are product features because parents need install/update paths 
   contact, remote support session execution, production SLA, raw child activity
   custody, provider secrets, default Ocentra-hosted family data, or raw support
   bundle payloads.
+- `production-support-account-sla-status-proof` may prove account lookup,
+  billing provider contact, remote support request/session, and production SLA
+  status rows as manual-required or not-implemented support boundaries, but it
+  must not claim account lookup execution, billing provider contact execution,
+  remote support sessions, production SLA commitments, support backend upload
+  execution, `family.ocentra.ca` runtime, provider secrets, or child-activity
+  custody.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play

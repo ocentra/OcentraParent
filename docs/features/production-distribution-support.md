@@ -130,6 +130,14 @@ dev-only repo when it claims consumer readiness.
   execution, support backend upload execution, account lookup, billing provider
   contact, remote support sessions, production SLA, provider secrets, and child
   activity custody as explicit non-claims.
+- `production-support-account-sla-status-proof` adds parent-domain production
+  support account/SLA status rows for account lookup request/result boundaries,
+  billing provider contact status, remote support request/session boundaries,
+  and production SLA status. It proves only support-safe status metadata and
+  manual requirements while keeping real account lookup execution, billing
+  provider contact, remote support sessions, production SLA commitments, support
+  backend upload execution, `family.ocentra.ca` runtime, provider secrets, and
+  child activity custody unclaimed.
 - `production-support-publication-workflow-proof` adds parent-domain source
   contract rows for public privacy policy publication, privacy/legal disclosure
   execution, support runbook publication, support incident status publication,
@@ -414,6 +422,15 @@ package/runtime proof.
       publication, legal execution, backend upload execution, account lookup,
       billing provider contact, remote support sessions, production SLA,
       provider secrets, and child activity custody unclaimed.
+- [ ] Production support account/SLA status proof. Current
+      `production-support-account-sla-status-proof` covers account lookup
+      request/result status, billing provider contact status, remote support
+      request/session status, and production SLA status rows. It links incident
+      support, billing support/admin, public support contact, case resolution,
+      release-installer, billing, and data-custody refs while keeping account
+      lookup execution, billing provider contact, remote support sessions,
+      production SLA, support backend upload execution, `family.ocentra.ca`
+      runtime, provider secrets, and child activity custody unclaimed.
 - [ ] Production support public publication workflow proof. Current
       `production-support-publication-workflow-proof` covers public privacy
       policy publication, privacy/legal disclosure execution, support runbook
