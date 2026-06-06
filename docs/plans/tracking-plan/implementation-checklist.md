@@ -390,6 +390,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       consumer-readiness rows plus family dashboard rollup rows; rendered
       dashboard UI, child/full UI beyond the hosted parent route, and platform
       replay proof remain pending.
+- [x] Consumer citation lineage proof verifies report/policy, family dashboard,
+      retention settings read-model, and retention writer-boundary rows keep
+      stored WP32 service read-model/product-surface/report/retention proof refs
+      plus evidence refs before broader product surfaces consume them. Proof:
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/26-consumer-citation-lineage-proof.json`.
 - [ ] Tracking UI/UX is not product-complete. A P1 parent portal tracking-state
       fixture, local parent-route screenshot, hosted parent `policy-tracking`
       route screenshot/accessibility proof, hosted service-backed citation detail
@@ -428,8 +433,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       proof, live service-backed portal citation rows, iOS simulator package
       routing, hosted parent route screenshot/accessibility proof, hosted
       child-safe check-in screenshot proof, hosted child-runtime UI proof,
-      hosted read-only evidence drawer proof, and
-      remaining Android foreground/background location, physical-device,
+      hosted read-only evidence drawer proof, consumer citation lineage proof
+      for stored WP32 proof refs, and remaining Android foreground/background
+      location, physical-device,
       authority, actual child-device delivery/runtime execution, full
       child/parent UI beyond the hosted parent route, provider-delivery, and
       production gaps.

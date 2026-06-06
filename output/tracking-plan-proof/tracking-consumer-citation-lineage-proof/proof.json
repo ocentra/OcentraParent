@@ -1,0 +1,357 @@
+{
+  "proofMode": "tracking-consumer-citation-lineage-proof",
+  "generatedAt": "2026-06-06T15:08:00.000Z",
+  "branch": "codex/tracking-consumer-citation-lineage-proof",
+  "baseCommitAtGeneration": "0f9e76bf15f42848abb983c6dc9094849b5223ea",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n?? scripts/test/tracking-consumer-citation-lineage-proof.mjs",
+  "commands": [
+    "node scripts/test/tracking-consumer-citation-lineage-proof.mjs"
+  ],
+  "summary": {
+    "reportPolicyRows": 3,
+    "familyDashboardRows": 3,
+    "retentionSettingsReadModelRows": 5,
+    "retentionSettingsWriterRows": 5,
+    "lineageEdgeCount": 16,
+    "rowsWithMissingProofRefs": 0,
+    "serviceReadModelRefRows": 16,
+    "productSurfaceSummaryRefRows": 6,
+    "reportPolicyConsumerRefRows": 3,
+    "retentionSettingsReadModelRefRows": 5,
+    "rowsWithoutEvidenceRefs": 0,
+    "productReadyClaimedRows": 0,
+    "physicalDeviceClaimedRows": 0,
+    "authorityClaimedRows": 0,
+    "childDeviceDeliveryClaimedRows": 0,
+    "providerDeliveryClaimedRows": 0,
+    "notificationReceiptClaimedRows": 0,
+    "serviceMutationExecutedRows": 0
+  },
+  "productClaims": {
+    "retentionDelete": {},
+    "serviceReadModel": {},
+    "productSurfaceSummary": {},
+    "reportPolicyConsumer": {
+      "productClaimReady": false,
+      "portalUiClaimed": false,
+      "childDeviceDeliveryClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptClaimed": false,
+      "physicalDeviceClaimed": false,
+      "authorityClaimed": false
+    },
+    "familyDashboardRollup": {
+      "productClaimReady": false,
+      "portalUiClaimed": false,
+      "childDeviceDeliveryClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptClaimed": false,
+      "physicalDeviceClaimed": false,
+      "authorityClaimed": false
+    },
+    "retentionSettingsReadModel": {
+      "productClaimReady": false,
+      "portalUiClaimed": false,
+      "serviceMutationClaimed": false,
+      "platformRuntimeClaimed": false,
+      "childDeviceDeliveryClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptClaimed": false,
+      "physicalDeviceClaimed": false,
+      "authorityClaimed": false
+    },
+    "retentionSettingsWriter": {
+      "productClaimReady": false,
+      "serviceMutationExecuted": false,
+      "portalUiClaimed": false,
+      "platformRuntimeClaimed": false,
+      "childDeviceDeliveryClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptClaimed": false,
+      "physicalDeviceClaimed": false,
+      "authorityClaimed": false
+    }
+  },
+  "proofPaths": {
+    "harness": "scripts/test/tracking-consumer-citation-lineage-proof.mjs",
+    "evidence": "test-results/tracking-consumer-citation-lineage-proof/proof.json",
+    "readModelProofPack": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/26-consumer-citation-lineage-proof.json",
+    "proofGatePack": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/26-consumer-citation-lineage-proof.json",
+    "companionProofPack": "output/tracking-plan-proof/tracking-consumer-citation-lineage-proof/proof.json"
+  },
+  "sourceProofPaths": {
+    "retentionDelete": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json",
+    "serviceReadModel": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+    "productSurfaceSummary": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+    "reportPolicyConsumer": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json",
+    "familyDashboardRollup": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
+    "retentionSettingsReadModel": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+    "retentionSettingsWriter": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-settings-writer-boundary-proof.json"
+  },
+  "lineageEdges": [
+    {
+      "rowId": "tracking-report-policy-row-report-summary",
+      "consumerKind": "report-policy-consumer",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-report-policy-row-policy-drill-in",
+      "consumerKind": "report-policy-consumer",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-report-policy-row-retention-export",
+      "consumerKind": "report-policy-consumer",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-family-dashboard-row-active-summary",
+      "consumerKind": "family-dashboard-rollup",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-family-dashboard-row-child-attention",
+      "consumerKind": "family-dashboard-rollup",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-family-dashboard-row-retention-audit",
+      "consumerKind": "family-dashboard-rollup",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-retention-settings-row-retention-window",
+      "consumerKind": "retention-settings-read-model",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-retention-settings-row-delete-after-alert",
+      "consumerKind": "retention-settings-read-model",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-retention-settings-row-parent-export",
+      "consumerKind": "retention-settings-read-model",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-retention-settings-row-remote-sync-disabled",
+      "consumerKind": "retention-settings-read-model",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-retention-settings-row-remote-ai-disabled",
+      "consumerKind": "retention-settings-read-model",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-retention-settings-write-retention-window",
+      "consumerKind": "retention-settings-writer-boundary",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-retention-settings-write-delete-after-alert",
+      "consumerKind": "retention-settings-writer-boundary",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-retention-settings-write-parent-export",
+      "consumerKind": "retention-settings-writer-boundary",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-retention-settings-write-remote-sync-disabled",
+      "consumerKind": "retention-settings-writer-boundary",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+      ],
+      "missingProofRefs": []
+    },
+    {
+      "rowId": "tracking-retention-settings-write-remote-ai-disabled",
+      "consumerKind": "retention-settings-writer-boundary",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+      ],
+      "existingProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+      ],
+      "missingProofRefs": []
+    }
+  ]
+}

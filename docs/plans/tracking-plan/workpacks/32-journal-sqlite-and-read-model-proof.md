@@ -35,6 +35,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `23-family-dashboard-rollup-proof.json`
 - `24-retention-settings-read-model-proof.json`
 - `25-retention-settings-writer-boundary-proof.json`
+- `26-consumer-citation-lineage-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -77,6 +78,9 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       mutation, live retention UI, platform runtime, child-device delivery,
       provider delivery, authority, physical-device execution, or production
       readiness.
+- [x] Verify report/policy, family-dashboard, retention settings read-model,
+      and retention writer-boundary consumer rows keep stored journal/read-model
+      proof refs and evidence refs before broader UI/product use.
 
 ## Where We Are
 
@@ -126,6 +130,15 @@ the same five setting rows from the existing WP07/WP32 read-model proof refs,
 keeps remote sync and remote AI disabled, and keeps executed service mutation,
 live retention UI, platform runtime, child-device delivery, provider delivery,
 notification receipt, physical-device, authority, and product-ready claims false.
+The consumer citation lineage proof validates that report/policy consumers,
+family dashboard rollups, retention settings read-model rows, and retention
+writer-boundary intents still cite the stored WP32 service read-model,
+product-surface summary, report-policy, retention, and writer proof artifacts
+before broader product surfaces consume them. It records 16 lineage edges with
+zero missing proof refs and keeps product-ready, physical-device, authority,
+child-device delivery, provider delivery, notification receipt, and executed
+service mutation claims false in
+`26-consumer-citation-lineage-proof.json`.
 The hosted parent route now renders those retention settings read-model rows as
 a narrow proof card and captures
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
@@ -329,6 +342,27 @@ This workpack can be assigned independently, implemented against the owning doma
       not edited by this worker while another lane owns it.
 - [x] Known gaps/manual-required states: executed service mutation, live
       service-backed retention UI, platform runtime, child-device delivery,
+      Android/iOS physical-device proof, authority, provider delivery,
+      notification receipts, and production proof remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-consumer-citation-lineage-proof`.
+- [x] Touched files: consumer citation lineage proof harness, tracking feature
+      doc, implementation checklist, WP32, WP33, and generated WP32/WP33 proof
+      artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-consumer-citation-lineage-proof.mjs` passed
+      locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/26-consumer-citation-lineage-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/26-consumer-citation-lineage-proof.json`,
+      `output/tracking-plan-proof/tracking-consumer-citation-lineage-proof/`,
+      and `test-results/tracking-consumer-citation-lineage-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP32, and WP33 updated; central capability checklist row delta
+      queued through the hub instead of editing
+      `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: this is lineage validation only;
+      broader live parent/child UI, executed retention mutation service path,
       Android/iOS physical-device proof, authority, provider delivery,
       notification receipts, and production proof remain proof-gated.
 - [x] Workpack id and branch:

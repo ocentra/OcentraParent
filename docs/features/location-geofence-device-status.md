@@ -192,6 +192,15 @@ expose location or device-status features. Parents expect this category.
   explicitly rejects portal UI completion, child-device delivery, provider
   delivery, notification receipt ingestion, authority, physical-device, and
   product-complete claims.
+- WP32 consumer citation lineage proof now exists through
+  `node scripts/test/tracking-consumer-citation-lineage-proof.mjs`. It verifies
+  report/policy consumer, family dashboard rollup, retention settings read-model,
+  and retention writer-boundary rows keep stored WP32 service read-model,
+  product-surface summary, report-policy, retention, and writer proof refs plus
+  evidence refs before broader product surfaces consume them, while keeping
+  product-ready, physical-device, authority, child-device delivery, provider
+  delivery, notification receipt, executed service mutation, and production
+  claims false.
 - Unsupported and not-yet-proved tracking platform states now have a
   parent-domain manual-required/unavailable render-state proof through
   `node scripts/test/tracking-unsupported-platform-manual-proof.mjs`. It proves
@@ -407,6 +416,13 @@ snapshots/accessibility beyond the hosted parent route are proved.
       portal UI completion, child-device delivery, provider delivery,
       notification receipt ingestion, authority, physical-device, or
       product-complete proof.
+- [x] WP32 consumer citation lineage proof for report/policy, family dashboard,
+      retention settings read-model, and retention writer-boundary rows that
+      must keep stored read-model/product-surface/report/retention proof refs
+      plus evidence refs before broader product surfaces consume them. This is
+      not product-ready, physical-device, authority, child-device delivery,
+      provider delivery, notification receipt, executed service mutation, or
+      production proof.
 - [x] WP32 family dashboard rollup proof for active family summary,
       child-attention summary, and retention-audit summary rows, plus narrow
       hosted parent-route rendering of those rows. This is not full dashboard

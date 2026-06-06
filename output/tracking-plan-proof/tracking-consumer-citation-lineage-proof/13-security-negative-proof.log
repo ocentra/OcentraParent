@@ -1,0 +1,5 @@
+Security/no-claim proof:
+
+- Every consumer lineage row keeps existing proof refs present on disk.
+- No row claims product readiness, physical-device behavior, authority enrollment, child-device delivery, provider delivery, notification receipt, or executed service mutation.
+- Remote/provider/device behavior remains represented only by existing manual-required proof rows.

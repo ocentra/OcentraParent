@@ -60,6 +60,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 - Notification preference preflight proof:
   `24-notification-preference-preflight-proof.json`
+- Consumer citation lineage proof:
+  `26-consumer-citation-lineage-proof.json`
 
 ## Merge Blockers
 
@@ -113,6 +115,15 @@ artifacts and captures the WSL2/Ubuntu toolchain, linked-worktree Git mapping,
 contract build output, service read-model proof, and Rust core tracking
 read-model test. It does not claim Android/iOS physical behavior, authority,
 full hosted UI/accessibility, provider delivery, or production readiness.
+
+The consumer citation lineage proof now validates that report/policy consumer,
+family dashboard rollup, retention settings read-model, and retention
+writer-boundary rows retain stored WP32 proof refs and evidence refs before any
+broader product surface consumes them. It writes
+`26-consumer-citation-lineage-proof.json` as a WP33 companion gate and keeps
+product-ready, physical-device, authority, child-device delivery, provider
+delivery, notification receipt, executed service mutation, and production claims
+false.
 
 This branch adds `npm run test:tracking-plan-ios-simulator-proof`, which writes
 tracking-specific iOS simulator package proof artifacts. On macOS
