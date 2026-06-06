@@ -146,9 +146,14 @@ control while being more honest about managed versus unmanaged sources.
   Chrome/Firefox/Edge managed-browser proof harness. The harness proves block,
   warning, approval-hold, and checking-hold pages for site, video, social
   signup, social short-video, browser-game, game-purchase, and cloud-gaming
-  targets while keeping unmanaged browser exact URL evidence, broad OS browser
-  blocking, native app/game control, cloud-streamed frame analysis, and final
-  child UX polish unclaimed.
+  targets. After PR399, the composited blocker proof also loads a real YouTube
+  target, captures the viewport through CDP, writes the shared child
+  intervention renderer output to
+  `OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_HTML_PATH`, and serves the child
+  page from the Rust child-agent `/api/browser/intervention/page` endpoint while
+  keeping unmanaged browser exact URL evidence, broad OS browser blocking,
+  native app/game control, cloud-streamed frame analysis, final policy
+  execution, and final child UX polish unclaimed.
 - Browser-plan WP18 now carries unmanaged browser detection as process-only
   evidence through TypeScript contracts, Rust protocol/runtime status, service
   inventory read models, and portal status parsing. Supported, unsupported,
@@ -570,7 +575,7 @@ post-analysis actions where applicable, and require adapter proof before claimin
 delivered checking, warning, block, or approval pages. They reject raw
 child-facing copy, shaming/surveillance copy claims, visual-render claims,
 state/token mismatches, rendered child pages without adapter proof, and
-warning/block/approval states without matching post-analysis actions. Activity-domain and text-domain package subpath exports are now present; no visual UI, browser page renderer, runtime delivery, enforcement, or product checklist upgrade is claimed.
+warning/block/approval states without matching post-analysis actions. Activity-domain and text-domain package subpath exports are present. The endpoint-backed rendered proof now decodes checking, warning, approval-required, limited, and blocked snapshots, renders them with the shared child intervention page, serves them from the Rust child-agent `/api/browser/intervention/page` endpoint, and captures real Chrome screenshots after a live YouTube CDP capture. Final policy execution, unmanaged browser control, native/mobile blocking, connector behavior, enforcement, and product checklist upgrade remain unclaimed.
 AI-20 now adds browser AI parent explanation/audit UX contracts and text-domain
 parent explanation tokens. Explanation bundles link evidence, AI analysis,
 policy decision, post-analysis action, child UX snapshot, memory/cache refs,
@@ -578,7 +583,14 @@ graph refs, and audit refs while making evidence, model runtime, prompt version,
 policy rule, action, child experience, child-saw-page, degraded/manual fallback,
 and audit visibility explicit. They reject raw page content, raw prompt text,
 portal evaluation, policy authority, direct enforcement, hidden fallback, hidden
-child engagement, missing audit sections, and mismatched source evidence. Activity-domain and text-domain package subpath exports are now present; no parent UI component, portal visual rendering, runtime delivery, enforcement, or product checklist upgrade is claimed.
+child engagement, missing audit sections, and mismatched source evidence.
+Activity-domain and text-domain package subpath exports are now present. The
+AI-20 rendered proof consumes the live AI-19 YouTube CDP child UX evidence JSON,
+passes a schema-decoded parent explanation bundle through a dedicated proof-only
+Vite env var, renders the Browser review region on the real portal `#/browser`
+route, and captures desktop/mobile Playwright screenshots while keeping raw URL,
+page content, prompt text, final policy authority, browser mutation, enforcement,
+runtime service delivery, remote AI, and product checklist upgrade unclaimed.
 AI-21 now extends deterministic YouTube parser coverage, adds a YouTube metadata
 adapter, and has a live proof harness against a real public YouTube watch page
 plus YouTube oEmbed metadata. Managed exact YouTube watch, Shorts, embed, live,

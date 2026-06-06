@@ -1,0 +1,74 @@
+{
+  "route": "#/browser",
+  "assertions": [
+    "named-browser-review-region",
+    "schema-backed-parent-explanation-visible",
+    "model-policy-action-audit-headings-visible",
+    "live-ai19-evidence-ref-visible",
+    "raw-youtube-url-not-rendered",
+    "no-unlabeled-buttons",
+    "desktop-screenshot",
+    "mobile-screenshot"
+  ],
+  "summary": {
+    "hasNamedRegion": true,
+    "headings": [
+      "Browser review",
+      "10 parent explanation rows",
+      "What happened",
+      "AI and model details",
+      "Action taken",
+      "Audit trail"
+    ],
+    "labels": [
+      "Rows returned",
+      "Generated at",
+      "Status",
+      "Product claim",
+      "Browser evidence",
+      "Evidence references",
+      "Reason codes",
+      "Model",
+      "Version",
+      "Degraded state",
+      "Product claim",
+      "Policy evaluation",
+      "Rule IDs",
+      "Intervention action",
+      "Adapter boundary",
+      "Child delivery",
+      "Intervention audit ID",
+      "Custody",
+      "Manual review",
+      "Enforcement"
+    ],
+    "values": [
+      "10",
+      "2026-06-06T00:58:06.594Z",
+      "ready",
+      "Rendered parent explanation surface only; runtime service delivery, final policy authority, browser mutation, enforcement, remote AI, and raw page or prompt content remain unclaimed.",
+      "browser-evidence-live-youtube-cdp",
+      "browser-url-metadata-live-youtube-oembed",
+      "explicit_parent_rule, schedule_match, ai_high_confidence, memory_hit, graph_ref",
+      "local-model-runtime-browser-video",
+      "2026-06-06",
+      "none",
+      "Rendered parent explanation surface only; runtime service delivery, final policy authority, browser mutation, enforcement, remote AI, and raw page or prompt content remain unclaimed.",
+      "warn",
+      "parent-rule-school-night-video-review",
+      "warning_shown_after_review",
+      "child-agent-endpoint-proof-warning",
+      "warn-page-rendered",
+      "browser-parent-explanation-audit-live-youtube-warning",
+      "managed-browser-warning-page",
+      "false",
+      "false"
+    ],
+    "buttons": [],
+    "unlabeledButtons": 0
+  },
+  "screenshots": {
+    "desktop": "output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/browser-parent-explanation-route.png",
+    "mobile": "output/browser-plan-proof/ai-20-parent-explanation-audit-ux/06-ui-snapshots/browser-parent-explanation-route-mobile.png"
+  }
+}
