@@ -1,0 +1,22 @@
+cmd /c npm run build --workspace @ocentra-parent/parent-domain
+exit=0
+
+> @ocentra-parent/parent-domain@0.1.1 build
+> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist
+
+
+
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-gated-policy-preview-package-exports
+exit=0
+
+> @ocentra-parent/parent-domain@0.1.1 test
+> vitest run app-game-source-gated-policy-preview-package-exports
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  00:02:40
+   Duration  288ms (transform 32ms, setup 0ms, import 51ms, tests 6ms, environment 0ms)
