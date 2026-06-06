@@ -60,14 +60,19 @@ claim needs proof, not slogans.
   screen successful path can publish a typed AI result event from a typed screen
   evidence event and carry that result into policy/action/read-model/deletion
   phases without direct AI-to-policy/action shortcuts. General AI job contracts,
-  degraded-result events, live service consumers, and household mesh event
-  bridge remain planned.
+  degraded-result events, and live service consumers remain planned.
 - `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
   screen-derived household provider worker boundary: child-owned work item,
   provider claim/lease, no raw screenshot transfer, worker-only provider result,
   child-agent validation before policy, and rejection of duplicate, expired,
   wrong-provider, wrong-claim, evidence-mismatch, custody-mismatch, raw-transfer,
   and provider-authority-invalid results.
+- `scripts/test/household-mesh-event-bridge-proof.mjs` now proves the selected
+  event bridge boundary: local mesh events can be exported only as typed LAN
+  message envelopes, incoming LAN messages must authenticate and authorize
+  before local republish, remote peers cannot publish directly into another
+  runtime bus, and private local queue/capture internals plus raw screen
+  payloads are rejected before export or republish.
 - The [Household AI Provider Mesh Plan](../plans/ai-plan/household-ai-provider-mesh-plan.md)
   now defines trusted household AI providers, the Household Mesh Bridge,
   provider advertisement/heartbeat, claim/lease, result validation, no raw
@@ -359,8 +364,8 @@ broader enforcement handoff, production browser-trigger producers, physical
 household family AI hub runtime/discovery beyond the loopback proof,
 production remote assistant provider execution and portal assistant UI,
 cloud-streamed frame proof, mobile browser parity, live service AI event
-consumers, degraded-result event flow, household mesh event bridge, and
-validation against production external evidence variants.
+consumers, degraded-result event flow, production household mesh transport over
+physical LAN, and validation against production external evidence variants.
 
 ## Checklist
 
@@ -441,10 +446,13 @@ validation against production external evidence variants.
 - [x] Screen household mesh provider proof validates child-owned claim/lease and
       provider-result acceptance before policy without raw screenshot transfer
       or provider policy/enforcement authority.
+- [x] Household Mesh Bridge proof validates selected-event export/import,
+      authenticated/authorized local republish, no direct remote bus publish,
+      and no private/raw screen payload transfer.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub
-runtime/discovery, production mesh bridge transport, live service AI event
+runtime/discovery, production mesh bridge transport over real LAN, live service AI event
 consumers, degraded-result event flow, and broad enforcement handoff remain in
 the Current Gap section above.
 
