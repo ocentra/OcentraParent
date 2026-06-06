@@ -204,8 +204,8 @@ pub use process_capture::{
     ProcessObservation,
 };
 pub use screen_event_runtime::{
-    publish_screen_runtime_chain_for_input, ScreenRuntimeEventPayload, ScreenRuntimeInput,
-    ScreenRuntimeReport,
+    publish_screen_capture_queue_events_for_input, publish_screen_runtime_chain_for_input,
+    ScreenRuntimeCaptureInput, ScreenRuntimeEventPayload, ScreenRuntimeInput, ScreenRuntimeReport,
 };
 pub use screen_event_runtime_phase::ScreenRuntimePhase;
 pub use screen_event_runtime_state::{

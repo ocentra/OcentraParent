@@ -81,6 +81,17 @@ only with explicit parent settings.
   refs, and the existing subscriber proof remains the downstream runtime-chain
   proof for safe rows. This is not broad parent-rule compiler coverage, final
   enforcement execution, or a new live external capture run.
+- `scripts/test/screen-service-capture-event-producer-proof.mjs` now proves the
+  service capture producers publish typed `screen.capture.observed` and
+  `screen.queue.encrypted` events after the encrypted queue write. The core
+  screen runtime exposes a capture/queue-only publisher that carries no AI,
+  policy, action, deletion, or portal refs, the service bridge maps Activity
+  Screen metadata rows into that payload while rejecting raw-retained rows, and
+  the timed cadence plus native foreground runtime loops call the shared
+  producer after real queue handoff. This closes the live cadence/foreground
+  capture event producer hop without claiming a new external live capture run,
+  retention sweeper deletion event publication, final enforcement, or model
+  quality.
 - `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
   screen-derived household mesh contract/runtime boundary: redacted
   summary/custody payloads, no raw screenshot transfer, provider claim/lease,
@@ -467,8 +478,9 @@ social proof beyond public/live surface proof, production OCR/VLM quality beyond
 the WinRT OCR service proof, controlled fixtures, and the full live operator
 matrix, production local vision adapter quality beyond the service proof
 adapter, service-owned live trigger event producers beyond the timed cadence
-loop and native active-window foreground watcher, startup wiring for remaining
-live producers beyond the service analysis row-ready handoff, physical
+loop and native active-window foreground watcher capture/queue event producer,
+startup wiring for remaining live producers beyond the service capture and
+analysis row-ready handoffs, physical
 Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
 browser-trigger artifact closure,
 browser/network/mobile/broad block action adapters from screen-derived
@@ -546,6 +558,9 @@ parity, and UI remain separate proof gates.
       subscriber runtime from the service analysis loop, publishes
       `screen.service.row.ready`, and gates current analysis rows as
       `MissingPolicyDecision` before downstream policy/action publication.
+- [x] Screen service capture event producer proof publishes capture-observed and
+      encrypted-queue events from the service cadence and native foreground
+      capture loops after encrypted queue handoff.
 - [x] Screen household mesh proof keeps raw screenshots off LAN provider
       payloads, grants one child-owned lease, validates provider results on the
       child agent before policy, and rejects invalid provider results.
@@ -553,7 +568,7 @@ parity, and UI remain separate proof gates.
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof,
 remaining production startup subscriptions for live producers beyond the service
-analysis row-ready/policy-ref handoff, production household mesh transport over
+capture/queue and analysis row-ready/policy-ref handoffs, production household mesh transport over
 physical LAN, broad adapters, and production explanation portal rendering remain in the
 Current Gap section above.
 

@@ -40,6 +40,19 @@ pub struct ScreenRuntimeInput {
     pub portal_read_model_ref: String,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ScreenRuntimeCaptureInput {
+    pub queue_job_id: String,
+    pub screen_analysis_result_id: String,
+    pub capture_reason: String,
+    pub capture_scope: String,
+    pub image_digest: String,
+    pub summary: String,
+    pub model_runtime_ref: String,
+    pub model_id: String,
+    pub prompt_or_template_version: String,
+}
+
 impl ScreenRuntimeInput {
     pub fn proof_fixture() -> Self {
         Self {
@@ -60,6 +73,22 @@ impl ScreenRuntimeInput {
             deletion_proof_ref: constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string(),
             portal_read_model_ref: constants::screen_flow::TEST_SCREEN_PORTAL_READ_MODEL_REF
                 .to_string(),
+        }
+    }
+}
+
+impl From<&ScreenRuntimeInput> for ScreenRuntimeCaptureInput {
+    fn from(input: &ScreenRuntimeInput) -> Self {
+        Self {
+            queue_job_id: input.queue_job_id.clone(),
+            screen_analysis_result_id: input.screen_analysis_result_id.clone(),
+            capture_reason: input.capture_reason.clone(),
+            capture_scope: input.capture_scope.clone(),
+            image_digest: input.image_digest.clone(),
+            summary: input.summary.clone(),
+            model_runtime_ref: input.model_runtime_ref.clone(),
+            model_id: input.model_id.clone(),
+            prompt_or_template_version: input.prompt_or_template_version.clone(),
         }
     }
 }
@@ -104,6 +133,15 @@ impl ScreenRuntimeEventPayload {
         input: &ScreenRuntimeInput,
         observed_at: &str,
     ) -> Self {
+        Self::from_capture_input(phase, &ScreenRuntimeCaptureInput::from(input), observed_at)
+            .with_downstream_refs(phase, input)
+    }
+
+    fn from_capture_input(
+        phase: ScreenRuntimePhase,
+        input: &ScreenRuntimeCaptureInput,
+        observed_at: &str,
+    ) -> Self {
         Self {
             phase,
             queue_job_id: input.queue_job_id.clone(),
@@ -115,12 +153,12 @@ impl ScreenRuntimeEventPayload {
             model_runtime_ref: input.model_runtime_ref.clone(),
             model_id: input.model_id.clone(),
             prompt_or_template_version: input.prompt_or_template_version.clone(),
-            policy_decision_ref: policy_decision_ref(phase, input),
-            policy_action: policy_action(phase, input),
-            parent_rule_ref: parent_rule_ref(phase, input),
-            action_ref: action_ref(phase, input),
-            deletion_proof_ref: deletion_proof_ref(phase, input),
-            portal_read_model_ref: portal_read_model_ref(phase, input),
+            policy_decision_ref: None,
+            policy_action: None,
+            parent_rule_ref: None,
+            action_ref: None,
+            deletion_proof_ref: None,
+            portal_read_model_ref: None,
             previous_phase_ref: previous_phase_ref(phase),
             capture_event_ref: constants::screen_flow::SCREEN_CAPTURE_EVENT_REF.to_string(),
             queue_event_ref: queue_event_ref(phase),
@@ -136,6 +174,20 @@ impl ScreenRuntimeEventPayload {
             claim_boundary: ScreenRuntimeClaimBoundary::child_owned_no_raw_escape(),
             observed_at: observed_at.to_string(),
         }
+    }
+
+    fn with_downstream_refs(
+        mut self,
+        phase: ScreenRuntimePhase,
+        input: &ScreenRuntimeInput,
+    ) -> Self {
+        self.policy_decision_ref = policy_decision_ref(phase, input);
+        self.policy_action = policy_action(phase, input);
+        self.parent_rule_ref = parent_rule_ref(phase, input);
+        self.action_ref = action_ref(phase, input);
+        self.deletion_proof_ref = deletion_proof_ref(phase, input);
+        self.portal_read_model_ref = portal_read_model_ref(phase, input);
+        self
     }
 }
 
@@ -201,6 +253,14 @@ pub async fn publish_screen_runtime_chain_for_input(
     spine.publish_input_chain(input, observed_at).await
 }
 
+pub async fn publish_screen_capture_queue_events_for_input(
+    input: ScreenRuntimeCaptureInput,
+    observed_at: &str,
+) -> Result<ScreenRuntimeReport, EventingError> {
+    let spine = ScreenRuntimeSpine::with_default_handlers().await?;
+    spine.publish_capture_queue_events(input, observed_at).await
+}
+
 struct ScreenRuntimeSpine {
     bus: EventBus,
 }
@@ -239,11 +299,46 @@ impl ScreenRuntimeSpine {
             dead_letters: self.bus.dead_letters().await,
         })
     }
+
+    async fn publish_capture_queue_events(
+        &self,
+        input: ScreenRuntimeCaptureInput,
+        observed_at: &str,
+    ) -> Result<ScreenRuntimeReport, EventingError> {
+        let mut reports = Vec::new();
+        for phase in [
+            ScreenRuntimePhase::CaptureObserved,
+            ScreenRuntimePhase::QueueEncrypted,
+        ] {
+            let payload = ScreenRuntimeEventPayload::from_capture_input(phase, &input, observed_at);
+            let metadata = screen_capture_event_metadata(phase, &input, observed_at)?;
+            reports.push(self.bus.publish(payload, metadata).await?);
+        }
+        Ok(ScreenRuntimeReport {
+            publish_reports: reports,
+            stored_events: self.bus.journal().await,
+            dead_letters: self.bus.dead_letters().await,
+        })
+    }
 }
 
 fn screen_event_metadata(
     phase: ScreenRuntimePhase,
     input: &ScreenRuntimeInput,
+    observed_at: &str,
+) -> Result<EventMetadata, EventingError> {
+    Ok(EventMetadata::from_parts(
+        EventId::generated(),
+        CorrelationId::parse(screen_correlation_id(&input.queue_job_id))?,
+        screen_event_source(phase)?,
+        RecordedAt::parse(observed_at)?,
+        Some(TargetHandler::parse(phase.target_handler())?),
+    ))
+}
+
+fn screen_capture_event_metadata(
+    phase: ScreenRuntimePhase,
+    input: &ScreenRuntimeCaptureInput,
     observed_at: &str,
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(

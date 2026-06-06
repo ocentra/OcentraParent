@@ -1,9 +1,10 @@
 use ocentra_parent_agent_protocol::constants;
 
 use super::{
-    publish_screen_runtime_chain_for_input, ScreenActionState, ScreenAiAuditState,
-    ScreenDeletionState, ScreenEvidenceScope, ScreenPolicyState, ScreenRuntimeEventPayload,
-    ScreenRuntimeInput, ScreenRuntimePhase, ScreenRuntimeReport,
+    publish_screen_capture_queue_events_for_input, publish_screen_runtime_chain_for_input,
+    ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
+    ScreenPolicyState, ScreenRuntimeCaptureInput, ScreenRuntimeEventPayload, ScreenRuntimeInput,
+    ScreenRuntimePhase, ScreenRuntimeReport,
 };
 
 #[tokio::test]
@@ -43,6 +44,40 @@ async fn screen_runtime_chain_publishes_uncoupled_lifecycle_flow() {
         ),
         1
     );
+}
+
+#[tokio::test]
+async fn screen_capture_queue_events_publish_without_ai_policy_or_action_refs() {
+    let input = ScreenRuntimeCaptureInput::from(&ScreenRuntimeInput::proof_fixture());
+    let report = publish_screen_capture_queue_events_for_input(
+        input,
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    )
+    .await
+    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    let payloads = decode_payloads(&report);
+
+    assert_eq!(report.publish_reports.len(), 2);
+    assert_eq!(report.stored_events.len(), 2);
+    assert!(report.dead_letters.is_empty());
+    assert_eq!(payloads[0].phase, ScreenRuntimePhase::CaptureObserved);
+    assert_eq!(payloads[1].phase, ScreenRuntimePhase::QueueEncrypted);
+    assert!(payloads.iter().all(|payload| {
+        payload.ai_request_ref.is_none()
+            && payload.ai_result_ref.is_none()
+            && payload.policy_decision_ref.is_none()
+            && payload.action_ref.is_none()
+            && payload.deletion_proof_ref.is_none()
+            && payload.evidence_scope == ScreenEvidenceScope::EncryptedLocalImage
+            && payload.ai_audit_state == ScreenAiAuditState::NotRequested
+            && payload.policy_state == ScreenPolicyState::NotReady
+            && payload.deletion_state == ScreenDeletionState::Pending
+    }));
+    assert_eq!(
+        payloads[1].queue_event_ref,
+        Some(constants::screen_flow::SCREEN_QUEUE_EVENT_REF.to_string())
+    );
+    assert!(!report.raw_image_escaped());
 }
 
 #[tokio::test]
