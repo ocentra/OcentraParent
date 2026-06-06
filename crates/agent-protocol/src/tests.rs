@@ -130,6 +130,17 @@ fn network_runtime_stream_command_and_event_names_serialize_to_contract_shape() 
 }
 
 #[test]
+fn network_product_readiness_status_command_and_event_names_serialize_to_contract_shape() {
+    let command = serde_json::to_value(AgentCommandName::AgentNetworkProductReadinessStatusGet)
+        .expect("command serializes");
+    let event = serde_json::to_value(AgentEventName::AgentNetworkProductReadinessStatusReported)
+        .expect("event serializes");
+
+    assert_eq!(command, "agent.network.product-readiness.status.get");
+    assert_eq!(event, "agent.network.product-readiness.status.reported");
+}
+
+#[test]
 fn browser_inventory_command_and_event_names_serialize_to_contract_shape() {
     let command = serde_json::to_value(AgentCommandName::AgentBrowserInventoryReadModelGet)
         .expect("command serializes");

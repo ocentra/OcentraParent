@@ -31,6 +31,9 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - Tracking journal read-model structs, command/event names, payload field, and
   parity tests for the narrow service-backed
   `agent.activity.tracking.read-model.get` proof path.
+- Network product-readiness status command/event names and payload field
+  constants used by the Rust service to expose row13a custody and row51a
+  product-readiness materializer outputs without product policy semantics.
 - App/game boundary read-model structs, command/event names, payload field, and
   parity tests for the service-backed authority/classifier row-count proof
   path.
@@ -112,6 +115,10 @@ flowchart LR
 - Tracking read-model structs preserve journal row and citation-id evidence
   only; they do not claim mobile background behavior, provider delivery, or
   product-complete tracking UI beyond narrow portal summary consumption.
+- Network product-readiness status protocol support proves command/event and
+  payload field parity only; portal rendering, policy execution, adapter
+  execution, host filtering, live capture, and production SLO validation remain
+  separate proof-gated work.
 - App/game evidence/identity/authority/classifier parity structs preserve
   serialization proof only; core live process snapshots now exist for runtime
   rows, core live foreground-window source proof exists for foreground rows, and
