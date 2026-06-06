@@ -250,6 +250,14 @@ function runText(command, args) {
 
 function sourceStatusShort() {
   const status = runText('git', ['status', '--short']);
+  const generatedProofPrefixes = [
+    'output/network-plan-proof/10b-broker-family-hub-delivery-status/',
+    'output/network-plan-proof/10f-remote-delivery-event-chain-journal-status/',
+    'output/network-plan-proof/10g-remote-delivery-receipt-ledger/',
+    'test-results/network-broker-family-hub-delivery-status-proof/',
+    'test-results/network-remote-delivery-event-chain-journal-proof/',
+    'test-results/network-remote-delivery-receipt-ledger-proof/',
+  ];
   return status
     .split(/\r?\n/)
     .filter((line) => {
@@ -257,10 +265,7 @@ function sourceStatusShort() {
         return false;
       }
       const filePath = line.slice(3).replaceAll('\\', '/');
-      return (
-        !filePath.startsWith('output/network-plan-proof/10f-remote-delivery-event-chain-journal-status/') &&
-        !filePath.startsWith('test-results/network-remote-delivery-event-chain-journal-proof/')
-      );
+      return !generatedProofPrefixes.some((prefix) => filePath.startsWith(prefix));
     })
     .join('\n');
 }

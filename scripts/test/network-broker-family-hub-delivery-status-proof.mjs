@@ -147,6 +147,10 @@ function sourceStatusShort() {
     '--',
     '.',
     ':(exclude)output/network-plan-proof/10b-broker-family-hub-delivery-status',
+    ':(exclude)output/network-plan-proof/10f-remote-delivery-event-chain-journal-status',
+    ':(exclude)output/network-plan-proof/10g-remote-delivery-receipt-ledger',
     ':(exclude)test-results/network-broker-family-hub-delivery-status-proof',
+    ':(exclude)test-results/network-remote-delivery-event-chain-journal-proof',
+    ':(exclude)test-results/network-remote-delivery-receipt-ledger-proof',
   ]);
 }
