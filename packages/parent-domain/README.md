@@ -383,6 +383,11 @@ flowchart LR
   Timer service-readiness protocol read-model rows project those same proof
   requirements into a future consumer-facing contract while keeping service
   read-model event emission and read API implementation unclaimed.
+  Timer service-readiness protocol command-handoff rows consume those
+  protocol read-model rows and attach future command, reported-event, and
+  service-handler refs while keeping agent-protocol implementation, service
+  command registration, service handler implementation, service event
+  emission, and read API implementation unclaimed.
   Portal authoring or preview UI, live evaluator execution, persistence,
   timers, child notification delivery, adapter dispatch, broad installed-app
   blocking, and platform enforcement remain unimplemented.
