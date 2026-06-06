@@ -37,6 +37,7 @@ consumes the same results.
 | Local text inference dry-run                      | P3 dry-run proved   | `output/ai-plan-proof/local-ai-text-inference-dry-run/proof-summary.json`                                                              | Proves schema-valid local AI input and matching local runtime metadata can produce ready, unavailable, and missing-evidence `LocalAiSafetyResult` rows while preserving typed evidence refs, parent-rule refs, runtime refs, prompt version refs, no raw prompt retention, and explicit no model-execution, no remote/API AI, no policy-authority, no enforcement, and no production-model-quality claims.                                                                                                   |
 | Local AI result journal/SQLite ingest             | P3 contract proved  | `output/ai-plan-proof/local-ai-result-journal-sqlite-proof/proof-summary.json`                                                         | Proves ready, unavailable, and manual-required `LocalAiSafetyResult` rows can become journal entries, SQLite-ingest rows, and a parent-facing read-model snapshot while preserving result, request, evidence, parent-rule, runtime, provider, model, prompt, and proof refs. It does not claim production storage runtime, model execution, model quality, raw prompt/model-output retention, remote/API AI, policy authority, portal UI, or enforcement.                                                    |
 | Local recent memory and short-window activity     | P3 contract proved  | `output/ai-plan-proof/local-ai-recent-memory-window-proof/proof-summary.json`                                                          | Proves a parent-domain read model over the existing local AI context builder that selects only fresh `recent-activity` evidence inside the requested window, returns source-grounded recent-memory refs, omits stale/out-of-window and ungrounded rows, and rejects raw retention, remote/API AI, policy authority, and enforcement overclaims. It does not create fresh capture, execute a model, prove production model quality, render portal UI, or dispatch enforcement.                                |
+| Local AI graph reference/minimal edges            | P3 contract proved  | `output/ai-plan-proof/local-ai-graph-reference-contract-proof/proof-summary.json`                                                      | Proves local AI graph refs are schema-validated, source-cited, and read through minimal activity-memory graph edges only when selected evidence, policy version, parent action refs, freshness, endpoints, and time range match. It does not claim a production graph storage/index runtime, model execution, model quality, UI, policy authority, enforcement, remote/API AI, or raw evidence retention.                                                                                                    |
 
 ## Contract And Source Truth
 
@@ -60,7 +61,9 @@ consumes the same results.
 - [x] Memory reference contract complete for source-cited recent-activity
       memory in the short-window read model; broader semantic/long-term memory
       quality remains product-scope follow-up.
-- [ ] Graph reference contract complete.
+- [x] Graph reference contract complete for source-cited local AI graph refs and
+      minimal activity-memory graph edge proof; production graph storage/index
+      runtime remains a follow-up.
 - [x] AI journal/read-model contract complete for screen VLM status
       projection; broader AI journal/read-model surfaces remain product-scope
       follow-ups.
@@ -96,8 +99,11 @@ consumes the same results.
 - [x] Short-window recent activity implemented for the parent-domain read-model
       proof path, with stale/out-of-window evidence omitted.
 - [x] Semantic memory source-citation guard implemented for screen AI context.
-- [ ] Graph reference contract implemented.
-- [ ] Minimal graph edges implemented.
+- [x] Graph reference contract implemented with source evidence, policy/action
+      citation, confidence, derived-index version, and explicit non-claims.
+- [x] Minimal graph edges implemented for local activity-memory graph reads with
+      selected evidence, policy/action refs, endpoint, freshness, and time-window
+      filtering.
 - [x] Graph source-citation guard proof exists for screen AI context.
 
 ## Screen OCR/VLM

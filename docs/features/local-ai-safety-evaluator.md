@@ -118,6 +118,15 @@ claim needs proof, not slogans.
   counts, and rejects raw retention, remote/API AI, policy authority, and
   enforcement overclaims. It does not create fresh capture, execute a model,
   prove production model quality, render portal UI, or dispatch enforcement.
+- `LocalAiGraphReferenceContractProofSchema` and
+  `scripts/test/local-ai-graph-reference-contract-proof.mjs` now prove the
+  general local AI graph reference/minimal edge boundary. Graph refs must cite
+  selected source evidence, optional policy version, and parent action refs
+  before use; minimal activity-memory graph edges are returned only when
+  endpoint, freshness, selected evidence, policy/action refs, and time range
+  match. The proof keeps production graph storage/index runtime, model
+  execution, model quality, portal UI, policy authority, enforcement,
+  remote/API AI, and raw evidence retention unclaimed.
 - The service WinRT OCR policy proof now reruns the real Windows service
   OCR path over live public Wikipedia pixels and consumes that exact
   `localOcr` Activity Screen row through `PolicyDecisionSchema`, producing an
@@ -307,6 +316,9 @@ production external evidence variants.
       non-local runtime shapes.
 - [x] Screen AI recent-memory and graph refs require selected stored screen
       evidence citations before model input.
+- [x] Local AI graph reference/minimal edge proof validates source-cited graph
+      refs and activity-memory graph edge reads without UI, model-quality,
+      policy-authority, enforcement, remote/API AI, or raw-retention claims.
 - [x] Screen AI model runtime flood-control/backpressure proof rejects duplicate
       active heavy runtimes, queue overflow, policy-eligible overload rows,
       remote provider fallback, and raw image retention.
