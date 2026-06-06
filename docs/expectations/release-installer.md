@@ -104,6 +104,14 @@ Release features are product features because parents need install/update paths 
   execution, account lookup, billing provider contact, remote support sessions,
   production SLA, legal disclosure execution, provider secrets, and
   child-activity custody unclaimed.
+- V8 production support legal/provider readiness proof that records
+  privacy/legal review, data export/delete runtime, provider-secret custody,
+  billing provider contact, remote-support legal/session boundary, and
+  production SLA legal boundary rows while keeping real legal execution, export
+  or delete runtime, provider secret custody, billing provider contact
+  execution, account lookup execution, remote support sessions, production SLA
+  commitments, support backend upload execution, public runtime execution, and
+  child-activity custody unclaimed.
 
 ## Acceptance
 
@@ -240,6 +248,15 @@ Release features are product features because parents need install/update paths 
   remote support sessions, production SLA commitments, support backend upload
   execution, `family.ocentra.ca` runtime, provider secrets, or child-activity
   custody.
+- `production-support-legal-provider-readiness-proof` may prove
+  privacy/legal-review, data export/delete runtime, provider-secret custody,
+  billing-provider contact, remote-support legal/session boundary, and
+  production SLA legal-boundary rows as source-contract, manual-required, or
+  not-implemented support boundaries, but it must not claim legal disclosure
+  execution, export/delete runtime execution, provider secret custody, billing
+  provider contact execution, account lookup execution, remote support sessions,
+  production SLA commitments, support backend upload execution, public runtime
+  execution, or child-activity custody.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play
