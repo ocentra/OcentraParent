@@ -392,6 +392,19 @@ generic app blocking covers this concern.
   records that platform limitation fallback proof under
   `test-results/app-install-purchase-product-claim-platform-limitation-fallback-proof/proof.json`
   when run and validates the public parent-domain package export.
+- `packages/parent-domain/src/app-install-purchase-provider-store-api-execution-proof.ts`
+  now links product-claim provider/store rows with platform limitation fallback
+  rows into provider/store API execution-ready, manual-required, unavailable,
+  and blocked-before-claim evidence states. It preserves no product-claim
+  approval, Google Play, Apple App Store, Microsoft Store, billing provider
+  contact, provider API execution, store integration, platform
+  interception/adapters, child-device delivery, runtime writer/report delivery,
+  portal approval/report UI, app blocking, child activity data, or hosted
+  custody claims.
+- `scripts/test/app-install-purchase-provider-store-api-execution-proof.mjs`
+  records that provider/store API execution proof under
+  `test-results/app-install-purchase-provider-store-api-execution-proof/proof.json`
+  when run and validates the public parent-domain package export.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -709,13 +722,22 @@ Ocentra-hosted family data custody.
       portal UI, provider/store execution, platform interception/adapters,
       child delivery, runtime delivery, app blocking, child activity data, and
       hosted custody unclaimed.
+- [x] Provider/store API execution proof linking product-claim provider/store
+      rows and platform limitation fallback rows into execution-ready,
+      manual-required, unavailable, and blocked-before-claim evidence states
+      without product-claim approval, Google Play, Apple App Store, Microsoft
+      Store, billing/provider contact, provider API execution, store
+      integration, platform interception/adapters, child delivery, runtime
+      delivery, portal UI, app blocking, child activity data, or hosted custody
+      claims.
 
 ## Next AI Instructions
 
 Do not fold this into generic app blocking. The next proof should add real
 portal approval/report UI, external runtime writer delivery to a device, real
-child delivery, provider/store API execution proof, or actual platform adapters
-before upgrading manual-required source rows, child delivery, parent action,
-store status, capture status, adapter execution, report status, or product
-claim preclaim rows. If the OS/store does not allow interception, document the
-limitation and offer the closest safe parent workflow.
+child delivery, real provider/store API execution with credentials/evidence,
+or actual platform adapters before upgrading manual-required source rows, child
+delivery, parent action, store status, capture status, adapter execution,
+report status, or product claim preclaim rows. If the OS/store does not allow
+interception, document the limitation and offer the closest safe parent
+workflow.
