@@ -108,8 +108,9 @@ only with explicit parent settings.
   copy; requires active capture to be ready, scoped, and represented as a child
   capture banner; requires deleted-summary state to cite deleted local custody;
   and rejects hidden capture, raw screenshot display, remote viewer, and
-  policy-authority claims. This is contract proof, not rendered child-agent
-  delivery or platform screenshot proof.
+  policy-authority claims. It also renders desktop/mobile child-visible
+  disclosure screenshots from the same contract while keeping child-agent
+  deployment/delivery unclaimed.
 - `scripts/test/screen-ai-enforcement-handoff-guard-proof.mjs` now proves the
   screen enforcement handoff guard contract. It builds a schema-valid handoff
   payload only from a dry-run policy decision that has not already been handed
@@ -507,7 +508,7 @@ only with explicit parent settings.
 
 Service persistence for parent setting changes, parent retention controls,
 optional raw-retention runtime enablement, live-view transport/relay/cache,
-platform permission prompt proof, rendered child-agent disclosure delivery,
+platform permission prompt proof, child-agent disclosure runtime deployment,
 privacy/legal approval, authenticated-account
 social proof beyond public/live surface proof, production OCR/VLM quality beyond
 the WinRT OCR service proof, controlled fixtures, and the full live operator
@@ -607,6 +608,8 @@ parity, and UI remain separate proof gates.
 - [x] Screen child disclosure proof defines child-visible disabled, paused,
       active capture, protected-surface, and deleted-summary status while
       rejecting hidden capture/raw screenshot display claims.
+- [x] Screen child disclosure proof renders desktop/mobile child-visible
+      disclosure screenshots without claiming child-agent runtime deployment.
 - [x] Screen enforcement handoff guard proof requires dry-run policy,
       summary/local-AI/audit refs, enabled parent rule, confidence state, and a
       guard audit event while rejecting raw pixels, raw model text, retained
@@ -618,8 +621,8 @@ parity, and UI remain separate proof gates.
 Service persistence for parent setting changes, product-complete retention
 controls, production OCR/VLM quality, authenticated-account social proof,
 remaining production startup subscriptions for live producers beyond the service
-capture/queue, deletion, and analysis row-ready/policy-ref handoffs, rendered
-child-agent disclosure delivery, production household mesh transport over
+capture/queue, deletion, and analysis row-ready/policy-ref handoffs,
+child-agent disclosure runtime deployment, production household mesh transport over
 physical LAN, broad adapters, and production explanation portal rendering remain
 in the Current Gap section above.
 
