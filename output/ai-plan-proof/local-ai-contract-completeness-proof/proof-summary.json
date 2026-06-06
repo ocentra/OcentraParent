@@ -1,7 +1,7 @@
 {
   "status": "ok",
   "proofKind": "local-ai-contract-completeness-proof",
-  "generatedAt": "2026-06-06T08:34:52.619Z",
+  "generatedAt": "2026-06-06T08:39:41.751Z",
   "proof": "output/ai-plan-proof/local-ai-contract-completeness-proof/proof-summary.json",
   "sourceContracts": [
     "packages/parent-domain/src/local-ai.ts",
