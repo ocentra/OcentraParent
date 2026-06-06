@@ -2,11 +2,11 @@
   "proofMode": "app-game-source-gated-policy-preview-timer-handoff",
   "generatedAt": "2026-06-06T01:56:00Z",
   "branch": "codex/app-game-source-gated-policy-preview-timer-handoff-main",
-  "commit": "192160b7cbddf73f6c9f54f338a108b04a8d3b94",
+  "commit": "6eb84a1054e0ad03427673801cd584ce385d286e",
   "gitStatusShort": "",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n",
-    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-gated-policy-preview-timer-handoff app-game-source-gated-policy-preview-read-model\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-source-gated-policy-preview-timer-handoff app-game-source-gated-policy-preview-read-model\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  2 passed (2)\n      Tests  7 passed (7)\n   Start at  22:12:59\n   Duration  1.15s (transform 504ms, setup 0ms, import 1.76s, tests 62ms, environment 0ms)\n\n"
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-gated-policy-preview-timer-handoff app-game-source-gated-policy-preview-read-model\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-source-gated-policy-preview-timer-handoff app-game-source-gated-policy-preview-read-model\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain\n\n\n Test Files  2 passed (2)\n      Tests  7 passed (7)\n   Start at  02:09:01\n   Duration  1.00s (transform 412ms, setup 0ms, import 1.47s, tests 67ms, environment 0ms)\n\n"
   ],
   "stackedOn": {
     "wp77Branch": "codex/app-game-source-gated-policy-preview-export-readiness",
