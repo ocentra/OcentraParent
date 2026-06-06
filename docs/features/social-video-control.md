@@ -111,6 +111,11 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   refs to produce non-final decision candidates while rejecting raw signal
   payloads, raw model text, activity-domain object transfer, UI/runtime/native/
   connector/enforcement claims, and direct policy execution.
+- `social-policy-schedule-time-budget-proof` now strengthens SOCIAL-12 so
+  contract-only social decision candidates must carry explicit schedule and
+  time-budget refs plus schedule/time-budget states. Manual-required or
+  unavailable schedule/time-budget states remain non-final fallback candidates;
+  final policy execution, runtime gates, and enforcement remain unclaimed.
 - Browser-plan SOCIAL-13 now adds managed-browser account gate-plan contracts
   from route-only account-flow evidence, sanitized form-shape evidence, and
   policy/approval refs. They model candidate holds, blocks, manual review, and
@@ -279,7 +284,9 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
 - [ ] Alert and report integration. Alert/report intent proof exists with
       ref-only local-outbox/report linkage; provider delivery, rendered
       notification UI, final policy, and enforcement remain.
-- [ ] Policy schedule/time-budget integration.
+- [ ] Policy schedule/time-budget integration. Compiler contract proof now
+      requires explicit schedule and time-budget refs/states; runtime policy
+      execution, applied schedules/budgets, and enforcement remain.
 - [ ] Platform-specific unavailable/manual-required states.
 
 ## Next AI Instructions

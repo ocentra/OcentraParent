@@ -1267,14 +1267,19 @@ worker messages before code changes. Do not mix all 24 into one PR.
   support, connector, or enforcement is claimed.
 - SOCIAL-12 now adds parent-domain social policy compiler contracts in
   `social-policy-compiler-values.ts` and `social-policy-compiler.ts`. The
-  compiler consumes parent-owned social evidence, signal-set, parent-rule, and
-  schedule refs and produces decision candidates for allow, warn, parent-review,
-  block, manual-review, or unknown outcomes. Inputs reject raw signal payloads,
+  compiler consumes parent-owned social evidence, signal-set, parent-rule,
+  schedule, and time-budget refs and produces decision candidates for allow,
+  warn, parent-review, block, manual-review, or unknown outcomes. Inputs reject raw signal payloads,
   raw model text, activity-domain object transfer, UI/runtime/enforcement,
   native app, and connector claims. Decision candidates remain non-final and
   non-enforcing while validating fallback and parent-approval reason
   requirements. Package subpath exports are now present; no runtime policy gate, UI, native app support, connector, or
   enforcement is claimed.
+- `social-policy-schedule-time-budget-proof` now makes SOCIAL-12 schedule and
+  time-budget context explicit with required refs and states for contract-only
+  candidates. Manual-required or unavailable schedule/time-budget states remain
+  non-final fallbacks; no runtime policy gate, applied schedule, applied budget,
+  browser mutation, or enforcement is claimed.
 - SOCIAL-13 now adds managed-browser account creation gate contracts in
   `packages/activity-domain/src/browser-social-account-creation-gate.ts`. Gate
   plans require matching route-only account-flow evidence and sanitized
