@@ -108,6 +108,14 @@ claim needs proof, not slogans.
   refs, parent-rule refs, runtime refs, prompt version refs, no raw prompt
   retention, and explicit no model-execution, no remote/API AI, no
   policy-authority, no enforcement, and no production-model-quality claims.
+- `LocalAiTextLlmAdapterBoundaryProofSchema` and
+  `scripts/test/local-ai-text-llm-adapter-boundary-proof.mjs` now prove the
+  local text LLM adapter handoff boundary before parser/result creation. The
+  proof preserves local runtime, provider, model, prompt, evidence, parent-rule,
+  parser, and trace refs; emits ready, unavailable, and manual-required adapter
+  rows; and rejects raw prompt retention, raw model-output retention, remote/API
+  AI, model-execution, policy-authority, enforcement, and production-quality
+  overclaims.
 - `LocalAiPromptTemplateVersionProofSchema` and
   `scripts/test/local-ai-prompt-template-version-proof.mjs` now prove the
   prompt/template version contract boundary. The proof reconciles one
@@ -337,6 +345,9 @@ production external evidence variants.
 - [x] Local text inference dry-run proof path without model-execution,
       remote/API, policy-authority, enforcement, production-quality, or raw
       prompt-retention claims.
+- [x] Local text LLM adapter boundary proof path without model-execution,
+      remote/API, policy-authority, enforcement, production-quality, raw prompt,
+      or raw model-output retention claims.
 - [x] Local prompt/template version proof path without model-execution,
       model-quality, remote/API, policy-authority, enforcement, portal UI, raw
       prompt, or raw model-output retention claims.
