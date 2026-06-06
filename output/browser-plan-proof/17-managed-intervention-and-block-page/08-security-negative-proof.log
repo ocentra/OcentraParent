@@ -1,0 +1,22 @@
+WP17 security and no-claim proof
+
+Commands:
+
+- cargo test -p ocentra-parent-agent-core activity_store_browser_intervention
+- cmd /c npm run test:managed-browser-intervention
+
+Negative proof:
+
+- Legacy intervention rows without the new fields default to no action/audit refs, no evidence refs, and not-delivered.
+- Legacy managed rows can infer managed-session exact URL proof only from managed session id plus requested/observed URL; unmanaged rows stay not-claimed/unavailable.
+- Managed-browser harness launches isolated proof profiles under a temp Ocentra proof root and cleans them up after the run.
+- Evidence stores `devtoolsEndpoint: loopback-redacted`; raw debugger WebSocket URLs are not written to the proof JSON.
+- The allowed-control navigation stays unblocked across Chrome, Firefox, and Edge.
+- AI is not an action authority in WP17. Parent policy/rule match drives the action proof.
+
+Non-claims:
+
+- No unmanaged exact URL claim.
+- No default-profile attach claim.
+- No broad OS browser blocking claim.
+- No native app, native game scene, cloud-streamed frame analysis, or per-message/reel control claim.
