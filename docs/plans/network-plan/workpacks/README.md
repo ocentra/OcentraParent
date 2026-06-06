@@ -62,11 +62,12 @@ can be split further when source-shape, platform proof, or validation needs it.
 
 ## Supplemental Proof Rows
 
-| Row | Workpack                                         | Priority | Notes                                                                                                                                                                                                                       |
-| --- | ------------------------------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 22a | Network risk target policy handoff               | P3       | Category lookup risk targets map to dry-run, parent-review, or observe-only states without exact URL, decrypted payload, live adapter mutation, enforcement, or broad platform claims.                                      |
-| 34a | Policy preview over stored network flow evidence | P3       | Stored ActivityStore network domain-observed rows map to domain policy-preview targets, matching parent rules require stored evidence refs, and previewed block decisions remain dry-run with enforcement handoff disabled. |
-| 36a | Parent UI runtime event-chain drawer             | P3       | Parent drawer consumes the service runtime event-chain stream for typed AI/policy/enforcement/audit/portal refs while keeping exact URL/content and live adapter claims out of UI.                                          |
+| Row | Workpack                                           | Priority | Notes                                                                                                                                                                                                                               |
+| --- | -------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 22a | Network risk target policy handoff                 | P3       | Category lookup risk targets map to dry-run, parent-review, or observe-only states without exact URL, decrypted payload, live adapter mutation, enforcement, or broad platform claims.                                              |
+| 34a | Policy preview over stored network flow evidence   | P3       | Stored ActivityStore network domain-observed rows map to domain policy-preview targets, matching parent rules require stored evidence refs, and previewed block decisions remain dry-run with enforcement handoff disabled.         |
+| 34b | Stored network flow enforcement unavailable result | P3       | Stored network domain evidence plus matching parent rule refs feed the existing service enforcement path and return a journaled network-control manual-required or unavailable result without host mutation or live adapter claims. |
+| 36a | Parent UI runtime event-chain drawer               | P3       | Parent drawer consumes the service runtime event-chain stream for typed AI/policy/enforcement/audit/portal refs while keeping exact URL/content and live adapter claims out of UI.                                                  |
 
 ## Required Workpack Record
 
