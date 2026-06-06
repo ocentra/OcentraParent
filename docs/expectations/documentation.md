@@ -93,6 +93,15 @@ replace the constitution, roadmap, or capability checklist.
   upload execution, public runtime execution, provider execution, production
   SLA, remote support sessions, provider secrets, child activity custody, and
   default Ocentra-hosted family data as gaps until real evidence exists.
+- `production-support-publication-execution-status-proof` may prove status
+  contract rows for support/publication execution targets across requested,
+  queued, running, succeeded, failed, and manual-required states, but docs must
+  still label real public runtime execution, publication runner execution,
+  status backend execution, support backend upload execution, account lookup
+  execution, billing provider contact execution, remote support sessions, legal
+  disclosure execution, provider secrets, raw child activity custody, default
+  Ocentra-hosted family data, and production SLA as gaps until real evidence
+  exists.
 
 ## Required Structure
 
