@@ -62,6 +62,10 @@ Shared activity and evidence contracts for child-device observations.
   deleted query-store custody after completion, and explicit non-claims for
   live model execution, production quality, portal UI, policy authority, and
   enforcement.
+- Screen VLM journal/read-model projection contracts that require completed
+  deleted-query-store VLM status rows before writing encrypted journal lines and
+  Activity Screen read-model rows with model/runtime/template, policy,
+  parent-rule, explanation, deletion, and no-raw-retention refs.
 - Screen-AI browser trigger proof rows that compose typed browser AI
   input/result contracts with screen-analysis result contracts for managed URL,
   browser-video, social-feed, and cloud-game trigger states without claiming UI,
@@ -153,6 +157,10 @@ flowchart LR
   `screen-ai-vlm-execution-readiness-proof`; service queue integration, live
   model execution, production VLM quality, portal rendering, final policy
   authority, and enforcement remain separate proof gates.
+- Screen VLM journal/read-model projection now has
+  `screen-ai-vlm-journal-read-model-proof`; production portal rendering, live
+  VLM execution, production model quality, final policy authority, and
+  enforcement remain separate proof gates.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime, local parent-defined place store proof, and Rust ActivityStore ingest
   proof; platform adapters, provider runtime, and live service-backed UI proof

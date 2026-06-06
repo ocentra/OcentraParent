@@ -217,6 +217,10 @@
       "import": "./dist/screen-vlm-execution-readiness.js",
       "types": "./dist/screen-vlm-execution-readiness.d.ts"
     },
+    "./screen-vlm-journal-read-model": {
+      "import": "./dist/screen-vlm-journal-read-model.js",
+      "types": "./dist/screen-vlm-journal-read-model.d.ts"
+    },
     "./screen-ai-browser-trigger-proof": {
       "import": "./dist/screen-ai-browser-trigger-proof.js",
       "types": "./dist/screen-ai-browser-trigger-proof.d.ts"
