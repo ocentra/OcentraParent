@@ -1,0 +1,45 @@
+{
+  "proof": "screen-ocr-tesseract-baseline",
+  "generatedAt": "2026-06-06T23:28:18.305Z",
+  "officialSourceSnapshot": {
+    "project": "https://github.com/tesseract-ocr/tesseract",
+    "documentation": "https://tesseract-ocr.github.io/tessdoc/",
+    "windowsInstallation": "https://tesseract-ocr.github.io/tessdoc/Installation.html",
+    "windowsDownloads": "https://tesseract-ocr.github.io/tessdoc/Downloads.html",
+    "verifiedClaims": [
+      "Tesseract is the upstream open-source OCR engine candidate for the simple baseline.",
+      "The upstream project is Apache-2.0 licensed.",
+      "The upstream tessdoc installation page points Windows users to UB Mannheim builds for Tesseract 3.05, 4, and 5.",
+      "The upstream tessdoc downloads page says there is no official Windows installer for newer versions."
+    ]
+  },
+  "localEnvironment": {
+    "platform": "win32",
+    "whereTesseractStatus": 1,
+    "whereTesseractOutput": "INFO: Could not find files for the given pattern(s).",
+    "tesseractVersionStatus": 1,
+    "tesseractVersionOutput": "'tesseract' is not recognized as an internal or external command, operable program or batch file.",
+    "tesseractInstalled": false
+  },
+  "baselineReadiness": {
+    "status": "runtime-unavailable",
+    "windowsPackagingProofComplete": false,
+    "localExtractionProofComplete": false,
+    "cpuMemoryRuntimeMeasured": false,
+    "failureModesRecorded": false,
+    "comparedAgainstPaddleOcr": false,
+    "reason": "Tesseract is not available on PATH in this Windows lane; install/package proof must happen before extraction or quality claims."
+  },
+  "nonClaims": [
+    "This proof does not install Tesseract or language data.",
+    "This proof does not run OCR extraction or measure quality, CPU, memory, or latency.",
+    "This proof does not select Tesseract as the production OCR runtime.",
+    "This proof does not compare Tesseract against PaddleOCR/PP-OCR."
+  ],
+  "validationCommands": [
+    "node --check scripts/test/screen-ocr-tesseract-baseline-proof.mjs",
+    "node scripts/test/screen-ocr-tesseract-baseline-proof.mjs",
+    "where.exe tesseract",
+    "tesseract --version"
+  ]
+}
