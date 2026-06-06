@@ -109,6 +109,15 @@ claim needs proof, not slogans.
   output retention plus remote/API, policy-authority, and enforcement claims;
   and does not claim production storage runtime, model execution, model quality,
   portal UI, or enforcement.
+- `LocalAiRecentMemoryWindowReadModelSchema` and
+  `scripts/test/local-ai-recent-memory-window-proof.mjs` now prove the recent
+  memory plus short-window activity read-model boundary over the existing local
+  AI context builder. The proof selects only fresh `recent-activity` evidence
+  inside the requested window, keeps returned memory refs grounded to selected
+  source evidence, emits omitted stale/out-of-window and ungrounded-memory
+  counts, and rejects raw retention, remote/API AI, policy authority, and
+  enforcement overclaims. It does not create fresh capture, execute a model,
+  prove production model quality, render portal UI, or dispatch enforcement.
 - The service WinRT OCR policy proof now reruns the real Windows service
   OCR path over live public Wikipedia pixels and consumes that exact
   `localOcr` Activity Screen row through `PolicyDecisionSchema`, producing an
@@ -267,6 +276,9 @@ production external evidence variants.
 - [x] Local AI result journal/SQLite ingest proof path without production
       storage runtime, raw prompt/model-output retention, policy authority,
       remote/API AI, or enforcement claims.
+- [x] Local recent-memory and short-window activity read-model proof path
+      without fresh-capture, model-execution, remote/API, policy-authority,
+      enforcement, portal UI, or production-quality claims.
 - [x] Local result contract with confidence/degraded state.
 - [x] Deterministic policy integration.
 - [x] Service WinRT OCR row consumed by typed parent policy dry-run.
