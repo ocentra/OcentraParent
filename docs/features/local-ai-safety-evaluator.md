@@ -116,6 +116,13 @@ claim needs proof, not slogans.
   rows; and rejects raw prompt retention, raw model-output retention, remote/API
   AI, model-execution, policy-authority, enforcement, and production-quality
   overclaims.
+- `LocalAiTextOutputParserProofSchema` and
+  `scripts/test/local-ai-text-output-parser-proof.mjs` now prove the generic
+  local text output parser boundary after the adapter handoff. Schema-valid
+  local output becomes policy-eligible `LocalAiSafetyResult` material only when
+  runtime, provider, model, prompt, evidence, and parent-rule refs match the
+  adapter proof; malformed, remote, mismatched, or manual-required output is
+  rejected before policy eligibility without retaining raw model output.
 - `LocalAiPromptTemplateVersionProofSchema` and
   `scripts/test/local-ai-prompt-template-version-proof.mjs` now prove the
   prompt/template version contract boundary. The proof reconciles one
@@ -348,6 +355,9 @@ production external evidence variants.
 - [x] Local text LLM adapter boundary proof path without model-execution,
       remote/API, policy-authority, enforcement, production-quality, raw prompt,
       or raw model-output retention claims.
+- [x] Local text output parser proof path without model-execution, remote/API,
+      policy-authority, enforcement, production-quality, or raw model-output
+      retention claims.
 - [x] Local prompt/template version proof path without model-execution,
       model-quality, remote/API, policy-authority, enforcement, portal UI, raw
       prompt, or raw model-output retention claims.
