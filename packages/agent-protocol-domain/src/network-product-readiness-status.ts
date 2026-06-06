@@ -16,6 +16,20 @@ const NetworkRemoteDeliveryStatusStateSchema = Schema.Literal(
   'RequirementsSatisfiedButNotImplemented',
   'ManualRequired'
 );
+const NetworkLocalAiRuntimeResultBridgeStateSchema = Schema.Literal(
+  'ResultReady',
+  'RuntimeUnavailable',
+  'RuntimeFailed',
+  'RuntimeTimedOut',
+  'QueueNotReady'
+);
+const NetworkLocalAiRuntimeResultQueueStatusSchema = Schema.Literal(
+  'Queued',
+  'NotRecommended',
+  'DisabledByParent',
+  'ModelUnavailable',
+  'QueueUnavailable'
+);
 const NetworkRiskBudgetStateSchema = Schema.Literal(
   'WithinBudget',
   'MonitorThreshold',
@@ -243,7 +257,45 @@ export const AgentNetworkRemoteDeliveryStatusSchema = withParser(
   })
 );
 
+export const AgentNetworkLocalAiRuntimeResultStatusSchema = withParser(
+  Schema.Struct({
+    status_ref: NetworkProductReadinessProtocolText,
+    bridge_state: NetworkLocalAiRuntimeResultBridgeStateSchema,
+    queue_status: NetworkLocalAiRuntimeResultQueueStatusSchema,
+    trigger_ref: NetworkProductReadinessProtocolText,
+    queue_job_ref: Schema.Union(NetworkProductReadinessProtocolText, Schema.Null),
+    queue_ref: Schema.Union(NetworkProductReadinessProtocolText, Schema.Null),
+    model_runtime_ref: Schema.Union(NetworkProductReadinessProtocolText, Schema.Null),
+    local_ai_result_ref: Schema.Union(NetworkProductReadinessProtocolText, Schema.Null),
+    runtime_reference_id: Schema.Union(NetworkProductReadinessProtocolText, Schema.Null),
+    model_reference: Schema.Union(NetworkProductReadinessProtocolText, Schema.Null),
+    model_version_ref: Schema.Union(NetworkProductReadinessProtocolText, Schema.Null),
+    prompt_template_ref: NetworkProductReadinessProtocolText,
+    policy_context_ref: NetworkProductReadinessProtocolText,
+    parent_rule_refs: Schema.Array(NetworkProductReadinessProtocolText),
+    evidence_refs: Schema.Array(NetworkProductReadinessProtocolText),
+    summary_refs: Schema.Array(NetworkProductReadinessProtocolText),
+    managed_browser_exact_url_evidence_refs: Schema.Array(NetworkProductReadinessProtocolText),
+    output_summary_ref: Schema.Union(NetworkProductReadinessProtocolText, Schema.Null),
+    local_runtime_result_observed: Schema.Boolean,
+    audit_input_ready: Schema.Boolean,
+    local_model_output_available: Schema.Boolean,
+    model_execution_proved: Schema.Literal(false),
+    raw_pcap_available: Schema.Literal(false),
+    exact_url_claimed: Schema.Literal(false),
+    decrypted_payload_available: Schema.Literal(false),
+    page_content_available: Schema.Literal(false),
+    private_message_available: Schema.Literal(false),
+    search_query_available: Schema.Literal(false),
+    remote_ai_used: Schema.Literal(false),
+    policy_authority: Schema.Literal(false),
+    adapter_authority: Schema.Literal(false),
+    enforcement_commands_published: Schema.Literal(0),
+  })
+);
+
 export type AgentNetworkLiveCaptureCustodyStatus = Infer<typeof AgentNetworkLiveCaptureCustodyStatusSchema>;
+export type AgentNetworkLocalAiRuntimeResultStatus = Infer<typeof AgentNetworkLocalAiRuntimeResultStatusSchema>;
 export type AgentNetworkPlatformClaimEntry = Infer<typeof NetworkPlatformClaimEntrySchema>;
 export type AgentNetworkProductReadinessStatus = Infer<typeof AgentNetworkProductReadinessStatusSchema>;
 export type AgentNetworkRemoteDeliveryStatus = Infer<typeof AgentNetworkRemoteDeliveryStatusSchema>;
@@ -252,6 +304,7 @@ export type AgentNetworkProductReadinessStatusParseResult =
   | {
       readonly ok: true;
       readonly liveCaptureCustodyStatus: AgentNetworkLiveCaptureCustodyStatus;
+      readonly localAiRuntimeResultStatus: AgentNetworkLocalAiRuntimeResultStatus;
       readonly productReadinessStatus: AgentNetworkProductReadinessStatus;
       readonly remoteDeliveryStatus: AgentNetworkRemoteDeliveryStatus;
     }
@@ -260,12 +313,15 @@ export type AgentNetworkProductReadinessStatusParseResult =
       readonly reason:
         | 'wrong-event'
         | 'missing-live-capture-custody-status'
+        | 'missing-local-ai-runtime-result-status'
         | 'missing-product-readiness-status'
         | 'missing-remote-delivery-status'
         | 'invalid-live-capture-custody-status-json'
+        | 'invalid-local-ai-runtime-result-status-json'
         | 'invalid-product-readiness-status-json'
         | 'invalid-remote-delivery-status-json'
         | 'invalid-live-capture-custody-status'
+        | 'invalid-local-ai-runtime-result-status'
         | 'invalid-product-readiness-status'
         | 'invalid-remote-delivery-status';
     };
@@ -301,6 +357,16 @@ export function parseAgentNetworkProductReadinessStatusEvent(
     return productStatus;
   }
 
+  const localAiRuntimeResultStatus = parseJsonField(
+    event,
+    AgentProtocolDefaults.Field.NetworkLocalAiRuntimeResultStatus,
+    'missing-local-ai-runtime-result-status',
+    'invalid-local-ai-runtime-result-status-json'
+  );
+  if (!localAiRuntimeResultStatus.ok) {
+    return localAiRuntimeResultStatus;
+  }
+
   const remoteDeliveryStatus = parseJsonField(
     event,
     AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus,
@@ -324,6 +390,11 @@ export function parseAgentNetworkProductReadinessStatusEvent(
     return parserFailure('invalid-product-readiness-status');
   }
 
+  const parsedLocalAiRuntimeResult = parseLocalAiRuntimeResultStatus(localAiRuntimeResultStatus.value);
+  if (!parsedLocalAiRuntimeResult.ok) {
+    return parsedLocalAiRuntimeResult;
+  }
+
   const parsedRemoteDelivery = AgentNetworkRemoteDeliveryStatusSchema.safeParse(remoteDeliveryStatus.value);
   if (!parsedRemoteDelivery.success) {
     return parserFailure('invalid-remote-delivery-status');
@@ -332,6 +403,7 @@ export function parseAgentNetworkProductReadinessStatusEvent(
   return {
     ok: true,
     liveCaptureCustodyStatus: parsedLiveCapture.data,
+    localAiRuntimeResultStatus: parsedLocalAiRuntimeResult.data,
     productReadinessStatus: parsedProduct.data,
     remoteDeliveryStatus: parsedRemoteDelivery.data,
   };
@@ -352,6 +424,93 @@ function platformEntryCount(
   claimState: AgentNetworkPlatformClaimEntry['claim_state']
 ): number {
   return product.platform_entries.filter((entry) => entry.claim_state === claimState).length;
+}
+
+function parseLocalAiRuntimeResultStatus(value: unknown):
+  | {
+      readonly ok: true;
+      readonly data: AgentNetworkLocalAiRuntimeResultStatus;
+    }
+  | Extract<AgentNetworkProductReadinessStatusParseResult, { readonly ok: false }> {
+  const parsed = AgentNetworkLocalAiRuntimeResultStatusSchema.safeParse(value);
+  if (!parsed.success || !localAiRuntimeResultShapeMatches(parsed.data)) {
+    return parserFailure('invalid-local-ai-runtime-result-status');
+  }
+  return { ok: true, data: parsed.data };
+}
+
+function localAiRuntimeResultShapeMatches(status: AgentNetworkLocalAiRuntimeResultStatus): boolean {
+  if (status.bridge_state === 'QueueNotReady') {
+    return queueNotReadyShapeMatches(status);
+  }
+
+  if (!queuedRuntimeShapeMatches(status)) {
+    return false;
+  }
+
+  if (status.bridge_state === 'ResultReady') {
+    return resultReadyShapeMatches(status);
+  }
+
+  return nonCompleteRuntimeShapeMatches(status);
+}
+
+function queueNotReadyShapeMatches(status: AgentNetworkLocalAiRuntimeResultStatus): boolean {
+  return (
+    status.queue_status !== 'Queued' &&
+    resultRefsAreNull(status) &&
+    status.managed_browser_exact_url_evidence_refs.length === 0 &&
+    status.output_summary_ref === null &&
+    status.local_runtime_result_observed === false &&
+    status.audit_input_ready === false &&
+    status.local_model_output_available === false
+  );
+}
+
+function queuedRuntimeShapeMatches(status: AgentNetworkLocalAiRuntimeResultStatus): boolean {
+  return (
+    status.queue_status === 'Queued' && resultRefsArePresent(status) && status.local_runtime_result_observed === true
+  );
+}
+
+function resultReadyShapeMatches(status: AgentNetworkLocalAiRuntimeResultStatus): boolean {
+  return (
+    status.output_summary_ref !== null &&
+    status.audit_input_ready === true &&
+    status.local_model_output_available === true
+  );
+}
+
+function nonCompleteRuntimeShapeMatches(status: AgentNetworkLocalAiRuntimeResultStatus): boolean {
+  return (
+    status.output_summary_ref === null &&
+    status.audit_input_ready === false &&
+    status.local_model_output_available === false
+  );
+}
+
+function resultRefsArePresent(status: AgentNetworkLocalAiRuntimeResultStatus): boolean {
+  return (
+    status.queue_job_ref !== null &&
+    status.queue_ref !== null &&
+    status.model_runtime_ref !== null &&
+    status.local_ai_result_ref !== null &&
+    status.runtime_reference_id !== null &&
+    status.model_reference !== null &&
+    status.model_version_ref !== null
+  );
+}
+
+function resultRefsAreNull(status: AgentNetworkLocalAiRuntimeResultStatus): boolean {
+  return (
+    status.queue_job_ref === null &&
+    status.queue_ref === null &&
+    status.model_runtime_ref === null &&
+    status.local_ai_result_ref === null &&
+    status.runtime_reference_id === null &&
+    status.model_reference === null &&
+    status.model_version_ref === null
+  );
 }
 
 function parseJsonField(

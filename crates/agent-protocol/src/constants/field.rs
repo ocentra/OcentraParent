@@ -246,6 +246,7 @@ pub const MOST_RECENT_SUBJECT_KIND: &str = "mostRecentSubjectKind";
 pub const MOST_RECENT_SUBJECT_NAME: &str = "mostRecentSubjectName";
 pub const NETWORK_MODE: &str = "networkMode";
 pub const NETWORK_LIVE_CAPTURE_CUSTODY_STATUS: &str = "networkLiveCaptureCustodyStatus";
+pub const NETWORK_LOCAL_AI_RUNTIME_RESULT_STATUS: &str = "networkLocalAiRuntimeResultStatus";
 pub const NETWORK_PROTOCOL: &str = "networkProtocol";
 pub const NETWORK_PRODUCT_READINESS_STATUS: &str = "networkProductReadinessStatus";
 pub const NETWORK_REMOTE_DELIVERY_STATUS: &str = "networkRemoteDeliveryStatus";

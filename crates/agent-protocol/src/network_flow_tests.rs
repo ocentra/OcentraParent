@@ -4,7 +4,9 @@ use super::{
     NetworkAiAnalysisCompletedEvent, NetworkAiAnalysisRequestedEvent,
     NetworkAuditEntryCommittedEvent, NetworkDomainObservedEvent,
     NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
-    NetworkEnforcementResultStatus, NetworkFlowObservedEvent, NetworkPolicyDecisionCompletedEvent,
+    NetworkEnforcementResultStatus, NetworkFlowObservedEvent,
+    NetworkLocalAiRuntimeResultBridgeState, NetworkLocalAiRuntimeResultQueueStatus,
+    NetworkLocalAiRuntimeResultStatus, NetworkPolicyDecisionCompletedEvent,
     NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
     NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState, NetworkRuntimeEventContract,
     NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
@@ -184,6 +186,78 @@ fn network_remote_delivery_status_serializes_false_claim_boundary() {
     assert_eq!(serialized["side_effect_authority"], false);
     assert_eq!(serialized["enforcement_command_event_count"], 0);
     assert_eq!(serialized["adapter_action_executed_count"], 0);
+}
+
+#[test]
+fn network_local_ai_runtime_result_status_serializes_no_claim_boundary() {
+    let status = NetworkLocalAiRuntimeResultStatus {
+        status_ref: constants::network_flow::TEST_LOCAL_AI_RUNTIME_RESULT_STATUS_REF.to_string(),
+        bridge_state: NetworkLocalAiRuntimeResultBridgeState::ResultReady,
+        queue_status: NetworkLocalAiRuntimeResultQueueStatus::Queued,
+        trigger_ref: constants::network_flow::TEST_LOCAL_AI_TRIGGER_REF.to_string(),
+        queue_job_ref: Some(constants::network_flow::TEST_LOCAL_AI_QUEUE_JOB_REF.to_string()),
+        queue_ref: Some(constants::network_flow::TEST_LOCAL_AI_QUEUE_REF.to_string()),
+        model_runtime_ref: Some(
+            constants::network_flow::TEST_LOCAL_AI_MODEL_RUNTIME_REF.to_string(),
+        ),
+        local_ai_result_ref: Some(constants::network_flow::TEST_LOCAL_AI_RESULT_REF.to_string()),
+        runtime_reference_id: Some(
+            constants::network_flow::TEST_LOCAL_AI_RUNTIME_REFERENCE_ID.to_string(),
+        ),
+        model_reference: Some(constants::network_flow::TEST_LOCAL_AI_MODEL_REF.to_string()),
+        model_version_ref: Some(
+            constants::network_flow::TEST_LOCAL_AI_MODEL_VERSION_REF.to_string(),
+        ),
+        prompt_template_ref: constants::network_flow::TEST_LOCAL_AI_PROMPT_TEMPLATE_REF.to_string(),
+        policy_context_ref: constants::network_flow::TEST_LOCAL_AI_POLICY_CONTEXT_REF.to_string(),
+        parent_rule_refs: vec![constants::network_flow::TEST_PARENT_RULE_REF.to_string()],
+        evidence_refs: vec![constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_string()],
+        summary_refs: vec![constants::network_flow::TEST_LOCAL_AI_NETWORK_SUMMARY_REF.to_string()],
+        managed_browser_exact_url_evidence_refs: vec![
+            constants::network_flow::TEST_LOCAL_AI_MANAGED_BROWSER_EXACT_URL_EVIDENCE_REF
+                .to_string(),
+        ],
+        output_summary_ref: Some(
+            constants::network_flow::TEST_LOCAL_AI_OUTPUT_SUMMARY_REF.to_string(),
+        ),
+        local_runtime_result_observed: true,
+        audit_input_ready: true,
+        local_model_output_available: true,
+        model_execution_proved: false,
+        raw_pcap_available: false,
+        exact_url_claimed: false,
+        decrypted_payload_available: false,
+        page_content_available: false,
+        private_message_available: false,
+        search_query_available: false,
+        remote_ai_used: false,
+        policy_authority: false,
+        adapter_authority: false,
+        enforcement_commands_published: 0,
+    };
+
+    let serialized = serde_json::to_value(status).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized["status_ref"],
+        constants::network_flow::TEST_LOCAL_AI_RUNTIME_RESULT_STATUS_REF
+    );
+    assert_eq!(serialized["bridge_state"], "ResultReady");
+    assert_eq!(serialized["queue_status"], "Queued");
+    assert_eq!(
+        serialized["output_summary_ref"],
+        constants::network_flow::TEST_LOCAL_AI_OUTPUT_SUMMARY_REF
+    );
+    assert_eq!(serialized["local_runtime_result_observed"], true);
+    assert_eq!(serialized["audit_input_ready"], true);
+    assert_eq!(serialized["local_model_output_available"], true);
+    assert_eq!(serialized["model_execution_proved"], false);
+    assert_eq!(serialized["raw_pcap_available"], false);
+    assert_eq!(serialized["exact_url_claimed"], false);
+    assert_eq!(serialized["remote_ai_used"], false);
+    assert_eq!(serialized["policy_authority"], false);
+    assert_eq!(serialized["adapter_authority"], false);
+    assert_eq!(serialized["enforcement_commands_published"], 0);
 }
 
 #[test]
