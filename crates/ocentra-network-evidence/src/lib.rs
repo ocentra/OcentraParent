@@ -170,6 +170,7 @@ pub use performance::{
 pub use pipeline::{
     prove_network_end_to_end_pipeline, NetworkEndToEndPipelineError, NetworkEndToEndPipelineInput,
     NetworkEndToEndPipelineProof, NetworkEndToEndPipelineRefs, NetworkEndToEndUnsupportedClaims,
+    NetworkRemoteDeliveryHandoffProof, NetworkRemoteDeliveryHandoffRefs,
     NetworkRetentionDeleteExportProof,
 };
 pub use platform_claims::{

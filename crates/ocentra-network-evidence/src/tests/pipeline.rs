@@ -2,9 +2,10 @@ use crate::{
     prove_network_end_to_end_pipeline, NetworkCascadeNextCheck, NetworkCascadeSignalStrength,
     NetworkCascadeSourceKind, NetworkCrossSliceEvidenceSource, NetworkDnsAdapterBoundaryReason,
     NetworkDnsAdapterCapabilityState, NetworkDnsAdapterProofState, NetworkEndToEndPipelineError,
-    NetworkEndToEndPipelineInput, NetworkEndToEndPipelineRefs, NetworkEndToEndUnsupportedClaims,
-    NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMode,
-    NetworkInterventionState, NetworkLocalAiQueueStatus, NetworkRiskBudgetState,
+    NetworkEndToEndPipelineInput, NetworkEndToEndPipelineProof, NetworkEndToEndPipelineRefs,
+    NetworkEndToEndUnsupportedClaims, NetworkEvidenceGrade, NetworkEvidencePolicyAction,
+    NetworkEvidencePolicyMode, NetworkInterventionState, NetworkLocalAiQueueStatus,
+    NetworkRemoteDeliveryHandoffRefs, NetworkRiskBudgetState,
 };
 
 #[test]
@@ -18,6 +19,7 @@ fn end_to_end_pipeline_carries_refs_from_trigger_to_retention_export() {
         proof.evidence_bundle.evidence_refs,
         vec!["evidence:network:tunnel:1".to_owned()]
     );
+    assert_remote_delivery_handoff_refs(&proof);
     assert!(proof
         .evidence_bundle
         .next_checks
@@ -56,6 +58,61 @@ fn end_to_end_pipeline_carries_refs_from_trigger_to_retention_export() {
         "audit:network:adapter:1"
     );
     assert!(proof.retention_delete_export.same_product_path);
+}
+
+fn assert_remote_delivery_handoff_refs(proof: &NetworkEndToEndPipelineProof) {
+    assert_eq!(
+        proof.remote_delivery_handoff.event_chain_journal_ref,
+        "network.remote-delivery.event-chain-journal.10f"
+    );
+    assert_eq!(
+        proof.remote_delivery_handoff.event_chain_export_ref,
+        "network.remote-delivery.event-chain-export.10f"
+    );
+    assert_eq!(
+        proof.remote_delivery_handoff.receipt_ledger_ref,
+        "network.remote-delivery.event-chain.receipt-ledger.10g"
+    );
+    assert_eq!(
+        proof.remote_delivery_handoff.local_receipt_ack_ref,
+        "network.remote-delivery.event-chain.local-receipt-ack.10g"
+    );
+    assert_eq!(
+        proof.remote_delivery_handoff.outbox_ref,
+        "network.remote-delivery.event-chain.outbox.10h"
+    );
+    assert_eq!(
+        proof.remote_delivery_handoff.handoff_ref,
+        "network.remote-delivery.event-chain.handoff.10h"
+    );
+    assert_eq!(
+        proof.remote_delivery_handoff.outbox_replay_ref,
+        "network.remote-delivery.event-chain.outbox-replay.10h"
+    );
+    assert_eq!(
+        proof.remote_delivery_handoff.outbox_support_status_ref,
+        "network.remote-delivery.event-chain.outbox-support-status.10h"
+    );
+    assert_eq!(
+        proof.remote_delivery_handoff.evidence_refs,
+        proof.evidence_bundle.evidence_refs
+    );
+    assert_eq!(
+        proof.remote_delivery_handoff.prepared_not_dispatched_count,
+        1
+    );
+    assert_eq!(proof.remote_delivery_handoff.dispatch_attempt_count, 0);
+    assert_eq!(proof.remote_delivery_handoff.remote_ack_count, 0);
+    assert!(!proof.remote_delivery_handoff.broker_delivery_implemented);
+    assert!(
+        !proof
+            .remote_delivery_handoff
+            .family_hub_delivery_implemented
+    );
+    assert!(!proof.remote_delivery_handoff.policy_authority);
+    assert!(!proof.remote_delivery_handoff.adapter_authority);
+    assert!(!proof.remote_delivery_handoff.enforcement_command_published);
+    assert!(proof.remote_delivery_handoff.same_product_path);
 }
 
 #[test]
@@ -113,6 +170,17 @@ fn end_to_end_pipeline_keeps_unavailable_evidence_non_enforcing() {
     assert!(!proof.adapter_proof.adapter_apply_authorized);
     assert_eq!(proof.enforcement_commands_published, 0);
     assert!(proof.weak_or_unavailable_evidence_enforcement_blocked);
+}
+
+#[test]
+fn end_to_end_pipeline_rejects_missing_remote_handoff_refs() {
+    let mut input = pipeline_input();
+    input.refs.remote_delivery_handoff_refs.handoff_ref.clear();
+
+    assert_eq!(
+        prove_network_end_to_end_pipeline(input),
+        Err(NetworkEndToEndPipelineError::EmptyRemoteHandoffRef)
+    );
 }
 
 #[test]
@@ -177,6 +245,18 @@ fn pipeline_refs() -> NetworkEndToEndPipelineRefs {
     NetworkEndToEndPipelineRefs {
         trigger_ref: "trigger:network:flow:1".to_owned(),
         typed_event_ref: "event:network:flow-observed:1".to_owned(),
+        remote_delivery_handoff_refs: NetworkRemoteDeliveryHandoffRefs {
+            event_chain_journal_ref: "network.remote-delivery.event-chain-journal.10f".to_owned(),
+            event_chain_export_ref: "network.remote-delivery.event-chain-export.10f".to_owned(),
+            receipt_ledger_ref: "network.remote-delivery.event-chain.receipt-ledger.10g".to_owned(),
+            local_receipt_ack_ref: "network.remote-delivery.event-chain.local-receipt-ack.10g"
+                .to_owned(),
+            outbox_ref: "network.remote-delivery.event-chain.outbox.10h".to_owned(),
+            handoff_ref: "network.remote-delivery.event-chain.handoff.10h".to_owned(),
+            outbox_replay_ref: "network.remote-delivery.event-chain.outbox-replay.10h".to_owned(),
+            outbox_support_status_ref:
+                "network.remote-delivery.event-chain.outbox-support-status.10h".to_owned(),
+        },
         summary_refs: vec!["summary:network:flow:1".to_owned()],
         analyzer_alert_refs: vec!["alert:network:signature:1".to_owned()],
         queue_job_ref: "queue-job:local-ai:network:1".to_owned(),

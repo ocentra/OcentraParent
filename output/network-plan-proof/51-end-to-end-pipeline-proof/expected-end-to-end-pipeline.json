@@ -2,6 +2,7 @@
   "path": [
     "trigger-ref",
     "typed-event-ref",
+    "remote-delivery-outbox-handoff-local-only",
     "evidence-bundle",
     "local-ai-queue-refs-only",
     "ai-detection",
@@ -16,6 +17,7 @@
   "requiredRefFamilies": [
     "trigger",
     "typed event",
+    "remote event-chain journal/export, receipt ledger, local ack, outbox, handoff, replay, and support-status refs",
     "evidence",
     "AI detection/audit",
     "policy decision",
@@ -29,6 +31,7 @@
     "AI remains advisory",
     "portal/UI has no policy authority",
     "network evidence has no adapter authority",
+    "remote handoff refs stay local-only with zero dispatch attempts and zero remote acknowledgements",
     "no enforcement command is published by this proof path"
   ],
   "notClaimed": [
@@ -37,6 +40,7 @@
     "full policy engine execution",
     "host DNS/firewall mutation",
     "broker or family-hub delivery",
+    "remote broker dispatch attempt or remote acknowledgement",
     "portal risk-budget/performance UI rendering"
   ]
 }

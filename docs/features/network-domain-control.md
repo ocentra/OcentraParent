@@ -119,6 +119,15 @@ compete on control while staying clear about attribution confidence and privacy.
   implementation, policy authority, side effects, enforcement commands, adapter
   execution, exact URL, decrypted payload, page content, and host filtering
   remain false.
+- E-D updated the row51 integrated end-to-end pipeline proof so
+  `ocentra-network-evidence` now carries the row10f/row10g/row10h remote
+  delivery journal, receipt, outbox, handoff, replay, and support-status refs in
+  the same product path as trigger, typed event, evidence, AI audit, policy,
+  adapter proof-state, audit, portal read-model, and retention/delete/export.
+  The integrated proof keeps the remote handoff leg local-only with zero
+  dispatch attempts, zero remote acknowledgements, no broker/family-hub delivery
+  implementation, no policy authority, no adapter authority, and no enforcement
+  command publication.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,

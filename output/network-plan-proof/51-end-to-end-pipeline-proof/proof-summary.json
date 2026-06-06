@@ -1,8 +1,8 @@
 {
   "proof": "network-end-to-end-pipeline",
-  "checkedAt": "2026-06-05T09:58:30.854Z",
-  "branch": "codex/eventing-network-runtime-implementation",
-  "commit": "479c76c236fe434a10faa15d4c6a1e0ecc78428b",
+  "checkedAt": "2026-06-06T19:39:37.742Z",
+  "branch": "codex/network-end-to-end-pipeline-row10h-refs-on-row10h",
+  "commit": "324fa5c1063b4272a441aa5180cb3b8a4bc50325",
   "sourceStatusShort": "",
   "proofRoot": "output\\network-plan-proof\\51-end-to-end-pipeline-proof",
   "testRoot": "test-results\\network-end-to-end-pipeline-proof",
@@ -18,6 +18,12 @@
       "command": "cargo test -p ocentra-parent-agent-core manual_required_network_evidence_does_not_publish_enforcement_command",
       "status": 0,
       "log": "output\\network-plan-proof\\51-end-to-end-pipeline-proof\\agent-core-weak-evidence-no-enforcement.log"
+    },
+    {
+      "name": "agent-core-network-runtime-remote-outbox-handoff",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime_remote_delivery_outbox_handoff",
+      "status": 0,
+      "log": "output\\network-plan-proof\\51-end-to-end-pipeline-proof\\agent-core-remote-outbox-handoff.log"
     },
     {
       "name": "network-evidence-end-to-end-pipeline-tests",
@@ -48,6 +54,7 @@
   ],
   "provenRootGates": [
     "typed local event-chain refs are preserved before product-path composition",
+    "row10f/row10g/row10h remote delivery journal, receipt, outbox, handoff, replay, and support-status refs are preserved in the integrated product path",
     "evidence bundle to AI audit to policy to adapter proof preserves exact refs",
     "weak/unavailable evidence cannot publish enforcement commands",
     "AI/UI/network cannot bypass policy",
@@ -58,6 +65,8 @@
     "local model execution or remote AI",
     "full policy engine execution",
     "notification provider delivery",
+    "broker or family-hub transport dispatch",
+    "remote delivery acknowledgement",
     "host DNS/firewall/WFP/VPN/NetworkExtension/Linux adapter mutation",
     "broker or family-hub transport",
     "portal risk-budget/performance UI rendering",

@@ -14,6 +14,7 @@ writeFileSync(
       path: [
         'trigger-ref',
         'typed-event-ref',
+        'remote-delivery-outbox-handoff-local-only',
         'evidence-bundle',
         'local-ai-queue-refs-only',
         'ai-detection',
@@ -28,6 +29,7 @@ writeFileSync(
       requiredRefFamilies: [
         'trigger',
         'typed event',
+        'remote event-chain journal/export, receipt ledger, local ack, outbox, handoff, replay, and support-status refs',
         'evidence',
         'AI detection/audit',
         'policy decision',
@@ -41,6 +43,7 @@ writeFileSync(
         'AI remains advisory',
         'portal/UI has no policy authority',
         'network evidence has no adapter authority',
+        'remote handoff refs stay local-only with zero dispatch attempts and zero remote acknowledgements',
         'no enforcement command is published by this proof path',
       ],
       notClaimed: [
@@ -49,6 +52,7 @@ writeFileSync(
         'full policy engine execution',
         'host DNS/firewall mutation',
         'broker or family-hub delivery',
+        'remote broker dispatch attempt or remote acknowledgement',
         'portal risk-budget/performance UI rendering',
       ],
     },
@@ -79,6 +83,12 @@ const commands = [
       'manual_required_network_evidence_does_not_publish_enforcement_command',
     ],
     log: join(proofRoot, 'agent-core-weak-evidence-no-enforcement.log'),
+  },
+  {
+    name: 'agent-core-network-runtime-remote-outbox-handoff',
+    command: 'cargo',
+    args: ['test', '-p', 'ocentra-parent-agent-core', 'network_runtime_remote_delivery_outbox_handoff'],
+    log: join(proofRoot, 'agent-core-remote-outbox-handoff.log'),
   },
   {
     name: 'network-evidence-end-to-end-pipeline-tests',
@@ -118,6 +128,7 @@ const proof = {
   provenRows: ['51 Integrated event + network product path proof'],
   provenRootGates: [
     'typed local event-chain refs are preserved before product-path composition',
+    'row10f/row10g/row10h remote delivery journal, receipt, outbox, handoff, replay, and support-status refs are preserved in the integrated product path',
     'evidence bundle to AI audit to policy to adapter proof preserves exact refs',
     'weak/unavailable evidence cannot publish enforcement commands',
     'AI/UI/network cannot bypass policy',
@@ -128,6 +139,8 @@ const proof = {
     'local model execution or remote AI',
     'full policy engine execution',
     'notification provider delivery',
+    'broker or family-hub transport dispatch',
+    'remote delivery acknowledgement',
     'host DNS/firewall/WFP/VPN/NetworkExtension/Linux adapter mutation',
     'broker or family-hub transport',
     'portal risk-budget/performance UI rendering',

@@ -24,6 +24,7 @@ use crate::{
 pub struct NetworkEndToEndPipelineRefs {
     pub trigger_ref: String,
     pub typed_event_ref: String,
+    pub remote_delivery_handoff_refs: NetworkRemoteDeliveryHandoffRefs,
     pub summary_refs: Vec<String>,
     pub analyzer_alert_refs: Vec<String>,
     pub queue_job_ref: String,
@@ -59,6 +60,18 @@ pub struct NetworkEndToEndPipelineRefs {
     pub deletion_ref: String,
     pub export_ref: String,
     pub tombstone_ref: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NetworkRemoteDeliveryHandoffRefs {
+    pub event_chain_journal_ref: String,
+    pub event_chain_export_ref: String,
+    pub receipt_ledger_ref: String,
+    pub local_receipt_ack_ref: String,
+    pub outbox_ref: String,
+    pub handoff_ref: String,
+    pub outbox_replay_ref: String,
+    pub outbox_support_status_ref: String,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -99,9 +112,34 @@ pub struct NetworkRetentionDeleteExportProof {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NetworkRemoteDeliveryHandoffProof {
+    pub event_chain_journal_ref: String,
+    pub event_chain_export_ref: String,
+    pub receipt_ledger_ref: String,
+    pub local_receipt_ack_ref: String,
+    pub outbox_ref: String,
+    pub handoff_ref: String,
+    pub outbox_replay_ref: String,
+    pub outbox_support_status_ref: String,
+    pub typed_event_ref: String,
+    pub audit_event_ref: String,
+    pub evidence_refs: Vec<String>,
+    pub same_product_path: bool,
+    pub prepared_not_dispatched_count: usize,
+    pub dispatch_attempt_count: usize,
+    pub remote_ack_count: usize,
+    pub broker_delivery_implemented: bool,
+    pub family_hub_delivery_implemented: bool,
+    pub policy_authority: bool,
+    pub adapter_authority: bool,
+    pub enforcement_command_published: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NetworkEndToEndPipelineProof {
     pub trigger_ref: String,
     pub typed_event_ref: String,
+    pub remote_delivery_handoff: NetworkRemoteDeliveryHandoffProof,
     pub evidence_bundle: NetworkCrossSliceEvidenceBundle,
     pub local_ai_queue: NetworkLocalAiQueuePlan,
     pub ai_detection: NetworkAiDetectionEvaluationProof,
@@ -123,6 +161,14 @@ pub struct NetworkEndToEndPipelineProof {
 pub enum NetworkEndToEndPipelineError {
     EmptyTriggerRef,
     EmptyTypedEventRef,
+    EmptyRemoteEventChainJournalRef,
+    EmptyRemoteEventChainExportRef,
+    EmptyRemoteReceiptLedgerRef,
+    EmptyRemoteReceiptAckRef,
+    EmptyRemoteOutboxRef,
+    EmptyRemoteHandoffRef,
+    EmptyRemoteOutboxReplayRef,
+    EmptyRemoteOutboxSupportStatusRef,
     EmptySummaryRef,
     EmptyAnalyzerAlertRef,
     EmptyAuditEventRef,
@@ -199,11 +245,13 @@ pub fn prove_network_end_to_end_pipeline(
     let adapter_proof =
         plan_network_dns_adapter_proof(dns_adapter_input(&input, policy_mapping.clone()))
             .map_err(NetworkEndToEndPipelineError::DnsAdapter)?;
+    let remote_delivery_handoff = remote_delivery_handoff(&input.refs, &bundle.evidence_refs)?;
     let retention_delete_export = retention_delete_export(&input.refs, &bundle.evidence_refs)?;
 
     Ok(NetworkEndToEndPipelineProof {
         trigger_ref: input.refs.trigger_ref,
         typed_event_ref: input.refs.typed_event_ref,
+        remote_delivery_handoff,
         evidence_bundle: bundle,
         local_ai_queue,
         ai_detection,
@@ -388,6 +436,64 @@ fn dns_adapter_input(
     }
 }
 
+fn remote_delivery_handoff(
+    refs: &NetworkEndToEndPipelineRefs,
+    evidence_refs: &[String],
+) -> Result<NetworkRemoteDeliveryHandoffProof, NetworkEndToEndPipelineError> {
+    Ok(NetworkRemoteDeliveryHandoffProof {
+        event_chain_journal_ref: required_ref(
+            &refs.remote_delivery_handoff_refs.event_chain_journal_ref,
+            NetworkEndToEndPipelineError::EmptyRemoteEventChainJournalRef,
+        )?,
+        event_chain_export_ref: required_ref(
+            &refs.remote_delivery_handoff_refs.event_chain_export_ref,
+            NetworkEndToEndPipelineError::EmptyRemoteEventChainExportRef,
+        )?,
+        receipt_ledger_ref: required_ref(
+            &refs.remote_delivery_handoff_refs.receipt_ledger_ref,
+            NetworkEndToEndPipelineError::EmptyRemoteReceiptLedgerRef,
+        )?,
+        local_receipt_ack_ref: required_ref(
+            &refs.remote_delivery_handoff_refs.local_receipt_ack_ref,
+            NetworkEndToEndPipelineError::EmptyRemoteReceiptAckRef,
+        )?,
+        outbox_ref: required_ref(
+            &refs.remote_delivery_handoff_refs.outbox_ref,
+            NetworkEndToEndPipelineError::EmptyRemoteOutboxRef,
+        )?,
+        handoff_ref: required_ref(
+            &refs.remote_delivery_handoff_refs.handoff_ref,
+            NetworkEndToEndPipelineError::EmptyRemoteHandoffRef,
+        )?,
+        outbox_replay_ref: required_ref(
+            &refs.remote_delivery_handoff_refs.outbox_replay_ref,
+            NetworkEndToEndPipelineError::EmptyRemoteOutboxReplayRef,
+        )?,
+        outbox_support_status_ref: required_ref(
+            &refs.remote_delivery_handoff_refs.outbox_support_status_ref,
+            NetworkEndToEndPipelineError::EmptyRemoteOutboxSupportStatusRef,
+        )?,
+        typed_event_ref: required_ref(
+            &refs.typed_event_ref,
+            NetworkEndToEndPipelineError::EmptyTypedEventRef,
+        )?,
+        audit_event_ref: required_ref(
+            &refs.audit_event_ref,
+            NetworkEndToEndPipelineError::EmptyAuditEventRef,
+        )?,
+        evidence_refs: evidence_refs.to_vec(),
+        same_product_path: true,
+        prepared_not_dispatched_count: evidence_refs.len(),
+        dispatch_attempt_count: 0,
+        remote_ack_count: 0,
+        broker_delivery_implemented: false,
+        family_hub_delivery_implemented: false,
+        policy_authority: false,
+        adapter_authority: false,
+        enforcement_command_published: false,
+    })
+}
+
 fn retention_delete_export(
     refs: &NetworkEndToEndPipelineRefs,
     evidence_refs: &[String],
@@ -431,6 +537,7 @@ fn validate_refs(refs: &NetworkEndToEndPipelineRefs) -> Result<(), NetworkEndToE
         &refs.typed_event_ref,
         NetworkEndToEndPipelineError::EmptyTypedEventRef,
     )?;
+    remote_delivery_handoff(refs, &[])?;
     normalized_refs(
         &refs.summary_refs,
         NetworkEndToEndPipelineError::EmptySummaryRef,
