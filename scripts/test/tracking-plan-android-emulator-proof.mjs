@@ -81,7 +81,8 @@ async function main() {
   });
   await adb(tools, selectedSerial, ['shell', 'input', 'keyevent', '224']);
   await adb(tools, selectedSerial, ['shell', 'wm', 'dismiss-keyguard']);
-  await delay(3_000);
+  await seedEmulatorForegroundLocation(tools, selectedSerial, preGrantPermissionState);
+  await delay(5_000);
 
   const runtime = await collectRuntimeArtifacts(tools, selectedSerial);
   const permissionState = parsePermissionState(packageDump);
@@ -110,6 +111,22 @@ async function grantForegroundLocationPermissions(tools, serial, permissionState
     }
   }
   await writeText(path.join(resultDir, '13-foreground-location-permission-grant.txt'), grantLog.join('\n\n'));
+}
+
+async function seedEmulatorForegroundLocation(tools, serial, permissionState) {
+  if (!serial.startsWith('emulator-') || !permissionState.locationPermissionRequested) {
+    await writeText(
+      path.join(resultDir, '14-foreground-location-seed.txt'),
+      'SKIP foreground location seed requires an Android emulator with declared foreground location permissions.\n'
+    );
+    return;
+  }
+
+  const result = await adbMaybe(tools, serial, ['emu', 'geo', 'fix', '-122.084', '37.422']);
+  await writeText(
+    path.join(resultDir, '14-foreground-location-seed.txt'),
+    `${result.exitCode === 0 ? 'PASS' : 'FAIL'} adb emu geo fix synthetic foreground location seed\n${result.output.trim()}`
+  );
 }
 
 function resolveAndroidTools() {
@@ -332,8 +349,24 @@ function parseUiState(uiDump) {
       : text.includes('foreground-location-sample-manual-required')
         ? 'foreground-location-sample-manual-required'
         : null,
+    foregroundLocationProvider: parseTextField(text, 'foregroundLocationProvider'),
+    foregroundLocationObservedAtEpochMillis: parseNumberTextField(text, 'foregroundLocationObservedAtEpochMillis'),
+    foregroundLocationAccuracyMeters: parseNumberTextField(text, 'foregroundLocationAccuracyMeters'),
     text,
   };
+}
+
+function parseTextField(text, fieldName) {
+  return new RegExp(`(?:^|\\n)${fieldName}:([^\\n]+)`, 'u').exec(text)?.[1] ?? null;
+}
+
+function parseNumberTextField(text, fieldName) {
+  const value = parseTextField(text, fieldName);
+  if (value === null) {
+    return null;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function inspectPngVisual(buffer) {
@@ -614,6 +647,7 @@ function runtimeArtifactPaths() {
     foregroundLocationPermissionGrant: relativePath(
       path.join(resultDir, '13-foreground-location-permission-grant.txt')
     ),
+    foregroundLocationSeed: relativePath(path.join(resultDir, '14-foreground-location-seed.txt')),
   };
 }
 
@@ -658,24 +692,33 @@ function buildProof({ device, packageDump, permissionState, resolvedActivity, ru
 function workpackProofState(permissionState, runtime) {
   const foregroundSampleObserved =
     runtime.ui.foregroundLocationSampleStateText === 'last-known-location-sample-observed';
+  const foregroundSampleMetadataObserved =
+    foregroundSampleObserved &&
+    runtime.ui.foregroundLocationProvider !== null &&
+    runtime.ui.foregroundLocationObservedAtEpochMillis !== null &&
+    runtime.ui.foregroundLocationAccuracyMeters !== null;
   return {
     '08-android-foreground-location-adapter': {
       status:
-        permissionState.foregroundLocationPermissionGranted && foregroundSampleObserved
-          ? 'foreground_permission_granted_last_known_sample_observed'
-          : permissionState.foregroundLocationPermissionGranted
-            ? 'foreground_permission_granted_sample_manual_required'
-            : 'manual_required',
+        permissionState.foregroundLocationPermissionGranted && foregroundSampleMetadataObserved
+          ? 'foreground_permission_granted_last_known_sample_metadata_observed'
+          : permissionState.foregroundLocationPermissionGranted && foregroundSampleObserved
+            ? 'foreground_permission_granted_last_known_sample_observed'
+            : permissionState.foregroundLocationPermissionGranted
+              ? 'foreground_permission_granted_sample_manual_required'
+              : 'manual_required',
       proofArtifact:
         'output/tracking-plan-proof/08-android-foreground-location-adapter/03-runtime-location-evidence.json',
       reason:
-        permissionState.foregroundLocationPermissionGranted && foregroundSampleObserved
-          ? 'Foreground location permission grant and app-emitted last-known sample state were observed on the emulator package; fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.'
-          : permissionState.foregroundLocationPermissionGranted
-            ? 'Foreground location permission grant was observed on the emulator package, but no app-emitted foreground location sample was captured.'
-            : permissionState.locationPermissionRequested
-              ? 'Package launched on emulator, but foreground location permission was not granted and no runtime foreground location evidence was emitted.'
-              : 'Package launched on emulator, but the current scaffold does not request foreground location permission.',
+        permissionState.foregroundLocationPermissionGranted && foregroundSampleMetadataObserved
+          ? 'Foreground location permission grant, app-emitted last-known sample state, provider, observed timestamp, and accuracy were observed on the emulator package; raw coordinates, fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.'
+          : permissionState.foregroundLocationPermissionGranted && foregroundSampleObserved
+            ? 'Foreground location permission grant and app-emitted last-known sample state were observed on the emulator package; fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.'
+            : permissionState.foregroundLocationPermissionGranted
+              ? 'Foreground location permission grant was observed on the emulator package, but no app-emitted foreground location sample was captured.'
+              : permissionState.locationPermissionRequested
+                ? 'Package launched on emulator, but foreground location permission was not granted and no runtime foreground location evidence was emitted.'
+                : 'Package launched on emulator, but the current scaffold does not request foreground location permission.',
     },
     '09-android-background-location-and-geofence-adapter': {
       status: 'manual_required',
@@ -765,6 +808,9 @@ function foregroundLocationProof(proof) {
     foregroundLocationPermissionGranted: proof.permissionState.foregroundLocationPermissionGranted,
     foregroundLocationPermissionStateText: proof.runtime.ui.foregroundLocationPermissionStateText,
     foregroundLocationSampleStateText: proof.runtime.ui.foregroundLocationSampleStateText,
+    foregroundLocationProvider: proof.runtime.ui.foregroundLocationProvider,
+    foregroundLocationObservedAtEpochMillis: proof.runtime.ui.foregroundLocationObservedAtEpochMillis,
+    foregroundLocationAccuracyMeters: proof.runtime.ui.foregroundLocationAccuracyMeters,
     missingProofReason: proof.workpackProof['08-android-foreground-location-adapter'].reason,
     device: proof.device,
     artifacts: proof.runtime.artifacts,

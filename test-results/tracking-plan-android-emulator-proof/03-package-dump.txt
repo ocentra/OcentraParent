@@ -1,7 +1,7 @@
 Activity Resolver Table:
   Non-Data Actions:
       android.intent.action.MAIN:
-        6032b9b ca.ocentra.parent.agent/.MainActivity filter b84fb38
+        cc89976 ca.ocentra.parent.agent/.MainActivity filter 76f7b77
           Action: "android.intent.action.MAIN"
           Category: "android.intent.category.LAUNCHER"
 
@@ -12,12 +12,12 @@ Key Set Manager:
       Signing KeySets: 64
 
 Packages:
-  Package [ca.ocentra.parent.agent] (73cb1e8):
+  Package [ca.ocentra.parent.agent] (ddeb68b):
     appId=10212
-    pkg=Package{bb33f18 ca.ocentra.parent.agent}
-    codePath=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==
-    resourcePath=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==
-    legacyNativeLibraryDir=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/lib
+    pkg=Package{66daa03 ca.ocentra.parent.agent}
+    codePath=/data/app/~~-C7h7hsJBFb9WgJ6a6sL4g==/ca.ocentra.parent.agent-I7Su4qksAgu8Kw4_zhEp5g==
+    resourcePath=/data/app/~~-C7h7hsJBFb9WgJ6a6sL4g==/ca.ocentra.parent.agent-I7Su4qksAgu8Kw4_zhEp5g==
+    legacyNativeLibraryDir=/data/app/~~-C7h7hsJBFb9WgJ6a6sL4g==/ca.ocentra.parent.agent-I7Su4qksAgu8Kw4_zhEp5g==/lib
     extractNativeLibs=false
     primaryCpuAbi=null
     secondaryCpuAbi=null
@@ -34,8 +34,8 @@ Packages:
     forceQueryable=false
     scannedAsStoppedSystemApp=false
     supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
-    timeStamp=2026-06-06 20:12:27
-    lastUpdateTime=2026-06-06 20:12:29
+    timeStamp=2026-06-06 20:32:53
+    lastUpdateTime=2026-06-06 20:32:53
     installerPackageName=null
     installerPackageUid=-1
     initiatingPackageName=com.android.shell
@@ -43,7 +43,7 @@ Packages:
     packageSource=1
     appMetadataFilePath=null
     appMetadataSource=0
-    signatures=PackageSignatures{d1b5d71 version:2, signatures:[9f56ad0e], past signatures:[]}
+    signatures=PackageSignatures{c302bbd version:2, signatures:[9f56ad0e], past signatures:[]}
     installPermissionsFixed=false
     pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]
     privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
@@ -64,12 +64,6 @@ Packages:
       dataDir=/data/user/0/ca.ocentra.parent.agent
       firstInstallTime=2026-06-06 20:12:29
       uninstallReason=0
-      overlay paths:
-        /product/overlay/EmulationPixel9ProXL/EmulationPixel9ProXLOverlay.apk
-        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
-      legacy overlay paths:
-        /product/overlay/EmulationPixel9ProXL/EmulationPixel9ProXLOverlay.apk
-        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
       runtime permissions:
         android.permission.POST_NOTIFICATIONS: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
         android.permission.ACCESS_FINE_LOCATION: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
@@ -80,13 +74,15 @@ Queries:
   queries via forceQueryable:
   queries via package name:
   queries via component:
+    com.google.android.as.oss:
+      ca.ocentra.parent.agent
     com.google.android.as:
       ca.ocentra.parent.agent
     com.google.android.settings.intelligence:
       ca.ocentra.parent.agent
   queryable via interaction:
     User 0:
-      [com.android.inputdevices,com.android.providers.settings,com.android.settings,com.android.server.telecom,com.android.localtransport,android,com.android.location.fused,com.android.keychain,com.android.emulator.multidisplay,com.android.dynsystem,com.android.DeviceAsWebcam]:
+      [com.android.DeviceAsWebcam,com.android.providers.settings,android,com.android.settings,com.android.location.fused,com.android.inputdevices,com.android.dynsystem,com.android.emulator.multidisplay,com.android.server.telecom,com.android.localtransport,com.android.keychain]:
         ca.ocentra.parent.agent
       com.google.android.inputmethod.latin:
         ca.ocentra.parent.agent
@@ -94,7 +90,7 @@ Queries:
 
 Dexopt state:
   [ca.ocentra.parent.agent]
-    path: /data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.apk
+    path: /data/app/~~-C7h7hsJBFb9WgJ6a6sL4g==/ca.ocentra.parent.agent-I7Su4qksAgu8Kw4_zhEp5g==/base.apk
       x86_64: [status=run-from-apk] [reason=unknown] [primary-abi]
         [location is error]
 

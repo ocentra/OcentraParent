@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T00:12:44.112Z",
-  "commit": "0f4340c8e744ca2425bd0d3c784ddd3a48f54d2e",
+  "checkedAt": "2026-06-07T00:33:09.320Z",
+  "commit": "e6825871ab8918f68d44e69c443aff8239c65049",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
-  "currentStatus": "foreground_permission_granted_last_known_sample_observed",
+  "currentStatus": "foreground_permission_granted_last_known_sample_metadata_observed",
   "packageLaunchObserved": true,
   "foregroundServiceObserved": true,
   "locationEvidenceCaptured": true,
@@ -13,7 +13,10 @@
   "foregroundLocationPermissionGranted": true,
   "foregroundLocationPermissionStateText": "foreground-location-permission-granted",
   "foregroundLocationSampleStateText": "last-known-location-sample-observed",
-  "missingProofReason": "Foreground location permission grant and app-emitted last-known sample state were observed on the emulator package; fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.",
+  "foregroundLocationProvider": "gps",
+  "foregroundLocationObservedAtEpochMillis": 1780792383210,
+  "foregroundLocationAccuracyMeters": 5,
+  "missingProofReason": "Foreground location permission grant, app-emitted last-known sample state, provider, observed timestamp, and accuracy were observed on the emulator package; raw coordinates, fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.",
   "device": {
     "serial": "emulator-5554",
     "androidRelease": "15",
@@ -34,6 +37,7 @@
     "screenshot": "test-results/tracking-plan-android-emulator-proof/10-screen.png",
     "logcat": "test-results/tracking-plan-android-emulator-proof/11-logcat.txt",
     "screenshotInspection": "test-results/tracking-plan-android-emulator-proof/12-screenshot-inspection.json",
-    "foregroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-grant.txt"
+    "foregroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-grant.txt",
+    "foregroundLocationSeed": "test-results/tracking-plan-android-emulator-proof/14-foreground-location-seed.txt"
   }
 }

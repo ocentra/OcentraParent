@@ -139,7 +139,8 @@ expose location or device-status features. Parents expect this category.
   the debug APK on `Pixel_9_Pro_XL_API_35`, observes foreground-service state,
   grants declared foreground location runtime permissions, and captures app UI
   text for `foreground-location-permission-granted` plus
-  `last-known-location-sample-observed` in
+  `last-known-location-sample-observed` with provider `gps`, observed epoch
+  millis, and accuracy meters in
   `output/tracking-plan-proof/08-android-foreground-location-adapter/03-runtime-location-evidence.json`.
   This is local emulator proof only; fused/current sample collection, raw
   coordinate export, background/geofence transitions, physical-device behavior,
@@ -700,10 +701,10 @@ accessibility beyond the hosted parent route are proved.
       proof, authority, provider delivery, production proof, or product-ready
       tracking.
 - [x] WP08 Android emulator foreground permission and app-reported last-known
-      sample-state proof. This is local emulator evidence only; fused/current
-      sample collection, raw coordinate export, background/geofence,
-      physical-device, authority, provider delivery, production workers, and
-      product-ready Android tracking remain unclaimed.
+      sample metadata proof. This is local emulator evidence only;
+      fused/current sample collection, raw coordinate export,
+      background/geofence, physical-device, authority, provider delivery,
+      production workers, and product-ready Android tracking remain unclaimed.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence
       source refs, nearby-place context fields, AI no-final-action constraints,
       alert policy-decision refs, and retention before/after proof. This is not

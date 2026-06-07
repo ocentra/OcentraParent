@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T00:12:44.112Z",
-  "commit": "0f4340c8e744ca2425bd0d3c784ddd3a48f54d2e",
+  "checkedAt": "2026-06-07T00:33:09.320Z",
+  "commit": "e6825871ab8918f68d44e69c443aff8239c65049",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "manual_required",
@@ -30,6 +30,7 @@
     "screenshot": "test-results/tracking-plan-android-emulator-proof/10-screen.png",
     "logcat": "test-results/tracking-plan-android-emulator-proof/11-logcat.txt",
     "screenshotInspection": "test-results/tracking-plan-android-emulator-proof/12-screenshot-inspection.json",
-    "foregroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-grant.txt"
+    "foregroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-grant.txt",
+    "foregroundLocationSeed": "test-results/tracking-plan-android-emulator-proof/14-foreground-location-seed.txt"
   }
 }

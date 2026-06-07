@@ -33,7 +33,69 @@ public final class MainActivity extends Activity {
         Bundle foregroundLocationProof = TrackingAndroidForegroundLocationProof.createForegroundLocationBundle(this);
 
         TextView status = new TextView(this);
-        String statusText = getString(R.string.agent_status) +
+        status.setText(
+            buildStatusText(
+                lifecycleProof,
+                storageProof,
+                serviceProof,
+                permissionProof,
+                privilegedProof,
+                screenProof,
+                foregroundLocationProof
+            )
+        );
+        TrackingAndroidForegroundLocationProof.requestForegroundLocationSample(
+            this,
+            updatedForegroundLocationProof -> status.setText(
+                buildStatusText(
+                    lifecycleProof,
+                    storageProof,
+                    serviceProof,
+                    permissionProof,
+                    privilegedProof,
+                    screenProof,
+                    updatedForegroundLocationProof
+                )
+            )
+        );
+        status.setBackgroundColor(Color.rgb(249, 250, 251));
+        status.setTextColor(Color.rgb(17, 24, 39));
+        status.setTextSize(18);
+        status.setGravity(Gravity.CENTER);
+        status.setPadding(32, 32, 32, 32);
+        setContentView(status);
+    }
+
+    private String buildStatusText(
+        Bundle lifecycleProof,
+        Bundle storageProof,
+        Bundle serviceProof,
+        Bundle permissionProof,
+        Bundle privilegedProof,
+        Bundle screenProof,
+        Bundle foregroundLocationProof
+    ) {
+        String foregroundLocationMetadata = foregroundLocationProof.getBoolean("foregroundLocationSampleCaptured")
+            ? "\n" +
+            TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_PROVIDER +
+            ":" +
+            foregroundLocationProof.getString(
+                TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_PROVIDER
+            ) +
+            "\n" +
+            TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_OBSERVED_AT_EPOCH_MILLIS +
+            ":" +
+            foregroundLocationProof.getLong(
+                TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_OBSERVED_AT_EPOCH_MILLIS
+            ) +
+            "\n" +
+            TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_ACCURACY_METERS +
+            ":" +
+            foregroundLocationProof.getFloat(
+                TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_ACCURACY_METERS
+            )
+            : "";
+        return getString(R.string.agent_status) +
             "\n" +
             lifecycleProof.getString(ChildAndroidLifecycleProof.FIELD_BRIDGE_STATE) +
             "\n" +
@@ -53,13 +115,7 @@ public final class MainActivity extends Activity {
             "\n" +
             foregroundLocationProof.getString(
                 TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_SAMPLE_STATE
-            );
-        status.setText(statusText);
-        status.setBackgroundColor(Color.rgb(249, 250, 251));
-        status.setTextColor(Color.rgb(17, 24, 39));
-        status.setTextSize(18);
-        status.setGravity(Gravity.CENTER);
-        status.setPadding(32, 32, 32, 32);
-        setContentView(status);
+            ) +
+            foregroundLocationMetadata;
     }
 }

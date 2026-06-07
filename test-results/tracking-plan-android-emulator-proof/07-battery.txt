@@ -1,12 +1,12 @@
 Current Battery Service state:
-  AC powered: false
+  AC powered: true
   USB powered: false
   Wireless powered: false
   Dock powered: false
-  Max charging current: 0
-  Max charging voltage: 0
+  Max charging current: 5000000
+  Max charging voltage: 5000000
   Charge counter: 10000
-  status: 4
+  status: 2
   health: 2
   present: true
   level: 100
