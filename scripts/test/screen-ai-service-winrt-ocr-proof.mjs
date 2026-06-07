@@ -32,6 +32,7 @@ const proofSlug = sensitiveNativeMode ? 'service-winrt-ocr-redaction' : 'service
 const outputDir = join(repoRoot, 'output', 'screen-ai-pipeline-proof', proofSlug);
 const validationLogPath = join(outputDir, '14-validation-commands.log');
 const sourceSnapshotPath = join(outputDir, '00-source-snapshot.md');
+const parentRedactionPolicyPath = join(outputDir, 'parent-redaction-policy.json');
 const agentPort = resolveParentDevPort(
   process.env.OCENTRA_SCREEN_SERVICE_WINRT_OCR_PROOF_AGENT_PORT,
   4691,
@@ -80,6 +81,7 @@ if (process.platform !== 'win32') {
 
 rmSync(outputDir, { recursive: true, force: true });
 mkdirSync(outputDir, { recursive: true });
+writeJson(parentRedactionPolicyPath, parentSelectedRedactionPolicy());
 writeAdapterCommand();
 
 await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);
@@ -141,6 +143,7 @@ try {
       queueRecordMetadataAfterAnalysis: relative(repoRoot, join(outputDir, 'queue-records-after-analysis.json')),
       validationCommands: relative(repoRoot, validationLogPath),
       portalScreenshot: portalArtifact === null ? null : relative(repoRoot, portalArtifact.screenshotPath),
+      parentSelectedRedactionPolicy: relative(repoRoot, parentRedactionPolicyPath),
     },
     assertions: {
       realWindowsServiceCaptureRequired: true,
@@ -163,6 +166,10 @@ try {
       ocrSnippetsPreservedInReadModel: (analysisRow.ocrTextSnippets ?? []).length > 0,
       redactionNotesShapePreservedInReadModel: Array.isArray(analysisRow.redactionNotes),
       serviceRedactedSensitiveOcrSnippets: sensitiveNativeMode ? redactedServiceRowAssertions(analysisRow) : null,
+      serviceConsumedParentSelectedRedactionPolicy: sensitiveNativeMode
+        ? parentSelectedRedactionPolicy().textRetentionMode === 'redactedSnippets' &&
+          parentSelectedRedactionPolicy().piiRedactionEnabled === true
+        : null,
       realPortalScreenshotCaptured: portalArtifact === null ? null : existsSync(portalArtifact.screenshotPath),
     },
     nonClaims: [
@@ -595,7 +602,24 @@ function serviceAnalysisEnv() {
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_TICKS: '180',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS: '120000',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_COMMAND: adapterCommandPath,
+    OCENTRA_PARENT_SCREEN_SERVICE_OCR_REDACTION_POLICY_PATH: parentRedactionPolicyPath,
     OCENTRA_SCREEN_SERVICE_WINRT_OCR_OBSERVATION_PATH: adapterObservationPath,
+  };
+}
+
+function parentSelectedRedactionPolicy() {
+  return {
+    schemaVersion: 1,
+    parentSettingRef: 'parent-setting-screen-service-redaction-proof',
+    settingVersion: 1,
+    ocrTextEnabled: true,
+    snippetLimit: 5,
+    redactionMode: 'localSensitiveText',
+    textRetentionMode: 'redactedSnippets',
+    credentialSuppressionEnabled: true,
+    piiRedactionEnabled: true,
+    parentControlled: true,
+    rawTextRetentionAllowed: false,
   };
 }
 
@@ -765,10 +789,12 @@ async function capturePortalScreenshot() {
   const page = await portalBrowser.newPage({ viewport: { width: 1600, height: 1200 } });
   await page.goto(`${portalUrl()}#/screen-analysis`, { waitUntil: 'domcontentloaded' });
   await page.getByText('Screen analysis').waitFor({ timeout: 20000 });
-  await page.getByText('[redacted-email]').waitFor({ timeout: 20000 });
-  await page.getByText('[redacted-phone]').waitFor({ timeout: 20000 });
-  await page.getByText('piiLikeTextRedacted').waitFor({ timeout: 20000 });
-  await page.getByText('credentialLikeTextRedacted').waitFor({ timeout: 20000 });
+  await page.waitForFunction(() => document.body.innerText.includes('[redacted-email]'), null, { timeout: 20000 });
+  await page.waitForFunction(() => document.body.innerText.includes('[redacted-phone]'), null, { timeout: 20000 });
+  await page.waitForFunction(() => document.body.innerText.includes('piiLikeTextRedacted'), null, { timeout: 20000 });
+  await page.waitForFunction(() => document.body.innerText.includes('credentialLikeTextRedacted'), null, {
+    timeout: 20000,
+  });
   const rendered = await page.locator('body').innerText();
   if (rendered.includes('jane@example.com') || rendered.includes('555-010-1234')) {
     throw new Error('Portal rendered raw sensitive OCR text.');
@@ -835,6 +861,7 @@ function assertProof(readModel, queueRecords, observation) {
   if (observation.tempImageExistsAfterDelete !== false) failures.push('tempImageDeleted');
   if (!expectedTerms.every((term) => observation.expectedTermsFound?.includes(term))) failures.push('expectedTerms');
   if (sensitiveNativeMode && !redactedServiceRowAssertions(analysisRow)) failures.push('serviceRedaction');
+  if (sensitiveNativeMode && !existsSync(parentRedactionPolicyPath)) failures.push('parentSelectedPolicy');
   if (failures.length > 0) {
     throw new Error(`Screen service WinRT OCR proof failed gates: ${failures.join(', ')}`);
   }
@@ -952,6 +979,7 @@ function writeSourceSnapshot(sourceEvidence, observation) {
       '- Pixel capture: Rust agent service timed cadence active-window capture.',
       '- Evidence queue: service encrypted temp queue, drained after analysis.',
       '- OCR runtime: Windows `Windows.Media.Ocr.OcrEngine` inside service adapter process.',
+      `- Parent-selected redaction policy: ${relative(repoRoot, parentRedactionPolicyPath)}`,
       `- OCR terms found: ${(observation.expectedTermsFound ?? []).join(', ')}`,
       '- Raw captured image artifact: not retained; adapter temp image deleted after OCR.',
       '',

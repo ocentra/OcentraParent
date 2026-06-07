@@ -462,8 +462,10 @@ only with explicit parent settings.
   OCR redaction before event persistence, drains the queue, deletes adapter temp
   image material, and screenshots the real `#/screen-analysis` portal route with
   `[redacted-email]`, `[redacted-phone]`, `piiLikeTextRedacted`, and
-  `credentialLikeTextRedacted` while omitting raw sensitive text. Parent-persisted
-  redaction setting selection remains separate.
+  `credentialLikeTextRedacted` while omitting raw sensitive text. The service
+  proof now also writes and consumes
+  `output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/parent-redaction-policy.json`
+  as the persisted parent-selected OCR text retention/redaction policy.
 - `scripts/test/screen-local-ocr-vision-runtime-model-proof.mjs` now aggregates
   the existing WinRT OCR worker, service OCR, guided VLM worker, VLM execution
   readiness, VLM journal/read-model, and local resource scheduler artifacts into
@@ -601,6 +603,9 @@ parity, and UI remain separate proof gates.
 - [x] Service WinRT OCR redaction proof applies local sensitive-text redaction
       before event persistence and screenshots the real Screen Analysis portal
       route from the service-emitted row.
+- [x] Service WinRT OCR redaction proof consumes a persisted parent-selected OCR
+      redaction policy file for snippet limit, text retention, credential
+      suppression, and PII redaction settings.
 - [x] Policy decision references summary evidence.
 - [x] Service WinRT OCR row feeds a typed parent policy dry-run without raw
       image retention.

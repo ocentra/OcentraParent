@@ -11,7 +11,10 @@ use ocentra_parent_agent_protocol::{
 
 use crate::fields::fields_from_pairs;
 
-use super::{queue::QueuedScreenImage, ScreenAiAnalysisCycleClock, ScreenAiAnalysisCycleOutcome};
+use super::{
+    config::ScreenOcrRedactionPolicy, queue::QueuedScreenImage, ScreenAiAnalysisCycleClock,
+    ScreenAiAnalysisCycleOutcome,
+};
 
 mod parsed_fields;
 mod policy_refs;
@@ -52,8 +55,9 @@ pub(super) fn analysis_event_record(
     metadata: Option<&ScreenAnalysisResult>,
     clock: &ScreenAiAnalysisCycleClock,
     generation: &LocalAiChatGenerationResult,
+    redaction_policy: &ScreenOcrRedactionPolicy,
 ) -> ScreenAiAnalysisEventRecord {
-    let parsed = parsed_fields_from_generation(generation);
+    let parsed = parsed_fields_from_generation(generation, redaction_policy);
     let policy = policy_refs::service_policy_refs(&image.queue_job_id, parsed.policy_eligible);
     ScreenAiAnalysisEventRecord {
         queue_job_id: image.queue_job_id.clone(),
@@ -267,7 +271,13 @@ mod tests {
             constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
         );
 
-        let record = analysis_event_record(&image, None, &clock, &generation);
+        let record = analysis_event_record(
+            &image,
+            None,
+            &clock,
+            &generation,
+            &ScreenOcrRedactionPolicy::default(),
+        );
         let outcome = outcome_for_generation(&image.queue_job_id, &generation, &record);
         let event = screen_analysis_event(&record);
 

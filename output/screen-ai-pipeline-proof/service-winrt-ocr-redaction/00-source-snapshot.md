@@ -5,5 +5,6 @@
 - Pixel capture: Rust agent service timed cadence active-window capture.
 - Evidence queue: service encrypted temp queue, drained after analysis.
 - OCR runtime: Windows `Windows.Media.Ocr.OcrEngine` inside service adapter process.
+- Parent-selected redaction policy: output\screen-ai-pipeline-proof\service-winrt-ocr-redaction\parent-redaction-policy.json
 - OCR terms found: jane, 555, password
 - Raw captured image artifact: not retained; adapter temp image deleted after OCR.
