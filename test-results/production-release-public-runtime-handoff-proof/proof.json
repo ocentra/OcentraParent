@@ -1,9 +1,10 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T07:21:42.143Z",
-  "commit": "7d0726aea7a984f65f45bbe90a7bed4fd3d29d2e",
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
   "proofMode": "production-release-public-runtime-handoff-proof",
   "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/schema-domain",
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/production-release-public-runtime-handoff.test.ts"
   ],
@@ -24,7 +25,8 @@
       "docs/expectations/cloud.md",
       "docs/expectations/billing.md"
     ],
-    "output": "test-results/production-release-public-runtime-handoff-proof/proof.json"
+    "proofOutput": "test-results/production-release-public-runtime-handoff-proof/proof.json",
+    "summaryOutput": "output/production-release-public-runtime-handoff-proof/proof-summary.json"
   },
   "handoffRows": [
     {
