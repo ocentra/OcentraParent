@@ -78,7 +78,9 @@ fn retention_settings_write_result_serializes_local_execution_without_product_ov
         local_service_state_snapshot_ref:
             constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF
                 .to_string(),
-        durable_settings_persisted: false,
+        durable_settings_store_ref:
+            constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF.to_string(),
+        durable_settings_persisted: true,
         command_transport_claimed: true,
         service_write_preflight_claimed: true,
         service_mutation_executed: true,
@@ -107,7 +109,11 @@ fn retention_settings_write_result_serializes_local_execution_without_product_ov
         serialized["localServiceStateSnapshotRef"],
         constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF
     );
-    assert_eq!(serialized["durableSettingsPersisted"], false);
+    assert_eq!(
+        serialized["durableSettingsStoreRef"],
+        constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF
+    );
+    assert_eq!(serialized["durableSettingsPersisted"], true);
     assert_eq!(serialized["commandTransportClaimed"], true);
     assert_eq!(serialized["serviceWritePreflightClaimed"], true);
     assert_eq!(serialized["serviceMutationExecuted"], true);

@@ -25,6 +25,7 @@ async function main() {
   await mkdir(output32, { recursive: true });
   await mkdir(output33, { recursive: true });
 
+  run('node', ['scripts/test/tracking-retention-settings-write-command-proof.mjs']);
   run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   run('cmd', [
     '/c',
@@ -85,7 +86,15 @@ function assertProof(proof) {
   if (row.localServiceStateSnapshotRef !== 'agent-service-local-retention-settings-state') {
     throw new Error(`Unexpected local service snapshot ref: ${row.localServiceStateSnapshotRef}`);
   }
-  if (row.durableSettingsPersisted !== false || Object.values(proof.productClaims).some((claim) => claim !== false)) {
+  if (row.durableSettingsStoreRef !== 'agent-service-local-retention-settings-durable-json') {
+    throw new Error(`Unexpected durable settings store ref: ${row.durableSettingsStoreRef}`);
+  }
+  const { durableSettingsPersisted, ...remainingProductClaims } = proof.productClaims;
+  if (
+    row.durableSettingsPersisted !== true ||
+    !durableSettingsPersisted ||
+    Object.values(remainingProductClaims).some((claim) => claim !== false)
+  ) {
     throw new Error(`Retention local state proof overclaimed product behavior: ${JSON.stringify(proof.productClaims)}`);
   }
 }

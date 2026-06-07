@@ -61,15 +61,15 @@ the retention settings write command local-execution result now exists through
 Local service state readback proof now derives the accepted write-command result
 into parent-domain rows through
 `node scripts/test/tracking-retention-local-service-state-proof.mjs`, preserving
-the applied retention values, service state revision, and snapshot ref without
-claiming durable product settings.
-Durable settings proof now derives manual-required durable persistence rows from
-that local service state through
+the applied retention values, service state revision, snapshot ref, and local
+durable settings store ref without claiming writable product settings.
+Durable settings proof now derives local durable persistence rows from that
+local service state through
 `node scripts/test/tracking-retention-durable-settings-proof.mjs`, making the
-durable store requirement and visible failure boundary explicit without
-claiming production persistence or product-ready writable settings.
+Rust service durable store ref and persisted state explicit without claiming
+product-ready writable settings, platform runtime, or production hardening.
 The hosted parent route now also sends that typed write command and renders the
-service accepted result with applied local retention values. Durable product
+service accepted result with applied local retention values. Writable product
 settings, platform behavior, applied product-ready writable retention execution,
 and product claim readiness are not claimed beyond the proof state recorded in
 `proof-summary.json`, `14-retention-delete-proof.json`,
@@ -106,11 +106,11 @@ This workpack can be assigned independently, implemented against the owning doma
   product claims remain manual-required until the assigned proof artifacts
   exist.
 - Local service state readback proof is derived from the accepted local write
-  command result; it is not durable settings persistence or physical-device
-  behavior proof.
-- Durable settings proof is a manual-required readiness boundary over local
-  service state. It does not claim production durable persistence, platform
-  runtime, or product-ready writable settings.
+  command result and now carries the local durable settings store ref; it is not
+  physical-device behavior proof.
+- Durable settings proof records local durable persistence from the Rust
+  service command. It does not claim writable product settings, platform
+  runtime, production hardening, or product-ready retention behavior.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -229,7 +229,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, and WP32 updated; central product capability checklist
       remains hub/primary sequenced.
-- [x] Known gaps/manual-required states: durable product settings, platform
+- [x] Known gaps/manual-required states: writable product settings, platform
       runtime, child-device delivery, Android/iOS physical proof, authority,
       provider delivery, notification receipts, production workers, and
       product-ready retention behavior remain proof-gated.
@@ -250,11 +250,10 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, and WP32 updated; central product capability checklist
       remains hub/primary sequenced because E-B owns the lock.
-- [x] Known gaps/manual-required states: production durable settings
-      persistence, product-ready writable settings, platform runtime,
-      child-device delivery, Android/iOS physical proof, authority, provider
-      delivery, notification receipts, production workers, and product-ready
-      retention behavior remain proof-gated.
+- [x] Known gaps/manual-required states: product-ready writable settings,
+      platform runtime, child-device delivery, Android/iOS physical proof,
+      authority, provider delivery, notification receipts, production workers,
+      and product-ready retention behavior remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: portal live activity state, portal event-result routing,
@@ -279,10 +278,10 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, WP30, and WP32 updated; central product capability
       checklist remains hub/primary sequenced.
-- [x] Known gaps/manual-required states: durable product settings and applied
+- [x] Known gaps/manual-required states: writable product settings and applied
       product-ready service mutation execution remain pending; the current
-      service proof is local mutation plus local state revision only. Platform
-      runtime, child-device delivery, Android/iOS physical proof, authority,
+      service proof is local mutation plus local state revision and durable
+      store ref only. Platform runtime, child-device delivery, Android/iOS physical proof, authority,
       provider delivery,
       notification receipts, production workers, full parent/child UI beyond
       the hosted route, and product-ready retention behavior remain proof-gated.

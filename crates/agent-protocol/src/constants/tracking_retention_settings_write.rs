@@ -10,3 +10,6 @@ pub const WRITER_INTENT_REF: &str = "tracking-retention-settings-write-retention
 pub const READ_MODEL_PROOF_REF: &str =
     "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json";
 pub const LOCAL_SERVICE_STATE_SNAPSHOT_REF: &str = "agent-service-local-retention-settings-state";
+pub const DURABLE_SETTINGS_STORE_REF: &str = "agent-service-local-retention-settings-durable-json";
+pub const DURABLE_SETTINGS_STORE_FILE_NAME: &str =
+    "ocentra-parent-tracking-retention-settings-durable-proof.json";

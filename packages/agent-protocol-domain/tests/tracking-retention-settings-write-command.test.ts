@@ -37,7 +37,8 @@ const TrackingRetentionSettingsWriteResult = {
   remoteAiEnabled: false,
   localServiceStateRevision: 1,
   localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
-  durableSettingsPersisted: false,
+  durableSettingsStoreRef: 'agent-service-local-retention-settings-durable-json',
+  durableSettingsPersisted: true,
   commandTransportClaimed: true,
   serviceWritePreflightClaimed: true,
   serviceMutationExecuted: true,
@@ -115,7 +116,7 @@ describe('agent tracking retention settings write result parser', () => {
     });
     expect(
       parseAgentTrackingRetentionSettingsWriteResultEvent(
-        writeResultEvent(JSON.stringify({ ...TrackingRetentionSettingsWriteResult, durableSettingsPersisted: true }))
+        writeResultEvent(JSON.stringify({ ...TrackingRetentionSettingsWriteResult, durableSettingsPersisted: false }))
       )
     ).toEqual({
       ok: false,

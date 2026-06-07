@@ -63,7 +63,8 @@ export const AgentTrackingRetentionSettingsWriteResultSchema = withParser(
     remoteAiEnabled: Schema.Literal(false),
     localServiceStateRevision: Schema.Union(Schema.Number.pipe(Schema.int(), Schema.positive()), Schema.Null),
     localServiceStateSnapshotRef: RetentionWriteText,
-    durableSettingsPersisted: Schema.Literal(false),
+    durableSettingsStoreRef: RetentionWriteText,
+    durableSettingsPersisted: Schema.Boolean,
     commandTransportClaimed: Schema.Literal(true),
     serviceWritePreflightClaimed: Schema.Literal(true),
     serviceMutationExecuted: Schema.Boolean,
@@ -113,6 +114,14 @@ export const AgentTrackingRetentionSettingsWriteResultSchema = withParser(
           result.writeState !== 'service-write-command-accepted' ||
           result.localServiceStateRevision !== null ||
           'Accepted write results must include a local service state revision'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (result) =>
+          result.writeState !== 'service-write-command-accepted' ||
+          result.durableSettingsPersisted ||
+          'Accepted write results must persist local durable settings'
       )
     )
 );

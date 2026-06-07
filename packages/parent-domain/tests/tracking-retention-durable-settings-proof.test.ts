@@ -13,26 +13,27 @@ const SourceLocalServiceStateProofRef =
   'output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json';
 
 describe('tracking retention durable settings proof', () => {
-  it('derives durable settings manual-required rows from local service state readback', () => {
+  it('derives local durable settings rows from local service state readback', () => {
     const proof = durableProof();
 
     expect(proof.proofMode).toBe('tracking-retention-durable-settings-proof');
     expect(proof.proofClaims).toEqual({
       localServiceStateReadbackClaimed: true,
       durablePersistenceRequirementVisible: true,
-      durabilityFailureVisible: true,
+      localDurableSettingsPersisted: true,
+      durabilityFailureVisible: false,
     });
     expect(proof.rows).toHaveLength(1);
     expectDurableSettingsRow(proof);
   });
 
-  it('rejects durable persistence and product-ready overclaims', () => {
+  it('rejects missing durable persistence and product-ready overclaims', () => {
     const [row] = durableProof().rows;
 
     expect(
       TrackingRetentionDurableSettingsRowSchema.safeParse({
         ...row,
-        durableSettingsPersisted: true,
+        durableSettingsPersisted: false,
       }).success
     ).toBe(false);
     expect(
@@ -74,10 +75,11 @@ function expectDurableSettingsRow(proof: TrackingRetentionDurableSettingsProof):
   );
   expect(row.localServiceStateRevision).toBe(1);
   expect(row.localServiceStateSnapshotRef).toBe('agent-service-local-retention-settings-state');
-  expect(row.durableStoreRef).toBe('retention-settings-durable-store-required');
-  expect(row.durableSettingsPersisted).toBe(false);
+  expect(row.durableSettingsStoreRef).toBe('agent-service-local-retention-settings-durable-json');
+  expect(row.durableStoreRef).toBe('agent-service-local-retention-settings-durable-json');
+  expect(row.durableSettingsPersisted).toBe(true);
   expect(row.durablePersistenceRequired).toBe(true);
-  expect(row.durabilityFailureVisible).toBe(true);
+  expect(row.durabilityFailureVisible).toBe(false);
   expect(row.productSettingsWritable).toBe(false);
   expect(row.productClaimReady).toBe(false);
 }
@@ -103,7 +105,8 @@ function writeResult(): unknown {
     remoteAiEnabled: false,
     localServiceStateRevision: 1,
     localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
-    durableSettingsPersisted: false,
+    durableSettingsStoreRef: 'agent-service-local-retention-settings-durable-json',
+    durableSettingsPersisted: true,
     commandTransportClaimed: true,
     serviceMutationExecuted: true,
     platformRuntimeClaimed: false,
