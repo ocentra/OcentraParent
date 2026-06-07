@@ -465,6 +465,10 @@ control with better evidence and local audit.
   the App/Game Sessions dashboard renders foreground state as source/read-model
   refs and counts without exposing window title refs, raw titles, or executable
   paths.
+- The Linux universal-block merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/linux-universal-block-proof`: Linux
+  broad block-launch behavior remains unavailable/manual-required without a
+  named mechanism, target distro, session, rollback, and audit proof.
 
 ## Current Gap
 
