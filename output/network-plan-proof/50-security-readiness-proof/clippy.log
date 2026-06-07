@@ -1,1 +1,2 @@
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.20s
+network-evidence-clippy=passed
+command=cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings
