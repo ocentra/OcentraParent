@@ -122,6 +122,7 @@ before `DONE` or PR-ready reporting.
 114. WP123 app/game timer parent-surface child UX local outbox provider preflight.
 115. WP124 app/game timer parent-surface child UX local outbox provider status handoff.
 116. WP125 app/game timer parent-surface child UX local outbox preference preflight.
+117. WP126 app/game timer parent-surface child UX local outbox preference status handoff.
 
 ## Standard AI Worker Checklist
 

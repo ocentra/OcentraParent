@@ -375,6 +375,12 @@ control with better evidence and local audit.
   quiet-hours setup before delivery can be claimed while manual-required and
   unavailable rows remain blocked and parent UI/provider/child/runtime/adapter/
   platform claims remain false.
+- Timer parent-surface child UX preference-preflight rows now bridge into the
+  existing V3 notification rule/provider/retry status boundary as manual setup
+  or disabled status rows, preserving scheduler/outbox/preference/quiet-hours
+  refs while parent preference mutation, parent UI, provider delivery, child
+  delivery, retry, quiet-hours runtime, adapter, and platform claims remain
+  false.
 - The App/Game Sessions portal route now has a route-level app/game
   notification parent-surface panel that projects the live service
   notification-readiness read-model event into schema-backed manual/unavailable
