@@ -1,7 +1,7 @@
 use super::{
-    constants, ScreenAnalysisParentSetting, ScreenSettingsGetRequest,
-    ScreenSettingsRejectionReason, ScreenSettingsUpdateKind, ScreenSettingsUpdateResponse,
-    ScreenSettingsUpdateStatus, SCREEN_EVIDENCE_SCHEMA_VERSION,
+    constants, AgentCommandName, AgentEventName, ScreenAnalysisParentSetting,
+    ScreenSettingsGetRequest, ScreenSettingsRejectionReason, ScreenSettingsUpdateKind,
+    ScreenSettingsUpdateResponse, ScreenSettingsUpdateStatus, SCREEN_EVIDENCE_SCHEMA_VERSION,
 };
 
 #[test]
@@ -57,6 +57,41 @@ fn screen_settings_response_serializes_rejection_reason() {
     assert_eq!(
         serialized["message"],
         constants::screen_settings::MESSAGE_INVALID_SETTING
+    );
+}
+
+#[test]
+fn screen_settings_transport_names_serialize_for_service_commands() {
+    let get = serde_json::to_value(AgentCommandName::AgentScreenSettingsGet)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let replace = serde_json::to_value(AgentCommandName::AgentScreenSettingsReplace)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let reported = serde_json::to_value(AgentEventName::AgentScreenSettingsReported)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let accepted = serde_json::to_value(AgentEventName::AgentScreenSettingsReplaceAccepted)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let rejected = serde_json::to_value(AgentEventName::AgentScreenSettingsReplaceRejected)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        get.as_str(),
+        Some(constants::screen_settings::COMMAND_NAME_GET)
+    );
+    assert_eq!(
+        replace.as_str(),
+        Some(constants::screen_settings::COMMAND_NAME_REPLACE)
+    );
+    assert_eq!(
+        reported.as_str(),
+        Some(constants::screen_settings::EVENT_NAME_REPORTED)
+    );
+    assert_eq!(
+        accepted.as_str(),
+        Some(constants::screen_settings::EVENT_NAME_REPLACE_ACCEPTED)
+    );
+    assert_eq!(
+        rejected.as_str(),
+        Some(constants::screen_settings::EVENT_NAME_REPLACE_REJECTED)
     );
 }
 

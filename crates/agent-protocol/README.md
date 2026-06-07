@@ -13,6 +13,10 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - Screen parent settings structs and persistence response shapes mirroring the
   TypeScript `ScreenAnalysisParentSettingSchema` boundary for service-backed
   opt-in settings proof without raw-image retention.
+- Screen settings `agent.screen-settings.get` and
+  `agent.screen-settings.replace` command/event names and payload field
+  constants mirrored by the TypeScript protocol adapter and Rust service
+  command path.
 - V0.8 enforcement product-control read-model, command, event, and payload
   constants shared by the Rust service and TypeScript protocol adapter.
 - V0.8 enforcement policy-dispatch read-model, command, event, and payload
@@ -138,7 +142,8 @@ flowchart LR
   scheduler runtime, parent notification UI, child delivery, policy evaluator
   execution, adapter dispatch, broad blocking, and platform support remain
   unclaimed.
-- Screen parent settings structs preserve serialization and service-persistence
-  boundaries only. Parent portal command wiring, product retention-control UI,
+- Screen parent settings structs and command names preserve serialization,
+  transport, and service-persistence boundaries only. Parent portal form submit
+  wiring, product retention-control UI,
   raw screenshot retention enablement, live view, and privacy/legal approval
   remain separate proof-gated work.

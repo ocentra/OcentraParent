@@ -209,6 +209,10 @@
       "import": "./dist/screen-evidence.js",
       "types": "./dist/screen-evidence.d.ts"
     },
+    "./screen-evidence-settings": {
+      "import": "./dist/screen-evidence-settings.js",
+      "types": "./dist/screen-evidence-settings.d.ts"
+    },
     "./screen-ocr-worker": {
       "import": "./dist/screen-ocr-worker.js",
       "types": "./dist/screen-ocr-worker.d.ts"

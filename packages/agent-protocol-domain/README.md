@@ -9,6 +9,9 @@ transports.
 - Agent event names and payload schemas.
 - Security envelope fields and validation.
 - Protocol defaults that must match Rust.
+- Screen settings get/replace command adapter for persisted parent screen
+  settings, reusing `activity-domain`'s `ScreenAnalysisParentSettingSchema`
+  rather than duplicating the product setting contract.
 - Adapter-specific command/event contracts for activity, browser policy,
   parent assistant, LAN, enforcement product-control runtime state, and related
   paths.
@@ -127,3 +130,7 @@ flowchart LR
   delivery, cross-process replay, remote delete/export propagation, product
   readiness, policy authority, adapter execution, exact content, and host
   filtering remain separate proof-gated work.
+- Screen settings command parsing proves TypeScript transport parity only.
+  Parent portal form submission, product-complete retention UI, raw screenshot
+  retention enablement, live view, and privacy/legal approval remain separate
+  proof-gated work.

@@ -154,6 +154,10 @@ pub enum AgentCommandName {
     AgentBrowserPolicyReplace,
     #[serde(rename = "agent.browser-policy.rollback")]
     AgentBrowserPolicyRollback,
+    #[serde(rename = "agent.screen-settings.get")]
+    AgentScreenSettingsGet,
+    #[serde(rename = "agent.screen-settings.replace")]
+    AgentScreenSettingsReplace,
     #[serde(rename = "agent.enforcement.execute")]
     AgentEnforcementExecute,
     #[serde(rename = "agent.enforcement.timer.recover")]
@@ -304,6 +308,12 @@ pub enum AgentEventName {
     AgentBrowserPolicyRollbackAccepted,
     #[serde(rename = "agent.browser-policy.rollback.rejected")]
     AgentBrowserPolicyRollbackRejected,
+    #[serde(rename = "agent.screen-settings.reported")]
+    AgentScreenSettingsReported,
+    #[serde(rename = "agent.screen-settings.replace.accepted")]
+    AgentScreenSettingsReplaceAccepted,
+    #[serde(rename = "agent.screen-settings.replace.rejected")]
+    AgentScreenSettingsReplaceRejected,
     #[serde(rename = "agent.enforcement.audit.reported")]
     AgentEnforcementAuditReported,
     #[serde(rename = "agent.enforcement.timer.reported")]
