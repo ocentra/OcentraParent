@@ -94,6 +94,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `37-missing-device-hosted-ui-proof.json`
 - WP30 child-runtime delivery boundary proof:
   `38-child-runtime-delivery-boundary-proof.json`
+- WP30 child-runtime execution readiness proof:
+  `39-child-runtime-execution-readiness-proof.json`
 
 ## Merge Blockers
 

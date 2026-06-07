@@ -608,6 +608,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       parent action readiness screenshot proof, hosted child-safe check-in
       screenshot proof, and hosted child-runtime
       disclosure/safe-help/location-share consent screenshot proof exist; hosted
+      child-runtime execution readiness proof now consumes the delivery-boundary
+      rows and records delivery-envelope, execution-result, visible-snapshot,
+      parent-receipt, and runtime-observation requirement refs;
       retention settings local service write command/result rendering is proved,
       including a visible local service-state proof artifact reference, local
       durable settings persistence proof is recorded, and hosted React
@@ -672,7 +675,12 @@ Every implementation workpack must update, or explicitly justify not updating:
       pending.
 - [ ] Child-device runtime snapshots cover actual delivery/execution,
       disclosure, safe/help responses, and location-share consent. Hosted proof
-      covers the copy and delivery-boundary card only.
+      covers the copy and delivery-boundary card only; WP30 execution-readiness
+      proof now records deterministic delivery-envelope, execution-result,
+      visible-snapshot, parent-receipt, and runtime-observation requirement refs
+      in
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/27-child-runtime-execution-readiness-proof.json`,
+      but actual child-device delivery/execution remains unproved.
 - [x] Hosted screenshots are stored under the assigned proof root. The runtime proof
       command captures the local parent fixture screenshot at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`;

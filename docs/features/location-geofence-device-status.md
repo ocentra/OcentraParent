@@ -166,6 +166,15 @@ expose location or device-status features. Parents expect this category.
   UI, provider delivery, notification receipt ingestion, live location runtime,
   physical-device proof, authority, production workers, and product-ready
   claims false.
+- WP30 child-runtime execution readiness proof now exists through
+  `node scripts/test/tracking-child-runtime-execution-readiness-proof.mjs`. It
+  consumes the delivery boundary proof, emits deterministic delivery-envelope,
+  execution-result, visible-snapshot, parent-receipt, and runtime-observation
+  requirement refs for each child check-in state, writes WP30/WP33 artifacts,
+  and keeps actual child-device delivery/execution, rendered child-device
+  runtime UI, provider delivery, notification receipt ingestion, live location
+  runtime, physical-device proof, authority, production workers, and
+  product-ready claims false.
 - WP32 hosted report/policy consumer rendering proof now exists through
   `npm run test:tracking-plan-hosted-ui-proof`. It renders parent report
   summary, policy evidence drill-in, and retention audit export consumer rows
