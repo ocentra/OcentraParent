@@ -7,16 +7,16 @@
       "familyId": "family-local",
       "deviceId": null
     },
-    "requestedAt": "2026-06-05T15:59:25.657Z",
+    "requestedAt": "2026-06-07T00:51:09.845Z",
     "rangeStart": "1970-01-01T00:00:00Z",
-    "rangeEnd": "2026-06-05T15:59:25.655Z"
+    "rangeEnd": "2026-06-07T00:51:09.845Z"
   },
   "state": "ready",
-  "generatedAt": "2026-06-05T15:59:25.662Z",
+  "generatedAt": "2026-06-07T00:51:09.847Z",
   "summary": "Windows WinRT OCR read the live Wikipedia mathematics page from the service queued capture.",
   "rows": [
     {
-      "rowId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1",
+      "rowId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780793467-1",
       "label": "Windows WinRT OCR read the live Wikipedia mathematics page from the service queued capture.",
       "deviceId": "local-dev-agent",
       "state": "ready",
@@ -26,7 +26,7 @@
       "captureReason": "timedCadence",
       "captureScope": "activeWindow",
       "capabilityStatus": "available",
-      "queueJobId": "screen-service-queue-job-1780675160-1",
+      "queueJobId": "screen-service-queue-job-1780793467-1",
       "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
       "modelId": "windows-winrt-ocr",
       "providerKind": "localOcr",
@@ -36,30 +36,49 @@
       "imageDeletionState": "deleted",
       "rawImageRetained": false,
       "policyEligible": true,
-      "imageDigest": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I",
+      "imageDigest": "34Yj7EyGLSHp6Wq8txZJwQV9z_iUZBd6rjNAm-yZFsk",
       "custodyState": "child-device-journal",
       "evidence": [
         {
-          "evidenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1",
+          "evidenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780793467-1",
           "kind": "screenshot",
-          "digest": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I",
+          "digest": "34Yj7EyGLSHp6Wq8txZJwQV9z_iUZBd6rjNAm-yZFsk",
           "uri": null
         }
       ],
-      "policyDecisionRef": null,
-      "policyAction": null,
-      "policyReasonCodes": [],
-      "parentRuleRefs": [],
+      "policyDecisionRef": "screen-service-policy-dry-run-screen-service-queue-job-1780793467-1",
+      "policyAction": "allow",
+      "policyReasonCodes": [
+        "screen-service-analysis-policy-dry-run"
+      ],
+      "parentRuleRefs": [
+        "screen-service-parent-rule-local-summary"
+      ],
       "localModelRuntimeRefs": [
         "windows-winrt-ocr-local-runtime"
       ],
-      "parentExplanationRefs": [],
-      "explanationReasons": [],
-      "deletionReasons": [],
+      "parentExplanationRefs": [
+        "screen-service-parent-explanation-screen-service-queue-job-1780793467-1"
+      ],
+      "explanationReasons": [
+        "screen-service-policy-dry-run"
+      ],
+      "deletionReasons": [
+        "screen-image-deleted-after-analysis"
+      ],
+      "ocrTextSnippets": [
+        "Ask about page? x",
+        "en.wikipedia.org/wiki/...",
+        "Bookmarks Adobe cc 2019 pre-...",
+        "WIKIPEDIA*",
+        "25 yeus of the",
+        "Mathematics"
+      ],
+      "redactionNotes": [],
       "sourceEvidenceRefs": []
     },
     {
-      "rowId": "screen-service-analysis-result-1780675160-1",
+      "rowId": "screen-service-analysis-result-1780793467-1",
       "label": "Timed screen capture was queued by the local service cadence.",
       "deviceId": "local-dev-agent",
       "state": "ready",
@@ -69,7 +88,7 @@
       "captureReason": "timedCadence",
       "captureScope": "activeWindow",
       "capabilityStatus": "available",
-      "queueJobId": "screen-service-queue-job-1780675160-1",
+      "queueJobId": "screen-service-queue-job-1780793467-1",
       "modelRuntimeRef": "screen-service-deterministic-runtime",
       "modelId": "screen-service-cadence-metadata-v1",
       "providerKind": "serviceCaptureMetadata",
@@ -79,14 +98,14 @@
       "imageDeletionState": "deleted",
       "rawImageRetained": false,
       "policyEligible": false,
-      "imageDigest": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I",
+      "imageDigest": "34Yj7EyGLSHp6Wq8txZJwQV9z_iUZBd6rjNAm-yZFsk",
       "custodyState": "child-device-journal",
       "evidence": [
         {
-          "evidenceId": "screen-service-screenshot-1780675160-1",
+          "evidenceId": "screen-service-screenshot-1780793467-1",
           "kind": "screenshot",
-          "digest": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I",
-          "uri": "C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-screen-service-winrt-bqHWDP\\screen-queue"
+          "digest": "34Yj7EyGLSHp6Wq8txZJwQV9z_iUZBd6rjNAm-yZFsk",
+          "uri": "C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-screen-service-winrt-lZegO7\\screen-queue"
         }
       ],
       "policyDecisionRef": null,
@@ -99,6 +118,8 @@
       "parentExplanationRefs": [],
       "explanationReasons": [],
       "deletionReasons": [],
+      "ocrTextSnippets": [],
+      "redactionNotes": [],
       "sourceEvidenceRefs": []
     }
   ]

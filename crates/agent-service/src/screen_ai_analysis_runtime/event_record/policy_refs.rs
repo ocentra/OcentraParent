@@ -211,6 +211,8 @@ mod tests {
             parent_explanation_refs: policy.parent_explanation_refs,
             explanation_reasons: policy.explanation_reasons,
             deletion_reasons: policy.deletion_reasons,
+            ocr_text_snippets: Vec::new(),
+            redaction_notes: Vec::new(),
         }
     }
 
