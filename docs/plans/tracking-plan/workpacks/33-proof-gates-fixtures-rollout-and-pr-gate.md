@@ -80,6 +80,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `../25-policy-compiler-for-tracking-rules/proof.json`
 - Tracking notification receipt boundary proof:
   `22-notification-receipt-boundary-proof.json`
+- Tracking notification local outbox readiness proof:
+  `42-notification-local-outbox-readiness-proof.json`
 - WP18 child check-in timeout escalation proof:
   `31-child-check-in-timeout-escalation-proof.json`
 - Hosted child-safe check-in screenshot:
@@ -212,6 +214,17 @@ notification status refs, reason refs, provider attempt refs, and audit refs
 while keeping actual webhook/provider receipt ingestion, provider delivery,
 credentials, adapter dispatch, child-device delivery, authority, physical-device
 proof, and production durable outbox storage unclaimed.
+
+This branch adds
+`node scripts/test/tracking-notification-local-outbox-readiness-proof.mjs`,
+which maps WP26 tracking notification receipt rows to the existing notification
+local outbox adapter and scheduler proof rows and writes WP26/WP33 companion
+proof artifacts. It preserves tracking evidence, policy, receipt requirement,
+local outbox, and scheduler artifact refs while keeping provider delivery,
+receipt ingestion runtime, credentials, cloud routing, parent notification UI,
+retry/quiet-hours workers, child-device delivery, authority, physical-device
+proof, production durable outbox storage, adapter dispatch, and product-ready
+notification behavior unclaimed.
 
 This branch refreshes
 `node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`, which

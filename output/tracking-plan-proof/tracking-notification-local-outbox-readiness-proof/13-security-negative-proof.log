@@ -1,0 +1,4 @@
+Security/no-claim proof:
+
+- Provider delivery, provider receipt ingestion runtime, credentials, cloud routing, parent notification UI, retry worker runtime, quiet-hours timer runtime, production durable outbox storage, child-device delivery, physical-device proof, and authority proof remain false.
+- The proof references parent-owned local outbox/scheduler artifact refs only; it does not store raw child evidence, provider secrets, private paths, or delivered receipt payloads.

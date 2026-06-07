@@ -42,6 +42,9 @@ Proof root: `output/tracking-plan-proof/26-alert-severity-and-notification-model
 - `16-validation-commands.log`
 - `22-notification-receipt-boundary-proof.json`
 - `24-notification-preference-preflight-proof.json`
+- `26-notification-parent-surface-history-proof.json`
+- `27-notification-parent-surface-hosted-ui-proof.json`
+- `28-notification-local-outbox-readiness-proof.json`
 
 ## AI Worker Checklist
 
@@ -72,6 +75,16 @@ cites the V0.8 delivered-provider receipt-required contract, and still does not
 claim webhook receipt ingestion runtime, provider delivery, credentials,
 adapter dispatch, child-device delivery, authority, physical-device proof, or
 durable outbox storage.
+Tracking notification local outbox readiness proof now maps those tracking
+receipt boundary rows to the existing notification local outbox adapter and
+scheduler proof rows through
+`node scripts/test/tracking-notification-local-outbox-readiness-proof.mjs`.
+The proof preserves tracking evidence, policy decision, notification status,
+receipt requirement, local outbox file/data-path, and scheduler artifact refs
+while keeping provider delivery, receipt ingestion runtime, credentials, cloud
+routing, parent notification UI, retry/quiet-hours runtime, child-device
+delivery, physical-device proof, authority proof, production durable outbox
+storage, adapter dispatch, and product-ready notification behavior unclaimed.
 Tracking notification preference preflight proof now derives
 parent-preference-required, source-manual-required, and source-unavailable rows
 from those provider-notification proof rows through
@@ -261,3 +274,28 @@ test:tracking-plan-hosted-ui-proof` passed.
       routing, child-device delivery, physical-device proof, authority proof,
       retry workers, production durable history/outbox storage, adapter
       dispatch, and product-ready notification behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain tracking notification local outbox
+      readiness proof/test, proof script, owning tracking feature doc,
+      implementation checklist, this workpack doc, WP33 proof-gate doc, and
+      generated WP26/WP33 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-notification-local-outbox-readiness-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/26-alert-severity-and-notification-model/28-notification-local-outbox-readiness-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/42-notification-local-outbox-readiness-proof.json`,
+      `output/tracking-plan-proof/tracking-notification-local-outbox-readiness-proof/proof.json`,
+      and
+      `test-results/tracking-notification-local-outbox-readiness-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, this workpack doc, and WP33 proof-gate doc updated. Central
+      `docs/product-capability-checklist.md` was not edited because E-C
+      currently owns that lock.
+- [x] Known gaps/manual-required states: actual provider delivery, receipt
+      ingestion runtime, credentials, cloud routing, parent notification UI,
+      retry/quiet-hours worker runtime, child-device delivery,
+      physical-device proof, authority proof, production durable outbox
+      storage, adapter dispatch, and product-ready notification behavior
+      remain proof-gated.
