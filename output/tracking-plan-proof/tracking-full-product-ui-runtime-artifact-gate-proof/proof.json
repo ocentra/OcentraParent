@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "tracking-full-product-ui-runtime-artifact-gate-proof",
+  "generatedAt": "2026-06-07T23:10:00.000Z",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "commit": "f083ad72ea80455daf0ae7f25052d1f3654aca11",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/31-full-product-ui-readiness-blocker-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/56-full-product-ui-readiness-blocker-proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-readiness-blocker-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-full-product-ui-readiness-blocker-proof/proof.json\n M packages/parent-domain/src/tracking-full-product-ui-readiness-blocker-proof.ts\n M scripts/test/tracking-full-product-ui-readiness-blocker-proof.mjs\n M test-results/tracking-full-product-ui-readiness-blocker-proof/proof.json\n D test-results/tracking-full-product-ui-readiness-blocker-proof/read-model.json\n?? packages/parent-domain/src/tracking-full-product-ui-runtime-artifact-gate-proof.ts\n?? packages/parent-domain/tests/tracking-full-product-ui-runtime-artifact-gate-proof.test.ts\n?? scripts/test/tracking-full-product-ui-runtime-artifact-gate-proof.mjs",
+  "workpackIds": [
+    "30-parent-and-child-ui-ux-surfaces",
+    "33-proof-gates-fixtures-rollout-and-pr-gate"
+  ],
+  "requiredProofTier": "P4_PHYSICAL_DEVICE",
+  "currentProofTier": "P2_HOSTED_CI",
+  "status": "manual_required",
+  "readModel": {
+    "schemaVersion": "v0.5-tracking",
+    "proofMode": "tracking-full-product-ui-runtime-artifact-gate-proof",
+    "generatedAt": "2026-06-07T23:10:00.000Z",
+    "rows": [
+      {
+        "schemaVersion": "v0.5-tracking",
+        "rowId": "tracking-full-product-ui-runtime-artifacts",
+        "generatedAt": "2026-06-07T23:10:00.000Z",
+        "proofRoot": "output/tracking-plan-proof",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE",
+        "currentProofTier": "P2_HOSTED_CI",
+        "status": "manual-required",
+        "requiredArtifacts": [
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/01-parent-overview-runtime.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/02-parent-device-detail-runtime.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/03-parent-notification-history-preferences-runtime.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/05-child-device-rendered-check-in-runtime.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/06-child-device-rendered-location-consent-runtime.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/07-child-device-safe-help-response-runtime.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/08-cross-surface-accessibility-report.json",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/09-product-ui-end-to-end-trace.json"
+        ],
+        "presentArtifacts": [],
+        "missingArtifacts": [
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/01-parent-overview-runtime.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/02-parent-device-detail-runtime.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/03-parent-notification-history-preferences-runtime.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/05-child-device-rendered-check-in-runtime.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/06-child-device-rendered-location-consent-runtime.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/07-child-device-safe-help-response-runtime.png",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/08-cross-surface-accessibility-report.json",
+          "output/tracking-plan-proof/product-parent-child-ui-runtime/09-product-ui-end-to-end-trace.json"
+        ],
+        "auditRefs": [
+          "tracking-full-product-ui-runtime-artifacts-audit"
+        ],
+        "fullProductUiArtifactSetComplete": false,
+        "parentOverviewRuntimeUiClaimed": false,
+        "parentDeviceDetailRuntimeUiClaimed": false,
+        "parentNotificationHistoryPreferencesRuntimeClaimed": false,
+        "retentionSettingsProductionRuntimeUiClaimed": false,
+        "renderedChildDeviceRuntimeUiClaimed": false,
+        "childDeviceSafeHelpRuntimeUiClaimed": false,
+        "crossSurfaceAccessibilityRuntimeClaimed": false,
+        "productUiEndToEndRuntimeClaimed": false,
+        "childDeviceDeliveryRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "authorityProofClaimed": false,
+        "providerDeliveryRuntimeClaimed": false,
+        "productionProductUiClaimed": false,
+        "productClaimReady": false
+      }
+    ],
+    "proofClaims": {
+      "fullProductUiArtifactGateChecked": true,
+      "noParentOverviewRuntimeUiClaim": true,
+      "noParentDeviceDetailRuntimeUiClaim": true,
+      "noNotificationHistoryPreferencesRuntimeClaim": true,
+      "noRetentionSettingsProductionRuntimeUiClaim": true,
+      "noRenderedChildDeviceRuntimeUiClaim": true,
+      "noChildDeviceSafeHelpRuntimeUiClaim": true,
+      "noCrossSurfaceAccessibilityRuntimeClaim": true,
+      "noProductUiEndToEndRuntimeClaim": true,
+      "noChildDeviceDeliveryRuntimeClaim": true,
+      "noPhysicalDeviceProofClaim": true,
+      "noAuthorityClaim": true,
+      "noProviderDeliveryRuntimeClaim": true,
+      "noProductionProductUiClaim": true,
+      "noProductReadyClaim": true
+    },
+    "productClaims": {
+      "parentOverviewRuntimeUiClaimed": false,
+      "parentDeviceDetailRuntimeUiClaimed": false,
+      "parentNotificationHistoryPreferencesRuntimeClaimed": false,
+      "retentionSettingsProductionRuntimeUiClaimed": false,
+      "renderedChildDeviceRuntimeUiClaimed": false,
+      "childDeviceSafeHelpRuntimeUiClaimed": false,
+      "crossSurfaceAccessibilityRuntimeClaimed": false,
+      "productUiEndToEndRuntimeClaimed": false,
+      "childDeviceDeliveryRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "providerDeliveryRuntimeClaimed": false,
+      "productionProductUiClaimed": false,
+      "productClaimReady": false
+    }
+  },
+  "summary": {
+    "rowCount": 1,
+    "completeRows": 0,
+    "manualRequiredRows": 1,
+    "missingArtifactCount": 9,
+    "requiredArtifactCount": 9,
+    "parentOverviewRuntimeUiClaimedRows": 0,
+    "renderedChildDeviceRuntimeUiClaimedRows": 0,
+    "productionProductUiClaimedRows": 0,
+    "productReadyRows": 0
+  },
+  "proofLabels": [
+    "tracking-full-product-ui-runtime.artifact-gate",
+    "tracking-full-product-ui-runtime.required-artifacts-from-blocker-source",
+    "tracking-full-product-ui-runtime.no-product-claim-from-file-presence",
+    "tracking-full-product-ui-runtime.product-ready-false"
+  ],
+  "productClaims": {
+    "parentOverviewRuntimeUiClaimed": false,
+    "parentDeviceDetailRuntimeUiClaimed": false,
+    "parentNotificationHistoryPreferencesRuntimeClaimed": false,
+    "retentionSettingsProductionRuntimeUiClaimed": false,
+    "renderedChildDeviceRuntimeUiClaimed": false,
+    "childDeviceSafeHelpRuntimeUiClaimed": false,
+    "crossSurfaceAccessibilityRuntimeClaimed": false,
+    "productUiEndToEndRuntimeClaimed": false,
+    "childDeviceDeliveryRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "authorityProofClaimed": false,
+    "providerDeliveryRuntimeClaimed": false,
+    "productionProductUiClaimed": false,
+    "productClaimReady": false
+  },
+  "missingProofReason": "Actual full parent/child tracking UI still requires product runtime artifacts for parent overview, parent device detail, notification history/preferences, production retention settings write result, rendered child-device check-in, child-device location consent, child-device safe/help response, cross-surface accessibility, and end-to-end product UI trace. This gate validates required artifact presence only and keeps full product UI, child-device delivery runtime, physical-device, authority, provider delivery, production product UI, and product-ready claims false.",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain"
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-full-product-ui-runtime-artifact-gate-proof"
+    }
+  ]
+}
