@@ -97,16 +97,28 @@ console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function runCommand(entry) {
   const result = spawnSync(entry.command, entry.args, { encoding: 'utf8', shell: false });
-  writeFileSync(entry.log, `${result.stdout ?? ''}${result.stderr ?? ''}`);
   if (result.status !== 0) {
+    writeFileSync(entry.log, `${result.stdout ?? ''}${result.stderr ?? ''}`);
     throw new Error(`${entry.name} failed with exit ${result.status}`);
   }
+  writeFileSync(entry.log, stableCommandLog(entry, result.status));
   return {
     name: entry.name,
     command: [entry.command, ...entry.args].join(' '),
     status: result.status,
     log: entry.log,
   };
+}
+
+function stableCommandLog(entry, status) {
+  return [
+    `name=${entry.name}`,
+    `command=${[entry.command, ...entry.args].join(' ')}`,
+    `status=${status}`,
+    'result=passed',
+    'note=live command output is intentionally not embedded because cargo timing and target cache lines are nondeterministic',
+    '',
+  ].join('\n');
 }
 
 function runText(command, args) {
