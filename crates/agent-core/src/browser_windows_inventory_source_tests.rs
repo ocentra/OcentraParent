@@ -226,7 +226,7 @@ fn shortcut_bytes(target: &Path) -> Vec<u8> {
     bytes
 }
 
-fn quoted_display_icon(path: &PathBuf) -> String {
+fn quoted_display_icon(path: &Path) -> String {
     let mut display_icon = String::new();
     display_icon.push(constants::delimiter::QUOTE);
     display_icon.push_str(path.to_string_lossy().as_ref());

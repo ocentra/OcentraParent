@@ -117,51 +117,51 @@ fn read_model_pairs(read_model: &SocialAuditExplanationSnapshot) -> Vec<FieldPai
 }
 
 fn account_approval_entry() -> SocialAuditExplanationEntry {
-    entry(
-        SOCIAL_AUDIT_EXPLANATION_SUBJECT_ACCOUNT_APPROVAL,
-        SOCIAL_AUDIT_EXPLANATION_STATUS_READY_FOR_PARENT,
-        SOCIAL_AUDIT_EXPLANATION_DECISION_PARENT_RECORDED,
-        Some(SOCIAL_AUDIT_EXPLANATION_POLICY_VERSION),
-        SOCIAL_AUDIT_EXPLANATION_ACTION_PARENT_REVIEW,
-        vec![SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_PARENT_RULE_MATCH],
-        vec![
+    entry(EntryInput {
+        subject_kind: SOCIAL_AUDIT_EXPLANATION_SUBJECT_ACCOUNT_APPROVAL,
+        status: SOCIAL_AUDIT_EXPLANATION_STATUS_READY_FOR_PARENT,
+        decision_state: SOCIAL_AUDIT_EXPLANATION_DECISION_PARENT_RECORDED,
+        policy_version_ref: Some(SOCIAL_AUDIT_EXPLANATION_POLICY_VERSION),
+        action_candidate: SOCIAL_AUDIT_EXPLANATION_ACTION_PARENT_REVIEW,
+        policy_reason_codes: vec![SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_PARENT_RULE_MATCH],
+        explanation_reasons: vec![
             SOCIAL_AUDIT_EXPLANATION_REASON_EVIDENCE_LINKED,
             SOCIAL_AUDIT_EXPLANATION_REASON_POLICY_CANDIDATE_LINKED,
             SOCIAL_AUDIT_EXPLANATION_REASON_PARENT_DECISION_LINKED,
         ],
-        vec![
+        evidence_links: vec![
             evidence_link(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_POLICY_CANDIDATE),
             evidence_link(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_PARENT_APPROVAL),
         ],
-        OptionalRefs {
+        refs: OptionalRefs {
             parent_approval_request_ref: Some(SOCIAL_AUDIT_EXPLANATION_REF_APPROVAL_REQUEST),
             parent_approval_decision_ref: Some(SOCIAL_AUDIT_EXPLANATION_REF_APPROVAL_DECISION),
             ..OptionalRefs::default()
         },
-    )
+    })
 }
 
 fn feed_video_entry() -> SocialAuditExplanationEntry {
-    entry(
-        SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_GATE,
-        SOCIAL_AUDIT_EXPLANATION_STATUS_READY_FOR_PARENT,
-        SOCIAL_AUDIT_EXPLANATION_DECISION_CANDIDATE_ONLY,
-        Some(SOCIAL_AUDIT_EXPLANATION_POLICY_VERSION),
-        SOCIAL_AUDIT_EXPLANATION_ACTION_WARN,
-        vec![
+    entry(EntryInput {
+        subject_kind: SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_GATE,
+        status: SOCIAL_AUDIT_EXPLANATION_STATUS_READY_FOR_PARENT,
+        decision_state: SOCIAL_AUDIT_EXPLANATION_DECISION_CANDIDATE_ONLY,
+        policy_version_ref: Some(SOCIAL_AUDIT_EXPLANATION_POLICY_VERSION),
+        action_candidate: SOCIAL_AUDIT_EXPLANATION_ACTION_WARN,
+        policy_reason_codes: vec![
             SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_SOCIAL_RISK_HIGH,
             SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_VIDEO_SAFETY_RISK,
         ],
-        vec![
+        explanation_reasons: vec![
             SOCIAL_AUDIT_EXPLANATION_REASON_EVIDENCE_LINKED,
             SOCIAL_AUDIT_EXPLANATION_REASON_POLICY_CANDIDATE_LINKED,
         ],
-        vec![
+        evidence_links: vec![
             evidence_link(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_ROUTE_EVIDENCE),
             evidence_link(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_POLICY_CANDIDATE),
         ],
-        OptionalRefs::default(),
-    )
+        refs: OptionalRefs::default(),
+    })
 }
 
 fn native_app_gap_entry() -> SocialAuditExplanationEntry {
@@ -195,25 +195,25 @@ fn connector_boundary_entry() -> SocialAuditExplanationEntry {
 }
 
 fn decision_memory_entry() -> SocialAuditExplanationEntry {
-    entry(
-        SOCIAL_AUDIT_EXPLANATION_SUBJECT_DECISION_MEMORY,
-        SOCIAL_AUDIT_EXPLANATION_STATUS_CONTRACT_ONLY,
-        SOCIAL_AUDIT_EXPLANATION_DECISION_CANDIDATE_ONLY,
-        Some(SOCIAL_AUDIT_EXPLANATION_POLICY_VERSION),
-        SOCIAL_AUDIT_EXPLANATION_ACTION_ALLOW,
-        vec![SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_PARENT_RULE_MATCH],
-        vec![
+    entry(EntryInput {
+        subject_kind: SOCIAL_AUDIT_EXPLANATION_SUBJECT_DECISION_MEMORY,
+        status: SOCIAL_AUDIT_EXPLANATION_STATUS_CONTRACT_ONLY,
+        decision_state: SOCIAL_AUDIT_EXPLANATION_DECISION_CANDIDATE_ONLY,
+        policy_version_ref: Some(SOCIAL_AUDIT_EXPLANATION_POLICY_VERSION),
+        action_candidate: SOCIAL_AUDIT_EXPLANATION_ACTION_ALLOW,
+        policy_reason_codes: vec![SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_PARENT_RULE_MATCH],
+        explanation_reasons: vec![
             SOCIAL_AUDIT_EXPLANATION_REASON_MEMORY_LINKED,
             SOCIAL_AUDIT_EXPLANATION_REASON_EVIDENCE_LINKED,
         ],
-        vec![evidence_link(
+        evidence_links: vec![evidence_link(
             SOCIAL_AUDIT_EXPLANATION_EVIDENCE_DECISION_MEMORY,
         )],
-        OptionalRefs {
+        refs: OptionalRefs {
             decision_memory_ref: Some(SOCIAL_AUDIT_EXPLANATION_REF_DECISION_MEMORY),
             ..OptionalRefs::default()
         },
-    )
+    })
 }
 
 fn manual_gap_entry() -> SocialAuditExplanationEntry {
@@ -234,20 +234,20 @@ fn manual_entry(
     explanation_reasons: Vec<&'static str>,
     refs: OptionalRefs,
 ) -> SocialAuditExplanationEntry {
-    entry(
+    entry(EntryInput {
         subject_kind,
-        SOCIAL_AUDIT_EXPLANATION_STATUS_MANUAL_REQUIRED,
-        SOCIAL_AUDIT_EXPLANATION_DECISION_MANUAL_REQUIRED,
-        None,
-        SOCIAL_AUDIT_EXPLANATION_ACTION_MANUAL_REVIEW,
-        vec![SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_MANUAL_REQUIRED],
+        status: SOCIAL_AUDIT_EXPLANATION_STATUS_MANUAL_REQUIRED,
+        decision_state: SOCIAL_AUDIT_EXPLANATION_DECISION_MANUAL_REQUIRED,
+        policy_version_ref: None,
+        action_candidate: SOCIAL_AUDIT_EXPLANATION_ACTION_MANUAL_REVIEW,
+        policy_reason_codes: vec![SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_MANUAL_REQUIRED],
         explanation_reasons,
-        vec![evidence_link(evidence_kind)],
+        evidence_links: vec![evidence_link(evidence_kind)],
         refs,
-    )
+    })
 }
 
-fn entry(
+struct EntryInput {
     subject_kind: &'static str,
     status: &'static str,
     decision_state: &'static str,
@@ -257,31 +257,35 @@ fn entry(
     explanation_reasons: Vec<&'static str>,
     evidence_links: Vec<SocialAuditExplanationEvidenceLink>,
     refs: OptionalRefs,
-) -> SocialAuditExplanationEntry {
+}
+
+fn entry(input: EntryInput) -> SocialAuditExplanationEntry {
     SocialAuditExplanationEntry {
-        event_id: subject_kind.to_string(),
-        subject_kind: subject_kind.to_string(),
-        status: status.to_string(),
-        decision_state: decision_state.to_string(),
+        event_id: input.subject_kind.to_string(),
+        subject_kind: input.subject_kind.to_string(),
+        status: input.status.to_string(),
+        decision_state: input.decision_state.to_string(),
         audience: SOCIAL_AUDIT_EXPLANATION_AUDIENCE_PARENT.to_string(),
-        policy_version_ref: policy_version_ref.map(str::to_string),
-        action_candidate: action_candidate.to_string(),
-        policy_reason_codes: policy_reason_codes
+        policy_version_ref: input.policy_version_ref.map(str::to_string),
+        action_candidate: input.action_candidate.to_string(),
+        policy_reason_codes: input
+            .policy_reason_codes
             .into_iter()
             .map(str::to_string)
             .collect(),
-        explanation_reasons: explanation_reasons
+        explanation_reasons: input
+            .explanation_reasons
             .into_iter()
             .map(str::to_string)
             .collect(),
-        evidence_links,
+        evidence_links: input.evidence_links,
         audit_refs: vec![SOCIAL_AUDIT_EXPLANATION_AUDIT_REF.to_string()],
-        parent_approval_request_ref: refs.parent_approval_request_ref.map(str::to_string),
-        parent_approval_decision_ref: refs.parent_approval_decision_ref.map(str::to_string),
-        decision_memory_ref: refs.decision_memory_ref.map(str::to_string),
-        connector_boundary_ref: refs.connector_boundary_ref.map(str::to_string),
-        native_capability_ref: refs.native_capability_ref.map(str::to_string),
-        manual_required_ref: refs.manual_required_ref.map(str::to_string),
+        parent_approval_request_ref: input.refs.parent_approval_request_ref.map(str::to_string),
+        parent_approval_decision_ref: input.refs.parent_approval_decision_ref.map(str::to_string),
+        decision_memory_ref: input.refs.decision_memory_ref.map(str::to_string),
+        connector_boundary_ref: input.refs.connector_boundary_ref.map(str::to_string),
+        native_capability_ref: input.refs.native_capability_ref.map(str::to_string),
+        manual_required_ref: input.refs.manual_required_ref.map(str::to_string),
         runtime_audit_store_claimed: false,
         rendered_explanation_ui_claimed: false,
         notification_delivered_claimed: false,
