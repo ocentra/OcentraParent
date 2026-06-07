@@ -1,5 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ActivityEvent, BrowserActiveProofSource,
+    constants, policy_constants as policy, ActivityCaptureCapabilityStatus, ActivityEvent,
+    ActivityNetworkProtocol, ActivityNetworkTcpState, BrowserActiveProofSource,
     BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
     BrowserFamily, BrowserQueryVisibilityLabel, ChildProfileReference, FamilyReference,
     LocalAiParentRuleContextRef, ParentActorReference, ParentActorRole, ParentDeviceReference,
@@ -7,8 +8,8 @@ use ocentra_parent_agent_protocol::{
 };
 
 use super::{
-    browser_tab_observation_event, foreground_window_observation_event,
-    BrowserBridgeTargetObservation, ForegroundWindowObservation,
+    browser_tab_observation_event, foreground_window_observation_event, network_observation_event,
+    BrowserBridgeTargetObservation, ForegroundWindowObservation, NetworkObservation,
 };
 
 pub(crate) fn browser_event() -> ActivityEvent {
@@ -51,12 +52,50 @@ pub(crate) fn active_window_event() -> ActivityEvent {
     )
 }
 
+pub(crate) fn network_flow_event() -> ActivityEvent {
+    network_observation_event(
+        NetworkObservation {
+            status: ActivityCaptureCapabilityStatus::Available,
+            protocol: Some(ActivityNetworkProtocol::Tcp),
+            local_ip: Some(constants::test_network::LOOPBACK_IP.to_string()),
+            local_port: Some(constants::activity_store::TEST_NETWORK_LOCAL_PORT),
+            destination_ip: Some(
+                constants::activity_store::TEST_NETWORK_DESTINATION_IP.to_string(),
+            ),
+            destination_port: Some(constants::activity_store::TEST_NETWORK_DESTINATION_PORT),
+            destination_domain: Some(constants::activity_store::TEST_NETWORK_DOMAIN.to_string()),
+            tcp_state: Some(ActivityNetworkTcpState::Established),
+            pid: Some(4242),
+            process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
+            associated_pid_count: 1,
+        },
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        0,
+    )
+}
+
 pub(crate) fn parent_rule_context_for_event(event: &ActivityEvent) -> LocalAiParentRuleContextRef {
     parent_rule_context(
         PolicyTarget {
             target_id: constants::activity_store::TEST_BROWSER_TARGET_ID.to_string(),
             target_type: PolicyTargetType::Domain,
             target_value: constants::activity_store::TEST_BROWSER_DOMAIN.to_string(),
+        },
+        policy::TEST_BLOCK_RULE_ID,
+        PolicyAction::Block,
+        policy::TEST_REASON_PARENT_BLOCK,
+        vec![event.event_id.clone()],
+    )
+}
+
+pub(crate) fn parent_rule_context_for_network_flow(
+    event: &ActivityEvent,
+) -> LocalAiParentRuleContextRef {
+    parent_rule_context(
+        PolicyTarget {
+            target_id: event.subject.subject_id.clone(),
+            target_type: PolicyTargetType::Domain,
+            target_value: constants::activity_store::TEST_NETWORK_DOMAIN.to_string(),
         },
         policy::TEST_BLOCK_RULE_ID,
         PolicyAction::Block,

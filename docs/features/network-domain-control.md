@@ -266,6 +266,13 @@ compete on control while staying clear about attribution confidence and privacy.
   observe-only handoff states. The mapper never authorizes adapter actions or
   enforcement commands; B-grade block/limit requests route to parent review, and
   C/D grades remain non-enforcing.
+- E-D added stored network-flow policy preview proof in `agent-core`: network
+  `activity.domain.observed` rows from the ActivityStore now feed the existing
+  policy preview read model, domain parent rules can produce disabled dry-run
+  block decisions, and process metadata can resolve ask-parent aliases. The
+  proof preserves source event and parent-rule evidence refs without exact URL,
+  page-content, decrypted payload, adapter execution, or enforcement-command
+  claims.
 - E-D added a parent notification candidate mapper in
   `ocentra-network-evidence`: policy handoff states map to candidate-only
   parent notification records that preserve notification, policy decision,
@@ -519,7 +526,14 @@ UI rendering remain open.
       E-D portal status proof also renders service-backed platform/capability
       state, active/tombstone/exportable row counts, retention delete refs, and
       degraded adapter state without local risk scoring or adapter authority.
-- [ ] Policy preview over stored flow evidence.
+- [x] Policy preview over stored flow evidence.
+      Network `activity.domain.observed` rows now feed the existing
+      ActivityStore policy preview read model. Domain parent-rule context can
+      produce disabled dry-run block decisions, process metadata can resolve
+      ask-parent aliases, and evidence refs stay attached without exact URL,
+      content, adapter, or enforcement-command claims. Proof:
+      `output/network-plan-proof/54-policy-preview-flow-proof/proof-summary.json`
+      and `test-results/network-policy-preview-flow-proof/proof.json`.
 - [ ] Adapter capability status.
       Row37 DNS adapter, Row38 Windows Firewall, Row39 WFP, and Row40 Android
       VpnService plus Row41 Apple Network Extension and Row42 Linux proof gates
