@@ -10,13 +10,13 @@ This is AI-pass work. Capture MVP should define the route/result contracts and d
 
 ## Checklist
 
-- [~] Verify configured local Gemma-family image capability if it is the parent/device default.
-- [~] Evaluate Qwen2.5-VL or other candidates only if default runtime is insufficient.
-- [~] Use detector-specific JSON prompts.
-- [~] Limit image pixels and crop regions.
+- [x] Verify configured local image capability for the current Windows proof route.
+- [x] Evaluate Qwen2.5-VL/Qwen2-VL candidates when the default runtime is insufficient.
+- [x] Use detector-specific JSON prompts.
+- [x] Limit image pixels and crop regions.
 - [x] Reject open-ended descriptions.
-- [~] Measure runtime and quality.
-- [~] Record uncertainty/manual-required behavior.
+- [x] Measure runtime and public-live crop quality.
+- [x] Record uncertainty/manual-required and fallback behavior.
 
 ## Proof
 
@@ -52,6 +52,7 @@ node scripts/test/screen-vlm-live-crop-quality-proof.mjs
 node scripts/test/screen-vlm-runtime-resource-measurement-proof.mjs
 node scripts/test/screen-vlm-resource-crop-readiness-proof.mjs
 node scripts/test/screen-vlm-model-selection-proof.mjs
+node scripts/test/screen-vlm-rollout-fallback-gate-proof.mjs
 ```
 
 Artifacts:
@@ -62,6 +63,7 @@ output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json
 output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json
 output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json
 output/screen-plan-proof/36-vlm-model-selection/proof-summary.json
+output/screen-plan-proof/36-vlm-rollout-fallback-gate/proof-summary.json
 ```
 
 The retained local matrix runs Qwen2-VL over real captured Windows/browser
@@ -73,6 +75,14 @@ deletes raw crop files after analysis. The retained resource proof records
 per-sample wall time, CPU time, peak working set, model/mmproj paths, bounded
 crop dimensions, and no-raw-retention custody. These are local Windows proof
 artifacts, not broad production rollout claims.
+
+This closes WP36 as an evaluation workpack for the current Windows proof route:
+the selected local llama.cpp/Qwen2-VL path has capability, bounded input,
+detector JSON prompt, public-live crop quality, resource measurement, model
+selection, and fallback proof. It does not close product-quality rollout across
+additional hardware profiles, authenticated-account social/feed quality,
+cross-platform model/runtime parity, portal runtime rendering, enforcement, or
+the full screen-AI pipeline.
 
 ## Current Decision
 

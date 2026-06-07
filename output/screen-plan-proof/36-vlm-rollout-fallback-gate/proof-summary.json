@@ -1,6 +1,6 @@
 {
   "proof": "screen-vlm-rollout-fallback-gate-proof",
-  "generatedAt": "2026-06-07T11:59:04.736Z",
+  "generatedAt": "2026-06-07T17:58:31.510Z",
   "proofTier": "P2_CURRENT_WINDOWS_VLM_ROLLOUT_FALLBACK_GATE",
   "claim": "The current Windows local VLM route is allowed only inside the measured image/resource/local-custody envelope; missing runtime, oversized inputs, over-budget resources, or unproved authenticated-social quality fall back to OCR/manual-required instead of using a remote provider or retaining raw screenshots.",
   "sourceEvidence": {

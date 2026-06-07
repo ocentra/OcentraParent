@@ -81,17 +81,18 @@ const candidateEvidence = {
     runtimeMeasurement.assertions.parseableMeaningfulJson === true &&
     runtimeMeasurement.assertions.allSamplesWithinResourceEnvelope === true,
   publicLiveCropQualityPassed:
-    liveCropQuality.assertions.realLivePageLoaded === true &&
-    liveCropQuality.assertions.localVlmExecuted === true &&
-    liveCropQuality.assertions.expectedTermsDetectedByVlm === true &&
-    liveCropQuality.assertions.expectedCategoryMatched === true,
+    liveCropQuality.assertions.everyRequiredPublicScenarioPassed === true &&
+    liveCropQuality.assertions.realLivePagesLoaded === true &&
+    liveCropQuality.assertions.localVlmExecutedForEveryCrop === true &&
+    liveCropQuality.assertions.expectedTermsDetectedByVlmForEveryCrop === true &&
+    liveCropQuality.assertions.expectedCategoryMatchedForEveryCrop === true,
   localOnlyCustody:
     readiness.assertions.localOnly === true &&
     runtimeMeasurement.assertions.noRemoteAiUsed === true &&
     liveCropQuality.assertions.noRemoteAiUsed === true,
   deletionCustody:
     runtimeMeasurement.assertions.noRawCaptureRetention === true &&
-    liveCropQuality.assertions.rawCropDeleted === true &&
+    liveCropQuality.assertions.rawCropsDeleted === true &&
     liveCropQuality.assertions.noRawImageRetained === true,
 };
 

@@ -1,6 +1,6 @@
 {
   "proof": "screen-vlm-resource-crop-readiness-proof",
-  "generatedAt": "2026-06-07T07:47:20.981Z",
+  "generatedAt": "2026-06-07T17:55:59.864Z",
   "proofTier": "P2_RETAINED_ARTIFACT_RESOURCE_AUDIT",
   "modelConstants": {
     "maxImagePixels": 2073600,

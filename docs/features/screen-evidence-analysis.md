@@ -800,15 +800,15 @@ only with explicit parent settings.
 ## Current Gap
 
 Product-complete retention-control rollout beyond the proved parent-approved
-local short-TTL Settings command path, actual production live-view worker
-start/relay-cache transport,
+local short-TTL Settings command path, actual production live-view worker start,
+hosted relay infrastructure,
 platform permission prompt proof, physical-device live-view parity, child-agent
 disclosure runtime deployment,
 privacy/legal approval, authenticated-account
 social proof beyond public/live surface proof, production OCR/VLM quality beyond
 the WinRT OCR service proof, controlled fixtures, the full live operator matrix,
-public live crop matrix, retained bounded-input proof, and retained proof-image
-VLM resource measurement,
+public live crop matrix, retained bounded-input proof, retained proof-image VLM
+resource measurement, and completed WP36 Windows-route evaluation,
 production local vision adapter quality beyond
 the service proof adapter, service-owned live trigger event producers beyond the
 timed cadence
@@ -943,23 +943,24 @@ parity, and UI remain separate proof gates.
 - [x] Windows service OCR route selection proof chooses WinRT OCR for the
       current Windows service path from retained real service/redaction evidence
       while leaving Tesseract/PaddleOCR as non-selected fallback candidates.
-- [~] Small guided VLM classifier readiness records local-only handoff,
-  template/version, max-pixel, open-ended prompt rejection, deletion,
-  provider-command probes, local llama.cpp/Qwen2-VL runtime availability,
-  retained controlled local VLM matrix proof, and retained nine-scenario live
-  operator matrix proof. The retained resource/crop readiness audit verifies
-  bounded VLM input dimensions and managed-browser CDP crop capture/deletion,
-  and the retained proof-image runtime measurement records per-sample wall time,
-  sampled CPU seconds, peak working set, and normalized local VLM output.
-  The public-live crop quality proof verifies real Vimeo, Wikipedia, 2048
-  browser game, eBay, and Bluesky public social/feed CDP crops with local
-  Qwen2-VL category/text matches and deletion. The current-route model
-  selection proof chooses cached local
-  llama.cpp/Qwen2-VL for the Windows proof path, and
-  the measured fallback gate blocks runtime-missing, oversized-input,
-  over-budget, and authenticated-social-unproved states before remote AI.
-  Authenticated-account social proof and broader rollout thresholds across more
-  hardware profiles remain open.
+- [x] Small guided VLM classifier evaluation records local-only handoff,
+      template/version, max-pixel, open-ended prompt rejection, deletion,
+      provider-command probes, local llama.cpp/Qwen2-VL runtime availability,
+      retained controlled local VLM matrix proof, and retained nine-scenario live
+      operator matrix proof. The retained resource/crop readiness audit verifies
+      bounded VLM input dimensions and managed-browser CDP crop capture/deletion,
+      and the retained proof-image runtime measurement records per-sample wall time,
+      sampled CPU seconds, peak working set, and normalized local VLM output.
+      The public-live crop quality proof verifies real Vimeo, Wikipedia, 2048
+      browser game, eBay, and Bluesky public social/feed CDP crops with local
+      Qwen2-VL category/text matches and deletion. The current-route model
+      selection proof chooses cached local
+      llama.cpp/Qwen2-VL for the Windows proof path, and
+      the measured fallback gate blocks runtime-missing, oversized-input,
+      over-budget, and authenticated-social-unproved states before remote AI.
+      This closes the Windows-route evaluation workpack; authenticated-account
+      social proof, production model quality, cross-platform parity, and broader
+      rollout thresholds across more hardware profiles remain open.
 - [x] Service WinRT OCR proof analyzes live public browser pixels through the
       encrypted service queue, records a `localOcr` Activity Screen row, drains
       the queue, and deletes adapter temp image material.

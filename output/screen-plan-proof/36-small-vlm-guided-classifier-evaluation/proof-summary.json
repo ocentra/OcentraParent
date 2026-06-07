@@ -1,6 +1,6 @@
 {
   "proof": "screen-vlm-guided-classifier-readiness-proof",
-  "generatedAt": "2026-06-07T09:25:51.766Z",
+  "generatedAt": "2026-06-07T17:55:49.493Z",
   "proofTier": "P3_CONTRACT_LOCAL_VLM_READINESS",
   "modelConstants": {
     "modelRuntimeRef": "screen-local-vlm-runtime",
@@ -167,9 +167,9 @@
     "runtimeResourceMeasurementMaxCpuSeconds": 247.390625,
     "liveCropQualityProofPath": "output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json",
     "liveCropQualityProofPresent": true,
-    "liveCropQualityScenarioId": "vimeo-public-home-crop",
-    "liveCropQualityExpectedCategoryMatched": true,
-    "liveCropQualityRawImageDeleted": true,
+    "liveCropQualityScenarioId": null,
+    "liveCropQualityExpectedCategoryMatched": false,
+    "liveCropQualityRawImageDeleted": false,
     "modelSelectionProofPath": "output/screen-plan-proof/36-vlm-model-selection/proof-summary.json",
     "modelSelectionProofPresent": true,
     "modelSelectionStatus": "selected-current-windows-local-proof-route",
@@ -196,7 +196,7 @@
     "retainedResourceCropBudgetAvailable": true,
     "managedBrowserCdpCropPathVerified": true,
     "retainedRuntimeResourceMeasurementAvailable": true,
-    "retainedLiveCropQualityAvailable": true,
+    "retainedLiveCropQualityAvailable": false,
     "currentLocalVlmRouteSelected": true,
     "currentLocalVlmFallbackGateProved": true,
     "liveVlmInferenceReady": true,
@@ -228,7 +228,6 @@
     "retained controlled and live-operator VLM capture inputs are bounded below the worker max-image-pixel budget",
     "managed-browser CDP crop capture path exists and deletes captured material",
     "retained proof-image VLM inference records per-sample wall time, CPU seconds, and peak working set inside the local measurement envelope",
-    "public-live managed-browser CDP crop is analyzed by local VLM with expected video category/text and raw crop deletion",
     "current Windows local VLM proof route selects cached llama.cpp/Qwen2-VL after runtime, resource, quality, local-only, and deletion evidence",
     "current Windows local VLM rollout fallback gate blocks runtime-missing, oversized-input, over-budget, and authenticated-social-unproved states before remote AI"
   ],

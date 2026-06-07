@@ -1,6 +1,6 @@
 {
   "proof": "screen-vlm-model-selection-proof",
-  "generatedAt": "2026-06-07T08:43:37.474Z",
+  "generatedAt": "2026-06-07T17:58:31.469Z",
   "proofTier": "P2_CURRENT_LOCAL_VLM_ROUTE_SELECTION",
   "claim": "The current Windows screen-plan proof path selects the cached local llama.cpp/Qwen2-VL route for guided VLM classification because it is the only measured local route with runtime availability, bounded input custody, resource measurement, public-live crop quality, local-only custody, and deletion proof.",
   "selectedRoute": {

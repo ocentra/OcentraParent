@@ -1,11 +1,11 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T17:48:38.697Z",
+  "generatedAt": "2026-06-07T17:58:31.478Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
-    "completeCount": 34,
-    "partialCount": 6,
+    "completeCount": 35,
+    "partialCount": 5,
     "openCount": 0,
     "completeRows": [
       "01 Source index and doc reconciliation",
@@ -38,6 +38,7 @@
       "33 Managed browser CDP screenshot capture path",
       "34 OCR Tesseract baseline",
       "35 OCR PaddleOCR/PP-OCR evaluation",
+      "36 Small VLM guided classifier evaluation",
       "37 Household mesh screen-analysis queue",
       "38 Local AI resource scheduler/priority queue",
       "39 Redacted summary-only remote boundary",
@@ -48,8 +49,7 @@
       "12 Android MediaProjection adapter plan/proof",
       "13 iOS ReplayKit adapter plan/proof",
       "28 Live view optional mode",
-      "30 Test suite, Playwright, rollout, PR gate",
-      "36 Small VLM guided classifier evaluation"
+      "30 Test suite, Playwright, rollout, PR gate"
     ],
     "openRows": []
   },
@@ -129,11 +129,11 @@
     {
       "id": "36",
       "label": "Small VLM guided classifier evaluation",
-      "status": "~",
+      "status": "x",
       "readinessProof": "output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json",
       "readinessProofPresent": true,
       "productReady": null,
-      "gate": "Current proof detects the local llama.cpp/Qwen2-VL runtime, retained controlled local VLM matrix, retained nine-scenario live operator matrix, bounded retained VLM inputs, managed-browser CDP crop capture path, retained proof-image VLM wall/CPU/RSS measurement, public-live video/school/game/shopping/social-feed CDP crop quality, current Windows local VLM route selection, and measured rollout/fallback gate; authenticated-account social proof and broader hardware rollout thresholds remain open."
+      "gate": "Evaluation complete for the current Windows proof route: local llama.cpp/Qwen2-VL runtime detection, retained controlled local VLM matrix, retained nine-scenario live operator matrix, bounded retained VLM inputs, managed-browser CDP crop capture path, retained proof-image VLM wall/CPU/RSS measurement, public-live video/school/game/shopping/social-feed CDP crop quality, current Windows local VLM route selection, and measured rollout/fallback gate are proved. Authenticated-account social proof, production model quality, cross-platform parity, and broader hardware rollout thresholds remain non-claims."
     }
   ],
   "remainingProductGates": [
@@ -178,13 +178,6 @@
       "status": "~",
       "productReady": null,
       "gate": "Final closure waits for partial platform/model gates or explicit product non-claim handoff."
-    },
-    {
-      "id": "36",
-      "label": "Small VLM guided classifier evaluation",
-      "status": "~",
-      "productReady": null,
-      "gate": "Current proof detects the local llama.cpp/Qwen2-VL runtime, retained controlled local VLM matrix, retained nine-scenario live operator matrix, bounded retained VLM inputs, managed-browser CDP crop capture path, retained proof-image VLM wall/CPU/RSS measurement, public-live video/school/game/shopping/social-feed CDP crop quality, current Windows local VLM route selection, and measured rollout/fallback gate; authenticated-account social proof and broader hardware rollout thresholds remain open."
     }
   ],
   "currentWindowsEvidence": [
