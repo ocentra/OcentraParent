@@ -1,0 +1,122 @@
+{
+  "proof": "screen-android-mediaprojection-capability-proof",
+  "generatedAt": "2026-06-07T16:03:40.736Z",
+  "claim": "Android MediaProjection emulator proof exists, but physical-device parity and silent background capture remain blocked before product readiness.",
+  "androidDocsVerified": [
+    {
+      "ref": "android-developer-media-projection",
+      "url": "https://developer.android.com/media/grow/media-projection",
+      "summary": "MediaProjection captures display or app-window content as a media stream with user consent per session and foreground-service requirements for Android 14 targets."
+    },
+    {
+      "ref": "android-developer-app-screen-sharing",
+      "url": "https://developer.android.com/about/versions/14/features/app-screen-sharing",
+      "summary": "Android 14 app screen sharing can limit capture to a selected app window and exclude system UI."
+    }
+  ],
+  "existingEmulatorProof": {
+    "path": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
+    "deviceSerial": "emulator-5554",
+    "model": "sdk_gphone64_x86_64",
+    "api": "35",
+    "consentApproved": true,
+    "captured": true,
+    "rawTempDeleted": true,
+    "physicalDeviceParityClaimed": false
+  },
+  "rows": [
+    {
+      "mode": "emulatorMediaProjection",
+      "captureState": "provedEmulator",
+      "proofState": "emulatorVerified",
+      "requiresUserConsentPerSession": true,
+      "requiresForegroundServiceType": true,
+      "supportsAppWindowSelection": false,
+      "silentBackgroundCaptureClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productAndroidCaptureReady": false,
+      "emulatorProofRef": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
+      "physicalDeviceProofRef": null,
+      "deletionProofRef": "output/screen-plan-proof/android-mediaprojection/03-android-capture-proof.json"
+    },
+    {
+      "mode": "physicalDeviceMediaProjection",
+      "captureState": "manualRequired",
+      "proofState": "physicalDeviceMissing",
+      "requiresUserConsentPerSession": true,
+      "requiresForegroundServiceType": true,
+      "supportsAppWindowSelection": false,
+      "silentBackgroundCaptureClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productAndroidCaptureReady": false,
+      "emulatorProofRef": null,
+      "physicalDeviceProofRef": null,
+      "deletionProofRef": null
+    },
+    {
+      "mode": "android14AppWindowSharing",
+      "captureState": "manualRequired",
+      "proofState": "physicalDeviceMissing",
+      "requiresUserConsentPerSession": true,
+      "requiresForegroundServiceType": true,
+      "supportsAppWindowSelection": true,
+      "silentBackgroundCaptureClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productAndroidCaptureReady": false,
+      "emulatorProofRef": null,
+      "physicalDeviceProofRef": null,
+      "deletionProofRef": null
+    },
+    {
+      "mode": "notClaimed",
+      "captureState": "notClaimed",
+      "proofState": "sourceDocsVerified",
+      "requiresUserConsentPerSession": false,
+      "requiresForegroundServiceType": false,
+      "supportsAppWindowSelection": false,
+      "silentBackgroundCaptureClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productAndroidCaptureReady": false,
+      "emulatorProofRef": null,
+      "physicalDeviceProofRef": null,
+      "deletionProofRef": null
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "physical readiness requires physical device proof",
+      "rejected": true
+    },
+    {
+      "name": "silent background capture remains not claimed",
+      "rejected": true
+    },
+    {
+      "name": "raw frame remote upload remains forbidden",
+      "rejected": true
+    },
+    {
+      "name": "MediaProjection rows require per-session consent",
+      "rejected": true
+    }
+  ],
+  "gapStatus": {
+    "emulatorMediaProjectionProofExists": true,
+    "physicalAndroidDeviceProofExists": false,
+    "android14AppWindowPhysicalProofExists": false,
+    "silentBackgroundCaptureClaimed": false,
+    "productAndroidCaptureReady": false
+  },
+  "artifacts": {
+    "summary": "output/screen-plan-proof/android/proof-summary.json"
+  },
+  "nonClaims": [
+    "This proof does not claim Android physical-device parity.",
+    "This proof does not claim silent Android background capture.",
+    "This proof does not enable raw remote upload or raw-retention-by-default."
+  ]
+}

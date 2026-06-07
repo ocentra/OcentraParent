@@ -446,6 +446,13 @@ only with explicit parent settings.
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
   claimed.
+- `scripts/test/screen-android-mediaprojection-capability-proof.mjs` now
+  records the Android MediaProjection source-doc/readiness gate at
+  `output/screen-plan-proof/android/proof-summary.json`. It consumes the
+  existing emulator proof, records per-session consent and Android 14
+  foreground-service/app-window-sharing requirements, rejects silent background
+  capture, and blocks physical-device product readiness until physical-device
+  capture and deletion proof exist.
 - `scripts/test/screen-ios-replaykit-capability-proof.mjs` now records the iOS
   ReplayKit source-doc/no-overclaim gate at
   `output/screen-plan-proof/ios/proof-summary.json`. It treats iOS capture as
