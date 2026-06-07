@@ -98,6 +98,15 @@ compete on control while staying clear about attribution confidence and privacy.
   retention/delete/export propagation, policy authority, side-effect authority,
   adapter execution, enforcement-command publication, exact URL, decrypted
   payload, page content, or host filtering.
+- E-D added row10d remote delivery receipt-ledger proof in `agent-core`:
+  projection replay rows now produce deterministic local receipt records that
+  preserve replay sequence, event id, event type, correlation id, event-chain
+  journal refs, and local receipt-ack refs. The ledger marks receipt, replay,
+  and support-status boundaries for future broker/family-hub delivery while
+  keeping remote acknowledgement delivery, provider delivery, child-device
+  delivery, policy authority, side-effect authority, adapter execution,
+  enforcement-command publication, exact URL, decrypted payload, page content,
+  and host filtering false.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,
