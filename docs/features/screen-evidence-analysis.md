@@ -757,13 +757,15 @@ only with explicit parent settings.
   claim managed-browser trigger ownership, authenticated-account social proof,
   or broad browser/network/mobile adapters.
 - `scripts/test/screen-plan-closure-audit-proof.mjs` now records the remaining
-  partial/open screen-plan gates at
-  `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`. This
-  prevents the stacked product-path artifact from being treated as full
-  screen-plan completion before macOS, Linux, Android parity, iOS, live-view
-  platform prompt/actual worker start/relay-cache execution, current PP-OCRv5
-  quality/resource, cross-platform OCR parity, and live VLM quality gates are
-  completed or explicitly left as non-claims.
+  partial screen-plan gates at
+  `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`. The
+  audit verifies current macOS, Linux, Android, iOS, live-view, OCR, and VLM
+  readiness artifacts are present while separately proving platform/product
+  readiness remains false where real-device, platform prompt, relay/cache,
+  PP-OCRv5 quality/resource, cross-platform OCR parity, authenticated-account
+  social, or broader VLM rollout gates are still missing. This prevents the
+  stacked product-path artifact from being treated as full screen-plan
+  completion.
 - Product-complete retention controls and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -962,9 +964,9 @@ parity, and UI remain separate proof gates.
 - [x] Final screen-AI product path artifact gate validates retained real-run
       trigger, capture, AI, policy, action/read-model, and deletion/custody
       artifacts without raw screenshot retention.
-- [x] Screen-plan closure audit records remaining partial/open platform,
-      live-view, and model-quality gates so screen is not claimed
-      product-complete prematurely.
+- [x] Screen-plan closure audit records current readiness proof artifacts and
+      remaining partial platform, live-view, and model-quality product gates so
+      screen is not claimed product-complete prematurely.
 - [x] Screen eventing runtime proof publishes typed capture, queue, AI-result,
       summary, policy, action dry-run, deletion, and portal-read-model events
       through `ocentra-eventing` without raw-image escape.

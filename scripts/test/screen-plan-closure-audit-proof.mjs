@@ -20,63 +20,72 @@ const workpacks = [
     id: '10',
     label: 'macOS capture adapter plan/proof',
     status: workpackStatus('10 macOS capture adapter plan/proof'),
-    requiredProof: 'output/screen-plan-proof/macos-screen-capture/proof-summary.json',
+    readinessProof: 'output/screen-plan-proof/macos/proof-summary.json',
+    productReadyField: 'gapStatus.productMacosCaptureReady',
     gate: 'Requires real macOS ScreenCaptureKit/permission proof on macOS hardware.',
   },
   {
     id: '11',
     label: 'Linux capture adapter plan/proof',
     status: workpackStatus('11 Linux capture adapter plan/proof'),
-    requiredProof: 'output/screen-plan-proof/linux-screen-capture/proof-summary.json',
+    readinessProof: 'output/screen-plan-proof/linux/proof-summary.json',
+    productReadyField: 'gapStatus.productLinuxCaptureReady',
     gate: 'Requires real Linux X11/Wayland portal proof on a Linux desktop session.',
   },
   {
     id: '12',
     label: 'Android MediaProjection adapter plan/proof',
     status: workpackStatus('12 Android MediaProjection adapter plan/proof'),
-    requiredProof: 'output/screen-plan-proof/android-mediaprojection/proof-summary.json',
+    readinessProof: 'output/screen-plan-proof/android/proof-summary.json',
+    productReadyField: 'gapStatus.productAndroidCaptureReady',
     gate: 'Needs physical/emulator parity beyond the existing consent/capture proof before broad Android product claim.',
   },
   {
     id: '13',
     label: 'iOS ReplayKit adapter plan/proof',
     status: workpackStatus('13 iOS ReplayKit adapter plan/proof'),
-    requiredProof: 'output/screen-plan-proof/ios-replaykit/proof-summary.json',
+    readinessProof: 'output/screen-plan-proof/ios/proof-summary.json',
+    productReadyField: 'gapStatus.productIosCaptureReady',
     gate: 'Requires real iOS ReplayKit entitlement/device proof.',
   },
   {
     id: '28',
     label: 'Live view optional mode',
     status: workpackStatus('28 Live view optional mode'),
-    requiredProof: 'output/screen-plan-proof/live-view-worker-startup/proof-summary.json',
+    readinessProof: 'output/screen-plan-proof/live-view-worker-startup/proof-summary.json',
+    productReadyField: null,
     gate: 'Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, and worker startup gate proof exist; real platform live-view prompt screenshots, actual production worker start, relay/cache execution, physical-device parity, and privacy/legal approval remain.',
   },
   {
     id: '30',
     label: 'Test suite, Playwright, rollout, PR gate',
     status: workpackStatus('30 Test suite, Playwright, rollout, PR gate'),
-    requiredProof: null,
+    readinessProof: null,
+    productReadyField: null,
     gate: 'Final closure waits for partial platform/model gates or explicit product non-claim handoff.',
   },
   {
     id: '34',
     label: 'OCR Tesseract baseline',
     status: workpackStatus('34 OCR Tesseract baseline'),
-    requiredProof: 'output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json',
+    readinessProof: 'output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json',
+    productReadyField: null,
     gate: 'Local Tesseract extraction, CPU/memory measurement, derived failure-mode capture, and same-image comparison against the isolated local PaddleOCR 2.x fallback are proved; Tesseract is retained as a measured fallback while the current Windows service OCR route is WinRT and current PP-OCRv5 still extracts zero text. Cross-platform OCR parity, broad language coverage, and final production quality remain open.',
   },
   {
     id: '35',
     label: 'OCR PaddleOCR/PP-OCR evaluation',
     status: workpackStatus('35 OCR PaddleOCR/PP-OCR evaluation'),
-    requiredProof: 'output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json',
+    readinessProof: 'output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json',
+    productReadyField: null,
     gate: 'Current PP-OCRv5 mobile-detector inference and cached server-detector inference now run locally with oneDNN/MKLDNN disabled but extract zero text from the real proof image, and deleted preprocessing variants also extract zero text; an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally. PaddleOCR is not selected; current Windows service OCR route selection is WinRT, while PP-OCRv5 quality/resource resolution and broad quality remain open.',
   },
   {
     id: '36',
     label: 'Small VLM guided classifier evaluation',
     status: workpackStatus('36 Small VLM guided classifier evaluation'),
-    requiredProof: 'output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json',
+    readinessProof: 'output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json',
+    productReadyField: null,
     gate: 'Current proof detects the local llama.cpp/Qwen2-VL runtime, retained controlled local VLM matrix, retained nine-scenario live operator matrix, bounded retained VLM inputs, managed-browser CDP crop capture path, retained proof-image VLM wall/CPU/RSS measurement, public-live video/school/game/shopping/social-feed CDP crop quality, current Windows local VLM route selection, and measured rollout/fallback gate; authenticated-account social proof and broader hardware rollout thresholds remain open.',
   },
 ];
@@ -84,9 +93,24 @@ const workpacks = [
 const completeRows = [...checklist.matchAll(/\| \[x\]\s+\|\s+([^|]+?)\s+\|/g)].map((match) => match[1].trim());
 const partialRows = [...checklist.matchAll(/\| \[~\]\s+\|\s+([^|]+?)\s+\|/g)].map((match) => match[1].trim());
 const openRows = [...checklist.matchAll(/\| \[ \]\s+\|\s+([^|]+?)\s+\|/g)].map((match) => match[1].trim());
-const missingProofs = workpacks
-  .filter((workpack) => workpack.requiredProof !== null)
-  .filter((workpack) => !existsSync(join(repoRoot, workpack.requiredProof)));
+const auditedWorkpacks = workpacks.map((workpack) => {
+  const readinessProofPresent =
+    workpack.readinessProof === null ? null : existsSync(join(repoRoot, workpack.readinessProof));
+  const readiness = workpack.readinessProof === null ? null : readJson(join(repoRoot, workpack.readinessProof));
+  const productReady =
+    readiness === null || workpack.productReadyField === null
+      ? null
+      : readNested(readiness, workpack.productReadyField);
+  return {
+    ...workpack,
+    readinessProofPresent,
+    productReady,
+  };
+});
+const missingReadinessProofs = auditedWorkpacks.filter(
+  (workpack) => workpack.readinessProof !== null && workpack.readinessProofPresent !== true
+);
+const productBlockedWorkpacks = auditedWorkpacks.filter((workpack) => workpack.productReady === false);
 
 assert(
   completeRows.includes('19 Sensitive text and redaction model'),
@@ -97,10 +121,38 @@ assert(
   'Live view must remain partial until real platform transport proof exists.'
 );
 assert(
-  openRows.includes('13 iOS ReplayKit adapter plan/proof'),
-  'iOS ReplayKit must remain open without real iOS proof.'
+  partialRows.includes('13 iOS ReplayKit adapter plan/proof'),
+  'iOS ReplayKit must remain partial after source-doc readiness but before real iOS proof.'
 );
-assert(missingProofs.length > 0, 'Closure audit expects at least one missing external proof gate.');
+assert(missingReadinessProofs.length === 0, 'Closure audit expects current readiness proof artifacts to exist.');
+assert(
+  productBlockedWorkpacks.length >= 4,
+  'Closure audit expects platform readiness artifacts to keep product readiness blocked.'
+);
+assert(
+  auditedWorkpacks.some(
+    (workpack) => workpack.label === 'macOS capture adapter plan/proof' && workpack.productReady === false
+  ),
+  'macOS capture must remain product-blocked until live macOS proof exists.'
+);
+assert(
+  auditedWorkpacks.some(
+    (workpack) => workpack.label === 'Linux capture adapter plan/proof' && workpack.productReady === false
+  ),
+  'Linux capture must remain product-blocked until native Linux session proof exists.'
+);
+assert(
+  auditedWorkpacks.some(
+    (workpack) => workpack.label === 'Android MediaProjection adapter plan/proof' && workpack.productReady === false
+  ),
+  'Android capture must remain product-blocked until physical parity proof exists.'
+);
+assert(
+  auditedWorkpacks.some(
+    (workpack) => workpack.label === 'iOS ReplayKit adapter plan/proof' && workpack.productReady === false
+  ),
+  'iOS capture must remain product-blocked until physical ReplayKit proof exists.'
+);
 assert(
   windowsOcrSelection.assertions?.windowsServiceOcrSelected === true,
   'Closure audit expects the Windows OCR route selection artifact to select WinRT OCR.'
@@ -123,12 +175,13 @@ const summary = {
     partialRows,
     openRows,
   },
-  remainingExternalProofGates: workpacks.map((workpack) => ({
+  remainingExternalProofGates: auditedWorkpacks.map((workpack) => ({
     id: workpack.id,
     label: workpack.label,
     status: workpack.status,
-    requiredProof: workpack.requiredProof,
-    proofPresent: workpack.requiredProof === null ? null : existsSync(join(repoRoot, workpack.requiredProof)),
+    readinessProof: workpack.readinessProof,
+    readinessProofPresent: workpack.readinessProofPresent,
+    productReady: workpack.productReady,
     gate: workpack.gate,
   })),
   currentWindowsEvidence: [
@@ -142,6 +195,10 @@ const summary = {
     'output/screen-plan-proof/live-view-service-session/proof-summary.json',
     'output/screen-plan-proof/live-view-runtime/proof-summary.json',
     'output/screen-plan-proof/live-view-worker-startup/proof-summary.json',
+    'output/screen-plan-proof/macos/proof-summary.json',
+    'output/screen-plan-proof/linux/proof-summary.json',
+    'output/screen-plan-proof/android/proof-summary.json',
+    'output/screen-plan-proof/ios/proof-summary.json',
     'output/screen-plan-proof/windows-ocr-candidate-selection/proof-summary.json',
     'output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json',
     'output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json',
@@ -155,7 +212,8 @@ const summary = {
   assertions: {
     wp19Closed: completeRows.includes('19 Sensitive text and redaction model'),
     remainingGatesExplicit: partialRows.length + openRows.length > 0,
-    externalRuntimeProofsNotInvented: missingProofs.length > 0,
+    readinessProofsPresent: missingReadinessProofs.length === 0,
+    platformProductGatesRemainBlocked: productBlockedWorkpacks.length >= 4,
     noProductCompleteClaim: true,
   },
   nonClaims: [
@@ -182,6 +240,10 @@ function readText(path) {
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
+}
+
+function readNested(value, path) {
+  return path.split('.').reduce((current, key) => current?.[key], value);
 }
 
 function relativePath(path) {

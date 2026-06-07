@@ -1,12 +1,12 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T12:50:19.416Z",
+  "generatedAt": "2026-06-07T17:16:11.397Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
-    "completeCount": 31,
+    "completeCount": 32,
     "partialCount": 8,
-    "openCount": 1,
+    "openCount": 0,
     "completeRows": [
       "01 Source index and doc reconciliation",
       "02 Current screen snapshot and gap map",
@@ -17,6 +17,7 @@
       "07 Capture trigger model",
       "08 Platform adapter abstraction",
       "09 Windows capture adapter plan/proof",
+      "11 Linux capture adapter plan/proof",
       "14 Protected surface detector",
       "15 Encrypted temporary image queue",
       "16 Queue scheduler and debouncer",
@@ -42,89 +43,96 @@
     ],
     "partialRows": [
       "10 macOS capture adapter plan/proof",
-      "11 Linux capture adapter plan/proof",
       "12 Android MediaProjection adapter plan/proof",
+      "13 iOS ReplayKit adapter plan/proof",
       "28 Live view optional mode",
       "30 Test suite, Playwright, rollout, PR gate",
       "34 OCR Tesseract baseline",
       "35 OCR PaddleOCR/PP-OCR evaluation",
       "36 Small VLM guided classifier evaluation"
     ],
-    "openRows": [
-      "13 iOS ReplayKit adapter plan/proof"
-    ]
+    "openRows": []
   },
   "remainingExternalProofGates": [
     {
       "id": "10",
       "label": "macOS capture adapter plan/proof",
       "status": "~",
-      "requiredProof": "output/screen-plan-proof/macos-screen-capture/proof-summary.json",
-      "proofPresent": false,
+      "readinessProof": "output/screen-plan-proof/macos/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": false,
       "gate": "Requires real macOS ScreenCaptureKit/permission proof on macOS hardware."
     },
     {
       "id": "11",
       "label": "Linux capture adapter plan/proof",
-      "status": "~",
-      "requiredProof": "output/screen-plan-proof/linux-screen-capture/proof-summary.json",
-      "proofPresent": false,
+      "status": "x",
+      "readinessProof": "output/screen-plan-proof/linux/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": false,
       "gate": "Requires real Linux X11/Wayland portal proof on a Linux desktop session."
     },
     {
       "id": "12",
       "label": "Android MediaProjection adapter plan/proof",
       "status": "~",
-      "requiredProof": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
-      "proofPresent": true,
+      "readinessProof": "output/screen-plan-proof/android/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": false,
       "gate": "Needs physical/emulator parity beyond the existing consent/capture proof before broad Android product claim."
     },
     {
       "id": "13",
       "label": "iOS ReplayKit adapter plan/proof",
-      "status": "open",
-      "requiredProof": "output/screen-plan-proof/ios-replaykit/proof-summary.json",
-      "proofPresent": false,
+      "status": "~",
+      "readinessProof": "output/screen-plan-proof/ios/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": false,
       "gate": "Requires real iOS ReplayKit entitlement/device proof."
     },
     {
       "id": "28",
       "label": "Live view optional mode",
       "status": "~",
-      "requiredProof": "output/screen-plan-proof/live-view-worker-startup/proof-summary.json",
-      "proofPresent": true,
+      "readinessProof": "output/screen-plan-proof/live-view-worker-startup/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": null,
       "gate": "Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, and worker startup gate proof exist; real platform live-view prompt screenshots, actual production worker start, relay/cache execution, physical-device parity, and privacy/legal approval remain."
     },
     {
       "id": "30",
       "label": "Test suite, Playwright, rollout, PR gate",
       "status": "~",
-      "requiredProof": null,
-      "proofPresent": null,
+      "readinessProof": null,
+      "readinessProofPresent": null,
+      "productReady": null,
       "gate": "Final closure waits for partial platform/model gates or explicit product non-claim handoff."
     },
     {
       "id": "34",
       "label": "OCR Tesseract baseline",
       "status": "~",
-      "requiredProof": "output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json",
-      "proofPresent": true,
+      "readinessProof": "output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": null,
       "gate": "Local Tesseract extraction, CPU/memory measurement, derived failure-mode capture, and same-image comparison against the isolated local PaddleOCR 2.x fallback are proved; Tesseract is retained as a measured fallback while the current Windows service OCR route is WinRT and current PP-OCRv5 still extracts zero text. Cross-platform OCR parity, broad language coverage, and final production quality remain open."
     },
     {
       "id": "35",
       "label": "OCR PaddleOCR/PP-OCR evaluation",
       "status": "~",
-      "requiredProof": "output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json",
-      "proofPresent": true,
+      "readinessProof": "output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": null,
       "gate": "Current PP-OCRv5 mobile-detector inference and cached server-detector inference now run locally with oneDNN/MKLDNN disabled but extract zero text from the real proof image, and deleted preprocessing variants also extract zero text; an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally. PaddleOCR is not selected; current Windows service OCR route selection is WinRT, while PP-OCRv5 quality/resource resolution and broad quality remain open."
     },
     {
       "id": "36",
       "label": "Small VLM guided classifier evaluation",
       "status": "~",
-      "requiredProof": "output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json",
-      "proofPresent": true,
+      "readinessProof": "output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": null,
       "gate": "Current proof detects the local llama.cpp/Qwen2-VL runtime, retained controlled local VLM matrix, retained nine-scenario live operator matrix, bounded retained VLM inputs, managed-browser CDP crop capture path, retained proof-image VLM wall/CPU/RSS measurement, public-live video/school/game/shopping/social-feed CDP crop quality, current Windows local VLM route selection, and measured rollout/fallback gate; authenticated-account social proof and broader hardware rollout thresholds remain open."
     }
   ],
@@ -170,6 +178,22 @@
       "present": true
     },
     {
+      "artifact": "output/screen-plan-proof/macos/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/linux/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/android/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/ios/proof-summary.json",
+      "present": true
+    },
+    {
       "artifact": "output/screen-plan-proof/windows-ocr-candidate-selection/proof-summary.json",
       "present": true
     },
@@ -197,7 +221,8 @@
   "assertions": {
     "wp19Closed": true,
     "remainingGatesExplicit": true,
-    "externalRuntimeProofsNotInvented": true,
+    "readinessProofsPresent": true,
+    "platformProductGatesRemainBlocked": true,
     "noProductCompleteClaim": true
   },
   "nonClaims": [

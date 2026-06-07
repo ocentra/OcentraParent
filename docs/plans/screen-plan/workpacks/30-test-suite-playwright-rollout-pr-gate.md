@@ -11,8 +11,10 @@ any full screen-plan completion claim.
 The screen plan now has contract, service, eventing, Playwright, live-operator,
 real-trigger, cadence, capture-analysis-policy, portal, deletion/custody, child
 disclosure, and final stacked product-path proof artifacts. The closure audit
-also records the current partial/open gates so the stacked product-path artifact
-cannot be misread as full screen-plan completion.
+now verifies the current readiness artifacts for macOS, Linux, Android, iOS,
+live view, OCR, and VLM while separately recording the product-readiness gates
+that remain false. This prevents the stacked product-path artifact from being
+misread as full screen-plan completion.
 
 The rollout gate remains partial because macOS live capture proof, Linux
 root/Wayland portal proof, physical Android parity, iOS ReplayKit proof,
@@ -36,8 +38,9 @@ proof, and production startup wiring are still non-claims.
 - [x] Add capture plus analysis plus policy dry-run proof.
 - [x] Update feature docs/checklist for completed proof gates.
 - [x] Record known gaps.
-- [x] Run a screen-plan closure audit that proves remaining platform/model/
-      live-view gates are explicit and not product-complete claims.
+- [x] Run a screen-plan closure audit that proves current readiness artifacts
+      are present while platform/model/live-view product gates remain explicit
+      non-claims.
 - [ ] Run final screen-plan closure validation after partial platform/model
       workpacks are completed or deliberately accepted as non-claims.
 - [ ] Write final whole-slice handoff only after screen, AI, and pipeline plans
