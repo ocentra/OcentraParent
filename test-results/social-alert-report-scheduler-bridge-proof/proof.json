@@ -3,7 +3,7 @@
   "proofMode": "social-alert-report-scheduler-bridge-proof",
   "generatedAt": "2026-06-07T08:12:00Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "5819ca0b9981b34f1d3ae693425abc018d692d40",
+  "commit": "ea76993217a795bfda2943d655ae8dd1d4fd33d7",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
