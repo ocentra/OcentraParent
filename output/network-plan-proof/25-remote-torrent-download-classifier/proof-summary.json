@@ -1,0 +1,46 @@
+{
+  "proof": "network-remote-torrent-download-classifier",
+  "checkedAt": "2026-06-07T01:14:40.900Z",
+  "branch": "codex/network-remote-torrent-download-classifier-proof-artifacts",
+  "sourceCommit": "a59dfcce4eb97b51167e8fd132178285e8b47d8e",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
+  "originMain": "8c8fad79a50e914922fbc84984878211e127897e",
+  "mergeBase": "8c8fad79a50e914922fbc84984878211e127897e",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\25-remote-torrent-download-classifier",
+  "testRoot": "test-results\\network-remote-torrent-download-classifier-proof",
+  "commands": [
+    {
+      "name": "network-remote-torrent-download-classifier-tests",
+      "command": "cargo test -p ocentra-network-evidence transfer_classifier",
+      "status": 0,
+      "log": "output\\network-plan-proof\\25-remote-torrent-download-classifier\\transfer-classifier-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\25-remote-torrent-download-classifier\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\25-remote-torrent-download-classifier\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedTransferClassifier": "output\\network-plan-proof\\25-remote-torrent-download-classifier\\expected-remote-torrent-download-classifier.json",
+    "proofSummary": "output\\network-plan-proof\\25-remote-torrent-download-classifier\\proof-summary.json",
+    "testProof": "test-results\\network-remote-torrent-download-classifier-proof\\proof.json"
+  },
+  "provenRows": [
+    "25 Remote desktop/torrent/download classifier"
+  ],
+  "notClaimed": [
+    "file name, file content, or download URL visibility from network evidence",
+    "process/app/browser correlation beyond explicit fixture hints",
+    "visited URL, page content, message, search query, or decrypted payload visibility",
+    "AI, policy, adapter, broker, family-hub, or portal runtime integration"
+  ]
+}
