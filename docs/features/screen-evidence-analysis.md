@@ -573,8 +573,11 @@ only with explicit parent settings.
   and an explicit local inference attempt against the retained real public Vimeo
   screenshot. The current PP-OCRv5 runtime now executes locally with
   `enable_mkldnn=false`, but extracts zero text from that real proof image, so
-  it is not selected for production. The same proof can run an explicitly
-  prepared isolated Python 3.10 fallback with
+  it is not selected for production. The proof also runs deleted preprocessing
+  variants over the same real image, covering original, 2x upscale, grayscale
+  contrast 2x upscale, and grayscale sharpen 2x upscale inputs; current
+  PP-OCRv5 still extracts zero text from every variant. The same proof can run
+  an explicitly prepared isolated Python 3.10 fallback with
   `paddleocr` 2.7.0.3, `paddlepaddle` 2.6.2, and `numpy<2`; that fallback
   completed local inference against the same real Vimeo screenshot, extracted 15
   text strings, matched the `vimeo`, `video`, and `player` baseline terms, and
@@ -587,8 +590,8 @@ only with explicit parent settings.
   PaddleOCR/PP-OCR quality evidence to select `windows-winrt-ocr` as the current
   Windows service OCR route for this lane. Tesseract remains a measured fallback
   baseline, current PP-OCRv5 remains not selected because it extracts zero text
-  from the real proof image, and pinned PaddleOCR 2.x remains a measured
-  fallback candidate only.
+  from the real proof image and deleted preprocessing variants, and pinned
+  PaddleOCR 2.x remains a measured fallback candidate only.
   This is not a cross-platform OCR or final production-quality claim.
 - `scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs` records the
   small guided VLM classifier readiness boundary for screen-plan WP36 by
@@ -833,9 +836,9 @@ parity, and UI remain separate proof gates.
   fallback while the current Windows service OCR route is WinRT.
 - [~] PaddleOCR/PP-OCR candidate readiness records current package availability,
   current PP-OCRv5 local execution with zero extracted text from the retained
-  Vimeo screenshot, and a pinned local PaddleOCR 2.x fallback that extracts
-  comparable text; PaddleOCR is not selected and broader PP-OCRv5
-  quality/resource proof remains open.
+  Vimeo screenshot and deleted preprocessing variants, and a pinned local
+  PaddleOCR 2.x fallback that extracts comparable text; PaddleOCR is not
+  selected and broader PP-OCRv5 quality/resource proof remains open.
 - [x] Windows service OCR route selection proof chooses WinRT OCR for the
       current Windows service path from retained real service/redaction evidence
       while leaving Tesseract/PaddleOCR as non-selected fallback candidates.

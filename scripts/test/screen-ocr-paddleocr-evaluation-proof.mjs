@@ -8,6 +8,7 @@ const repoRoot = process.cwd();
 const outputRoot = resolve(repoRoot, 'output', 'screen-plan-proof', '35-ocr-paddleocr-ppocr-evaluation');
 const proofSummaryPath = join(outputRoot, 'proof-summary.json');
 const runtimeLogPath = join(outputRoot, 'paddleocr-runtime-attempt.log');
+const preprocessRuntimeLogPath = join(outputRoot, 'paddleocr-preprocess-runtime-attempt.log');
 const legacyRuntimeLogPath = join(outputRoot, 'paddleocr-2x-py310-runtime.log');
 const legacyRuntimeScriptPath = join(outputRoot, 'paddleocr-2x-py310-runtime.py');
 const legacyRuntimePythonPath = join(outputRoot, 'paddleocr-2x-py310-venv', 'Scripts', 'python.exe');
@@ -63,6 +64,7 @@ const tesseractComparisonReady = localRuntimeReady && tesseractInstalled;
 const explicitRuntimeRunRequested = process.env.OCENTRA_RUN_PADDLEOCR_LOCAL === '1';
 const runtimeExecutionAllowed = explicitRuntimeRunRequested && localRuntimeReady;
 const runtimeAttempt = runtimeExecutionAllowed ? runPaddleOcrRuntimeAttempt() : null;
+const preprocessRuntimeAttempt = runtimeExecutionAllowed ? runPaddleOcrPreprocessRuntimeAttempt() : null;
 const explicitLegacyRuntimeRunRequested = process.env.OCENTRA_RUN_PADDLEOCR_2X_LOCAL === '1';
 const legacyRuntimeAvailable = existsSync(legacyRuntimePythonPath);
 const legacyRuntimeExecutionAllowed = explicitLegacyRuntimeRunRequested && legacyRuntimeAvailable;
@@ -158,12 +160,15 @@ const summary = {
     legacyFallbackComparedAgainstTesseract: legacyRuntimeAttempt?.status === 0,
     tesseractMatchedTerms: tesseractTerms,
     paddleOcrRuntimeAttempt: runtimeAttempt,
+    paddleOcrPreprocessRuntimeAttempt: preprocessRuntimeAttempt,
     legacyPaddleOcr2xRuntimeAttempt: legacyRuntimeAttempt,
     reason: runtimeAttempt
       ? runtimeAttempt.status === 0
         ? runtimeAttempt.extractedTextCount > 0
           ? 'PaddleOCR completed local inference and can be compared against the Tesseract baseline.'
-          : 'PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but it extracted zero text from the retained real Vimeo screenshot; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane.'
+          : preprocessRuntimeAttempt?.allVariantsDeleted === true
+            ? 'PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but it extracted zero text from the retained real Vimeo screenshot and from deleted preprocessing variants; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane.'
+            : 'PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but it extracted zero text from the retained real Vimeo screenshot; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane.'
         : 'PaddleOCR packages and models are present, but local inference fails before OCR text extraction; Tesseract remains the only runtime-proved OCR baseline in this lane.'
       : legacyRuntimeAttempt
         ? legacyRuntimeAttempt.status === 0
@@ -269,6 +274,95 @@ print(json.dumps({
     extractedTextCount: parsed?.texts?.length ?? 0,
     initSeconds: parsed?.initSeconds ?? null,
     predictSeconds: parsed?.predictSeconds ?? null,
+    error,
+  };
+}
+
+function runPaddleOcrPreprocessRuntimeAttempt() {
+  const code = String.raw`
+from paddleocr import PaddleOCR
+from pathlib import Path
+from PIL import Image, ImageOps, ImageEnhance, ImageFilter
+from tempfile import TemporaryDirectory
+import json
+import time
+
+source = Path(r"${sourceImagePath}").resolve()
+ocr = PaddleOCR(
+    text_detection_model_name="PP-OCRv5_mobile_det",
+    text_recognition_model_name="en_PP-OCRv5_mobile_rec",
+    use_doc_orientation_classify=False,
+    use_doc_unwarping=False,
+    use_textline_orientation=False,
+    device="cpu",
+    enable_mkldnn=False,
+    cpu_threads=2,
+)
+
+def collect_texts(result):
+    texts = []
+    for item in result:
+        data = item.json if hasattr(item, "json") else item.to_json() if hasattr(item, "to_json") else item
+        if isinstance(data, dict):
+            for key in ("rec_texts", "texts"):
+                values = data.get(key)
+                if isinstance(values, list):
+                    texts.extend(str(value) for value in values)
+    return texts
+
+with TemporaryDirectory(prefix="ocentra-ppocrv5-preprocess-") as temp_dir:
+    temp_root = Path(temp_dir)
+    image = Image.open(source)
+    gray = ImageOps.grayscale(image)
+    variants = [
+        ("original", image),
+        ("upscale2", image.resize((image.width * 2, image.height * 2))),
+        ("gray_contrast2_upscale2", ImageEnhance.Contrast(gray).enhance(2).resize((image.width * 2, image.height * 2))),
+        ("gray_sharp_upscale2", gray.filter(ImageFilter.SHARPEN).resize((image.width * 2, image.height * 2))),
+    ]
+    results = []
+    paths = []
+    for name, variant in variants:
+        path = temp_root / f"{name}.png"
+        variant.save(path)
+        paths.append(path)
+        start = time.perf_counter()
+        texts = collect_texts(ocr.predict(str(path)))
+        results.append({
+            "name": name,
+            "width": variant.width,
+            "height": variant.height,
+            "predictSeconds": round(time.perf_counter() - start, 3),
+            "texts": texts,
+            "textCount": len(texts),
+        })
+    deleted_before_exit = all(path.exists() for path in paths)
+deleted_after_exit = not any(path.exists() for path in paths)
+print(json.dumps({
+    "variantCount": len(results),
+    "variants": results,
+    "maxExtractedTextCount": max((entry["textCount"] for entry in results), default=0),
+    "temporaryImagesExistedBeforeCleanup": deleted_before_exit,
+    "temporaryImagesDeletedAfterCleanup": deleted_after_exit,
+}, ensure_ascii=False))
+`;
+  const start = performance.now();
+  const result = runOptional('python', ['-c', code]);
+  const durationMs = Math.round(performance.now() - start);
+  const combinedLog = normalizeLog(stripAnsi(`${result.stdout}${result.stderr}`));
+  writeFileSync(preprocessRuntimeLogPath, combinedLog);
+  const parsed = parseJsonLine(result.stdout);
+  const error = result.status === 0 ? null : summarizeRuntimeError(combinedLog);
+  return {
+    status: result.status,
+    durationMs,
+    logPath: preprocessRuntimeLogPath,
+    mode: 'PP-OCRv5 mobile detector/recognizer over original, 2x upscale, grayscale contrast 2x upscale, and grayscale sharpen 2x upscale variants',
+    variantCount: parsed?.variantCount ?? 0,
+    variants: parsed?.variants ?? [],
+    maxExtractedTextCount: parsed?.maxExtractedTextCount ?? 0,
+    allVariantsDeleted: parsed?.temporaryImagesDeletedAfterCleanup === true,
+    temporaryImagesExistedBeforeCleanup: parsed?.temporaryImagesExistedBeforeCleanup === true,
     error,
   };
 }

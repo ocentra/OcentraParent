@@ -1,6 +1,6 @@
 {
   "proof": "screen-ocr-paddleocr-ppocr-evaluation",
-  "generatedAt": "2026-06-07T06:45:39.637Z",
+  "generatedAt": "2026-06-07T11:04:31.672Z",
   "sourceEvidence": {
     "sourceImagePath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\browser-plan-proof\\social-14-managed-browser-feed-short-video-gate\\06-live-screenshots\\vimeo-public-video.png",
     "sourceImageExists": true,
@@ -101,18 +101,63 @@
     ],
     "paddleOcrRuntimeAttempt": {
       "status": 0,
-      "durationMs": 21933,
+      "durationMs": 23440,
       "logPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-plan-proof\\35-ocr-paddleocr-ppocr-evaluation\\paddleocr-runtime-attempt.log",
       "mode": "PP-OCRv5_mobile_det + en_PP-OCRv5_mobile_rec with orientation/unwarping/textline disabled, CPU device, enable_mkldnn=false, cpu_threads=2",
       "extractedTexts": [],
       "extractedTextCount": 0,
-      "initSeconds": 2.374,
-      "predictSeconds": 12.709,
+      "initSeconds": 2.679,
+      "predictSeconds": 13.467,
+      "error": null
+    },
+    "paddleOcrPreprocessRuntimeAttempt": {
+      "status": 0,
+      "durationMs": 81718,
+      "logPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-plan-proof\\35-ocr-paddleocr-ppocr-evaluation\\paddleocr-preprocess-runtime-attempt.log",
+      "mode": "PP-OCRv5 mobile detector/recognizer over original, 2x upscale, grayscale contrast 2x upscale, and grayscale sharpen 2x upscale variants",
+      "variantCount": 4,
+      "variants": [
+        {
+          "name": "original",
+          "width": 1280,
+          "height": 900,
+          "predictSeconds": 11.999,
+          "texts": [],
+          "textCount": 0
+        },
+        {
+          "name": "upscale2",
+          "width": 2560,
+          "height": 1800,
+          "predictSeconds": 19.573,
+          "texts": [],
+          "textCount": 0
+        },
+        {
+          "name": "gray_contrast2_upscale2",
+          "width": 2560,
+          "height": 1800,
+          "predictSeconds": 20.177,
+          "texts": [],
+          "textCount": 0
+        },
+        {
+          "name": "gray_sharp_upscale2",
+          "width": 2560,
+          "height": 1800,
+          "predictSeconds": 20.101,
+          "texts": [],
+          "textCount": 0
+        }
+      ],
+      "maxExtractedTextCount": 0,
+      "allVariantsDeleted": true,
+      "temporaryImagesExistedBeforeCleanup": true,
       "error": null
     },
     "legacyPaddleOcr2xRuntimeAttempt": {
       "status": 0,
-      "durationMs": 6857,
+      "durationMs": 8408,
       "logPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-plan-proof\\35-ocr-paddleocr-ppocr-evaluation\\paddleocr-2x-py310-runtime.log",
       "pythonPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-plan-proof\\35-ocr-paddleocr-ppocr-evaluation\\paddleocr-2x-py310-venv\\Scripts\\python.exe",
       "mode": "PaddleOCR 2.7.0.3 + PaddlePaddle 2.6.2 in isolated Python 3.10 venv",
@@ -139,14 +184,14 @@
         "video",
         "player"
       ],
-      "initSeconds": 1.272,
-      "predictSeconds": 2.659,
-      "cpuTimeMs": 28046,
-      "peakRssBytes": 754249728,
-      "peakRssMiB": 719.3,
+      "initSeconds": 1.508,
+      "predictSeconds": 2.961,
+      "cpuTimeMs": 30453,
+      "peakRssBytes": 754520064,
+      "peakRssMiB": 719.6,
       "error": null
     },
-    "reason": "PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but it extracted zero text from the retained real Vimeo screenshot; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane."
+    "reason": "PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but it extracted zero text from the retained real Vimeo screenshot and from deleted preprocessing variants; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane."
   },
   "placementDecision": {
     "selectedForProduction": false,
