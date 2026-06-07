@@ -55,14 +55,14 @@ async function main() {
   assertNotIncludes(dashboardIntent, 'executablePathRef', 'dashboard intent must not map executable path refs');
   assertNotIncludes(dashboardPanelSlice, 'executablePath', 'dashboard panel must not render executable paths');
   assertNotIncludes(dashboardRowSlice, 'executablePath', 'dashboard row card must not render executable paths');
-  assertIncludes(
+  assertMatches(
     dashboardTest,
-    "executablePathRef: 'C:\\\\Users\\\\child\\\\AppData\\\\Local\\\\Study Timer\\\\study-timer.exe'",
+    /function\s+studyTimerAppRow\(\)\s*\{[\s\S]*?executablePathRef:\s*'C:\\\\Users\\\\child\\\\AppData\\\\Local\\\\Study Timer\\\\study-timer\.exe'/,
     'portal test feeds a private user executable path into an app row'
   );
-  assertIncludes(
+  assertMatches(
     dashboardTest,
-    "executablePathRef: 'C:\\\\Program Files\\\\VoxelQuest\\\\VoxelQuest.exe'",
+    /gamesReadModel\(\)[\s\S]*?executablePathRef:\s*'C:\\\\Program Files\\\\VoxelQuest\\\\VoxelQuest\.exe'/,
     'portal test feeds a Windows program executable path into a game row'
   );
   assertIncludes(
@@ -153,6 +153,12 @@ async function main() {
 function assertIncludes(source, needle, label) {
   if (!source.includes(needle)) {
     throw new Error(`Missing ${label}: ${needle}`);
+  }
+}
+
+function assertMatches(source, pattern, label) {
+  if (!pattern.test(source)) {
+    throw new Error(`Missing ${label}: ${pattern}`);
   }
 }
 
