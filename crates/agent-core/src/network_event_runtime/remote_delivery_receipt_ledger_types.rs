@@ -49,9 +49,13 @@ pub struct NetworkRuntimeRemoteDeliveryReceiptLedgerReport {
     pub side_effect_authority: bool,
     pub enforcement_command_event_count: usize,
     pub adapter_action_executed_count: usize,
+    pub raw_pcap_available_count: usize,
     pub exact_url_available_count: usize,
     pub decrypted_payload_available_count: usize,
     pub page_content_available_count: usize,
+    pub video_content_available_count: usize,
+    pub private_message_content_available_count: usize,
+    pub search_query_available_count: usize,
     pub receipts: Vec<NetworkRuntimeRemoteDeliveryReceiptRecord>,
 }
 

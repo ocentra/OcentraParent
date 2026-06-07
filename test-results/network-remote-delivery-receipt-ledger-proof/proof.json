@@ -2,8 +2,20 @@
   "proof": "network-remote-delivery-receipt-ledger-proof",
   "proofRevision": "network-remote-delivery-receipt-ledger-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-receipt-ledger-proof/v1",
-  "sourceFingerprint": "source-tree:aa188566fabfcace7bd382c996a22007ee8e22cb38ce1f5012afb935f3ed3153",
-  "mergeBase": "1f48e7143b7c8315b36078488ac4306e857746fe",
+  "sourceFingerprint": "source-tree:43e894201f459e986fed37b5baf237809f816fcbdb935fbe9b94da01647ab9fe",
+  "sourceRefs": [
+    "scripts/test/network-remote-delivery-receipt-ledger-proof.mjs",
+    "crates/agent-protocol/src/constants/network_flow.rs",
+    "crates/agent-core/src/network_event_runtime.rs",
+    "crates/agent-core/src/network_event_runtime_state.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger_types.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_store.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_journal.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_journal_types.rs",
+    "crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs"
+  ],
+  "mergeBase": "f957c4aa90ed42ea266d423236f89361d1d2241a",
   "proofRoot": "output\\network-plan-proof\\10d-remote-delivery-receipt-ledger-status",
   "testRoot": "test-results\\network-remote-delivery-receipt-ledger-proof",
   "commands": [
@@ -48,8 +60,8 @@
     "agent-core builds a deterministic local receipt ledger from row10c ocentra-eventing projection replay records",
     "receipt records preserve replay sequence, event id, event type, and correlation id for every exportable event-chain envelope",
     "row10d refs mark receipt ledger, local receipt ack, replay, and support-status boundaries that future broker/family-hub delivery can consume",
-    "the proof keeps broker delivery, family-hub relay delivery, family-hub delivery acknowledgement implementation, provider delivery, child-device delivery, product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement commands, and host filtering false",
-    "the proof keeps exact URL, decrypted payload, and page content unavailable from network-only receipt ledger records"
+    "the proof keeps broker delivery, family-hub relay delivery, family-hub delivery acknowledgement implementation, provider delivery, child-device delivery, product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement commands, and host filtering false for this row10d remote projection fixture",
+    "the proof keeps raw PCAP, exact URL, decrypted payload, page content, video content, private-message content, and search-query content unavailable from network-only receipt ledger records"
   ],
   "notClaimed": [
     "live broker delivery",
@@ -64,6 +76,7 @@
     "side-effect authority",
     "adapter execution",
     "host filtering",
-    "full network-plan completion"
+    "full network-plan completion",
+    "available-metadata remote no-enforcement invariant"
   ]
 }

@@ -84,7 +84,7 @@ compete on control while staying clear about attribution confidence and privacy.
   `agent-core`: broker and family-hub relay routes now materialize custody,
   publisher/subscriber auth, encryption, retention, replay, deletion, offset,
   dedupe, broker config, family-hub identity, and relay-policy refs into an
-  explicit requirements-satisfied-but-not-implemented status. The proof carries
+  explicit fixture-requirements-recorded-but-not-implemented status. The proof carries
   local idempotency/dead-letter evidence and keeps cross-process replay, remote
   retention/delete/export propagation, live broker/family-hub delivery, policy
   authority, side-effect authority, enforcement commands, adapter execution,
@@ -105,8 +105,10 @@ compete on control while staying clear about attribution confidence and privacy.
   and support-status boundaries for future broker/family-hub delivery while
   keeping remote acknowledgement delivery, provider delivery, child-device
   delivery, policy authority, side-effect authority, adapter execution,
-  enforcement-command publication, exact URL, decrypted payload, page content,
-  and host filtering false.
+  enforcement-command publication, raw PCAP, exact URL, decrypted payload, page
+  content, video content, private-message content, search-query content, and
+  host filtering false for the row10d remote projection fixture. This is not a
+  full available-metadata remote no-enforcement invariant.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,

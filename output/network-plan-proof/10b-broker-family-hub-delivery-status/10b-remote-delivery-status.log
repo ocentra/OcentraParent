@@ -1,7 +1,7 @@
 network row10b broker/family-hub remote delivery status
 
-brokerStatus=requirements-satisfied-but-not-implemented
-familyHubStatus=requirements-satisfied-but-not-implemented
+brokerStatus=fixture-requirements-recorded-but-not-implemented
+familyHubStatus=fixture-requirements-recorded-but-not-implemented
 brokerDeliveryImplemented=false
 familyHubDeliveryImplemented=false
 crossProcessReplayImplemented=false

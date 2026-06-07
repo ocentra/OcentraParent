@@ -71,9 +71,14 @@ pub async fn prove_network_runtime_remote_delivery_receipt_ledger() -> Result<
         side_effect_authority: remote_delivery_status.side_effect_authority,
         enforcement_command_event_count: unsupported.enforcement_command_event_count,
         adapter_action_executed_count: unsupported.adapter_action_executed_count,
+        raw_pcap_available_count: unsupported.raw_pcap_available_count,
         exact_url_available_count: unsupported.exact_url_available_count,
         decrypted_payload_available_count: unsupported.decrypted_payload_available_count,
         page_content_available_count: unsupported.page_content_available_count,
+        video_content_available_count: unsupported.video_content_available_count,
+        private_message_content_available_count: unsupported
+            .private_message_content_available_count,
+        search_query_available_count: unsupported.search_query_available_count,
         remote_delivery_status,
         receipts,
     })

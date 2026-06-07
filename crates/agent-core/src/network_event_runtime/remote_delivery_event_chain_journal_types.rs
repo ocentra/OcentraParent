@@ -19,9 +19,13 @@ pub struct NetworkRuntimeRemoteEventChainJournalReport {
     pub unavailable_event_count: usize,
     pub enforcement_command_event_count: usize,
     pub adapter_action_executed_count: usize,
+    pub raw_pcap_available_count: usize,
     pub exact_url_available_count: usize,
     pub decrypted_payload_available_count: usize,
     pub page_content_available_count: usize,
+    pub video_content_available_count: usize,
+    pub private_message_content_available_count: usize,
+    pub search_query_available_count: usize,
     pub projection_replay_mode: ReplayMode,
     pub broker_delivery_implemented: bool,
     pub family_hub_delivery_implemented: bool,
@@ -41,18 +45,26 @@ pub enum NetworkRuntimeRemoteEventChainJournalError {
 pub(super) struct UnsupportedClaimCounts {
     pub enforcement_command_event_count: usize,
     pub adapter_action_executed_count: usize,
+    pub raw_pcap_available_count: usize,
     pub exact_url_available_count: usize,
     pub decrypted_payload_available_count: usize,
     pub page_content_available_count: usize,
+    pub video_content_available_count: usize,
+    pub private_message_content_available_count: usize,
+    pub search_query_available_count: usize,
 }
 
 impl UnsupportedClaimCounts {
     pub(super) fn has_any(&self) -> bool {
         self.enforcement_command_event_count
             + self.adapter_action_executed_count
+            + self.raw_pcap_available_count
             + self.exact_url_available_count
             + self.decrypted_payload_available_count
             + self.page_content_available_count
+            + self.video_content_available_count
+            + self.private_message_content_available_count
+            + self.search_query_available_count
             > 0
     }
 }

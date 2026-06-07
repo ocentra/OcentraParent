@@ -20,8 +20,8 @@ apps/portal/src/PortalUnifiedChrome.tsx:1 file has 346 lines; crossed 250-line a
 apps/portal/src/tracking-status-panel.ts:1 file has 929 lines; crossed 750-line advisory band; maximum is 1000
 apps/portal/src/TrackingStatusRoutePanel.tsx:1 file has 508 lines; crossed 500-line advisory band; maximum is 1000
 apps/portal/src/TrackingStatusRoutePanel.tsx:267 function has 71 lines; warning starts at 64 of 80
-apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts:1 file has 306 lines; crossed 250-line advisory band; maximum is 1000
-apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts:234 function has 64 lines; warning starts at 64 of 80
+apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts:1 file has 321 lines; crossed 250-line advisory band; maximum is 1000
+apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts:249 function has 64 lines; warning starts at 64 of 80
 apps/portal/tests/activity-ui-intent.test.ts:1 file has 551 lines; crossed 500-line advisory band; maximum is 1000
 apps/portal/tests/activity-ui-intent.test.ts:106 function has 65 lines; warning starts at 64 of 80
 apps/portal/tests/activity-ui-lan-pairing-fixtures.ts:1 file has 508 lines; crossed 500-line advisory band; maximum is 1000
@@ -142,6 +142,7 @@ packages/parent-domain/src/app-install-purchase-approved-api-entitlement-proof.t
 packages/parent-domain/src/app-install-purchase-child-artifact-delivery-proof.ts:1 file has 364 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-child-device-delivery-readiness-proof.ts:1 file has 265 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts:1 file has 367 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-external-runtime-device-delivery-proof.ts:1 file has 337 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-limitation-summary-proof.ts:1 file has 272 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts:1 file has 374 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-package-source-capture-status-proof.ts:1 file has 453 lines; crossed 250-line advisory band; maximum is 1000
@@ -482,9 +483,12 @@ crates/agent-core/src/enforcement_timer_state_tests.rs:1 file has 17 functions; 
 crates/agent-core/src/enforcement_unavailable_adapter_tests.rs:1 file has 256 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/lib.rs:1 file has 275 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/network_event_runtime/broker_delivery.rs:48 function has 68 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger.rs:16 function has 70 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_status.rs:62 function has 73 lines; warning starts at 64 of 80
-crates/agent-core/src/network_event_runtime.rs:1 file has 310 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:12 function has 77 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime.rs:1 file has 332 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:1 file has 308 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:16 function has 77 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:208 function has 69 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime_tests.rs:1 file has 434 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/network_event_runtime_tests.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-core/src/screen_evidence_queue.rs:1 file has 289 lines; crossed 250-line advisory band; maximum is 1000
