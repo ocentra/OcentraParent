@@ -169,7 +169,7 @@ Required files:
 - [ ] macOS hard block is claimed without MDM/Endpoint/System Extension proof.
 - [ ] Linux universal block is claimed without mechanism/distro proof.
 - [ ] Session duration changes after journal replay.
-- [ ] Portal hides stale, permission-limited, manual-required, or not-claimed
+- [x] Portal hides stale, permission-limited, manual-required, or not-claimed
       states.
 - [ ] Raw private executable paths leak into parent UI.
 - [ ] Malicious app/game metadata causes XSS or layout breakage.
