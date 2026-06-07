@@ -7,10 +7,10 @@
     <string name="source">android-location-manager-gps-listener-local-geofence</string>
     <int name="transitionCount" value="3" />
     <boolean name="insideState" value="false" />
-    <long name="systemProximityRegistrationEpochMillis" value="1780807665428" />
-    <long name="lastTransitionEpochMillis" value="1780807677143" />
+    <long name="systemProximityRegistrationEpochMillis" value="1780808486744" />
+    <long name="lastTransitionEpochMillis" value="1780808495376" />
     <string name="lastTransition">exit</string>
     <int name="enterCount" value="1" />
     <boolean name="systemProximityRegistered" value="true" />
-    <long name="registrationEpochMillis" value="1780807665428" />
+    <long name="registrationEpochMillis" value="1780808486744" />
 </map>

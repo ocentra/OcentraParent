@@ -160,8 +160,9 @@ function assertFocusedProofStrength(proof) {
       'foreground_permission_granted_current_sample_raw_coordinate_observed',
     ].includes(foregroundProof.status) ||
     !backgroundProof.status.includes('system_registration_and_degraded_status_observed') ||
+    statusProof.status !== 'emulator_scaffold_and_status_gap_bridge_observed' ||
     statusProof.reason !==
-      'Emulator package launch, foreground service state, battery dump, and connectivity dump were collected.'
+      'Emulator package launch, foreground service state, battery dump, connectivity dump, and WP10 low-power/app-restart/pending-upload/manual-required bridge were collected.'
   ) {
     failures.push(
       `workpack statuses regressed: WP08=${foregroundProof.status}; WP09=${backgroundProof.status}; WP10=${statusProof.status}`
@@ -1523,12 +1524,18 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
                         : 'No background location/geofence permission or transition adapter is present in the current scaffold.',
     },
     '10-android-battery-connectivity-and-status-adapter': {
-      status: 'emulator_scaffold_observed',
+      status:
+        runtime.service.isForeground && backgroundDegradedStatusObserved
+          ? 'emulator_scaffold_and_status_gap_bridge_observed'
+          : 'emulator_scaffold_observed',
       proofArtifact:
         'output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/04-device-status-proof.json',
-      reason: runtime.service.isForeground
-        ? 'Emulator package launch, foreground service state, battery dump, and connectivity dump were collected.'
-        : 'Package launched, but foreground service state was not observed.',
+      reason:
+        runtime.service.isForeground && backgroundDegradedStatusObserved
+          ? 'Emulator package launch, foreground service state, battery dump, connectivity dump, and WP10 low-power/app-restart/pending-upload/manual-required bridge were collected.'
+          : runtime.service.isForeground
+            ? 'Emulator package launch, foreground service state, battery dump, and connectivity dump were collected.'
+            : 'Package launched, but foreground service state was not observed.',
     },
   };
 }
@@ -1740,12 +1747,16 @@ function deviceStatusProof(proof) {
     foregroundNotification: proof.runtime.service.foregroundNotification,
     battery: proof.runtime.battery,
     connectivitySummary: proof.runtime.connectivitySummary,
+    statusGapBridge: backgroundDegradedStatusProof(),
     ui: proof.runtime.ui,
     screenshotInspection: proof.runtime.screenshotInspection,
     logcatFindings: proof.runtime.logcatFindings,
     device: proof.device,
     artifacts: proof.runtime.artifacts,
-    nonClaims: ['No product tracking freshness claim is made from this emulator scaffold status proof.'],
+    nonClaims: [
+      'No product tracking freshness claim is made from this emulator scaffold status proof.',
+      'No physical-device background behavior, Android system geofence delivery, production upload worker, or product-ready Android tracking claim is made from the status-gap bridge.',
+    ],
   };
 }
 

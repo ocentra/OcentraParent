@@ -72,10 +72,12 @@ claimed.
 `npm run test:tracking-plan-android-emulator-proof` now fills the first local
 status layer. The generated `04-device-status-proof.json` captures emulator
 device metadata, foreground service state, battery dump, connectivity summary,
-UI tree, screenshot path, and logcat findings. This is emulator scaffold proof
-only; foreground location, background/geofence transitions, notification
-delivery, physical-device, and production tracking freshness claims remain
-pending.
+UI tree, screenshot path, logcat findings, and a status-gap bridge to the local
+low-power, killed/restarted, pending-upload, and manual-required rows from
+`17-status-gap-proof.json`. This is emulator/local proof only; foreground
+location, background/geofence transitions, notification delivery,
+physical-device, offline radio behavior, and production tracking freshness
+claims remain pending.
 
 `node scripts/test/tracking-android-status-proof.mjs` now adds a focused WP10
 parent-domain proof for the remaining local status gap states. It records
