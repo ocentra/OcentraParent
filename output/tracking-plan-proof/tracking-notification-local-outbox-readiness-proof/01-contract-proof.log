@@ -1,0 +1,7 @@
+Contract proof:
+
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-notification-local-outbox-readiness-proof tracking-notification-receipt-boundary-proof notification-local-outbox-adapter-proof notification-local-outbox-scheduler-proof: PASS
+- Tracking receipt-required rows map to the existing local receipt-required outbox and scheduler records.
+- Tracking manual-required rows map to the existing local manual-required outbox and scheduler records.
+- Tracking provider-unavailable rows map to the existing local dead-letter/manual-review scheduler path.

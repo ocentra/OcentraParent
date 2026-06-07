@@ -249,6 +249,15 @@ expose location or device-status features. Parents expect this category.
   webhook receipt ingestion runtime, provider delivery, credentials, adapter
   dispatch, child-device delivery, authority, physical-device proof, and
   production durable outbox storage unclaimed.
+- WP26 tracking notification local outbox readiness proof now exists through
+  `node scripts/test/tracking-notification-local-outbox-readiness-proof.mjs`.
+  It maps those tracking receipt boundary rows to the existing notification
+  local outbox adapter and scheduler proof rows, preserving tracking evidence,
+  policy, receipt-requirement, local outbox artifact, and scheduler artifact
+  refs while keeping provider delivery, receipt ingestion runtime, credentials,
+  cloud routing, parent notification UI, retry/quiet-hours workers,
+  production durable outbox storage, child-device delivery, physical-device
+  proof, authority, and product-ready notification behavior unclaimed.
 - WP26 tracking notification preference preflight proof now exists through
   `node scripts/test/tracking-notification-preference-preflight-proof.mjs`. It
   derives parent-preference-required, source-manual-required, and
@@ -573,7 +582,8 @@ scaffold proof, WP08/WP09 Android permission/background manual-required proof,
 WP11/WP12 iOS Core Location manual-required proof, P3 WSL/local replay proof,
 P1 evidence-quality gate proof, WP26 tracking alert-to-provider-status handoff,
 notification receipt boundary proof, notification preference preflight proof,
-and parent-surface notification history intent proof, P1 escalation readiness proof for
+local outbox readiness proof, and parent-surface notification history intent
+proof, P1 escalation readiness proof for
 acknowledgement/check-in/manual
 escalation states, WP28 temporary live tracking mode proof for authorization/
 duration/cadence/degraded/auto-stop/retention states, and WP20 Google Places/
@@ -598,8 +608,9 @@ family dashboard summary, and policy drill-in export packets, plus WP24/WP32 AI
 stored-ref consumer proof for AI parent-report,
 policy-drill-in, and metadata-fallback context rows,
 plus hosted notification parent-surface history/preference intent rendering
-with screenshot/accessibility proof and hosted missing-device state rendering
-with screenshot/accessibility proof.
+with screenshot/accessibility proof, hosted missing-device state rendering
+with screenshot/accessibility proof, and local outbox/scheduler artifact
+readiness proof for tracking receipt rows.
 It remains a tracked product gap until platform location and
 geofence runtime adapters, broader product read models beyond these rows, full
 dashboard UI beyond the hosted parent route, applied product-ready service
@@ -637,6 +648,12 @@ accessibility beyond the hosted parent route are proved.
       provider, receipt, and preference proof refs. It is not rendered
       notification UI, parent preference mutation, provider delivery, receipt
       runtime, child-device delivery, physical-device, authority, or
+      product-ready notification behavior.
+- [x] Tracking notification local outbox readiness rows. This proves tracking
+      receipt rows can cite the existing parent-owned local outbox adapter and
+      scheduler artifact refs. It is not provider delivery, receipt ingestion
+      runtime, production durable outbox storage, retry/quiet-hours worker
+      execution, child-device delivery, physical-device proof, authority, or
       product-ready notification behavior.
 - [x] Hosted notification parent-surface history UI proof renders those rows on
       the hosted parent `policy-tracking` route with screenshot/accessibility
