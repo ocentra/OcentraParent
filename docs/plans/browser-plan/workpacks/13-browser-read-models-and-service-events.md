@@ -195,8 +195,7 @@ intervention execution, or enforcement.
 the service-backed browser runtime event-chain stream. The parser validates known
 browser runtime event types, Rust-serialized phase names, event type/phase
 consistency, stream counts, no AI-authority overclaim, and no hidden
-intervention execution. Portal state adoption is intentionally sequenced behind
-the current `apps/portal/src/live-activity-state.ts` lock owned by codex-b.
+intervention execution.
 
 Evidence:
 
@@ -208,5 +207,27 @@ Evidence:
 - `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- browser-runtime-events.test.ts`
 - `cmd /c npm run type-check --workspace @ocentra-parent/agent-protocol-domain`
 
-This does not claim portal consumption, portal UI, AI execution, policy
-execution, browser mutation, child intervention execution, or enforcement.
+This does not claim portal UI, AI execution, policy execution, browser mutation,
+child intervention execution, or enforcement.
+
+## Portal Typed Stream Consumer Addendum - 2026-06-07
+
+`browser-runtime-portal-typed-stream-consumer-proof` updates
+`PortalLiveActivityState` to consume the shared protocol-domain typed parser for
+the browser runtime event-chain stream. The portal no longer keeps a separate
+loose JSON entry parser for this stream, and the focused portal tests reject
+event type/phase drift, AI-authority overclaim, and stream count drift before
+exposing the stream as state.
+
+Evidence:
+
+- `apps/portal/src/live-activity-state.ts`
+- `apps/portal/tests/live-activity-state.test.ts`
+- `scripts/test/browser-runtime-portal-typed-stream-consumer-proof.mjs`
+- `test-results/browser-runtime-portal-typed-stream-consumer-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-portal-typed-stream-consumer/01-browser-runtime-portal-typed-stream-consumer-proof.md`
+- `cmd /c node scripts/test/browser-runtime-portal-typed-stream-consumer-proof.mjs`
+
+This claims portal state consumption only. It does not claim a new portal visual
+surface, AI execution, policy execution, browser mutation, child intervention
+execution, or enforcement.

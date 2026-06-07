@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AgentBrowserRuntimeEventType,
+  AgentBrowserRuntimePhase,
   AgentEvent,
   AgentEventEnvelopeSchema,
   AgentProtocolDefaults,
@@ -10,6 +12,8 @@ import {
   AgentNetworkRuntimeEventType,
 } from '@ocentra-parent/agent-protocol-domain/network-runtime-events';
 import { resolveLiveActivityState } from '../src/live-activity-state';
+
+type ResolvedLiveActivityState = ReturnType<typeof resolveLiveActivityState>;
 
 const NoClaimBoundary = {
   exactUrlAvailable: false,
@@ -104,57 +108,136 @@ describe('portal live activity network service state', () => {
 describe('portal browser runtime event-chain state', () => {
   it('parses browser runtime event-chain stream payload without action overclaim', () => {
     const state = resolveLiveActivityState([browserRuntimeEventChainStreamEvent()]);
-    const stream = state.browserRuntimeEventChainStream;
+
+    expectBrowserRuntimeEventEnvelope(state);
+    expectBrowserRuntimeStreamCounts(state);
+    expectBrowserRuntimeStreamEntries(state);
+  });
+
+  it('rejects browser runtime event-chain stream entries when event type and phase drift', () => {
+    const state = resolveLiveActivityState([
+      browserRuntimeEventChainStreamEvent({
+        entries: [
+          browserRuntimeStreamEntry(
+            AgentBrowserRuntimeEventType.EvidenceObserved,
+            'cmd-browser-runtime-stream-browser.evidence.observed',
+            {
+              phase: AgentBrowserRuntimePhase.ReadModelProjected,
+            }
+          ),
+        ],
+        streamedEvents: 1,
+      }),
+    ]);
 
     expect(state.browserRuntimeEventChainStreamEvent?.event).toBe('agent.browser.runtime.event-chain.stream.reported');
-    expect(stream?.observedRows).toBe(1);
-    expect(stream?.streamedEvents).toBe(4);
-    expect(stream?.failedRows).toBe(0);
-    expect(stream?.exactUrlRows).toBe(0);
-    expect(stream?.manualRequiredRows).toBe(1);
-    expect(stream?.interventionCommandEvents).toBe(0);
-    expect(stream?.readModelProjectionEvents).toBe(1);
-    expect(stream?.entries.map((entry) => entry.eventType)).toEqual([
-      'browser.evidence.observed',
-      'browser.evidence.journaled',
-      'browser.audit-entry.committed',
-      'browser.read-model.projected',
+    expect(state.browserRuntimeEventChainStream).toBeNull();
+  });
+
+  it('rejects browser runtime event-chain streams that claim AI authority in the portal', () => {
+    const state = resolveLiveActivityState([
+      browserRuntimeEventChainStreamEvent({
+        entries: [
+          browserRuntimeStreamEntry(
+            AgentBrowserRuntimeEventType.AiAnalysisCompleted,
+            'cmd-browser-runtime-stream-browser.ai-analysis.completed',
+            {
+              aiAuthority: true,
+            }
+          ),
+        ],
+        streamedEvents: 1,
+      }),
     ]);
-    expect(stream?.entries.at(0)?.payload['exactUrlClaimed']).toBe(false);
-    expect(stream?.entries.at(0)?.payload['interventionCommandAllowed']).toBe(false);
+
+    expect(state.browserRuntimeEventChainStream).toBeNull();
+  });
+
+  it('rejects browser runtime event-chain streams when the count fields drift from entries', () => {
+    const state = resolveLiveActivityState([browserRuntimeEventChainStreamEvent({ streamedEvents: 5 })]);
+
+    expect(state.browserRuntimeEventChainStream).toBeNull();
   });
 });
 
-function browserRuntimeEventChainStreamEvent(): AgentEventEnvelope {
+function expectBrowserRuntimeEventEnvelope(state: ResolvedLiveActivityState): void {
+  expect(state.browserRuntimeEventChainStreamEvent?.event).toBe('agent.browser.runtime.event-chain.stream.reported');
+}
+
+function expectBrowserRuntimeStreamCounts(state: ResolvedLiveActivityState): void {
+  const stream = state.browserRuntimeEventChainStream;
+
+  expect(stream?.observedRows).toBe(1);
+  expect(stream?.streamedEvents).toBe(4);
+  expect(stream?.manualRequiredRows).toBe(1);
+  expect(stream?.interventionCommandEvents).toBe(0);
+  expect(stream?.readModelProjectionEvents).toBe(1);
+}
+
+function expectBrowserRuntimeStreamEntries(state: ResolvedLiveActivityState): void {
+  const stream = state.browserRuntimeEventChainStream;
+
+  expect(stream?.entries.map((entry) => entry.eventType)).toEqual([
+    AgentBrowserRuntimeEventType.EvidenceObserved,
+    AgentBrowserRuntimeEventType.EvidenceJournaled,
+    AgentBrowserRuntimeEventType.AuditEntryCommitted,
+    AgentBrowserRuntimeEventType.ReadModelProjected,
+  ]);
+  expect(stream?.entries.at(0)?.payload.exactUrlClaimed).toBe(false);
+  expect(stream?.entries.at(0)?.payload.interventionCommandAllowed).toBe(false);
+  expect(stream?.entries.at(0)?.payload.phase).toBe(AgentBrowserRuntimePhase.EvidenceObserved);
+}
+
+function browserRuntimeEventChainStreamEvent(
+  input: {
+    readonly entries?: readonly ReturnType<typeof browserRuntimeStreamEntry>[];
+    readonly streamedEvents?: number;
+  } = {}
+): AgentEventEnvelope {
+  const entries = input.entries ?? [
+    browserRuntimeStreamEntry(
+      AgentBrowserRuntimeEventType.EvidenceObserved,
+      'cmd-browser-runtime-stream-browser.evidence.observed'
+    ),
+    browserRuntimeStreamEntry(
+      AgentBrowserRuntimeEventType.EvidenceJournaled,
+      'cmd-browser-runtime-stream-browser.evidence.journaled'
+    ),
+    browserRuntimeStreamEntry(
+      AgentBrowserRuntimeEventType.AuditEntryCommitted,
+      'cmd-browser-runtime-stream-browser.audit-entry.committed'
+    ),
+    browserRuntimeStreamEntry(
+      AgentBrowserRuntimeEventType.ReadModelProjected,
+      'cmd-browser-runtime-stream-browser.read-model.projected'
+    ),
+  ];
+
   return eventWithPayload(AgentEvent.BrowserRuntimeEventChainStreamReported, {
     [AgentProtocolDefaults.Field.BrowserRuntimeObservedRows]: 1,
-    [AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents]: 4,
+    [AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents]: input.streamedEvents ?? entries.length,
     [AgentProtocolDefaults.Field.BrowserRuntimeFailedRows]: 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeExactUrlRows]: 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeManualRequiredRows]: 1,
     [AgentProtocolDefaults.Field.BrowserRuntimeInterventionCommandEvents]: 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents]: 1,
-    [AgentProtocolDefaults.Field.BrowserRuntimeEventChainStream]: JSON.stringify([
-      browserRuntimeStreamEntry('browser.evidence.observed', 'cmd-browser-runtime-stream-browser.evidence.observed'),
-      browserRuntimeStreamEntry('browser.evidence.journaled', 'cmd-browser-runtime-stream-browser.evidence.journaled'),
-      browserRuntimeStreamEntry(
-        'browser.audit-entry.committed',
-        'cmd-browser-runtime-stream-browser.audit-entry.committed'
-      ),
-      browserRuntimeStreamEntry(
-        'browser.read-model.projected',
-        'cmd-browser-runtime-stream-browser.read-model.projected'
-      ),
-    ]),
+    [AgentProtocolDefaults.Field.BrowserRuntimeEventChainStream]: JSON.stringify(entries),
   });
 }
 
-function browserRuntimeStreamEntry(eventType: string, eventRef: string): Record<string, unknown> {
+function browserRuntimeStreamEntry(
+  eventType: AgentBrowserRuntimeEventType,
+  eventRef: string,
+  payloadOverrides: Partial<{
+    readonly phase: AgentBrowserRuntimePhase;
+    readonly aiAuthority: boolean;
+  }> = {}
+): Record<string, unknown> {
   return {
     [AgentProtocolDefaults.Field.EventType]: eventType,
     [AgentProtocolDefaults.Field.EventRef]: eventRef,
     [AgentProtocolDefaults.Field.Payload]: {
-      phase: 'read-model-projected',
+      phase: payloadOverrides.phase ?? browserRuntimePhaseForEventType(eventType),
       sourceRef: 'browser-runtime-source-ref',
       evidenceRef: 'browser-runtime-evidence-ref',
       journalRef: 'browser-runtime-journal-ref',
@@ -168,12 +251,37 @@ function browserRuntimeStreamEntry(eventType: string, eventRef: string): Record<
       readModelRef: 'browser-runtime-read-model-ref',
       previousPhaseRef: 'browser-runtime-previous-phase-ref',
       exactUrlClaimed: false,
-      aiAuthority: false,
+      aiAuthority: payloadOverrides.aiAuthority ?? false,
       policyAuthority: true,
       interventionCommandAllowed: false,
       observedAt: '2026-05-21T01:00:00Z',
     },
   };
+}
+
+function browserRuntimePhaseForEventType(eventType: AgentBrowserRuntimeEventType): AgentBrowserRuntimePhase {
+  switch (eventType) {
+    case AgentBrowserRuntimeEventType.EvidenceObserved:
+      return AgentBrowserRuntimePhase.EvidenceObserved;
+    case AgentBrowserRuntimeEventType.EvidenceJournaled:
+      return AgentBrowserRuntimePhase.EvidenceJournaled;
+    case AgentBrowserRuntimeEventType.AiAnalysisRequested:
+      return AgentBrowserRuntimePhase.AiAnalysisRequested;
+    case AgentBrowserRuntimeEventType.AiAnalysisCompleted:
+      return AgentBrowserRuntimePhase.AiAnalysisCompleted;
+    case AgentBrowserRuntimeEventType.PolicyEvaluationRequested:
+      return AgentBrowserRuntimePhase.PolicyEvaluationRequested;
+    case AgentBrowserRuntimeEventType.PolicyDecisionCompleted:
+      return AgentBrowserRuntimePhase.PolicyDecisionCompleted;
+    case AgentBrowserRuntimeEventType.InterventionCommandIssued:
+      return AgentBrowserRuntimePhase.InterventionCommandIssued;
+    case AgentBrowserRuntimeEventType.InterventionResultObserved:
+      return AgentBrowserRuntimePhase.InterventionResultObserved;
+    case AgentBrowserRuntimeEventType.AuditEntryCommitted:
+      return AgentBrowserRuntimePhase.AuditEntryCommitted;
+    case AgentBrowserRuntimeEventType.ReadModelProjected:
+      return AgentBrowserRuntimePhase.ReadModelProjected;
+  }
 }
 
 function eventWithPayload(
@@ -182,8 +290,8 @@ function eventWithPayload(
 ): AgentEventEnvelope {
   return AgentEventEnvelopeSchema.parse({
     schemaVersion: AgentProtocolDefaults.SchemaVersion,
-    eventId: 'portal-live-activity-network-event',
-    correlationId: 'portal-live-activity-network-correlation',
+    eventId: 'portal-live-activity-event',
+    correlationId: 'portal-live-activity-correlation',
     sentAt: '2026-06-08T22:45:00Z',
     source: {
       peerId: 'local-dev-agent',

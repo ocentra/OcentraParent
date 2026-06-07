@@ -499,10 +499,18 @@ Rust-serialized phase names, event type/phase consistency, stream counts,
 no-AI-authority, and no hidden intervention execution. Evidence:
 `test-results/browser-runtime-typed-stream-contract-proof/proof.json` and
 `output/browser-plan-proof/browser-runtime-typed-stream-contract/01-browser-runtime-typed-stream-contract-proof.md`.
-Portal state adoption is not claimed in this slice because
-`apps/portal/src/live-activity-state.ts` is currently owned by codex-b. The
-proof does not claim portal consumption, portal UI, AI execution, policy
-execution, browser mutation, child intervention execution, or enforcement.
+
+WP13 portal typed stream consumer addendum:
+`browser-runtime-portal-typed-stream-consumer-proof` updates
+`PortalLiveActivityState` to consume the shared protocol-domain typed parser
+instead of a local loose JSON entry parser. Portal tests now reject event
+type/phase drift, AI-authority overclaim, and stream count drift before exposing
+the browser runtime event-chain stream as state. Evidence:
+`test-results/browser-runtime-portal-typed-stream-consumer-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-portal-typed-stream-consumer/01-browser-runtime-portal-typed-stream-consumer-proof.md`.
+This claims portal state consumption only; it does not claim a new portal visual
+surface, AI execution, policy execution, browser mutation, child intervention
+execution, or enforcement.
 
 ## Worker Report Template
 
