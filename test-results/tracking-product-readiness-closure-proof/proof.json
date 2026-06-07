@@ -124,6 +124,12 @@
       "proofTier": "P2_HOSTED_CI"
     },
     {
+      "coverageTag": "production-durable-workers-readiness-blocker",
+      "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/57-production-durable-workers-readiness-blocker-proof.json",
+      "status": "manual_required",
+      "proofTier": "P3_LOCAL_DEV_MACHINE"
+    },
+    {
       "coverageTag": "retention-product-readiness-blocker",
       "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json",
       "status": "proved",
@@ -156,6 +162,7 @@
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/53-escalation-runtime-readiness-blocker-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/45-child-runtime-product-readiness-blocker-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/56-full-product-ui-readiness-blocker-proof.json",
+        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/57-production-durable-workers-readiness-blocker-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json"
       ],
       "auditRefs": [
@@ -201,8 +208,8 @@
     "productReadyClaimed": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "ceb9ad3897b41568b2a06a693be1f1455f06a089",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\n M packages/parent-domain/src/tracking-product-readiness-closure-proof.ts\n M scripts/test/tracking-product-readiness-closure-proof.mjs\n M test-results/tracking-product-readiness-closure-proof/product-readiness-closure-read-model.json\n M test-results/tracking-product-readiness-closure-proof/proof.json\n?? packages/parent-domain/src/tracking-full-product-ui-readiness-blocker-proof.ts\n?? packages/parent-domain/tests/tracking-full-product-ui-readiness-blocker-proof.test.ts\n?? scripts/test/tracking-full-product-ui-readiness-blocker-proof.mjs",
+  "baseCommitAtGeneration": "2a76a70268234ce44abf511cdeb5fbb6df9e973a",
+  "gitStatusShort": "D test-results/tracking-production-durable-workers-readiness-blocker-proof/proof.json\n D test-results/tracking-production-durable-workers-readiness-blocker-proof/read-model.json",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -213,7 +220,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-product-readiness-closure-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  18:02:36\n   Duration  792ms (transform 125ms, setup 0ms, import 551ms, tests 18ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  18:26:21\n   Duration  808ms (transform 123ms, setup 0ms, import 552ms, tests 17ms, environment 0ms)",
       "stderr": ""
     }
   ],
