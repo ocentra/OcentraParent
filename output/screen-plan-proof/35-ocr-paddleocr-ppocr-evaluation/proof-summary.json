@@ -1,6 +1,18 @@
 {
   "proof": "screen-ocr-paddleocr-ppocr-evaluation",
-  "generatedAt": "2026-06-06T23:37:39.808Z",
+  "generatedAt": "2026-06-07T02:52:17.193Z",
+  "sourceEvidence": {
+    "sourceImagePath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\browser-plan-proof\\social-14-managed-browser-feed-short-video-gate\\06-live-screenshots\\vimeo-public-video.png",
+    "sourceImageExists": true,
+    "sourceImageKind": "retained real public Vimeo managed-browser screenshot artifact",
+    "tesseractBaselinePath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-plan-proof\\34-ocr-tesseract-baseline\\vimeo-public-video-tesseract-output.txt",
+    "tesseractBaselineExists": true,
+    "tesseractMatchedTerms": [
+      "vimeo",
+      "video",
+      "player"
+    ]
+  },
   "officialSourceSnapshot": {
     "paddleOcrInstallation": "https://paddlepaddle.github.io/PaddleOCR/main/en/version3.x/installation.html",
     "paddleOcrQuickStart": "https://paddlepaddle.github.io/PaddleOCR/main/en/quick_start.html",
@@ -15,9 +27,14 @@
   "localEnvironment": {
     "python": "Python 3.11.9",
     "pip": "pip 25.0 from C:\\Users\\sujan\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\pip (python 3.11)",
-    "tesseractInstalled": false,
-    "paddleOcrInstalled": false,
-    "paddlePaddleInstalled": false
+    "tesseractInstalled": true,
+    "paddleOcrInstalled": true,
+    "paddlePaddleInstalled": true,
+    "installedVersions": {
+      "paddle": "3.3.1",
+      "paddleocr": "3.6.0"
+    },
+    "packagingRisk": "pip install succeeded, but pip reported an environment conflict: mediapipe requires protobuf<5 while this Python environment has protobuf 5.29.5."
   },
   "pypiCandidateSnapshot": {
     "paddleocrLatest": "3.6.0",
@@ -28,24 +45,77 @@
   "localOnlyGate": {
     "remoteApiAllowed": false,
     "remoteModelDownloadAllowedByDefault": false,
-    "runtimeExecutionAllowed": false,
+    "runtimeExecutionAllowed": true,
     "explicitRuntimeRunEnv": "OCENTRA_RUN_PADDLEOCR_LOCAL=1",
-    "reason": "The gate records packaging/current-version facts only; it does not download models or call remote OCR services by default."
+    "reason": "Explicit local runtime execution was requested and local packages are importable; inference is attempted against the retained real Vimeo screenshot artifact."
+  },
+  "modelCacheCustody": {
+    "cacheRoot": "C:\\Users\\sujan\\.paddlex\\official_models",
+    "checkedModels": [
+      {
+        "name": "PP-LCNet_x1_0_doc_ori",
+        "path": "C:\\Users\\sujan\\.paddlex\\official_models\\PP-LCNet_x1_0_doc_ori",
+        "exists": true
+      },
+      {
+        "name": "UVDoc",
+        "path": "C:\\Users\\sujan\\.paddlex\\official_models\\UVDoc",
+        "exists": true
+      },
+      {
+        "name": "PP-LCNet_x1_0_textline_ori",
+        "path": "C:\\Users\\sujan\\.paddlex\\official_models\\PP-LCNet_x1_0_textline_ori",
+        "exists": true
+      },
+      {
+        "name": "PP-OCRv5_server_det",
+        "path": "C:\\Users\\sujan\\.paddlex\\official_models\\PP-OCRv5_server_det",
+        "exists": true
+      },
+      {
+        "name": "PP-OCRv5_mobile_det",
+        "path": "C:\\Users\\sujan\\.paddlex\\official_models\\PP-OCRv5_mobile_det",
+        "exists": true
+      },
+      {
+        "name": "en_PP-OCRv5_mobile_rec",
+        "path": "C:\\Users\\sujan\\.paddlex\\official_models\\en_PP-OCRv5_mobile_rec",
+        "exists": true
+      }
+    ],
+    "allCheckedModelsCached": true,
+    "note": "Runtime execution downloads official model files into the local user cache. This is not a hosted OCR call, but production custody still needs explicit model-cache policy."
   },
   "runtimeAndQualityComparison": {
-    "status": "not-run",
-    "paddleOcrRuntimeReady": false,
-    "tesseractRuntimeReady": false,
+    "status": "runtime-blocked",
+    "paddleOcrRuntimeReady": true,
+    "tesseractRuntimeReady": true,
     "comparedAgainstTesseract": false,
-    "reason": "This Windows lane lacks one or more local OCR runtimes, so quality comparison remains a follow-up proof."
+    "tesseractMatchedTerms": [
+      "vimeo",
+      "video",
+      "player"
+    ],
+    "paddleOcrRuntimeAttempt": {
+      "status": 1,
+      "durationMs": 10934,
+      "logPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-plan-proof\\35-ocr-paddleocr-ppocr-evaluation\\paddleocr-runtime-attempt.log",
+      "mode": "PP-OCRv5_mobile_det + en_PP-OCRv5_mobile_rec with orientation/unwarping/textline disabled",
+      "extractedTexts": [],
+      "extractedTextCount": 0,
+      "initSeconds": null,
+      "predictSeconds": null,
+      "error": "NotImplementedError: (Unimplemented) ConvertPirAttribute2RuntimeAttribute not support [pir::ArrayAttribute<pir::DoubleAttribute>]  (at ..\\paddle\\fluid\\framework\\new_executor\\instruction\\onednn\\onednn_instruction.cc:118)"
+    },
+    "reason": "PaddleOCR packages and models are present, but local inference fails before OCR text extraction; Tesseract remains the only runtime-proved OCR baseline in this lane."
   },
   "placementDecision": {
     "selectedForProduction": false,
-    "preferredNextHost": "household-mesh-or-child-after-install-proof",
-    "decision": "Do not select PaddleOCR/PP-OCR for production screen OCR until local package install, model-cache custody, no-upload execution, and Tesseract comparison proof pass."
+    "preferredNextHost": "not-selected-runtime-blocked",
+    "decision": "Do not select PaddleOCR/PP-OCR for production screen OCR until local package install, model-cache custody, no-upload inference, Tesseract comparison, and CPU/GPU/memory/runtime proof pass."
   },
   "nonClaims": [
-    "This proof does not install PaddleOCR, download OCR models, or run PaddleOCR inference.",
+    "This proof attempts local PaddleOCR inference only because OCENTRA_RUN_PADDLEOCR_LOCAL=1 was set.",
     "This proof does not call PaddleOCR remote API or any hosted OCR endpoint.",
     "This proof does not claim PaddleOCR quality, latency, CPU, GPU, or memory suitability.",
     "This proof does not replace the existing typed OCR route proof."
