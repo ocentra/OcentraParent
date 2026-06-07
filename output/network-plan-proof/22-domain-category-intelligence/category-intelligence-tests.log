@@ -1,0 +1,13 @@
+
+running 6 tests
+test tests::category::category_update_policy_accepts_newer_signed_snapshot ... ok
+test tests::category::category_update_policy_rejects_older_snapshot ... ok
+test tests::category::category_update_policy_rejects_unsigned_required_snapshot ... ok
+test tests::classifier::classifier_uses_fresh_domain_category_for_video ... ok
+test tests::category::category_database_marks_stale_source_without_upgrading_claim ... ok
+test tests::category::category_database_matches_registrable_domain_with_fresh_source ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 207 filtered out; finished in 0.00s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src\lib.rs (target\debug\deps\ocentra_network_evidence-36610952c1128119.exe)

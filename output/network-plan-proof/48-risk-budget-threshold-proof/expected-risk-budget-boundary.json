@@ -1,0 +1,49 @@
+{
+  "reportRef": "network-risk-budget-row48",
+  "acceptedInputs": [
+    "child profile ref",
+    "household policy ref",
+    "risk budget ref",
+    "cascade ref",
+    "AI audit report refs",
+    "prior event refs",
+    "adapter proof state"
+  ],
+  "thresholds": [
+    "monitor",
+    "ask-parent",
+    "warn-child",
+    "limit",
+    "block"
+  ],
+  "interventionStates": [
+    "ignore",
+    "monitor",
+    "ask-parent",
+    "warn-child",
+    "limit",
+    "block",
+    "manual-required"
+  ],
+  "requiredProof": [
+    "parent rule refs",
+    "cited evidence refs",
+    "safe behavior cap, expiry, audit reason, and UI explanation before risk pressure reduction",
+    "adapter proof before limit or block mapping"
+  ],
+  "unsupportedClaimsRejected": [
+    "raw PCAP",
+    "exact URL",
+    "page content",
+    "private message",
+    "search query",
+    "decrypted payload",
+    "policy authority",
+    "adapter authority",
+    "enforcement command",
+    "extra privilege grant",
+    "allowance grant",
+    "time grant"
+  ],
+  "authorityBoundary": "Risk budget output maps action recommendations only; policy and adapter proof remain separate authority and no enforcement command is published."
+}
