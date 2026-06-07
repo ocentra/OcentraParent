@@ -121,6 +121,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `55-authority-runtime-readiness-blocker-proof.json`
 - Tracking full product UI readiness blocker proof:
   `56-full-product-ui-readiness-blocker-proof.json`
+- Tracking production durable workers readiness blocker proof:
+  `57-production-durable-workers-readiness-blocker-proof.json`
 
 ## Merge Blockers
 
@@ -1023,3 +1025,32 @@ test:tracking-plan-hosted-ui-proof` passed.
       physical-device UI proof, authority-gated UI proof, provider-delivery UI
       proof, production product UI, and product-ready tracking UI remain
       proof-gated.
+
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: production durable workers readiness blocker proof/test,
+      focused proof script, product-readiness closure proof model, closure
+      harness, owning tracking feature doc, implementation checklist, this
+      proof-gate doc, generated production durable worker blocker proof
+      artifacts, and refreshed closure proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`
+      passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/57-production-durable-workers-readiness-blocker-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
+      `output/tracking-plan-proof/tracking-production-durable-workers-readiness-blocker-proof/proof.json`,
+      `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
+      `test-results/tracking-production-durable-workers-readiness-blocker-proof/proof.json`,
+      and `test-results/tracking-product-readiness-closure-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and this proof-gate doc updated. Central product capability
+      checklist update will be queued through hub doc-deltas; this branch does
+      not edit `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: closure now also requires the
+      production durable workers readiness blocker proof ref, but tracking
+      location upload, retention cleanup, notification outbox, escalation
+      timeout, provider receipt, child-device delivery, authority status,
+      production audit durable storage, production worker execution, and
+      product-ready tracking remain proof-gated.

@@ -192,6 +192,16 @@ expose location or device-status features. Parents expect this category.
   tracking UI. Hosted-route evidence stays acknowledged, but full product
   parent/child UI, child-device runtime UI, physical-device, authority,
   provider delivery, production, and product-ready claims remain false.
+- WP33 production durable workers readiness blocker proof now exists through
+  `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`.
+  It consumes the production-support durable queue runtime boundary plus the
+  existing provider-runtime, escalation-runtime, and retention durable-settings
+  proof refs, writes WP33 artifacts, and records manual-required blockers for
+  tracking location upload, retention cleanup, notification outbox, escalation
+  timeout, provider receipt, child-device delivery, authority status, and
+  production audit durable storage workers. Production support boundary evidence
+  is acknowledged, but tracking production worker execution, production durable
+  storage, and product-ready tracking remain false.
 - WP26/WP33 provider-delivery artifact gate proof now exists through
   `node scripts/test/tracking-provider-delivery-artifact-gate-proof.mjs`. It
   checks the provider-delivery proof root for the required real runtime
@@ -228,7 +238,7 @@ expose location or device-status features. Parents expect this category.
   geofence blocker, notification receipt boundary, notification preference
   preflight, notification local outbox readiness, authority-enrollment
   manual-required, child-runtime blocker, child-runtime artifact gate, full
-  product UI readiness blocker,
+  product UI readiness blocker, production durable workers readiness blocker,
   physical-device artifact gate, provider-delivery artifact gate,
   provider-runtime readiness blocker, escalation-runtime readiness blocker, and
   retention product-readiness blocker proof refs, writes
