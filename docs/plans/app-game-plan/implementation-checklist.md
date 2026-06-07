@@ -162,7 +162,7 @@ Required files:
 - [ ] Launcher evidence is displayed as active game without child-game proof.
 - [x] Unknown process is auto-promoted to known game.
 - [x] AI output directly enforces.
-- [ ] Dry-run terminates or blocks app/game.
+- [x] Dry-run terminates or blocks app/game.
 - [ ] Manual-required action calls an adapter.
 - [x] Android normal mode claims package suspend/hide.
 - [x] iOS claims process scanning/killing.

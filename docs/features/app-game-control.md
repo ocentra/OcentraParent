@@ -435,6 +435,11 @@ control with better evidence and local audit.
   process enumeration and terminate-process behavior remain not-claimed,
   not-dispatched, and blocked from adapter calls unless real FamilyControls,
   ManagedSettings, or supervised MDM proof exists.
+- The dry-run no-action merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/dry-run-no-action`: time-budget
+  runtime decisions stay dry-run-only, preview handoff rows require disabled
+  enforcement handoff and `not-dispatched` adapter state, and unproved
+  block-launch decisions remain manual-required instead of executable blocks.
 
 ## Current Gap
 
