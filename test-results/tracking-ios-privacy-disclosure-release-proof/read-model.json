@@ -1,0 +1,266 @@
+{
+  "schemaVersion": "v0.6",
+  "proofId": "tracking-ios-privacy-disclosure-release-proof",
+  "generatedAt": "2026-06-07T17:30:00.000Z",
+  "family": {
+    "familyId": "family-tracking-ios-privacy-release"
+  },
+  "device": {
+    "deviceId": "device-maya-ios",
+    "childProfileId": "child-profile-maya",
+    "label": "Maya iOS release gate",
+    "platform": "ios"
+  },
+  "sourceProofRefs": [
+    "docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md",
+    "docs/expectations/platforms.md",
+    "docs/plans/tracking-plan/v0-5-location-platform-deep-dive.md",
+    "test-results/tracking-ios-location-manual-required-proof/proof.json"
+  ],
+  "releaseGateRows": [
+    {
+      "rowId": "tracking-ios-location-purpose-disclosure",
+      "releaseGate": "location-purpose-disclosure",
+      "gateState": "manual-review-required",
+      "observedAt": "2026-06-07T17:30:00.000Z",
+      "disclosureEvidenceRefs": [
+        "tracking-ios-location-purpose-copy-draft"
+      ],
+      "manualProofRefs": [
+        "wp12-ios-release-disclosure-manual-proof-plan"
+      ],
+      "appStoreReviewArtifactRefs": [],
+      "privacyNutritionArtifactRefs": [],
+      "runtimeEvidenceRefs": [
+        "wp12-ios-location-purpose-copy-draft"
+      ],
+      "requiredBeforeReleaseClaimRefs": [
+        "parent-facing-location-purpose-copy",
+        "apple-privacy-label-location-data"
+      ],
+      "parentVisibleStatusToken": "tracking-ios-location-purpose-disclosure-required",
+      "releaseClaimAllowed": false,
+      "appStoreReviewClaimed": false,
+      "privacyNutritionLabelClaimed": false,
+      "coreLocationRuntimeClaimed": false,
+      "backgroundLocationDeliveryClaimed": false,
+      "regionMonitoringClaimed": false,
+      "notificationDeliveryClaimed": false,
+      "entitlementProofClaimed": false,
+      "testflightDeviceInstallClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productReadyIosTrackingClaimed": false
+    },
+    {
+      "rowId": "tracking-ios-background-location-disclosure",
+      "releaseGate": "background-location-disclosure",
+      "gateState": "release-blocked-before-disclosure",
+      "observedAt": "2026-06-07T17:30:00.000Z",
+      "disclosureEvidenceRefs": [],
+      "manualProofRefs": [
+        "wp12-ios-release-disclosure-manual-proof-plan"
+      ],
+      "appStoreReviewArtifactRefs": [],
+      "privacyNutritionArtifactRefs": [],
+      "runtimeEvidenceRefs": [],
+      "requiredBeforeReleaseClaimRefs": [
+        "background-location-purpose-copy",
+        "apple-background-mode-review-artifact",
+        "physical-device-background-delivery-proof"
+      ],
+      "parentVisibleStatusToken": "tracking-ios-background-location-disclosure-required",
+      "releaseClaimAllowed": false,
+      "appStoreReviewClaimed": false,
+      "privacyNutritionLabelClaimed": false,
+      "coreLocationRuntimeClaimed": false,
+      "backgroundLocationDeliveryClaimed": false,
+      "regionMonitoringClaimed": false,
+      "notificationDeliveryClaimed": false,
+      "entitlementProofClaimed": false,
+      "testflightDeviceInstallClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productReadyIosTrackingClaimed": false
+    },
+    {
+      "rowId": "tracking-ios-region-monitoring-disclosure",
+      "releaseGate": "region-monitoring-disclosure",
+      "gateState": "release-blocked-before-disclosure",
+      "observedAt": "2026-06-07T17:30:00.000Z",
+      "disclosureEvidenceRefs": [],
+      "manualProofRefs": [
+        "wp12-ios-release-disclosure-manual-proof-plan"
+      ],
+      "appStoreReviewArtifactRefs": [],
+      "privacyNutritionArtifactRefs": [],
+      "runtimeEvidenceRefs": [],
+      "requiredBeforeReleaseClaimRefs": [
+        "region-monitoring-purpose-copy",
+        "apple-region-monitoring-review-artifact",
+        "physical-device-region-transition-proof"
+      ],
+      "parentVisibleStatusToken": "tracking-ios-region-monitoring-disclosure-required",
+      "releaseClaimAllowed": false,
+      "appStoreReviewClaimed": false,
+      "privacyNutritionLabelClaimed": false,
+      "coreLocationRuntimeClaimed": false,
+      "backgroundLocationDeliveryClaimed": false,
+      "regionMonitoringClaimed": false,
+      "notificationDeliveryClaimed": false,
+      "entitlementProofClaimed": false,
+      "testflightDeviceInstallClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productReadyIosTrackingClaimed": false
+    },
+    {
+      "rowId": "tracking-ios-notification-disclosure",
+      "releaseGate": "notification-disclosure",
+      "gateState": "release-blocked-before-disclosure",
+      "observedAt": "2026-06-07T17:30:00.000Z",
+      "disclosureEvidenceRefs": [],
+      "manualProofRefs": [
+        "wp12-ios-release-disclosure-manual-proof-plan"
+      ],
+      "appStoreReviewArtifactRefs": [],
+      "privacyNutritionArtifactRefs": [],
+      "runtimeEvidenceRefs": [],
+      "requiredBeforeReleaseClaimRefs": [
+        "notification-purpose-copy",
+        "ios-local-notification-delivery-proof"
+      ],
+      "parentVisibleStatusToken": "tracking-ios-notification-disclosure-required",
+      "releaseClaimAllowed": false,
+      "appStoreReviewClaimed": false,
+      "privacyNutritionLabelClaimed": false,
+      "coreLocationRuntimeClaimed": false,
+      "backgroundLocationDeliveryClaimed": false,
+      "regionMonitoringClaimed": false,
+      "notificationDeliveryClaimed": false,
+      "entitlementProofClaimed": false,
+      "testflightDeviceInstallClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productReadyIosTrackingClaimed": false
+    },
+    {
+      "rowId": "tracking-ios-data-custody-disclosure",
+      "releaseGate": "data-custody-disclosure",
+      "gateState": "manual-review-required",
+      "observedAt": "2026-06-07T17:30:00.000Z",
+      "disclosureEvidenceRefs": [
+        "tracking-ios-data-custody-copy-draft"
+      ],
+      "manualProofRefs": [
+        "wp12-ios-release-disclosure-manual-proof-plan"
+      ],
+      "appStoreReviewArtifactRefs": [],
+      "privacyNutritionArtifactRefs": [],
+      "runtimeEvidenceRefs": [
+        "wp12-ios-data-custody-copy-draft"
+      ],
+      "requiredBeforeReleaseClaimRefs": [
+        "parent-owned-location-custody-copy",
+        "retention-window-disclosure",
+        "apple-privacy-nutrition-label-artifact"
+      ],
+      "parentVisibleStatusToken": "tracking-ios-data-custody-disclosure-required",
+      "releaseClaimAllowed": false,
+      "appStoreReviewClaimed": false,
+      "privacyNutritionLabelClaimed": false,
+      "coreLocationRuntimeClaimed": false,
+      "backgroundLocationDeliveryClaimed": false,
+      "regionMonitoringClaimed": false,
+      "notificationDeliveryClaimed": false,
+      "entitlementProofClaimed": false,
+      "testflightDeviceInstallClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productReadyIosTrackingClaimed": false
+    },
+    {
+      "rowId": "tracking-ios-app-store-review-evidence",
+      "releaseGate": "app-store-review-evidence",
+      "gateState": "manual-review-required",
+      "observedAt": "2026-06-07T17:30:00.000Z",
+      "disclosureEvidenceRefs": [
+        "tracking-ios-app-store-review-checklist-draft"
+      ],
+      "manualProofRefs": [
+        "wp12-ios-release-disclosure-manual-proof-plan"
+      ],
+      "appStoreReviewArtifactRefs": [
+        "app-store-review-required-before-release"
+      ],
+      "privacyNutritionArtifactRefs": [
+        "privacy-nutrition-label-required-before-release"
+      ],
+      "runtimeEvidenceRefs": [
+        "wp12-ios-app-store-review-checklist-draft"
+      ],
+      "requiredBeforeReleaseClaimRefs": [
+        "apple-app-store-review-approval-artifact",
+        "apple-entitlement-approval-artifact",
+        "testflight-device-install-proof"
+      ],
+      "parentVisibleStatusToken": "tracking-ios-app-store-review-evidence-required",
+      "releaseClaimAllowed": false,
+      "appStoreReviewClaimed": false,
+      "privacyNutritionLabelClaimed": false,
+      "coreLocationRuntimeClaimed": false,
+      "backgroundLocationDeliveryClaimed": false,
+      "regionMonitoringClaimed": false,
+      "notificationDeliveryClaimed": false,
+      "entitlementProofClaimed": false,
+      "testflightDeviceInstallClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productReadyIosTrackingClaimed": false
+    }
+  ],
+  "runtimeEvidenceRefs": [
+    {
+      "evidenceReferenceId": "wp12-ios-location-purpose-copy-draft",
+      "kind": "policy-decision",
+      "observedAt": "2026-06-07T17:30:00.000Z"
+    },
+    {
+      "evidenceReferenceId": "wp12-ios-data-custody-copy-draft",
+      "kind": "policy-decision",
+      "observedAt": "2026-06-07T17:30:00.000Z"
+    },
+    {
+      "evidenceReferenceId": "wp12-ios-app-store-review-checklist-draft",
+      "kind": "policy-decision",
+      "observedAt": "2026-06-07T17:30:00.000Z"
+    }
+  ],
+  "releaseBlockedCount": 3,
+  "manualReviewRequiredCount": 3,
+  "proofNonClaims": [
+    "no-apple-app-store-review-proof",
+    "no-apple-privacy-nutrition-label-proof",
+    "no-core-location-runtime-proof",
+    "no-background-location-delivery-proof",
+    "no-region-monitoring-runtime-proof",
+    "no-notification-delivery-proof",
+    "no-apple-entitlement-proof",
+    "no-testflight-device-install-proof",
+    "no-physical-device-proof",
+    "no-authority-proof",
+    "no-product-ready-ios-tracking"
+  ],
+  "releaseClaimAllowed": false,
+  "appStoreReviewClaimed": false,
+  "privacyNutritionLabelClaimed": false,
+  "coreLocationRuntimeClaimed": false,
+  "backgroundLocationDeliveryClaimed": false,
+  "regionMonitoringClaimed": false,
+  "notificationDeliveryClaimed": false,
+  "entitlementProofClaimed": false,
+  "testflightDeviceInstallClaimed": false,
+  "physicalDeviceProofClaimed": false,
+  "authorityProofClaimed": false,
+  "productReadyIosTrackingClaimed": false
+}

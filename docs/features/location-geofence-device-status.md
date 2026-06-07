@@ -577,6 +577,13 @@ expose location or device-status features. Parents expect this category.
   without adding a duplicate iOS location contract or claiming Core Location
   runtime, entitlement, notification delivery, physical-device, authority, or
   product-ready iOS tracking.
+- WP12 iOS App Store/privacy disclosure release-gate proof now exists through
+  `node scripts/test/tracking-ios-privacy-disclosure-release-proof.mjs`. It records
+  location-purpose, background-location, region-monitoring, notification,
+  data-custody, App Store review, and privacy label evidence rows under WP12
+  and WP33 proof artifacts while keeping release, product-ready iOS tracking,
+  Core Location runtime, entitlement, TestFlight/device, physical-device,
+  authority, and notification delivery claims blocked.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, actual child-device delivery/runtime
   execution, full parent/child UI beyond the hosted parent route, and broader
@@ -723,6 +730,12 @@ accessibility beyond the hosted parent route are proved.
       while preserving all Core Location runtime, entitlement,
       notification-delivery, physical-device, authority, and product-ready
       non-claims.
+- [x] iOS App Store/privacy disclosure release-gate proof records required
+      release evidence rows under
+      `output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/20-ios-privacy-disclosure-release-proof.json`
+      and the WP33 companion artifact while keeping release/product-ready iOS
+      tracking blocked until disclosure, Apple review, entitlement,
+      TestFlight/device, and runtime Core Location proof exist.
 - [x] Expected-place schedule and exception contracts.
 - [x] Parent acknowledgement and escalation contracts.
 - [x] Parent acknowledgement action readiness rows. This proves parent

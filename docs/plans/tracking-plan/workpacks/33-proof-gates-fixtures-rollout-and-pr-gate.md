@@ -64,6 +64,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `../13-desktop-location-and-presence-hint-model/17-desktop-presence-hint-proof.json`
 - iOS simulator package proof:
   `test-results/tracking-plan-ios-simulator-proof/proof.json`
+- iOS privacy disclosure release gate proof:
+  `47-ios-privacy-disclosure-release-proof.json`
 - Hosted parent route screenshot/accessibility proof:
   `18-hosted-ui-accessibility-proof.json`
 - Evidence quality gate proof:
@@ -169,6 +171,14 @@ install/launch smoke with `--require-simulator`; on non-macOS hosts it writes
 manual-required output. It is a package-mechanics proof gate only and does not
 upgrade Core Location, background/region, entitlement, physical-device, or
 authority claims.
+
+This branch adds
+`node scripts/test/tracking-ios-privacy-disclosure-release-proof.mjs`, which
+writes WP12/WP33 release-gate proof artifacts for required iOS location purpose,
+background location, region monitoring, notification, data custody, App Store
+review, and privacy label evidence rows. It blocks release and product-ready
+iOS tracking claims until disclosure, Apple review, entitlement,
+TestFlight/device, and runtime Core Location artifacts exist.
 
 This branch adds `npm run test:tracking-plan-hosted-ui-proof`, which starts the
 real Rust service against a seeded temporary ActivityStore SQLite database and
@@ -298,6 +308,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - apps/portal/e2e/tracking-hosted-ui-proof.spec.ts
 - scripts/test/tracking-plan-hosted-ui-proof.mjs
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
+- scripts/test/tracking-ios-privacy-disclosure-release-proof.mjs
 - scripts/test/tracking-plan-evidence-quality-gate-proof.mjs
 - scripts/test/tracking-notification-preference-preflight-proof.mjs
 - packages/activity-domain/src/tracking-evidence-quality-gate.ts
@@ -693,3 +704,24 @@ test:tracking-plan-hosted-ui-proof` passed.
       physical-device behavior, full UI/report/policy consumers, child-device
       delivery, authority proof, and product-ready policy behavior remain
       proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain iOS privacy disclosure release proof/test,
+      focused proof script, root script wiring, owning tracking feature doc,
+      implementation checklist, WP12, WP33, generated WP12/WP33 proof
+      artifacts, and hub doc delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-ios-privacy-disclosure-release-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/20-ios-privacy-disclosure-release-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/47-ios-privacy-disclosure-release-proof.json`,
+      and `test-results/tracking-ios-privacy-disclosure-release-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP12, and WP33 updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta instead of editing the shared checklist directly.
+- [x] Known gaps/manual-required states: App Store review, privacy label proof,
+      Core Location runtime, background delivery, region runtime, notification
+      delivery, entitlement, TestFlight/device, physical-device behavior,
+      authority proof, and product-ready iOS tracking remain proof-gated.
