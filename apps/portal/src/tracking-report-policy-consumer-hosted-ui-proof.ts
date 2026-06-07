@@ -107,7 +107,7 @@ function reportPolicyConsumerHostedUiRow(
     storedJournalRef: detailFromValue(PortalText.Resolve(definition.storedJournalToken)),
     storedReadModelRef: detailFromValue(PortalText.Resolve(definition.storedReadModelToken)),
     evidence: PortalText.Resolve(definition.evidenceToken),
-    reportSurface: detailFromValue(PortalText.Resolve(definition.reportSurfaceToken)),
+    reportSurface: PortalText.Resolve(definition.reportSurfaceToken),
   };
 }
 

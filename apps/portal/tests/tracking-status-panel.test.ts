@@ -524,12 +524,21 @@ const TrackingRetentionSettingsWriteResult = {
   settingsKind: 'retention-window-setting',
   writeState: 'service-write-command-accepted',
   acceptedAt: '2026-06-06T19:40:00.000Z',
+  sourceWriterIntentRefs: ['tracking-retention-settings-write-retention-window'],
+  sourceReadModelProofRefs: [
+    'output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json',
+  ],
   sourceMutationProofRefs: [
     'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
   ],
+  appliedRetentionWindowHours: 168,
+  appliedDeleteAfterAlertResolved: false,
+  parentExportPrepared: false,
+  remoteSyncEnabled: false,
+  remoteAiEnabled: false,
   commandTransportClaimed: true,
   serviceWritePreflightClaimed: true,
-  serviceMutationExecuted: false,
+  serviceMutationExecuted: true,
   portalWritableUiClaimed: false,
   platformRuntimeClaimed: false,
   childDeviceDeliveryClaimed: false,
@@ -623,9 +632,17 @@ describe('tracking retention settings hosted proof surface', () => {
         acceptedAt: '2026-06-06T19:40:00.000Z',
         sourceMutationProofRefs:
           'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
+        sourceWriterIntentRefs: 'tracking-retention-settings-write-retention-window',
+        sourceReadModelProofRefs:
+          'output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json',
+        appliedRetentionWindowHours: '168',
+        appliedDeleteAfterAlertResolved: '0',
+        parentExportPrepared: '0',
+        remoteSyncEnabled: '0',
+        remoteAiEnabled: '0',
         commandTransportClaimedRows: '1',
         serviceWritePreflightClaimedRows: '1',
-        serviceMutationExecutedRows: '0',
+        serviceMutationExecutedRows: '1',
         platformRuntimeClaimedRows: '0',
         childDeviceDeliveryClaimedRows: '0',
         providerDeliveryClaimedRows: '0',
@@ -635,7 +652,7 @@ describe('tracking retention settings hosted proof surface', () => {
         productClaimReadyRows: '0',
         parserReason: 'Not reported',
         boundary:
-          'Portal command/result rendering only; service mutation execution, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
+          'Portal command/result rendering only; service mutation execution is local proof, while platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
       },
     });
   });

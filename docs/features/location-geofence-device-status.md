@@ -103,12 +103,12 @@ expose location or device-status features. Parents expect this category.
 - WP07/WP32 service transport proof now exists for a typed retention settings
   write command through
   `node scripts/test/tracking-retention-settings-write-command-proof.mjs`. It
-  validates the TypeScript protocol parser, Rust protocol serialization, and
-  Rust service WebSocket response for a no-product-claim write preflight result
-  tied to the existing mutation proof refs while keeping product-ready service
-  execution, platform runtime, child-device delivery, physical-device, authority,
-  provider-delivery, notification receipts, production, and product-ready claims
-  false.
+  validates the TypeScript request/result parser, Rust protocol serialization,
+  and Rust service WebSocket response for a no-product-claim local service
+  execution result tied to the existing mutation proof refs while keeping live
+  writable UI, platform runtime, child-device delivery, physical-device,
+  authority, provider-delivery, notification receipts, production, and
+  product-ready claims false.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
@@ -743,8 +743,8 @@ accessibility beyond the hosted parent route are proved.
 - [x] WP32 retention settings hosted UI proof for retention window,
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
       disabled read-model rows on the hosted parent route, plus typed retention
-      settings write-preflight command/result rendering. This is not applied
-      product settings, product-ready service mutation execution, platform
+      settings local service execution command/result rendering. This is not
+      durable product settings, product-ready service mutation execution, platform
       runtime, child-device delivery/runtime execution, provider delivery,
       authority, physical-device, or product-complete proof.
 - [x] WP07/WP32 retention settings writer-boundary proof for retention window,
@@ -755,10 +755,10 @@ accessibility beyond the hosted parent route are proved.
       delivery, notification receipt ingestion, authority, physical-device, or
       product-complete proof.
 - [x] WP07/WP32 typed retention settings service write command proof. This
-      proves protocol parser, Rust protocol serialization, and Rust service
-      WebSocket response for a no-product-claim write preflight result; the
-      hosted route now sends and renders that result without claiming
-      product-ready service execution, platform runtime, child-device
+      proves protocol request/result parsers, Rust protocol serialization, and
+      Rust service WebSocket response for a no-product-claim local execution
+      result; the hosted route now sends and renders that result without
+      claiming product-ready service execution, platform runtime, child-device
       delivery/runtime execution, provider delivery, notification receipt
       ingestion, authority, physical-device, or product-complete proof.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete

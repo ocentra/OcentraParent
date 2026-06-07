@@ -41,6 +41,7 @@ async function main() {
       join(repoRoot, 'packages', 'agent-protocol-domain', 'dist', 'tracking-retention-settings-write-command.js')
     ).href
   );
+  const request = protocolModule.AgentTrackingRetentionSettingsWriteRequestSchema.parse(writeRequest());
   const result = protocolModule.AgentTrackingRetentionSettingsWriteResultSchema.parse(writeResult());
   const proof = {
     schemaVersion: result.schemaVersion,
@@ -49,13 +50,14 @@ async function main() {
     branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
     baseCommitAtGeneration: gitOutput(['rev-parse', 'HEAD']),
     gitStatusShort: initialGitStatusShort,
+    request,
     result,
     proofClaims: {
       commandTransportClaimed: result.commandTransportClaimed,
       serviceWritePreflightClaimed: result.serviceWritePreflightClaimed,
+      serviceMutationExecuted: result.serviceMutationExecuted,
     },
     productClaims: {
-      serviceMutationExecuted: result.serviceMutationExecuted,
       portalWritableUiClaimed: result.portalWritableUiClaimed,
       platformRuntimeClaimed: result.platformRuntimeClaimed,
       childDeviceDeliveryClaimed: result.childDeviceDeliveryClaimed,
@@ -86,19 +88,45 @@ async function main() {
   console.log('evidence=test-results/tracking-retention-settings-write-command-proof/proof.json');
 }
 
-function writeResult() {
+function writeRequest() {
   return {
     schemaVersion: 1,
     commandId: 'tracking-retention-settings-write-command',
     settingsKind: 'retention-window-setting',
+    requestedRetentionWindowHours: 168,
+    requestedDeleteAfterAlertResolved: false,
+    requestedParentExport: false,
+    requestedRemoteSyncEnabled: false,
+    requestedRemoteAiEnabled: false,
+    sourceWriterIntentRefs: ['tracking-retention-settings-write-retention-window'],
+    sourceReadModelProofRefs: [
+      'output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json',
+      'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json',
+    ],
+  };
+}
+
+function writeResult() {
+  const request = writeRequest();
+  return {
+    schemaVersion: 1,
+    commandId: request.commandId,
+    settingsKind: request.settingsKind,
     writeState: 'service-write-command-accepted',
     acceptedAt: '2026-06-06T19:50:00Z',
+    sourceWriterIntentRefs: request.sourceWriterIntentRefs,
+    sourceReadModelProofRefs: request.sourceReadModelProofRefs,
     sourceMutationProofRefs: [
       'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
     ],
+    appliedRetentionWindowHours: request.requestedRetentionWindowHours,
+    appliedDeleteAfterAlertResolved: request.requestedDeleteAfterAlertResolved,
+    parentExportPrepared: request.requestedParentExport,
+    remoteSyncEnabled: false,
+    remoteAiEnabled: false,
     commandTransportClaimed: true,
     serviceWritePreflightClaimed: true,
-    serviceMutationExecuted: false,
+    serviceMutationExecuted: true,
     portalWritableUiClaimed: false,
     platformRuntimeClaimed: false,
     childDeviceDeliveryClaimed: false,
@@ -113,6 +141,15 @@ function writeResult() {
 function assertProof(proof) {
   if (!proof.result.commandTransportClaimed || !proof.result.serviceWritePreflightClaimed) {
     throw new Error('Retention write command proof must claim command transport and service preflight.');
+  }
+  if (!proof.result.serviceMutationExecuted) {
+    throw new Error('Retention write command proof must execute the local service mutation.');
+  }
+  if (proof.result.appliedRetentionWindowHours !== proof.request.requestedRetentionWindowHours) {
+    throw new Error('Retention write command proof must return the applied retention window.');
+  }
+  if (proof.result.remoteSyncEnabled || proof.result.remoteAiEnabled) {
+    throw new Error('Retention write command proof must keep remote sync and remote AI disabled.');
   }
   if (Object.values(proof.productClaims).some((claim) => claim !== false)) {
     throw new Error(

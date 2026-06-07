@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogLevel,
-    TrackingRetentionSettingsWriteResult, AGENT_PROTOCOL_SCHEMA_VERSION,
+    TrackingRetentionSettingsWriteRequest, TrackingRetentionSettingsWriteResult,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
@@ -8,19 +9,26 @@ use crate::{event_builder::build_event, fields::fields_from_pairs};
 pub(crate) async fn build_tracking_retention_settings_write_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
+    let (request, accepted) = parse_write_request(&command);
     let result = TrackingRetentionSettingsWriteResult {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        command_id: constants::tracking_retention_settings_write::COMMAND_ID.to_string(),
-        settings_kind: constants::tracking_retention_settings_write::SETTINGS_KIND_RETENTION_WINDOW
-            .to_string(),
-        write_state: constants::tracking_retention_settings_write::WRITE_STATE_ACCEPTED.to_string(),
+        command_id: request.command_id,
+        settings_kind: request.settings_kind,
+        write_state: write_state(accepted),
         accepted_at: constants::tracking_retention_settings_write::ACCEPTED_AT.to_string(),
+        source_writer_intent_refs: request.source_writer_intent_refs,
+        source_read_model_proof_refs: request.source_read_model_proof_refs,
         source_mutation_proof_refs: vec![
             constants::tracking_retention_settings_write::MUTATION_PROOF_REF.to_string(),
         ],
+        applied_retention_window_hours: request.requested_retention_window_hours,
+        applied_delete_after_alert_resolved: request.requested_delete_after_alert_resolved,
+        parent_export_prepared: request.requested_parent_export,
+        remote_sync_enabled: false,
+        remote_ai_enabled: false,
         command_transport_claimed: true,
         service_write_preflight_claimed: true,
-        service_mutation_executed: false,
+        service_mutation_executed: accepted,
         portal_writable_ui_claimed: false,
         platform_runtime_claimed: false,
         child_device_delivery_claimed: false,
@@ -45,6 +53,49 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
         )]),
         None,
     )
+}
+
+fn parse_write_request(
+    command: &AgentCommandEnvelope,
+) -> (TrackingRetentionSettingsWriteRequest, bool) {
+    match command
+        .payload
+        .get(constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_REQUEST)
+    {
+        Some(LogFieldValue::String(text)) => match serde_json::from_str(text) {
+            Ok(request) => (request, true),
+            Err(_) => (default_write_request(), false),
+        },
+        _ => (default_write_request(), false),
+    }
+}
+
+fn write_state(accepted: bool) -> String {
+    if accepted {
+        constants::tracking_retention_settings_write::WRITE_STATE_ACCEPTED.to_string()
+    } else {
+        constants::tracking_retention_settings_write::WRITE_STATE_REJECTED.to_string()
+    }
+}
+
+fn default_write_request() -> TrackingRetentionSettingsWriteRequest {
+    TrackingRetentionSettingsWriteRequest {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        command_id: constants::tracking_retention_settings_write::COMMAND_ID.to_string(),
+        settings_kind: constants::tracking_retention_settings_write::SETTINGS_KIND_RETENTION_WINDOW
+            .to_string(),
+        requested_retention_window_hours: Some(168),
+        requested_delete_after_alert_resolved: false,
+        requested_parent_export: false,
+        requested_remote_sync_enabled: false,
+        requested_remote_ai_enabled: false,
+        source_writer_intent_refs: vec![
+            constants::tracking_retention_settings_write::WRITER_INTENT_REF.to_string(),
+        ],
+        source_read_model_proof_refs: vec![
+            constants::tracking_retention_settings_write::READ_MODEL_PROOF_REF.to_string(),
+        ],
+    }
 }
 
 #[cfg(test)]
@@ -80,7 +131,10 @@ mod tests {
         );
         assert!(write_result.command_transport_claimed);
         assert!(write_result.service_write_preflight_claimed);
-        assert!(!write_result.service_mutation_executed);
+        assert!(write_result.service_mutation_executed);
+        assert_eq!(write_result.applied_retention_window_hours, Some(168));
+        assert!(!write_result.remote_sync_enabled);
+        assert!(!write_result.remote_ai_enabled);
         assert!(!write_result.portal_writable_ui_claimed);
         assert!(!write_result.platform_runtime_claimed);
         assert!(!write_result.child_device_delivery_claimed);
@@ -88,6 +142,27 @@ mod tests {
         assert!(!write_result.notification_receipt_claimed);
         assert!(!write_result.physical_device_claimed);
         assert!(!write_result.authority_claimed);
+        assert!(!write_result.product_claim_ready);
+    }
+
+    #[tokio::test]
+    async fn retention_settings_write_command_rejects_missing_typed_request_payload() {
+        let body = serde_json::to_string(&command_envelope_without_request())
+            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
+        let write_result = write_result_payload(
+            &event.payload[constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT],
+        );
+
+        assert_eq!(
+            event.event,
+            AgentEventName::AgentActivityTrackingRetentionSettingsWriteReported
+        );
+        assert_eq!(
+            write_result.write_state,
+            constants::tracking_retention_settings_write::WRITE_STATE_REJECTED
+        );
+        assert!(!write_result.service_mutation_executed);
         assert!(!write_result.product_claim_ready);
     }
 
@@ -108,8 +183,25 @@ mod tests {
                 route: AgentRoute::Localhost,
             },
             command: AgentCommandName::AgentActivityTrackingRetentionSettingsWrite,
-            payload: LogFields::new(),
+            payload: write_request_payload(),
         }
+    }
+
+    fn command_envelope_without_request() -> AgentCommandEnvelope {
+        AgentCommandEnvelope {
+            payload: LogFields::new(),
+            ..command_envelope()
+        }
+    }
+
+    fn write_request_payload() -> LogFields {
+        fields_from_pairs(vec![(
+            constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_REQUEST,
+            LogFieldValue::String(
+                serde_json::to_string(&default_write_request())
+                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            ),
+        )])
     }
 
     fn write_result_payload(value: &LogFieldValue) -> TrackingRetentionSettingsWriteResult {

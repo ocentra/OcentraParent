@@ -18,6 +18,8 @@ pub const BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL: &str =
 pub const BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL: &str = "browserSocialAlertReportReadModel";
 pub const BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION: &str = "browserSocialSourceCustodyMutation";
 pub const ACTIVITY_TRACKING_READ_MODEL: &str = "trackingReadModel";
+pub const ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_REQUEST: &str =
+    "trackingRetentionSettingsWriteRequest";
 pub const ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT: &str =
     "trackingRetentionSettingsWriteResult";
 pub const ACTIVE_TAB_CAPABILITY: &str = "activeTabCapability";

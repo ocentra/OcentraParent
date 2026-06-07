@@ -1,4 +1,4 @@
-checkedAt=2026-06-07T07:17:40.763Z
+checkedAt=2026-06-07T08:11:09.182Z
 asserted=no browser console or page errors
 asserted=no product-ready or physical-device-proved route copy
 asserted=family dashboard rollup rows render from existing proof refs without product-ready claim
@@ -17,7 +17,7 @@ asserted=evidence drawer renders selected service-backed citation without evalua
 asserted=evidence drawer screenshot captured
 asserted=retention settings write-preflight command button clicked
 asserted=retention settings write-preflight service result rendered
-asserted=retention settings write-preflight keeps serviceMutationExecutedRows=0 and productClaimReady=false
+asserted=retention settings write result keeps productClaimReady=false while serviceMutationExecutedRows=1
 asserted=manual proof required and physical device proof required labels visible
 asserted=child check-in copy and actions visible without child-device delivery claim
 asserted=child runtime UI disclosure, safe/help response, and location-share consent copy visible

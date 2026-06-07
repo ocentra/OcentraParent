@@ -54,12 +54,12 @@ writer-boundary preflight rows for those five setting write intents through
 Local executed service mutation proof for those same five rows now exists
 through `node scripts/test/tracking-retention-settings-mutation-proof.mjs`,
 while remote sync and remote AI stay disabled. Typed service transport proof for
-the retention settings write command/preflight result now exists through
+the retention settings write command local-execution result now exists through
 `node scripts/test/tracking-retention-settings-write-command-proof.mjs`.
-The hosted parent route now also sends that typed write-preflight command and
-renders the service accepted result without claiming applied mutation behavior.
-Platform behavior, applied product-ready writable retention execution, and
-product claim readiness are not claimed beyond the proof state recorded in
+The hosted parent route now also sends that typed write command and renders the
+service accepted result with applied local retention values. Durable product
+settings, platform behavior, applied product-ready writable retention execution,
+and product claim readiness are not claimed beyond the proof state recorded in
 `proof-summary.json`, `14-retention-delete-proof.json`,
 `17-retention-export-proof.json`, `18-retention-settings-read-model-proof.json`,
 `19-retention-settings-writer-boundary-proof.json`,
@@ -187,8 +187,8 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, and WP32 updated; central product capability checklist
       remains hub/primary sequenced.
-- [x] Known gaps/manual-required states: live service-backed writable retention
-      UI, product-ready service execution, platform runtime, child-device
+- [x] Known gaps/manual-required states: durable writable retention UI,
+      product-ready service execution, platform runtime, child-device
       delivery, Android/iOS physical proof, authority, provider delivery,
       notification receipts, production workers, and product-ready retention
       behavior remain proof-gated.
@@ -217,7 +217,7 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
       checklist, WP07, WP30, and WP32 updated; central product capability
       checklist remains hub/primary sequenced.
 - [x] Known gaps/manual-required states: applied product-ready service mutation
-      execution, platform runtime, child-device delivery, Android/iOS physical
-      proof, authority, provider delivery, notification receipts, production
-      workers, full parent/child UI beyond the hosted route, and product-ready
-      retention behavior remain proof-gated.
+      execution, durable product settings, platform runtime, child-device
+      delivery, Android/iOS physical proof, authority, provider delivery,
+      notification receipts, production workers, full parent/child UI beyond
+      the hosted route, and product-ready retention behavior remain proof-gated.

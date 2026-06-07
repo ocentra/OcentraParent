@@ -2,13 +2,35 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct TrackingRetentionSettingsWriteRequest {
+    pub schema_version: u16,
+    pub command_id: String,
+    pub settings_kind: String,
+    pub requested_retention_window_hours: Option<u16>,
+    pub requested_delete_after_alert_resolved: bool,
+    pub requested_parent_export: bool,
+    pub requested_remote_sync_enabled: bool,
+    pub requested_remote_ai_enabled: bool,
+    pub source_writer_intent_refs: Vec<String>,
+    pub source_read_model_proof_refs: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TrackingRetentionSettingsWriteResult {
     pub schema_version: u16,
     pub command_id: String,
     pub settings_kind: String,
     pub write_state: String,
     pub accepted_at: String,
+    pub source_writer_intent_refs: Vec<String>,
+    pub source_read_model_proof_refs: Vec<String>,
     pub source_mutation_proof_refs: Vec<String>,
+    pub applied_retention_window_hours: Option<u16>,
+    pub applied_delete_after_alert_resolved: bool,
+    pub parent_export_prepared: bool,
+    pub remote_sync_enabled: bool,
+    pub remote_ai_enabled: bool,
     pub command_transport_claimed: bool,
     pub service_write_preflight_claimed: bool,
     pub service_mutation_executed: bool,
