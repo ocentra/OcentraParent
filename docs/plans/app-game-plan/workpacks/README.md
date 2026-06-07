@@ -128,6 +128,7 @@ before `DONE` or PR-ready reporting.
 120. WP129 app/game timer parent-surface child UX local outbox parent surface live records.
 121. WP130 app/game timer parent-surface child UX parent action cards.
 122. WP131 app/game timer parent-surface child UX parent preference setup draft.
+123. WP132 app/game timer parent-surface child UX parent preference setup read-only surface.
 
 ## Standard AI Worker Checklist
 

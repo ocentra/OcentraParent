@@ -218,6 +218,7 @@ function expectControlActionResultVisibility() {
 
   expectActionResultSummaryDetails(intent.summaryDetails);
   expectParentActionRows(intent.parentActionRows);
+  expectParentPreferenceSetupRows(intent.parentPreferenceSetupRows);
   expect(intent.summaryDetails).toContainEqual({
     label: 'Adapter dispatch',
     value: 'Not claimed',
@@ -338,11 +339,32 @@ function expectParentActionRows(
   expect(rowPairs(rows[0])).toContainEqual(['Platform state', 'Not claimed']);
 }
 
+function expectParentPreferenceSetupRows(
+  rows: ReturnType<typeof createAppGameTimerParentSurfacePanelIntent>['parentPreferenceSetupRows']
+) {
+  expect(rows.map((row) => row.title)).toEqual([
+    'parent-preference-setup-app-game-child-ux-parent-surface-action-result-app-game-1',
+  ]);
+  expect(rowPairs(rows[0])).toContainEqual(['Target type', 'Native game']);
+  expect(rowPairs(rows[0])).toContainEqual(['Parent preference setup draft status', 'Preference setup required']);
+  expect(rowPairs(rows[0])).toContainEqual([
+    'Parent preference setup draft refs',
+    'app-game-child-ux-parent-surface-action-result-app-game-1',
+  ]);
+  expect(rowPairs(rows[0])).toContainEqual(['Parent preference setup UI', 'Not claimed']);
+  expect(rowPairs(rows[0])).toContainEqual(['Parent preference setup mutation', 'Not claimed']);
+  expect(rowPairs(rows[0])).toContainEqual(['Notification rule mutation', 'Not claimed']);
+  expect(rowPairs(rows[0])).toContainEqual(['Adapter dispatch', 'Not claimed']);
+  expect(rowPairs(rows[0])).toContainEqual(['Child delivery', 'Not claimed']);
+  expect(rowPairs(rows[0])).toContainEqual(['Platform state', 'Not claimed']);
+}
+
 function expectAbsentServiceInput() {
   const intent = createAppGameTimerParentSurfacePanelIntent(null);
 
   expect(intent.loadState).toBe('Unavailable');
   expect(intent.parentActionRows).toEqual([]);
+  expect(intent.parentPreferenceSetupRows).toEqual([]);
   expect(intent.rows).toEqual([]);
   expect(intent.emptyMessage).toBe('No app/game timer parent-surface read model has been reported yet.');
   expect(intent.summaryDetails).toContainEqual({

@@ -1,10 +1,12 @@
 import {
   AgentAppGameTimerParentSurfaceState,
   AgentAppGameTimerParentSurfaceTargetDomain,
+  type AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord,
   type AgentAppGameTimerParentSurfaceReadModel,
   type AgentAppGameTimerParentSurfaceResult,
   type AgentAppGameTimerParentSurfaceRow,
 } from '@ocentra-parent/agent-protocol-domain/app-game-timer-parent-surface-read-model';
+import { AppGameChildUxParentPreferenceSetupDraftStatus } from '@ocentra-parent/parent-domain/app-game-child-facing-ux-parent-preference-setup-draft';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { PortalDetails, PortalReadableValues } from './details';
@@ -53,6 +55,11 @@ const TimerParentSurfaceDetails = {
   ChildUxParentSurfaceIntentSources: decodeDisplayText('Child UX parent-surface sources'),
   ChildUxParentSurfaceIntentTargets: decodeDisplayText('Child UX parent-surface targets'),
   ChildUxParentSurfaceIntentUnavailable: decodeDisplayText('Child UX parent-surface unavailable'),
+  ParentPreferenceSetupDraftRefs: decodeDisplayText('Parent preference setup draft refs'),
+  ParentPreferenceSetupDraftStatus: decodeDisplayText('Parent preference setup draft status'),
+  ParentPreferenceSetupMutation: decodeDisplayText('Parent preference setup mutation'),
+  ParentPreferenceSetupRuleMutation: decodeDisplayText('Notification rule mutation'),
+  ParentPreferenceSetupUi: decodeDisplayText('Parent preference setup UI'),
   ChildUxHandoffBlocked: decodeDisplayText('Child UX handoff blocked'),
   ChildUxHandoffReady: decodeDisplayText('Child UX handoff ready'),
   ChildUxHandoffRefs: decodeDisplayText('Child UX handoff refs'),
@@ -96,6 +103,7 @@ export type AppGameTimerParentSurfacePanelIntent = {
   readonly loadState: DisplayText;
   readonly summaryDetails: readonly AppGameTimerParentSurfacePanelDetail[];
   readonly parentActionRows: readonly AppGameTimerParentSurfacePanelRow[];
+  readonly parentPreferenceSetupRows: readonly AppGameTimerParentSurfacePanelRow[];
   readonly rows: readonly AppGameTimerParentSurfacePanelRow[];
   readonly emptyMessage: DisplayText;
   readonly productClaim: DisplayText;
@@ -115,6 +123,7 @@ export function createAppGameTimerParentSurfacePanelIntent(
         detail(PortalDetails.ProductClaim, base.productClaim),
       ],
       parentActionRows: [],
+      parentPreferenceSetupRows: [],
       rows: [],
     };
   }
@@ -129,6 +138,7 @@ export function createAppGameTimerParentSurfacePanelIntent(
         detail(PortalDetails.ProductClaim, base.productClaim),
       ],
       parentActionRows: [],
+      parentPreferenceSetupRows: [],
       rows: [],
     };
   }
@@ -140,6 +150,7 @@ export function createAppGameTimerParentSurfacePanelIntent(
     loadState: timerSurfaceLoadState(readModelResult.value),
     summaryDetails: readModelSummary(readModelResult.value, resolvedProductClaim),
     parentActionRows: parentSurfaceIntentRows(readModelResult.value, resolvedProductClaim),
+    parentPreferenceSetupRows: parentPreferenceSetupRows(readModelResult.value, resolvedProductClaim),
     rows: readModelResult.value.rows.map((row) => timerSurfaceRow(row, resolvedProductClaim)),
   };
 }
@@ -325,6 +336,72 @@ function parentSurfaceIntentRows(
       detail(PortalDetails.ProductClaim, productClaim),
     ],
   }));
+}
+
+function parentPreferenceSetupRows(
+  readModel: AgentAppGameTimerParentSurfaceReadModel,
+  productClaim: DisplayText
+): readonly AppGameTimerParentSurfacePanelRow[] {
+  return readModel.childUxParentSurfaceIntentRecords.map((record) => parentPreferenceSetupRow(record, productClaim));
+}
+
+function parentPreferenceSetupRow(
+  record: AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord,
+  productClaim: DisplayText
+): AppGameTimerParentSurfacePanelRow {
+  const status = parentPreferenceSetupDraftStatus(record);
+  return {
+    title: displayText(`parent-preference-setup-${record.parentSurfaceIntentReferenceId}`),
+    details: [
+      detail(PortalDetails.TargetType, TimerParentSurfaceTargetLabels[record.targetDomain]),
+      detail(
+        TimerParentSurfaceDetails.ParentPreferenceSetupDraftStatus,
+        parentPreferenceSetupDraftReadableValue(status)
+      ),
+      detail(
+        TimerParentSurfaceDetails.ParentPreferenceSetupDraftRefs,
+        displayText(record.parentSurfaceIntentReferenceId)
+      ),
+      detail(
+        TimerParentSurfaceDetails.ChildUxParentSurfaceIntentArtifactRefs,
+        displayText(record.sourceArtifactReferenceId)
+      ),
+      detail(TimerParentSurfaceDetails.ChildUxParentSurfaceIntentSources, displayText(record.sourceResultId)),
+      detail(
+        TimerParentSurfaceDetails.ChildUxParentSurfaceIntentDrillInRefs,
+        joinedOrNotReported(record.drillInReferenceIds)
+      ),
+      detail(
+        TimerParentSurfaceDetails.ChildUxParentSurfaceIntentManualProofRefs,
+        joinedOrNotReported(record.manualProofReferenceIds)
+      ),
+      detail(TimerParentSurfaceDetails.ParentPreferenceSetupUi, Readable.NotClaimed),
+      detail(TimerParentSurfaceDetails.ParentPreferenceSetupMutation, Readable.NotClaimed),
+      detail(TimerParentSurfaceDetails.ParentPreferenceSetupRuleMutation, Readable.NotClaimed),
+      detail(PortalDetails.AdapterDispatch, claimedValue(record.adapterDispatchClaimed)),
+      detail(PortalDetails.ChildDelivery, claimedValue(record.childDeliveryClaimed)),
+      detail(PortalDetails.PlatformState, claimedValue(record.platformEnforcementClaimed)),
+      detail(PortalDetails.ProductClaim, productClaim),
+    ],
+  };
+}
+
+function parentPreferenceSetupDraftStatus(
+  record: AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord
+): (typeof AppGameChildUxParentPreferenceSetupDraftStatus)[keyof typeof AppGameChildUxParentPreferenceSetupDraftStatus] {
+  if (record.preferenceVisibility === 'preference-setup-required') {
+    return AppGameChildUxParentPreferenceSetupDraftStatus.DraftReady;
+  }
+  return AppGameChildUxParentPreferenceSetupDraftStatus.UnavailableVisible;
+}
+
+function parentPreferenceSetupDraftReadableValue(
+  status: (typeof AppGameChildUxParentPreferenceSetupDraftStatus)[keyof typeof AppGameChildUxParentPreferenceSetupDraftStatus]
+): DisplayText {
+  if (status === AppGameChildUxParentPreferenceSetupDraftStatus.DraftReady) {
+    return Readable.PreferenceSetupRequired;
+  }
+  return Readable.Unavailable;
 }
 
 function parentSurfaceRecordReadableValue(value: string): DisplayText {

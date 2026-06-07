@@ -398,6 +398,12 @@ control with better evidence and local audit.
   for future parent preference UI while keeping frequency controls, preference
   mutation, notification rule mutation, delivery, adapter dispatch, platform
   enforcement, and raw private rows unclaimed.
+- The App/Game Sessions route now renders those service-backed child UX
+  parent-surface records as separate read-only parent preference setup cards
+  using the exported parent-domain draft status boundary, while parent
+  preference UI controls, frequency controls, preference mutation, notification
+  rule mutation, delivery, adapter dispatch, platform enforcement, and raw
+  private rows remain unclaimed.
 - The App/Game Sessions portal route now has a route-level app/game
   notification parent-surface panel that projects the live service
   notification-readiness read-model event into schema-backed manual/unavailable
@@ -1240,7 +1246,10 @@ diagnostics, or raw private source rows.
       parent-safe preference setup draft rows from those intent records for a
       later parent preference UI/mutation seam without claiming the UI,
       frequency controls, mutation, notification rule writes, delivery,
-      adapter dispatch, platform enforcement, or raw private rows.
+      adapter dispatch, platform enforcement, or raw private rows. The portal
+      now renders those draft-ready/unavailable-visible setup records as
+      read-only parent preference setup cards from the live App/Game Sessions
+      event, still without claiming preference controls or mutation.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

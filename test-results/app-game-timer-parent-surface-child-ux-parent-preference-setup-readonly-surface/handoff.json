@@ -1,0 +1,35 @@
+{
+  "workpack": "WP132",
+  "branch": "codex/app-game-control-product-completion",
+  "scope": "timer-parent-surface child UX parent preference setup read-only surface",
+  "status": "focused-validation-passed",
+  "renderedSurface": "App/Game Sessions",
+  "sourceReadModel": "activity.app-game.timer.parent-surface.read-model",
+  "exportedParentDomainBoundary": "./app-game-child-facing-ux-parent-preference-setup-draft",
+  "cardFields": [
+    "parentPreferenceSetupDraftStatus",
+    "parentPreferenceSetupDraftReference",
+    "sourceArtifactReferenceId",
+    "sourceResultId",
+    "drillInReferenceIds",
+    "manualProofReferenceIds",
+    "parentPreferenceSetupUi",
+    "parentPreferenceSetupMutation",
+    "notificationRuleMutation",
+    "adapterDispatchClaimed",
+    "childDeliveryClaimed",
+    "platformEnforcementClaimed"
+  ],
+  "noClaims": [
+    "interactive-parent-preference-ui",
+    "frequency-controls",
+    "parent-preference-mutation",
+    "notification-rule-mutation",
+    "provider-delivery",
+    "receipt-ingestion",
+    "child-delivery",
+    "adapter-dispatch",
+    "platform-enforcement",
+    "raw-private-source-rows"
+  ]
+}
