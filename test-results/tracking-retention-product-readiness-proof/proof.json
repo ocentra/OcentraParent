@@ -1,13 +1,14 @@
 {
   "schemaVersion": "v0.5-tracking",
-  "proofMode": "tracking-retention-durable-settings-proof",
-  "generatedAt": "2026-06-07T10:20:00.000Z",
+  "proofMode": "tracking-retention-product-readiness-proof",
+  "generatedAt": "2026-06-07T15:30:00.000Z",
   "rows": [
     {
       "schemaVersion": "v0.5-tracking",
-      "durableProofId": "tracking-retention-settings-write-command-local-state-readback-durable-settings-required",
+      "readinessProofId": "tracking-retention-settings-write-command-local-state-readback-durable-settings-required-product-readiness-blocked",
       "settingsKind": "retention-window-setting",
-      "generatedAt": "2026-06-07T10:20:00.000Z",
+      "generatedAt": "2026-06-07T15:30:00.000Z",
+      "sourceDurableSettingsProofRef": "output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json",
       "sourceLocalServiceStateProofRef": "output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json",
       "sourceReadModelProofRefs": [
         "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
@@ -17,15 +18,22 @@
         "output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json"
       ],
       "auditRefs": [
-        "tracking-retention-settings-write-command-local-state-readback-durable-settings-audit"
+        "tracking-retention-settings-write-command-local-state-readback-durable-settings-required-product-readiness-audit"
       ],
       "localServiceStateRevision": 1,
-      "localServiceStateSnapshotRef": "agent-service-local-retention-settings-state",
       "durableSettingsStoreRef": "agent-service-local-retention-settings-durable-json",
-      "durableStoreRef": "agent-service-local-retention-settings-durable-json",
       "durableSettingsPersisted": true,
-      "durablePersistenceRequired": true,
-      "durabilityFailureVisible": false,
+      "productReadinessBlockers": [
+        "writable-product-settings-execution",
+        "platform-runtime-retention-enforcement",
+        "child-device-runtime-delivery",
+        "provider-delivery",
+        "notification-receipt-ingestion",
+        "physical-device-proof",
+        "authority-enrollment-proof",
+        "production-worker-hardening"
+      ],
+      "localDurableSettingsReady": true,
       "productSettingsWritable": false,
       "platformRuntimeClaimed": false,
       "childDeviceDeliveryClaimed": false,
@@ -33,17 +41,17 @@
       "notificationReceiptClaimed": false,
       "physicalDeviceClaimed": false,
       "authorityClaimed": false,
+      "productionWorkerClaimed": false,
       "productClaimReady": false
     }
   ],
   "proofClaims": {
-    "localServiceStateReadbackClaimed": true,
-    "durablePersistenceRequirementVisible": true,
-    "localDurableSettingsPersisted": true,
-    "durabilityFailureVisible": false
+    "localDurableSettingsReady": true,
+    "productReadinessBlockersEnumerated": true,
+    "noProductReadyClaim": true
   },
   "productClaims": {
-    "durableSettingsPersisted": true,
+    "localDurableSettingsReady": true,
     "productSettingsWritable": false,
     "platformRuntimeClaimed": false,
     "childDeviceDeliveryClaimed": false,
@@ -51,6 +59,7 @@
     "notificationReceiptClaimed": false,
     "physicalDeviceClaimed": false,
     "authorityClaimed": false,
+    "productionWorkerClaimed": false,
     "productClaimReady": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
@@ -58,9 +67,9 @@
   "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/07-retention-and-custody-model.md\n M docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/33-retention-local-service-state-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/34-retention-durable-settings-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/33-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/40-retention-local-service-state-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/41-retention-durable-settings-proof.json\n M test-results/tracking-retention-durable-settings-proof/proof.json\n M test-results/tracking-retention-local-service-state-proof/proof.json\n M test-results/tracking-retention-settings-write-command-proof/proof.json\n?? packages/parent-domain/src/tracking-retention-product-readiness-proof.ts\n?? packages/parent-domain/tests/tracking-retention-product-readiness-proof.test.ts\n?? scripts/test/tracking-retention-product-readiness-proof.mjs",
   "commands": [
     {
-      "command": "node scripts/test/tracking-retention-local-service-state-proof.mjs",
+      "command": "node scripts/test/tracking-retention-durable-settings-proof.mjs",
       "status": 0,
-      "stdout": "tracking-retention-local-service-state-proof-ok\nevidence=test-results/tracking-retention-local-service-state-proof/proof.json",
+      "stdout": "tracking-retention-durable-settings-proof-ok\nevidence=test-results/tracking-retention-durable-settings-proof/proof.json",
       "stderr": ""
     },
     {
@@ -70,17 +79,17 @@
       "stderr": ""
     },
     {
-      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-durable-settings-proof",
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-product-readiness-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-retention-durable-settings-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  11:27:03\n   Duration  1.00s (transform 191ms, setup 0ms, import 726ms, tests 23ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-retention-product-readiness-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  11:27:09\n   Duration  912ms (transform 169ms, setup 0ms, import 656ms, tests 20ms, environment 0ms)",
       "stderr": ""
     }
   ],
   "artifactPaths": {
-    "wp07": "output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json",
-    "wp32": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/34-retention-durable-settings-proof.json",
-    "wp33": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/41-retention-durable-settings-proof.json",
-    "evidence": "test-results/tracking-retention-durable-settings-proof/proof.json",
-    "sourceLocalServiceStateProof": "output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json"
+    "wp07": "output/tracking-plan-proof/07-retention-and-custody-model/24-retention-product-readiness-proof.json",
+    "wp32": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/35-retention-product-readiness-proof.json",
+    "wp33": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json",
+    "evidence": "test-results/tracking-retention-product-readiness-proof/proof.json",
+    "sourceDurableSettingsProof": "output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json"
   }
 }

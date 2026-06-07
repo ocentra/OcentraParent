@@ -46,6 +46,7 @@ Proof root: `output/tracking-plan-proof/07-retention-and-custody-model/`
 - `21-retention-settings-write-command-proof.json`
 - `22-retention-local-service-state-proof.json`
 - `23-retention-durable-settings-proof.json`
+- `24-retention-product-readiness-proof.json`
 - `16-validation-commands.log`
 
 ## AI Worker Checklist
@@ -82,6 +83,12 @@ local service state through
 `node scripts/test/tracking-retention-durable-settings-proof.mjs`, making the
 Rust service durable store ref and persisted state explicit without claiming
 product-ready writable settings, platform runtime, or production hardening.
+Product-readiness blocker proof now consumes those durable settings rows through
+`node scripts/test/tracking-retention-product-readiness-proof.mjs` and lists the
+remaining blockers for writable product settings execution, platform runtime,
+child-device delivery, provider delivery, notification receipt ingestion,
+physical-device proof, authority enrollment, and production worker hardening
+without changing the no-product-ready claim.
 The hosted parent route now also sends that typed write command and renders the
 service accepted result with applied local retention values. Writable product
 settings, platform behavior, applied product-ready writable retention execution,
@@ -93,6 +100,7 @@ and product claim readiness are not claimed beyond the proof state recorded in
 `21-retention-settings-write-command-proof.json`,
 `22-retention-local-service-state-proof.json`,
 `23-retention-durable-settings-proof.json`,
+`24-retention-product-readiness-proof.json`,
 the WP30 hosted UI proof artifact, and the implementation checklist.
 
 ## Where We Want To Be
@@ -125,6 +133,10 @@ This workpack can be assigned independently, implemented against the owning doma
 - Durable settings proof records local durable persistence from the Rust
   service command. It does not claim writable product settings, platform
   runtime, production hardening, or product-ready retention behavior.
+- Product-readiness blocker proof enumerates the remaining hard blockers over
+  the durable-settings evidence; it is not writable product settings execution,
+  platform runtime, production hardening, authority, physical-device, provider
+  delivery, notification receipt, or child-device behavior proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready

@@ -82,6 +82,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `22-notification-receipt-boundary-proof.json`
 - Tracking notification local outbox readiness proof:
   `42-notification-local-outbox-readiness-proof.json`
+- Retention product-readiness blocker proof:
+  `43-retention-product-readiness-proof.json`
 - WP18 child check-in timeout escalation proof:
   `31-child-check-in-timeout-escalation-proof.json`
 - Hosted child-safe check-in screenshot:

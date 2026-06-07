@@ -649,7 +649,9 @@ accessibility beyond the hosted parent route are proved.
       renders that local service execution result. Local service-state readback and
       local durable settings persistence proof now exist; applied product-ready
       writable retention execution, platform runtime, and production hardening
-      remain pending.
+      remain pending. Product-readiness blocker proof now enumerates the
+      remaining blockers over the durable-settings evidence instead of upgrading
+      the retention feature to product-ready.
 - [x] Alert intent contract.
 - [x] Expected-place alert policy UI-readiness rows. This proves parent
       alert/check-in/suppression/manual readiness rows from expected-place

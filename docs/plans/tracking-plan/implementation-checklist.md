@@ -115,9 +115,11 @@ Every checked item must cite one or more proof artifacts.
       The hosted route now renders those read-model rows and sends/renders the
       typed local service execution command result with a local service state
       revision, snapshot ref, and local durable settings store ref; local
-      durable settings persistence proof now exists, while product-ready
-      writable retention execution, platform runtime, and production hardening
-      remain pending.
+      durable settings persistence proof now exists, and
+      product-readiness blocker proof now enumerates the remaining product
+      blockers over that durable-settings evidence while product-ready writable
+      retention execution, platform runtime, and production hardening remain
+      pending.
 - [x] Remote sync and remote AI are disabled by default. Contract proof:
       `output/tracking-plan-proof/07-retention-and-custody-model/`,
       `output/tracking-plan-proof/24-ai-provider-routing/`.

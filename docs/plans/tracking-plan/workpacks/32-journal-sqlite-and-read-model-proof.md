@@ -57,6 +57,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `32-report-policy-consumer-hosted-ui-proof.json`
 - `33-retention-local-service-state-proof.json`
 - `34-retention-durable-settings-proof.json`
+- `35-retention-product-readiness-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -140,6 +141,12 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       without claiming remote upload, portal UI, service mutation, platform
       runtime, device delivery, authority, production, or product-ready
       behavior.
+- [x] Derive a retention product-readiness blocker row from the durable
+      settings proof so local durable settings readiness stays separate from
+      writable product settings execution, platform runtime, child-device
+      delivery, provider delivery, notification receipt ingestion,
+      physical-device proof, authority enrollment, production workers, and
+      product-ready behavior.
 
 ## Where We Are
 

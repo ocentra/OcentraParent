@@ -1,0 +1,43 @@
+[
+  {
+    "schemaVersion": "v0.5-tracking",
+    "readinessProofId": "tracking-retention-settings-write-command-local-state-readback-durable-settings-required-product-readiness-blocked",
+    "settingsKind": "retention-window-setting",
+    "generatedAt": "2026-06-07T15:30:00.000Z",
+    "sourceDurableSettingsProofRef": "output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json",
+    "sourceLocalServiceStateProofRef": "output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json",
+    "sourceReadModelProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "sourceMutationProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json"
+    ],
+    "auditRefs": [
+      "tracking-retention-settings-write-command-local-state-readback-durable-settings-required-product-readiness-audit"
+    ],
+    "localServiceStateRevision": 1,
+    "durableSettingsStoreRef": "agent-service-local-retention-settings-durable-json",
+    "durableSettingsPersisted": true,
+    "productReadinessBlockers": [
+      "writable-product-settings-execution",
+      "platform-runtime-retention-enforcement",
+      "child-device-runtime-delivery",
+      "provider-delivery",
+      "notification-receipt-ingestion",
+      "physical-device-proof",
+      "authority-enrollment-proof",
+      "production-worker-hardening"
+    ],
+    "localDurableSettingsReady": true,
+    "productSettingsWritable": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productionWorkerClaimed": false,
+    "productClaimReady": false
+  }
+]
