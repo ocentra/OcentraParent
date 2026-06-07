@@ -1,8 +1,8 @@
 
 running 4 tests
 test tests::performance::performance_benchmark_records_latency_throughput_resource_and_high_concurrency_metrics ... ok
-test tests::performance::performance_benchmark_preserves_manual_required_and_unavailable_paths ... ok
 test tests::performance::performance_benchmark_flags_latency_queue_resource_and_throughput_regressions ... ok
+test tests::performance::performance_benchmark_preserves_manual_required_and_unavailable_paths ... ok
 test tests::performance::performance_benchmark_rejects_realtime_content_adapter_and_production_claims ... ok
 
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 217 filtered out; finished in 0.00s

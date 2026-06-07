@@ -48,8 +48,9 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       idempotency, in-flight guard, and dead-letter tests.
 - [x] `04-request-response-proof.log`: local request completion, timeout,
       double-completion, late-response, and durable result-event tests.
-- [x] `05-journal-replay-proof.log`: NDJSON append, hash-chain, replay cursor,
-      projection-only gate, and temp filesystem proof.
+- [x] `05-journal-replay-proof.log`: NDJSON append, stable hash-chain with
+      recovery/replay tamper verification, replay cursor, projection-only gate,
+      and temp filesystem proof.
 - [x] `06-parent-runtime-boundary-proof.log`: parent/controller and child-agent
       Rust runtime integration tests when Parent runtime paths are touched.
 - [x] `07-ui-boundary-proof.log`: proof that Vite/TypeScript UI sends typed
@@ -339,7 +340,7 @@ Proof pack root:
 Contract proof:
 Dispatch proof:
 Queue/retry/timeout proof:
-Journal/replay proof: `output/eventing-plan-proof/36-41-journal-replay/proof-summary.json`; validates rows 36-41 and 77 with real temp filesystem NDJSON append, optional hash-chain fields, ordered replay cursor/filter behavior, corrupt-line error handling, projection-only safety gate, and before/after dispatch journal policy hooks.
+Journal/replay proof: `output/eventing-plan-proof/36-41-journal-replay/proof-summary.json`; validates rows 36-41 and 77 with real temp filesystem NDJSON append, stable hash-chain fields with recovery/replay tamper verification, ordered replay cursor/filter behavior, corrupt-line error handling, projection-only safety gate, and before/after dispatch journal policy hooks.
 Parent runtime boundary proof:
 UI boundary proof:
 Security negative proof:

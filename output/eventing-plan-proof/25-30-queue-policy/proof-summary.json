@@ -1,7 +1,7 @@
 {
   "proof": "eventing-queue-policy",
   "proofRoot": "output\\eventing-plan-proof\\25-30-queue-policy",
-  "checkedAt": "2026-06-07T19:49:29.906Z",
+  "checkedAt": "2026-06-07T20:22:20.387Z",
   "commands": [
     {
       "name": "eventing-tests",

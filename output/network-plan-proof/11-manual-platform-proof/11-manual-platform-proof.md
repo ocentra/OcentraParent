@@ -1,10 +1,17 @@
 # Network Manual Platform Proof
 
 Branch: codex/network-policy-preview-stored-flow-evidence-on-row10k
-Source commit: b6920254182c4936e6af540ac1c65b49e8bc5792
-Source status:  M crates/ocentra-network-evidence/src/pipeline.rs
- M crates/ocentra-network-evidence/src/tests/pipeline.rs
- M docs/plans/network-plan/implementation-checklist.md
+Source commit: 3ef0da7bf208021c357d463d9f2fee54c7fc23b8
+Source status:  M Cargo.lock
+ M crates/ocentra-eventing/Cargo.toml
+ M crates/ocentra-eventing/README.md
+ M crates/ocentra-eventing/src/journal.rs
+ M crates/ocentra-eventing/src/journal/ndjson.rs
+ M crates/ocentra-eventing/src/replay.rs
+ M crates/ocentra-eventing/src/tests/journal_replay/file.rs
+ M crates/ocentra-eventing/src/tests/journal_replay/replay.rs
+ M crates/ocentra-eventing/src/tests/journal_replay/support.rs
+ M docs/plans/eventing-plan/implementation-checklist.md
  M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-clippy.log
  M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-tests.log
  M output/eventing-plan-proof/14-24-runtime-lifecycle/proof-summary.json
@@ -17,7 +24,6 @@ Source status:  M crates/ocentra-network-evidence/src/pipeline.rs
  M output/eventing-plan-proof/20-24-metrics-testkit/eventing-metrics-tests.log
  M output/eventing-plan-proof/20-24-metrics-testkit/proof-summary.json
  M output/eventing-plan-proof/20-24-metrics-testkit/source-shape.log
- M output/eventing-plan-proof/25-30-queue-policy/eventing-clippy.log
  M output/eventing-plan-proof/25-30-queue-policy/eventing-tests.log
  M output/eventing-plan-proof/25-30-queue-policy/proof-summary.json
  M output/eventing-plan-proof/25-30-queue-policy/source-shape.log
@@ -29,8 +35,17 @@ Source status:  M crates/ocentra-network-evidence/src/pipeline.rs
  M output/eventing-plan-proof/36-41-journal-replay/eventing-tests.log
  M output/eventing-plan-proof/36-41-journal-replay/proof-summary.json
  M output/eventing-plan-proof/36-41-journal-replay/source-shape.log
+ M output/eventing-plan-proof/42-44-parent-child-protocol-contracts/proof-summary.json
+ M output/eventing-plan-proof/45-50-network-protocol-contracts/proof-summary.json
  M output/eventing-plan-proof/51-54-parent-child-runtime/proof-summary.json
  M output/eventing-plan-proof/52-ui-typed-intent-boundary/proof-summary.json
+ M output/eventing-plan-proof/55-56-enforcement-journal-action/proof-summary.json
+ M output/eventing-plan-proof/57-network-workpack-10-reusable-crate/proof-summary.json
+ M output/eventing-plan-proof/58-network-event-chain-exact-refs/proof-summary.json
+ M output/eventing-plan-proof/59-weak-network-evidence-command-routing/proof-summary.json
+ M output/eventing-plan-proof/60-61-command-boundary/proof-summary.json
+ M output/eventing-plan-proof/62-network-proof-links/proof-summary.json
+ M output/eventing-plan-proof/63-delivery-decision-proof/proof-summary.json
  M output/eventing-plan-proof/63-type-safety-source-gate/eventing-clippy.log
  M output/eventing-plan-proof/63-type-safety-source-gate/eventing-tests.log
  M output/eventing-plan-proof/63-type-safety-source-gate/proof-summary.json
@@ -52,6 +67,7 @@ Source status:  M crates/ocentra-network-evidence/src/pipeline.rs
  M output/eventing-plan-proof/69-compatibility-matrix/eventing-clippy.log
  M output/eventing-plan-proof/69-compatibility-matrix/proof-summary.json
  M output/eventing-plan-proof/69-compatibility-matrix/source-shape.log
+ M output/eventing-plan-proof/70-topology-manifest/eventing-clippy.log
  M output/eventing-plan-proof/70-topology-manifest/proof-summary.json
  M output/eventing-plan-proof/70-topology-manifest/source-shape.log
  M output/eventing-plan-proof/70-topology-manifest/topology-manifest-example.log
@@ -66,6 +82,7 @@ Source status:  M crates/ocentra-network-evidence/src/pipeline.rs
  M output/eventing-plan-proof/72-contract-registry/proof-summary.json
  M output/eventing-plan-proof/72-contract-registry/source-shape.log
  M output/eventing-plan-proof/73-duplicate-subscriber/duplicate-subscriber-test.log
+ M output/eventing-plan-proof/73-duplicate-subscriber/eventing-clippy.log
  M output/eventing-plan-proof/73-duplicate-subscriber/proof-summary.json
  M output/eventing-plan-proof/73-duplicate-subscriber/source-shape.log
  M output/eventing-plan-proof/74-lifecycle-clear/eventing-clippy.log
@@ -84,10 +101,18 @@ Source status:  M crates/ocentra-network-evidence/src/pipeline.rs
  M output/eventing-plan-proof/delivery-semantics/eventing-delivery-tests.log
  M output/eventing-plan-proof/delivery-semantics/proof-summary.json
  M output/eventing-plan-proof/delivery-semantics/source-shape.log
+ M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-command-boundary-proof.log
+ M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-enforcement-journal-action-proof.log
+ M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-journal-replay-proof.log
+ M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-network-protocol-contract-proof.log
+ M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-network-runtime-proof.log
+ M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-parent-child-protocol-contract-proof.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-parent-child-runtime-proof.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-ui-typed-intent-boundary-proof.log
+ M output/eventing-plan-proof/full-eventing-plan/command-logs/ocentra-eventing-tests.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/source-shape.log
  M output/eventing-plan-proof/reusable-eventing-runtime/00-source-snapshot.md
+ M output/eventing-plan-proof/reusable-eventing-runtime/command-logs/eventing-journal-replay-proof.log
  M output/eventing-plan-proof/reusable-eventing-runtime/command-logs/ocentra-eventing-clippy.log
  M output/eventing-plan-proof/reusable-eventing-runtime/command-logs/ocentra-eventing-tests.log
  M output/eventing-plan-proof/reusable-eventing-runtime/command-logs/source-shape.log
@@ -124,22 +149,20 @@ Source status:  M crates/ocentra-network-evidence/src/pipeline.rs
  M output/network-plan-proof/48-risk-budget-threshold-proof/proof-summary.json
  M output/network-plan-proof/48-risk-budget-threshold-proof/risk-budget-threshold-tests.log
  M output/network-plan-proof/48-risk-budget-threshold-proof/source-shape.log
- M output/network-plan-proof/51-end-to-end-pipeline-proof/clippy.log
- M output/network-plan-proof/51-end-to-end-pipeline-proof/expected-end-to-end-pipeline.json
- M output/network-plan-proof/51-end-to-end-pipeline-proof/pipeline-tests.log
- M output/network-plan-proof/51-end-to-end-pipeline-proof/source-shape.log
- M output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json
- M scripts/test/network-end-to-end-pipeline-proof.mjs
+ M output/network-plan-proof/policy-preview-stored-flow-evidence/agent-core-network-flow-policy-preview-test.log
+ M output/network-plan-proof/policy-preview-stored-flow-evidence/agent-service-policy-preview-payload-test.log
+ M scripts/test/eventing-journal-replay-proof.mjs
+ M test-results/eventing-network-runtime-proof/proof.json
  M test-results/eventing-runtime-proof/proof.json
  M test-results/network-ai-audit-narrative-proof/proof.json
  M test-results/network-ai-detection-fixture-proof/proof.json
  M test-results/network-dns-adapter-proof/proof.json
  M test-results/network-live-capture-storage-proof/proof.json
- M test-results/network-policy-preview-stored-flow-evidence-proof/proof.json
  M test-results/network-risk-budget-threshold-proof/proof.json
  M test-results/network-signature-alert-ingestion-proof/proof.json
  M test-results/network-windows-firewall-adapter-proof/proof.json
  M test-results/network-zeek-analyzer-comparison-proof/proof.json
+?? crates/ocentra-eventing/src/journal/hash_chain.rs
 
 
 This proof aggregates the existing platform-specific Rust proof gates into the required network-plan row 11 manual/platform proof pack.

@@ -1,4 +1,4 @@
-running 78 tests
+running 80 tests
 test tests::clock_manual::manual_clock_advances_registered_sleepers_without_wall_clock_sleep ... ok
 test tests::clock_manual::manual_clock_dead_letters_past_deadline_without_dispatch ... ok
 test tests::clock_manual::manual_clock_drives_handler_timeout_retries_without_wall_clock_sleep ... ok
@@ -29,10 +29,12 @@ test tests::journal_replay::bus_policy::bus_journal_policy_honors_before_after_a
 test tests::journal_replay::file::concurrent_ndjson_appends_do_not_hold_state_lock_across_file_write ... ok
 test tests::journal_replay::file::ndjson_journal_appends_one_object_per_line_with_hash_chain ... ok
 test tests::journal_replay::file::ndjson_journal_reopen_continues_sequence_and_hash_chain ... ok
+test tests::journal_replay::file::ndjson_journal_reopen_rejects_tampered_hash_chain_payload ... ok
 test tests::journal_replay::replay::action_replay_dispatches_queued_drain_event_once ... ok
 test tests::journal_replay::replay::projection_replay_cannot_run_handlers_without_action_mode ... ok
 test tests::journal_replay::replay::replay_corrupt_line_is_reported_explicitly ... ok
 test tests::journal_replay::replay::replay_cursor_and_filters_read_ordered_projection_records ... ok
+test tests::journal_replay::replay::replay_rejects_tampered_hash_chain_payload ... ok
 test tests::lifecycle::detached_publish_returns_observable_report ... ok
 test tests::lifecycle::nested_publish_uses_context_publisher_without_deadlock ... ok
 test tests::lifecycle::ordered_dispatch_allows_different_aggregates_to_run_concurrently ... ok
@@ -78,7 +80,7 @@ test tests::typed_boundary::eventing_newtypes_reject_empty_values_and_zero_versi
 test tests::typed_boundary::stored_decode_rejects_contract_mismatch ... ok
 test tests::typed_boundary::target_handler_filter_prevents_wrong_handler_delivery ... ok
 
-test result: ok. 78 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in <duration>
+test result: ok. 80 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in <duration>
 
 
 running 0 tests

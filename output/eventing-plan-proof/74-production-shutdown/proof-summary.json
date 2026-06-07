@@ -1,7 +1,7 @@
 {
   "proof": "eventing-production-shutdown",
   "proofRoot": "output\\eventing-plan-proof\\74-production-shutdown",
-  "checkedAt": "2026-06-07T19:49:25.089Z",
+  "checkedAt": "2026-06-07T20:22:15.770Z",
   "commands": [
     {
       "name": "production-shutdown-tests",

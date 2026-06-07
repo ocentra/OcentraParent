@@ -1,7 +1,7 @@
 {
   "proof": "eventing-journal-replay",
   "proofRoot": "output\\eventing-plan-proof\\36-41-journal-replay",
-  "checkedAt": "2026-06-07T19:49:04.063Z",
+  "checkedAt": "2026-06-07T20:21:53.310Z",
   "commands": [
     {
       "name": "eventing-tests",
@@ -28,6 +28,9 @@
     "tokio-file-io",
     "one-object-per-line",
     "hash-chain-enabled",
+    "stable-sha256-hash-chain",
+    "hash-chain-recovery-verification",
+    "hash-chain-replay-verification",
     "journal-selector-types",
     "journal-allowlist",
     "journal-policy-modes",
@@ -43,12 +46,14 @@
     "selector-test",
     "replay-filter-test",
     "corrupt-line-test",
+    "tamper-replay-test",
+    "tamper-recovery-test",
     "projection-gate-test"
   ],
   "provenRows": [
     "36 EventJournal trait",
     "37 NDJSON append implementation",
-    "38 hash-chain journal option",
+    "38 stable hash-chain journal option with recovery/replay tamper verification",
     "39 replay cursor and filters",
     "40 projection-only replay safety gate",
     "41 journal-before/after dispatch modes",

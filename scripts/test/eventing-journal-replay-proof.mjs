@@ -44,6 +44,7 @@ const commandResults = commands.map((entry) => {
 const journalSource = readFileSync('crates/ocentra-eventing/src/journal.rs', 'utf8');
 const journalPolicySource = readFileSync('crates/ocentra-eventing/src/journal/policy.rs', 'utf8');
 const ndjsonSource = readFileSync('crates/ocentra-eventing/src/journal/ndjson.rs', 'utf8');
+const hashChainSource = readFileSync('crates/ocentra-eventing/src/journal/hash_chain.rs', 'utf8');
 const replaySource = readFileSync('crates/ocentra-eventing/src/replay.rs', 'utf8');
 const busSource = readFileSync('crates/ocentra-eventing/src/bus/journaling.rs', 'utf8');
 const publishSource = readFileSync('crates/ocentra-eventing/src/bus/publish.rs', 'utf8');
@@ -62,6 +63,9 @@ const sourceAssertions = [
   ['tokio-file-io', ndjsonSource.includes('tokio::') && ndjsonSource.includes('OpenOptions')],
   ['one-object-per-line', ndjsonSource.includes("line.push(b'\\n')")],
   ['hash-chain-enabled', ndjsonSource.includes('JournalHashChain::Enabled')],
+  ['stable-sha256-hash-chain', hashChainSource.includes('Sha256::digest')],
+  ['hash-chain-recovery-verification', ndjsonSource.includes('verify_hash_chain_entry')],
+  ['hash-chain-replay-verification', replaySource.includes('verify_hash_chain_entry')],
   ['journal-selector-types', journalPolicySource.includes('EventTypes') && journalPolicySource.includes('Namespaces')],
   ['journal-allowlist', journalPolicySource.includes('ContractAllowlist')],
   ['journal-policy-modes', journalPolicySource.includes('BeforeAndAfterDispatch')],
@@ -77,6 +81,8 @@ const sourceAssertions = [
   ['selector-test', journalTests.includes('bus_journal_policy_honors_before_after_and_selected_journaling')],
   ['replay-filter-test', journalTests.includes('replay_cursor_and_filters_read_ordered_projection_records')],
   ['corrupt-line-test', journalTests.includes('replay_corrupt_line_is_reported_explicitly')],
+  ['tamper-replay-test', journalTests.includes('replay_rejects_tampered_hash_chain_payload')],
+  ['tamper-recovery-test', journalTests.includes('ndjson_journal_reopen_rejects_tampered_hash_chain_payload')],
   ['projection-gate-test', journalTests.includes('projection_replay_cannot_run_handlers_without_action_mode')],
 ];
 
@@ -94,7 +100,7 @@ const proof = {
   provenRows: [
     '36 EventJournal trait',
     '37 NDJSON append implementation',
-    '38 hash-chain journal option',
+    '38 stable hash-chain journal option with recovery/replay tamper verification',
     '39 replay cursor and filters',
     '40 projection-only replay safety gate',
     '41 journal-before/after dispatch modes',

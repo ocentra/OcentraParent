@@ -1,7 +1,7 @@
 {
   "proof": "eventing-contract-registry",
   "proofRoot": "output\\eventing-plan-proof\\72-contract-registry",
-  "checkedAt": "2026-06-07T19:48:43.370Z",
+  "checkedAt": "2026-06-07T20:21:32.378Z",
   "commands": [
     {
       "name": "contract-registry-tests",

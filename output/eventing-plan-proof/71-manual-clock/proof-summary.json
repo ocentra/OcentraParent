@@ -1,7 +1,7 @@
 {
   "proof": "eventing-manual-clock",
   "proofRoot": "output\\eventing-plan-proof\\71-manual-clock",
-  "checkedAt": "2026-06-07T19:49:16.960Z",
+  "checkedAt": "2026-06-07T20:22:07.459Z",
   "commands": [
     {
       "name": "eventing-tests",

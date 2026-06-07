@@ -6,4 +6,4 @@ test network_remote_delivery_status_service_tests::websocket_network_remote_deli
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 273 filtered out; finished in <duration>
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
-     Running unittests src\main.rs (target\debug\deps\ocentra_parent_agent_service-f9b64d6b8709d212.exe)
+     Running unittests src\main.rs (target\debug\deps\ocentra_parent_agent_service-db35d637c4a10e95.exe)

@@ -8,5 +8,5 @@ test tests::tunnel::tunnel_classifier_rejects_empty_indicator_source_ref ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 216 filtered out; finished in 0.00s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.29s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
      Running unittests src\lib.rs (target\debug\deps\ocentra_network_evidence-36610952c1128119.exe)

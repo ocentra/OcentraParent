@@ -3,7 +3,7 @@ RUN  v4.1.6 E:/OcentraParentWorktrees/E-D/OcentraParent/apps/portal
 
  Test Files  1 passed (1)
       Tests  9 passed (9)
-   Start at  15:50:17
+   Start at  16:23:10
    Duration <duration>
 
 Source shape warnings: files/functions are near their size limits.
@@ -837,8 +837,8 @@ crates/ocentra-eventing/src/delivery.rs:1 file has 281 lines; crossed 250-line a
 crates/ocentra-eventing/src/envelope.rs:1 file has 265 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-eventing/src/envelope.rs:1 file has 16 functions; warning starts at 15 of 18
 crates/ocentra-eventing/src/error.rs:1 file has 381 lines; crossed 250-line advisory band; maximum is 1000
-crates/ocentra-eventing/src/journal/ndjson.rs:1 file has 298 lines; crossed 250-line advisory band; maximum is 1000
-crates/ocentra-eventing/src/journal/ndjson.rs:1 file has 18 functions; warning starts at 15 of 18
+crates/ocentra-eventing/src/journal/ndjson.rs:1 file has 276 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-eventing/src/journal/ndjson.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/ocentra-eventing/src/queue/state.rs:1 file has 357 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-eventing/src/queue/state.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/ocentra-eventing/src/request.rs:1 file has 326 lines; crossed 250-line advisory band; maximum is 1000
@@ -918,6 +918,6 @@ Source shape guard passed.
 eventing-ui-typed-intent-boundary-proof-ok:portal.agent-client.command-envelope-only,portal.agent-client.event-readmodel-parse-only,portal.transport.serialized-command-only,portal.actions.typed-command-intents,portal.command-inventory.events-are-result-metadata,portal.source.no-business-event-publisher
 evidence=test-results/eventing-ui-typed-intent-boundary-proof/proof.json
 planEvidence=output/eventing-plan-proof/52-ui-typed-intent-boundary/proof-summary.json
-[2m3:50:17 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
-[2m3:50:17 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
+[2m4:23:10 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
+[2m4:23:10 p.m.[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
 [33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`

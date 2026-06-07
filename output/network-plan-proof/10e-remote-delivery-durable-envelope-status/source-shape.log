@@ -413,8 +413,8 @@ crates/ocentra-eventing/src/delivery.rs:1 file has 281 lines; crossed 250-line a
 crates/ocentra-eventing/src/envelope.rs:1 file has 16 functions; warning starts at 15 of 18
 crates/ocentra-eventing/src/envelope.rs:1 file has 265 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-eventing/src/error.rs:1 file has 381 lines; crossed 250-line advisory band; maximum is 1000
-crates/ocentra-eventing/src/journal/ndjson.rs:1 file has 18 functions; warning starts at 15 of 18
-crates/ocentra-eventing/src/journal/ndjson.rs:1 file has 298 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-eventing/src/journal/ndjson.rs:1 file has 17 functions; warning starts at 15 of 18
+crates/ocentra-eventing/src/journal/ndjson.rs:1 file has 276 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-eventing/src/queue/state.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/ocentra-eventing/src/queue/state.rs:1 file has 357 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-eventing/src/request.rs:1 file has 18 functions; warning starts at 15 of 18
