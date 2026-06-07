@@ -1,0 +1,509 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
+  "proofMode": "provider-secret-execution-readiness-proof",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/schema-domain",
+    "cmd /c npm run build --workspace @ocentra-parent/logging-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/logging-domain -- tests/provider-secret-execution-readiness.test.ts"
+  ],
+  "evidence": {
+    "contract": "packages/logging-domain/src/provider-secret-execution-readiness.ts",
+    "readModel": "packages/logging-domain/src/provider-secret-execution-readiness-read-model.ts",
+    "contractTest": "packages/logging-domain/tests/provider-secret-execution-readiness.test.ts",
+    "proofOutput": "test-results/provider-secret-execution-readiness-proof/proof.json",
+    "summaryOutput": "output/provider-secret-execution-readiness-proof/proof-summary.json",
+    "featureDoc": "docs/features/production-distribution-support.md",
+    "expectations": [
+      "docs/expectations/data-custody.md",
+      "docs/expectations/static-analysis-security.md"
+    ],
+    "packageExports": [
+      "@ocentra-parent/logging-domain/provider-secret-execution-readiness",
+      "@ocentra-parent/logging-domain/provider-secret-execution-readiness-read-model"
+    ]
+  },
+  "claimsProved": [
+    "Provider-secret execution readiness rows cover execution boundary, backend secret-store preflight, rotation preflight, revocation preflight, operator approval, manual execution, and support-safe audit export states.",
+    "Rows link to provider-secret custody status, backend secret-store preflight, rotation, revocation, operator approval, manual proof, and audit refs while disclosing only support-safe status metadata.",
+    "Provider-secret backend store, rotation, revocation, and execution remain not implemented or manual-required until real provider-secret execution proof exists.",
+    "Package exports expose the provider-secret execution readiness contract and read model through @ocentra-parent/logging-domain.",
+    "Rows reject provider secrets, payment provider tokens, raw child activity, raw support bundle payloads, account lookup results, billing provider contact records, remote support transcripts, backend secret-store execution, rotation/revocation execution, provider-secret execution delivery, support backend upload execution, account lookup execution, billing provider contact execution, remote support sessions, production SLA, and default Ocentra-hosted family data."
+  ],
+  "claimsNotProved": [
+    "backend secret store execution",
+    "provider secret rotation execution",
+    "provider secret revocation execution",
+    "provider secret execution delivery",
+    "provider secret custody execution",
+    "support backend upload execution",
+    "account lookup execution",
+    "billing provider contact execution",
+    "remote support session execution",
+    "production SLA",
+    "default Ocentra-hosted family data",
+    "raw child activity custody"
+  ],
+  "readModel": {
+    "schemaVersion": 1,
+    "readModelId": "provider-secret-execution-readiness-proof",
+    "generatedAt": "2026-06-07T13:49:32.000Z",
+    "sourceContractRefs": [
+      "production-distribution-support-feature-doc",
+      "data-custody-provider-secret-non-custody-boundary",
+      "static-analysis-security-secret-handling-expectation",
+      "production-support-provider-secret-custody-status-proof"
+    ],
+    "entries": [
+      {
+        "schemaVersion": 1,
+        "statusId": "provider-secret-execution-boundary-recorded",
+        "readinessStatus": "execution-boundary-recorded",
+        "backendSecretStoreState": "not-implemented",
+        "rotationState": "not-implemented",
+        "revocationState": "not-implemented",
+        "operatorApprovalState": "manual-required",
+        "executionState": "not-implemented",
+        "payloadState": "support-safe-status-refs-only",
+        "disclosedDataClasses": [
+          "provider-execution-boundary-status",
+          "provider-secret-custody-status-ref",
+          "backend-secret-store-preflight-ref",
+          "rotation-preflight-ref",
+          "revocation-preflight-ref",
+          "operator-approval-ref",
+          "manual-proof-ref",
+          "audit-export-ref"
+        ],
+        "allowedDestinations": [
+          "manual-security-runbook",
+          "support-safe-audit-export"
+        ],
+        "custodyStatusRefs": [
+          "production-support-provider-secret-custody-status-proof-ref"
+        ],
+        "backendSecretStoreRefs": [
+          "backend-secret-store-preflight-ref"
+        ],
+        "rotationRefs": [
+          "provider-secret-rotation-preflight-ref"
+        ],
+        "revocationRefs": [
+          "provider-secret-revocation-preflight-ref"
+        ],
+        "operatorApprovalRefs": [
+          "provider-secret-operator-approval-ref"
+        ],
+        "auditRefs": [
+          "provider-secret-execution-audit-ref"
+        ],
+        "manualProofRequirements": [
+          "provider secret execution design review before execution readiness can be claimed"
+        ],
+        "containsProviderSecrets": false,
+        "containsPaymentProviderTokens": false,
+        "containsRawChildActivity": false,
+        "containsRawSupportBundlePayloads": false,
+        "containsAccountLookupResults": false,
+        "containsBillingProviderContactRecords": false,
+        "containsRemoteSupportTranscripts": false,
+        "backendSecretStoreExecuted": false,
+        "providerSecretRotationExecuted": false,
+        "providerSecretRevocationExecuted": false,
+        "providerSecretExecutionDelivered": false,
+        "supportBackendUploadExecuted": false,
+        "accountLookupExecuted": false,
+        "billingProviderContactExecuted": false,
+        "remoteSupportSessionExecuted": false,
+        "productionSlaClaimed": false,
+        "ocentraHostedFamilyDataDefault": false,
+        "lastCheckedAt": "2026-06-07T13:49:32.000Z"
+      },
+      {
+        "schemaVersion": 1,
+        "statusId": "provider-secret-backend-store-preflight-required",
+        "readinessStatus": "backend-secret-store-preflight-required",
+        "backendSecretStoreState": "manual-required",
+        "rotationState": "not-implemented",
+        "revocationState": "not-implemented",
+        "operatorApprovalState": "manual-required",
+        "executionState": "manual-required",
+        "payloadState": "support-safe-status-refs-only",
+        "disclosedDataClasses": [
+          "provider-execution-boundary-status",
+          "provider-secret-custody-status-ref",
+          "backend-secret-store-preflight-ref",
+          "rotation-preflight-ref",
+          "revocation-preflight-ref",
+          "operator-approval-ref",
+          "manual-proof-ref",
+          "audit-export-ref"
+        ],
+        "allowedDestinations": [
+          "manual-security-runbook",
+          "support-safe-audit-export"
+        ],
+        "custodyStatusRefs": [
+          "production-support-provider-secret-custody-status-proof-ref"
+        ],
+        "backendSecretStoreRefs": [
+          "backend-secret-store-preflight-ref"
+        ],
+        "rotationRefs": [
+          "provider-secret-rotation-preflight-ref"
+        ],
+        "revocationRefs": [
+          "provider-secret-revocation-preflight-ref"
+        ],
+        "operatorApprovalRefs": [
+          "provider-secret-operator-approval-ref"
+        ],
+        "auditRefs": [
+          "provider-secret-execution-audit-ref"
+        ],
+        "manualProofRequirements": [
+          "backend secret store preflight and threat model before storage execution can be claimed"
+        ],
+        "containsProviderSecrets": false,
+        "containsPaymentProviderTokens": false,
+        "containsRawChildActivity": false,
+        "containsRawSupportBundlePayloads": false,
+        "containsAccountLookupResults": false,
+        "containsBillingProviderContactRecords": false,
+        "containsRemoteSupportTranscripts": false,
+        "backendSecretStoreExecuted": false,
+        "providerSecretRotationExecuted": false,
+        "providerSecretRevocationExecuted": false,
+        "providerSecretExecutionDelivered": false,
+        "supportBackendUploadExecuted": false,
+        "accountLookupExecuted": false,
+        "billingProviderContactExecuted": false,
+        "remoteSupportSessionExecuted": false,
+        "productionSlaClaimed": false,
+        "ocentraHostedFamilyDataDefault": false,
+        "lastCheckedAt": "2026-06-07T13:49:32.000Z"
+      },
+      {
+        "schemaVersion": 1,
+        "statusId": "provider-secret-rotation-preflight-required",
+        "readinessStatus": "rotation-preflight-required",
+        "backendSecretStoreState": "manual-required",
+        "rotationState": "manual-required",
+        "revocationState": "not-implemented",
+        "operatorApprovalState": "manual-required",
+        "executionState": "manual-required",
+        "payloadState": "support-safe-status-refs-only",
+        "disclosedDataClasses": [
+          "provider-execution-boundary-status",
+          "provider-secret-custody-status-ref",
+          "backend-secret-store-preflight-ref",
+          "rotation-preflight-ref",
+          "revocation-preflight-ref",
+          "operator-approval-ref",
+          "manual-proof-ref",
+          "audit-export-ref"
+        ],
+        "allowedDestinations": [
+          "manual-security-runbook",
+          "support-safe-audit-export"
+        ],
+        "custodyStatusRefs": [
+          "production-support-provider-secret-custody-status-proof-ref"
+        ],
+        "backendSecretStoreRefs": [
+          "backend-secret-store-preflight-ref"
+        ],
+        "rotationRefs": [
+          "provider-secret-rotation-preflight-ref"
+        ],
+        "revocationRefs": [
+          "provider-secret-revocation-preflight-ref"
+        ],
+        "operatorApprovalRefs": [
+          "provider-secret-operator-approval-ref"
+        ],
+        "auditRefs": [
+          "provider-secret-execution-audit-ref"
+        ],
+        "manualProofRequirements": [
+          "rotation preflight and smoke proof before rotation execution can be claimed"
+        ],
+        "containsProviderSecrets": false,
+        "containsPaymentProviderTokens": false,
+        "containsRawChildActivity": false,
+        "containsRawSupportBundlePayloads": false,
+        "containsAccountLookupResults": false,
+        "containsBillingProviderContactRecords": false,
+        "containsRemoteSupportTranscripts": false,
+        "backendSecretStoreExecuted": false,
+        "providerSecretRotationExecuted": false,
+        "providerSecretRevocationExecuted": false,
+        "providerSecretExecutionDelivered": false,
+        "supportBackendUploadExecuted": false,
+        "accountLookupExecuted": false,
+        "billingProviderContactExecuted": false,
+        "remoteSupportSessionExecuted": false,
+        "productionSlaClaimed": false,
+        "ocentraHostedFamilyDataDefault": false,
+        "lastCheckedAt": "2026-06-07T13:49:32.000Z"
+      },
+      {
+        "schemaVersion": 1,
+        "statusId": "provider-secret-revocation-preflight-required",
+        "readinessStatus": "revocation-preflight-required",
+        "backendSecretStoreState": "manual-required",
+        "rotationState": "manual-required",
+        "revocationState": "manual-required",
+        "operatorApprovalState": "manual-required",
+        "executionState": "manual-required",
+        "payloadState": "support-safe-status-refs-only",
+        "disclosedDataClasses": [
+          "provider-execution-boundary-status",
+          "provider-secret-custody-status-ref",
+          "backend-secret-store-preflight-ref",
+          "rotation-preflight-ref",
+          "revocation-preflight-ref",
+          "operator-approval-ref",
+          "manual-proof-ref",
+          "audit-export-ref"
+        ],
+        "allowedDestinations": [
+          "manual-security-runbook",
+          "support-safe-audit-export"
+        ],
+        "custodyStatusRefs": [
+          "production-support-provider-secret-custody-status-proof-ref"
+        ],
+        "backendSecretStoreRefs": [
+          "backend-secret-store-preflight-ref"
+        ],
+        "rotationRefs": [
+          "provider-secret-rotation-preflight-ref"
+        ],
+        "revocationRefs": [
+          "provider-secret-revocation-preflight-ref"
+        ],
+        "operatorApprovalRefs": [
+          "provider-secret-operator-approval-ref"
+        ],
+        "auditRefs": [
+          "provider-secret-execution-audit-ref"
+        ],
+        "manualProofRequirements": [
+          "revocation preflight and smoke proof before revocation execution can be claimed"
+        ],
+        "containsProviderSecrets": false,
+        "containsPaymentProviderTokens": false,
+        "containsRawChildActivity": false,
+        "containsRawSupportBundlePayloads": false,
+        "containsAccountLookupResults": false,
+        "containsBillingProviderContactRecords": false,
+        "containsRemoteSupportTranscripts": false,
+        "backendSecretStoreExecuted": false,
+        "providerSecretRotationExecuted": false,
+        "providerSecretRevocationExecuted": false,
+        "providerSecretExecutionDelivered": false,
+        "supportBackendUploadExecuted": false,
+        "accountLookupExecuted": false,
+        "billingProviderContactExecuted": false,
+        "remoteSupportSessionExecuted": false,
+        "productionSlaClaimed": false,
+        "ocentraHostedFamilyDataDefault": false,
+        "lastCheckedAt": "2026-06-07T13:49:32.000Z"
+      },
+      {
+        "schemaVersion": 1,
+        "statusId": "provider-secret-operator-approval-required",
+        "readinessStatus": "operator-approval-required",
+        "backendSecretStoreState": "manual-required",
+        "rotationState": "manual-required",
+        "revocationState": "manual-required",
+        "operatorApprovalState": "manual-required",
+        "executionState": "manual-required",
+        "payloadState": "support-safe-status-refs-only",
+        "disclosedDataClasses": [
+          "provider-execution-boundary-status",
+          "provider-secret-custody-status-ref",
+          "backend-secret-store-preflight-ref",
+          "rotation-preflight-ref",
+          "revocation-preflight-ref",
+          "operator-approval-ref",
+          "manual-proof-ref",
+          "audit-export-ref"
+        ],
+        "allowedDestinations": [
+          "manual-security-runbook",
+          "support-safe-audit-export"
+        ],
+        "custodyStatusRefs": [
+          "production-support-provider-secret-custody-status-proof-ref"
+        ],
+        "backendSecretStoreRefs": [
+          "backend-secret-store-preflight-ref"
+        ],
+        "rotationRefs": [
+          "provider-secret-rotation-preflight-ref"
+        ],
+        "revocationRefs": [
+          "provider-secret-revocation-preflight-ref"
+        ],
+        "operatorApprovalRefs": [
+          "provider-secret-operator-approval-ref"
+        ],
+        "auditRefs": [
+          "provider-secret-execution-audit-ref"
+        ],
+        "manualProofRequirements": [
+          "operator approval record before any provider secret execution can be claimed"
+        ],
+        "containsProviderSecrets": false,
+        "containsPaymentProviderTokens": false,
+        "containsRawChildActivity": false,
+        "containsRawSupportBundlePayloads": false,
+        "containsAccountLookupResults": false,
+        "containsBillingProviderContactRecords": false,
+        "containsRemoteSupportTranscripts": false,
+        "backendSecretStoreExecuted": false,
+        "providerSecretRotationExecuted": false,
+        "providerSecretRevocationExecuted": false,
+        "providerSecretExecutionDelivered": false,
+        "supportBackendUploadExecuted": false,
+        "accountLookupExecuted": false,
+        "billingProviderContactExecuted": false,
+        "remoteSupportSessionExecuted": false,
+        "productionSlaClaimed": false,
+        "ocentraHostedFamilyDataDefault": false,
+        "lastCheckedAt": "2026-06-07T13:49:32.000Z"
+      },
+      {
+        "schemaVersion": 1,
+        "statusId": "provider-secret-execution-manual-required",
+        "readinessStatus": "execution-manual-required",
+        "backendSecretStoreState": "manual-required",
+        "rotationState": "manual-required",
+        "revocationState": "manual-required",
+        "operatorApprovalState": "manual-required",
+        "executionState": "manual-required",
+        "payloadState": "support-safe-status-refs-only",
+        "disclosedDataClasses": [
+          "provider-execution-boundary-status",
+          "provider-secret-custody-status-ref",
+          "backend-secret-store-preflight-ref",
+          "rotation-preflight-ref",
+          "revocation-preflight-ref",
+          "operator-approval-ref",
+          "manual-proof-ref",
+          "audit-export-ref"
+        ],
+        "allowedDestinations": [
+          "manual-security-runbook",
+          "support-safe-audit-export"
+        ],
+        "custodyStatusRefs": [
+          "production-support-provider-secret-custody-status-proof-ref"
+        ],
+        "backendSecretStoreRefs": [
+          "backend-secret-store-preflight-ref"
+        ],
+        "rotationRefs": [
+          "provider-secret-rotation-preflight-ref"
+        ],
+        "revocationRefs": [
+          "provider-secret-revocation-preflight-ref"
+        ],
+        "operatorApprovalRefs": [
+          "provider-secret-operator-approval-ref"
+        ],
+        "auditRefs": [
+          "provider-secret-execution-audit-ref"
+        ],
+        "manualProofRequirements": [
+          "manual execution evidence before provider secret operation can leave readiness mode"
+        ],
+        "containsProviderSecrets": false,
+        "containsPaymentProviderTokens": false,
+        "containsRawChildActivity": false,
+        "containsRawSupportBundlePayloads": false,
+        "containsAccountLookupResults": false,
+        "containsBillingProviderContactRecords": false,
+        "containsRemoteSupportTranscripts": false,
+        "backendSecretStoreExecuted": false,
+        "providerSecretRotationExecuted": false,
+        "providerSecretRevocationExecuted": false,
+        "providerSecretExecutionDelivered": false,
+        "supportBackendUploadExecuted": false,
+        "accountLookupExecuted": false,
+        "billingProviderContactExecuted": false,
+        "remoteSupportSessionExecuted": false,
+        "productionSlaClaimed": false,
+        "ocentraHostedFamilyDataDefault": false,
+        "lastCheckedAt": "2026-06-07T13:49:32.000Z"
+      },
+      {
+        "schemaVersion": 1,
+        "statusId": "provider-secret-execution-audit-export-ready",
+        "readinessStatus": "audit-export-ready",
+        "backendSecretStoreState": "manual-required",
+        "rotationState": "manual-required",
+        "revocationState": "manual-required",
+        "operatorApprovalState": "manual-required",
+        "executionState": "manual-required",
+        "payloadState": "support-safe-status-refs-only",
+        "disclosedDataClasses": [
+          "provider-execution-boundary-status",
+          "provider-secret-custody-status-ref",
+          "backend-secret-store-preflight-ref",
+          "rotation-preflight-ref",
+          "revocation-preflight-ref",
+          "operator-approval-ref",
+          "manual-proof-ref",
+          "audit-export-ref"
+        ],
+        "allowedDestinations": [
+          "manual-security-runbook",
+          "support-safe-audit-export"
+        ],
+        "custodyStatusRefs": [
+          "production-support-provider-secret-custody-status-proof-ref"
+        ],
+        "backendSecretStoreRefs": [
+          "backend-secret-store-preflight-ref"
+        ],
+        "rotationRefs": [
+          "provider-secret-rotation-preflight-ref"
+        ],
+        "revocationRefs": [
+          "provider-secret-revocation-preflight-ref"
+        ],
+        "operatorApprovalRefs": [
+          "provider-secret-operator-approval-ref"
+        ],
+        "auditRefs": [
+          "provider-secret-execution-audit-ref"
+        ],
+        "manualProofRequirements": [
+          "support-safe provider secret execution audit export review before execution can be claimed"
+        ],
+        "containsProviderSecrets": false,
+        "containsPaymentProviderTokens": false,
+        "containsRawChildActivity": false,
+        "containsRawSupportBundlePayloads": false,
+        "containsAccountLookupResults": false,
+        "containsBillingProviderContactRecords": false,
+        "containsRemoteSupportTranscripts": false,
+        "backendSecretStoreExecuted": false,
+        "providerSecretRotationExecuted": false,
+        "providerSecretRevocationExecuted": false,
+        "providerSecretExecutionDelivered": false,
+        "supportBackendUploadExecuted": false,
+        "accountLookupExecuted": false,
+        "billingProviderContactExecuted": false,
+        "remoteSupportSessionExecuted": false,
+        "productionSlaClaimed": false,
+        "ocentraHostedFamilyDataDefault": false,
+        "lastCheckedAt": "2026-06-07T13:49:32.000Z"
+      }
+    ]
+  }
+}

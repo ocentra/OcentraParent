@@ -166,6 +166,16 @@ dev-only repo when it claims consumer readiness.
   account lookup execution, billing provider contact, remote support sessions,
   production SLA, default Ocentra-hosted family data, and child activity custody
   unclaimed.
+- `provider-secret-execution-readiness-proof` adds logging-domain
+  provider-secret execution readiness rows for execution boundary, backend
+  secret-store preflight, rotation preflight, revocation preflight, operator
+  approval, manual execution, and support-safe audit export states. It links
+  provider-secret custody status, backend secret-store preflight,
+  rotation/revocation preflight, operator approval, manual proof, and audit refs
+  while keeping backend secret store execution, rotation execution, revocation
+  execution, provider-secret delivery, support backend upload execution, account
+  lookup, billing provider contact, remote support sessions, production SLA,
+  default Ocentra-hosted family data, and child activity custody unclaimed.
 - `production-support-data-export-delete-lifecycle-proof` adds parent-domain
   and logging-domain export/delete runtime lifecycle rows for requested,
   authorized, queued, running, succeeded, failed, and manual-required export and
@@ -628,6 +638,17 @@ package/runtime proof.
       support backend upload execution, account lookup execution, billing
       provider contact, remote support sessions, production SLA, default
       Ocentra-hosted family data, and child activity custody unclaimed.
+- [ ] Production support provider-secret execution readiness proof. Current
+      `provider-secret-execution-readiness-proof` covers provider-secret
+      execution boundary, backend secret-store preflight, rotation preflight,
+      revocation preflight, operator approval, manual execution, and
+      support-safe audit export rows with custody/preflight/operator/manual/audit
+      refs. It remains deterministic logging contract proof only: backend secret
+      store execution, provider-secret rotation execution, provider-secret
+      revocation execution, provider-secret delivery, support backend upload
+      execution, account lookup execution, billing provider contact, remote
+      support sessions, production SLA, default Ocentra-hosted family data, and
+      child activity custody remain unimplemented or unclaimed.
 - [ ] Production support data export/delete runtime lifecycle proof. Current
       `production-support-data-export-delete-lifecycle-proof` covers
       parent-authorized export and delete requested, authorized, queued,
