@@ -1,7 +1,7 @@
 # Android background permission proof
 
-- Checked at: 2026-06-07T03:40:55.818Z
-- Commit: 6d535c1b97b3b34ef06c5eca9c90aeca5914a78c
+- Checked at: 2026-06-07T03:56:43.605Z
+- Commit: 0befdf1f36368fff9e400442a06965cfbfe7b455
 - Device: sdk_gphone64_x86_64 / Android 15 API 35
 - Package: ca.ocentra.parent.agent
 - Resolved activity: priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
@@ -24,5 +24,5 @@ ca.ocentra.parent.agent/.MainActivity
 - Foreground location permission granted: true
 - Background location permission requested: true
 - Background location permission granted: true
-- Foreground service observed: true
+- Foreground service observed: false
 - Product location/geofence claim ready: false

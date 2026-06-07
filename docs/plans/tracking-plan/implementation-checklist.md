@@ -98,6 +98,7 @@ Every checked item must cite one or more proof artifacts.
       provider/timestamp/accuracy, app-owned local geofence transition rows,
       active app-owned geofence count within Android's documented per-app/per-device-user
       limit,
+      WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge,
       and an outside/inside/outside emulator `geo fix` route under
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`;
       WP08/WP09 parent-domain manual-required proof rows also exist under
@@ -430,7 +431,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       background location permission grant state, Android app Settings page
       routing, foreground-service-backed background-activity sample storage,
       local-geofence enter/exit rows, active geofence-limit representation,
-      battery, and connectivity status proof exists at P3 local-dev tier;
+      battery/connectivity status proof, and WP10 degraded status-gap bridge exists at P3 local-dev tier;
       fused provider location, physical-device behavior, Android system
       geofencing, and dwell behavior are not claimed by it.
 - [x] iOS simulator package proof harness exists and is wired to macOS

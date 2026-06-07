@@ -35,7 +35,7 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 - [x] Prove Android 11+ settings-page background permission flow.
 - [ ] Prove Android system enter, exit, and dwell transitions.
 - [x] Represent active geofence limit.
-- [ ] Add battery/background degraded proof before claims.
+- [x] Add battery/background degraded proof before claims.
 - [x] Record emulator package permission-grant proof for
       `ACCESS_BACKGROUND_LOCATION` while preserving no geofence-transition and
       no physical-device claims.
@@ -55,6 +55,10 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 - [x] Record active app-owned local geofence count against Android's documented
       100 geofences per app per device user limit while preserving no Android
       system geofencing, no dwell, and no physical-device claims.
+- [x] Cross-reference WP10 low-power, app-killed/restarted, pending-upload, and
+      manual-required status-gap rows from the WP09 geofence proof while
+      preserving no Android system geofencing, no dwell, and no physical-device
+      background claims.
 
 ## Where We Are
 
@@ -85,6 +89,12 @@ and compares the one app-owned local geofence row against Android's documented
 100-geofence per-app/per-device-user limit. That is an active limit
 representation artifact only, not Android system geofence registration or
 delivery proof.
+The same proof now embeds a `backgroundDegradedStatusProof` bridge to
+`output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/17-status-gap-proof.json`.
+That bridge covers low-power degraded, app-killed/restarted, pending-upload,
+and manual-required status rows from WP10 only. It is not Android system
+geofencing, dwell transition, physical-device background, authority, provider
+delivery, production upload worker, or product-ready Android tracking proof.
 The same proof now launches the Android app details
 settings page for `ca.ocentra.parent.agent` and records Settings
 activity/window routing as the Android 11+ background-location settings-page

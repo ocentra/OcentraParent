@@ -1,3 +1,20 @@
-PASS adb shell am start -n ca.ocentra.parent.agent/.MainActivity
+WARN adb shell am start -n ca.ocentra.parent.agent/.MainActivity
 Starting: Intent { cmp=ca.ocentra.parent.agent/.MainActivity }
-Warning: Activity not started, intent has been delivered to currently running top-most instance.
+Error type 3
+Error: Activity class {ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity} does not exist.
+
+FAIL fallback launcher monkey
+bash arg: -p
+  bash arg: ca.ocentra.parent.agent
+  bash arg: -c
+  bash arg: android.intent.category.LAUNCHER
+  bash arg: 1
+args: [-p, ca.ocentra.parent.agent, -c, android.intent.category.LAUNCHER, 1]
+ arg: "-p"
+ arg: "ca.ocentra.parent.agent"
+ arg: "-c"
+ arg: "android.intent.category.LAUNCHER"
+ arg: "1"
+data="ca.ocentra.parent.agent"
+data="android.intent.category.LAUNCHER"
+** No activities found to run, monkey aborted.
