@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-07T03:39:17.294Z",
+  "commit": "05018555053df0e52ea9b0149c28885d3a5838b2",
+  "proofMode": "app-install-purchase-nonclaim-limitation-readiness-proof",
+  "baseMainState": "after-pr487-platform-adapter-evidence-gap-proof-merged",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "startedAt": "2026-06-07T03:39:11.591Z",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts",
+      "startedAt": "2026-06-07T03:39:14.243Z",
+      "exitCode": 0
+    }
+  ],
+  "packageExportState": "validated-existing-platform-adapter-evidence-gap-export",
+  "productDocsState": "no-product-doc-update-needed-current-docs-already-own-required-limitation-and-nonclaim-language",
+  "checklistState": "not-touched-current-codex-b-docs-product-capability-checklist-lock",
+  "evidence": {
+    "sourcePlatformAdapterEvidenceGapContract": "packages/parent-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts",
+    "sourcePlatformAdapterEvidenceGapTest": "packages/parent-domain/tests/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts",
+    "featureDoc": "docs/features/app-install-purchase-approval.md",
+    "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
+    "platformExpectationDoc": "docs/expectations/platforms.md",
+    "packageExport": "@ocentra-parent/parent-domain/app-install-purchase-platform-adapter-evidence-gap-proof",
+    "output": "test-results\\app-install-purchase-nonclaim-limitation-readiness-proof\\proof.json"
+  },
+  "platformAdapterEvidenceGapSummary": {
+    "platformAdapterEvidenceGapRows": 5,
+    "adapterEvidenceGapRows": 1,
+    "manualAdapterEvidenceRequiredRows": 1,
+    "platformUnavailableRows": 1,
+    "blockedBeforeClaimRows": 2,
+    "realAdapterEvidenceRows": 0,
+    "adapterImplementedRows": 0,
+    "productClaimApprovedRows": 0
+  },
+  "docChecks": [
+    {
+      "doc": "docs/features/app-install-purchase-approval.md",
+      "label": "next-proof-real-evidence-gates",
+      "matchedText": "The next proof should add real portal approval/report UI, external runtime writer delivery to a device, real child delivery, real provider/store API execution with credentials/evidence, or actual platform adapters before upgrading manual-required source rows"
+    },
+    {
+      "doc": "docs/features/app-install-purchase-approval.md",
+      "label": "platform-adapter-evidence-gap-current-state",
+      "matchedText": "Platform adapter evidence gap proof linking provider/store API execution rows and platform proof-readiness rows into adapter-evidence-gap"
+    },
+    {
+      "doc": "docs/expectations/app-install-purchase-approval.md",
+      "label": "platform-adapter-evidence-gap-nongoal",
+      "matchedText": "Do not treat platform adapter evidence gap proof refs as real platform adapter evidence, platform adapter implementation, platform interception"
+    },
+    {
+      "doc": "docs/expectations/platforms.md",
+      "label": "windows-adapter-evidence-gap-limitation",
+      "matchedText": "Windows app-install platform adapter evidence gap proof may be adapter-evidence-gap only when provider/store API execution proof and platform proof-readiness refs are attached"
+    },
+    {
+      "doc": "docs/expectations/platforms.md",
+      "label": "mobile-blocked-before-claim-limitation",
+      "matchedText": "Android app-install platform adapter evidence gap proof must stay blocked-before-claim until device-owner or managed-profile adapter proof"
+    },
+    {
+      "doc": "docs/expectations/platforms.md",
+      "label": "ios-blocked-before-claim-limitation",
+      "matchedText": "iOS app-install platform adapter evidence gap proof must stay blocked-before-claim until Family Controls entitlement adapter proof"
+    }
+  ],
+  "nonClaims": [
+    "no-product-claim-approval",
+    "no-portal-approval-ui",
+    "no-portal-report-ui",
+    "no-provider-store-execution",
+    "no-store-integration",
+    "no-platform-adapter-implementation",
+    "no-platform-interception",
+    "no-child-device-delivery",
+    "no-runtime-writer-or-report-delivery",
+    "no-app-blocking",
+    "no-child-activity-data",
+    "no-ocentra-hosted-family-data-custody"
+  ],
+  "knownGaps": [
+    "real portal approval/report UI remains required before product claim upgrade",
+    "external runtime writer delivery to a device remains required before delivery upgrade",
+    "real child delivery remains required before delivery upgrade",
+    "real provider/store API execution with credentials and evidence remains required before provider/store claim",
+    "actual platform adapters remain required before adapter evidence rows can upgrade",
+    "docs/product-capability-checklist.md update intentionally deferred while codex-b holds the current lock"
+  ]
+}
