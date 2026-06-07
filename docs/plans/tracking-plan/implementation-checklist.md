@@ -533,7 +533,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       summary consumption plus service-data coverage and report/policy
       consumer-readiness rows plus family dashboard rollup rows; rendered
       dashboard UI, hosted report/export packet rendering, child/full UI beyond
-      the hosted parent route, and platform replay proof remain pending. Redacted
+      the hosted parent route, and physical platform-runtime replay proof remain pending. Redacted
       report/export read-model packet rows now exist in
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json`,
       and the hosted parent route now renders and screenshots those packet rows
