@@ -65,6 +65,10 @@
       "import": "./dist/app-install-purchase-external-runtime-device-delivery-proof.js",
       "types": "./dist/app-install-purchase-external-runtime-device-delivery-proof.d.ts"
     },
+    "./app-install-purchase-external-runtime-delivery-handoff-proof": {
+      "import": "./dist/app-install-purchase-external-runtime-delivery-handoff-proof.js",
+      "types": "./dist/app-install-purchase-external-runtime-delivery-handoff-proof.d.ts"
+    },
     "./app-install-purchase-runtime-report-writer-delivery-proof": {
       "import": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.js",
       "types": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.d.ts"
