@@ -4,6 +4,12 @@ import { join } from 'node:path';
 
 const proofRoot = join('output', 'network-plan-proof', '43-zeek-structured-log-analyzer-comparison');
 const testRoot = join('test-results', 'network-zeek-analyzer-comparison-proof');
+const sourceStatusExcludes = [
+  proofRoot,
+  testRoot,
+  join('output', 'network-plan-proof', '44-signature-alert-ingestion-proof'),
+  join('test-results', 'network-signature-alert-ingestion-proof'),
+];
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 
@@ -70,8 +76,11 @@ const proof = {
   proof: 'network-zeek-analyzer-comparison',
   checkedAt: new Date().toISOString(),
   branch: runText('git', ['branch', '--show-current']).trim(),
-  commit: runText('git', ['rev-parse', 'HEAD']).trim(),
-  statusShort: runText('git', ['status', '--short']),
+  sourceCommit: runText('git', ['rev-parse', 'HEAD']).trim(),
+  artifactCommit: 'see the enclosing git commit for generated proof artifacts',
+  originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
+  mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
+  sourceStatusShort: sourceStatusShort(),
   proofRoot,
   testRoot,
   commands: commandResults,
@@ -115,4 +124,14 @@ function runText(command, args) {
     throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}`);
   }
   return `${result.stdout ?? ''}${result.stderr ?? ''}`;
+}
+
+function sourceStatusShort() {
+  return runText('git', [
+    'status',
+    '--short',
+    '--',
+    '.',
+    ...sourceStatusExcludes.map((path) => `:(exclude)${path.replaceAll('\\', '/')}`),
+  ]);
 }
