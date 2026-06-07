@@ -250,6 +250,16 @@ provider contact, legal disclosure execution, remote support sessions,
 production SLA, provider-secret custody, default Ocentra-hosted family data, or
 child activity custody.
 
+`production-support-status-backend-durable-queue-runtime-proof` adds the
+durable queue runtime boundary row for status-backend queue storage,
+retry-worker, audit-persistence, dead-letter, runtime execution, and runtime
+closure refs. It does not claim real status backend execution, durable queue
+storage, retry-worker execution, audit persistence, dead-letter payload custody,
+public runtime execution, provider execution, support backend upload execution,
+account lookup, billing provider contact, legal disclosure execution, remote
+support sessions, production SLA, provider-secret custody, default
+Ocentra-hosted family data, or child activity custody.
+
 ## Checklist Rules
 
 - A row must move from `planned` to `in progress` only when a branch or merged
