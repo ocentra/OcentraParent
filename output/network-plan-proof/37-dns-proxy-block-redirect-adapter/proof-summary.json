@@ -1,0 +1,48 @@
+{
+  "proof": "network-dns-adapter",
+  "checkedAt": "2026-06-07T02:37:00.136Z",
+  "branch": "codex/network-adapter-gate-proof-artifacts",
+  "sourceCommit": "6c034aa2a1071380eb311c919cc9fabfaab01a3d",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
+  "originMain": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "mergeBase": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\37-dns-proxy-block-redirect-adapter",
+  "testRoot": "test-results\\network-dns-adapter-proof",
+  "commands": [
+    {
+      "name": "network-dns-adapter-tests",
+      "command": "cargo test -p ocentra-network-evidence dns_adapter",
+      "status": 0,
+      "log": "output\\network-plan-proof\\37-dns-proxy-block-redirect-adapter\\dns-adapter-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\37-dns-proxy-block-redirect-adapter\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\37-dns-proxy-block-redirect-adapter\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedDnsAdapterProof": "output\\network-plan-proof\\37-dns-proxy-block-redirect-adapter\\expected-dns-adapter-proof.json",
+    "proofSummary": "output\\network-plan-proof\\37-dns-proxy-block-redirect-adapter\\proof-summary.json",
+    "testProof": "test-results\\network-dns-adapter-proof\\proof.json"
+  },
+  "provenRows": [
+    "37 DNS proxy/block/redirect adapter"
+  ],
+  "notClaimed": [
+    "live host DNS mutation",
+    "system DNS proxy installation",
+    "OS permission elevation",
+    "enforcement command publication",
+    "decrypted payload or page content inspection",
+    "exact URL claim from network-only evidence"
+  ]
+}

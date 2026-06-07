@@ -1,0 +1,31 @@
+{
+  "requiredRefs": [
+    "policy-decision-ref",
+    "parent-rule-ref",
+    "evidence-refs",
+    "target-ref",
+    "firewall-rule-ref",
+    "adapter-authorization-ref",
+    "adapter-capability-proof-ref",
+    "apply-artifact-ref",
+    "result-artifact-ref",
+    "rollback-artifact-ref",
+    "audit-event-ref"
+  ],
+  "applyReadyState": "grade A block policy plus supported Windows Firewall capability and all apply/result/rollback/audit refs",
+  "dryRunState": "non-executable and allowed without adapter artifacts",
+  "manualRequiredState": "weak evidence, parent-review policy, manual capability, missing artifact refs, or non-block policy action",
+  "unavailableState": "non-executable capability-unavailable state",
+  "unsupportedClaimsRejected": [
+    "exact URL",
+    "decrypted payload",
+    "page content",
+    "host firewall mutation"
+  ],
+  "rejectedCommandInvocations": [
+    "netsh",
+    "PowerShell"
+  ],
+  "hostFirewallMutationClaim": false,
+  "enforcementCommandPublished": false
+}

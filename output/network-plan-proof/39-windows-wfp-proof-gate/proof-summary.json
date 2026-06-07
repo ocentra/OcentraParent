@@ -1,0 +1,51 @@
+{
+  "proof": "network-windows-wfp-proof-gate",
+  "checkedAt": "2026-06-07T02:37:39.107Z",
+  "branch": "codex/network-adapter-gate-proof-artifacts",
+  "sourceCommit": "6c034aa2a1071380eb311c919cc9fabfaab01a3d",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
+  "originMain": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "mergeBase": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\39-windows-wfp-proof-gate",
+  "testRoot": "test-results\\network-windows-wfp-proof-gate",
+  "commands": [
+    {
+      "name": "network-windows-wfp-gate-tests",
+      "command": "cargo test -p ocentra-network-evidence windows_wfp_gate",
+      "status": 0,
+      "log": "output\\network-plan-proof\\39-windows-wfp-proof-gate\\windows-wfp-gate-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\39-windows-wfp-proof-gate\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\39-windows-wfp-proof-gate\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedWindowsWfpProofGate": "output\\network-plan-proof\\39-windows-wfp-proof-gate\\expected-windows-wfp-proof-gate.json",
+    "proofSummary": "output\\network-plan-proof\\39-windows-wfp-proof-gate\\proof-summary.json",
+    "testProof": "test-results\\network-windows-wfp-proof-gate\\proof.json"
+  },
+  "provenRows": [
+    "39 Windows WFP research/proof gate"
+  ],
+  "notClaimed": [
+    "live WFP driver installation",
+    "WFP callout registration",
+    "packet blocking",
+    "kernel payload inspection",
+    "OS permission elevation",
+    "adapter action authorization",
+    "enforcement command publication",
+    "decrypted payload or page content inspection",
+    "exact URL claim from network-only evidence"
+  ]
+}
