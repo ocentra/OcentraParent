@@ -66,6 +66,9 @@ service shell.
   event type, correlation id, durable refs, receipt refs, and local receipt-ack
   refs and rejecting duplicate durable envelopes without dispatching transport
   or claiming remote acknowledgements.
+- Screen event runtime helpers for successful, capture/queue-only,
+  deletion-only, and degraded AI paths through `ocentra-eventing`, preserving
+  no-raw-image custody and keeping degraded paths out of policy/action refs.
 
 ## Must Not Own
 
@@ -128,3 +131,5 @@ flowchart LR
   broker/family-hub dispatch, remote acknowledgements, provider/child-device
   delivery, retry execution, remote delete/export propagation, and product-ready
   remote delivery remain separate gaps.
+- Screen event runtime helpers are local in-process proof paths; live
+  cross-process/LAN transport and broad adapter execution remain separate gaps.

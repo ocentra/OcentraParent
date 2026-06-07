@@ -48,12 +48,21 @@ async function main() {
       'screen.deletion.committed',
       'screen.portal-read-model.updated',
     ],
+    degradedEventChain: [
+      'screen.capture.observed',
+      'screen.queue.encrypted',
+      'screen.ai.analysis.requested',
+      'screen.ai.analysis.completed',
+      'screen.deletion.committed',
+      'screen.portal-read-model.updated',
+    ],
     rejectionCases: ['raw-image-retained', 'missing-policy-decision'],
     claimsProved: [
       'service Activity Screen read-model rows map into the existing ScreenRuntimeInput contract',
       'service rows publish the ordered typed screen event chain through the reusable core screen runtime',
       'raw-image retained rows are rejected before event publication',
       'rows without policy decision refs are rejected before event publication',
+      'degraded AI rows publish capture, queue, AI, deletion, and portal events without policy or action refs',
       'the bridge reuses the existing core event path and does not create a duplicate eventing spine',
     ],
     claimsNotProved: [
@@ -91,7 +100,17 @@ async function assertSourceContracts() {
   );
   assertIncludes(serviceMain, 'mod screen_ai_service_event_bridge;', 'service bridge module is registered');
   assertIncludes(serviceBridge, 'screen_runtime_input_from_service_row', 'service row maps to screen runtime input');
+  assertIncludes(
+    serviceBridge,
+    'screen_runtime_degraded_input_from_service_row',
+    'service row maps to degraded runtime input'
+  );
   assertIncludes(serviceBridge, 'publish_screen_runtime_chain_for_input', 'bridge reuses core screen runtime chain');
+  assertIncludes(
+    serviceBridge,
+    'publish_screen_degraded_event_chain_for_input',
+    'bridge reuses core degraded runtime chain'
+  );
   assertIncludes(serviceBridge, 'RawImageRetained', 'bridge rejects raw retention');
   assertIncludes(serviceBridge, 'MissingPolicyDecision', 'bridge rejects missing policy');
   assertIncludes(
@@ -99,6 +118,7 @@ async function assertSourceContracts() {
     'publishes_ordered_chain_from_service_read_model_row',
     'tests prove ordered chain publication'
   );
+  assertIncludes(serviceBridgeTests, 'publishes_degraded_ai_event_path', 'tests prove degraded event publication');
   assertIncludes(screenChecklist, 'Screen service event bridge', 'screen checklist names service event bridge proof');
   assertIncludes(
     screenFeature,
@@ -116,6 +136,7 @@ function screenProof(proof) {
     commit: proof.commit,
     commands: proof.commands,
     eventChain: proof.eventChain,
+    degradedEventChain: proof.degradedEventChain,
     rejectionCases: proof.rejectionCases,
     claimsProved: proof.claimsProved,
     claimsNotProved: proof.claimsNotProved,
@@ -131,6 +152,7 @@ function pipelineProof(proof) {
     commit: proof.commit,
     commands: proof.commands,
     eventChain: proof.eventChain,
+    degradedEventChain: proof.degradedEventChain,
     claimsProved: proof.claimsProved.filter(
       (claim) => claim.includes('service') || claim.includes('event') || claim.includes('core')
     ),

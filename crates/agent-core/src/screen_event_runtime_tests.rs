@@ -1,9 +1,10 @@
 use ocentra_parent_agent_protocol::constants;
 
 use super::{
-    publish_screen_capture_queue_events_for_input, publish_screen_deletion_event_for_input,
-    publish_screen_runtime_chain_for_input, ScreenActionState, ScreenAiAuditState,
-    ScreenDeletionState, ScreenEvidenceScope, ScreenPolicyState, ScreenRuntimeCaptureInput,
+    publish_screen_capture_queue_events_for_input, publish_screen_degraded_event_chain_for_input,
+    publish_screen_deletion_event_for_input, publish_screen_runtime_chain_for_input,
+    ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
+    ScreenPolicyState, ScreenRuntimeCaptureInput, ScreenRuntimeDegradedInput,
     ScreenRuntimeDeletionInput, ScreenRuntimeEventPayload, ScreenRuntimeInput, ScreenRuntimePhase,
     ScreenRuntimeReport,
 };
@@ -114,6 +115,55 @@ async fn screen_deletion_event_publishes_without_policy_or_action_claims() {
     assert_eq!(
         payloads[0].evidence_scope,
         ScreenEvidenceScope::DeletedQueryStoreSummary
+    );
+    assert!(!report.raw_image_escaped());
+}
+
+#[tokio::test]
+async fn screen_degraded_event_chain_publishes_without_policy_or_action_claims() {
+    let report = publish_screen_degraded_event_chain_for_input(
+        ScreenRuntimeDegradedInput::proof_fixture(),
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    )
+    .await
+    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    let payloads = decode_payloads(&report);
+    let phases = payloads
+        .iter()
+        .map(|payload| payload.phase)
+        .collect::<Vec<_>>();
+
+    assert_eq!(
+        phases,
+        vec![
+            ScreenRuntimePhase::CaptureObserved,
+            ScreenRuntimePhase::QueueEncrypted,
+            ScreenRuntimePhase::AiAnalysisRequested,
+            ScreenRuntimePhase::AiAnalysisCompleted,
+            ScreenRuntimePhase::DeletionCommitted,
+            ScreenRuntimePhase::PortalReadModelUpdated,
+        ]
+    );
+    assert!(report.dead_letters.is_empty());
+    assert!(payloads.iter().all(|payload| {
+        payload.policy_decision_ref.is_none()
+            && payload.policy_action.is_none()
+            && payload.parent_rule_ref.is_none()
+            && payload.action_ref.is_none()
+            && payload.policy_state == ScreenPolicyState::NotReady
+            && payload.action_state == ScreenActionState::NotReady
+    }));
+    let ai_completed = payload_for_phase(&payloads, ScreenRuntimePhase::AiAnalysisCompleted);
+    assert_eq!(ai_completed.ai_audit_state, ScreenAiAuditState::Completed);
+    assert_eq!(
+        ai_completed.deletion_proof_ref,
+        Some(constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string())
+    );
+    let portal = payload_for_phase(&payloads, ScreenRuntimePhase::PortalReadModelUpdated);
+    assert_eq!(portal.deletion_state, ScreenDeletionState::Committed);
+    assert_eq!(
+        portal.portal_read_model_ref,
+        Some(constants::screen_flow::TEST_SCREEN_PORTAL_READ_MODEL_REF.to_string())
     );
     assert!(!report.raw_image_escaped());
 }
