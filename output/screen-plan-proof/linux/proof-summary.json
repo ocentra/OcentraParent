@@ -1,0 +1,180 @@
+{
+  "proof": "screen-linux-capture-capability-proof",
+  "generatedAt": "2026-06-07T16:45:01.093Z",
+  "claim": "Linux WSLg/X11 selected-window proof exists, but native Linux root-display and Wayland/PipeWire portal parity remain blocked before product readiness.",
+  "linuxDocsVerified": [
+    {
+      "ref": "xdg-desktop-portal-screencast",
+      "url": "https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.ScreenCast.html",
+      "summary": "The XDG Desktop Portal ScreenCast interface opens PipeWire streams for selected monitor/window capture through a portal-mediated session."
+    },
+    {
+      "ref": "imagemagick-import-x-server",
+      "url": "https://imagemagick.org/script/import.php",
+      "summary": "ImageMagick import captures an X server screen or selected X11 window, matching the X11 command backend boundary."
+    }
+  ],
+  "existingWslgProof": {
+    "path": "output/screen-plan-proof/linux-wslg/proof-summary.json",
+    "display": ":0",
+    "waylandDisplay": "wayland-0",
+    "selectedWindowCaptured": true,
+    "selectedWindowScope": "selectedWindow",
+    "rawImageDeleted": true,
+    "degradedIsCaptureProof": false
+  },
+  "rows": [
+    {
+      "mode": "wslgX11SelectedWindow",
+      "captureState": "provedWslgSelectedWindow",
+      "proofState": "x11WslgVerified",
+      "compositor": "wslgX11",
+      "x11CommandBackendRequired": true,
+      "waylandPortalRequired": false,
+      "pipeWireRequired": false,
+      "userMediatedSelectionRequired": false,
+      "rootDisplayClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productLinuxCaptureReady": false,
+      "wslgProofRef": "output/screen-plan-proof/linux-wslg/proof-summary.json",
+      "nativeSessionProofRef": null,
+      "deletionProofRef": "output/screen-plan-proof/linux-wslg/proof-summary.json"
+    },
+    {
+      "mode": "nativeX11SelectedWindow",
+      "captureState": "manualRequired",
+      "proofState": "nativeSessionMissing",
+      "compositor": "nativeX11",
+      "x11CommandBackendRequired": true,
+      "waylandPortalRequired": false,
+      "pipeWireRequired": false,
+      "userMediatedSelectionRequired": false,
+      "rootDisplayClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productLinuxCaptureReady": false,
+      "wslgProofRef": null,
+      "nativeSessionProofRef": null,
+      "deletionProofRef": null
+    },
+    {
+      "mode": "nativeX11RootDisplay",
+      "captureState": "manualRequired",
+      "proofState": "nativeSessionMissing",
+      "compositor": "nativeX11",
+      "x11CommandBackendRequired": true,
+      "waylandPortalRequired": false,
+      "pipeWireRequired": false,
+      "userMediatedSelectionRequired": false,
+      "rootDisplayClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productLinuxCaptureReady": false,
+      "wslgProofRef": null,
+      "nativeSessionProofRef": null,
+      "deletionProofRef": null
+    },
+    {
+      "mode": "waylandPortalPipeWire",
+      "captureState": "manualRequired",
+      "proofState": "nativeSessionMissing",
+      "compositor": "gnomeWayland",
+      "x11CommandBackendRequired": false,
+      "waylandPortalRequired": true,
+      "pipeWireRequired": true,
+      "userMediatedSelectionRequired": true,
+      "rootDisplayClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productLinuxCaptureReady": false,
+      "wslgProofRef": null,
+      "nativeSessionProofRef": null,
+      "deletionProofRef": null
+    },
+    {
+      "mode": "waylandPortalPipeWire",
+      "captureState": "manualRequired",
+      "proofState": "nativeSessionMissing",
+      "compositor": "kdeWayland",
+      "x11CommandBackendRequired": false,
+      "waylandPortalRequired": true,
+      "pipeWireRequired": true,
+      "userMediatedSelectionRequired": true,
+      "rootDisplayClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productLinuxCaptureReady": false,
+      "wslgProofRef": null,
+      "nativeSessionProofRef": null,
+      "deletionProofRef": null
+    },
+    {
+      "mode": "waylandPortalPipeWire",
+      "captureState": "manualRequired",
+      "proofState": "nativeSessionMissing",
+      "compositor": "wlrootsWayland",
+      "x11CommandBackendRequired": false,
+      "waylandPortalRequired": true,
+      "pipeWireRequired": true,
+      "userMediatedSelectionRequired": true,
+      "rootDisplayClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productLinuxCaptureReady": false,
+      "wslgProofRef": null,
+      "nativeSessionProofRef": null,
+      "deletionProofRef": null
+    },
+    {
+      "mode": "unsupportedCompositor",
+      "captureState": "unsupported",
+      "proofState": "sourceDocsVerified",
+      "compositor": "unsupported",
+      "x11CommandBackendRequired": false,
+      "waylandPortalRequired": false,
+      "pipeWireRequired": false,
+      "userMediatedSelectionRequired": false,
+      "rootDisplayClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productLinuxCaptureReady": false,
+      "wslgProofRef": null,
+      "nativeSessionProofRef": null,
+      "deletionProofRef": null
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "native readiness requires native session proof",
+      "rejected": true
+    },
+    {
+      "name": "root-display capture is not claimed by the WSLg proof",
+      "rejected": true
+    },
+    {
+      "name": "raw frame remote upload remains forbidden",
+      "rejected": true
+    },
+    {
+      "name": "Wayland rows require PipeWire portal proof",
+      "rejected": true
+    }
+  ],
+  "gapStatus": {
+    "wslgX11SelectedWindowProofExists": true,
+    "nativeX11SelectedWindowProofExists": false,
+    "nativeX11RootDisplayProofExists": false,
+    "nativeWaylandPipeWireProofExists": false,
+    "productLinuxCaptureReady": false
+  },
+  "artifacts": {
+    "summary": "output/screen-plan-proof/linux/proof-summary.json"
+  },
+  "nonClaims": [
+    "This proof does not claim native Linux root-display capture.",
+    "This proof does not claim native Wayland/PipeWire portal capture execution.",
+    "This proof does not enable raw remote upload or raw-retention-by-default."
+  ]
+}

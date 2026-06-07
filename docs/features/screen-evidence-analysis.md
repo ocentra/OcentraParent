@@ -164,6 +164,14 @@ only with explicit parent settings.
   proof captures a real X11 selected window with encrypted custody and raw
   deletion. macOS live capture proof still requires platform execution evidence
   before parity is claimed.
+- `ScreenLinuxCaptureCapabilityProofSchema` and
+  `scripts/test/screen-linux-capture-capability-proof.mjs` add the Linux
+  readiness gate: the proof consumes the retained WSLg/X11 selected-window
+  artifact, records current XDG Desktop Portal ScreenCast/PipeWire and
+  ImageMagick X server capture source boundaries, and keeps native X11
+  root-display, native Wayland GNOME/KDE/wlroots, unknown Wayland, unsupported
+  compositor, raw remote upload, and raw-retention-by-default states blocked
+  until native session proof plus deletion proof exists.
 - The screen-capture adapter crate now has a Rust trigger scheduler proof for
   parent-enabled managed-browser trigger inputs, native app foreground trigger
   inputs, cadence-due decisions, debounce, and disabled-parent suppression. The
