@@ -55,7 +55,7 @@ const workpacks = [
     label: 'OCR Tesseract baseline',
     status: workpackStatus('34 OCR Tesseract baseline'),
     requiredProof: 'output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json',
-    gate: 'Local Tesseract extraction is proved; CPU/memory measurement, failure-mode capture, and PaddleOCR comparison remain open.',
+    gate: 'Local Tesseract extraction, CPU/memory measurement, and derived failure-mode capture are proved; PaddleOCR comparison remains open.',
   },
   {
     id: '35',
@@ -131,7 +131,7 @@ const summary = {
     noProductCompleteClaim: true,
   },
   nonClaims: [
-    'This audit does not complete macOS, Linux, Android parity, iOS, live-view transport, Tesseract CPU/memory/failure-mode comparison, PaddleOCR runtime error resolution/quality comparison, or live VLM provider/runtime quality gates.',
+    'This audit does not complete macOS, Linux, Android parity, iOS, live-view transport, PaddleOCR runtime error resolution/quality comparison, or live VLM provider/runtime quality gates.',
     'This audit does not replace real device/runtime proof for remaining partial rows.',
     'This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied.',
   ],
