@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 const proofRoot = join('output', 'network-plan-proof', '25-remote-torrent-download-classifier');
 const testRoot = join('test-results', 'network-remote-torrent-download-classifier-proof');
+const sourceStatusExcludes = [proofRoot, testRoot];
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 
@@ -64,8 +65,11 @@ const proof = {
   proof: 'network-remote-torrent-download-classifier',
   checkedAt: new Date().toISOString(),
   branch: runText('git', ['branch', '--show-current']).trim(),
-  commit: runText('git', ['rev-parse', 'HEAD']).trim(),
-  statusShort: runText('git', ['status', '--short']),
+  sourceCommit: runText('git', ['rev-parse', 'HEAD']).trim(),
+  artifactCommit: 'see the enclosing git commit for generated proof artifacts',
+  originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
+  mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
+  sourceStatusShort: sourceStatusShort(),
   proofRoot,
   testRoot,
   commands: commandResults,
@@ -107,4 +111,14 @@ function runText(command, args) {
     throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}`);
   }
   return `${result.stdout ?? ''}${result.stderr ?? ''}`;
+}
+
+function sourceStatusShort() {
+  return runText('git', [
+    'status',
+    '--short',
+    '--',
+    '.',
+    ...sourceStatusExcludes.map((path) => `:(exclude)${path.replaceAll('\\', '/')}`),
+  ]);
 }
