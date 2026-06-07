@@ -166,6 +166,16 @@ gap remains real external runtime writer transport delivery, child delivery,
 provider/store execution, portal approval/report UI, and platform adapter proof
 before any app-install product claim can be upgraded.
 
+External runtime transport queue proof now consumes delivery blocker rows into
+parent-owned queue and dispatch-guard entries, and external runtime transport
+dispatch preflight proof converts those queue rows into withheld dispatch
+packets. Dispatch stays blocked or manual-required until external writer
+transport handler, provider/store execution handler, platform adapter execution
+handler, and child-device transport receipt proof refs are real. External
+runtime writer execution/delivery, provider/store execution, platform adapters,
+child-device delivery, runtime report delivery, app blocking, child activity
+data, and hosted custody remain unclaimed.
+
 Windows package-source adapter evidence proof now links platform adapter
 evidence gap rows and package-source adapter execution rows to a local Windows
 host command probe artifact for package-source inspection readiness. The proof

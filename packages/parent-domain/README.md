@@ -274,6 +274,14 @@ mobile readiness, and control catalogs.
   adapter proof refs while keeping dispatch blocked and no external writer,
   child-device delivery, provider/store, platform adapter, app blocking, child
   activity data, or hosted custody claims unimplemented.
+- App install/purchase external runtime transport dispatch preflight proof
+  contracts that consume transport queue rows into parent-owned withheld
+  dispatch packets. They preserve the required external writer transport
+  handler, provider/store execution handler, platform adapter execution handler,
+  and child-device transport receipt proof refs while keeping packets withheld
+  and no external writer, child-device delivery, provider/store, platform
+  adapter, app blocking, child activity data, or hosted custody claims
+  implemented.
 - App install/purchase runtime report writer delivery proof contracts that link
   runtime writer execution delivery receipts and report-runtime compiler output
   rows into parent-owned report delivery-ready rows and report receipts while
@@ -443,16 +451,17 @@ flowchart LR
   readiness, external runtime delivery handoff proof, external runtime writer
   transport preflight proof, external runtime writer delivery boundary proof,
   external runtime writer delivery blocker proof, external runtime transport
-  queue proof, and runtime report writer delivery proof; Windows package-source
-  adapter evidence proof now records sanitized local host command evidence for
-  the Windows row without claiming Microsoft Store/provider execution or a
+  queue proof, external runtime transport dispatch preflight proof, and runtime
+  report writer delivery proof; Windows package-source adapter evidence proof
+  now records sanitized local host command evidence for the Windows row without
+  claiming Microsoft Store/provider execution or a
   production platform adapter;
   platform/store provider execution, actual provider contact, actual platform
   adapters, production child-device package capture, production package-source
   capture adapter execution,
   runtime status reader, child delivery, portal UX, external runtime writer
-  device delivery, external runtime transport dispatch, parent action runtime
-  delivery, and external report runtime delivery remain unimplemented.
+  device delivery, external runtime transport dispatch execution, parent action
+  runtime delivery, and external report runtime delivery remain unimplemented.
 - Billing/subscription provider integration, account backend, entitlement
   signing/delivery runtime, provider-contact execution, entitlement admin
   override runtime, refund/credit runtime, portal billing/admin UI, support
