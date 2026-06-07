@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T02:52:17.270Z",
+  "generatedAt": "2026-06-07T03:03:27.677Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -125,7 +125,7 @@
       "status": "~",
       "requiredProof": "output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json",
       "proofPresent": true,
-      "gate": "Current proof is local VLM readiness/manual-required only; no live VLM runtime or quality measurement claim."
+      "gate": "Current proof is local VLM contract/readiness plus provider-command probe only; local provider commands are unavailable on PATH and no live VLM runtime or quality measurement is claimed."
     }
   ],
   "currentWindowsEvidence": [
@@ -153,7 +153,7 @@
     "noProductCompleteClaim": true
   },
   "nonClaims": [
-    "This audit does not complete macOS, Linux, Android parity, iOS, live-view transport, Tesseract CPU/memory/failure-mode comparison, PaddleOCR runtime error resolution/quality comparison, or live VLM quality gates.",
+    "This audit does not complete macOS, Linux, Android parity, iOS, live-view transport, Tesseract CPU/memory/failure-mode comparison, PaddleOCR runtime error resolution/quality comparison, or live VLM provider/runtime quality gates.",
     "This audit does not replace real device/runtime proof for remaining partial rows.",
     "This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied."
   ]
