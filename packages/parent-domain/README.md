@@ -255,6 +255,14 @@ mobile readiness, and control catalogs.
   product claims, provider/store execution, portal approval/report UI,
   child-device delivery, app blocking, child activity data, and Ocentra-hosted
   family data custody unclaimed.
+- App install/purchase Windows package-source adapter evidence proof contracts
+  that consume platform adapter evidence gap rows and package-source adapter
+  execution rows, attach sanitized Windows host command evidence when available,
+  keep the Windows row manual-required when the host command/API is absent, and
+  preserve no Microsoft Store execution, provider/store execution, store
+  integration, platform interception, production platform adapter, child-device
+  delivery, portal approval/report UI, app blocking, child activity data, or
+  hosted custody claims.
 - App install/purchase package-source capture status proof contracts that link
   child package-source artifact refs and store status handoff rows to captured,
   blocked, manual-required, and unavailable capture rows with artifact, audit,
@@ -369,7 +377,10 @@ flowchart LR
   delivery runtime writer proof, adapter execution proof, and parent action
   delivery readiness proof plus provider/store execution readiness and
   approval/report domain proofs plus runtime writer execution delivery proof
-  and runtime report writer delivery proof;
+  and runtime report writer delivery proof; Windows package-source adapter
+  evidence proof now records sanitized local host command evidence for the
+  Windows row without claiming Microsoft Store/provider execution or a
+  production platform adapter;
   platform/store provider execution, actual provider contact, actual platform
   adapters, production child-device package capture, production package-source
   capture adapter execution,

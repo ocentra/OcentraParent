@@ -127,6 +127,16 @@ unclaimed. The next gap remains real external runtime writer device delivery,
 child delivery, provider/store execution, portal approval/report UI, and
 platform adapter proof before any app-install product claim can be upgraded.
 
+Windows package-source adapter evidence proof now links platform adapter
+evidence gap rows and package-source adapter execution rows to a local Windows
+host command probe artifact for package-source inspection readiness. The proof
+keeps macOS manual-required, Linux unavailable, Android/iOS blocked-before-claim,
+and provider/store execution, store integration, production platform adapters,
+child-device delivery, portal approval/report UI, app blocking, child activity
+data, and hosted custody unclaimed; the next gap remains real platform adapter
+implementation/evidence, provider/store execution, child delivery, and portal
+approval/report UI before any app-install product claim can be upgraded.
+
 ## Multi-Device, Remote, And Platforms
 
 | Capability                       | Status                        | Expectation docs                                                                                                                | Current proof                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Next gap                                                                                                                                                                                                                                               |
