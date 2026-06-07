@@ -69,7 +69,7 @@ const workpacks = [
     label: 'Small VLM guided classifier evaluation',
     status: workpackStatus('36 Small VLM guided classifier evaluation'),
     requiredProof: 'output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json',
-    gate: 'Current proof is local VLM readiness/manual-required only; no live VLM runtime or quality measurement claim.',
+    gate: 'Current proof is local VLM contract/readiness plus provider-command probe only; local provider commands are unavailable on PATH and no live VLM runtime or quality measurement is claimed.',
   },
 ];
 
@@ -131,7 +131,7 @@ const summary = {
     noProductCompleteClaim: true,
   },
   nonClaims: [
-    'This audit does not complete macOS, Linux, Android parity, iOS, live-view transport, Tesseract CPU/memory/failure-mode comparison, PaddleOCR runtime error resolution/quality comparison, or live VLM quality gates.',
+    'This audit does not complete macOS, Linux, Android parity, iOS, live-view transport, Tesseract CPU/memory/failure-mode comparison, PaddleOCR runtime error resolution/quality comparison, or live VLM provider/runtime quality gates.',
     'This audit does not replace real device/runtime proof for remaining partial rows.',
     'This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied.',
   ],
