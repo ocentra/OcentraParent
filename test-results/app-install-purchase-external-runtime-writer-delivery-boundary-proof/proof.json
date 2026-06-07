@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-07T10:45:00.000Z",
+  "commitMetadataState": "omitted-for-deterministic-proof-artifact",
+  "proofMode": "app-install-purchase-external-runtime-writer-delivery-boundary-proof",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/schema-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-external-runtime-writer-delivery-boundary-proof.test.ts",
+      "exitCode": 0
+    }
+  ],
+  "packageExportState": "validated-via-public-parent-domain-subpath-export",
+  "checklistState": "updated-app-install-purchase-approval-row",
+  "evidence": {
+    "externalRuntimeWriterDeliveryBoundaryContract": "packages/parent-domain/src/app-install-purchase-external-runtime-writer-delivery-boundary-proof.ts",
+    "sourceExternalRuntimeDeliveryHandoffContract": "packages/parent-domain/src/app-install-purchase-external-runtime-delivery-handoff-proof.ts",
+    "contractTest": "packages/parent-domain/tests/app-install-purchase-external-runtime-writer-delivery-boundary-proof.test.ts",
+    "featureDoc": "docs/features/app-install-purchase-approval.md",
+    "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
+    "platformExpectationDoc": "docs/expectations/platforms.md",
+    "packageExport": "@ocentra-parent/parent-domain/app-install-purchase-external-runtime-writer-delivery-boundary-proof",
+    "packageReadme": "packages/parent-domain/README.md",
+    "checklistRow": "docs/product-capability-checklist.md row Install/purchase approval",
+    "output": "test-results\\app-install-purchase-external-runtime-writer-delivery-boundary-proof\\proof.json"
+  },
+  "externalRuntimeWriterDeliveryBoundarySummary": {
+    "externalRuntimeWriterDeliveryBoundaryRows": 4,
+    "prerequisiteReadyRows": 3,
+    "manualRequiredRows": 1,
+    "externalRuntimeWriterDeliveredRows": 0,
+    "childDeviceDeliveredRows": 0
+  },
+  "externalRuntimeWriterDeliveryBoundaryRows": [
+    {
+      "sourceDecisionAction": "approve",
+      "sourceExternalRuntimeDeliveryHandoffRowId": "external-runtime-delivery-handoff-approve",
+      "sourceExternalRuntimeDeliveryHandoffState": "handoff-packet-ready",
+      "sourceExternalRuntimeHandoffPacketRef": "parent-owned-external-runtime-handoff-packet-approve",
+      "sourceExternalRuntimeWriterQueueRef": "parent-owned-external-runtime-writer-queue-approve",
+      "sourceExternalRuntimeWriterDispatchAuditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "package-source-capture-windows-microsoft-store-audit-ref",
+        "package-source-capture-macos-mac-app-store-audit-ref",
+        "package-source-capture-linux-linux-package-manager-audit-ref",
+        "package-source-capture-android-google-play-audit-ref",
+        "package-source-capture-ios-apple-app-store-audit-ref"
+      ],
+      "sourceReportRuntimeRefs": [
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report",
+        "parent-owned-storage-report-output-ref"
+      ],
+      "externalRuntimeWriterDeliveryBoundaryState": "runtime-writer-delivery-prerequisites-ready",
+      "requiredExternalWriterTransportProofRefs": [
+        "external-writer-transport-proof-approve"
+      ],
+      "requiredPlatformAdapterProofRefs": [
+        "platform-adapter-proof-approve"
+      ],
+      "requiredProviderStoreProofRefs": [
+        "provider-store-execution-proof-approve"
+      ],
+      "requiredChildDeviceDeliveryProofRefs": [
+        "child-device-delivery-proof-approve"
+      ],
+      "externalRuntimeWriterDeliveryReadinessAuditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "package-source-capture-windows-microsoft-store-audit-ref",
+        "package-source-capture-macos-mac-app-store-audit-ref",
+        "package-source-capture-linux-linux-package-manager-audit-ref",
+        "package-source-capture-android-google-play-audit-ref",
+        "package-source-capture-ios-apple-app-store-audit-ref",
+        "external-runtime-writer-delivery-boundary-audit-approve"
+      ],
+      "externalRuntimeWriterExecutionClaim": "not-executed",
+      "externalRuntimeWriterDeliveryClaim": "not-delivered",
+      "parentActionRuntimeDeliveryClaim": "not-delivered",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "external runtime writer delivery boundary proof only; required external writer transport proof refs platform adapter proof refs provider store proof refs and child-device delivery proof refs are recorded no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody"
+    },
+    {
+      "sourceDecisionAction": "deny",
+      "sourceExternalRuntimeDeliveryHandoffRowId": "external-runtime-delivery-handoff-deny",
+      "sourceExternalRuntimeDeliveryHandoffState": "handoff-packet-ready",
+      "sourceExternalRuntimeHandoffPacketRef": "parent-owned-external-runtime-handoff-packet-deny",
+      "sourceExternalRuntimeWriterQueueRef": "parent-owned-external-runtime-writer-queue-deny",
+      "sourceExternalRuntimeWriterDispatchAuditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "package-source-capture-windows-microsoft-store-audit-ref",
+        "package-source-capture-macos-mac-app-store-audit-ref",
+        "package-source-capture-linux-linux-package-manager-audit-ref",
+        "package-source-capture-android-google-play-audit-ref",
+        "package-source-capture-ios-apple-app-store-audit-ref"
+      ],
+      "sourceReportRuntimeRefs": [
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report",
+        "parent-owned-storage-report-output-ref"
+      ],
+      "externalRuntimeWriterDeliveryBoundaryState": "runtime-writer-delivery-prerequisites-ready",
+      "requiredExternalWriterTransportProofRefs": [
+        "external-writer-transport-proof-deny"
+      ],
+      "requiredPlatformAdapterProofRefs": [
+        "platform-adapter-proof-deny"
+      ],
+      "requiredProviderStoreProofRefs": [
+        "provider-store-execution-proof-deny"
+      ],
+      "requiredChildDeviceDeliveryProofRefs": [
+        "child-device-delivery-proof-deny"
+      ],
+      "externalRuntimeWriterDeliveryReadinessAuditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "package-source-capture-windows-microsoft-store-audit-ref",
+        "package-source-capture-macos-mac-app-store-audit-ref",
+        "package-source-capture-linux-linux-package-manager-audit-ref",
+        "package-source-capture-android-google-play-audit-ref",
+        "package-source-capture-ios-apple-app-store-audit-ref",
+        "external-runtime-writer-delivery-boundary-audit-deny"
+      ],
+      "externalRuntimeWriterExecutionClaim": "not-executed",
+      "externalRuntimeWriterDeliveryClaim": "not-delivered",
+      "parentActionRuntimeDeliveryClaim": "not-delivered",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "external runtime writer delivery boundary proof only; required external writer transport proof refs platform adapter proof refs provider store proof refs and child-device delivery proof refs are recorded no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody"
+    },
+    {
+      "sourceDecisionAction": "time-box",
+      "sourceExternalRuntimeDeliveryHandoffRowId": "external-runtime-delivery-handoff-time-box",
+      "sourceExternalRuntimeDeliveryHandoffState": "handoff-packet-ready",
+      "sourceExternalRuntimeHandoffPacketRef": "parent-owned-external-runtime-handoff-packet-time-box",
+      "sourceExternalRuntimeWriterQueueRef": "parent-owned-external-runtime-writer-queue-time-box",
+      "sourceExternalRuntimeWriterDispatchAuditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "package-source-capture-windows-microsoft-store-audit-ref",
+        "package-source-capture-macos-mac-app-store-audit-ref",
+        "package-source-capture-linux-linux-package-manager-audit-ref",
+        "package-source-capture-android-google-play-audit-ref",
+        "package-source-capture-ios-apple-app-store-audit-ref"
+      ],
+      "sourceReportRuntimeRefs": [
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report",
+        "parent-owned-storage-report-output-ref"
+      ],
+      "externalRuntimeWriterDeliveryBoundaryState": "runtime-writer-delivery-prerequisites-ready",
+      "requiredExternalWriterTransportProofRefs": [
+        "external-writer-transport-proof-time-box"
+      ],
+      "requiredPlatformAdapterProofRefs": [
+        "platform-adapter-proof-time-box"
+      ],
+      "requiredProviderStoreProofRefs": [
+        "provider-store-execution-proof-time-box"
+      ],
+      "requiredChildDeviceDeliveryProofRefs": [
+        "child-device-delivery-proof-time-box"
+      ],
+      "externalRuntimeWriterDeliveryReadinessAuditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "package-source-capture-windows-microsoft-store-audit-ref",
+        "package-source-capture-macos-mac-app-store-audit-ref",
+        "package-source-capture-linux-linux-package-manager-audit-ref",
+        "package-source-capture-android-google-play-audit-ref",
+        "package-source-capture-ios-apple-app-store-audit-ref",
+        "external-runtime-writer-delivery-boundary-audit-time-box"
+      ],
+      "externalRuntimeWriterExecutionClaim": "not-executed",
+      "externalRuntimeWriterDeliveryClaim": "not-delivered",
+      "parentActionRuntimeDeliveryClaim": "not-delivered",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "external runtime writer delivery boundary proof only; required external writer transport proof refs platform adapter proof refs provider store proof refs and child-device delivery proof refs are recorded no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody"
+    },
+    {
+      "sourceDecisionAction": "review-needed",
+      "sourceExternalRuntimeDeliveryHandoffRowId": "external-runtime-delivery-handoff-review-needed",
+      "sourceExternalRuntimeDeliveryHandoffState": "manual-required",
+      "sourceExternalRuntimeHandoffPacketRef": "manual-external-runtime-handoff-packet-review-needed",
+      "sourceExternalRuntimeWriterQueueRef": "manual-external-runtime-writer-queue-review-needed",
+      "sourceExternalRuntimeWriterDispatchAuditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "package-source-capture-windows-microsoft-store-audit-ref",
+        "package-source-capture-macos-mac-app-store-audit-ref",
+        "package-source-capture-linux-linux-package-manager-audit-ref",
+        "package-source-capture-android-google-play-audit-ref",
+        "package-source-capture-ios-apple-app-store-audit-ref"
+      ],
+      "sourceReportRuntimeRefs": [
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report",
+        "parent-owned-storage-report-output-ref"
+      ],
+      "externalRuntimeWriterDeliveryBoundaryState": "manual-required",
+      "requiredExternalWriterTransportProofRefs": [
+        "external-writer-transport-proof-review-needed"
+      ],
+      "requiredPlatformAdapterProofRefs": [
+        "platform-adapter-proof-review-needed"
+      ],
+      "requiredProviderStoreProofRefs": [
+        "provider-store-execution-proof-review-needed"
+      ],
+      "requiredChildDeviceDeliveryProofRefs": [
+        "child-device-delivery-proof-review-needed"
+      ],
+      "externalRuntimeWriterDeliveryReadinessAuditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "package-source-capture-windows-microsoft-store-audit-ref",
+        "package-source-capture-macos-mac-app-store-audit-ref",
+        "package-source-capture-linux-linux-package-manager-audit-ref",
+        "package-source-capture-android-google-play-audit-ref",
+        "package-source-capture-ios-apple-app-store-audit-ref",
+        "external-runtime-writer-delivery-boundary-audit-review-needed"
+      ],
+      "externalRuntimeWriterExecutionClaim": "not-executed",
+      "externalRuntimeWriterDeliveryClaim": "not-delivered",
+      "parentActionRuntimeDeliveryClaim": "not-delivered",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "external runtime writer delivery boundary proof only; required external writer transport proof refs platform adapter proof refs provider store proof refs and child-device delivery proof refs are recorded no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody"
+    }
+  ],
+  "nonClaims": [
+    "no-external-runtime-writer-execution",
+    "no-external-runtime-writer-delivery",
+    "no-parent-action-runtime-delivery",
+    "no-provider-api-execution",
+    "no-store-integration",
+    "no-platform-interception",
+    "no-platform-adapter-implementation",
+    "no-child-device-delivery",
+    "no-runtime-report-delivery",
+    "no-real-install-or-purchase-interception",
+    "no-app-blocking",
+    "no-child-activity-data",
+    "no-ocentra-hosted-family-data-custody"
+  ],
+  "knownGaps": [
+    "External runtime writer delivery boundary rows record required external writer transport, platform adapter, provider/store, and child-device delivery proof refs only; no external runtime writer execution or delivery is implemented.",
+    "Parent action runtime delivery, provider/store execution, store integration, platform interception/adapters, child-device delivery, runtime report delivery, app blocking, child activity data, and Ocentra-hosted family custody remain unimplemented.",
+    "Review-needed remains manual-required until portal approval UI, external runtime writer delivery, platform/provider/store adapters, and child delivery transport exist."
+  ]
+}
