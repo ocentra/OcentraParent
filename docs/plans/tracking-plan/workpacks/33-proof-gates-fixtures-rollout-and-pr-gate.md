@@ -70,6 +70,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `48-authority-enrollment-manual-required-proof.json`
 - Physical-device artifact gate proof:
   `49-physical-device-artifact-gate-proof.json`
+- Provider-delivery artifact gate proof:
+  `51-provider-delivery-artifact-gate-proof.json`
 - Hosted parent route screenshot/accessibility proof:
   `18-hosted-ui-accessibility-proof.json`
 - Evidence quality gate proof:
@@ -221,6 +223,19 @@ platform screenshot/proof, all current hosted accessibility assertions, and
 no-overlap layout geometry while keeping full parent/child UI, child-device
 runtime, physical-device, authority, provider delivery, production, and
 product-ready tracking unclaimed.
+
+This branch adds
+`node scripts/test/tracking-provider-delivery-artifact-gate-proof.mjs`, which
+writes WP26/WP33 provider-delivery artifact gate proof to
+`output/tracking-plan-proof/26-alert-severity-and-notification-model/29-provider-delivery-artifact-gate-proof.json`,
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/51-provider-delivery-artifact-gate-proof.json`,
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/51-provider-delivery-artifact-gate-validation-commands.log`,
+and `test-results/tracking-provider-delivery-artifact-gate-proof/proof.json`.
+It records the required provider-runtime artifact names before delivery can be
+claimed while keeping provider delivery, webhook receipt ingestion, provider
+credentials, adapter dispatch, retry/quiet-hours runtime, production durable
+outbox storage, child-device delivery, physical-device behavior, authority,
+and product-ready tracking unclaimed.
 
 This branch adds `npm run test:tracking-plan-evidence-quality-gate-proof`,
 which validates location UI evidence refs, geofence rule/source refs,

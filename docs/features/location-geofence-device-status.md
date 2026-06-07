@@ -193,6 +193,17 @@ expose location or device-status features. Parents expect this category.
   physical-device proof, authority, provider delivery, production workers, and
   product-ready tracking unclaimed until those real child-device artifacts
   exist.
+- WP26/WP33 provider-delivery artifact gate proof now exists through
+  `node scripts/test/tracking-provider-delivery-artifact-gate-proof.mjs`. It
+  checks the provider-delivery proof root for the required real runtime
+  artifacts, including redacted runtime config, credential-presence
+  attestation, minimal payload, provider attempt/response, receipt webhook and
+  ingestion result, retry/quiet-hours worker log, parent notification UI
+  screenshot, and result summary. It writes WP26/WP33 artifacts and keeps
+  provider delivery runtime, receipt ingestion runtime, credentials, adapter
+  dispatch, retry/quiet-hours runtime, production durable outbox storage,
+  child-device delivery, physical-device proof, authority, and product-ready
+  tracking unclaimed until those real provider artifacts exist.
 - WP33 tracking product-readiness closure proof now exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`. It cites the
   current pre-device, Android emulator, iOS simulator, WSL/local, hosted UI
