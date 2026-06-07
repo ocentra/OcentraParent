@@ -16,9 +16,12 @@ use ocentra_parent_agent_protocol::{
     SCREEN_SERVICE_ANALYSIS_RUNTIME_REF, SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION,
 };
 use serde_json::{Map, Value};
-use tokio::{io::AsyncWriteExt, process::Command, time::timeout};
+use tokio::{io::AsyncWriteExt, time::timeout};
 
-use super::{queue::QueuedScreenImage, ScreenAiAnalysisRuntimeConfig};
+use super::{
+    adapter_output_fields::optional_string_array, adapter_process::adapter_process_command,
+    queue::QueuedScreenImage, ScreenAiAnalysisRuntimeConfig,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 pub(super) struct ScreenAiAnalysisAdapterOutput {
@@ -30,6 +33,8 @@ pub(super) struct ScreenAiAnalysisAdapterOutput {
     pub(super) model_runtime_ref: String,
     pub(super) model_id: String,
     pub(super) prompt_or_template_version: String,
+    pub(super) ocr_text_snippets: Vec<String>,
+    pub(super) redaction_notes: Vec<String>,
 }
 
 pub(super) async fn run_adapter(
@@ -47,7 +52,8 @@ pub(super) async fn run_adapter(
     let request_bytes =
         serde_json::to_vec(&request).expect(constants::error::AGENT_EVENT_SERIALIZES);
     let started = Instant::now();
-    let mut child = match Command::new(command)
+    let mut process = adapter_process_command(command);
+    let mut child = match process
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -172,6 +178,11 @@ pub(super) fn parsed_generation_output(
             constants::field::SCREEN_TEMPLATE_VERSION,
         )
         .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION.to_string()),
+        ocr_text_snippets: optional_string_array(
+            &parsed,
+            constants::field::SCREEN_OCR_TEXT_SNIPPETS,
+        ),
+        redaction_notes: optional_string_array(&parsed, constants::field::SCREEN_REDACTION_NOTES),
     })
 }
 

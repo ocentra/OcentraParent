@@ -1,4 +1,6 @@
 mod adapter;
+mod adapter_output_fields;
+mod adapter_process;
 #[cfg(test)]
 mod adapter_tests;
 mod config;

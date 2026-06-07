@@ -12,8 +12,12 @@ credential-like suppression, PII-like redaction, disabled OCR text state, and
 no raw text/raw image/remote AI retention. Activity Screen read-model rows now
 carry redacted OCR snippets and redaction notes, and the Screen Analysis portal
 intent renders those redacted fields while proving raw email, phone, credential,
-raw image retention, and remote AI are absent. Service persistence and a real
-service-emitted portal screenshot remain open.
+raw image retention, and remote AI are absent. The Windows service WinRT OCR
+proof now persists bounded OCR snippets and the structured `redactionNotes`
+array from adapter output into the Activity Screen read model while draining the
+encrypted queue and deleting the adapter temp image. A real service-emitted
+sensitive-redaction portal screenshot remains open because the current service
+proof uses a public Wikipedia page with no sensitive text to redact.
 
 ## Checklist
 
@@ -24,6 +28,7 @@ service-emitted portal screenshot remain open.
 - [x] Define parent-controlled text retention.
 - [x] Add security tests.
 - [x] Add portal read-model/intent proof for redacted snippets.
+- [x] Persist service-emitted OCR snippets and redaction-note shape into the Activity Screen read model.
 - [ ] Add real portal screenshot from a service-emitted redaction row.
 - [ ] Persist/apply redaction settings in the live service path.
 
@@ -32,5 +37,8 @@ service-emitted portal screenshot remain open.
 - Redaction tests.
 - `output/screen-plan-proof/19-sensitive-text-and-redaction-model/proof-summary.json`.
 - `output/screen-plan-proof/19-sensitive-text-and-redaction-model/portal-intent-proof-summary.json`.
-- Service-backed portal screenshot showing redacted/disabled snippets remains
-  open.
+- `output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json` proves
+  real service capture/OCR/read-model persistence of bounded OCR snippets and an
+  explicit redaction-note array shape without raw image retention.
+- Service-backed portal screenshot showing actually redacted/disabled sensitive
+  snippets remains open.

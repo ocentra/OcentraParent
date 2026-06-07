@@ -68,6 +68,14 @@ fn activity_store_reports_screen_summary_from_local_ai_events() {
         result.local_model_runtime_refs,
         vec![constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string()]
     );
+    assert_eq!(
+        result.ocr_text_snippets,
+        vec![constants::activity_store::TEST_SCREEN_OCR_SNIPPET_REDACTED.to_string()]
+    );
+    assert_eq!(
+        result.redaction_notes,
+        vec![constants::activity_store::TEST_SCREEN_REDACTION_NOTE_PII.to_string()]
+    );
 }
 
 #[test]
@@ -154,6 +162,20 @@ fn insert_screen_summary_core_fields(fields: &mut LogFields) {
         fields,
         constants::field::SCREEN_POLICY_ELIGIBLE,
         LogFieldValue::Boolean(true),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_OCR_TEXT_SNIPPETS,
+        LogFieldValue::String(
+            constants::activity_store::TEST_SCREEN_OCR_SNIPPET_REDACTED.to_string(),
+        ),
+    );
+    insert_log_field(
+        fields,
+        constants::field::SCREEN_REDACTION_NOTES,
+        LogFieldValue::String(
+            constants::activity_store::TEST_SCREEN_REDACTION_NOTE_PII.to_string(),
+        ),
     );
 }
 

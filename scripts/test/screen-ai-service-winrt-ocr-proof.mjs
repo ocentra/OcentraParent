@@ -47,6 +47,7 @@ const queuePath = join(queueDir, 'screen-evidence-queue.ndjson');
 const healthUrl = createAgentHealthUrl(agentPort);
 const wsUrl = createAgentWebSocketUrl(agentPort);
 const validationCommands = ['node scripts/test/screen-ai-service-winrt-ocr-proof.mjs'];
+const analysisReadModelWaitMs = 240000;
 
 if (process.platform !== 'win32') {
   throw new Error('screen-ai-service-winrt-ocr-proof requires Windows WinRT OCR and desktop capture.');
@@ -127,6 +128,8 @@ try {
       encryptedQueueDrainedAfterAnalysis: queueRecords.length === 0,
       adapterTemporaryImageDeleted: sanitizedObservation.tempImageExistsAfterDelete === false,
       rawImageNotRetainedInReadModel: analysisRow.rawImageRetained === false,
+      ocrSnippetsPreservedInReadModel: (analysisRow.ocrTextSnippets ?? []).length > 0,
+      redactionNotesShapePreservedInReadModel: Array.isArray(analysisRow.redactionNotes),
     },
     nonClaims: [
       'This proves the Windows service path from timed cadence capture through encrypted queue, WinRT OCR adapter output, Activity Screen read model, and queue/raw temp deletion.',
@@ -187,13 +190,22 @@ function openSystemBrowser() {
   if (!existsSync(systemChromePath)) {
     throw new Error(`System Chrome not found at ${systemChromePath}`);
   }
-  const result = spawnSync(systemChromePath, ['--new-window', liveUrl], {
+  const script = [
+    "$ErrorActionPreference = 'Stop'",
+    `Start-Process -FilePath '${escapePowerShell(systemChromePath)}' -ArgumentList '--new-window','${escapePowerShell(
+      liveUrl
+    )}' -WindowStyle Normal`,
+  ].join('\n');
+  const result = spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', script], {
     cwd: repoRoot,
     encoding: 'utf8',
-    windowsHide: false,
+    windowsHide: true,
   });
   if (result.error) {
     throw result.error;
+  }
+  if (result.status !== 0) {
+    throw new Error(`Chrome launch failed: ${result.stderr.trim()}`);
   }
 }
 
@@ -405,6 +417,7 @@ try {
       $snippets += [ordered]@{ text = $lineText; boundingBoxRef = ('line-' + $lineIndex) }
     }
   }
+  $snippetTexts = @($snippets | ForEach-Object { [string]$_.text })
   $sha = [System.Security.Cryptography.SHA256]::Create()
   $digestBytes = $sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($text))
   $textDigest = 'sha256:' + ([BitConverter]::ToString($digestBytes).Replace('-', '').ToLowerInvariant())
@@ -426,6 +439,8 @@ try {
     modelRuntimeRef = 'windows-winrt-ocr-local-runtime'
     modelId = 'windows-winrt-ocr'
     promptOrTemplateVersion = 'screen-ocr-worker-winrt-v1'
+    ocrTextSnippets = $snippetTexts
+    redactionNotes = @()
   } | ConvertTo-Json -Compress
   [Console]::Out.WriteLine($output)
 }
@@ -472,8 +487,8 @@ function serviceAnalysisEnv() {
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ENABLED: 'true',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_POLL_SECONDS: '1',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_JOBS: '1',
-    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_TICKS: '90',
-    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS: '60000',
+    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_TICKS: '180',
+    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS: '120000',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_COMMAND: adapterCommandPath,
     OCENTRA_SCREEN_SERVICE_WINRT_OCR_OBSERVATION_PATH: adapterObservationPath,
   };
@@ -494,7 +509,7 @@ function baseServiceEnv() {
 async function waitForAnalyzedScreenReadModel() {
   const startedAt = Date.now();
   let lastReadModel;
-  while (Date.now() - startedAt < 120000) {
+  while (Date.now() - startedAt < analysisReadModelWaitMs) {
     lastReadModel = await requestScreenReadModel();
     lastObservedReadModel = lastReadModel;
     if (lastReadModel.state === 'ready' && Array.isArray(lastReadModel.rows) && localOcrRow(lastReadModel)) {
@@ -618,6 +633,10 @@ function assertProof(readModel, queueRecords, observation) {
   if (analysisRow.modelId !== 'windows-winrt-ocr') failures.push('modelId');
   if (analysisRow.promptOrTemplateVersion !== 'screen-ocr-worker-winrt-v1') failures.push('templateVersion');
   if (analysisRow.rawImageRetained !== false) failures.push('rawImageRetained');
+  if (!Array.isArray(analysisRow.ocrTextSnippets) || analysisRow.ocrTextSnippets.length === 0) {
+    failures.push('ocrTextSnippets');
+  }
+  if (!Array.isArray(analysisRow.redactionNotes)) failures.push('redactionNotes');
   if (queueRecords.length !== 0) failures.push('queueDrained');
   if (observation.tempImageExistsAfterDelete !== false) failures.push('tempImageDeleted');
   if (!expectedTerms.every((term) => observation.expectedTermsFound?.includes(term))) failures.push('expectedTerms');

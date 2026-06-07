@@ -112,5 +112,7 @@ fn service_screen_row() -> ActivityScreenReadModelRow {
         parent_explanation_refs: Vec::new(),
         explanation_reasons: Vec::new(),
         deletion_reasons: vec![constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string()],
+        ocr_text_snippets: Vec::new(),
+        redaction_notes: Vec::new(),
     }
 }

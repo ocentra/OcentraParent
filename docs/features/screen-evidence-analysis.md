@@ -454,8 +454,11 @@ only with explicit parent settings.
   `scripts/test/screen-ocr-redaction-portal-intent-proof.mjs` now proves
   Activity Screen read-model rows carry redacted OCR snippets and redaction
   notes into the Screen Analysis portal intent while omitting raw email, phone,
-  credential, raw image retention, and remote AI. Service persistence and a
-  real service-emitted portal screenshot remain separate gates.
+  credential, raw image retention, and remote AI. The service WinRT OCR proof now
+  proves bounded OCR snippets and the structured `redactionNotes` array persist
+  from adapter output into the service-backed Activity Screen read model. A real
+  service-emitted portal screenshot with actually redacted sensitive text remains
+  a separate gate.
 - `scripts/test/screen-local-ocr-vision-runtime-model-proof.mjs` now aggregates
   the existing WinRT OCR worker, service OCR, guided VLM worker, VLM execution
   readiness, VLM journal/read-model, and local resource scheduler artifacts into
@@ -488,9 +491,11 @@ only with explicit parent settings.
   pixels: the Rust service cadence loop captures an active-window frame into
   the encrypted queue, a local Windows `Windows.Media.Ocr` adapter reads the
   queued image, the service records a `localOcr` Activity Screen row with
-  runtime/model/template metadata and a `school`/policy-eligible result, the
+  runtime/model/template metadata, bounded `ocrTextSnippets`, the
+  `redactionNotes` array shape, and a `school`/policy-eligible result, the
   WebSocket read model exposes the row, the queue drains, and adapter temp image
-  material is deleted. It does not claim production OCR quality,
+  material is deleted. It does not claim sensitive-text redaction on this public
+  Wikipedia source, production OCR quality,
   authenticated-account/social coverage, cross-platform OCR parity,
   enforcement, live view, or raw retention.
 - `scripts/test/screen-ai-service-winrt-ocr-policy-proof.mjs` now reruns that
@@ -586,6 +591,8 @@ parity, and UI remain separate proof gates.
 - [x] OCR redaction read-model/portal intent proof renders redacted snippets
       and redaction notes without raw email, phone, credential, raw image
       retention, or remote AI.
+- [x] Service WinRT OCR read model persists bounded OCR snippets and the
+      structured redaction-note array shape from real service adapter output.
 - [x] Policy decision references summary evidence.
 - [x] Service WinRT OCR row feeds a typed parent policy dry-run without raw
       image retention.
