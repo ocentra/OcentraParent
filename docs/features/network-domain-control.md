@@ -160,6 +160,21 @@ compete on control while staying clear about attribution confidence and privacy.
   execution, enforcement-command publication, raw PCAP, exact URL, decrypted
   payload, page content, video content, private-message content, search-query
   content, and host filtering claims.
+- E-D added row10i remote delivery dispatch-readiness proof in `agent-core`:
+  prepared row10g outbox candidates now feed broker and family-hub dispatch
+  gates that preserve eventing required-artifact refs and fixture-satisfied
+  state while remaining manual-required until live transport implementation
+  exists. The proof writes
+  `output/network-plan-proof/10i-remote-delivery-dispatch-readiness/proof-summary.json`
+  and
+  `test-results/network-remote-delivery-dispatch-readiness-proof/proof.json`,
+  keeps manual-required candidate count equal to prepared outbox count, keeps
+  dispatch-ready candidates, dispatch attempts, and remote acknowledgements at
+  zero, and rejects live broker/family-hub dispatch, product-ready delivery,
+  policy authority, side-effect authority, adapter execution,
+  enforcement-command publication, raw PCAP, exact URL, decrypted payload, page
+  content, video content, private-message content, search-query content, and
+  host filtering claims.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,

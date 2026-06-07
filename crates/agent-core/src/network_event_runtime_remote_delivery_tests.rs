@@ -4,10 +4,14 @@ use ocentra_eventing::{
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::{
+    prove_network_runtime_remote_delivery_dispatch_readiness,
     prove_network_runtime_remote_delivery_durable_envelope,
     prove_network_runtime_remote_delivery_outbox_handoff,
     prove_network_runtime_remote_delivery_receipt_ledger,
     prove_network_runtime_remote_delivery_status, prove_network_runtime_remote_event_chain_journal,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessError,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessState,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
     NetworkRuntimeRemoteDeliveryOutboxHandoffError,
@@ -531,6 +535,114 @@ async fn network_runtime_remote_delivery_outbox_handoff_rejects_dispatch_ack_act
     let report = prove_network_runtime_remote_delivery_outbox_handoff()
         .await
         .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF);
+
+    assert_eq!(report.dispatch_attempt_count, 0);
+    assert_eq!(report.remote_ack_count, 0);
+    assert!(!report.broker_delivery_implemented);
+    assert!(!report.family_hub_delivery_implemented);
+    assert!(!report.remote_delivery_ack_implemented);
+    assert!(!report.provider_delivery_implemented);
+    assert!(!report.child_device_delivery_implemented);
+    assert!(!report.remote_delete_export_propagation_implemented);
+    assert!(!report.product_ready_remote_delivery);
+    assert!(!report.policy_authority);
+    assert!(!report.side_effect_authority);
+    assert_eq!(report.enforcement_command_event_count, 0);
+    assert_eq!(report.adapter_action_executed_count, 0);
+    assert_eq!(report.raw_pcap_available_count, 0);
+    assert_eq!(report.exact_url_available_count, 0);
+    assert_eq!(report.decrypted_payload_available_count, 0);
+    assert_eq!(report.page_content_available_count, 0);
+    assert_eq!(report.video_content_available_count, 0);
+    assert_eq!(report.private_message_content_available_count, 0);
+    assert_eq!(report.search_query_available_count, 0);
+}
+
+#[tokio::test]
+async fn network_runtime_remote_delivery_dispatch_readiness_blocks_without_transport() {
+    let proof_result: Result<
+        NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
+        NetworkRuntimeRemoteDeliveryDispatchReadinessError,
+    > = prove_network_runtime_remote_delivery_dispatch_readiness().await;
+    let report = proof_result
+        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DISPATCH_READINESS);
+
+    assert_eq!(
+        report.dispatch_readiness_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_DISPATCH_READINESS_REF
+    );
+    assert_eq!(
+        report.transport_requirements_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_TRANSPORT_REQUIREMENTS_REF
+    );
+    assert_eq!(
+        report.state,
+        NetworkRuntimeRemoteDeliveryDispatchReadinessState::ManualRequiredTransportNotImplemented
+    );
+    assert_eq!(
+        report.source_outbox_candidate_count,
+        report.prepared_not_dispatched_count
+    );
+    assert_eq!(
+        report.outbox_handoff.outbox_candidate_count,
+        report.source_outbox_candidate_count
+    );
+    assert_eq!(
+        report.manual_required_candidate_count,
+        report.source_outbox_candidate_count
+    );
+    assert_eq!(report.dispatch_ready_candidate_count, 0);
+    assert_eq!(report.dispatch_attempt_count, 0);
+    assert_eq!(report.remote_ack_count, 0);
+    assert_dispatch_gate_blocks_transport(&report);
+}
+
+fn assert_dispatch_gate_blocks_transport(
+    report: &NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
+) {
+    assert_eq!(
+        report.broker_gate.gate_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_BROKER_DISPATCH_GATE_REF
+    );
+    assert_eq!(
+        report.family_hub_gate.gate_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_FAMILY_HUB_DISPATCH_GATE_REF
+    );
+    assert_eq!(
+        report.broker_gate.route_kind,
+        EventDeliveryRouteKind::ExternalTransport
+    );
+    assert_eq!(
+        report.family_hub_gate.route_kind,
+        EventDeliveryRouteKind::ExternalRelay
+    );
+    assert!(report.broker_gate.fixture_requirements_satisfied);
+    assert!(report.family_hub_gate.fixture_requirements_satisfied);
+    assert!(report.broker_gate.required_artifact_count > 0);
+    assert!(report.family_hub_gate.required_artifact_count > 0);
+    assert_eq!(
+        report.broker_gate.required_artifacts.len(),
+        report.broker_gate.required_artifact_count
+    );
+    assert_eq!(
+        report.family_hub_gate.required_artifacts.len(),
+        report.family_hub_gate.required_artifact_count
+    );
+    assert_eq!(report.broker_gate.missing_artifact_count, 0);
+    assert_eq!(report.family_hub_gate.missing_artifact_count, 0);
+    assert!(!report.broker_gate.transport_implemented);
+    assert!(!report.family_hub_gate.transport_implemented);
+    assert!(!report.broker_gate.dispatch_ready);
+    assert!(!report.family_hub_gate.dispatch_ready);
+    assert!(report.broker_gate.manual_required);
+    assert!(report.family_hub_gate.manual_required);
+}
+
+#[tokio::test]
+async fn network_runtime_remote_delivery_dispatch_readiness_rejects_authority_and_content_claims() {
+    let report = prove_network_runtime_remote_delivery_dispatch_readiness()
+        .await
+        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DISPATCH_READINESS);
 
     assert_eq!(report.dispatch_attempt_count, 0);
     assert_eq!(report.remote_ack_count, 0);
