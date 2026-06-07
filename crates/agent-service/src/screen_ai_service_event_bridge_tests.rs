@@ -3,12 +3,13 @@ use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceRef, ActivityReadModelState, ActivityScreenReadModelRow,
     SCREEN_CAPABILITY_READY, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CATEGORY_SCHOOL,
     SCREEN_CUSTODY_JOURNAL, SCREEN_DELETION_DELETED, SCREEN_POLICY_CONFIDENCE_READY,
-    SCREEN_PROVIDER_LOCAL_OCR,
+    SCREEN_PROVIDER_LOCAL_OCR, SCREEN_PROVIDER_LOCAL_VISION,
 };
 
 use super::screen_ai_service_event_bridge::{
-    publish_screen_capture_queue_event_chain, publish_screen_deletion_event_chain,
-    publish_screen_service_row_event_chain, screen_runtime_capture_input_from_service_row,
+    publish_screen_capture_queue_event_chain, publish_screen_degraded_event_chain,
+    publish_screen_deletion_event_chain, publish_screen_service_row_event_chain,
+    screen_runtime_capture_input_from_service_row, screen_runtime_degraded_input_from_service_row,
     screen_runtime_deletion_input_from_service_row, screen_runtime_input_from_service_row,
     ScreenAiServiceEventBridgeError, ScreenAiServiceEventBridgeRefs,
 };
@@ -136,6 +137,57 @@ async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row
     assert!(!report.raw_image_escaped());
 }
 
+#[tokio::test]
+async fn screen_service_event_bridge_publishes_degraded_ai_event_path() {
+    let report = publish_screen_degraded_event_chain(
+        degraded_service_screen_row(),
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    )
+    .await
+    .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES);
+    let payloads = report
+        .stored_events
+        .iter()
+        .map(|event| {
+            event
+                .decode::<ScreenRuntimeEventPayload>()
+                .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
+                .payload
+        })
+        .collect::<Vec<_>>();
+    let phases = payloads
+        .iter()
+        .map(|payload| payload.phase)
+        .collect::<Vec<_>>();
+
+    assert_eq!(
+        phases,
+        vec![
+            ScreenRuntimePhase::CaptureObserved,
+            ScreenRuntimePhase::QueueEncrypted,
+            ScreenRuntimePhase::AiAnalysisRequested,
+            ScreenRuntimePhase::AiAnalysisCompleted,
+            ScreenRuntimePhase::DeletionCommitted,
+            ScreenRuntimePhase::PortalReadModelUpdated,
+        ]
+    );
+    assert!(payloads.iter().all(|payload| {
+        payload.policy_decision_ref.is_none()
+            && payload.policy_action.is_none()
+            && payload.parent_rule_ref.is_none()
+            && payload.action_ref.is_none()
+    }));
+    assert_eq!(
+        payloads
+            .last()
+            .and_then(|payload| payload.portal_read_model_ref.clone()),
+        Some(constants::activity_store::TEST_SCREEN_RESULT_ID.to_string())
+    );
+    assert_eq!(report.publish_reports.len(), phases.len());
+    assert_eq!(report.dead_letters.len(), 0);
+    assert!(!report.raw_image_escaped());
+}
+
 #[test]
 fn screen_service_event_bridge_rejects_raw_retention_and_missing_policy_refs() {
     let mut raw_retained = service_screen_row();
@@ -169,6 +221,13 @@ fn screen_service_event_bridge_rejects_raw_retention_and_missing_policy_refs() {
     assert!(matches!(
         screen_runtime_deletion_input_from_service_row(missing_deletion),
         Err(ScreenAiServiceEventBridgeError::MissingDeletionProof)
+    ));
+
+    let mut raw_degraded = degraded_service_screen_row();
+    raw_degraded.raw_image_retained = true;
+    assert!(matches!(
+        screen_runtime_degraded_input_from_service_row(raw_degraded),
+        Err(ScreenAiServiceEventBridgeError::RawImageRetained)
     ));
 }
 
@@ -217,4 +276,16 @@ fn service_bridge_refs() -> ScreenAiServiceEventBridgeRefs {
     ScreenAiServiceEventBridgeRefs {
         action_ref: constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
     }
+}
+
+fn degraded_service_screen_row() -> ActivityScreenReadModelRow {
+    let mut row = service_screen_row();
+    row.capability_status = constants::activity_surface::SAVED_STATE_DEGRADED.to_string();
+    row.provider_kind = SCREEN_PROVIDER_LOCAL_VISION.to_string();
+    row.primary_category = None;
+    row.policy_eligible = false;
+    row.policy_decision_ref = None;
+    row.policy_action = None;
+    row.parent_rule_refs = Vec::new();
+    row
 }

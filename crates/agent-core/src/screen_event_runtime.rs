@@ -7,7 +7,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     screen_event_runtime_input::{
-        ScreenRuntimeCaptureInput, ScreenRuntimeDeletionInput, ScreenRuntimeInput,
+        ScreenRuntimeCaptureInput, ScreenRuntimeDegradedInput, ScreenRuntimeDeletionInput,
+        ScreenRuntimeInput,
     },
     screen_event_runtime_metadata::{
         screen_capture_event_metadata, screen_deletion_event_metadata, screen_event_metadata,
@@ -150,6 +151,38 @@ impl ScreenRuntimeEventPayload {
         payload.custody_state = constants::eventing_source::CUSTODY_LOCAL_JOURNAL.to_string();
         payload
     }
+
+    fn from_degraded_input(
+        phase: ScreenRuntimePhase,
+        input: &ScreenRuntimeDegradedInput,
+        observed_at: &str,
+    ) -> Self {
+        let capture_input = ScreenRuntimeCaptureInput::from(input);
+        let mut payload = Self::from_capture_input(phase, &capture_input, observed_at);
+        if matches!(
+            phase,
+            ScreenRuntimePhase::AiAnalysisCompleted
+                | ScreenRuntimePhase::DeletionCommitted
+                | ScreenRuntimePhase::PortalReadModelUpdated
+        ) {
+            payload.deletion_proof_ref = Some(input.deletion_proof_ref.clone());
+            payload.evidence_scope = ScreenEvidenceScope::DeletedQueryStoreSummary;
+            payload.custody_state = constants::eventing_source::CUSTODY_LOCAL_JOURNAL.to_string();
+            payload.deletion_state = ScreenDeletionState::Committed;
+        }
+        if phase == ScreenRuntimePhase::PortalReadModelUpdated {
+            payload.portal_read_model_ref = Some(input.portal_read_model_ref.clone());
+            payload.custody_state =
+                constants::eventing_source::CUSTODY_LOCAL_QUERY_STORE.to_string();
+        }
+        payload.policy_decision_ref = None;
+        payload.policy_action = None;
+        payload.parent_rule_ref = None;
+        payload.action_ref = None;
+        payload.policy_state = ScreenPolicyState::NotReady;
+        payload.action_state = ScreenActionState::NotReady;
+        payload
+    }
 }
 
 impl DomainEvent for ScreenRuntimeEventPayload {
@@ -230,6 +263,14 @@ pub async fn publish_screen_deletion_event_for_input(
     spine.publish_deletion_event(input, observed_at).await
 }
 
+pub async fn publish_screen_degraded_event_chain_for_input(
+    input: ScreenRuntimeDegradedInput,
+    observed_at: &str,
+) -> Result<ScreenRuntimeReport, EventingError> {
+    let spine = ScreenRuntimeSpine::with_default_handlers().await?;
+    spine.publish_degraded_event_chain(input, observed_at).await
+}
+
 struct ScreenRuntimeSpine {
     bus: EventBus,
 }
@@ -300,6 +341,36 @@ impl ScreenRuntimeSpine {
         let report = self.bus.publish(payload, metadata).await?;
         Ok(ScreenRuntimeReport {
             publish_reports: vec![report],
+            stored_events: self.bus.journal().await,
+            dead_letters: self.bus.dead_letters().await,
+        })
+    }
+
+    async fn publish_degraded_event_chain(
+        &self,
+        input: ScreenRuntimeDegradedInput,
+        observed_at: &str,
+    ) -> Result<ScreenRuntimeReport, EventingError> {
+        let mut reports = Vec::new();
+        for phase in [
+            ScreenRuntimePhase::CaptureObserved,
+            ScreenRuntimePhase::QueueEncrypted,
+            ScreenRuntimePhase::AiAnalysisRequested,
+            ScreenRuntimePhase::AiAnalysisCompleted,
+            ScreenRuntimePhase::DeletionCommitted,
+            ScreenRuntimePhase::PortalReadModelUpdated,
+        ] {
+            let payload =
+                ScreenRuntimeEventPayload::from_degraded_input(phase, &input, observed_at);
+            let metadata = screen_capture_event_metadata(
+                phase,
+                &ScreenRuntimeCaptureInput::from(&input),
+                observed_at,
+            )?;
+            reports.push(self.bus.publish(payload, metadata).await?);
+        }
+        Ok(ScreenRuntimeReport {
+            publish_reports: reports,
             stored_events: self.bus.journal().await,
             dead_letters: self.bus.dead_letters().await,
         })
