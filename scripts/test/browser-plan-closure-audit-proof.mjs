@@ -15,8 +15,7 @@ const expectedPartialRows = new Map([
     '05',
     {
       reason: 'cross-platform-inventory-real-platform-proof-required',
-      requiredEvidence:
-        'macOS desktop browser proof, Android implicit browser routing enforcement proof, and iOS device/entitlement proof',
+      requiredEvidence: 'macOS desktop browser proof and iOS device/entitlement proof',
     },
   ],
   [
@@ -51,12 +50,12 @@ const proofArtifacts = [
     expectations: {
       productClaimed: false,
       failures: 0,
-      manualRequiredRows: 3,
+      manualRequiredRows: 2,
       unsupportedRows: 6,
       androidDeviceOwnerEnrollmentObserved: true,
       androidDeviceOwnerProofLimitedToProofLaunchedEmulator: true,
       androidDeviceOwnerPolicyMutationObserved: true,
-      androidOwnedBrowserRoutingEnforcementObserved: false,
+      androidOwnedBrowserRoutingEnforcementObserved: true,
       androidEnforcementClaimed: false,
     },
   },

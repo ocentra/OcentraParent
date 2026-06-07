@@ -82,6 +82,19 @@ Accessibility route proof, final policy execution, browser blocking, broad
 content-filter enforcement, physical-device behavior, Play signing, or release
 readiness.
 
+2026-06-07 codex-d continuation: the Android owned browser shell proof now
+also exercises the Android Browser Role route on the disposable proof emulator.
+The proof first records that Device Owner persistent preferred activity does
+not itself produce a browser implicit-route resolver match, then applies the
+browser role through the host shell, observes Android resolving the same
+`ACTION_VIEW`/`DEFAULT`/`BROWSABLE` HTTP proof URL to
+`com.ocentra.parent.browser`, and observes the owned shell loading the proof
+page from an implicit VIEW launch. This upgrades only proof-launched emulator
+browser-role implicit routing for the owned shell. It does not claim silent
+Device Owner default-browser assignment, exact URL policy, known active-tab
+policy, physical-device behavior, final policy execution, browser blocking,
+broad content-filter enforcement, Play signing, or release readiness.
+
 2026-06-07 codex-d continuation: `scripts/test/browser-platform-linux-host-proof.mjs`
 now captures real WSL Ubuntu package/PATH/desktop-entry boundary evidence plus
 a positive headless Linux browser launch proof for WP05. The proof queries only
@@ -184,11 +197,11 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service/portal parity updated only after contracts exist; no Rust/service/portal surface changed in this contract-only slice.
 - [x] Raw evidence artifacts captured or marked N/A: this slice is a platform support matrix contract and has no bridge/CDP, journal, SQLite, policy, or action runtime evidence.
-- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Windows host browser executable proof and default URL handler association boundary evidence, Windows Ocentra-launched managed CDP proof for an exact local proof URL, Android emulator package-visibility proof, Android owned browser shell build/install/launch proof, Android proof-created AVD Device Owner enrollment proof, Android proof-created AVD persistent browser routing policy mutation proof, and WSL Linux package/PATH/desktop-entry/headless-launch proof are present, while exact active-tab enforcement, final policy execution, implicit Android browser routing enforcement, browser blocking, live macOS/iOS fixtures, and manual proof remain manual-required.
+- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Windows host browser executable proof and default URL handler association boundary evidence, Windows Ocentra-launched managed CDP proof for an exact local proof URL, Android emulator package-visibility proof, Android owned browser shell build/install/launch proof, Android proof-created AVD Device Owner enrollment proof, Android proof-created AVD persistent browser routing policy mutation proof, Android proof-created emulator browser-role implicit routing proof, and WSL Linux package/PATH/desktop-entry/headless-launch proof are present, while exact active-tab enforcement, final policy execution, browser blocking, live macOS/iOS fixtures, and manual proof remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured: non-Windows entries reject managed exact-URL and known-active claims; iOS remains unsupported; unsupported entries cannot keep exact URL available.
-- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility, UI-tree/logcat hash evidence, and source-backed no-privileged-browser-adapter boundary evidence are captured in `11-android-host-device-proof.json`, Android owned browser shell build/install/launch, local proof-page UI evidence, proof-created AVD Device Owner enrollment evidence, and proof-created AVD persistent browser routing policy mutation evidence are captured in `15-android-owned-browser-shell-proof.json`, WSL Linux package/PATH/desktop-entry/headless-launch evidence is captured in `12-linux-host-package-proof.json` and `12-linux-headless-browser-screenshot.png`, Windows host browser executable proof and default URL handler association boundary evidence are captured in `13-windows-host-browser-proof.json`, Windows managed CDP exact-local-URL proof and screenshot evidence are captured in `14-windows-managed-cdp-proof.json` and `14-windows-managed-cdp-screenshot.png`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
+- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility, UI-tree/logcat hash evidence, and source-backed no-privileged-browser-adapter boundary evidence are captured in `11-android-host-device-proof.json`, Android owned browser shell build/install/launch, local proof-page UI evidence, proof-created AVD Device Owner enrollment evidence, proof-created AVD persistent browser routing policy mutation evidence, and proof-created emulator browser-role implicit routing evidence are captured in `15-android-owned-browser-shell-proof.json`, WSL Linux package/PATH/desktop-entry/headless-launch evidence is captured in `12-linux-host-package-proof.json` and `12-linux-headless-browser-screenshot.png`, Windows host browser executable proof and default URL handler association boundary evidence are captured in `13-windows-host-browser-proof.json`, Windows managed CDP exact-local-URL proof and screenshot evidence are captured in `14-windows-managed-cdp-proof.json` and `14-windows-managed-cdp-screenshot.png`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
 - [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md), including `test-results/browser-platform-inventory-matrix-proof/proof.json` and `output/browser-plan-proof/05-cross-platform-inventory-matrix/11-proof-gate-manifest.md`.
 - [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
@@ -204,16 +217,17 @@ URL, and captures a CDP screenshot, but exact active-tab enforcement, final
 policy execution, browser blocking, managed profile repair, and non-Windows
 managed CDP support remain unclaimed.
 Android emulator package visibility, source-backed Android agent boundary
-evidence, owned browser shell build/install/launch proof, and proof-created AVD
-Device Owner enrollment plus persistent browser routing policy mutation proof
-are now proved, but exact URL policy, active-tab policy, implicit browser
-routing enforcement, VPN/DNS browser proof, UsageStats/Accessibility route
-proof, final policy execution, browser blocking, physical-device behavior, and
-broad content-filter enforcement remain unclaimed.
+evidence, owned browser shell build/install/launch proof, proof-created AVD
+Device Owner enrollment plus persistent browser routing policy mutation proof,
+and proof-created emulator browser-role implicit routing proof are now proved,
+but exact URL policy, active-tab policy, silent Device Owner default-browser
+assignment, VPN/DNS browser proof, UsageStats/Accessibility route proof, final
+policy execution, browser blocking, physical-device behavior, and broad
+content-filter enforcement remain unclaimed.
 WSL Linux package/PATH/desktop-entry evidence and a headless Google Chrome
 launch/screenshot are now proved, but Linux desktop adapter integration,
 managed profile, exact URL, active-tab, Snap, Flatpak, and enforcement remain
 unclaimed.
-Remaining work requires real macOS app bundle inventory, Android implicit
-browser routing enforcement proof, and iOS FamilyControls/ManagedSettings/Safari-extension
-proof before this workpack can be marked complete.
+Remaining work requires real macOS app bundle inventory and iOS
+FamilyControls/ManagedSettings/Safari-extension proof before this workpack can
+be marked complete.

@@ -88,7 +88,7 @@ async function main() {
         ? 'android-browser-package-visibility-proof-present'
         : 'android-owned-browser-shell-manual-required',
       androidOwnedShellProof
-        ? 'android-owned-browser-shell-emulator-device-owner-policy-mutation-proof-present-routing-enforcement-still-manual-required'
+        ? 'android-owned-browser-shell-emulator-device-owner-policy-mutation-and-browser-role-routing-proof-present'
         : 'android-owned-browser-shell-build-install-launch-proof-required',
       windowsHostProof
         ? 'windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed'
@@ -169,9 +169,10 @@ function validateMatrix(entries) {
     if (
       (entry.proofState === 'host-observed' || entry.proofState === 'fixture-backed') &&
       entry.platform !== 'windows' &&
-      !linuxHostLaunchRowIsAllowed(entry)
+      !linuxHostLaunchRowIsAllowed(entry) &&
+      !androidOwnedShellRoutingRowIsAllowed(entry)
     ) {
-      failures.push(`${key} is host-observed/fixture-backed outside Windows/Linux launch proof allowance`);
+      failures.push(`${key} is host-observed/fixture-backed outside Windows/Linux/Android proof allowance`);
     }
     if (entry.platform === 'ios' && entry.managementTier !== 'unsupported') {
       failures.push(`${key} upgrades iOS browser management before platform proof`);
@@ -240,7 +241,7 @@ function markdownFor(proof) {
       ? 'Android emulator package-visibility proof is present; exact URL, active tab, device-owner policy, and enforcement remain unclaimed.'
       : 'Android owned browser shell/device proof remains manual-required.',
     proof.androidOwnedShellProof
-      ? 'Android owned browser shell build/install/launch proof plus proof-launched emulator Device Owner enrollment and persistent HTTP/HTTPS routing policy mutation evidence is present, but implicit browser routing enforcement, content-filter policy, known active tab, VPN/DNS, UsageStats, Accessibility, physical-device behavior, and broad enforcement remain unclaimed unless observed in the proof.'
+      ? 'Android owned browser shell build/install/launch proof plus proof-launched emulator Device Owner enrollment, persistent HTTP/HTTPS routing policy mutation evidence, and browser-role implicit routing proof is present, but exact URL policy, known active tab, VPN/DNS, UsageStats, Accessibility, physical-device behavior, final policy execution, and broad enforcement remain unclaimed.'
       : 'Android owned browser shell build/install/launch proof remains manual-required.',
     proof.linuxHostProof
       ? 'Linux WSL package/PATH/desktop-entry evidence plus a real headless Linux browser launch and screenshot proof are present, but Linux desktop adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.'
@@ -305,6 +306,7 @@ async function readAndroidOwnedShellProof() {
       proof.hostProofSummary?.deviceOwnerPolicyMutationLimitedToProofLaunchedEmulator === true,
     androidOwnedBrowserRoutingEnforcementObserved:
       proof.hostProofSummary?.androidOwnedBrowserRoutingEnforcementObserved === true,
+    androidBrowserRoleRoutingObserved: proof.hostProofSummary?.androidBrowserRoleRoutingObserved === true,
     deviceOwnerPolicyMutationClaimed: proof.hostProofSummary?.deviceOwnerPolicyMutationClaimed === true,
     androidOwnedBrowserRoutingEnforcementClaimed:
       proof.hostProofSummary?.androidOwnedBrowserRoutingEnforcementClaimed === true,
@@ -468,6 +470,18 @@ function linuxHostLaunchRowIsAllowed(entry) {
   );
 }
 
+function androidOwnedShellRoutingRowIsAllowed(entry) {
+  return (
+    entry.platform === 'android' &&
+    entry.browserFamily === 'unknown-chromium' &&
+    entry.proofState === 'host-observed' &&
+    entry.reasonCode === 'android-owned-browser-shell-browser-role-routing-proof' &&
+    entry.exactUrlCapability === 'manual-required' &&
+    entry.activeTabCapability === 'manual-required' &&
+    entry.managementTier === 'owned-shell'
+  );
+}
+
 function validateWindowsManagedCdpProof(proof) {
   if (proof === null) {
     return [
@@ -519,7 +533,7 @@ function validateAndroidOwnedShellProof(proof) {
   }
 
   const failures = [];
-  if (proof.resultState !== 'android-owned-browser-shell-device-owner-policy-mutation-proof') {
+  if (proof.resultState !== 'android-owned-browser-shell-browser-role-routing-proof') {
     failures.push(`Android owned shell proof has unexpected resultState: ${proof.resultState}`);
   }
   if (!proof.ownedBrowserShellPackageInstalled) {
@@ -549,6 +563,13 @@ function validateAndroidOwnedShellProof(proof) {
     failures.push(
       'Android owned shell proof did not observe proof-launched emulator Device Owner persistent browser routing policy mutation evidence'
     );
+  }
+  if (
+    !proof.androidOwnedBrowserRoutingEnforcementObserved ||
+    !proof.androidOwnedBrowserRoutingEnforcementClaimed ||
+    !proof.androidBrowserRoleRoutingObserved
+  ) {
+    failures.push('Android owned shell proof did not observe browser-role implicit VIEW routing to the owned shell');
   }
   if (
     proof.exactUrlPolicyClaimed ||

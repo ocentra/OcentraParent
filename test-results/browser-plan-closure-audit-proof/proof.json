@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-plan-closure-audit-proof",
-  "generatedAt": "2026-06-07T12:30:56.728Z",
+  "generatedAt": "2026-06-07T12:59:44.250Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "sourceCommitAtGeneration": "75fd6213abe09968929f45c3106543ade842fb9c",
-  "baseCommit": "3ae5f3aebbd71208936257b93bd5111e638c87ed",
+  "sourceCommitAtGeneration": "e619c02b8974b8ffc444d4891c48762b71524983",
+  "baseCommit": "07f541f7987c759011c77f3a28559523b64c70ce",
   "checklist": "docs/plans/browser-plan/implementation-checklist.md",
   "summary": {
     "checklistRows": 97,
@@ -22,7 +22,7 @@
       "title": "Cross-platform inventory matrix",
       "blocker": {
         "reason": "cross-platform-inventory-real-platform-proof-required",
-        "requiredEvidence": "macOS desktop browser proof, Android implicit browser routing enforcement proof, and iOS device/entitlement proof"
+        "requiredEvidence": "macOS desktop browser proof and iOS device/entitlement proof"
       }
     },
     {
@@ -58,23 +58,23 @@
       "observed": {
         "productClaimed": false,
         "failures": 0,
-        "manualRequiredRows": 3,
+        "manualRequiredRows": 2,
         "unsupportedRows": 6,
         "androidDeviceOwnerEnrollmentObserved": true,
         "androidDeviceOwnerProofLimitedToProofLaunchedEmulator": true,
         "androidDeviceOwnerPolicyMutationObserved": true,
-        "androidOwnedBrowserRoutingEnforcementObserved": false,
+        "androidOwnedBrowserRoutingEnforcementObserved": true,
         "androidEnforcementClaimed": false
       },
       "expectations": {
         "productClaimed": false,
         "failures": 0,
-        "manualRequiredRows": 3,
+        "manualRequiredRows": 2,
         "unsupportedRows": 6,
         "androidDeviceOwnerEnrollmentObserved": true,
         "androidDeviceOwnerProofLimitedToProofLaunchedEmulator": true,
         "androidDeviceOwnerPolicyMutationObserved": true,
-        "androidOwnedBrowserRoutingEnforcementObserved": false,
+        "androidOwnedBrowserRoutingEnforcementObserved": true,
         "androidEnforcementClaimed": false
       },
       "failures": []

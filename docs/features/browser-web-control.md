@@ -150,6 +150,13 @@ control while being more honest about managed versus unmanaged sources.
   manual-required/unsupported boundaries, but macOS, Linux, Android, and iOS
   support remain partial until real host/device artifacts prove those platform
   adapters.
+- Browser-plan WP05 now has Android owned browser shell proof on a disposable
+  emulator: build/install/launch, Device Owner enrollment, persistent routing
+  policy mutation, and Browser Role implicit VIEW routing to the owned shell.
+  This does not upgrade product status: exact URL policy, active-tab proof,
+  silent Device Owner default-browser assignment, physical-device behavior,
+  final policy execution, browser blocking, and broad enforcement remain
+  unclaimed.
 - Browser-plan WP05 now adds Windows managed-CDP proof for an
   Ocentra-launched temporary managed browser profile. The proof launches real
   Edge/Chrome-family browser infrastructure on Windows, connects through

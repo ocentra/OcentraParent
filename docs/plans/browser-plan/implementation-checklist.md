@@ -253,11 +253,16 @@ manager, Device Policy Manager output, APK/source, device, URL, and UI-tree
 evidence. Evidence:
 `test-results/browser-platform-android-owned-shell-proof/proof.json` and
 `output/browser-plan-proof/05-cross-platform-inventory-matrix/15-android-owned-browser-shell-proof.json`.
-The matrix gate consumes this artifact and still leaves WP05 partial because
-exact URL policy, known active tab, Device Owner policy mutation, VPN/DNS,
-UsageStats, Accessibility, final policy execution, browser blocking,
-enforcement, physical-device behavior, macOS desktop, and iOS
-proof remain unclaimed. No product capability checklist upgrade is claimed.
+The proof now also exercises the Android Browser Role route on the disposable
+proof emulator after recording that Device Owner persistent preferred activity
+does not itself produce a browser implicit-route resolver match. Android then
+resolves the same `ACTION_VIEW`/`DEFAULT`/`BROWSABLE` HTTP proof URL to
+`com.ocentra.parent.browser`, and the owned shell loads it from an implicit VIEW
+launch. The matrix gate consumes this artifact and still leaves WP05 partial
+because exact URL policy, known active tab, silent Device Owner default-browser
+assignment, VPN/DNS, UsageStats, Accessibility, final policy execution, browser
+blocking, enforcement, physical-device behavior, macOS desktop, and iOS proof
+remain unclaimed. No product capability checklist upgrade is claimed.
 
 WP05 Windows managed CDP addendum:
 `scripts/test/browser-platform-windows-managed-cdp-proof.mjs` launches a real
@@ -271,10 +276,11 @@ and
 `scripts/test/browser-platform-inventory-matrix-proof.mjs` now requires that
 artifact and rejects raw executable path, raw profile path, raw CDP payload, raw
 page content, active-tab enforcement, final policy execution, and enforcement
-claims. WP05 remains partial/manual-required because non-Windows platform
-adapters, Android policy mutation/enforcement, iOS managed browser proof,
-browser blocking, and exact active-tab enforcement are still unproved. No
-product capability checklist upgrade is claimed.
+claims. WP05 remains partial/manual-required because macOS desktop proof, iOS
+managed browser proof, browser blocking, physical-device behavior, silent
+Device Owner default-browser assignment, final policy execution, broad
+enforcement, and exact active-tab enforcement are still unproved. No product
+capability checklist upgrade is claimed.
 
 SOCIAL-23/SOCIAL-24 addendum: `test:social-alert-report-intent-ui-proof`
 now covers the service-backed Browser-route alert/report intent panel plus

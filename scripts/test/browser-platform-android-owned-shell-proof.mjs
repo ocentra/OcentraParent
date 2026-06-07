@@ -27,6 +27,7 @@ const packageName = 'com.ocentra.parent.browser';
 const activityName = 'ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity';
 const deviceAdminReceiverName = 'ca.ocentra.parent.browser.OcentraOwnedBrowserDeviceAdminReceiver';
 const deviceAdminComponentName = `${packageName}/${deviceAdminReceiverName}`;
+const browserRoleName = 'android.app.role.BROWSER';
 const browserViewIntentArgs = [
   '-a',
   'android.intent.action.VIEW',
@@ -183,6 +184,14 @@ try {
       androidOwnedBrowserRoutingEnforcementObserved: deviceProofs.some(
         (device) => device.implicitViewIntentLaunchObserved
       ),
+      androidBrowserRoleAssignmentAttempted: deviceProofs.some((device) => device.browserRoleAssignmentAttempted),
+      androidBrowserRoleAssignmentObserved: deviceProofs.some((device) => device.browserRoleAssignmentObserved),
+      androidBrowserRoleAssignmentLimitedToProofLaunchedEmulator: deviceProofs.every(
+        (device) =>
+          !device.browserRoleAssignmentAttempted ||
+          (device.proofLaunchedEmulator === true && device.serialKind === 'emulator')
+      ),
+      androidBrowserRoleRoutingObserved: deviceProofs.some((device) => device.browserRoleRoutingObserved),
       screenshotsCaptured: deviceProofs.some((device) => device.screenshotCaptured),
       screenshotsPersisted: deviceProofs.some((device) => device.screenshotPersisted),
       uiTreeCaptured: deviceProofs.some((device) => device.uiTreeCaptured),
@@ -199,11 +208,14 @@ try {
       androidOwnedBrowserRoutingEnforcementClaimed: deviceProofs.some(
         (device) => device.implicitViewIntentLaunchObserved
       ),
+      browserRoleAssignmentClaimed: deviceProofs.some((device) => device.browserRoleAssignmentObserved),
       vpnDnsBrowserProofClaimed: false,
       usageStatsRouteProofClaimed: false,
       accessibilityRouteProofClaimed: false,
       enforcementClaimed: false,
-      resultState: 'android-owned-browser-shell-device-owner-policy-mutation-proof',
+      resultState: deviceProofs.some((device) => device.implicitViewIntentLaunchObserved)
+        ? 'android-owned-browser-shell-browser-role-routing-proof'
+        : 'android-owned-browser-shell-device-owner-policy-mutation-proof',
     },
     proofUrlRef: `redacted-android-owned-browser-proof-url-${sha256(proofUrl).slice(0, 16)}`,
     proofUrlPersisted: false,
@@ -286,6 +298,11 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
     ['-s', serial, 'shell', 'cmd', 'package', 'resolve-activity', '--brief', ...browserViewIntentArgs, proofUrl],
     { adbPath, allowFailure: true }
   );
+  const browserRoleProof = proveBrowserRoleAssignment(adbPath, serial, proofLaunchedEmulator);
+  const afterRoleResolveOutput = command(
+    ['-s', serial, 'shell', 'cmd', 'package', 'resolve-activity', '--brief', ...browserViewIntentArgs, proofUrl],
+    { adbPath, allowFailure: true }
+  );
   command(['-s', serial, 'shell', 'am', 'force-stop', packageName], { adbPath, allowFailure: true });
   command(['-s', serial, 'shell', 'am', 'start', '-W', ...browserViewIntentArgs, proofUrl], {
     adbPath,
@@ -336,6 +353,20 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
       beforePolicyResolveOutput.includes(packageName) || beforePolicyResolveOutput.includes(activityName),
     afterPolicyViewIntentResolved:
       afterPolicyResolveOutput.includes(packageName) && afterPolicyResolveOutput.includes(activityName),
+    browserRoleAssignmentAttempted: browserRoleProof.attempted,
+    browserRoleAssignmentObserved: browserRoleProof.observed,
+    browserRoleAssignmentLimitedToProofLaunchedEmulator:
+      !browserRoleProof.attempted || (proofLaunchedEmulator === true && serialKind === 'emulator'),
+    browserRoleHoldersBeforeSha256: browserRoleProof.beforeSha256,
+    browserRoleAddResultSha256: browserRoleProof.addResultSha256,
+    browserRoleHoldersAfterSha256: browserRoleProof.afterSha256,
+    rawBrowserRoleOutputPersisted: false,
+    afterRoleViewIntentResolved:
+      afterRoleResolveOutput.includes(packageName) && afterRoleResolveOutput.includes(activityName),
+    browserRoleRoutingObserved:
+      afterRoleResolveOutput.includes(packageName) &&
+      afterRoleResolveOutput.includes(activityName) &&
+      implicitUiTree.includes('Ocentra owned browser proof page loaded'),
     rawIntentResolutionPersisted: false,
     rawUrlPersisted: false,
     rawPageContentPersisted: false,
@@ -347,6 +378,7 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
     uiTreeSha256: uiTree.length > 0 ? sha256(uiTree) : null,
     beforePolicyResolveSha256: sha256(beforePolicyResolveOutput),
     afterPolicyResolveSha256: sha256(afterPolicyResolveOutput),
+    afterRoleResolveSha256: sha256(afterRoleResolveOutput),
     screenshotCaptured: screenshotUsable,
     screenshotPersisted: screenshotUsable,
     screenshotPath: screenshotUsable
@@ -357,6 +389,7 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
     knownActiveTabProofClaimed: false,
     deviceOwnerEnrollmentClaimed: deviceOwnerProof.observed,
     deviceOwnerPolicyMutationClaimed: deviceOwnerProof.observed,
+    browserRoleAssignmentClaimed: browserRoleProof.observed,
     androidOwnedBrowserRoutingEnforcementClaimed: implicitUiTree.includes('Ocentra owned browser proof page loaded'),
     enforcementClaimed: false,
   };
@@ -421,6 +454,40 @@ function proveDeviceOwnerEnrollment(adbPath, serial, proofLaunchedEmulator) {
     setResultSha256: sha256(setOutput),
     querySha256: sha256(queryOutput),
     dumpSha256: sha256(dumpOutput),
+  };
+}
+
+function proveBrowserRoleAssignment(adbPath, serial, proofLaunchedEmulator) {
+  const serialKind = serial.startsWith('emulator-') ? 'emulator' : 'attached-device';
+  const beforeOutput = command(['-s', serial, 'shell', 'cmd', 'role', 'holders', browserRoleName], {
+    adbPath,
+    allowFailure: true,
+  });
+  if (proofLaunchedEmulator !== true || serialKind !== 'emulator') {
+    return {
+      attempted: false,
+      observed: false,
+      beforeSha256: sha256(beforeOutput),
+      addResultSha256: null,
+      afterSha256: sha256(beforeOutput),
+    };
+  }
+
+  const addOutput = command(['-s', serial, 'shell', 'cmd', 'role', 'add-role-holder', browserRoleName, packageName], {
+    adbPath,
+    allowFailure: true,
+  });
+  const afterOutput = command(['-s', serial, 'shell', 'cmd', 'role', 'holders', browserRoleName], {
+    adbPath,
+    allowFailure: true,
+  });
+
+  return {
+    attempted: true,
+    observed: afterOutput.includes(packageName),
+    beforeSha256: sha256(beforeOutput),
+    addResultSha256: sha256(addOutput),
+    afterSha256: sha256(afterOutput),
   };
 }
 

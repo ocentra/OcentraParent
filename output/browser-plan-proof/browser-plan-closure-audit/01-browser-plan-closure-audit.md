@@ -1,9 +1,9 @@
 # Browser Plan Closure Audit
 
-Generated: 2026-06-07T12:30:56.728Z
+Generated: 2026-06-07T12:59:44.250Z
 Branch: codex/browser-child-intervention-endpoint-flow
-Source commit at generation: 75fd6213abe09968929f45c3106543ade842fb9c
-Base: 3ae5f3aebbd71208936257b93bd5111e638c87ed
+Source commit at generation: e619c02b8974b8ffc444d4891c48762b71524983
+Base: 07f541f7987c759011c77f3a28559523b64c70ce
 
 Checklist rows: 97
 Complete rows: 93
@@ -14,7 +14,7 @@ PR-ready claimed: false
 
 | Row | Title | Blocker | Required Evidence |
 | --- | --- | --- | --- |
-| 05 | Cross-platform inventory matrix | cross-platform-inventory-real-platform-proof-required | macOS desktop browser proof, Android implicit browser routing enforcement proof, and iOS device/entitlement proof |
+| 05 | Cross-platform inventory matrix | cross-platform-inventory-real-platform-proof-required | macOS desktop browser proof and iOS device/entitlement proof |
 | SOCIAL-17 | iOS Screen Time/ManagedSettings capability matrix | ios-screentime-managedsettings-real-device-proof-required | macOS/Xcode host, FamilyControls entitlement evidence, attached physical iOS device, token selection, DeviceActivity, and ManagedSettings proof |
 | SOCIAL-23 | Tests, fixtures, Playwright, manual proof | social-proof-artifact-gate-waits-on-social-17 | SOCIAL-17 real iOS proof plus connector/native/runtime proof before product claims |
 | SOCIAL-24 | Rollout and manual-required status labels | social-rollout-gate-waits-on-social-17-and-social-23 | SOCIAL-17, SOCIAL-23, provider/report delivery, runtime custody mutation, final policy execution, and enforcement proof |

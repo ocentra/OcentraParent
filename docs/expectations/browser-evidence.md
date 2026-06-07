@@ -443,6 +443,12 @@ browser secrets.
    cannot be relied on for exact URL capture unless they are inside the managed
    browser boundary. Product behavior should be explicit: Ocentra-managed
    browser sessions provide exact URLs; unmanaged browser sessions are bypass
+   evidence only. Android default-browser evidence must distinguish Device Owner
+   persistent preferred activity policy mutation from Browser Role/default
+   browser routing. Browser Role proof may show implicit VIEW routing to the
+   owned shell, but it does not prove exact active-tab custody, final policy
+   execution, broad content filtering, or silent default-browser assignment on a
+   physical child device.
    evidence and, in enforcement mode, may be blocked or terminated.
 
 8. Hand off stored evidence to portal, policy, and AI consumers.

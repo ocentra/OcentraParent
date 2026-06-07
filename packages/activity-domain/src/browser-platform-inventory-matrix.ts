@@ -115,7 +115,7 @@ export const BrowserInventoryPlatformMatrix = BrowserInventoryPlatformMatrixSche
     linuxHostObservedCandidate('chrome', 'Google Chrome', 'linux-chrome-host-observed-launch-proof'),
     manualCandidate('linux', 'unknown-chromium', 'Chromium', 'linux-chromium-cdp-candidate-manual-required'),
     unsupportedEntry('linux', 'firefox', 'Mozilla Firefox', 'linux-firefox-bidi-later-adapter'),
-    ownedShellCandidate('android', 'unknown-chromium', 'Android owned browser shell'),
+    androidOwnedShellHostObservedCandidate('unknown-chromium', 'Android owned browser shell'),
     unsupportedEntry('android', 'chrome', 'Android Chrome', 'android-external-chrome-device-policy-required'),
     unsupportedEntry('android', 'firefox', 'Android Firefox', 'android-firefox-later-adapter'),
     unsupportedEntry('ios', 'unknown', 'iOS Safari', 'ios-safari-familycontrols-manual-required'),
@@ -205,18 +205,17 @@ function linuxHostObservedCandidate(
   });
 }
 
-function ownedShellCandidate(
-  platform: 'android',
+function androidOwnedShellHostObservedCandidate(
   browserFamily: 'unknown-chromium',
   productName: string
 ): BrowserInventoryPlatformMatrixEntry {
   return BrowserInventoryPlatformMatrixEntrySchema.parse({
     schemaVersion: BrowserEvidenceSchemaVersion,
-    platform,
+    platform: 'android',
     browserFamily,
     browserChannel: 'unknown',
     productName,
-    installState: 'unknown',
+    installState: 'installed',
     managementTier: 'owned-shell',
     supportTier: 'candidate',
     exactUrlCapability: 'manual-required',
@@ -224,9 +223,10 @@ function ownedShellCandidate(
     managedProfileState: 'manual-required',
     unmanagedFallbackCapability: 'unsupported',
     capabilityStatus: 'permission-limited',
-    proofState: 'manual-required',
-    reasonCode: 'android-owned-browser-shell-manual-required',
-    proofRequirement: 'owned browser shell package, policy channel, and device proof required',
+    proofState: 'host-observed',
+    reasonCode: 'android-owned-browser-shell-browser-role-routing-proof',
+    proofRequirement:
+      'Android owned browser shell build/install/launch, Device Owner policy mutation, and browser-role implicit routing proof exist; exact URL, active tab, physical device, and enforcement proof still required',
   });
 }
 
@@ -284,7 +284,12 @@ function hostObservedOrFixtureBackedEntryIsWindowsOnly(entry: BrowserInventoryPl
       entry.proofState === 'host-observed' &&
       entry.exactUrlCapability === 'manual-required' &&
       entry.activeTabCapability === 'manual-required' &&
-      entry.managementTier === 'manual-required')
+      entry.managementTier === 'manual-required') ||
+    (entry.platform === 'android' &&
+      entry.proofState === 'host-observed' &&
+      entry.exactUrlCapability === 'manual-required' &&
+      entry.activeTabCapability === 'manual-required' &&
+      entry.managementTier === 'owned-shell')
   );
 }
 

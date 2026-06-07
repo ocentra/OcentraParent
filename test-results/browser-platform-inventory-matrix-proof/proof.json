@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-platform-inventory-matrix-proof",
-  "generatedAt": "2026-06-07T12:31:03.144Z",
+  "generatedAt": "2026-06-07T12:59:49.078Z",
   "proofContract": "packages/activity-domain/src/browser-platform-inventory-matrix.ts",
   "sourceWorkpack": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
   "rows": [
@@ -109,13 +109,13 @@
       "browserChannel": "unknown",
       "productName": "Android owned browser shell",
       "supportTier": "candidate",
-      "proofState": "manual-required",
+      "proofState": "host-observed",
       "exactUrlCapability": "manual-required",
       "activeTabCapability": "manual-required",
       "managementTier": "owned-shell",
       "capabilityStatus": "permission-limited",
-      "reasonCode": "android-owned-browser-shell-manual-required",
-      "proofRequirement": "owned browser shell package, policy channel, and device proof required"
+      "reasonCode": "android-owned-browser-shell-browser-role-routing-proof",
+      "proofRequirement": "Android owned browser shell build/install/launch, Device Owner policy mutation, and browser-role implicit routing proof exist; exact URL, active tab, physical device, and enforcement proof still required"
     },
     {
       "platform": "android",
@@ -184,14 +184,14 @@
       "ios": 2
     },
     "proofStateCounts": {
-      "host-observed": 3,
-      "manual-required": 3,
+      "host-observed": 4,
+      "manual-required": 2,
       "unsupported": 6
     },
-    "manualRequiredRows": 3,
+    "manualRequiredRows": 2,
     "unsupportedRows": 6,
     "fixtureBackedRows": 0,
-    "hostObservedRows": 3,
+    "hostObservedRows": 4,
     "productClaimed": false,
     "checklistStatusChanged": false,
     "failures": 0
@@ -247,7 +247,7 @@
     "non-windows-known-active-tab-not-claimed",
     "linux-wsl-headless-browser-launch-proof-present-desktop-adapter-still-manual-required",
     "android-browser-package-visibility-proof-present",
-    "android-owned-browser-shell-emulator-device-owner-policy-mutation-proof-present-routing-enforcement-still-manual-required",
+    "android-owned-browser-shell-emulator-device-owner-policy-mutation-and-browser-role-routing-proof-present",
     "windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed",
     "windows-managed-cdp-exact-url-proof-present-final-enforcement-still-unclaimed",
     "ios-familycontrols-safari-extension-manual-required",
@@ -270,7 +270,7 @@
   "androidOwnedShellProof": {
     "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/15-android-owned-browser-shell-proof.json",
     "proofId": "browser-platform-android-owned-shell-proof",
-    "resultState": "android-owned-browser-shell-device-owner-policy-mutation-proof",
+    "resultState": "android-owned-browser-shell-browser-role-routing-proof",
     "attachedDeviceCount": 1,
     "bootedDeviceCount": 1,
     "ownedBrowserShellPackageInstalled": true,
@@ -288,9 +288,10 @@
     "deviceOwnerPolicyMutationAttempted": true,
     "deviceOwnerPolicyMutationObserved": true,
     "deviceOwnerPolicyMutationLimitedToProofLaunchedEmulator": true,
-    "androidOwnedBrowserRoutingEnforcementObserved": false,
+    "androidOwnedBrowserRoutingEnforcementObserved": true,
+    "androidBrowserRoleRoutingObserved": true,
     "deviceOwnerPolicyMutationClaimed": true,
-    "androidOwnedBrowserRoutingEnforcementClaimed": false,
+    "androidOwnedBrowserRoutingEnforcementClaimed": true,
     "exactUrlPolicyClaimed": false,
     "knownActiveTabProofClaimed": false,
     "deviceOwnerEnrollmentClaimed": true,

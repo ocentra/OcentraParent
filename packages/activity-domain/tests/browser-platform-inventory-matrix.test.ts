@@ -20,8 +20,8 @@ describe('browser platform inventory matrix', () => {
       ios: 2,
     });
     expect(proofCounts).toEqual({
-      'host-observed': 3,
-      'manual-required': 3,
+      'host-observed': 4,
+      'manual-required': 2,
       unsupported: 6,
     });
   });
@@ -55,10 +55,10 @@ describe('browser platform inventory matrix', () => {
     });
   });
 
-  it('marks mobile browser paths as owned-shell manual-required or unsupported only', () => {
+  it('marks mobile browser paths as owned-shell host-observed or unsupported only', () => {
     const matrix = BrowserInventoryPlatformMatrixSchema.parse(BrowserInventoryPlatformMatrix);
     const androidShell = matrix.entries.find(
-      (entry) => entry.reasonCode === 'android-owned-browser-shell-manual-required'
+      (entry) => entry.reasonCode === 'android-owned-browser-shell-browser-role-routing-proof'
     );
     const iosEntries = matrix.entries.filter((entry) => entry.platform === 'ios');
 
@@ -67,7 +67,8 @@ describe('browser platform inventory matrix', () => {
       managementTier: 'owned-shell',
       supportTier: 'candidate',
       exactUrlCapability: 'manual-required',
-      proofState: 'manual-required',
+      activeTabCapability: 'manual-required',
+      proofState: 'host-observed',
     });
     expect(iosEntries.every((entry) => entry.managementTier === 'unsupported')).toBe(true);
   });
