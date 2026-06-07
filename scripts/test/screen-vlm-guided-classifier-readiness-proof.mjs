@@ -26,6 +26,7 @@ const {
   ScreenVlmWorkerRuntimeRef,
   ScreenVlmWorkerSchemaVersion,
   ScreenVlmWorkerTemplateVersion,
+  screenVlmWorkerPromptIsOpenEnded,
 } = await import('@ocentra-parent/activity-domain/screen-vlm-worker');
 const {
   ScreenVlmExecutionReadinessProofSchema,
@@ -121,6 +122,12 @@ const manualStatus = screenVlmManualRequiredStatus({
   statusReason: 'The local VLM runtime is unavailable, so manual review is required.',
   degradedReasons: ['local-vlm-runtime-unavailable'],
 });
+const openEndedPromptRejected =
+  ScreenVlmWorkerJobSchema.safeParse({
+    ...job,
+    queueJobId: 'screen-vlm-guided-classifier-open-ended-job',
+    prompt: 'Describe the screen in detail.',
+  }).success === false;
 const readiness = ScreenVlmExecutionReadinessProofSchema.parse({
   schemaVersion: ScreenVlmExecutionReadinessSchemaVersion,
   proofId: 'screen-vlm-guided-classifier-readiness-proof',
@@ -158,7 +165,14 @@ const assertions = {
   ),
   maxImagePixelsBounded: job.maxImagePixels <= ScreenVlmWorkerMaxImagePixels,
   guidedTemplateVersionPinned: job.promptOrTemplateVersion === ScreenVlmWorkerTemplateVersion,
+  openEndedPromptsRejected: openEndedPromptRejected && !screenVlmWorkerPromptIsOpenEnded(job.prompt),
 };
+const localProviderRuntimeProbe = {
+  ollama: probeCommand('ollama', ['list']),
+  lmstudio: probeCommand('lmstudio', ['--version']),
+  llamaServer: probeCommand('llama-server', ['--version']),
+};
+const providerRuntimeAvailable = Object.values(localProviderRuntimeProbe).some((probe) => probe.available);
 
 const screenProof = {
   proof: 'screen-vlm-guided-classifier-readiness-proof',
@@ -171,6 +185,7 @@ const screenProof = {
     maxImagePixels: ScreenVlmWorkerMaxImagePixels,
   },
   statusRows,
+  localProviderRuntimeProbe,
   assertions,
   validationCommands: [
     'npm run build --workspace @ocentra-parent/activity-domain',
@@ -180,11 +195,14 @@ const screenProof = {
   completedChecklistClaims: [
     'guided VLM worker template/version is pinned',
     'image pixel budget is bounded for local worker handoff',
+    'open-ended screen description prompts are rejected before worker handoff',
     'manual-required behavior is represented when runtime is unavailable',
     'completed status rows require deleted query-store custody before policy eligibility',
   ],
   openChecklistClaims: [
-    'configured local Gemma-family or Qwen image runtime is not executed by this proof',
+    providerRuntimeAvailable
+      ? 'a local VLM provider command was detected, but live model execution is not run by this proof'
+      : 'no local VLM provider command was detected on PATH in this Windows lane',
     'detector-specific prompt-pack quality is not measured by this proof',
     'real crop extraction and visual classifier quality are not measured by this proof',
     'CPU/GPU/memory/runtime measurements remain unclaimed',
@@ -213,4 +231,22 @@ function runCommand(command, args) {
   if (result.status !== 0) {
     throw new Error(`${command} ${args.join(' ')} failed\n${result.stdout}\n${result.stderr}`);
   }
+}
+
+function probeCommand(command, args) {
+  const result = spawnSync(command, args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+  });
+  return {
+    command,
+    available: result.status === 0,
+    status: result.status ?? 1,
+    output: oneLine(result.stdout || result.stderr),
+  };
+}
+
+function oneLine(value) {
+  return value.replace(/\s+/g, ' ').trim();
 }

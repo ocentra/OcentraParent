@@ -31,6 +31,7 @@ export const ScreenVlmWorkerModelId = 'screen-local-vlm-safety-model';
 export const ScreenVlmWorkerRuntimeRef = 'screen-local-vlm-runtime';
 export const ScreenVlmWorkerMaxPromptCharacters = 1200;
 export const ScreenVlmWorkerMaxImagePixels = 2073600;
+export const ScreenVlmWorkerRejectedOpenEndedPromptTerms = ['describe the screen', 'describe this screen'] as const;
 
 const RequiredFalse = Schema.Literal(false);
 const RequiredTrue = Schema.Literal(true);
@@ -68,6 +69,11 @@ export const ScreenVlmWorkerJobSchema = withParser(
     ),
     Schema.filter(
       (value) =>
+        !screenVlmWorkerPromptIsOpenEnded(value.prompt) ||
+        'Expected VLM worker prompts to use guided classifier templates instead of open-ended screen descriptions'
+    ),
+    Schema.filter(
+      (value) =>
         value.capabilityStatus !== 'ready' ||
         (value.sourceEvidenceRefs.length > 0 &&
           value.custodyState === 'child-device-temp-queue' &&
@@ -78,6 +84,11 @@ export const ScreenVlmWorkerJobSchema = withParser(
     )
   )
 );
+
+export function screenVlmWorkerPromptIsOpenEnded(prompt: string) {
+  const normalizedPrompt = prompt.toLowerCase();
+  return ScreenVlmWorkerRejectedOpenEndedPromptTerms.some((term) => normalizedPrompt.includes(term));
+}
 
 export const ScreenVlmWorkerResultSchema = withParser(
   Schema.Struct({

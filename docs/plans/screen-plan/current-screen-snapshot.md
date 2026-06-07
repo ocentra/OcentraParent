@@ -49,6 +49,7 @@ static JSON-only claims, or fixture screenshots used as final proof.
 | Screen-plan closure audit                     | `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`                                                                                                     | Enumerates the remaining partial/open platform, live-view, and model-quality gates after the current Windows/service/eventing proof stack.                                        | Does not complete the remaining gates or replace real device/runtime proof.                                         |
 | Tesseract baseline extraction                 | `output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json`                                                                                                     | Installs/invokes local Tesseract 5.5.0 on Windows and extracts expected text terms from a retained real public Vimeo screenshot artifact.                                         | Does not select Tesseract, measure CPU/memory, record failure modes, or compare against PaddleOCR/PP-OCR.           |
 | PaddleOCR/PP-OCR runtime blocker              | `output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json`; `output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/paddleocr-runtime-attempt.log` | Installs/imports `paddleocr` 3.6.0 and `paddlepaddle` 3.3.1, records local PP-OCRv5 model-cache custody, and attempts local inference on the same real public Vimeo screenshot.   | Local inference fails before text extraction with a PaddlePaddle oneDNN/PIR runtime error; no production selection. |
+| Small VLM guided classifier readiness         | `output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json`                                                                                     | Proves guided VLM job/result/status contracts, max-pixel bound, open-ended prompt rejection, deleted query-store custody, manual-required state, and provider-command probes.     | No `ollama`, `lmstudio`, or `llama-server` command is available on PATH; no live VLM inference or quality claim.    |
 
 ## Known Gaps
 
@@ -64,7 +65,8 @@ static JSON-only claims, or fixture screenshots used as final proof.
 - Writable raw screenshot retention mode UI and privacy/legal approval.
 - Live view transport/platform proof and explicit UI.
 - Tesseract CPU/memory/failure-mode measurement, PaddleOCR runtime error
-  resolution/quality comparison, and live VLM quality measurement.
+  resolution/quality comparison, and live VLM provider/runtime quality
+  measurement.
 - Browser/network/mobile/broad block action adapters from screen-derived
   decisions.
 - Production parent explanation UX.

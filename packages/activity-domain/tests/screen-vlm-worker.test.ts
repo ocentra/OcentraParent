@@ -8,6 +8,7 @@ import {
   ScreenVlmWorkerRuntimeRef,
   ScreenVlmWorkerSchemaVersion,
   ScreenVlmWorkerTemplateVersion,
+  screenVlmWorkerPromptIsOpenEnded,
   screenVlmWorkerResultToAnalysisResult,
 } from '../src/screen-vlm-worker';
 
@@ -121,7 +122,7 @@ const VlmProof = {
   rawImageRemoteUploadEnabled: false,
 } as const;
 
-describe('screen VLM worker contracts', () => {
+describe('screen VLM worker parsing', () => {
   it('parses a guided local VLM job and converts the result into screen analysis evidence', () => {
     const job = ScreenVlmWorkerJobSchema.parse(VlmJob);
     const result = ScreenVlmWorkerResultSchema.parse(VlmResult);
@@ -134,7 +135,9 @@ describe('screen VLM worker contracts', () => {
     expect(analysis.imageDeletionState).toBe('deleted');
     expect(analysis.rawImageRetained).toBe(false);
   });
+});
 
+describe('screen VLM worker job guards', () => {
   it('rejects ready VLM jobs without source evidence, local custody, or bounded local image input', () => {
     const missingEvidence = ScreenVlmWorkerJobSchema.safeParse({
       ...VlmJob,
@@ -164,6 +167,19 @@ describe('screen VLM worker contracts', () => {
     expect(oversizedImage.success).toBe(false);
   });
 
+  it('rejects open-ended VLM description prompts before local worker handoff', () => {
+    const openEndedPrompt = ScreenVlmWorkerJobSchema.safeParse({
+      ...VlmJob,
+      prompt: 'Describe the screen in detail.',
+    });
+
+    expect(screenVlmWorkerPromptIsOpenEnded('Describe this screen')).toBe(true);
+    expect(screenVlmWorkerPromptIsOpenEnded(VlmJob.prompt)).toBe(false);
+    expect(openEndedPrompt.success).toBe(false);
+  });
+});
+
+describe('screen VLM worker result guards', () => {
   it('rejects VLM results that drift from schema-bound model output or become policy-eligible before deletion', () => {
     const categoryDrift = ScreenVlmWorkerResultSchema.safeParse({
       ...VlmResult,
@@ -187,7 +203,9 @@ describe('screen VLM worker contracts', () => {
     expect(policyBeforeDeletion.success).toBe(false);
     expect(remoteAi.success).toBe(false);
   });
+});
 
+describe('screen VLM worker proof guards', () => {
   it('requires proof rows to be local-only VLM rows with no raw retention or remote upload', () => {
     const proof = ScreenVlmWorkerProofSchema.parse(VlmProof);
     const remoteProof = ScreenVlmWorkerProofSchema.safeParse({
