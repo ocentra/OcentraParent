@@ -60,6 +60,9 @@ export function AppGameTimerParentSurfaceRoutePanel({
           )}
         >
           <AppGameTimerParentSurfaceSummaryCard intent={intent} />
+          {intent.parentActionRows.map((row) => (
+            <AppGameTimerParentSurfaceRowCard key={String(row.title)} row={row} />
+          ))}
           {intent.rows.length === 0 ? (
             <AppGameTimerParentSurfaceEmptyCard intent={intent} />
           ) : (

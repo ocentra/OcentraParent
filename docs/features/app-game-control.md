@@ -1227,7 +1227,10 @@ diagnostics, or raw private source rows.
       carries structured parent-surface intent records with source result ids,
       parent-surface intent refs, artifact refs, target domains, drill-in refs,
       and manual-proof refs while keeping raw targets and private diagnostics
-      out of the parent portal summary.
+      out of the parent portal summary. App/Game Sessions now renders those
+      structured records as parent action cards with readable manual-action and
+      preference-setup states, parent-safe refs, and explicit no-claim adapter,
+      child-delivery, and platform states.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

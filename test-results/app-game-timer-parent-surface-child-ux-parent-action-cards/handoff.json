@@ -1,0 +1,32 @@
+{
+  "workpack": "WP130",
+  "branch": "codex/app-game-control-product-completion",
+  "scope": "timer-parent-surface child UX parent action cards",
+  "status": "focused-validation-passed",
+  "renderedSurface": "App/Game Sessions",
+  "cardFields": [
+    "parentSurfaceIntentReferenceId",
+    "targetDomain",
+    "parentSurfaceStatus",
+    "sourceArtifactReferenceId",
+    "sourceResultId",
+    "historyVisibility",
+    "preferenceVisibility",
+    "drillInReferenceIds",
+    "manualProofReferenceIds",
+    "adapterDispatchClaimed",
+    "childDeliveryClaimed",
+    "platformEnforcementClaimed"
+  ],
+  "noClaims": [
+    "parent-preference-mutation",
+    "notification-rule-mutation",
+    "provider-delivery",
+    "receipt-ingestion",
+    "child-delivery",
+    "adapter-dispatch",
+    "platform-enforcement",
+    "raw-private-source-rows",
+    "raw-target-values"
+  ]
+}

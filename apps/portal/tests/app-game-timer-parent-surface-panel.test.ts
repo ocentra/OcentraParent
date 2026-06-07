@@ -217,6 +217,7 @@ function expectControlActionResultVisibility() {
   const intent = createAppGameTimerParentSurfacePanelIntent(liveActivity.appGameTimerParentSurfaceReadModel);
 
   expectActionResultSummaryDetails(intent.summaryDetails);
+  expectParentActionRows(intent.parentActionRows);
   expect(intent.summaryDetails).toContainEqual({
     label: 'Adapter dispatch',
     value: 'Not claimed',
@@ -311,10 +312,37 @@ function expectTimerParentSurfaceRows(rows: ReturnType<typeof createAppGameTimer
   expect(rowPairs(rows[1])).toContainEqual(['Status', 'Blocked by source freshness']);
 }
 
+function expectParentActionRows(
+  rows: ReturnType<typeof createAppGameTimerParentSurfacePanelIntent>['parentActionRows']
+) {
+  expect(rows.map((row) => row.title)).toEqual(['app-game-child-ux-parent-surface-action-result-app-game-1']);
+  expect(rowPairs(rows[0])).toContainEqual(['Target type', 'Native game']);
+  expect(rowPairs(rows[0])).toContainEqual(['Status', 'Manual action required']);
+  expect(rowPairs(rows[0])).toContainEqual([
+    'Child UX parent-surface artifact refs',
+    'app-game-child-ux-local-handoff-action-result-app-game-1',
+  ]);
+  expect(rowPairs(rows[0])).toContainEqual(['Child UX parent-surface sources', 'action-result-app-game-1']);
+  expect(rowPairs(rows[0])).toContainEqual(['Child UX parent-surface history visible', 'History row visible']);
+  expect(rowPairs(rows[0])).toContainEqual(['Child UX parent-surface preference setup', 'Preference setup required']);
+  expect(rowPairs(rows[0])).toContainEqual([
+    'Child UX parent-surface drill-in refs',
+    'app-game-child-ux-local-handoff-action-result-app-game-1 | parent-approved | child-status-limit-reached',
+  ]);
+  expect(rowPairs(rows[0])).toContainEqual([
+    'Child UX parent-surface manual proof refs',
+    'parent-approved | child-status-limit-reached',
+  ]);
+  expect(rowPairs(rows[0])).toContainEqual(['Adapter dispatch', 'Not claimed']);
+  expect(rowPairs(rows[0])).toContainEqual(['Child delivery', 'Not claimed']);
+  expect(rowPairs(rows[0])).toContainEqual(['Platform state', 'Not claimed']);
+}
+
 function expectAbsentServiceInput() {
   const intent = createAppGameTimerParentSurfacePanelIntent(null);
 
   expect(intent.loadState).toBe('Unavailable');
+  expect(intent.parentActionRows).toEqual([]);
   expect(intent.rows).toEqual([]);
   expect(intent.emptyMessage).toBe('No app/game timer parent-surface read model has been reported yet.');
   expect(intent.summaryDetails).toContainEqual({
@@ -371,6 +399,8 @@ function timerParentSurfaceRow(
   };
 }
 
-function rowPairs(row: ReturnType<typeof createAppGameTimerParentSurfacePanelIntent>['rows'][number]) {
+function rowPairs(row: {
+  readonly details: ReturnType<typeof createAppGameTimerParentSurfacePanelIntent>['rows'][number]['details'];
+}) {
   return row.details.map((detail) => [detail.label, detail.value]);
 }

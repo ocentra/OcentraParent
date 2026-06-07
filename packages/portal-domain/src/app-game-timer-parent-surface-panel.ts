@@ -12,8 +12,11 @@ import { PortalDetails, PortalReadableValues } from './details';
 const DetailSeparator = ' | ';
 
 const Readable = {
+  HistoryRowVisible: decodeDisplayText('History row visible'),
   ManualRequired: requiredReadableValue('manual-required'),
+  ManualActionRequired: decodeDisplayText('Manual action required'),
   NotClaimed: requiredReadableValue('not-claimed'),
+  PreferenceSetupRequired: decodeDisplayText('Preference setup required'),
   Ready: requiredReadableValue('ready'),
   Review: requiredReadableValue('warn'),
   Unavailable: requiredReadableValue('unavailable'),
@@ -92,6 +95,7 @@ export type AppGameTimerParentSurfacePanelIntent = {
   readonly body: DisplayText;
   readonly loadState: DisplayText;
   readonly summaryDetails: readonly AppGameTimerParentSurfacePanelDetail[];
+  readonly parentActionRows: readonly AppGameTimerParentSurfacePanelRow[];
   readonly rows: readonly AppGameTimerParentSurfacePanelRow[];
   readonly emptyMessage: DisplayText;
   readonly productClaim: DisplayText;
@@ -110,6 +114,7 @@ export function createAppGameTimerParentSurfacePanelIntent(
         detail(PortalDetails.Status, Readable.Unavailable),
         detail(PortalDetails.ProductClaim, base.productClaim),
       ],
+      parentActionRows: [],
       rows: [],
     };
   }
@@ -123,17 +128,19 @@ export function createAppGameTimerParentSurfacePanelIntent(
         detail(PortalDetails.Reason, displayText(readModelResult.reason)),
         detail(PortalDetails.ProductClaim, base.productClaim),
       ],
+      parentActionRows: [],
       rows: [],
     };
   }
 
+  const resolvedProductClaim = productClaim(readModelResult.value, base.productClaim);
+
   return {
     ...base,
     loadState: timerSurfaceLoadState(readModelResult.value),
-    summaryDetails: readModelSummary(readModelResult.value, productClaim(readModelResult.value, base.productClaim)),
-    rows: readModelResult.value.rows.map((row) =>
-      timerSurfaceRow(row, productClaim(readModelResult.value, base.productClaim))
-    ),
+    summaryDetails: readModelSummary(readModelResult.value, resolvedProductClaim),
+    parentActionRows: parentSurfaceIntentRows(readModelResult.value, resolvedProductClaim),
+    rows: readModelResult.value.rows.map((row) => timerSurfaceRow(row, resolvedProductClaim)),
   };
 }
 
@@ -280,6 +287,57 @@ function timerSurfaceRow(
       detail(PortalDetails.ProductClaim, productClaim),
     ],
   };
+}
+
+function parentSurfaceIntentRows(
+  readModel: AgentAppGameTimerParentSurfaceReadModel,
+  productClaim: DisplayText
+): readonly AppGameTimerParentSurfacePanelRow[] {
+  return readModel.childUxParentSurfaceIntentRecords.map((record) => ({
+    title: displayText(record.parentSurfaceIntentReferenceId),
+    details: [
+      detail(PortalDetails.TargetType, TimerParentSurfaceTargetLabels[record.targetDomain]),
+      detail(PortalDetails.Status, parentSurfaceRecordReadableValue(record.parentSurfaceStatus)),
+      detail(
+        TimerParentSurfaceDetails.ChildUxParentSurfaceIntentArtifactRefs,
+        displayText(record.sourceArtifactReferenceId)
+      ),
+      detail(TimerParentSurfaceDetails.ChildUxParentSurfaceIntentSources, displayText(record.sourceResultId)),
+      detail(
+        TimerParentSurfaceDetails.ChildUxParentSurfaceIntentHistoryVisible,
+        parentSurfaceRecordReadableValue(record.historyVisibility)
+      ),
+      detail(
+        TimerParentSurfaceDetails.ChildUxParentSurfaceIntentPreferenceSetup,
+        parentSurfaceRecordReadableValue(record.preferenceVisibility)
+      ),
+      detail(
+        TimerParentSurfaceDetails.ChildUxParentSurfaceIntentDrillInRefs,
+        joinedOrNotReported(record.drillInReferenceIds)
+      ),
+      detail(
+        TimerParentSurfaceDetails.ChildUxParentSurfaceIntentManualProofRefs,
+        joinedOrNotReported(record.manualProofReferenceIds)
+      ),
+      detail(PortalDetails.AdapterDispatch, claimedValue(record.adapterDispatchClaimed)),
+      detail(PortalDetails.ChildDelivery, claimedValue(record.childDeliveryClaimed)),
+      detail(PortalDetails.PlatformState, claimedValue(record.platformEnforcementClaimed)),
+      detail(PortalDetails.ProductClaim, productClaim),
+    ],
+  }));
+}
+
+function parentSurfaceRecordReadableValue(value: string): DisplayText {
+  if (value === 'history-row-visible') {
+    return Readable.HistoryRowVisible;
+  }
+  if (value === 'manual-action-required') {
+    return Readable.ManualActionRequired;
+  }
+  if (value === 'preference-setup-required') {
+    return Readable.PreferenceSetupRequired;
+  }
+  return readableValue(value);
 }
 
 function timerSurfaceLoadState(readModel: AgentAppGameTimerParentSurfaceReadModel): DisplayText {
