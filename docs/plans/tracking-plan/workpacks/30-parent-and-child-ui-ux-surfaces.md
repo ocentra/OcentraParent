@@ -68,6 +68,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `27-child-runtime-execution-readiness-proof.json`
 - `28-child-runtime-snapshot-requirements-proof.json`
 - `29-child-runtime-product-readiness-blocker-proof.json`
+- `30-child-runtime-artifact-gate-proof.json`
 - Unsupported/manual platform screenshot:
   `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui.png`
 - Accessibility summary:
@@ -123,6 +124,11 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       physical-device, and authority blockers without claiming child-device
       delivery, runtime execution, provider delivery, production, or
       product-ready behavior.
+- [x] Add a child-runtime artifact gate proof that verifies the required real
+      child-device delivery/execution artifact names and keeps actual delivery,
+      execution, rendered child UI runtime, parent receipt runtime, runtime
+      observation, physical-device, authority, provider delivery, production,
+      and product-ready claims false until those artifacts exist.
 - [x] Render and screenshot hosted family dashboard rollup rows without claiming
       full dashboard UI, child-device delivery, authority, provider delivery,
       physical-device execution, or production readiness.
@@ -303,6 +309,11 @@ provider delivery, and production proof remain pending.
 gaps in the aggregate pre-device gate so the next pass can run actual
 child-device runtime execution and full parent/child UI proof beyond the hosted
 parent route before any product claim.
+`node scripts/test/tracking-child-runtime-artifact-gate-proof.mjs` now records
+the exact required child-device runtime artifact names under WP30/WP33 and keeps
+the row `manual-required` until real delivery envelope, execution result,
+rendered child UI snapshot, parent receipt, runtime observation, consent state,
+device log, and result summary artifacts exist.
 
 ## Where We Want To Be
 

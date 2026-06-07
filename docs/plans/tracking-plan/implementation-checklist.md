@@ -677,10 +677,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       proof, hosted child-runtime UI proof, hosted child-runtime execution
       readiness proof, hosted read-only evidence drawer proof, hosted UI
       artifact inventory proof, physical-device artifact gate proof, refreshed
-      product-readiness closure proof, and remaining Android/iOS physical-device
-      behavior, authority, actual child-device delivery/runtime execution, full
-      child/parent UI beyond the hosted parent route, provider-delivery, and
-      production gaps.
+      product-readiness closure proof, child-runtime artifact gate proof, and
+      remaining Android/iOS physical-device behavior, authority, actual
+      child-device delivery/runtime execution, full child/parent UI beyond the
+      hosted parent route, provider-delivery, and production gaps.
 
 ## UI Snapshot Gates
 
@@ -714,6 +714,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       delivery, execution-result, rendered child UI, parent receipt, runtime
       observation, physical-device, and authority blockers in
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/29-child-runtime-product-readiness-blocker-proof.json`,
+      and WP30/WP33 child-runtime artifact gate proof now verifies the exact
+      required real child-device artifact names in
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/30-child-runtime-artifact-gate-proof.json`
+      and
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json`,
       but actual child-device delivery/execution remains unproved.
 - [x] Hosted screenshots are stored under the assigned proof root. The runtime proof
       command captures the local parent fixture screenshot at
@@ -810,6 +815,18 @@ Every implementation workpack must update, or explicitly justify not updating:
       Current Android/iOS rows are `manual-required`, missing the real-device
       artifact sets, and keep physical-device behavior, authority, provider
       delivery, production workers, and product-ready tracking false.
+- [x] Child-runtime artifact gate proof now verifies the required real
+      child-device runtime evidence root and required artifact names before any
+      actual child-device delivery/execution, rendered child runtime UI, parent
+      receipt runtime, or runtime-observation claim can be made. Proof:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json`;
+      command:
+      `node scripts/test/tracking-child-runtime-artifact-gate-proof.mjs`.
+      Current rows are `manual-required`, missing the real child-device
+      artifact set, and keep child-device delivery/execution, rendered child UI
+      runtime, parent receipt runtime, runtime observation, physical-device
+      proof, authority, provider delivery, production workers, and product-ready
+      tracking false.
 - [x] Authority enrollment manual-required proof records Android device-owner,
       Android managed-profile, iOS Family Controls entitlement, iOS App Review,
       and desktop managed-policy evidence requirements under WP31/WP33 without
