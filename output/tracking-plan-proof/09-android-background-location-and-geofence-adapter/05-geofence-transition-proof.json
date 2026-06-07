@@ -1,18 +1,26 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T01:02:21.639Z",
-  "commit": "30a3a1de96b6e3ab141d903fa968f33c509c883e",
+  "checkedAt": "2026-06-07T01:26:54.810Z",
+  "commit": "935f87e45644f4ad3ca016848c3ec9492eb2c700",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
-  "currentStatus": "background_permission_granted_geofence_transition_manual_required",
+  "currentStatus": "background_permission_granted_emulator_enter_exit_transition_observed",
   "packageLaunchObserved": true,
   "foregroundServiceObserved": true,
   "backgroundLocationPermissionRequested": true,
   "backgroundLocationPermissionGranted": true,
   "backgroundLocationPermissionStateText": "background-location-permission-granted",
-  "backgroundGeofenceStateText": "background-geofence-transition-manual-required",
-  "geofenceTransitionCount": 0,
-  "missingProofReason": "Background location permission grant state was observed on the emulator package, but no background location sample, geofence transition, physical-device behavior, authority, or product-ready tracking is claimed.",
+  "backgroundGeofenceStateText": "background-geofence-transition-observed-emulator",
+  "geofenceTransitionCount": 3,
+  "geofenceEnterCount": 2,
+  "geofenceExitCount": 1,
+  "geofenceLastTransition": "enter",
+  "geofenceSource": "android-location-manager-gps-listener-local-geofence",
+  "geofenceRegistered": true,
+  "geofenceHasInsideState": true,
+  "geofenceInsideState": true,
+  "geofenceTransitionBoundary": "emulator-location-manager-gps-listener-local-geofence-enter-exit-only",
+  "missingProofReason": "Background location permission grant and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, and product-ready tracking remain unclaimed.",
   "device": {
     "serial": "emulator-5554",
     "androidRelease": "15",
@@ -35,6 +43,8 @@
     "screenshotInspection": "test-results/tracking-plan-android-emulator-proof/12-screenshot-inspection.json",
     "foregroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-grant.txt",
     "foregroundLocationSeed": "test-results/tracking-plan-android-emulator-proof/14-foreground-location-seed.txt",
-    "backgroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/15-background-location-permission-grant.txt"
+    "backgroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/15-background-location-permission-grant.txt",
+    "geofenceTransitionRoute": "test-results/tracking-plan-android-emulator-proof/16-geofence-transition-route.txt",
+    "geofenceTransitionPrefs": "test-results/tracking-plan-android-emulator-proof/17-geofence-transition-prefs.xml"
   }
 }

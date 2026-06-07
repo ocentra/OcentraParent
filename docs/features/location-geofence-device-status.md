@@ -146,15 +146,16 @@ expose location or device-status features. Parents expect this category.
   coordinate export, background/geofence transitions, physical-device behavior,
   authority, provider delivery, production upload workers, and product-ready
   Android tracking remain unclaimed.
-- WP09 Android emulator background permission-state proof now exists through
-  `npm run test:tracking-plan-android-emulator-proof`. It declares
-  `ACCESS_BACKGROUND_LOCATION`, grants it on the API 35 emulator, renders
-  `background-location-permission-granted` and
-  `background-geofence-transition-manual-required` in the app UI, and records
-  those fields in
+- WP09 Android emulator background permission and local-geofence enter/exit
+  proof now exists through `npm run test:tracking-plan-android-emulator-proof`.
+  It declares `ACCESS_BACKGROUND_LOCATION`, grants it on the API 35 emulator,
+  drives an outside/inside/outside emulator `geo fix` route, records
+  app-owned `LocationManager` GPS-listener local-geofence transition rows, and
+  renders `background-geofence-transition-observed-emulator` with enter/exit
+  counts in the app UI. The generated proof lives at
   `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json`.
-  This is local emulator background permission-state proof only; background
-  sample collection, geofence transitions, Android 11+ settings-page flow,
+  This is local emulator proof only; Android system geofencing, dwell
+  transitions, background sample collection, Android 11+ settings-page flow,
   physical-device behavior, authority, provider delivery, production upload
   workers, and product-ready Android tracking remain unclaimed.
 - P1 evidence-quality gate proof now exists through
@@ -544,12 +545,12 @@ accessibility beyond the hosted parent route are proved.
       physical-device, authority, production storage, adapter dispatch, or
       product-ready notification behavior.
 - [ ] Android permission/background runtime proof. WP08 emulator foreground
-      permission/sample metadata and WP09 emulator background permission-state
-      proof now exist, and WP08/WP09 parent-domain manual-required proof rows
-      still preserve the remaining background sample/geofence transition gaps;
-      fused/current sample collection, raw coordinate export, geofence
-      transition runtime, Android 11+ settings-page flow, and physical-device
-      proof remain pending.
+      permission/sample metadata and WP09 emulator background permission plus
+      local-geofence enter/exit proof now exist, and WP08/WP09 parent-domain
+      manual-required proof rows still preserve the remaining background
+      sample, Android system geofencing, dwell, settings-flow, and device gaps;
+      fused/current sample collection, raw coordinate export, Android 11+
+      settings-page flow, and physical-device proof remain pending.
 - [x] Android emulator package launch, foreground-service scaffold, battery,
       and connectivity proof. This is not foreground location or geofence
       proof.
@@ -718,11 +719,11 @@ accessibility beyond the hosted parent route are proved.
       fused/current sample collection, raw coordinate export,
       background/geofence, physical-device, authority, provider delivery,
       production workers, and product-ready Android tracking remain unclaimed.
-- [x] WP09 Android emulator background permission-state proof. This is local
-      emulator evidence only; background sample collection,
-      enter/exit/dwell geofence transitions, Android 11+ settings-page flow,
-      physical-device, authority, provider delivery, production workers, and
-      product-ready Android tracking remain unclaimed.
+- [x] WP09 Android emulator background permission and local-geofence enter/exit
+      proof. This is local emulator evidence only; Android system geofencing,
+      dwell transitions, background sample collection, Android 11+
+      settings-page flow, physical-device, authority, provider delivery,
+      production workers, and product-ready Android tracking remain unclaimed.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence
       source refs, nearby-place context fields, AI no-final-action constraints,
       alert policy-decision refs, and retention before/after proof. This is not
@@ -740,6 +741,7 @@ presence as hints only. The pre-device proof gate is now repeatable; the next
 implementation layers are broader tracking journal/read-model product surfaces,
 applied/product-ready retention settings execution beyond hosted preflight
 rendering, full portal UI snapshots/accessibility beyond the hosted route,
-remaining Android foreground-location and background/geofence runtime proof, iOS
-Core Location/region proof beyond simulator package launch, then physical
-Android/iOS proof and authority proof only when matching devices are enrolled.
+remaining Android fused/current foreground-location, background sample,
+Android system geofencing/dwell/settings-flow proof, iOS Core Location/region
+proof beyond simulator package launch, then physical Android/iOS proof and
+authority proof only when matching devices are enrolled.

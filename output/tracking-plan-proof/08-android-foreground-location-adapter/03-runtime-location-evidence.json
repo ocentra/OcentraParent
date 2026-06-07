@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T01:02:21.639Z",
-  "commit": "30a3a1de96b6e3ab141d903fa968f33c509c883e",
+  "checkedAt": "2026-06-07T01:26:54.810Z",
+  "commit": "935f87e45644f4ad3ca016848c3ec9492eb2c700",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "foreground_permission_granted_last_known_sample_metadata_observed",
@@ -14,7 +14,7 @@
   "foregroundLocationPermissionStateText": "foreground-location-permission-granted",
   "foregroundLocationSampleStateText": "last-known-location-sample-observed",
   "foregroundLocationProvider": "gps",
-  "foregroundLocationObservedAtEpochMillis": 1780794135830,
+  "foregroundLocationObservedAtEpochMillis": 1780795608302,
   "foregroundLocationAccuracyMeters": 5,
   "missingProofReason": "Foreground location permission grant, app-emitted last-known sample state, provider, observed timestamp, and accuracy were observed on the emulator package; raw coordinates, fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.",
   "device": {
@@ -39,6 +39,8 @@
     "screenshotInspection": "test-results/tracking-plan-android-emulator-proof/12-screenshot-inspection.json",
     "foregroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-grant.txt",
     "foregroundLocationSeed": "test-results/tracking-plan-android-emulator-proof/14-foreground-location-seed.txt",
-    "backgroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/15-background-location-permission-grant.txt"
+    "backgroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/15-background-location-permission-grant.txt",
+    "geofenceTransitionRoute": "test-results/tracking-plan-android-emulator-proof/16-geofence-transition-route.txt",
+    "geofenceTransitionPrefs": "test-results/tracking-plan-android-emulator-proof/17-geofence-transition-prefs.xml"
   }
 }

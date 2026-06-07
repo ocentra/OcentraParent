@@ -31,6 +31,7 @@ public final class MainActivity extends Activity {
                 TrackingAndroidForegroundLocationProof.REQUEST_FOREGROUND_LOCATION
             );
         }
+        TrackingAndroidBackgroundLocationProof.registerEmulatorGeofenceProof(this);
         Bundle foregroundLocationProof = TrackingAndroidForegroundLocationProof.createForegroundLocationBundle(this);
 
         TextView status = new TextView(this);
@@ -127,6 +128,36 @@ public final class MainActivity extends Activity {
             "\n" +
             backgroundLocationProof.getString(
                 TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_STATE
+            ) +
+            "\n" +
+            TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_TRANSITION_COUNT +
+            ":" +
+            backgroundLocationProof.getInt(
+                TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_TRANSITION_COUNT
+            ) +
+            "\n" +
+            TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_ENTER_COUNT +
+            ":" +
+            backgroundLocationProof.getInt(
+                TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_ENTER_COUNT
+            ) +
+            "\n" +
+            TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_EXIT_COUNT +
+            ":" +
+            backgroundLocationProof.getInt(
+                TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_EXIT_COUNT
+            ) +
+            "\n" +
+            TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_LAST_TRANSITION +
+            ":" +
+            backgroundLocationProof.getString(
+                TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_LAST_TRANSITION
+            ) +
+            "\n" +
+            TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_SOURCE +
+            ":" +
+            backgroundLocationProof.getString(
+                TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_SOURCE
             ) +
             foregroundLocationMetadata;
     }

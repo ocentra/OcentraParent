@@ -1,0 +1,1 @@
+PASS adb shell am force-stop ca.ocentra.parent.agent
