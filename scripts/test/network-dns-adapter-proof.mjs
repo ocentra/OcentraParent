@@ -1,9 +1,13 @@
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const proofRoot = join('output', 'network-plan-proof', '37-dns-proxy-block-redirect-adapter');
 const testRoot = join('test-results', 'network-dns-adapter-proof');
+const proofRevision = 'network-dns-adapter-proof/v1';
+const proofBranch = 'codex/network-adapter-gate-proof-artifacts';
+const deterministicCheckedAt = `deterministic:${proofRevision}`;
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 
@@ -59,9 +63,11 @@ const commandResults = commands.map(runCommand);
 
 const proof = {
   proof: 'network-dns-adapter',
-  checkedAt: new Date().toISOString(),
-  branch: runText('git', ['branch', '--show-current']).trim(),
-  sourceCommit: runText('git', ['rev-parse', 'HEAD']).trim(),
+  proofRevision,
+  checkedAt: deterministicCheckedAt,
+  branch: proofBranch,
+  sourceCommit: `source-tree:${sourceTreeFingerprint()}`,
+  sourceTreeFingerprint: sourceTreeFingerprint(),
   artifactCommit: 'see the enclosing git commit for generated proof artifacts',
   originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
   mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
@@ -112,12 +118,10 @@ function runText(command, args) {
 }
 
 function sourceStatusShort() {
-  return runText('git', [
-    'status',
-    '--short',
-    '--',
-    '.',
-    ':(exclude)output/network-plan-proof/37-dns-proxy-block-redirect-adapter',
-    ':(exclude)test-results/network-dns-adapter-proof',
-  ]);
+  return runText('git', ['status', '--short', '--', '.', ':(exclude)output', ':(exclude)test-results']);
+}
+
+function sourceTreeFingerprint() {
+  const sourceIndex = runText('git', ['ls-files', '-s', '--', '.', ':(exclude)output', ':(exclude)test-results']);
+  return createHash('sha256').update(sourceIndex).digest('hex');
 }
