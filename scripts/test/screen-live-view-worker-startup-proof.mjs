@@ -38,7 +38,7 @@ const proof = {
   proof: 'screen-live-view-worker-startup-proof',
   generatedAt: new Date().toISOString(),
   claim:
-    'The Rust agent-service live-view worker startup gate is wired behind the existing runtime decision boundary and stays fail-closed unless runtime readiness, live-view platform prompt artifact, relay/cache execution when needed, physical-device parity, and privacy/legal approval are all proved.',
+    'The Rust agent-service live-view worker startup gate is wired behind the existing runtime decision boundary, distinguishes startup permission from an actually started worker, and stays fail-closed unless runtime readiness, live-view platform prompt artifact, relay/cache execution when needed, physical-device parity, and privacy/legal approval are all proved.',
   sourceEvidence: {
     liveTransportProof: relativePath(transportProofPath),
     liveTransportProofPresent: existsSync(transportProofPath),
@@ -66,10 +66,12 @@ const proof = {
     relayCacheExecutionRequiredForRelayMode: true,
     physicalDeviceParityRequired: true,
     privacyLegalApprovalRequired: true,
-    readyStateExistsOnlyAfterAllProductGates: true,
+    startupPermissionExistsOnlyAfterAllProductGates: true,
+    startupPermissionDoesNotClaimWorkerStarted: true,
   },
   gapStatus: {
     workerStartupGateExists: true,
+    productionWorkerStartPermittedOnlyAfterAllGates: true,
     productionWorkerStarted: false,
     liveViewPermissionPromptProofExists: false,
     relayCacheExecutionProofExists: false,
@@ -85,6 +87,7 @@ const proof = {
     rawFrameDeletionCarriedForward: transportProof.assertions.rawFrameDeletedAfterTransport === true,
     parentUiPersistenceCarriedForward: parentUiPersistenceProof.assertions?.parentUiPersistenceStateProved === true,
     workerRemainsStoppedWithoutExternalGates: true,
+    startupPermissionIsNotWorkerExecution: true,
   },
   nonClaims: [
     'This proof does not start a production live-view worker.',

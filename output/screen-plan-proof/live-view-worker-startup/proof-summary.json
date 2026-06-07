@@ -1,7 +1,7 @@
 {
   "proof": "screen-live-view-worker-startup-proof",
-  "generatedAt": "2026-06-07T10:01:58.313Z",
-  "claim": "The Rust agent-service live-view worker startup gate is wired behind the existing runtime decision boundary and stays fail-closed unless runtime readiness, live-view platform prompt artifact, relay/cache execution when needed, physical-device parity, and privacy/legal approval are all proved.",
+  "generatedAt": "2026-06-07T12:50:19.335Z",
+  "claim": "The Rust agent-service live-view worker startup gate is wired behind the existing runtime decision boundary, distinguishes startup permission from an actually started worker, and stays fail-closed unless runtime readiness, live-view platform prompt artifact, relay/cache execution when needed, physical-device parity, and privacy/legal approval are all proved.",
   "sourceEvidence": {
     "liveTransportProof": "output/screen-plan-proof/live-view-session-transport/proof-summary.json",
     "liveTransportProofPresent": true,
@@ -29,10 +29,12 @@
     "relayCacheExecutionRequiredForRelayMode": true,
     "physicalDeviceParityRequired": true,
     "privacyLegalApprovalRequired": true,
-    "readyStateExistsOnlyAfterAllProductGates": true
+    "startupPermissionExistsOnlyAfterAllProductGates": true,
+    "startupPermissionDoesNotClaimWorkerStarted": true
   },
   "gapStatus": {
     "workerStartupGateExists": true,
+    "productionWorkerStartPermittedOnlyAfterAllGates": true,
     "productionWorkerStarted": false,
     "liveViewPermissionPromptProofExists": false,
     "relayCacheExecutionProofExists": false,
@@ -47,7 +49,8 @@
     "realLoopbackTransportArtifactCarriedForward": true,
     "rawFrameDeletionCarriedForward": true,
     "parentUiPersistenceCarriedForward": true,
-    "workerRemainsStoppedWithoutExternalGates": true
+    "workerRemainsStoppedWithoutExternalGates": true,
+    "startupPermissionIsNotWorkerExecution": true
   },
   "nonClaims": [
     "This proof does not start a production live-view worker.",

@@ -23,6 +23,7 @@ fn screen_live_view_worker_startup_stays_disabled_when_live_view_is_disabled() {
         decision.startup_state,
         ScreenLiveViewWorkerStartupState::Disabled
     );
+    assert_eq!(decision.startup_permitted, false);
     assert_eq!(decision.worker_started, false);
     assert_eq!(decision.product_live_view_ready, false);
 }
@@ -45,6 +46,7 @@ fn screen_live_view_worker_startup_requires_runtime_readiness() {
         decision.block_reason,
         Some(ScreenLiveViewWorkerStartupBlockReason::RuntimeNotReady)
     );
+    assert_eq!(decision.startup_permitted, false);
     assert_eq!(decision.worker_started, false);
 }
 
@@ -59,6 +61,7 @@ fn screen_live_view_worker_startup_requires_platform_prompt_artifact() {
         decision.block_reason,
         Some(ScreenLiveViewWorkerStartupBlockReason::MissingPlatformPromptArtifact)
     );
+    assert_eq!(decision.startup_permitted, false);
     assert_eq!(decision.worker_started, false);
 }
 
@@ -80,6 +83,8 @@ fn screen_live_view_worker_startup_requires_relay_cache_for_relay_mode() {
         decision.block_reason,
         Some(ScreenLiveViewWorkerStartupBlockReason::MissingRelayCacheExecution)
     );
+    assert_eq!(decision.startup_permitted, false);
+    assert_eq!(decision.worker_started, false);
     assert_eq!(decision.product_live_view_ready, false);
 }
 
@@ -104,12 +109,14 @@ fn screen_live_view_worker_startup_requires_physical_parity_and_privacy_approval
         missing_privacy.block_reason,
         Some(ScreenLiveViewWorkerStartupBlockReason::MissingPrivacyLegalApproval)
     );
+    assert_eq!(missing_physical_parity.startup_permitted, false);
+    assert_eq!(missing_privacy.startup_permitted, false);
     assert_eq!(missing_physical_parity.worker_started, false);
     assert_eq!(missing_privacy.worker_started, false);
 }
 
 #[test]
-fn screen_live_view_worker_startup_can_be_ready_only_after_all_product_gates() {
+fn screen_live_view_worker_startup_can_be_permitted_only_after_all_product_gates() {
     let decision = evaluate_screen_live_view_worker_startup(ready_startup_input());
 
     assert_eq!(
@@ -117,7 +124,8 @@ fn screen_live_view_worker_startup_can_be_ready_only_after_all_product_gates() {
         ScreenLiveViewWorkerStartupState::ReadyToStart
     );
     assert_eq!(decision.block_reason, None);
-    assert_eq!(decision.worker_started, true);
+    assert_eq!(decision.startup_permitted, true);
+    assert_eq!(decision.worker_started, false);
     assert_eq!(decision.product_live_view_ready, true);
 }
 

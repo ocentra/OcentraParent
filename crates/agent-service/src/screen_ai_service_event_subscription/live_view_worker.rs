@@ -30,6 +30,7 @@ pub(crate) struct ScreenLiveViewWorkerStartupInput {
 pub(crate) struct ScreenLiveViewWorkerStartupDecision {
     pub(crate) startup_state: ScreenLiveViewWorkerStartupState,
     pub(crate) block_reason: Option<ScreenLiveViewWorkerStartupBlockReason>,
+    pub(crate) startup_permitted: bool,
     pub(crate) worker_started: bool,
     pub(crate) product_live_view_ready: bool,
 }
@@ -41,6 +42,7 @@ pub(crate) fn evaluate_screen_live_view_worker_startup(
         return ScreenLiveViewWorkerStartupDecision {
             startup_state: ScreenLiveViewWorkerStartupState::Disabled,
             block_reason: None,
+            startup_permitted: false,
             worker_started: false,
             product_live_view_ready: false,
         };
@@ -71,7 +73,8 @@ pub(crate) fn evaluate_screen_live_view_worker_startup(
     ScreenLiveViewWorkerStartupDecision {
         startup_state: ScreenLiveViewWorkerStartupState::ReadyToStart,
         block_reason: None,
-        worker_started: true,
+        startup_permitted: true,
+        worker_started: false,
         product_live_view_ready: true,
     }
 }
@@ -80,6 +83,7 @@ fn blocked(reason: ScreenLiveViewWorkerStartupBlockReason) -> ScreenLiveViewWork
     ScreenLiveViewWorkerStartupDecision {
         startup_state: ScreenLiveViewWorkerStartupState::Blocked,
         block_reason: Some(reason),
+        startup_permitted: false,
         worker_started: false,
         product_live_view_ready: false,
     }

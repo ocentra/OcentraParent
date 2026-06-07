@@ -509,15 +509,18 @@ only with explicit parent settings.
   approval.
 - `scripts/test/screen-live-view-worker-startup-proof.mjs` now proves the Rust
   `agent-service` live-view worker startup gate behind that runtime decision
-  boundary. The gate refuses to start the worker unless the runtime is
-  product-ready and real live-view prompt artifacts, relay/cache execution when
-  needed, physical-device parity, and privacy/legal approval are all present.
-  The proof consumes the existing real loopback frame transport/deletion,
-  runtime, and parent UI persistence artifacts, writes
+  boundary. The gate separates `startupPermitted` from actual worker execution,
+  refuses startup permission unless the runtime is product-ready and real
+  live-view prompt artifacts, relay/cache execution when needed, physical-device
+  parity, and privacy/legal approval are all present, and still records no
+  production worker execution in the current proof. The proof consumes the
+  existing real loopback frame transport/deletion, runtime, and parent UI
+  persistence artifacts, writes
   `output/screen-plan-proof/live-view-worker-startup/proof-summary.json`, and
-  keeps `productionWorkerStarted: false`. This is not a real platform prompt
-  screenshot, relay/cache execution, physical-device live-view parity,
-  privacy/legal approval, or product-complete live view.
+  keeps `productionWorkerStarted: false`. Startup permission is not treated as
+  a real platform prompt screenshot, relay/cache execution, physical-device
+  live-view parity, privacy/legal approval, a started worker, or product-complete
+  live view.
 - `ScreenManagedBrowserCdpScreenshotRequestSchema`,
   `ScreenManagedBrowserCdpScreenshotArtifactSchema`, and
   `scripts/test/screen-managed-browser-cdp-capture-proof.mjs` now prove the
@@ -822,9 +825,10 @@ parity, and UI remain separate proof gates.
       recording, and remote input, while preserving a service-ready but
       product-blocked state until platform prompt, production worker,
       relay/cache, physical parity, and privacy/legal gates exist.
-- [x] Rust agent-service live-view worker startup gate refuses worker start
-      until runtime readiness, real platform prompt artifact, relay/cache when
-      needed, physical-device parity, and privacy/legal approval exist.
+- [x] Rust agent-service live-view worker startup gate separates startup
+      permission from actual worker execution and refuses permission until
+      runtime readiness, real platform prompt artifact, relay/cache when needed,
+      physical-device parity, and privacy/legal approval exist.
 - [x] Local AI resource scheduler prevents multiple heavy OCR/VLM jobs and
       prioritizes policy-blocking screen analysis.
 - [x] Detector-specific prompt packs replace open-ended screen descriptions and
