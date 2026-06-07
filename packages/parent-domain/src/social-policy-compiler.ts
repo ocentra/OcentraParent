@@ -166,19 +166,33 @@ function socialPolicyCompilerInputIsConsistent(value: Infer<typeof SocialParentP
   if (socialPolicyCompilerInputClaimsAuthority(value)) {
     return false;
   }
+
   if (value.compilerMode === 'contract-only') {
-    return (
-      value.signalSetRefs.length > 0 &&
-      value.parentRuleRefs.length > 0 &&
-      value.scheduleContextRefs.length > 0 &&
-      value.timeBudgetContextRefs.length > 0 &&
-      value.scheduleState !== 'manual-required' &&
-      value.scheduleState !== 'unavailable' &&
-      value.timeBudgetState !== 'manual-required' &&
-      value.timeBudgetState !== 'unavailable' &&
-      value.targetKind !== 'manual-required'
-    );
+    return socialPolicyCompilerContractOnlyInputIsConsistent(value);
   }
+
+  return socialPolicyCompilerManualInputIsConsistent(value);
+}
+
+function socialPolicyCompilerContractOnlyInputIsConsistent(
+  value: Infer<typeof SocialParentPolicyCompilerInputBaseSchema>
+): boolean {
+  return (
+    value.signalSetRefs.length > 0 &&
+    value.parentRuleRefs.length > 0 &&
+    value.scheduleContextRefs.length > 0 &&
+    value.timeBudgetContextRefs.length > 0 &&
+    value.scheduleState !== 'manual-required' &&
+    value.scheduleState !== 'unavailable' &&
+    value.timeBudgetState !== 'manual-required' &&
+    value.timeBudgetState !== 'unavailable' &&
+    value.targetKind !== 'manual-required'
+  );
+}
+
+function socialPolicyCompilerManualInputIsConsistent(
+  value: Infer<typeof SocialParentPolicyCompilerInputBaseSchema>
+): boolean {
   return (
     value.signalSetRefs.length === 0 ||
     value.targetKind === 'manual-required' ||

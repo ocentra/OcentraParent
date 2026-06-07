@@ -209,34 +209,48 @@ export function summarizeSocialReportWriterDeliveryProof(readModel: SocialReport
 
 function socialReportWriterDeliveryStateIsCoherent(row: SocialReportWriterDeliveryCandidate): boolean {
   if (row.reportWriterDeliveryState === SocialReportWriterDeliveryState.ReportDeliveryReady) {
-    return (
-      row.sourceIntentStatus === SocialAlertReportIntentStatus.IntentOnly &&
-      row.sourceDeliveryClaimState === SocialAlertReportDeliveryClaimState.NotClaimed &&
-      row.parentReportRef !== null &&
-      row.reportArtifactRef !== null &&
-      row.reportReceiptRef !== null &&
-      row.parentVisibleReportStatusRef !== null &&
-      row.parentOwnedReportArtifactWritten &&
-      row.parentOwnedReportReceiptRecorded &&
-      row.reportWriterReceiptState === SocialReportWriterReceiptState.ParentOwnedReceiptRecorded &&
-      row.manualProofRequirements.length === 0
-    );
+    return socialReportWriterDeliveryReadyStateIsCoherent(row);
   }
-  if (
+
+  if (socialReportWriterDeliveryStateNeedsManualProof(row)) {
+    return socialReportWriterDeliveryManualStateIsCoherent(row);
+  }
+
+  return false;
+}
+
+function socialReportWriterDeliveryReadyStateIsCoherent(row: SocialReportWriterDeliveryCandidate): boolean {
+  return (
+    row.sourceIntentStatus === SocialAlertReportIntentStatus.IntentOnly &&
+    row.sourceDeliveryClaimState === SocialAlertReportDeliveryClaimState.NotClaimed &&
+    row.parentReportRef !== null &&
+    row.reportArtifactRef !== null &&
+    row.reportReceiptRef !== null &&
+    row.parentVisibleReportStatusRef !== null &&
+    row.parentOwnedReportArtifactWritten &&
+    row.parentOwnedReportReceiptRecorded &&
+    row.reportWriterReceiptState === SocialReportWriterReceiptState.ParentOwnedReceiptRecorded &&
+    row.manualProofRequirements.length === 0
+  );
+}
+
+function socialReportWriterDeliveryStateNeedsManualProof(row: SocialReportWriterDeliveryCandidate): boolean {
+  return (
     row.reportWriterDeliveryState === SocialReportWriterDeliveryState.ManualRequired ||
     row.reportWriterDeliveryState === SocialReportWriterDeliveryState.Unavailable
-  ) {
-    return (
-      row.parentReportRef === null &&
-      row.reportArtifactRef === null &&
-      row.reportReceiptRef === null &&
-      !row.parentOwnedReportArtifactWritten &&
-      !row.parentOwnedReportReceiptRecorded &&
-      row.reportWriterReceiptState !== SocialReportWriterReceiptState.ParentOwnedReceiptRecorded &&
-      row.manualProofRequirements.length > 0
-    );
-  }
-  return false;
+  );
+}
+
+function socialReportWriterDeliveryManualStateIsCoherent(row: SocialReportWriterDeliveryCandidate): boolean {
+  return (
+    row.parentReportRef === null &&
+    row.reportArtifactRef === null &&
+    row.reportReceiptRef === null &&
+    !row.parentOwnedReportArtifactWritten &&
+    !row.parentOwnedReportReceiptRecorded &&
+    row.reportWriterReceiptState !== SocialReportWriterReceiptState.ParentOwnedReceiptRecorded &&
+    row.manualProofRequirements.length > 0
+  );
 }
 
 function socialReportWriterReadModelHasRequiredNonClaims(readModel: {

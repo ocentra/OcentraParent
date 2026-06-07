@@ -191,15 +191,29 @@ function socialProviderPreflightRowIsHonest(
   if (row.evidenceRefs.length === 0 || row.policyRefs.length === 0 || row.auditRefs.length === 0) {
     return false;
   }
+
   if (row.status === SocialAlertReportProviderPreflightStatus.ProviderAdapterRequired) {
-    return (
-      row.sourceLocalOutboxRecordRef !== null &&
-      row.providerChannelRef !== null &&
-      row.reasonCodeRef !== null &&
-      row.adapterRequirementRefs.length >= 3 &&
-      row.manualProofRequirements.length >= 3
-    );
+    return socialProviderPreflightAdapterRequiredRowIsHonest(row);
   }
+
+  return socialProviderPreflightManualRowIsHonest(row);
+}
+
+function socialProviderPreflightAdapterRequiredRowIsHonest(
+  row: Infer<typeof SocialAlertReportProviderPreflightRowBaseSchema>
+): boolean {
+  return (
+    row.sourceLocalOutboxRecordRef !== null &&
+    row.providerChannelRef !== null &&
+    row.reasonCodeRef !== null &&
+    row.adapterRequirementRefs.length >= 3 &&
+    row.manualProofRequirements.length >= 3
+  );
+}
+
+function socialProviderPreflightManualRowIsHonest(
+  row: Infer<typeof SocialAlertReportProviderPreflightRowBaseSchema>
+): boolean {
   return (
     row.sourceLocalOutboxRecordRef === null &&
     row.providerChannelRef === null &&

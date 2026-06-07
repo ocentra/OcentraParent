@@ -253,28 +253,44 @@ export function summarizeSocialAppliedScheduleTimeBudgetProof(
 }
 
 function socialAppliedScheduleTimeBudgetRowIsCoherent(row: SocialAppliedScheduleTimeBudgetCandidate): boolean {
-  const candidateMatchesRow =
-    row.sourceDecisionCandidateId === row.sourceDecisionCandidate.decisionCandidateId &&
-    row.evaluatedScheduleState === row.sourceDecisionCandidate.scheduleState &&
-    row.evaluatedTimeBudgetState === row.sourceDecisionCandidate.timeBudgetState;
-  if (!candidateMatchesRow) {
+  if (!socialAppliedScheduleTimeBudgetCandidateMatchesRow(row)) {
     return false;
   }
+
   if (row.applicationState === SocialAppliedScheduleTimeBudgetState.ParentOwnedApplicationEvaluated) {
-    return (
-      row.sourceDecisionCandidate.compilerMode === 'contract-only' &&
-      row.evaluatedScheduleState !== 'manual-required' &&
-      row.evaluatedScheduleState !== 'unavailable' &&
-      row.evaluatedTimeBudgetState !== 'manual-required' &&
-      row.evaluatedTimeBudgetState !== 'unavailable' &&
-      row.parentOwnedScheduleEvaluationRef !== null &&
-      row.parentOwnedBudgetEvaluationRef !== null &&
-      row.runtimeHandoffRef !== null &&
-      row.parentOwnedScheduleWindowEvaluated &&
-      row.parentOwnedTimeBudgetEvaluated &&
-      row.manualProofRequirements.length === 0
-    );
+    return socialAppliedScheduleTimeBudgetParentOwnedRowIsCoherent(row);
   }
+
+  return socialAppliedScheduleTimeBudgetManualRowIsCoherent(row);
+}
+
+function socialAppliedScheduleTimeBudgetCandidateMatchesRow(row: SocialAppliedScheduleTimeBudgetCandidate): boolean {
+  return (
+    row.sourceDecisionCandidateId === row.sourceDecisionCandidate.decisionCandidateId &&
+    row.evaluatedScheduleState === row.sourceDecisionCandidate.scheduleState &&
+    row.evaluatedTimeBudgetState === row.sourceDecisionCandidate.timeBudgetState
+  );
+}
+
+function socialAppliedScheduleTimeBudgetParentOwnedRowIsCoherent(
+  row: SocialAppliedScheduleTimeBudgetCandidate
+): boolean {
+  return (
+    row.sourceDecisionCandidate.compilerMode === 'contract-only' &&
+    row.evaluatedScheduleState !== 'manual-required' &&
+    row.evaluatedScheduleState !== 'unavailable' &&
+    row.evaluatedTimeBudgetState !== 'manual-required' &&
+    row.evaluatedTimeBudgetState !== 'unavailable' &&
+    row.parentOwnedScheduleEvaluationRef !== null &&
+    row.parentOwnedBudgetEvaluationRef !== null &&
+    row.runtimeHandoffRef !== null &&
+    row.parentOwnedScheduleWindowEvaluated &&
+    row.parentOwnedTimeBudgetEvaluated &&
+    row.manualProofRequirements.length === 0
+  );
+}
+
+function socialAppliedScheduleTimeBudgetManualRowIsCoherent(row: SocialAppliedScheduleTimeBudgetCandidate): boolean {
   return (
     row.sourceDecisionCandidate.compilerMode !== 'contract-only' &&
     row.parentOwnedScheduleEvaluationRef === null &&
