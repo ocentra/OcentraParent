@@ -43,6 +43,14 @@ const requiredScreenshots = [
   },
   {
     root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-parent-overview-shell.png',
+  },
+  {
+    root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-parent-devices-shell.png',
+  },
+  {
+    root: wp30ProofDir,
     path: '11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png',
   },
   {
@@ -98,8 +106,8 @@ const requiredAssertions = [
   'service-backed-citation-detail-visible',
   'service-backed-citation-detail-screenshot',
   'retention-settings-read-model-visible',
-  'retention-settings-write-preflight-clicked',
-  'retention-settings-write-preflight-result-visible',
+  'retention-settings-local-write-clicked',
+  'retention-settings-local-write-result-visible',
   'retention-settings-screenshot',
   'manual-required-visible',
   'physical-device-required-visible',
@@ -113,6 +121,8 @@ const requiredAssertions = [
   'child-runtime-hosted-only-boundary-visible',
   'unsupported-manual-platform-render-state-visible',
   'unsupported-manual-platform-screenshot',
+  'parent-overview-shell-screenshot',
+  'parent-devices-shell-screenshot',
   'no-unlabeled-buttons',
   'no-proof-card-overlap',
   'desktop-screenshot',
@@ -172,6 +182,9 @@ async function buildProof() {
     screenshots,
     requiredAssertions,
     layoutProof: layoutProof(accessibilitySummary),
+    provedClaims: {
+      parentPortalShellScreenshotsClaimed: true,
+    },
     proofPaths: {
       evidence: 'test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json',
       workpack30Proof:
@@ -232,7 +245,16 @@ function assertProof(proof) {
   if (!proof.layoutProof.noOverlap || proof.layoutProof.boxes.length !== 11) {
     throw new Error(`Hosted UI layout proof did not prove non-overlap: ${JSON.stringify(proof.layoutProof)}`);
   }
-  if (Object.values(proof.nonClaims).some((value) => value !== false)) {
+  if (
+    proof.provedClaims.parentPortalShellScreenshotsClaimed !== true ||
+    proof.nonClaims.fullParentChildUiClaimed !== false ||
+    proof.nonClaims.childDeviceRuntimeClaimed !== false ||
+    proof.nonClaims.physicalDeviceProofClaimed !== false ||
+    proof.nonClaims.authorityProofClaimed !== false ||
+    proof.nonClaims.providerDeliveryClaimed !== false ||
+    proof.nonClaims.productionProofClaimed !== false ||
+    proof.nonClaims.productReadyTrackingClaimed !== false
+  ) {
     throw new Error(`Hosted UI inventory proof overclaimed behavior: ${JSON.stringify(proof.nonClaims)}`);
   }
 }
@@ -305,7 +327,7 @@ function sourceSnapshot(proof) {
     `- Base commit at generation: ${proof.baseCommitAtGeneration}`,
     '- Source proof: existing hosted UI Playwright proof artifacts, accessibility summary, and layout geometry.',
     '- Scope: verify stored hosted screenshots, evidence drawer proof, unsupported/manual platform proof, accessibility assertions, and no-overlap layout boxes for WP30/WP33 handoff.',
-    '- Boundary: inventory proof only; child-device runtime, physical-device proof, authority, provider delivery, full parent/child UI beyond the hosted route, production proof, and product-ready tracking remain unclaimed.',
+    '- Boundary: inventory proof only; parent portal shell screenshots are proved, while child-device runtime, physical-device proof, authority, provider delivery, full product parent/child UI, production proof, and product-ready tracking remain unclaimed.',
     '',
   ].join('\n');
 }

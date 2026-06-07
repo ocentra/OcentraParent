@@ -85,6 +85,8 @@ const childRuntimeUiScreenshot = path.join(
   '11-ui-snapshots',
   'hosted-policy-tracking-child-runtime-ui.png'
 );
+const parentOverviewShellScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-parent-overview-shell.png');
+const parentDevicesShellScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-parent-devices-shell.png');
 const childRuntimeUiProofPath = path.join(workpack30, '19-child-runtime-ui-proof.json');
 const evidenceDrawerHostedUiProofPath = path.join(workpack30, '20-evidence-drawer-hosted-ui-proof.json');
 const reportPolicyConsumerHostedUiProofPath = path.join(workpack30, '25-report-policy-consumer-hosted-ui-proof.json');
@@ -474,12 +476,30 @@ async function writeProof(playwright) {
       evidenceDrawerHostedUiProof: relativePath(evidenceDrawerHostedUiProofPath),
       childCheckInScreenshot: relativePath(childCheckInScreenshot),
       childRuntimeUiScreenshot: relativePath(childRuntimeUiScreenshot),
+      parentOverviewShellScreenshot: relativePath(parentOverviewShellScreenshot),
+      parentDevicesShellScreenshot: relativePath(parentDevicesShellScreenshot),
       childRuntimeUiProof: relativePath(childRuntimeUiProofPath),
       unsupportedManualPlatformScreenshot: relativePath(unsupportedManualScreenshot),
       unsupportedManualPlatformProof: relativePath(unsupportedManualHostedProofPath),
       accessibilitySummary: relativePath(accessibilitySummaryPath),
     },
     accessibilitySummary,
+    parentPortalShellProof: {
+      routeScope: ['#/overview', '#/devices'],
+      screenshots: {
+        overview: relativePath(parentOverviewShellScreenshot),
+        devices: relativePath(parentDevicesShellScreenshot),
+      },
+      assertions: [
+        'parent-overview-shell-visible',
+        'parent-overview-custody-copy-visible',
+        'parent-devices-shell-visible',
+        'parent-devices-context-copy-visible',
+      ],
+      boundary:
+        'Parent portal shell screenshot proof only; it does not claim child-device runtime delivery, authority enrollment, provider delivery, physical-device proof, production proof, or product-ready tracking.',
+      productClaimReady: false,
+    },
     commands,
     childRuntimeUiProof: {
       screenshot: relativePath(childRuntimeUiScreenshot),

@@ -241,16 +241,17 @@ child-device delivery, provider delivery, notification receipt ingestion,
 physical-device proof, authority, production, and product readiness unclaimed.
 `node scripts/test/tracking-hosted-ui-artifact-inventory-proof.mjs` now verifies
 the full current hosted screenshot PNG inventory, hosted proof outputs,
-unsupported/manual platform screenshot/proof output, accessibility assertions,
-and 10-card no-overlap layout geometry as a separate inventory gate. It writes
+unsupported/manual platform screenshot/proof output, parent overview/devices
+shell screenshots around the tracking route, accessibility assertions, and
+11-card no-overlap layout geometry as a separate inventory gate. It writes
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/21-hosted-ui-artifact-inventory-proof.json`
 and
 `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/28-hosted-ui-artifact-inventory-proof.json`
-without claiming full parent/child UI, child-device runtime, physical-device
-proof, authority, provider delivery, production proof, or product-ready
-tracking.
+without claiming full product parent/child UI, child-device runtime,
+physical-device proof, authority, provider delivery, production proof, or
+product-ready tracking.
 This is not product-complete UI proof: full dashboard UI beyond the hosted
-parent route, actual child-device delivery/runtime execution, applied
+parent shell, actual child-device delivery/runtime execution, applied
 product-ready retention settings execution, physical-device evidence, authority,
 provider delivery, and production proof remain pending.
 `node scripts/test/tracking-plan-pre-device-proof.mjs` now records those UI
