@@ -1,0 +1,73 @@
+{
+  "proof": "screen-settings-service-persistence",
+  "generatedAt": "2026-06-07T04:40:19.939Z",
+  "branchScope": "codex/screen-ai-full-scope-b",
+  "sourceFiles": [
+    "crates/agent-protocol/src/screen_settings.rs",
+    "crates/agent-service/src/screen_settings_runtime.rs",
+    "crates/agent-service/src/screen_settings_store.rs",
+    "crates/agent-service/src/screen_settings_runtime_tests.rs"
+  ],
+  "validation": [
+    {
+      "label": "agent-protocol screen settings contract tests",
+      "command": "cargo test -p ocentra-parent-agent-protocol screen_settings",
+      "status": 0,
+      "stdoutTail": [
+        "running 3 tests",
+        "test screen_settings_tests::screen_settings_response_serializes_rejection_reason ... ok",
+        "test screen_settings_tests::screen_parent_setting_serializes_parent_opt_in_and_retention_fields ... ok",
+        "test screen_settings_tests::screen_settings_request_rejects_unknown_fields ... ok",
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 183 filtered out; finished in 0.00s"
+      ],
+      "stderrTail": [
+        "   Compiling ocentra-parent-agent-protocol v0.1.1 (C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\crates\\agent-protocol)",
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.62s",
+        "     Running unittests src\\lib.rs (target\\debug\\deps\\ocentra_parent_agent_protocol-8fbcfdb9341ad4a5.exe)"
+      ]
+    },
+    {
+      "label": "agent-service screen settings persistence tests",
+      "command": "cargo test -p ocentra-parent-agent-service screen_settings",
+      "status": 0,
+      "stdoutTail": [
+        "running 5 tests",
+        "test screen_settings_runtime_tests::screen_settings_runtime_reports_disabled_default_without_persistence ... ok",
+        "test screen_settings_runtime_tests::screen_settings_runtime_rejects_stale_base_setting_version ... ok",
+        "test screen_settings_runtime_tests::screen_settings_runtime_rejects_raw_image_retention ... ok",
+        "test screen_settings_runtime_tests::screen_settings_runtime_rejects_observe_only_policy_use ... ok",
+        "test screen_settings_runtime_tests::screen_settings_runtime_persists_parent_opt_in_across_reload ... ok",
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 277 filtered out; finished in 0.03s"
+      ],
+      "stderrTail": [
+        "    Blocking waiting for file lock on package cache",
+        "    Blocking waiting for file lock on package cache",
+        "    Blocking waiting for file lock on package cache",
+        "   Compiling ocentra-parent-agent-protocol v0.1.1 (C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\crates\\agent-protocol)",
+        "   Compiling ocentra-parent-agent-core v0.1.1 (C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\crates\\agent-core)",
+        "   Compiling ocentra-parent-screen-capture-adapter v0.1.1 (C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\crates\\screen-capture-adapter)",
+        "   Compiling ocentra-parent-agent-service v0.1.1 (C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\crates\\agent-service)",
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 21.95s",
+        "     Running unittests src\\main.rs (target\\debug\\deps\\ocentra_parent_agent_service-79d8724d7bb0e2f0.exe)"
+      ]
+    }
+  ],
+  "proves": [
+    "Rust protocol mirrors parent screen settings fields used by the TypeScript ScreenAnalysisParentSettingSchema boundary.",
+    "The service runtime reports a disabled default without silently enabling capture, trigger capture, policy use, or raw image retention.",
+    "A parent opt-in strict dry-run setting is persisted to a local JSON service store and survives a reload through a new runtime instance.",
+    "The service rejects raw image retention, observe-only policy use, stale base setting versions, and inconsistent unsafe settings before persistence."
+  ],
+  "custody": {
+    "store": "local child-device JSON service store",
+    "rawImageRetainedDefault": false,
+    "deleteAfterSuccessRequired": true,
+    "deleteAfterExpiryRequired": true,
+    "ocentraHostedDefaultStore": false
+  },
+  "nonClaims": [
+    "This proof does not wire the parent portal Settings route to the service command path.",
+    "This proof does not enable raw screenshot retention, live view, raw remote upload, or cloud AI.",
+    "This proof does not claim production retention-control UI, privacy/legal approval, or live capture behavior changes."
+  ]
+}
