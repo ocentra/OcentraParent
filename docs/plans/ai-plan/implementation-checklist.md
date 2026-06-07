@@ -57,11 +57,13 @@ consumes the same results.
 
 ## Contract And Source Truth
 
-- [ ] Source index reconciled against current repo.
-- [ ] TabAgent source audit refreshed before reuse.
-- [ ] AI expectation doc remains source-of-truth input.
-- [ ] Local AI feature doc updated when status changes.
-- [ ] Parent assistant feature doc updated when remote/assistant status changes.
+- [x] Source index reconciled against current repo.
+- [x] TabAgent source audit refreshed before reuse.
+- [x] AI expectation doc remains source-of-truth input.
+- [x] Local AI feature doc updated when status changes.
+- [x] Parent assistant feature doc remains the owner for remote/assistant status
+      changes; no remote/assistant status change was made in this source-index
+      reconciliation.
 - [ ] Product capability checklist updated when proof/gaps change.
 
 ## V0.6 Contracts
