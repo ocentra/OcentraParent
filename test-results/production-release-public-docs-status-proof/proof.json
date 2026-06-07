@@ -1,9 +1,10 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T08:13:38.975Z",
-  "commit": "a71869c807110fe486252eab7a237bf6dbc55f8a",
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
   "proofMode": "production-release-public-docs-status-proof",
   "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/schema-domain",
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/production-release-public-docs-status.test.ts"
   ],
@@ -23,7 +24,8 @@
       "docs/expectations/data-custody.md",
       "docs/expectations/release-installer.md"
     ],
-    "output": "test-results/production-release-public-docs-status-proof/proof.json"
+    "proofOutput": "test-results/production-release-public-docs-status-proof/proof.json",
+    "summaryOutput": "output/production-release-public-docs-status-proof/proof-summary.json"
   },
   "rows": [
     {
