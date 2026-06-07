@@ -73,6 +73,23 @@ const currentRows = [disabled, androidCaptureOnly].map((row) =>
 const futureReferenceRows = [lanReadyCandidate, relayReadyCandidate].map((row) =>
   screenEvidence.ScreenLiveViewPlatformPermissionGateSchema.parse(row)
 );
+const futureLanProductionBundle = productionReadinessEvidence(lanReadyCandidate, {
+  liveTransportProofRef: 'screen-live-view-lan-transport-proof',
+  physicalDeviceParityProofRef: 'screen-live-view-android-physical-parity-proof',
+  privacyLegalApprovalRef: 'screen-live-view-privacy-legal-approval',
+  productionWorkerStartProofRef: 'screen-live-view-production-worker-start-proof',
+  relayCacheExecutionProofRef: null,
+});
+const futureRelayProductionBundle = productionReadinessEvidence(relayReadyCandidate, {
+  liveTransportProofRef: 'screen-live-view-relay-transport-proof',
+  physicalDeviceParityProofRef: 'screen-live-view-android-physical-parity-proof',
+  privacyLegalApprovalRef: 'screen-live-view-privacy-legal-approval',
+  productionWorkerStartProofRef: 'screen-live-view-production-worker-start-proof',
+  relayCacheExecutionProofRef: 'screen-live-view-relay-cache-execution-proof',
+});
+const futureReferenceProductionBundles = [futureLanProductionBundle, futureRelayProductionBundle].map((bundle) =>
+  screenEvidence.ScreenLiveViewProductionReadinessEvidenceSchema.parse(bundle)
+);
 const negativeChecks = [
   rejects('capture-only proof cannot mark live view product-ready', () =>
     screenEvidence.ScreenLiveViewPlatformPermissionGateSchema.safeParse({
@@ -102,6 +119,36 @@ const negativeChecks = [
     screenEvidence.ScreenLiveViewPlatformPermissionGateSchema.safeParse({
       ...lanReadyCandidate,
       remoteInputControlAllowed: true,
+    })
+  ),
+  rejects('production readiness rejects capture-only permission gate', () =>
+    screenEvidence.ScreenLiveViewProductionReadinessEvidenceSchema.safeParse({
+      ...futureLanProductionBundle,
+      permissionGate: androidCaptureOnly,
+    })
+  ),
+  rejects('production readiness rejects mismatched prompt artifact ref', () =>
+    screenEvidence.ScreenLiveViewProductionReadinessEvidenceSchema.safeParse({
+      ...futureLanProductionBundle,
+      promptArtifact: {
+        ...futureLanProductionBundle.promptArtifact,
+        artifactRef: 'screen-live-view-other-platform-prompt-proof',
+      },
+    })
+  ),
+  rejects('production readiness rejects relay mode without relay/cache proof', () =>
+    screenEvidence.ScreenLiveViewProductionReadinessEvidenceSchema.safeParse({
+      ...futureRelayProductionBundle,
+      relayCacheExecutionProofRef: null,
+    })
+  ),
+  rejects('production readiness rejects prompt artifact carrying raw frame content', () =>
+    screenEvidence.ScreenLiveViewProductionReadinessEvidenceSchema.safeParse({
+      ...futureLanProductionBundle,
+      promptArtifact: {
+        ...futureLanProductionBundle.promptArtifact,
+        rawFrameIncluded: true,
+      },
     })
   ),
 ];
@@ -145,12 +192,44 @@ const proof = {
     requiredLiveTransportProofRef: row.liveTransportProofRef,
     readyOnlyAfterEvidenceExists: row.productLiveViewReady,
   })),
+  futureReferenceProductionBundles: futureReferenceProductionBundles.map((bundle) => ({
+    referenceOnly: true,
+    platform: bundle.permissionGate.platform,
+    liveViewMode: bundle.permissionGate.liveViewMode,
+    promptArtifactKind: bundle.promptArtifact.artifactKind,
+    promptArtifactRef: bundle.promptArtifact.artifactRef,
+    promptArtifactDigestRequired: bundle.promptArtifact.artifactDigest.length > 0,
+    liveTransportProofRef: bundle.liveTransportProofRef,
+    physicalDeviceParityProofRef: bundle.physicalDeviceParityProofRef,
+    privacyLegalApprovalRef: bundle.privacyLegalApprovalRef,
+    productionWorkerStartProofRef: bundle.productionWorkerStartProofRef,
+    relayCacheExecutionProofRef: bundle.relayCacheExecutionProofRef,
+    readyOnlyAfterEvidenceExists: bundle.productLiveViewReady,
+  })),
   negativeChecks,
   gapStatus: {
     capturePermissionProofExists: androidCaptureProof !== null,
     liveViewPermissionPromptProofExists: false,
     liveTransportProofExists: false,
+    physicalDeviceParityProofExists: false,
+    privacyLegalApprovalExists: false,
+    productionWorkerStartProofExists: false,
+    relayCacheExecutionProofExists: false,
+    productionReadinessEvidenceSchemaExists: true,
     liveViewProductReady: false,
+  },
+  assertions: {
+    productionReadinessRequiresStructuredEvidence: true,
+    productionReadinessRejectsCaptureOnlyPermission: negativeChecks.some(
+      (check) => check.name === 'production readiness rejects capture-only permission gate' && check.rejected
+    ),
+    productionReadinessRejectsMismatchedPromptRef: negativeChecks.some(
+      (check) => check.name === 'production readiness rejects mismatched prompt artifact ref' && check.rejected
+    ),
+    productionReadinessRejectsRawFramePromptArtifact: negativeChecks.some(
+      (check) =>
+        check.name === 'production readiness rejects prompt artifact carrying raw frame content' && check.rejected
+    ),
   },
   nonClaims: [
     'This proof does not implement live screen transport, relay/cache execution, or a service live-view session worker.',
@@ -183,6 +262,29 @@ function gate(platform, liveViewMode, overrides) {
     sessionRecordingAllowed: false,
     remoteInputControlAllowed: false,
     productLiveViewReady: false,
+    ...overrides,
+  };
+}
+
+function productionReadinessEvidence(permissionGate, overrides) {
+  const promptArtifact = {
+    platform: permissionGate.platform,
+    artifactKind: 'platform-permission-prompt-screenshot',
+    artifactRef: permissionGate.platformProofRef,
+    artifactDigest: 'sha256-live-view-platform-prompt',
+    capturedAt: generatedAt,
+    operatorAuditRef: permissionGate.viewerAuditRef,
+    permissionEvidenceKind: 'live-view-permission',
+    rawFrameIncluded: false,
+    containsUserPrivateContent: false,
+  };
+
+  return {
+    schemaVersion: screenEvidence.ScreenLiveViewProductionReadinessEvidenceSchemaVersion,
+    checkedAt: generatedAt,
+    permissionGate,
+    promptArtifact,
+    productLiveViewReady: true,
     ...overrides,
   };
 }

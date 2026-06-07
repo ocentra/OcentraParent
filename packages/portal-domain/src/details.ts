@@ -106,6 +106,7 @@ export const PortalDetails = {
   ReadinessKind: decodeDisplayText('Readiness kind'),
   RowCount: decodeDisplayText('Row count'),
   ReadModelRows: decodeDisplayText('Read-model rows'),
+  RequestId: decodeDisplayText('Request ID'),
   PerformanceState: decodeDisplayText('Performance state'),
   PreviewStatus: decodeDisplayText('Decision status'),
   Profile: decodeDisplayText('Profile'),

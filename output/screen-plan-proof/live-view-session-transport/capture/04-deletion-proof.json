@@ -1,0 +1,9 @@
+{
+  "deletionPendingForAnalysis": true,
+  "encryptedQueueContainsRawDigest": false,
+  "encryptedQueuePath": "output\\screen-plan-proof\\live-view-session-transport\\capture\\queue\\screen-evidence-queue.ndjson",
+  "existedBeforeEncryption": true,
+  "existsAfterDelete": true,
+  "rawImageDeleted": false,
+  "rawTempPath": "output\\screen-plan-proof\\live-view-session-transport\\capture\\capture.png.tmp"
+}

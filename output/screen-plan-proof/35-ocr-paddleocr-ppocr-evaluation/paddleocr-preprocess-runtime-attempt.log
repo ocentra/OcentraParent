@@ -1,0 +1,9 @@
+{"variantCount": 4, "variants": [{"name": "original", "width": 1280, "height": 900, "predictSeconds": 12.801, "texts": [], "textCount": 0}, {"name": "upscale2", "width": 2560, "height": 1800, "predictSeconds": 19.285, "texts": [], "textCount": 0}, {"name": "gray_contrast2_upscale2", "width": 2560, "height": 1800, "predictSeconds": 18.816, "texts": [], "textCount": 0}, {"name": "gray_sharp_upscale2", "width": 2560, "height": 1800, "predictSeconds": 20.891, "texts": [], "textCount": 0}], "maxExtractedTextCount": 0, "temporaryImagesExistedBeforeCleanup": true, "temporaryImagesDeletedAfterCleanup": true}
+None of PyTorch, TensorFlow >= 2.0, or Flax have been found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+Creating model: ('PP-OCRv5_mobile_det', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `C:\Users\sujan\.paddlex\official_models\PP-OCRv5_mobile_det`.
+INFO: Could not find files for the given pattern(s).
+C:\Users\sujan\AppData\Roaming\Python\Python311\site-packages\paddle\utils\cpp_extension\extension_utils.py:712: UserWarning: No ccache found. Please be aware that recompiling all source files may be required. You can download and install ccache from: https://github.com/ccache/ccache/blob/master/doc/INSTALL.md
+  warnings.warn(warning_message)
+Creating model: ('en_PP-OCRv5_mobile_rec', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `C:\Users\sujan\.paddlex\official_models\en_PP-OCRv5_mobile_rec`.

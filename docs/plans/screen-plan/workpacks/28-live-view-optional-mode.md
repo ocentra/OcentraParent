@@ -31,8 +31,22 @@ Android MediaProjection capture-consent artifact and records it as
 live-view permission prompt proof, viewer audit, live transport proof, no frame
 retention, and no remote input. This closes the missing gate-artifact slot but
 does not implement or claim real live transport, relay/cache execution, service
-live-view sessions, parent UI persistence, platform screenshots, or
-privacy/legal approval.
+live-view sessions, platform screenshots, or privacy/legal approval.
+`ScreenLiveViewParentUiPersistenceProofSchema` and
+`scripts/test/screen-live-view-parent-ui-persistence-proof.mjs` now prove parent
+Settings command/readiness evidence can be carried as persisted live-view
+opt-in state into the service-session and Rust runtime decision proofs while
+product live view stays false. This closes parent UI persistence as a proof
+input only; production worker startup, real live-view prompt screenshots,
+relay/cache execution, physical-device parity, and privacy/legal approval remain
+open.
+`scripts/test/screen-live-view-worker-startup-proof.mjs` now proves the Rust
+service worker startup gate exists behind the runtime decision boundary and
+stays stopped unless runtime readiness, a real live-view prompt artifact,
+relay/cache execution when needed, physical-device parity, and privacy/legal
+approval are all proved. This closes the worker-startup gate artifact only;
+actual production worker start, real platform prompt screenshots, relay/cache
+execution, physical-device parity, and privacy/legal approval remain open.
 
 ## Checklist
 
@@ -44,6 +58,8 @@ privacy/legal approval.
 - [x] Define viewer audit.
 - [x] Add separate contract/preflight proof.
 - [x] Add fail-closed platform permission gate proof.
+- [x] Add parent UI persistence carry-forward proof.
+- [x] Add fail-closed Rust service worker startup gate proof.
 - [ ] Add real live-view platform prompt and transport proof.
 
 ## Proof
@@ -53,5 +69,7 @@ privacy/legal approval.
 - `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`.
 - `output/screen-plan-proof/27-28-optional-retention-live-preflight/proof-summary.json`.
 - `output/screen-plan-proof/live-view-platform-permission/proof-summary.json`.
+- `output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json`.
+- `output/screen-plan-proof/live-view-worker-startup/proof-summary.json`.
 - Capture-adapter platform consent reference:
   `output/screen-plan-proof/android-mediaprojection/proof-summary.json`.

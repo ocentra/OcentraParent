@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '../src/contracts';
 import {
   createScreenSettingsCommand,
+  createScreenSettingsCommandPayload,
   createScreenSettingsGetRequest,
+  createScreenSettingsPortalRequestId,
   createScreenSettingsReplaceRequest,
   parseScreenSettingsUpdateEvent,
 } from '../src/screen-settings-adapter';
@@ -10,6 +12,7 @@ import {
 describe('screen settings protocol adapter', () => {
   registerGetCommandTest();
   registerReplaceCommandTest();
+  registerPayloadHelperTest();
   registerAcceptedEventTest();
   registerRejectedEventTest();
   registerWrongEventTest();
@@ -54,6 +57,29 @@ function registerReplaceCommandTest() {
     expect(request.kind).toBe('replace');
     expect(request.setting.retainRawImage).toBe(false);
     expect(request.setting.policyUseEnabled).toBe(true);
+  });
+}
+
+function registerPayloadHelperTest() {
+  it('builds portal command payloads from typed screen settings requests', () => {
+    const requestId = createScreenSettingsPortalRequestId(7);
+    const payload = createScreenSettingsCommandPayload(
+      createScreenSettingsReplaceRequest({
+        requestId,
+        baseSettingVersion: 3,
+        setting: strictDryRunSetting(4),
+      })
+    );
+
+    expect(requestId).toBe('screen-settings-request-7');
+    expect(payload[AgentProtocolDefaults.Field.ScreenSettingsUpdateKind]).toBe('replace');
+    expect(JSON.parse(String(payload[AgentProtocolDefaults.Field.ScreenSettingsRequest]))).toEqual({
+      schemaVersion: 1,
+      requestId,
+      kind: 'replace',
+      baseSettingVersion: 3,
+      setting: strictDryRunSetting(4),
+    });
   });
 }
 

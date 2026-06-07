@@ -113,7 +113,13 @@ export function ParentPortalRoute({
         />
       ) : null}
       {shouldRenderSocialDashboardRoute(route) ? <SocialDashboardRoutePanel snapshot={null} /> : null}
-      {shouldRenderScreenSettingsRoute(route) ? <ScreenSettingsRoutePanel /> : null}
+      {shouldRenderScreenSettingsRoute(route) ? (
+        <ScreenSettingsRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          events={state.events}
+        />
+      ) : null}
       {shouldRenderScreenSummaryRoute(route) ? <ScreenSummaryRoutePanel liveActivity={activityState} /> : null}
     </div>
   );

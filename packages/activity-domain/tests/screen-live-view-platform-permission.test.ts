@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   ScreenLiveViewPermissionGateSchemaVersion,
   ScreenLiveViewPlatformPermissionGateSchema,
+  ScreenLiveViewProductionReadinessEvidenceSchema,
+  ScreenLiveViewProductionReadinessEvidenceSchemaVersion,
 } from '../src/screen-live-view-platform-permission';
 
 const CheckedAt = '2026-06-07T04:03:00Z';
@@ -62,6 +64,36 @@ const RelayLiveViewReadyGate = {
   reason: 'parent-approved relay live view has platform live-view permission and transport proof',
 } as const;
 
+const LanProductionReadinessEvidence = {
+  schemaVersion: ScreenLiveViewProductionReadinessEvidenceSchemaVersion,
+  checkedAt: CheckedAt,
+  permissionGate: LanLiveViewReadyGate,
+  promptArtifact: {
+    platform: 'android-mediaprojection',
+    artifactKind: 'platform-permission-prompt-screenshot',
+    artifactRef: 'screen-live-view-android-mediaprojection-permission-proof',
+    artifactDigest: 'sha256-live-view-platform-prompt',
+    capturedAt: CheckedAt,
+    operatorAuditRef: 'screen-live-view-viewer-audit',
+    permissionEvidenceKind: 'live-view-permission',
+    rawFrameIncluded: false,
+    containsUserPrivateContent: false,
+  },
+  liveTransportProofRef: 'screen-live-view-lan-transport-proof',
+  physicalDeviceParityProofRef: 'screen-live-view-android-physical-parity-proof',
+  privacyLegalApprovalRef: 'screen-live-view-privacy-legal-approval',
+  productionWorkerStartProofRef: 'screen-live-view-production-worker-start-proof',
+  relayCacheExecutionProofRef: null,
+  productLiveViewReady: true,
+} as const;
+
+const RelayProductionReadinessEvidence = {
+  ...LanProductionReadinessEvidence,
+  permissionGate: RelayLiveViewReadyGate,
+  liveTransportProofRef: 'screen-live-view-relay-transport-proof',
+  relayCacheExecutionProofRef: 'screen-live-view-relay-cache-execution-proof',
+} as const;
+
 describe('screen live-view platform permission gate', () => {
   it('accepts disabled live view and ready LAN or relay live-view gates', () => {
     const disabled = ScreenLiveViewPlatformPermissionGateSchema.parse(DisabledGate);
@@ -109,5 +141,52 @@ describe('screen live-view platform permission gate', () => {
     expect(missingTransportProof.success).toBe(false);
     expect(retainedFrames.success).toBe(false);
     expect(remoteInput.success).toBe(false);
+  });
+});
+
+describe('screen live-view production readiness evidence', () => {
+  it('accepts readiness only with prompt, transport, parity, worker, and approval evidence', () => {
+    const lanEvidence = ScreenLiveViewProductionReadinessEvidenceSchema.parse(LanProductionReadinessEvidence);
+    const relayEvidence = ScreenLiveViewProductionReadinessEvidenceSchema.parse(RelayProductionReadinessEvidence);
+
+    expect(lanEvidence.productLiveViewReady).toBe(true);
+    expect(lanEvidence.promptArtifact.artifactRef).toBe(lanEvidence.permissionGate.platformProofRef);
+    expect(lanEvidence.liveTransportProofRef).toBe(lanEvidence.permissionGate.liveTransportProofRef);
+    expect(relayEvidence.relayCacheExecutionProofRef).toBe('screen-live-view-relay-cache-execution-proof');
+  });
+
+  it('rejects readiness when proof artifacts do not match the ready gate', () => {
+    const captureOnlyGate = ScreenLiveViewProductionReadinessEvidenceSchema.safeParse({
+      ...LanProductionReadinessEvidence,
+      permissionGate: AndroidCaptureOnlyGate,
+    });
+    const mismatchedPrompt = ScreenLiveViewProductionReadinessEvidenceSchema.safeParse({
+      ...LanProductionReadinessEvidence,
+      promptArtifact: {
+        ...LanProductionReadinessEvidence.promptArtifact,
+        artifactRef: 'screen-live-view-other-platform-prompt-proof',
+      },
+    });
+    const mismatchedTransport = ScreenLiveViewProductionReadinessEvidenceSchema.safeParse({
+      ...LanProductionReadinessEvidence,
+      liveTransportProofRef: 'screen-live-view-other-transport-proof',
+    });
+    const relayWithoutCache = ScreenLiveViewProductionReadinessEvidenceSchema.safeParse({
+      ...RelayProductionReadinessEvidence,
+      relayCacheExecutionProofRef: null,
+    });
+    const promptIncludesRawFrame = ScreenLiveViewProductionReadinessEvidenceSchema.safeParse({
+      ...LanProductionReadinessEvidence,
+      promptArtifact: {
+        ...LanProductionReadinessEvidence.promptArtifact,
+        rawFrameIncluded: true,
+      },
+    });
+
+    expect(captureOnlyGate.success).toBe(false);
+    expect(mismatchedPrompt.success).toBe(false);
+    expect(mismatchedTransport.success).toBe(false);
+    expect(relayWithoutCache.success).toBe(false);
+    expect(promptIncludesRawFrame.success).toBe(false);
   });
 });

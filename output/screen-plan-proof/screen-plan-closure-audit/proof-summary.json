@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T05:06:58.745Z",
+  "generatedAt": "2026-06-07T12:50:19.416Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -91,9 +91,9 @@
       "id": "28",
       "label": "Live view optional mode",
       "status": "~",
-      "requiredProof": "output/screen-plan-proof/live-view-platform-permission/proof-summary.json",
+      "requiredProof": "output/screen-plan-proof/live-view-worker-startup/proof-summary.json",
       "proofPresent": true,
-      "gate": "Fail-closed platform permission gate exists; real live-view platform prompt screenshots, service session runtime, and live transport proof remain."
+      "gate": "Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, and worker startup gate proof exist; real platform live-view prompt screenshots, actual production worker start, relay/cache execution, physical-device parity, and privacy/legal approval remain."
     },
     {
       "id": "30",
@@ -109,7 +109,7 @@
       "status": "~",
       "requiredProof": "output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json",
       "proofPresent": true,
-      "gate": "Local Tesseract extraction, CPU/memory measurement, and derived failure-mode capture are proved; production OCR selection remains open."
+      "gate": "Local Tesseract extraction, CPU/memory measurement, derived failure-mode capture, and same-image comparison against the isolated local PaddleOCR 2.x fallback are proved; Tesseract is retained as a measured fallback while the current Windows service OCR route is WinRT and current PP-OCRv5 still extracts zero text. Cross-platform OCR parity, broad language coverage, and final production quality remain open."
     },
     {
       "id": "35",
@@ -117,7 +117,7 @@
       "status": "~",
       "requiredProof": "output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json",
       "proofPresent": true,
-      "gate": "Current PP-OCRv5 inference remains runtime-blocked before text extraction, but an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally; no production selection or broad quality claim."
+      "gate": "Current PP-OCRv5 mobile-detector inference and cached server-detector inference now run locally with oneDNN/MKLDNN disabled but extract zero text from the real proof image, and deleted preprocessing variants also extract zero text; an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally. PaddleOCR is not selected; current Windows service OCR route selection is WinRT, while PP-OCRv5 quality/resource resolution and broad quality remain open."
     },
     {
       "id": "36",
@@ -125,7 +125,7 @@
       "status": "~",
       "requiredProof": "output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json",
       "proofPresent": true,
-      "gate": "Current proof is local VLM contract/readiness plus provider-command probe only; local provider commands are unavailable on PATH and no live VLM runtime or quality measurement is claimed."
+      "gate": "Current proof detects the local llama.cpp/Qwen2-VL runtime, retained controlled local VLM matrix, retained nine-scenario live operator matrix, bounded retained VLM inputs, managed-browser CDP crop capture path, retained proof-image VLM wall/CPU/RSS measurement, public-live video/school/game/shopping/social-feed CDP crop quality, current Windows local VLM route selection, and measured rollout/fallback gate; authenticated-account social proof and broader hardware rollout thresholds remain open."
     }
   ],
   "currentWindowsEvidence": [
@@ -144,6 +144,54 @@
     {
       "artifact": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
       "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-session-transport/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-platform-permission/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-service-session/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-runtime/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-worker-startup/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/windows-ocr-candidate-selection/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/36-vlm-model-selection/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/36-vlm-rollout-fallback-gate/proof-summary.json",
+      "present": true
     }
   ],
   "assertions": {
@@ -153,7 +201,7 @@
     "noProductCompleteClaim": true
   },
   "nonClaims": [
-    "This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/transport/session runtime, current PP-OCRv5 resolution/production OCR selection, or live VLM provider/runtime quality gates.",
+    "This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/actual production worker start/relay-cache execution/physical-device parity, current PP-OCRv5 quality resolution, cross-platform OCR parity, authenticated-account social proof, or broader VLM hardware rollout-threshold gates.",
     "This audit does not replace real device/runtime proof for remaining partial rows.",
     "This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied."
   ]

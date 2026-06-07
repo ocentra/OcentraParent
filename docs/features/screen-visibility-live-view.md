@@ -67,28 +67,72 @@ alternative.
   capture-only evidence and proves that capture permission cannot make live view
   product-ready without live-view permission-prompt evidence, viewer audit, live
   transport proof, no frame retention, and no remote input.
+- Optional raw screenshot retention and live view now have an explicit
+  child/device capability status contract
+  (`ScreenOptionalVisibilityCapabilityStatusSchema` plus
+  `scripts/test/screen-optional-visibility-capability-status-proof.mjs` and
+  `output/screen-plan-proof/optional-visibility-capability-status/proof-summary.json`).
+  It renders disabled, manual-required, and blocked readiness states for parent
+  opt-in modes, rejects "ready" raw retention without runtime and deletion
+  proof, and rejects live-view readiness when the only platform evidence is
+  capture consent.
+- The parent Settings route now renders those optional raw-retention and
+  live-view readiness rows from the same domain proof using the real Rust agent
+  and Vite portal path
+  (`scripts/test/screen-optional-visibility-capability-status-portal-proof.mjs`,
+  `output/screen-plan-proof/optional-visibility-capability-status-portal/proof-summary.json`,
+  and
+  `output/screen-plan-proof/optional-visibility-capability-status-portal/parent-optional-visibility-capability-status.png`).
+  The UI proof shows disabled, manual-required, blocked, and capture-only
+  permission evidence without enabling raw retention, live view, live
+  transport, relay/cache, remote input, or privacy/legal approval.
+- `ScreenLiveViewParentUiPersistenceProofSchema` and
+  `scripts/test/screen-live-view-parent-ui-persistence-proof.mjs` now prove the
+  parent Settings command/readiness evidence can be carried into live-view
+  service-session and Rust runtime decisions as persisted parent opt-in state
+  while still keeping product live view false.
+- `scripts/test/screen-live-view-worker-startup-proof.mjs` now proves the Rust
+  service worker startup gate exists, separates startup permission from actual
+  worker execution, and stays stopped unless runtime readiness, a real
+  live-view prompt artifact, relay/cache execution when needed, physical-device
+  parity, and privacy/legal approval are all proved.
 - Raw screen control settings are preserved as design inputs for both summary
   and live-view decisions.
 
 ## Current Gap
 
 Need runtime product implementation for optional screenshots or live view. The
-contract preflight and fail-closed platform-permission gate exist, but service
-persistence, parent retention/live-view UI, actual live-view permission prompts,
-live transport, relay/cache execution, platform screenshots, and privacy/legal
-approval remain before any product-complete claim.
+contract preflight, parent opt-in/device status, and fail-closed
+platform-permission gate exist, parent Settings can render readiness rows,
+live-view parent UI persistence is carried into service/runtime proofs, and the
+Rust worker startup gate stays fail-closed while distinguishing "startup
+permitted" from "worker actually started." Optional raw-retention persistence/
+runtime, actual live-view permission prompts, live transport, relay/cache
+execution, platform screenshots, physical-device parity, privacy/legal approval,
+and a started production live-view worker remain before any product-complete
+claim.
 
 ## Checklist
 
 - [x] Product decision: summaries only, screenshots, live view, or tiered modes.
-- [ ] Parent opt-in and child/device capability status.
+- [x] Parent opt-in and child/device capability status.
 - [x] Source label: local summary, screenshot, live, relay, cache,
       unavailable.
 - [x] Retention and deletion controls.
 - [x] Audit for capture/view/export.
 - [x] Remote route/custody model if away-from-home.
+- [x] Parent Settings route renders optional raw-retention/live-view readiness
+      rows without enabling those modes.
+- [x] Parent UI persistence proof carries live-view opt-in state into
+      service-session/runtime decisions without enabling product live view.
+- [x] Rust service worker startup gate refuses to start without real platform,
+      relay/cache when needed, physical parity, and privacy/legal proof; startup
+      permission is not treated as actual worker execution.
 - [~] Platform permission proof gate exists; real live-view prompt/platform
   screenshots remain.
+- [ ] Runtime enablement, optional raw-retention persistence/runtime, live
+      transport, relay/cache, physical parity, and platform prompt proof before
+      product claim.
 - [ ] Privacy/legal review before public claim.
 
 ## Next AI Instructions

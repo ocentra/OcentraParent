@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import type { AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
   screenControlSettingsPortalProof,
   type ScreenControlSettingsPortalGate,
@@ -11,6 +12,8 @@ import {
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import type { PortalRenderActions } from './portal-actions';
+import { ScreenOptionalVisibilityCapabilityStatusCard } from './ScreenOptionalVisibilityCapabilityStatusCard';
 import { ScreenSettingsWritableControls } from './ScreenSettingsWritableControls';
 
 type ScreenSettingsDetailValue =
@@ -21,7 +24,15 @@ export function shouldRenderScreenSettingsRoute(route: PortalRouteValue): boolea
   return route === PortalRoute.SettingsRules || currentHash() === screenSettingsRouteHash();
 }
 
-export function ScreenSettingsRoutePanel(): ReactElement {
+export function ScreenSettingsRoutePanel({
+  actions,
+  commandEnabled,
+  events,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly commandEnabled: boolean;
+  readonly events: readonly AgentEventEnvelope[];
+}): ReactElement {
   const proof = screenControlSettingsPortalProof();
   return (
     <section aria-label={proof.title} className={PortalDom.Classes.TrackingStatusOverlay}>
@@ -36,7 +47,8 @@ export function ScreenSettingsRoutePanel(): ReactElement {
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <ScreenSettingsWritableControls />
+          <ScreenSettingsWritableControls actions={actions} commandEnabled={commandEnabled} events={events} />
+          <ScreenOptionalVisibilityCapabilityStatusCard />
           {proof.metrics.map((metric) => (
             <ScreenSettingsMetricCard key={metric.label} metric={metric} />
           ))}
