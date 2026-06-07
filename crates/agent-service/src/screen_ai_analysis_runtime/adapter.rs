@@ -20,7 +20,8 @@ use tokio::{io::AsyncWriteExt, time::timeout};
 
 use super::{
     adapter_output_fields::optional_string_array, adapter_process::adapter_process_command,
-    queue::QueuedScreenImage, ScreenAiAnalysisRuntimeConfig,
+    adapter_redaction::apply_service_ocr_redaction, queue::QueuedScreenImage,
+    ScreenAiAnalysisRuntimeConfig,
 };
 
 #[derive(Clone, Debug, PartialEq)]
@@ -163,7 +164,7 @@ pub(super) fn parsed_generation_output(
         return None;
     }
     let provider_kind = output_provider_kind(&parsed)?;
-    Some(ScreenAiAnalysisAdapterOutput {
+    Some(apply_service_ocr_redaction(ScreenAiAnalysisAdapterOutput {
         summary,
         primary_category,
         confidence,
@@ -183,7 +184,7 @@ pub(super) fn parsed_generation_output(
             constants::field::SCREEN_OCR_TEXT_SNIPPETS,
         ),
         redaction_notes: optional_string_array(&parsed, constants::field::SCREEN_REDACTION_NOTES),
-    })
+    }))
 }
 
 fn output_provider_kind(value: &Value) -> Option<String> {
