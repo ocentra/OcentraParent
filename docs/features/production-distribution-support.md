@@ -169,6 +169,17 @@ dev-only repo when it claims consumer readiness.
   account lookup execution, billing provider contact, remote support sessions,
   production SLA, default Ocentra-hosted family data, and child activity custody
   unclaimed.
+- `production-support-provider-secret-rotation-revocation-status-proof` adds
+  logging-domain provider-secret rotation and revocation status rows for
+  rotation requested, rotation preflight-ready, rotation manual-required,
+  revocation requested, revocation preflight-ready, revocation manual-required,
+  and audit-export-ready states. It links provider-secret custody status,
+  provider-secret execution readiness, backend secret-store preflight, operator
+  approval, manual proof, and audit refs while keeping backend secret store
+  execution, rotation execution, revocation execution, provider-secret delivery,
+  support backend upload execution, account lookup, billing provider contact,
+  remote support sessions, production SLA, default Ocentra-hosted family data,
+  and child activity custody unclaimed.
 - `production-support-data-export-delete-lifecycle-proof` adds parent-domain
   and logging-domain export/delete runtime lifecycle rows for requested,
   authorized, queued, running, succeeded, failed, and manual-required export and
@@ -786,6 +797,19 @@ package/runtime proof.
       production SLA, provider secrets, remote support transcripts, raw child
       activity custody, and raw support bundle payloads remain unimplemented or
       unclaimed.
+- [ ] Production support provider-secret rotation/revocation status proof.
+      Current
+      `production-support-provider-secret-rotation-revocation-status-proof`
+      covers rotation requested, rotation preflight-ready, rotation
+      manual-required, revocation requested, revocation preflight-ready,
+      revocation manual-required, and audit-export-ready rows with custody
+      status, execution readiness, backend secret-store preflight, operator
+      approval, manual proof, and audit refs. It remains deterministic logging
+      contract proof only: real backend secret store execution, rotation
+      execution, revocation execution, provider-secret delivery, support backend
+      upload execution, account lookup, billing provider contact, remote support
+      sessions, production SLA, default Ocentra-hosted family data, and child
+      activity custody remain unimplemented or unclaimed.
 - [ ] Public support contact/status boundary proof. Current
       `public-support-contact-status-proof` covers public support contact,
       support status page contact, support runbook contact, incident status
