@@ -1,0 +1,20 @@
+cmd /c npx prettier --write packages/parent-domain/src/app-game-child-facing-ux-parent-preference-setup-draft.ts packages/parent-domain/tests/app-game-child-facing-ux-parent-preference-setup-draft.test.ts
+PASS.
+
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- --run tests/app-game-child-facing-ux-parent-preference-setup-draft.test.ts
+PASS: 1 file, 3 tests.
+
+cmd /c npm run build --workspace @ocentra-parent/parent-domain
+PASS.
+
+cmd /c npx prettier --write docs/features/app-game-control.md docs/plans/app-game-plan/implementation-checklist.md docs/plans/app-game-plan/workpacks/README.md docs/plans/app-game-plan/workpacks/131-timer-parent-surface-child-ux-parent-preference-setup-draft.md output/app-game-plan-proof/131-timer-parent-surface-child-ux-parent-preference-setup-draft/00-summary.md output/app-game-plan-proof/131-timer-parent-surface-child-ux-parent-preference-setup-draft/10-validation-commands.log test-results/app-game-timer-parent-surface-child-ux-parent-preference-setup-draft/handoff.json
+PASS.
+
+node scripts/check-no-test-doubles.mjs
+PASS: No test doubles found across 2164 checked source files.
+
+node scripts/check-source-shape.mjs
+PASS: Source shape guard passed with existing advisory warnings.
+
+git diff --check
+PASS.

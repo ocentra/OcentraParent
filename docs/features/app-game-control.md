@@ -392,6 +392,12 @@ control with better evidence and local audit.
   and reference-id visibility without rendering parent notification/preference
   UI or claiming delivery, mutation, adapter dispatch, platform enforcement, or
   raw private rows.
+- Timer parent-surface child UX parent-surface intent rows now also feed a
+  parent-domain preference setup draft read model that preserves parent-safe
+  scheduler, outbox, drill-in, preference, quiet-hours, and manual-proof refs
+  for future parent preference UI while keeping frequency controls, preference
+  mutation, notification rule mutation, delivery, adapter dispatch, platform
+  enforcement, and raw private rows unclaimed.
 - The App/Game Sessions portal route now has a route-level app/game
   notification parent-surface panel that projects the live service
   notification-readiness read-model event into schema-backed manual/unavailable
@@ -1230,7 +1236,11 @@ diagnostics, or raw private source rows.
       out of the parent portal summary. App/Game Sessions now renders those
       structured records as parent action cards with readable manual-action and
       preference-setup states, parent-safe refs, and explicit no-claim adapter,
-      child-delivery, and platform states.
+      child-delivery, and platform states. Parent-domain now derives
+      parent-safe preference setup draft rows from those intent records for a
+      later parent preference UI/mutation seam without claiming the UI,
+      frequency controls, mutation, notification rule writes, delivery,
+      adapter dispatch, platform enforcement, or raw private rows.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps
