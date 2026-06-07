@@ -144,6 +144,7 @@ fn test_analysis_config() -> ScreenAiAnalysisRuntimeConfig {
         max_queue_scan: SCREEN_SERVICE_ANALYSIS_DEFAULT_MAX_QUEUE_SCAN,
         adapter_timeout_ms: SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS,
         adapter_command: None,
+        ocr_redaction_policy: Default::default(),
         queue_dir: root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX),
         journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
         journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),

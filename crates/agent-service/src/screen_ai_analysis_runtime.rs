@@ -105,7 +105,13 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
             || adapter::run_adapter(config, &image, metadata.as_ref()),
         )
         .await;
-    let event_record = analysis_event_record(&image, metadata.as_ref(), &clock, &generation);
+    let event_record = analysis_event_record(
+        &image,
+        metadata.as_ref(),
+        &clock,
+        &generation,
+        &config.ocr_redaction_policy,
+    );
     let outcome = outcome_for_generation(&image.queue_job_id, &generation, &event_record);
     record_activity_events_to_paths(
         &config.journal_path,

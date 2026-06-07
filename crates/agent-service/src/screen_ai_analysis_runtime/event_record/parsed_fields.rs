@@ -6,7 +6,9 @@ use ocentra_parent_agent_protocol::{
     SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION, SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE,
 };
 
-use super::super::adapter::parsed_generation_output;
+use super::super::{
+    adapter::parsed_generation_output_with_policy, config::ScreenOcrRedactionPolicy,
+};
 
 pub(super) struct ScreenAiAnalysisParsedFields {
     pub(super) summary: String,
@@ -23,8 +25,9 @@ pub(super) struct ScreenAiAnalysisParsedFields {
 
 pub(super) fn parsed_fields_from_generation(
     generation: &LocalAiChatGenerationResult,
+    policy: &ScreenOcrRedactionPolicy,
 ) -> ScreenAiAnalysisParsedFields {
-    match parsed_generation_output(generation) {
+    match parsed_generation_output_with_policy(generation, policy) {
         Some(output) => ScreenAiAnalysisParsedFields {
             summary: output.summary,
             category: output.primary_category,

@@ -20,8 +20,10 @@ local OCR redaction pass before event persistence: a real local Chrome text
 surface is captured as pixels, WinRT OCR reads sensitive text markers, the
 service row stores `[redacted-email]`/`[redacted-phone]` snippets plus
 redaction notes, and the real `#/screen-analysis` portal route screenshot shows
-the redacted service row without raw email or phone text. Parent-persisted
-redaction setting selection remains open.
+the redacted service row without raw email or phone text. The proof now writes a
+persisted parent-selected redaction policy file and passes it into the service
+analysis runtime so the service consumes explicit OCR text retention,
+credential suppression, PII redaction, and snippet limit settings.
 
 ## Checklist
 
@@ -34,7 +36,7 @@ redaction setting selection remains open.
 - [x] Add portal read-model/intent proof for redacted snippets.
 - [x] Persist service-emitted OCR snippets and redaction-note shape into the Activity Screen read model.
 - [x] Add real portal screenshot from a service-emitted redaction row.
-- [~] Apply local redaction in the live service path; parent-persisted setting selection remains open.
+- [x] Apply local redaction in the live service path from a persisted parent-selected OCR redaction policy.
 
 ## Proof
 
@@ -48,4 +50,6 @@ redaction setting selection remains open.
   and `portal-screen-analysis-redaction.png` prove service-emitted redacted OCR
   snippets render on the real Screen Analysis portal route without raw sensitive
   text.
-- Parent-persisted redaction setting selection remains open.
+- `output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/parent-redaction-policy.json`
+  is the parent-selected OCR text retention/redaction policy consumed by the
+  service proof.
