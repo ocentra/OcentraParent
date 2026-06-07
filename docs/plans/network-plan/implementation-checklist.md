@@ -47,8 +47,17 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       event newtypes, typed live envelopes, associated request responses, event
       constants, routing, queue/retry/TTL, no-adapter-call guards, and no UI
       business-event publish path when eventing changes.
-- [ ] `03-parser-fixture-proof.json`: PCAP fixture input, parser output,
+- [x] `03-parser-fixture-proof.json`: PCAP fixture input, parser output,
       expected JSON, TShark/Wireshark comparison, and must-not-claim records.
+      E-D parser fixture proof now writes
+      `output/network-plan-proof/03-parser-fixture-proof/03-parser-fixture-proof.json`,
+      `output/network-plan-proof/03-parser-fixture-proof/proof-summary.json`,
+      and `test-results/network-parser-fixture-proof/proof.json`, aggregating
+      the deterministic row 11/12/14/15/16/17/18/19 parser fixtures. TShark
+      and Wireshark are explicitly marked manual-unavailable for this worker
+      proof; no external analyzer execution, live capture, exact URL, content,
+      decrypted payload, policy, adapter, portal, broker, family-hub, or
+      enforcement runtime claim is made.
 - [x] `03a-live-capture-storage-proof.json`: encryption-at-rest, quota
       rotation, retention/delete/export behavior, private-family-traffic
       exclusion where possible, and manual-required custody state when live
