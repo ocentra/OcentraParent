@@ -130,7 +130,7 @@ expose location or device-status features. Parents expect this category.
   drives the React parent route through Playwright, renders the service-data
   coverage card, explicit service-backed citation detail card, read-only
   evidence drawer card, family dashboard rollup card, report/policy consumer
-  card, and retention settings read/write preflight card beside the service
+  card, and retention settings read/local service write card beside the service
   read-model summary, captures
   desktop, mobile, hosted service-backed citation detail, hosted evidence
   drawer, hosted child-safe check-in, hosted child-runtime UI, hosted family
@@ -139,8 +139,8 @@ expose location or device-status features. Parents expect this category.
   unsupported/manual platform render-state proof screenshots, writes
   accessibility summary output, proves
   calm child check-in copy/actions plus child disclosure, safe/help response,
-  location-share consent copy, typed retention settings write-preflight command
-  rendering, the retention local service-state proof artifact on the hosted
+  location-share consent copy, typed retention settings local service write
+  command/result rendering, the retention local service-state proof artifact on the hosted
   retention card, and manual-required/unavailable/authority-required unsupported
   platform rows inside the hosted route only, and keeps
   `productClaimReady=false`.
@@ -571,9 +571,9 @@ narrow hosted-route rendering, and retention settings read-model proof for
 retention window, delete-after-alert, parent export, remote-sync disabled, and
 remote-AI disabled rows plus narrow hosted-route rendering, plus
 retention-settings writer-boundary preflight proof for the same five settings
-rows, plus typed service transport write-command proof for retention settings
-preflight, plus hosted route command/result rendering for that typed write
-preflight, plus local durable settings persistence proof, plus WP32
+rows, plus typed service transport local write-command proof for retention
+settings execution, plus hosted route command/result rendering for that typed
+local write result, plus local durable settings persistence proof, plus WP32
 report/export read-model packet proof for redacted report, retention audit,
 family dashboard summary, and policy drill-in export packets, plus WP24/WP32 AI
 stored-ref consumer proof for AI parent-report,
@@ -602,8 +602,8 @@ accessibility beyond the hosted parent route are proved.
       exist. Writer-boundary preflight proof now validates the retention window,
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
       disabled write intents, and the service transport now accepts a typed
-      write command/preflight result. The hosted parent route now sends and
-      renders that write-preflight result. Local service-state readback and
+      local write command/result. The hosted parent route now sends and
+      renders that local service execution result. Local service-state readback and
       local durable settings persistence proof now exist; applied product-ready
       writable retention execution, platform runtime, and production hardening
       remain pending.
@@ -811,7 +811,7 @@ accessibility beyond the hosted parent route are proved.
       check-in copy/actions card, hosted
       child-runtime disclosure/safe-help/location-share consent card, plus a
       family dashboard rollup card, parent action readiness card,
-      missing-device state card, and retention settings write-preflight result
+      missing-device state card, and retention settings local service write result
       card. This is not
       child-device delivery/runtime execution, full dashboard UI beyond the
       hosted route, or physical-device proof.
@@ -864,8 +864,8 @@ Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
 presence as hints only. The pre-device proof gate is now repeatable; the next
 implementation layers are broader tracking journal/read-model product surfaces,
-applied/product-ready retention settings execution beyond hosted preflight
-rendering, full portal UI snapshots/accessibility beyond the hosted route,
+applied/product-ready retention settings execution beyond hosted local service
+write rendering, full portal UI snapshots/accessibility beyond the hosted route,
 remaining Android fused provider foreground-location proof, Android system
 geofencing/dwell proof, iOS Core Location/region proof beyond
 simulator package launch, then physical Android/iOS proof and authority proof

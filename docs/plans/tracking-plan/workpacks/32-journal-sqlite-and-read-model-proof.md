@@ -204,13 +204,14 @@ while keeping Ocentra-hosted default storage, raw location remote upload,
 SQLite snapshot remote upload, remote sync, remote AI, portal UI, service
 mutation, platform runtime, device delivery, authority, production, and
 product-ready claims false.
-The hosted parent route now consumes the typed retention settings write
-preflight response as a command/result rendering path and captures the accepted
-result plus mutation proof refs in
+The hosted parent route now consumes the typed retention settings local service
+write response as a command/result rendering path and captures the accepted
+result, local service state revision, local durable settings persistence, plus
+mutation proof refs in
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`.
-It does not claim applied service mutation, platform replay, child-device
-delivery, provider delivery, authority, notification receipt ingestion, or
-product-ready behavior.
+It does not claim product-ready service mutation, platform replay,
+child-device delivery, provider delivery, authority, notification receipt
+ingestion, durable production settings, or product-ready behavior.
 The family dashboard rollup proof derives active family summary,
 child-attention summary, and retention-audit summary rows from the existing
 service read-model/product-surface/report-consumer proof refs while keeping
@@ -647,8 +648,9 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
       checklist, WP07, WP30, and WP32 updated; central product capability
       checklist remains hub/primary sequenced.
 - [x] Known gaps/manual-required states: hosted route consumes and renders the
-      typed local service execution response with local service state revision.
-      Writable product settings, applied product-ready service mutation
+      typed local service execution response with local service state revision
+      and local durable settings persistence. Writable product settings,
+      applied product-ready service mutation
       execution, platform replay/runtime, child-device delivery/runtime
       execution, Android/iOS physical-device proof, authority, provider delivery,
       notification receipt ingestion,

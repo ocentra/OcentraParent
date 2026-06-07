@@ -538,7 +538,8 @@ const TrackingRetentionSettingsWriteResult = {
   remoteAiEnabled: false,
   localServiceStateRevision: 1,
   localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
-  durableSettingsPersisted: false,
+  durableSettingsStoreRef: 'agent-service-local-retention-settings-durable-json',
+  durableSettingsPersisted: true,
   commandTransportClaimed: true,
   serviceWritePreflightClaimed: true,
   serviceMutationExecuted: true,
@@ -618,7 +619,7 @@ describe('tracking status proof surface', () => {
 });
 
 describe('tracking retention settings hosted proof surface', () => {
-  it('renders retention write preflight result without product-ready mutation claims', () => {
+  it('renders retention local service write result without product-ready mutation claims', () => {
     const liveActivity = resolveLiveActivityState([
       trackingRetentionSettingsWriteEvent(JSON.stringify(TrackingRetentionSettingsWriteResult)),
     ]);
@@ -628,7 +629,7 @@ describe('tracking retention settings hosted proof surface', () => {
     ).toMatchObject({
       title: 'Retention settings read-model UI',
       writePreflight: {
-        title: 'Retention write preflight result',
+        title: 'Retention local service write result',
         commandId: 'tracking-retention-settings-write-command',
         settingsKind: 'retention-window-setting',
         writeState: 'service-write-command-accepted',
@@ -645,7 +646,7 @@ describe('tracking retention settings hosted proof surface', () => {
         remoteAiEnabled: '0',
         localServiceStateRevision: '1',
         localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
-        durableSettingsPersistedRows: '0',
+        durableSettingsPersistedRows: '1',
         commandTransportClaimedRows: '1',
         serviceWritePreflightClaimedRows: '1',
         serviceMutationExecutedRows: '1',
@@ -658,7 +659,7 @@ describe('tracking retention settings hosted proof surface', () => {
         productClaimReadyRows: '0',
         parserReason: 'Not reported',
         boundary:
-          'Portal command/result rendering only; service mutation execution and local state revision are local proof, while durable product persistence, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
+          'Portal command/result rendering proves local service mutation execution, local durable settings persistence, and local state revision only; product-ready writable settings, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
       },
     });
   });
