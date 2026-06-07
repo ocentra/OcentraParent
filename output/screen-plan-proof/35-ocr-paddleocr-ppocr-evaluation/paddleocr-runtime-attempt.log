@@ -5,7 +5,7 @@ C:\Users\sujan\AppData\Roaming\Python\Python311\site-packages\paddle\utils\cpp_e
 Creating model: ('PP-OCRv5_mobile_det', None, None)
 Model files already exist. Using cached files. To redownload, please delete the directory manually: `C:\Users\sujan\.paddlex\official_models\PP-OCRv5_mobile_det`.
 WARNING: Logging before InitGoogleLogging() is written to STDERR
-I0606 22:52:15.393942 28424 onednn_context.cc:81] oneDNN v3.6.2
+I0606 23:45:07.584208 30484 onednn_context.cc:81] oneDNN v3.6.2
 Creating model: ('en_PP-OCRv5_mobile_rec', None, None)
 Model files already exist. Using cached files. To redownload, please delete the directory manually: `C:\Users\sujan\.paddlex\official_models\en_PP-OCRv5_mobile_rec`.
 Traceback (most recent call last):
