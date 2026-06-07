@@ -10,6 +10,9 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - Screen evidence provider constants for `localOcr`/WinRT OCR service proof and
   Activity Screen read-model fields for model id, prompt/template version, and
   raw-image retention state.
+- Screen parent settings structs and persistence response shapes mirroring the
+  TypeScript `ScreenAnalysisParentSettingSchema` boundary for service-backed
+  opt-in settings proof without raw-image retention.
 - V0.8 enforcement product-control read-model, command, event, and payload
   constants shared by the Rust service and TypeScript protocol adapter.
 - V0.8 enforcement policy-dispatch read-model, command, event, and payload
@@ -135,3 +138,7 @@ flowchart LR
   scheduler runtime, parent notification UI, child delivery, policy evaluator
   execution, adapter dispatch, broad blocking, and platform support remain
   unclaimed.
+- Screen parent settings structs preserve serialization and service-persistence
+  boundaries only. Parent portal command wiring, product retention-control UI,
+  raw screenshot retention enablement, live view, and privacy/legal approval
+  remain separate proof-gated work.

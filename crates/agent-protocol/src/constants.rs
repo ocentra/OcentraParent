@@ -19,6 +19,7 @@ pub mod env_var {
     pub const AGENT_ENFORCEMENT_TIMER_STATE_PATH: &str =
         "OCENTRA_PARENT_AGENT_ENFORCEMENT_TIMER_STATE_PATH";
     pub const AGENT_BROWSER_POLICY_STORE_PATH: &str = "OCENTRA_PARENT_BROWSER_POLICY_STORE_PATH";
+    pub const AGENT_SCREEN_SETTINGS_STORE_PATH: &str = "OCENTRA_PARENT_SCREEN_SETTINGS_STORE_PATH";
     pub const ACTIVITY_DB_PATH: &str = "OCENTRA_PARENT_ACTIVITY_DB_PATH";
     pub const ACTIVITY_JOURNAL_KEY_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_KEY_PATH";
     pub const ACTIVITY_JOURNAL_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_PATH";
@@ -494,6 +495,55 @@ pub mod browser_policy {
     pub const MESSAGE_STALE_REVISION: &str = "Browser policy base revision is stale.";
     pub const MESSAGE_REVISION_NOT_FOUND: &str = "Browser policy revision was not found.";
     pub const MESSAGE_INVALID_POLICY: &str = "Browser policy value is inconsistent.";
+}
+
+pub mod screen_settings {
+    pub const UPDATE_KIND_GET: &str = "get";
+    pub const UPDATE_KIND_REPLACE: &str = "replace";
+    pub const UPDATE_STATUS_ACCEPTED: &str = "accepted";
+    pub const UPDATE_STATUS_REJECTED: &str = "rejected";
+    pub const STORE_FILE_NAME: &str = "ocentra-parent-screen-settings-state.json";
+    pub const TEST_STORE_FILE_PREFIX: &str = "ocentra-parent-screen-settings-test";
+    pub const REQUEST_ID_GET: &str = "screen-settings-request-get";
+    pub const REQUEST_ID_REPLACE: &str = "screen-settings-request-replace";
+    pub const DEFAULT_PARENT_SETTING_REF: &str = "screen-parent-setting-default";
+    pub const DEFAULT_CHANGED_BY_PARENT_REF: &str = "screen-parent-local-settings";
+    pub const DEFAULT_CHANGED_AT: &str = "2026-06-07T04:20:00Z";
+    pub const DEFAULT_REASON: &str = "screen-settings-service-default-disabled";
+    pub const STRICT_REASON: &str = "parent-enabled-strict-dry-run";
+    pub const REVISION_PREFIX: &str = "screen-setting-revision-";
+    pub const AUDIT_PREFIX: &str = "screen-setting-audit-";
+    pub const TEST_AUDIT_EVENT_ID_1: &str = "screen-setting-audit-1";
+    pub const TEST_PATH_SUFFIX_PERSISTENCE: &str = "persists-parent-opt-in";
+    pub const TEST_JSON_EXTENSION: &str = "json";
+    pub const TEST_SETTING_RETURNED: &str = "screen setting returned";
+    pub const TEST_PERSISTED_SETTING_RETURNED: &str = "persisted screen setting returned";
+    pub const TEST_STORE_READABLE: &str = "screen settings store is readable";
+    pub const MESSAGE_REPORTED: &str = "Screen settings state reported.";
+    pub const MESSAGE_ACCEPTED: &str = "Screen settings update accepted.";
+    pub const MESSAGE_STORAGE_UNAVAILABLE: &str = "Screen settings storage is unavailable.";
+    pub const MESSAGE_STALE_REVISION: &str = "Screen settings base revision is stale.";
+    pub const MESSAGE_INVALID_SETTING: &str = "Screen settings value is inconsistent.";
+    pub const ANALYSIS_MODE_OBSERVE_ONLY: &str = "observeOnly";
+    pub const ANALYSIS_MODE_POLICY_DRY_RUN: &str = "policyDryRun";
+    pub const ANALYSIS_MODE_ENFORCEMENT_ELIGIBLE: &str = "enforcementEligible";
+    pub const CAPTURE_SCOPE_ACTIVE_WINDOW: &str = "activeWindow";
+    pub const CAPTURE_TRIGGER_TIMED_CADENCE: &str = "timedCadence";
+    pub const CAPTURE_TRIGGER_NATIVE_APP_FOREGROUND: &str = "nativeAppForegroundStart";
+    pub const REDACTION_MODE_DISABLED: &str = "disabled";
+    pub const REDACTION_MODE_LOCAL_SENSITIVE_TEXT: &str = "localSensitiveText";
+    pub const OCR_TEXT_RETENTION_DISABLED: &str = "disabled";
+    pub const OCR_TEXT_RETENTION_REDACTED_SNIPPETS: &str = "redactedSnippets";
+    pub const MIN_CADENCE_SECONDS: u64 = 60;
+    pub const MAX_CADENCE_SECONDS: u64 = 3600;
+    pub const DEFAULT_DISABLED_CADENCE_SECONDS: u64 = 300;
+    pub const STRICT_CADENCE_SECONDS: u64 = 60;
+    pub const MIN_TTL_SECONDS: u64 = 60;
+    pub const MAX_TTL_SECONDS: u64 = 1800;
+    pub const DEFAULT_TTL_SECONDS: u64 = 300;
+    pub const MAX_RETRY_COUNT: u64 = 5;
+    pub const DEFAULT_RETRY_COUNT: u64 = 2;
+    pub const MAX_OCR_SNIPPET_LIMIT: u64 = 20;
 }
 #[path = "constants/enforcement.rs"]
 pub mod enforcement;
