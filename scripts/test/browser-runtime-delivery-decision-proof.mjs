@@ -1,0 +1,173 @@
+import { execFileSync } from 'node:child_process';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+
+const root = process.cwd();
+const proofDir = path.join(root, 'test-results', 'browser-runtime-delivery-decision-proof');
+const outputDir = path.join(root, 'output', 'browser-plan-proof', 'browser-runtime-delivery-decision');
+
+const files = {
+  delivery: path.join(root, 'crates', 'agent-core', 'src', 'browser_event_runtime', 'delivery.rs'),
+  runtime: path.join(root, 'crates', 'agent-core', 'src', 'browser_event_runtime.rs'),
+  lib: path.join(root, 'crates', 'agent-core', 'src', 'lib.rs'),
+  tests: path.join(root, 'crates', 'agent-core', 'src', 'browser_event_runtime_tests.rs'),
+  checklist: path.join(root, 'docs', 'plans', 'browser-plan', 'implementation-checklist.md'),
+  feature: path.join(root, 'docs', 'features', 'browser-web-control.md'),
+  workpack: path.join(
+    root,
+    'docs',
+    'plans',
+    'browser-plan',
+    'workpacks',
+    '13-browser-read-models-and-service-events.md'
+  ),
+};
+
+function run(command, args) {
+  execFileSync(command, args, {
+    cwd: root,
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  });
+}
+
+async function sourceChecks() {
+  const [delivery, runtime, lib, tests, checklist, feature, workpack] = await Promise.all([
+    readFile(files.delivery, 'utf8'),
+    readFile(files.runtime, 'utf8'),
+    readFile(files.lib, 'utf8'),
+    readFile(files.tests, 'utf8'),
+    readFile(files.checklist, 'utf8'),
+    readFile(files.feature, 'utf8'),
+    readFile(files.workpack, 'utf8'),
+  ]);
+  return {
+    usesSharedEventingDecisionApi: delivery.includes('decide_event_delivery_route'),
+    provesLocalServiceRoute: delivery.includes('EventDeliveryRouteKind::LocalService'),
+    provesLocalInProcessRoute: delivery.includes('EventDeliveryRouteKind::LocalInProcess'),
+    provesExternalTransportManualRequired: delivery.includes('ExternalTransportRouteManualRequired'),
+    rejectsExecutionClaims:
+      delivery.includes('adapter_dispatch_claimed: false') &&
+      delivery.includes('browser_mutation_claimed: false') &&
+      delivery.includes('child_intervention_execution_claimed: false') &&
+      delivery.includes('final_policy_execution_claimed: false') &&
+      delivery.includes('enforcement_claimed: false'),
+    runtimeExportsProof: runtime.includes('prove_browser_runtime_delivery_decision'),
+    libExportsProof: lib.includes('BrowserRuntimeDeliveryDecisionReport'),
+    focusedTestExists: tests.includes('browser_runtime_delivery_decision_keeps_current_routes_local_only'),
+    testAssertsMissingArtifacts: tests.includes('EventDeliveryRequiredArtifact::TransportConfig'),
+    checklistMentionsProof: checklist.includes('browser-runtime-delivery-decision-proof'),
+    featureMentionsProof: feature.includes('browser runtime delivery-decision proof'),
+    workpackMentionsProof: workpack.includes('Delivery Decision Addendum'),
+  };
+}
+
+function assertSourceChecks(checks) {
+  const missing = Object.entries(checks)
+    .filter(([, ok]) => !ok)
+    .map(([name]) => name);
+  if (missing.length > 0) {
+    throw new Error(`browser runtime delivery-decision proof failed: ${missing.join(', ')}`);
+  }
+}
+
+async function main() {
+  await mkdir(proofDir, { recursive: true });
+  await mkdir(outputDir, { recursive: true });
+
+  const commands = [
+    {
+      command: 'cargo',
+      args: [
+        'test',
+        '-p',
+        'ocentra-parent-agent-core',
+        'browser_runtime_delivery_decision_keeps_current_routes_local_only',
+        '--quiet',
+      ],
+    },
+  ];
+
+  for (const item of commands) {
+    run(item.command, item.args);
+  }
+
+  const checks = await sourceChecks();
+  assertSourceChecks(checks);
+
+  const proof = {
+    proofName: 'browser-runtime-delivery-decision-proof',
+    branchHead: execFileSync('git', ['log', '-1', '--oneline'], {
+      cwd: root,
+      encoding: 'utf8',
+    }).trim(),
+    sourceChecks: checks,
+    commands: commands.map((item) => `${item.command} ${item.args.join(' ')}`),
+    deliveryDecisions: {
+      browserRuntimeChain: {
+        routeKind: 'local-service',
+        decisionState: 'local-route-ready',
+        publisher: 'browser-event-runtime-spine',
+        subscriber: 'browser-read-model',
+      },
+      browserActionIntentStatus: {
+        routeKind: 'local-in-process',
+        decisionState: 'local-route-ready',
+        publisher: 'browser-event-runtime-spine',
+        subscriber: 'browser-action-intent-status',
+      },
+      browserExternalTransport: {
+        routeKind: 'external-transport',
+        decisionState: 'external-transport-route-manual-required',
+        missingArtifacts: [
+          'custody-proof',
+          'publisher-auth-proof',
+          'subscriber-auth-proof',
+          'encryption-proof',
+          'retention-policy',
+          'replay-plan',
+          'deletion-plan',
+          'offset-policy',
+          'dedupe-policy',
+          'transport-config',
+        ],
+      },
+    },
+    verified: {
+      reusableEventingDeliveryDecisionUsed: true,
+      localServiceRouteReady: true,
+      localInProcessRouteReady: true,
+      externalTransportManualRequired: true,
+      externalTransportDeliveryImplemented: false,
+      externalRelayDeliveryImplemented: false,
+      adapterDispatchClaimed: false,
+      browserMutationClaimed: false,
+      childInterventionExecutionClaimed: false,
+      finalPolicyExecutionClaimed: false,
+      enforcementClaimed: false,
+    },
+  };
+
+  const markdown = [
+    '# Browser Runtime Delivery Decision Proof',
+    '',
+    '| Boundary | Route | Decision | Subscriber | Status |',
+    '| --- | --- | --- | --- | --- |',
+    '| browser runtime event chain | local-service | local-route-ready | browser-read-model | covered |',
+    '| browser action-intent status | local-in-process | local-route-ready | browser-action-intent-status | covered |',
+    '| browser external transport | external-transport | external-transport-route-manual-required | browser-intervention-command | manual-required |',
+    '',
+    'The proof uses the reusable `ocentra-eventing` delivery decision API. External transport and relay delivery remain unimplemented, and the proof does not claim adapter dispatch, browser mutation, child intervention execution, final policy execution, or enforcement.',
+    '',
+  ].join('\n');
+
+  await writeFile(path.join(proofDir, 'proof.json'), `${JSON.stringify(proof, null, 2)}\n`);
+  await writeFile(path.join(outputDir, '01-browser-runtime-delivery-decision-proof.md'), markdown);
+
+  console.log(JSON.stringify(proof, null, 2));
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

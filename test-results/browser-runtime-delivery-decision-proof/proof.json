@@ -1,0 +1,64 @@
+{
+  "proofName": "browser-runtime-delivery-decision-proof",
+  "branchHead": "af98ed0d4 Register browser runtime chain topology",
+  "sourceChecks": {
+    "usesSharedEventingDecisionApi": true,
+    "provesLocalServiceRoute": true,
+    "provesLocalInProcessRoute": true,
+    "provesExternalTransportManualRequired": true,
+    "rejectsExecutionClaims": true,
+    "runtimeExportsProof": true,
+    "libExportsProof": true,
+    "focusedTestExists": true,
+    "testAssertsMissingArtifacts": true,
+    "checklistMentionsProof": true,
+    "featureMentionsProof": true,
+    "workpackMentionsProof": true
+  },
+  "commands": [
+    "cargo test -p ocentra-parent-agent-core browser_runtime_delivery_decision_keeps_current_routes_local_only --quiet"
+  ],
+  "deliveryDecisions": {
+    "browserRuntimeChain": {
+      "routeKind": "local-service",
+      "decisionState": "local-route-ready",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-read-model"
+    },
+    "browserActionIntentStatus": {
+      "routeKind": "local-in-process",
+      "decisionState": "local-route-ready",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-action-intent-status"
+    },
+    "browserExternalTransport": {
+      "routeKind": "external-transport",
+      "decisionState": "external-transport-route-manual-required",
+      "missingArtifacts": [
+        "custody-proof",
+        "publisher-auth-proof",
+        "subscriber-auth-proof",
+        "encryption-proof",
+        "retention-policy",
+        "replay-plan",
+        "deletion-plan",
+        "offset-policy",
+        "dedupe-policy",
+        "transport-config"
+      ]
+    }
+  },
+  "verified": {
+    "reusableEventingDeliveryDecisionUsed": true,
+    "localServiceRouteReady": true,
+    "localInProcessRouteReady": true,
+    "externalTransportManualRequired": true,
+    "externalTransportDeliveryImplemented": false,
+    "externalRelayDeliveryImplemented": false,
+    "adapterDispatchClaimed": false,
+    "browserMutationClaimed": false,
+    "childInterventionExecutionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  }
+}

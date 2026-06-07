@@ -449,3 +449,26 @@ Evidence:
 This is topology/registry proof for the existing local chain only. It does not
 add external transport, adapter dispatch, browser mutation, child intervention
 execution, final policy execution, or enforcement.
+
+## Delivery Decision Addendum - 2026-06-07
+
+`browser-runtime-delivery-decision-proof` applies the reusable
+`ocentra-eventing` delivery decision API to the browser runtime chain and the
+browser action-intent status subscriber. The current runtime chain is
+`local-service` ready, the action-intent status subscriber is `local-in-process`
+ready, and the external transport route stays `manual-required` because the
+custody/auth/encryption/retention/replay/delete/offset/dedupe/transport
+artifacts are not present.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime/delivery.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `scripts/test/browser-runtime-delivery-decision-proof.mjs`
+- `test-results/browser-runtime-delivery-decision-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`
+- `cargo test -p ocentra-parent-agent-core browser_runtime_delivery_decision_keeps_current_routes_local_only --quiet`
+
+This is delivery-decision proof only. It does not add external transport,
+relay delivery, adapter dispatch, browser mutation, child intervention
+execution, final policy execution, or enforcement.

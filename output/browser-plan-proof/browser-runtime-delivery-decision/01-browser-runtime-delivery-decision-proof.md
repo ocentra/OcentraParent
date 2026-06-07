@@ -1,0 +1,9 @@
+# Browser Runtime Delivery Decision Proof
+
+| Boundary | Route | Decision | Subscriber | Status |
+| --- | --- | --- | --- | --- |
+| browser runtime event chain | local-service | local-route-ready | browser-read-model | covered |
+| browser action-intent status | local-in-process | local-route-ready | browser-action-intent-status | covered |
+| browser external transport | external-transport | external-transport-route-manual-required | browser-intervention-command | manual-required |
+
+The proof uses the reusable `ocentra-eventing` delivery decision API. External transport and relay delivery remain unimplemented, and the proof does not claim adapter dispatch, browser mutation, child intervention execution, final policy execution, or enforcement.

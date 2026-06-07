@@ -1,10 +1,14 @@
 use crate::{
     browser_runtime_action_intent_status_topology_manifest,
-    browser_runtime_chain_topology_manifest, publish_browser_runtime_chain_for_input,
+    browser_runtime_chain_topology_manifest, prove_browser_runtime_delivery_decision,
+    publish_browser_runtime_chain_for_input,
     request_browser_runtime_action_intent_status_for_input, BrowserRuntimeEventPayload,
     BrowserRuntimeInput, BrowserRuntimePhase, BrowserRuntimeReport,
 };
-use ocentra_eventing::EventTopologyStatus;
+use ocentra_eventing::{
+    EventDeliveryDecisionState, EventDeliveryRequiredArtifact, EventDeliveryRouteKind,
+    EventTopologyStatus,
+};
 use ocentra_parent_agent_protocol::constants;
 
 #[tokio::test]
@@ -243,6 +247,57 @@ fn browser_runtime_chain_topology_covers_ordered_event_spine() {
         assert_eq!(subscriber.subscriber_id.as_str(), phase.subscriber_id());
         assert_eq!(subscriber.target_handler.as_str(), phase.target_handler());
     }
+}
+
+#[test]
+fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
+    let report = prove_browser_runtime_delivery_decision().unwrap();
+
+    assert_eq!(report.local_ready_route_count, 2);
+    assert_eq!(
+        report.chain_delivery.route_kind,
+        EventDeliveryRouteKind::LocalService
+    );
+    assert_eq!(
+        report.chain_delivery.decision_state,
+        EventDeliveryDecisionState::LocalRouteReady
+    );
+    assert_eq!(
+        report.action_intent_status_delivery.route_kind,
+        EventDeliveryRouteKind::LocalInProcess
+    );
+    assert_eq!(
+        report.action_intent_status_delivery.decision_state,
+        EventDeliveryDecisionState::LocalRouteReady
+    );
+    assert_eq!(
+        report.external_transport_delivery.route_kind,
+        EventDeliveryRouteKind::ExternalTransport
+    );
+    assert_eq!(
+        report.external_transport_delivery.decision_state,
+        EventDeliveryDecisionState::ExternalTransportRouteManualRequired
+    );
+    assert_eq!(
+        report.external_transport_delivery.missing_artifacts.len(),
+        10
+    );
+    assert!(report
+        .external_transport_delivery
+        .missing_artifacts
+        .contains(&EventDeliveryRequiredArtifact::CustodyProof));
+    assert!(report
+        .external_transport_delivery
+        .missing_artifacts
+        .contains(&EventDeliveryRequiredArtifact::TransportConfig));
+    assert!(report.external_transport_manual_required);
+    assert!(!report.external_transport_delivery_implemented);
+    assert!(!report.external_relay_delivery_implemented);
+    assert!(!report.adapter_dispatch_claimed);
+    assert!(!report.browser_mutation_claimed);
+    assert!(!report.child_intervention_execution_claimed);
+    assert!(!report.final_policy_execution_claimed);
+    assert!(!report.enforcement_claimed);
 }
 
 fn assert_all_payloads_preserve_browser_context(

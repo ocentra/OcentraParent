@@ -1057,6 +1057,13 @@ browser-runtime-spine publisher and their named subscribers/targets. This is
 chain topology proof only: it adds no external transport, adapter dispatch,
 browser mutation, child intervention execution, final policy execution, or
 enforcement.
+WP13 now adds a browser runtime delivery-decision proof using the reusable Rust
+eventing delivery decision API. The browser runtime chain is local-service
+ready, the browser action-intent status subscriber is local-in-process ready,
+and external transport remains manual-required until custody/auth/encryption/
+retention/replay/delete/offset/dedupe/transport artifacts exist. This adds no
+external transport, relay delivery, adapter dispatch, browser mutation, child
+intervention execution, final policy execution, or enforcement.
 
 ## Checklist
 
