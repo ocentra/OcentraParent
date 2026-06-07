@@ -78,6 +78,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `36-parent-action-readiness-hosted-ui-proof.json`
 - Hosted missing-device proof:
   `37-missing-device-hosted-ui-proof.json`
+- WP30 child-runtime delivery boundary proof:
+  `38-child-runtime-delivery-boundary-proof.json`
 
 ## Merge Blockers
 
