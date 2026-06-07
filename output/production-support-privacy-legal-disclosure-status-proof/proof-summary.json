@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T09:35:23.490Z",
-  "commit": "e834f78c5d8c217a0e5ed1198989ed67dfb1608a",
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
   "proofMode": "production-support-privacy-legal-disclosure-status-proof",
   "statesCovered": [
     "disclosure-requested",
@@ -13,14 +13,14 @@
     "disclosure-failed",
     "manual-required"
   ],
-  "output": "test-results\\production-support-privacy-legal-disclosure-status-proof\\proof.json",
+  "output": "test-results/production-support-privacy-legal-disclosure-status-proof/proof.json",
   "claimsNotProved": [
     "legal disclosure execution",
     "public runtime execution",
     "support backend upload execution",
     "account lookup execution",
     "billing provider contact execution",
-    "remote support sessions",
+    "remote support session execution",
     "production SLA",
     "provider secrets",
     "child activity custody"
