@@ -12,9 +12,13 @@ This is AI-pass work. Do not block capture MVP on final OCR selection.
 
 - [x] Verify current PaddleOCR/PP-OCR docs.
 - [x] Test Windows packaging and runtime dependencies.
-- [~] Test local-only execution.
-- [~] Compare UI text extraction quality against Tesseract.
-- [~] Measure CPU/GPU/memory/runtime.
+- [~] Test local-only execution; current PaddleOCR 3.x / PP-OCRv5 is blocked,
+  but a pinned PaddleOCR 2.x fallback now runs locally.
+- [~] Compare UI text extraction quality against Tesseract; the pinned 2.x
+  fallback matches the baseline terms, but production quality remains open.
+- [~] Measure CPU/GPU/memory/runtime; the pinned 2.x fallback records CPU,
+  peak RSS, init, and predict timing, but GPU/resource suitability and the
+  current 3.x candidate remain open.
 - [x] Decide whether the child device or a trusted household mesh provider
       should run it.
 
@@ -55,16 +59,40 @@ PaddlePaddle oneDNN/PIR runtime error:
 The proof also records the packaging risk that the user Python environment has
 protobuf 5.29.5 while `mediapipe` requires protobuf `<5`.
 
+The same proof can also run an explicitly prepared isolated Python 3.10 fallback
+venv when requested:
+
+```powershell
+$env:OCENTRA_RUN_PADDLEOCR_LOCAL="1"
+$env:OCENTRA_RUN_PADDLEOCR_2X_LOCAL="1"
+node scripts/test/screen-ocr-paddleocr-evaluation-proof.mjs
+```
+
+That pinned fallback uses `paddleocr` 2.7.0.3, `paddlepaddle` 2.6.2, and
+`numpy<2` in `output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/paddleocr-2x-py310-venv`.
+It completed local inference against the retained Vimeo screenshot, extracted
+15 text strings, matched the baseline `vimeo`, `video`, and `player` terms,
+and recorded init/predict timing, CPU time, and peak RSS in
+`output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/paddleocr-2x-py310-runtime.log`.
+This proves a local PaddleOCR-family fallback can analyze the same real
+screenshot, but it does not unblock the current PP-OCRv5 candidate or select
+production OCR.
+
 The proof does not call hosted OCR or select PaddleOCR as the production OCR
 runtime.
 
 ## Current Decision
 
 - Do not select PaddleOCR/PP-OCR as the production OCR runtime yet.
-- Treat PaddleOCR/PP-OCR as runtime-blocked on this Windows CPU lane until the
-  PaddlePaddle inference error is fixed or a pinned alternate runtime is proved.
-- Keep Tesseract/WinRT as the only runtime-proved local OCR paths in this lane
-  until PaddleOCR completes local inference and produces comparable text.
+- Treat current PaddleOCR 3.x / PP-OCRv5 as runtime-blocked on this Windows CPU
+  lane until the PaddlePaddle inference error is fixed.
+- Treat the pinned PaddleOCR 2.x fallback as local-runtime proved but
+  not production-selected because it still needs explicit dependency pinning,
+  model-cache custody policy, broader quality/resource proof, and product
+  ownership review.
+- Keep Tesseract/WinRT as the production-leading local OCR paths in this lane
+  until the current PaddleOCR path or the pinned fallback passes production OCR
+  selection gates.
 - Route hard OCR cases through a trusted household mesh provider only after the
   provider proves the same local model-cache custody, no-hosted-OCR boundary,
   runtime success, lease ownership, and child-agent result validation.
