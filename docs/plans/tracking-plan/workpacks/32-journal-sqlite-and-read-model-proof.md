@@ -52,16 +52,17 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `26-retention-settings-mutation-proof.json`
 - `27-retention-settings-write-command-proof.json`
 - `28-report-export-read-model-proof.json`
+- `30-ai-stored-ref-consumer-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
 
 ## AI Worker Checklist
 
-- [ ] Journal evidence before portal/policy/AI use.
+- [x] Journal evidence before portal/policy/AI use.
 - [x] Add replay/query/delete tests.
 - [x] Add tombstone proof.
-- [ ] Ensure AI/report/policy cite stored refs.
+- [x] Ensure AI/report/policy cite stored refs.
 - [ ] Keep Ocentra-hosted storage off by default.
 - [x] Include the P2 service read-model proof in the pre-device gate.
 - [x] Record P3 WSL/local replay proof for the read-model proof stack.
@@ -114,6 +115,12 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       refs before report/policy use without claiming AI execution, portal
       completion, platform runtime, device delivery, provider delivery,
       authority, or product-ready behavior.
+- [x] Require AI parent-report, policy-drill-in, and metadata-fallback consumer
+      rows to cite stored journal refs, stored read-model row refs, provider
+      route proof refs, and report/policy consumer proof refs before AI
+      report/policy use without claiming model execution, assistant policy
+      writes, assistant enforcement, device runtime, provider delivery,
+      authority, production behavior, or product-ready behavior.
 
 ## Where We Are
 
@@ -159,6 +166,16 @@ command records the stored-ref row counts in
 while keeping AI execution, portal completion, platform runtime, child-device
 delivery, provider delivery, notification receipt, physical-device, authority,
 production, and product-ready claims false.
+The AI stored-ref consumer proof now requires AI parent-report context,
+policy-drill-in context, and metadata-fallback context rows to carry stored
+journal refs, stored read-model row refs, provider-route proof refs, and
+report/policy consumer proof refs before AI report/policy use. The repeatable
+`node scripts/test/tracking-ai-stored-ref-consumer-proof.mjs` command records
+the row counts in
+`output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/30-ai-stored-ref-consumer-proof.json`
+while keeping model execution, assistant policy writes, assistant enforcement,
+child-device runtime, provider delivery, notification receipt, physical-device,
+authority, production, and product-ready claims false.
 The hosted parent route now consumes the typed retention settings write
 preflight response as a command/result rendering path and captures the accepted
 result plus mutation proof refs in
@@ -248,7 +265,7 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Full UI/report/policy consumers for the active product-surface summary, full
+- Broader rendered UI/report/policy surfaces for the active product-surface summary, full
   parent/child UI beyond the hosted parent route, platform physical-device
   replay, export, provider, authority, and production claims remain
   manual-required until the assigned proof artifacts exist. The family
@@ -262,8 +279,9 @@ This workpack can be assigned independently, implemented against the owning doma
   hosted packet rendering only, not raw location payload export, service
   mutation, platform runtime, child-device/runtime execution, or product-ready
   export delivery.
-- AI analysis execution still needs its own stored-ref consumer proof before any
-  AI/report/policy completion claim.
+- AI stored-ref consumer readiness is now proved for parent-report,
+  policy-drill-in, and metadata-fallback contexts, but AI model execution and
+  any AI/report/policy product-completion claim remain manual-required.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -424,6 +442,27 @@ This workpack can be assigned independently, implemented against the owning doma
       service-backed retention UI, platform runtime, child-device delivery,
       Android/iOS physical-device proof, authority, provider delivery,
       notification receipts, and production proof remain proof-gated.
+- [x] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain AI stored-ref consumer proof source/test,
+      proof harness, tracking feature doc, implementation checklist, WP24,
+      WP32, product capability checklist, and generated WP24/WP32/WP33 proof
+      artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-ai-stored-ref-consumer-proof.mjs` passed
+      locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/24-ai-provider-routing/19-ai-stored-ref-consumer-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/30-ai-stored-ref-consumer-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/30-ai-stored-ref-consumer-proof.json`,
+      and `test-results/tracking-ai-stored-ref-consumer-proof/proof.json`.
+- [x] Product doc/checklist updates: owning tracking feature doc, tracking
+      implementation checklist, WP24, WP32, and central product capability
+      checklist row updated.
+- [x] Known gaps/manual-required states: AI model execution, assistant policy
+      writes, assistant enforcement, full rendered UI/report/policy surfaces,
+      platform runtime, child-device delivery, Android/iOS physical-device
+      proof, authority, provider delivery, notification receipts, production
+      behavior, and product-ready tracking remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-hosted-citation-detail-proof`.
 - [x] Touched files: portal renderers, portal-domain proof marker, hosted

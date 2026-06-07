@@ -38,10 +38,9 @@ describe('tracking child check-in timeout escalation proof', () => {
     expect(rowState(readModel, 'tracking-check-in-expired')).toBe('expired-timeout-escalation-ready');
   });
 
-  it('preserves evidence, audit, location, and parent action refs for escalation rows', () => {
+  it('preserves evidence, audit, location, and parent action refs for help escalation rows', () => {
     const readModel = proofReadModel();
     const help = readModel.rows.find((row) => row.checkInId === 'tracking-check-in-help');
-    const timeout = readModel.rows.find((row) => row.checkInId === 'tracking-check-in-expired');
 
     expect(help?.escalates).toBe(true);
     expect(help?.locationEvidenceReferenceId).toBe('tracking-child-check-in-help-location');
@@ -50,6 +49,12 @@ describe('tracking child check-in timeout escalation proof', () => {
     expect(help?.alertOutcome).toBe('parent-review-required');
     expect(help?.escalationBasis).toBe('child-help-response');
     expect(help?.parentActionRefs).toContain('tracking-parent-review-child-check-in-tracking-check-in-help');
+  });
+
+  it('preserves audit, timeout basis, and no-claim refs for timeout escalation rows', () => {
+    const readModel = proofReadModel();
+    const timeout = readModel.rows.find((row) => row.checkInId === 'tracking-check-in-expired');
+
     expect(timeout?.locationSampleState).toBe('requested-not-yet-attached');
     expect(timeout?.auditCoverageState).toBe('prompt-audited');
     expect(timeout?.alertOutcome).toBe('parent-review-required');
