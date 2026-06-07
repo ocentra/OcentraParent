@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "proofId": "browser-platform-linux-host-proof",
+  "generatedAt": "2026-06-07T01:15:04.336Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "99643058b19903f3b7c5970fdc0bf48e0bacc418",
+  "baseCommit": "8c8fad79a50e914922fbc84984878211e127897e",
+  "hostProofSummary": {
+    "wslAvailable": true,
+    "distroName": "Ubuntu-22.04",
+    "distroDescriptionRef": "redacted-linux-distro-6df0f5c46a08bcf3",
+    "wslStatusSha256": "277c27da6f65fd7c7b936f15d1c908f98dbfaa0c36b9cc6226982e174aaa98fa",
+    "knownBrowserCommandsQueriedOnly": true,
+    "knownBrowserPackagesQueriedOnly": true,
+    "knownDesktopEntryGlobsQueriedOnly": true,
+    "browserCommandVisible": false,
+    "browserPackageInstalled": false,
+    "browserDesktopEntryVisible": false,
+    "rawPathPersisted": false,
+    "rawPackageListPersisted": false,
+    "rawDesktopEntryListPersisted": false,
+    "desktopSessionProofClaimed": false,
+    "managedProfileClaimed": false,
+    "exactUrlProofClaimed": false,
+    "knownActiveTabProofClaimed": false,
+    "snapFlatpakProofClaimed": false,
+    "enforcementClaimed": false,
+    "resultState": "linux-wsl-package-inventory-boundary-proof"
+  },
+  "pathVisibility": [
+    {
+      "targetId": "google-chrome-stable",
+      "commandName": "google-chrome",
+      "visible": false,
+      "pathRef": null,
+      "rawPathPersisted": false,
+      "managedProfileClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false
+    },
+    {
+      "targetId": "chromium",
+      "commandName": "chromium",
+      "visible": false,
+      "pathRef": null,
+      "rawPathPersisted": false,
+      "managedProfileClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false
+    },
+    {
+      "targetId": "chromium-browser",
+      "commandName": "chromium-browser",
+      "visible": false,
+      "pathRef": null,
+      "rawPathPersisted": false,
+      "managedProfileClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false
+    },
+    {
+      "targetId": "firefox",
+      "commandName": "firefox",
+      "visible": false,
+      "pathRef": null,
+      "rawPathPersisted": false,
+      "managedProfileClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false
+    },
+    {
+      "targetId": "microsoft-edge-stable",
+      "commandName": "microsoft-edge",
+      "visible": false,
+      "pathRef": null,
+      "rawPathPersisted": false,
+      "managedProfileClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false
+    }
+  ],
+  "packageVisibility": [
+    {
+      "targetId": "google-chrome-stable",
+      "packageName": "google-chrome-stable",
+      "installed": false,
+      "packageStatusRef": null,
+      "rawPackageListPersisted": false,
+      "managedProfileClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false
+    },
+    {
+      "targetId": "chromium",
+      "packageName": "chromium",
+      "installed": false,
+      "packageStatusRef": null,
+      "rawPackageListPersisted": false,
+      "managedProfileClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false
+    },
+    {
+      "targetId": "chromium-browser",
+      "packageName": "chromium-browser",
+      "installed": false,
+      "packageStatusRef": null,
+      "rawPackageListPersisted": false,
+      "managedProfileClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false
+    },
+    {
+      "targetId": "firefox",
+      "packageName": "firefox",
+      "installed": false,
+      "packageStatusRef": null,
+      "rawPackageListPersisted": false,
+      "managedProfileClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false
+    },
+    {
+      "targetId": "microsoft-edge-stable",
+      "packageName": "microsoft-edge-stable",
+      "installed": false,
+      "packageStatusRef": null,
+      "rawPackageListPersisted": false,
+      "managedProfileClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false
+    }
+  ],
+  "desktopEntries": [],
+  "negativeChecks": [
+    {
+      "claim": "linux-managed-browser-adapter",
+      "rejected": true
+    },
+    {
+      "claim": "linux-managed-exact-url",
+      "rejected": true
+    },
+    {
+      "claim": "linux-known-active-tab",
+      "rejected": true
+    },
+    {
+      "claim": "linux-browser-enforcement",
+      "rejected": true
+    }
+  ]
+}

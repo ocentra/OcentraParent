@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-platform-inventory-matrix-proof",
-  "generatedAt": "2026-06-07T01:05:20.710Z",
+  "generatedAt": "2026-06-07T01:15:15.105Z",
   "proofContract": "packages/activity-domain/src/browser-platform-inventory-matrix.ts",
   "sourceWorkpack": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
   "rows": [
@@ -244,7 +244,7 @@
   "noClaimLabels": [
     "non-windows-managed-exact-url-not-claimed",
     "non-windows-known-active-tab-not-claimed",
-    "macos-linux-platform-adapters-manual-required",
+    "linux-wsl-package-inventory-boundary-proof-present-desktop-adapter-still-manual-required",
     "android-browser-package-visibility-proof-present-owned-shell-still-manual-required",
     "ios-familycontrols-safari-extension-manual-required",
     "firefox-bidi-extension-later-adapter",
@@ -259,6 +259,18 @@
     "bootedDeviceCount": 1,
     "browserPackageVisible": true,
     "ownedBrowserShellVisible": false,
+    "exactUrlProofClaimed": false,
+    "knownActiveTabProofClaimed": false,
+    "enforcementClaimed": false
+  },
+  "linuxHostProof": {
+    "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/12-linux-host-package-proof.json",
+    "proofId": "browser-platform-linux-host-proof",
+    "resultState": "linux-wsl-package-inventory-boundary-proof",
+    "wslAvailable": true,
+    "browserCommandVisible": false,
+    "browserPackageInstalled": false,
+    "browserDesktopEntryVisible": false,
     "exactUrlProofClaimed": false,
     "knownActiveTabProofClaimed": false,
     "enforcementClaimed": false

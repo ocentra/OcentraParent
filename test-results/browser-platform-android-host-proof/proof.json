@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "proofId": "browser-platform-android-host-proof",
-  "generatedAt": "2026-06-07T01:05:15.178Z",
+  "generatedAt": "2026-06-07T01:15:09.769Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "8f81dfcfbc152f8d7cedbfd20ff0c1dfe9005d63",
+  "commit": "99643058b19903f3b7c5970fdc0bf48e0bacc418",
   "baseCommit": "8c8fad79a50e914922fbc84984878211e127897e",
   "hostProofSummary": {
     "adbInstalled": true,

@@ -42,6 +42,17 @@ Ocentra owned browser shell is not installed, and exact URL, active-tab,
 device-owner policy, VPN/DNS browser proof, UsageStats/Accessibility route
 proof, enforcement, and product checklist upgrade remain unclaimed.
 
+2026-06-07 codex-d continuation: `scripts/test/browser-platform-linux-host-proof.mjs`
+now captures real WSL Ubuntu package/PATH/desktop-entry boundary evidence for
+WP05. The proof queries only known public Linux browser commands, Debian package
+names, and desktop-entry globs, then writes
+`test-results/browser-platform-linux-host-proof/proof.json` plus
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/12-linux-host-package-proof.json`.
+The current host has WSL available but no known Chrome/Chromium/Firefox/Edge
+command, package, or desktop-entry proof. This is useful negative evidence, but
+not Linux desktop browser support: managed profile, desktop adapter, exact URL,
+active tab, Snap/Flatpak, and enforcement remain unclaimed.
+
 ## Where We Want To Be
 
 The browser inventory/read model can show platform-specific capability states
@@ -64,8 +75,10 @@ without claiming desktop CDP where it does not apply.
 - `packages/activity-domain/src/browser*.ts`
 - `scripts/test/browser-platform-inventory-matrix-proof.mjs`
 - `scripts/test/browser-platform-android-host-proof.mjs`
+- `scripts/test/browser-platform-linux-host-proof.mjs`
 - `test-results/browser-platform-inventory-matrix-proof/`
 - `test-results/browser-platform-android-host-proof/`
+- `test-results/browser-platform-linux-host-proof/`
 - `output/browser-plan-proof/05-cross-platform-inventory-matrix/`
 - platform README/docs when implementation starts.
 
@@ -75,6 +88,7 @@ without claiming desktop CDP where it does not apply.
 - Fixture tests for platform states.
 - `node scripts/test/browser-platform-inventory-matrix-proof.mjs`
 - `node scripts/test/browser-platform-android-host-proof.mjs`
+- `node scripts/test/browser-platform-linux-host-proof.mjs`
 - Manual platform proof tables when platform work starts.
 
 ## AI Worker Checklist
@@ -89,11 +103,11 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service/portal parity updated only after contracts exist; no Rust/service/portal surface changed in this contract-only slice.
 - [x] Raw evidence artifacts captured or marked N/A: this slice is a platform support matrix contract and has no bridge/CDP, journal, SQLite, policy, or action runtime evidence.
-- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Android emulator package-visibility proof is present, while live macOS/Linux/owned-shell Android/iOS fixtures and manual proof remain manual-required.
+- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Android emulator package-visibility proof and WSL Linux package/PATH boundary proof are present, while live macOS/Linux desktop/owned-shell Android/iOS fixtures and manual proof remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured: non-Windows entries reject managed exact-URL and known-active claims; iOS remains unsupported; unsupported entries cannot keep exact URL available.
-- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package visibility is captured in `11-android-host-device-proof.json`, while `09-manual-platform-proof.md` records the remaining manual-required boundaries.
+- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package visibility is captured in `11-android-host-device-proof.json`, WSL Linux package/PATH boundary evidence is captured in `12-linux-host-package-proof.json`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
 - [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md), including `test-results/browser-platform-inventory-matrix-proof/proof.json` and `output/browser-plan-proof/05-cross-platform-inventory-matrix/11-proof-gate-manifest.md`.
 - [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
@@ -104,6 +118,9 @@ No non-Windows browser product claim until real platform proof exists.
 Android emulator package visibility is now proved, but the owned browser shell,
 exact URL, active-tab, device-owner policy, VPN/DNS browser proof,
 UsageStats/Accessibility route proof, and enforcement remain unclaimed.
+WSL Linux package/PATH evidence is now proved, but no Chrome/Chromium/Firefox/Edge
+command, package, desktop entry, desktop adapter, exact URL, active-tab, Snap,
+Flatpak, or enforcement claim is upgraded.
 Remaining work requires real macOS app bundle inventory, Linux desktop entry and
 package inventory, Android owned browser shell/device-policy proof, and iOS
 FamilyControls/ManagedSettings/Safari-extension proof before this workpack can

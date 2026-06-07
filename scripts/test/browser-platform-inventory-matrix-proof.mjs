@@ -10,6 +10,7 @@ const resultDirectory = join(root, 'test-results', 'browser-platform-inventory-m
 const proofPath = join(resultDirectory, 'proof.json');
 const manifestPath = join(outputDirectory, '11-proof-gate-manifest.md');
 const androidHostProofPath = join(outputDirectory, '11-android-host-device-proof.json');
+const linuxHostProofPath = join(outputDirectory, '12-linux-host-package-proof.json');
 
 const requiredProofFiles = [
   '00-source-snapshot.md',
@@ -40,6 +41,7 @@ async function main() {
     exists: existsSync(join(outputDirectory, path)),
   }));
   const androidHostProof = await readAndroidHostProof();
+  const linuxHostProof = await readLinuxHostProof();
   const failures = [
     ...validateMatrix(matrix.entries),
     ...proofFiles.filter((file) => !file.exists).map((file) => `missing proof artifact: ${file.path}`),
@@ -66,7 +68,9 @@ async function main() {
     noClaimLabels: [
       'non-windows-managed-exact-url-not-claimed',
       'non-windows-known-active-tab-not-claimed',
-      'macos-linux-platform-adapters-manual-required',
+      linuxHostProof
+        ? 'linux-wsl-package-inventory-boundary-proof-present-desktop-adapter-still-manual-required'
+        : 'macos-linux-platform-adapters-manual-required',
       androidHostProof
         ? 'android-browser-package-visibility-proof-present-owned-shell-still-manual-required'
         : 'android-owned-browser-shell-manual-required',
@@ -76,6 +80,7 @@ async function main() {
       'product-checklist-upgrade-not-claimed',
     ],
     androidHostProof,
+    linuxHostProof,
     failures,
   };
 
@@ -190,6 +195,7 @@ function markdownFor(proof) {
     `Unsupported rows: ${proof.summary.unsupportedRows}`,
     `Product claimed: ${proof.summary.productClaimed}`,
     `Android host proof: ${proof.androidHostProof?.resultState ?? 'not-present'}`,
+    `Linux host proof: ${proof.linuxHostProof?.resultState ?? 'not-present'}`,
     '',
     '| Platform | Browser | Product | Proof State | Exact URL | Active Tab | Reason |',
     '| --- | --- | --- | --- | --- | --- | --- |',
@@ -200,6 +206,9 @@ function markdownFor(proof) {
     proof.androidHostProof
       ? 'Android emulator package-visibility proof is present, but owned browser shell custody, exact URL, active tab, device-owner policy, and enforcement remain unclaimed.'
       : 'Android owned browser shell/device proof remains manual-required.',
+    proof.linuxHostProof
+      ? 'Linux WSL package/PATH/desktop-entry boundary proof is present, but Linux desktop browser adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.'
+      : 'Linux desktop package and adapter proof remains manual-required.',
   ].join('\n');
 }
 
@@ -217,6 +226,26 @@ async function readAndroidHostProof() {
     bootedDeviceCount: proof.hostProofSummary?.bootedDeviceCount ?? 0,
     browserPackageVisible: proof.hostProofSummary?.browserPackageVisible === true,
     ownedBrowserShellVisible: proof.hostProofSummary?.ownedBrowserShellVisible === true,
+    exactUrlProofClaimed: proof.hostProofSummary?.exactUrlProofClaimed === true,
+    knownActiveTabProofClaimed: proof.hostProofSummary?.knownActiveTabProofClaimed === true,
+    enforcementClaimed: proof.hostProofSummary?.enforcementClaimed === true,
+  };
+}
+
+async function readLinuxHostProof() {
+  if (!existsSync(linuxHostProofPath)) {
+    return null;
+  }
+
+  const proof = JSON.parse(await readFile(linuxHostProofPath, 'utf8'));
+  return {
+    path: relativePath(linuxHostProofPath),
+    proofId: proof.proofId,
+    resultState: proof.hostProofSummary?.resultState ?? 'unknown',
+    wslAvailable: proof.hostProofSummary?.wslAvailable === true,
+    browserCommandVisible: proof.hostProofSummary?.browserCommandVisible === true,
+    browserPackageInstalled: proof.hostProofSummary?.browserPackageInstalled === true,
+    browserDesktopEntryVisible: proof.hostProofSummary?.browserDesktopEntryVisible === true,
     exactUrlProofClaimed: proof.hostProofSummary?.exactUrlProofClaimed === true,
     knownActiveTabProofClaimed: proof.hostProofSummary?.knownActiveTabProofClaimed === true,
     enforcementClaimed: proof.hostProofSummary?.enforcementClaimed === true,

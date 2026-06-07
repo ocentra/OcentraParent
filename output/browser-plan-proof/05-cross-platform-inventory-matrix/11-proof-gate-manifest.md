@@ -1,6 +1,6 @@
 # WP05 Platform Inventory Matrix Proof Gate
 
-Generated: 2026-06-07T01:05:20.710Z
+Generated: 2026-06-07T01:15:15.105Z
 
 Rows checked: 12
 Fixture-backed rows: 2
@@ -8,6 +8,7 @@ Manual-required rows: 4
 Unsupported rows: 6
 Product claimed: false
 Android host proof: android-browser-package-visibility-proof
+Linux host proof: linux-wsl-package-inventory-boundary-proof
 
 | Platform | Browser | Product | Proof State | Exact URL | Active Tab | Reason |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -27,3 +28,4 @@ Android host proof: android-browser-package-visibility-proof
 No product checklist upgrade is claimed.
 Non-Windows managed exact URL and known-active tab support remain manual-required or unsupported until separate real platform proof exists.
 Android emulator package-visibility proof is present, but owned browser shell custody, exact URL, active tab, device-owner policy, and enforcement remain unclaimed.
+Linux WSL package/PATH/desktop-entry boundary proof is present, but Linux desktop browser adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.
