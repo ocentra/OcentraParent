@@ -314,6 +314,13 @@ claim needs proof, not slogans.
   jobs/activity visibility surface for service-reported runtime/job rows only;
   it does not claim model quality, physical LAN execution, policy authority, or
   enforcement.
+- The `#/ai-runtime` household AI job card now surfaces provider source/trust,
+  capability flags, resource class, readiness, privacy/custody, routing state,
+  claim/lease refs, lease timestamps, execution state, and child-agent authority
+  markers from the same service-reported LAN AI job event. This closes the
+  household AI provider mesh surface for reported job/provider rows only; it
+  does not claim physical household LAN execution, production gossip, model
+  quality, policy authority, or enforcement.
 - The same `#/ai-runtime` route now renders a cited memory/graph evidence card
   from the existing service-backed `agent.activity.memory_graph.reported` event.
   The card preserves child-device custody, graph node/edge counts, omitted-edge

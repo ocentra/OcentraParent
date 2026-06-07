@@ -28,6 +28,26 @@ describe('local AI runtime panel intent', () => {
       label: PortalDetails.Status,
       value: 'claimed',
     });
+    expect(intent.cards[1]?.details).toContainEqual({
+      label: PortalDetails.ProviderSource,
+      value: 'trusted-household-desktop',
+    });
+    expect(intent.cards[1]?.details).toContainEqual({
+      label: PortalDetails.Capability,
+      value: 'screen-hard-visual-analysis',
+    });
+    expect(intent.cards[1]?.details).toContainEqual({
+      label: PortalDetails.PolicyReadiness,
+      value: 'authorized-result',
+    });
+    expect(intent.cards[1]?.details).toContainEqual({
+      label: PortalDetails.DecisionSource,
+      value: 'child-agent-local-policy-authority',
+    });
+    expect(intent.cards[1]?.details).toContainEqual({
+      label: PortalDetails.ProductClaim,
+      value: 'worker-only-child-agent-authority',
+    });
   });
 
   it('renders source-cited memory and graph evidence rows from the service read model', () => {
@@ -117,7 +137,18 @@ function lanAiJobEvent() {
       [AgentProtocolDefaults.Field.LanAiJobStatus]: 'claimed',
       [AgentProtocolDefaults.Field.LanAiJobState]: 'worker-running',
       [AgentProtocolDefaults.Field.LocalAiProviderId]: 'household-desktop-provider',
+      [AgentProtocolDefaults.Field.LocalAiProviderSource]: 'trusted-household-desktop',
+      [AgentProtocolDefaults.Field.LocalAiCapabilityFlags]: 'screen-hard-visual-analysis',
+      [AgentProtocolDefaults.Field.LocalAiResourceClass]: 'gpu',
+      [AgentProtocolDefaults.Field.LocalAiAdapterReadinessState]: 'ready',
+      [AgentProtocolDefaults.Field.LocalAiPrivacyMode]: 'local-lan-redacted',
       [AgentProtocolDefaults.Field.LanAiProviderCustodyLabel]: 'local-lan-redacted',
+      [AgentProtocolDefaults.Field.LanAiProviderRoutingState]: 'authorized-result',
+      [AgentProtocolDefaults.Field.ClaimBoundary]: 'claim-lease-child-owned-job',
+      [AgentProtocolDefaults.Field.LanControllerLeaseId]: 'lease-screen-ai-1',
+      [AgentProtocolDefaults.Field.LanControllerLeaseIssuedAt]: '2026-06-07T19:15:01Z',
+      [AgentProtocolDefaults.Field.LanControllerLeaseExpiresAt]: '2026-06-07T19:20:01Z',
+      [AgentProtocolDefaults.Field.LanParentAuthority]: 'child-agent-local-policy-authority',
       [AgentProtocolDefaults.Field.LocalAiExecutionState]: 'running',
     },
     snapshot: null,

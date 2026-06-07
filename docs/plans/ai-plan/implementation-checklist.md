@@ -229,9 +229,11 @@ consumes the same results.
       production graph storage/index runtime, model-quality, policy-authority,
       remote/API AI, or enforcement claims.
 - [ ] Remote boundary surface.
-- [ ] Household AI provider mesh surface: provider class, trust, capability,
+- [x] Household AI provider mesh surface: provider class, trust, capability,
       queue depth, heartbeat, resource state, worker-only status, claim/lease,
-      validation, and child-agent authority.
+      validation, and child-agent authority render from service-reported LAN AI
+      job/provider rows on `#/ai-runtime` without physical LAN execution,
+      production gossip, model-quality, policy-authority, or enforcement claims.
 - [x] Screen OCR/VLM degraded states visible on the real Screen Analysis portal
       route from the service-backed Activity Screen read model.
 - [x] UI screenshot captured for degraded OCR/VLM states under
