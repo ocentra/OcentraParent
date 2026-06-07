@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "browser-plan-closure-audit-proof",
+  "generatedAt": "2026-06-07T02:55:27.126Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "a25e0d72099e371a71272d88c56bd814d2ba74be",
+  "baseCommit": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "checklist": "docs/plans/browser-plan/implementation-checklist.md",
+  "summary": {
+    "checklistRows": 97,
+    "completeRows": 93,
+    "partialRows": 4,
+    "uncheckedRows": 0,
+    "expectedPartialRows": 4,
+    "failures": 0,
+    "planCompleteClaimed": false,
+    "prReadyClaimed": false
+  },
+  "partialRows": [
+    {
+      "id": "05",
+      "title": "Cross-platform inventory matrix",
+      "blocker": {
+        "reason": "cross-platform-inventory-real-platform-proof-required",
+        "requiredEvidence": "macOS desktop browser proof, positive Linux desktop browser proof, Android owned-shell/device-policy proof, and iOS device/entitlement proof"
+      }
+    },
+    {
+      "id": "SOCIAL-17",
+      "title": "iOS Screen Time/ManagedSettings capability matrix",
+      "blocker": {
+        "reason": "ios-screentime-managedsettings-real-device-proof-required",
+        "requiredEvidence": "macOS/Xcode host, FamilyControls entitlement evidence, attached physical iOS device, token selection, DeviceActivity, and ManagedSettings proof"
+      }
+    },
+    {
+      "id": "SOCIAL-23",
+      "title": "Tests, fixtures, Playwright, manual proof",
+      "blocker": {
+        "reason": "social-proof-artifact-gate-waits-on-social-17",
+        "requiredEvidence": "SOCIAL-17 real iOS proof plus connector/native/runtime proof before product claims"
+      }
+    },
+    {
+      "id": "SOCIAL-24",
+      "title": "Rollout and manual-required status labels",
+      "blocker": {
+        "reason": "social-rollout-gate-waits-on-social-17-and-social-23",
+        "requiredEvidence": "SOCIAL-17, SOCIAL-23, provider/report delivery, runtime custody mutation, final policy execution, and enforcement proof"
+      }
+    }
+  ],
+  "proofArtifacts": [
+    {
+      "key": "wp05",
+      "path": "test-results/browser-platform-inventory-matrix-proof/proof.json",
+      "exists": true,
+      "observed": {
+        "productClaimed": false,
+        "failures": 0,
+        "manualRequiredRows": 4,
+        "unsupportedRows": 6
+      },
+      "expectations": {
+        "productClaimed": false,
+        "failures": 0,
+        "manualRequiredRows": 4,
+        "unsupportedRows": 6
+      },
+      "failures": []
+    },
+    {
+      "key": "social17",
+      "path": "test-results/social-ios-screen-time-host-proof/proof.json",
+      "exists": true,
+      "observed": {
+        "isDarwinHost": false,
+        "appleToolingAvailable": false,
+        "attachedDeviceCount": 0,
+        "resultState": "host-tooling-unavailable"
+      },
+      "expectations": {
+        "isDarwinHost": false,
+        "appleToolingAvailable": false,
+        "attachedDeviceCount": 0,
+        "resultState": "host-tooling-unavailable"
+      },
+      "failures": []
+    },
+    {
+      "key": "social23",
+      "path": "test-results/social-platform-account-feed-proof-artifacts/proof.json",
+      "exists": true,
+      "observed": {
+        "productClaimed": false,
+        "failures": 0,
+        "completeRows": 21,
+        "partialRows": 1
+      },
+      "expectations": {
+        "productClaimed": false,
+        "failures": 0,
+        "completeRows": 21,
+        "partialRows": 1
+      },
+      "failures": []
+    },
+    {
+      "key": "social24",
+      "path": "test-results/social-platform-account-feed-rollout-gate/proof.json",
+      "exists": true,
+      "observed": {
+        "productClaimed": false,
+        "failures": 0,
+        "completeRows": 21,
+        "partialRows": 2,
+        "rolloutState": "partial/manual-required"
+      },
+      "expectations": {
+        "productClaimed": false,
+        "failures": 0,
+        "completeRows": 21,
+        "partialRows": 2,
+        "rolloutState": "partial/manual-required"
+      },
+      "failures": []
+    }
+  ],
+  "noClaimLabels": [
+    "browser-plan-completion-not-claimed",
+    "product-checklist-upgrade-not-claimed",
+    "macos-desktop-browser-proof-required",
+    "linux-desktop-browser-positive-proof-required",
+    "android-owned-browser-shell-device-policy-proof-required",
+    "ios-familycontrols-managedsettings-device-proof-required",
+    "social-provider-report-delivery-not-claimed",
+    "social-final-policy-execution-not-claimed",
+    "social-enforcement-not-claimed"
+  ],
+  "failures": []
+}
