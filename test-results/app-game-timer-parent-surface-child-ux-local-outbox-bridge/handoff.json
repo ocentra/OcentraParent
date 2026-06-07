@@ -1,0 +1,29 @@
+{
+  "workpack": "WP121",
+  "branch": "codex/app-game-control-product-completion",
+  "scope": "timer parent-surface child UX local outbox bridge",
+  "input": {
+    "source": "app-game child UX local handoff artifact records",
+    "requires": ["validated child UX card", "child reason refs", "child status refs", "parent action ref"]
+  },
+  "output": {
+    "record": "NotificationLocalOutboxRecord",
+    "state": "queued-local",
+    "providerChannel": "in-app",
+    "blockedStates": ["manual-required", "unavailable"]
+  },
+  "claims": {
+    "childDeliveryRuntimeClaimed": false,
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "schedulerRuntimeClaimed": false,
+    "parentNotificationUiClaimed": false,
+    "adapterDispatchClaimed": false,
+    "platformEnforcementClaimed": false,
+    "rawPrivateSourceRowsIncluded": false
+  },
+  "validation": {
+    "focused": "passed",
+    "guards": "passed"
+  }
+}

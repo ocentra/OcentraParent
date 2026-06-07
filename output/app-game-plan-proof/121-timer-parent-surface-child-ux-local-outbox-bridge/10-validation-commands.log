@@ -1,0 +1,32 @@
+WP121 validation commands
+
+Branch:
+- codex/app-game-control-product-completion
+
+Focused implementation validation:
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-child-facing-ux-local-outbox-bridge
+  Result: PASS
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain
+  Result: PASS
+
+Repository guard validation:
+- cmd /c npx prettier --check packages/parent-domain/src/app-game-child-facing-ux-local-outbox-bridge.ts packages/parent-domain/tests/app-game-child-facing-ux-local-outbox-bridge.test.ts docs/features/app-game-control.md docs/plans/app-game-plan/implementation-checklist.md docs/plans/app-game-plan/workpacks/README.md docs/plans/app-game-plan/workpacks/121-timer-parent-surface-child-ux-local-outbox-bridge.md output/app-game-plan-proof/121-timer-parent-surface-child-ux-local-outbox-bridge/00-summary.md output/app-game-plan-proof/121-timer-parent-surface-child-ux-local-outbox-bridge/10-validation-commands.log test-results/app-game-timer-parent-surface-child-ux-local-outbox-bridge/handoff.json
+  Result: PASS
+- cmd /c node scripts/check-no-test-doubles.mjs
+  Result: PASS
+- cmd /c node scripts/check-source-shape.mjs
+  Result: PASS
+- git diff --check
+  Result: PASS
+- cmd /c npm run lanes:guard
+  Result: PASS
+- cmd /c npm run hub:guard
+  Result: PASS
+
+Scope note:
+- Adds a parent-domain bridge from child UX local artifact records to existing
+  notification local-outbox JSONL records.
+- Does not claim child delivery, provider delivery, receipt ingestion,
+  scheduler runtime, parent notification UI, adapter dispatch, platform
+  enforcement, broad blocking, raw private source rows, private diagnostics, or
+  package exports.

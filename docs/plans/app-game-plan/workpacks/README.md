@@ -117,6 +117,7 @@ before `DONE` or PR-ready reporting.
 109. WP118 app/game timer parent-surface child UX local handoff artifact.
 110. WP119 app/game timer parent-surface child UX local artifact visibility.
 111. WP120 app/game timer parent-surface child UX local artifact records.
+112. WP121 app/game timer parent-surface child UX local outbox bridge.
 
 ## Standard AI Worker Checklist
 

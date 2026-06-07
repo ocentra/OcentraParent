@@ -350,6 +350,11 @@ control with better evidence and local audit.
   rendered UI, provider delivery, receipts, credentials, child delivery,
   production runtime, adapter dispatch, broad-blocking, and platform claims
   false.
+- Timer parent-surface child UX local artifact records now bridge into existing
+  parent-owned local outbox JSONL records for deliverable native app/native game
+  child UX states, while manual-required and unavailable states stay blocked
+  before queued records and child delivery/provider/scheduler/UI/adapter/
+  platform claims remain false.
 - The App/Game Sessions portal route now has a route-level app/game
   notification parent-surface panel that projects the live service
   notification-readiness read-model event into schema-backed manual/unavailable
