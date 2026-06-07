@@ -107,6 +107,16 @@ portal approval/report UI, app blocking, child activity data, and hosted
 custody remain unclaimed. The next gap remains real provider credentials/API
 execution evidence, real portal approval/report UI, platform adapters, and
 child-device delivery before any app-install product claim can be upgraded.
+Platform adapter evidence gap proof now links provider/store API execution rows
+with platform proof-readiness rows into adapter-evidence-gap,
+manual-adapter-evidence-required, platform-unavailable, and
+blocked-before-claim states across Windows, macOS, Linux, Android, and iOS while
+real platform adapter evidence, platform adapter implementation,
+product-claim approval, provider/store execution, portal UI, child-device
+delivery, app blocking, child activity data, and hosted custody remain
+unclaimed. The next gap remains real platform adapter implementation/evidence
+per platform plus provider execution, portal approval/report UI, and child
+delivery before any app-install product claim can be upgraded.
 
 ## Multi-Device, Remote, And Platforms
 

@@ -56,6 +56,11 @@ behavior belongs behind platform adapters and must be proved per platform.
   they do not prove Microsoft Store execution, provider credentials, billing
   provider contact, store integration, platform interception, child delivery,
   app blocking, or product-claim approval.
+- Windows app-install platform adapter evidence gap proof may be
+  adapter-evidence-gap only when provider/store API execution proof and
+  platform proof-readiness refs are attached; it does not prove real Windows
+  adapter evidence, Microsoft Store execution, provider credentials, child
+  delivery, app blocking, or product-claim approval.
 - Validation needs real Windows adapter tests or guarded integration/manual evidence for each claimed OS capability, plus contract tests for every event shape crossing TypeScript and Rust.
 
 ## macOS
@@ -70,6 +75,9 @@ behavior belongs behind platform adapters and must be proved per platform.
 - macOS app-install provider/store API execution proof must remain
   manual-required until Mac App Store credential, entitlement, provider contact,
   and platform adapter evidence are attached.
+- macOS app-install platform adapter evidence gap proof must remain
+  manual-adapter-evidence-required until signing, receipt, entitlement, Mac App
+  Store, and adapter evidence are attached behind a platform boundary.
 - Do not claim process/window, network, enforcement, or background notification parity from the package scaffold alone.
 
 ## Linux
@@ -84,6 +92,9 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Linux app-install provider/store API execution proof must stay unavailable
   until a tested distro/package-manager source path and provider/store evidence
   exists.
+- Linux app-install platform adapter evidence gap proof must stay
+  platform-unavailable until a tested distro/package-manager source path and
+  platform adapter evidence exist.
 
 ## Android
 
@@ -98,6 +109,9 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Android app-install provider/store API execution proof must stay
   blocked-before-claim until device-owner or managed-profile proof plus Google
   Play policy/API evidence and child-device delivery proof exist.
+- Android app-install platform adapter evidence gap proof must stay
+  blocked-before-claim until device-owner or managed-profile adapter proof,
+  Google Play policy/API evidence, and child-device delivery proof exist.
 
 ## iOS
 
@@ -113,6 +127,9 @@ behavior belongs behind platform adapters and must be proved per platform.
 - iOS app-install provider/store API execution proof must stay
   blocked-before-claim until Apple entitlement/review proof plus approved
   App Store or Family Controls evidence and child-device delivery proof exist.
+- iOS app-install platform adapter evidence gap proof must stay
+  blocked-before-claim until Family Controls entitlement adapter proof, Apple
+  review evidence, App Store evidence, and child-device delivery proof exist.
 
 ## Web
 

@@ -405,6 +405,20 @@ generic app blocking covers this concern.
   records that provider/store API execution proof under
   `test-results/app-install-purchase-provider-store-api-execution-proof/proof.json`
   when run and validates the public parent-domain package export.
+- `packages/parent-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts`
+  now links provider/store API execution rows with platform proof-readiness
+  rows into adapter-evidence-gap, manual-adapter-evidence-required,
+  platform-unavailable, and blocked-before-claim rows for Windows, macOS,
+  Linux, Android, and iOS. It separates missing real platform adapter evidence
+  from manual-required/unavailable states and preserves no product-claim
+  approval, provider/store execution, billing provider contact, store
+  integration, platform interception/adapters, child-device delivery, runtime
+  writer/report delivery, portal approval/report UI, app blocking, child
+  activity data, or hosted custody claims.
+- `scripts/test/app-install-purchase-platform-adapter-evidence-gap-proof.mjs`
+  records that platform adapter evidence gap proof under
+  `test-results/app-install-purchase-platform-adapter-evidence-gap-proof/proof.json`
+  when run and validates the public parent-domain package export.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -503,8 +517,10 @@ parent-visible report status read-model rows for ready/manual-required handoff,
 aggregate those rows into limitation summaries, and name platform manual
 evidence requirements before any platform product claim, and deny product claims
 through a parent-domain gate until portal tests, child delivery proof,
-provider/store API execution proof, and platform adapter proof are present, and
-links provider/store preflight rows back to that gate so provider/store proof
+provider/store API execution proof, and platform adapter proof are present,
+link provider/store API execution rows to platform proof-readiness rows so real
+adapter evidence gaps are named per platform before any adapter/product claim,
+and links provider/store preflight rows back to that gate so provider/store proof
 stays required/manual/unsupported before product claims, and route those
 denied/manual/unsupported product-claim states through parent-visible store
 handoff rows that still require the same proof before any claim upgrade, but do
@@ -730,6 +746,13 @@ Ocentra-hosted family data custody.
       integration, platform interception/adapters, child delivery, runtime
       delivery, portal UI, app blocking, child activity data, or hosted custody
       claims.
+- [x] Platform adapter evidence gap proof linking provider/store API execution
+      rows and platform proof-readiness rows into adapter-evidence-gap,
+      manual-adapter-evidence-required, platform-unavailable, and
+      blocked-before-claim states while real platform adapter evidence,
+      provider/store execution, product-claim approval, child delivery, portal
+      UI, app blocking, child activity data, and hosted custody remain
+      unclaimed.
 
 ## Next AI Instructions
 
