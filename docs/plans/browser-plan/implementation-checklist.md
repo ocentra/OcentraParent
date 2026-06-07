@@ -428,8 +428,19 @@ and
 `output/browser-plan-proof/social-alert-report-audit-history-bridge-proof/01-social-alert-report-audit-history-bridge-proof.md`.
 This advances redaction-safe audit/history handoff without claiming provider
 delivery, receipt ingestion, notification history UI, child delivery, runtime
-quiet-hours/retry execution, report delivery execution, final policy execution,
-connector/native runtime, or enforcement.
+execution, quiet-hours/retry execution, report delivery execution, final policy
+execution, connector/native runtime, or enforcement.
+
+WP13 event-runtime spine addendum: `browser-event-runtime-spine-proof` adds a
+browser-specific `ocentra-eventing` consumer in `crates/agent-core` with ordered
+evidence, journal, AI, policy, intervention, audit, and read-model phases.
+Evidence:
+`test-results/browser-event-runtime-spine-proof/proof.json` and
+`output/browser-plan-proof/browser-event-runtime-spine/01-browser-event-runtime-spine-proof.md`.
+The proof validates that manual-required rows skip intervention command/result
+phases while keeping audit/read-model visibility. It does not claim service
+WebSocket delivery, portal UI, AI execution, policy execution, browser mutation,
+or enforcement.
 Package subpath exports are deferred while `packages/parent-domain/package.json`
 is locked by E-B.
 

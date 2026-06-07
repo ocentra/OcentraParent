@@ -70,6 +70,26 @@ Fill this before reporting `DONE` or PR-ready:
 
 Read models expose status; they do not prove platform/browser behavior without
 matching runtime evidence.
+
+## Event Runtime Spine Addendum - 2026-06-07
+
+`browser-event-runtime-spine-proof` adds a browser-specific consumer of the
+reusable Rust `ocentra-eventing` crate in `agent-core`. It publishes an ordered
+ref-only browser runtime chain for evidence, journal, AI request/result, policy
+request/decision, intervention command/result, audit, and read-model projection.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime.rs`
+- `crates/agent-core/src/browser_event_runtime_phase.rs`
+- `test-results/browser-event-runtime-spine-proof/proof.json`
+- `output/browser-plan-proof/browser-event-runtime-spine/01-browser-event-runtime-spine-proof.md`
+- `cmd /c node scripts/test/browser-event-runtime-spine-proof.mjs`
+
+This does not change service WebSocket routing, portal UI, browser mutation, AI
+execution, policy execution, or enforcement. Manual-required rows skip
+intervention command/result phases while keeping audit and read-model projection
+visible.
 Remaining read-model work requires portal adapter/UI consumption,
 journal/SQLite inventory row proof, recent tab evidence reconciliation,
 intervention row reconciliation, real service proof scripts, and UI snapshots

@@ -33,6 +33,10 @@ mod browser_bridge_ids;
 #[cfg(test)]
 mod browser_bridge_native_host;
 mod browser_bridge_poll;
+mod browser_event_runtime;
+mod browser_event_runtime_phase;
+#[cfg(test)]
+mod browser_event_runtime_tests;
 mod browser_intervention_event;
 mod browser_managed_discovery;
 mod browser_managed_session;
@@ -115,6 +119,11 @@ pub use browser_bridge_poll::{
     poll_chromium_bridge, BrowserBridgeExpectedCustody, BrowserBridgePollConfig,
     BrowserBridgePollError, BrowserBridgePollSnapshot,
 };
+pub use browser_event_runtime::{
+    publish_browser_runtime_chain_for_input, BrowserRuntimeEventPayload, BrowserRuntimeInput,
+    BrowserRuntimeReport,
+};
+pub use browser_event_runtime_phase::BrowserRuntimePhase;
 pub use browser_intervention_event::{
     browser_intervention_applied_event, BrowserInterventionObservation,
 };
