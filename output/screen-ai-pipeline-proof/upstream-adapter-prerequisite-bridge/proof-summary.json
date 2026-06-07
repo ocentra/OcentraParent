@@ -1,0 +1,98 @@
+{
+  "status": "upstream-prerequisites-partial-final-adapters-blocked",
+  "proofKind": "screen-ai-upstream-adapter-prerequisite-bridge-proof",
+  "generatedAt": "2026-06-07T23:55:42.215Z",
+  "sourceArtifacts": {
+    "blockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
+    "appGameBroadBlocking": "output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json",
+    "appGameBroadBlockingRollback": "output/app-game-plan-proof/23-broad-blocking-proof-gates/12-rollback-proof.md",
+    "screenAiPipelineChecklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
+  },
+  "bridge": "output/screen-ai-pipeline-proof/upstream-adapter-prerequisite-bridge/upstream-adapter-prerequisite-bridge.json",
+  "closure": {
+    "finalAdapterRowStillOpen": true,
+    "appGameBroadBlockingReadinessPresent": true,
+    "appGameBroadBlockingExecutionMissing": true,
+    "browserNetworkMobileLinuxUpstreamProofMissingInBranch": true,
+    "finalAdapterCompletionClaimed": false
+  },
+  "rows": [
+    {
+      "rowId": "screen-ai-broad-installed-app-manual-required",
+      "adapterClass": "broad-installed-app",
+      "upstreamPrerequisiteState": "readiness-proof-present-execution-missing",
+      "upstreamProofArtifact": "output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json",
+      "upstreamRollbackArtifact": "output/app-game-plan-proof/23-broad-blocking-proof-gates/12-rollback-proof.md",
+      "upstreamReadinessProved": true,
+      "upstreamExecutionProved": false,
+      "requiredFinalArtifact": "screen-derived broad installed-app apply, rollback, and audit custody proof",
+      "finalAdapterCompletionClaimed": false,
+      "nextAction": "Wait for app/game lane to provide a screen-derived broad installed-app apply, rollback, and audit custody execution artifact before closing this row."
+    },
+    {
+      "rowId": "screen-ai-host-network-domain-manual-required",
+      "adapterClass": "host-network-domain",
+      "upstreamPrerequisiteState": "upstream-proof-missing-or-owned-elsewhere",
+      "upstreamProofArtifact": null,
+      "upstreamRollbackArtifact": null,
+      "upstreamReadinessProved": false,
+      "upstreamExecutionProved": false,
+      "requiredFinalArtifact": "screen-derived domain or IP decision to host DNS/filter apply, rollback, and audit custody proof",
+      "finalAdapterCompletionClaimed": false,
+      "nextAction": "Wait for the owning browser, network, mobile, or Linux adapter lane to provide readiness and screen-derived execution custody artifacts."
+    },
+    {
+      "rowId": "screen-ai-managed-active-tab-not-claimed",
+      "adapterClass": "managed-active-tab-exact-url",
+      "upstreamPrerequisiteState": "upstream-proof-missing-or-owned-elsewhere",
+      "upstreamProofArtifact": null,
+      "upstreamRollbackArtifact": null,
+      "upstreamReadinessProved": false,
+      "upstreamExecutionProved": false,
+      "requiredFinalArtifact": "screen-derived browser decision to exact active-tab URL action, rollback, and audit custody proof",
+      "finalAdapterCompletionClaimed": false,
+      "nextAction": "Wait for the owning browser, network, mobile, or Linux adapter lane to provide readiness and screen-derived execution custody artifacts."
+    },
+    {
+      "rowId": "screen-ai-android-mobile-control-manual-required",
+      "adapterClass": "android-device-owner-or-managed-profile",
+      "upstreamPrerequisiteState": "upstream-proof-missing-or-owned-elsewhere",
+      "upstreamProofArtifact": null,
+      "upstreamRollbackArtifact": null,
+      "upstreamReadinessProved": false,
+      "upstreamExecutionProved": false,
+      "requiredFinalArtifact": "screen-derived mobile decision to Android DO/profile action with rollback, audit, and custody proof on real device or managed profile",
+      "finalAdapterCompletionClaimed": false,
+      "nextAction": "Wait for the owning browser, network, mobile, or Linux adapter lane to provide readiness and screen-derived execution custody artifacts."
+    },
+    {
+      "rowId": "screen-ai-ios-mobile-control-manual-required",
+      "adapterClass": "ios-family-controls-device-activity",
+      "upstreamPrerequisiteState": "upstream-proof-missing-or-owned-elsewhere",
+      "upstreamProofArtifact": null,
+      "upstreamRollbackArtifact": null,
+      "upstreamReadinessProved": false,
+      "upstreamExecutionProved": false,
+      "requiredFinalArtifact": "screen-derived mobile decision to iOS Family Controls or DeviceActivity action with rollback, audit, and custody proof",
+      "finalAdapterCompletionClaimed": false,
+      "nextAction": "Wait for the owning browser, network, mobile, or Linux adapter lane to provide readiness and screen-derived execution custody artifacts."
+    },
+    {
+      "rowId": "screen-ai-linux-host-adapter-unavailable",
+      "adapterClass": "linux-host-control",
+      "upstreamPrerequisiteState": "upstream-proof-missing-or-owned-elsewhere",
+      "upstreamProofArtifact": null,
+      "upstreamRollbackArtifact": null,
+      "upstreamReadinessProved": false,
+      "upstreamExecutionProved": false,
+      "requiredFinalArtifact": "screen-derived Linux host decision to host action with rollback, audit, and custody proof",
+      "finalAdapterCompletionClaimed": false,
+      "nextAction": "Wait for the owning browser, network, mobile, or Linux adapter lane to provide readiness and screen-derived execution custody artifacts."
+    }
+  ],
+  "nonClaims": [
+    "This proof does not implement broad installed-app, browser exact URL, host network/domain, Android, iOS, or Linux adapters.",
+    "This proof does not consume unmerged worker branches; it only records upstream artifacts present in the current rebased branch.",
+    "This proof does not close the final product-complete adapter row."
+  ]
+}

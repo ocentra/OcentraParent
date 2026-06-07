@@ -1,0 +1,186 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
+
+const repoRoot = process.cwd();
+const outputDir = resolve(repoRoot, 'output', 'screen-ai-pipeline-proof', 'upstream-adapter-prerequisite-bridge');
+const proofPath = join(outputDir, 'proof-summary.json');
+const bridgePath = join(outputDir, 'upstream-adapter-prerequisite-bridge.json');
+const snapshotPath = join(outputDir, '00-upstream-adapter-prerequisite-bridge.md');
+const commandsPath = join(outputDir, '10-validation-commands.log');
+
+const sourceArtifacts = {
+  blockerLedger: 'output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json',
+  appGameBroadBlocking: 'output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json',
+  appGameBroadBlockingRollback: 'output/app-game-plan-proof/23-broad-blocking-proof-gates/12-rollback-proof.md',
+  screenAiPipelineChecklist: 'docs/plans/screen-ai-pipeline-plan/implementation-checklist.md',
+};
+
+const failures = [];
+const blockerLedger = readJson(sourceArtifacts.blockerLedger);
+const appGameBroadBlocking = readJson(sourceArtifacts.appGameBroadBlocking);
+const appGameBroadBlockingRollback = readText(sourceArtifacts.appGameBroadBlockingRollback);
+const screenAiPipelineChecklist = readText(sourceArtifacts.screenAiPipelineChecklist);
+
+assert(blockerLedger.status === 'blocked-but-actionable', 'blocker ledger must stay blocked-but-actionable');
+assert(blockerLedger.closure?.adapterCompletionStillBlocked === true, 'adapter completion must remain blocked');
+assert(
+  appGameBroadBlocking.proofMode === 'app-game-broad-blocking-proof-gates',
+  'app/game broad blocking proof mode mismatch'
+);
+assert(appGameBroadBlocking.counts?.gateCount === 7, 'app/game broad blocking gate count mismatch');
+assert(appGameBroadBlocking.counts?.dispatchEligible === 0, 'app/game broad blocking unexpectedly dispatch eligible');
+assert(
+  appGameBroadBlocking.counts?.adapterCallAllowed === 0,
+  'app/game broad blocking unexpectedly allows adapter calls'
+);
+assert(
+  appGameBroadBlocking.counts?.broadBlockingClaimed === 0,
+  'app/game broad blocking unexpectedly claims broad blocking'
+);
+assert(
+  appGameBroadBlockingRollback.includes('Rollback execution was not implemented in WP23.'),
+  'app/game rollback proof must remain explicit non-execution'
+);
+assert(
+  screenAiPipelineChecklist.includes(
+    '- [ ] Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.'
+  ),
+  'screen-AI final adapter row must remain open'
+);
+
+const rows = blockerLedger.rows.map((row) => bridgeRowFor(row));
+
+assert(rows.length === 6, 'expected six upstream bridge rows');
+assert(
+  rows.filter((row) => row.upstreamPrerequisiteState === 'readiness-proof-present-execution-missing').length === 1,
+  'expected exactly one blocker with upstream readiness proof present'
+);
+assert(
+  rows.filter((row) => row.upstreamPrerequisiteState === 'upstream-proof-missing-or-owned-elsewhere').length === 5,
+  'expected five blockers still waiting on upstream proof in this branch'
+);
+assert(
+  rows.every((row) => row.finalAdapterCompletionClaimed === false),
+  'no bridge row may claim final adapter completion'
+);
+
+if (failures.length > 0) {
+  throw new Error(
+    `Screen AI upstream adapter prerequisite bridge proof failed:\n${failures
+      .map((failure) => `- ${failure}`)
+      .join('\n')}`
+  );
+}
+
+const bridge = {
+  schemaVersion: 'v0.6',
+  bridgeId: 'screen-ai-upstream-adapter-prerequisite-bridge',
+  generatedAt: new Date().toISOString(),
+  sourceArtifacts,
+  rows,
+};
+
+const proof = {
+  status: 'upstream-prerequisites-partial-final-adapters-blocked',
+  proofKind: 'screen-ai-upstream-adapter-prerequisite-bridge-proof',
+  generatedAt: bridge.generatedAt,
+  sourceArtifacts,
+  bridge: relativePath(bridgePath),
+  closure: {
+    finalAdapterRowStillOpen: true,
+    appGameBroadBlockingReadinessPresent: true,
+    appGameBroadBlockingExecutionMissing: true,
+    browserNetworkMobileLinuxUpstreamProofMissingInBranch: true,
+    finalAdapterCompletionClaimed: false,
+  },
+  rows,
+  nonClaims: [
+    'This proof does not implement broad installed-app, browser exact URL, host network/domain, Android, iOS, or Linux adapters.',
+    'This proof does not consume unmerged worker branches; it only records upstream artifacts present in the current rebased branch.',
+    'This proof does not close the final product-complete adapter row.',
+  ],
+};
+
+writeOutputs(bridge, proof);
+console.log(`screen-ai-upstream-adapter-prerequisite-bridge-proof-ok:${relativePath(proofPath)}`);
+
+function bridgeRowFor(blockerRow) {
+  if (blockerRow.rowId === 'screen-ai-broad-installed-app-manual-required') {
+    return {
+      rowId: blockerRow.rowId,
+      adapterClass: blockerRow.adapterClass,
+      upstreamPrerequisiteState: 'readiness-proof-present-execution-missing',
+      upstreamProofArtifact: sourceArtifacts.appGameBroadBlocking,
+      upstreamRollbackArtifact: sourceArtifacts.appGameBroadBlockingRollback,
+      upstreamReadinessProved: true,
+      upstreamExecutionProved: false,
+      requiredFinalArtifact: blockerRow.requiredProofArtifact,
+      finalAdapterCompletionClaimed: false,
+      nextAction:
+        'Wait for app/game lane to provide a screen-derived broad installed-app apply, rollback, and audit custody execution artifact before closing this row.',
+    };
+  }
+
+  return {
+    rowId: blockerRow.rowId,
+    adapterClass: blockerRow.adapterClass,
+    upstreamPrerequisiteState: 'upstream-proof-missing-or-owned-elsewhere',
+    upstreamProofArtifact: null,
+    upstreamRollbackArtifact: null,
+    upstreamReadinessProved: false,
+    upstreamExecutionProved: false,
+    requiredFinalArtifact: blockerRow.requiredProofArtifact,
+    finalAdapterCompletionClaimed: false,
+    nextAction:
+      'Wait for the owning browser, network, mobile, or Linux adapter lane to provide readiness and screen-derived execution custody artifacts.',
+  };
+}
+
+function readJson(path) {
+  return JSON.parse(readText(path));
+}
+
+function readText(path) {
+  const absolute = resolve(repoRoot, path);
+  assert(existsSync(absolute), `missing source artifact ${path}`);
+  return readFileSync(absolute, 'utf8');
+}
+
+function writeOutputs(bridge, proof) {
+  mkdirSync(outputDir, { recursive: true });
+  writeFileSync(bridgePath, `${JSON.stringify(bridge, null, 2)}\n`);
+  writeFileSync(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
+  writeFileSync(snapshotPath, markdownSnapshot(proof));
+  writeFileSync(commandsPath, validationCommands());
+}
+
+function markdownSnapshot(proof) {
+  const rows = proof.rows
+    .map(
+      (row) =>
+        `- ${row.adapterClass}: ${row.upstreamPrerequisiteState}; final completion claimed: ${row.finalAdapterCompletionClaimed}.`
+    )
+    .join('\n');
+  return `# Screen AI Upstream Adapter Prerequisite Bridge\n\nGenerated: ${proof.generatedAt}\n\nStatus: ${proof.status}\n\n## Rows\n\n${rows}\n\n## Closure\n\n\`\`\`json\n${JSON.stringify(proof.closure, null, 2)}\n\`\`\`\n`;
+}
+
+function validationCommands() {
+  return [
+    'node --check scripts/test/screen-ai-upstream-adapter-prerequisite-bridge-proof.mjs',
+    'node scripts/test/screen-ai-upstream-adapter-prerequisite-bridge-proof.mjs',
+    'git diff --check',
+    'npm run lanes:guard',
+    'npm run hub:guard',
+    '',
+  ].join('\n');
+}
+
+function relativePath(path) {
+  return relative(repoRoot, path).replaceAll('\\', '/');
+}
+
+function assert(condition, message) {
+  if (!condition) {
+    failures.push(message);
+  }
+}
