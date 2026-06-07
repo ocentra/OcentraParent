@@ -42,18 +42,26 @@ pub enum NetworkInterventionState {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NetworkRuntimeClaimBoundary {
+    pub raw_pcap_available: bool,
     pub decrypted_https_payload_available: bool,
     pub exact_url_available: bool,
     pub page_content_available: bool,
+    pub video_content_available: bool,
+    pub private_message_content_available: bool,
+    pub search_query_available: bool,
     pub adapter_action_executed: bool,
 }
 
 impl NetworkRuntimeClaimBoundary {
     pub(crate) fn metadata_only() -> Self {
         Self {
+            raw_pcap_available: false,
             decrypted_https_payload_available: false,
             exact_url_available: false,
             page_content_available: false,
+            video_content_available: false,
+            private_message_content_available: false,
+            search_query_available: false,
             adapter_action_executed: false,
         }
     }

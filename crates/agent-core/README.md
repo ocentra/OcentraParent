@@ -43,6 +43,19 @@ service shell.
   Windows Uninstall registry evidence into inventory-only rows and journal
   events with hashed source/path refs, without service capture, runtime,
   foreground, policy, or adapter claims.
+- Network runtime broker/family-hub remote delivery status proof that preserves
+  custody, auth, encryption, retention, replay, deletion, offset, dedupe,
+  broker config, family-hub identity, relay policy, idempotency, and
+  dead-letter refs while keeping live transport, policy authority, side effects,
+  enforcement commands, adapter execution, and host filtering false.
+- Network remote event-chain journal/export proof that writes local runtime
+  event-chain envelopes through the reusable eventing NDJSON journal and replay
+  projection while keeping live delivery, policy authority, adapter execution,
+  exact URL, decrypted payload, and page content claims false.
+- Network remote receipt ledger proof that builds local acknowledgement records
+  from event-chain projection replay rows while preserving sequence, event id,
+  event type, correlation id, journal refs, and local receipt-ack refs without
+  claiming live remote acknowledgement delivery.
 
 ## Must Not Own
 
@@ -86,3 +99,14 @@ flowchart LR
 - Tracking read-model queries are query-store proof only; narrow portal summary
   consumption exists, while platform replay, deletion/tombstone behavior, richer
   UI, and physical-device artifacts remain separate proof gaps.
+- Network remote delivery is status proof only; live broker/family-hub
+  transport, cross-process replay, remote retention/delete/export propagation,
+  and production transport configuration remain separate implementation gaps.
+- Network remote event-chain journaling is export-boundary proof only; live
+  broker/family-hub delivery, child-device/provider transport, remote
+  retention/delete/export propagation, and receipt acknowledgements remain
+  separate gaps.
+- Network receipt ledgers are local acknowledgement records only; remote
+  provider acknowledgements, child-device acknowledgements, remote
+  retention/delete/export propagation, and delivery retries remain separate
+  gaps.

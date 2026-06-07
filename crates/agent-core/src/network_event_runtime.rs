@@ -26,6 +26,18 @@ mod broker_delivery;
 mod queue;
 mod refs;
 #[cfg(test)]
+mod remote_delivery_event_chain_journal;
+#[cfg(test)]
+mod remote_delivery_event_chain_journal_types;
+#[cfg(test)]
+mod remote_delivery_event_chain_store;
+#[cfg(test)]
+mod remote_delivery_receipt_ledger;
+#[cfg(test)]
+mod remote_delivery_receipt_ledger_types;
+#[cfg(test)]
+mod remote_delivery_status;
+#[cfg(test)]
 mod review;
 
 #[cfg(test)]
@@ -43,6 +55,23 @@ pub use queue::{
     NetworkRuntimeQueueTtlReport,
 };
 use refs::NetworkRuntimeChainRefs;
+#[cfg(test)]
+pub use remote_delivery_event_chain_journal::prove_network_runtime_remote_event_chain_journal;
+#[cfg(test)]
+pub use remote_delivery_event_chain_journal_types::{
+    NetworkRuntimeRemoteEventChainJournalError, NetworkRuntimeRemoteEventChainJournalReport,
+};
+#[cfg(test)]
+pub use remote_delivery_receipt_ledger::prove_network_runtime_remote_delivery_receipt_ledger;
+#[cfg(test)]
+pub use remote_delivery_receipt_ledger_types::{
+    NetworkRuntimeRemoteDeliveryReceiptLedgerError, NetworkRuntimeRemoteDeliveryReceiptLedgerReport,
+};
+#[cfg(test)]
+pub use remote_delivery_status::{
+    prove_network_runtime_remote_delivery_status, NetworkRuntimeRemoteDeliveryState,
+    NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
+};
 #[cfg(test)]
 pub use review::{
     request_network_runtime_review_for_observation, NetworkRuntimeReviewReport,

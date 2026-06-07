@@ -3,34 +3,23 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const proofRoot = join('output', 'network-plan-proof', '10a-broker-delivery-proof');
-const testRoot = join('test-results', 'network-broker-delivery-proof');
+const proofRoot = join('output', 'network-plan-proof', '10b-broker-family-hub-delivery-status');
+const testRoot = join('test-results', 'network-broker-family-hub-delivery-status-proof');
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 
 const commands = [
   {
+    name: 'network-remote-delivery-status-tests',
+    command: 'cargo',
+    args: ['test', '-p', 'ocentra-parent-agent-core', 'network_runtime_remote_delivery'],
+    log: join(proofRoot, 'remote-delivery-status-tests.log'),
+  },
+  {
     name: 'network-broker-delivery-tests',
     command: 'cargo',
     args: ['test', '-p', 'ocentra-parent-agent-core', 'network_runtime_broker_delivery'],
     log: join(proofRoot, 'broker-delivery-tests.log'),
-  },
-  {
-    name: 'network-queue-idempotency-tests',
-    command: 'cargo',
-    args: [
-      'test',
-      '-p',
-      'ocentra-parent-agent-core',
-      'network_runtime_queue_idempotency_rejects_queued_and_completed_duplicates',
-    ],
-    log: join(proofRoot, 'queue-idempotency-tests.log'),
-  },
-  {
-    name: 'network-queue-overflow-tests',
-    command: 'cargo',
-    args: ['test', '-p', 'ocentra-parent-agent-core', 'network_runtime_queue_overflow_dead_letters_oldest_flow'],
-    log: join(proofRoot, 'queue-overflow-tests.log'),
   },
   {
     name: 'eventing-delivery-decision-tests',
@@ -54,57 +43,65 @@ const commands = [
 const commandResults = commands.map(runCommand);
 assertSourceContracts();
 
-const brokerDeliveryLog = [
-  'network row10a broker delivery semantics',
+const statusLog = [
+  'network row10b broker/family-hub remote delivery status',
   '',
-  'semantic=local-idempotency-queue-proof',
+  'brokerStatus=fixture-requirements-recorded-but-not-implemented',
+  'familyHubStatus=fixture-requirements-recorded-but-not-implemented',
   'brokerDeliveryImplemented=false',
-  'relayHubDeliveryImplemented=false',
-  'duplicateDetection=queued-and-completed-idempotency-rejection',
-  'replay=broker-replay-plan-ref-preserved',
-  'droppedEventAudit=queue-overflow-dead-letter-count-preserved',
-  'adapterAction=zero-enforcement-command-events-and-zero-adapter-action-executed',
+  'familyHubDeliveryImplemented=false',
+  'crossProcessReplayImplemented=false',
+  'remoteRetentionDeleteExportPropagationImplemented=false',
+  'policyAuthority=false',
+  'sideEffectAuthority=false',
+  'enforcementCommandEvents=0',
+  'adapterActionsExecuted=0',
   '',
   ...commandResults.map((result) => `${result.name}: ${result.command} -> exit ${result.status}; log=${result.log}`),
   '',
 ];
-writeFileSync(join(proofRoot, '10a-broker-delivery-proof.log'), brokerDeliveryLog.join('\n'));
+writeFileSync(join(proofRoot, '10b-remote-delivery-status.log'), statusLog.join('\n'));
 
 const proof = {
-  proof: 'network-broker-delivery',
-  proofRevision: 'network-broker-delivery-proof/v1',
-  checkedAt: 'deterministic:network-broker-delivery-proof/v1',
+  proof: 'network-broker-family-hub-delivery-status',
+  proofRevision: 'network-broker-family-hub-delivery-status-proof/v1',
+  checkedAt: 'deterministic:network-broker-family-hub-delivery-status-proof/v1',
   sourceFingerprint: `source-tree:${sourceFingerprint()}`,
   mergeBase: mergeBase(),
-  sourceStatusShort: sourceStatusShort(),
   proofRoot,
   testRoot,
   commands: commandResults,
   artifacts: {
-    brokerDeliveryProofLog: join(proofRoot, '10a-broker-delivery-proof.log'),
+    statusLog: join(proofRoot, '10b-remote-delivery-status.log'),
     proofSummary: join(proofRoot, 'proof-summary.json'),
     testProof: join(testRoot, 'proof.json'),
   },
-  provenRows: ['10a Broker delivery semantics proof'],
+  provenRows: [
+    '10b Broker/family-hub remote delivery status proof',
+    '10 NetworkActivityEvent reusable Rust eventing consumption',
+  ],
   provenBehavior: [
-    'broker route requirements can be satisfied while live broker delivery remains false',
-    'local network queue idempotency rejects queued and completed duplicate events',
-    'queue overflow creates dropped-event dead-letter audit evidence',
-    'broker replay, dropped-event audit, and adapter-action ledger refs are preserved',
-    'duplicate broker routes do not create duplicate enforcement command events or adapter actions',
+    'broker and family-hub relay routes carry custody, auth, encryption, retention, replay, deletion, offset, dedupe, broker config, identity, and relay policy refs',
+    'fixture-recorded broker and family-hub decisions remain explicit status rows rather than live transport claims',
+    'local idempotency and overflow dead-letter evidence remains attached to the remote-delivery status',
+    'subscriber filters remain scoped to the network event namespace',
+    'duplicate and family-hub status proof does not publish enforcement command events or execute adapter actions',
   ],
   notClaimed: [
     'live broker delivery',
-    'relay-hub delivery',
-    'cross-process broker transport',
-    'production retention/delete/export propagation',
+    'live family-hub delivery',
+    'cross-process durable replay',
+    'remote retention/delete/export propagation',
+    'policy authority',
+    'side-effect authority',
     'adapter execution',
-    'enforcement command publication from duplicate broker events',
+    'host filtering',
+    'full network-plan completion',
   ],
 };
 writeFileSync(join(proofRoot, 'proof-summary.json'), `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(join(testRoot, 'proof.json'), `${JSON.stringify(proof, null, 2)}\n`);
-console.log('network-broker-delivery-proof-ok:tests,clippy,source-shape');
+console.log('network-broker-family-hub-delivery-status-proof-ok:rust,eventing,clippy,source-shape');
 console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function runCommand(entry) {
@@ -122,55 +119,51 @@ function runCommand(entry) {
 }
 
 function assertSourceContracts() {
+  const statusSource = readText('crates/agent-core/src/network_event_runtime/remote_delivery_status.rs');
+  const statusTests = readText('crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs');
   const brokerSource = readText('crates/agent-core/src/network_event_runtime/broker_delivery.rs');
-  const brokerTestsSource = readText('crates/agent-core/src/network_event_runtime_broker_delivery_tests.rs');
   const deliverySource = readText('crates/ocentra-eventing/src/delivery.rs');
-  const deliveryTestsSource = readText('crates/ocentra-eventing/src/tests/delivery.rs');
 
+  assertIncludes(
+    statusSource,
+    'NetworkRuntimeRemoteDeliveryState::FixtureRequirementsRecordedButNotImplemented',
+    'remote delivery status exposes explicit not-implemented state'
+  );
+  assertIncludes(
+    statusSource,
+    'external_transport_delivery_claimed: false',
+    'remote delivery status does not claim live external transport'
+  );
+  assertIncludes(
+    statusSource,
+    'external_relay_delivery_claimed: false',
+    'remote delivery status does not claim live family-hub relay'
+  );
+  assertIncludes(
+    statusSource,
+    'cross_process_replay_implemented: false',
+    'remote delivery status keeps cross-process replay unclaimed'
+  );
+  assertIncludes(
+    statusSource,
+    'remote_retention_delete_export_propagation_implemented: false',
+    'remote delivery status keeps remote delete/export propagation unclaimed'
+  );
+  assertIncludes(
+    statusTests,
+    'network_runtime_remote_delivery_status_preserves_broker_family_hub_refs_without_transport',
+    'remote delivery tests preserve broker and family-hub refs without transport'
+  );
+  assertIncludes(statusTests, 'adapter_action_executed_count, 0', 'remote delivery tests assert no adapter execution');
   assertIncludes(
     brokerSource,
     'prove_network_runtime_broker_delivery_semantics',
-    'network broker delivery proof helper exists'
-  );
-  assertIncludes(
-    brokerSource,
-    'external_transport_delivery_implemented: delivery_decision',
-    'broker proof exposes the live external transport implementation state'
-  );
-  assertIncludes(
-    brokerSource,
-    'external_relay_delivery_implemented: delivery_decision.external_relay_delivery_implemented',
-    'broker proof exposes the live relay implementation state'
-  );
-  assertIncludes(
-    brokerSource,
-    'adapter_action_executed_count',
-    'broker proof counts adapter-action execution instead of assuming none'
-  );
-  assertIncludes(
-    brokerTestsSource,
-    'network_runtime_broker_delivery_semantics_preserve_refs_without_live_broker',
-    'network broker tests preserve the no-live-transport claim boundary'
-  );
-  assertIncludes(
-    brokerTestsSource,
-    'TEST_BROKER_REPLAY_PLAN_REF',
-    'network broker tests assert replay/dead-letter/adapter ledger refs'
-  );
-  assertIncludes(
-    brokerTestsSource,
-    'adapter_action_executed_count, 0',
-    'network broker tests assert duplicate broker routes do not duplicate adapter actions'
+    'remote delivery status composes the broker semantics proof'
   );
   assertIncludes(
     deliverySource,
-    'external_transport_delivery_claimed',
-    'generic eventing delivery decision owns external transport claim input'
-  );
-  assertIncludes(
-    deliveryTestsSource,
-    'delivery_decision_preserves_satisfied_external_transport_requirements_without_live_transport',
-    'generic eventing delivery tests prove external transport requirement satisfaction'
+    'ExternalRelayRouteRequirementsSatisfied',
+    'generic eventing delivery decision owns relay route requirement state'
   );
 }
 
@@ -182,24 +175,13 @@ function runText(command, args) {
   return `${result.stdout ?? ''}${result.stderr ?? ''}`;
 }
 
-function sourceStatusShort() {
-  return runText('git', [
-    'status',
-    '--short',
-    '--',
-    '.',
-    ':(exclude)output/network-plan-proof/10a-broker-delivery-proof',
-    ':(exclude)test-results/network-broker-delivery-proof',
-  ]);
-}
-
 function sourceFingerprint() {
   const sourceFiles = [
-    'scripts/test/network-broker-delivery-proof.mjs',
+    'scripts/test/network-broker-family-hub-delivery-status-proof.mjs',
+    'crates/agent-core/src/network_event_runtime/remote_delivery_status.rs',
+    'crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs',
     'crates/agent-core/src/network_event_runtime/broker_delivery.rs',
     'crates/agent-core/src/network_event_runtime_broker_delivery_tests.rs',
-    'crates/agent-core/src/network_event_runtime/queue.rs',
-    'crates/agent-core/src/network_event_runtime_queue_tests.rs',
     'crates/ocentra-eventing/src/delivery.rs',
     'crates/ocentra-eventing/src/tests/delivery.rs',
   ];
@@ -233,6 +215,8 @@ function normalizeLogText(text) {
       .replace(/\r\n/g, '\n')
       .split('\n')
       .filter((line) => !line.includes('Blocking waiting for'))
+      .filter((line) => !line.trimStart().startsWith('Compiling '))
+      .filter((line) => !line.trimStart().startsWith('Checking '))
       .map((line) =>
         line
           .replace(/finished in [0-9.]+s/g, 'finished in <duration>')

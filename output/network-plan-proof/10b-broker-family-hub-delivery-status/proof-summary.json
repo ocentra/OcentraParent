@@ -1,0 +1,68 @@
+{
+  "proof": "network-broker-family-hub-delivery-status",
+  "proofRevision": "network-broker-family-hub-delivery-status-proof/v1",
+  "checkedAt": "deterministic:network-broker-family-hub-delivery-status-proof/v1",
+  "sourceFingerprint": "source-tree:65ae397cbe01bf44a0ed1dc3328a9468a02c75f611a4a873e0b7b3164c0aac07",
+  "mergeBase": "f957c4aa90ed42ea266d423236f89361d1d2241a",
+  "proofRoot": "output\\network-plan-proof\\10b-broker-family-hub-delivery-status",
+  "testRoot": "test-results\\network-broker-family-hub-delivery-status-proof",
+  "commands": [
+    {
+      "name": "network-remote-delivery-status-tests",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime_remote_delivery",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10b-broker-family-hub-delivery-status\\remote-delivery-status-tests.log"
+    },
+    {
+      "name": "network-broker-delivery-tests",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime_broker_delivery",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10b-broker-family-hub-delivery-status\\broker-delivery-tests.log"
+    },
+    {
+      "name": "eventing-delivery-decision-tests",
+      "command": "cargo test -p ocentra-eventing delivery_decision",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10b-broker-family-hub-delivery-status\\eventing-delivery-decision-tests.log"
+    },
+    {
+      "name": "agent-core-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10b-broker-family-hub-delivery-status\\agent-core-clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10b-broker-family-hub-delivery-status\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "statusLog": "output\\network-plan-proof\\10b-broker-family-hub-delivery-status\\10b-remote-delivery-status.log",
+    "proofSummary": "output\\network-plan-proof\\10b-broker-family-hub-delivery-status\\proof-summary.json",
+    "testProof": "test-results\\network-broker-family-hub-delivery-status-proof\\proof.json"
+  },
+  "provenRows": [
+    "10b Broker/family-hub remote delivery status proof",
+    "10 NetworkActivityEvent reusable Rust eventing consumption"
+  ],
+  "provenBehavior": [
+    "broker and family-hub relay routes carry custody, auth, encryption, retention, replay, deletion, offset, dedupe, broker config, identity, and relay policy refs",
+    "fixture-recorded broker and family-hub decisions remain explicit status rows rather than live transport claims",
+    "local idempotency and overflow dead-letter evidence remains attached to the remote-delivery status",
+    "subscriber filters remain scoped to the network event namespace",
+    "duplicate and family-hub status proof does not publish enforcement command events or execute adapter actions"
+  ],
+  "notClaimed": [
+    "live broker delivery",
+    "live family-hub delivery",
+    "cross-process durable replay",
+    "remote retention/delete/export propagation",
+    "policy authority",
+    "side-effect authority",
+    "adapter execution",
+    "host filtering",
+    "full network-plan completion"
+  ]
+}
