@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofId": "social-ios-screen-time-host-proof",
-  "generatedAt": "2026-06-06T11:40:49.349Z",
+  "generatedAt": "2026-06-07T01:23:54.258Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "e2e6a19e6dd4e2a27a8a1512bf95f5a9c62b4deb",
-  "baseCommit": "b363a2e205c0b2fc0dc22c0b92131da1177f3fdb",
+  "commit": "65f24b6dc6cce58d4c1b8182c5f9796e6745fcd3",
+  "baseCommit": "8c8fad79a50e914922fbc84984878211e127897e",
   "hostProofSummary": {
     "host": {
       "platform": "win32",
@@ -66,7 +66,7 @@
   "attachedDeviceRefs": [],
   "capabilityMatrix": {
     "schemaVersion": "social-ios-screen-time-capability-matrix",
-    "generatedAt": "2026-06-06T11:40:49.349Z",
+    "generatedAt": "2026-06-07T01:23:54.258Z",
     "proofRefs": [
       "parent-proof-social-ios-screentime-host-tooling"
     ],
