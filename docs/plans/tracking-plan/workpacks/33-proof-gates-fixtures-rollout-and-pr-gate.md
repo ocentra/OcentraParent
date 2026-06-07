@@ -105,7 +105,7 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
 - Tracking product-readiness closure proof:
   `46-product-readiness-closure-proof.json`
 - Refreshed tracking product-readiness closure proof now consumes the
-  physical-device artifact gate:
+  physical-device artifact gate and provider-delivery artifact gate:
   `46-product-readiness-closure-proof.json`
 
 ## Merge Blockers
@@ -266,7 +266,8 @@ This branch adds `node scripts/test/tracking-product-readiness-closure-proof.mjs
 which verifies the current local/CI proof accounting bundle after the
 pre-device, Android emulator, iOS simulator, WSL/local, hosted artifact
 inventory, Android system geofence blocker, child-runtime product-readiness
-blocker, and retention product-readiness blocker proofs. It writes
+blocker, physical-device artifact gate, provider-delivery artifact gate, and
+retention product-readiness blocker proofs. It writes
 `46-product-readiness-closure-proof.json` and
 `test-results/tracking-product-readiness-closure-proof/proof.json` while
 keeping Android/iOS physical background behavior, actual child-device runtime,
