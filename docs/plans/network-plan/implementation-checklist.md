@@ -106,6 +106,16 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       remote retention/delete/export propagation, policy authority,
       side-effect authority, adapter execution, enforcement commands, exact
       URL, decrypted payload, page content, and host filtering unimplemented.
+- [x] `10d-remote-delivery-receipt-ledger-status`: local receipt ledger and
+      ack boundary declaration for replayed event-chain records. Row10d proof
+      writes
+      `output/network-plan-proof/10d-remote-delivery-receipt-ledger-status/proof-summary.json`
+      and preserves replay sequence, event id, event type, correlation id,
+      journal refs, receipt-ledger refs, local receipt-ack refs, replay refs,
+      and support-status refs while keeping remote acknowledgement delivery,
+      provider delivery, child-device delivery, policy authority, side-effect
+      authority, adapter execution, enforcement commands, exact URL, decrypted
+      payload, page content, and host filtering unimplemented.
 - [x] `11-manual-platform-proof.md`: OS/device/permission details, exact manual
       steps, screenshots/logs, and manual-required labels for platform claims.
       E-D row11 proof now writes
@@ -257,10 +267,12 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   encryption, retention, replay, deletion, offset, dedupe, broker config,
   identity, and relay-policy refs. Row10c now journals local runtime event-chain
   envelopes through the reusable eventing NDJSON journal and replay projection
-  with export/support refs. Live broker/family-hub delivery, cross-process
-  durable replay, raw PCAP/live-capture retention and remote delete/export
-  propagation, live analyzer/model/policy execution, adapter execution, receipt
-  acknowledgements, and host filtering remain open.
+  with export/support refs. Row10d now derives local receipt ledger and
+  receipt-ack records from projection replay rows. Live broker/family-hub
+  delivery, remote acknowledgements, cross-process durable replay, raw
+  PCAP/live-capture retention and remote delete/export propagation, live
+  analyzer/model/policy execution, adapter execution, provider/child-device
+  delivery, and host filtering remain open.
 - [x] TypeScript Effect Schema contracts land before Rust/service/portal
       consumers where TypeScript domain boundaries are touched. Workpack 03
       added the `activity-domain` network contracts before Rust protocol parity.
