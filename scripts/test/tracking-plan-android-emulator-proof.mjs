@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -14,6 +14,9 @@ const serviceName = 'OcentraParentAgentService';
 const appLaunchText = 'Ocentra Parent Agent service scaffold is running.';
 const androidDocumentedGeofenceLimitPerAppPerDeviceUser = 100;
 const androidGeofenceLimitSourceUrl = 'https://developer.android.com/develop/sensors-and-location/location/geofencing';
+const androidStatusGapProofRelativePath =
+  'output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/17-status-gap-proof.json';
+const androidStatusGapEvidenceRelativePath = 'test-results/tracking-android-status-proof/proof.json';
 const output08 = path.join(repoRoot, 'output', 'tracking-plan-proof', '08-android-foreground-location-adapter');
 const output09 = path.join(
   repoRoot,
@@ -1268,6 +1271,7 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
     runtime.backgroundLocationSample.sampleCount > 0 &&
     runtime.backgroundLocationSample.provider !== null &&
     runtime.backgroundLocationSample.observedAtEpochMillis !== null;
+  const backgroundDegradedStatusObserved = backgroundDegradedStatusProof().observed;
   return {
     '08-android-foreground-location-adapter': {
       status:
@@ -1309,24 +1313,31 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
         permissionState.backgroundLocationPermissionGranted &&
         geofenceEnterExitObserved &&
         backgroundSampleObserved &&
-        activeGeofenceLimitObserved
-          ? 'background_settings_page_permission_granted_emulator_sample_enter_exit_and_limit_observed'
+        activeGeofenceLimitObserved &&
+        backgroundDegradedStatusObserved
+          ? 'background_settings_page_permission_granted_emulator_sample_enter_exit_limit_and_degraded_status_observed'
           : backgroundSettingsPage.observed &&
               permissionState.backgroundLocationPermissionGranted &&
               geofenceEnterExitObserved &&
-              backgroundSampleObserved
-            ? 'background_settings_page_permission_granted_emulator_sample_and_enter_exit_observed'
-            : permissionState.backgroundLocationPermissionGranted &&
+              backgroundSampleObserved &&
+              activeGeofenceLimitObserved
+            ? 'background_settings_page_permission_granted_emulator_sample_enter_exit_and_limit_observed'
+            : backgroundSettingsPage.observed &&
+                permissionState.backgroundLocationPermissionGranted &&
                 geofenceEnterExitObserved &&
                 backgroundSampleObserved
-              ? 'background_permission_granted_emulator_sample_and_enter_exit_transition_observed'
-              : permissionState.backgroundLocationPermissionGranted && geofenceEnterExitObserved
-                ? 'background_permission_granted_emulator_enter_exit_transition_observed'
-                : permissionState.backgroundLocationPermissionGranted
-                  ? 'background_permission_granted_geofence_transition_manual_required'
-                  : permissionState.backgroundLocationPermissionRequested
-                    ? 'background_permission_declared_geofence_transition_manual_required'
-                    : 'manual_required',
+              ? 'background_settings_page_permission_granted_emulator_sample_and_enter_exit_observed'
+              : permissionState.backgroundLocationPermissionGranted &&
+                  geofenceEnterExitObserved &&
+                  backgroundSampleObserved
+                ? 'background_permission_granted_emulator_sample_and_enter_exit_transition_observed'
+                : permissionState.backgroundLocationPermissionGranted && geofenceEnterExitObserved
+                  ? 'background_permission_granted_emulator_enter_exit_transition_observed'
+                  : permissionState.backgroundLocationPermissionGranted
+                    ? 'background_permission_granted_geofence_transition_manual_required'
+                    : permissionState.backgroundLocationPermissionRequested
+                      ? 'background_permission_declared_geofence_transition_manual_required'
+                      : 'manual_required',
       proofArtifact:
         'output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json',
       reason:
@@ -1334,24 +1345,31 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
         permissionState.backgroundLocationPermissionGranted &&
         geofenceEnterExitObserved &&
         backgroundSampleObserved &&
-        activeGeofenceLimitObserved
-          ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, and app-owned active geofence count within the Android documented per-app/per-device-user limit were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+        activeGeofenceLimitObserved &&
+        backgroundDegradedStatusObserved
+          ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
           : backgroundSettingsPage.observed &&
               permissionState.backgroundLocationPermissionGranted &&
               geofenceEnterExitObserved &&
-              backgroundSampleObserved
-            ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
-            : permissionState.backgroundLocationPermissionGranted &&
+              backgroundSampleObserved &&
+              activeGeofenceLimitObserved
+            ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, and app-owned active geofence count within the Android documented per-app/per-device-user limit were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+            : backgroundSettingsPage.observed &&
+                permissionState.backgroundLocationPermissionGranted &&
                 geofenceEnterExitObserved &&
                 backgroundSampleObserved
-              ? 'Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
-              : permissionState.backgroundLocationPermissionGranted && geofenceEnterExitObserved
-                ? 'Background location permission grant and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; background sample collection, Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, and product-ready tracking remain unclaimed.'
-                : permissionState.backgroundLocationPermissionGranted
-                  ? 'Background location permission grant state was observed on the emulator package, but no background location sample, geofence transition, physical-device behavior, authority, or product-ready tracking is claimed.'
-                  : permissionState.backgroundLocationPermissionRequested
-                    ? 'Background permission is declared, but no background permission grant or geofence transition was observed.'
-                    : 'No background location/geofence permission or transition adapter is present in the current scaffold.',
+              ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+              : permissionState.backgroundLocationPermissionGranted &&
+                  geofenceEnterExitObserved &&
+                  backgroundSampleObserved
+                ? 'Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+                : permissionState.backgroundLocationPermissionGranted && geofenceEnterExitObserved
+                  ? 'Background location permission grant and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; background sample collection, Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, and product-ready tracking remain unclaimed.'
+                  : permissionState.backgroundLocationPermissionGranted
+                    ? 'Background location permission grant state was observed on the emulator package, but no background location sample, geofence transition, physical-device behavior, authority, or product-ready tracking is claimed.'
+                    : permissionState.backgroundLocationPermissionRequested
+                      ? 'Background permission is declared, but no background permission grant or geofence transition was observed.'
+                      : 'No background location/geofence permission or transition adapter is present in the current scaffold.',
     },
     '10-android-battery-connectivity-and-status-adapter': {
       status: 'emulator_scaffold_observed',
@@ -1461,6 +1479,7 @@ function geofenceProof(proof) {
   const geofenceTransitions = proof.runtime.geofenceTransitions;
   const backgroundSample = proof.runtime.backgroundLocationSample;
   const activeGeofenceLimit = proof.runtime.activeGeofenceLimit;
+  const backgroundDegradedStatus = backgroundDegradedStatusProof();
   return {
     schemaVersion: 1,
     checkedAt: proof.checkedAt,
@@ -1501,6 +1520,7 @@ function geofenceProof(proof) {
     activeGeofenceDocumentedLimitPerAppPerDeviceUser: activeGeofenceLimit.documentedLimitPerAppPerDeviceUser,
     activeGeofenceLimitSourceUrl: activeGeofenceLimit.documentedLimitSourceUrl,
     activeGeofenceLimitBoundary: activeGeofenceLimit.proofBoundary,
+    backgroundDegradedStatusProof: backgroundDegradedStatus,
     geofenceTransitionBoundary:
       geofenceTransitions.enterCount > 0 && geofenceTransitions.exitCount > 0
         ? 'emulator-location-manager-gps-listener-local-geofence-enter-exit-only'
@@ -1509,6 +1529,48 @@ function geofenceProof(proof) {
     device: proof.device,
     artifacts: proof.runtime.artifacts,
   };
+}
+
+function backgroundDegradedStatusProof() {
+  const proofPath = path.join(repoRoot, androidStatusGapProofRelativePath);
+  if (!existsSync(proofPath)) {
+    return {
+      observed: false,
+      reason: 'WP10 Android status-gap proof artifact was not present when WP09 proof was generated.',
+      proofArtifact: androidStatusGapProofRelativePath,
+      evidenceArtifact: androidStatusGapEvidenceRelativePath,
+      proofBoundary: 'no-background-degraded-status-proof-artifact-observed',
+      nonClaims: backgroundDegradedStatusNonClaims(),
+    };
+  }
+  const statusGapProof = JSON.parse(readFileSync(proofPath, 'utf8'));
+  return {
+    observed: true,
+    proofArtifact: androidStatusGapProofRelativePath,
+    evidenceArtifact: androidStatusGapEvidenceRelativePath,
+    coveredCaseKinds: [
+      statusGapProof.lowPower?.caseKind,
+      statusGapProof.killedRestarted?.caseKind,
+      statusGapProof.pendingUpload?.caseKind,
+      statusGapProof.manualRequired?.caseKind,
+    ].filter(Boolean),
+    lowPowerClaimState: statusGapProof.lowPower?.claimState ?? null,
+    appRestartClaimState: statusGapProof.killedRestarted?.claimState ?? null,
+    pendingUploadClaimState: statusGapProof.pendingUpload?.claimState ?? null,
+    manualRequiredClaimState: statusGapProof.manualRequired?.claimState ?? null,
+    proofBoundary:
+      'WP10 parent-domain Android status-gap proof covers low-power degradation, app restart auditability, pending-upload auditability, and manual-required platform rows; it does not prove Android system geofence delivery or physical-device background behavior.',
+    nonClaims: backgroundDegradedStatusNonClaims(),
+  };
+}
+
+function backgroundDegradedStatusNonClaims() {
+  return [
+    'No Android system geofence delivery is claimed from WP10 status rows.',
+    'No dwell transition delivery is claimed from WP10 status rows.',
+    'No physical-device background behavior is claimed from WP10 status rows.',
+    'No provider delivery, authority, production upload worker, or product-ready Android tracking claim is made.',
+  ];
 }
 
 function deviceStatusProof(proof) {

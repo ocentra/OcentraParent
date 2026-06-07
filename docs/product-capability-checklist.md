@@ -56,6 +56,16 @@ product-ready behavior. The row's next gap remains full UI/report/policy
 consumers, real platform runtime, physical-device proof, authority, provider
 delivery, and production proof.
 
+Location/geofence Android emulator addendum: WP09 now records background
+permission, Android app Settings routing, foreground-service-backed background
+sample storage, app-owned local geofence enter/exit rows, active geofence-limit
+representation, and a WP10 low-power/app-restart/pending-upload/manual-required
+status-gap bridge under
+`output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json`.
+This remains local emulator evidence only; Android system geofencing, dwell,
+physical-device behavior, authority, provider delivery, production workers, and
+product-ready Android tracking remain proof-gated.
+
 ## AI, Policy, And Parent Control
 
 | Capability               | Status              | Expectation docs                                                                                                                             | Current proof                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Next gap                                                                                                          |
