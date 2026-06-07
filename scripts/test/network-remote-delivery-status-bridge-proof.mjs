@@ -133,7 +133,7 @@ const proofPackApplicability = {
       state: 'present',
       artifact: join(proofRoot, 'agent-protocol-remote-delivery-status-test.log'),
       reason:
-        'Rust protocol/service tests prove the row10f status bridges row10b through row10e eventing refs without creating a private bus or adapter action.',
+        'Rust protocol/service tests prove the current row10k status bridge still preserves row10b through row10e eventing refs without creating a private bus or adapter action.',
     },
     {
       item: '03-parser-fixture-proof.json',
@@ -208,7 +208,7 @@ writeFileSync(
     '- Row10b through row10e were local proof boundaries, but the service/protocol layer did not expose a typed row10f status bridge that consumers can parse without making live remote-delivery claims.',
     '',
     'Current bridge boundary:',
-    '- The row10f bridge reads row10e durable envelope proof state and serializes a typed protocol status event for portal/service consumers.',
+    '- The current row10k status bridge preserves row10f row10b-through-row10e remote-delivery evidence and serializes a typed protocol status event for portal/service consumers.',
     '- The bridge keeps live broker delivery, family-hub delivery, provider or child-device delivery, policy authority, adapter execution, exact content, and host filtering unclaimed.',
   ].join('\n') + '\n'
 );
@@ -329,10 +329,10 @@ const proof = {
     'network-plan supplemental row 10b broker/family-hub remote delivery status',
   ],
   provenBoundaries: [
-    'agent-protocol defines typed command/event names and a serializable NetworkRemoteDeliveryStatus row10f bridge shape',
+    'agent-protocol defines typed command/event names and a serializable NetworkRemoteDeliveryStatus shape that preserves row10f evidence through the current row10k bridge',
     'agent-service returns agent.network.remote-delivery.status.reported from agent.network.remote-delivery.status.get over the existing browser/network WebSocket command group',
     'agent-service returns agent.command.rejected instead of panicking if the proof-derived status cannot be built',
-    'the service status is derived from row10e durable envelope proof state and preserves row10b, row10c, row10d, and row10e refs',
+    'the service status is served from the current row10k cached snapshot and preserves row10b, row10c, row10d, and row10e refs',
     'agent-protocol-domain parses the status event and rejects stale exact refs, wrong status refs, missing requirement artifacts, live/product-ready delivery claims, enforcement counts, adapter execution counts, and exact-content counters',
     'the bridge is a read-only status handoff and does not execute broker/family-hub delivery, provider delivery, child-device delivery, policy, adapter, or host filtering actions',
   ],
@@ -374,19 +374,21 @@ function assertSourceContracts() {
     [protocolContracts, 'product_ready_remote_delivery: bool'],
     [protocolTransport, 'AgentNetworkRemoteDeliveryStatusGet'],
     [protocolTransport, 'AgentNetworkRemoteDeliveryStatusReported'],
-    [protocolTests, 'network_remote_delivery_status_serializes_row10f_bridge_without_product_claims'],
+    [protocolTests, 'network_remote_delivery_status_serializes_row10k_dispatch_state_without_product_claims'],
     [protocolNameTests, 'AgentNetworkRemoteDeliveryStatusGet'],
-    [servicePayload, 'prove_network_runtime_remote_delivery_durable_envelope'],
-    [servicePayload, 'tokio::task::spawn_blocking'],
+    [servicePayload, 'prove_network_runtime_remote_delivery_transport_dispatch_state'],
+    [servicePayload, 'OnceCell<NetworkRemoteDeliveryStatus>'],
+    [servicePayload, 'get_or_try_init'],
     [servicePayload, 'AgentEventName::AgentCommandRejected'],
-    [servicePayload, 'product_ready_remote_delivery: report.product_ready_remote_delivery'],
-    [servicePayload, 'adapter_action_executed_count: count(report.adapter_action_executed_count)'],
-    [serviceTests, 'network_remote_delivery_status_payload_serializes_row10f_bridge'],
+    [servicePayload, 'status.product_ready_remote_delivery = report.product_ready_remote_delivery'],
+    [servicePayload, 'status.adapter_action_executed_count = count(report.adapter_action_executed_count)'],
+    [serviceTests, 'network_remote_delivery_status_payload_serializes_row10k_dispatch_state'],
+    [serviceTests, 'network_remote_delivery_status_payload_reuses_stable_row10k_status_snapshot'],
     [serviceTests, 'websocket_network_remote_delivery_status_command_reports_payload'],
     [serviceWebSocket, 'AgentCommandName::AgentNetworkRemoteDeliveryStatusGet'],
     [domainContracts, 'NetworkRemoteDeliveryStatusReported'],
     [domainDefaults, 'NetworkRemoteDeliveryStatus'],
-    [domainDefaults, 'network.remote-delivery.status-bridge.10f'],
+    [domainDefaults, 'network.remote-delivery.transport-dispatch-state.10k'],
     [domainParser, 'AgentNetworkRemoteDeliveryStatusSchema'],
     [domainParser, 'AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus'],
     [domainParser, 'status.statusRef === NetworkRemoteDeliveryRefs.StatusRef'],
@@ -404,6 +406,9 @@ function assertSourceContracts() {
   ];
   for (const [haystack, needle] of requiredSnippets) {
     assertIncludes(haystack, needle, `source contract snippet ${needle}`);
+  }
+  for (const forbidden of ['tokio::task::spawn_blocking', 'Handle::current', '.block_on(']) {
+    assertNotIncludes(servicePayload, forbidden, `service status bridge forbids ${forbidden}`);
   }
 }
 
@@ -455,6 +460,12 @@ function writeJson(path, value) {
 function assertIncludes(text, expected, label) {
   if (!text.includes(expected)) {
     throw new Error(`${label}: missing ${expected}`);
+  }
+}
+
+function assertNotIncludes(text, forbidden, label) {
+  if (text.includes(forbidden)) {
+    throw new Error(`${label}: found ${forbidden}`);
   }
 }
 

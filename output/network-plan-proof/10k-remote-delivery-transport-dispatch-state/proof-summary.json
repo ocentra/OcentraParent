@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-transport-dispatch-state-proof",
   "proofRevision": "network-remote-delivery-transport-dispatch-state-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-transport-dispatch-state-proof/v1",
-  "sourceFingerprint": "source-tree:5b7a1427d19eccac1e91ba17775409113fab5888724e55a34e06507bf1591028",
+  "sourceFingerprint": "source-tree:865cfdae770d4e649861628953c609fb699e1cdab6d3b412c4948e695950e2e4",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-transport-dispatch-state-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
@@ -26,7 +26,7 @@
     "docs/plans/network-plan/implementation-checklist.md",
     "docs/plans/network-plan/workpacks/README.md"
   ],
-  "sourceBase": "466978a9b8f6ac946977169fd2e16e01b4cf6d92",
+  "sourceBase": "c3328c891af958153c1b64d92379e653de6ba2d0",
   "proofRoot": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state",
   "testRoot": "test-results\\network-remote-delivery-transport-dispatch-state-proof",
   "commands": [
@@ -104,6 +104,7 @@
     "blocked dispatch records preserve event id, event type, correlation id, source outbox state, outbox refs, handoff refs, dispatch-state refs, blocked-dispatch refs, and future transport seam refs",
     "blocked dispatch records equal the source outbox candidate count and row10j manual-required candidate count",
     "the service status command serializes row10k blocked dispatch refs while preserving row10g outbox refs, durable refs, and receipt refs",
+    "the service status command uses an async OnceCell cache so repeated reads reuse the stable row10k protocol snapshot without spawn_blocking or block_on",
     "the TypeScript status parser rejects stale row10h status refs, wrong row10k dispatch refs, nonzero dispatch-ready/dispatch/ack counters, and mismatched blocked-dispatch candidate counts",
     "dispatch-ready candidates, dispatch attempts, and remote acknowledgements stay zero",
     "the proof rejects policy authority, side-effect authority, adapter execution, enforcement command publication, live broker/family-hub delivery, remote acknowledgement, provider delivery, child-device delivery, remote delete/export propagation, and product-ready remote delivery claims",

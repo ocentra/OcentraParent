@@ -11,8 +11,12 @@ use ocentra_parent_agent_protocol::{
     LogLevel, NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState,
     NetworkRemoteDeliveryTransportDispatchState,
 };
+use tokio::sync::OnceCell;
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
+
+static NETWORK_REMOTE_DELIVERY_STATUS: OnceCell<NetworkRemoteDeliveryStatus> =
+    OnceCell::const_new();
 
 pub(crate) async fn build_network_remote_delivery_status_report(
     command: AgentCommandEnvelope,
@@ -57,10 +61,15 @@ pub(crate) async fn network_remote_delivery_status_payload() -> Result<LogFields
 }
 
 async fn network_remote_delivery_status() -> Result<NetworkRemoteDeliveryStatus, ()> {
-    let report = prove_network_runtime_remote_delivery_transport_dispatch_state()
+    NETWORK_REMOTE_DELIVERY_STATUS
+        .get_or_try_init(|| async {
+            let report = prove_network_runtime_remote_delivery_transport_dispatch_state()
+                .await
+                .map_err(|_| ())?;
+            Ok(status_from_report(&report))
+        })
         .await
-        .map_err(|_| ())?;
-    Ok(status_from_report(&report))
+        .cloned()
 }
 
 fn status_from_report(

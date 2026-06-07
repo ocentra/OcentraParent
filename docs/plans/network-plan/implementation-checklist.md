@@ -265,7 +265,8 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       and proves every row10g prepared outbox candidate becomes a
       manual-required blocked dispatch record with preserved outbox/handoff refs
       and a future transport seam ref. The row10k typed protocol/service/domain
-      status bridge now serializes those blocked-dispatch refs through
+      status bridge now serializes those blocked-dispatch refs from a cached
+      deterministic service snapshot through
       `agent.network.remote-delivery.status.get` /
       `agent.network.remote-delivery.status.reported`. Blocked dispatch count
       equals source outbox and manual-required candidate counts, stale row10h
@@ -478,7 +479,7 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       host filtering remain open. Row10j now proves available remote metadata across
       the row10b through row10i chain stays non-enforcing until those artifacts
       exist, and row10k now maps that metadata into manual-required blocked dispatch
-      records exposed through the typed status payload without attempting live transport. E-D full-network proof links the
+      records exposed through a cached typed status payload without attempting live transport. E-D full-network proof links the
       consolidated eventing proof and remote-delivery non-enforcement artifacts
       under `output/network-plan-proof/full-network-plan/02-eventing-proof.log` and
       `output/network-plan-proof/full-network-plan/12-remote-delivery-proof.json`.

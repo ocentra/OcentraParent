@@ -49,9 +49,10 @@ development paths and orchestrates runtime commands.
   without broker, family-hub, adapter, or host-filter claims.
 - Network remote delivery status reports through
   `agent.network.remote-delivery.status.get`, derived from the local row10k
-  transport-dispatch state and serialized as the row10k typed status bridge
-  with row10b through row10g refs, prepared candidate counts, blocked-dispatch
-  refs, duplicate rejection, and zero dispatch/ack counters without
+  transport-dispatch state and serialized from a cached deterministic row10k
+  protocol snapshot as the row10k typed status bridge with row10b through
+  row10g refs, prepared candidate counts, blocked-dispatch refs, duplicate
+  rejection, and zero dispatch/ack counters without
   broker/family-hub transport, remote acknowledgement, provider or child-device
   delivery, policy, adapter, exact content, or host-filter claims.
 - App/game live process capture bridge rows through the existing activity

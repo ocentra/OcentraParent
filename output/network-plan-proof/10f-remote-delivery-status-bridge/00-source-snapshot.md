@@ -2,7 +2,7 @@
 
 proofRevision=network-remote-delivery-status-bridge-proof/v1
 branchMarker=codex/network-row10f-remote-delivery-status-bridge-on-row10e
-sourceBase=07f541f7987c759011c77f3a28559523b64c70ce
+sourceBase=c3328c891af958153c1b64d92379e653de6ba2d0
 worktreeStatus=expected to contain generated row10f proof artifacts until committed
 
 Inspected paths:
@@ -34,5 +34,5 @@ Before-state gap:
 - Row10b through row10e were local proof boundaries, but the service/protocol layer did not expose a typed row10f status bridge that consumers can parse without making live remote-delivery claims.
 
 Current bridge boundary:
-- The row10f bridge reads row10e durable envelope proof state and serializes a typed protocol status event for portal/service consumers.
+- The current row10k status bridge preserves row10f row10b-through-row10e remote-delivery evidence and serializes a typed protocol status event for portal/service consumers.
 - The bridge keeps live broker delivery, family-hub delivery, provider or child-device delivery, policy authority, adapter execution, exact content, and host filtering unclaimed.

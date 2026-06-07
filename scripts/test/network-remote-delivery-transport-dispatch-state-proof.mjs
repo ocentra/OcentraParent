@@ -66,6 +66,7 @@ const expectedStatus = {
     'blocked dispatch records preserve event id, event type, correlation id, outbox ref, and handoff ref',
     'future transport seam refs exist without claiming live broker or family-hub delivery',
     'service status command serializes row10k blocked dispatch state while preserving row10g outbox refs',
+    'service status command caches the deterministic row10k protocol snapshot instead of rebuilding the full proof chain on every request',
     'TypeScript parser rejects stale row10h status refs, stale row10k dispatch refs, and candidate-count mismatches',
     'manual-required blocked dispatch cannot publish enforcement commands',
   ],
@@ -233,6 +234,7 @@ const proof = {
     'blocked dispatch records preserve event id, event type, correlation id, source outbox state, outbox refs, handoff refs, dispatch-state refs, blocked-dispatch refs, and future transport seam refs',
     'blocked dispatch records equal the source outbox candidate count and row10j manual-required candidate count',
     'the service status command serializes row10k blocked dispatch refs while preserving row10g outbox refs, durable refs, and receipt refs',
+    'the service status command uses an async OnceCell cache so repeated reads reuse the stable row10k protocol snapshot without spawn_blocking or block_on',
     'the TypeScript status parser rejects stale row10h status refs, wrong row10k dispatch refs, nonzero dispatch-ready/dispatch/ack counters, and mismatched blocked-dispatch candidate counts',
     'dispatch-ready candidates, dispatch attempts, and remote acknowledgements stay zero',
     'the proof rejects policy authority, side-effect authority, adapter execution, enforcement command publication, live broker/family-hub delivery, remote acknowledgement, provider delivery, child-device delivery, remote delete/export propagation, and product-ready remote delivery claims',
@@ -296,8 +298,11 @@ function assertSourceContracts() {
     [coreProof, 'network_runtime_remote_delivery_transport_dispatch_state_rejects_action_claims'],
     [coreTypes, 'NetworkRuntimeRemoteDeliveryTransportDispatchStateReport'],
     [servicePayload, 'prove_network_runtime_remote_delivery_transport_dispatch_state'],
+    [servicePayload, 'OnceCell<NetworkRemoteDeliveryStatus>'],
+    [servicePayload, 'get_or_try_init'],
     [servicePayload, 'RuntimeTransportDispatchState::ManualRequiredBlocked'],
     [serviceTests, 'network_remote_delivery_status_payload_serializes_row10k_dispatch_state'],
+    [serviceTests, 'network_remote_delivery_status_payload_reuses_stable_row10k_status_snapshot'],
     [tsDefaults, 'TransportDispatchStateRef'],
     [tsParser, 'transportDispatchStateMatches'],
     [tsTests, 'parses row10k blocked dispatch status from a typed agent event'],
@@ -307,6 +312,9 @@ function assertSourceContracts() {
   ];
   for (const [haystack, needle] of requiredSnippets) {
     assertIncludes(haystack, needle, `source contract snippet ${needle}`);
+  }
+  for (const forbidden of ['tokio::task::spawn_blocking', 'Handle::current', '.block_on(']) {
+    assertNotIncludes(servicePayload, forbidden, `service status cache forbids ${forbidden}`);
   }
 }
 
@@ -358,6 +366,12 @@ function writeJson(path, value) {
 function assertIncludes(text, expected, label) {
   if (!text.includes(expected)) {
     throw new Error(`${label}: missing ${expected}`);
+  }
+}
+
+function assertNotIncludes(text, forbidden, label) {
+  if (text.includes(forbidden)) {
+    throw new Error(`${label}: found ${forbidden}`);
   }
 }
 

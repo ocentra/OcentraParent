@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-status-bridge-proof",
   "proofRevision": "network-remote-delivery-status-bridge-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-status-bridge-proof/v1",
-  "sourceFingerprint": "source-tree:2cda403b8ba28cbf2a2a47ee21d028abfd2cf3a757b24ad61dd831f3fabe630e",
+  "sourceFingerprint": "source-tree:76391e9dcbdeb0452b8a6b2fb229a2ed59ac77b4ff7fb43dba3ac7e61cb13d21",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-status-bridge-proof.mjs",
     "crates/agent-protocol/src/constants.rs",
@@ -28,7 +28,7 @@
     "crates/agent-service/readme.md",
     "packages/agent-protocol-domain/readme.md"
   ],
-  "sourceBase": "07f541f7987c759011c77f3a28559523b64c70ce",
+  "sourceBase": "c3328c891af958153c1b64d92379e653de6ba2d0",
   "proofRoot": "output\\network-plan-proof\\10f-remote-delivery-status-bridge",
   "testRoot": "test-results\\network-remote-delivery-status-bridge-proof",
   "commands": [
@@ -86,10 +86,10 @@
     "network-plan supplemental row 10b broker/family-hub remote delivery status"
   ],
   "provenBoundaries": [
-    "agent-protocol defines typed command/event names and a serializable NetworkRemoteDeliveryStatus row10f bridge shape",
+    "agent-protocol defines typed command/event names and a serializable NetworkRemoteDeliveryStatus shape that preserves row10f evidence through the current row10k bridge",
     "agent-service returns agent.network.remote-delivery.status.reported from agent.network.remote-delivery.status.get over the existing browser/network WebSocket command group",
     "agent-service returns agent.command.rejected instead of panicking if the proof-derived status cannot be built",
-    "the service status is derived from row10e durable envelope proof state and preserves row10b, row10c, row10d, and row10e refs",
+    "the service status is served from the current row10k cached snapshot and preserves row10b, row10c, row10d, and row10e refs",
     "agent-protocol-domain parses the status event and rejects stale exact refs, wrong status refs, missing requirement artifacts, live/product-ready delivery claims, enforcement counts, adapter execution counts, and exact-content counters",
     "the bridge is a read-only status handoff and does not execute broker/family-hub delivery, provider delivery, child-device delivery, policy, adapter, or host filtering actions"
   ],

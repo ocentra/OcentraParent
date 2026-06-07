@@ -196,7 +196,8 @@ compete on control while staying clear about attribution confidence and privacy.
   `agent-protocol-domain`: the row10j available-metadata invariant now feeds
   deterministic manual-required blocked dispatch records for every row10g
   prepared outbox candidate, and the existing remote-delivery status command
-  serializes those refs through the shared typed payload. The proof writes
+  serves a cached deterministic row10k protocol snapshot instead of rebuilding
+  the full proof chain on every request. The proof writes
   `output/network-plan-proof/10k-remote-delivery-transport-dispatch-state/proof-summary.json`
   and
   `test-results/network-remote-delivery-transport-dispatch-state-proof/proof.json`,

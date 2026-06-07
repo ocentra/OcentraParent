@@ -24,6 +24,27 @@ async fn network_remote_delivery_status_payload_serializes_row10k_dispatch_state
 }
 
 #[tokio::test]
+async fn network_remote_delivery_status_payload_reuses_stable_row10k_status_snapshot() {
+    let first_payload = network_remote_delivery_status_payload()
+        .await
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let second_payload = network_remote_delivery_status_payload()
+        .await
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let first_status: NetworkRemoteDeliveryStatus = status_value(
+        &first_payload,
+        constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
+    );
+    let second_status: NetworkRemoteDeliveryStatus = status_value(
+        &second_payload,
+        constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
+    );
+
+    assert_eq!(first_status, second_status);
+    assert_remote_delivery_status(&first_status);
+}
+
+#[tokio::test]
 async fn websocket_network_remote_delivery_status_command_reports_payload() {
     let body =
         serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
