@@ -479,6 +479,17 @@ only with explicit parent settings.
   `output/screen-plan-proof/live-view-service-session/proof-summary.json`. This
   is not production service runtime, platform prompt screenshot, relay/cache,
   parent UI persistence, privacy/legal approval, or product-complete live view.
+- `scripts/test/screen-live-view-runtime-proof.mjs` now proves the Rust
+  `agent-service` live-view runtime decision boundary. The service-side state
+  machine consumes the retained loopback live-frame transport/deletion artifact,
+  rejects capture-only permission, rejects missing transport/deletion proof,
+  rejects frame caching, session recording, and remote input, and can represent
+  a service-runtime-ready-but-not-product-ready state while parent UI
+  persistence is missing. The proof writes
+  `output/screen-plan-proof/live-view-runtime/proof-summary.json`. This is not
+  production live-view worker startup, platform prompt screenshots, relay/cache
+  execution, parent UI persistence, physical-device parity, privacy/legal
+  approval, or product-complete live view.
 - `ScreenManagedBrowserCdpScreenshotRequestSchema`,
   `ScreenManagedBrowserCdpScreenshotArtifactSchema`, and
   `scripts/test/screen-managed-browser-cdp-capture-proof.mjs` now prove the
@@ -661,7 +672,7 @@ only with explicit parent settings.
   `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`. This
   prevents the stacked product-path artifact from being treated as full
   screen-plan completion before macOS, Linux, Android parity, iOS, live-view
-  platform prompt/production service session/runtime UI, current PP-OCRv5
+  platform prompt/production worker startup/runtime UI, current PP-OCRv5
   quality/resource, and live VLM quality gates are completed or explicitly left
   as non-claims.
 - Product-complete retention controls and quality proof are incomplete.
@@ -677,9 +688,9 @@ only with explicit parent settings.
 ## Current Gap
 
 Product-complete parent retention controls, optional raw-retention runtime
-enablement, production live-view service session/relay-cache transport,
-platform permission prompt proof, parent UI persistence, physical-device
-live-view parity, child-agent disclosure runtime deployment,
+enablement, production live-view worker startup/relay-cache transport, platform
+permission prompt proof, parent UI persistence, physical-device live-view
+parity, child-agent disclosure runtime deployment,
 privacy/legal approval, authenticated-account
 social proof beyond public/live surface proof, production OCR/VLM quality beyond
 the WinRT OCR service proof, controlled fixtures, the full live operator matrix,
@@ -766,6 +777,11 @@ parity, and UI remain separate proof gates.
       product readiness until service runtime, live-view platform prompt proof,
       parent UI persistence, no frame cache, no recording, and no remote input
       are present.
+- [x] Rust agent-service live-view runtime decision proof rejects capture-only
+      permission, missing transport/deletion proof, frame cache, session
+      recording, and remote input, while preserving a service-ready but
+      product-blocked state until parent UI persistence and other proof gates
+      exist.
 - [x] Local AI resource scheduler prevents multiple heavy OCR/VLM jobs and
       prioritizes policy-blocking screen analysis.
 - [x] Detector-specific prompt packs replace open-ended screen descriptions and

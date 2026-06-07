@@ -14,6 +14,11 @@ use crate::screen_ai_service_event_bridge::{
     ScreenAiServiceEventBridgeRefs,
 };
 
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) mod live_view_runtime;
+#[cfg(test)]
+mod live_view_runtime_tests;
+
 pub(crate) struct ScreenAiServiceEventRuntime {
     bus: EventBus,
     #[cfg(test)]

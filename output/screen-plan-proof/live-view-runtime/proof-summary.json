@@ -1,0 +1,49 @@
+{
+  "proof": "screen-live-view-runtime-proof",
+  "generatedAt": "2026-06-07T09:04:12.610Z",
+  "claim": "The Rust agent-service now has a bounded live-view runtime decision boundary that consumes live-frame transport/deletion evidence, rejects capture-only permission, refuses frame cache/session recording/remote input, and keeps product readiness blocked unless live-view permission, service runtime, parent UI persistence, and relay/cache requirements are all satisfied.",
+  "sourceEvidence": {
+    "liveTransportProof": "output/screen-plan-proof/live-view-session-transport/proof-summary.json",
+    "liveTransportProofPresent": true,
+    "realPixelsCaptured": true,
+    "localTransportDeliveredFrame": true,
+    "rawFrameDeletedAfterTransport": true,
+    "serviceSessionProof": "output/screen-plan-proof/live-view-service-session/proof-summary.json",
+    "serviceSessionProofPresent": true,
+    "previousServiceSessionRuntimeProofExists": true
+  },
+  "rustRuntime": {
+    "module": "crates/agent-service/src/screen_ai_service_event_subscription/live_view_runtime.rs",
+    "tests": "crates/agent-service/src/screen_ai_service_event_subscription/live_view_runtime_tests.rs",
+    "validationCommand": "cargo test -p ocentra-parent-agent-service screen_live_view_runtime -- --nocapture",
+    "validationPassed": true
+  },
+  "runtimeDecisionsProved": {
+    "captureOnlyPermissionBlocked": true,
+    "missingTransportProofBlocked": true,
+    "missingDeletionProofBlocked": true,
+    "frameCacheRecordingRemoteInputBlocked": true,
+    "serviceRuntimeCanBeReadyWithoutProductReady": true,
+    "relayModeRequiresRelayCacheProof": true
+  },
+  "gapStatus": {
+    "serviceRuntimeDecisionBoundaryExists": true,
+    "liveViewPermissionPromptProofExists": false,
+    "parentUiPersistenceProofExists": false,
+    "relayCacheProofExists": false,
+    "privacyLegalApprovalExists": false,
+    "liveViewProductReady": false
+  },
+  "assertions": {
+    "rustRuntimeValidationPassed": true,
+    "realLoopbackTransportArtifactConsumed": true,
+    "rawFrameDeletionCarriedForward": true,
+    "previousReadinessProofDidNotClaimRuntime": true,
+    "productReadinessStillBlocked": true
+  },
+  "nonClaims": [
+    "This proof does not start a production live-view worker in the agent service.",
+    "This proof does not claim platform live-view permission-prompt screenshots, parent UI persistence, relay/cache execution, privacy/legal approval, or physical-device parity.",
+    "This proof does not allow raw frame caching, session recording, or remote input control."
+  ]
+}
