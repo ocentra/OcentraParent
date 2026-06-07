@@ -303,6 +303,12 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   and local-outbox refs while rejecting raw account/video/message content,
   screenshots, provider delivery, report delivery, parent notification UI,
   final policy decisions, and enforcement.
+- `social-report-writer-delivery-proof` now adds a parent-owned report writer
+  delivery-readiness boundary for social report intents. It proves report-ready
+  rows can cite parent-owned report artifacts and receipts while keeping
+  external runtime report delivery, provider dispatch, provider receipt
+  ingestion, raw social content, final policy execution, and enforcement
+  unclaimed.
 - `social-alert-report-intent-ui-proof` now renders those alert/report intent
   rows through the real Browser-route portal and real Rust WebSocket command
   `agent.browser.social-alert-report.read-model.get`. The proof captures

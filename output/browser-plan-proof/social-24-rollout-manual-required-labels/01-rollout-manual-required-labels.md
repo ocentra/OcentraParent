@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-07T04:16:54.053Z
+Generated: 2026-06-07T04:35:22.057Z
 
 Rows checked: 23
 Proof-present rows: 21
@@ -52,9 +52,10 @@ Live SOCIAL-12 evidence-bound policy compiler proof is present.
 Live SOCIAL-18 public connector boundary proof is present.
 Live SOCIAL-19 evidence-bound decision memory proof is present.
 Ref-only social alert/report intent proof is present.
+Parent-owned report writer delivery-readiness proof is present.
 Schedule/time-budget compiler proof and parent sensitivity
 settings proof are present. Source custody settings proof is present over
 source/privacy refs, and service-backed source custody mutation proof is
-present. Connector/native runtime, provider/report delivery, applied
+present. Connector/native runtime, external provider delivery, applied
 schedules/budgets, final policy execution, and enforcement remain
 unclaimed.

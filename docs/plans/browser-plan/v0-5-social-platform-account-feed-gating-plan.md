@@ -1481,6 +1481,12 @@ worker messages before code changes. Do not mix all 24 into one PR.
   without claiming raw account/video/message content, screenshots, provider
   delivery, report delivery, parent notification UI, final policy decisions, or
   enforcement.
+- `social-report-writer-delivery-proof` now adds parent-domain social report
+  writer delivery-readiness contracts and focused tests. It links social report
+  intents into parent-owned report artifact and receipt rows while preserving
+  explicit non-claims for external runtime report delivery, provider dispatch,
+  provider receipt ingestion, raw social content, final policy execution, and
+  enforcement.
 - `social-parent-sensitivity-settings-proof` now adds parent-domain Parent sensitivity settings
   contracts and focused tests for high-risk alerts,
   feed/video review, account-flow review, connector data use, native-app gap

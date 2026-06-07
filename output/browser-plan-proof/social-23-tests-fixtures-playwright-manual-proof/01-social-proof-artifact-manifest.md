@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-07T04:16:54.032Z
+Generated: 2026-06-07T04:35:22.022Z
 
 Rows checked: 22
 Proof-present rows: 21
@@ -51,10 +51,11 @@ Live-evidence policy compiler proof is present for SOCIAL-12 non-final manual-re
 Live public connector boundary proof is present for SOCIAL-18 Google/YouTube, Meta, and TikTok surfaces.
 Live-evidence decision memory proof is present for SOCIAL-19 ref-only cache snapshots.
 Ref-only social alert/report intent proof is present.
+Parent-owned social report writer delivery-readiness proof is present.
 Schedule/time-budget compiler contract proof is present.
 Parent sensitivity settings contract proof is present.
 Source custody settings contract proof is present over source/privacy refs.
 Service-backed source custody mutation proof is present over redacted refs.
 It does not prove runtime connector behavior, native app control, final
-policy execution, provider/report delivery, applied schedules/budgets,
+policy execution, external provider/report runtime delivery, applied schedules/budgets,
 enforcement, or product checklist completion.

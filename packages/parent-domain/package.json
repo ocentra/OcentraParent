@@ -501,6 +501,10 @@
       "import": "./dist/social-alert-report-intent.js",
       "types": "./dist/social-alert-report-intent.d.ts"
     },
+    "./social-report-writer-delivery-proof": {
+      "import": "./dist/social-report-writer-delivery-proof.js",
+      "types": "./dist/social-report-writer-delivery-proof.d.ts"
+    },
     "./social-child-approval-block-ux-values": {
       "import": "./dist/social-child-approval-block-ux-values.js",
       "types": "./dist/social-child-approval-block-ux-values.d.ts"

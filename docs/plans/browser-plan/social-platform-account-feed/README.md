@@ -404,6 +404,18 @@ It proves ref-only local-outbox/report linkage and rejects raw
 account/video/message content, screenshots, provider delivery, report delivery,
 parent notification UI, final policy decisions, and enforcement.
 
+The follow-up `social-report-writer-delivery-proof` adds
+`packages/parent-domain/src/social-report-writer-delivery-proof.ts` and
+`packages/parent-domain/tests/social-report-writer-delivery-proof.test.ts`, a
+parent-owned report writer delivery-readiness boundary for social report
+intents. The proof writes
+`test-results/social-report-writer-delivery-proof/proof.json` and
+`output/browser-plan-proof/social-report-writer-delivery-proof/01-social-report-writer-delivery-proof.md`.
+It proves parent-owned report artifact and receipt rows for social report
+intents while keeping external runtime report delivery, provider dispatch,
+provider receipt ingestion, raw social content, final policy execution, and
+enforcement unclaimed.
+
 The follow-up `social-alert-report-intent-ui-proof` adds the service-backed
 Browser-route proof for those alert/report intent rows. The real portal requests
 `agent.browser.social-alert-report.read-model.get` from the local Rust service,
