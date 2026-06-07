@@ -1,12 +1,10 @@
-# WP29 Missing-Device Mode Source Snapshot
+# 29-missing-device-mode Source Snapshot
 
-- Branch: codex/tracking-missing-device-mode-proof
-- Base commit at generation: 55f6d5ff5d5d1a1165369586b04218b67c0314d8
-- Git status at proof generation:
-
-```text
-clean
-```
-
-- Scope: parent-domain missing-device read model for last-known location, battery, connectivity, stale/offline, pending upload, contact actions, and UI state tokens.
-- Source inspected: device location tracking capability guide, raw tracking control settings inventory, UI/UX requirements guide, location/geofence feature doc, and WP29 checklist.
+- checkedAt: 2026-06-07T12:57:09.465Z
+- commit: 373a15043ba5199dfae292d483facffcd5681a9a
+- proofState: contract-proof-partial
+- summary: Missing-device state contract exists; UI prominence and device-locate runtime proof remain pending.
+- activity contracts: packages/activity-domain/src/tracking.ts
+- parent contracts: packages/parent-domain/src/tracking-location-policy.ts
+- activity tests: packages/activity-domain/tests/tracking.test.ts
+- parent tests: packages/parent-domain/tests/tracking-location-policy.test.ts

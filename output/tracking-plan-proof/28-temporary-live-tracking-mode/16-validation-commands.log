@@ -1,2 +1,5 @@
-cmd /c npm run build --workspace @ocentra-parent/parent-domain
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-temporary-live-mode-proof tracking-location-policy
+cmd /c npm --workspace @ocentra-parent/activity-domain run build
+cmd /c npm --workspace @ocentra-parent/activity-domain run test -- tracking
+cmd /c npm --workspace @ocentra-parent/parent-domain run build
+cmd /c npm --workspace @ocentra-parent/parent-domain run test -- tracking-location-policy
+cmd /c npm run lint:schema-boundaries

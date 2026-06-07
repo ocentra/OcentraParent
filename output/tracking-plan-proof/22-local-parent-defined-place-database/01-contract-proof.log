@@ -1,5 +1,6 @@
 workpack=22-local-parent-defined-place-database
-activity-domain tracking local place store test passed
-store boundary is parent-device-local
-remoteSyncDefault is disabled
-ocentraHostedDefaultStorage is false
+proofState=contract-proof-partial
+activity-domain tracking tests passed
+parent-domain tracking-location-policy tests passed
+schema-boundary guard passed
+Parent-defined place record contract exists; CRUD/export/delete store remains pending.

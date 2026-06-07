@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T19:24:38.930Z",
+  "checkedAt": "2026-06-07T12:57:09.616Z",
   "requiredProofTier": "P2_HOSTED_CI",
   "currentProofTier": "P1_FIXTURE_SIMULATION",
   "currentStatus": "simulated",

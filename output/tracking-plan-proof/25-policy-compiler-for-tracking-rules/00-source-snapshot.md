@@ -1,13 +1,10 @@
-# WP25 Tracking Policy Compiler Runtime Proof Source Snapshot
+# 25-policy-compiler-for-tracking-rules Source Snapshot
 
-- Branch: codex/tracking-plan-full-continuation-a
-- Base commit at generation: 12afe0df9b54afd9a1e9c556a9ee5e89b2a72d26
-- Git status at proof generation:
-
-```text
-M docs/plans/tracking-plan/implementation-checklist.md
- M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md
-```
-
-- Scope: parent-policy compiler/evaluator proof for tracking rules.
-- Source inspected: tracking location policy contracts, policy expectations, location/geofence expectations, feature doc, and WP25 checklist.
+- checkedAt: 2026-06-07T12:57:09.465Z
+- commit: 373a15043ba5199dfae292d483facffcd5681a9a
+- proofState: contract-proof-partial
+- summary: Tracking policy rule and decision contracts exist; runtime compiler/evaluator remains pending.
+- activity contracts: packages/activity-domain/src/tracking.ts
+- parent contracts: packages/parent-domain/src/tracking-location-policy.ts
+- activity tests: packages/activity-domain/tests/tracking.test.ts
+- parent tests: packages/parent-domain/tests/tracking-location-policy.test.ts

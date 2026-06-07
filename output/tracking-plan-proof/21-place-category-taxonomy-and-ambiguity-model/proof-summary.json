@@ -1,43 +1,38 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T18:14:00.000Z",
-  "commit": "62a56cd58d853babde22f6981b43b36bc81fc923",
+  "checkedAt": "2026-06-07T12:57:09.465Z",
+  "commit": "373a15043ba5199dfae292d483facffcd5681a9a",
   "workpackId": "21-place-category-taxonomy-and-ambiguity-model",
-  "proofState": "category-ambiguity-proof-complete",
-  "summary": {
-    "multipleCandidateReviewCount": 2,
-    "multipleCandidateCategories": [
-      "school",
-      "sensitive"
-    ],
-    "multipleCandidateAmbiguityStates": [
-      "multiple-candidates",
-      "multiple-candidates"
-    ],
-    "lowAccuracyAmbiguityStates": [
-      "low-accuracy"
-    ],
-    "reviewStates": [
-      "manual-required",
-      "manual-required",
-      "manual-required"
-    ],
-    "safeCopyAccusationFree": true,
-    "categoryCanTriggerActionDirectly": false,
-    "parentDefinedZoneOverrideCanTriggerActionDirectly": false
-  },
+  "proofState": "contract-proof-complete",
+  "summary": "Place-risk categories and ambiguity states are schema-backed and tested.",
   "commands": [
-    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-place-category-ambiguity-proof tracking-poi-provider-adapter"
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run test -- tracking",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run test -- tracking-location-policy",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run lint:schema-boundaries",
+      "exitCode": 0
+    }
   ],
   "productClaims": {
-    "noAccusationCopyProof": true,
-    "lowAccuracyAmbiguityProof": true,
-    "multiplePlaceAmbiguityProof": true,
-    "categoryAsPolicyInputOnly": true,
-    "parentDefinedZoneOverrideRequiresPolicyDecision": true,
+    "contractProof": true,
+    "androidIosBackgroundLocationClaimed": false,
+    "preciseLocationFromLanIpWifiClaimed": false,
+    "uiCompleteClaimed": false,
     "providerDeliveryClaimed": false,
-    "physicalDeviceProofClaimed": false,
-    "automaticActionClaimed": false
+    "remoteSyncEnabledByDefault": false
   }
 }

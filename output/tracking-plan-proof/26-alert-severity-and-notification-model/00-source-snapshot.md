@@ -1,12 +1,10 @@
-# WP26 Tracking Provider Notification Source Snapshot
+# 26-alert-severity-and-notification-model Source Snapshot
 
-- Branch: codex/tracking-provider-notification-proof
-- Commit: 364956dc28d22e12516ff03b628e2d6a1038fbb5
-- Git status at proof generation:
-
-```text
-clean
-```
-
-- Scope: tracking alert intents to provider-status boundary evidence.
-- Source inspected: tracking location policy, V0.8 notification provider-status boundary, location/geofence feature doc, notifications expectations, reports/notifications feature doc, and WP26 checklist.
+- checkedAt: 2026-06-07T12:57:09.465Z
+- commit: 373a15043ba5199dfae292d483facffcd5681a9a
+- proofState: contract-proof-complete
+- summary: Tracking alert intents cite policy decisions, evidence refs, severity, minimal detail mode, and notification refs.
+- activity contracts: packages/activity-domain/src/tracking.ts
+- parent contracts: packages/parent-domain/src/tracking-location-policy.ts
+- activity tests: packages/activity-domain/tests/tracking.test.ts
+- parent tests: packages/parent-domain/tests/tracking-location-policy.test.ts

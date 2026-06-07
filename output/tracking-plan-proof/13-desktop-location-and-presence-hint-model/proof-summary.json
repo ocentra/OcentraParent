@@ -1,52 +1,38 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T18:42:00.000Z",
-  "commit": "6c2ccb6802870db9d0e81abf941661fd47c073f7",
+  "checkedAt": "2026-06-07T12:57:09.465Z",
+  "commit": "373a15043ba5199dfae292d483facffcd5681a9a",
   "workpackId": "13-desktop-location-and-presence-hint-model",
-  "proofState": "desktop-presence-hint-proof-complete",
-  "summary": {
-    "sourceCount": 10,
-    "states": [
-      "manual-required",
-      "hint-only",
-      "stale",
-      "offline",
-      "missing-device"
-    ],
-    "preciseLocationClaimCount": 0,
-    "physicalPresenceClaimCount": 0,
-    "liveDeviceClaimCount": 7,
-    "manualRequiredPreciseLocationRows": [
-      "windows-os-location",
-      "macos-os-location"
-    ],
-    "manualCheckInSeparatedRows": [
-      "linux-manual-check-in",
-      "manual-check-in"
-    ],
-    "hintOnlyRows": [
-      "lan-pairing",
-      "home-wifi",
-      "ip-coarse"
-    ],
-    "staleOfflineMissingRows": [
-      "stale-cache",
-      "offline",
-      "missing-device"
-    ]
-  },
+  "proofState": "contract-proof-complete",
+  "summary": "Desktop LAN, Wi-Fi, IP, manual, and unknown hints are blocked from precise coordinate claims.",
   "commands": [
-    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-desktop-presence-hint-proof"
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run test -- tracking",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run test -- tracking-location-policy",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run lint:schema-boundaries",
+      "exitCode": 0
+    }
   ],
   "productClaims": {
-    "lanWifiIpHintOnly": true,
-    "manualCheckInSeparated": true,
-    "desktopPreciseLocationManualRequired": true,
-    "staleOfflineMissingNotLive": true,
-    "preciseLocationClaimed": false,
-    "physicalPresenceClaimed": false,
-    "physicalDeviceProofClaimed": false,
-    "productionBehaviorClaimed": false
+    "contractProof": true,
+    "androidIosBackgroundLocationClaimed": false,
+    "preciseLocationFromLanIpWifiClaimed": false,
+    "uiCompleteClaimed": false,
+    "providerDeliveryClaimed": false,
+    "remoteSyncEnabledByDefault": false
   }
 }

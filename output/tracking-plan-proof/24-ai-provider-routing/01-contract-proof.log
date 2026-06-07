@@ -1,9 +1,6 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-ai-provider-routing-proof tracking-location-policy: PASS
-- Child-local route is the only default child-safety path.
-- Parent-approved remote is the only route with remote data allowed and requires recorded approval.
-- Family hub, metadata-only, and no-AI routes preserve degraded/unavailable/disabled states.
-- Assistant rows are preview-only and cannot write policy or enforce directly.
-- Every route carries evidence and custody refs.
+workpack=24-ai-provider-routing
+proofState=contract-proof-complete
+activity-domain tracking tests passed
+parent-domain tracking-location-policy tests passed
+schema-boundary guard passed
+Tracking AI provider route states keep remote data disabled unless parent-approved remote is selected.

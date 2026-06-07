@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T19:24:38.930Z",
+  "checkedAt": "2026-06-07T12:57:09.616Z",
   "workpackId": "30-parent-and-child-ui-ux-surfaces",
   "requiredProofTier": "P2_HOSTED_CI",
   "currentProofTier": "P1_FIXTURE_SIMULATION",
@@ -47,13 +47,20 @@
         "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
         "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
         "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json",
+        "output/tracking-plan-proof/26-alert-severity-and-notification-model/26-notification-parent-surface-history-proof.json",
+        "output/tracking-plan-proof/16-expected-place-schedule-engine/29-expected-place-alert-policy-proof.json",
+        "output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/30-parent-acknowledgement-action-readiness-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json",
         "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json",
         "output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json",
         "output/tracking-plan-proof/28-temporary-live-tracking-mode/proof-summary.json",
-        "output/tracking-plan-proof/29-missing-device-mode/proof-summary.json",
+        "output/tracking-plan-proof/29-missing-device-mode/proof.json",
         "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json"
       ],
-      "artifactCount": 16
+      "artifactCount": 23
     },
     "productClaimReady": false,
     "missingProofReason": "This is UI fixture proof only. Live service data, hosted Playwright/a11y proof, child-device UI, and physical-device proof remain pending.",
@@ -63,7 +70,7 @@
       "logPath": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/12-playwright-proof.log",
       "viewport": "1440x1800",
       "gridColumns": "1065.41px",
-      "rowCount": 21,
+      "rowCount": 26,
       "minimumExpectedRowCount": 14,
       "allRowsVisible": true,
       "deletedHistoryProof": {
@@ -87,13 +94,20 @@
           "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
           "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json",
           "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+          "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json",
+          "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json",
+          "output/tracking-plan-proof/26-alert-severity-and-notification-model/26-notification-parent-surface-history-proof.json",
+          "output/tracking-plan-proof/16-expected-place-schedule-engine/29-expected-place-alert-policy-proof.json",
+          "output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/30-parent-acknowledgement-action-readiness-proof.json",
+          "output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json",
+          "output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json",
           "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json",
           "output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json",
           "output/tracking-plan-proof/28-temporary-live-tracking-mode/proof-summary.json",
-          "output/tracking-plan-proof/29-missing-device-mode/proof-summary.json",
+          "output/tracking-plan-proof/29-missing-device-mode/proof.json",
           "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json"
         ],
-        "artifactCount": 16
+        "artifactCount": 23
       },
       "productClaimReady": false
     },

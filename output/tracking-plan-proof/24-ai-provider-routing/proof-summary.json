@@ -1,46 +1,38 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T18:32:00.000Z",
-  "commit": "63d216a9f8adabe3a343c9cb88f4ea0abe02debe",
+  "checkedAt": "2026-06-07T12:57:09.465Z",
+  "commit": "373a15043ba5199dfae292d483facffcd5681a9a",
   "workpackId": "24-ai-provider-routing",
-  "proofState": "ai-provider-routing-custody-proof-complete",
-  "summary": {
-    "routeModes": [
-      "child-local",
-      "parent-local",
-      "family-ai-hub",
-      "parent-approved-remote",
-      "metadata-only",
-      "no-ai"
-    ],
-    "capabilityStates": [
-      "available",
-      "available",
-      "degraded",
-      "manual-required",
-      "disabled-by-default",
-      "unavailable"
-    ],
-    "defaultChildSafetyRouteCount": 1,
-    "remoteAllowedRouteCount": 1,
-    "remoteAllowedRoutesRequireParentApproval": true,
-    "degradedOrUnavailableRouteCount": 4,
-    "assistantCanWritePolicyDirectly": false,
-    "assistantCanEnforceDirectly": false,
-    "allRowsHaveEvidenceAndCustody": true
-  },
+  "proofState": "contract-proof-complete",
+  "summary": "Tracking AI provider route states keep remote data disabled unless parent-approved remote is selected.",
   "commands": [
-    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-ai-provider-routing-proof tracking-location-policy"
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run test -- tracking",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run test -- tracking-location-policy",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run lint:schema-boundaries",
+      "exitCode": 0
+    }
   ],
   "productClaims": {
-    "childLocalDefaultSafetyPath": true,
-    "explicitRemoteParentApprovalRequired": true,
-    "providerUnavailableDegradedStatePreserved": true,
-    "assistantOnlyPolicyWritesPrevented": true,
-    "evidenceAndCustodyCited": true,
-    "modelExecutionClaimed": false,
+    "contractProof": true,
+    "androidIosBackgroundLocationClaimed": false,
+    "preciseLocationFromLanIpWifiClaimed": false,
+    "uiCompleteClaimed": false,
     "providerDeliveryClaimed": false,
-    "productionBehaviorClaimed": false
+    "remoteSyncEnabledByDefault": false
   }
 }
