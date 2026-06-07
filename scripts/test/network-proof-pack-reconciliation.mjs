@@ -23,13 +23,13 @@ const docsRead = [
 const pendingBranches = [
   {
     branch: 'codex/network-content-claim-invariant-proof',
-    expectedHead: '5f883b36ec717b5347340fb13cc2613c63e8a7e3',
+    expectedHead: '14927eb4eee7fc72d4477e596edc544ba6f4f10e',
     reason:
       'pipeline-level unsupported video/private-message/search content claim fields are branch-only until integrated',
   },
   {
     branch: 'codex/network-manual-followup-owner-ledger-proof',
-    expectedHead: 'c6477df42f815f52fc769166fa9275dbdd666d4d',
+    expectedHead: '3938df7f0b6318452d806ef969bf15a787852765',
     reason: 'manual/deferred follow-up owner ledger sourceRef fix is branch-only until integrated',
   },
 ];
