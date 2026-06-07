@@ -1,0 +1,20 @@
+{
+  "normalizedDomain": "watch.video.example.test",
+  "registrableDomain": "example.test",
+  "matchedCategory": "Video",
+  "source": {
+    "sourceId": "ocentra-category-fixture-v1",
+    "custody": "SignedLocalSnapshot",
+    "freshness": "Fresh"
+  },
+  "updatePolicy": {
+    "rejectsUnsignedRequiredSnapshot": true,
+    "rejectsOlderSnapshot": true,
+    "acceptsNewerSignedSnapshot": true
+  },
+  "networkOnlyMustNotClaim": [
+    "exact-url",
+    "page-content",
+    "decrypted-payload"
+  ]
+}

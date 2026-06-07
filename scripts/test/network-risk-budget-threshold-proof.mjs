@@ -4,6 +4,14 @@ import { join } from 'node:path';
 
 const proofRoot = join('output', 'network-plan-proof', '48-risk-budget-threshold-proof');
 const testRoot = join('test-results', 'network-risk-budget-threshold-proof');
+const sourceStatusExcludes = [
+  proofRoot,
+  testRoot,
+  join('output', 'network-plan-proof', '22-domain-category-intelligence'),
+  join('test-results', 'network-category-intelligence-proof'),
+  join('output', 'network-plan-proof', '23-social-video-game-cloud-gaming-classifier'),
+  join('test-results', 'network-social-video-game-classifier-proof'),
+];
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 
@@ -77,8 +85,17 @@ const proof = {
   proof: 'network-risk-budget-threshold-proof',
   checkedAt: new Date().toISOString(),
   branch: runText('git', ['branch', '--show-current']).trim(),
-  commit: runText('git', ['rev-parse', 'HEAD']).trim(),
-  statusShort: runText('git', ['status', '--short']),
+  sourceCommit: runText('git', ['rev-parse', 'HEAD']).trim(),
+  artifactCommit: 'see the enclosing git commit for generated proof artifacts',
+  originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
+  mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
+  sourceStatusShort: runText('git', [
+    'status',
+    '--short',
+    '--',
+    '.',
+    ...sourceStatusExcludes.map((path) => `:(exclude)${path.replaceAll('\\', '/')}`),
+  ]),
   proofRoot,
   testRoot,
   commands: commandResults,
