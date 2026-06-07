@@ -1,0 +1,207 @@
+use std::{fs, path::PathBuf};
+
+use ocentra_parent_agent_protocol::{
+    constants, ScreenAnalysisParentSetting, ScreenSettingsGetRequest,
+    ScreenSettingsRejectionReason, ScreenSettingsReplaceRequest, ScreenSettingsUpdateKind,
+    ScreenSettingsUpdateRequest, ScreenSettingsUpdateStatus, SCREEN_EVIDENCE_SCHEMA_VERSION,
+};
+
+use crate::screen_settings_runtime::{default_disabled_setting, ScreenSettingsRuntime};
+
+#[tokio::test]
+async fn screen_settings_runtime_reports_disabled_default_without_persistence() {
+    let runtime = ScreenSettingsRuntime::in_memory();
+
+    let response = runtime
+        .handle_request(ScreenSettingsUpdateRequest::Get(ScreenSettingsGetRequest {
+            schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
+            request_id: constants::screen_settings::REQUEST_ID_GET.to_string(),
+            kind: ScreenSettingsUpdateKind::Get,
+        }))
+        .await;
+
+    assert_eq!(response.status, ScreenSettingsUpdateStatus::Accepted);
+    let setting = response.setting.expect("screen setting returned");
+    assert_eq!(setting.screen_analysis_enabled, false);
+    assert_eq!(setting.cadence_capture_enabled, false);
+    assert_eq!(setting.trigger_capture_enabled, false);
+    assert_eq!(setting.policy_use_enabled, false);
+    assert_eq!(setting.retain_raw_image, false);
+    assert_eq!(setting.delete_after_success, true);
+    assert_eq!(setting.delete_after_expiry, true);
+}
+
+#[tokio::test]
+async fn screen_settings_runtime_persists_parent_opt_in_across_reload() {
+    let path = test_store_path("persists-parent-opt-in");
+    let runtime = ScreenSettingsRuntime::for_store_path(&path);
+    let strict = strict_dry_run_setting(2);
+
+    let accepted = runtime
+        .handle_request(ScreenSettingsUpdateRequest::Replace(
+            ScreenSettingsReplaceRequest {
+                schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
+                request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
+                kind: ScreenSettingsUpdateKind::Replace,
+                base_setting_version: None,
+                setting: strict.clone(),
+            },
+        ))
+        .await;
+
+    assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
+    assert_eq!(
+        accepted.audit_event_id,
+        Some("screen-setting-audit-1".to_string())
+    );
+    let reloaded = ScreenSettingsRuntime::for_store_path(&path);
+    let reported = reloaded
+        .handle_request(ScreenSettingsUpdateRequest::Get(ScreenSettingsGetRequest {
+            schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
+            request_id: constants::screen_settings::REQUEST_ID_GET.to_string(),
+            kind: ScreenSettingsUpdateKind::Get,
+        }))
+        .await;
+    let persisted = reported.setting.expect("persisted screen setting returned");
+
+    assert_eq!(reported.status, ScreenSettingsUpdateStatus::Accepted);
+    assert_eq!(persisted, strict);
+    assert!(fs::read_to_string(&path)
+        .expect("screen settings store is readable")
+        .contains(constants::screen_settings::AUDIT_PREFIX));
+}
+
+#[tokio::test]
+async fn screen_settings_runtime_rejects_raw_image_retention() {
+    let runtime = ScreenSettingsRuntime::in_memory();
+    let mut setting = strict_dry_run_setting(2);
+    setting.retain_raw_image = true;
+
+    let rejected = runtime
+        .handle_request(ScreenSettingsUpdateRequest::Replace(
+            ScreenSettingsReplaceRequest {
+                schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
+                request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
+                kind: ScreenSettingsUpdateKind::Replace,
+                base_setting_version: None,
+                setting,
+            },
+        ))
+        .await;
+
+    assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);
+    assert_eq!(
+        rejected.rejection_reason,
+        Some(ScreenSettingsRejectionReason::RawRetentionForbidden)
+    );
+    assert_eq!(rejected.setting, None);
+}
+
+#[tokio::test]
+async fn screen_settings_runtime_rejects_observe_only_policy_use() {
+    let runtime = ScreenSettingsRuntime::in_memory();
+    let mut setting = strict_dry_run_setting(2);
+    setting.analysis_mode = constants::screen_settings::ANALYSIS_MODE_OBSERVE_ONLY.to_string();
+
+    let rejected = runtime
+        .handle_request(ScreenSettingsUpdateRequest::Replace(
+            ScreenSettingsReplaceRequest {
+                schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
+                request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
+                kind: ScreenSettingsUpdateKind::Replace,
+                base_setting_version: None,
+                setting,
+            },
+        ))
+        .await;
+
+    assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);
+    assert_eq!(
+        rejected.rejection_reason,
+        Some(ScreenSettingsRejectionReason::PolicyModeInconsistent)
+    );
+}
+
+#[tokio::test]
+async fn screen_settings_runtime_rejects_stale_base_setting_version() {
+    let runtime = ScreenSettingsRuntime::in_memory();
+    let accepted = runtime
+        .handle_request(ScreenSettingsUpdateRequest::Replace(
+            ScreenSettingsReplaceRequest {
+                schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
+                request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
+                kind: ScreenSettingsUpdateKind::Replace,
+                base_setting_version: None,
+                setting: strict_dry_run_setting(2),
+            },
+        ))
+        .await;
+    assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
+
+    let rejected = runtime
+        .handle_request(ScreenSettingsUpdateRequest::Replace(
+            ScreenSettingsReplaceRequest {
+                schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
+                request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
+                kind: ScreenSettingsUpdateKind::Replace,
+                base_setting_version: Some(1),
+                setting: strict_dry_run_setting(3),
+            },
+        ))
+        .await;
+
+    assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);
+    assert_eq!(
+        rejected.rejection_reason,
+        Some(ScreenSettingsRejectionReason::StaleRevision)
+    );
+}
+
+fn strict_dry_run_setting(version: u64) -> ScreenAnalysisParentSetting {
+    ScreenAnalysisParentSetting {
+        setting_version: version,
+        ..default_disabled_setting(constants::screen_settings::DEFAULT_CHANGED_AT)
+    }
+    .with_strict_dry_run_values()
+}
+
+trait ScreenSettingTestValues {
+    fn with_strict_dry_run_values(self) -> Self;
+}
+
+impl ScreenSettingTestValues for ScreenAnalysisParentSetting {
+    fn with_strict_dry_run_values(mut self) -> Self {
+        self.screen_analysis_enabled = true;
+        self.analysis_mode = constants::screen_settings::ANALYSIS_MODE_POLICY_DRY_RUN.to_string();
+        self.cadence_capture_enabled = true;
+        self.cadence_seconds = constants::screen_settings::STRICT_CADENCE_SECONDS;
+        self.strict_mode_enabled = true;
+        self.trigger_capture_enabled = true;
+        self.enabled_triggers = vec![
+            constants::screen_settings::CAPTURE_TRIGGER_TIMED_CADENCE.to_string(),
+            constants::screen_settings::CAPTURE_TRIGGER_NATIVE_APP_FOREGROUND.to_string(),
+        ];
+        self.ocr_text_enabled = true;
+        self.ocr_text_snippet_limit = 8;
+        self.redaction_mode =
+            constants::screen_settings::REDACTION_MODE_LOCAL_SENSITIVE_TEXT.to_string();
+        self.ocr_text_retention_mode =
+            constants::screen_settings::OCR_TEXT_RETENTION_REDACTED_SNIPPETS.to_string();
+        self.pii_redaction_enabled = true;
+        self.policy_use_enabled = true;
+        self.reason = Some(constants::screen_settings::STRICT_REASON.to_string());
+        self
+    }
+}
+
+fn test_store_path(name: &str) -> PathBuf {
+    let mut path = std::env::temp_dir();
+    path.push(format!(
+        "{}-{}-{}.json",
+        constants::screen_settings::TEST_STORE_FILE_PREFIX,
+        name,
+        std::process::id()
+    ));
+    let _ = fs::remove_file(&path);
+    path
+}
