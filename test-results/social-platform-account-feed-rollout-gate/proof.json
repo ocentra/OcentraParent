@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-07T06:26:32.052Z",
+  "generatedAt": "2026-06-07T07:12:49.607Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -220,6 +220,7 @@
     "social-live-public-connector-boundary-proof-present",
     "social-live-evidence-decision-memory-proof-present",
     "social-alert-report-intent-proof-present",
+    "social-alert-report-local-outbox-bridge-proof-present",
     "social-alert-report-intent-ui-proof-present",
     "social-alert-report-provider-preflight-proof-present",
     "social-alert-report-provider-status-handoff-proof-present",
@@ -268,6 +269,18 @@
     },
     {
       "file": "output/browser-plan-proof/social-alert-report-provider-status-handoff-proof/01-social-alert-report-provider-status-handoff-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-local-outbox-bridge-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-local-outbox-bridge-proof/local-outbox-records.jsonl",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-local-outbox-bridge-proof/01-social-alert-report-local-outbox-bridge-proof.md",
       "present": true
     }
   ],

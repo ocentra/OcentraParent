@@ -404,6 +404,21 @@ It proves ref-only local-outbox/report linkage and rejects raw
 account/video/message content, screenshots, provider delivery, report delivery,
 parent notification UI, final policy decisions, and enforcement.
 
+The follow-up `social-alert-report-local-outbox-bridge-proof` adds
+`packages/parent-domain/src/social-alert-report-local-outbox-bridge.ts` and
+`packages/parent-domain/tests/social-alert-report-local-outbox-bridge.test.ts`,
+a parent-domain bridge from parsed social alert/report intents into the existing
+parent-owned `NotificationLocalOutboxRecord` JSONL schema. The proof writes
+`test-results/social-alert-report-local-outbox-bridge-proof/proof.json`,
+`test-results/social-alert-report-local-outbox-bridge-proof/local-outbox-records.jsonl`,
+and
+`output/browser-plan-proof/social-alert-report-local-outbox-bridge-proof/01-social-alert-report-local-outbox-bridge-proof.md`.
+It proves only local-outbox-eligible rows are queued and reread through the
+existing parser; manual-required/unavailable rows stay out of queued JSONL, and
+provider delivery, receipts, scheduler runtime, parent notification UI, report
+delivery execution, final policy execution, connector/native runtime, and
+enforcement remain unclaimed.
+
 The follow-up `social-report-writer-delivery-proof` adds
 `packages/parent-domain/src/social-report-writer-delivery-proof.ts` and
 `packages/parent-domain/tests/social-report-writer-delivery-proof.test.ts`, a

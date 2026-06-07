@@ -17,6 +17,9 @@ const requiredSupplementalProofFiles = [
   'output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md',
   'test-results/social-alert-report-provider-status-handoff-proof/proof.json',
   'output/browser-plan-proof/social-alert-report-provider-status-handoff-proof/01-social-alert-report-provider-status-handoff-proof.md',
+  'test-results/social-alert-report-local-outbox-bridge-proof/proof.json',
+  'test-results/social-alert-report-local-outbox-bridge-proof/local-outbox-records.jsonl',
+  'output/browser-plan-proof/social-alert-report-local-outbox-bridge-proof/01-social-alert-report-local-outbox-bridge-proof.md',
 ];
 
 if (!existsSync(proofRoot)) {
@@ -191,6 +194,7 @@ function manifestFor(rows, failures) {
       livePublicConnectorBoundary: 'proof-present',
       liveEvidenceDecisionMemoryBoundary: 'proof-present',
       alertReportIntent: 'proof-present',
+      alertReportLocalOutboxBridge: 'parent-owned-local-outbox-jsonl-proof-present',
       alertReportIntentUi: 'service-backed-browser-route-proof-present',
       alertReportProviderPreflight: 'provider-adapter-required-proof-present',
       alertReportProviderStatusHandoff: 'provider-status-boundary-proof-present',
@@ -248,6 +252,7 @@ function markdownFor(manifest) {
     'Live public connector boundary proof is present for SOCIAL-18 Google/YouTube, Meta, and TikTok surfaces.',
     'Live-evidence decision memory proof is present for SOCIAL-19 ref-only cache snapshots.',
     'Ref-only social alert/report intent proof is present.',
+    'Parent-owned social alert/report local outbox JSONL bridge proof is present.',
     'Service-backed social alert/report intent UI proof is present for the real Browser route.',
     'Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.',
     'Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.',

@@ -303,6 +303,15 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   and local-outbox refs while rejecting raw account/video/message content,
   screenshots, provider delivery, report delivery, parent notification UI,
   final policy decisions, and enforcement.
+- `social-alert-report-local-outbox-bridge-proof` now adds a parent-domain
+  social alert/report local outbox bridge. It consumes parsed alert/report
+  intents, writes only local-outbox-eligible rows into the existing
+  parent-owned `NotificationLocalOutboxRecord` JSONL schema, and rereads that
+  JSONL through the real parser. Manual-required and unavailable rows remain
+  visible in the bridge read model but do not produce queued records. Provider
+  delivery, receipt ingestion, scheduler runtime, parent notification UI,
+  report delivery execution, final policy execution, connector/native runtime,
+  and enforcement remain unclaimed.
 - `social-report-writer-delivery-proof` now adds a parent-owned report writer
   delivery-readiness boundary for social report intents. It proves report-ready
   rows can cite parent-owned report artifacts and receipts while keeping
@@ -393,9 +402,10 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
       a service-backed settings/custody manual-required row; final policy and
       enforcement remain unproved.
 - [ ] Alert and report integration. Alert/report intent proof exists with
-      ref-only local-outbox/report linkage plus service-backed Browser-route
-      rendering. `social-alert-report-provider-preflight-proof` now requires
-      adapter, credential, and smoke proof refs before delivery can be claimed.
+      ref-only local-outbox/report linkage, a parent-owned local outbox JSONL
+      bridge for eligible rows, plus service-backed Browser-route rendering.
+      `social-alert-report-provider-preflight-proof` now requires adapter,
+      credential, and smoke proof refs before delivery can be claimed.
       `social-alert-report-provider-status-handoff-proof` maps those rows into
       the V0.8 notification-provider boundary as manual-required/unavailable,
       without claiming delivered receipts;

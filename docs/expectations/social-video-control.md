@@ -246,6 +246,15 @@ the Rust service read model for the captured alert/report rows. It must not
 claim provider dispatch, provider receipt, parent notification UI delivery,
 report delivery, final policy execution, or enforcement from this proof.
 
+Social alert/report local outbox bridge contracts may serialize only
+local-outbox-eligible social alert/report intents into the shared
+parent-owned `NotificationLocalOutboxRecord` JSONL schema and reread those
+records through the same parser. Manual-required and unavailable rows may appear
+in the bridge read model but must not produce queued JSONL records. This bridge
+must not claim provider dispatch, provider receipt, scheduler runtime, parent
+notification UI delivery, report delivery execution, final policy execution,
+connector/native runtime, or enforcement.
+
 Social proof artifact gates may verify checklist ownership, proof folders,
 required source/security/validation/UI-marker files, README references, and
 feature/expectation coverage. They may cite rendered Playwright/screenshot

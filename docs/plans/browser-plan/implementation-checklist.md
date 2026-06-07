@@ -307,6 +307,15 @@ SOCIAL-23/SOCIAL-24 addendum: `social-alert-report-provider-preflight-proof`
 now consumes parsed social alert/report intents and turns local-outbox rows into
 provider-adapter-required preflight rows with adapter, credential, and provider
 smoke proof requirements. Evidence:
+`social-alert-report-local-outbox-bridge-proof` now links
+local-outbox-eligible social alert/report intents into the existing parent-owned
+`NotificationLocalOutboxRecord` JSONL schema, rereads the JSONL through the
+existing parser, and keeps manual-required/unavailable rows out of queued
+records. Evidence:
+`test-results/social-alert-report-local-outbox-bridge-proof/proof.json`,
+`test-results/social-alert-report-local-outbox-bridge-proof/local-outbox-records.jsonl`,
+and
+`output/browser-plan-proof/social-alert-report-local-outbox-bridge-proof/01-social-alert-report-local-outbox-bridge-proof.md`.
 `test-results/social-alert-report-provider-preflight-proof/proof.json` and
 `output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md`.
 `social-alert-report-provider-status-handoff-proof` maps those preflight rows
@@ -318,7 +327,7 @@ This advances provider-readiness/status proof without claiming provider
 dispatch, receipt ingestion, parent notification UI delivery, report delivery
 execution, final policy execution, connector/native runtime, or enforcement.
 Package subpath exports are deferred while `packages/parent-domain/package.json`
-is locked by codex-c.
+is locked by E-B.
 
 ## Worker Report Template
 
