@@ -283,8 +283,13 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
 - Browser-plan SOCIAL-24 now adds rollout/manual-required status labels for
   SOCIAL-01 through SOCIAL-23. SOCIAL rollout state: partial/manual-required.
   Product completion remains unclaimed; the rendered SOCIAL-20/SOCIAL-21/SOCIAL-22
-  proof does not upgrade connector/native runtime, runtime custody mutation,
-  final policy, enforcement, or release readiness.
+  proof does not upgrade connector/native runtime, final policy, enforcement, or
+  release readiness.
+- Browser-plan SOCIAL-23 now adds `social-source-custody-mutation-proof`, a
+  service-backed source custody mutation proof over the Rust WebSocket
+  command/event path. The mutation applies a redacted-ref custody settings
+  snapshot and keeps raw social/video custody, connector API calls, final policy
+  execution, enforcement, and product completion unclaimed.
 - Browser-plan package export closure now exposes the existing parent-domain
   social contract modules as public package subpaths and reconciles the
   browser-plan docs to stop treating package exports as the remaining blocker.
@@ -361,7 +366,9 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
 - [ ] Source permissions and custody settings.
       `social-video-source-custody-settings-proof` exists for contract-only
       source permission and custody rows over source/privacy refs; parent
-      settings UI, runtime custody settings remain.
+      settings UI remains. `social-source-custody-mutation-proof` now proves a
+      service-backed source custody mutation snapshot without raw content,
+      connector API, final policy, or enforcement claims.
 - [ ] URL/video/channel/app evidence summaries. Source/privacy summary proof can
       cite URL/channel refs and existing managed-browser refs; full app/native
       and rendered explanation proof remain.
@@ -370,8 +377,8 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
       gate/action refs without claiming runtime AI execution or final policy.
 - [ ] Parent sensitivity settings. Sensitivity settings contract proof exists
       for ref-only policy/alert candidates, and the Browser dashboard now renders
-      a service-backed settings/custody manual-required row; runtime custody
-      mutation, final policy, and enforcement remain.
+      a service-backed settings/custody manual-required row; final policy and
+      enforcement remain unproved.
 - [ ] Alert and report integration. Alert/report intent proof exists with
       ref-only local-outbox/report linkage plus service-backed Browser-route
       rendering; provider delivery, rendered notification UI delivery, report

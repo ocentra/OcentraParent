@@ -1,0 +1,66 @@
+use ocentra_parent_agent_protocol::{
+    constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
+    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
+    SocialSourceCustodyMutationSnapshot, AGENT_PROTOCOL_SCHEMA_VERSION,
+};
+
+use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
+
+#[tokio::test]
+async fn social_source_custody_mutation_command_returns_applied_service_snapshot() {
+    let body =
+        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
+    let mutation =
+        mutation_payload(&event.payload[constants::field::BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION]);
+
+    assert_eq!(
+        event.event,
+        AgentEventName::AgentBrowserSocialSourceCustodyMutationApplied
+    );
+    assert!(mutation.service_mutation_executed);
+    assert!(mutation.runtime_custody_mutation_applied);
+    assert!(!mutation.settings.runtime_custody_mutation_claimed);
+    assert!(!mutation.raw_content_custody_claimed);
+    assert!(!mutation.connector_api_called);
+    assert!(!mutation.final_policy_decision_claimed);
+    assert!(!mutation.enforcement_claimed);
+    assert!(!mutation.product_claim_ready);
+}
+
+fn command_envelope() -> AgentCommandEnvelope {
+    let mut payload = LogFields::new();
+    payload.insert(
+        constants::field::REQUESTED_AT.to_string(),
+        LogFieldValue::String(
+            constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT.to_string(),
+        ),
+    );
+    AgentCommandEnvelope {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        message_id: constants::event_id::BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION_APPLIED.to_string(),
+        sent_at: constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT.to_string(),
+        source: AgentPeer {
+            peer_id: constants::peer::PORTAL_DEV.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        target: AgentMessageTarget {
+            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            platform:
+                ocentra_parent_agent_protocol::policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS
+                    .to_string(),
+            route: AgentRoute::Localhost,
+        },
+        command: AgentCommandName::AgentBrowserSocialSourceCustodyMutationApply,
+        payload,
+    }
+}
+
+fn mutation_payload(value: &LogFieldValue) -> SocialSourceCustodyMutationSnapshot {
+    match value {
+        LogFieldValue::String(text) => {
+            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
+        }
+        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+    }
+}

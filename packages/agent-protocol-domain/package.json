@@ -65,6 +65,10 @@
       "import": "./dist/social-alert-report-read-model.js",
       "types": "./dist/social-alert-report-read-model.d.ts"
     },
+    "./social-source-custody-mutation": {
+      "import": "./dist/social-source-custody-mutation.js",
+      "types": "./dist/social-source-custody-mutation.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"

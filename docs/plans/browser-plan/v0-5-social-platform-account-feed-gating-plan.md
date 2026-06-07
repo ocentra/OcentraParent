@@ -1457,9 +1457,11 @@ worker messages before code changes. Do not mix all 24 into one PR.
   `test-results/social-platform-account-feed-proof-artifacts/proof.json` and
   `output/browser-plan-proof/social-23-tests-fixtures-playwright-manual-proof/01-social-proof-artifact-manifest.md`.
   The manifest records rendered parent dashboard, child intervention, and parent
-  explanation proof coverage while the overall rollout stays partial. No runtime
-  connector, native app control, runtime custody mutation, final policy
-  execution, enforcement, or product checklist claim is made.
+  explanation proof coverage while the overall rollout stays partial.
+  `social-source-custody-mutation-proof` now adds a Rust service WebSocket
+  command/event proof for runtime custody mutation by applying a redacted-ref
+  source custody settings snapshot. No runtime connector, native app control,
+  final policy execution, enforcement, or product checklist claim is made.
 - SOCIAL-24 now adds `scripts/test/social-platform-account-feed-rollout-gate.mjs`,
   a rollout/manual-required label gate that verifies SOCIAL-01 through SOCIAL-23
   checklist labels and required no-claim guard text. It emits
@@ -1468,9 +1470,9 @@ worker messages before code changes. Do not mix all 24 into one PR.
   SOCIAL rollout state: partial/manual-required. Product checklist upgrade is
   not claimed. Service-backed dashboard and explanation read-model delivery plus
   child-agent-served intervention rendering are present, including the
-  settings/custody dashboard row, but connector/native runtime, runtime custody
-  mutation, final policy execution, enforcement, release readiness, and product
-  completion remain unclaimed.
+  settings/custody dashboard row and runtime custody mutation proof, but
+  connector/native runtime, final policy execution, enforcement, release
+  readiness, and product completion remain unclaimed.
 - `social-alert-report-intent-proof` now adds parent-domain social alert/report
   intent contracts and focused tests for high-risk signal, account approval,
   feed/video gate, weekly summary, manual-required, and unavailable states. It
@@ -1497,6 +1499,14 @@ worker messages before code changes. Do not mix all 24 into one PR.
   stay out of policy input. The proof does not claim raw message/video custody,
   screenshots, connector tokens/API calls, runtime settings UI, runtime custody
   mutation, final policy decisions, or enforcement.
+- `social-source-custody-mutation-proof` now adds agent-protocol-domain and Rust
+  protocol/service proof for service-backed source custody mutation. The command
+  `agent.browser.social-source-custody.mutation.apply` returns
+  `agent.browser.social-source-custody.mutation.applied` with a redacted-ref
+  settings snapshot, `serviceMutationExecuted=true`, and
+  `runtimeCustodyMutationApplied=true` while preserving no raw content custody,
+  no connector API calls, no final policy decision, no enforcement, and no
+  product completion claim.
 
 ## 21. Must-Not-Claim List
 

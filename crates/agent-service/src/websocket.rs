@@ -8,6 +8,7 @@ use crate::{
     activity_api::social_alert_report_read_model_payload::build_browser_social_alert_report_read_model_report,
     activity_api::social_audit_explanation_read_model_payload::build_browser_social_audit_explanation_read_model_report,
     activity_api::social_dashboard_read_model_payload::build_browser_social_dashboard_read_model_report,
+    activity_api::social_source_custody_mutation_payload::build_browser_social_source_custody_mutation_report,
     activity_api::{
         build_activity_app_game_boundary_read_model_report,
         build_activity_app_game_notification_readiness_report,
@@ -175,6 +176,9 @@ async fn build_command_event(
         AgentCommandName::AgentLogSnapshotGet => build_log_snapshot_report(command),
         AgentCommandName::AgentDevEcho => build_dev_echo_report(command),
         AgentCommandName::AgentWatchStatusGet => build_watcher_status_report(command),
+        AgentCommandName::AgentBrowserSocialSourceCustodyMutationApply => {
+            build_browser_social_source_custody_mutation_report(command).await
+        }
         command_name if is_activity_command(&command_name) => {
             build_activity_command_report(command).await
         }
