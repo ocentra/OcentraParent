@@ -1,8 +1,9 @@
 {
   "proof": "network-manual-followup-owner-proof",
-  "checkedAt": "2026-06-07T00:00:38.337Z",
+  "checkedAt": "2026-06-07T00:05:31.228Z",
   "branch": "codex/network-manual-followup-owner-ledger-proof",
-  "commit": "92a4b5a27ddad110fc9d964b5512a4d4f9309675",
+  "sourceCommit": "29d7c300a09e5a54b8685d018c9b662b368b52d6",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
   "originMain": "75e8c57b300b7452bd41b846e8a409059df8a6df",
   "mergeBase": "75e8c57b300b7452bd41b846e8a409059df8a6df",
   "sourceStatusShort": "",
