@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
+  "proofMode": "production-support-status-backend-dead-letter-proof",
+  "rowCount": 48,
+  "targets": [
+    "support-runbook-status-dead-letter",
+    "incident-status-dead-letter",
+    "public-support-contact-status-dead-letter",
+    "support-upload-status-dead-letter",
+    "privacy-legal-status-dead-letter",
+    "account-billing-status-dead-letter"
+  ],
+  "deadLetterStates": [
+    "requested",
+    "authorized",
+    "dead-lettered",
+    "triage-ready",
+    "retry-blocked",
+    "failed",
+    "manual-required",
+    "backend-unavailable"
+  ],
+  "output": "test-results/production-support-status-backend-dead-letter-proof/proof.json",
+  "packageExport": {
+    "status": "deferred-package-json-locked-by-E-B",
+    "requiredExports": [
+      "./production-support-status-backend-dead-letter",
+      "./production-support-status-backend-dead-letter-read-model",
+      "./production-support-status-backend-dead-letter-values"
+    ]
+  },
+  "knownGaps": [
+    "Status backend dead-letter handling remains a deterministic contract proof; no durable dead-letter store or worker exists.",
+    "Dead-letter payload custody, retry worker execution, audit persistence, and backend execution remain manual-required until a real status backend worker and durable store exist.",
+    "Public runtime execution, provider execution, support upload execution, account lookup, billing provider contact, legal disclosure execution, remote support sessions, production SLA, provider-secret custody, and child activity custody remain unclaimed."
+  ]
+}
