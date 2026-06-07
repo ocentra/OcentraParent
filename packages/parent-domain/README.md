@@ -211,6 +211,14 @@ mobile readiness, and control catalogs.
   adapter implementation, child-device delivery, runtime report delivery,
   install/purchase interception, app blocking, child activity data, and
   Ocentra-hosted family data custody unclaimed.
+- App install/purchase external runtime device delivery evidence proof
+  contracts that link runtime writer execution delivery receipts and
+  child-device delivery runtime-writer envelope refs into external runtime
+  evidence-ready/manual rows while keeping external runtime writer execution/
+  delivery, parent action runtime delivery, provider/store execution, platform
+  interception/adapters, child-device delivery, runtime report delivery,
+  install/purchase interception, app blocking, child activity data, and
+  Ocentra-hosted family data custody unclaimed.
 - App install/purchase runtime report writer delivery proof contracts that link
   runtime writer execution delivery receipts and report-runtime compiler output
   rows into parent-owned report delivery-ready rows and report receipts while

@@ -117,6 +117,15 @@ delivery, app blocking, child activity data, and hosted custody remain
 unclaimed. The next gap remains real platform adapter implementation/evidence
 per platform plus provider execution, portal approval/report UI, and child
 delivery before any app-install product claim can be upgraded.
+External runtime device delivery evidence proof now links runtime writer
+execution delivery receipts with child-device delivery runtime-writer envelope
+refs into external runtime evidence-ready/manual rows while external runtime
+writer execution/delivery, parent action runtime delivery, provider/store
+execution, platform interception/adapters, child-device delivery, runtime report
+delivery, app blocking, child activity data, and hosted custody remain
+unclaimed. The next gap remains real external runtime writer device delivery,
+child delivery, provider/store execution, portal approval/report UI, and
+platform adapter proof before any app-install product claim can be upgraded.
 
 ## Multi-Device, Remote, And Platforms
 

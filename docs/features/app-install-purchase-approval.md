@@ -431,9 +431,21 @@ generic app blocking covers this concern.
 - `scripts/test/app-install-purchase-runtime-writer-execution-delivery-proof.mjs`
   records that runtime writer execution delivery proof under
   `test-results/app-install-purchase-runtime-writer-execution-delivery-proof/proof.json`
-  when run. The proof records the public package export as pending behind the
-  active `packages/parent-domain/package.json` lock and the parent-domain
-  README delta as pending behind the active README lock.
+  when run and validates the public parent-domain package export.
+- `packages/parent-domain/src/app-install-purchase-external-runtime-device-delivery-proof.ts`
+  links runtime writer execution delivery receipts and child-device delivery
+  runtime-writer envelope rows into external runtime device delivery evidence
+  rows for approve, deny, and time-box decisions while keeping review-needed
+  manual-required. It preserves no external runtime writer execution, external
+  runtime writer delivery, parent action runtime delivery, provider/store
+  execution, store integration, platform interception/adapters, child-device
+  delivery, runtime report delivery, real interception, app blocking, child
+  activity data, or Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-external-runtime-device-delivery-proof.mjs`
+  records that external runtime device delivery evidence proof under
+  `test-results/app-install-purchase-external-runtime-device-delivery-proof/proof.json`
+  when run, validates the public parent-domain package export, and records the
+  product checklist row update.
 - `packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts`
   links provider/store execution readiness rows and runtime writer execution
   delivery receipts into parent-owned provider/store execution preflight ready,
@@ -488,8 +500,8 @@ Ocentra still needs implemented platform adapters, approved provider/store API
 execution proof, production child-device package-source adapter execution
 beyond proof-backed local/manual/blocked/unavailable adapter execution rows,
 real child-device delivery for pending/result state, portal UX, runtime report
-writer/delivery, public package export for the runtime writer execution
-delivery proof, and proof for each store/platform path. The current
+writer/delivery, external runtime writer/device delivery, and proof for each
+store/platform path. The current
 parent-domain proofs attach parent-owned
 platform/report artifact refs, child package-source artifact refs, approved
 API/entitlement evidence refs, stateless report compiler status/result refs, and
@@ -511,8 +523,10 @@ store-specific report status runtime rows, and link parent review actions and
 report-runtime rows into approval/report domain
 rows, and
 convert parent-owned runtime writer delivery rows into deterministic envelope
-and delivery result receipt rows, and link those receipts to parent-owned
-runtime report writer delivery-ready rows and report receipts, expose
+and delivery result receipt rows, link those receipts and child delivery
+envelope refs into external runtime device delivery evidence rows, and link
+those receipts to parent-owned runtime report writer delivery-ready rows and
+report receipts, expose
 parent-visible report status read-model rows for ready/manual-required handoff,
 aggregate those rows into limitation summaries, and name platform manual
 evidence requirements before any platform product claim, and deny product claims
@@ -649,6 +663,13 @@ Ocentra-hosted family data custody.
       without provider/store execution, platform interception/adapters,
       child-device delivery, runtime report delivery, app blocking, child
       activity data, or hosted family data custody claims.
+- [x] External runtime device delivery evidence proof linking runtime writer
+      execution delivery receipts and child-device delivery runtime-writer
+      envelope refs into external runtime evidence-ready/manual rows without
+      external runtime writer execution/delivery, parent action runtime
+      delivery, provider/store execution, platform interception/adapters,
+      child-device delivery, runtime report delivery, app blocking, child
+      activity data, or hosted family data custody claims.
 - [x] Provider/store execution preflight proof linking provider/store execution
       readiness rows and runtime writer execution delivery receipts into
       parent-owned ready/manual/unavailable preflight rows without provider API
@@ -757,10 +778,10 @@ Ocentra-hosted family data custody.
 ## Next AI Instructions
 
 Do not fold this into generic app blocking. The next proof should add real
-portal approval/report UI, external runtime writer delivery to a device, real
-child delivery, real provider/store API execution with credentials/evidence,
-or actual platform adapters before upgrading manual-required source rows, child
-delivery, parent action, store status, capture status, adapter execution,
-report status, or product claim preclaim rows. If the OS/store does not allow
-interception, document the limitation and offer the closest safe parent
-workflow.
+portal approval/report UI, real external runtime writer delivery to a device
+beyond evidence refs, real child delivery, real provider/store API execution
+with credentials/evidence, or actual platform adapters before upgrading
+manual-required source rows, child delivery, parent action, store status,
+capture status, adapter execution, report status, or product claim preclaim
+rows. If the OS/store does not allow interception, document the limitation and
+offer the closest safe parent workflow.
