@@ -71,8 +71,13 @@ assertTrue(
 );
 assertEqual(
   paddleComparison.status,
-  'legacy-runtime-comparison-complete-current-candidate-blocked',
-  'PaddleOCR proof must show current candidate blocked while legacy fallback is measured.'
+  'current-runtime-executes-no-text',
+  'PaddleOCR proof must show current candidate executes but extracts no text from the real proof image.'
+);
+assertEqual(
+  paddleComparison.paddleOcrRuntimeAttempt?.extractedTextCount,
+  0,
+  'Current PP-OCRv5 proof must preserve the zero-text extraction result.'
 );
 assertTrue(paddleComparison.legacyFallbackComparedAgainstTesseract, 'PaddleOCR legacy fallback must be compared.');
 assertTrue(
@@ -105,10 +110,13 @@ const summary = {
     },
     {
       candidate: 'paddleocr-3.x-ppocrv5',
-      status: 'not-selected-runtime-blocked',
+      status: 'not-selected-zero-text-on-real-proof-image',
       error: paddleComparison.paddleOcrRuntimeAttempt?.error ?? null,
+      extractedTextCount: paddleComparison.paddleOcrRuntimeAttempt?.extractedTextCount ?? null,
+      initSeconds: paddleComparison.paddleOcrRuntimeAttempt?.initSeconds ?? null,
+      predictSeconds: paddleComparison.paddleOcrRuntimeAttempt?.predictSeconds ?? null,
       reason:
-        'Current PP-OCRv5 package/model cache exists but local inference fails before text extraction, so it cannot be selected.',
+        'Current PP-OCRv5 package/model cache exists and local inference runs with enable_mkldnn=false, but it extracts zero text from the retained real Vimeo proof image, so it cannot be selected.',
     },
     {
       candidate: 'paddleocr-2.x-pinned-python310',
@@ -132,7 +140,7 @@ const summary = {
     selectedRouteHasRedactionProof: true,
     selectedRouteHasPolicyReadModelProof: true,
     tesseractFallbackMeasured: true,
-    paddleCurrentCandidateBlocked: true,
+    paddleCurrentCandidateExecutesButExtractsNoText: true,
     paddleNotSelectedForProduction: true,
     noCrossPlatformOcrClaim: true,
     noProductionQualityClaim: true,

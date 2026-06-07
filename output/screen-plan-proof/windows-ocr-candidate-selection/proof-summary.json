@@ -1,6 +1,6 @@
 {
   "proof": "screen-ocr-windows-candidate-selection-proof",
-  "generatedAt": "2026-06-07T06:25:29.823Z",
+  "generatedAt": "2026-06-07T06:44:52.691Z",
   "proofTier": "P2_AGGREGATE_SELECTION_PROOF",
   "platformScope": "windows-service-ocr-only",
   "selectedCurrentRoute": {
@@ -25,9 +25,12 @@
     },
     {
       "candidate": "paddleocr-3.x-ppocrv5",
-      "status": "not-selected-runtime-blocked",
-      "error": "NotImplementedError: (Unimplemented) ConvertPirAttribute2RuntimeAttribute not support [pir::ArrayAttribute<pir::DoubleAttribute>]  (at ..\\paddle\\fluid\\framework\\new_executor\\instruction\\onednn\\onednn_instruction.cc:118)",
-      "reason": "Current PP-OCRv5 package/model cache exists but local inference fails before text extraction, so it cannot be selected."
+      "status": "not-selected-zero-text-on-real-proof-image",
+      "error": null,
+      "extractedTextCount": 0,
+      "initSeconds": 2.218,
+      "predictSeconds": 13.145,
+      "reason": "Current PP-OCRv5 package/model cache exists and local inference runs with enable_mkldnn=false, but it extracts zero text from the retained real Vimeo proof image, so it cannot be selected."
     },
     {
       "candidate": "paddleocr-2.x-pinned-python310",
@@ -37,7 +40,7 @@
         "video",
         "player"
       ],
-      "peakRssMiB": 720,
+      "peakRssMiB": 718.8,
       "reason": "Pinned PaddleOCR 2.x can extract comparable Vimeo text locally, but dependency, custody, packaging, and quality review remain before selection."
     }
   ],
@@ -54,7 +57,7 @@
     "selectedRouteHasRedactionProof": true,
     "selectedRouteHasPolicyReadModelProof": true,
     "tesseractFallbackMeasured": true,
-    "paddleCurrentCandidateBlocked": true,
+    "paddleCurrentCandidateExecutesButExtractsNoText": true,
     "paddleNotSelectedForProduction": true,
     "noCrossPlatformOcrClaim": true,
     "noProductionQualityClaim": true

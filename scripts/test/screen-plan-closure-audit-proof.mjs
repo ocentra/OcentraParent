@@ -62,7 +62,7 @@ const workpacks = [
     label: 'OCR PaddleOCR/PP-OCR evaluation',
     status: workpackStatus('35 OCR PaddleOCR/PP-OCR evaluation'),
     requiredProof: 'output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json',
-    gate: 'Current PP-OCRv5 inference remains runtime-blocked before text extraction, but an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally; no production selection or broad quality claim.',
+    gate: 'Current PP-OCRv5 inference now runs locally with oneDNN/MKLDNN disabled but extracts zero text from the real proof image; an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally; no production selection or broad quality claim.',
   },
   {
     id: '36',
@@ -131,7 +131,7 @@ const summary = {
     noProductCompleteClaim: true,
   },
   nonClaims: [
-    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/transport/session runtime, current PP-OCRv5 resolution/production OCR selection, or live VLM provider/runtime quality gates.',
+    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/transport/session runtime, current PP-OCRv5 quality resolution/production OCR selection, or live VLM provider/runtime quality gates.',
     'This audit does not replace real device/runtime proof for remaining partial rows.',
     'This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied.',
   ],

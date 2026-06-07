@@ -142,7 +142,9 @@ const summary = {
   runtimeAndQualityComparison: {
     status:
       runtimeAttempt?.status === 0
-        ? 'runtime-comparison-complete'
+        ? runtimeAttempt.extractedTextCount > 0
+          ? 'runtime-comparison-complete'
+          : 'current-runtime-executes-no-text'
         : legacyRuntimeAttempt?.status === 0
           ? 'legacy-runtime-comparison-complete-current-candidate-blocked'
           : runtimeExecutionAllowed
@@ -152,14 +154,16 @@ const summary = {
               : 'not-run',
     paddleOcrRuntimeReady: localRuntimeReady,
     tesseractRuntimeReady: tesseractInstalled,
-    comparedAgainstTesseract: runtimeAttempt?.status === 0,
+    comparedAgainstTesseract: runtimeAttempt?.status === 0 && runtimeAttempt.extractedTextCount > 0,
     legacyFallbackComparedAgainstTesseract: legacyRuntimeAttempt?.status === 0,
     tesseractMatchedTerms: tesseractTerms,
     paddleOcrRuntimeAttempt: runtimeAttempt,
     legacyPaddleOcr2xRuntimeAttempt: legacyRuntimeAttempt,
     reason: runtimeAttempt
       ? runtimeAttempt.status === 0
-        ? 'PaddleOCR completed local inference and can be compared against the Tesseract baseline.'
+        ? runtimeAttempt.extractedTextCount > 0
+          ? 'PaddleOCR completed local inference and can be compared against the Tesseract baseline.'
+          : 'PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but it extracted zero text from the retained real Vimeo screenshot; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane.'
         : 'PaddleOCR packages and models are present, but local inference fails before OCR text extraction; Tesseract remains the only runtime-proved OCR baseline in this lane.'
       : legacyRuntimeAttempt
         ? legacyRuntimeAttempt.status === 0
@@ -173,7 +177,9 @@ const summary = {
     selectedForProduction: false,
     preferredNextHost:
       runtimeAttempt?.status === 0
-        ? 'child-device-or-household-mesh-after-resource-measurement'
+        ? runtimeAttempt.extractedTextCount > 0
+          ? 'child-device-or-household-mesh-after-resource-measurement'
+          : 'not-selected-current-ppocrv5-zero-text-on-real-proof-image'
         : legacyRuntimeAttempt?.status === 0
           ? 'not-selected-current-ppocrv5-candidate-blocked'
           : 'not-selected-runtime-blocked',
@@ -222,6 +228,9 @@ ocr = PaddleOCR(
     use_doc_orientation_classify=False,
     use_doc_unwarping=False,
     use_textline_orientation=False,
+    device="cpu",
+    enable_mkldnn=False,
+    cpu_threads=2,
 )
 init_seconds = time.perf_counter() - start
 start = time.perf_counter()
@@ -255,7 +264,7 @@ print(json.dumps({
     status: result.status,
     durationMs,
     logPath: runtimeLogPath,
-    mode: 'PP-OCRv5_mobile_det + en_PP-OCRv5_mobile_rec with orientation/unwarping/textline disabled',
+    mode: 'PP-OCRv5_mobile_det + en_PP-OCRv5_mobile_rec with orientation/unwarping/textline disabled, CPU device, enable_mkldnn=false, cpu_threads=2',
     extractedTexts: parsed?.texts ?? [],
     extractedTextCount: parsed?.texts?.length ?? 0,
     initSeconds: parsed?.initSeconds ?? null,
