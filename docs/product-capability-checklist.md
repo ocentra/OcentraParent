@@ -260,6 +260,20 @@ account lookup, billing provider contact, legal disclosure execution, remote
 support sessions, production SLA, provider-secret custody, default
 Ocentra-hosted family data, or child activity custody.
 
+`production-support-status-backend-execution-continuation-proof` adds the
+execution continuation row for status-backend execution preflight,
+runtime-worker-required, durable-storage-required, payload-custody-required,
+redaction-manifest-required, manual-required, and backend-unavailable states
+across support runbook, incident, public contact, support upload,
+privacy/legal, and account/billing status targets. It does not claim real
+status backend execution, durable queue storage, retry-worker execution, audit
+persistence, dead-letter payload custody, status-backend payload custody,
+redaction-manifest execution, public runtime execution, provider execution,
+support backend upload execution, account lookup, billing provider contact,
+legal disclosure execution, remote support sessions, production SLA,
+provider-secret custody, default Ocentra-hosted family data, or child activity
+custody.
+
 ## Checklist Rules
 
 - A row must move from `planned` to `in progress` only when a branch or merged

@@ -789,6 +789,18 @@
       "import": "./dist/production-support-status-backend-durable-queue-runtime-values.js",
       "types": "./dist/production-support-status-backend-durable-queue-runtime-values.d.ts"
     },
+    "./production-support-status-backend-execution-continuation": {
+      "import": "./dist/production-support-status-backend-execution-continuation-proof.js",
+      "types": "./dist/production-support-status-backend-execution-continuation-proof.d.ts"
+    },
+    "./production-support-status-backend-execution-continuation-read-model": {
+      "import": "./dist/production-support-status-backend-execution-continuation-read-model.js",
+      "types": "./dist/production-support-status-backend-execution-continuation-read-model.d.ts"
+    },
+    "./production-support-status-backend-execution-continuation-values": {
+      "import": "./dist/production-support-status-backend-execution-continuation-values.js",
+      "types": "./dist/production-support-status-backend-execution-continuation-values.d.ts"
+    },
     "./parent-mobile-runtime": {
       "import": "./dist/parent-mobile-runtime.js",
       "types": "./dist/parent-mobile-runtime.d.ts"
