@@ -136,6 +136,14 @@ mobile readiness, and control catalogs.
   public runtime execution, support backend upload execution, account lookup,
   billing provider contact, remote support sessions, production SLA, legal
   disclosure execution, provider secrets, and child custody unclaimed.
+- `production-support-status-backend-runtime-execution-proof` contracts for
+  support runbook, incident, public support contact, support upload,
+  privacy/legal, and account/billing status backend runtime execution labels
+  with support-safe queue, retry, audit, dead-letter, runtime evidence, and
+  manual proof refs while keeping real backend execution, durable queue storage,
+  retry-worker execution, audit persistence, public runtime, provider
+  execution, production SLA, legal execution, provider-secret custody, status
+  backend payload custody, and child activity custody unclaimed.
 - Parent-owned sync/export and stateless report compiler status contracts for
   parent-authorized remote compilation from parent-owned storage, source
   connector/cursor refs, requested data classes and time windows, temp TTL and
@@ -403,6 +411,13 @@ flowchart LR
   execution, billing provider contact, legal disclosure execution, remote
   support sessions, production SLA, provider secrets, and child activity custody
   remain unclaimed.
+- `production-support-status-backend-runtime-execution-proof` remains
+  contract/status proof only; real status backend execution, durable queue
+  storage, retry-worker execution, audit persistence, dead-letter payload
+  custody, public runtime execution, provider execution, support backend upload
+  execution, account lookup, billing provider contact, legal disclosure
+  execution, remote support sessions, production SLA, provider-secret custody,
+  status backend payload custody, and child activity custody remain unclaimed.
 - Parent-owned sync/export and stateless report compiler proofs remain
   contract/status proof only; real compiler runtime/cloud worker, connector
   OAuth/provider APIs, portal controls/UI, upload/download, deletion execution,

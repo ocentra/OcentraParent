@@ -110,7 +110,7 @@ export const ProductionSupportStatusBackendRuntimeExecutionKnownGaps = [
   'Status backend runtime execution remains a deterministic contract proof; no real status backend execution is implemented.',
   'Durable queue storage, retry worker execution, audit persistence, and dead-letter payload custody remain manual-required until a real status backend worker, durable store, and audit sink exist.',
   'Public runtime execution, provider execution, support upload execution, account lookup, billing provider contact, legal disclosure execution, remote support sessions, production SLA, provider-secret custody, status backend payload custody, and child activity custody remain unclaimed.',
-  'Package exports are not added while packages/parent-domain/package.json is locked by another lane.',
+  'Package exports expose the contract, read model, and values modules; runtime execution remains manual-required until real backend workers and persistence exist.',
 ] as const;
 
 function runtimeExecutionReadiness(

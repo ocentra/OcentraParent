@@ -11,7 +11,7 @@ const outputDir = join(repoRoot, 'output', proofMode);
 const proofPath = join(resultDir, 'proof.json');
 const summaryPath = join(outputDir, 'proof-summary.json');
 const commands = [];
-const blockedPackageExports = [
+const expectedPackageExports = [
   './production-support-status-backend-runtime-execution',
   './production-support-status-backend-runtime-execution-read-model',
   './production-support-status-backend-runtime-execution-values',
@@ -36,7 +36,7 @@ async function main() {
 
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
-  const packageExport = await assertPackageExportsDeferred();
+  const packageExport = await assertPackageExports();
   const commit = 'branch-head-validated-by-harness';
   const proof = {
     schemaVersion: 1,
@@ -178,15 +178,16 @@ async function assertDocumentationProof() {
   return docs;
 }
 
-async function assertPackageExportsDeferred() {
+async function assertPackageExports() {
   const packageJson = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
-  for (const exportPath of blockedPackageExports) {
-    assert.equal(packageJson.exports[exportPath], undefined, `${exportPath} must stay deferred while locked`);
+  for (const exportPath of expectedPackageExports) {
+    assert(packageJson.exports[exportPath], `${exportPath} must be exported`);
+    assert.match(packageJson.exports[exportPath].import, /\.js$/, `${exportPath} import must point at built JS`);
+    assert.match(packageJson.exports[exportPath].types, /\.d\.ts$/, `${exportPath} types must point at declarations`);
   }
   return {
-    state: 'deferred-package-json-locked-by-E-B',
-    blockedExports: blockedPackageExports,
-    ownerConflict: 'packages/parent-domain/package.json',
+    state: 'added-package-json-exports',
+    exports: expectedPackageExports,
   };
 }
 
