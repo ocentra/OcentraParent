@@ -238,6 +238,14 @@ runtime audit store, notification delivery, connector/native runtime, final
 policy execution, and enforcement remain unclaimed until separately implemented
 and tested.
 
+Social alert/report intent read-model contracts may represent parent-visible
+local-outbox alert intent rows and manual-required report rows from bounded
+evidence, policy, dashboard, explanation, audit, and parent-action refs. The
+service-backed Browser-route proof may claim only that the real portal rendered
+the Rust service read model for the captured alert/report rows. It must not
+claim provider dispatch, provider receipt, parent notification UI delivery,
+report delivery, final policy execution, or enforcement from this proof.
+
 Social proof artifact gates may verify checklist ownership, proof folders,
 required source/security/validation/UI-marker files, README references, and
 feature/expectation coverage. They may cite rendered Playwright/screenshot

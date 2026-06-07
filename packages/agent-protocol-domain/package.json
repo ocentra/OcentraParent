@@ -61,6 +61,10 @@
       "import": "./dist/social-dashboard-read-model.js",
       "types": "./dist/social-dashboard-read-model.d.ts"
     },
+    "./social-alert-report-read-model": {
+      "import": "./dist/social-alert-report-read-model.js",
+      "types": "./dist/social-alert-report-read-model.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"

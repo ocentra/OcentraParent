@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T12:56:30.004Z",
-  "commit": "a2a40d2eaa2ec4e26d21766e5205fdde53f46fd2",
+  "checkedAt": "2026-06-07T02:26:09.106Z",
+  "commit": "57ccbd897f4be385e43d452bace7161100fdfb2e",
   "workpackIds": [
     "social-20-parent-social-dashboard-ux",
     "social-23-tests-fixtures-playwright-manual-proof"
@@ -123,7 +123,7 @@
       ],
       "values": [
         "7",
-        "2026-06-06T12:56:25.627Z",
+        "2026-06-07T02:26:00.001Z",
         "Rendered parent surface only; social runtime data fetch, notifications, connector authorization, native app control, policy execution, and enforcement remain unclaimed.",
         "Ready for parent review",
         "open-parent-approval",

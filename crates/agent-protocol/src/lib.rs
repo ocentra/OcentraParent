@@ -55,6 +55,7 @@ mod notification_provider_status_boundary;
 mod parent_assistant;
 mod parent_controller;
 mod screen_evidence;
+mod social_alert_report_read_model;
 mod social_audit_explanation_read_model;
 mod social_dashboard_read_model;
 mod tracking_read_model;
@@ -114,6 +115,7 @@ pub use notification_provider_status_boundary::*;
 pub use parent_assistant::*;
 pub use parent_controller::*;
 pub use screen_evidence::*;
+pub use social_alert_report_read_model::*;
 pub use social_audit_explanation_read_model::*;
 pub use social_dashboard_read_model::*;
 pub use tracking_read_model::*;
@@ -237,6 +239,8 @@ mod parent_controller_event_tests;
 mod policy_preview_tests;
 #[cfg(test)]
 mod screen_evidence_tests;
+#[cfg(test)]
+mod social_alert_report_read_model_tests;
 #[cfg(test)]
 mod social_audit_explanation_read_model_tests;
 #[cfg(test)]

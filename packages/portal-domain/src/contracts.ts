@@ -152,6 +152,12 @@ export {
   type SocialAuditExplanationPanelRow,
 } from './social-audit-explanation-panel';
 export {
+  createSocialAlertReportPanelIntent,
+  type SocialAlertReportPanelDetail,
+  type SocialAlertReportPanelIntent,
+  type SocialAlertReportPanelRow,
+} from './social-alert-report-panel';
+export {
   PortalRoute,
   PortalDevToolWindow,
   PortalRouteDescriptors,

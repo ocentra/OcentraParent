@@ -33,7 +33,7 @@ test('browser route renders schema-backed social audit explanations', async ({ p
 });
 
 async function assertSocialAuditExplanationRoute(page: Page): Promise<void> {
-  await page.goto('/#/browser');
+  await page.goto('/#/browser?agent.browser.social-audit-explanation.read-model.reported');
   const explanationRegion = page.getByRole('region', { name: 'Social explanations' });
   await expect(explanationRegion).toBeVisible({ timeout: portalShellReadyTimeoutMs });
   await expect(explanationRegion.getByRole('heading', { name: 'Social explanations' })).toBeVisible();

@@ -1,8 +1,8 @@
 # SOCIAL-22 Source Snapshot
 
-checkedAt=2026-06-06T07:12:13.889Z
+checkedAt=2026-06-07T02:24:57.646Z
 branch=codex/browser-child-intervention-endpoint-flow
-commit=e00dbe6d035225cc874e1174a09cc75a5c7c1923
+commit=57ccbd897f4be385e43d452bace7161100fdfb2e
 
 SOCIAL-22 renders the existing parent-domain social audit/explanation snapshot contract in the Browser route.
 The portal receives only a schema-decoded explanation proof bundle through the dedicated proof env var.

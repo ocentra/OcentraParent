@@ -402,6 +402,17 @@ It proves ref-only local-outbox/report linkage and rejects raw
 account/video/message content, screenshots, provider delivery, report delivery,
 parent notification UI, final policy decisions, and enforcement.
 
+The follow-up `social-alert-report-intent-ui-proof` adds the service-backed
+Browser-route proof for those alert/report intent rows. The real portal requests
+`agent.browser.social-alert-report.read-model.get` from the local Rust service,
+renders one local-outbox high-risk intent row and one manual-required row, and
+writes `test-results/social-alert-report-intent-ui-proof/proof.json` plus
+desktop/mobile screenshots under
+`output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/`.
+It does not claim provider dispatch/receipt, parent notification UI delivery,
+report delivery, final policy execution, connector/native runtime, or
+enforcement.
+
 The follow-up `social-parent-sensitivity-settings-proof` adds
 `packages/parent-domain/src/social-parent-sensitivity-settings-values.ts`,
 `packages/parent-domain/src/social-parent-sensitivity-settings.ts`, and

@@ -156,6 +156,7 @@ export const AgentProtocolDefaults = {
     ActivityAppGameNotificationReadinessReadModel: 'appGameNotificationReadinessReadModel',
     BrowserSocialDashboardReadModel: 'browserSocialDashboardReadModel',
     BrowserSocialAuditExplanationReadModel: 'browserSocialAuditExplanationReadModel',
+    BrowserSocialAlertReportReadModel: 'browserSocialAlertReportReadModel',
     ActivityTrackingReadModel: 'trackingReadModel',
     AdapterActionExecuted: 'adapterActionExecuted',
     BridgeEndpointRef: 'bridgeEndpointRef',

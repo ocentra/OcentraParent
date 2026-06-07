@@ -1,6 +1,6 @@
 
 Running 1 test using 1 worker
 
-  ok 1 [chromium] › e2e\social-dashboard-ui-proof.spec.ts:22:1 › browser route renders service-backed honest social dashboard rows (19.0s)
+  ok 1 [chromium] › e2e\social-dashboard-ui-proof.spec.ts:22:1 › browser route renders service-backed honest social dashboard rows (29.8s)
 
-  1 passed (20.2s)
+  1 passed (30.9s)

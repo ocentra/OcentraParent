@@ -298,6 +298,15 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   and local-outbox refs while rejecting raw account/video/message content,
   screenshots, provider delivery, report delivery, parent notification UI,
   final policy decisions, and enforcement.
+- `social-alert-report-intent-ui-proof` now renders those alert/report intent
+  rows through the real Browser-route portal and real Rust WebSocket command
+  `agent.browser.social-alert-report.read-model.get`. The proof captures
+  desktop/mobile screenshots for one local-outbox high-risk intent and one
+  manual-required row at
+  `output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/`
+  and records `test-results/social-alert-report-intent-ui-proof/proof.json`.
+  Provider dispatch/receipt, parent notification UI delivery, report delivery,
+  final policy execution, and enforcement remain unclaimed.
 - `social-parent-sensitivity-settings-proof` now adds parent-domain sensitivity
   setting contracts for high-risk alerts, feed/video review, account-flow review,
   connector data use, native-app gap review, and weekly summary sensitivity
@@ -364,8 +373,9 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
       a service-backed settings/custody manual-required row; runtime custody
       mutation, final policy, and enforcement remain.
 - [ ] Alert and report integration. Alert/report intent proof exists with
-      ref-only local-outbox/report linkage; provider delivery, rendered
-      notification UI, final policy, and enforcement remain.
+      ref-only local-outbox/report linkage plus service-backed Browser-route
+      rendering; provider delivery, rendered notification UI delivery, report
+      delivery, final policy, and enforcement remain.
 - [ ] Policy schedule/time-budget integration. Compiler contract proof now
       requires explicit schedule and time-budget refs/states; runtime policy
       execution, applied schedules/budgets, and enforcement remain.
