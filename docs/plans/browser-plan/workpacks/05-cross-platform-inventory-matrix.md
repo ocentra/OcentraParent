@@ -30,13 +30,14 @@ remains partial because macOS, Linux, Android, and iOS still require real
 platform/device artifacts before any product support upgrade.
 
 2026-06-07 codex-d continuation: `scripts/test/browser-platform-android-host-proof.mjs`
-now captures real Android emulator host evidence for WP05. The proof uses the
-attached `Pixel_9_Pro_XL_API_35` emulator through `adb`, queries only known
-public browser package ids, records Chrome package visibility and the default
-VIEW handler as redacted refs, and writes
-`test-results/browser-platform-android-host-proof/proof.json` plus
+now captures real Android emulator host evidence for WP05. The proof can start
+the configured headless Android emulator through the local SDK, queries only
+known public browser package ids, records Chrome package visibility and the
+default VIEW handler as redacted refs, captures UI-tree and logcat hashes, and
+writes `test-results/browser-platform-android-host-proof/proof.json` plus
 `output/browser-plan-proof/05-cross-platform-inventory-matrix/11-android-host-device-proof.json`.
-The matrix gate reads that artifact and reports
+The screenshot path remains explicitly unused when the headless emulator
+returns a black screencap. The matrix gate reads that artifact and reports
 `android-browser-package-visibility-proof`, but WP05 remains partial: the
 Ocentra owned browser shell is not installed, and exact URL, active-tab,
 device-owner policy, VPN/DNS browser proof, UsageStats/Accessibility route
@@ -107,7 +108,7 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured: non-Windows entries reject managed exact-URL and known-active claims; iOS remains unsupported; unsupported entries cannot keep exact URL available.
-- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package visibility is captured in `11-android-host-device-proof.json`, WSL Linux package/PATH boundary evidence is captured in `12-linux-host-package-proof.json`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
+- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility plus UI-tree/logcat hash evidence is captured in `11-android-host-device-proof.json`, WSL Linux package/PATH boundary evidence is captured in `12-linux-host-package-proof.json`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
 - [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md), including `test-results/browser-platform-inventory-matrix-proof/proof.json` and `output/browser-plan-proof/05-cross-platform-inventory-matrix/11-proof-gate-manifest.md`.
 - [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.

@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
@@ -9,6 +10,7 @@ const repoRoot = join(scriptDir, '..', '..');
 const proofRoot = join(repoRoot, 'output/browser-plan-proof/05-cross-platform-inventory-matrix');
 const testResultPath = join(repoRoot, 'test-results/browser-platform-android-host-proof/proof.json');
 const outputProofPath = join(proofRoot, '11-android-host-device-proof.json');
+const screenshotProofPath = join(proofRoot, '11-android-host-device-screenshot.png');
 const observedAt = new Date().toISOString();
 
 const targetPackages = [
@@ -22,11 +24,22 @@ const targetPackages = [
 mkdirSync(proofRoot, { recursive: true });
 
 const adb = findAdb();
+const emulator = findEmulator();
 const adbVersion = adb ? command(['version'], { allowFailure: true, adbPath: adb.path }) : null;
+const emulatorAvds = emulator ? listAvds(emulator.path) : [];
+let launchedEmulator = false;
+let launchedEmulatorSerial = null;
+
+if (adb && emulator && listDevices(adb.path).filter((device) => device.state === 'device').length === 0) {
+  launchedEmulatorSerial = await launchEmulatorIfAvailable(adb.path, emulator.path, emulatorAvds);
+  launchedEmulator = launchedEmulatorSerial !== null;
+}
+
 const devices = adb ? listDevices(adb.path) : [];
 const attachedDevices = devices.filter((device) => device.state === 'device');
 const packageVisibility = [];
 const defaultViewHandlers = [];
+const deviceSurfaceEvidence = [];
 
 for (const device of attachedDevices) {
   const bootCompleted = command(['-s', device.serial, 'shell', 'getprop', 'sys.boot_completed'], {
@@ -40,6 +53,7 @@ for (const device of attachedDevices) {
   }
 
   defaultViewHandlers.push(resolveDefaultViewHandler(adb.path, device.serial));
+  deviceSurfaceEvidence.push(captureDeviceSurfaceEvidence(adb.path, device.serial, launchedEmulator));
 }
 
 const ownedShellVisible = packageVisibility.some(
@@ -84,6 +98,11 @@ const proof = {
     adbPathPersisted: false,
     adbPathSha256: adb ? sha256(adb.path) : null,
     adbVersionSha256: adbVersion ? sha256(adbVersion) : null,
+    emulatorPathPersisted: false,
+    emulatorPathSha256: emulator ? sha256(emulator.path) : null,
+    emulatorAvdCount: emulatorAvds.length,
+    emulatorLaunchedByProof: launchedEmulator,
+    emulatorCleanupAttempted: launchedEmulator,
     attachedDeviceCount: attachedDevices.length,
     bootedDeviceCount,
     realDeviceOrEmulatorInspected: bootedDeviceCount > 0,
@@ -92,9 +111,17 @@ const proof = {
     ownedBrowserShellVisible: ownedShellVisible,
     defaultViewHandlerQueried: bootedDeviceCount > 0,
     rawInstalledPackageListPersisted: false,
-    screenshotsCaptured: false,
-    uiTreeCaptured: false,
-    logcatCaptured: false,
+    screenshotsCaptured: deviceSurfaceEvidence.some((entry) => entry.screenshotCaptured),
+    screenshotsPersisted: deviceSurfaceEvidence.some((entry) => entry.screenshotPersisted),
+    screenshotCaptureState: deviceSurfaceEvidence.some((entry) => entry.screenshotCaptured)
+      ? 'captured'
+      : launchedEmulator
+        ? 'not-used-headless-emulator-screencap-was-black'
+        : 'not-captured',
+    uiTreeCaptured: deviceSurfaceEvidence.some((entry) => entry.uiTreeCaptured),
+    uiTreeRawPersisted: false,
+    logcatCaptured: deviceSurfaceEvidence.some((entry) => entry.logcatCaptured),
+    logcatRawPersisted: false,
     exactUrlProofClaimed: false,
     knownActiveTabProofClaimed: false,
     ownedShellCustodyClaimed: false,
@@ -115,6 +142,7 @@ const proof = {
   })),
   packageVisibility,
   defaultViewHandlers,
+  deviceSurfaceEvidence,
   negativeChecks,
 };
 
@@ -129,6 +157,10 @@ console.log(`attachedDeviceCount=${attachedDevices.length}`);
 console.log(`bootedDeviceCount=${bootedDeviceCount}`);
 console.log(`resultState=${proof.hostProofSummary.resultState}`);
 
+if (adb && launchedEmulatorSerial !== null) {
+  command(['-s', launchedEmulatorSerial, 'emu', 'kill'], { adbPath: adb.path, allowFailure: true });
+}
+
 function findAdb() {
   const output = commandWhere('adb');
   const candidate = output
@@ -136,6 +168,84 @@ function findAdb() {
     .map((line) => line.trim())
     .find((line) => line.length > 0 && existsSync(line));
   return candidate ? { path: candidate } : null;
+}
+
+function findEmulator() {
+  const sdkRoot =
+    process.env.ANDROID_SDK_ROOT ??
+    process.env.ANDROID_HOME ??
+    (process.env.LOCALAPPDATA ? join(process.env.LOCALAPPDATA, 'Android', 'Sdk') : '');
+  const candidate = sdkRoot.length > 0 ? join(sdkRoot, 'emulator', 'emulator.exe') : '';
+  return candidate.length > 0 && existsSync(candidate) ? { path: candidate } : null;
+}
+
+function listAvds(emulatorPath) {
+  const output = commandExternal(emulatorPath, ['-list-avds'], { allowFailure: true });
+  return output
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+}
+
+async function launchEmulatorIfAvailable(adbPath, emulatorPath, avds) {
+  const selectedAvd = avds[0];
+  if (!selectedAvd) {
+    return null;
+  }
+
+  const child = spawn(
+    emulatorPath,
+    [
+      '-avd',
+      selectedAvd,
+      '-no-window',
+      '-no-snapshot-save',
+      '-no-audio',
+      '-no-boot-anim',
+      '-gpu',
+      'swiftshader_indirect',
+    ],
+    {
+      cwd: repoRoot,
+      detached: process.platform !== 'win32',
+      stdio: ['ignore', 'ignore', 'ignore'],
+      windowsHide: true,
+    }
+  );
+  child.unref();
+
+  const serial = await waitForReadyEmulator(adbPath);
+  await waitForBoot(adbPath, serial);
+  return serial;
+}
+
+async function waitForReadyEmulator(adbPath) {
+  const deadline = Date.now() + 8 * 60_000;
+  while (Date.now() < deadline) {
+    const ready = listDevices(adbPath).find(
+      (device) => device.state === 'device' && device.serial.startsWith('emulator-')
+    );
+    if (ready) {
+      return ready.serial;
+    }
+    await delay(2_000);
+  }
+  throw new Error('Timed out waiting for Android emulator device');
+}
+
+async function waitForBoot(adbPath, serial) {
+  const deadline = Date.now() + 8 * 60_000;
+  while (Date.now() < deadline) {
+    const bootCompleted = command(['-s', serial, 'shell', 'getprop', 'sys.boot_completed'], {
+      adbPath,
+      allowFailure: true,
+    }).trim();
+    if (bootCompleted === '1') {
+      return;
+    }
+    await delay(2_000);
+  }
+  throw new Error('Timed out waiting for Android emulator boot');
 }
 
 function listDevices(adbPath) {
@@ -149,6 +259,53 @@ function listDevices(adbPath) {
       const [serial, state] = line.split(/\s+/);
       return { serial, state: state ?? 'unknown' };
     });
+}
+
+function captureDeviceSurfaceEvidence(adbPath, serial, headlessEmulator) {
+  const serialRef = `redacted-android-device-ref-${sha256(serial).slice(0, 16)}`;
+  const screenshot = headlessEmulator
+    ? Buffer.alloc(0)
+    : commandBuffer(['-s', serial, 'exec-out', 'screencap', '-p'], {
+        adbPath,
+        allowFailure: true,
+      });
+  const uiTree = command(['-s', serial, 'exec-out', 'uiautomator', 'dump', '/dev/tty'], {
+    adbPath,
+    allowFailure: true,
+  });
+  const logcat = command(['-s', serial, 'logcat', '-d', '-t', '200'], {
+    adbPath,
+    allowFailure: true,
+  });
+
+  const screenshotCaptured = screenshot.length > 8;
+  if (screenshotCaptured) {
+    writeFileSync(screenshotProofPath, screenshot);
+  }
+
+  return {
+    serialRef,
+    screenshotCaptured,
+    screenshotPersisted: screenshotCaptured,
+    screenshotCaptureState: screenshotCaptured
+      ? 'captured'
+      : headlessEmulator
+        ? 'not-used-headless-emulator-screencap-was-black'
+        : 'not-captured',
+    screenshotPath: screenshotCaptured
+      ? 'output/browser-plan-proof/05-cross-platform-inventory-matrix/11-android-host-device-screenshot.png'
+      : null,
+    screenshotSha256: screenshotCaptured ? sha256(screenshot) : null,
+    uiTreeCaptured: uiTree.includes('<hierarchy'),
+    uiTreeRawPersisted: false,
+    uiTreeSha256: uiTree.length > 0 ? sha256(uiTree) : null,
+    logcatCaptured: logcat.length > 0,
+    logcatRawPersisted: false,
+    logcatSha256: logcat.length > 0 ? sha256(logcat) : null,
+    exactUrlProofClaimed: false,
+    pageContentCaptured: false,
+    browserSecretCaptured: false,
+  };
 }
 
 function queryPackage(adbPath, serial, target) {
@@ -209,6 +366,28 @@ function resolveDefaultViewHandler(adbPath, serial) {
 function command(args, { adbPath, allowFailure }) {
   try {
     return execFileSync(adbPath, args, { cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  } catch (error) {
+    if (allowFailure) {
+      return `${error.stdout?.toString() ?? ''}${error.stderr?.toString() ?? ''}`;
+    }
+    throw error;
+  }
+}
+
+function commandBuffer(args, { adbPath, allowFailure }) {
+  try {
+    return execFileSync(adbPath, args, { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] });
+  } catch (error) {
+    if (allowFailure) {
+      return Buffer.alloc(0);
+    }
+    throw error;
+  }
+}
+
+function commandExternal(file, args, { allowFailure }) {
+  try {
+    return execFileSync(file, args, { cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   } catch (error) {
     if (allowFailure) {
       return `${error.stdout?.toString() ?? ''}${error.stderr?.toString() ?? ''}`;
