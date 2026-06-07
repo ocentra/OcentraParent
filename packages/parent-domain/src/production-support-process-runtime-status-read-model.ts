@@ -25,11 +25,25 @@ export const ProductionSupportProcessRuntimeStatusReadModel = ProductionSupportP
       'production-support-publication-runtime-readiness-proof',
       'manual-required'
     ),
+    processStatus('incident-runtime-requested', 'production-incident-support-status-proof', 'requested'),
+    processStatus('incident-runtime-authorized', 'support-incident-workflow-proof', 'authorized'),
+    processStatus('incident-runtime-running', 'production-support-status-backend-runtime-execution-proof', 'running'),
+    processStatus(
+      'incident-runtime-evidence-ready',
+      'production-support-status-backend-runtime-execution-proof',
+      'runtime-evidence-ready'
+    ),
+    processStatus(
+      'incident-runtime-manual-required',
+      'production-support-publication-runtime-readiness-proof',
+      'manual-required'
+    ),
   ],
   nonClaims: RequiredProductionSupportProcessRuntimeStatusNonClaims,
   backendUploadExecutionState: 'manual-required',
   publicRuntimeExecutionState: 'not-implemented',
   providerExecutionState: 'not-implemented',
+  incidentRuntimeExecutionState: 'manual-required',
   productionSlaState: 'not-implemented',
   remoteSupportSessionState: 'not-implemented',
   childActivityCustodyState: 'not-implemented',
@@ -39,6 +53,7 @@ export const ProductionSupportProcessRuntimeStatusReadModel = ProductionSupportP
 
 export const ProductionSupportProcessRuntimeStatusKnownGaps = [
   'Support process runtime status rows are deterministic local proof only; public runtime execution remains unimplemented.',
+  'Incident runtime execution rows are readiness/status proof only; real incident runtime execution remains manual-required.',
   'Support backend upload execution, provider execution, remote support sessions, and production SLA remain manual-required or not implemented.',
   'No child activity evidence, raw support bundles, provider secrets, account lookup results, billing contact records, remote transcripts, or default Ocentra-hosted family data are included.',
 ] as const;
@@ -78,6 +93,19 @@ function supportSafeDataClassesFor(
   }
   if (surface === 'support-process-manual-required') {
     return ['support-case-status', 'support-runbook-status', 'manual-proof-status'];
+  }
+  if (
+    surface === 'incident-runtime-requested' ||
+    surface === 'incident-runtime-authorized' ||
+    surface === 'incident-runtime-running'
+  ) {
+    return ['support-case-status', 'incident-runtime-status', 'audit-status', 'manual-proof-status'];
+  }
+  if (surface === 'incident-runtime-evidence-ready') {
+    return ['support-case-status', 'incident-runtime-status', 'runtime-evidence-status', 'audit-status'];
+  }
+  if (surface === 'incident-runtime-manual-required') {
+    return ['support-case-status', 'incident-runtime-status', 'support-runbook-status', 'manual-proof-status'];
   }
   return ['support-case-status', 'parent-consent-status', 'privacy-legal-status', 'redaction-review-status'];
 }
