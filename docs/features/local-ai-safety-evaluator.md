@@ -74,6 +74,13 @@ claim needs proof, not slogans.
   action/read-model/deletion event authority, and rejects provider-authored
   policy/enforcement payloads plus policy decisions that do not cite the
   accepted child-agent AI result.
+- `scripts/test/local-ai-policy-enforcement-consumption-proof.mjs` now composes
+  the child-agent authority, enforcement handoff guard, and Windows
+  action-dispatch artifacts to prove enforcement consumes policy decision refs
+  rather than raw AI output or raw screen pixels. This preserves the local
+  child-agent policy boundary and still does not claim broad/browser/network/
+  mobile enforcement, production model execution, or final product-complete
+  enforcement.
 - `scripts/test/household-mesh-event-bridge-proof.mjs` now proves the selected
   event bridge boundary: local mesh events can be exported only as typed LAN
   message envelopes, incoming LAN messages must authenticate and authorize
@@ -485,6 +492,9 @@ variants.
       output, child-agent result validation, child-owned policy/action/read-model
       authority, and provider policy/enforcement rejection without claiming
       physical LAN execution, model quality, portal UI, or final enforcement.
+- [x] Policy-only enforcement consumption proof validates policy-decision refs
+      feed adapter handoff while raw AI output and raw pixels remain outside the
+      enforcement path.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub
