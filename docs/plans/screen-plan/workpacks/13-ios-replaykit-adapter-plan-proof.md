@@ -6,18 +6,24 @@ ReplayKit/broadcast mode, explicit user/session capture, and no arbitrary backgr
 
 ## Current State
 
-iOS/iPadOS should be treated as explicit session-based or not claimed.
+iOS/iPadOS is treated as explicit ReplayKit session/broadcast-extension work or
+not claimed. The current proof verifies Apple ReplayKit source-doc boundaries
+and blocks product readiness until physical-device ReplayKit execution and
+deletion proof exist.
 
 ## Checklist
 
-- [ ] Verify current Apple ReplayKit docs.
-- [ ] Define explicit session capture state.
-- [ ] Define broadcast extension state if used.
-- [ ] Define in-app-only state if used.
-- [ ] Record not-claimed state for arbitrary background capture.
+- [x] Verify current Apple ReplayKit docs.
+- [x] Define explicit session capture state.
+- [x] Define broadcast extension state if used.
+- [x] Define in-app-only state if used.
+- [x] Record not-claimed state for arbitrary background capture.
 - [ ] Prove deletion if any capture is supported.
+- [ ] Run physical-device ReplayKit capture or broadcast-extension proof before
+      claiming iOS screen capture support.
 
 ## Proof
 
-- `output/screen-plan-proof/ios/`.
-- Manual/physical iOS proof or not-claimed doc.
+- `output/screen-plan-proof/ios/proof-summary.json` records the source-doc
+  readiness and no-overclaim gate.
+- Physical iOS ReplayKit proof remains required before product readiness.

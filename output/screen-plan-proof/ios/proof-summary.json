@@ -1,0 +1,99 @@
+{
+  "proof": "screen-ios-replaykit-capability-proof",
+  "generatedAt": "2026-06-07T15:51:50.980Z",
+  "claim": "iOS screen capture remains explicit ReplayKit session or broadcast-extension work only; arbitrary silent other-app background capture is not claimed.",
+  "appleDocsVerified": [
+    {
+      "ref": "apple-developer-replaykit",
+      "url": "https://developer.apple.com/documentation/replaykit",
+      "summary": "ReplayKit records or streams screen video and app or microphone audio through ReplayKit APIs."
+    },
+    {
+      "ref": "apple-developer-rpscreenrecorder",
+      "url": "https://developer.apple.com/documentation/replaykit/rpscreenrecorder",
+      "summary": "RPScreenRecorder is an app shared recorder path for explicit start-and-stop recording or capture."
+    },
+    {
+      "ref": "apple-developer-rpbroadcastsamplehandler",
+      "url": "https://developer.apple.com/documentation/replaykit/rpbroadcastsamplehandler",
+      "summary": "RPBroadcastSampleHandler processes ReplayKit sample buffers in a broadcast upload extension."
+    }
+  ],
+  "rows": [
+    {
+      "mode": "inAppReplayKitSession",
+      "captureState": "manualRequired",
+      "proofState": "physicalDeviceMissing",
+      "requiresExplicitUserStart": true,
+      "requiresReplayKitUi": true,
+      "requiresBroadcastUploadExtension": false,
+      "arbitraryBackgroundOtherAppCaptureClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productCaptureReady": false,
+      "physicalDeviceProofRef": null,
+      "deletionProofRef": null
+    },
+    {
+      "mode": "broadcastUploadExtension",
+      "captureState": "manualRequired",
+      "proofState": "physicalDeviceMissing",
+      "requiresExplicitUserStart": true,
+      "requiresReplayKitUi": true,
+      "requiresBroadcastUploadExtension": true,
+      "arbitraryBackgroundOtherAppCaptureClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productCaptureReady": false,
+      "physicalDeviceProofRef": null,
+      "deletionProofRef": null
+    },
+    {
+      "mode": "notClaimed",
+      "captureState": "notClaimed",
+      "proofState": "sourceDocsVerified",
+      "requiresExplicitUserStart": false,
+      "requiresReplayKitUi": false,
+      "requiresBroadcastUploadExtension": false,
+      "arbitraryBackgroundOtherAppCaptureClaimed": false,
+      "rawFrameRemoteUploadAllowed": false,
+      "rawFrameRetentionDefault": false,
+      "productCaptureReady": false,
+      "physicalDeviceProofRef": null,
+      "deletionProofRef": null
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "product readiness requires physical device proof",
+      "rejected": true
+    },
+    {
+      "name": "product readiness requires deletion proof",
+      "rejected": true
+    },
+    {
+      "name": "silent arbitrary other-app background capture is not claimable",
+      "rejected": true
+    },
+    {
+      "name": "raw frame remote upload remains forbidden",
+      "rejected": true
+    }
+  ],
+  "gapStatus": {
+    "physicalIosDeviceReplayKitProofExists": false,
+    "replayKitBroadcastExtensionRuntimeProofExists": false,
+    "replayKitDeletionProofExists": false,
+    "arbitraryBackgroundOtherAppCaptureClaimed": false,
+    "productIosCaptureReady": false
+  },
+  "artifacts": {
+    "summary": "output/screen-plan-proof/ios/proof-summary.json"
+  },
+  "nonClaims": [
+    "This proof does not claim iOS arbitrary other-app background capture.",
+    "This proof does not claim physical iOS ReplayKit execution, live iOS pixels, or iOS deletion proof.",
+    "This proof keeps raw frame remote upload and raw-retention-by-default disabled."
+  ]
+}

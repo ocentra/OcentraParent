@@ -446,6 +446,12 @@ only with explicit parent settings.
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
   claimed.
+- `scripts/test/screen-ios-replaykit-capability-proof.mjs` now records the iOS
+  ReplayKit source-doc/no-overclaim gate at
+  `output/screen-plan-proof/ios/proof-summary.json`. It treats iOS capture as
+  explicit in-app ReplayKit session or broadcast-upload-extension work only,
+  rejects arbitrary silent background capture of other apps, and blocks product
+  readiness until physical-device ReplayKit execution and deletion proof exist.
 - The screen-AI browser trigger proof validates managed-browser URL,
   browser-video, social-feed, and cloud-game trigger rows through
   activity-domain browser AI and screen-analysis schemas, then proves local-AI
@@ -778,7 +784,8 @@ timed cadence
 loop and native active-window foreground watcher capture/queue event producer
 startup wiring for remaining live producers beyond the service capture/deletion,
 retention sweeper deletion-event, and analysis row-ready handoffs, physical
-Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
+Android parity, physical iOS ReplayKit execution/deletion proof, live macOS
+capture proof, Linux root/Wayland portal proof,
 browser-trigger artifact closure,
 browser/network/mobile/broad block action adapters from screen-derived
 decisions, physical household mesh discovery/runtime proof beyond the loopback

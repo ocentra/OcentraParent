@@ -20,4 +20,5 @@ export * from './screen-optional-visibility-capability-proof';
 export * from './screen-live-view-platform-permission';
 export * from './screen-live-view-service-session';
 export * from './screen-live-view-parent-ui-persistence';
+export * from './screen-ios-replaykit-capability-proof';
 export * from './screen-managed-browser-cdp-capture';
