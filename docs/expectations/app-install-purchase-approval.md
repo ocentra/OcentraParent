@@ -254,6 +254,16 @@ Expected contract families:
   adapter implementation, child-device delivery, runtime report delivery, real
   interception, app blocking, child activity data custody, or Ocentra-hosted
   family data custody.
+- External runtime writer delivery blocker proof rows consume delivery boundary
+  rows and record blocked-runtime-prerequisites-missing or manual-required
+  states with missing external writer transport, platform adapter execution,
+  provider/store execution, and child-device transport blockers before any
+  delivery attempt starts. They must not claim external runtime writer
+  execution, external runtime writer delivery, parent action runtime delivery,
+  provider API execution, store integration, platform interception, platform
+  adapter implementation, child-device delivery, runtime report delivery, real
+  interception, app blocking, child activity data custody, or Ocentra-hosted
+  family data custody.
 - Provider/store execution preflight proof rows link provider/store execution
   readiness rows and runtime writer execution delivery receipts into
   parent-owned execution-ready, manual-required, and unavailable preflight states
@@ -715,6 +725,12 @@ Expected contract families:
   report delivery, real interception, app blocking, child activity custody, or
   Ocentra-hosted family data custody.
 - Do not treat external runtime writer delivery boundary proof refs as external
+  runtime writer execution, external runtime writer delivery, parent action
+  runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat external runtime writer delivery blocker proof refs as external
   runtime writer execution, external runtime writer delivery, parent action
   runtime delivery, provider API execution, store integration, platform
   interception, platform adapter implementation, child-device delivery, runtime
