@@ -23,6 +23,18 @@ describe('screen summary panel intent', () => {
       value: 'screen-policy-decision-ref',
     });
     expect(intent.rows[0]?.details).toContainEqual({
+      label: 'Decision action',
+      value: 'allow',
+    });
+    expect(intent.rows[0]?.details).toContainEqual({
+      label: 'Reason',
+      value: 'local-ai-screen-summary | stricter-parent-rule-checked',
+    });
+    expect(intent.rows[0]?.details).toContainEqual({
+      label: 'Local AI result',
+      value: 'screen-parent-explanation-ref',
+    });
+    expect(intent.rows[0]?.details).toContainEqual({
       label: 'Enforcement handoff',
       value: 'Not claimed',
     });
@@ -81,9 +93,11 @@ function screenReadModel() {
         custodyState: 'deletedLocal',
         evidence: [{ evidenceId: 'screen-summary-ref' }, { evidenceId: 'screen-audit-ref' }],
         policyDecisionRef: 'screen-policy-decision-ref',
+        policyAction: 'allow',
         policyReasonCodes: ['screen-school-allow'],
         parentRuleRefs: ['screen-parent-rule-ref'],
         parentExplanationRefs: ['screen-parent-explanation-ref'],
+        explanationReasons: ['local-ai-screen-summary', 'stricter-parent-rule-checked'],
         ocrTextSnippets: ['Homework research page [redacted]'],
         redactionNotes: ['credentialLikeTextRedacted', 'piiLikeTextRedacted'],
       },

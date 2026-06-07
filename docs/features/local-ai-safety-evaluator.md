@@ -284,6 +284,12 @@ claim needs proof, not slogans.
   dry-run policy refs, local runtime refs, custody labels, and deleted-image
   reasons while still not claiming raw image display, remote/API AI, production
   portal runtime rendering, policy authority, or enforcement.
+- `packages/portal-domain/src/screen-summary-panel.ts` now renders the
+  service-backed Screen Analysis row as a parent decision explanation surface:
+  local AI evidence refs, dry-run policy decision refs, policy action, policy
+  reason codes, parent rule refs, parent explanation refs, explanation reasons,
+  OCR redaction snippets, and deleted-image custody remain visible while
+  enforcement handoff stays `not-claimed`.
 - `scripts/test/screen-summary-parent-explanation-service-read-model-proof.mjs`
   now starts the real Rust service against a seeded local ActivityStore and
   requests the Activity Screen read model over WebSocket. The service-backed row

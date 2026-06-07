@@ -31,9 +31,11 @@ type ScreenReadModelRow = {
   readonly custodyState: string;
   readonly evidence: readonly { readonly evidenceId: string }[];
   readonly policyDecisionRef?: string | null;
+  readonly policyAction?: string | null;
   readonly policyReasonCodes?: readonly string[];
   readonly parentRuleRefs?: readonly string[];
   readonly parentExplanationRefs?: readonly string[];
+  readonly explanationReasons?: readonly string[];
   readonly ocrTextSnippets?: readonly string[];
   readonly redactionNotes?: readonly string[];
 };
@@ -159,10 +161,15 @@ function screenSummaryRow(row: ScreenReadModelRow, productClaim: DisplayText): S
         PortalDetails.PolicyPreview,
         displayText(row.policyDecisionRef ?? String(resolvePortalDevText(PortalDevTextToken.NotReported)))
       ),
+      detail(
+        PortalDetails.DecisionAction,
+        displayText(row.policyAction ?? String(resolvePortalDevText(PortalDevTextToken.NotReported)))
+      ),
       detail(PortalDetails.EnforcementHandoff, readableValue('not-claimed')),
       detail(PortalDetails.EvidenceReferences, evidenceReferences(row)),
       detail(PortalDetails.ReasonCodes, referenceList(row.policyReasonCodes ?? [])),
       detail(PortalDetails.ParentRuleContextReferences, referenceList(row.parentRuleRefs ?? [])),
+      detail(PortalDetails.Reason, referenceList(row.explanationReasons ?? [])),
       detail(PortalDetails.OcrSnippets, referenceList(row.ocrTextSnippets ?? [])),
       detail(PortalDetails.RedactionNotes, referenceList(row.redactionNotes ?? [])),
       detail(PortalDetails.LocalAiResult, referenceList(row.parentExplanationRefs ?? [])),
@@ -247,9 +254,11 @@ function screenReadModelRowFromUnknown(value: unknown): ScreenReadModelRow | nul
     custodyState: textValue(value['custodyState']),
     evidence: evidence.filter((reference): reference is { readonly evidenceId: string } => reference !== null),
     policyDecisionRef: nullableTextValue(value['policyDecisionRef']),
+    policyAction: nullableTextValue(value['policyAction']),
     policyReasonCodes: textListValue(value['policyReasonCodes']),
     parentRuleRefs: textListValue(value['parentRuleRefs']),
     parentExplanationRefs: textListValue(value['parentExplanationRefs']),
+    explanationReasons: textListValue(value['explanationReasons']),
     ocrTextSnippets: textListValue(value['ocrTextSnippets']),
     redactionNotes: textListValue(value['redactionNotes']),
   };

@@ -220,7 +220,10 @@ consumes the same results.
       remains follow-up UI work.
 - [x] AI jobs/activity surface renders existing local runtime status and LAN AI
       job events on the `#/ai-runtime` portal route.
-- [ ] AI decision explanation surface.
+- [x] AI decision explanation surface renders service-backed Screen Analysis
+      rows with local AI evidence refs, dry-run policy decision/action/reason
+      refs, parent rule refs, parent explanation refs, explanation reasons,
+      redacted OCR snippets, deleted-image custody, and no enforcement claim.
 - [x] Memory/graph evidence surface renders source-cited service-backed
       activity-memory graph rows on the `#/ai-runtime` portal route without
       production graph storage/index runtime, model-quality, policy-authority,
