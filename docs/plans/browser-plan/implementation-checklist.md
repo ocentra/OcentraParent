@@ -283,6 +283,24 @@ provider delivery, child delivery, report delivery execution, final policy
 execution, connector/native runtime, enforcement, product checklist upgrade, or
 product completion.
 
+SOCIAL-23/SOCIAL-24 preference status handoff addendum:
+`social-alert-report-preference-status-handoff-proof` adds
+`packages/parent-domain/src/social-alert-report-preference-status-handoff.ts`,
+`packages/parent-domain/tests/social-alert-report-preference-status-handoff.test.ts`,
+`scripts/test/social-alert-report-preference-status-handoff-proof.mjs`,
+`test-results/social-alert-report-preference-status-handoff-proof/proof.json`,
+`test-results/social-alert-report-preference-status-handoff-proof/preference-status-handoff-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-preference-status-handoff-proof/01-social-alert-report-preference-status-handoff-proof.md`.
+The proof maps social preference preflight rows into the existing V3
+notification rule/provider/retry preference and quiet-hours status boundary.
+Scheduled/manual-required rows stay manual-required, unavailable rows stay
+disabled/not-sent, and provider receipt refs stay empty. It does not claim
+parent notification preference UI, notification history UI, parent notification
+UI, quiet-hours timer runtime, provider delivery, child delivery, report
+delivery execution, final policy execution, connector/native runtime,
+enforcement, product checklist upgrade, or product completion.
+
 ## Browser Games Cloud Gaming Checklist
 
 Source:

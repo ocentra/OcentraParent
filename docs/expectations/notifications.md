@@ -200,6 +200,18 @@ child delivery, production retry workers, production quiet-hours timers, durable
 production outbox storage, adapter dispatch, broad blocking, or platform
 support.
 
+`scripts/test/social-alert-report-preference-status-handoff-proof.mjs` validates
+a parent-domain social alert/report preference-status handoff proof that maps
+social preference preflight rows into V3 notification preference and quiet-hours
+status entries for manual-required and disabled/unavailable states. It preserves
+scheduler, outbox, provider-channel, reason, parent preference, quiet-hours,
+scheduler-decision, and manual proof refs. This is a handoff boundary proof
+only: it does not claim parent notification preference UI, notification history
+UI, frequency controls, parent notification UI, provider delivery, receipt
+ingestion, credentials, cloud routing, child delivery, production retry workers,
+production quiet-hours timers, durable production outbox storage, adapter
+dispatch, report delivery execution, broad blocking, or platform support.
+
 `scripts/test/app-game-notification-parent-surface-intent-proof.mjs` validates a
 parent-domain app/game parent-surface intent proof that combines provider-status
 and preference-status handoff rows into redacted future history/preference

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-07T08:38:07.439Z",
+  "generatedAt": "2026-06-07T09:00:34.498Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -425,6 +425,7 @@
     "alertReportParentSurfaceIntent": "manual-unavailable-parent-surface-intent-proof-present",
     "alertReportSchedulerBridge": "parent-owned-scheduler-jsonl-proof-present",
     "alertReportPreferencePreflight": "parent-preference-quiet-hours-proof-present",
+    "alertReportPreferenceStatusHandoff": "notification-preference-status-handoff-proof-present",
     "alertReportAuditHistoryBridge": "logging-domain-audit-history-handoff-proof-present",
     "alertReportIntentUi": "service-backed-browser-route-proof-present",
     "alertReportProviderPreflight": "provider-adapter-required-proof-present",
@@ -518,6 +519,18 @@
     },
     {
       "file": "output/browser-plan-proof/social-alert-report-preference-preflight-proof/01-social-alert-report-preference-preflight-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-preference-status-handoff-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-preference-status-handoff-proof/preference-status-handoff-read-model.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-preference-status-handoff-proof/01-social-alert-report-preference-status-handoff-proof.md",
       "present": true
     },
     {

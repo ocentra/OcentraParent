@@ -337,6 +337,15 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   notification preference UI, notification history UI, quiet-hours timer
   execution, provider delivery, child delivery, report delivery execution,
   final policy execution, connector/native runtime, or enforcement.
+- `social-alert-report-preference-status-handoff-proof` now maps those social
+  alert/report preference-preflight rows into the existing V3 notification
+  rule/provider/retry preference and quiet-hours status entries. Scheduled and
+  manual-required rows remain manual-required, unavailable rows remain
+  disabled/not-sent, and provider delivery/receipt refs stay empty. It does not
+  claim parent notification preference UI, notification history UI, parent
+  notification UI, quiet-hours timer runtime, provider delivery, child
+  delivery, report delivery execution, final policy execution,
+  connector/native runtime, or enforcement.
 - `social-alert-report-audit-history-bridge-proof` now maps social alert/report
   local outbox rows into the existing logging-domain notification audit-history
   handoff. Linked rows become queued audit-history entries, and
@@ -437,9 +446,10 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
 - [ ] Alert and report integration. Alert/report intent proof exists with
       ref-only local-outbox/report linkage, a parent-owned local outbox JSONL
       bridge for eligible rows, a parent-owned scheduler JSONL bridge,
-      parent preference/quiet-hours preflight rows, logging-domain
-      audit-history handoff rows, parent-surface manual/unavailable intent
-      rows, plus service-backed Browser-route rendering.
+      parent preference/quiet-hours preflight rows, V3 notification
+      preference-status handoff rows, logging-domain audit-history handoff
+      rows, parent-surface manual/unavailable intent rows, plus service-backed
+      Browser-route rendering.
       `social-alert-report-provider-preflight-proof` now requires adapter,
       credential, and smoke proof refs before delivery can be claimed.
       `social-alert-report-provider-status-handoff-proof` maps those rows into

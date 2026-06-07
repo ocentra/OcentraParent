@@ -451,6 +451,24 @@ UI, notification history UI, quiet-hours timer execution, provider delivery,
 child delivery, report delivery execution, final policy execution,
 connector/native runtime, and enforcement remain unclaimed.
 
+The follow-up `social-alert-report-preference-status-handoff-proof` adds
+`packages/parent-domain/src/social-alert-report-preference-status-handoff.ts`
+and
+`packages/parent-domain/tests/social-alert-report-preference-status-handoff.test.ts`,
+a parent-domain boundary from social alert/report preference-preflight rows into
+the existing V3 notification preference and quiet-hours status entries. The
+proof writes
+`test-results/social-alert-report-preference-status-handoff-proof/proof.json`,
+`test-results/social-alert-report-preference-status-handoff-proof/preference-status-handoff-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-preference-status-handoff-proof/01-social-alert-report-preference-status-handoff-proof.md`.
+It proves scheduled/manual-required rows remain manual-required, unavailable
+rows remain disabled/not-sent, and provider receipt refs stay empty. Parent
+notification preference UI, notification history UI, parent notification UI,
+quiet-hours timer runtime, provider delivery, child delivery, report delivery
+execution, final policy execution, connector/native runtime, and enforcement
+remain unclaimed.
+
 The follow-up `social-alert-report-audit-history-bridge-proof` adds
 `scripts/test/social-alert-report-audit-history-bridge-proof.mjs`, a proof that
 maps social alert/report local outbox rows into the existing logging-domain

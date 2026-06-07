@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-07T08:38:07.402Z",
+  "generatedAt": "2026-06-07T09:00:34.538Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -224,6 +224,7 @@
     "social-alert-report-parent-surface-intent-proof-present",
     "social-alert-report-scheduler-bridge-proof-present",
     "social-alert-report-preference-preflight-proof-present",
+    "social-alert-report-preference-status-handoff-proof-present",
     "social-alert-report-audit-history-bridge-proof-present",
     "social-alert-report-intent-ui-proof-present",
     "social-alert-report-provider-preflight-proof-present",
@@ -317,6 +318,18 @@
     },
     {
       "file": "output/browser-plan-proof/social-alert-report-preference-preflight-proof/01-social-alert-report-preference-preflight-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-preference-status-handoff-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-preference-status-handoff-proof/preference-status-handoff-read-model.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-preference-status-handoff-proof/01-social-alert-report-preference-status-handoff-proof.md",
       "present": true
     },
     {

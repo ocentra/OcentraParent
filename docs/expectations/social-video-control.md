@@ -289,6 +289,16 @@ timer execution, provider delivery, child delivery, report delivery execution,
 final policy execution, connector/native runtime, enforcement, or product
 completion.
 
+Social alert/report preference-status handoff rows may project those preference
+preflight rows into the existing V3 notification rule/provider/retry preference
+and quiet-hours status entries. Scheduled and manual-required rows must remain
+manual-required until parent preference and quiet-hours proof exists;
+unavailable rows must remain disabled/not-sent. The handoff must not claim
+parent notification preference UI, notification history UI, parent notification
+UI, quiet-hours timer execution, provider delivery, child delivery, report
+delivery execution, final policy execution, connector/native runtime,
+enforcement, or product completion.
+
 Social alert/report audit-history bridge rows may map social local outbox rows
 into the existing logging-domain notification audit-history handoff. Linked
 rows may become queued audit-history entries; manual-required and unavailable
