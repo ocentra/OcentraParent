@@ -61,6 +61,11 @@ service shell.
   correlation id, receipt refs, local receipt-ack refs, replay refs,
   delete/export readiness refs, and support-status refs without claiming live
   remote acknowledgement implementation or product-ready remote delivery.
+- Network remote outbox handoff proof that builds prepared local outbox
+  candidates from durable envelope records while preserving sequence, event id,
+  event type, correlation id, durable refs, receipt refs, and local receipt-ack
+  refs and rejecting duplicate durable envelopes without dispatching transport
+  or claiming remote acknowledgements.
 
 ## Must Not Own
 
@@ -119,3 +124,7 @@ flowchart LR
   broker/family-hub transport, remote provider acknowledgements, child-device
   acknowledgements, cross-process transport, remote delete/export propagation,
   delivery retries, and product-ready remote delivery remain separate gaps.
+- Network remote outbox handoff is local prepared-state proof only; live
+  broker/family-hub dispatch, remote acknowledgements, provider/child-device
+  delivery, retry execution, remote delete/export propagation, and product-ready
+  remote delivery remain separate gaps.

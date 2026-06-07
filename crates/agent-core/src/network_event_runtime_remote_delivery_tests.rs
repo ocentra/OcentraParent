@@ -5,10 +5,13 @@ use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::{
     prove_network_runtime_remote_delivery_durable_envelope,
+    prove_network_runtime_remote_delivery_outbox_handoff,
     prove_network_runtime_remote_delivery_receipt_ledger,
     prove_network_runtime_remote_delivery_status, prove_network_runtime_remote_event_chain_journal,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
+    NetworkRuntimeRemoteDeliveryOutboxHandoffError,
+    NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryOutboxState,
     NetworkRuntimeRemoteDeliveryReceiptLedgerError,
     NetworkRuntimeRemoteDeliveryReceiptLedgerReport, NetworkRuntimeRemoteDeliveryState,
     NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
@@ -398,6 +401,139 @@ async fn network_runtime_remote_delivery_durable_envelope_rejects_delivery_actio
         .await
         .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DURABLE_ENVELOPE);
 
+    assert!(!report.broker_delivery_implemented);
+    assert!(!report.family_hub_delivery_implemented);
+    assert!(!report.remote_delivery_ack_implemented);
+    assert!(!report.provider_delivery_implemented);
+    assert!(!report.child_device_delivery_implemented);
+    assert!(!report.remote_delete_export_propagation_implemented);
+    assert!(!report.product_ready_remote_delivery);
+    assert!(!report.policy_authority);
+    assert!(!report.side_effect_authority);
+    assert_eq!(report.enforcement_command_event_count, 0);
+    assert_eq!(report.adapter_action_executed_count, 0);
+    assert_eq!(report.raw_pcap_available_count, 0);
+    assert_eq!(report.exact_url_available_count, 0);
+    assert_eq!(report.decrypted_payload_available_count, 0);
+    assert_eq!(report.page_content_available_count, 0);
+    assert_eq!(report.video_content_available_count, 0);
+    assert_eq!(report.private_message_content_available_count, 0);
+    assert_eq!(report.search_query_available_count, 0);
+}
+
+#[tokio::test]
+async fn network_runtime_remote_delivery_outbox_handoff_preserves_durable_refs_without_dispatch() {
+    let proof_result: Result<
+        NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
+        NetworkRuntimeRemoteDeliveryOutboxHandoffError,
+    > = prove_network_runtime_remote_delivery_outbox_handoff().await;
+    let report =
+        proof_result.expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF);
+
+    assert_outbox_handoff_refs(&report);
+    assert_outbox_handoff_counts(&report);
+    assert_outbox_handoff_candidates(&report);
+}
+
+fn assert_outbox_handoff_refs(report: &NetworkRuntimeRemoteDeliveryOutboxHandoffReport) {
+    assert_eq!(
+        report.durable_envelope_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_ENVELOPE_REF
+    );
+    assert_eq!(
+        report.durable_store_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_STORE_REF
+    );
+    assert_eq!(
+        report.outbox_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_REF
+    );
+    assert_eq!(
+        report.handoff_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF
+    );
+    assert_eq!(
+        report.outbox_replay_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_REPLAY_REF
+    );
+    assert_eq!(
+        report.outbox_support_status_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_SUPPORT_STATUS_REF
+    );
+    assert_eq!(
+        report.durable_envelope.durable_envelope_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_ENVELOPE_REF
+    );
+}
+
+fn assert_outbox_handoff_counts(report: &NetworkRuntimeRemoteDeliveryOutboxHandoffReport) {
+    assert_eq!(
+        report.source_durable_envelope_count,
+        report.outbox_candidate_count
+    );
+    assert_eq!(
+        report.source_receipt_record_count,
+        report.outbox_candidate_count
+    );
+    assert_eq!(
+        report.prepared_not_dispatched_count,
+        report.outbox_candidate_count
+    );
+    assert_eq!(report.dispatch_attempt_count, 0);
+    assert_eq!(report.remote_ack_count, 0);
+    assert!(report.duplicate_durable_envelope_rejected);
+    assert!(report.outbox_candidates_match_durable_envelopes);
+    assert!(report.outbox_candidates_match_receipts);
+    assert_eq!(report.sequence_gap_count, 0);
+    assert_eq!(report.event_id_mismatch_count, 0);
+    assert_eq!(report.event_type_mismatch_count, 0);
+    assert_eq!(report.correlation_mismatch_count, 0);
+    assert_eq!(report.unique_event_id_count, report.outbox_candidate_count);
+    assert_eq!(report.unique_correlation_id_count, 1);
+}
+
+fn assert_outbox_handoff_candidates(report: &NetworkRuntimeRemoteDeliveryOutboxHandoffReport) {
+    for candidate in &report.candidates {
+        assert_eq!(
+            candidate.state,
+            NetworkRuntimeRemoteDeliveryOutboxState::PreparedNotDispatched
+        );
+        assert_eq!(
+            candidate.durable_envelope_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_ENVELOPE_REF
+        );
+        assert_eq!(
+            candidate.durable_store_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_STORE_REF
+        );
+        assert_eq!(
+            candidate.receipt_ledger_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_LEDGER_REF
+        );
+        assert_eq!(
+            candidate.local_receipt_ack_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF
+        );
+        assert_eq!(
+            candidate.outbox_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_REF
+        );
+        assert_eq!(
+            candidate.handoff_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF
+        );
+    }
+}
+
+#[tokio::test]
+async fn network_runtime_remote_delivery_outbox_handoff_rejects_dispatch_ack_action_and_content_claims(
+) {
+    let report = prove_network_runtime_remote_delivery_outbox_handoff()
+        .await
+        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF);
+
+    assert_eq!(report.dispatch_attempt_count, 0);
+    assert_eq!(report.remote_ack_count, 0);
     assert!(!report.broker_delivery_implemented);
     assert!(!report.family_hub_delivery_implemented);
     assert!(!report.remote_delivery_ack_implemented);

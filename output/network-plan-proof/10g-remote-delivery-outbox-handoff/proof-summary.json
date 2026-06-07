@@ -1,0 +1,86 @@
+{
+  "proof": "network-remote-delivery-outbox-handoff-proof",
+  "proofRevision": "network-remote-delivery-outbox-handoff-proof/v1",
+  "checkedAt": "deterministic:network-remote-delivery-outbox-handoff-proof/v1",
+  "sourceFingerprint": "source-tree:611191becad3b62f1519fbeff877b828359eb4ba49b2d99956e7060446d1c2b8",
+  "sourceRefs": [
+    "scripts/test/network-remote-delivery-outbox-handoff-proof.mjs",
+    "crates/agent-protocol/src/constants/network_flow.rs",
+    "crates/agent-core/src/network_event_runtime.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_durable_envelope.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_durable_envelope_types.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff_types.rs",
+    "crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs",
+    "crates/agent-core/README.md",
+    "docs/features/network-domain-control.md",
+    "docs/plans/network-plan/implementation-checklist.md",
+    "docs/plans/network-plan/workpacks/README.md"
+  ],
+  "mergeBase": "3ae5f3aebbd71208936257b93bd5111e638c87ed",
+  "proofRoot": "output\\network-plan-proof\\10g-remote-delivery-outbox-handoff",
+  "testRoot": "test-results\\network-remote-delivery-outbox-handoff-proof",
+  "commands": [
+    {
+      "name": "agent-core-remote-delivery-outbox-handoff-test",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime_remote_delivery_outbox_handoff",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10g-remote-delivery-outbox-handoff\\agent-core-remote-delivery-outbox-handoff-test.log"
+    },
+    {
+      "name": "agent-core-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10g-remote-delivery-outbox-handoff\\agent-core-clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10g-remote-delivery-outbox-handoff\\source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10g-remote-delivery-outbox-handoff\\git-diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "expectedRemoteDeliveryOutboxHandoffStatus": "output\\network-plan-proof\\10g-remote-delivery-outbox-handoff\\expected-remote-delivery-outbox-handoff-status.json",
+    "securityNegativeLog": "output\\network-plan-proof\\10g-remote-delivery-outbox-handoff\\09-security-negative-proof.log",
+    "validationCommands": "output\\network-plan-proof\\10g-remote-delivery-outbox-handoff\\12-validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\10g-remote-delivery-outbox-handoff\\proof-summary.json",
+    "testProof": "test-results\\network-remote-delivery-outbox-handoff-proof\\proof.json"
+  },
+  "coveredRows": [
+    "network-plan supplemental row 10g remote delivery outbox/handoff readiness status",
+    "network-plan supplemental row 10f remote delivery status bridge",
+    "network-plan supplemental row 10e remote delivery durable envelope/store status",
+    "network-plan supplemental row 10d remote delivery receipt ledger/local ack status"
+  ],
+  "provenBoundaries": [
+    "agent-core builds ordered outbox handoff candidates from row10e durable envelope records without regenerating durable, receipt, or local-ack refs",
+    "outbox candidates preserve durable envelope sequence, event id, event type, correlation id, durable-envelope refs, durable-store refs, receipt-ledger refs, and local receipt-ack refs",
+    "duplicate durable envelope candidates are rejected before outbox preparation",
+    "row10g refs mark outbox, handoff, replay, and support-status boundaries that future broker/family-hub delivery can consume",
+    "the proof keeps dispatch attempts, remote acknowledgements, broker delivery, family-hub relay delivery, provider delivery, child-device delivery, remote delete/export propagation, product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement commands, and host filtering false",
+    "the proof keeps raw PCAP, exact URL, decrypted payload, page content, video content, private-message content, and search-query content unavailable from network-only outbox records"
+  ],
+  "notClaimed": [
+    "live broker delivery",
+    "live family-hub relay delivery",
+    "transport dispatch attempt",
+    "remote acknowledgement",
+    "remote provider delivery",
+    "child-device delivery",
+    "remote delete/export propagation implementation",
+    "product-ready remote delivery",
+    "cross-process transport implementation",
+    "policy authority",
+    "side-effect authority",
+    "adapter execution",
+    "host filtering",
+    "full network-plan completion"
+  ]
+}

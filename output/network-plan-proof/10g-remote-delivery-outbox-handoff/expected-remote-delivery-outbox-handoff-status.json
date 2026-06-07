@@ -1,0 +1,54 @@
+{
+  "acceptedInputs": [
+    "row10e durable envelope records",
+    "row10e durable store refs",
+    "row10d receipt ledger and local receipt acknowledgement refs",
+    "row10f read-only remote delivery status bridge remains available for consumers"
+  ],
+  "outboxHandoffRefs": [
+    "network.remote-delivery.outbox.10g",
+    "network.remote-delivery.outbox-handoff.10g",
+    "network.remote-delivery.outbox-replay.10g",
+    "network.remote-delivery.outbox-support-status.10g"
+  ],
+  "renderedStates": [
+    "outboxCandidatesMatchDurableEnvelopes=true",
+    "outboxCandidatesMatchReceipts=true",
+    "outboxCandidateCount equals sourceDurableEnvelopeCount",
+    "preparedNotDispatchedCount equals outboxCandidateCount",
+    "dispatchAttemptCount=0",
+    "remoteAckCount=0",
+    "duplicateDurableEnvelopeRejected=true",
+    "remoteDeleteExportPropagationImplemented=false",
+    "productReadyRemoteDelivery=false"
+  ],
+  "parserInvariants": [
+    "outbox refs must all cite row10g",
+    "outbox candidates must preserve durable envelope sequence, event id, event type, correlation id, durable-envelope refs, durable-store refs, receipt-ledger refs, and local receipt-ack refs",
+    "duplicate durable envelope candidates must be rejected before outbox preparation",
+    "outbox handoff cannot dispatch live transport",
+    "outbox handoff cannot carry remote acknowledgement, exact content, host filtering, or adapter-action claims"
+  ],
+  "noClaims": [
+    "live broker delivery",
+    "live family-hub relay delivery",
+    "transport dispatch attempt",
+    "remote acknowledgement",
+    "remote provider delivery",
+    "child-device delivery",
+    "remote delete/export propagation implementation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}
