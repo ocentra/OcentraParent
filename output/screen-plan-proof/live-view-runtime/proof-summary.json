@@ -1,6 +1,6 @@
 {
   "proof": "screen-live-view-runtime-proof",
-  "generatedAt": "2026-06-07T09:49:22.948Z",
+  "generatedAt": "2026-06-07T10:01:57.737Z",
   "claim": "The Rust agent-service has a bounded live-view runtime decision boundary that consumes live-frame transport/deletion evidence and parent UI persistence evidence, rejects capture-only permission, refuses frame cache/session recording/remote input, and keeps product readiness blocked unless live-view permission, service runtime, and relay/cache requirements are all satisfied.",
   "sourceEvidence": {
     "liveTransportProof": "output/screen-plan-proof/live-view-session-transport/proof-summary.json",

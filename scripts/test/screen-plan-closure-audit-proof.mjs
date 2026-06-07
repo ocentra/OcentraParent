@@ -48,8 +48,8 @@ const workpacks = [
     id: '28',
     label: 'Live view optional mode',
     status: workpackStatus('28 Live view optional mode'),
-    requiredProof: 'output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json',
-    gate: 'Fail-closed platform permission gate, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, and Rust service runtime decision proof exist; real platform live-view prompt screenshots, production worker startup, relay/cache execution, physical-device parity, and privacy/legal approval remain.',
+    requiredProof: 'output/screen-plan-proof/live-view-worker-startup/proof-summary.json',
+    gate: 'Fail-closed platform permission gate, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, and worker startup gate proof exist; real platform live-view prompt screenshots, actual production worker start, relay/cache execution, physical-device parity, and privacy/legal approval remain.',
   },
   {
     id: '30',
@@ -140,6 +140,7 @@ const summary = {
     'output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json',
     'output/screen-plan-proof/live-view-service-session/proof-summary.json',
     'output/screen-plan-proof/live-view-runtime/proof-summary.json',
+    'output/screen-plan-proof/live-view-worker-startup/proof-summary.json',
     'output/screen-plan-proof/windows-ocr-candidate-selection/proof-summary.json',
     'output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json',
     'output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json',
@@ -157,7 +158,7 @@ const summary = {
     noProductCompleteClaim: true,
   },
   nonClaims: [
-    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/production worker startup/relay-cache execution/physical-device parity, current PP-OCRv5 quality resolution, cross-platform OCR parity, authenticated-account social proof, or broader VLM hardware rollout-threshold gates.',
+    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/actual production worker start/relay-cache execution/physical-device parity, current PP-OCRv5 quality resolution, cross-platform OCR parity, authenticated-account social proof, or broader VLM hardware rollout-threshold gates.',
     'This audit does not replace real device/runtime proof for remaining partial rows.',
     'This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied.',
   ],

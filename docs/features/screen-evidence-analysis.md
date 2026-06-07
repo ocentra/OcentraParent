@@ -493,6 +493,17 @@ only with explicit parent settings.
   production live-view worker startup, platform prompt screenshots, relay/cache
   execution, physical-device parity, privacy/legal approval, or
   product-complete live view.
+- `scripts/test/screen-live-view-worker-startup-proof.mjs` now proves the Rust
+  `agent-service` live-view worker startup gate behind that runtime decision
+  boundary. The gate refuses to start the worker unless the runtime is
+  product-ready and real live-view prompt artifacts, relay/cache execution when
+  needed, physical-device parity, and privacy/legal approval are all present.
+  The proof consumes the existing real loopback frame transport/deletion,
+  runtime, and parent UI persistence artifacts, writes
+  `output/screen-plan-proof/live-view-worker-startup/proof-summary.json`, and
+  keeps `productionWorkerStarted: false`. This is not a real platform prompt
+  screenshot, relay/cache execution, physical-device live-view parity,
+  privacy/legal approval, or product-complete live view.
 - `ScreenManagedBrowserCdpScreenshotRequestSchema`,
   `ScreenManagedBrowserCdpScreenshotArtifactSchema`, and
   `scripts/test/screen-managed-browser-cdp-capture-proof.mjs` now prove the
@@ -681,7 +692,7 @@ only with explicit parent settings.
   `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`. This
   prevents the stacked product-path artifact from being treated as full
   screen-plan completion before macOS, Linux, Android parity, iOS, live-view
-  platform prompt/production worker startup/relay-cache execution, current PP-OCRv5
+  platform prompt/actual worker start/relay-cache execution, current PP-OCRv5
   quality/resource, cross-platform OCR parity, and live VLM quality gates are
   completed or explicitly left as non-claims.
 - Product-complete retention controls and quality proof are incomplete.
@@ -697,8 +708,8 @@ only with explicit parent settings.
 ## Current Gap
 
 Product-complete parent retention controls, optional raw-retention runtime
-enablement, production live-view worker startup/relay-cache transport, platform
-permission prompt proof, physical-device live-view parity, child-agent
+enablement, actual production live-view worker start/relay-cache transport,
+platform permission prompt proof, physical-device live-view parity, child-agent
 disclosure runtime deployment,
 privacy/legal approval, authenticated-account
 social proof beyond public/live surface proof, production OCR/VLM quality beyond
@@ -791,6 +802,9 @@ parity, and UI remain separate proof gates.
       recording, and remote input, while preserving a service-ready but
       product-blocked state until platform prompt, production worker,
       relay/cache, physical parity, and privacy/legal gates exist.
+- [x] Rust agent-service live-view worker startup gate refuses worker start
+      until runtime readiness, real platform prompt artifact, relay/cache when
+      needed, physical-device parity, and privacy/legal approval exist.
 - [x] Local AI resource scheduler prevents multiple heavy OCR/VLM jobs and
       prioritizes policy-blocking screen analysis.
 - [x] Detector-specific prompt packs replace open-ended screen descriptions and

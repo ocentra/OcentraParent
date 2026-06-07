@@ -40,6 +40,13 @@ product live view stays false. This closes parent UI persistence as a proof
 input only; production worker startup, real live-view prompt screenshots,
 relay/cache execution, physical-device parity, and privacy/legal approval remain
 open.
+`scripts/test/screen-live-view-worker-startup-proof.mjs` now proves the Rust
+service worker startup gate exists behind the runtime decision boundary and
+stays stopped unless runtime readiness, a real live-view prompt artifact,
+relay/cache execution when needed, physical-device parity, and privacy/legal
+approval are all proved. This closes the worker-startup gate artifact only;
+actual production worker start, real platform prompt screenshots, relay/cache
+execution, physical-device parity, and privacy/legal approval remain open.
 
 ## Checklist
 
@@ -52,6 +59,7 @@ open.
 - [x] Add separate contract/preflight proof.
 - [x] Add fail-closed platform permission gate proof.
 - [x] Add parent UI persistence carry-forward proof.
+- [x] Add fail-closed Rust service worker startup gate proof.
 - [ ] Add real live-view platform prompt and transport proof.
 
 ## Proof
@@ -62,5 +70,6 @@ open.
 - `output/screen-plan-proof/27-28-optional-retention-live-preflight/proof-summary.json`.
 - `output/screen-plan-proof/live-view-platform-permission/proof-summary.json`.
 - `output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json`.
+- `output/screen-plan-proof/live-view-worker-startup/proof-summary.json`.
 - Capture-adapter platform consent reference:
   `output/screen-plan-proof/android-mediaprojection/proof-summary.json`.

@@ -91,6 +91,10 @@ alternative.
   parent Settings command/readiness evidence can be carried into live-view
   service-session and Rust runtime decisions as persisted parent opt-in state
   while still keeping product live view false.
+- `scripts/test/screen-live-view-worker-startup-proof.mjs` now proves the Rust
+  service worker startup gate exists and stays stopped unless runtime readiness,
+  a real live-view prompt artifact, relay/cache execution when needed,
+  physical-device parity, and privacy/legal approval are all proved.
 - Raw screen control settings are preserved as design inputs for both summary
   and live-view decisions.
 
@@ -98,12 +102,13 @@ alternative.
 
 Need runtime product implementation for optional screenshots or live view. The
 contract preflight, parent opt-in/device status, and fail-closed
-platform-permission gate exist, parent Settings can render readiness rows, and
-live-view parent UI persistence is carried into service/runtime proofs. Service
-runtime enablement, optional raw-retention persistence/runtime, actual live-view
-permission prompts, live transport, relay/cache execution, platform screenshots,
-physical-device parity, and privacy/legal approval remain before any
-product-complete claim.
+platform-permission gate exist, parent Settings can render readiness rows,
+live-view parent UI persistence is carried into service/runtime proofs, and the
+Rust worker startup gate stays fail-closed. Optional raw-retention persistence/
+runtime, actual live-view permission prompts, live transport, relay/cache
+execution, platform screenshots, physical-device parity, privacy/legal approval,
+and a started production live-view worker remain before any product-complete
+claim.
 
 ## Checklist
 
@@ -118,6 +123,8 @@ product-complete claim.
       rows without enabling those modes.
 - [x] Parent UI persistence proof carries live-view opt-in state into
       service-session/runtime decisions without enabling product live view.
+- [x] Rust service worker startup gate refuses to start without real platform,
+      relay/cache when needed, physical parity, and privacy/legal proof.
 - [~] Platform permission proof gate exists; real live-view prompt/platform
   screenshots remain.
 - [ ] Runtime enablement, optional raw-retention persistence/runtime, live
