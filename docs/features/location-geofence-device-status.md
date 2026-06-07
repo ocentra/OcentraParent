@@ -682,8 +682,10 @@ accessibility beyond the hosted parent route are proved.
       background-activity sample, plus local-geofence enter/exit proof now
       exist, and WP08/WP09 parent-domain manual-required
       proof rows still preserve the remaining Android system geofencing, dwell,
-      and device gaps; Android system geofencing/dwell and physical-device proof
-      remain pending.
+      and device gaps. Android system geofence blocker proof now records that
+      app-owned local listener transitions exist while Android system proximity
+      broadcast counters are zero; Android system geofencing/dwell and
+      physical-device proof remain pending.
 - [x] Android emulator package launch, foreground-service scaffold, battery,
       and connectivity proof. This is not foreground location or geofence
       proof.
@@ -897,8 +899,10 @@ accessibility beyond the hosted parent route are proved.
       foreground-service-backed background-activity sample, and local-geofence
       enter/exit proof plus active geofence-limit representation and WP10
       status-gap bridge plus separate proximity-alert registration metadata.
-      This is local emulator evidence only; Android system geofence delivery,
-      dwell transitions, physical-device, authority, provider
+      Android system geofence blocker proof now records zero system proximity
+      broadcast counters from that same emulator evidence. This is local
+      emulator evidence only; Android system geofence delivery, dwell
+      transitions, physical-device, authority, provider
       delivery, production workers, and product-ready Android tracking remain
       unclaimed.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence
