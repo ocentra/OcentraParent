@@ -85,7 +85,7 @@ async function main() {
         ? 'android-browser-package-visibility-proof-present'
         : 'android-owned-browser-shell-manual-required',
       androidOwnedShellProof
-        ? 'android-owned-browser-shell-emulator-proof-present-device-policy-still-manual-required'
+        ? 'android-owned-browser-shell-emulator-device-owner-proof-present-enforcement-still-manual-required'
         : 'android-owned-browser-shell-build-install-launch-proof-required',
       windowsHostProof
         ? 'windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed'
@@ -236,7 +236,7 @@ function markdownFor(proof) {
       ? 'Android emulator package-visibility proof is present; exact URL, active tab, device-owner policy, and enforcement remain unclaimed.'
       : 'Android owned browser shell/device proof remains manual-required.',
     proof.androidOwnedShellProof
-      ? 'Android owned browser shell build/install/launch proof is present, but exact URL policy, known active tab, Device Owner, VPN/DNS, UsageStats, Accessibility, and enforcement remain unclaimed.'
+      ? 'Android owned browser shell build/install/launch proof plus proof-launched emulator Device Owner enrollment evidence is present, but exact URL policy, known active tab, Device Owner policy mutation, VPN/DNS, UsageStats, Accessibility, and enforcement remain unclaimed.'
       : 'Android owned browser shell build/install/launch proof remains manual-required.',
     proof.linuxHostProof
       ? 'Linux WSL package/PATH/desktop-entry boundary proof is present, but Linux desktop browser adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.'
@@ -286,8 +286,16 @@ async function readAndroidOwnedShellProof() {
     ownedBrowserShellSourceDeclared: proof.hostProofSummary?.ownedBrowserShellSourceDeclared === true,
     webViewDeclared: proof.hostProofSummary?.webViewDeclared === true,
     browsableViewIntentDeclared: proof.hostProofSummary?.browsableViewIntentDeclared === true,
+    deviceAdminReceiverDeclared: proof.hostProofSummary?.deviceAdminReceiverDeclared === true,
+    deviceAdminMetadataDeclared: proof.hostProofSummary?.deviceAdminMetadataDeclared === true,
+    deviceAdminPoliciesDeclared: proof.hostProofSummary?.deviceAdminPoliciesDeclared === true,
     launchObserved: proof.hostProofSummary?.launchObserved === true,
     localProofPageObserved: proof.hostProofSummary?.localProofPageObserved === true,
+    deviceOwnerEnrollmentAttempted: proof.hostProofSummary?.deviceOwnerEnrollmentAttempted === true,
+    deviceOwnerEnrollmentObserved: proof.hostProofSummary?.deviceOwnerEnrollmentObserved === true,
+    deviceOwnerProofLimitedToProofLaunchedEmulator:
+      proof.hostProofSummary?.deviceOwnerProofLimitedToProofLaunchedEmulator === true,
+    deviceOwnerPolicyMutationClaimed: proof.hostProofSummary?.deviceOwnerPolicyMutationClaimed === true,
     exactUrlPolicyClaimed: proof.hostProofSummary?.exactUrlPolicyClaimed === true,
     knownActiveTabProofClaimed: proof.hostProofSummary?.knownActiveTabProofClaimed === true,
     deviceOwnerEnrollmentClaimed: proof.hostProofSummary?.deviceOwnerEnrollmentClaimed === true,
@@ -295,6 +303,7 @@ async function readAndroidOwnedShellProof() {
     usageStatsRouteProofClaimed: proof.hostProofSummary?.usageStatsRouteProofClaimed === true,
     accessibilityRouteProofClaimed: proof.hostProofSummary?.accessibilityRouteProofClaimed === true,
     enforcementClaimed: proof.hostProofSummary?.enforcementClaimed === true,
+    rawDpmOutputPersisted: proof.hostProofSummary?.rawDpmOutputPersisted === true,
     rawUrlPersisted: proof.hostProofSummary?.rawUrlPersisted === true,
     rawPageContentPersisted: proof.hostProofSummary?.rawPageContentPersisted === true,
   };
@@ -451,7 +460,7 @@ function validateAndroidOwnedShellProof(proof) {
   }
 
   const failures = [];
-  if (proof.resultState !== 'android-owned-browser-shell-build-install-launch-proof') {
+  if (proof.resultState !== 'android-owned-browser-shell-build-install-launch-device-owner-proof') {
     failures.push(`Android owned shell proof has unexpected resultState: ${proof.resultState}`);
   }
   if (!proof.ownedBrowserShellPackageInstalled) {
@@ -460,13 +469,23 @@ function validateAndroidOwnedShellProof(proof) {
   if (!proof.ownedBrowserShellSourceDeclared || !proof.webViewDeclared || !proof.browsableViewIntentDeclared) {
     failures.push('Android owned shell proof lacks source-backed package/WebView/BROWSABLE VIEW evidence');
   }
+  if (!proof.deviceAdminReceiverDeclared || !proof.deviceAdminMetadataDeclared || !proof.deviceAdminPoliciesDeclared) {
+    failures.push('Android owned shell proof lacks source-backed DeviceAdmin receiver metadata evidence');
+  }
   if (!proof.launchObserved || !proof.localProofPageObserved) {
     failures.push('Android owned shell proof did not observe launched proof UI');
   }
   if (
+    !proof.deviceOwnerEnrollmentAttempted ||
+    !proof.deviceOwnerEnrollmentObserved ||
+    !proof.deviceOwnerProofLimitedToProofLaunchedEmulator
+  ) {
+    failures.push('Android owned shell proof did not observe proof-launched emulator Device Owner enrollment evidence');
+  }
+  if (
     proof.exactUrlPolicyClaimed ||
     proof.knownActiveTabProofClaimed ||
-    proof.deviceOwnerEnrollmentClaimed ||
+    proof.deviceOwnerPolicyMutationClaimed ||
     proof.vpnDnsBrowserProofClaimed ||
     proof.usageStatsRouteProofClaimed ||
     proof.accessibilityRouteProofClaimed ||
@@ -476,6 +495,9 @@ function validateAndroidOwnedShellProof(proof) {
   }
   if (proof.rawUrlPersisted || proof.rawPageContentPersisted) {
     failures.push('Android owned shell proof persisted raw URL or raw page content');
+  }
+  if (proof.rawDpmOutputPersisted) {
+    failures.push('Android owned shell proof persisted raw Device Policy Manager output');
   }
   return failures;
 }

@@ -58,12 +58,14 @@ area.
   behavior as not claimed/manual-required.
 - `browser-platform-android-owned-shell-proof` covers the browser-plan WP05
   owned-browser-shell package boundary. It builds the separate
-  `platforms/android/agent/browser-shell` APK, installs
-  `com.ocentra.parent.browser` on an emulator, launches a local proof page
-  through a `VIEW`/`BROWSABLE` WebView shell, and records redacted UI-tree,
-  APK, source, and device refs. It does not claim exact URL policy, known active
-  tab, Device Owner, VPN/DNS, UsageStats, Accessibility, browser blocking,
-  enforcement, Play signing, or release readiness.
+  `platforms/android/agent/browser-shell` APK, creates a disposable AOSP ATD
+  emulator, installs `com.ocentra.parent.browser`, launches a local proof page
+  through a `VIEW`/`BROWSABLE` WebView shell, observes Device Owner enrollment
+  for the shell's `DeviceAdminReceiver`, deletes the temporary AVD, and records
+  redacted UI-tree, APK, source, Device Policy Manager, and device refs. It does
+  not claim exact URL policy, known active tab, Device Owner policy mutation,
+  VPN/DNS, UsageStats, Accessibility, browser blocking, enforcement,
+  physical-device behavior, Play signing, or release readiness.
 
 ## Gaps To Fill
 

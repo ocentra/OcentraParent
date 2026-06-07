@@ -16,7 +16,7 @@ const expectedPartialRows = new Map([
     {
       reason: 'cross-platform-inventory-real-platform-proof-required',
       requiredEvidence:
-        'macOS desktop browser proof, positive Linux desktop browser proof, Android owned-shell/device-policy proof, and iOS device/entitlement proof',
+        'macOS desktop browser proof, positive Linux desktop browser proof, Android policy mutation/enforcement proof, and iOS device/entitlement proof',
     },
   ],
   [
@@ -53,6 +53,9 @@ const proofArtifacts = [
       failures: 0,
       manualRequiredRows: 4,
       unsupportedRows: 6,
+      androidDeviceOwnerEnrollmentObserved: true,
+      androidDeviceOwnerProofLimitedToProofLaunchedEmulator: true,
+      androidEnforcementClaimed: false,
     },
   },
   {
@@ -137,7 +140,7 @@ async function main() {
       'product-checklist-upgrade-not-claimed',
       'macos-desktop-browser-proof-required',
       'linux-desktop-browser-positive-proof-required',
-      'android-owned-browser-shell-device-policy-proof-required',
+      'android-policy-mutation-enforcement-proof-required',
       'ios-familycontrols-managedsettings-device-proof-required',
       'social-provider-report-delivery-not-claimed',
       'social-final-policy-execution-not-claimed',
@@ -214,6 +217,10 @@ function observedValues(key, proof) {
       failures: proof.summary?.failures,
       manualRequiredRows: proof.summary?.manualRequiredRows,
       unsupportedRows: proof.summary?.unsupportedRows,
+      androidDeviceOwnerEnrollmentObserved: proof.androidOwnedShellProof?.deviceOwnerEnrollmentObserved === true,
+      androidDeviceOwnerProofLimitedToProofLaunchedEmulator:
+        proof.androidOwnedShellProof?.deviceOwnerProofLimitedToProofLaunchedEmulator === true,
+      androidEnforcementClaimed: proof.androidOwnedShellProof?.enforcementClaimed === true,
     };
   }
   if (key === 'social17') {

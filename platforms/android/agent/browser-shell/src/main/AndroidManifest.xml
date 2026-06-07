@@ -25,5 +25,18 @@
                 <data android:scheme="https" />
             </intent-filter>
         </activity>
+        <receiver
+            android:name=".OcentraOwnedBrowserDeviceAdminReceiver"
+            android:description="@string/owned_browser_device_admin_description"
+            android:exported="true"
+            android:label="@string/owned_browser_device_admin_label"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/owned_browser_device_admin" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

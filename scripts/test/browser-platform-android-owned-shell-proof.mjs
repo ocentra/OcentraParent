@@ -25,14 +25,21 @@ const apkPath = join(
 const observedAt = new Date().toISOString();
 const packageName = 'com.ocentra.parent.browser';
 const activityName = 'ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity';
+const deviceAdminReceiverName = 'ca.ocentra.parent.browser.OcentraOwnedBrowserDeviceAdminReceiver';
+const deviceAdminComponentName = `${packageName}/${deviceAdminReceiverName}`;
+const proofAvdName = 'OcentraParentDeviceOwnerProof';
+const proofAvdPackage = 'system-images;android-33;aosp_atd;x86_64';
+const proofAvdDevice = 'pixel_6';
 
 mkdirSync(proofRoot, { recursive: true });
 
 const adb = findAdb();
 const emulator = findEmulator();
+const avdManager = findAvdManager();
 const emulatorAvds = emulator ? listAvds(emulator.path) : [];
 let launchedEmulator = false;
 let launchedEmulatorSerial = null;
+let proofAvdCreated = false;
 let server = null;
 
 try {
@@ -42,17 +49,24 @@ try {
     throw new Error('adb is required for Android owned browser shell proof');
   }
 
-  if (listDevices(adb.path).filter((device) => device.state === 'device').length === 0) {
-    if (!emulator) {
-      throw new Error('Android emulator executable is required when no device is attached');
-    }
-    launchedEmulatorSerial = await launchEmulatorIfAvailable(adb.path, emulator.path, emulatorAvds);
-    launchedEmulator = launchedEmulatorSerial !== null;
+  if (!emulator) {
+    throw new Error('Android emulator executable is required for Android owned browser shell proof');
+  }
+  if (!avdManager) {
+    throw new Error('Android avdmanager executable is required for disposable Device Owner proof AVD');
   }
 
-  const devices = listDevices(adb.path).filter((device) => device.state === 'device');
+  const existingSerials = listDevices(adb.path).map((device) => device.serial);
+  createProofAvd(avdManager.path);
+  proofAvdCreated = true;
+  launchedEmulatorSerial = await launchEmulatorIfAvailable(adb.path, emulator.path, existingSerials);
+  launchedEmulator = launchedEmulatorSerial !== null;
+
+  const devices = listDevices(adb.path).filter(
+    (device) => device.state === 'device' && device.serial === launchedEmulatorSerial
+  );
   if (devices.length === 0) {
-    throw new Error('No booted Android device/emulator was available for owned browser shell proof');
+    throw new Error('No proof-launched Android emulator was available for owned browser shell proof');
   }
 
   server = await startProofServer();
@@ -67,7 +81,9 @@ try {
     if (bootCompleted !== '1') {
       continue;
     }
-    deviceProofs.push(await proveDevice(adb.path, device.serial, proofUrl, launchedEmulator));
+    deviceProofs.push(
+      await proveDevice(adb.path, device.serial, proofUrl, launchedEmulator && device.serial === launchedEmulatorSerial)
+    );
   }
 
   const sourceBoundary = inspectOwnedBrowserShellSource();
@@ -75,7 +91,7 @@ try {
   const negativeChecks = [
     { claim: 'managed-exact-url-on-android', rejected: true },
     { claim: 'known-active-tab-on-android', rejected: true },
-    { claim: 'android-device-owner-policy', rejected: true },
+    { claim: 'android-device-owner-enforcement', rejected: true },
     { claim: 'android-vpn-dns-browser-proof', rejected: true },
     { claim: 'android-usagestats-route-proof', rejected: true },
     { claim: 'android-accessibility-route-proof', rejected: true },
@@ -88,8 +104,14 @@ try {
   if (!sourceBoundary.webViewDeclared || !sourceBoundary.browsableViewIntentDeclared) {
     throw new Error('Owned browser shell source lacks WebView or BROWSABLE VIEW intent evidence');
   }
+  if (!sourceBoundary.deviceAdminReceiverDeclared || !sourceBoundary.deviceAdminMetadataDeclared) {
+    throw new Error('Owned browser shell source lacks DeviceAdmin receiver metadata evidence');
+  }
   if (successfulLaunches.length === 0) {
     throw new Error('Owned browser shell did not launch with observable proof UI on any booted Android device');
+  }
+  if (!deviceProofs.some((proof) => proof.deviceOwnerEnrollmentObserved)) {
+    throw new Error('Owned browser shell did not produce proof-launched emulator Device Owner enrollment evidence');
   }
   if (!negativeChecks.every((check) => check.rejected)) {
     throw new Error('Expected Android owned browser shell negative checks to reject dishonest claims');
@@ -108,8 +130,15 @@ try {
       adbPathSha256: sha256(adb.path),
       emulatorPathPersisted: false,
       emulatorPathSha256: emulator ? sha256(emulator.path) : null,
+      avdManagerPathPersisted: false,
+      avdManagerPathSha256: avdManager ? sha256(avdManager.path) : null,
       emulatorAvdCount: emulatorAvds.length,
       emulatorLaunchedByProof: launchedEmulator,
+      proofAvdCreated,
+      proofAvdNamePersisted: false,
+      proofAvdNameSha256: sha256(proofAvdName),
+      proofAvdPackagePersisted: false,
+      proofAvdPackageSha256: sha256(proofAvdPackage),
       emulatorCleanupAttempted: launchedEmulator,
       attachedDeviceCount: devices.length,
       bootedDeviceCount: deviceProofs.length,
@@ -117,24 +146,38 @@ try {
       ownedBrowserShellSourceDeclared: sourceBoundary.ownedBrowserShellSourceDeclared,
       webViewDeclared: sourceBoundary.webViewDeclared,
       browsableViewIntentDeclared: sourceBoundary.browsableViewIntentDeclared,
+      deviceAdminReceiverDeclared: sourceBoundary.deviceAdminReceiverDeclared,
+      deviceAdminMetadataDeclared: sourceBoundary.deviceAdminMetadataDeclared,
+      deviceAdminPoliciesDeclared: sourceBoundary.deviceAdminPoliciesDeclared,
       launchObserved: successfulLaunches.length > 0,
       localProofPageObserved: deviceProofs.some((device) => device.localProofPageObserved),
+      deviceOwnerEnrollmentAttempted: deviceProofs.some((device) => device.deviceOwnerEnrollmentAttempted),
+      deviceOwnerEnrollmentObserved: deviceProofs.some((device) => device.deviceOwnerEnrollmentObserved),
+      deviceOwnerProofLimitedToProofLaunchedEmulator: deviceProofs.every(
+        (device) =>
+          !device.deviceOwnerEnrollmentAttempted ||
+          (device.proofLaunchedEmulator === true && device.serialKind === 'emulator')
+      ),
+      deviceOwnerCleanupAttempted: deviceProofs.some((device) => device.deviceOwnerCleanupAttempted),
+      deviceOwnerCleanupObserved: deviceProofs.some((device) => device.deviceOwnerCleanupObserved),
       screenshotsCaptured: deviceProofs.some((device) => device.screenshotCaptured),
       screenshotsPersisted: deviceProofs.some((device) => device.screenshotPersisted),
       uiTreeCaptured: deviceProofs.some((device) => device.uiTreeCaptured),
       uiTreeRawPersisted: false,
       rawInstalledPackageListPersisted: false,
       rawIntentResolutionPersisted: false,
+      rawDpmOutputPersisted: false,
       rawUrlPersisted: false,
       rawPageContentPersisted: false,
       exactUrlPolicyClaimed: false,
       knownActiveTabProofClaimed: false,
-      deviceOwnerEnrollmentClaimed: false,
+      deviceOwnerEnrollmentClaimed: true,
+      deviceOwnerPolicyMutationClaimed: false,
       vpnDnsBrowserProofClaimed: false,
       usageStatsRouteProofClaimed: false,
       accessibilityRouteProofClaimed: false,
       enforcementClaimed: false,
-      resultState: 'android-owned-browser-shell-build-install-launch-proof',
+      resultState: 'android-owned-browser-shell-build-install-launch-device-owner-proof',
     },
     proofUrlRef: `redacted-android-owned-browser-proof-url-${sha256(proofUrl).slice(0, 16)}`,
     proofUrlPersisted: false,
@@ -165,6 +208,9 @@ try {
   if (adb && launchedEmulatorSerial !== null) {
     command(['-s', launchedEmulatorSerial, 'emu', 'kill'], { adbPath: adb.path, allowFailure: true });
   }
+  if (avdManager && proofAvdCreated) {
+    deleteProofAvd(avdManager.path);
+  }
 }
 
 function buildOwnedBrowserShell() {
@@ -179,10 +225,12 @@ function buildOwnedBrowserShell() {
   });
 }
 
-async function proveDevice(adbPath, serial, proofUrl, headlessEmulator) {
+async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
   const serialRef = `redacted-android-device-ref-${sha256(serial).slice(0, 16)}`;
+  const serialKind = serial.startsWith('emulator-') ? 'emulator' : 'attached-device';
 
   command(['-s', serial, 'install', '-r', apkPath], { adbPath, allowFailure: false });
+  const deviceOwnerProof = proveDeviceOwnerEnrollment(adbPath, serial, proofLaunchedEmulator);
   const packageQuery = command(['-s', serial, 'shell', 'pm', 'path', packageName], {
     adbPath,
     allowFailure: true,
@@ -221,13 +269,8 @@ async function proveDevice(adbPath, serial, proofUrl, headlessEmulator) {
     { adbPath, allowFailure: false }
   );
 
-  await delay(3_000);
-
-  const uiTree = command(['-s', serial, 'exec-out', 'uiautomator', 'dump', '/dev/tty'], {
-    adbPath,
-    allowFailure: true,
-  });
-  const screenshot = headlessEmulator
+  const uiTree = await waitForOwnedBrowserUi(adbPath, serial);
+  const screenshot = proofLaunchedEmulator
     ? Buffer.alloc(0)
     : commandBuffer(['-s', serial, 'exec-out', 'screencap', '-p'], {
         adbPath,
@@ -245,7 +288,19 @@ async function proveDevice(adbPath, serial, proofUrl, headlessEmulator) {
 
   return {
     serialRef,
+    serialKind,
+    proofLaunchedEmulator,
     packageInstalled: packageQuery.includes('package:'),
+    deviceOwnerEnrollmentAttempted: deviceOwnerProof.attempted,
+    deviceOwnerEnrollmentObserved: deviceOwnerProof.observed,
+    deviceOwnerProofLimitedToProofLaunchedEmulator:
+      !deviceOwnerProof.attempted || (proofLaunchedEmulator === true && serialKind === 'emulator'),
+    deviceOwnerCleanupAttempted: deviceOwnerProof.cleanupAttempted,
+    deviceOwnerCleanupObserved: deviceOwnerProof.cleanupObserved,
+    deviceOwnerSetResultSha256: deviceOwnerProof.setResultSha256,
+    deviceOwnerQuerySha256: deviceOwnerProof.querySha256,
+    devicePolicyDumpSha256: deviceOwnerProof.dumpSha256,
+    rawDpmOutputPersisted: false,
     viewIntentResolved: resolveOutput.includes(packageName) || resolveOutput.includes(activityName),
     rawIntentResolutionPersisted: false,
     rawUrlPersisted: false,
@@ -263,8 +318,71 @@ async function proveDevice(adbPath, serial, proofUrl, headlessEmulator) {
     screenshotSha256: screenshotUsable ? sha256(screenshot) : null,
     exactUrlPolicyClaimed: false,
     knownActiveTabProofClaimed: false,
-    deviceOwnerEnrollmentClaimed: false,
+    deviceOwnerEnrollmentClaimed: deviceOwnerProof.observed,
+    deviceOwnerPolicyMutationClaimed: false,
     enforcementClaimed: false,
+  };
+}
+
+async function waitForOwnedBrowserUi(adbPath, serial) {
+  const deadline = Date.now() + 20_000;
+  let latestUiTree = '';
+  while (Date.now() < deadline) {
+    latestUiTree = command(['-s', serial, 'exec-out', 'uiautomator', 'dump', '/dev/tty'], {
+      adbPath,
+      allowFailure: true,
+    });
+    if (latestUiTree.includes('Ocentra owned browser proof page loaded')) {
+      return latestUiTree;
+    }
+    await delay(1_000);
+  }
+  return latestUiTree;
+}
+
+function proveDeviceOwnerEnrollment(adbPath, serial, proofLaunchedEmulator) {
+  const serialKind = serial.startsWith('emulator-') ? 'emulator' : 'attached-device';
+  if (proofLaunchedEmulator !== true || serialKind !== 'emulator') {
+    return {
+      attempted: false,
+      observed: false,
+      cleanupAttempted: false,
+      cleanupObserved: false,
+      setResultSha256: null,
+      querySha256: null,
+      dumpSha256: null,
+    };
+  }
+
+  const setOutput = command(['-s', serial, 'shell', 'dpm', 'set-device-owner', deviceAdminComponentName], {
+    adbPath,
+    allowFailure: true,
+  });
+  const queryOutput = command(['-s', serial, 'shell', 'dpm', 'list-owners'], {
+    adbPath,
+    allowFailure: true,
+  });
+  const dumpOutput = command(['-s', serial, 'shell', 'dumpsys', 'device_policy'], {
+    adbPath,
+    allowFailure: true,
+  });
+  const observed =
+    (setOutput.includes('Success') || setOutput.includes('Active admin set')) &&
+    queryOutput.includes(packageName) &&
+    dumpOutput.includes(packageName);
+  const cleanupOutput = command(['-s', serial, 'shell', 'dpm', 'remove-active-admin', deviceAdminComponentName], {
+    adbPath,
+    allowFailure: true,
+  });
+
+  return {
+    attempted: true,
+    observed,
+    cleanupAttempted: true,
+    cleanupObserved: cleanupOutput.includes('Success') || cleanupOutput.includes('removed'),
+    setResultSha256: sha256(setOutput),
+    querySha256: sha256(queryOutput),
+    dumpSha256: sha256(dumpOutput),
   };
 }
 
@@ -293,10 +411,15 @@ function inspectOwnedBrowserShellSource() {
   const manifestPath = 'platforms/android/agent/browser-shell/src/main/AndroidManifest.xml';
   const activityPath =
     'platforms/android/agent/browser-shell/src/main/java/ca/ocentra/parent/browser/OcentraOwnedBrowserShellActivity.java';
+  const receiverPath =
+    'platforms/android/agent/browser-shell/src/main/java/ca/ocentra/parent/browser/OcentraOwnedBrowserDeviceAdminReceiver.java';
+  const deviceAdminXmlPath = 'platforms/android/agent/browser-shell/src/main/res/xml/owned_browser_device_admin.xml';
   const buildGradlePath = 'platforms/android/agent/browser-shell/build.gradle';
   const settings = readRepoText(settingsPath);
   const manifest = readRepoText(manifestPath);
   const activity = readRepoText(activityPath);
+  const receiver = readRepoText(receiverPath);
+  const deviceAdminXml = readRepoText(deviceAdminXmlPath);
   const buildGradle = readRepoText(buildGradlePath);
 
   return {
@@ -306,6 +429,10 @@ function inspectOwnedBrowserShellSource() {
     manifestSha256: sha256(manifest),
     activityPath,
     activitySha256: sha256(activity),
+    receiverPath,
+    receiverSha256: sha256(receiver),
+    deviceAdminXmlPath,
+    deviceAdminXmlSha256: sha256(deviceAdminXml),
     buildGradlePath,
     buildGradleSha256: sha256(buildGradle),
     rawSourcePersisted: false,
@@ -317,13 +444,19 @@ function inspectOwnedBrowserShellSource() {
     browsableViewIntentDeclared:
       manifest.includes('android.intent.action.VIEW') && manifest.includes('android.intent.category.BROWSABLE'),
     cleartextLimitedToDebugProof: manifest.includes('android.permission.INTERNET'),
-    deviceOwnerDeclared: manifest.includes('DeviceAdminReceiver'),
+    deviceAdminReceiverDeclared:
+      manifest.includes('android.permission.BIND_DEVICE_ADMIN') &&
+      receiver.includes('extends DeviceAdminReceiver') &&
+      manifest.includes('.OcentraOwnedBrowserDeviceAdminReceiver'),
+    deviceAdminMetadataDeclared:
+      manifest.includes('android.app.device_admin') && manifest.includes('@xml/owned_browser_device_admin'),
+    deviceAdminPoliciesDeclared: deviceAdminXml.includes('<force-lock />'),
     accessibilityServiceDeclared:
       manifest.includes('AccessibilityService') || manifest.includes('android.permission.BIND_ACCESSIBILITY_SERVICE'),
     vpnServiceDeclared: manifest.includes('VpnService') || manifest.includes('android.permission.BIND_VPN_SERVICE'),
     usageStatsPermissionDeclared: manifest.includes('android.permission.PACKAGE_USAGE_STATS'),
     negativeBoundaryState:
-      'owned-browser-shell-build-and-launch-only-no-device-owner-no-accessibility-no-vpn-no-usagestats-no-enforcement',
+      'owned-browser-shell-build-launch-device-owner-emulator-proof-only-no-accessibility-no-vpn-no-usagestats-no-enforcement',
   };
 }
 
@@ -345,6 +478,53 @@ function findEmulator() {
   return candidate.length > 0 && existsSync(candidate) ? { path: candidate } : null;
 }
 
+function findAvdManager() {
+  const sdkRoot =
+    process.env.ANDROID_SDK_ROOT ??
+    process.env.ANDROID_HOME ??
+    (process.env.LOCALAPPDATA ? join(process.env.LOCALAPPDATA, 'Android', 'Sdk') : '');
+  const candidates =
+    sdkRoot.length > 0
+      ? [
+          join(sdkRoot, 'cmdline-tools', 'latest', 'bin', 'avdmanager.bat'),
+          join(sdkRoot, 'cmdline-tools', 'bin', 'avdmanager.bat'),
+        ]
+      : [];
+  const candidate = candidates.find((path) => existsSync(path));
+  return candidate ? { path: candidate } : null;
+}
+
+function createProofAvd(avdManagerPath) {
+  deleteProofAvd(avdManagerPath);
+  execFileSync(
+    'cmd',
+    [
+      '/c',
+      avdManagerPath,
+      'create',
+      'avd',
+      '-n',
+      proofAvdName,
+      '-k',
+      proofAvdPackage,
+      '--device',
+      proofAvdDevice,
+      '--force',
+    ],
+    {
+      cwd: repoRoot,
+      input: 'no\n',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }
+  );
+}
+
+function deleteProofAvd(avdManagerPath) {
+  commandExternal('cmd', ['/c', avdManagerPath, 'delete', 'avd', '-n', proofAvdName], {
+    allowFailure: true,
+  });
+}
+
 function listAvds(emulatorPath) {
   const output = commandExternal(emulatorPath, ['-list-avds'], { allowFailure: true });
   return output
@@ -353,17 +533,12 @@ function listAvds(emulatorPath) {
     .filter((line) => line.length > 0);
 }
 
-async function launchEmulatorIfAvailable(adbPath, emulatorPath, avds) {
-  const selectedAvd = avds[0];
-  if (!selectedAvd) {
-    return null;
-  }
-
+async function launchEmulatorIfAvailable(adbPath, emulatorPath, existingSerials) {
   const child = spawn(
     emulatorPath,
     [
       '-avd',
-      selectedAvd,
+      proofAvdName,
       '-no-window',
       '-no-snapshot-save',
       '-no-audio',
@@ -380,16 +555,17 @@ async function launchEmulatorIfAvailable(adbPath, emulatorPath, avds) {
   );
   child.unref();
 
-  const serial = await waitForReadyEmulator(adbPath);
+  const serial = await waitForReadyEmulator(adbPath, existingSerials);
   await waitForBoot(adbPath, serial);
   return serial;
 }
 
-async function waitForReadyEmulator(adbPath) {
+async function waitForReadyEmulator(adbPath, existingSerials) {
   const deadline = Date.now() + 8 * 60_000;
   while (Date.now() < deadline) {
     const ready = listDevices(adbPath).find(
-      (device) => device.state === 'device' && device.serial.startsWith('emulator-')
+      (device) =>
+        device.state === 'device' && device.serial.startsWith('emulator-') && !existingSerials.includes(device.serial)
     );
     if (ready) {
       return ready.serial;

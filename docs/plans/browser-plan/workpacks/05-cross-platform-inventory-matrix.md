@@ -64,6 +64,20 @@ when unusable. The proof explicitly rejects managed exact-URL policy, known
 active-tab proof, Device Owner policy, VPN/DNS browser proof, UsageStats route
 proof, Accessibility route proof, and enforcement claims.
 
+2026-06-07 codex-d continuation: the Android owned browser shell proof now
+creates a disposable AOSP ATD emulator through `avdmanager`, installs the same
+owned shell APK, and observes `dpm set-device-owner` / `dpm list-owners`
+Device Owner enrollment for
+`com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserDeviceAdminReceiver`.
+The proof deletes the temporary AVD after the run and stores only hashes and
+redacted refs for ADB, emulator, AVD manager, Device Policy Manager output,
+APK/source, device, URL, and UI tree evidence. This upgrades only source-backed
+DeviceAdmin metadata plus proof-launched emulator Device Owner enrollment. It
+does not claim exact URL policy, known active-tab policy, Device Owner policy
+mutation, VPN/DNS browser proof, UsageStats route proof, Accessibility route
+proof, final policy execution, browser blocking, enforcement, physical-device
+behavior, Play signing, or release readiness.
+
 2026-06-07 codex-d continuation: `scripts/test/browser-platform-linux-host-proof.mjs`
 now captures real WSL Ubuntu package/PATH/desktop-entry boundary evidence for
 WP05. The proof queries only known public Linux browser commands, Debian package
@@ -162,11 +176,11 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service/portal parity updated only after contracts exist; no Rust/service/portal surface changed in this contract-only slice.
 - [x] Raw evidence artifacts captured or marked N/A: this slice is a platform support matrix contract and has no bridge/CDP, journal, SQLite, policy, or action runtime evidence.
-- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Windows host browser executable proof and default URL handler association boundary evidence, Windows Ocentra-launched managed CDP proof for an exact local proof URL, Android emulator package-visibility proof, Android owned browser shell build/install/launch proof, and WSL Linux package/PATH boundary proof are present, while exact active-tab enforcement, final policy execution, browser blocking, live macOS/Linux desktop/iOS fixtures, and manual proof remain manual-required.
+- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Windows host browser executable proof and default URL handler association boundary evidence, Windows Ocentra-launched managed CDP proof for an exact local proof URL, Android emulator package-visibility proof, Android owned browser shell build/install/launch proof, Android proof-created AVD Device Owner enrollment proof, and WSL Linux package/PATH boundary proof are present, while exact active-tab enforcement, final policy execution, browser blocking, live macOS/Linux desktop/iOS fixtures, and manual proof remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured: non-Windows entries reject managed exact-URL and known-active claims; iOS remains unsupported; unsupported entries cannot keep exact URL available.
-- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility, UI-tree/logcat hash evidence, and source-backed no-privileged-browser-adapter boundary evidence are captured in `11-android-host-device-proof.json`, Android owned browser shell build/install/launch and local proof-page UI evidence are captured in `15-android-owned-browser-shell-proof.json`, WSL Linux package/PATH boundary evidence is captured in `12-linux-host-package-proof.json`, Windows host browser executable proof and default URL handler association boundary evidence are captured in `13-windows-host-browser-proof.json`, Windows managed CDP exact-local-URL proof and screenshot evidence are captured in `14-windows-managed-cdp-proof.json` and `14-windows-managed-cdp-screenshot.png`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
+- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility, UI-tree/logcat hash evidence, and source-backed no-privileged-browser-adapter boundary evidence are captured in `11-android-host-device-proof.json`, Android owned browser shell build/install/launch, local proof-page UI evidence, and proof-created AVD Device Owner enrollment evidence are captured in `15-android-owned-browser-shell-proof.json`, WSL Linux package/PATH boundary evidence is captured in `12-linux-host-package-proof.json`, Windows host browser executable proof and default URL handler association boundary evidence are captured in `13-windows-host-browser-proof.json`, Windows managed CDP exact-local-URL proof and screenshot evidence are captured in `14-windows-managed-cdp-proof.json` and `14-windows-managed-cdp-screenshot.png`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
 - [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md), including `test-results/browser-platform-inventory-matrix-proof/proof.json` and `output/browser-plan-proof/05-cross-platform-inventory-matrix/11-proof-gate-manifest.md`.
 - [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
@@ -182,13 +196,15 @@ URL, and captures a CDP screenshot, but exact active-tab enforcement, final
 policy execution, browser blocking, managed profile repair, and non-Windows
 managed CDP support remain unclaimed.
 Android emulator package visibility, source-backed Android agent boundary
-evidence, and owned browser shell build/install/launch proof are now proved, but
-exact URL policy, active-tab policy, device-owner policy, VPN/DNS browser proof,
-UsageStats/Accessibility route proof, and enforcement remain unclaimed.
+evidence, owned browser shell build/install/launch proof, and proof-created AVD
+Device Owner enrollment proof are now proved, but exact URL policy, active-tab
+policy, Device Owner policy mutation, VPN/DNS browser proof,
+UsageStats/Accessibility route proof, final policy execution, browser blocking,
+physical-device behavior, and enforcement remain unclaimed.
 WSL Linux package/PATH evidence is now proved, but no Chrome/Chromium/Firefox/Edge
 command, package, desktop entry, desktop adapter, exact URL, active-tab, Snap,
 Flatpak, or enforcement claim is upgraded.
 Remaining work requires real macOS app bundle inventory, Linux desktop entry and
-package inventory, Android device-policy/enforcement proof, and iOS
+package inventory, Android policy mutation/enforcement proof, and iOS
 FamilyControls/ManagedSettings/Safari-extension proof before this workpack can be
 marked complete.
