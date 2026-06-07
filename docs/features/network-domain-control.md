@@ -254,6 +254,16 @@ compete on control while staying clear about attribution confidence and privacy.
   grades, and policy/action capability gating. The proof keeps network-only
   exact URL/content claims rejected and keeps dry-run/manual-required states
   from authorizing adapter calls.
+- E-D added an aggregate full-network-plan proof pack that ties together
+  contract, reusable eventing, parser/fixture, analyzer alert, AI/policy,
+  adapter action, journal/read-model, UI, security-negative, performance,
+  classification, remote-delivery, and end-to-end product-path proof artifacts
+  under `output/network-plan-proof/full-network-plan/proof-summary.json` and
+  `test-results/network-full-plan-proof/proof.json`. The proof keeps live
+  capture drivers, live host adapter mutation/filtering, broker/family-hub
+  delivery, provider/child delivery, remote delete/export propagation,
+  production platform support, external audit signoff, exact content claims,
+  and enforcement-command publication unclaimed.
 - E-D added `ocentra-network-evidence`, a reusable Rust network metadata crate,
   plus the first deterministic PCAP replay proof for classic
   Ethernet/IPv4/UDP DNS query metadata. The proof writes a fixture PCAP,
@@ -535,10 +545,13 @@ UI rendering remain open.
 - [x] Domain/IP/protocol/process attribution status contracts.
       Replay-backed process/app correlation now links PID flow evidence to
       process snapshots and app inventory without claiming browser URL/content.
-- [ ] VPN/proxy/tunnel indicators where available.
+- [x] VPN/proxy/tunnel indicators where available.
       Deterministic indicator classification now exists for VPN adapter,
       proxy-port, Tor, and tunnel-protocol candidates, with encrypted-DNS-only
-      negative proof and no hidden-destination claim.
+      negative proof and no hidden-destination claim. E-D generated
+      `output/network-plan-proof/24-vpn-proxy-tor-tunnel-classifier/proof-summary.json`
+      and
+      `test-results/network-vpn-proxy-tunnel-classifier-proof/proof.json`.
 - [x] Network category/risk targets.
       Domain normalization, public-suffix, and source-custody category
       intelligence proof now exist, along with deterministic
@@ -558,7 +571,7 @@ UI rendering remain open.
       Deterministic indicator proof exists for remote desktop, torrent, and
       large-download candidates, with unattributed high-volume uncertainty and
       no file-name/content claim.
-- [ ] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.
+- [x] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.
       First E-D runtime spine exists for metadata-only flow events,
       manual-required/unavailable states, local no-subscriber queue/drain,
       local typed request-response, and Rust protocol-facing network event
@@ -649,7 +662,13 @@ UI rendering remain open.
       broker/family-hub delivery implementation, full policy engine execution,
       notification delivery, external audit/deployment execution, full
       support-material authoring, and true risk-budget/performance SLO UI
-      rendering remain.
+      rendering remain. E-D full-network proof now ties the consolidated
+      eventing proof, network runtime proof, row46 AI detection, row47 AI audit,
+      row48 risk-budget, row49 performance, row50 security, row51 product path,
+      row52 platform claim, row53 action-result, and row10 remote-delivery
+      non-enforcement artifacts together under
+      `output/network-plan-proof/full-network-plan/proof-summary.json` and
+      `test-results/network-full-plan-proof/proof.json`.
 - [x] Parent portal network evidence drawer.
       The Activity route renders real Rust service network read-model output,
       ActivityStore evidence refs, endpoint/domain/process attribution, and
@@ -668,7 +687,7 @@ UI rendering remain open.
       not claim AI execution, full policy-engine execution, adapter
       authorization, enforcement command publication, exact URL/content, raw
       PCAP, or host filtering.
-- [ ] Adapter capability status.
+- [x] Adapter capability status.
       Row37 DNS adapter, Row38 Windows Firewall, Row39 WFP, and Row40 Android
       VpnService plus Row41 Apple Network Extension and Row42 Linux proof gates
       model supported/lab-ready/physical-device-ready/Apple-device-ready/
@@ -678,7 +697,16 @@ UI rendering remain open.
       accounts for those claims in one exact OS/device/permission manifest with
       manual follow-ups. The Activity network drawer now surfaces read-model
       capability/platform status for the current service row; broader platform
-      capability UX beyond the network drawer remains open.
+      capability UX beyond the network drawer remains open. The E-D adapter
+      capability status proof now derives target-specific supported/lab-ready/
+      physical-device-ready/Apple-device-ready/distro-ready, dry-run,
+      research-only, manual-required, and unavailable rows from the existing
+      Row52 platform manifest instead of a duplicate matrix. Proof:
+      `output/network-plan-proof/adapter-capability-status/proof-summary.json`
+      and `test-results/network-adapter-capability-status-proof/proof.json`.
+      This proof keeps live adapter execution, host filtering, production
+      platform support, broader platform capability UX, UI policy authority,
+      and enforcement-command publication unclaimed.
 - [x] DNS proxy/block/redirect adapter proof boundary.
       The Rust proof accepts apply-ready only with grade-A policy, parent-rule
       refs, evidence refs, supported capability, adapter authorization,

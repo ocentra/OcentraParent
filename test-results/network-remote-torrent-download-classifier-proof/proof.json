@@ -1,0 +1,43 @@
+{
+  "proof": "network-remote-torrent-download-classifier",
+  "checkedAt": "2026-06-07T16:54:40.744Z",
+  "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+  "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+  "statusShort": " M crates/ocentra-network-evidence/README.md\n M crates/ocentra-network-evidence/src/lib.rs\n M crates/ocentra-network-evidence/src/tests.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n?? crates/ocentra-network-evidence/src/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/adapter_capability_status_values.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status_rejections.rs\n?? scripts/test/network-adapter-capability-status-proof.mjs\n",
+  "proofRoot": "output\\network-plan-proof\\25-remote-torrent-download-classifier",
+  "testRoot": "test-results\\network-remote-torrent-download-classifier-proof",
+  "commands": [
+    {
+      "name": "network-remote-torrent-download-classifier-tests",
+      "command": "cargo test -p ocentra-network-evidence transfer_classifier",
+      "status": 0,
+      "log": "output\\network-plan-proof\\25-remote-torrent-download-classifier\\transfer-classifier-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\25-remote-torrent-download-classifier\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\25-remote-torrent-download-classifier\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedTransferClassifier": "output\\network-plan-proof\\25-remote-torrent-download-classifier\\expected-remote-torrent-download-classifier.json",
+    "proofSummary": "output\\network-plan-proof\\25-remote-torrent-download-classifier\\proof-summary.json",
+    "testProof": "test-results\\network-remote-torrent-download-classifier-proof\\proof.json"
+  },
+  "provenRows": [
+    "25 Remote desktop/torrent/download classifier"
+  ],
+  "notClaimed": [
+    "file name, file content, or download URL visibility from network evidence",
+    "process/app/browser correlation beyond explicit fixture hints",
+    "visited URL, page content, message, search query, or decrypted payload visibility",
+    "AI, policy, adapter, broker, family-hub, or portal runtime integration"
+  ]
+}

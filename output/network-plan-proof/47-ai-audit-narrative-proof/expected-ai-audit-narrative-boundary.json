@@ -1,0 +1,39 @@
+{
+  "reportRef": "network-ai-audit-row47",
+  "acceptedInputs": [
+    "detection refs",
+    "evidence refs",
+    "analyzer alert refs",
+    "parent rule refs"
+  ],
+  "narrativeStates": [
+    "ready",
+    "uncertain-review-required",
+    "monitor-only"
+  ],
+  "recommendationKinds": [
+    "review-with-parent",
+    "review-policy-rule",
+    "confirm-with-managed-browser",
+    "confirm-with-screen-summary",
+    "monitor-only"
+  ],
+  "requiredCitations": [
+    "detection refs",
+    "evidence refs",
+    "parent rule refs"
+  ],
+  "unsupportedClaimsRejected": [
+    "remote AI invocation",
+    "raw PCAP input",
+    "exact URL",
+    "page content",
+    "private message",
+    "search query",
+    "decrypted payload",
+    "policy authority",
+    "adapter authority",
+    "enforcement command"
+  ],
+  "authorityBoundary": "AI audit narratives and recommendations are advisory evidence only; policy and adapter proof remain the authority"
+}

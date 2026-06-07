@@ -1,0 +1,53 @@
+{
+  "proof": "network-performance-benchmark-proof",
+  "checkedAt": "2026-06-07T16:54:52.144Z",
+  "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+  "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+  "statusShort": " M crates/ocentra-network-evidence/README.md\n M crates/ocentra-network-evidence/src/lib.rs\n M crates/ocentra-network-evidence/src/tests.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n?? crates/ocentra-network-evidence/src/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/adapter_capability_status_values.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status_rejections.rs\n?? scripts/test/network-adapter-capability-status-proof.mjs\n",
+  "proofRoot": "output\\network-plan-proof\\49-performance-benchmark-proof",
+  "testRoot": "test-results\\network-performance-benchmark-proof",
+  "commands": [
+    {
+      "name": "network-performance-benchmark-tests",
+      "command": "cargo test -p ocentra-network-evidence performance_benchmark",
+      "status": 0,
+      "log": "output\\network-plan-proof\\49-performance-benchmark-proof\\performance-benchmark-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\49-performance-benchmark-proof\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\49-performance-benchmark-proof\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedPerformanceBoundary": "output\\network-plan-proof\\49-performance-benchmark-proof\\expected-performance-boundary.json",
+    "proofSummary": "output\\network-plan-proof\\49-performance-benchmark-proof\\proof-summary.json",
+    "testProof": "test-results\\network-performance-benchmark-proof\\proof.json"
+  },
+  "provenRows": [
+    "49 Performance, latency, resource, and high-concurrency benchmark proof"
+  ],
+  "provenBoundaries": [
+    "packet-to-detection latency metric aggregation",
+    "event throughput metric aggregation",
+    "CPU, memory, disk, queue, and dropped-event metrics",
+    "high-concurrency fixture flow count",
+    "manual/unavailable/degraded path-state preservation",
+    "unsupported real-time and adapter claim rejection"
+  ],
+  "notClaimed": [
+    "production SLO or hardware-specific performance",
+    "real-time response guarantee",
+    "live packet capture or raw PCAP access",
+    "adapter execution, host filtering, or enforcement command publication",
+    "exact URL, page content, or decrypted payload availability",
+    "portal performance UI rendering"
+  ]
+}

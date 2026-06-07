@@ -1,0 +1,35 @@
+{
+  "fixtureSetRef": "network-ai-fixtures-row46",
+  "acceptedInputs": [
+    "summary refs",
+    "evidence refs",
+    "fixture labels",
+    "analyzer alert refs"
+  ],
+  "metrics": [
+    "precision",
+    "recall",
+    "accuracy",
+    "average confidence drift"
+  ],
+  "thresholds": {
+    "precisionBasisPoints": 6000,
+    "recallBasisPoints": 6000,
+    "averageDriftBasisPoints": 500
+  },
+  "explicitStates": [
+    "meets-fixture-gate",
+    "below-quality-threshold",
+    "drift-exceeded",
+    "below-quality-and-drift-exceeded"
+  ],
+  "unsupportedInputsRejected": [
+    "model execution claim",
+    "remote AI claim",
+    "raw PCAP input",
+    "exact URL claim",
+    "page content",
+    "decrypted payload"
+  ],
+  "authorityBoundary": "fixture evaluation creates detection evidence only; it does not publish policy, adapter, or enforcement commands"
+}

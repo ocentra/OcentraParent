@@ -1,0 +1,49 @@
+{
+  "proof": "network-apple-network-extension-proof-gate",
+  "checkedAt": "2026-06-07T16:58:24.301Z",
+  "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+  "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+  "statusShort": " M crates/ocentra-network-evidence/README.md\n M crates/ocentra-network-evidence/src/lib.rs\n M crates/ocentra-network-evidence/src/tests.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n?? crates/ocentra-network-evidence/src/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/adapter_capability_status_values.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status_rejections.rs\n?? scripts/test/network-adapter-capability-status-proof.mjs\n?? scripts/test/network-full-plan-proof.mjs\n",
+  "proofRoot": "output\\network-plan-proof\\41-apple-network-extension-proof-gate",
+  "testRoot": "test-results\\network-apple-network-extension-proof-gate",
+  "commands": [
+    {
+      "name": "network-apple-network-extension-gate-tests",
+      "command": "cargo test -p ocentra-network-evidence apple_network_extension_gate",
+      "status": 0,
+      "log": "output\\network-plan-proof\\41-apple-network-extension-proof-gate\\apple-network-extension-gate-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\41-apple-network-extension-proof-gate\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\41-apple-network-extension-proof-gate\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedAppleNetworkExtensionProofGate": "output\\network-plan-proof\\41-apple-network-extension-proof-gate\\expected-apple-network-extension-proof-gate.json",
+    "proofSummary": "output\\network-plan-proof\\41-apple-network-extension-proof-gate\\proof-summary.json",
+    "testProof": "test-results\\network-apple-network-extension-proof-gate\\proof.json"
+  },
+  "provenRows": [
+    "41 Apple Network Extension adapter/proof gate"
+  ],
+  "notClaimed": [
+    "simulator-only product support",
+    "live Apple Network Extension tunnel or content filter",
+    "packet blocking",
+    "app-level control",
+    "Apple entitlement approval without proof",
+    "supervision or MDM authority without proof",
+    "adapter action authorization",
+    "enforcement command publication",
+    "decrypted payload or page content inspection",
+    "exact URL claim from network-only evidence"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "artifacts": [
+    {
+      "id": "zeek-analyzer",
+      "group": "04-analyzer-alert-proof",
+      "path": "output/network-plan-proof/43-zeek-structured-log-analyzer-comparison/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-zeek-analyzer-comparison"
+    },
+    {
+      "id": "signature-alerts",
+      "group": "04-analyzer-alert-proof",
+      "path": "output/network-plan-proof/44-signature-alert-ingestion-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-signature-alert-ingestion"
+    }
+  ]
+}

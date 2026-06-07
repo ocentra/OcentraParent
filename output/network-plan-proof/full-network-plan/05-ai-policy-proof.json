@@ -1,0 +1,39 @@
+{
+  "artifacts": [
+    {
+      "id": "ai-detection",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/46-ai-detection-fixture-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-ai-detection-fixture-proof"
+    },
+    {
+      "id": "ai-audit",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/47-ai-audit-narrative-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-ai-audit-narrative-proof"
+    },
+    {
+      "id": "risk-budget",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/48-risk-budget-threshold-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-risk-budget-threshold-proof"
+    },
+    {
+      "id": "policy-mapping",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/34-evidence-grade-policy-mapping/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-evidence-policy-mapping"
+    },
+    {
+      "id": "policy-preview",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-policy-preview-stored-flow-evidence-proof"
+    }
+  ]
+}

@@ -1,0 +1,403 @@
+{
+  "schemaVersion": 1,
+  "proof": "network-full-plan",
+  "proofRoot": "output/network-plan-proof/full-network-plan",
+  "testRoot": "test-results/network-full-plan-proof",
+  "commands": [
+    {
+      "name": "network-evidence-tests",
+      "command": "cargo test -p ocentra-network-evidence",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-evidence-tests.log"
+    },
+    {
+      "name": "agent-core-network-runtime-tests",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/agent-core-network-runtime-tests.log"
+    },
+    {
+      "name": "adapter-proof-script-check",
+      "command": "node --check scripts/test/network-adapter-capability-status-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/adapter-proof-script-check.log"
+    },
+    {
+      "name": "no-test-doubles",
+      "command": "node scripts/check-no-test-doubles.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/no-test-doubles.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/git-diff-check.log"
+    }
+  ],
+  "artifactCount": 45,
+  "artifacts": [
+    {
+      "id": "contract-boundary",
+      "group": "01-contract-proof",
+      "path": "output/network-plan-proof/03-contract-boundary-and-effect-schemas/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-contract-boundary"
+    },
+    {
+      "id": "eventing-full-plan",
+      "group": "02-eventing-proof",
+      "path": "output/eventing-plan-proof/full-eventing-plan/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "eventing-full-plan"
+    },
+    {
+      "id": "pcap-replay",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/12-pcap-file-replay-harness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-pcap-replay"
+    },
+    {
+      "id": "packet-parser",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/14-packet-parser/expected-packet-fixtures.json",
+      "kind": "json",
+      "parsedProof": null
+    },
+    {
+      "id": "dns-parser",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/15-dns-query-response-parser/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-packet-dns-parser"
+    },
+    {
+      "id": "tls-sni-parser",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/16-tls-clienthello-sni-parser/expected-sni-visibility.json",
+      "kind": "json",
+      "parsedProof": null
+    },
+    {
+      "id": "http-host-parser",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/17-http-host-parser/expected-http-host.json",
+      "kind": "json",
+      "parsedProof": null
+    },
+    {
+      "id": "quic-visibility",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/18-quic-http3-limitation-detector/expected-quic-limitation.json",
+      "kind": "json",
+      "parsedProof": null
+    },
+    {
+      "id": "encrypted-dns",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/19-doh-dot-detector/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-visibility-parser"
+    },
+    {
+      "id": "live-capture-gate",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/13-live-capture-proof-gate/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-live-capture-proof-gate"
+    },
+    {
+      "id": "live-capture-storage",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/03a-live-capture-storage-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-live-capture-storage"
+    },
+    {
+      "id": "zeek-analyzer",
+      "group": "04-analyzer-alert-proof",
+      "path": "output/network-plan-proof/43-zeek-structured-log-analyzer-comparison/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-zeek-analyzer-comparison"
+    },
+    {
+      "id": "signature-alerts",
+      "group": "04-analyzer-alert-proof",
+      "path": "output/network-plan-proof/44-signature-alert-ingestion-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-signature-alert-ingestion"
+    },
+    {
+      "id": "ai-detection",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/46-ai-detection-fixture-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-ai-detection-fixture-proof"
+    },
+    {
+      "id": "ai-audit",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/47-ai-audit-narrative-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-ai-audit-narrative-proof"
+    },
+    {
+      "id": "risk-budget",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/48-risk-budget-threshold-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-risk-budget-threshold-proof"
+    },
+    {
+      "id": "policy-mapping",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/34-evidence-grade-policy-mapping/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-evidence-policy-mapping"
+    },
+    {
+      "id": "policy-preview",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-policy-preview-stored-flow-evidence-proof"
+    },
+    {
+      "id": "dns-adapter",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/37-dns-proxy-block-redirect-adapter/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-dns-adapter"
+    },
+    {
+      "id": "windows-firewall-adapter",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/38-windows-firewall-adapter/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-windows-firewall-adapter"
+    },
+    {
+      "id": "windows-wfp-gate",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/39-windows-wfp-proof-gate/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-windows-wfp-proof-gate"
+    },
+    {
+      "id": "android-vpnservice-gate",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/40-android-vpnservice-proof-gate/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-android-vpnservice-proof-gate"
+    },
+    {
+      "id": "apple-network-extension-gate",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/41-apple-network-extension-proof-gate/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-apple-network-extension-proof-gate"
+    },
+    {
+      "id": "linux-adapter-gate",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/42-linux-adapter-proof-gate/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-linux-adapter-proof-gate"
+    },
+    {
+      "id": "platform-claims",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/52-platform-claims-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-platform-claims"
+    },
+    {
+      "id": "adapter-capability-status",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/adapter-capability-status/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-adapter-capability-status"
+    },
+    {
+      "id": "action-result-state",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/53-action-result-state-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-action-result-state-proof"
+    },
+    {
+      "id": "event-chain-journal",
+      "group": "07-journal-sqlite-proof",
+      "path": "output/network-plan-proof/10c-remote-delivery-event-chain-journal-status/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-event-chain-journal-proof"
+    },
+    {
+      "id": "receipt-ledger",
+      "group": "07-journal-sqlite-proof",
+      "path": "output/network-plan-proof/10d-remote-delivery-receipt-ledger-status/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-receipt-ledger-proof"
+    },
+    {
+      "id": "durable-envelope",
+      "group": "07-journal-sqlite-proof",
+      "path": "output/network-plan-proof/10e-remote-delivery-durable-envelope-status/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-durable-envelope-proof"
+    },
+    {
+      "id": "stored-flow-policy-preview",
+      "group": "07-journal-sqlite-proof",
+      "path": "output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-policy-preview-stored-flow-evidence-proof"
+    },
+    {
+      "id": "portal-drawer",
+      "group": "08-ui-snapshots",
+      "path": "output/network-plan-proof/36-parent-ui-network-evidence-drawer/proof-summary.json",
+      "kind": "json",
+      "parsedProof": null
+    },
+    {
+      "id": "portal-drawer-screenshot",
+      "group": "08-ui-snapshots",
+      "path": "output/network-plan-proof/36-parent-ui-network-evidence-drawer/08-ui-snapshots/network-evidence-drawer.png",
+      "kind": "png",
+      "parsedProof": null
+    },
+    {
+      "id": "portal-risk-platform-status",
+      "group": "08-ui-snapshots",
+      "path": "output/network-plan-proof/portal-risk-performance-platform-status/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-portal-risk-performance-platform-proof"
+    },
+    {
+      "id": "security-readiness",
+      "group": "09-security-negative-proof",
+      "path": "output/network-plan-proof/50-security-readiness-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-security-readiness-proof"
+    },
+    {
+      "id": "performance-benchmark",
+      "group": "10-performance-proof",
+      "path": "output/network-plan-proof/49-performance-benchmark-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-performance-benchmark-proof"
+    },
+    {
+      "id": "broker-delivery",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10a-broker-delivery-proof/10a-broker-delivery-proof.log",
+      "kind": "log",
+      "parsedProof": null
+    },
+    {
+      "id": "remote-delivery-status",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10b-broker-family-hub-delivery-status/10b-remote-delivery-status.log",
+      "kind": "log",
+      "parsedProof": null
+    },
+    {
+      "id": "remote-outbox-handoff",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10g-remote-delivery-outbox-handoff/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-outbox-handoff-proof"
+    },
+    {
+      "id": "remote-dispatch-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10i-remote-delivery-dispatch-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-dispatch-readiness-proof"
+    },
+    {
+      "id": "remote-no-enforcement",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10j-remote-delivery-no-enforcement-invariant/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-no-enforcement-invariant-proof"
+    },
+    {
+      "id": "remote-transport-state",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10k-remote-delivery-transport-dispatch-state/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-transport-dispatch-state-proof"
+    },
+    {
+      "id": "vpn-proxy-tunnel",
+      "group": "classification-proof",
+      "path": "output/network-plan-proof/24-vpn-proxy-tor-tunnel-classifier/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-vpn-proxy-tor-tunnel-classifier"
+    },
+    {
+      "id": "remote-torrent-download",
+      "group": "classification-proof",
+      "path": "output/network-plan-proof/25-remote-torrent-download-classifier/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-torrent-download-classifier"
+    },
+    {
+      "id": "end-to-end-pipeline",
+      "group": "product-path-proof",
+      "path": "output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-end-to-end-pipeline"
+    }
+  ],
+  "requiredProofPack": [
+    "output/network-plan-proof/full-network-plan/00-source-snapshot.md",
+    "output/network-plan-proof/full-network-plan/01-contract-proof.log",
+    "output/network-plan-proof/full-network-plan/02-eventing-proof.log",
+    "output/network-plan-proof/full-network-plan/03-parser-fixture-proof.json",
+    "output/network-plan-proof/full-network-plan/04-analyzer-alert-proof.json",
+    "output/network-plan-proof/full-network-plan/05-ai-policy-proof.json",
+    "output/network-plan-proof/full-network-plan/06-adapter-action-proof.json",
+    "output/network-plan-proof/full-network-plan/07-journal-sqlite-proof.json",
+    "output/network-plan-proof/full-network-plan/08-ui-snapshots.md",
+    "output/network-plan-proof/full-network-plan/09-security-negative-proof.log",
+    "output/network-plan-proof/full-network-plan/10-performance-proof.log",
+    "output/network-plan-proof/full-network-plan/11-classification-proof.json",
+    "output/network-plan-proof/full-network-plan/12-remote-delivery-proof.json",
+    "output/network-plan-proof/full-network-plan/13-product-path-proof.json"
+  ],
+  "provenPlanGates": [
+    "metadata-only network evidence and no exact URL/content from network-only evidence",
+    "reusable Rust eventing dependency for network runtime routing without a network-only bus",
+    "PCAP/parser/analyzer/classifier fixture proof with unsupported-claim records",
+    "AI detection/audit and risk-budget outputs remain advisory until typed policy handoff",
+    "adapter action is gated by policy, capability proof, result state, rollback/unavailable refs, and audit refs",
+    "journal, replay, receipt-ledger, durable envelope, outbox, and local read-model proof are present",
+    "portal evidence drawer and risk/performance/platform status are service/read-model backed and non-authoritative",
+    "security readiness and performance benchmark proof roots are present"
+  ],
+  "manualRequiredBoundaries": [
+    "live packet capture driver invocation remains proof-gated/manual-required",
+    "broker/family-hub remote delivery, provider delivery, and child-device delivery remain manual-required",
+    "remote delete/export propagation remains future transport work",
+    "production platform support and external audit/penetration-test signoff remain unclaimed"
+  ],
+  "notClaimed": [
+    "decrypted payload capture",
+    "exact URL, page content, video content, private message content, or search query from network-only evidence",
+    "raw PCAP upload to AI or cloud by default",
+    "AI direct policy authority",
+    "portal/UI policy or adapter authority",
+    "live adapter execution, host DNS/firewall/VPN/WFP/NetworkExtension/Linux mutation, or host filtering",
+    "enforcement command publication from network proof paths"
+  ]
+}

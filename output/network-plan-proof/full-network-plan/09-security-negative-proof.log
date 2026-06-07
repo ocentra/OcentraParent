@@ -1,0 +1,27 @@
+artifact=security-readiness
+path=output/network-plan-proof/50-security-readiness-proof/proof-summary.json
+kind=json
+
+command=cargo test -p ocentra-network-evidence
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-evidence-tests.log
+
+command=cargo test -p ocentra-parent-agent-core network_runtime
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/agent-core-network-runtime-tests.log
+
+command=node --check scripts/test/network-adapter-capability-status-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/adapter-proof-script-check.log
+
+command=node scripts/check-no-test-doubles.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/no-test-doubles.log
+
+command=node scripts/check-source-shape.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/source-shape.log
+
+command=git diff --check
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/git-diff-check.log

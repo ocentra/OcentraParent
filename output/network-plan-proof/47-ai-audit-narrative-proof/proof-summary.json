@@ -1,0 +1,51 @@
+{
+  "proof": "network-ai-audit-narrative-proof",
+  "checkedAt": "2026-06-07T16:54:01.889Z",
+  "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+  "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+  "statusShort": " M crates/ocentra-network-evidence/README.md\n M crates/ocentra-network-evidence/src/lib.rs\n M crates/ocentra-network-evidence/src/tests.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n?? crates/ocentra-network-evidence/src/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/adapter_capability_status_values.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status_rejections.rs\n?? scripts/test/network-adapter-capability-status-proof.mjs\n",
+  "proofRoot": "output\\network-plan-proof\\47-ai-audit-narrative-proof",
+  "testRoot": "test-results\\network-ai-audit-narrative-proof",
+  "commands": [
+    {
+      "name": "network-ai-audit-narrative-tests",
+      "command": "cargo test -p ocentra-network-evidence ai_audit",
+      "status": 0,
+      "log": "output\\network-plan-proof\\47-ai-audit-narrative-proof\\ai-audit-narrative-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\47-ai-audit-narrative-proof\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\47-ai-audit-narrative-proof\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedAiAuditNarrativeBoundary": "output\\network-plan-proof\\47-ai-audit-narrative-proof\\expected-ai-audit-narrative-boundary.json",
+    "proofSummary": "output\\network-plan-proof\\47-ai-audit-narrative-proof\\proof-summary.json",
+    "testProof": "test-results\\network-ai-audit-narrative-proof\\proof.json"
+  },
+  "provenRows": [
+    "47 AI audit narrative and recommendation proof"
+  ],
+  "provenBoundaries": [
+    "parent-readable narrative with cited evidence refs",
+    "advisory recommendation refs",
+    "uncertainty confirmation route",
+    "unsupported-claim rejection"
+  ],
+  "notClaimed": [
+    "remote AI provider invocation",
+    "raw PCAP, page content, exact URL, private message, search query, or decrypted payload in AI audit input",
+    "policy decision authority",
+    "adapter action, blocking, termination, or enforcement command authorization",
+    "portal AI audit UI rendering",
+    "production model quality or hosted audit workflow"
+  ]
+}

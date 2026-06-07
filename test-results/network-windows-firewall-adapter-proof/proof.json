@@ -1,0 +1,46 @@
+{
+  "proof": "network-windows-firewall-adapter",
+  "checkedAt": "2026-06-07T16:57:44.182Z",
+  "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+  "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+  "statusShort": " M crates/ocentra-network-evidence/README.md\n M crates/ocentra-network-evidence/src/lib.rs\n M crates/ocentra-network-evidence/src/tests.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n?? crates/ocentra-network-evidence/src/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/adapter_capability_status_values.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status_rejections.rs\n?? scripts/test/network-adapter-capability-status-proof.mjs\n?? scripts/test/network-full-plan-proof.mjs\n",
+  "proofRoot": "output\\network-plan-proof\\38-windows-firewall-adapter",
+  "testRoot": "test-results\\network-windows-firewall-adapter-proof",
+  "commands": [
+    {
+      "name": "network-windows-firewall-adapter-tests",
+      "command": "cargo test -p ocentra-network-evidence windows_firewall_adapter",
+      "status": 0,
+      "log": "output\\network-plan-proof\\38-windows-firewall-adapter\\windows-firewall-adapter-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\38-windows-firewall-adapter\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\38-windows-firewall-adapter\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedWindowsFirewallAdapterProof": "output\\network-plan-proof\\38-windows-firewall-adapter\\expected-windows-firewall-adapter-proof.json",
+    "proofSummary": "output\\network-plan-proof\\38-windows-firewall-adapter\\proof-summary.json",
+    "testProof": "test-results\\network-windows-firewall-adapter-proof\\proof.json"
+  },
+  "provenRows": [
+    "38 Windows Firewall adapter"
+  ],
+  "notClaimed": [
+    "live Windows Firewall mutation",
+    "netsh or PowerShell command invocation",
+    "OS permission elevation",
+    "host packet filtering",
+    "enforcement command publication",
+    "decrypted payload or page content inspection",
+    "exact URL claim from network-only evidence"
+  ]
+}

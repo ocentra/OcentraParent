@@ -1,4 +1,5 @@
 pub mod action_result;
+pub mod adapter_capability_status;
 pub mod ai_audit;
 pub mod ai_detection;
 pub mod android_vpn_service_gate;
@@ -40,6 +41,7 @@ pub mod windows_firewall_adapter;
 pub mod windows_wfp_gate;
 pub mod zeek;
 
+mod adapter_capability_status_values;
 mod platform_claim_values;
 mod process_support;
 
@@ -52,6 +54,11 @@ pub use action_result::{
     NetworkActionResultError, NetworkActionResultInput, NetworkActionResultProof,
     NetworkActionResultRequestedAction, NetworkActionResultRequiredArtifact,
     NetworkActionResultState, NetworkActionResultTargetKind,
+};
+pub use adapter_capability_status::{
+    build_network_adapter_capability_status, NetworkAdapterCapabilityStatusEntry,
+    NetworkAdapterCapabilityStatusError, NetworkAdapterCapabilityStatusInput,
+    NetworkAdapterCapabilityStatusProof, NetworkAdapterCapabilityStatusState,
 };
 pub use ai_audit::{
     build_network_ai_audit_report, NetworkAiAuditNarrativeState, NetworkAiAuditRecommendation,

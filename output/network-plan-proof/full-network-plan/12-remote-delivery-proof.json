@@ -1,0 +1,46 @@
+{
+  "artifacts": [
+    {
+      "id": "broker-delivery",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10a-broker-delivery-proof/10a-broker-delivery-proof.log",
+      "kind": "log",
+      "parsedProof": null
+    },
+    {
+      "id": "remote-delivery-status",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10b-broker-family-hub-delivery-status/10b-remote-delivery-status.log",
+      "kind": "log",
+      "parsedProof": null
+    },
+    {
+      "id": "remote-outbox-handoff",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10g-remote-delivery-outbox-handoff/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-outbox-handoff-proof"
+    },
+    {
+      "id": "remote-dispatch-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10i-remote-delivery-dispatch-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-dispatch-readiness-proof"
+    },
+    {
+      "id": "remote-no-enforcement",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10j-remote-delivery-no-enforcement-invariant/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-no-enforcement-invariant-proof"
+    },
+    {
+      "id": "remote-transport-state",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10k-remote-delivery-transport-dispatch-state/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-transport-dispatch-state-proof"
+    }
+  ]
+}

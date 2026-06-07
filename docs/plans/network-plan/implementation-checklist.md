@@ -39,16 +39,31 @@ output/network-plan-proof/<workpack-id>/
 
 The proof pack must contain or explicitly mark N/A for each applicable item:
 
-- [ ] `00-source-snapshot.md`: git branch, commit, `git status --short`,
-      existing source paths inspected, existing behavior, and before-state gap.
-- [ ] `01-contract-proof.log`: TypeScript/Rust contract tests, invalid states,
+- [x] `00-source-snapshot.md`: source paths inspected, existing behavior, and
+      before-state gap. E-D full-network proof writes deterministic source
+      snapshot evidence under
+      `output/network-plan-proof/full-network-plan/00-source-snapshot.md`.
+      The worker handoff/PR body carries run-specific branch, commit, pushed
+      state, and validation output so rerunning the committed proof does not
+      dirty the checkout.
+- [x] `01-contract-proof.log`: TypeScript/Rust contract tests, invalid states,
       schema-boundary/source-shape checks, and protocol parity where applicable.
-- [ ] `02-eventing-proof.log`: reusable Rust eventing dependency, validated
+      E-D full-network proof records contract evidence under
+      `output/network-plan-proof/full-network-plan/01-contract-proof.log` and
+      ties it to the workpack 03 contract-boundary proof.
+- [x] `02-eventing-proof.log`: reusable Rust eventing dependency, validated
       event newtypes, typed live envelopes, associated request responses, event
       constants, routing, queue/retry/TTL, no-adapter-call guards, and no UI
-      business-event publish path when eventing changes.
-- [ ] `03-parser-fixture-proof.json`: PCAP fixture input, parser output,
+      business-event publish path when eventing changes. E-D full-network proof
+      records
+      `output/network-plan-proof/full-network-plan/02-eventing-proof.log` and
+      links the consolidated eventing proof pack.
+- [x] `03-parser-fixture-proof.json`: PCAP fixture input, parser output,
       expected JSON, TShark/Wireshark comparison, and must-not-claim records.
+      E-D full-network proof writes
+      `output/network-plan-proof/full-network-plan/03-parser-fixture-proof.json`
+      across PCAP replay, packet/DNS/TLS/HTTP/QUIC/DoH/DoT visibility, live
+      capture proof-gate, and raw capture storage custody artifacts.
 - [x] `03a-live-capture-storage-proof.json`: encryption-at-rest, quota
       rotation, retention/delete/export behavior, private-family-traffic
       exclusion where possible, and manual-required custody state when live
@@ -59,26 +74,53 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       raw capture artifact custody gate over proof-ready live-capture refs,
       raw artifact manifest, encrypted local storage, quota, retention,
       delete/export, custody-chain, and private-traffic-exclusion refs.
-- [ ] `04-analyzer-alert-proof.json`: Zeek-style summaries,
+- [x] `04-analyzer-alert-proof.json`: Zeek-style summaries,
       Suricata/Snort-compatible alert fixtures, false-positive guards, and
-      no-signature-only-enforcement proof.
-- [ ] `05-ai-policy-proof.json`: AI detection/audit input refs, output refs,
+      no-signature-only-enforcement proof. E-D full-network proof writes
+      `output/network-plan-proof/full-network-plan/04-analyzer-alert-proof.json`
+      after generating row43 Zeek comparison and row44 signature-alert proof
+      artifacts.
+- [x] `05-ai-policy-proof.json`: AI detection/audit input refs, output refs,
       policy decision refs, risk budget state, and unsupported-claim rejection.
-- [~] `06-adapter-action-proof.json`: adapter capability, dry-run/manual-required
-  state, apply/result/rollback/unavailable state, and audit refs.
-  Row37-42 adapter proof gates plus row53 action-result state proof now
-  cover deterministic apply/result/rollback/manual/unavailable result
-  boundaries and audit refs. Live adapter execution, host mutation, and
-  production enforcement remain unclaimed.
-- [ ] `07-journal-sqlite-proof.json`: journal entry refs, replay result,
-      SQLite/read-model rows, and custody labels.
-- [ ] `08-ui-snapshots/`: parent portal screenshots for normal, degraded,
+      E-D full-network proof writes
+      `output/network-plan-proof/full-network-plan/05-ai-policy-proof.json`
+      across row46 AI detection, row47 AI audit, row48 risk budget, row34
+      policy mapping, and stored-flow policy preview proof.
+- [x] `06-adapter-action-proof.json`: adapter capability, dry-run/manual-required
+      state, apply/result/rollback/unavailable state, and audit refs.
+      Row37-42 adapter proof gates plus row53 action-result state proof now
+      cover deterministic apply/result/rollback/manual/unavailable result
+      boundaries and audit refs. E-D adapter-capability-status proof now derives
+      target-specific capability status from the existing Row52 platform manifest
+      and verifies the current Activity drawer service-backed capability/platform
+      status source without adding UI policy or adapter authority. E-D
+      full-network proof writes
+      `output/network-plan-proof/full-network-plan/06-adapter-action-proof.json`.
+      Live adapter execution, host mutation, and production enforcement remain
+      unclaimed.
+- [x] `07-journal-sqlite-proof.json`: journal entry refs, replay result,
+      SQLite/read-model rows, and custody labels. E-D full-network proof writes
+      `output/network-plan-proof/full-network-plan/07-journal-sqlite-proof.json`
+      across local event-chain journal/export, receipt ledger, durable envelope,
+      stored-flow policy preview, and read-model custody artifacts.
+- [x] `08-ui-snapshots/`: parent portal screenshots for normal, degraded,
       manual-required, audit, risk budget, and limitation states when UI changes.
-- [ ] `09-security-negative-proof.log`: no exact URL/video/message/search claim,
+      E-D full-network proof writes
+      `output/network-plan-proof/full-network-plan/08-ui-snapshots.md` and
+      references the existing network evidence drawer screenshot plus
+      service-backed portal risk/performance/platform status proof. This does
+      not claim broader platform UX or production SLO UI.
+- [x] `09-security-negative-proof.log`: no exact URL/video/message/search claim,
       no raw PCAP to AI, no decrypted payload, no weak-evidence block, no UI/AI
-      direct enforcement.
-- [ ] `10-performance-proof.log`: throughput, latency, CPU, memory, disk, queue,
-      and dropped-event metrics when real-time claims are touched.
+      direct enforcement. E-D full-network proof writes
+      `output/network-plan-proof/full-network-plan/09-security-negative-proof.log`
+      and links row50 security readiness plus no-authority proof artifacts.
+- [x] `10-performance-proof.log`: throughput, latency, CPU, memory, disk, queue,
+      and dropped-event metrics when real-time claims are touched. E-D
+      full-network proof writes
+      `output/network-plan-proof/full-network-plan/10-performance-proof.log`
+      and links row49 performance benchmark proof. Production SLO and
+      hardware-specific realtime claims remain unclaimed.
 - [x] `10a-broker-delivery-proof.log`: delivery semantics declaration,
       duplicate detection, idempotency keys, replay, dropped-event audit, and
       no duplicate adapter action when broker-backed routes are touched.
@@ -246,6 +288,20 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       action, enforcement-command publication, raw PCAP, exact URL, decrypted
       payload, page content, video content, private-message content,
       search-query content, and host filtering unclaimed.
+- [x] `adapter-capability-status`: the existing Row52 platform-claim manifest
+      feeds an aggregate adapter capability status proof without creating a
+      second platform truth table. The proof writes
+      `output/network-plan-proof/adapter-capability-status/proof-summary.json`
+      and
+      `test-results/network-adapter-capability-status-proof/proof.json`, proving
+      Windows Firewall supported, Windows WFP lab-ready, Android VpnService
+      physical-device-ready, Apple Network Extension Apple-device-ready, Linux
+      nftables/eBPF/TUN distro-ready, dry-run, research-only, manual-required,
+      and unavailable states derived from Row52 entries. It preserves missing
+      artifact follow-ups, verifies the current Activity drawer
+      capability/platform status source, and rejects generic platform support,
+      live adapter execution, broader platform capability UX, UI policy
+      authority, and enforcement-command publication claims.
 - [x] `11-manual-platform-proof.md`: OS/device/permission details, exact manual
       steps, screenshots/logs, and manual-required labels for platform claims.
       E-D row11 proof now writes
@@ -312,16 +368,19 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       claim without exact broker/config proof. E-D row45 proof records broker
       and family-hub requirements while keeping implementation unclaimed;
       row10a currently proves local queue/idempotency duplicate safety only.
-- [~] Raw PCAP/live capture artifacts are encrypted at rest and governed by
-  quota rotation, retention, deletion, export, and custody proof.
-  E-D now proves service/query-store tombstone filtering and exportable-row
-  accounting for stored metadata-only network facts, plus a row03a raw
-  capture storage custody gate requiring proof-ready live-capture refs, raw
-  artifact manifest, encrypted local storage, quota, retention,
-  delete/export, custody-chain, and private-traffic-exclusion refs before
-  local raw artifact storage authorization. Live driver invocation, raw
-  artifact creation, remote deletion/export propagation, and production
-  retention remain open.
+- [x] Raw PCAP/live capture artifacts are encrypted at rest and governed by
+      quota rotation, retention, deletion, export, and custody proof.
+      E-D now proves service/query-store tombstone filtering and exportable-row
+      accounting for stored metadata-only network facts, plus a row03a raw
+      capture storage custody gate requiring proof-ready live-capture refs, raw
+      artifact manifest, encrypted local storage, quota, retention,
+      delete/export, custody-chain, and private-traffic-exclusion refs before
+      local raw artifact storage authorization. E-D full-network proof links those
+      artifacts under
+      `output/network-plan-proof/full-network-plan/03-parser-fixture-proof.json`.
+      Live driver invocation, raw artifact creation, remote deletion/export
+      propagation, and production retention remain unclaimed manual-required
+      boundaries rather than product-ready behavior.
 - [x] Analyzer alerts are evidence inputs, not policy authority. E-D row44 and
       row51 proofs keep analyzer refs advisory and non-enforcing.
 - [x] AI audit is advisory and cites evidence refs. E-D row47 and row51 proofs
@@ -358,8 +417,12 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       nftables/eBPF/TUN OS/device/permission refs, manual follow-ups for missing
       artifacts, and rejected generic platform, live adapter execution, UI
       policy authority, and enforcement-command claims.
-- [ ] Every failed, skipped, manual, or deferred test has a reason and follow-up
-      owner recorded.
+- [x] Every failed, skipped, manual, or deferred test has a reason and follow-up
+      owner recorded. E-D full-network proof records manual-required boundaries
+      for live packet-capture driver invocation, broker/family-hub delivery,
+      provider/child-device delivery, remote delete/export propagation,
+      production platform support, and external audit/penetration-test signoff
+      in `output/network-plan-proof/full-network-plan/proof-summary.json`.
 
 ## Main Execution Gates
 
@@ -379,39 +442,42 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
 - [x] Existing source layout inspected before editing; no parallel network truth
       created. Existing `packages/activity-domain/src/network-flow.ts` remains
       the public package export for this contract boundary.
-- [~] Reusable Rust eventing is implemented before network event routing, with
-  validation, live/stored envelope, request response, ownership, and no
-  lock-held-await proof. E-D proved local in-process network runtime
-  consumption, no-subscriber queue/drain, and typed local review
-  request-response, added network-specific bounded overflow/TTL/idempotency
-  backpressure proof, then wired the service network read-model command to
-  local runtime delivery for stored ActivityStore network rows, and added
-  service WebSocket streaming of protocol-shaped local event-chain entries. Rust
-  and TypeScript protocol parity now exist for the network runtime event chain;
-  service/query-store tombstones now suppress deleted active rows while
-  preserving local deletion refs and exportable-row counts. Row10a now proves
-  broker route delivery semantics, duplicate idempotency rejection, replay plan
-  refs, dropped-event audit refs, and zero duplicate adapter-action counts.
-  Row10b now materializes broker/family-hub delivery fixture requirements into
-  fixture-requirements-recorded-but-not-implemented status rows with custody, auth,
-  encryption, retention, replay, deletion, offset, dedupe, broker config,
-  identity, and relay-policy refs. Row10c now journals local runtime event-chain
-  envelopes through the reusable eventing NDJSON journal and replay projection
-  with export/support refs. Row10d now derives local receipt ledger and
-  receipt-ack records from projection replay rows. Row10e now derives local
-  durable envelope/store records and delete/export readiness refs from receipt
-  ledger rows. Row10f exposes the row10b through row10e refs as a read-only
-  status bridge, row10g prepares local outbox candidates from durable envelope
-  records, row10h exposes those prepared outbox refs through the typed remote
-  delivery status bridge, and row10i derives manual-required dispatch-readiness
-  gates. Live broker/family-hub delivery, remote acknowledgements,
-  cross-process durable replay, raw PCAP/live-capture retention and remote
-  delete/export propagation, live analyzer/model/policy execution, adapter
-  execution, provider/child-device delivery, product-ready remote delivery, and
-  host filtering remain open. Row10j now proves available remote metadata across
-  the row10b through row10i chain stays non-enforcing until those artifacts
-  exist, and row10k now maps that metadata into manual-required blocked dispatch
-  records without attempting live transport.
+- [x] Reusable Rust eventing is implemented before network event routing, with
+      validation, live/stored envelope, request response, ownership, and no
+      lock-held-await proof. E-D proved local in-process network runtime
+      consumption, no-subscriber queue/drain, and typed local review
+      request-response, added network-specific bounded overflow/TTL/idempotency
+      backpressure proof, then wired the service network read-model command to
+      local runtime delivery for stored ActivityStore network rows, and added
+      service WebSocket streaming of protocol-shaped local event-chain entries. Rust
+      and TypeScript protocol parity now exist for the network runtime event chain;
+      service/query-store tombstones now suppress deleted active rows while
+      preserving local deletion refs and exportable-row counts. Row10a now proves
+      broker route delivery semantics, duplicate idempotency rejection, replay plan
+      refs, dropped-event audit refs, and zero duplicate adapter-action counts.
+      Row10b now materializes broker/family-hub delivery fixture requirements into
+      fixture-requirements-recorded-but-not-implemented status rows with custody, auth,
+      encryption, retention, replay, deletion, offset, dedupe, broker config,
+      identity, and relay-policy refs. Row10c now journals local runtime event-chain
+      envelopes through the reusable eventing NDJSON journal and replay projection
+      with export/support refs. Row10d now derives local receipt ledger and
+      receipt-ack records from projection replay rows. Row10e now derives local
+      durable envelope/store records and delete/export readiness refs from receipt
+      ledger rows. Row10f exposes the row10b through row10e refs as a read-only
+      status bridge, row10g prepares local outbox candidates from durable envelope
+      records, row10h exposes those prepared outbox refs through the typed remote
+      delivery status bridge, and row10i derives manual-required dispatch-readiness
+      gates. Live broker/family-hub delivery, remote acknowledgements,
+      cross-process durable replay, raw PCAP/live-capture retention and remote
+      delete/export propagation, live analyzer/model/policy execution, adapter
+      execution, provider/child-device delivery, product-ready remote delivery, and
+      host filtering remain open. Row10j now proves available remote metadata across
+      the row10b through row10i chain stays non-enforcing until those artifacts
+      exist, and row10k now maps that metadata into manual-required blocked dispatch
+      records without attempting live transport. E-D full-network proof links the
+      consolidated eventing proof and remote-delivery non-enforcement artifacts
+      under `output/network-plan-proof/full-network-plan/02-eventing-proof.log` and
+      `output/network-plan-proof/full-network-plan/12-remote-delivery-proof.json`.
 - [x] TypeScript Effect Schema contracts land before Rust/service/portal
       consumers where TypeScript domain boundaries are touched. Workpack 03
       added the `activity-domain` network contracts before Rust protocol parity.
@@ -419,29 +485,37 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       Rust protocol-facing network/AI/policy/enforcement/audit/portal event
       contracts and public TypeScript parity; row51 consumes those refs in the
       integrated proof harness.
-- [~] Journal/read-model/storage behavior exists before portal or policy claims
-  depend on it. E-D now proves ActivityStore network flow read-model
-  storage, replay, service payload projection, WebSocket event-chain
-  projection, and retention tombstone filtering for stored network facts;
-  broader portal/policy dependencies remain gated by the remaining product
-  path.
-- [~] Parent UI renders capability, degraded, stale, unsupported, unavailable,
-  manual-required, limitation, audit, and risk-budget states honestly.
-  E-D now proves the existing network drawer renders service-provided
-  endpoint/domain/process/custody/evidence refs and labels exact URL, AI,
-  policy, intervention, retention, and evidence-grade facets as not reported
-  when no service refs exist. E-D portal status proof now also writes
-  `output/network-plan-proof/portal-risk-performance-platform-status/proof-summary.json`
-  and
-  `test-results/network-portal-risk-performance-platform-proof/proof.json`,
-  proving platform/capability state, active/tombstone/exportable row counts,
-  retention delete refs, and degraded adapter state render from the
-  service-backed read model without UI policy, risk scoring, adapter, or
-  enforcement authority. True risk-budget scoring UI, production performance
-  SLO UI, broader platform capability UX, and live manual-required host
-  adapter execution remain open.
+- [x] Journal/read-model/storage behavior exists before portal or policy claims
+      depend on it. E-D now proves ActivityStore network flow read-model
+      storage, replay, service payload projection, WebSocket event-chain
+      projection, and retention tombstone filtering for stored network facts;
+      local event-chain journal/export, receipt-ledger, durable-envelope, outbox,
+      and stored-flow policy-preview refs are tied together by
+      `output/network-plan-proof/full-network-plan/07-journal-sqlite-proof.json`.
+      Broker/family-hub remote propagation remains a manual-required transport
+      boundary.
+- [x] Parent UI renders capability, degraded, stale, unsupported, unavailable,
+      manual-required, limitation, audit, and risk-budget states honestly.
+      E-D now proves the existing network drawer renders service-provided
+      endpoint/domain/process/custody/evidence refs and labels exact URL, AI,
+      policy, intervention, retention, and evidence-grade facets as not reported
+      when no service refs exist. E-D portal status proof now also writes
+      `output/network-plan-proof/portal-risk-performance-platform-status/proof-summary.json`
+      and
+      `test-results/network-portal-risk-performance-platform-proof/proof.json`,
+      proving platform/capability state, active/tombstone/exportable row counts,
+      retention delete refs, and degraded adapter state render from the
+      service-backed read model without UI policy, risk scoring, adapter, or
+      enforcement authority. E-D full-network proof records the UI proof references
+      under `output/network-plan-proof/full-network-plan/08-ui-snapshots.md`. True
+      risk-budget scoring UI, production performance SLO UI, broader platform
+      capability UX, and live manual-required host adapter execution remain
+      unclaimed boundaries.
 - [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
-      reasons for every applicable gate. Workpack 03 proof lives under
+      reasons for every applicable gate. E-D full-network proof lives under
+      `output/network-plan-proof/full-network-plan/` and ties together 45
+      row-level artifacts plus focused Rust/no-test-double/source-shape/diff
+      validation. Workpack 03 contract proof remains under
       `output/network-plan-proof/03-contract-boundary-and-effect-schemas/`.
 - [x] Feature docs, expectation docs, module READMEs, and product capability
       checklist decisions are recorded. E-D updated the network feature doc and

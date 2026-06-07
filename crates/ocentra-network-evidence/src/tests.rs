@@ -7,6 +7,8 @@ use crate::{
 };
 
 mod action_result;
+mod adapter_capability_status;
+mod adapter_capability_status_rejections;
 mod ai_audit;
 mod ai_detection;
 mod android_vpn_service_gate;

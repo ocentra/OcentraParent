@@ -1,0 +1,53 @@
+{
+  "proof": "network-security-readiness-proof",
+  "checkedAt": "2026-06-07T16:55:02.436Z",
+  "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+  "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+  "statusShort": " M crates/ocentra-network-evidence/README.md\n M crates/ocentra-network-evidence/src/lib.rs\n M crates/ocentra-network-evidence/src/tests.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n?? crates/ocentra-network-evidence/src/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/adapter_capability_status_values.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status_rejections.rs\n?? scripts/test/network-adapter-capability-status-proof.mjs\n",
+  "proofRoot": "output\\network-plan-proof\\50-security-readiness-proof",
+  "testRoot": "test-results\\network-security-readiness-proof",
+  "commands": [
+    {
+      "name": "network-security-readiness-tests",
+      "command": "cargo test -p ocentra-network-evidence readiness_proof",
+      "status": 0,
+      "log": "output\\network-plan-proof\\50-security-readiness-proof\\security-readiness-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\50-security-readiness-proof\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\50-security-readiness-proof\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedSecurityReadinessBoundary": "output\\network-plan-proof\\50-security-readiness-proof\\expected-security-readiness-boundary.json",
+    "proofSummary": "output\\network-plan-proof\\50-security-readiness-proof\\proof-summary.json",
+    "testProof": "test-results\\network-security-readiness-proof\\proof.json"
+  },
+  "provenRows": [
+    "50 Security, privacy, compliance, deployment, support, and staged rollout proof"
+  ],
+  "provenBoundaries": [
+    "security, privacy, compliance, retention, hardening, support, and rollout gate refs",
+    "production blocked without external audit or penetration-test signoff",
+    "production-ready state only with external signoff ref",
+    "unsupported content/upload/authority/enforcement claim rejection"
+  ],
+  "notClaimed": [
+    "production deployment or rollout execution",
+    "external audit completion unless a signoff ref is supplied",
+    "default remote upload of child network evidence",
+    "raw PCAP without custody",
+    "exact URL, page content, private message, search query, or decrypted payload availability",
+    "policy or adapter authority",
+    "enforcement command publication",
+    "support materials authored in full outside referenced proof refs"
+  ]
+}

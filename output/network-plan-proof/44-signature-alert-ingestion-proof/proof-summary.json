@@ -1,0 +1,48 @@
+{
+  "proof": "network-signature-alert-ingestion",
+  "checkedAt": "2026-06-07T16:53:39.146Z",
+  "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+  "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+  "statusShort": " M crates/ocentra-network-evidence/README.md\n M crates/ocentra-network-evidence/src/lib.rs\n M crates/ocentra-network-evidence/src/tests.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n?? crates/ocentra-network-evidence/src/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/adapter_capability_status_values.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status_rejections.rs\n?? scripts/test/network-adapter-capability-status-proof.mjs\n",
+  "proofRoot": "output\\network-plan-proof\\44-signature-alert-ingestion-proof",
+  "testRoot": "test-results\\network-signature-alert-ingestion-proof",
+  "commands": [
+    {
+      "name": "network-signature-alert-ingestion-tests",
+      "command": "cargo test -p ocentra-network-evidence signature_alert_ingestion",
+      "status": 0,
+      "log": "output\\network-plan-proof\\44-signature-alert-ingestion-proof\\signature-alert-ingestion-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\44-signature-alert-ingestion-proof\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\44-signature-alert-ingestion-proof\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedSignatureAlerts": "output\\network-plan-proof\\44-signature-alert-ingestion-proof\\expected-signature-alerts.json",
+    "proofSummary": "output\\network-plan-proof\\44-signature-alert-ingestion-proof\\proof-summary.json",
+    "testProof": "test-results\\network-signature-alert-ingestion-proof\\proof.json"
+  },
+  "provenRows": [
+    "44 Suricata/Snort-compatible signature alert ingestion proof"
+  ],
+  "provenSources": [
+    "suricata",
+    "snort-compatible"
+  ],
+  "notClaimed": [
+    "live Suricata or Snort process invocation",
+    "live Npcap/libpcap capture",
+    "IPS prevention or packet blocking",
+    "exact URL, page content, message, search query, or decrypted payload visibility",
+    "policy, adapter, or enforcement command authority"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "proof": "network-zeek-analyzer-comparison",
+  "checkedAt": "2026-06-07T16:53:27.510Z",
+  "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+  "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+  "statusShort": " M crates/ocentra-network-evidence/README.md\n M crates/ocentra-network-evidence/src/lib.rs\n M crates/ocentra-network-evidence/src/tests.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n?? crates/ocentra-network-evidence/src/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/adapter_capability_status_values.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status_rejections.rs\n?? scripts/test/network-adapter-capability-status-proof.mjs\n",
+  "proofRoot": "output\\network-plan-proof\\43-zeek-structured-log-analyzer-comparison",
+  "testRoot": "test-results\\network-zeek-analyzer-comparison-proof",
+  "commands": [
+    {
+      "name": "network-zeek-generator-tests",
+      "command": "cargo test -p ocentra-network-evidence zeek_generator",
+      "status": 0,
+      "log": "output\\network-plan-proof\\43-zeek-structured-log-analyzer-comparison\\zeek-generator-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\43-zeek-structured-log-analyzer-comparison\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\43-zeek-structured-log-analyzer-comparison\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "approvedComparisonFixture": "output\\network-plan-proof\\43-zeek-structured-log-analyzer-comparison\\approved-zeek-comparison-fixture.json",
+    "proofSummary": "output\\network-plan-proof\\43-zeek-structured-log-analyzer-comparison\\proof-summary.json",
+    "testProof": "test-results\\network-zeek-analyzer-comparison-proof\\proof.json"
+  },
+  "provenRows": [
+    "43 Zeek-style structured log generator and analyzer comparison proof"
+  ],
+  "provenLogKinds": [
+    "conn",
+    "dns",
+    "http",
+    "tls",
+    "ssl"
+  ],
+  "notClaimed": [
+    "live Zeek, TShark, or Wireshark process invocation",
+    "live Npcap/libpcap capture",
+    "Suricata or Snort-compatible signature alert ingestion",
+    "exact URL, page content, message, search query, or decrypted payload visibility",
+    "policy, adapter, or enforcement command authority"
+  ]
+}

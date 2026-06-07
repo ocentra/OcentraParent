@@ -1,0 +1,51 @@
+{
+  "proof": "network-ai-detection-fixture-proof",
+  "checkedAt": "2026-06-07T16:53:50.403Z",
+  "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+  "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+  "statusShort": " M crates/ocentra-network-evidence/README.md\n M crates/ocentra-network-evidence/src/lib.rs\n M crates/ocentra-network-evidence/src/tests.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n?? crates/ocentra-network-evidence/src/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/adapter_capability_status_values.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status_rejections.rs\n?? scripts/test/network-adapter-capability-status-proof.mjs\n",
+  "proofRoot": "output\\network-plan-proof\\46-ai-detection-fixture-proof",
+  "testRoot": "test-results\\network-ai-detection-fixture-proof",
+  "commands": [
+    {
+      "name": "network-ai-detection-fixture-tests",
+      "command": "cargo test -p ocentra-network-evidence ai_detection",
+      "status": 0,
+      "log": "output\\network-plan-proof\\46-ai-detection-fixture-proof\\ai-detection-fixture-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\46-ai-detection-fixture-proof\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\46-ai-detection-fixture-proof\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedAiDetectionFixtureGate": "output\\network-plan-proof\\46-ai-detection-fixture-proof\\expected-ai-detection-fixture-gate.json",
+    "proofSummary": "output\\network-plan-proof\\46-ai-detection-fixture-proof\\proof-summary.json",
+    "testProof": "test-results\\network-ai-detection-fixture-proof\\proof.json"
+  },
+  "provenRows": [
+    "46 AI detection model fixture evaluation and drift/precision proof"
+  ],
+  "provenMetrics": [
+    "precision",
+    "recall",
+    "accuracy",
+    "average-confidence-drift"
+  ],
+  "notClaimed": [
+    "local AI model execution or worker runtime",
+    "remote AI provider invocation",
+    "raw PCAP, page content, exact URL, message content, search query, or decrypted payload in AI input",
+    "production model quality or hosted drift monitoring",
+    "policy decision authority",
+    "adapter action, blocking, termination, or enforcement command authorization"
+  ]
+}
