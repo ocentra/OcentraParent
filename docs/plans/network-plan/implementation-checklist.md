@@ -88,6 +88,15 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       refs, dropped-event audit refs, duplicate idempotency rejection, and zero
       enforcement-command/adapter-action counts while keeping live broker and
       family-hub delivery unimplemented.
+- [x] `10b-remote-delivery-status.log`: broker/family-hub delivery status
+      declaration with custody, auth, encryption, retention, replay, deletion,
+      offset, dedupe, broker config, identity, relay policy, idempotency,
+      dead-letter, no-enforcement-command, and no-adapter-action refs.
+      Row10b proof writes
+      `output/network-plan-proof/10b-broker-family-hub-delivery-status/10b-remote-delivery-status.log`
+      and keeps live broker/family-hub delivery, cross-process replay, remote
+      retention/delete/export propagation, policy authority, side-effect
+      authority, adapter execution, and host filtering unimplemented.
 - [x] `11-manual-platform-proof.md`: OS/device/permission details, exact manual
       steps, screenshots/logs, and manual-required labels for platform claims.
       E-D row11 proof now writes
@@ -233,8 +242,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   service/query-store tombstones now suppress deleted active rows while
   preserving local deletion refs and exportable-row counts. Row10a now proves
   broker route delivery semantics, duplicate idempotency rejection, replay plan
-  refs, dropped-event audit refs, and zero duplicate adapter-action counts
-  without live broker/family-hub transport. Live broker/family-hub delivery,
+  refs, dropped-event audit refs, and zero duplicate adapter-action counts.
+  Row10b now materializes broker/family-hub delivery requirements into
+  requirements-satisfied-but-not-implemented status rows with custody, auth,
+  encryption, retention, replay, deletion, offset, dedupe, broker config,
+  identity, and relay-policy refs. Live broker/family-hub delivery,
   cross-process durable replay, raw PCAP/live-capture retention and remote
   delete/export propagation, live analyzer/model/policy execution, adapter
   execution, and host filtering remain open.

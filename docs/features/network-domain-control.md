@@ -80,6 +80,15 @@ compete on control while staying clear about attribution confidence and privacy.
   enforcement-command or adapter-action counts. This remains a proof boundary
   only; live broker/family-hub transport, policy execution, adapter execution,
   and host filtering remain unclaimed.
+- E-D added row10b broker/family-hub remote delivery status proof in
+  `agent-core`: broker and family-hub relay routes now materialize custody,
+  publisher/subscriber auth, encryption, retention, replay, deletion, offset,
+  dedupe, broker config, family-hub identity, and relay-policy refs into an
+  explicit requirements-satisfied-but-not-implemented status. The proof carries
+  local idempotency/dead-letter evidence and keeps cross-process replay, remote
+  retention/delete/export propagation, live broker/family-hub delivery, policy
+  authority, side-effect authority, enforcement commands, adapter execution,
+  and host filtering false.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,
