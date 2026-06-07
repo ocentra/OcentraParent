@@ -797,12 +797,24 @@ only with explicit parent settings.
   retention remains disabled by default, raw remote upload remains forbidden,
   and this does not complete parent retention-control UI, live view,
   relay/cache, privacy/legal approval, or broad platform parity.
+- `ScreenOptionalVisibilityRuntimeSettingsStateSchema` and
+  `scripts/test/screen-optional-visibility-runtime-settings-proof.mjs` now prove
+  the separate writable runtime settings contract for optional raw-retention and
+  live-view opt-ins. The proof accepts parent-approved LAN live view as
+  view-only state while keeping `productLiveViewReady:false`, accepts raw
+  retention separately, rejects stale writes, rejects mixed raw-retention plus
+  live-view custody, and keeps raw screenshot remote upload false. The proof
+  writes
+  `output/screen-plan-proof/optional-visibility-runtime-settings/proof-summary.json`.
+  It does not start live-view workers, prove platform prompt screenshots,
+  physical-device parity, hosted relay infrastructure, privacy/legal approval,
+  remote input, or product-complete live view.
 
 ## Current Gap
 
 Product-complete retention-control rollout beyond the proved parent-approved
-local short-TTL Settings command path, actual production live-view worker start,
-hosted relay infrastructure,
+local short-TTL Settings command path and optional visibility runtime settings,
+actual production live-view worker start, hosted relay infrastructure,
 platform permission prompt proof, physical-device live-view parity, child-agent
 disclosure runtime deployment,
 privacy/legal approval, authenticated-account
@@ -1022,9 +1034,9 @@ Product-complete retention controls, production OCR/VLM quality,
 authenticated-account social proof,
 externally proved live producer coverage beyond the service capture/queue,
 deletion, and analysis row-ready/policy-ref handoffs, child-agent disclosure
-runtime deployment, production household mesh transport over physical LAN,
-writable optional retention/live-view runtime settings, broad adapters, and
-production explanation portal rendering remain in the Current Gap section above.
+runtime deployment, production household mesh transport over physical LAN, broad
+adapters, and production explanation portal rendering remain in the Current Gap
+section above.
 
 ## Next AI Instructions
 
