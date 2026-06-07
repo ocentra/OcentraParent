@@ -1,0 +1,107 @@
+{
+  "proof": "child-agent-ai-policy-authority",
+  "generatedAt": "2026-06-07T18:37:57.392Z",
+  "sourceProofs": {
+    "householdMesh": {
+      "path": "output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json",
+      "present": true
+    },
+    "eventDrivenRuntime": {
+      "path": "output/screen-ai-pipeline-proof/event-driven-runtime/proof-summary.json",
+      "present": true
+    }
+  },
+  "acceptedResult": {
+    "resultId": "local-ai-result-child-accepted-screen-summary",
+    "action": "allow",
+    "evidenceReferences": [
+      "screen-summary-wikipedia-winrt"
+    ],
+    "parentRuleReferences": [
+      "rule-school-allow"
+    ]
+  },
+  "childPolicyDecision": {
+    "decisionId": "policy-decision-child-owned-ai-result",
+    "action": "allow",
+    "localAiResultId": "local-ai-result-child-accepted-screen-summary",
+    "dryRun": true,
+    "enforcementHandoffState": "disabled"
+  },
+  "eventChain": [
+    {
+      "eventType": "provider-result-returned",
+      "actor": "household-ai-provider",
+      "publishesPolicyDecision": false,
+      "publishesEnforcement": false
+    },
+    {
+      "eventType": "child-result-accepted",
+      "actor": "child-agent",
+      "publishesPolicyDecision": false,
+      "publishesEnforcement": false
+    },
+    {
+      "eventType": "child-policy-decision-recorded",
+      "actor": "child-agent",
+      "publishesPolicyDecision": true,
+      "publishesEnforcement": false
+    },
+    {
+      "eventType": "child-action-handoff-disabled",
+      "actor": "child-agent",
+      "publishesPolicyDecision": false,
+      "publishesEnforcement": true
+    },
+    {
+      "eventType": "read-model-updated",
+      "actor": "child-agent",
+      "publishesPolicyDecision": false,
+      "publishesEnforcement": false
+    },
+    {
+      "eventType": "raw-image-deleted",
+      "actor": "child-agent",
+      "publishesPolicyDecision": false,
+      "publishesEnforcement": false
+    }
+  ],
+  "positiveChecks": {
+    "localAiResultSchemaParsed": true,
+    "childPolicySchemaParsed": true,
+    "providerEventsWorkerOnly": true,
+    "meshProofRejectsProviderAuthority": true,
+    "eventRuntimeProofPresent": true
+  },
+  "negativeChecks": [
+    {
+      "name": "provider-authored policy event is rejected",
+      "rejected": true
+    },
+    {
+      "name": "provider-authored enforcement event is rejected",
+      "rejected": true
+    },
+    {
+      "name": "provider result carrying policy decision is rejected before child validation",
+      "rejected": true
+    },
+    {
+      "name": "child policy decision must cite accepted result",
+      "rejected": true
+    }
+  ],
+  "assertions": {
+    "providerCanReturnWorkerResultOnly": true,
+    "childAgentOwnsResultValidation": true,
+    "childAgentOwnsPolicyDecision": true,
+    "providerCannotPublishPolicyOrEnforcement": true,
+    "policyConsumesOnlyAcceptedChildResult": true,
+    "enforcementRemainsPolicyHandoffOnly": true
+  },
+  "nonClaims": [
+    "This proof does not execute a physical household LAN provider.",
+    "This proof does not claim production model quality or portal UI.",
+    "This proof does not dispatch final enforcement."
+  ]
+}

@@ -67,6 +67,13 @@ claim needs proof, not slogans.
   child-agent validation before policy, and rejection of duplicate, expired,
   wrong-provider, wrong-claim, evidence-mismatch, custody-mismatch, raw-transfer,
   and provider-authority-invalid results.
+- `scripts/test/child-agent-ai-policy-authority-proof.mjs` now proves the
+  child-agent AI policy authority boundary over the existing household mesh and
+  event-driven runtime artifacts. Provider output is worker-only; the child
+  agent validates the local AI result, records the policy decision, owns
+  action/read-model/deletion event authority, and rejects provider-authored
+  policy/enforcement payloads plus policy decisions that do not cite the
+  accepted child-agent AI result.
 - `scripts/test/household-mesh-event-bridge-proof.mjs` now proves the selected
   event bridge boundary: local mesh events can be exported only as typed LAN
   message envelopes, incoming LAN messages must authenticate and authorize
@@ -463,6 +470,10 @@ variants.
       degraded/unsupported rejection, and custody mismatch rejection without
       claiming physical LAN routing, production model execution, portal UI,
       policy authority, or enforcement.
+- [x] Child-agent AI policy authority proof validates provider worker-only
+      output, child-agent result validation, child-owned policy/action/read-model
+      authority, and provider policy/enforcement rejection without claiming
+      physical LAN execution, model quality, portal UI, or final enforcement.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub
