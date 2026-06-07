@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T14:39:12.714Z",
-  "commit": "ee3dee58",
+  "checkedAt": "2026-06-07T20:29:24.701Z",
+  "commit": "70eb9c2c",
   "workpackId": "27-escalation-engine",
   "requiredProofTier": "P1_FIXTURE_SIMULATION",
   "currentProofTier": "P1_FIXTURE_SIMULATION",

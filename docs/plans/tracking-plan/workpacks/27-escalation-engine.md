@@ -23,6 +23,7 @@ Proof root: `output/tracking-plan-proof/27-escalation-engine/`
 
 - `01-contract-proof.log`
 - `09-policy-alert-proof.json`
+- `10-escalation-runtime-readiness-blocker-proof.json`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
 
@@ -43,9 +44,15 @@ proof derives escalation readiness rows from the existing tracking policy read
 model, covers parent acknowledgement cancellation, child check-in resolution,
 urgent second-guardian manual readiness, critical multi-channel manual
 readiness, manual-required, and unavailable states, and rejects AI direct
-scheduling plus emergency auto-contact overclaims. Runtime workers, platform
-adapters, provider delivery, parent notification UI, child-device delivery,
-physical-device proof, and production quiet-hours timers remain unclaimed.
+scheduling plus emergency auto-contact overclaims. This continuation also adds
+`node scripts/test/tracking-escalation-runtime-readiness-blocker-proof.mjs`,
+which consumes the escalation readiness proof and provider-runtime blocker
+proof to write `10-escalation-runtime-readiness-blocker-proof.json` under this
+proof root plus the WP33 companion gate. Runtime workers, platform adapters,
+provider delivery/receipt runtime, parent notification history runtime,
+child-device delivery, durable escalation storage, physical-device proof,
+authority proof, emergency auto-contact policy, and production quiet-hours
+timers remain unclaimed until real runtime artifacts exist.
 
 ## Where We Want To Be
 
@@ -89,3 +96,26 @@ This workpack can be assigned independently, implemented against the owning doma
       workers, production quiet-hours timers, durable storage, emergency
       auto-contact, Android/iOS physical proof, and full runtime execution
       remain proof-gated.
+- [x] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: escalation runtime blocker proof model/test, focused proof
+      script, owning tracking feature doc, implementation checklist, WP27,
+      WP33, generated WP27/WP33 proof artifacts, and hub doc delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-escalation-runtime-readiness-blocker-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/27-escalation-engine/10-escalation-runtime-readiness-blocker-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/53-escalation-runtime-readiness-blocker-proof.json`,
+      `output/tracking-plan-proof/tracking-escalation-runtime-readiness-blocker-proof/proof.json`,
+      and
+      `test-results/tracking-escalation-runtime-readiness-blocker-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP27, and WP33 updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta instead of editing the shared checklist directly.
+- [x] Known gaps/manual-required states: production escalation workers,
+      production quiet-hours timers, provider delivery/receipt runtime,
+      provider credentials, parent notification history runtime,
+      child-device delivery, durable escalation storage, physical-device proof,
+      authority proof, emergency auto-contact policy, and product-ready
+      escalation remain proof-gated until real runtime artifacts exist.

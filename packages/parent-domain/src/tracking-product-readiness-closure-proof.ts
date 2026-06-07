@@ -19,6 +19,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'physical-device-artifact-gate',
   'provider-delivery-artifact-gate',
   'provider-runtime-readiness-blocker',
+  'escalation-runtime-readiness-blocker',
   'child-runtime-product-readiness-blocker',
   'retention-product-readiness-blocker'
 );
@@ -33,6 +34,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'physical-device-artifact-gate',
   'provider-delivery-artifact-gate',
   'provider-runtime-readiness-blocker',
+  'escalation-runtime-readiness-blocker',
   'child-runtime-product-readiness-blocker',
   'retention-product-readiness-blocker',
 ] as const;
