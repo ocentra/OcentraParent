@@ -380,3 +380,27 @@ The service payload keeps dispatch attempts, adapter execution, child
 intervention execution, final policy execution, browser mutation, and
 enforcement at zero. It does not add a new browser command family, execute
 policy, mutate browser state, execute child intervention, or enforce.
+
+## Action-Intent Portal State Addendum - 2026-06-07
+
+`browser-runtime-action-intent-portal-state-proof` verifies that the shared
+TypeScript protocol parser and portal live-activity state consume the browser
+runtime action-intent service counters from the existing event-chain stream
+payload. Pending candidate counts are allowed, while dispatch attempts, adapter
+execution, child intervention execution, and enforcement execution must stay
+zero.
+
+Evidence:
+
+- `packages/agent-protocol-domain/src/browser-runtime-events.ts`
+- `packages/agent-protocol-domain/tests/browser-runtime-events.test.ts`
+- `apps/portal/tests/live-activity-state.test.ts`
+- `scripts/test/browser-runtime-action-intent-portal-state-proof.mjs`
+- `test-results/browser-runtime-action-intent-portal-state-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-portal-state/01-browser-runtime-action-intent-portal-state-proof.md`
+- `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- browser-runtime-events.test.ts`
+- `cmd /c npm run test --workspace @ocentra-parent/portal -- live-activity-state.test.ts`
+
+This is protocol/parser and portal state proof only. It does not add a new
+portal visual surface, execute policy, mutate browser state, execute child
+intervention, or enforce.

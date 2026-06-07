@@ -185,12 +185,22 @@ export const AgentBrowserRuntimeEventChainStreamSchema = withParser(
     manualRequiredRows: Schema.Number,
     interventionCommandEvents: Schema.Number,
     readModelProjectionEvents: Schema.Number,
+    actionIntentCandidates: Schema.Number,
+    actionIntentDispatchAttempts: Schema.Literal(0),
+    actionIntentAdapterExecutions: Schema.Literal(0),
+    actionIntentChildInterventionExecutions: Schema.Literal(0),
+    actionIntentEnforcementExecutions: Schema.Literal(0),
     entries: Schema.Array(AgentBrowserRuntimeEventChainEntrySchema),
   }).pipe(
     Schema.filter(
       (stream) =>
         stream.streamedEvents === stream.entries.length ||
         'Expected browser runtime streamedEvents to match event-chain entries'
+    ),
+    Schema.filter(
+      (stream) =>
+        stream.actionIntentCandidates >= actionIntentCandidatesFromEntries(stream.entries).length ||
+        'Expected browser runtime action-intent candidate count to cover stream candidates'
     )
   )
 );
@@ -283,6 +293,23 @@ export function parseAgentBrowserRuntimeEventChainStreamFields(
         fields,
         AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents
       ),
+      actionIntentCandidates: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeActionIntentCandidates),
+      actionIntentDispatchAttempts: numberField(
+        fields,
+        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts
+      ),
+      actionIntentAdapterExecutions: numberField(
+        fields,
+        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentAdapterExecutions
+      ),
+      actionIntentChildInterventionExecutions: numberField(
+        fields,
+        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildInterventionExecutions
+      ),
+      actionIntentEnforcementExecutions: numberField(
+        fields,
+        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentEnforcementExecutions
+      ),
       entries,
     })
   );
@@ -291,9 +318,9 @@ export function parseAgentBrowserRuntimeEventChainStreamFields(
 export function deriveAgentBrowserRuntimeActionIntentStatus(
   stream: AgentBrowserRuntimeEventChainStream
 ): AgentBrowserRuntimeActionIntentStatus {
-  const candidates = stream.entries.flatMap((entry) => actionIntentCandidateFromEntry(entry));
+  const candidates = actionIntentCandidatesFromEntries(stream.entries);
   return {
-    candidateCount: candidates.length,
+    candidateCount: stream.actionIntentCandidates,
     dispatchAttemptCount: 0,
     adapterExecutionCount: 0,
     childInterventionExecutionCount: 0,
@@ -302,6 +329,12 @@ export function deriveAgentBrowserRuntimeActionIntentStatus(
     policyAuthorityOnly: true,
     candidates,
   };
+}
+
+function actionIntentCandidatesFromEntries(
+  entries: readonly AgentBrowserRuntimeEventChainEntry[]
+): AgentBrowserRuntimeActionIntentCandidate[] {
+  return entries.flatMap((entry) => actionIntentCandidateFromEntry(entry));
 }
 
 function streamResult(

@@ -151,6 +151,13 @@ control while being more honest about managed versus unmanaged sources.
   candidate through the same service payload. Dispatch, adapter execution,
   browser mutation, child intervention execution, final policy execution, and
   enforcement remain unclaimed.
+- Browser-plan WP13 now also has TypeScript protocol and portal state coverage
+  for those service action-intent counters. The shared parser accepts pending
+  candidate counts but rejects nonzero dispatch, adapter execution, child
+  intervention execution, or enforcement counters before portal live-activity
+  state exposes the stream. This is parser/state proof only; it adds no visual
+  portal surface, browser mutation, child intervention execution, final policy
+  execution, or enforcement.
 - Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
   through activity-domain inventory contracts, Rust protocol, and service
   payload/read-model proof. Contract tests cover mixed managed, unmanaged, and

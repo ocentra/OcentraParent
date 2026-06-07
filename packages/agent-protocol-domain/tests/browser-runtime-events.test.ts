@@ -92,6 +92,11 @@ function specifyStreamParsing() {
   expect(parsed.value.streamedEvents).toBe(4);
   expect(parsed.value.manualRequiredRows).toBe(1);
   expect(parsed.value.interventionCommandEvents).toBe(0);
+  expect(parsed.value.actionIntentCandidates).toBe(0);
+  expect(parsed.value.actionIntentDispatchAttempts).toBe(0);
+  expect(parsed.value.actionIntentAdapterExecutions).toBe(0);
+  expect(parsed.value.actionIntentChildInterventionExecutions).toBe(0);
+  expect(parsed.value.actionIntentEnforcementExecutions).toBe(0);
   expect(parsed.value.entries.map((entry) => entry.eventType)).toEqual([
     AgentBrowserRuntimeEventType.EvidenceObserved,
     AgentBrowserRuntimeEventType.EvidenceJournaled,
@@ -109,7 +114,9 @@ function specifyStreamParsing() {
 
 function specifyDryRunActionHandoffParsing() {
   const parsed = parseAgentBrowserRuntimeEventChainStreamFields(
-    streamFields([entry(AgentBrowserRuntimeEventType.PolicyDecisionCompleted, PolicyDecisionPayload)])
+    streamFields([entry(AgentBrowserRuntimeEventType.PolicyDecisionCompleted, PolicyDecisionPayload)], {
+      actionIntentCandidates: 1,
+    })
   );
 
   expect(parsed.ok).toBe(true);
@@ -126,10 +133,13 @@ function specifyDryRunActionHandoffParsing() {
 
 function specifyActionIntentStatus() {
   const parsed = parseAgentBrowserRuntimeEventChainStreamFields(
-    streamFields([
-      entry(AgentBrowserRuntimeEventType.PolicyDecisionCompleted, PolicyDecisionPayload),
-      entry(AgentBrowserRuntimeEventType.ReadModelProjected, ReadModelProjectedPayload),
-    ])
+    streamFields(
+      [
+        entry(AgentBrowserRuntimeEventType.PolicyDecisionCompleted, PolicyDecisionPayload),
+        entry(AgentBrowserRuntimeEventType.ReadModelProjected, ReadModelProjectedPayload),
+      ],
+      { actionIntentCandidates: 1 }
+    )
   );
 
   expect(parsed.ok).toBe(true);
@@ -168,6 +178,12 @@ function specifyActionIntentStatus() {
 }
 
 function specifyRejections() {
+  specifyStreamEnvelopeRejections();
+  specifyRuntimePayloadRejections();
+  specifyActionIntentOverclaimRejections();
+}
+
+function specifyStreamEnvelopeRejections() {
   expect(parseAgentBrowserRuntimeEventChainStreamFields({})).toEqual({
     ok: false,
     reason: 'missing-json-field',
@@ -183,6 +199,21 @@ function specifyRejections() {
       streamFields([entry(AgentBrowserRuntimeEventType.ReadModelProjected, EvidenceObservedPayload)])
     )
   ).toEqual({ ok: false, reason: 'invalid-entry' });
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields({
+      ...streamFields(),
+      [AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents]: 5,
+    })
+  ).toEqual({ ok: false, reason: 'invalid-stream' });
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields({
+      ...streamFields(),
+      [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts]: 1,
+    })
+  ).toEqual({ ok: false, reason: 'invalid-stream' });
+}
+
+function specifyRuntimePayloadRejections() {
   expect(
     parseAgentBrowserRuntimeEventChainStreamFields(
       streamFields([
@@ -217,12 +248,9 @@ function specifyRejections() {
       ])
     ).ok
   ).toBe(true);
-  expect(
-    parseAgentBrowserRuntimeEventChainStreamFields({
-      ...streamFields(),
-      [AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents]: 5,
-    })
-  ).toEqual({ ok: false, reason: 'invalid-stream' });
+}
+
+function specifyActionIntentOverclaimRejections() {
   expect(
     parseAgentBrowserRuntimeEventChainStreamFields(
       streamFields([
@@ -246,7 +274,16 @@ function specifyRejections() {
   ).toEqual({ ok: false, reason: 'invalid-entry' });
 }
 
-function streamFields(entries = validEntries()) {
+function streamFields(
+  entries = validEntries(),
+  counters: {
+    readonly actionIntentCandidates?: number;
+    readonly actionIntentDispatchAttempts?: number;
+    readonly actionIntentAdapterExecutions?: number;
+    readonly actionIntentChildInterventionExecutions?: number;
+    readonly actionIntentEnforcementExecutions?: number;
+  } = {}
+) {
   return {
     [AgentProtocolDefaults.Field.BrowserRuntimeObservedRows]: 1,
     [AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents]: entries.length,
@@ -255,6 +292,15 @@ function streamFields(entries = validEntries()) {
     [AgentProtocolDefaults.Field.BrowserRuntimeManualRequiredRows]: 1,
     [AgentProtocolDefaults.Field.BrowserRuntimeInterventionCommandEvents]: 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents]: 1,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentCandidates]: counters.actionIntentCandidates ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts]:
+      counters.actionIntentDispatchAttempts ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentAdapterExecutions]:
+      counters.actionIntentAdapterExecutions ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildInterventionExecutions]:
+      counters.actionIntentChildInterventionExecutions ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentEnforcementExecutions]:
+      counters.actionIntentEnforcementExecutions ?? 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeEventChainStream]: JSON.stringify(entries),
   };
 }

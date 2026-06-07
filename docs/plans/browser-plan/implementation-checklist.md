@@ -592,6 +592,18 @@ and
 This keeps dispatch attempts, adapter execution, browser mutation, child
 intervention execution, final policy execution, and enforcement at zero.
 
+WP13 action-intent portal state addendum:
+`browser-runtime-action-intent-portal-state-proof` verifies that the shared
+TypeScript protocol parser and portal live-activity state consume those service
+action-intent counters from the existing browser runtime stream payload. Pending
+candidate counts can be represented, while dispatch attempts, adapter
+execution, child intervention execution, and enforcement execution must remain
+zero. Evidence:
+`test-results/browser-runtime-action-intent-portal-state-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-action-intent-portal-state/01-browser-runtime-action-intent-portal-state-proof.md`.
+This does not add a visual portal surface, browser mutation, child intervention
+execution, final policy execution, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

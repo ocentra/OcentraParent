@@ -161,6 +161,16 @@ describe('portal browser runtime event-chain state', () => {
 
     expect(state.browserRuntimeEventChainStream).toBeNull();
   });
+
+  it('rejects browser runtime event-chain streams that claim action execution', () => {
+    const state = resolveLiveActivityState([
+      browserRuntimeEventChainStreamEvent({
+        actionIntentDispatchAttempts: 1,
+      }),
+    ]);
+
+    expect(state.browserRuntimeEventChainStream).toBeNull();
+  });
 });
 
 function expectBrowserRuntimeEventEnvelope(state: ResolvedLiveActivityState): void {
@@ -175,6 +185,11 @@ function expectBrowserRuntimeStreamCounts(state: ResolvedLiveActivityState): voi
   expect(stream?.manualRequiredRows).toBe(1);
   expect(stream?.interventionCommandEvents).toBe(0);
   expect(stream?.readModelProjectionEvents).toBe(1);
+  expect(stream?.actionIntentCandidates).toBe(0);
+  expect(stream?.actionIntentDispatchAttempts).toBe(0);
+  expect(stream?.actionIntentAdapterExecutions).toBe(0);
+  expect(stream?.actionIntentChildInterventionExecutions).toBe(0);
+  expect(stream?.actionIntentEnforcementExecutions).toBe(0);
 }
 
 function expectBrowserRuntimeStreamEntries(state: ResolvedLiveActivityState): void {
@@ -206,6 +221,7 @@ function browserRuntimeEventChainStreamEvent(
   input: {
     readonly entries?: readonly ReturnType<typeof browserRuntimeStreamEntry>[];
     readonly streamedEvents?: number;
+    readonly actionIntentDispatchAttempts?: number;
   } = {}
 ): AgentEventEnvelope {
   const entries = input.entries ?? [
@@ -235,6 +251,11 @@ function browserRuntimeEventChainStreamEvent(
     [AgentProtocolDefaults.Field.BrowserRuntimeManualRequiredRows]: 1,
     [AgentProtocolDefaults.Field.BrowserRuntimeInterventionCommandEvents]: 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents]: 1,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentCandidates]: 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts]: input.actionIntentDispatchAttempts ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentAdapterExecutions]: 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildInterventionExecutions]: 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentEnforcementExecutions]: 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeEventChainStream]: JSON.stringify(entries),
   });
 }
@@ -267,6 +288,8 @@ function browserRuntimeStreamEntry(
       aiAnalysisRef: null,
       policyEvaluationRef: null,
       policyDecisionRef: null,
+      policyPreviewId: null,
+      assistantActionIntentId: null,
       interventionCommandRef: null,
       interventionResultRef: null,
       auditEntryRef: 'browser-runtime-audit-ref',
@@ -275,6 +298,8 @@ function browserRuntimeStreamEntry(
       exactUrlClaimed: false,
       aiAuthority: payloadOverrides.aiAuthority ?? false,
       policyAuthority: true,
+      dryRun: false,
+      adapterDispatchClaimed: false,
       interventionCommandAllowed: false,
       observedAt: '2026-05-21T01:00:00Z',
     },
