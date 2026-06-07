@@ -19,6 +19,7 @@ async function main() {
   await mkdir(pipelineOutputDir, { recursive: true });
 
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'screen_ai_service_event_bridge']);
+  await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'screen_ai_service_event_subscription']);
   await runCommand('node', ['scripts/check-source-shape.mjs']);
   await assertSourceContracts();
 
@@ -32,6 +33,8 @@ async function main() {
       protocolConstants: 'crates/agent-protocol/src/constants/screen_flow.rs',
       serviceBridge: 'crates/agent-service/src/screen_ai_service_event_bridge.rs',
       serviceBridgeTests: 'crates/agent-service/src/screen_ai_service_event_bridge_tests.rs',
+      serviceSubscriber: 'crates/agent-service/src/screen_ai_service_event_subscription.rs',
+      serviceSubscriberTests: 'crates/agent-service/src/screen_ai_service_event_subscription_tests.rs',
       coreRuntime: 'crates/agent-core/src/screen_event_runtime.rs',
       proofHarness: 'scripts/test/screen-service-event-bridge-proof.mjs',
       screenProofSummary: 'output/screen-plan-proof/screen-service-event-bridge/proof-summary.json',
@@ -63,6 +66,7 @@ async function main() {
       'raw-image retained rows are rejected before event publication',
       'rows without policy decision refs are rejected before event publication',
       'degraded AI rows publish capture, queue, AI, deletion, and portal events without policy or action refs',
+      'the service row-ready subscriber routes degraded AI rows through the degraded event chain',
       'the bridge reuses the existing core event path and does not create a duplicate eventing spine',
     ],
     claimsNotProved: [
@@ -90,6 +94,10 @@ async function assertSourceContracts() {
   const serviceMain = await readText('crates/agent-service/src/main.rs');
   const serviceBridge = await readText('crates/agent-service/src/screen_ai_service_event_bridge.rs');
   const serviceBridgeTests = await readText('crates/agent-service/src/screen_ai_service_event_bridge_tests.rs');
+  const serviceSubscriber = await readText('crates/agent-service/src/screen_ai_service_event_subscription.rs');
+  const serviceSubscriberTests = await readText(
+    'crates/agent-service/src/screen_ai_service_event_subscription_tests.rs'
+  );
   const screenChecklist = await readText('docs/plans/screen-plan/implementation-checklist.md');
   const screenFeature = await readText('docs/features/screen-evidence-analysis.md');
 
@@ -119,6 +127,16 @@ async function assertSourceContracts() {
     'tests prove ordered chain publication'
   );
   assertIncludes(serviceBridgeTests, 'publishes_degraded_ai_event_path', 'tests prove degraded event publication');
+  assertIncludes(
+    serviceSubscriber,
+    'publish_screen_degraded_event_chain',
+    'subscriber can route degraded rows through degraded bridge'
+  );
+  assertIncludes(
+    serviceSubscriberTests,
+    'publishes_degraded_runtime_chain',
+    'subscriber tests prove degraded event publication'
+  );
   assertIncludes(screenChecklist, 'Screen service event bridge', 'screen checklist names service event bridge proof');
   assertIncludes(
     screenFeature,

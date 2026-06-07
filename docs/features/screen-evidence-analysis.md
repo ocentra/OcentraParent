@@ -924,8 +924,9 @@ parity, and UI remain separate proof gates.
       refs, and avoids a duplicate service event bus.
 - [x] Screen service event subscription proof consumes typed service row-ready
       events from the service-started subscriber runtime, invokes the existing
-      bridge, publishes downstream screen runtime events for safe rows, and
-      rejects raw-retained rows before downstream publication.
+      bridge, routes degraded AI rows through the degraded event chain,
+      publishes downstream screen runtime events for safe rows, and rejects
+      raw-retained rows before downstream publication.
 - [x] Screen service analysis row-ready producer proof starts the event
       subscriber runtime from the service analysis loop, publishes
       `screen.service.row.ready`, and gates current analysis rows as

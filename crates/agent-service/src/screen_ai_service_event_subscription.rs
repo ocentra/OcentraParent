@@ -6,12 +6,13 @@ use ocentra_eventing::{
     RecordedAt, RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId,
     SubscriptionReport, TargetHandler,
 };
+use ocentra_parent_agent_core::ScreenRuntimeReport;
 use ocentra_parent_agent_protocol::{constants, ActivityScreenReadModelRow};
 use serde::{Deserialize, Serialize};
 
 use crate::screen_ai_service_event_bridge::{
-    publish_screen_service_row_event_chain, ScreenAiServiceEventBridgeError,
-    ScreenAiServiceEventBridgeRefs,
+    publish_screen_degraded_event_chain, publish_screen_service_row_event_chain,
+    ScreenAiServiceEventBridgeError, ScreenAiServiceEventBridgeRefs,
 };
 
 #[cfg_attr(not(test), allow(dead_code))]
@@ -178,14 +179,7 @@ async fn handle_screen_service_row_ready_event(
 ) -> Result<(), EventingError> {
     let queue_job_id = event.row.queue_job_id.clone();
     let screen_analysis_result_id = event.row.row_id.clone();
-    let result = publish_screen_service_row_event_chain(
-        event.row,
-        observed_at,
-        ScreenAiServiceEventBridgeRefs {
-            action_ref: event.action_ref,
-        },
-    )
-    .await;
+    let result = publish_screen_runtime_chain_for_row(event, observed_at).await;
 
     match result {
         Ok(report) => {
@@ -212,6 +206,28 @@ async fn handle_screen_service_row_ready_event(
             })
         }
     }
+}
+
+async fn publish_screen_runtime_chain_for_row(
+    event: ScreenAiServiceRowReadyEvent,
+    observed_at: &str,
+) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
+    if screen_service_row_is_degraded(&event.row) {
+        return publish_screen_degraded_event_chain(event.row, observed_at).await;
+    }
+    publish_screen_service_row_event_chain(
+        event.row,
+        observed_at,
+        ScreenAiServiceEventBridgeRefs {
+            action_ref: event.action_ref,
+        },
+    )
+    .await
+}
+
+fn screen_service_row_is_degraded(row: &ActivityScreenReadModelRow) -> bool {
+    row.capability_status == constants::activity_surface::SAVED_STATE_DEGRADED
+        && !row.policy_eligible
 }
 
 fn screen_service_row_ready_metadata(observed_at: &str) -> Result<EventMetadata, EventingError> {
