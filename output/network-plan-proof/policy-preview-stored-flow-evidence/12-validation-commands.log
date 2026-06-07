@@ -1,4 +1,4 @@
-cargo test -p ocentra-parent-agent-core policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enforcement -> 0
+cargo test -p ocentra-parent-agent-core policy_preview_read_model -> 0
 cargo test -p ocentra-parent-agent-service policy_preview_payload -> 0
 cmd /c npm run build --workspace @ocentra-parent/schema-domain -> 0
 cmd /c npm run build --workspace @ocentra-parent/logging-domain -> 0

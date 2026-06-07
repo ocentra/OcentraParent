@@ -6,6 +6,8 @@ use crate::ActivityStoreError;
 pub(crate) struct PolicyPreviewStoreRow {
     pub event_id: String,
     pub observed_at: String,
+    pub device_id: String,
+    pub platform: String,
     pub subject_kind: String,
     pub subject_id: String,
     pub subject_display_name: Option<String>,
@@ -24,9 +26,11 @@ pub(crate) fn policy_preview_rows(
             row.get::<_, String>(1)?,
             row.get::<_, String>(2)?,
             row.get::<_, String>(3)?,
-            row.get::<_, Option<String>>(4)?,
+            row.get::<_, String>(4)?,
             row.get::<_, String>(5)?,
-            row.get::<_, String>(6)?,
+            row.get::<_, Option<String>>(6)?,
+            row.get::<_, String>(7)?,
+            row.get::<_, String>(8)?,
         ))
     })?;
 
@@ -44,6 +48,8 @@ fn store_row_from_sqlite(
         String,
         String,
         String,
+        String,
+        String,
         Option<String>,
         String,
         String,
@@ -52,6 +58,8 @@ fn store_row_from_sqlite(
     let (
         event_id,
         observed_at,
+        device_id,
+        platform,
         subject_kind,
         subject_id,
         subject_display_name,
@@ -61,6 +69,8 @@ fn store_row_from_sqlite(
     Ok(PolicyPreviewStoreRow {
         event_id,
         observed_at,
+        device_id,
+        platform,
         subject_kind,
         subject_id,
         subject_display_name,

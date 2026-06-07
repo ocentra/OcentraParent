@@ -215,8 +215,10 @@ compete on control while staying clear about attribution confidence and privacy.
   `agent-service`, and `agent-protocol-domain`: stored ActivityStore network
   flow rows now feed the existing policy-preview read model, map
   `destinationDomain` to a domain policy target, resolve parent-rule contexts
-  only when they cite the stored network activity event ref, and serialize the
-  latest dry-run decision through the service payload. The proof writes
+  only when they cite the stored network activity event ref and match the event
+  source device/platform scope, exclude stale/future/scheduled-without-proof
+  contexts, and serialize the latest dry-run decision through the service
+  payload. The proof writes
   `output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json`
   and `test-results/network-policy-preview-stored-flow-evidence-proof/proof.json`.
   It reuses the row34 evidence-grade mapper as the grade-specific dependency and
@@ -687,7 +689,9 @@ UI rendering remain open.
 - [x] Policy preview over stored flow evidence.
       Stored ActivityStore network flow rows now feed the existing
       policy-preview read model and service payload with parent-rule evidence
-      refs, dry-run decision state, and disabled enforcement handoff. Proof:
+      refs, source-device-scoped context filtering, stale/future/scheduled
+      context rejection, dry-run decision state, and disabled enforcement
+      handoff. Proof:
       `output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json`
       and
       `test-results/network-policy-preview-stored-flow-evidence-proof/proof.json`.

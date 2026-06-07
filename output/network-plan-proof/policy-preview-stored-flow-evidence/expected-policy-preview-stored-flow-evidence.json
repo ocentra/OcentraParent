@@ -3,7 +3,8 @@
     "stored ActivityStore network flow row",
     "network domain subject with destinationDomain field",
     "local parent rule context targeting the stored network domain",
-    "parent-rule target_evidence_refs matching the stored network activity event ref"
+    "parent-rule target_evidence_refs matching the stored network activity event ref",
+    "parent-rule context scoped to the stored event source device and platform"
   ],
   "previewState": [
     "targetType=domain",
@@ -16,6 +17,8 @@
   ],
   "evidenceBoundary": [
     "policy preview evidence references include the stored ActivityEvent ref",
+    "wrong-device or wrong-child parent rule contexts are excluded before preview decisions",
+    "future, expired, or scheduled-without-proof parent rules are excluded before preview decisions",
     "this slice does not invent query-store, journal, AI, adapter, or enforcement refs",
     "row34 remains the evidence-grade policy mapper proof for A/B/C/D grade behavior"
   ],

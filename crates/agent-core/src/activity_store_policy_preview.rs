@@ -56,6 +56,8 @@ fn preview_row(
         &targets.aliases,
         &evidence_references,
         generated_at,
+        &row.device_id,
+        &row.platform,
         parent_rule_contexts,
     );
     let parent_rules = parent_rule_context_references

@@ -70,6 +70,8 @@ pub const SELECT_POLICY_PREVIEW_ACTIVITY: &str = "
 SELECT
   event_id,
   observed_at,
+  device_id,
+  platform,
   subject_kind,
   subject_id,
   subject_display_name,

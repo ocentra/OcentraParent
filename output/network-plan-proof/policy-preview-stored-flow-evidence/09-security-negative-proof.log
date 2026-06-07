@@ -1,6 +1,7 @@
 checkedAt=deterministic:network-policy-preview-stored-flow-evidence-proof/v1
 asserted=stored ActivityStore network flow row can produce a policy preview decision
-asserted=parent rule context must cite stored network activity evidence refs
+asserted=parent rule context must cite stored network activity evidence refs and match source device/platform scope
+asserted=stale, future, or scheduled-without-proof parent rule contexts are excluded
 asserted=policy preview remains dry-run with disabled enforcement handoff
 asserted=no exact URL/page/video/message/search claim from network-only evidence
 asserted=no decrypted payload or raw PCAP claim

@@ -10,12 +10,14 @@ mkdirSync(testRoot, { recursive: true });
 
 const sourceFiles = [
   'scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs',
+  'crates/agent-protocol/src/constants/sqlite.rs',
   'crates/agent-core/src/activity_store_policy_preview.rs',
   'crates/agent-core/src/activity_store_policy_preview_rows.rs',
   'crates/agent-core/src/activity_store_policy_preview_targets.rs',
   'crates/agent-core/src/activity_store_policy_preview_parent_rules.rs',
   'crates/agent-core/src/activity_store_policy_preview_test_fixture.rs',
   'crates/agent-core/src/activity_store_policy_preview_tests.rs',
+  'crates/agent-core/src/activity_store_policy_preview_parent_rule_tests.rs',
   'crates/agent-core/README.md',
   'crates/agent-service/src/policy_preview_api.rs',
   'crates/agent-service/src/policy_preview_payload.rs',
@@ -41,6 +43,7 @@ const expectedStatus = {
     'network domain subject with destinationDomain field',
     'local parent rule context targeting the stored network domain',
     'parent-rule target_evidence_refs matching the stored network activity event ref',
+    'parent-rule context scoped to the stored event source device and platform',
   ],
   previewState: [
     'targetType=domain',
@@ -53,6 +56,8 @@ const expectedStatus = {
   ],
   evidenceBoundary: [
     'policy preview evidence references include the stored ActivityEvent ref',
+    'wrong-device or wrong-child parent rule contexts are excluded before preview decisions',
+    'future, expired, or scheduled-without-proof parent rules are excluded before preview decisions',
     'this slice does not invent query-store, journal, AI, adapter, or enforcement refs',
     'row34 remains the evidence-grade policy mapper proof for A/B/C/D grade behavior',
   ],
@@ -79,15 +84,10 @@ writeJson(join(proofRoot, 'expected-policy-preview-stored-flow-evidence.json'), 
 
 const commands = [
   {
-    name: 'agent-core-network-flow-policy-preview-test',
+    name: 'agent-core-policy-preview-read-model-tests',
     command: 'cargo',
-    args: [
-      'test',
-      '-p',
-      'ocentra-parent-agent-core',
-      'policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enforcement',
-    ],
-    log: join(proofRoot, 'agent-core-network-flow-policy-preview-test.log'),
+    args: ['test', '-p', 'ocentra-parent-agent-core', 'policy_preview_read_model'],
+    log: join(proofRoot, 'agent-core-policy-preview-read-model-tests.log'),
   },
   {
     name: 'agent-service-policy-preview-payload-test',
@@ -169,7 +169,8 @@ writeFileSync(
   [
     'checkedAt=deterministic:network-policy-preview-stored-flow-evidence-proof/v1',
     'asserted=stored ActivityStore network flow row can produce a policy preview decision',
-    'asserted=parent rule context must cite stored network activity evidence refs',
+    'asserted=parent rule context must cite stored network activity evidence refs and match source device/platform scope',
+    'asserted=stale, future, or scheduled-without-proof parent rule contexts are excluded',
     'asserted=policy preview remains dry-run with disabled enforcement handoff',
     'asserted=no exact URL/page/video/message/search claim from network-only evidence',
     'asserted=no decrypted payload or raw PCAP claim',
@@ -204,6 +205,8 @@ const proof = {
   provenBoundaries: [
     'agent-core policy preview consumes a stored ActivityStore network flow row and maps destinationDomain into a domain policy target',
     'agent-core policy preview resolves a local parent-rule context only when the parent rule cites the stored network activity event ref',
+    'agent-core policy preview excludes parent-rule contexts whose device or child scope does not match the stored event source',
+    'agent-core policy preview excludes future, expired, and scheduled-without-proof parent rules from preview rows',
     'agent-core policy preview emits a dry-run policy decision with disabled enforcement handoff',
     'agent-service policy-preview payload exposes the latest dry-run decision without an adapter or enforcement claim',
     'agent-protocol-domain accepts the policy preview read-model command and reported event payload through the shared contracts',
@@ -219,8 +222,12 @@ console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function assertSourceContracts() {
   const corePreview = readText('crates/agent-core/src/activity_store_policy_preview.rs');
+  const coreRows = readText('crates/agent-core/src/activity_store_policy_preview_rows.rs');
   const coreTargets = readText('crates/agent-core/src/activity_store_policy_preview_targets.rs');
+  const coreParentRules = readText('crates/agent-core/src/activity_store_policy_preview_parent_rules.rs');
   const coreTests = readText('crates/agent-core/src/activity_store_policy_preview_tests.rs');
+  const coreParentRuleTests = readText('crates/agent-core/src/activity_store_policy_preview_parent_rule_tests.rs');
+  const sqliteConstants = readText('crates/agent-protocol/src/constants/sqlite.rs');
   const servicePayload = readText('crates/agent-service/src/policy_preview_payload.rs');
   const coreReadme = readText('crates/agent-core/README.md');
   const serviceReadme = readText('crates/agent-service/README.md');
@@ -233,9 +240,19 @@ function assertSourceContracts() {
   const workpacks = readText('docs/plans/network-plan/workpacks/README.md');
   const requiredSnippets = [
     [corePreview, 'evaluate_policy_dry_run'],
+    [coreRows, 'device_id'],
+    [sqliteConstants, 'SELECT_POLICY_PREVIEW_ACTIVITY'],
+    [sqliteConstants, 'device_id'],
+    [sqliteConstants, 'platform'],
     [coreTargets, 'DESTINATION_DOMAIN'],
     [coreTargets, 'PolicyTargetType::Domain'],
+    [coreParentRules, 'context_scope_matches_row'],
+    [coreParentRules, 'context_rule_has_supported_schedule'],
+    [coreParentRules, 'context_rule_is_effective_at'],
     [coreTests, 'policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enforcement'],
+    [coreParentRuleTests, 'policy_preview_read_model_rejects_wrong_device_or_child_rule_contexts'],
+    [coreParentRuleTests, 'policy_preview_read_model_rejects_future_or_expired_rule_windows'],
+    [coreParentRuleTests, 'policy_preview_read_model_rejects_scheduled_rule_without_schedule_proof'],
     [servicePayload, 'POLICY_HANDOFF_STATE'],
     [coreReadme, 'Network policy-preview proof'],
     [serviceReadme, 'row10k typed status bridge'],

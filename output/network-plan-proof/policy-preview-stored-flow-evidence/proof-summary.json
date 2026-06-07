@@ -2,15 +2,17 @@
   "proof": "network-policy-preview-stored-flow-evidence-proof",
   "proofRevision": "network-policy-preview-stored-flow-evidence-proof/v1",
   "checkedAt": "deterministic:network-policy-preview-stored-flow-evidence-proof/v1",
-  "sourceFingerprint": "source-tree:183381bd17eb8d9bf4ec35502182164d3605970c3bc93d43dc717d7568b56f05",
+  "sourceFingerprint": "source-tree:d27ff658b3804c8e82d1bc85610d3ee6ba900c783961589a70c9f1e705d578bb",
   "sourceRefs": [
     "scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs",
+    "crates/agent-protocol/src/constants/sqlite.rs",
     "crates/agent-core/src/activity_store_policy_preview.rs",
     "crates/agent-core/src/activity_store_policy_preview_rows.rs",
     "crates/agent-core/src/activity_store_policy_preview_targets.rs",
     "crates/agent-core/src/activity_store_policy_preview_parent_rules.rs",
     "crates/agent-core/src/activity_store_policy_preview_test_fixture.rs",
     "crates/agent-core/src/activity_store_policy_preview_tests.rs",
+    "crates/agent-core/src/activity_store_policy_preview_parent_rule_tests.rs",
     "crates/agent-core/README.md",
     "crates/agent-service/src/policy_preview_api.rs",
     "crates/agent-service/src/policy_preview_payload.rs",
@@ -27,15 +29,15 @@
     "docs/plans/network-plan/implementation-checklist.md",
     "docs/plans/network-plan/workpacks/README.md"
   ],
-  "sourceBase": "466978a9b8f6ac946977169fd2e16e01b4cf6d92",
+  "sourceBase": "c3328c891af958153c1b64d92379e653de6ba2d0",
   "proofRoot": "output\\network-plan-proof\\policy-preview-stored-flow-evidence",
   "testRoot": "test-results\\network-policy-preview-stored-flow-evidence-proof",
   "commands": [
     {
-      "name": "agent-core-network-flow-policy-preview-test",
-      "command": "cargo test -p ocentra-parent-agent-core policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enforcement",
+      "name": "agent-core-policy-preview-read-model-tests",
+      "command": "cargo test -p ocentra-parent-agent-core policy_preview_read_model",
       "status": 0,
-      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\agent-core-network-flow-policy-preview-test.log"
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\agent-core-policy-preview-read-model-tests.log"
     },
     {
       "name": "agent-service-policy-preview-payload-test",
@@ -107,6 +109,8 @@
   "provenBoundaries": [
     "agent-core policy preview consumes a stored ActivityStore network flow row and maps destinationDomain into a domain policy target",
     "agent-core policy preview resolves a local parent-rule context only when the parent rule cites the stored network activity event ref",
+    "agent-core policy preview excludes parent-rule contexts whose device or child scope does not match the stored event source",
+    "agent-core policy preview excludes future, expired, and scheduled-without-proof parent rules from preview rows",
     "agent-core policy preview emits a dry-run policy decision with disabled enforcement handoff",
     "agent-service policy-preview payload exposes the latest dry-run decision without an adapter or enforcement claim",
     "agent-protocol-domain accepts the policy preview read-model command and reported event payload through the shared contracts",
