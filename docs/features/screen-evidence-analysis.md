@@ -301,6 +301,17 @@ only with explicit parent settings.
   retention is rejected before persistence. This is backend command-path proof,
   not parent portal form submission, product-complete retention-control UI,
   raw retention enablement, live view, or raw remote upload.
+- `scripts/test/screen-settings-portal-service-command-proof.mjs` now proves
+  the real parent Settings route submits schema-valid screen setting changes
+  through the Rust service WebSocket command path. The proof starts the actual
+  agent and Vite portal, clicks the strict dry-run setting, sends
+  `agent.screen-settings.replace`, renders the accepted service response and
+  audit ref, sends `agent.screen-settings.get`, verifies the persisted strict
+  no-raw-retention JSON store, and captures
+  `output/screen-plan-proof/settings-service-command/parent-settings-service-command.png`.
+  This is portal-to-service settings persistence proof; product-complete
+  retention controls, raw retention, live view, raw remote upload, and
+  production OCR/VLM quality remain separate gates.
 - `scripts/test/screen-ai-service-cadence-proof.mjs` now proves an explicit
   opt-in Rust service cadence loop on Windows: it opens a real foreground
   browser fixture, records three timed active-window captures through the
@@ -599,15 +610,14 @@ only with explicit parent settings.
   screen-plan completion before macOS, Linux, Android parity, iOS, live-view
   transport, Tesseract runtime, PaddleOCR runtime, and live VLM quality gates
   are completed or explicitly left as non-claims.
-- Parent portal form-to-service wiring for persisted product settings,
-  product-complete retention controls, and quality proof are incomplete.
+- Product-complete retention controls and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
 
 ## Current Gap
 
-Parent portal form-to-service wiring for persisted parent setting changes, parent retention controls,
-optional raw-retention runtime enablement, live-view transport/relay/cache,
+Parent retention controls, optional raw-retention runtime enablement,
+live-view transport/relay/cache,
 platform permission prompt proof, child-agent disclosure runtime deployment,
 privacy/legal approval, authenticated-account
 social proof beyond public/live surface proof, production OCR/VLM quality beyond
@@ -670,6 +680,9 @@ parity, and UI remain separate proof gates.
       protocol adapter, Rust command/event parity, WebSocket routing into the
       local JSON-backed runtime, strict dry-run persistence across restart, and
       raw-retention rejection before persistence.
+- [x] Parent Settings route submits persisted parent screen setting changes
+      through the real service command path and renders accepted get/replace
+      service responses with local JSON persistence.
 - [x] Raw-retention/live-view/remote boundary rejects raw screenshot retention,
       live view, and raw remote upload by default.
 - [x] Optional raw-retention/live-view preflight contract requires explicit
@@ -757,8 +770,7 @@ parity, and UI remain separate proof gates.
       payloads, grants one child-owned lease, validates provider results on the
       child agent before policy, and rejects invalid provider results.
 
-Parent portal form-to-service wiring for persisted parent setting changes,
-product-complete retention controls, production OCR/VLM quality,
+Product-complete retention controls, production OCR/VLM quality,
 authenticated-account social proof,
 remaining production startup subscriptions for live producers beyond the service
 capture/queue, deletion, and analysis row-ready/policy-ref handoffs,

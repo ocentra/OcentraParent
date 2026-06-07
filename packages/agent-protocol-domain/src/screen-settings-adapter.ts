@@ -11,6 +11,7 @@ import {
   type AgentCommandEnvelope,
   type AgentEventEnvelope,
   type AgentEventName,
+  type AgentProtocolLogFields,
 } from './contracts';
 import { AgentProtocolSchemaVersion, type AgentRoute } from './primitives';
 
@@ -66,6 +67,14 @@ export const ScreenSettingsUpdateResponseSchema = withParser(
 );
 
 export type ScreenSettingsUpdateKind = Infer<typeof ScreenSettingsUpdateKindSchema>;
+export const ScreenSettingsUpdateKindValue = {
+  Get: ScreenSettingsUpdateKindSchema.parse('get'),
+  Replace: ScreenSettingsUpdateKindSchema.parse('replace'),
+} as const;
+export const ScreenSettingsUpdateStatus = {
+  Accepted: ScreenSettingsUpdateStatusSchema.parse('accepted'),
+  Rejected: ScreenSettingsUpdateStatusSchema.parse('rejected'),
+} as const;
 export type ScreenSettingsGetRequest = Infer<typeof ScreenSettingsGetRequestSchema>;
 export type ScreenSettingsReplaceRequest = Infer<typeof ScreenSettingsReplaceRequestSchema>;
 export type ScreenSettingsUpdateRequest = Infer<typeof ScreenSettingsUpdateRequestSchema>;
@@ -107,6 +116,8 @@ export type CreateScreenSettingsCommandInput = {
   readonly request: ScreenSettingsUpdateRequest;
 };
 
+const ScreenSettingsRequestIdPrefix = 'screen-settings-request-';
+
 export function createScreenSettingsCommand(input: CreateScreenSettingsCommandInput): AgentCommandEnvelope {
   const parsedRequest = ScreenSettingsUpdateRequestSchema.safeParse(input.request);
   if (!parsedRequest.success) {
@@ -119,11 +130,19 @@ export function createScreenSettingsCommand(input: CreateScreenSettingsCommandIn
     source: input.source,
     target: input.target,
     command: commandForKind(parsedRequest.data.kind),
-    payload: {
-      [AgentProtocolDefaults.Field.ScreenSettingsRequest]: JSON.stringify(parsedRequest.data),
-      [AgentProtocolDefaults.Field.ScreenSettingsUpdateKind]: parsedRequest.data.kind,
-    },
+    payload: createScreenSettingsCommandPayload(parsedRequest.data),
   });
+}
+
+export function createScreenSettingsCommandPayload(request: ScreenSettingsUpdateRequest): AgentProtocolLogFields {
+  const parsedRequest = ScreenSettingsUpdateRequestSchema.safeParse(request);
+  if (!parsedRequest.success) {
+    throw new Error('invalid screen settings request');
+  }
+  return {
+    [AgentProtocolDefaults.Field.ScreenSettingsRequest]: JSON.stringify(parsedRequest.data),
+    [AgentProtocolDefaults.Field.ScreenSettingsUpdateKind]: parsedRequest.data.kind,
+  };
 }
 
 export function createScreenSettingsGetRequest(requestId: string): ScreenSettingsGetRequest {
@@ -132,6 +151,10 @@ export function createScreenSettingsGetRequest(requestId: string): ScreenSetting
     requestId,
     kind: 'get',
   });
+}
+
+export function createScreenSettingsPortalRequestId(sequence: number): string {
+  return `${ScreenSettingsRequestIdPrefix}${sequence}`;
 }
 
 export function createScreenSettingsReplaceRequest(input: {
