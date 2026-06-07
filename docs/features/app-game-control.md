@@ -459,6 +459,12 @@ control with better evidence and local audit.
   contracts require child-game proof before known-game classification, and the
   App/Game Sessions dashboard keeps launcher rows as launcher-only counts rather
   than active child-game usage.
+- The foreground/content merge-blocking display gate is now backed by
+  `output/app-game-plan-proof/merge-gates/foreground-content-boundary`: the
+  foreground evidence contract restricts content knowledge to `notClaimed`, and
+  the App/Game Sessions dashboard renders foreground state as source/read-model
+  refs and counts without exposing window title refs, raw titles, or executable
+  paths.
 
 ## Current Gap
 

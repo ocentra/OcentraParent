@@ -158,7 +158,7 @@ Required files:
 
 - [x] Inventory evidence is displayed as app/game usage.
 - [x] Running evidence is displayed as foreground usage.
-- [ ] Foreground evidence is displayed as content knowledge.
+- [x] Foreground evidence is displayed as content knowledge.
 - [x] Launcher evidence is displayed as active game without child-game proof.
 - [x] Unknown process is auto-promoted to known game.
 - [x] AI output directly enforces.
