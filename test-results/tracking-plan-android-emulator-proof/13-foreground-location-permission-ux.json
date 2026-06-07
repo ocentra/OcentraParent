@@ -1,0 +1,31 @@
+{
+  "observed": true,
+  "permissionControllerObserved": true,
+  "foregroundLocationCopyObserved": true,
+  "allowWhileUsingOptionObserved": true,
+  "onlyThisTimeOptionObserved": true,
+  "denyOptionObserved": true,
+  "text": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "Allow Ocentra Parent Agent to access this device’s location?",
+    "",
+    "",
+    "Precise",
+    "Approximate",
+    "",
+    "While using the app",
+    "Only this time",
+    "Don’t allow"
+  ],
+  "resetArtifact": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-ux-reset.txt",
+  "launchArtifact": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-ux-launch.txt",
+  "uiArtifact": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-ux.xml"
+}

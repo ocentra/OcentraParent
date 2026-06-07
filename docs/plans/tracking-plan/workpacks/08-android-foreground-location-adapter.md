@@ -31,7 +31,7 @@ Proof root: `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 
 ## AI Worker Checklist
 
-- [ ] Prove foreground permission UX.
+- [x] Prove foreground permission UX.
 - [ ] Prove fused sample.
 - [x] Prove emulator current `LocationManager` sample with raw coordinate proof
       export.
@@ -62,16 +62,17 @@ location runtime permissions, captures foreground-service state, UI tree,
 headless screenshot inspection, logcat, package permission state, device
 metadata, battery/connectivity dumps, and writes
 `03-runtime-location-evidence.json` as
-`foreground_permission_granted_current_sample_raw_coordinate_observed` when the
-app UI reports `foreground-location-permission-granted`,
+`foreground_permission_ux_current_sample_raw_coordinate_observed` when the
+Android permission-controller foreground location UX dialog is captured before
+the scripted grant and the app UI reports `foreground-location-permission-granted`,
 `current-location-sample-observed-emulator-location-manager`, provider `gps`,
 observed epoch millis, accuracy meters, source
 `android-location-manager-current-listener-emulator`, and raw latitude/longitude
-values. This proves emulator foreground permission readiness plus app-emitted
-current `LocationManager` sample metadata and raw coordinate proof export; it
-does not prove fused provider collection, physical Android device behavior,
-background/geofence transitions, authority, provider delivery, or product-ready
-Android tracking.
+values. This proves emulator foreground permission UX readiness plus
+app-emitted current `LocationManager` sample metadata and raw coordinate proof
+export; it does not prove fused provider collection, physical Android device
+behavior, background/geofence transitions, authority, provider delivery, or
+product-ready Android tracking.
 
 `node scripts/test/tracking-android-permission-background-proof.mjs` now records
 WP08 parent-domain manual-required rows for the foreground permission grant and
@@ -126,9 +127,9 @@ This workpack can be assigned independently, implemented against the owning doma
       foreground permission/sample proof; central capability row update remains
       a hub/primary-owned doc delta.
 - [x] Known gaps/manual-required states: foreground permission grant,
-      app-reported current `LocationManager` sample state, provider, timestamp,
-      accuracy metadata, source, and raw latitude/longitude proof export are now
-      observed on emulator; foreground permission UX dialog proof, fused
+      foreground permission UX dialog, app-reported current `LocationManager`
+      sample state, provider, timestamp, accuracy metadata, source, and raw
+      latitude/longitude proof export are now observed on emulator; fused
       provider sample, physical-device proof, authority, provider delivery,
       notification delivery, background/geofence transitions, and product-ready
       Android tracking remain unclaimed.
@@ -149,7 +150,6 @@ This workpack can be assigned independently, implemented against the owning doma
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta.
 - [x] Known gaps/manual-required states: this remains emulator P3 local proof.
-      Fused provider sample, foreground permission UX dialog proof, physical
-      Android device behavior, authority, provider delivery, notification
-      delivery, background/geofence system proof, and product-ready Android
-      tracking remain unclaimed.
+      Fused provider sample, physical Android device behavior, authority,
+      provider delivery, notification delivery, background/geofence system
+      proof, and product-ready Android tracking remain unclaimed.
