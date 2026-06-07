@@ -48,6 +48,10 @@ service shell.
   broker config, family-hub identity, relay policy, idempotency, and
   dead-letter refs while keeping live transport, policy authority, side effects,
   enforcement commands, adapter execution, and host filtering false.
+- Network remote event-chain journal/export proof that writes local runtime
+  event-chain envelopes through the reusable eventing NDJSON journal and replay
+  projection while keeping live delivery, policy authority, adapter execution,
+  exact URL, decrypted payload, and page content claims false.
 
 ## Must Not Own
 
@@ -94,3 +98,7 @@ flowchart LR
 - Network remote delivery is status proof only; live broker/family-hub
   transport, cross-process replay, remote retention/delete/export propagation,
   and production transport configuration remain separate implementation gaps.
+- Network remote event-chain journaling is export-boundary proof only; live
+  broker/family-hub delivery, child-device/provider transport, remote
+  retention/delete/export propagation, and receipt acknowledgements remain
+  separate gaps.
