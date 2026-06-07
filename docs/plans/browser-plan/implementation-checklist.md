@@ -266,6 +266,23 @@ runtime time-budget application, browser gate execution, final policy
 execution, enforcement, product checklist upgrade, release readiness, or
 product completion.
 
+SOCIAL-23/SOCIAL-24 preference preflight addendum:
+`social-alert-report-preference-preflight-proof` adds
+`packages/parent-domain/src/social-alert-report-preference-preflight.ts`,
+`packages/parent-domain/tests/social-alert-report-preference-preflight.test.ts`,
+and `scripts/test/social-alert-report-preference-preflight-proof.mjs`. Evidence
+is written to `test-results/social-alert-report-preference-preflight-proof/proof.json`,
+`test-results/social-alert-report-preference-preflight-proof/preference-preflight-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-preference-preflight-proof/01-social-alert-report-preference-preflight-proof.md`.
+The proof consumes social alert/report scheduler bridge rows and proves
+parent notification preference, frequency-control, and quiet-hours policy proof
+requirements before delivery can be claimed. It does not claim parent
+notification preference UI, notification history UI, quiet-hours timer runtime,
+provider delivery, child delivery, report delivery execution, final policy
+execution, connector/native runtime, enforcement, product checklist upgrade, or
+product completion.
+
 ## Browser Games Cloud Gaming Checklist
 
 Source:

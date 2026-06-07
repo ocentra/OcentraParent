@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-07T08:16:21.164Z",
+  "generatedAt": "2026-06-07T08:38:07.402Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -223,6 +223,7 @@
     "social-alert-report-local-outbox-bridge-proof-present",
     "social-alert-report-parent-surface-intent-proof-present",
     "social-alert-report-scheduler-bridge-proof-present",
+    "social-alert-report-preference-preflight-proof-present",
     "social-alert-report-audit-history-bridge-proof-present",
     "social-alert-report-intent-ui-proof-present",
     "social-alert-report-provider-preflight-proof-present",
@@ -304,6 +305,18 @@
     },
     {
       "file": "output/browser-plan-proof/social-alert-report-scheduler-bridge-proof/01-social-alert-report-scheduler-bridge-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-preference-preflight-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-preference-preflight-proof/preference-preflight-read-model.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-preference-preflight-proof/01-social-alert-report-preference-preflight-proof.md",
       "present": true
     },
     {

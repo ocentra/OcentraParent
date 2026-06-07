@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "v0.6",
+  "preferencePreflightId": "social-alert-report-preference-preflight-proof",
+  "generatedAt": "2026-06-07T08:27:00Z",
+  "family": {
+    "familyId": "family-social-alert-report-preference-preflight"
+  },
+  "sourceSchedulerBridgeId": "social-alert-report-scheduler-bridge-for-preference-preflight",
+  "sourceContractRefs": [
+    "social-alert-report-scheduler-bridge",
+    "notification-parent-preference-boundary",
+    "notification-quiet-hours-policy-boundary",
+    "social-video-control-expectation"
+  ],
+  "rows": [
+    {
+      "preferenceRowId": "social-alert-report-preference-preflight-social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-high-risk-preference",
+      "sourceSchedulerBridgeRecordId": "social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-high-risk-preference",
+      "status": "parent-preference-required",
+      "sourceSchedulerEntryRef": "social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference",
+      "sourceOutboxRecordRef": "local-outbox-record-social-alert-report-high-risk-preference",
+      "providerChannelRef": "in-app",
+      "reasonCodeRef": "policy-violation",
+      "schedulerDecisionRef": "social-alert-report-scheduler-decision-social-alert-report-high-risk-preference",
+      "parentPreferenceState": "manual-setup-required",
+      "quietHoursDecision": "manual-required",
+      "parentPreferenceRequirementRefs": [
+        "social-parent-notification-preference-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference",
+        "social-notification-frequency-control-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference"
+      ],
+      "quietHoursRequirementRefs": [
+        "social-quiet-hours-policy-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference"
+      ],
+      "manualProofRequirements": [
+        "social-parent-notification-preference-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference",
+        "social-notification-frequency-control-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference",
+        "social-quiet-hours-policy-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference"
+      ]
+    },
+    {
+      "preferenceRowId": "social-alert-report-preference-preflight-social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-account-approval-preference",
+      "sourceSchedulerBridgeRecordId": "social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-account-approval-preference",
+      "status": "parent-preference-required",
+      "sourceSchedulerEntryRef": "social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference",
+      "sourceOutboxRecordRef": "local-outbox-record-social-alert-report-account-approval-preference",
+      "providerChannelRef": "email",
+      "reasonCodeRef": "parent-request",
+      "schedulerDecisionRef": "social-alert-report-scheduler-decision-social-alert-report-account-approval-preference",
+      "parentPreferenceState": "manual-setup-required",
+      "quietHoursDecision": "manual-required",
+      "parentPreferenceRequirementRefs": [
+        "social-parent-notification-preference-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference",
+        "social-notification-frequency-control-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference"
+      ],
+      "quietHoursRequirementRefs": [
+        "social-quiet-hours-policy-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference"
+      ],
+      "manualProofRequirements": [
+        "social-parent-notification-preference-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference",
+        "social-notification-frequency-control-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference",
+        "social-quiet-hours-policy-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference"
+      ]
+    },
+    {
+      "preferenceRowId": "social-alert-report-preference-preflight-social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-manual-required-preference",
+      "sourceSchedulerBridgeRecordId": "social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-manual-required-preference",
+      "status": "source-manual-required",
+      "sourceSchedulerEntryRef": null,
+      "sourceOutboxRecordRef": null,
+      "providerChannelRef": null,
+      "reasonCodeRef": null,
+      "schedulerDecisionRef": null,
+      "parentPreferenceState": null,
+      "quietHoursDecision": null,
+      "parentPreferenceRequirementRefs": [
+        "provider preference setup before social alert/report can be queued"
+      ],
+      "quietHoursRequirementRefs": [
+        "provider preference setup before social alert/report can be queued"
+      ],
+      "manualProofRequirements": [
+        "provider preference setup before social alert/report can be queued"
+      ]
+    },
+    {
+      "preferenceRowId": "social-alert-report-preference-preflight-social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-unavailable-preference",
+      "sourceSchedulerBridgeRecordId": "social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-unavailable-preference",
+      "status": "source-unavailable",
+      "sourceSchedulerEntryRef": null,
+      "sourceOutboxRecordRef": null,
+      "providerChannelRef": null,
+      "reasonCodeRef": null,
+      "schedulerDecisionRef": null,
+      "parentPreferenceState": null,
+      "quietHoursDecision": null,
+      "parentPreferenceRequirementRefs": [
+        "local evidence and policy readiness before unavailable social alert/report can be queued"
+      ],
+      "quietHoursRequirementRefs": [
+        "local evidence and policy readiness before unavailable social alert/report can be queued"
+      ],
+      "manualProofRequirements": [
+        "local evidence and policy readiness before unavailable social alert/report can be queued"
+      ]
+    }
+  ],
+  "parentPreferenceRequiredCount": 2,
+  "manualRequiredCount": 1,
+  "unavailableCount": 1,
+  "preflightNonClaims": [
+    "no-parent-notification-preference-ui",
+    "no-parent-notification-history-ui",
+    "no-parent-frequency-control-ui",
+    "no-quiet-hours-timer-runtime",
+    "no-provider-delivery-execution",
+    "no-provider-receipt-ingestion",
+    "no-provider-credentials",
+    "no-cloud-routing",
+    "no-child-delivery",
+    "no-retry-worker-runtime",
+    "no-production-durable-outbox-storage",
+    "no-adapter-dispatch",
+    "no-report-delivery-execution",
+    "no-final-policy-execution",
+    "no-enforcement"
+  ],
+  "parentNotificationPreferenceUiClaimed": false,
+  "parentNotificationHistoryUiClaimed": false,
+  "parentFrequencyControlUiClaimed": false,
+  "quietHoursTimerRuntimeClaimed": false,
+  "providerDeliveryRuntimeClaimed": false,
+  "providerReceiptIngestionClaimed": false,
+  "providerCredentialsClaimed": false,
+  "cloudRoutingClaimed": false,
+  "childDeliveryClaimed": false,
+  "retryExecutionRuntimeClaimed": false,
+  "productionDurableOutboxStorageClaimed": false,
+  "adapterDispatchClaimed": false,
+  "reportDeliveryExecutionClaimed": false,
+  "finalPolicyExecutionClaimed": false,
+  "enforcementClaimed": false
+}

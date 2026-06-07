@@ -280,6 +280,15 @@ receipt ingestion, quiet-hours timer execution, retry worker execution,
 parent/child notification UI delivery, report delivery execution, final policy
 execution, connector/native runtime, enforcement, or product completion.
 
+Social alert/report preference preflight rows may consume social alert/report
+scheduler bridge rows and require parent notification preference,
+frequency-control, and quiet-hours policy proof before delivery can be claimed.
+Manual-required and unavailable rows must stay blocked. This preflight must not
+claim parent notification preference UI, notification history UI, quiet-hours
+timer execution, provider delivery, child delivery, report delivery execution,
+final policy execution, connector/native runtime, enforcement, or product
+completion.
+
 Social alert/report audit-history bridge rows may map social local outbox rows
 into the existing logging-domain notification audit-history handoff. Linked
 rows may become queued audit-history entries; manual-required and unavailable

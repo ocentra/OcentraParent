@@ -435,6 +435,22 @@ execution, parent/child notification UI delivery, report delivery execution,
 final policy execution, connector/native runtime, and enforcement remain
 unclaimed.
 
+The follow-up `social-alert-report-preference-preflight-proof` adds
+`packages/parent-domain/src/social-alert-report-preference-preflight.ts` and
+`packages/parent-domain/tests/social-alert-report-preference-preflight.test.ts`,
+a parent-domain boundary from social alert/report scheduler rows into parent
+notification preference and quiet-hours preflight rows. The proof writes
+`test-results/social-alert-report-preference-preflight-proof/proof.json`,
+`test-results/social-alert-report-preference-preflight-proof/preference-preflight-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-preference-preflight-proof/01-social-alert-report-preference-preflight-proof.md`.
+It proves scheduled rows require parent notification preference,
+frequency-control, and quiet-hours policy proof before delivery can be claimed;
+manual-required/unavailable rows remain blocked. Parent notification preference
+UI, notification history UI, quiet-hours timer execution, provider delivery,
+child delivery, report delivery execution, final policy execution,
+connector/native runtime, and enforcement remain unclaimed.
+
 The follow-up `social-alert-report-audit-history-bridge-proof` adds
 `scripts/test/social-alert-report-audit-history-bridge-proof.mjs`, a proof that
 maps social alert/report local outbox rows into the existing logging-domain

@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-07T08:16:21.159Z
+Generated: 2026-06-07T08:38:07.439Z
 
 Rows checked: 22
 Proof-present rows: 21

@@ -253,6 +253,13 @@ blocking, mobile UI, or platform support.
   receipt ingestion, quiet-hours timer execution, retry worker execution,
   parent/child UI delivery, report delivery execution, final policy execution,
   connector/native runtime, adapter dispatch, or enforcement claims.
+- Parent-domain social alert/report preference preflight proof for scheduled
+  social alert/report rows becoming parent-preference-required rows that require
+  parent notification preference, frequency-control, and quiet-hours policy
+  proof before delivery claims, with manual/unavailable rows kept blocked and no
+  preference UI, notification history UI, provider delivery, child delivery,
+  report delivery execution, final policy execution, connector/native runtime,
+  adapter dispatch, or enforcement claims.
 - Logging-domain social alert/report audit-history bridge proof for linked
   social alert/report local outbox rows becoming queued audit-history handoff
   entries, with manual/unavailable rows kept blocked/manual and no provider
