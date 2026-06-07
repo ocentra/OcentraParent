@@ -1,6 +1,6 @@
 {
   "proof": "screen-ocr-windows-candidate-selection-proof",
-  "generatedAt": "2026-06-07T06:44:52.691Z",
+  "generatedAt": "2026-06-07T09:10:58.168Z",
   "proofTier": "P2_AGGREGATE_SELECTION_PROOF",
   "platformScope": "windows-service-ocr-only",
   "selectedCurrentRoute": {
@@ -28,8 +28,8 @@
       "status": "not-selected-zero-text-on-real-proof-image",
       "error": null,
       "extractedTextCount": 0,
-      "initSeconds": 2.218,
-      "predictSeconds": 13.145,
+      "initSeconds": 2.374,
+      "predictSeconds": 12.709,
       "reason": "Current PP-OCRv5 package/model cache exists and local inference runs with enable_mkldnn=false, but it extracts zero text from the retained real Vimeo proof image, so it cannot be selected."
     },
     {
@@ -40,7 +40,7 @@
         "video",
         "player"
       ],
-      "peakRssMiB": 718.8,
+      "peakRssMiB": 719.3,
       "reason": "Pinned PaddleOCR 2.x can extract comparable Vimeo text locally, but dependency, custody, packaging, and quality review remain before selection."
     }
   ],

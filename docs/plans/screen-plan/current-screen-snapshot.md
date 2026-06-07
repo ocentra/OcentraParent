@@ -77,9 +77,10 @@ static JSON-only claims, or fixture screenshots used as final proof.
 - Production live-view worker startup/relay-cache transport, real platform
   live-view prompt screenshots, parent UI persistence, physical-device parity,
   and writable product UI.
-- Current PP-OCRv5 quality/resource resolution, broader OCR comparison beyond
-  Windows WinRT selection, and live VLM provider/runtime quality measurement
-  beyond retained bounded-input and retained proof-image resource measurement.
+- Current PP-OCRv5 quality/resource resolution, cross-platform OCR parity
+  beyond Windows WinRT selection, and live VLM provider/runtime quality
+  measurement beyond retained bounded-input and retained proof-image resource
+  measurement.
 - Browser/network/mobile/broad block action adapters from screen-derived
   decisions.
 - Production parent explanation UX.

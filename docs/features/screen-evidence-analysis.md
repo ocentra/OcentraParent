@@ -673,8 +673,8 @@ only with explicit parent settings.
   prevents the stacked product-path artifact from being treated as full
   screen-plan completion before macOS, Linux, Android parity, iOS, live-view
   platform prompt/production worker startup/runtime UI, current PP-OCRv5
-  quality/resource, and live VLM quality gates are completed or explicitly left
-  as non-claims.
+  quality/resource, cross-platform OCR parity, and live VLM quality gates are
+  completed or explicitly left as non-claims.
 - Product-complete retention controls and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -800,13 +800,13 @@ parity, and UI remain separate proof gates.
       deletes raw temp images.
 - [~] Tesseract baseline source/license/runtime extraction, CPU/memory
   measurement, and derived failure-mode scenarios are recorded against a
-  retained real public Vimeo screenshot artifact, but production-quality
-  selection and PaddleOCR comparison remain open.
+  retained real public Vimeo screenshot artifact; Tesseract is a measured
+  fallback while the current Windows service OCR route is WinRT.
 - [~] PaddleOCR/PP-OCR candidate readiness records current package availability,
   current PP-OCRv5 local execution with zero extracted text from the retained
   Vimeo screenshot, and a pinned local PaddleOCR 2.x fallback that extracts
-  comparable text, but production OCR selection and broader quality/resource
-  proof remain open.
+  comparable text; PaddleOCR is not selected and broader PP-OCRv5
+  quality/resource proof remains open.
 - [x] Windows service OCR route selection proof chooses WinRT OCR for the
       current Windows service path from retained real service/redaction evidence
       while leaving Tesseract/PaddleOCR as non-selected fallback candidates.

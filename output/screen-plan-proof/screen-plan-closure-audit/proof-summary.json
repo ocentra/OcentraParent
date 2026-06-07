@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T09:04:12.688Z",
+  "generatedAt": "2026-06-07T09:10:58.254Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -109,7 +109,7 @@
       "status": "~",
       "requiredProof": "output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json",
       "proofPresent": true,
-      "gate": "Local Tesseract extraction, CPU/memory measurement, and derived failure-mode capture are proved; production OCR selection remains open."
+      "gate": "Local Tesseract extraction, CPU/memory measurement, and derived failure-mode capture are proved; Tesseract is retained as a measured fallback while the current Windows service OCR route is WinRT. Cross-platform OCR parity, broad language coverage, and final production quality remain open."
     },
     {
       "id": "35",
@@ -117,7 +117,7 @@
       "status": "~",
       "requiredProof": "output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json",
       "proofPresent": true,
-      "gate": "Current PP-OCRv5 inference now runs locally with oneDNN/MKLDNN disabled but extracts zero text from the real proof image; an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally; no production selection or broad quality claim."
+      "gate": "Current PP-OCRv5 inference now runs locally with oneDNN/MKLDNN disabled but extracts zero text from the real proof image; an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally. PaddleOCR is not selected; current Windows service OCR route selection is WinRT, while PP-OCRv5 quality/resource resolution and broad quality remain open."
     },
     {
       "id": "36",
@@ -158,6 +158,10 @@
       "present": true
     },
     {
+      "artifact": "output/screen-plan-proof/windows-ocr-candidate-selection/proof-summary.json",
+      "present": true
+    },
+    {
       "artifact": "output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json",
       "present": true
     },
@@ -181,7 +185,7 @@
     "noProductCompleteClaim": true
   },
   "nonClaims": [
-    "This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/production worker startup/relay-cache execution/product UI persistence, current PP-OCRv5 quality resolution/production OCR selection, authenticated-account social proof, broad VLM rollout thresholds, or hardware fallback matrix gates.",
+    "This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/production worker startup/relay-cache execution/product UI persistence, current PP-OCRv5 quality resolution, cross-platform OCR parity, authenticated-account social proof, broad VLM rollout thresholds, or hardware fallback matrix gates.",
     "This audit does not replace real device/runtime proof for remaining partial rows.",
     "This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied."
   ]
