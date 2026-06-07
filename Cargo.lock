@@ -2201,6 +2201,7 @@ dependencies = [
  "chacha20poly1305",
  "chrono",
  "ocentra-eventing",
+ "ocentra-network-evidence",
  "ocentra-parent-agent-protocol",
  "roxmltree",
  "rusqlite",

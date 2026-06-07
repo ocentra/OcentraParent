@@ -72,6 +72,7 @@ SELECT
   observed_at,
   device_id,
   platform,
+  kind,
   subject_kind,
   subject_id,
   subject_display_name,

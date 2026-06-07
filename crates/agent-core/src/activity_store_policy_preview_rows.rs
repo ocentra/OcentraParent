@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::{constants, ActivityEvidenceRef, LogFields};
+use ocentra_parent_agent_protocol::{constants, ActivityEvidenceRef, LogFieldValue, LogFields};
 use rusqlite::{params, Connection};
 
 use crate::ActivityStoreError;
@@ -8,6 +8,7 @@ pub(crate) struct PolicyPreviewStoreRow {
     pub observed_at: String,
     pub device_id: String,
     pub platform: String,
+    pub kind: String,
     pub subject_kind: String,
     pub subject_id: String,
     pub subject_display_name: Option<String>,
@@ -28,9 +29,10 @@ pub(crate) fn policy_preview_rows(
             row.get::<_, String>(3)?,
             row.get::<_, String>(4)?,
             row.get::<_, String>(5)?,
-            row.get::<_, Option<String>>(6)?,
-            row.get::<_, String>(7)?,
+            row.get::<_, String>(6)?,
+            row.get::<_, Option<String>>(7)?,
             row.get::<_, String>(8)?,
+            row.get::<_, String>(9)?,
         ))
     })?;
 
@@ -39,11 +41,17 @@ pub(crate) fn policy_preview_rows(
         results.push(store_row_from_sqlite(row?)?);
     }
 
-    Ok(results)
+    let deleted_ids = deleted_evidence_reference_ids(&results);
+    Ok(results
+        .into_iter()
+        .filter(|row| !is_retention_tombstone(row))
+        .filter(|row| !row_deleted(row, &deleted_ids))
+        .collect())
 }
 
 fn store_row_from_sqlite(
     row: (
+        String,
         String,
         String,
         String,
@@ -60,6 +68,7 @@ fn store_row_from_sqlite(
         observed_at,
         device_id,
         platform,
+        kind,
         subject_kind,
         subject_id,
         subject_display_name,
@@ -71,10 +80,64 @@ fn store_row_from_sqlite(
         observed_at,
         device_id,
         platform,
+        kind,
         subject_kind,
         subject_id,
         subject_display_name,
         fields: serde_json::from_str::<LogFields>(&fields_json)?,
         evidence: serde_json::from_str::<Vec<ActivityEvidenceRef>>(&evidence_json)?,
     })
+}
+
+fn is_retention_tombstone(row: &PolicyPreviewStoreRow) -> bool {
+    row.kind == constants::activity_event_kind::NETWORK_RETENTION_DELETED
+}
+
+fn row_deleted(row: &PolicyPreviewStoreRow, deleted_ids: &[String]) -> bool {
+    deleted_ids.iter().any(|id| id == &row.event_id)
+        || row
+            .evidence
+            .iter()
+            .any(|reference| deleted_ids.iter().any(|id| id == &reference.evidence_id))
+}
+
+fn deleted_evidence_reference_ids(rows: &[PolicyPreviewStoreRow]) -> Vec<String> {
+    let mut ids = Vec::new();
+    for row in rows.iter().filter(|row| is_retention_tombstone(row)) {
+        for id in evidence_reference_ids(&row.fields, &row.evidence) {
+            if !ids.iter().any(|existing| existing == &id) {
+                ids.push(id);
+            }
+        }
+    }
+    ids
+}
+
+fn evidence_reference_ids(fields: &LogFields, evidence: &[ActivityEvidenceRef]) -> Vec<String> {
+    let mut ids = string_field(fields, constants::field::EVIDENCE_REFERENCE_IDS)
+        .map(|value| split_evidence_reference_ids(&value))
+        .unwrap_or_default();
+
+    for reference in evidence {
+        if !ids.iter().any(|id| id == &reference.evidence_id) {
+            ids.push(reference.evidence_id.clone());
+        }
+    }
+    ids
+}
+
+fn split_evidence_reference_ids(value: &str) -> Vec<String> {
+    value
+        .split(constants::delimiter::LIST)
+        .map(str::trim)
+        .filter(|id| !id.is_empty())
+        .map(ToOwned::to_owned)
+        .collect()
+}
+
+fn string_field(fields: &LogFields, key: &str) -> Option<String> {
+    match fields.get(key) {
+        Some(LogFieldValue::String(value)) => Some(value.clone()),
+        _ => None,
+    }
 }

@@ -10,6 +10,8 @@ mkdirSync(testRoot, { recursive: true });
 
 const sourceFiles = [
   'scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs',
+  'crates/agent-core/Cargo.toml',
+  'crates/agent-protocol/src/constants/policy.rs',
   'crates/agent-protocol/src/constants/sqlite.rs',
   'crates/agent-core/src/activity_store_policy_preview.rs',
   'crates/agent-core/src/activity_store_policy_preview_rows.rs',
@@ -18,6 +20,8 @@ const sourceFiles = [
   'crates/agent-core/src/activity_store_policy_preview_test_fixture.rs',
   'crates/agent-core/src/activity_store_policy_preview_tests.rs',
   'crates/agent-core/src/activity_store_policy_preview_parent_rule_tests.rs',
+  'crates/ocentra-network-evidence/src/policy.rs',
+  'crates/ocentra-network-evidence/src/tests/policy.rs',
   'crates/agent-core/README.md',
   'crates/agent-service/src/policy_preview_api.rs',
   'crates/agent-service/src/policy_preview_payload.rs',
@@ -48,18 +52,19 @@ const expectedStatus = {
   previewState: [
     'targetType=domain',
     'targetValue=example-network.test',
-    'capabilityStatus=ready',
-    'decisionAction=block',
+    'capabilityStatus=ready-for-preview-read-model',
+    'decisionAction=ask-parent after row34 grade-B block downgrade',
     'dryRun=true',
     'enforcementHandoffState=disabled',
     'parentRuleContextReferenceCount=1',
   ],
   evidenceBoundary: [
     'policy preview evidence references include the stored ActivityEvent ref',
+    'retention tombstones suppress deleted network flow evidence before preview decisions',
     'wrong-device or wrong-child parent rule contexts are excluded before preview decisions',
     'future, expired, or scheduled-without-proof parent rules are excluded before preview decisions',
     'this slice does not invent query-store, journal, AI, adapter, or enforcement refs',
-    'row34 remains the evidence-grade policy mapper proof for A/B/C/D grade behavior',
+    'row34 shared evidence-grade mapper downgrades grade-B block requests to parent review',
   ],
   noClaims: [
     'exact URL from network-only evidence',
@@ -168,9 +173,11 @@ writeFileSync(
   securityLogPath,
   [
     'checkedAt=deterministic:network-policy-preview-stored-flow-evidence-proof/v1',
-    'asserted=stored ActivityStore network flow row can produce a policy preview decision',
+    'asserted=stored ActivityStore network flow row can produce a dry-run parent-review policy preview decision',
+    'asserted=network retention tombstones suppress deleted flow rows before preview decisions',
     'asserted=parent rule context must cite stored network activity evidence refs and match source device/platform scope',
     'asserted=stale, future, or scheduled-without-proof parent rule contexts are excluded',
+    'asserted=row34 evidence-grade mapper downgrades grade-B network block requests to parent review',
     'asserted=policy preview remains dry-run with disabled enforcement handoff',
     'asserted=no exact URL/page/video/message/search claim from network-only evidence',
     'asserted=no decrypted payload or raw PCAP claim',
@@ -182,11 +189,11 @@ writeFileSync(
 
 const proof = {
   proof: 'network-policy-preview-stored-flow-evidence-proof',
-  proofRevision: 'network-policy-preview-stored-flow-evidence-proof/v1',
-  checkedAt: 'deterministic:network-policy-preview-stored-flow-evidence-proof/v1',
+  proofRevision: 'network-policy-preview-stored-flow-evidence-proof/v2',
+  checkedAt: 'deterministic:network-policy-preview-stored-flow-evidence-proof/v2',
   sourceFingerprint: `source-tree:${sourceFingerprint()}`,
   sourceRefs: sourceFiles,
-  sourceBase: mergeBase(),
+  sourceBase: 'deterministic:policy-preview-source-set/v2',
   proofRoot,
   testRoot,
   commands: commandResults,
@@ -205,8 +212,10 @@ const proof = {
   provenBoundaries: [
     'agent-core policy preview consumes a stored ActivityStore network flow row and maps destinationDomain into a domain policy target',
     'agent-core policy preview resolves a local parent-rule context only when the parent rule cites the stored network activity event ref',
+    'agent-core policy preview suppresses retention-deleted network flow evidence before parent-rule matching or dry-run decisions',
     'agent-core policy preview excludes parent-rule contexts whose device or child scope does not match the stored event source',
     'agent-core policy preview excludes future, expired, and scheduled-without-proof parent rules from preview rows',
+    'agent-core policy preview applies the shared row34 evidence-grade mapper so grade-B network block requests become parent-review ask-parent decisions',
     'agent-core policy preview emits a dry-run policy decision with disabled enforcement handoff',
     'agent-service policy-preview payload exposes the latest dry-run decision without an adapter or enforcement claim',
     'agent-protocol-domain accepts the policy preview read-model command and reported event payload through the shared contracts',
@@ -221,6 +230,8 @@ console.log('network-policy-preview-stored-flow-evidence-proof-ok:core,service,t
 console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function assertSourceContracts() {
+  const coreCargo = readText('crates/agent-core/Cargo.toml');
+  const policyConstants = readText('crates/agent-protocol/src/constants/policy.rs');
   const corePreview = readText('crates/agent-core/src/activity_store_policy_preview.rs');
   const coreRows = readText('crates/agent-core/src/activity_store_policy_preview_rows.rs');
   const coreTargets = readText('crates/agent-core/src/activity_store_policy_preview_targets.rs');
@@ -238,18 +249,30 @@ function assertSourceContracts() {
   const featureDoc = readText('docs/features/network-domain-control.md');
   const checklist = readText('docs/plans/network-plan/implementation-checklist.md');
   const workpacks = readText('docs/plans/network-plan/workpacks/README.md');
+  const networkPolicy = readText('crates/ocentra-network-evidence/src/policy.rs');
+  const networkPolicyTests = readText('crates/ocentra-network-evidence/src/tests/policy.rs');
   const requiredSnippets = [
+    [coreCargo, 'ocentra-network-evidence'],
+    [policyConstants, 'REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW'],
     [corePreview, 'evaluate_policy_dry_run'],
+    [corePreview, 'map_network_evidence_grade_to_policy'],
+    [corePreview, 'grade_mapped_network_decision'],
+    [corePreview, 'network_evidence_grade'],
     [coreRows, 'device_id'],
+    [coreRows, 'NETWORK_RETENTION_DELETED'],
+    [coreRows, 'row_deleted'],
     [sqliteConstants, 'SELECT_POLICY_PREVIEW_ACTIVITY'],
     [sqliteConstants, 'device_id'],
     [sqliteConstants, 'platform'],
+    [sqliteConstants, 'kind'],
     [coreTargets, 'DESTINATION_DOMAIN'],
     [coreTargets, 'PolicyTargetType::Domain'],
     [coreParentRules, 'context_scope_matches_row'],
     [coreParentRules, 'context_rule_has_supported_schedule'],
     [coreParentRules, 'context_rule_is_effective_at'],
     [coreTests, 'policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enforcement'],
+    [coreTests, 'policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombstone'],
+    [coreTests, 'REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW'],
     [coreParentRuleTests, 'policy_preview_read_model_rejects_wrong_device_or_child_rule_contexts'],
     [coreParentRuleTests, 'policy_preview_read_model_rejects_future_or_expired_rule_windows'],
     [coreParentRuleTests, 'policy_preview_read_model_rejects_scheduled_rule_without_schedule_proof'],
@@ -262,8 +285,12 @@ function assertSourceContracts() {
     [tsReadme, 'row10k transport-dispatch'],
     [featureDoc, 'Policy preview over stored flow evidence'],
     [featureDoc, 'network-policy-preview-stored-flow-evidence-proof'],
+    [featureDoc, 'retention-deleted flow rows'],
     [checklist, 'policy-preview-stored-flow-evidence'],
+    [checklist, 'retention-deleted flow rows'],
     [workpacks, 'policy-preview'],
+    [networkPolicy, 'mapped_mode_and_action'],
+    [networkPolicyTests, 'policy_mapping_routes_grade_b_block_requests_to_parent_review'],
   ];
   for (const [haystack, needle] of requiredSnippets) {
     assertIncludes(haystack, needle, `source contract snippet ${needle}`);
@@ -301,10 +328,6 @@ function sourceFingerprint() {
     hash.update('\0');
   }
   return hash.digest('hex');
-}
-
-function mergeBase() {
-  return runText('git', ['merge-base', 'HEAD', 'origin/main']).trim();
 }
 
 function readText(path) {
@@ -371,7 +394,7 @@ function normalizeLogText(text) {
 }
 
 function fingerprintSourceFiles() {
-  return sourceFiles.filter((filePath) => !filePath.startsWith('scripts/test/'));
+  return sourceFiles;
 }
 
 function normalizeWorkspacePaths(text) {

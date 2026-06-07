@@ -5,7 +5,7 @@ use ocentra_parent_agent_protocol::{
 
 use super::{
     activity_store_policy_preview_test_fixture::{
-        browser_event, network_flow_event, parent_rule_context,
+        browser_event, network_flow_event, network_retention_deleted_event, parent_rule_context,
     },
     ActivityStore,
 };
@@ -113,10 +113,13 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
         row.parent_rule_context_references[0].target_evidence_refs,
         vec![row.source_event_id.clone()]
     );
-    assert_eq!(row.decision.action, PolicyAction::Block);
+    assert_eq!(row.decision.action, PolicyAction::AskParent);
     assert_eq!(
         row.decision.reason_codes,
-        vec![policy::TEST_REASON_PARENT_BLOCK.to_string()]
+        vec![
+            policy::TEST_REASON_PARENT_BLOCK.to_string(),
+            policy::REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW.to_string()
+        ]
     );
     assert_eq!(
         row.decision.rule_ids,
@@ -126,6 +129,43 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
     assert_eq!(
         row.decision.enforcement_handoff_state,
         PolicyDecisionHandoffState::Disabled
+    );
+}
+
+#[test]
+fn policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombstone() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let event = network_flow_event();
+    let deleted_event_id = event.event_id.clone();
+    store
+        .ingest_events(&[event, network_retention_deleted_event(&deleted_event_id)])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    store
+        .replace_parent_rule_contexts(&[parent_rule_context(
+            PolicyTarget {
+                target_id: constants::activity_store::TEST_NETWORK_EVENT_ID.to_string(),
+                target_type: PolicyTargetType::Domain,
+                target_value: constants::activity_store::TEST_NETWORK_DOMAIN.to_string(),
+            },
+            policy::TEST_BLOCK_RULE_ID,
+            PolicyAction::Block,
+            policy::TEST_REASON_PARENT_BLOCK,
+            vec![deleted_event_id],
+        )])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+
+    let read_model = store
+        .policy_preview_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert_eq!(read_model.returned, 0);
+    assert_eq!(read_model.rows.len(), 0);
+    assert_eq!(
+        read_model.capability_status,
+        policy::PREVIEW_CAPABILITY_NO_EVIDENCE
     );
 }
 

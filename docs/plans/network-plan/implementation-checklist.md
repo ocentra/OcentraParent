@@ -286,10 +286,13 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       and proves a stored network flow row maps `destinationDomain` into a
       domain policy target, resolves a parent-rule context only when the
       parent-rule evidence refs cite the stored network activity event and the
-      context matches the event source device/platform scope, excludes stale,
-      future, or scheduled-without-proof parent-rule contexts, and serializes
-      the latest dry-run decision with disabled enforcement handoff.
-      Row34 remains the evidence-grade mapper dependency. This proof keeps AI
+      context matches the event source device/platform scope, suppresses
+      retention-deleted flow rows before parent-rule matching, excludes stale,
+      future, or scheduled-without-proof parent-rule contexts, consumes the
+      row34 shared evidence-grade mapper so grade-B network block requests
+      downgrade to parent-review ask-parent, and serializes the latest dry-run
+      decision with disabled enforcement handoff.
+      Row34 is the evidence-grade mapper dependency. This proof keeps AI
       execution, full policy-engine execution, adapter authorization, adapter
       action, enforcement-command publication, raw PCAP, exact URL, decrypted
       payload, page content, video content, private-message content,

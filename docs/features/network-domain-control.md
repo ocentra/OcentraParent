@@ -216,12 +216,14 @@ compete on control while staying clear about attribution confidence and privacy.
   flow rows now feed the existing policy-preview read model, map
   `destinationDomain` to a domain policy target, resolve parent-rule contexts
   only when they cite the stored network activity event ref and match the event
-  source device/platform scope, exclude stale/future/scheduled-without-proof
-  contexts, and serialize the latest dry-run decision through the service
-  payload. The proof writes
+  source device/platform scope, suppress retention-deleted flow rows, exclude
+  stale/future/scheduled-without-proof contexts, apply the shared row34
+  evidence-grade mapper so grade-B network block requests become parent-review
+  ask-parent decisions, and serialize the latest dry-run decision through the
+  service payload. The proof writes
   `output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json`
   and `test-results/network-policy-preview-stored-flow-evidence-proof/proof.json`.
-  It reuses the row34 evidence-grade mapper as the grade-specific dependency and
+  It consumes the row34 evidence-grade mapper as the grade-specific dependency and
   does not claim AI execution, full policy-engine execution, adapter
   authorization, adapter action, enforcement-command publication, exact URL,
   decrypted payload, page content, video content, private-message content,
@@ -690,12 +692,14 @@ UI rendering remain open.
       Stored ActivityStore network flow rows now feed the existing
       policy-preview read model and service payload with parent-rule evidence
       refs, source-device-scoped context filtering, stale/future/scheduled
-      context rejection, dry-run decision state, and disabled enforcement
+      context rejection, retention-deleted flow row suppression, row34
+      evidence-grade mapping that downgrades grade-B block requests to
+      parent-review ask-parent, dry-run decision state, and disabled enforcement
       handoff. Proof:
       `output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json`
       and
       `test-results/network-policy-preview-stored-flow-evidence-proof/proof.json`.
-      Row34 remains the evidence-grade policy mapper dependency; this item does
+      Row34 is consumed as the evidence-grade policy mapper dependency; this item does
       not claim AI execution, full policy-engine execution, adapter
       authorization, enforcement command publication, exact URL/content, raw
       PCAP, or host filtering.

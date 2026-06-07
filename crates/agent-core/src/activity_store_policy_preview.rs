@@ -1,7 +1,12 @@
+use ocentra_network_evidence::{
+    map_network_evidence_grade_to_policy, NetworkEvidenceGrade, NetworkEvidencePolicyAction,
+    NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput, NetworkEvidencePolicyMode,
+};
 use ocentra_parent_agent_protocol::{
-    policy_constants as policy, ActivityEvidenceKind, ActivityEvidenceRef,
-    LocalAiParentRuleContextRef, ParentEvidenceReference, ParentEvidenceReferenceKind,
-    PolicyPreviewReadModel, PolicyPreviewReadModelRow, POLICY_DRY_RUN_SCHEMA_VERSION,
+    constants, policy_constants as policy, ActivityEvidenceKind, ActivityEvidenceRef,
+    LocalAiParentRuleContextRef, LogFieldValue, LogFields, ParentEvidenceReference,
+    ParentEvidenceReferenceKind, PolicyAction, PolicyDecision, PolicyPreviewReadModel,
+    PolicyPreviewReadModelRow, POLICY_DRY_RUN_SCHEMA_VERSION,
 };
 use rusqlite::Connection;
 
@@ -64,16 +69,19 @@ fn preview_row(
         .iter()
         .map(|reference| reference.rule.clone())
         .collect::<Vec<_>>();
-    let decision = evaluate_policy_dry_run(PolicyDryRunEvaluationInput {
-        decision_id: prefixed_id(policy::PREVIEW_DECISION_ID_PREFIX, &row.event_id),
-        evaluated_at: generated_at.to_string(),
-        observed_target: target.clone(),
-        observed_target_aliases: targets.aliases,
-        parent_rules,
-        local_ai_result: None,
-        evidence_references: evidence_references.clone(),
-        expires_at: None,
-    });
+    let decision = grade_mapped_network_decision(
+        &row,
+        evaluate_policy_dry_run(PolicyDryRunEvaluationInput {
+            decision_id: prefixed_id(policy::PREVIEW_DECISION_ID_PREFIX, &row.event_id),
+            evaluated_at: generated_at.to_string(),
+            observed_target: target.clone(),
+            observed_target_aliases: targets.aliases,
+            parent_rules,
+            local_ai_result: None,
+            evidence_references: evidence_references.clone(),
+            expires_at: None,
+        }),
+    );
 
     Some(PolicyPreviewReadModelRow {
         preview_id: prefixed_id(policy::PREVIEW_ID_PREFIX, &row.event_id),
@@ -84,6 +92,118 @@ fn preview_row(
         parent_rule_context_references,
         decision,
     })
+}
+
+fn grade_mapped_network_decision(
+    row: &PolicyPreviewStoreRow,
+    mut decision: PolicyDecision,
+) -> PolicyDecision {
+    let Some(evidence_grade) = network_evidence_grade(row) else {
+        return decision;
+    };
+    let Some(requested_action) = network_policy_action(decision.action) else {
+        return decision;
+    };
+    let Some(mapping) = network_policy_mapping(evidence_grade, requested_action, &decision) else {
+        return decision;
+    };
+    let mapped_action = policy_action(mapping.mapped_action);
+    if mapped_action != decision.action {
+        decision.action = mapped_action;
+        push_unique_reason(
+            &mut decision.reason_codes,
+            grade_mapping_reason(mapping.mode),
+        );
+    }
+    decision
+}
+
+fn network_evidence_grade(row: &PolicyPreviewStoreRow) -> Option<NetworkEvidenceGrade> {
+    if row.kind != constants::activity_event_kind::DOMAIN_OBSERVED {
+        return None;
+    }
+    if string_field(&row.fields, constants::field::CAPABILITY_STATUS).as_deref()
+        != Some(constants::activity_capture::CAPABILITY_STATUS_AVAILABLE)
+    {
+        return Some(NetworkEvidenceGrade::D);
+    }
+    if string_field(&row.fields, constants::field::DOMAIN_ATTRIBUTION_STATUS).as_deref()
+        != Some(constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_DOMAIN_OBSERVED)
+    {
+        return Some(NetworkEvidenceGrade::D);
+    }
+    if string_field(&row.fields, constants::field::PROCESS_ATTRIBUTION_STATUS).as_deref()
+        == Some(constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED)
+    {
+        Some(NetworkEvidenceGrade::B)
+    } else {
+        Some(NetworkEvidenceGrade::C)
+    }
+}
+
+fn network_policy_mapping(
+    evidence_grade: NetworkEvidenceGrade,
+    requested_action: NetworkEvidencePolicyAction,
+    decision: &PolicyDecision,
+) -> Option<NetworkEvidencePolicyMapping> {
+    let parent_rule_ref = decision.rule_ids.first()?.clone();
+    let evidence_refs = decision
+        .evidence_references
+        .iter()
+        .map(|reference| reference.evidence_reference_id.clone())
+        .collect::<Vec<_>>();
+    map_network_evidence_grade_to_policy(NetworkEvidencePolicyMappingInput {
+        policy_decision_ref: decision.decision_id.clone(),
+        parent_rule_ref,
+        evidence_refs,
+        local_ai_result_ref: decision.local_ai_result_id.clone(),
+        evidence_grade,
+        requested_action,
+        adapter_capability_proof_ref: None,
+    })
+    .ok()
+}
+
+fn network_policy_action(action: PolicyAction) -> Option<NetworkEvidencePolicyAction> {
+    match action {
+        PolicyAction::Warn => Some(NetworkEvidencePolicyAction::WarnChild),
+        PolicyAction::Block => Some(NetworkEvidencePolicyAction::Block),
+        PolicyAction::TimeLimit => Some(NetworkEvidencePolicyAction::Limit),
+        PolicyAction::AskParent => Some(NetworkEvidencePolicyAction::AskParent),
+        PolicyAction::Allow | PolicyAction::Unknown => None,
+    }
+}
+
+fn policy_action(action: NetworkEvidencePolicyAction) -> PolicyAction {
+    match action {
+        NetworkEvidencePolicyAction::AskParent => PolicyAction::AskParent,
+        NetworkEvidencePolicyAction::WarnChild => PolicyAction::Warn,
+        NetworkEvidencePolicyAction::Limit => PolicyAction::TimeLimit,
+        NetworkEvidencePolicyAction::Block => PolicyAction::Block,
+        NetworkEvidencePolicyAction::Monitor | NetworkEvidencePolicyAction::None => {
+            PolicyAction::Unknown
+        }
+    }
+}
+
+fn grade_mapping_reason(mode: NetworkEvidencePolicyMode) -> String {
+    match mode {
+        NetworkEvidencePolicyMode::ParentReview => {
+            policy::REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW.to_string()
+        }
+        NetworkEvidencePolicyMode::ObserveOnly => {
+            policy::REASON_NETWORK_EVIDENCE_GRADE_OBSERVE_ONLY.to_string()
+        }
+        NetworkEvidencePolicyMode::DryRun => {
+            policy::REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW.to_string()
+        }
+    }
+}
+
+fn push_unique_reason(reason_codes: &mut Vec<String>, reason_code: String) {
+    if !reason_codes.iter().any(|existing| existing == &reason_code) {
+        reason_codes.push(reason_code);
+    }
 }
 
 fn evidence_references_from_row(row: &PolicyPreviewStoreRow) -> Vec<ParentEvidenceReference> {
@@ -135,4 +255,11 @@ fn prefixed_id(prefix: &str, source_id: &str) -> String {
     let mut value = String::from(prefix);
     value.push_str(source_id);
     value
+}
+
+fn string_field(fields: &LogFields, key: &str) -> Option<String> {
+    match fields.get(key) {
+        Some(LogFieldValue::String(value)) => Some(value.clone()),
+        _ => None,
+    }
 }

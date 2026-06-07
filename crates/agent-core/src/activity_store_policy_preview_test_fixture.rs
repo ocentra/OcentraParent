@@ -1,10 +1,12 @@
 use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, ActivityCaptureCapabilityStatus, ActivityEvent,
-    ActivityNetworkProtocol, ActivityNetworkTcpState, BrowserActiveProofSource,
-    BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserFamily, BrowserQueryVisibilityLabel, ChildProfileReference, FamilyReference,
-    LocalAiParentRuleContextRef, ParentActorReference, ParentActorRole, ParentDeviceReference,
-    PolicyAction, PolicyRule, PolicyTarget, PolicyTargetType,
+    ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkProtocol,
+    ActivityNetworkTcpState, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind, BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus,
+    BrowserChannel, BrowserCustodyLabel, BrowserFamily, BrowserQueryVisibilityLabel,
+    ChildProfileReference, FamilyReference, LocalAiParentRuleContextRef, LogFieldValue, LogFields,
+    ParentActorReference, ParentActorRole, ParentDeviceReference, PolicyAction, PolicyRule,
+    PolicyTarget, PolicyTargetType, ACTIVITY_SCHEMA_VERSION,
 };
 
 use super::{
@@ -72,6 +74,46 @@ pub(crate) fn network_flow_event() -> ActivityEvent {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         0,
     )
+}
+
+pub(crate) fn network_retention_deleted_event(deleted_event_id: &str) -> ActivityEvent {
+    let mut fields = LogFields::new();
+    fields.insert(
+        constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
+        LogFieldValue::String(deleted_event_id.to_string()),
+    );
+    fields.insert(
+        constants::field::DELETED_AT.to_string(),
+        LogFieldValue::String(
+            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT.to_string(),
+        ),
+    );
+
+    ActivityEvent {
+        schema_version: ACTIVITY_SCHEMA_VERSION,
+        event_id: constants::activity_store::TEST_NETWORK_RETENTION_DELETE_EVENT_ID.to_string(),
+        observed_at: constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT
+            .to_string(),
+        source: ActivitySource {
+            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            platform: std::env::consts::OS.to_string(),
+            observer: ActivityObserver::AgentService,
+            source_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+        },
+        kind: ActivityEventKind::NetworkRetentionDeleted,
+        subject: ActivitySubject {
+            kind: ActivitySubjectKind::Retention,
+            subject_id: deleted_event_id.to_string(),
+            display_name: None,
+        },
+        fields,
+        evidence: vec![ActivityEvidenceRef {
+            evidence_id: deleted_event_id.to_string(),
+            kind: ActivityEvidenceKind::JournalEntry,
+            digest: None,
+            uri: None,
+        }],
+    }
 }
 
 pub(crate) fn parent_rule_context_for_event(event: &ActivityEvent) -> LocalAiParentRuleContextRef {
