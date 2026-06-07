@@ -63,9 +63,10 @@ can be split further when source-shape, platform proof, or validation needs it.
 
 ## Supplemental Proof Rows
 
-| Row           | Workpack                                                 | Priority | Notes                                                                                                                                                                                                                                |
-| ------------- | -------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| portal-status | Portal risk/performance/platform read-model status proof | P3       | Activity network drawer renders service-backed platform/capability status, active/tombstone/exportable counts, retention delete refs, and degraded adapter state without UI risk scoring, policy, adapter, or enforcement authority. |
+| Row           | Workpack                                                 | Priority | Notes                                                                                                                                                                                                                                                                                                      |
+| ------------- | -------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| portal-status | Portal risk/performance/platform read-model status proof | P3       | Activity network drawer renders service-backed platform/capability status, active/tombstone/exportable counts, retention delete refs, and degraded adapter state without UI risk scoring, policy, adapter, or enforcement authority.                                                                       |
+| 10b           | Broker/family-hub remote delivery status                 | P6       | Broker and family-hub relay route requirements materialize into requirements-satisfied-but-not-implemented status with custody, auth, encryption, retention, replay, deletion, offset, dedupe, broker config, identity, relay policy, idempotency, and dead-letter refs while live delivery remains false. |
 
 ## Required Workpack Record
 
