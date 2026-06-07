@@ -401,7 +401,7 @@ UI rendering remain open.
       Deterministic indicator classification now exists for VPN adapter,
       proxy-port, Tor, and tunnel-protocol candidates, with encrypted-DNS-only
       negative proof and no hidden-destination claim.
-- [ ] Network category/risk targets.
+- [x] Network category/risk targets.
       Domain normalization, public-suffix, and source-custody category
       intelligence proof now exist, along with deterministic
       social/video/game/cloud-gaming classifier candidates. Broader anomaly/risk
