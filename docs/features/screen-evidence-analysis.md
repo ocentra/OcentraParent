@@ -475,10 +475,11 @@ only with explicit parent settings.
   degraded/manual-required states without claiming production model quality or
   cross-platform parity.
 - `scripts/test/screen-ocr-tesseract-baseline-proof.mjs` now records the
-  Tesseract OCR baseline readiness check. It verifies the upstream
-  project/docs/license direction and records that this Windows lane does not
-  have `tesseract` on `PATH`, so extraction, packaging, quality,
-  CPU/memory/runtime measurement, and PaddleOCR comparison remain open.
+  Tesseract OCR baseline runtime extraction check. It verifies the upstream
+  project/docs/license direction, installs/invokes local Tesseract 5.5.0
+  through the standard Windows install path, and extracts expected visible
+  terms from a retained real public Vimeo screenshot artifact. CPU/memory,
+  failure-mode, production-quality, and PaddleOCR comparison remain open.
 - `scripts/test/screen-ocr-paddleocr-evaluation-proof.mjs` refreshes the
   PaddleOCR/PP-OCR candidate readiness check against current local package
   availability and PyPI candidate versions. It keeps remote OCR disabled by
@@ -644,9 +645,9 @@ parity, and UI remain separate proof gates.
 - [x] Windows WinRT OCR worker analyzes real browser/native captured pixels,
       emits schema-valid screen analysis evidence, feeds policy dry-run, and
       deletes raw temp images.
-- [~] Tesseract baseline source/license/runtime readiness is recorded, but the
-  local runtime is unavailable on this Windows lane and extraction/quality
-  comparison remains open.
+- [~] Tesseract baseline source/license/runtime extraction is recorded against a
+  retained real public Vimeo screenshot artifact, but CPU/memory,
+  failure-mode, production-quality, and PaddleOCR comparison remain open.
 - [~] PaddleOCR/PP-OCR candidate readiness records current package availability
   and local-only/household-mesh routing non-claims, but install/runtime,
   quality, and resource comparison remain open.
