@@ -280,6 +280,16 @@ receipt ingestion, quiet-hours timer execution, retry worker execution,
 parent/child notification UI delivery, report delivery execution, final policy
 execution, connector/native runtime, enforcement, or product completion.
 
+Social alert/report audit-history bridge rows may map social local outbox rows
+into the existing logging-domain notification audit-history handoff. Linked
+rows may become queued audit-history entries; manual-required and unavailable
+rows must become blocked/manual entries. This bridge must preserve redaction-safe
+payload fields and no Ocentra-hosted child data custody. It must not claim
+provider delivery, receipt ingestion, credentials, parent notification history
+UI, child delivery, retry or quiet-hours runtime execution, report delivery
+execution, final policy execution, connector/native runtime, enforcement, or
+product completion.
+
 Rollout/manual-required gates may label rows as partial/manual-required only.
 They must preserve product completion as unclaimed until notification delivery,
 connector/native runtime, final policy execution, enforcement, release

@@ -435,6 +435,21 @@ execution, parent/child notification UI delivery, report delivery execution,
 final policy execution, connector/native runtime, and enforcement remain
 unclaimed.
 
+The follow-up `social-alert-report-audit-history-bridge-proof` adds
+`scripts/test/social-alert-report-audit-history-bridge-proof.mjs`, a proof that
+maps social alert/report local outbox rows into the existing logging-domain
+notification audit-history handoff. The proof writes
+`test-results/social-alert-report-audit-history-bridge-proof/proof.json`,
+`test-results/social-alert-report-audit-history-bridge-proof/audit-history-handoff.json`,
+and
+`output/browser-plan-proof/social-alert-report-audit-history-bridge-proof/01-social-alert-report-audit-history-bridge-proof.md`.
+It proves linked rows become queued audit-history entries while
+manual-required/unavailable rows become blocked/manual audit entries.
+Provider delivery, receipt ingestion, notification history UI, child delivery,
+quiet-hours timer execution, retry worker execution, report delivery execution,
+final policy execution, connector/native runtime, and enforcement remain
+unclaimed.
+
 The follow-up `social-alert-report-parent-surface-intent-proof` adds
 `packages/parent-domain/src/social-alert-report-parent-surface-intent-proof.ts`
 and

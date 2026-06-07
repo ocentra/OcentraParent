@@ -342,6 +342,17 @@ This advances the quiet-hours/preference handoff boundary without claiming
 provider delivery, receipt ingestion, quiet-hours timer execution, retry worker
 execution, parent/child notification UI delivery, report delivery execution,
 final policy execution, connector/native runtime, or enforcement.
+`social-alert-report-audit-history-bridge-proof` now maps the social
+alert/report local outbox bridge into the existing logging-domain notification
+audit-history handoff. Evidence:
+`test-results/social-alert-report-audit-history-bridge-proof/proof.json`,
+`test-results/social-alert-report-audit-history-bridge-proof/audit-history-handoff.json`,
+and
+`output/browser-plan-proof/social-alert-report-audit-history-bridge-proof/01-social-alert-report-audit-history-bridge-proof.md`.
+This advances redaction-safe audit/history handoff without claiming provider
+delivery, receipt ingestion, notification history UI, child delivery, runtime
+quiet-hours/retry execution, report delivery execution, final policy execution,
+connector/native runtime, or enforcement.
 Package subpath exports are deferred while `packages/parent-domain/package.json`
 is locked by E-B.
 

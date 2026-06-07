@@ -253,6 +253,13 @@ blocking, mobile UI, or platform support.
   receipt ingestion, quiet-hours timer execution, retry worker execution,
   parent/child UI delivery, report delivery execution, final policy execution,
   connector/native runtime, adapter dispatch, or enforcement claims.
+- Logging-domain social alert/report audit-history bridge proof for linked
+  social alert/report local outbox rows becoming queued audit-history handoff
+  entries, with manual/unavailable rows kept blocked/manual and no provider
+  delivery, receipt ingestion, credentials, parent notification history UI,
+  child delivery, retry or quiet-hours runtime execution, report delivery
+  execution, final policy execution, connector/native runtime, adapter dispatch,
+  or enforcement claims.
 - Logging-domain app/game notification audit-history bridge proof for linked
   app/game local outbox rows becoming metadata-only audit-history entries, with
   manual/unavailable rows kept blocked/manual and no production runtime,

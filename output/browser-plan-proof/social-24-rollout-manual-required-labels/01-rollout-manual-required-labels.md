@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-07T08:05:52.346Z
+Generated: 2026-06-07T08:16:21.164Z
 
 Rows checked: 23
 Proof-present rows: 21
@@ -55,6 +55,7 @@ Ref-only social alert/report intent proof is present.
 Parent-owned social alert/report local outbox JSONL bridge proof is present.
 Social alert/report parent-surface intent proof is present for manual/unavailable status rows.
 Parent-owned social alert/report scheduler JSONL bridge proof is present.
+Social alert/report audit-history bridge proof is present through the logging-domain handoff.
 Service-backed social alert/report intent UI proof is present for the real Browser route.
 Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.
 Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.

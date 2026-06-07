@@ -329,6 +329,14 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   execution, retry worker execution, parent/child notification UI delivery,
   report delivery execution, final policy execution, connector/native runtime,
   or enforcement.
+- `social-alert-report-audit-history-bridge-proof` now maps social alert/report
+  local outbox rows into the existing logging-domain notification audit-history
+  handoff. Linked rows become queued audit-history entries, and
+  manual-required/unavailable rows become blocked audit-history entries. It
+  proves redaction-safe audit/history handoff only; it does not claim provider
+  delivery, receipt ingestion, parent notification history UI, child delivery,
+  retry or quiet-hours runtime execution, report delivery execution, final
+  policy execution, connector/native runtime, or enforcement.
 - `social-report-writer-delivery-proof` now adds a parent-owned report writer
   delivery-readiness boundary for social report intents. It proves report-ready
   rows can cite parent-owned report artifacts and receipts while keeping
@@ -421,16 +429,17 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
 - [ ] Alert and report integration. Alert/report intent proof exists with
       ref-only local-outbox/report linkage, a parent-owned local outbox JSONL
       bridge for eligible rows, a parent-owned scheduler JSONL bridge,
-      parent-surface manual/unavailable intent rows, plus service-backed
-      Browser-route rendering.
+      logging-domain audit-history handoff rows, parent-surface
+      manual/unavailable intent rows, plus service-backed Browser-route
+      rendering.
       `social-alert-report-provider-preflight-proof` now requires adapter,
       credential, and smoke proof refs before delivery can be claimed.
       `social-alert-report-provider-status-handoff-proof` maps those rows into
       the V0.8 notification-provider boundary as manual-required/unavailable,
       without claiming delivered receipts;
-      provider delivery, rendered notification UI delivery, quiet-hours timer
-      execution, retry worker execution, report delivery execution, final
-      policy, and enforcement remain.
+      provider delivery, rendered notification UI/history delivery,
+      quiet-hours timer execution, retry worker execution, report delivery
+      execution, final policy, and enforcement remain.
 - [ ] Policy schedule/time-budget integration. Compiler contract proof now
       requires explicit schedule and time-budget refs/states; runtime policy
       execution, applied schedules/budgets, and enforcement remain.
