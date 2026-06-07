@@ -3,7 +3,7 @@
   "proofMode": "tracking-hosted-ui-artifact-inventory-proof",
   "generatedAt": "2026-06-06T23:45:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "85aa7b11ae475b974a86a60212c41458284f3779",
+  "baseCommitAtGeneration": "032c7f72a36028af43de322fe00cb429ca3f6d82",
   "requiredProofTier": "P2_HOSTED_CI",
   "currentProofTier": "P2_HOSTED_CI",
   "currentStatus": "proved",

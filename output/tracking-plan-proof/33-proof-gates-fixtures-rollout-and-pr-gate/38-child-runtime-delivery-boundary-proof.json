@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T14:02:04.665Z",
-  "commit": "952b231a53cd84a2314552d70f7a88e1bf886f00",
+  "checkedAt": "2026-06-07T14:12:44.485Z",
+  "commit": "032c7f72a36028af43de322fe00cb429ca3f6d82",
   "workpackId": "30-parent-and-child-ui-ux-surfaces",
   "requiredProofTier": "P2_HOSTED_CI",
   "currentProofTier": "P2_HOSTED_CI",
