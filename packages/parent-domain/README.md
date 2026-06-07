@@ -169,6 +169,14 @@ mobile readiness, and control catalogs.
   provider execution, support upload, account/billing, legal/SLA,
   provider-secret custody, default hosted family data, and child activity
   custody unclaimed.
+- `production-support-proof-status-matrix-closure-proof` contracts for the
+  production-support proof/status matrix closure after PR534, reconciling
+  status-backend runtime, public runtime/publication, privacy/legal,
+  provider-secret, export/delete, and release-installer support proof refs
+  while keeping real public runtime, status backend execution, signing/store
+  proof, updater execution, support upload, account/billing provider execution,
+  legal execution, production SLA, provider-secret custody, and child activity
+  custody unclaimed.
 - Parent-owned sync/export and stateless report compiler status contracts for
   parent-authorized remote compilation from parent-owned storage, source
   connector/cursor refs, requested data classes and time windows, temp TTL and
@@ -536,6 +544,13 @@ flowchart LR
   execution, support backend upload, account lookup, billing provider contact,
   legal execution, remote support, production SLA, provider-secret custody,
   default hosted family data, and child activity custody unclaimed.
+- `production-support-proof-status-matrix-closure-proof` remains
+  contract/read-model proof only; it reconciles the existing backend, public,
+  legal, provider-secret, export/delete, and release-support source proofs into
+  one status pack without implementing public runtime, status backend
+  execution, signing/store, updater execution, support backend upload,
+  account/billing provider execution, legal execution, production SLA,
+  provider-secret custody, or child activity custody.
 - Parent-owned sync/export and stateless report compiler proofs remain
   contract/status proof only; real compiler runtime/cloud worker, connector
   OAuth/provider APIs, portal controls/UI, upload/download, deletion execution,

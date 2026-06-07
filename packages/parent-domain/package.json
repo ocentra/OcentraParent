@@ -801,6 +801,18 @@
       "import": "./dist/production-support-status-backend-execution-continuation-values.js",
       "types": "./dist/production-support-status-backend-execution-continuation-values.d.ts"
     },
+    "./production-support-proof-status-matrix-closure": {
+      "import": "./dist/production-support-proof-status-matrix-closure-proof.js",
+      "types": "./dist/production-support-proof-status-matrix-closure-proof.d.ts"
+    },
+    "./production-support-proof-status-matrix-closure-read-model": {
+      "import": "./dist/production-support-proof-status-matrix-closure-read-model.js",
+      "types": "./dist/production-support-proof-status-matrix-closure-read-model.d.ts"
+    },
+    "./production-support-proof-status-matrix-closure-values": {
+      "import": "./dist/production-support-proof-status-matrix-closure-values.js",
+      "types": "./dist/production-support-proof-status-matrix-closure-values.d.ts"
+    },
     "./parent-mobile-runtime": {
       "import": "./dist/parent-mobile-runtime.js",
       "types": "./dist/parent-mobile-runtime.d.ts"

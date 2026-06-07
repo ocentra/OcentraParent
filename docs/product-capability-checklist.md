@@ -274,6 +274,14 @@ legal disclosure execution, remote support sessions, production SLA,
 provider-secret custody, default Ocentra-hosted family data, or child activity
 custody.
 
+`production-support-proof-status-matrix-closure-proof` adds the matrix closure
+row set that reconciles status-backend runtime, public runtime/publication,
+privacy/legal, provider-secret, export/delete, and release-installer support
+proof refs after PR534. It does not claim real public runtime, status backend
+execution, signing/store proof, updater execution, support backend upload
+execution, account/billing provider execution, legal disclosure execution,
+production SLA, provider-secret custody, or child activity custody.
+
 ## Checklist Rules
 
 - A row must move from `planned` to `in progress` only when a branch or merged
