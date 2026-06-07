@@ -5,6 +5,8 @@ pub(crate) struct TimerParentSurfaceControlActionResults {
     pub(crate) statuses: Vec<String>,
     pub(crate) capability_states: Vec<String>,
     pub(crate) enforcement_statuses: Vec<String>,
+    pub(crate) child_reason_reference_ids: Vec<String>,
+    pub(crate) child_status_reference_ids: Vec<String>,
 }
 
 pub(crate) fn timer_parent_surface_control_action_results(
@@ -34,6 +36,18 @@ pub(crate) fn timer_parent_surface_control_action_results(
                 .iter()
                 .filter_map(|row| row.enforcement_result.as_ref())
                 .map(|result| result.status.clone()),
+        ),
+        child_reason_reference_ids: unique_action_result_values(
+            model
+                .approval_action_result_rows
+                .iter()
+                .flat_map(|row| row.request.child_reason_references.iter().cloned()),
+        ),
+        child_status_reference_ids: unique_action_result_values(
+            model
+                .approval_action_result_rows
+                .iter()
+                .flat_map(|row| row.request.child_status_references.iter().cloned()),
         ),
     }
 }

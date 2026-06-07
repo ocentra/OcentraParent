@@ -33,6 +33,8 @@ const TimerParentSurfaceReadModel = {
   controlActionResultStatuses: [],
   controlActionResultCapabilityStates: [],
   controlActionResultEnforcementStatuses: [],
+  childFacingReasonReferenceIds: [],
+  childFacingStatusReferenceIds: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -100,6 +102,8 @@ describe('agent app-game timer parent surface parser', () => {
           controlActionResultStatuses: ['enforced'],
           controlActionResultCapabilityStates: ['supported'],
           controlActionResultEnforcementStatuses: ['actually-enforced'],
+          childFacingReasonReferenceIds: ['parent-approved'],
+          childFacingStatusReferenceIds: ['child-status-limit-reached'],
         })
       )
     );
@@ -113,6 +117,8 @@ describe('agent app-game timer parent surface parser', () => {
         controlActionResultStatuses: ['enforced'],
         controlActionResultCapabilityStates: ['supported'],
         controlActionResultEnforcementStatuses: ['actually-enforced'],
+        childFacingReasonReferenceIds: ['parent-approved'],
+        childFacingStatusReferenceIds: ['child-status-limit-reached'],
       },
     });
   });

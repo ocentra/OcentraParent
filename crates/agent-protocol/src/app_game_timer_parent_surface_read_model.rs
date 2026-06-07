@@ -47,6 +47,8 @@ pub struct AppGameTimerParentSurfaceReadModel {
     pub control_action_result_statuses: Vec<String>,
     pub control_action_result_capability_states: Vec<String>,
     pub control_action_result_enforcement_statuses: Vec<String>,
+    pub child_facing_reason_reference_ids: Vec<String>,
+    pub child_facing_status_reference_ids: Vec<String>,
     pub timer_runtime_claimed: bool,
     pub scheduler_persistence_claimed: bool,
     pub durable_scheduler_storage_claimed: bool,

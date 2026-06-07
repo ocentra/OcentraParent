@@ -77,6 +77,14 @@ fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claim
         decoded.control_action_result_enforcement_statuses,
         vec![APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED]
     );
+    assert_eq!(
+        decoded.child_facing_reason_reference_ids,
+        vec![APP_GAME_TEST_REASON_PARENT_APPROVED.to_string()]
+    );
+    assert_eq!(
+        decoded.child_facing_status_reference_ids,
+        vec![APP_GAME_TEST_ACTION_REFERENCE_ID.to_string()]
+    );
     assert!(!decoded.timer_runtime_claimed);
     assert!(!decoded.scheduler_persistence_claimed);
     assert!(!decoded.durable_scheduler_storage_claimed);
@@ -186,8 +194,8 @@ fn approval_request() -> AppGameControlApprovalRequest {
         evidence_references: vec![parent_evidence_ref()],
         candidate: None,
         child_reason_state: APP_GAME_CONTROL_CHILD_REASON_NOT_REQUESTED.to_string(),
-        child_reason_references: Vec::new(),
-        child_status_references: Vec::new(),
+        child_reason_references: vec![APP_GAME_TEST_REASON_PARENT_APPROVED.to_string()],
+        child_status_references: vec![APP_GAME_TEST_ACTION_REFERENCE_ID.to_string()],
         expires_at: APP_GAME_TEST_TIMESTAMP.to_string(),
         unanswered_fallback: APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY.to_string(),
     }

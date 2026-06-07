@@ -32,6 +32,8 @@ const TimerParentSurfaceReadModel = {
   controlActionResultStatuses: [],
   controlActionResultCapabilityStates: [],
   controlActionResultEnforcementStatuses: [],
+  childFacingReasonReferenceIds: [],
+  childFacingStatusReferenceIds: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -111,6 +113,14 @@ function expectServiceBackedIntent() {
     value: 'Not reported',
   });
   expect(intent.summaryDetails).toContainEqual({
+    label: 'Child-facing reason refs',
+    value: 'Not reported',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Child-facing status refs',
+    value: 'Not reported',
+  });
+  expect(intent.summaryDetails).toContainEqual({
     label: 'Adapter dispatch',
     value: 'Not claimed',
   });
@@ -181,6 +191,8 @@ function expectControlActionResultVisibility() {
     controlActionResultStatuses: ['enforced'],
     controlActionResultCapabilityStates: ['supported'],
     controlActionResultEnforcementStatuses: ['actually-enforced'],
+    childFacingReasonReferenceIds: ['parent-approved'],
+    childFacingStatusReferenceIds: ['child-status-limit-reached'],
   };
   const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(actionResultModel))]);
 
@@ -205,6 +217,14 @@ function expectControlActionResultVisibility() {
   expect(intent.summaryDetails).toContainEqual({
     label: 'Control action enforcement statuses',
     value: 'actually-enforced',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Child-facing reason refs',
+    value: 'parent-approved',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Child-facing status refs',
+    value: 'child-status-limit-reached',
   });
   expect(intent.summaryDetails).toContainEqual({
     label: 'Adapter dispatch',

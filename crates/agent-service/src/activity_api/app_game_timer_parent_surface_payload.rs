@@ -104,6 +104,8 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
         control_action_result_statuses: control_action_results.statuses,
         control_action_result_capability_states: control_action_results.capability_states,
         control_action_result_enforcement_statuses: control_action_results.enforcement_statuses,
+        child_facing_reason_reference_ids: control_action_results.child_reason_reference_ids,
+        child_facing_status_reference_ids: control_action_results.child_status_reference_ids,
         timer_runtime_claimed: active_timer_state_exists,
         scheduler_persistence_claimed: active_timer_state_exists,
         durable_scheduler_storage_claimed: active_timer_state_exists,

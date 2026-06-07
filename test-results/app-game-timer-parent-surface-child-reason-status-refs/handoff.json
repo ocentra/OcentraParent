@@ -1,0 +1,39 @@
+{
+  "workpack": "116-timer-parent-surface-child-reason-status-refs",
+  "branch": "codex/app-game-control-product-completion",
+  "visibleState": {
+    "childFacingReasonReferenceIds": ["parent-approved"],
+    "childFacingStatusReferenceIds": ["child-status-limit-reached"]
+  },
+  "excludedPayloads": {
+    "rawActionRequestIncluded": false,
+    "rawActionDecisionIncluded": false,
+    "privateDiagnosticsIncluded": false,
+    "rawPrivateSourceRowsIncluded": false
+  },
+  "claimBoundary": {
+    "liveChildUiClaimed": false,
+    "notificationDeliveryClaimed": false,
+    "adapterDispatchClaimed": false,
+    "broadBlockingClaimed": false,
+    "platformEnforcementClaimed": false
+  },
+  "validation": [
+    {
+      "command": "cargo test -p ocentra-parent-agent-protocol app_game_timer_parent_surface_read_model",
+      "result": "passed"
+    },
+    {
+      "command": "cargo test -p ocentra-parent-agent-service app_game_timer_parent_surface",
+      "result": "passed"
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- app-game-timer-parent-surface-read-model",
+      "result": "passed"
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/portal -- app-game-timer-parent-surface-panel",
+      "result": "passed"
+    }
+  ]
+}

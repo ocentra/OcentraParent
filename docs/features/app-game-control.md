@@ -667,6 +667,12 @@ those replay rows. Parents can see whether replayed control rows are enforced,
 manual-required, supported, or unavailable without receiving raw action request
 payloads, adapter execution access, child delivery, platform enforcement, or
 private source rows.
+The timer parent-surface path now also carries child-facing reason and status
+reference ids from existing app/game approval action-result rows into the
+service read model and parent portal. This gives the runtime audit and parent
+surface a child-safe reference chain for future warning/request UX while still
+not delivering child notifications, running adapters, exposing diagnostics, or
+claiming platform enforcement.
 
 ## Checklist
 

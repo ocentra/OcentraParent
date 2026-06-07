@@ -23,6 +23,8 @@ fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
         control_action_result_statuses: Vec::new(),
         control_action_result_capability_states: Vec::new(),
         control_action_result_enforcement_statuses: Vec::new(),
+        child_facing_reason_reference_ids: Vec::new(),
+        child_facing_status_reference_ids: Vec::new(),
         timer_runtime_claimed: false,
         scheduler_persistence_claimed: false,
         durable_scheduler_storage_claimed: false,

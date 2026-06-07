@@ -33,6 +33,8 @@ const TimerParentSurfaceTargetLabels = {
 
 const TimerParentSurfaceDetails = {
   AuditRuntime: decodeDisplayText('Audit runtime'),
+  ChildFacingReasonRefs: decodeDisplayText('Child-facing reason refs'),
+  ChildFacingStatusRefs: decodeDisplayText('Child-facing status refs'),
   ControlActionCapabilities: decodeDisplayText('Control action capabilities'),
   ControlActionEnforcementStatuses: decodeDisplayText('Control action enforcement statuses'),
   ControlActionResultRefs: decodeDisplayText('Control action result refs'),
@@ -152,6 +154,14 @@ function readModelSummary(
     detail(
       TimerParentSurfaceDetails.ControlActionEnforcementStatuses,
       joinedOrNotReported(readModel.controlActionResultEnforcementStatuses)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildFacingReasonRefs,
+      joinedOrNotReported(readModel.childFacingReasonReferenceIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildFacingStatusRefs,
+      joinedOrNotReported(readModel.childFacingStatusReferenceIds)
     ),
     detail(TimerParentSurfaceDetails.TimerRuntime, claimedValue(readModel.timerRuntimeClaimed)),
     detail(TimerParentSurfaceDetails.SchedulerPersistence, claimedValue(readModel.schedulerPersistenceClaimed)),

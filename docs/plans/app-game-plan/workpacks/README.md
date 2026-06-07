@@ -112,6 +112,7 @@ before `DONE` or PR-ready reporting.
 104. WP113 app/game timer parent-surface audit rollback active-state visibility.
 105. WP114 app/game timer parent-surface control action-result visibility.
 106. WP115 app/game timer parent-surface control result status visibility.
+107. WP116 app/game timer parent-surface child reason/status refs.
 
 ## Standard AI Worker Checklist
 
