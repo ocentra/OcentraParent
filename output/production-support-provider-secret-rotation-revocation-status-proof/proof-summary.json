@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T17:28:08.812Z",
-  "commit": "4566f3ee97834b907d3bd20b297f3ea795184dbf",
+  "checkedAt": "2026-06-07T14:24:17.000Z",
+  "commit": "proof-input-sha256:bdc76eb2e0732ef53d80f0d3d7f42d7500480bddbab41073958d41288b9e9905",
   "proofMode": "production-support-provider-secret-rotation-revocation-status-proof",
   "statesCovered": [
     "rotation-requested",

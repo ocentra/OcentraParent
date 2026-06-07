@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -29,14 +30,15 @@ async function main() {
     'tests/provider-secret-rotation-revocation-status.test.ts',
   ]);
 
-  const commit = await gitHead();
   const readModel = await parseReadModel();
   assertReadModel(readModel);
   await assertPackageExports();
+  const checkedAt = readModel.generatedAt;
+  const commit = await proofInputDigest(readModel);
 
   const proof = {
     schemaVersion: 1,
-    checkedAt: new Date().toISOString(),
+    checkedAt,
     commit,
     proofMode,
     commands,
@@ -164,15 +166,26 @@ async function runCommand(commandName, args) {
   });
 }
 
-async function gitHead() {
-  const chunks = [];
-  await new Promise((resolve, reject) => {
-    const child = spawn('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] });
-    child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
-    child.once('exit', (code) => (code === 0 ? resolve() : reject(new Error('git rev-parse HEAD failed'))));
-    child.once('error', reject);
-  });
-  return chunks.join('').trim();
+async function proofInputDigest(readModel) {
+  const hash = createHash('sha256');
+  for (const path of [
+    'packages/logging-domain/src/provider-secret-rotation-revocation-status.ts',
+    'packages/logging-domain/src/provider-secret-rotation-revocation-status-guards.ts',
+    'packages/logging-domain/src/provider-secret-rotation-revocation-status-read-model.ts',
+    'packages/logging-domain/tests/provider-secret-rotation-revocation-status.test.ts',
+    'packages/logging-domain/package.json',
+    'scripts/test/provider-secret-rotation-revocation-status-proof.mjs',
+    'docs/features/production-distribution-support.md',
+    'docs/expectations/data-custody.md',
+    'docs/product-capability-checklist.md',
+  ]) {
+    hash.update(path);
+    hash.update('\0');
+    hash.update(await readFile(join(repoRoot, path)));
+    hash.update('\0');
+  }
+  hash.update(JSON.stringify(readModel));
+  return `proof-input-sha256:${hash.digest('hex')}`;
 }
 
 function relativePath(path) {
