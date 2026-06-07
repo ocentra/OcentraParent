@@ -81,6 +81,14 @@
       "import": "./dist/status-backend-payload-custody-read-model.js",
       "types": "./dist/status-backend-payload-custody-read-model.d.ts"
     },
+    "./status-backend-redaction-manifest": {
+      "import": "./dist/status-backend-redaction-manifest.js",
+      "types": "./dist/status-backend-redaction-manifest.d.ts"
+    },
+    "./status-backend-redaction-manifest-read-model": {
+      "import": "./dist/status-backend-redaction-manifest-read-model.js",
+      "types": "./dist/status-backend-redaction-manifest-read-model.d.ts"
+    },
     "./support-incident-workflow": {
       "import": "./dist/support-incident-workflow.js",
       "types": "./dist/support-incident-workflow.d.ts"
