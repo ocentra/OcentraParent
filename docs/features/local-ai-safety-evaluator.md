@@ -418,8 +418,8 @@ claim needs proof, not slogans.
 
 Ocentra needs production-installed local model artifacts behind the typed
 manifest boundary, production screen model/OCR quality beyond current local
-proof, confidence handling, authenticated-account social proof beyond
-public/live surface proof, production parent explanation portal rendering,
+proof, confidence handling, authenticated-account social proof beyond the
+operator-run public/live surface artifact gate, production parent explanation portal rendering,
 broader enforcement handoff, production browser-trigger producers, physical
 household family AI hub runtime/discovery beyond the loopback proof,
 production remote assistant provider execution and portal assistant UI,
@@ -527,6 +527,13 @@ validation against production external evidence variants.
 - [x] Policy-only enforcement consumption proof validates policy-decision refs
       feed adapter handoff while raw AI output and raw pixels remain outside the
       enforcement path.
+- [x] Live external operator artifact gate validates existing operator-run
+      YouTube, Vimeo, Facebook/social, browser-game, shopping,
+      school/productivity, native app, and protected-state artifacts with local
+      VLM analysis, policy dry-run rows, and raw-image deletion; it does not
+      rerun capture/model inference or claim authenticated-account social,
+      managed-browser trigger integration, or final product-complete pipeline
+      closure.
 - [x] AI jobs/activity portal surface renders existing local runtime status and
       LAN AI job events on the `#/ai-runtime` route without model-quality,
       physical LAN execution, policy-authority, or enforcement claims.
@@ -537,12 +544,12 @@ validation against production external evidence variants.
       non-claims.
 
 Production-installed model artifacts, production model/OCR quality,
-authenticated-account social proof, physical household family AI hub
-runtime/discovery, production mesh bridge transport over real LAN, live provider
-advertisement/heartbeat gossip, lease expiry/dead-letter handling, live service
-AI event consumers, degraded-result event flow, production
-memory/graph storage/index runtime, and broad enforcement handoff remain in the
-Current Gap section above.
+authenticated-account social proof beyond the operator-run public/live artifact
+gate, physical household family AI hub runtime/discovery, production mesh bridge
+transport over real LAN, live provider advertisement/heartbeat gossip, lease
+expiry/dead-letter handling, live service AI event consumers, degraded-result
+event flow, production memory/graph storage/index runtime, and broad enforcement
+handoff remain in the Current Gap section above.
 
 ## Next AI Instructions
 

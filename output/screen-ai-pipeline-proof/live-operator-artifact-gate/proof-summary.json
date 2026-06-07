@@ -1,6 +1,6 @@
 {
   "proof": "screen-ai-live-operator-artifact-gate",
-  "generatedAt": "2026-06-05T05:48:54.639Z",
+  "generatedAt": "2026-06-07T20:35:21.821Z",
   "validatedPipelineSummary": "output/screen-ai-pipeline-proof/live-operator/proof-summary.json",
   "validatedAiSummary": "output/ai-plan-proof/live-operator/proof-summary.json",
   "requiredScenarioCount": 9,
