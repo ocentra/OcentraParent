@@ -241,6 +241,8 @@ mod network_event_runtime_broker_delivery_tests;
 #[cfg(test)]
 mod network_event_runtime_queue_tests;
 #[cfg(test)]
+mod network_event_runtime_remote_delivery_tests;
+#[cfg(test)]
 mod network_event_runtime_tests;
 #[cfg(test)]
 mod parent_child_event_runtime_tests;
