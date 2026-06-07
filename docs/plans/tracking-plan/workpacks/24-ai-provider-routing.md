@@ -25,6 +25,7 @@ Proof root: `output/tracking-plan-proof/24-ai-provider-routing/`
 - `01-contract-proof.log`
 - `08-ai-analysis-proof.json`
 - `18-ai-provider-routing-custody-proof.json`
+- `19-ai-stored-ref-consumer-proof.json`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
 
@@ -35,6 +36,8 @@ Proof root: `output/tracking-plan-proof/24-ai-provider-routing/`
 - [x] Preserve provider unavailable/degraded state.
 - [x] Prevent assistant-only policy writes.
 - [x] Cite evidence and custody in all AI contexts.
+- [x] Require stored journal/read-model refs before AI report/policy consumer
+      use.
 
 ## Where We Are
 
@@ -48,6 +51,13 @@ boundaries, and evidence/custody refs on every AI context. Runtime, platform,
 model execution, provider delivery, production, and UI behavior is not claimed
 beyond the proof state recorded in `proof-summary.json` and the implementation
 checklist.
+This continuation also adds
+`node scripts/test/tracking-ai-stored-ref-consumer-proof.mjs`, which proves that
+AI parent-report, policy-drill-in, and metadata-fallback consumer contexts cite
+the existing provider-route proof plus stored journal and read-model row refs
+before AI report/policy use. It keeps model execution, assistant policy writes,
+assistant enforcement, provider delivery, child-device runtime, authority,
+production behavior, and product-ready claims false.
 
 ## Where We Want To Be
 
@@ -65,10 +75,14 @@ This workpack can be assigned independently, implemented against the owning doma
 - docs/plans/tracking-plan/workpacks/24-ai-provider-routing.md
 - docs/plans/tracking-plan/implementation-checklist.md
 - packages/parent-domain/src/tracking-ai-provider-routing-proof.ts
+- packages/parent-domain/src/tracking-ai-stored-ref-consumer-proof.ts
 - packages/parent-domain/tests/tracking-ai-provider-routing-proof.test.ts
+- packages/parent-domain/tests/tracking-ai-stored-ref-consumer-proof.test.ts
 - scripts/test/tracking-ai-provider-routing-proof.mjs
+- scripts/test/tracking-ai-stored-ref-consumer-proof.mjs
 - `output/tracking-plan-proof/24-ai-provider-routing/`
 - `test-results/tracking-ai-provider-routing-proof/`
+- `test-results/tracking-ai-stored-ref-consumer-proof/`
 - Implementation paths listed by the worker before editing.
 
 ## Manual-Required Gaps
@@ -101,3 +115,22 @@ This workpack can be assigned independently, implemented against the owning doma
       child-device runtime, rendered assistant/provider UI, authority,
       enforcement, production behavior, and physical-device proof remain
       unclaimed.
+- [x] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: WP24/WP32 AI stored-ref consumer proof source, tests,
+      proof harness, feature doc, implementation checklist, WP24/WP32 docs,
+      central product checklist row, and generated proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-ai-stored-ref-consumer-proof.mjs` passed
+      locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/24-ai-provider-routing/19-ai-stored-ref-consumer-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/30-ai-stored-ref-consumer-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/30-ai-stored-ref-consumer-proof.json`,
+      and `test-results/tracking-ai-stored-ref-consumer-proof/`.
+- [x] Product doc/checklist updates: owning tracking feature doc,
+      implementation checklist, WP24, WP32, and central product capability row
+      updated.
+- [x] Known gaps/manual-required states: AI model execution, assistant policy
+      writes, assistant enforcement, provider delivery, child-device runtime,
+      notification receipt, authority, production behavior, physical-device
+      proof, and product-ready tracking remain unclaimed.

@@ -1,0 +1,261 @@
+{
+  "proofMode": "tracking-ai-stored-ref-consumer-proof",
+  "generatedAt": "2026-06-07T05:44:00.000Z",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "baseCommitAtGeneration": "1ac5517d6a38352e58055a6d51e4b70554bde990",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/24-ai-provider-routing.md\n M docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md\n M docs/product-capability-checklist.md\n M packages/parent-domain/src/tracking-child-check-in-timeout-escalation-proof.ts\n M packages/parent-domain/tests/tracking-child-check-in-timeout-escalation-proof.test.ts\n?? packages/parent-domain/src/tracking-ai-stored-ref-consumer-proof.ts\n?? packages/parent-domain/tests/tracking-ai-stored-ref-consumer-proof.test.ts\n?? scripts/test/tracking-ai-stored-ref-consumer-proof.mjs",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-ai-stored-ref-consumer-proof tracking-ai-provider-routing-proof tracking-report-policy-consumer-proof"
+  ],
+  "summary": {
+    "rowCount": 3,
+    "consumerKinds": {
+      "ai-parent-report-context": 1,
+      "ai-policy-drill-in-context": 1,
+      "ai-metadata-fallback-context": 1
+    },
+    "readinessStates": {
+      "stored-ref-consumer-ready": 3
+    },
+    "proofTiers": {
+      "P2_HOSTED_CI": 3
+    },
+    "providerRouteIds": [
+      "parent-local-tracking-ai-route",
+      "child-local-tracking-ai-route",
+      "metadata-only-tracking-ai-route"
+    ],
+    "sourceProofRefRows": 3,
+    "providerRouteProofRefRows": 3,
+    "reportPolicyConsumerProofRefRows": 3,
+    "storedJournalRefRows": 3,
+    "storedReadModelRowRefRows": 3,
+    "evidenceReferenceRows": 3,
+    "modelExecutionClaimedRows": 0,
+    "assistantPolicyWriteClaimedRows": 0,
+    "assistantEnforcementClaimedRows": 0,
+    "childDeviceRuntimeClaimedRows": 0,
+    "providerDeliveryClaimedRows": 0,
+    "notificationReceiptClaimedRows": 0,
+    "physicalDeviceClaimedRows": 0,
+    "authorityClaimedRows": 0,
+    "productionBehaviorClaimedRows": 0,
+    "productClaimReadyRows": 0
+  },
+  "productClaims": {
+    "productClaimReady": false,
+    "modelExecutionClaimed": false,
+    "assistantPolicyWriteClaimed": false,
+    "assistantEnforcementClaimed": false,
+    "childDeviceRuntimeClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productionBehaviorClaimed": false
+  },
+  "proofPaths": {
+    "source": "packages/parent-domain/src/tracking-ai-stored-ref-consumer-proof.ts",
+    "test": "packages/parent-domain/tests/tracking-ai-stored-ref-consumer-proof.test.ts",
+    "harness": "scripts/test/tracking-ai-stored-ref-consumer-proof.mjs",
+    "evidence": "test-results/tracking-ai-stored-ref-consumer-proof/proof.json",
+    "wp24ProofPack": "output/tracking-plan-proof/24-ai-provider-routing/19-ai-stored-ref-consumer-proof.json",
+    "wp32ProofPack": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/30-ai-stored-ref-consumer-proof.json",
+    "wp33ProofPack": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/30-ai-stored-ref-consumer-proof.json"
+  },
+  "rows": [
+    {
+      "schemaVersion": "v0.5-tracking",
+      "rowId": "tracking-ai-stored-ref-row-parent-report-context",
+      "consumerKind": "ai-parent-report-context",
+      "readinessState": "stored-ref-consumer-ready",
+      "requiredProofTier": "P2_HOSTED_CI",
+      "currentProofTier": "P2_HOSTED_CI",
+      "generatedAt": "2026-06-07T05:44:00.000Z",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/24-ai-provider-routing/18-ai-provider-routing-custody-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+      ],
+      "aiProviderRouteProofRefs": [
+        "output/tracking-plan-proof/24-ai-provider-routing/18-ai-provider-routing-custody-proof.json"
+      ],
+      "reportPolicyConsumerProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+      ],
+      "storedJournalRefs": [
+        "tracking-journal-row-ai-parent-report-context"
+      ],
+      "storedReadModelRowRefs": [
+        "tracking-read-model-row-ai-parent-report-context"
+      ],
+      "analysisInput": {
+        "schemaVersion": "v0.5-tracking",
+        "analysisId": "tracking-ai-stored-ref-row-parent-report-context-analysis-input",
+        "requestedAt": "2026-06-07T05:44:00.000Z",
+        "evidenceReferences": [
+          {
+            "evidenceReferenceId": "tracking-ai-stored-ref-evidence-parent-report-context",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-07T05:44:00.000Z"
+          }
+        ],
+        "policyVersion": "tracking-ai-stored-ref-policy-v1",
+        "providerRouteId": "parent-local-tracking-ai-route"
+      },
+      "evidenceReferences": [
+        {
+          "evidenceReferenceId": "tracking-ai-stored-ref-evidence-parent-report-context",
+          "kind": "query-store-summary",
+          "observedAt": "2026-06-07T05:44:00.000Z"
+        }
+      ],
+      "reasonCodes": [
+        "tracking-ai-parent-report-context-stored-ref-ready"
+      ],
+      "auditRefs": [
+        "tracking-ai-stored-ref-audit-parent-report-context"
+      ],
+      "aiStoredRefConsumerClaimed": true,
+      "modelExecutionClaimed": false,
+      "assistantPolicyWriteClaimed": false,
+      "assistantEnforcementClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptClaimed": false,
+      "physicalDeviceClaimed": false,
+      "authorityClaimed": false,
+      "productionBehaviorClaimed": false,
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "rowId": "tracking-ai-stored-ref-row-policy-drill-in-context",
+      "consumerKind": "ai-policy-drill-in-context",
+      "readinessState": "stored-ref-consumer-ready",
+      "requiredProofTier": "P2_HOSTED_CI",
+      "currentProofTier": "P2_HOSTED_CI",
+      "generatedAt": "2026-06-07T05:44:00.000Z",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/24-ai-provider-routing/18-ai-provider-routing-custody-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+      ],
+      "aiProviderRouteProofRefs": [
+        "output/tracking-plan-proof/24-ai-provider-routing/18-ai-provider-routing-custody-proof.json"
+      ],
+      "reportPolicyConsumerProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+      ],
+      "storedJournalRefs": [
+        "tracking-journal-row-ai-policy-drill-in-context"
+      ],
+      "storedReadModelRowRefs": [
+        "tracking-read-model-row-ai-policy-drill-in-context"
+      ],
+      "analysisInput": {
+        "schemaVersion": "v0.5-tracking",
+        "analysisId": "tracking-ai-stored-ref-row-policy-drill-in-context-analysis-input",
+        "requestedAt": "2026-06-07T05:44:00.000Z",
+        "evidenceReferences": [
+          {
+            "evidenceReferenceId": "tracking-ai-stored-ref-evidence-policy-drill-in-context",
+            "kind": "policy-decision",
+            "observedAt": "2026-06-07T05:44:00.000Z"
+          }
+        ],
+        "policyVersion": "tracking-ai-stored-ref-policy-v1",
+        "providerRouteId": "child-local-tracking-ai-route"
+      },
+      "evidenceReferences": [
+        {
+          "evidenceReferenceId": "tracking-ai-stored-ref-evidence-policy-drill-in-context",
+          "kind": "policy-decision",
+          "observedAt": "2026-06-07T05:44:00.000Z"
+        }
+      ],
+      "reasonCodes": [
+        "tracking-ai-policy-drill-in-context-stored-ref-ready"
+      ],
+      "auditRefs": [
+        "tracking-ai-stored-ref-audit-policy-drill-in-context"
+      ],
+      "aiStoredRefConsumerClaimed": true,
+      "modelExecutionClaimed": false,
+      "assistantPolicyWriteClaimed": false,
+      "assistantEnforcementClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptClaimed": false,
+      "physicalDeviceClaimed": false,
+      "authorityClaimed": false,
+      "productionBehaviorClaimed": false,
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "rowId": "tracking-ai-stored-ref-row-metadata-fallback-context",
+      "consumerKind": "ai-metadata-fallback-context",
+      "readinessState": "stored-ref-consumer-ready",
+      "requiredProofTier": "P2_HOSTED_CI",
+      "currentProofTier": "P2_HOSTED_CI",
+      "generatedAt": "2026-06-07T05:44:00.000Z",
+      "sourceProofRefs": [
+        "output/tracking-plan-proof/24-ai-provider-routing/18-ai-provider-routing-custody-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+      ],
+      "aiProviderRouteProofRefs": [
+        "output/tracking-plan-proof/24-ai-provider-routing/18-ai-provider-routing-custody-proof.json"
+      ],
+      "reportPolicyConsumerProofRefs": [
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json"
+      ],
+      "storedJournalRefs": [
+        "tracking-journal-row-ai-metadata-fallback-context"
+      ],
+      "storedReadModelRowRefs": [
+        "tracking-read-model-row-ai-metadata-fallback-context"
+      ],
+      "analysisInput": {
+        "schemaVersion": "v0.5-tracking",
+        "analysisId": "tracking-ai-stored-ref-row-metadata-fallback-context-analysis-input",
+        "requestedAt": "2026-06-07T05:44:00.000Z",
+        "evidenceReferences": [
+          {
+            "evidenceReferenceId": "tracking-ai-stored-ref-evidence-metadata-fallback-context",
+            "kind": "query-store-summary",
+            "observedAt": "2026-06-07T05:44:00.000Z"
+          }
+        ],
+        "policyVersion": "tracking-ai-stored-ref-policy-v1",
+        "providerRouteId": "metadata-only-tracking-ai-route"
+      },
+      "evidenceReferences": [
+        {
+          "evidenceReferenceId": "tracking-ai-stored-ref-evidence-metadata-fallback-context",
+          "kind": "query-store-summary",
+          "observedAt": "2026-06-07T05:44:00.000Z"
+        }
+      ],
+      "reasonCodes": [
+        "tracking-ai-metadata-fallback-context-stored-ref-ready"
+      ],
+      "auditRefs": [
+        "tracking-ai-stored-ref-audit-metadata-fallback-context"
+      ],
+      "aiStoredRefConsumerClaimed": true,
+      "modelExecutionClaimed": false,
+      "assistantPolicyWriteClaimed": false,
+      "assistantEnforcementClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptClaimed": false,
+      "physicalDeviceClaimed": false,
+      "authorityClaimed": false,
+      "productionBehaviorClaimed": false,
+      "productClaimReady": false
+    }
+  ]
+}

@@ -358,6 +358,15 @@ expose location or device-status features. Parents expect this category.
   completion, child-device delivery, provider delivery, notification receipt
   ingestion, authority, physical-device, AI execution, and product-complete
   claims.
+- WP24/WP32 AI stored-ref consumer proof now exists through
+  `node scripts/test/tracking-ai-stored-ref-consumer-proof.mjs`. It derives AI
+  parent-report context, policy-drill-in context, and metadata-fallback context
+  rows from the existing AI provider-route proof and report/policy consumer
+  proof, requires stored journal refs plus stored read-model row refs before AI
+  report/policy use, and keeps AI model execution, assistant policy writes,
+  assistant enforcement, child-device runtime, provider delivery, notification
+  receipt ingestion, authority, physical-device, production, and product-ready
+  claims false.
 - WP32 report/export read-model proof now exists through
   `node scripts/test/tracking-report-export-read-model-proof.mjs`. It derives
   redacted report export, retention audit export, family dashboard summary, and
@@ -527,6 +536,8 @@ rows, plus typed service transport write-command proof for retention settings
 preflight, plus hosted route command/result rendering for that typed write
 preflight, plus WP32 report/export read-model packet proof for redacted report,
 retention audit, family dashboard summary, and policy drill-in export packets,
+plus WP24/WP32 AI stored-ref consumer proof for AI parent-report,
+policy-drill-in, and metadata-fallback context rows,
 plus hosted notification parent-surface history/preference intent rendering
 with screenshot/accessibility proof and hosted missing-device state rendering
 with screenshot/accessibility proof.
@@ -677,6 +688,14 @@ accessibility beyond the hosted parent route are proved.
       notification receipt ingestion, authority, physical-device, or
       product-complete proof; the rows now require stored journal refs and
       stored read-model row refs before report/policy use.
+- [x] WP24/WP32 AI stored-ref consumer proof for AI parent-report,
+      policy-drill-in, and metadata-fallback context rows. This is not AI model
+      execution, assistant policy-write, assistant enforcement, child-device
+      delivery/runtime execution, provider delivery, notification receipt
+      ingestion, authority, physical-device, production, or product-complete
+      proof; the rows require provider-route proof refs, report/policy consumer
+      proof refs, stored journal refs, and stored read-model row refs before AI
+      report/policy use.
 - [x] WP32 report/export read-model proof for redacted report export,
       retention audit export, family dashboard summary, and policy drill-in
       export packet rows, plus narrow hosted parent-route rendering of those

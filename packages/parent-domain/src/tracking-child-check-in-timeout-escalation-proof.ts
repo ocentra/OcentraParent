@@ -391,14 +391,28 @@ function countRows(
 
 function trackingChildCheckInTimeoutRowIsHonest(row: TrackingChildCheckInTimeoutRowInput): boolean {
   return (
-    row.evidenceReferenceIds.length > 0 &&
-    row.auditRefs.length > 0 &&
-    row.manualProofRequirements.length > 0 &&
+    trackingChildCheckInTimeoutRowRefsAreHonest(row) &&
+    trackingChildCheckInTimeoutRowDerivedFieldsAreHonest(row) &&
+    trackingChildCheckInTimeoutRowNonClaimsAreHonest(row)
+  );
+}
+
+function trackingChildCheckInTimeoutRowRefsAreHonest(row: TrackingChildCheckInTimeoutRowInput): boolean {
+  return row.evidenceReferenceIds.length > 0 && row.auditRefs.length > 0 && row.manualProofRequirements.length > 0;
+}
+
+function trackingChildCheckInTimeoutRowDerivedFieldsAreHonest(row: TrackingChildCheckInTimeoutRowInput): boolean {
+  return (
     row.escalates === escalationStateEscalates(row.resolutionState) &&
     row.locationSampleState === locationSampleStateFromRow(row) &&
     row.auditCoverageState === (row.sourceResponseKind === null ? 'prompt-audited' : 'prompt-and-response-audited') &&
     row.alertOutcome === alertOutcomeFor(row.resolutionState) &&
-    row.escalationBasis === escalationBasisFor(row.resolutionState) &&
+    row.escalationBasis === escalationBasisFor(row.resolutionState)
+  );
+}
+
+function trackingChildCheckInTimeoutRowNonClaimsAreHonest(row: TrackingChildCheckInTimeoutRowInput): boolean {
+  return (
     row.childDeviceDeliveryRuntimeClaimed === false &&
     row.childDeviceResponseRuntimeClaimed === false &&
     row.renderedChildDeviceUiClaimed === false &&
@@ -410,8 +424,25 @@ function trackingChildCheckInTimeoutRowIsHonest(row: TrackingChildCheckInTimeout
 
 function trackingChildCheckInTimeoutReadModelIsHonest(readModel: TrackingChildCheckInTimeoutReadModelInput): boolean {
   return (
+    trackingChildCheckInTimeoutReadModelRowsAreHonest(readModel) &&
+    trackingChildCheckInTimeoutReadModelCountsAreHonest(readModel) &&
+    trackingChildCheckInTimeoutReadModelNonClaimsAreHonest(readModel)
+  );
+}
+
+function trackingChildCheckInTimeoutReadModelRowsAreHonest(
+  readModel: TrackingChildCheckInTimeoutReadModelInput
+): boolean {
+  return (
     readModel.rows.length > 0 &&
-    readModel.readinessNonClaims.length === RequiredTrackingChildCheckInTimeoutNonClaims.length &&
+    readModel.readinessNonClaims.length === RequiredTrackingChildCheckInTimeoutNonClaims.length
+  );
+}
+
+function trackingChildCheckInTimeoutReadModelCountsAreHonest(
+  readModel: TrackingChildCheckInTimeoutReadModelInput
+): boolean {
+  return (
     readModel.waitingCount === countRows(readModel.rows, ['waiting-for-child']) &&
     readModel.resolvedCount === countRows(readModel.rows, ['safe-response-recorded', 'cancelled']) &&
     readModel.escalationReadyCount ===
@@ -431,7 +462,14 @@ function trackingChildCheckInTimeoutReadModelIsHonest(readModel: TrackingChildCh
     readModel.ruleOnlyEscalationCount ===
       readModel.rows.filter((row) => row.escalationBasis === 'expired-rule-only-timeout').length &&
     readModel.safeAlertOutcomeCount ===
-      readModel.rows.filter((row) => row.alertOutcome === 'alert-resolved-safe').length &&
+      readModel.rows.filter((row) => row.alertOutcome === 'alert-resolved-safe').length
+  );
+}
+
+function trackingChildCheckInTimeoutReadModelNonClaimsAreHonest(
+  readModel: TrackingChildCheckInTimeoutReadModelInput
+): boolean {
+  return (
     readModel.childDeviceDeliveryRuntimeClaimed === false &&
     readModel.renderedChildDeviceUiClaimed === false &&
     readModel.providerDeliveryClaimed === false &&
