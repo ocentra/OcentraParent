@@ -529,6 +529,21 @@ generic app blocking covers this concern.
   `test-results/app-install-purchase-external-runtime-writer-delivery-boundary-proof/proof.json`
   when run, validates the public parent-domain package export, and records the
   product checklist row update.
+- `packages/parent-domain/src/app-install-purchase-external-runtime-writer-delivery-blocker-proof.ts`
+  now consumes external runtime writer delivery boundary rows and records that
+  delivery remains blocked until real external writer transport, platform
+  adapter execution, provider/store execution, and child-device transport proof
+  refs exist. It preserves no external runtime writer execution, external
+  runtime writer delivery, parent action runtime delivery, provider/store
+  execution, store integration, platform interception/adapters, child-device
+  delivery, runtime report delivery, real interception, app blocking, child
+  activity data, or Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-external-runtime-writer-delivery-blocker-proof.mjs`
+  records that external runtime writer delivery blocker proof under
+  `test-results/app-install-purchase-external-runtime-writer-delivery-blocker-proof/proof.json`
+  when run, validates the public parent-domain package export, and records the
+  deferred product checklist row delta because E-C currently owns
+  `docs/product-capability-checklist.md`.
 - `packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts`
   links provider/store execution readiness rows and runtime writer execution
   delivery receipts into parent-owned provider/store execution preflight ready,
@@ -788,6 +803,14 @@ Ocentra-hosted family data custody.
       delivery, provider/store execution, platform interception/adapters,
       child-device delivery, runtime report delivery, app blocking, child
       activity data, or hosted family data custody claims.
+- [x] External runtime writer delivery blocker proof consuming delivery boundary
+      rows into blocked-runtime-prerequisites-missing/manual-required rows that
+      name the missing external writer transport, platform adapter execution,
+      provider/store execution, and child-device transport proof refs without
+      starting delivery or claiming external runtime writer execution/delivery,
+      provider/store execution, platform interception/adapters, child-device
+      delivery, runtime report delivery, app blocking, child activity data, or
+      hosted family data custody.
 - [x] Provider/store execution preflight proof linking provider/store execution
       readiness rows and runtime writer execution delivery receipts into
       parent-owned ready/manual/unavailable preflight rows without provider API
@@ -917,10 +940,14 @@ Ocentra-hosted family data custody.
 ## Next AI Instructions
 
 Do not fold this into generic app blocking. The next proof should add real
-portal approval/report UI, real external runtime writer delivery to a device
-beyond evidence refs, real child delivery, real provider/store API execution
-with credentials/evidence, or actual platform adapters before upgrading
-manual-required source rows, child delivery, parent action, store status,
-capture status, adapter execution, report status, or product claim preclaim
-rows. If the OS/store does not allow interception, document the limitation and
-offer the closest safe parent workflow.
+portal approval/report UI, real external runtime writer transport and delivery
+to a device beyond blocker refs, real child delivery, real provider/store API
+execution with credentials/evidence, or actual platform adapters before
+upgrading manual-required source rows, child delivery, parent action, store
+status, capture status, adapter execution, report status, or product claim
+preclaim rows. If the OS/store does not allow interception, document the
+limitation and offer the closest safe parent workflow. Pending product
+capability checklist delta while E-C owns that file: add the external runtime
+writer delivery blocker proof to the Install/purchase approval row as non-claim
+evidence of missing writer transport, platform adapter execution,
+provider/store execution, and child-device transport blockers.
