@@ -2,9 +2,9 @@
 
 Branch marker: codex/network-proof-pack-reconciliation
 Proof revision: network-proof-pack-reconciliation/v1
-Source tree fingerprint: 962386fcc4cf9a3c179cf934ea8619ff7732b9f003091a7e7b6b8381a17b47c8
-Origin main: 05018555053df0e52ea9b0149c28885d3a5838b2
-Merge base: 05018555053df0e52ea9b0149c28885d3a5838b2
+Source tree fingerprint: b54b3bd8ca659ce711354c8e53aa3887915e673961447af6ae08ad0ee96cd025
+Origin main: 39ab1c72f20fa79ebe440c652d2baf791334ed99
+Merge base: 39ab1c72f20fa79ebe440c652d2baf791334ed99
 
 Source status excluding this proof pack:
 
