@@ -175,6 +175,20 @@ compete on control while staying clear about attribution confidence and privacy.
   enforcement-command publication, raw PCAP, exact URL, decrypted payload, page
   content, video content, private-message content, search-query content, and
   host filtering claims.
+- E-D added row10j remote available-metadata no-enforcement invariant proof in
+  `agent-core`: the row10b through row10i remote metadata chain now composes
+  broker/family-hub requirement refs, event-chain journal/export refs,
+  receipt-ledger/local-ack refs, durable envelope/store/delete-export refs,
+  outbox handoff refs, and dispatch-readiness refs into one invariant that
+  remains non-enforcing. The proof writes
+  `output/network-plan-proof/10j-remote-delivery-no-enforcement-invariant/proof-summary.json`
+  and
+  `test-results/network-remote-delivery-no-enforcement-invariant-proof/proof.json`,
+  rejects nonzero dispatch attempts, remote acknowledgements, live
+  broker/family-hub delivery, product-ready delivery, policy authority,
+  side-effect authority, adapter execution, enforcement-command publication,
+  raw PCAP, exact URL, decrypted payload, page content, video content,
+  private-message content, search-query content, and host filtering claims.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,
