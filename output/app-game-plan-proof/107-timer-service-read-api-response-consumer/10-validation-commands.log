@@ -1,3 +1,19 @@
+cmd /c npm run build --workspace @ocentra-parent/schema-domain
+exit=0
+
+> @ocentra-parent/schema-domain@0.1.1 build
+> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist
+
+
+
+cmd /c npm run build --workspace @ocentra-parent/logging-domain
+exit=0
+
+> @ocentra-parent/logging-domain@0.1.1 build
+> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist
+
+
+
 cmd /c npm run build --workspace @ocentra-parent/parent-domain
 exit=0
 
@@ -18,5 +34,5 @@ exit=0
 
  Test Files  2 passed (2)
       Tests  6 passed (6)
-   Start at  11:01:44
-   Duration  3.87s (transform 3.43s, setup 0ms, import 6.15s, tests 86ms, environment 0ms)
+   Start at  09:48:00
+   Duration  1.73s (transform 1.63s, setup 0ms, import 2.92s, tests 63ms, environment 0ms)
