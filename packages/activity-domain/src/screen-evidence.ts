@@ -22,5 +22,6 @@ export * from './screen-live-view-service-session';
 export * from './screen-live-view-parent-ui-persistence';
 export * from './screen-ios-replaykit-capability-proof';
 export * from './screen-android-mediaprojection-capability-proof';
+export * from './screen-macos-capture-capability-proof';
 export * from './screen-linux-capture-capability-proof';
 export * from './screen-managed-browser-cdp-capture';

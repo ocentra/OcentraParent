@@ -164,6 +164,13 @@ only with explicit parent settings.
   proof captures a real X11 selected window with encrypted custody and raw
   deletion. macOS live capture proof still requires platform execution evidence
   before parity is claimed.
+- `ScreenMacosCaptureCapabilityProofSchema` and
+  `scripts/test/screen-macos-capture-capability-proof.mjs` add the macOS
+  ScreenCaptureKit readiness gate: the proof records current Apple
+  ScreenCaptureKit, scoped content filter, Screen Recording privacy, and
+  PPPC/MDM manual-required boundaries while keeping display/window capture,
+  permission, deletion, silent background capture, raw remote upload, and
+  raw-retention-by-default product claims blocked until live macOS proof exists.
 - `ScreenLinuxCaptureCapabilityProofSchema` and
   `scripts/test/screen-linux-capture-capability-proof.mjs` add the Linux
   readiness gate: the proof consumes the retained WSLg/X11 selected-window
