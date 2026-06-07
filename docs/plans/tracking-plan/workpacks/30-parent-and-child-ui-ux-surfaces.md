@@ -53,6 +53,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `26-child-runtime-delivery-boundary-proof.json`
 - `27-child-runtime-execution-readiness-proof.json`
 - `28-child-runtime-snapshot-requirements-proof.json`
+- `29-child-runtime-product-readiness-blocker-proof.json`
 - Unsupported/manual platform screenshot:
   `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui.png`
 - Accessibility summary:
@@ -102,6 +103,12 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       actual child-device delivery/execution, rendered child-device runtime UI,
       physical-device, authority, provider delivery, production, and
       product-ready claims false.
+- [x] Add a child-runtime product-readiness blocker proof that consumes the
+      snapshot requirements rows and records the remaining actual delivery,
+      execution-result, rendered child UI, parent receipt, runtime observation,
+      physical-device, and authority blockers without claiming child-device
+      delivery, runtime execution, provider delivery, production, or
+      product-ready behavior.
 - [x] Render and screenshot hosted family dashboard rollup rows without claiming
       full dashboard UI, child-device delivery, authority, provider delivery,
       physical-device execution, or production readiness.

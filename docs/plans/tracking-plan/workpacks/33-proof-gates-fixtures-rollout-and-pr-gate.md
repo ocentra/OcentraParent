@@ -90,6 +90,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `39-child-runtime-execution-readiness-proof.json`
 - WP30 child-runtime snapshot requirements proof:
   `40-child-runtime-snapshot-requirements-proof.json`
+- WP30 child-runtime product-readiness blocker proof:
+  `45-child-runtime-product-readiness-blocker-proof.json`
 
 ## Merge Blockers
 

@@ -663,6 +663,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       delivery-envelope, execution-result, visible-snapshot, parent-receipt,
       and runtime-observation refs in
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json`,
+      and WP30 product-readiness blocker proof records the remaining actual
+      delivery, execution-result, rendered child UI, parent receipt, runtime
+      observation, physical-device, and authority blockers in
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/29-child-runtime-product-readiness-blocker-proof.json`,
       but actual child-device delivery/execution remains unproved.
 - [x] Hosted screenshots are stored under the assigned proof root. The runtime proof
       command captures the local parent fixture screenshot at
@@ -693,7 +697,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-policy-consumer.png`;
       the refreshed hosted artifact inventory proof verifies these PNG artifacts,
       the child-runtime execution readiness proof artifact, the child-runtime
-      snapshot requirements proof artifact, plus the
+      snapshot requirements proof artifact, plus the child-runtime
+      product-readiness blocker proof artifact, plus the
       unsupported/manual platform screenshot under
       `test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json`;
       actual child-device runtime and full parent/child screenshots remain
