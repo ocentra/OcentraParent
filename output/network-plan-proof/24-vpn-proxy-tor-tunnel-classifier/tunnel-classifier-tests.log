@@ -1,12 +1,12 @@
 
 running 5 tests
-test tests::tunnel::tunnel_classifier_flags_vpn_adapter_indicator_without_hidden_destination_claim ... ok
-test tests::tunnel::tunnel_classifier_does_not_claim_hidden_destination_from_encrypted_dns_only ... ok
 test tests::tunnel::tunnel_classifier_flags_proxy_port_indicator ... ok
+test tests::tunnel::tunnel_classifier_flags_vpn_adapter_indicator_without_hidden_destination_claim ... ok
 test tests::tunnel::tunnel_classifier_prioritizes_tor_over_generic_proxy_indicator ... ok
+test tests::tunnel::tunnel_classifier_does_not_claim_hidden_destination_from_encrypted_dns_only ... ok
 test tests::tunnel::tunnel_classifier_rejects_empty_indicator_source_ref ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 214 filtered out; finished in 0.00s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
      Running unittests src\lib.rs (target\debug\deps\ocentra_network_evidence-36610952c1128119.exe)

@@ -15,7 +15,7 @@
     "crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_store.rs",
     "crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs"
   ],
-  "mergeBase": "929763224eb281d44face01dc5455b6940b68f65",
+  "mergeBase": "466978a9b8f6ac946977169fd2e16e01b4cf6d92",
   "proofRoot": "output\\network-plan-proof\\10e-remote-delivery-durable-envelope-status",
   "testRoot": "test-results\\network-remote-delivery-durable-envelope-proof",
   "commands": [

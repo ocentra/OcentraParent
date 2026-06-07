@@ -6,5 +6,5 @@ test tests::compatibility_matrix::compatibility_matrix_renders_deterministic_mar
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 75 filtered out; finished in 0.00s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
      Running unittests src\lib.rs (target\debug\deps\ocentra_eventing-927d6221c7fa57e1.exe)

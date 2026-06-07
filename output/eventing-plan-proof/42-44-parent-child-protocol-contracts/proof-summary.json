@@ -1,7 +1,7 @@
 {
   "proof": "eventing-rows-42-44-parent-child-protocol-contracts",
-  "checkedAt": "2026-06-07T19:08:52.381Z",
-  "commit": "7a49860204190b63d9d413f496f7fbecbb76b594",
+  "checkedAt": "2026-06-07T19:22:31.281Z",
+  "commit": "2919cf31b72913571e254fd11089d5763bc16f16",
   "commands": [
     "cargo test -p ocentra-parent-agent-protocol parent_controller",
     "cargo test -p ocentra-parent-agent-protocol child_agent",
