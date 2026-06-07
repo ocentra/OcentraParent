@@ -22,6 +22,7 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 
 - `02-platform-permission-proof.md`
 - `05-geofence-transition-proof.json`
+- `26-android-system-geofence-blocker-proof.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
 - Local emulator proof command:
@@ -61,6 +62,9 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 - [x] Split Android proximity-alert broadcast delivery counters from app-owned
       local listener transition counters so emulator proof cannot treat local
       GPS-listener enter/exit rows as Android system geofence delivery.
+- [x] Add a parent-domain system-geofence blocker proof that consumes the
+      emulator proof and fails if zero system proximity broadcast counters are
+      treated as Android system geofence delivery.
 - [x] Cross-reference WP10 low-power, app-killed/restarted, pending-upload, and
       manual-required status-gap rows from the WP09 geofence proof while
       preserving no Android system geofencing, no dwell, and no physical-device
@@ -105,6 +109,10 @@ app-owned local listener `geofenceTransitionCount`, `geofenceEnterCount`, and
 system geofence delivery unclaimed even when app-owned emulator local listener
 rows exist; a future nonzero system count must come from
 `TrackingAndroidGeofenceTransitionReceiver`, not the local GPS listener. Android
+system geofence blocker proof now writes
+`26-android-system-geofence-blocker-proof.json` and
+`test-results/tracking-android-system-geofence-blocker-proof/proof.json` for
+that exact blocker. Android
 system geofence delivery, dwell transition, physical-device background
 behavior, authority, provider delivery, production upload worker, and
 product-ready Android tracking remain unclaimed.
