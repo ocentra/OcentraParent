@@ -416,6 +416,17 @@ intents while keeping external runtime report delivery, provider dispatch,
 provider receipt ingestion, raw social content, final policy execution, and
 enforcement unclaimed.
 
+The follow-up `social-applied-schedule-time-budget-proof` adds
+`packages/parent-domain/src/social-applied-schedule-time-budget-proof.ts` and
+`packages/parent-domain/tests/social-applied-schedule-time-budget-proof.test.ts`,
+a parent-owned schedule/time-budget application-readiness boundary for SOCIAL-12
+compiler candidates. The proof writes
+`test-results/social-applied-schedule-time-budget-proof/proof.json` and
+`output/browser-plan-proof/social-applied-schedule-time-budget-proof/01-social-applied-schedule-time-budget-proof.md`.
+It proves evaluated schedule and budget refs can feed a runtime handoff row
+while keeping runtime-applied schedules, runtime time-budget application,
+browser gate execution, final policy execution, and enforcement unclaimed.
+
 The follow-up `social-alert-report-intent-ui-proof` adds the service-backed
 Browser-route proof for those alert/report intent rows. The real portal requests
 `agent.browser.social-alert-report.read-model.get` from the local Rust service,

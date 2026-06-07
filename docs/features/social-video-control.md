@@ -309,6 +309,12 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   external runtime report delivery, provider dispatch, provider receipt
   ingestion, raw social content, final policy execution, and enforcement
   unclaimed.
+- `social-applied-schedule-time-budget-proof` now adds a parent-owned
+  schedule/time-budget application-readiness boundary for SOCIAL-12 compiler
+  candidates. It proves schedule and budget refs can be evaluated into a
+  runtime handoff row while keeping runtime-applied schedules, runtime
+  time-budget application, browser gate execution, final policy execution, and
+  enforcement unclaimed.
 - `social-alert-report-intent-ui-proof` now renders those alert/report intent
   rows through the real Browser-route portal and real Rust WebSocket command
   `agent.browser.social-alert-report.read-model.get`. The proof captures

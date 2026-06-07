@@ -1487,6 +1487,12 @@ worker messages before code changes. Do not mix all 24 into one PR.
   explicit non-claims for external runtime report delivery, provider dispatch,
   provider receipt ingestion, raw social content, final policy execution, and
   enforcement.
+- `social-applied-schedule-time-budget-proof` now adds parent-domain
+  schedule/time-budget application-readiness contracts and focused tests. It
+  links SOCIAL-12 compiler candidates into parent-owned schedule and budget
+  evaluation rows plus a runtime handoff ref while preserving explicit
+  non-claims for runtime-applied schedules, runtime time-budget application,
+  browser gate execution, final policy execution, and enforcement.
 - `social-parent-sensitivity-settings-proof` now adds parent-domain Parent sensitivity settings
   contracts and focused tests for high-risk alerts,
   feed/video review, account-flow review, connector data use, native-app gap

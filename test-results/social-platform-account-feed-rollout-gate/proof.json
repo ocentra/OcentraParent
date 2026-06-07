@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-07T04:35:22.057Z",
+  "generatedAt": "2026-06-07T04:52:00.317Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -221,13 +221,14 @@
     "social-live-evidence-decision-memory-proof-present",
     "social-alert-report-intent-proof-present",
     "social-report-writer-delivery-proof-present",
+    "social-applied-schedule-time-budget-proof-present",
     "social-schedule-time-budget-compiler-proof-present",
     "social-parent-sensitivity-settings-proof-present",
     "social-source-custody-settings-proof-present",
     "social-source-custody-mutation-proof-present",
     "external-runtime-report-delivery-not-claimed",
     "provider-delivery-not-claimed",
-    "applied-schedule-time-budget-not-claimed",
+    "runtime-applied-schedule-time-budget-not-claimed",
     "connector-native-runtime-not-claimed",
     "final-policy-execution-not-claimed",
     "enforcement-not-claimed",

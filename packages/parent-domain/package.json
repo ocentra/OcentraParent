@@ -505,6 +505,10 @@
       "import": "./dist/social-report-writer-delivery-proof.js",
       "types": "./dist/social-report-writer-delivery-proof.d.ts"
     },
+    "./social-applied-schedule-time-budget-proof": {
+      "import": "./dist/social-applied-schedule-time-budget-proof.js",
+      "types": "./dist/social-applied-schedule-time-budget-proof.d.ts"
+    },
     "./social-child-approval-block-ux-values": {
       "import": "./dist/social-child-approval-block-ux-values.js",
       "types": "./dist/social-child-approval-block-ux-values.d.ts"

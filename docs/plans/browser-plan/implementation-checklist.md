@@ -251,6 +251,21 @@ partial/manual-required rollout state; provider dispatch/receipt, parent
 notification UI delivery, report delivery, final policy execution,
 connector/native runtime, and enforcement remain unclaimed.
 
+SOCIAL-23/SOCIAL-24 applied schedule/time-budget addendum:
+`social-applied-schedule-time-budget-proof` adds
+`packages/parent-domain/src/social-applied-schedule-time-budget-proof.ts`,
+`packages/parent-domain/tests/social-applied-schedule-time-budget-proof.test.ts`,
+and `scripts/test/social-applied-schedule-time-budget-proof.mjs`. Evidence is
+written to `test-results/social-applied-schedule-time-budget-proof/proof.json`
+and
+`output/browser-plan-proof/social-applied-schedule-time-budget-proof/01-social-applied-schedule-time-budget-proof.md`.
+The proof consumes SOCIAL-12 compiler candidates and proves parent-owned
+schedule/time-budget application-readiness rows with evaluated schedule/budget
+refs and a runtime handoff ref. It does not claim runtime-applied schedules,
+runtime time-budget application, browser gate execution, final policy
+execution, enforcement, product checklist upgrade, release readiness, or
+product completion.
+
 ## Browser Games Cloud Gaming Checklist
 
 Source:
