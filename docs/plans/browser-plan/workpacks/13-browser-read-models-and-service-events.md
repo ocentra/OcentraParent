@@ -188,3 +188,25 @@ Evidence:
 This does not change event names, protocol payload fields, service WebSocket
 routing, portal UI, AI execution, policy execution, browser mutation, child
 intervention execution, or enforcement.
+
+## Typed Stream Contract Addendum - 2026-06-07
+
+`browser-runtime-typed-stream-contract-proof` adds a protocol-domain parser for
+the service-backed browser runtime event-chain stream. The parser validates known
+browser runtime event types, Rust-serialized phase names, event type/phase
+consistency, stream counts, no AI-authority overclaim, and no hidden
+intervention execution. Portal state adoption is intentionally sequenced behind
+the current `apps/portal/src/live-activity-state.ts` lock owned by codex-b.
+
+Evidence:
+
+- `packages/agent-protocol-domain/src/browser-runtime-events.ts`
+- `packages/agent-protocol-domain/tests/browser-runtime-events.test.ts`
+- `scripts/test/browser-runtime-typed-stream-contract-proof.mjs`
+- `test-results/browser-runtime-typed-stream-contract-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-typed-stream-contract/01-browser-runtime-typed-stream-contract-proof.md`
+- `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- browser-runtime-events.test.ts`
+- `cmd /c npm run type-check --workspace @ocentra-parent/agent-protocol-domain`
+
+This does not claim portal consumption, portal UI, AI execution, policy
+execution, browser mutation, child intervention execution, or enforcement.

@@ -103,6 +103,11 @@ control while being more honest about managed versus unmanaged sources.
   keeps managed, unmanaged, active-tab, exact-URL, stale, degraded, and custody
   labels separate; it does not upgrade portal UI, SQLite inventory storage, or
   real browser/platform proof claims.
+- Browser-plan WP13 now also has a protocol-domain parser for the browser
+  runtime event-chain stream. It validates known browser runtime event types,
+  Rust phase names, event type/phase consistency, stream counts, no AI-authority
+  overclaim, and no hidden intervention execution; portal state adoption remains
+  sequenced behind the current portal lock and is not claimed by this proof.
 - Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
   through activity-domain inventory contracts, Rust protocol, and service
   payload/read-model proof. Contract tests cover mixed managed, unmanaged, and

@@ -51,6 +51,21 @@ export {
   type SerializedAgentMessage,
 } from './primitives';
 export {
+  AgentBrowserRuntimeEventChainEntrySchema,
+  AgentBrowserRuntimeEventChainStreamSchema,
+  AgentBrowserRuntimeEventPayloadSchema,
+  AgentBrowserRuntimeEventType,
+  AgentBrowserRuntimeEventTypeSchema,
+  AgentBrowserRuntimePhase,
+  AgentBrowserRuntimePhaseSchema,
+  parseAgentBrowserRuntimeEventChainStreamFields,
+  type AgentBrowserRuntimeEventChainEntry,
+  type AgentBrowserRuntimeEventChainStream,
+  type AgentBrowserRuntimeEventChainStreamFailureReason,
+  type AgentBrowserRuntimeEventChainStreamResult,
+  type AgentBrowserRuntimeEventPayload,
+} from './browser-runtime-events';
+export {
   AgentLanBrowserAddDeviceDiscoveryDeviceSchema,
   AgentLanBrowserAddDevicePairingRequestSchema,
   AgentLanBrowserAddDeviceReadModelSchema,

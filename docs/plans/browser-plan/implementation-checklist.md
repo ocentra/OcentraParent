@@ -492,6 +492,18 @@ chains while preserving event names and payload shape. It does not claim portal
 UI, AI execution, policy execution, browser mutation, child intervention
 execution, or enforcement.
 
+WP13 typed stream contract addendum:
+`browser-runtime-typed-stream-contract-proof` adds a protocol-domain parser for
+the browser runtime event-chain stream. It validates known event types,
+Rust-serialized phase names, event type/phase consistency, stream counts,
+no-AI-authority, and no hidden intervention execution. Evidence:
+`test-results/browser-runtime-typed-stream-contract-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-typed-stream-contract/01-browser-runtime-typed-stream-contract-proof.md`.
+Portal state adoption is not claimed in this slice because
+`apps/portal/src/live-activity-state.ts` is currently owned by codex-b. The
+proof does not claim portal consumption, portal UI, AI execution, policy
+execution, browser mutation, child intervention execution, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:
