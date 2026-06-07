@@ -12,7 +12,7 @@ blocking, rollback, or enforcement.
 | Windows | Fixture-backed in WP05; live Windows inventory proof is owned by WP04 | Windows rows remain inventory/candidate rows only until managed launch, bridge custody, exact URL, and active-tab proof exist. |
 | macOS | Manual-required | No macOS app bundle scan, Chrome/Edge managed profile launch, Safari/WebKit adapter, or CDP/BiDi platform proof is captured in this artifact. |
 | Linux | Manual-required | No Linux desktop entry, package manager, Snap/Flatpak, PATH, Chrome/Chromium launch, or Firefox BiDi platform proof is captured in this artifact. |
-| Android | Manual-required or unsupported | No owned Android browser shell, device-owner policy, VPN/DNS browser proof, UsageStats/Accessibility route proof, or managed-configuration proof is captured in this artifact. |
+| Android | Package visibility proof present; owned-shell proof manual-required | `11-android-host-device-proof.json` records one booted Android emulator inspected through `adb`, known browser package ids queried only, Chrome package visibility, and a redacted default VIEW handler ref. It does not claim an Ocentra owned browser shell, exact URL proof, known-active tab proof, device-owner policy, VPN/DNS browser proof, UsageStats/Accessibility route proof, managed configuration, UI capture, or enforcement. |
 | iOS | Unsupported/manual-required future boundary | No FamilyControls authorization, ManagedSettings token selection, Safari extension, WebKit browser app, or device proof is captured in this artifact. |
 
 Required before product upgrade:

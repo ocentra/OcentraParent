@@ -29,6 +29,19 @@ The repeatable proof gate is green with that artifact present, but the row
 remains partial because macOS, Linux, Android, and iOS still require real
 platform/device artifacts before any product support upgrade.
 
+2026-06-07 codex-d continuation: `scripts/test/browser-platform-android-host-proof.mjs`
+now captures real Android emulator host evidence for WP05. The proof uses the
+attached `Pixel_9_Pro_XL_API_35` emulator through `adb`, queries only known
+public browser package ids, records Chrome package visibility and the default
+VIEW handler as redacted refs, and writes
+`test-results/browser-platform-android-host-proof/proof.json` plus
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/11-android-host-device-proof.json`.
+The matrix gate reads that artifact and reports
+`android-browser-package-visibility-proof`, but WP05 remains partial: the
+Ocentra owned browser shell is not installed, and exact URL, active-tab,
+device-owner policy, VPN/DNS browser proof, UsageStats/Accessibility route
+proof, enforcement, and product checklist upgrade remain unclaimed.
+
 ## Where We Want To Be
 
 The browser inventory/read model can show platform-specific capability states
@@ -50,7 +63,9 @@ without claiming desktop CDP where it does not apply.
 - `packages/parent-domain/src/browser-control-*.ts`
 - `packages/activity-domain/src/browser*.ts`
 - `scripts/test/browser-platform-inventory-matrix-proof.mjs`
+- `scripts/test/browser-platform-android-host-proof.mjs`
 - `test-results/browser-platform-inventory-matrix-proof/`
+- `test-results/browser-platform-android-host-proof/`
 - `output/browser-plan-proof/05-cross-platform-inventory-matrix/`
 - platform README/docs when implementation starts.
 
@@ -59,6 +74,7 @@ without claiming desktop CDP where it does not apply.
 - Unit tests for matrix derivation.
 - Fixture tests for platform states.
 - `node scripts/test/browser-platform-inventory-matrix-proof.mjs`
+- `node scripts/test/browser-platform-android-host-proof.mjs`
 - Manual platform proof tables when platform work starts.
 
 ## AI Worker Checklist
@@ -73,11 +89,11 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service/portal parity updated only after contracts exist; no Rust/service/portal surface changed in this contract-only slice.
 - [x] Raw evidence artifacts captured or marked N/A: this slice is a platform support matrix contract and has no bridge/CDP, journal, SQLite, policy, or action runtime evidence.
-- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; live macOS/Linux/Android/iOS fixtures and manual proof remain manual-required.
+- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Android emulator package-visibility proof is present, while live macOS/Linux/owned-shell Android/iOS fixtures and manual proof remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured: non-Windows entries reject managed exact-URL and known-active claims; iOS remains unsupported; unsupported entries cannot keep exact URL available.
-- [x] Manual platform proof captured for real browser/OS claims; no new real platform claim was made, so `09-manual-platform-proof.md` records the pending manual-required boundary.
+- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package visibility is captured in `11-android-host-device-proof.json`, while `09-manual-platform-proof.md` records the remaining manual-required boundaries.
 - [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md), including `test-results/browser-platform-inventory-matrix-proof/proof.json` and `output/browser-plan-proof/05-cross-platform-inventory-matrix/11-proof-gate-manifest.md`.
 - [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
@@ -85,6 +101,9 @@ Fill this before reporting `DONE` or PR-ready:
 ## Manual-Required Gaps
 
 No non-Windows browser product claim until real platform proof exists.
+Android emulator package visibility is now proved, but the owned browser shell,
+exact URL, active-tab, device-owner policy, VPN/DNS browser proof,
+UsageStats/Accessibility route proof, and enforcement remain unclaimed.
 Remaining work requires real macOS app bundle inventory, Linux desktop entry and
 package inventory, Android owned browser shell/device-policy proof, and iOS
 FamilyControls/ManagedSettings/Safari-extension proof before this workpack can

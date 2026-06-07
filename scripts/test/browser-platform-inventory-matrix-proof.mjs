@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -9,6 +9,7 @@ const outputDirectory = join(root, 'output', 'browser-plan-proof', '05-cross-pla
 const resultDirectory = join(root, 'test-results', 'browser-platform-inventory-matrix-proof');
 const proofPath = join(resultDirectory, 'proof.json');
 const manifestPath = join(outputDirectory, '11-proof-gate-manifest.md');
+const androidHostProofPath = join(outputDirectory, '11-android-host-device-proof.json');
 
 const requiredProofFiles = [
   '00-source-snapshot.md',
@@ -38,6 +39,7 @@ async function main() {
     path: relativePath(join(outputDirectory, path)),
     exists: existsSync(join(outputDirectory, path)),
   }));
+  const androidHostProof = await readAndroidHostProof();
   const failures = [
     ...validateMatrix(matrix.entries),
     ...proofFiles.filter((file) => !file.exists).map((file) => `missing proof artifact: ${file.path}`),
@@ -65,12 +67,15 @@ async function main() {
       'non-windows-managed-exact-url-not-claimed',
       'non-windows-known-active-tab-not-claimed',
       'macos-linux-platform-adapters-manual-required',
-      'android-owned-browser-shell-manual-required',
+      androidHostProof
+        ? 'android-browser-package-visibility-proof-present-owned-shell-still-manual-required'
+        : 'android-owned-browser-shell-manual-required',
       'ios-familycontrols-safari-extension-manual-required',
       'firefox-bidi-extension-later-adapter',
       'portal-ui-not-changed',
       'product-checklist-upgrade-not-claimed',
     ],
+    androidHostProof,
     failures,
   };
 
@@ -184,6 +189,7 @@ function markdownFor(proof) {
     `Manual-required rows: ${proof.summary.manualRequiredRows}`,
     `Unsupported rows: ${proof.summary.unsupportedRows}`,
     `Product claimed: ${proof.summary.productClaimed}`,
+    `Android host proof: ${proof.androidHostProof?.resultState ?? 'not-present'}`,
     '',
     '| Platform | Browser | Product | Proof State | Exact URL | Active Tab | Reason |',
     '| --- | --- | --- | --- | --- | --- | --- |',
@@ -191,7 +197,30 @@ function markdownFor(proof) {
     '',
     'No product checklist upgrade is claimed.',
     'Non-Windows managed exact URL and known-active tab support remain manual-required or unsupported until separate real platform proof exists.',
+    proof.androidHostProof
+      ? 'Android emulator package-visibility proof is present, but owned browser shell custody, exact URL, active tab, device-owner policy, and enforcement remain unclaimed.'
+      : 'Android owned browser shell/device proof remains manual-required.',
   ].join('\n');
+}
+
+async function readAndroidHostProof() {
+  if (!existsSync(androidHostProofPath)) {
+    return null;
+  }
+
+  const proof = JSON.parse(await readFile(androidHostProofPath, 'utf8'));
+  return {
+    path: relativePath(androidHostProofPath),
+    proofId: proof.proofId,
+    resultState: proof.hostProofSummary?.resultState ?? 'unknown',
+    attachedDeviceCount: proof.hostProofSummary?.attachedDeviceCount ?? 0,
+    bootedDeviceCount: proof.hostProofSummary?.bootedDeviceCount ?? 0,
+    browserPackageVisible: proof.hostProofSummary?.browserPackageVisible === true,
+    ownedBrowserShellVisible: proof.hostProofSummary?.ownedBrowserShellVisible === true,
+    exactUrlProofClaimed: proof.hostProofSummary?.exactUrlProofClaimed === true,
+    knownActiveTabProofClaimed: proof.hostProofSummary?.knownActiveTabProofClaimed === true,
+    enforcementClaimed: proof.hostProofSummary?.enforcementClaimed === true,
+  };
 }
 
 function countBy(values) {

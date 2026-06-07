@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "proofId": "browser-platform-android-host-proof",
+  "generatedAt": "2026-06-07T01:05:15.178Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "8f81dfcfbc152f8d7cedbfd20ff0c1dfe9005d63",
+  "baseCommit": "8c8fad79a50e914922fbc84984878211e127897e",
+  "hostProofSummary": {
+    "adbInstalled": true,
+    "adbPathPersisted": false,
+    "adbPathSha256": "8f7574d08793a80ccaddee5ceeb0fbcf8589faaf0c7318fe2d32ad984a3c29df",
+    "adbVersionSha256": "6843ea0db38f463fc457b98199f1bd233ca7df116d8a7c854c76dbbcde5ac659",
+    "attachedDeviceCount": 1,
+    "bootedDeviceCount": 1,
+    "realDeviceOrEmulatorInspected": true,
+    "knownBrowserPackageIdsQueriedOnly": true,
+    "browserPackageVisible": true,
+    "ownedBrowserShellVisible": false,
+    "defaultViewHandlerQueried": true,
+    "rawInstalledPackageListPersisted": false,
+    "screenshotsCaptured": false,
+    "uiTreeCaptured": false,
+    "logcatCaptured": false,
+    "exactUrlProofClaimed": false,
+    "knownActiveTabProofClaimed": false,
+    "ownedShellCustodyClaimed": false,
+    "managedProfileClaimed": false,
+    "deviceOwnerEnrollmentClaimed": false,
+    "vpnDnsBrowserProofClaimed": false,
+    "usageStatsRouteProofClaimed": false,
+    "accessibilityRouteProofClaimed": false,
+    "enforcementClaimed": false,
+    "resultState": "android-browser-package-visibility-proof"
+  },
+  "devices": [
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "state": "device",
+      "bootCompleted": true,
+      "rawSerialPersisted": false
+    }
+  ],
+  "packageVisibility": [
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "targetId": "android-chrome",
+      "targetPackageId": "com.android.chrome",
+      "installed": true,
+      "rawInstalledPackageListPersisted": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "ownedShellCustodyClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "targetId": "firefox-android",
+      "targetPackageId": "org.mozilla.firefox",
+      "installed": false,
+      "rawInstalledPackageListPersisted": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "ownedShellCustodyClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "targetId": "edge-android",
+      "targetPackageId": "com.microsoft.emmx",
+      "installed": false,
+      "rawInstalledPackageListPersisted": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "ownedShellCustodyClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "targetId": "samsung-internet",
+      "targetPackageId": "com.sec.android.app.sbrowser",
+      "installed": false,
+      "rawInstalledPackageListPersisted": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "ownedShellCustodyClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "targetId": "ocentra-owned-browser-shell",
+      "targetPackageId": "com.ocentra.parent.browser",
+      "installed": false,
+      "rawInstalledPackageListPersisted": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "ownedShellCustodyClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "defaultViewHandlers": [
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "componentRef": "redacted-android-view-handler-d671e678a1bdd51a",
+      "resolved": true,
+      "rawComponentPersisted": false,
+      "urlPersisted": false,
+      "urlContentCaptured": false,
+      "exactUrlProofClaimed": false
+    }
+  ],
+  "negativeChecks": [
+    {
+      "claim": "owned-browser-shell-custody",
+      "rejected": true
+    },
+    {
+      "claim": "managed-exact-url-on-android",
+      "rejected": true
+    },
+    {
+      "claim": "known-active-tab-on-android",
+      "rejected": true
+    },
+    {
+      "claim": "android-browser-enforcement",
+      "rejected": true
+    }
+  ]
+}
