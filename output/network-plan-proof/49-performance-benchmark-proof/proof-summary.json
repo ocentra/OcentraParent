@@ -1,0 +1,56 @@
+{
+  "proof": "network-performance-benchmark-proof",
+  "checkedAt": "2026-06-07T01:48:25.139Z",
+  "branch": "codex/network-performance-proof-artifacts",
+  "sourceCommit": "f7a9402906f2d75eece537e61f0f0a59030e581b",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
+  "originMain": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "mergeBase": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\49-performance-benchmark-proof",
+  "testRoot": "test-results\\network-performance-benchmark-proof",
+  "commands": [
+    {
+      "name": "network-performance-benchmark-tests",
+      "command": "cargo test -p ocentra-network-evidence performance_benchmark",
+      "status": 0,
+      "log": "output\\network-plan-proof\\49-performance-benchmark-proof\\performance-benchmark-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\49-performance-benchmark-proof\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\49-performance-benchmark-proof\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedPerformanceBoundary": "output\\network-plan-proof\\49-performance-benchmark-proof\\expected-performance-boundary.json",
+    "proofSummary": "output\\network-plan-proof\\49-performance-benchmark-proof\\proof-summary.json",
+    "testProof": "test-results\\network-performance-benchmark-proof\\proof.json"
+  },
+  "provenRows": [
+    "49 Performance, latency, resource, and high-concurrency benchmark proof"
+  ],
+  "provenBoundaries": [
+    "packet-to-detection latency metric aggregation",
+    "event throughput metric aggregation",
+    "CPU, memory, disk, queue, and dropped-event metrics",
+    "high-concurrency fixture flow count",
+    "manual/unavailable/degraded path-state preservation",
+    "unsupported real-time and adapter claim rejection"
+  ],
+  "notClaimed": [
+    "production SLO or hardware-specific performance",
+    "real-time response guarantee",
+    "live packet capture or raw PCAP access",
+    "adapter execution, host filtering, or enforcement command publication",
+    "exact URL, page content, or decrypted payload availability",
+    "portal performance UI rendering"
+  ]
+}
