@@ -204,8 +204,9 @@ expose location or device-status features. Parents expect this category.
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`. It cites the
   current pre-device, Android emulator, iOS simulator, WSL/local, hosted UI
   artifact inventory, Android system geofence blocker, child-runtime blocker,
-  physical-device artifact gate, provider-delivery artifact gate, and retention
-  product-readiness blocker proof refs, writes
+  physical-device artifact gate, provider-delivery artifact gate,
+  provider-runtime readiness blocker, and retention product-readiness blocker
+  proof refs, writes
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
   and keeps Android/iOS physical background, actual child-device runtime,
   full product parent/child UI, authority, provider delivery/receipt,
