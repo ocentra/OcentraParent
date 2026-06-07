@@ -1461,17 +1461,22 @@ worker messages before code changes. Do not mix all 24 into one PR.
   source refs, and no-claim flags; it does not claim a runtime SQLite query,
   rendered browser-game UI, Playwright screenshot, product checklist upgrade, or
   release readiness.
-- GAME-22 now adds `scripts/test/browser-game-proof-artifacts.mjs`, a proof
-  artifact gate that verifies GAME-01 through GAME-21 checklist ownership,
-  proof directory references, required proof files, browser-game workpack README
-  references, feature coverage, and expectation boundary text. It emits
-  `test-results/browser-game-proof-artifacts/proof.json` and
-  `output/browser-plan-proof/game-22-tests-fixtures-playwright-manual-proof/01-browser-game-proof-artifact-manifest.md`.
-  The manifest records 21 complete/proof rows and zero partial/manual-required
-  rows. Playwright stays manual-required because no rendered browser-game UI
-  exists in this slice. No screenshot, runtime browser-game detection,
-  cloud-streamed frame analysis, native game control, final policy execution,
-  enforcement, or product checklist claim is made.
+- GAME-22 now adds `scripts/test/browser-game-proof-artifacts.mjs` and
+  `scripts/test/browser-game-child-intervention-page-proof.mjs`. The artifact
+  gate verifies GAME-01 through GAME-23 checklist ownership, proof directory
+  references, required proof files, browser-game workpack README references,
+  feature coverage, and expectation boundary text. The rendered proof opens real
+  public Roblox, Coolmath Games, Scratch, Xbox Cloud Gaming, and Steam Store
+  surfaces through Playwright, captures live backdrops, renders the shared
+  `BrowserChildInterventionPage`, serves it through the Rust child-agent
+  `/api/browser/intervention/page` endpoint, and stores screenshots plus
+  hash-only proof JSON at
+  `test-results/browser-game-child-intervention-page-proof/proof.json` and
+  `output/browser-plan-proof/game-22-tests-fixtures-playwright-manual-proof/02-rendered-browser-game-child-intervention-proof.json`.
+  The manifest records 23 complete/proof rows and zero partial/manual-required
+  rows. No final policy decision, product runtime browser-game detection,
+  notification or approval delivery, cloud-streamed frame analysis, native game
+  control, enforcement, or product checklist claim is made.
 - GAME-23 now adds parent-domain Android/iOS browser-game capability matrix
   contracts plus a real Android host/emulator proof. The proof builds the
   Android agent APK, boots or reuses an Android 15 emulator, installs and
@@ -1504,13 +1509,14 @@ worker messages before code changes. Do not mix all 24 into one PR.
   live-child-checking-block-ux-proof-present, GAME-20 as
   live-parent-dashboard-ux-proof-present, GAME-21 as
   live-journal-sqlite-read-model-proof-present, GAME-22 as
-  partial/manual-required, GAME-23 as live-android-ios-host-proof-present,
+  live-rendered-child-intervention-proof-present, GAME-23 as
+  live-android-ios-host-proof-present,
   GAME-24 as partial/manual-required, and no browser-game rows as
   open/manual-required.
-  Product checklist upgrade is not claimed, and runtime
-  child/parent UI, cloud-streamed frame analysis, native game control, and
-  enforcement remain open or manual-required until
-  separate proof exists.
+  Product checklist upgrade is not claimed, and final policy decisions,
+  notification or approval delivery, parent dashboard runtime UI,
+  cloud-streamed frame analysis, native game control, and enforcement remain
+  open or manual-required until separate proof exists.
 
 ## 21. Must-Not-Claim List
 

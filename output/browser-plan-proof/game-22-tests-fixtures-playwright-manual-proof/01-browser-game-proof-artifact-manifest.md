@@ -1,11 +1,11 @@
 # GAME-22 Browser-Game Proof Artifact Manifest
 
-Generated: 2026-06-06T23:02:27.680Z
+Generated: 2026-06-07T00:10:14.833Z
 
 Rows checked: 23
-Proof-present rows: 22
-Partial/manual-required rows: 1
-Playwright state: manual-required-no-rendered-browser-game-ui
+Proof-present rows: 23
+Partial/manual-required rows: 0
+Playwright state: live-rendered-child-intervention-screenshots-present
 Product claimed: false
 
 | Row | State | Proof Directory | Files |
@@ -31,10 +31,13 @@ Product claimed: false
 | GAME-19 | live-child-checking-block-ux-proof-present | `game-19-child-game-checking-block-ux` | 6 |
 | GAME-20 | live-parent-dashboard-ux-proof-present | `game-20-parent-browser-game-dashboard-ux` | 6 |
 | GAME-21 | live-journal-sqlite-read-model-proof-present | `game-21-journal-sqlite-read-model` | 6 |
-| GAME-22 | partial-manual-required | `game-22-tests-fixtures-playwright-manual-proof` | 5 |
+| GAME-22 | live-rendered-child-intervention-proof-present | `game-22-tests-fixtures-playwright-manual-proof` | 7 |
 | GAME-23 | live-android-ios-host-proof-present | `game-23-android-ios-capability-matrix` | 6 |
 
-GAME-22 proves proof-pack coverage for GAME-01 through GAME-21.
+GAME-22 proves proof-pack coverage for GAME-01 through GAME-23 and adds
+live Playwright screenshots of shared child intervention pages served by
+the Rust child-agent endpoint over live public browser-game, cloud-gaming,
+and game-store backdrops.
 GAME-02 live route proof is present for real public browser-game and
 cloud-gaming route surfaces with ref-only/hash-only custody.
 GAME-03 live portal pattern library proof is present for real public
@@ -75,9 +78,13 @@ GAME-20 live parent dashboard UX proof is present for real public
 browser-game route surfaces with ref-only dashboard panel rows.
 GAME-21 live journal/SQLite read-model shape proof is present for real public
 browser-game route surfaces with ref-only/hash-only read-model rows.
+GAME-22 live rendered child intervention proof is present for real Roblox,
+Coolmath Games, Scratch, Xbox Cloud Gaming, and Steam Store surfaces using
+the shared BrowserChildInterventionPage renderer and the Rust child-agent
+/api/browser/intervention/page endpoint. It stores proof hashes and
+screenshots, not raw target URLs.
 GAME-23 live Android host emulator proof is present for the parent agent package
 with iOS entitlement and owned-browser-shell support still manual-required.
-It does not prove rendered browser-game UI, Playwright screenshots,
-runtime browser-game detection, cloud-streamed frame analysis, native
-game control, final policy execution, enforcement, or product checklist
-completion.
+It does not prove final policy decisions, product runtime browser-game
+detection, cloud-streamed frame analysis, native game control, notification
+or approval delivery, enforcement, or product checklist completion.

@@ -62,7 +62,7 @@ async function gameProofDirectories() {
 function expectedRows() {
   return Array.from({ length: 23 }, (_, index) => {
     const rowNumber = index + 1;
-    const isComplete = rowNumber <= 21 || rowNumber === 23;
+    const isComplete = rowNumber <= 23;
     return {
       rowNumber,
       rowId: `GAME-${String(rowNumber).padStart(2, '0')}`,
@@ -110,7 +110,9 @@ function expectedRows() {
                                                 ? 'live-parent-dashboard-ux-proof-present'
                                                 : rowNumber === 21
                                                   ? 'live-journal-sqlite-read-model-proof-present'
-                                                  : 'live-android-ios-host-proof-present'
+                                                  : rowNumber === 22
+                                                    ? 'live-rendered-child-intervention-proof-present'
+                                                    : 'live-android-ios-host-proof-present'
         : 'partial-manual-required',
     };
   });
@@ -127,6 +129,7 @@ async function validateGameRow(row, proofDirectories, docs) {
   const proofFiles = await readdir(join(proofRoot, proofDirectory));
   failures.push(...validateChecklist(row, proofDirectory, docs.checklist));
   failures.push(...validateProofFiles(row, proofFiles));
+  failures.push(...(await validateRenderedChildInterventionProof(row, proofDirectory, proofFiles)));
   failures.push(...validateDocs(row, proofDirectory, docs));
 
   return {
@@ -172,6 +175,51 @@ function validateProofFiles(row, proofFiles) {
   return failures;
 }
 
+async function validateRenderedChildInterventionProof(row, proofDirectory, proofFiles) {
+  if (row.rowNumber !== 22) {
+    return [];
+  }
+
+  const failures = [];
+  const renderedProofFile = '02-rendered-browser-game-child-intervention-proof.json';
+  const screenshotDirectory = '06-ui-snapshots';
+  if (!proofFiles.includes(renderedProofFile)) {
+    failures.push(`${row.rowId} proof is missing ${renderedProofFile}`);
+  }
+  if (!proofFiles.includes(screenshotDirectory)) {
+    failures.push(`${row.rowId} proof is missing ${screenshotDirectory}`);
+  }
+
+  if (failures.length > 0) {
+    return failures;
+  }
+
+  const renderedProof = JSON.parse(await readFile(join(proofRoot, proofDirectory, renderedProofFile), 'utf8'));
+  if (renderedProof.summary?.targetCount !== 5) {
+    failures.push(`${row.rowId} rendered proof target count is not 5`);
+  }
+  if (renderedProof.summary?.allAssertionsPassed !== true) {
+    failures.push(`${row.rowId} rendered proof assertions did not pass`);
+  }
+  if (renderedProof.summary?.childAgentEndpointRendered !== true) {
+    failures.push(`${row.rowId} rendered proof did not use child-agent endpoint`);
+  }
+  if (renderedProof.summary?.livePublicSurfaceCaptured !== true) {
+    failures.push(`${row.rowId} rendered proof did not capture live public surfaces`);
+  }
+  if (renderedProof.summary?.rawUrlPersisted !== false) {
+    failures.push(`${row.rowId} rendered proof persisted raw URLs`);
+  }
+
+  const screenshots = await readdir(join(proofRoot, proofDirectory, screenshotDirectory));
+  const pngScreenshots = screenshots.filter((file) => file.endsWith('.png'));
+  if (pngScreenshots.length !== 5) {
+    failures.push(`${row.rowId} rendered proof screenshot count is not 5`);
+  }
+
+  return failures;
+}
+
 function validateDocs(row, proofDirectory, docs) {
   const failures = [];
   if (!docs.plan.includes(row.rowId)) {
@@ -201,12 +249,12 @@ function manifestFor(rows, failures) {
       completeRows: rows.filter((row) => row.expectedStatus === '[x]').length,
       partialRows: rows.filter((row) => row.expectedState === 'partial-manual-required').length,
       failures: failures.length,
-      playwrightState: 'manual-required-no-rendered-browser-game-ui',
+      playwrightState: 'live-rendered-child-intervention-screenshots-present',
       productClaimed: false,
     },
     manualProofBoundary: {
-      screenshots: 'not-applicable-contract-only',
-      playwright: 'manual-required-no-rendered-browser-game-ui',
+      screenshots: 'live-rendered-child-intervention-screenshots-present',
+      playwright: 'live-rendered-child-intervention-screenshots-present',
       liveRouteEvidence: 'game-02-live-route-proof-present',
       livePortalPatternEvidence: 'game-03-live-portal-pattern-proof-present',
       liveCloudPatternEvidence: 'game-04-live-cloud-pattern-proof-present',
@@ -227,8 +275,9 @@ function manifestFor(rows, failures) {
       liveChildCheckingBlockUxEvidence: 'game-19-live-child-checking-block-ux-proof-present',
       liveParentDashboardUxEvidence: 'game-20-live-parent-dashboard-ux-proof-present',
       liveJournalSqliteReadModelEvidence: 'game-21-live-journal-sqlite-read-model-proof-present',
+      liveRenderedChildInterventionEvidence: 'game-22-live-rendered-child-intervention-proof-present',
       liveAndroidIosHostEvidence: 'game-23-live-android-ios-host-proof-present',
-      renderedUi: 'not-claimed',
+      renderedUi: 'child-agent-served-intervention-page-proof-present',
       cloudStreamedFrameAnalysis: 'not-claimed',
       nativeGameControl: 'not-claimed',
       enforcement: 'not-claimed',
@@ -257,7 +306,10 @@ function markdownFor(manifest) {
     '| --- | --- | --- | --- |',
     rows,
     '',
-    'GAME-22 proves proof-pack coverage for GAME-01 through GAME-21.',
+    'GAME-22 proves proof-pack coverage for GAME-01 through GAME-23 and adds',
+    'live Playwright screenshots of shared child intervention pages served by',
+    'the Rust child-agent endpoint over live public browser-game, cloud-gaming,',
+    'and game-store backdrops.',
     'GAME-02 live route proof is present for real public browser-game and',
     'cloud-gaming route surfaces with ref-only/hash-only custody.',
     'GAME-03 live portal pattern library proof is present for real public',
@@ -298,12 +350,16 @@ function markdownFor(manifest) {
     'browser-game route surfaces with ref-only dashboard panel rows.',
     'GAME-21 live journal/SQLite read-model shape proof is present for real public',
     'browser-game route surfaces with ref-only/hash-only read-model rows.',
+    'GAME-22 live rendered child intervention proof is present for real Roblox,',
+    'Coolmath Games, Scratch, Xbox Cloud Gaming, and Steam Store surfaces using',
+    'the shared BrowserChildInterventionPage renderer and the Rust child-agent',
+    '/api/browser/intervention/page endpoint. It stores proof hashes and',
+    'screenshots, not raw target URLs.',
     'GAME-23 live Android host emulator proof is present for the parent agent package',
     'with iOS entitlement and owned-browser-shell support still manual-required.',
-    'It does not prove rendered browser-game UI, Playwright screenshots,',
-    'runtime browser-game detection, cloud-streamed frame analysis, native',
-    'game control, final policy execution, enforcement, or product checklist',
-    'completion.',
+    'It does not prove final policy decisions, product runtime browser-game',
+    'detection, cloud-streamed frame analysis, native game control, notification',
+    'or approval delivery, enforcement, or product checklist completion.',
   ].join('\n');
 }
 

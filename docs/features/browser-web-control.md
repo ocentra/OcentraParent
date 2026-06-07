@@ -532,12 +532,15 @@ and enforcement. The live proof stores only response hashes, origin/path hashes,
 source refs, and no-claim flags; it does not claim a runtime SQLite query,
 rendered browser-game UI, Playwright screenshot, product checklist upgrade, or
 release readiness.
-Browser-game/cloud-gaming GAME-22 now adds a proof artifact gate that checks
-GAME-01 through GAME-21 proof-pack coverage and marks Playwright
-manual-required because this slice does not render browser-game UI. This does
-not claim screenshots, runtime browser-game detection, cloud-streamed frame
-analysis, native game control, final policy execution, enforcement, or product
-checklist status.
+Browser-game/cloud-gaming GAME-22 now adds a proof artifact gate plus live
+rendered child intervention proof. The proof opens real public Roblox,
+Coolmath Games, Scratch, Xbox Cloud Gaming, and Steam Store surfaces through
+Playwright, captures live backdrops, renders the shared
+BrowserChildInterventionPage, serves it through the Rust child-agent
+`/api/browser/intervention/page` endpoint, and stores screenshots plus hash-only
+proof JSON. This does not claim final policy decisions, product runtime
+browser-game detection, notification or approval delivery, cloud-streamed frame
+analysis, native game control, enforcement, or product checklist status.
 Browser-game/cloud-gaming GAME-23 now adds parent-domain Android/iOS capability
 matrix contracts and real Android host/emulator proof for mobile browser-game
 surfaces. The proof builds the Android agent APK, boots or reuses an Android 15
@@ -569,11 +572,12 @@ live-hold-block-adapter-proof-present. GAME-19 is
 live-child-checking-block-ux-proof-present. GAME-20 is
 live-parent-dashboard-ux-proof-present. GAME-21 is
 live-journal-sqlite-read-model-proof-present. GAME-22 is
-partial/manual-required. GAME-23 is live-android-ios-host-proof-present. GAME-24
-is partial/manual-required. UI, Playwright screenshots, cloud-streamed
-frame-analysis, native-control, owned-browser-shell support, iOS entitlement
-proof, and enforcement proof still need separate release-grade artifacts before
-product completion can be claimed.
+live-rendered-child-intervention-proof-present. GAME-23 is
+live-android-ios-host-proof-present. GAME-24 is partial/manual-required. Final
+policy decisions, parent dashboard runtime UI, notification or approval
+delivery, cloud-streamed frame-analysis, native-control, owned-browser-shell
+support, iOS entitlement proof, and enforcement proof still need separate
+release-grade artifacts before product completion can be claimed.
 Browser AI enhancement rows AI-01 and AI-02 now add plan linkage and
 schema-backed URL shape classification contracts. These contracts classify URL
 shape, platform, and stable ids only from exact managed-browser URL evidence and

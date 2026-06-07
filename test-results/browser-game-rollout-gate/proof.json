@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-rollout-gate",
-  "generatedAt": "2026-06-06T23:02:27.756Z",
+  "generatedAt": "2026-06-07T00:10:14.845Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -195,10 +195,10 @@
     {
       "rowNumber": 22,
       "rowId": "GAME-22",
-      "expectedStatus": "[~]",
+      "expectedStatus": "[x]",
       "expectedOwner": "codex-d",
-      "expectedState": "partial-manual-required",
-      "state": "partial-manual-required",
+      "expectedState": "live-rendered-child-intervention-proof-present",
+      "state": "live-rendered-child-intervention-proof-present",
       "failures": []
     },
     {
@@ -222,8 +222,8 @@
   ],
   "summary": {
     "totalRows": 24,
-    "completeRows": 22,
-    "partialRows": 2,
+    "completeRows": 23,
+    "partialRows": 1,
     "openRows": 0,
     "failures": 0,
     "rolloutState": "partial/manual-required",
@@ -253,12 +253,13 @@
     "browser-game-live-child-checking-block-ux-proof-present",
     "browser-game-live-parent-dashboard-ux-proof-present",
     "browser-game-live-journal-sqlite-read-model-proof-present",
+    "browser-game-live-rendered-child-intervention-proof-present",
     "browser-game-live-android-ios-host-proof-present",
     "proof-artifact-coverage-contract-only",
-    "playwright-manual-required-no-rendered-browser-game-ui",
+    "playwright-live-rendered-child-intervention-screenshots-present",
     "runtime-signal-proof-manual-required",
     "metadata-ai-memory-proof-manual-required",
-    "child-parent-ui-not-claimed",
+    "child-intervention-ui-rendered-proof-present",
     "cloud-streamed-frame-analysis-not-claimed",
     "native-game-control-not-claimed",
     "enforcement-not-claimed",

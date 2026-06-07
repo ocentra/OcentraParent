@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-proof-artifacts",
-  "generatedAt": "2026-06-06T23:02:27.680Z",
+  "generatedAt": "2026-06-07T00:10:14.833Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -363,17 +363,19 @@
     {
       "rowNumber": 22,
       "rowId": "GAME-22",
-      "expectedStatus": "[~]",
-      "expectedState": "partial-manual-required",
+      "expectedStatus": "[x]",
+      "expectedState": "live-rendered-child-intervention-proof-present",
       "proofDirectory": "game-22-tests-fixtures-playwright-manual-proof",
       "proofFiles": [
         "00-source-snapshot.md",
         "01-browser-game-proof-artifact-manifest.md",
+        "02-rendered-browser-game-child-intervention-proof.json",
+        "06-ui-snapshots",
         "08-security-negative-proof.md",
         "10-validation-commands.log",
         "ui-not-applicable.md"
       ],
-      "state": "partial-manual-required",
+      "state": "live-rendered-child-intervention-proof-present",
       "failures": []
     },
     {
@@ -396,15 +398,15 @@
   ],
   "summary": {
     "totalRows": 23,
-    "completeRows": 22,
-    "partialRows": 1,
+    "completeRows": 23,
+    "partialRows": 0,
     "failures": 0,
-    "playwrightState": "manual-required-no-rendered-browser-game-ui",
+    "playwrightState": "live-rendered-child-intervention-screenshots-present",
     "productClaimed": false
   },
   "manualProofBoundary": {
-    "screenshots": "not-applicable-contract-only",
-    "playwright": "manual-required-no-rendered-browser-game-ui",
+    "screenshots": "live-rendered-child-intervention-screenshots-present",
+    "playwright": "live-rendered-child-intervention-screenshots-present",
     "liveRouteEvidence": "game-02-live-route-proof-present",
     "livePortalPatternEvidence": "game-03-live-portal-pattern-proof-present",
     "liveCloudPatternEvidence": "game-04-live-cloud-pattern-proof-present",
@@ -425,8 +427,9 @@
     "liveChildCheckingBlockUxEvidence": "game-19-live-child-checking-block-ux-proof-present",
     "liveParentDashboardUxEvidence": "game-20-live-parent-dashboard-ux-proof-present",
     "liveJournalSqliteReadModelEvidence": "game-21-live-journal-sqlite-read-model-proof-present",
+    "liveRenderedChildInterventionEvidence": "game-22-live-rendered-child-intervention-proof-present",
     "liveAndroidIosHostEvidence": "game-23-live-android-ios-host-proof-present",
-    "renderedUi": "not-claimed",
+    "renderedUi": "child-agent-served-intervention-page-proof-present",
     "cloudStreamedFrameAnalysis": "not-claimed",
     "nativeGameControl": "not-claimed",
     "enforcement": "not-claimed",

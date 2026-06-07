@@ -313,17 +313,20 @@ Browser evidence must not record unless a later milestone explicitly approves it
   runtime signals, UI delivery, or enforcement.
 - Browser-game proof artifact gates may verify checklist ownership, proof
   folders, required source/security/validation/UI-marker files, README
-  references, feature coverage, and expectation boundary text. They must not
-  claim Playwright or screenshot proof when the current rows are contract-only,
-  and they must not claim runtime browser-game detection, cloud-streamed frame
-  analysis, native game control, final policy execution, enforcement, or
+  references, feature coverage, expectation boundary text, and rendered child
+  intervention screenshots only when the proof opens real public browser-game,
+  cloud-gaming, or game-store surfaces and serves the shared child intervention
+  page through the Rust child-agent endpoint. They must not claim final policy
+  decisions, product runtime browser-game detection, notification or approval
+  delivery, cloud-streamed frame analysis, native game control, enforcement, or
   product completion.
 - Browser-game rollout gates may label rows as complete,
   partial/manual-required, or open/manual-required only. GAME rollout state:
   partial/manual-required means product completion is unclaimed; missing route,
-  runtime, metadata, AI, memory, child/parent UI, cloud-streamed frame-analysis,
-  native game control, and enforcement proof must stay open/manual-required
-  until separate artifacts exist.
+  runtime, metadata, AI, memory, parent dashboard runtime UI, notification or
+  approval delivery, cloud-streamed frame-analysis, native game control, and
+  enforcement proof must stay open/manual-required until separate artifacts
+  exist.
 - A browser evidence artifact manifest that points to managed profile,
   intervention, unmanaged Windows, policy dry-run, performance, screenshot, and
   manual-required proof paths. The manifest must classify rows as

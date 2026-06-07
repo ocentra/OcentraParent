@@ -407,14 +407,22 @@ source refs, and no-claim flags; it does not claim a runtime SQLite query,
 rendered browser-game UI, Playwright screenshot, product checklist upgrade, or
 release readiness. Package subpath exports are now present.
 
-GAME-22 now adds `scripts/test/browser-game-proof-artifacts.mjs`, a proof
-artifact gate for GAME-01 through GAME-21. It validates checklist ownership,
-proof directory references, required proof files, README references, feature
-coverage, and expectation boundary text, then writes
+GAME-22 now adds `scripts/test/browser-game-proof-artifacts.mjs` and
+`scripts/test/browser-game-child-intervention-page-proof.mjs`. The artifact gate
+validates GAME-01 through GAME-23 checklist ownership, proof directory
+references, required proof files, README references, feature coverage, and
+expectation boundary text, then writes
 `test-results/browser-game-proof-artifacts/proof.json` and
 `output/browser-plan-proof/game-22-tests-fixtures-playwright-manual-proof/01-browser-game-proof-artifact-manifest.md`.
-Playwright remains manual-required because the current browser-game rows are
-contract/proof rows without rendered browser-game UI.
+The rendered proof opens real public Roblox, Coolmath Games, Scratch, Xbox Cloud
+Gaming, and Steam Store surfaces through Playwright, captures live backdrops,
+renders the shared BrowserChildInterventionPage, serves it through the Rust
+child-agent `/api/browser/intervention/page` endpoint, and stores screenshots
+plus hash-only proof JSON in
+`test-results/browser-game-child-intervention-page-proof/proof.json`,
+`output/browser-plan-proof/game-22-tests-fixtures-playwright-manual-proof/02-rendered-browser-game-child-intervention-proof.json`,
+and
+`output/browser-plan-proof/game-22-tests-fixtures-playwright-manual-proof/06-ui-snapshots/`.
 
 GAME-23 now adds parent-domain Android/iOS browser-game capability matrix
 contracts in
@@ -454,9 +462,11 @@ live-hold-block-adapter-proof-present, GAME-19 as
 live-child-checking-block-ux-proof-present, GAME-20 as
 live-parent-dashboard-ux-proof-present, GAME-21 as
 live-journal-sqlite-read-model-proof-present, GAME-22 as
-partial/manual-required, GAME-23 as live-android-ios-host-proof-present,
+live-rendered-child-intervention-proof-present, GAME-23 as
+live-android-ios-host-proof-present,
 GAME-24 as partial/manual-required, and no browser-game rows as
 open/manual-required.
-Product checklist upgrade is not claimed; child/parent UI,
-cloud-streamed frame analysis, native game control, and
-enforcement remain open or manual-required until separate proof exists.
+Product checklist upgrade is not claimed; final policy decisions, notification
+or approval delivery, parent dashboard runtime UI, cloud-streamed frame
+analysis, native game control, and enforcement remain open or manual-required
+until separate proof exists.
