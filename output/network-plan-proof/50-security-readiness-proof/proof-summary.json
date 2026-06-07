@@ -1,0 +1,56 @@
+{
+  "proof": "network-security-readiness-proof",
+  "checkedAt": "2026-06-07T01:56:20.090Z",
+  "branch": "codex/network-security-proof-artifacts",
+  "sourceCommit": "3a61f2c129040cf1dcaa5b6d18d4d99e300a204d",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
+  "originMain": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "mergeBase": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\50-security-readiness-proof",
+  "testRoot": "test-results\\network-security-readiness-proof",
+  "commands": [
+    {
+      "name": "network-security-readiness-tests",
+      "command": "cargo test -p ocentra-network-evidence readiness_proof",
+      "status": 0,
+      "log": "output\\network-plan-proof\\50-security-readiness-proof\\security-readiness-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\50-security-readiness-proof\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\50-security-readiness-proof\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedSecurityReadinessBoundary": "output\\network-plan-proof\\50-security-readiness-proof\\expected-security-readiness-boundary.json",
+    "proofSummary": "output\\network-plan-proof\\50-security-readiness-proof\\proof-summary.json",
+    "testProof": "test-results\\network-security-readiness-proof\\proof.json"
+  },
+  "provenRows": [
+    "50 Security, privacy, compliance, deployment, support, and staged rollout proof"
+  ],
+  "provenBoundaries": [
+    "security, privacy, compliance, retention, hardening, support, and rollout gate refs",
+    "production blocked without external audit or penetration-test signoff",
+    "production-ready state only with external signoff ref",
+    "unsupported content/upload/authority/enforcement claim rejection"
+  ],
+  "notClaimed": [
+    "production deployment or rollout execution",
+    "external audit completion unless a signoff ref is supplied",
+    "default remote upload of child network evidence",
+    "raw PCAP without custody",
+    "exact URL, page content, private message, search query, or decrypted payload availability",
+    "policy or adapter authority",
+    "enforcement command publication",
+    "support materials authored in full outside referenced proof refs"
+  ]
+}
