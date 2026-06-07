@@ -1,7 +1,7 @@
 {
   "proof": "eventing-topology-manifest",
   "proofRoot": "output\\eventing-plan-proof\\70-topology-manifest",
-  "checkedAt": "2026-06-07T20:23:02.406Z",
+  "checkedAt": "2026-06-07T21:10:46.782Z",
   "commands": [
     {
       "name": "topology-manifest-tests",

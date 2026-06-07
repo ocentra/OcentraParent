@@ -2,10 +2,13 @@
   "proof": "network-remote-delivery-transport-dispatch-state-proof",
   "proofRevision": "network-remote-delivery-transport-dispatch-state-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-transport-dispatch-state-proof/v1",
-  "sourceFingerprint": "source-tree:c8146a5e8f46e9a62068f524aa53fbb485802513576fa40fd9f9c1fc37475497",
+  "sourceFingerprint": "source-tree:5b7a1427d19eccac1e91ba17775409113fab5888724e55a34e06507bf1591028",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-transport-dispatch-state-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
+    "crates/agent-protocol/src/network_flow.rs",
+    "crates/agent-protocol/src/network_flow_tests.rs",
+    "crates/agent-core/src/lib.rs",
     "crates/agent-core/src/network_event_runtime.rs",
     "crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state.rs",
     "crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state_types.rs",
@@ -14,6 +17,11 @@
     "crates/agent-core/src/network_event_runtime/remote_delivery_dispatch_readiness.rs",
     "crates/agent-core/src/network_event_runtime/remote_delivery_dispatch_readiness_types.rs",
     "crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff_types.rs",
+    "crates/agent-service/src/network_remote_delivery_status_payload.rs",
+    "crates/agent-service/src/network_remote_delivery_status_service_tests.rs",
+    "packages/agent-protocol-domain/src/defaults.ts",
+    "packages/agent-protocol-domain/src/network-remote-delivery-status.ts",
+    "packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts",
     "docs/features/network-domain-control.md",
     "docs/plans/network-plan/implementation-checklist.md",
     "docs/plans/network-plan/workpacks/README.md"
@@ -27,6 +35,30 @@
       "command": "cargo test -p ocentra-parent-agent-core network_runtime_remote_delivery_transport_dispatch_state",
       "status": 0,
       "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\agent-core-remote-delivery-transport-dispatch-state-test.log"
+    },
+    {
+      "name": "agent-protocol-remote-delivery-status-test",
+      "command": "cargo test -p ocentra-parent-agent-protocol network_remote_delivery_status",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\agent-protocol-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-service-remote-delivery-status-test",
+      "command": "cargo test -p ocentra-parent-agent-service network_remote_delivery_status",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\agent-service-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-protocol-domain-dependency-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/schema-domain --workspace @ocentra-parent/logging-domain --workspace @ocentra-parent/activity-domain --workspace @ocentra-parent/parent-domain --workspace @ocentra-parent/agent-protocol-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\agent-protocol-domain-dependency-build.log"
+    },
+    {
+      "name": "agent-protocol-domain-remote-delivery-status-test",
+      "command": "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-remote-delivery-status.test.ts",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\agent-protocol-domain-remote-delivery-status-test.log"
     },
     {
       "name": "agent-core-clippy",
@@ -71,6 +103,8 @@
     "agent-core consumes the row10j available-metadata invariant and renders row10g prepared outbox candidates as manual-required blocked dispatch records",
     "blocked dispatch records preserve event id, event type, correlation id, source outbox state, outbox refs, handoff refs, dispatch-state refs, blocked-dispatch refs, and future transport seam refs",
     "blocked dispatch records equal the source outbox candidate count and row10j manual-required candidate count",
+    "the service status command serializes row10k blocked dispatch refs while preserving row10g outbox refs, durable refs, and receipt refs",
+    "the TypeScript status parser rejects stale row10h status refs, wrong row10k dispatch refs, nonzero dispatch-ready/dispatch/ack counters, and mismatched blocked-dispatch candidate counts",
     "dispatch-ready candidates, dispatch attempts, and remote acknowledgements stay zero",
     "the proof rejects policy authority, side-effect authority, adapter execution, enforcement command publication, live broker/family-hub delivery, remote acknowledgement, provider delivery, child-device delivery, remote delete/export propagation, and product-ready remote delivery claims",
     "the proof rejects raw PCAP, exact URL, decrypted payload, page content, video content, private-message content, and search-query content claims from network-only evidence"

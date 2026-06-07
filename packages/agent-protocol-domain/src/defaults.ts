@@ -469,7 +469,7 @@ export const AgentProtocolDefaults = {
     String: 'string',
   },
   NetworkRemoteDeliveryStatus: {
-    StatusRef: 'network.remote-delivery.outbox-status-bridge.10h',
+    StatusRef: 'network.remote-delivery.transport-dispatch-state.10k',
     EventChainJournalRef: 'network.remote-delivery.event-chain-journal.10c',
     ReceiptLedgerRef: 'network.remote-delivery.event-chain.receipt-ledger.10d',
     LocalReceiptAckRef: 'network.remote-delivery.event-chain.local-receipt-ack.10d',
@@ -482,5 +482,8 @@ export const AgentProtocolDefaults = {
     OutboxHandoffRef: 'network.remote-delivery.outbox-handoff.10g',
     OutboxReplayRef: 'network.remote-delivery.outbox-replay.10g',
     OutboxSupportStatusRef: 'network.remote-delivery.outbox-support-status.10g',
+    TransportDispatchStateRef: 'network.remote-delivery.transport-dispatch-state.10k',
+    BlockedDispatchRef: 'network.remote-delivery.dispatch-blocked-manual-required.10k',
+    FutureTransportSeamRef: 'network.remote-delivery.future-transport-seam.10k',
   },
 } as const;

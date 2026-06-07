@@ -12,15 +12,22 @@
     "payloadField": "networkRemoteDeliveryStatus"
   },
   "bridgeRefs": [
-    "network.remote-delivery.outbox-status-bridge.10h",
+    "network.remote-delivery.transport-dispatch-state.10k",
     "network.remote-delivery.outbox.10g",
     "network.remote-delivery.outbox-handoff.10g",
     "network.remote-delivery.outbox-replay.10g",
-    "network.remote-delivery.outbox-support-status.10g"
+    "network.remote-delivery.outbox-support-status.10g",
+    "network.remote-delivery.dispatch-blocked-manual-required.10k",
+    "network.remote-delivery.future-transport-seam.10k"
   ],
   "renderedStates": [
     "outboxCandidateCount>0",
+    "sourceOutboxCandidateCount equals outboxCandidateCount",
     "preparedNotDispatchedCount equals outboxCandidateCount",
+    "blockedDispatchRecordCount equals outboxCandidateCount",
+    "blockedDispatchRecordsMatchOutboxCandidates=true",
+    "transportDispatchState=manual-required-blocked",
+    "dispatchReadyCandidateCount=0",
     "dispatchAttemptCount=0",
     "remoteAckCount=0",
     "duplicateDurableEnvelopeRejected=true",
@@ -30,9 +37,10 @@
   ],
   "parserInvariants": [
     "TypeScript parser rejects stale or wrong row10g outbox refs",
+    "TypeScript parser rejects stale row10h status refs and wrong row10k blocked dispatch refs",
     "TypeScript parser rejects nonzero dispatch attempts or remote acknowledgement counts",
     "TypeScript parser rejects mismatched prepared-not-dispatched counts",
-    "Rust service serializes row10g outbox status into the protocol-owned payload field",
+    "Rust service serializes row10g outbox status into the row10k protocol-owned blocked dispatch payload field",
     "WebSocket routing returns the existing remote-delivery status event without adding a transport dispatch command",
     "outbox status cannot claim provider delivery, child-device delivery, policy authority, side-effect authority, adapter action, enforcement commands, exact content, or host filtering"
   ],

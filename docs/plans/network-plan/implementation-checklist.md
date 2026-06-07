@@ -212,16 +212,16 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       content, private-message content, search-query content, and host
       filtering unimplemented.
 - [x] `10h-remote-delivery-outbox-status-bridge`: typed protocol/service status
-      bridge for the row10g prepared outbox boundary. Row10h proof writes
+      bridge evidence for the row10g prepared outbox boundary. Row10h proof writes
       `output/network-plan-proof/10h-remote-delivery-outbox-status-bridge/proof-summary.json`
       and
       `test-results/network-remote-delivery-outbox-status-bridge-proof/proof.json`
-      and exposes row10g outbox refs, handoff refs, replay/support refs,
+      and preserves row10g outbox refs, handoff refs, replay/support refs,
       prepared candidate counts, duplicate rejection, durable-envelope matching,
-      receipt matching, and zero dispatch/ack counters through
+      receipt matching, and zero dispatch/ack counters inside the current row10k
       `agent.network.remote-delivery.status.get` /
-      `agent.network.remote-delivery.status.reported`. The bridge keeps live
-      broker delivery, live family-hub relay delivery, transport dispatch,
+      `agent.network.remote-delivery.status.reported` payload. The bridge keeps
+      live broker delivery, live family-hub relay delivery, transport dispatch,
       remote acknowledgement implementation, provider delivery, child-device
       delivery, remote delete/export propagation, product-ready remote delivery,
       policy authority, side-effect authority, adapter execution, enforcement
@@ -264,15 +264,18 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       `test-results/network-remote-delivery-transport-dispatch-state-proof/proof.json`
       and proves every row10g prepared outbox candidate becomes a
       manual-required blocked dispatch record with preserved outbox/handoff refs
-      and a future transport seam ref. Blocked dispatch count equals source
-      outbox and manual-required candidate counts, while dispatch-ready
-      candidates, dispatch attempts, remote acknowledgements, live
-      broker/family-hub delivery, provider/child-device delivery, remote
-      delete/export propagation, product-ready delivery, policy authority,
-      side-effect authority, adapter execution, enforcement-command publication,
-      raw PCAP, exact URL, decrypted payload, page content, video content,
-      private-message content, search-query content, and host filtering remain
-      false.
+      and a future transport seam ref. The row10k typed protocol/service/domain
+      status bridge now serializes those blocked-dispatch refs through
+      `agent.network.remote-delivery.status.get` /
+      `agent.network.remote-delivery.status.reported`. Blocked dispatch count
+      equals source outbox and manual-required candidate counts, stale row10h
+      status refs are rejected, and dispatch-ready candidates, dispatch attempts,
+      remote acknowledgements, live broker/family-hub delivery,
+      provider/child-device delivery, remote delete/export propagation,
+      product-ready delivery, policy authority, side-effect authority, adapter
+      execution, enforcement-command publication, raw PCAP, exact URL, decrypted
+      payload, page content, video content, private-message content,
+      search-query content, and host filtering remain false.
 - [x] `policy-preview-stored-flow-evidence`: stored ActivityStore network flow
       evidence feeds the existing policy-preview read model and service payload.
       The proof writes
@@ -465,16 +468,16 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       durable envelope/store records and delete/export readiness refs from receipt
       ledger rows. Row10f exposes the row10b through row10e refs as a read-only
       status bridge, row10g prepares local outbox candidates from durable envelope
-      records, row10h exposes those prepared outbox refs through the typed remote
-      delivery status bridge, and row10i derives manual-required dispatch-readiness
-      gates. Live broker/family-hub delivery, remote acknowledgements,
+      records, row10h preserves those prepared outbox refs in the typed remote
+      delivery status bridge evidence, and row10i derives manual-required
+      dispatch-readiness gates. Live broker/family-hub delivery, remote acknowledgements,
       cross-process durable replay, raw PCAP/live-capture retention and remote
       delete/export propagation, live analyzer/model/policy execution, adapter
       execution, provider/child-device delivery, product-ready remote delivery, and
       host filtering remain open. Row10j now proves available remote metadata across
       the row10b through row10i chain stays non-enforcing until those artifacts
       exist, and row10k now maps that metadata into manual-required blocked dispatch
-      records without attempting live transport. E-D full-network proof links the
+      records exposed through the typed status payload without attempting live transport. E-D full-network proof links the
       consolidated eventing proof and remote-delivery non-enforcement artifacts
       under `output/network-plan-proof/full-network-plan/02-eventing-proof.log` and
       `output/network-plan-proof/full-network-plan/12-remote-delivery-proof.json`.

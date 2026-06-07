@@ -3,5 +3,5 @@
 | Event Type | Schema Version | Rust Type |
 | --- | --- | --- |
 | eventing.dead_letter.recorded | 1 | ocentra_eventing::bus::reports::DeadLetterEvent |
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.23s
      Running `target\debug\examples\contract_registry_docs.exe`

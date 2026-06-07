@@ -2,6 +2,5 @@ Source shape warnings scoped to policy-preview source refs:
 crates/agent-core/src/activity_store_policy_preview_tests.rs:62 function has 69 lines; warning starts at 64 of 80
 crates/agent-service/src/policy_preview_tests.rs:12 function has 78 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/src/contracts.ts:1 file has 585 lines; crossed 500-line advisory band; maximum is 1000
-packages/agent-protocol-domain/src/defaults.ts:1 file has 487 lines; crossed 250-line advisory band; maximum is 1000
-packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:80 function has 66 lines; warning starts at 64 of 80
+packages/agent-protocol-domain/src/defaults.ts:1 file has 490 lines; crossed 250-line advisory band; maximum is 1000
 Source shape guard passed.

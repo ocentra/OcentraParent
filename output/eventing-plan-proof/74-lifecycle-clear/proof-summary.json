@@ -1,7 +1,7 @@
 {
   "proof": "eventing-lifecycle-clear",
   "proofRoot": "output\\eventing-plan-proof\\74-lifecycle-clear",
-  "checkedAt": "2026-06-07T20:21:56.848Z",
+  "checkedAt": "2026-06-07T21:09:48.495Z",
   "commands": [
     {
       "name": "lifecycle-clear-tests",

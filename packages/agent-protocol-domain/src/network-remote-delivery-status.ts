@@ -10,6 +10,10 @@ export const AgentNetworkRemoteDeliveryStatusStateSchema = withParser(
   Schema.Literal('fixture-requirements-recorded-but-not-implemented', 'manual-required')
 );
 
+export const AgentNetworkRemoteDeliveryTransportDispatchStateSchema = withParser(
+  Schema.Literal('manual-required-blocked')
+);
+
 const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   statusRef: NetworkRemoteDeliveryText,
   brokerStatus: AgentNetworkRemoteDeliveryStatusStateSchema,
@@ -47,8 +51,16 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   outboxHandoffRef: NetworkRemoteDeliveryText,
   outboxReplayRef: NetworkRemoteDeliveryText,
   outboxSupportStatusRef: NetworkRemoteDeliveryText,
+  transportDispatchStateRef: NetworkRemoteDeliveryText,
+  blockedDispatchRef: NetworkRemoteDeliveryText,
+  futureTransportSeamRef: NetworkRemoteDeliveryText,
+  transportDispatchState: AgentNetworkRemoteDeliveryTransportDispatchStateSchema,
   outboxCandidateCount: NetworkRemoteDeliveryCount,
+  sourceOutboxCandidateCount: NetworkRemoteDeliveryCount,
   preparedNotDispatchedCount: NetworkRemoteDeliveryCount,
+  blockedDispatchRecordCount: NetworkRemoteDeliveryCount,
+  blockedDispatchRecordsMatchOutboxCandidates: Schema.Boolean,
+  dispatchReadyCandidateCount: Schema.Literal(0),
   dispatchAttemptCount: Schema.Literal(0),
   remoteAckCount: Schema.Literal(0),
   duplicateDurableEnvelopeRejected: Schema.Boolean,
@@ -88,8 +100,9 @@ export const AgentNetworkRemoteDeliveryStatusSchema = withParser(
         (remoteRequirementCountsMatch(status) &&
           durableEnvelopeRefsMatch(status) &&
           outboxHandoffRefsMatch(status) &&
+          transportDispatchStateMatches(status) &&
           localDeliveryProofMatches(status)) ||
-        'Network remote delivery status must preserve row10g outbox refs without live delivery or content claims'
+        'Network remote delivery status must preserve row10g outbox refs and row10k blocked dispatch refs without live delivery or content claims'
     )
   )
 );
@@ -164,10 +177,22 @@ function outboxHandoffRefsMatch(status: AgentNetworkRemoteDeliveryStatus): boole
     status.outboxReplayRef === NetworkRemoteDeliveryRefs.OutboxReplayRef &&
     status.outboxSupportStatusRef === NetworkRemoteDeliveryRefs.OutboxSupportStatusRef &&
     status.outboxCandidateCount > 0 &&
+    status.sourceOutboxCandidateCount === status.outboxCandidateCount &&
     status.preparedNotDispatchedCount === status.outboxCandidateCount &&
     status.duplicateDurableEnvelopeRejected &&
     status.outboxCandidatesMatchDurableEnvelopes &&
     status.outboxCandidatesMatchReceipts
+  );
+}
+
+function transportDispatchStateMatches(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  return (
+    status.transportDispatchStateRef === NetworkRemoteDeliveryRefs.TransportDispatchStateRef &&
+    status.blockedDispatchRef === NetworkRemoteDeliveryRefs.BlockedDispatchRef &&
+    status.futureTransportSeamRef === NetworkRemoteDeliveryRefs.FutureTransportSeamRef &&
+    status.transportDispatchState === 'manual-required-blocked' &&
+    status.blockedDispatchRecordCount === status.outboxCandidateCount &&
+    status.blockedDispatchRecordsMatchOutboxCandidates
   );
 }
 

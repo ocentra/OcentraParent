@@ -6,13 +6,15 @@ use super::{
     NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
     NetworkEnforcementResultStatus, NetworkFlowObservedEvent, NetworkPolicyDecisionCompletedEvent,
     NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
-    NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState, NetworkRuntimeEventContract,
+    NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState,
+    NetworkRemoteDeliveryTransportDispatchState, NetworkRuntimeEventContract,
     NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
 };
 
 #[path = "network_flow_event_fixtures.rs"]
 mod network_flow_event_fixtures;
 
+use constants::network_flow as flow;
 use network_flow_event_fixtures::{
     network_activity_classified_event, network_ai_analysis_completed_event,
     network_ai_analysis_requested_event, network_audit_entry_committed_event,
@@ -127,10 +129,14 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
 }
 
 #[test]
-fn network_remote_delivery_status_serializes_row10h_outbox_bridge_without_product_claims() {
+fn network_remote_delivery_status_serializes_row10k_dispatch_state_without_product_claims() {
     let serialized = serde_json::to_value(remote_delivery_status_fixture())
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
+    assert_eq!(
+        serialized["statusRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF
+    );
     assert_eq!(
         serialized["brokerStatus"],
         "fixture-requirements-recorded-but-not-implemented"
@@ -148,8 +154,31 @@ fn network_remote_delivery_status_serializes_row10h_outbox_bridge_without_produc
         serialized["outboxHandoffRef"],
         constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF
     );
+    assert_eq!(
+        serialized["transportDispatchStateRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF
+    );
+    assert_eq!(
+        serialized["blockedDispatchRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_DISPATCH_BLOCKED_MANUAL_REF
+    );
+    assert_eq!(
+        serialized["futureTransportSeamRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_FUTURE_TRANSPORT_SEAM_REF
+    );
+    assert_eq!(
+        serialized["transportDispatchState"],
+        "manual-required-blocked"
+    );
     assert_eq!(serialized["outboxCandidateCount"], 3);
+    assert_eq!(serialized["sourceOutboxCandidateCount"], 3);
     assert_eq!(serialized["preparedNotDispatchedCount"], 3);
+    assert_eq!(serialized["blockedDispatchRecordCount"], 3);
+    assert_eq!(
+        serialized["blockedDispatchRecordsMatchOutboxCandidates"],
+        true
+    );
+    assert_eq!(serialized["dispatchReadyCandidateCount"], 0);
     assert_eq!(serialized["dispatchAttemptCount"], 0);
     assert_eq!(serialized["remoteAckCount"], 0);
     assert_eq!(serialized["duplicateDurableEnvelopeRejected"], true);
@@ -162,14 +191,10 @@ fn network_remote_delivery_status_serializes_row10h_outbox_bridge_without_produc
 }
 
 fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
-    use constants::network_flow as flow;
-
     NetworkRemoteDeliveryStatus {
-        status_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_STATUS_BRIDGE_REF.to_string(),
-        broker_status:
-            NetworkRemoteDeliveryStatusState::FixtureRequirementsRecordedButNotImplemented,
-        family_hub_status:
-            NetworkRemoteDeliveryStatusState::FixtureRequirementsRecordedButNotImplemented,
+        status_ref: flow::TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF.to_string(),
+        broker_status: remote_delivery_fixture_status_state(),
+        family_hub_status: remote_delivery_fixture_status_state(),
         custody_proof_ref: flow::TEST_BROKER_CUSTODY_PROOF_REF.to_string(),
         publisher_auth_ref: flow::TEST_BROKER_PUBLISHER_AUTH_REF.to_string(),
         subscriber_auth_ref: flow::TEST_BROKER_SUBSCRIBER_AUTH_REF.to_string(),
@@ -196,16 +221,24 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
         durable_store_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_STORE_REF.to_string(),
         durable_replay_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_REPLAY_REF.to_string(),
         durable_delete_export_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_DELETE_EXPORT_REF.to_string(),
-        durable_support_status_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF
-            .to_string(),
+        durable_support_status_ref: durable_support_status_ref(),
         durable_envelope_ready: true,
         durable_envelope_missing_artifact_count: 0,
         outbox_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_REF.to_string(),
         outbox_handoff_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF.to_string(),
         outbox_replay_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_REPLAY_REF.to_string(),
         outbox_support_status_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_SUPPORT_STATUS_REF.to_string(),
+        transport_dispatch_state_ref: flow::TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF
+            .to_string(),
+        blocked_dispatch_ref: flow::TEST_REMOTE_DELIVERY_DISPATCH_BLOCKED_MANUAL_REF.to_string(),
+        future_transport_seam_ref: flow::TEST_REMOTE_DELIVERY_FUTURE_TRANSPORT_SEAM_REF.to_string(),
+        transport_dispatch_state: remote_delivery_fixture_transport_state(),
         outbox_candidate_count: 3,
+        source_outbox_candidate_count: 3,
         prepared_not_dispatched_count: 3,
+        blocked_dispatch_record_count: 3,
+        blocked_dispatch_records_match_outbox_candidates: true,
+        dispatch_ready_candidate_count: 0,
         dispatch_attempt_count: 0,
         remote_ack_count: 0,
         duplicate_durable_envelope_rejected: true,
@@ -235,6 +268,18 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
         private_message_content_available_count: 0,
         search_query_available_count: 0,
     }
+}
+
+fn remote_delivery_fixture_status_state() -> NetworkRemoteDeliveryStatusState {
+    NetworkRemoteDeliveryStatusState::FixtureRequirementsRecordedButNotImplemented
+}
+
+fn remote_delivery_fixture_transport_state() -> NetworkRemoteDeliveryTransportDispatchState {
+    NetworkRemoteDeliveryTransportDispatchState::ManualRequiredBlocked
+}
+
+fn durable_support_status_ref() -> String {
+    constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF.to_string()
 }
 
 #[test]

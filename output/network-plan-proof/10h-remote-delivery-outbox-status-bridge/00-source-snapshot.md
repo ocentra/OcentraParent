@@ -24,8 +24,8 @@ Inspected paths:
 - packages/agent-protocol-domain/README.md
 
 Before-state gap:
-- Row10g produced prepared outbox candidates, but the service/protocol status event still exposed only durable-envelope refs.
+- Row10g produced prepared outbox candidates, and row10k now carries those refs through the current typed status payload.
 
 Current bridge boundary:
-- The row10h bridge exposes row10g outbox refs, handoff refs, replay/support refs, prepared candidate counts, duplicate rejection, and zero dispatch/ack counters.
-- The bridge remains read-only and keeps live transport, remote acknowledgement, product-ready delivery, policy authority, adapter execution, exact content, and host filtering unclaimed.
+- The row10h bridge evidence remains preserved in the row10k status payload through row10g outbox refs, handoff refs, replay/support refs, prepared candidate counts, duplicate rejection, and zero dispatch/ack counters.
+- The row10k payload adds manual-required blocked dispatch refs while remaining read-only and keeping live transport, remote acknowledgement, product-ready delivery, policy authority, adapter execution, exact content, and host filtering unclaimed.

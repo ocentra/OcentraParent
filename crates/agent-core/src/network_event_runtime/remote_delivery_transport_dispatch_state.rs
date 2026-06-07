@@ -8,10 +8,7 @@ use super::remote_delivery_transport_dispatch_state_types::{
     NetworkRuntimeRemoteDeliveryTransportDispatchStateError,
     NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
 };
-use super::{
-    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,
-    NetworkRuntimeRemoteDeliveryOutboxState,
-};
+use super::NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport;
 
 pub async fn prove_network_runtime_remote_delivery_transport_dispatch_state() -> Result<
     NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
@@ -132,6 +129,7 @@ fn has_unsupported_claims(
 
 #[cfg(test)]
 mod tests {
+    use super::super::NetworkRuntimeRemoteDeliveryOutboxState;
     use super::*;
 
     #[tokio::test]

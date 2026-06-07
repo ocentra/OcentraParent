@@ -1,7 +1,7 @@
 {
   "proof": "eventing-family-variants",
   "proofRoot": "output\\eventing-plan-proof\\75-family-variants",
-  "checkedAt": "2026-06-07T20:21:43.498Z",
+  "checkedAt": "2026-06-07T21:09:36.011Z",
   "commands": [
     {
       "name": "family-variant-tests",

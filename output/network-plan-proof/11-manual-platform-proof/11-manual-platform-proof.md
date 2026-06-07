@@ -1,17 +1,19 @@
 # Network Manual Platform Proof
 
 Branch: codex/network-policy-preview-stored-flow-evidence-on-row10k
-Source commit: 3ef0da7bf208021c357d463d9f2fee54c7fc23b8
-Source status:  M Cargo.lock
- M crates/ocentra-eventing/Cargo.toml
- M crates/ocentra-eventing/README.md
- M crates/ocentra-eventing/src/journal.rs
- M crates/ocentra-eventing/src/journal/ndjson.rs
- M crates/ocentra-eventing/src/replay.rs
- M crates/ocentra-eventing/src/tests/journal_replay/file.rs
- M crates/ocentra-eventing/src/tests/journal_replay/replay.rs
- M crates/ocentra-eventing/src/tests/journal_replay/support.rs
- M docs/plans/eventing-plan/implementation-checklist.md
+Source commit: 987da398c1c98c68bcaeb69862d899657e24de91
+Source status:  M crates/agent-core/src/lib.rs
+ M crates/agent-core/src/network_event_runtime.rs
+ M crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state.rs
+ M crates/agent-protocol/README.md
+ M crates/agent-protocol/src/network_flow.rs
+ M crates/agent-protocol/src/network_flow_tests.rs
+ M crates/agent-service/README.md
+ M crates/agent-service/src/network_remote_delivery_status_payload.rs
+ M crates/agent-service/src/network_remote_delivery_status_service_tests.rs
+ M docs/features/network-domain-control.md
+ M docs/plans/network-plan/implementation-checklist.md
+ M docs/plans/network-plan/workpacks/README.md
  M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-clippy.log
  M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-tests.log
  M output/eventing-plan-proof/14-24-runtime-lifecycle/proof-summary.json
@@ -19,11 +21,11 @@ Source status:  M Cargo.lock
  M output/eventing-plan-proof/18-24-handler-policy/eventing-tests.log
  M output/eventing-plan-proof/18-24-handler-policy/proof-summary.json
  M output/eventing-plan-proof/18-24-handler-policy/source-shape.log
- M output/eventing-plan-proof/20-24-metrics-testkit/eventing-clippy.log
  M output/eventing-plan-proof/20-24-metrics-testkit/eventing-handler-policy-tests.log
  M output/eventing-plan-proof/20-24-metrics-testkit/eventing-metrics-tests.log
  M output/eventing-plan-proof/20-24-metrics-testkit/proof-summary.json
  M output/eventing-plan-proof/20-24-metrics-testkit/source-shape.log
+ M output/eventing-plan-proof/25-30-queue-policy/eventing-clippy.log
  M output/eventing-plan-proof/25-30-queue-policy/eventing-tests.log
  M output/eventing-plan-proof/25-30-queue-policy/proof-summary.json
  M output/eventing-plan-proof/25-30-queue-policy/source-shape.log
@@ -31,7 +33,6 @@ Source status:  M Cargo.lock
  M output/eventing-plan-proof/31-35-request-response/eventing-tests.log
  M output/eventing-plan-proof/31-35-request-response/proof-summary.json
  M output/eventing-plan-proof/31-35-request-response/source-shape.log
- M output/eventing-plan-proof/36-41-journal-replay/eventing-clippy.log
  M output/eventing-plan-proof/36-41-journal-replay/eventing-tests.log
  M output/eventing-plan-proof/36-41-journal-replay/proof-summary.json
  M output/eventing-plan-proof/36-41-journal-replay/source-shape.log
@@ -58,7 +59,6 @@ Source status:  M Cargo.lock
  M output/eventing-plan-proof/67-lock-await/eventing-tests.log
  M output/eventing-plan-proof/67-lock-await/proof-summary.json
  M output/eventing-plan-proof/67-lock-await/source-shape.log
- M output/eventing-plan-proof/68-fixture-parity/eventing-clippy.log
  M output/eventing-plan-proof/68-fixture-parity/proof-summary.json
  M output/eventing-plan-proof/68-fixture-parity/rust-fixture-parity-tests.log
  M output/eventing-plan-proof/68-fixture-parity/source-shape.log
@@ -103,16 +103,13 @@ Source status:  M Cargo.lock
  M output/eventing-plan-proof/delivery-semantics/source-shape.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-command-boundary-proof.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-enforcement-journal-action-proof.log
- M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-journal-replay-proof.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-network-protocol-contract-proof.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-network-runtime-proof.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-parent-child-protocol-contract-proof.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-parent-child-runtime-proof.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-ui-typed-intent-boundary-proof.log
- M output/eventing-plan-proof/full-eventing-plan/command-logs/ocentra-eventing-tests.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/source-shape.log
  M output/eventing-plan-proof/reusable-eventing-runtime/00-source-snapshot.md
- M output/eventing-plan-proof/reusable-eventing-runtime/command-logs/eventing-journal-replay-proof.log
  M output/eventing-plan-proof/reusable-eventing-runtime/command-logs/ocentra-eventing-clippy.log
  M output/eventing-plan-proof/reusable-eventing-runtime/command-logs/ocentra-eventing-tests.log
  M output/eventing-plan-proof/reusable-eventing-runtime/command-logs/source-shape.log
@@ -121,6 +118,17 @@ Source status:  M Cargo.lock
  M output/network-plan-proof/03a-live-capture-storage-proof/proof-summary.json
  M output/network-plan-proof/03a-live-capture-storage-proof/raw-capture-storage-tests.log
  M output/network-plan-proof/03a-live-capture-storage-proof/source-shape.log
+ M output/network-plan-proof/10h-remote-delivery-outbox-status-bridge/00-source-snapshot.md
+ M output/network-plan-proof/10h-remote-delivery-outbox-status-bridge/agent-protocol-domain-remote-delivery-status-test.log
+ M output/network-plan-proof/10h-remote-delivery-outbox-status-bridge/agent-protocol-remote-delivery-status-test.log
+ M output/network-plan-proof/10h-remote-delivery-outbox-status-bridge/agent-service-remote-delivery-status-test.log
+ M output/network-plan-proof/10h-remote-delivery-outbox-status-bridge/expected-remote-delivery-outbox-status-bridge.json
+ M output/network-plan-proof/10h-remote-delivery-outbox-status-bridge/proof-summary.json
+ M output/network-plan-proof/10h-remote-delivery-outbox-status-bridge/source-shape.log
+ M output/network-plan-proof/10k-remote-delivery-transport-dispatch-state/12-validation-commands.log
+ M output/network-plan-proof/10k-remote-delivery-transport-dispatch-state/expected-remote-delivery-transport-dispatch-state.json
+ M output/network-plan-proof/10k-remote-delivery-transport-dispatch-state/proof-summary.json
+ M output/network-plan-proof/10k-remote-delivery-transport-dispatch-state/source-shape.log
  M output/network-plan-proof/37-dns-proxy-block-redirect-adapter/clippy.log
  M output/network-plan-proof/37-dns-proxy-block-redirect-adapter/dns-adapter-tests.log
  M output/network-plan-proof/37-dns-proxy-block-redirect-adapter/proof-summary.json
@@ -145,24 +153,31 @@ Source status:  M Cargo.lock
  M output/network-plan-proof/47-ai-audit-narrative-proof/clippy.log
  M output/network-plan-proof/47-ai-audit-narrative-proof/proof-summary.json
  M output/network-plan-proof/47-ai-audit-narrative-proof/source-shape.log
- M output/network-plan-proof/48-risk-budget-threshold-proof/clippy.log
  M output/network-plan-proof/48-risk-budget-threshold-proof/proof-summary.json
  M output/network-plan-proof/48-risk-budget-threshold-proof/risk-budget-threshold-tests.log
  M output/network-plan-proof/48-risk-budget-threshold-proof/source-shape.log
- M output/network-plan-proof/policy-preview-stored-flow-evidence/agent-core-network-flow-policy-preview-test.log
- M output/network-plan-proof/policy-preview-stored-flow-evidence/agent-service-policy-preview-payload-test.log
- M scripts/test/eventing-journal-replay-proof.mjs
+ M output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json
+ M output/network-plan-proof/policy-preview-stored-flow-evidence/source-shape.log
+ M packages/agent-protocol-domain/README.md
+ M packages/agent-protocol-domain/src/defaults.ts
+ M packages/agent-protocol-domain/src/network-remote-delivery-status.ts
+ M packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts
+ M scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs
+ M scripts/test/network-remote-delivery-outbox-status-bridge-proof.mjs
+ M scripts/test/network-remote-delivery-transport-dispatch-state-proof.mjs
  M test-results/eventing-network-runtime-proof/proof.json
  M test-results/eventing-runtime-proof/proof.json
  M test-results/network-ai-audit-narrative-proof/proof.json
  M test-results/network-ai-detection-fixture-proof/proof.json
  M test-results/network-dns-adapter-proof/proof.json
  M test-results/network-live-capture-storage-proof/proof.json
+ M test-results/network-policy-preview-stored-flow-evidence-proof/proof.json
+ M test-results/network-remote-delivery-outbox-status-bridge-proof/proof.json
+ M test-results/network-remote-delivery-transport-dispatch-state-proof/proof.json
  M test-results/network-risk-budget-threshold-proof/proof.json
  M test-results/network-signature-alert-ingestion-proof/proof.json
  M test-results/network-windows-firewall-adapter-proof/proof.json
  M test-results/network-zeek-analyzer-comparison-proof/proof.json
-?? crates/ocentra-eventing/src/journal/hash_chain.rs
 
 
 This proof aggregates the existing platform-specific Rust proof gates into the required network-plan row 11 manual/platform proof pack.

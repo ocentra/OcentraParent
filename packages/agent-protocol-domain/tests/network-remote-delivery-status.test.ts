@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { expect, it } from 'vitest';
 import { AgentEvent } from '../src/contracts';
 import { AgentProtocolDefaults } from '../src/defaults';
 import {
@@ -45,8 +45,16 @@ const RemoteDeliveryStatus = {
   outboxHandoffRef: RemoteDeliveryStatusRefs.OutboxHandoffRef,
   outboxReplayRef: RemoteDeliveryStatusRefs.OutboxReplayRef,
   outboxSupportStatusRef: RemoteDeliveryStatusRefs.OutboxSupportStatusRef,
+  transportDispatchStateRef: RemoteDeliveryStatusRefs.TransportDispatchStateRef,
+  blockedDispatchRef: RemoteDeliveryStatusRefs.BlockedDispatchRef,
+  futureTransportSeamRef: RemoteDeliveryStatusRefs.FutureTransportSeamRef,
+  transportDispatchState: 'manual-required-blocked',
   outboxCandidateCount: 3,
+  sourceOutboxCandidateCount: 3,
   preparedNotDispatchedCount: 3,
+  blockedDispatchRecordCount: 3,
+  blockedDispatchRecordsMatchOutboxCandidates: true,
+  dispatchReadyCandidateCount: 0,
   dispatchAttemptCount: 0,
   remoteAckCount: 0,
   duplicateDurableEnvelopeRejected: true,
@@ -77,70 +85,110 @@ const RemoteDeliveryStatus = {
   searchQueryAvailableCount: 0,
 } satisfies AgentNetworkRemoteDeliveryStatus;
 
-describe('agent network remote delivery status contract', () => {
-  it('parses row10h outbox status from a typed agent event', () => {
-    const parsed = parseAgentNetworkRemoteDeliveryStatusEvent(
-      eventWithPayload({
-        [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(RemoteDeliveryStatus),
-      })
-    );
+it('parses row10k blocked dispatch status from a typed agent event', () => {
+  const parsed = parseAgentNetworkRemoteDeliveryStatusEvent(
+    eventWithPayload({
+      [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(RemoteDeliveryStatus),
+    })
+  );
 
-    expect(parsed).toEqual({ ok: true, status: RemoteDeliveryStatus });
+  expect(parsed).toEqual({ ok: true, status: RemoteDeliveryStatus });
+});
+
+it('rejects live delivery, product-ready, adapter, and content claims', () => {
+  expectInvalid({ ...RemoteDeliveryStatus, productReadyRemoteDelivery: true });
+  expectInvalid({ ...RemoteDeliveryStatus, providerDeliveryImplemented: true });
+  expectInvalid({ ...RemoteDeliveryStatus, childDeviceDeliveryImplemented: true });
+  expectInvalid({ ...RemoteDeliveryStatus, dispatchAttemptCount: 1 });
+  expectInvalid({ ...RemoteDeliveryStatus, remoteAckCount: 1 });
+  expectInvalid({ ...RemoteDeliveryStatus, enforcementCommandEventCount: 1 });
+  expectInvalid({ ...RemoteDeliveryStatus, adapterActionExecutedCount: 1 });
+  expectInvalid({ ...RemoteDeliveryStatus, exactUrlAvailableCount: 1 });
+  expectInvalid({ ...RemoteDeliveryStatus, searchQueryAvailableCount: 1 });
+});
+
+it('rejects missing fields and malformed JSON', () => {
+  expect(parseAgentNetworkRemoteDeliveryStatusEvent(eventWithPayload({}))).toEqual({
+    ok: false,
+    reason: 'missing-remote-delivery-status',
   });
-
-  it('rejects live delivery, product-ready, adapter, and content claims', () => {
-    expectInvalid({ ...RemoteDeliveryStatus, productReadyRemoteDelivery: true });
-    expectInvalid({ ...RemoteDeliveryStatus, providerDeliveryImplemented: true });
-    expectInvalid({ ...RemoteDeliveryStatus, childDeviceDeliveryImplemented: true });
-    expectInvalid({ ...RemoteDeliveryStatus, dispatchAttemptCount: 1 });
-    expectInvalid({ ...RemoteDeliveryStatus, remoteAckCount: 1 });
-    expectInvalid({ ...RemoteDeliveryStatus, enforcementCommandEventCount: 1 });
-    expectInvalid({ ...RemoteDeliveryStatus, adapterActionExecutedCount: 1 });
-    expectInvalid({ ...RemoteDeliveryStatus, exactUrlAvailableCount: 1 });
-    expectInvalid({ ...RemoteDeliveryStatus, searchQueryAvailableCount: 1 });
+  expect(
+    parseAgentNetworkRemoteDeliveryStatusEvent(
+      eventWithPayload({ [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: '{' })
+    )
+  ).toEqual({
+    ok: false,
+    reason: 'invalid-remote-delivery-status-json',
   });
+});
 
-  it('rejects missing fields, malformed JSON, and stale row refs', () => {
-    expect(parseAgentNetworkRemoteDeliveryStatusEvent(eventWithPayload({}))).toEqual({
-      ok: false,
-      reason: 'missing-remote-delivery-status',
-    });
-    expect(
-      parseAgentNetworkRemoteDeliveryStatusEvent(
-        eventWithPayload({ [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: '{' })
-      )
-    ).toEqual({
-      ok: false,
-      reason: 'invalid-remote-delivery-status-json',
-    });
-    expectInvalid({
-      ...RemoteDeliveryStatus,
-      durableEnvelopeRef: 'network.remote-delivery.durable-envelope.10d',
-    });
-    expectInvalid({
-      ...RemoteDeliveryStatus,
-      statusRef: 'wrong.network.remote-delivery.status-bridge.10f',
-    });
-    expectInvalid({
-      ...RemoteDeliveryStatus,
-      durableEnvelopeRef: 'wrong.network.remote-delivery.durable-envelope.10e',
-    });
-    expectInvalid({
-      ...RemoteDeliveryStatus,
-      outboxRef: 'network.remote-delivery.outbox.10f',
-    });
-    expectInvalid({
-      ...RemoteDeliveryStatus,
-      outboxHandoffRef: 'wrong.network.remote-delivery.outbox-handoff.10g',
-    });
-    expectInvalid({
-      ...RemoteDeliveryStatus,
-      preparedNotDispatchedCount: 2,
-    });
-    expectInvalid({
-      ...RemoteDeliveryStatus,
-      brokerMissingArtifactCount: 1,
-    });
+it('rejects stale row refs', () => {
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    durableEnvelopeRef: 'network.remote-delivery.durable-envelope.10d',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    statusRef: 'network.remote-delivery.outbox-status-bridge.10h',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    statusRef: 'wrong.network.remote-delivery.transport-dispatch-state.10k',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    durableEnvelopeRef: 'wrong.network.remote-delivery.durable-envelope.10e',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    outboxRef: 'network.remote-delivery.outbox.10f',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    outboxHandoffRef: 'wrong.network.remote-delivery.outbox-handoff.10g',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    transportDispatchStateRef: 'network.remote-delivery.transport-dispatch-state.10j',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    blockedDispatchRef: 'network.remote-delivery.dispatch-blocked-manual-required.10j',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    futureTransportSeamRef: 'network.remote-delivery.future-transport-seam.10j',
+  });
+});
+
+it('rejects row10k dispatch and candidate-count mismatches', () => {
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    preparedNotDispatchedCount: 2,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    sourceOutboxCandidateCount: 2,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    blockedDispatchRecordCount: 2,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    blockedDispatchRecordsMatchOutboxCandidates: false,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    dispatchReadyCandidateCount: 1,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    transportDispatchState: 'dispatch-ready',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    brokerMissingArtifactCount: 1,
   });
 });
 

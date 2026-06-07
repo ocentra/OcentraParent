@@ -6,5 +6,5 @@ test tests::topology_manifest::topology_manifest_renders_deterministic_markdown 
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 77 filtered out; finished in 0.00s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
      Running unittests src\lib.rs (target\debug\deps\ocentra_eventing-bd739e1568aac1b4.exe)

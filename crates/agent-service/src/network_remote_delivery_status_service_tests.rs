@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState, AGENT_PROTOCOL_SCHEMA_VERSION,
+    NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState,
+    NetworkRemoteDeliveryTransportDispatchState, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use serde::de::DeserializeOwned;
 
@@ -12,7 +13,7 @@ use crate::{
 };
 
 #[tokio::test]
-async fn network_remote_delivery_status_payload_serializes_row10h_outbox_bridge() {
+async fn network_remote_delivery_status_payload_serializes_row10k_dispatch_state() {
     let payload = network_remote_delivery_status_payload()
         .await
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -42,7 +43,7 @@ async fn websocket_network_remote_delivery_status_command_reports_payload() {
 fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(
         status.status_ref,
-        constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_STATUS_BRIDGE_REF
+        constants::network_flow::TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF
     );
     assert_eq!(
         status.broker_status,
@@ -75,8 +76,38 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     );
     assert!(status.durable_envelope_ready);
     assert_eq!(status.durable_envelope_missing_artifact_count, 0);
+    assert_remote_delivery_transport_dispatch_status(status);
     assert_remote_delivery_outbox_status(status);
     assert_remote_delivery_non_claims(status);
+}
+
+fn assert_remote_delivery_transport_dispatch_status(status: &NetworkRemoteDeliveryStatus) {
+    assert_eq!(
+        status.transport_dispatch_state_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF
+    );
+    assert_eq!(
+        status.blocked_dispatch_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_DISPATCH_BLOCKED_MANUAL_REF
+    );
+    assert_eq!(
+        status.future_transport_seam_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_FUTURE_TRANSPORT_SEAM_REF
+    );
+    assert_eq!(
+        status.transport_dispatch_state,
+        NetworkRemoteDeliveryTransportDispatchState::ManualRequiredBlocked
+    );
+    assert_eq!(
+        status.source_outbox_candidate_count,
+        status.outbox_candidate_count
+    );
+    assert_eq!(
+        status.blocked_dispatch_record_count,
+        status.outbox_candidate_count
+    );
+    assert!(status.blocked_dispatch_records_match_outbox_candidates);
+    assert_eq!(status.dispatch_ready_candidate_count, 0);
 }
 
 fn assert_remote_delivery_outbox_status(status: &NetworkRemoteDeliveryStatus) {

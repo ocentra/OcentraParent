@@ -31,18 +31,14 @@ mod remote_delivery_durable_envelope_types;
 mod remote_delivery_event_chain_journal;
 mod remote_delivery_event_chain_journal_types;
 mod remote_delivery_event_chain_store;
-#[cfg(test)]
 mod remote_delivery_no_enforcement_invariant;
-#[cfg(test)]
 mod remote_delivery_no_enforcement_invariant_types;
 mod remote_delivery_outbox_handoff;
 mod remote_delivery_outbox_handoff_types;
 mod remote_delivery_receipt_ledger;
 mod remote_delivery_receipt_ledger_types;
 mod remote_delivery_status;
-#[cfg(test)]
 mod remote_delivery_transport_dispatch_state;
-#[cfg(test)]
 mod remote_delivery_transport_dispatch_state_types;
 #[cfg(test)]
 mod review;
@@ -78,13 +74,10 @@ pub(crate) use remote_delivery_event_chain_journal::prove_network_runtime_remote
 pub use remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalError;
 #[cfg(test)]
 pub(crate) use remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalReport;
+pub use remote_delivery_no_enforcement_invariant::prove_network_runtime_remote_delivery_no_enforcement_invariant;
 #[cfg(test)]
-pub(crate) use remote_delivery_no_enforcement_invariant::{
-    prove_network_runtime_remote_delivery_no_enforcement_invariant,
-    prove_network_runtime_remote_delivery_no_enforcement_invariant_from_dispatch_readiness,
-};
-#[cfg(test)]
-pub(crate) use remote_delivery_no_enforcement_invariant_types::{
+pub(crate) use remote_delivery_no_enforcement_invariant::prove_network_runtime_remote_delivery_no_enforcement_invariant_from_dispatch_readiness;
+pub use remote_delivery_no_enforcement_invariant_types::{
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError,
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantState,
@@ -102,6 +95,13 @@ pub use remote_delivery_receipt_ledger_types::{
 pub use remote_delivery_status::{
     prove_network_runtime_remote_delivery_status, NetworkRuntimeRemoteDeliveryState,
     NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
+};
+pub use remote_delivery_transport_dispatch_state::prove_network_runtime_remote_delivery_transport_dispatch_state;
+pub use remote_delivery_transport_dispatch_state_types::{
+    NetworkRuntimeRemoteDeliveryBlockedDispatchRecord,
+    NetworkRuntimeRemoteDeliveryTransportDispatchState,
+    NetworkRuntimeRemoteDeliveryTransportDispatchStateError,
+    NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
 };
 #[cfg(test)]
 pub use review::{

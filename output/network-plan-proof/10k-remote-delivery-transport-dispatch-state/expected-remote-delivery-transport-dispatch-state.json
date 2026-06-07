@@ -5,6 +5,11 @@
     "row10g prepared outbox candidates",
     "row10b through row10e remote delivery metadata refs"
   ],
+  "statusCommandAndEvent": {
+    "command": "agent.network.remote-delivery.status.get",
+    "event": "agent.network.remote-delivery.status.reported",
+    "payloadField": "networkRemoteDeliveryStatus"
+  },
   "transportDispatchStateRefs": [
     "network.remote-delivery.transport-dispatch-state.10k",
     "network.remote-delivery.dispatch-blocked-manual-required.10k",
@@ -24,6 +29,8 @@
     "available remote metadata becomes blocked manual-required dispatch state without sending transport",
     "blocked dispatch records preserve event id, event type, correlation id, outbox ref, and handoff ref",
     "future transport seam refs exist without claiming live broker or family-hub delivery",
+    "service status command serializes row10k blocked dispatch state while preserving row10g outbox refs",
+    "TypeScript parser rejects stale row10h status refs, stale row10k dispatch refs, and candidate-count mismatches",
     "manual-required blocked dispatch cannot publish enforcement commands"
   ],
   "noClaims": [

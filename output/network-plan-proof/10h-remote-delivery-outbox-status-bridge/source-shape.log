@@ -1,10 +1,11 @@
 Source shape warnings scoped to row10h source refs:
-crates/agent-protocol/src/network_flow_tests.rs:1 file has 440 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-protocol/src/network_flow_tests.rs:164 function has 75 lines; warning starts at 64 of 80
-crates/agent-service/src/network_remote_delivery_status_payload.rs:67 function has 79 lines; warning starts at 64 of 80
+crates/agent-protocol/src/network_flow_tests.rs:1 file has 485 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/network_flow_tests.rs:193 function has 79 lines; warning starts at 64 of 80
+crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 18 functions; warning starts at 15 of 18
+crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 353 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/network_remote_delivery_status_payload.rs:84 function has 78 lines; warning starts at 64 of 80
 crates/agent-service/src/websocket.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-service/src/websocket.rs:1 file has 481 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/websocket.rs:169 function has 66 lines; warning starts at 64 of 80
-packages/agent-protocol-domain/src/defaults.ts:1 file has 487 lines; crossed 250-line advisory band; maximum is 1000
-packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:80 function has 66 lines; warning starts at 64 of 80
+packages/agent-protocol-domain/src/defaults.ts:1 file has 490 lines; crossed 250-line advisory band; maximum is 1000
 Source shape guard passed.

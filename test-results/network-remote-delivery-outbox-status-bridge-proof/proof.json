@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-outbox-status-bridge-proof",
   "proofRevision": "network-remote-delivery-outbox-status-bridge-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-outbox-status-bridge-proof/v1",
-  "sourceFingerprint": "source-tree:d160c235ef4e2fabb947c3756d48df25bdcc1ae535556a0a6a0709463a4858c0",
+  "sourceFingerprint": "source-tree:80953c307cc9b69f2fe61a88b0137ce2737b93129b35783af57f706f0ff4634a",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-outbox-status-bridge-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
@@ -78,14 +78,15 @@
   },
   "coveredRows": [
     "network-plan supplemental row 10h remote delivery outbox status bridge",
+    "network-plan supplemental row 10k remote delivery transport dispatch state",
     "network-plan supplemental row 10g remote delivery outbox handoff",
     "network-plan supplemental row 10f remote delivery status bridge",
     "network-plan supplemental row 10e remote delivery durable envelope/store status"
   ],
   "provenBoundaries": [
-    "agent-protocol status payload carries row10g outbox refs, handoff refs, replay/support refs, prepared candidate counts, duplicate rejection, and mismatch counters",
-    "agent-service builds the remote-delivery status from row10g outbox handoff proof state without spawning a live transport dispatch",
-    "agent-protocol-domain parser rejects stale outbox refs, nonzero dispatch/ack counters, and mismatched prepared candidate counts",
+    "agent-protocol status payload carries row10g outbox refs, handoff refs, replay/support refs, prepared candidate counts, duplicate rejection, mismatch counters, and row10k blocked dispatch refs",
+    "agent-service builds the remote-delivery status from row10k transport dispatch proof state without spawning a live transport dispatch",
+    "agent-protocol-domain parser rejects stale outbox refs, stale row10h status refs, wrong row10k dispatch refs, nonzero dispatch/ack counters, and mismatched prepared candidate counts",
     "the bridge keeps broker delivery, family-hub relay delivery, provider delivery, child-device delivery, remote delete/export propagation, product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement commands, and host filtering false",
     "the bridge keeps raw PCAP, exact URL, decrypted payload, page content, video content, private-message content, and search-query content unavailable from network-only outbox status"
   ],

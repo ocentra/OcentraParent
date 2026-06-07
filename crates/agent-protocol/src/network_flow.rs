@@ -114,6 +114,12 @@ pub enum NetworkRemoteDeliveryStatusState {
     ManualRequired,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkRemoteDeliveryTransportDispatchState {
+    #[serde(rename = "manual-required-blocked")]
+    ManualRequiredBlocked,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NetworkRemoteDeliveryStatus {
@@ -153,8 +159,16 @@ pub struct NetworkRemoteDeliveryStatus {
     pub outbox_handoff_ref: String,
     pub outbox_replay_ref: String,
     pub outbox_support_status_ref: String,
+    pub transport_dispatch_state_ref: String,
+    pub blocked_dispatch_ref: String,
+    pub future_transport_seam_ref: String,
+    pub transport_dispatch_state: NetworkRemoteDeliveryTransportDispatchState,
     pub outbox_candidate_count: u64,
+    pub source_outbox_candidate_count: u64,
     pub prepared_not_dispatched_count: u64,
+    pub blocked_dispatch_record_count: u64,
+    pub blocked_dispatch_records_match_outbox_candidates: bool,
+    pub dispatch_ready_candidate_count: u64,
     pub dispatch_attempt_count: u64,
     pub remote_ack_count: u64,
     pub duplicate_durable_envelope_rejected: bool,

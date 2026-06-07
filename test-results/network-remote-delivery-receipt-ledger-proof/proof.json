@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-receipt-ledger-proof",
   "proofRevision": "network-remote-delivery-receipt-ledger-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-receipt-ledger-proof/v1",
-  "sourceFingerprint": "source-tree:0ee88bfcb6f45f2e8949360b4e75dc050464b8681717a3849909e177701dc853",
+  "sourceFingerprint": "source-tree:43132269f2e5ab87e517cb4ecfc469d75bc6c5d09f7834a32e66580b36c53109",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-receipt-ledger-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",

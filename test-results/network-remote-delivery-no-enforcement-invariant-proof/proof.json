@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-no-enforcement-invariant-proof",
   "proofRevision": "network-remote-delivery-no-enforcement-invariant-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-no-enforcement-invariant-proof/v1",
-  "sourceFingerprint": "source-tree:468c122e9c4680e75da991028c2625446f40dd4ab77136125774198dc7d823a7",
+  "sourceFingerprint": "source-tree:a096f3ff657af8c379bc93e5c1eba1b016fed396b01e4fbc918ac4d3cb679297",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-no-enforcement-invariant-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",

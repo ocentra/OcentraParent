@@ -11,6 +11,9 @@ mkdirSync(testRoot, { recursive: true });
 const sourceFiles = [
   'scripts/test/network-remote-delivery-transport-dispatch-state-proof.mjs',
   'crates/agent-protocol/src/constants/network_flow.rs',
+  'crates/agent-protocol/src/network_flow.rs',
+  'crates/agent-protocol/src/network_flow_tests.rs',
+  'crates/agent-core/src/lib.rs',
   'crates/agent-core/src/network_event_runtime.rs',
   'crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state.rs',
   'crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state_types.rs',
@@ -19,6 +22,11 @@ const sourceFiles = [
   'crates/agent-core/src/network_event_runtime/remote_delivery_dispatch_readiness.rs',
   'crates/agent-core/src/network_event_runtime/remote_delivery_dispatch_readiness_types.rs',
   'crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff_types.rs',
+  'crates/agent-service/src/network_remote_delivery_status_payload.rs',
+  'crates/agent-service/src/network_remote_delivery_status_service_tests.rs',
+  'packages/agent-protocol-domain/src/defaults.ts',
+  'packages/agent-protocol-domain/src/network-remote-delivery-status.ts',
+  'packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts',
   'docs/features/network-domain-control.md',
   'docs/plans/network-plan/implementation-checklist.md',
   'docs/plans/network-plan/workpacks/README.md',
@@ -33,6 +41,11 @@ const expectedStatus = {
     'row10g prepared outbox candidates',
     'row10b through row10e remote delivery metadata refs',
   ],
+  statusCommandAndEvent: {
+    command: 'agent.network.remote-delivery.status.get',
+    event: 'agent.network.remote-delivery.status.reported',
+    payloadField: 'networkRemoteDeliveryStatus',
+  },
   transportDispatchStateRefs: [
     'network.remote-delivery.transport-dispatch-state.10k',
     'network.remote-delivery.dispatch-blocked-manual-required.10k',
@@ -52,6 +65,8 @@ const expectedStatus = {
     'available remote metadata becomes blocked manual-required dispatch state without sending transport',
     'blocked dispatch records preserve event id, event type, correlation id, outbox ref, and handoff ref',
     'future transport seam refs exist without claiming live broker or family-hub delivery',
+    'service status command serializes row10k blocked dispatch state while preserving row10g outbox refs',
+    'TypeScript parser rejects stale row10h status refs, stale row10k dispatch refs, and candidate-count mismatches',
     'manual-required blocked dispatch cannot publish enforcement commands',
   ],
   noClaims: [
@@ -85,6 +100,54 @@ const commands = [
     command: 'cargo',
     args: ['test', '-p', 'ocentra-parent-agent-core', 'network_runtime_remote_delivery_transport_dispatch_state'],
     log: join(proofRoot, 'agent-core-remote-delivery-transport-dispatch-state-test.log'),
+  },
+  {
+    name: 'agent-protocol-remote-delivery-status-test',
+    command: 'cargo',
+    args: ['test', '-p', 'ocentra-parent-agent-protocol', 'network_remote_delivery_status'],
+    log: join(proofRoot, 'agent-protocol-remote-delivery-status-test.log'),
+  },
+  {
+    name: 'agent-service-remote-delivery-status-test',
+    command: 'cargo',
+    args: ['test', '-p', 'ocentra-parent-agent-service', 'network_remote_delivery_status'],
+    log: join(proofRoot, 'agent-service-remote-delivery-status-test.log'),
+  },
+  {
+    name: 'agent-protocol-domain-dependency-build',
+    command: 'cmd',
+    args: [
+      '/c',
+      'npm',
+      'run',
+      'build',
+      '--workspace',
+      '@ocentra-parent/schema-domain',
+      '--workspace',
+      '@ocentra-parent/logging-domain',
+      '--workspace',
+      '@ocentra-parent/activity-domain',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--workspace',
+      '@ocentra-parent/agent-protocol-domain',
+    ],
+    log: join(proofRoot, 'agent-protocol-domain-dependency-build.log'),
+  },
+  {
+    name: 'agent-protocol-domain-remote-delivery-status-test',
+    command: 'cmd',
+    args: [
+      '/c',
+      'npm',
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/agent-protocol-domain',
+      '--',
+      'network-remote-delivery-status.test.ts',
+    ],
+    log: join(proofRoot, 'agent-protocol-domain-remote-delivery-status-test.log'),
   },
   {
     name: 'agent-core-clippy',
@@ -169,6 +232,8 @@ const proof = {
     'agent-core consumes the row10j available-metadata invariant and renders row10g prepared outbox candidates as manual-required blocked dispatch records',
     'blocked dispatch records preserve event id, event type, correlation id, source outbox state, outbox refs, handoff refs, dispatch-state refs, blocked-dispatch refs, and future transport seam refs',
     'blocked dispatch records equal the source outbox candidate count and row10j manual-required candidate count',
+    'the service status command serializes row10k blocked dispatch refs while preserving row10g outbox refs, durable refs, and receipt refs',
+    'the TypeScript status parser rejects stale row10h status refs, wrong row10k dispatch refs, nonzero dispatch-ready/dispatch/ack counters, and mismatched blocked-dispatch candidate counts',
     'dispatch-ready candidates, dispatch attempts, and remote acknowledgements stay zero',
     'the proof rejects policy authority, side-effect authority, adapter execution, enforcement command publication, live broker/family-hub delivery, remote acknowledgement, provider delivery, child-device delivery, remote delete/export propagation, and product-ready remote delivery claims',
     'the proof rejects raw PCAP, exact URL, decrypted payload, page content, video content, private-message content, and search-query content claims from network-only evidence',
@@ -193,16 +258,26 @@ const proof = {
 
 writeJson(join(proofRoot, 'proof-summary.json'), proof);
 writeJson(join(testRoot, 'proof.json'), proof);
-console.log('network-remote-delivery-transport-dispatch-state-proof-ok:core,clippy,fmt,source-shape,diff-check');
+console.log(
+  'network-remote-delivery-transport-dispatch-state-proof-ok:core,protocol,service,ts,clippy,fmt,source-shape,diff-check'
+);
 console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function assertSourceContracts() {
   const protocolConstants = readText('crates/agent-protocol/src/constants/network_flow.rs');
+  const protocolShape = readText('crates/agent-protocol/src/network_flow.rs');
+  const protocolTests = readText('crates/agent-protocol/src/network_flow_tests.rs');
+  const coreLib = readText('crates/agent-core/src/lib.rs');
   const coreRuntime = readText('crates/agent-core/src/network_event_runtime.rs');
   const coreProof = readText('crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state.rs');
   const coreTypes = readText(
     'crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state_types.rs'
   );
+  const servicePayload = readText('crates/agent-service/src/network_remote_delivery_status_payload.rs');
+  const serviceTests = readText('crates/agent-service/src/network_remote_delivery_status_service_tests.rs');
+  const tsDefaults = readText('packages/agent-protocol-domain/src/defaults.ts');
+  const tsParser = readText('packages/agent-protocol-domain/src/network-remote-delivery-status.ts');
+  const tsTests = readText('packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts');
   const featureDoc = readText('docs/features/network-domain-control.md');
   const checklist = readText('docs/plans/network-plan/implementation-checklist.md');
   const workpacks = readText('docs/plans/network-plan/workpacks/README.md');
@@ -210,12 +285,22 @@ function assertSourceContracts() {
     [protocolConstants, 'TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF'],
     [protocolConstants, 'TEST_REMOTE_DELIVERY_DISPATCH_BLOCKED_MANUAL_REF'],
     [protocolConstants, 'TEST_REMOTE_DELIVERY_FUTURE_TRANSPORT_SEAM_REF'],
+    [protocolShape, 'transport_dispatch_state_ref'],
+    [protocolShape, 'NetworkRemoteDeliveryTransportDispatchState'],
+    [protocolTests, 'network_remote_delivery_status_serializes_row10k_dispatch_state_without_product_claims'],
+    [coreLib, 'prove_network_runtime_remote_delivery_transport_dispatch_state'],
     [coreRuntime, 'remote_delivery_transport_dispatch_state'],
     [coreProof, 'ManualRequiredBlocked'],
     [coreProof, 'has_unsupported_claims'],
     [coreProof, 'network_runtime_remote_delivery_transport_dispatch_state_blocks_without_transport'],
     [coreProof, 'network_runtime_remote_delivery_transport_dispatch_state_rejects_action_claims'],
     [coreTypes, 'NetworkRuntimeRemoteDeliveryTransportDispatchStateReport'],
+    [servicePayload, 'prove_network_runtime_remote_delivery_transport_dispatch_state'],
+    [servicePayload, 'RuntimeTransportDispatchState::ManualRequiredBlocked'],
+    [serviceTests, 'network_remote_delivery_status_payload_serializes_row10k_dispatch_state'],
+    [tsDefaults, 'TransportDispatchStateRef'],
+    [tsParser, 'transportDispatchStateMatches'],
+    [tsTests, 'parses row10k blocked dispatch status from a typed agent event'],
     [featureDoc, 'network-remote-delivery-transport-dispatch-state-proof'],
     [checklist, '10k-remote-delivery-transport-dispatch-state'],
     [workpacks, '10k'],

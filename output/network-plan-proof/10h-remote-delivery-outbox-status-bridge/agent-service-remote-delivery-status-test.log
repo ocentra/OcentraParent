@@ -1,6 +1,6 @@
 
 running 2 tests
-test network_remote_delivery_status_service_tests::network_remote_delivery_status_payload_serializes_row10h_outbox_bridge ... ok
+test network_remote_delivery_status_service_tests::network_remote_delivery_status_payload_serializes_row10k_dispatch_state ... ok
 test network_remote_delivery_status_service_tests::websocket_network_remote_delivery_status_command_reports_payload ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 273 filtered out; finished in <duration>
