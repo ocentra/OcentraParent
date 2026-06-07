@@ -44,6 +44,10 @@ contract now rejects open-ended prompts such as `Describe the screen in detail.`
 before local worker handoff.
 
 The current Windows-lane proof also records local provider command probes for
-`ollama`, `lmstudio`, and `llama-server`; none are available on PATH in this
-worktree. It does not run a local VLM, measure classifier quality, prove crop
-extraction, or select a production VLM model.
+`ollama`, LM Studio `lms`, legacy `lmstudio`, and `llama-server`. The LM Studio
+`lms` CLI is available at v0.0.47, but the local server is off/not running and
+`lms ps` cannot list loaded models because it tries to spawn the missing
+`C:\Program Files\LM Studio\LM Studio.exe` service path. `ollama`, legacy
+`lmstudio`, and `llama-server` are not available on PATH in this worktree. It
+does not run a local VLM, measure classifier quality, prove crop extraction, or
+select a production VLM model.

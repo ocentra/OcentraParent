@@ -504,10 +504,12 @@ only with explicit parent settings.
   guided worker template/version pinning, bounded image pixels, deleted
   query-store custody before completed status, open-ended prompt rejection, and
   manual-required behavior when runtime is unavailable. The proof now records
-  local provider command probes for `ollama`, `lmstudio`, and `llama-server`;
-  none are available on PATH in this Windows lane. It does not run live VLM
-  inference, measure classifier quality, prove crop extraction, or select a
-  production VLM model.
+  local provider command probes for `ollama`, LM Studio `lms`, legacy
+  `lmstudio`, and `llama-server`. LM Studio `lms` is installed, but the local
+  server is off/not running and no loaded local VLM model is available; `ollama`,
+  legacy `lmstudio`, and `llama-server` are not available on PATH. It does not
+  run live VLM inference, measure classifier quality, prove crop extraction, or
+  select a production VLM model.
 - `scripts/test/screen-ai-service-winrt-ocr-proof.mjs` now proves the
   service-owned Windows WinRT OCR analysis path over real live Chrome/Wikipedia
   pixels: the Rust service cadence loop captures an active-window frame into
