@@ -40,6 +40,12 @@
       "proofTier": "P3_LOCAL_DEV_MACHINE"
     },
     {
+      "coverageTag": "physical-device-artifact-gate",
+      "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json",
+      "status": "manual_required",
+      "proofTier": "P3_LOCAL_DEV_MACHINE"
+    },
+    {
       "coverageTag": "child-runtime-product-readiness-blocker",
       "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/45-child-runtime-product-readiness-blocker-proof.json",
       "status": "proved",
@@ -64,6 +70,7 @@
         "output/tracking-plan-proof/wsl-local-replay/proof.json",
         "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/44-android-system-geofence-blocker-proof.json",
+        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/45-child-runtime-product-readiness-blocker-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json"
       ],
@@ -110,8 +117,8 @@
     "productReadyClaimed": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "6fb0cd26406ba852bde87ddebe4a3097520ae073",
-  "gitStatusShort": "",
+  "baseCommitAtGeneration": "78f2dee05ecba554465f027bd2184c7d0598701a",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M packages/parent-domain/src/tracking-product-readiness-closure-proof.ts\n M scripts/test/tracking-product-readiness-closure-proof.mjs",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -122,7 +129,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-product-readiness-closure-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  12:37:15\n   Duration  716ms (transform 110ms, setup 0ms, import 517ms, tests 12ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  14:35:30\n   Duration  1.28s (transform 184ms, setup 0ms, import 925ms, tests 21ms, environment 0ms)",
       "stderr": ""
     }
   ],

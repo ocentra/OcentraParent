@@ -114,6 +114,9 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `45-child-runtime-product-readiness-blocker-proof.json`
 - Tracking product-readiness closure proof:
   `46-product-readiness-closure-proof.json`
+- Refreshed tracking product-readiness closure proof now consumes the
+  physical-device artifact gate:
+  `46-product-readiness-closure-proof.json`
 
 ## Merge Blockers
 

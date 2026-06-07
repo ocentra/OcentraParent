@@ -16,6 +16,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'wsl-local-replay',
   'hosted-ui-artifact-inventory',
   'android-system-geofence-blocker',
+  'physical-device-artifact-gate',
   'child-runtime-product-readiness-blocker',
   'retention-product-readiness-blocker'
 );
@@ -27,6 +28,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'wsl-local-replay',
   'hosted-ui-artifact-inventory',
   'android-system-geofence-blocker',
+  'physical-device-artifact-gate',
   'child-runtime-product-readiness-blocker',
   'retention-product-readiness-blocker',
 ] as const;
