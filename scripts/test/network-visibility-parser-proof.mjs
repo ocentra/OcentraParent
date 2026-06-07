@@ -6,6 +6,18 @@ const tlsRoot = join('output', 'network-plan-proof', '16-tls-clienthello-sni-par
 const httpRoot = join('output', 'network-plan-proof', '17-http-host-parser');
 const quicRoot = join('output', 'network-plan-proof', '18-quic-http3-limitation-detector');
 const encryptedDnsRoot = join('output', 'network-plan-proof', '19-doh-dot-detector');
+const parserProofRoots = [
+  join('output', 'network-plan-proof', '03-parser-fixture-proof'),
+  join('test-results', 'network-parser-fixture-proof'),
+  join('output', 'network-plan-proof', '11-rust-crate-and-tooling-evaluation'),
+  join('output', 'network-plan-proof', '12-pcap-file-replay-harness'),
+  join('output', 'network-plan-proof', '14-packet-parser'),
+  join('output', 'network-plan-proof', '15-dns-query-response-parser'),
+  tlsRoot,
+  httpRoot,
+  quicRoot,
+  encryptedDnsRoot,
+];
 for (const root of [tlsRoot, httpRoot, quicRoot, encryptedDnsRoot]) {
   mkdirSync(root, { recursive: true });
 }
@@ -110,6 +122,12 @@ const commandResults = commands.map(runCommand);
 const proof = {
   proof: 'network-visibility-parser',
   checkedAt: new Date().toISOString(),
+  branch: runText('git', ['branch', '--show-current']).trim(),
+  sourceCommit: runText('git', ['rev-parse', 'HEAD']).trim(),
+  artifactCommit: 'see the enclosing git commit for generated proof artifacts',
+  originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
+  mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
+  sourceStatusShort: sourceStatusShort(),
   roots: { tlsRoot, httpRoot, quicRoot, encryptedDnsRoot },
   commands: commandResults,
   artifacts: {
@@ -147,4 +165,22 @@ function runCommand(entry) {
     status: result.status,
     log: entry.log,
   };
+}
+
+function runText(command, args) {
+  const result = spawnSync(command, args, { encoding: 'utf8', shell: false });
+  if (result.status !== 0) {
+    throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}`);
+  }
+  return `${result.stdout ?? ''}${result.stderr ?? ''}`;
+}
+
+function sourceStatusShort() {
+  return runText('git', [
+    'status',
+    '--short',
+    '--',
+    '.',
+    ...parserProofRoots.map((path) => `:(exclude)${path.replaceAll('\\', '/')}`),
+  ]);
 }

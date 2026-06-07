@@ -3,8 +3,22 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const crateRoot = join('crates', 'ocentra-network-evidence');
+const parserProofRoot = join('output', 'network-plan-proof', '03-parser-fixture-proof');
+const parserTestRoot = join('test-results', 'network-parser-fixture-proof');
 const crateDecisionRoot = join('output', 'network-plan-proof', '11-rust-crate-and-tooling-evaluation');
 const replayRoot = join('output', 'network-plan-proof', '12-pcap-file-replay-harness');
+const parserProofRoots = [
+  parserProofRoot,
+  parserTestRoot,
+  crateDecisionRoot,
+  replayRoot,
+  join('output', 'network-plan-proof', '14-packet-parser'),
+  join('output', 'network-plan-proof', '15-dns-query-response-parser'),
+  join('output', 'network-plan-proof', '16-tls-clienthello-sni-parser'),
+  join('output', 'network-plan-proof', '17-http-host-parser'),
+  join('output', 'network-plan-proof', '18-quic-http3-limitation-detector'),
+  join('output', 'network-plan-proof', '19-doh-dot-detector'),
+];
 mkdirSync(crateDecisionRoot, { recursive: true });
 mkdirSync(join(replayRoot, 'fixtures'), { recursive: true });
 
@@ -92,7 +106,7 @@ const sourceSnapshot = [
   `commit: ${runText('git', ['rev-parse', 'HEAD']).trim()}`,
   '',
   '```text',
-  runText('git', ['status', '--short']),
+  sourceStatusShort(),
   '```',
   '',
   'Inspected source paths:',
@@ -108,6 +122,12 @@ writeFileSync(join(replayRoot, '00-source-snapshot.md'), `${sourceSnapshot.join(
 const proof = {
   proof: 'network-pcap-replay',
   checkedAt: new Date().toISOString(),
+  branch: runText('git', ['branch', '--show-current']).trim(),
+  sourceCommit: runText('git', ['rev-parse', 'HEAD']).trim(),
+  artifactCommit: 'see the enclosing git commit for generated proof artifacts',
+  originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
+  mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
+  sourceStatusShort: sourceStatusShort(),
   crateDecisionRoot,
   replayRoot,
   commands: commandResults,
@@ -151,6 +171,16 @@ function runText(command, args) {
     throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}`);
   }
   return `${result.stdout ?? ''}${result.stderr ?? ''}`;
+}
+
+function sourceStatusShort() {
+  return runText('git', [
+    'status',
+    '--short',
+    '--',
+    '.',
+    ...parserProofRoots.map((path) => `:(exclude)${path.replaceAll('\\', '/')}`),
+  ]);
 }
 
 function dnsExamplePcap() {
