@@ -7,10 +7,8 @@
       "kind": "json",
       "parsedProof": "network-ai-detection-fixture-proof",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-ai-detection-fixture-proof"
       }
     },
     {
@@ -20,10 +18,8 @@
       "kind": "json",
       "parsedProof": "network-ai-audit-narrative-proof",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-ai-audit-narrative-proof"
       }
     },
     {
@@ -33,10 +29,8 @@
       "kind": "json",
       "parsedProof": "network-risk-budget-threshold-proof",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-category-risk-proof-artifacts",
-        "commit": "d8d931a47f7714a479c71dd9da056e42afbe401f",
-        "hasDirtyStatus": false
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-risk-budget-threshold-proof"
       }
     },
     {
@@ -46,10 +40,8 @@
       "kind": "json",
       "parsedProof": "network-evidence-policy-mapping",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/eventing-network-runtime-implementation",
-        "commit": "9587392deba5556436a86d24ad00adf76c3513e0",
-        "hasDirtyStatus": false
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-evidence-policy-mapping-proof"
       }
     },
     {

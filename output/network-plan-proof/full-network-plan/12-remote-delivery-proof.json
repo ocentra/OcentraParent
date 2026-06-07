@@ -7,7 +7,8 @@
       "kind": "log",
       "parsedProof": null,
       "freshness": {
-        "kind": "file-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-broker-delivery-proof"
       }
     },
     {
@@ -17,7 +18,8 @@
       "kind": "log",
       "parsedProof": null,
       "freshness": {
-        "kind": "file-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-broker-family-hub-delivery-status-proof"
       }
     },
     {

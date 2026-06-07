@@ -5,7 +5,7 @@ test tests::performance::performance_benchmark_preserves_manual_required_and_una
 test tests::performance::performance_benchmark_records_latency_throughput_resource_and_high_concurrency_metrics ... ok
 test tests::performance::performance_benchmark_rejects_realtime_content_adapter_and_production_claims ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 213 filtered out; finished in 0.00s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 215 filtered out; finished in 0.00s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
      Running unittests src\lib.rs (target\debug\deps\ocentra_network_evidence-36610952c1128119.exe)

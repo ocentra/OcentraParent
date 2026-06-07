@@ -7,7 +7,8 @@
       "kind": "json",
       "parsedProof": "network-pcap-replay",
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-pcap-replay-proof"
       }
     },
     {
@@ -17,7 +18,8 @@
       "kind": "json",
       "parsedProof": null,
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-packet-dns-parser-proof"
       }
     },
     {
@@ -27,7 +29,8 @@
       "kind": "json",
       "parsedProof": "network-packet-dns-parser",
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-packet-dns-parser-proof"
       }
     },
     {
@@ -37,7 +40,8 @@
       "kind": "json",
       "parsedProof": null,
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-visibility-parser-proof"
       }
     },
     {
@@ -47,7 +51,8 @@
       "kind": "json",
       "parsedProof": null,
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-visibility-parser-proof"
       }
     },
     {
@@ -57,7 +62,8 @@
       "kind": "json",
       "parsedProof": null,
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-visibility-parser-proof"
       }
     },
     {
@@ -67,7 +73,8 @@
       "kind": "json",
       "parsedProof": "network-visibility-parser",
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-visibility-parser-proof"
       }
     },
     {
@@ -77,10 +84,8 @@
       "kind": "json",
       "parsedProof": "network-live-capture-proof-gate",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/eventing-network-runtime-implementation",
-        "commit": "215a56d1e65311d171bf476f1075df80ebddbe75",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-live-capture-proof-gate"
       }
     },
     {
@@ -90,10 +95,8 @@
       "kind": "json",
       "parsedProof": "network-live-capture-storage",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-live-capture-retention-proof",
-        "commit": "ac663f192bb3ebbdd449a426f7058e793f7ac4e2",
-        "hasDirtyStatus": false
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-live-capture-storage-proof"
       }
     }
   ]

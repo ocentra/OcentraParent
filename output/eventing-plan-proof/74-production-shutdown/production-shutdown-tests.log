@@ -8,5 +8,5 @@ test tests::production_shutdown::production_shutdown_waits_for_active_dispatch_b
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 73 filtered out; finished in 0.02s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.29s
      Running unittests src\lib.rs (target\debug\deps\ocentra_eventing-927d6221c7fa57e1.exe)

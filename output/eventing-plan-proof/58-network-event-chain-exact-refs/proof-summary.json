@@ -1,7 +1,7 @@
 {
   "proof": "eventing-row-58-network-event-chain-exact-refs",
-  "checkedAt": "2026-06-07T18:54:28.778Z",
-  "commit": "bc480eacd2ff5b054b5cd666a3cd72cb36cc8c0c",
+  "checkedAt": "2026-06-07T19:08:30.082Z",
+  "commit": "7a49860204190b63d9d413f496f7fbecbb76b594",
   "commands": [
     "cargo test -p ocentra-eventing",
     "cargo test -p ocentra-parent-agent-core network_event_runtime",

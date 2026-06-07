@@ -5,10 +5,82 @@
   "testRoot": "test-results/network-full-plan-proof",
   "commands": [
     {
+      "name": "network-contract-boundary-proof",
+      "command": "node scripts/test/network-contract-boundary-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-contract-boundary-proof.log"
+    },
+    {
       "name": "eventing-full-plan-proof",
       "command": "node scripts/test/eventing-full-plan-proof.mjs",
       "status": 0,
       "log": "output/network-plan-proof/full-network-plan/command-logs/eventing-full-plan-proof.log"
+    },
+    {
+      "name": "network-pcap-replay-proof",
+      "command": "node scripts/test/network-pcap-replay-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-pcap-replay-proof.log"
+    },
+    {
+      "name": "network-packet-dns-parser-proof",
+      "command": "node scripts/test/network-packet-dns-parser-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-packet-dns-parser-proof.log"
+    },
+    {
+      "name": "network-visibility-parser-proof",
+      "command": "node scripts/test/network-visibility-parser-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-visibility-parser-proof.log"
+    },
+    {
+      "name": "network-live-capture-proof-gate",
+      "command": "node scripts/test/network-live-capture-proof-gate.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-live-capture-proof-gate.log"
+    },
+    {
+      "name": "network-live-capture-storage-proof",
+      "command": "node scripts/test/network-live-capture-storage-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-live-capture-storage-proof.log"
+    },
+    {
+      "name": "network-zeek-analyzer-comparison-proof",
+      "command": "node scripts/test/network-zeek-analyzer-comparison-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-zeek-analyzer-comparison-proof.log"
+    },
+    {
+      "name": "network-signature-alert-ingestion-proof",
+      "command": "node scripts/test/network-signature-alert-ingestion-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-signature-alert-ingestion-proof.log"
+    },
+    {
+      "name": "network-ai-detection-fixture-proof",
+      "command": "node scripts/test/network-ai-detection-fixture-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-ai-detection-fixture-proof.log"
+    },
+    {
+      "name": "network-ai-audit-narrative-proof",
+      "command": "node scripts/test/network-ai-audit-narrative-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-ai-audit-narrative-proof.log"
+    },
+    {
+      "name": "network-risk-budget-threshold-proof",
+      "command": "node scripts/test/network-risk-budget-threshold-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-risk-budget-threshold-proof.log"
+    },
+    {
+      "name": "network-evidence-policy-mapping-proof",
+      "command": "node scripts/test/network-evidence-policy-mapping-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-evidence-policy-mapping-proof.log"
     },
     {
       "name": "network-policy-preview-stored-flow-evidence-proof",
@@ -17,10 +89,40 @@
       "log": "output/network-plan-proof/full-network-plan/command-logs/network-policy-preview-stored-flow-evidence-proof.log"
     },
     {
+      "name": "network-dns-adapter-proof",
+      "command": "node scripts/test/network-dns-adapter-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-dns-adapter-proof.log"
+    },
+    {
+      "name": "network-windows-firewall-adapter-proof",
+      "command": "node scripts/test/network-windows-firewall-adapter-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-windows-firewall-adapter-proof.log"
+    },
+    {
+      "name": "network-manual-platform-proof",
+      "command": "node scripts/test/network-manual-platform-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-manual-platform-proof.log"
+    },
+    {
+      "name": "network-platform-claims-proof",
+      "command": "node scripts/test/network-platform-claims-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-platform-claims-proof.log"
+    },
+    {
       "name": "network-adapter-capability-status-proof",
       "command": "node scripts/test/network-adapter-capability-status-proof.mjs",
       "status": 0,
       "log": "output/network-plan-proof/full-network-plan/command-logs/network-adapter-capability-status-proof.log"
+    },
+    {
+      "name": "network-action-result-state-proof",
+      "command": "node scripts/test/network-action-result-state-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-action-result-state-proof.log"
     },
     {
       "name": "network-remote-delivery-event-chain-journal-proof",
@@ -69,6 +171,54 @@
       "command": "node scripts/test/network-remote-delivery-transport-dispatch-state-proof.mjs",
       "status": 0,
       "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-transport-dispatch-state-proof.log"
+    },
+    {
+      "name": "network-parent-ui-evidence-drawer-proof",
+      "command": "node scripts/test/network-parent-ui-evidence-drawer-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-parent-ui-evidence-drawer-proof.log"
+    },
+    {
+      "name": "network-portal-risk-performance-platform-proof",
+      "command": "node scripts/test/network-portal-risk-performance-platform-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-portal-risk-performance-platform-proof.log"
+    },
+    {
+      "name": "network-security-readiness-proof",
+      "command": "node scripts/test/network-security-readiness-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-security-readiness-proof.log"
+    },
+    {
+      "name": "network-performance-benchmark-proof",
+      "command": "node scripts/test/network-performance-benchmark-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-performance-benchmark-proof.log"
+    },
+    {
+      "name": "network-broker-delivery-proof",
+      "command": "node scripts/test/network-broker-delivery-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-broker-delivery-proof.log"
+    },
+    {
+      "name": "network-broker-family-hub-delivery-status-proof",
+      "command": "node scripts/test/network-broker-family-hub-delivery-status-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-broker-family-hub-delivery-status-proof.log"
+    },
+    {
+      "name": "network-vpn-proxy-tunnel-classifier-proof",
+      "command": "node scripts/test/network-vpn-proxy-tunnel-classifier-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-vpn-proxy-tunnel-classifier-proof.log"
+    },
+    {
+      "name": "network-remote-torrent-download-classifier-proof",
+      "command": "node scripts/test/network-remote-torrent-download-classifier-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-torrent-download-classifier-proof.log"
     },
     {
       "name": "network-end-to-end-pipeline-proof",
@@ -122,29 +272,18 @@
   "freshnessAudit": {
     "policy": "Aggregate proof reruns current critical proof scripts, verifies source-tree fingerprints where artifacts provide sourceRefs, and labels legacy row artifacts instead of silently treating old branch metadata as fresh.",
     "counts": {
-      "json-proof-reference": 8,
-      "refreshed-by-aggregate-command": 13,
-      "legacy-run-metadata-reference": 22,
-      "binary-reference": 1,
-      "file-reference": 2
+      "refreshed-by-aggregate-command": 46
     },
     "refreshedArtifacts": [
+      "contract-boundary",
       "eventing-full-plan",
-      "policy-preview",
-      "adapter-capability-status",
-      "event-chain-journal",
-      "receipt-ledger",
-      "durable-envelope",
-      "stored-flow-policy-preview",
-      "remote-outbox-handoff",
-      "remote-outbox-status-bridge",
-      "remote-dispatch-readiness",
-      "remote-no-enforcement",
-      "remote-transport-state",
-      "end-to-end-pipeline"
-    ],
-    "fingerprintCheckedArtifacts": [],
-    "legacyMetadataArtifacts": [
+      "pcap-replay",
+      "packet-parser",
+      "dns-parser",
+      "tls-sni-parser",
+      "http-host-parser",
+      "quic-visibility",
+      "encrypted-dns",
       "live-capture-gate",
       "live-capture-storage",
       "zeek-analyzer",
@@ -153,6 +292,7 @@
       "ai-audit",
       "risk-budget",
       "policy-mapping",
+      "policy-preview",
       "dns-adapter",
       "windows-firewall-adapter",
       "windows-wfp-gate",
@@ -160,14 +300,30 @@
       "apple-network-extension-gate",
       "linux-adapter-gate",
       "platform-claims",
+      "adapter-capability-status",
       "action-result-state",
+      "event-chain-journal",
+      "receipt-ledger",
+      "durable-envelope",
+      "stored-flow-policy-preview",
       "portal-drawer",
+      "portal-drawer-screenshot",
       "portal-risk-platform-status",
       "security-readiness",
       "performance-benchmark",
+      "broker-delivery",
+      "remote-delivery-status",
+      "remote-outbox-handoff",
+      "remote-outbox-status-bridge",
+      "remote-dispatch-readiness",
+      "remote-no-enforcement",
+      "remote-transport-state",
       "vpn-proxy-tunnel",
-      "remote-torrent-download"
-    ]
+      "remote-torrent-download",
+      "end-to-end-pipeline"
+    ],
+    "fingerprintCheckedArtifacts": [],
+    "legacyMetadataArtifacts": []
   },
   "artifactCount": 46,
   "artifacts": [
@@ -178,7 +334,8 @@
       "kind": "json",
       "parsedProof": "network-contract-boundary",
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-contract-boundary-proof"
       }
     },
     {
@@ -199,7 +356,8 @@
       "kind": "json",
       "parsedProof": "network-pcap-replay",
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-pcap-replay-proof"
       }
     },
     {
@@ -209,7 +367,8 @@
       "kind": "json",
       "parsedProof": null,
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-packet-dns-parser-proof"
       }
     },
     {
@@ -219,7 +378,8 @@
       "kind": "json",
       "parsedProof": "network-packet-dns-parser",
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-packet-dns-parser-proof"
       }
     },
     {
@@ -229,7 +389,8 @@
       "kind": "json",
       "parsedProof": null,
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-visibility-parser-proof"
       }
     },
     {
@@ -239,7 +400,8 @@
       "kind": "json",
       "parsedProof": null,
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-visibility-parser-proof"
       }
     },
     {
@@ -249,7 +411,8 @@
       "kind": "json",
       "parsedProof": null,
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-visibility-parser-proof"
       }
     },
     {
@@ -259,7 +422,8 @@
       "kind": "json",
       "parsedProof": "network-visibility-parser",
       "freshness": {
-        "kind": "json-proof-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-visibility-parser-proof"
       }
     },
     {
@@ -269,10 +433,8 @@
       "kind": "json",
       "parsedProof": "network-live-capture-proof-gate",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/eventing-network-runtime-implementation",
-        "commit": "215a56d1e65311d171bf476f1075df80ebddbe75",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-live-capture-proof-gate"
       }
     },
     {
@@ -282,10 +444,8 @@
       "kind": "json",
       "parsedProof": "network-live-capture-storage",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-live-capture-retention-proof",
-        "commit": "ac663f192bb3ebbdd449a426f7058e793f7ac4e2",
-        "hasDirtyStatus": false
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-live-capture-storage-proof"
       }
     },
     {
@@ -295,10 +455,8 @@
       "kind": "json",
       "parsedProof": "network-zeek-analyzer-comparison",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-zeek-analyzer-comparison-proof"
       }
     },
     {
@@ -308,10 +466,8 @@
       "kind": "json",
       "parsedProof": "network-signature-alert-ingestion",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-signature-alert-ingestion-proof"
       }
     },
     {
@@ -321,10 +477,8 @@
       "kind": "json",
       "parsedProof": "network-ai-detection-fixture-proof",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-ai-detection-fixture-proof"
       }
     },
     {
@@ -334,10 +488,8 @@
       "kind": "json",
       "parsedProof": "network-ai-audit-narrative-proof",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-ai-audit-narrative-proof"
       }
     },
     {
@@ -347,10 +499,8 @@
       "kind": "json",
       "parsedProof": "network-risk-budget-threshold-proof",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-category-risk-proof-artifacts",
-        "commit": "d8d931a47f7714a479c71dd9da056e42afbe401f",
-        "hasDirtyStatus": false
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-risk-budget-threshold-proof"
       }
     },
     {
@@ -360,10 +510,8 @@
       "kind": "json",
       "parsedProof": "network-evidence-policy-mapping",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/eventing-network-runtime-implementation",
-        "commit": "9587392deba5556436a86d24ad00adf76c3513e0",
-        "hasDirtyStatus": false
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-evidence-policy-mapping-proof"
       }
     },
     {
@@ -384,10 +532,8 @@
       "kind": "json",
       "parsedProof": "network-dns-adapter",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-dns-adapter-proof"
       }
     },
     {
@@ -397,10 +543,8 @@
       "kind": "json",
       "parsedProof": "network-windows-firewall-adapter",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-windows-firewall-adapter-proof"
       }
     },
     {
@@ -410,10 +554,8 @@
       "kind": "json",
       "parsedProof": "network-windows-wfp-proof-gate",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-manual-platform-proof"
       }
     },
     {
@@ -423,10 +565,8 @@
       "kind": "json",
       "parsedProof": "network-android-vpnservice-proof-gate",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-manual-platform-proof"
       }
     },
     {
@@ -436,10 +576,8 @@
       "kind": "json",
       "parsedProof": "network-apple-network-extension-proof-gate",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-manual-platform-proof"
       }
     },
     {
@@ -449,10 +587,8 @@
       "kind": "json",
       "parsedProof": "network-linux-adapter-proof-gate",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-manual-platform-proof"
       }
     },
     {
@@ -462,10 +598,8 @@
       "kind": "json",
       "parsedProof": "network-platform-claims",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-platform-claims-proof",
-        "commit": "33f0618ff507e24459fb5e42c0b38f0be6aeb194",
-        "hasDirtyStatus": false
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-platform-claims-proof"
       }
     },
     {
@@ -486,10 +620,8 @@
       "kind": "json",
       "parsedProof": "network-action-result-state-proof",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-action-result-state-proof",
-        "commit": "2e7eeac84a11d9ca430e6eeec0cab961ebd8afda",
-        "hasDirtyStatus": false
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-action-result-state-proof"
       }
     },
     {
@@ -543,10 +675,8 @@
       "kind": "json",
       "parsedProof": null,
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/eventing-network-runtime-implementation",
-        "commit": null,
-        "hasDirtyStatus": false
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-parent-ui-evidence-drawer-proof"
       }
     },
     {
@@ -556,7 +686,8 @@
       "kind": "png",
       "parsedProof": null,
       "freshness": {
-        "kind": "binary-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-parent-ui-evidence-drawer-proof"
       }
     },
     {
@@ -566,10 +697,8 @@
       "kind": "json",
       "parsedProof": "network-portal-risk-performance-platform-proof",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-portal-risk-performance-status-proof",
-        "commit": "3499db2e47a6b93cbdfa0bb6a7fd2a0132126f1f",
-        "hasDirtyStatus": false
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-portal-risk-performance-platform-proof"
       }
     },
     {
@@ -579,10 +708,8 @@
       "kind": "json",
       "parsedProof": "network-security-readiness-proof",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-security-readiness-proof"
       }
     },
     {
@@ -592,10 +719,8 @@
       "kind": "json",
       "parsedProof": "network-performance-benchmark-proof",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-performance-benchmark-proof"
       }
     },
     {
@@ -605,7 +730,8 @@
       "kind": "log",
       "parsedProof": null,
       "freshness": {
-        "kind": "file-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-broker-delivery-proof"
       }
     },
     {
@@ -615,7 +741,8 @@
       "kind": "log",
       "parsedProof": null,
       "freshness": {
-        "kind": "file-reference"
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-broker-family-hub-delivery-status-proof"
       }
     },
     {
@@ -680,10 +807,8 @@
       "kind": "json",
       "parsedProof": "network-vpn-proxy-tor-tunnel-classifier",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-vpn-proxy-tunnel-classifier-proof"
       }
     },
     {
@@ -693,10 +818,8 @@
       "kind": "json",
       "parsedProof": "network-remote-torrent-download-classifier",
       "freshness": {
-        "kind": "legacy-run-metadata-reference",
-        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
-        "hasDirtyStatus": true
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-torrent-download-classifier-proof"
       }
     },
     {

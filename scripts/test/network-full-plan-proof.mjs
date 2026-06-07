@@ -11,13 +11,30 @@ mkdirSync(testRoot, { recursive: true });
 mkdirSync(commandLogRoot, { recursive: true });
 
 const freshnessCommandSpecs = [
+  ['network-contract-boundary-proof', 'node', ['scripts/test/network-contract-boundary-proof.mjs']],
   ['eventing-full-plan-proof', 'node', ['scripts/test/eventing-full-plan-proof.mjs']],
+  ['network-pcap-replay-proof', 'node', ['scripts/test/network-pcap-replay-proof.mjs']],
+  ['network-packet-dns-parser-proof', 'node', ['scripts/test/network-packet-dns-parser-proof.mjs']],
+  ['network-visibility-parser-proof', 'node', ['scripts/test/network-visibility-parser-proof.mjs']],
+  ['network-live-capture-proof-gate', 'node', ['scripts/test/network-live-capture-proof-gate.mjs']],
+  ['network-live-capture-storage-proof', 'node', ['scripts/test/network-live-capture-storage-proof.mjs']],
+  ['network-zeek-analyzer-comparison-proof', 'node', ['scripts/test/network-zeek-analyzer-comparison-proof.mjs']],
+  ['network-signature-alert-ingestion-proof', 'node', ['scripts/test/network-signature-alert-ingestion-proof.mjs']],
+  ['network-ai-detection-fixture-proof', 'node', ['scripts/test/network-ai-detection-fixture-proof.mjs']],
+  ['network-ai-audit-narrative-proof', 'node', ['scripts/test/network-ai-audit-narrative-proof.mjs']],
+  ['network-risk-budget-threshold-proof', 'node', ['scripts/test/network-risk-budget-threshold-proof.mjs']],
+  ['network-evidence-policy-mapping-proof', 'node', ['scripts/test/network-evidence-policy-mapping-proof.mjs']],
   [
     'network-policy-preview-stored-flow-evidence-proof',
     'node',
     ['scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs'],
   ],
+  ['network-dns-adapter-proof', 'node', ['scripts/test/network-dns-adapter-proof.mjs']],
+  ['network-windows-firewall-adapter-proof', 'node', ['scripts/test/network-windows-firewall-adapter-proof.mjs']],
+  ['network-manual-platform-proof', 'node', ['scripts/test/network-manual-platform-proof.mjs']],
+  ['network-platform-claims-proof', 'node', ['scripts/test/network-platform-claims-proof.mjs']],
   ['network-adapter-capability-status-proof', 'node', ['scripts/test/network-adapter-capability-status-proof.mjs']],
+  ['network-action-result-state-proof', 'node', ['scripts/test/network-action-result-state-proof.mjs']],
   [
     'network-remote-delivery-event-chain-journal-proof',
     'node',
@@ -58,6 +75,26 @@ const freshnessCommandSpecs = [
     'node',
     ['scripts/test/network-remote-delivery-transport-dispatch-state-proof.mjs'],
   ],
+  ['network-parent-ui-evidence-drawer-proof', 'node', ['scripts/test/network-parent-ui-evidence-drawer-proof.mjs']],
+  [
+    'network-portal-risk-performance-platform-proof',
+    'node',
+    ['scripts/test/network-portal-risk-performance-platform-proof.mjs'],
+  ],
+  ['network-security-readiness-proof', 'node', ['scripts/test/network-security-readiness-proof.mjs']],
+  ['network-performance-benchmark-proof', 'node', ['scripts/test/network-performance-benchmark-proof.mjs']],
+  ['network-broker-delivery-proof', 'node', ['scripts/test/network-broker-delivery-proof.mjs']],
+  [
+    'network-broker-family-hub-delivery-status-proof',
+    'node',
+    ['scripts/test/network-broker-family-hub-delivery-status-proof.mjs'],
+  ],
+  ['network-vpn-proxy-tunnel-classifier-proof', 'node', ['scripts/test/network-vpn-proxy-tunnel-classifier-proof.mjs']],
+  [
+    'network-remote-torrent-download-classifier-proof',
+    'node',
+    ['scripts/test/network-remote-torrent-download-classifier-proof.mjs'],
+  ],
   ['network-end-to-end-pipeline-proof', 'node', ['scripts/test/network-end-to-end-pipeline-proof.mjs']],
   [
     'agent-service-clippy',
@@ -67,9 +104,29 @@ const freshnessCommandSpecs = [
 ];
 
 const refreshedProofByName = new Map([
+  ['network-contract-boundary', 'network-contract-boundary-proof'],
   ['eventing-full-plan', 'eventing-full-plan-proof'],
+  ['network-pcap-replay', 'network-pcap-replay-proof'],
+  ['network-packet-dns-parser', 'network-packet-dns-parser-proof'],
+  ['network-visibility-parser', 'network-visibility-parser-proof'],
+  ['network-live-capture-proof-gate', 'network-live-capture-proof-gate'],
+  ['network-live-capture-storage', 'network-live-capture-storage-proof'],
+  ['network-zeek-analyzer-comparison', 'network-zeek-analyzer-comparison-proof'],
+  ['network-signature-alert-ingestion', 'network-signature-alert-ingestion-proof'],
+  ['network-ai-detection-fixture-proof', 'network-ai-detection-fixture-proof'],
+  ['network-ai-audit-narrative-proof', 'network-ai-audit-narrative-proof'],
+  ['network-risk-budget-threshold-proof', 'network-risk-budget-threshold-proof'],
+  ['network-evidence-policy-mapping', 'network-evidence-policy-mapping-proof'],
   ['network-policy-preview-stored-flow-evidence-proof', 'network-policy-preview-stored-flow-evidence-proof'],
+  ['network-dns-adapter', 'network-dns-adapter-proof'],
+  ['network-windows-firewall-adapter', 'network-windows-firewall-adapter-proof'],
+  ['network-windows-wfp-proof-gate', 'network-manual-platform-proof'],
+  ['network-android-vpnservice-proof-gate', 'network-manual-platform-proof'],
+  ['network-apple-network-extension-proof-gate', 'network-manual-platform-proof'],
+  ['network-linux-adapter-proof-gate', 'network-manual-platform-proof'],
+  ['network-platform-claims', 'network-platform-claims-proof'],
   ['network-adapter-capability-status', 'network-adapter-capability-status-proof'],
+  ['network-action-result-state-proof', 'network-action-result-state-proof'],
   ['network-remote-delivery-event-chain-journal-proof', 'network-remote-delivery-event-chain-journal-proof'],
   ['network-remote-delivery-receipt-ledger-proof', 'network-remote-delivery-receipt-ledger-proof'],
   ['network-remote-delivery-durable-envelope-proof', 'network-remote-delivery-durable-envelope-proof'],
@@ -78,7 +135,23 @@ const refreshedProofByName = new Map([
   ['network-remote-delivery-dispatch-readiness-proof', 'network-remote-delivery-dispatch-readiness-proof'],
   ['network-remote-delivery-no-enforcement-invariant-proof', 'network-remote-delivery-no-enforcement-invariant-proof'],
   ['network-remote-delivery-transport-dispatch-state-proof', 'network-remote-delivery-transport-dispatch-state-proof'],
+  ['network-portal-risk-performance-platform-proof', 'network-portal-risk-performance-platform-proof'],
+  ['network-security-readiness-proof', 'network-security-readiness-proof'],
+  ['network-performance-benchmark-proof', 'network-performance-benchmark-proof'],
+  ['network-vpn-proxy-tor-tunnel-classifier', 'network-vpn-proxy-tunnel-classifier-proof'],
+  ['network-remote-torrent-download-classifier', 'network-remote-torrent-download-classifier-proof'],
   ['network-end-to-end-pipeline', 'network-end-to-end-pipeline-proof'],
+]);
+
+const refreshedArtifactById = new Map([
+  ['packet-parser', 'network-packet-dns-parser-proof'],
+  ['tls-sni-parser', 'network-visibility-parser-proof'],
+  ['http-host-parser', 'network-visibility-parser-proof'],
+  ['quic-visibility', 'network-visibility-parser-proof'],
+  ['portal-drawer', 'network-parent-ui-evidence-drawer-proof'],
+  ['portal-drawer-screenshot', 'network-parent-ui-evidence-drawer-proof'],
+  ['broker-delivery', 'network-broker-delivery-proof'],
+  ['remote-delivery-status', 'network-broker-family-hub-delivery-status-proof'],
 ]);
 
 const proofArtifacts = [
@@ -394,7 +467,7 @@ function readArtifact([id, group, path]) {
     path,
     kind: artifactKind(path),
     parsedProof: parsed?.proof ?? null,
-    freshness: artifactFreshness(path, parsed),
+    freshness: artifactFreshness(id, path, parsed),
   };
 }
 
@@ -509,7 +582,10 @@ function normalizeCommandOutput(value) {
   return `${stableRustTestLines(lines).join('\n').trim()}\n`;
 }
 
-function artifactFreshness(path, parsed) {
+function artifactFreshness(id, path, parsed) {
+  if (refreshedArtifactById.has(id)) {
+    return { kind: 'refreshed-by-aggregate-command', command: refreshedArtifactById.get(id) };
+  }
   if (!parsed) {
     return isBinary(path) ? { kind: 'binary-reference' } : { kind: 'file-reference' };
   }

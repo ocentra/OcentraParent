@@ -7,5 +7,5 @@ test tests::family_variants::family_subscriber_receives_typed_enum_variants_with
 
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 74 filtered out; finished in 0.00s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.29s
      Running unittests src\lib.rs (target\debug\deps\ocentra_eventing-927d6221c7fa57e1.exe)

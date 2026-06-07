@@ -148,6 +148,7 @@ packages/parent-domain/src/app-install-purchase-child-device-delivery-readiness-
 packages/parent-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts:1 file has 367 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-external-runtime-delivery-handoff-proof.ts:1 file has 309 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-external-runtime-device-delivery-proof.ts:1 file has 337 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-external-runtime-writer-delivery-blocker-proof.ts:1 file has 353 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-external-runtime-writer-delivery-boundary-proof.ts:1 file has 312 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-external-runtime-writer-readiness-proof.ts:1 file has 323 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-external-runtime-writer-transport-preflight-proof.ts:1 file has 388 lines; crossed 250-line advisory band; maximum is 1000
@@ -770,7 +771,7 @@ crates/agent-service/src/local_ai_runtime_payload.rs:95 function has 70 lines; w
 crates/agent-service/src/local_ai_runtime_provider_proof_read_model.rs:1 file has 306 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/local_ai_runtime_provider_proof_read_model.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/agent-service/src/main.rs:1 file has 281 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-service/src/network_remote_delivery_status_payload.rs:63 function has 79 lines; warning starts at 64 of 80
+crates/agent-service/src/network_remote_delivery_status_payload.rs:67 function has 79 lines; warning starts at 64 of 80
 crates/agent-service/src/network_runtime_stream_event_values.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-service/src/network_runtime_stream_tests.rs:1 file has 390 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/parent_assistant_api/thread_store.rs:1 file has 17 functions; warning starts at 15 of 18
@@ -844,6 +845,7 @@ crates/ocentra-eventing/src/tests/request_response_support.rs:1 file has 17 func
 crates/ocentra-eventing/src/topology.rs:1 file has 256 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-eventing/src/topology.rs:1 file has 16 functions; warning starts at 15 of 18
 crates/ocentra-network-evidence/src/action_result.rs:1 file has 426 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/adapter_capability_status.rs:1 file has 253 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/ai_audit.rs:1 file has 440 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/ai_audit.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/ocentra-network-evidence/src/ai_detection.rs:1 file has 597 lines; crossed 500-line advisory band; maximum is 1000
