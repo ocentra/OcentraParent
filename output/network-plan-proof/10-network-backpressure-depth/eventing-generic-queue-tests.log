@@ -1,0 +1,21 @@
+
+running 14 tests
+test tests::production_shutdown::test_only_shutdown_drop_reports_dropped_queued_work ... ok
+test tests::production_shutdown::production_shutdown_dead_letters_queued_without_dispatch ... ok
+test tests::clock_manual::manual_clock_expires_queued_ttl_without_wall_clock_sleep ... ok
+test tests::queue::no_subscriber_queue_drains_after_subscriber_registers ... ok
+test tests::queue::bounded_queue_overflow_dead_letters_oldest_event_and_keeps_newest ... ok
+test tests::queue::subscriber_auto_drain_only_drains_matching_event_type ... ok
+test tests::queue::idempotency_registry_rejects_queued_and_completed_duplicates ... ok
+test tests::queue::failed_subscribe_drain_preserves_queued_event_for_retry ... ok
+test tests::queue::after_dispatch_journal_failure_does_not_replay_handler_work ... ok
+test tests::production_shutdown::production_shutdown_drain_dispatches_queue_and_dead_letters_remaining ... ok
+test tests::metrics::metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts ... ok
+test tests::journal_replay::replay::action_replay_dispatches_queued_drain_event_once ... ok
+test tests::queue::queued_event_expires_before_dispatch_when_ttl_elapsed ... ok
+test tests::queue::in_flight_duplicate_guard_rejects_concurrent_event_id ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 64 filtered out; finished in 0.09s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running unittests src\lib.rs (target\debug\deps\ocentra_eventing-927d6221c7fa57e1.exe)

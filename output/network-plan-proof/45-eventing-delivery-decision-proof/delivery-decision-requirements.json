@@ -1,0 +1,41 @@
+{
+  "namespace": "network",
+  "localRoutes": [
+    "local-in-process",
+    "local-service"
+  ],
+  "brokerRoutes": [
+    "broker-backed",
+    "relay-hub"
+  ],
+  "localBackpressure": {
+    "boundedQueueCapacity": 32,
+    "ttlMillis": 30000,
+    "overflowDeadLetters": true,
+    "idempotencyRequired": true
+  },
+  "brokerRequiredArtifacts": [
+    "custody proof",
+    "publisher auth proof",
+    "subscriber auth proof",
+    "encryption proof",
+    "retention policy",
+    "replay plan",
+    "deletion plan",
+    "backpressure policy",
+    "offset policy",
+    "dedupe policy",
+    "broker config"
+  ],
+  "relayHubAdditionalArtifacts": [
+    "relay hub identity",
+    "relay hub policy"
+  ],
+  "notImplementedByThisProof": [
+    "broker delivery",
+    "relay-hub delivery",
+    "cross-process transport",
+    "production retention/delete/export",
+    "policy or adapter execution"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "proof": "eventing-network-backpressure-proof",
+  "checkedAt": "2026-06-07T02:20:03.249Z",
+  "branch": "codex/network-eventing-row45-proof-artifacts",
+  "sourceCommit": "84cfc5ccf201a92bb62cbf5b5a83fdea658032b2",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
+  "originMain": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "mergeBase": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\10-network-backpressure-depth",
+  "testRoot": "test-results\\eventing-network-backpressure-proof",
+  "commands": [
+    {
+      "name": "agent-core-network-runtime-queue-tests",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime_queue",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10-network-backpressure-depth\\agent-core-network-runtime-queue-tests.log"
+    },
+    {
+      "name": "eventing-generic-queue-tests",
+      "command": "cargo test -p ocentra-eventing queue",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10-network-backpressure-depth\\eventing-generic-queue-tests.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10-network-backpressure-depth\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "proofSummary": "output\\network-plan-proof\\10-network-backpressure-depth\\proof-summary.json",
+    "testProof": "test-results\\eventing-network-backpressure-proof\\proof.json"
+  },
+  "rowsCovered": [
+    "network-plan row 10 reusable Rust eventing backpressure depth sub-slice",
+    "eventing-plan queue/retry/timeout proof consumed by Parent network runtime"
+  ],
+  "claimsProved": [
+    "network runtime flow events use the reusable ocentra-eventing no-subscriber queue path",
+    "bounded network queue overflow records an explicit queue-overflow dead letter instead of silently dropping work",
+    "network queued flow TTL expiry dead-letters before dispatch through ManualEventClock proof",
+    "network flow idempotency rejects duplicate queued and completed observations",
+    "stored network queue payloads remain metadata-only and do not claim exact URL, decrypted payload, or adapter action execution"
+  ],
+  "claimsNotProved": [
+    "broker-backed delivery or relay-hub transport",
+    "service WebSocket streaming of the full runtime event chain",
+    "production retention, replay, delete/export, offset, or dedupe behavior",
+    "host DNS/filter, firewall, WFP, VpnService, NetworkExtension, nftables, eBPF, or TUN adapter execution",
+    "policy execution, enforcement-command publication, or portal risk-budget UI rendering"
+  ]
+}
