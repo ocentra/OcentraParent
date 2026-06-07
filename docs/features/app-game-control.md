@@ -406,6 +406,12 @@ control with better evidence and local audit.
   portal app/game dashboard keeps Running and Foreground as separate metrics and
   per-row counts, including running rows that are explicitly not foreground,
   without promoting runtime evidence to foreground usage.
+- The AI-output direct-enforcement merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/ai-output-direct-enforcement`: AI
+  classification digests expose only classification, confidence, action hints,
+  and evidence/session refs; local-AI category candidates require digest refs
+  and remain `notEnforcement`; and parent-domain category/risk policy routes
+  keep adapter dispatch `not-dispatched`.
 
 ## Current Gap
 
