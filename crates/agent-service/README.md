@@ -18,6 +18,10 @@ development paths and orchestrates runtime commands.
   `localOcr` Activity Screen read-model rows with model/provider metadata, and
   drains processed queue records while keeping raw screenshot retention disabled
   by default.
+- Local JSON-backed screen parent settings persistence proof that reports a
+  disabled default, persists parent strict dry-run settings across reload, and
+  rejects raw image retention or unsafe policy/capture combinations before
+  persistence.
 - V0.8 product-control spine runtime reports through
   `agent.enforcement.product-control-spine.get` without upgrading unsupported
   broad adapter claims.
@@ -163,3 +167,6 @@ flowchart LR
 - Screen service analysis proofs are backend/local proof hooks only; production
   OCR/VLM quality, authenticated-account surfaces, broader live trigger
   producers, retention UI, and enforcement remain separate gaps.
+- Screen settings persistence is backend/runtime proof only; parent portal
+  command wiring, product retention-control UI, raw screenshot retention
+  enablement, live view, and privacy/legal approval remain separate gaps.

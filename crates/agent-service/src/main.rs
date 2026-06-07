@@ -236,6 +236,12 @@ mod screen_ai_service_event_bridge_tests;
 mod screen_ai_service_event_subscription;
 #[cfg(test)]
 mod screen_ai_service_event_subscription_tests;
+#[cfg_attr(not(test), allow(dead_code))]
+mod screen_settings_runtime;
+#[cfg(test)]
+mod screen_settings_runtime_tests;
+#[cfg_attr(not(test), allow(dead_code))]
+mod screen_settings_store;
 mod snapshot;
 mod time;
 mod tracking_read_model_payload;
