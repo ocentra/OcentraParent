@@ -13,6 +13,7 @@ const androidHostProofPath = join(outputDirectory, '11-android-host-device-proof
 const linuxHostProofPath = join(outputDirectory, '12-linux-host-package-proof.json');
 const windowsHostProofPath = join(outputDirectory, '13-windows-host-browser-proof.json');
 const windowsManagedCdpProofPath = join(outputDirectory, '14-windows-managed-cdp-proof.json');
+const androidOwnedShellProofPath = join(outputDirectory, '15-android-owned-browser-shell-proof.json');
 
 const requiredProofFiles = [
   '00-source-snapshot.md',
@@ -46,11 +47,13 @@ async function main() {
   const linuxHostProof = await readLinuxHostProof();
   const windowsHostProof = await readWindowsHostProof();
   const windowsManagedCdpProof = await readWindowsManagedCdpProof();
+  const androidOwnedShellProof = await readAndroidOwnedShellProof();
   const failures = [
     ...validateMatrix(matrix.entries),
     ...proofFiles.filter((file) => !file.exists).map((file) => `missing proof artifact: ${file.path}`),
     ...validateWindowsHostProof(windowsHostProof),
     ...validateWindowsManagedCdpProof(windowsManagedCdpProof),
+    ...validateAndroidOwnedShellProof(androidOwnedShellProof),
   ];
   const proof = {
     schemaVersion: 1,
@@ -79,8 +82,11 @@ async function main() {
         ? 'linux-wsl-package-inventory-boundary-proof-present-desktop-adapter-still-manual-required'
         : 'macos-linux-platform-adapters-manual-required',
       androidHostProof
-        ? 'android-browser-package-visibility-proof-present-owned-shell-still-manual-required'
+        ? 'android-browser-package-visibility-proof-present'
         : 'android-owned-browser-shell-manual-required',
+      androidOwnedShellProof
+        ? 'android-owned-browser-shell-emulator-proof-present-device-policy-still-manual-required'
+        : 'android-owned-browser-shell-build-install-launch-proof-required',
       windowsHostProof
         ? 'windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed'
         : 'windows-host-browser-inventory-proof-required',
@@ -93,6 +99,7 @@ async function main() {
       'product-checklist-upgrade-not-claimed',
     ],
     androidHostProof,
+    androidOwnedShellProof,
     linuxHostProof,
     windowsHostProof,
     windowsManagedCdpProof,
@@ -214,6 +221,7 @@ function markdownFor(proof) {
     `Unsupported rows: ${proof.summary.unsupportedRows}`,
     `Product claimed: ${proof.summary.productClaimed}`,
     `Android host proof: ${proof.androidHostProof?.resultState ?? 'not-present'}`,
+    `Android owned shell proof: ${proof.androidOwnedShellProof?.resultState ?? 'not-present'}`,
     `Linux host proof: ${proof.linuxHostProof?.resultState ?? 'not-present'}`,
     `Windows host proof: ${proof.windowsHostProof?.resultState ?? 'not-present'}`,
     `Windows managed CDP proof: ${proof.windowsManagedCdpProof?.resultState ?? 'not-present'}`,
@@ -225,8 +233,11 @@ function markdownFor(proof) {
     'No product checklist upgrade is claimed.',
     'Non-Windows managed exact URL and known-active tab support remain manual-required or unsupported until separate real platform proof exists.',
     proof.androidHostProof
-      ? 'Android emulator package-visibility proof is present, but owned browser shell custody, exact URL, active tab, device-owner policy, and enforcement remain unclaimed.'
+      ? 'Android emulator package-visibility proof is present; exact URL, active tab, device-owner policy, and enforcement remain unclaimed.'
       : 'Android owned browser shell/device proof remains manual-required.',
+    proof.androidOwnedShellProof
+      ? 'Android owned browser shell build/install/launch proof is present, but exact URL policy, known active tab, Device Owner, VPN/DNS, UsageStats, Accessibility, and enforcement remain unclaimed.'
+      : 'Android owned browser shell build/install/launch proof remains manual-required.',
     proof.linuxHostProof
       ? 'Linux WSL package/PATH/desktop-entry boundary proof is present, but Linux desktop browser adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.'
       : 'Linux desktop package and adapter proof remains manual-required.',
@@ -256,6 +267,36 @@ async function readAndroidHostProof() {
     exactUrlProofClaimed: proof.hostProofSummary?.exactUrlProofClaimed === true,
     knownActiveTabProofClaimed: proof.hostProofSummary?.knownActiveTabProofClaimed === true,
     enforcementClaimed: proof.hostProofSummary?.enforcementClaimed === true,
+  };
+}
+
+async function readAndroidOwnedShellProof() {
+  if (!existsSync(androidOwnedShellProofPath)) {
+    return null;
+  }
+
+  const proof = JSON.parse(await readFile(androidOwnedShellProofPath, 'utf8'));
+  return {
+    path: relativePath(androidOwnedShellProofPath),
+    proofId: proof.proofId,
+    resultState: proof.hostProofSummary?.resultState ?? 'unknown',
+    attachedDeviceCount: proof.hostProofSummary?.attachedDeviceCount ?? 0,
+    bootedDeviceCount: proof.hostProofSummary?.bootedDeviceCount ?? 0,
+    ownedBrowserShellPackageInstalled: proof.hostProofSummary?.ownedBrowserShellPackageInstalled === true,
+    ownedBrowserShellSourceDeclared: proof.hostProofSummary?.ownedBrowserShellSourceDeclared === true,
+    webViewDeclared: proof.hostProofSummary?.webViewDeclared === true,
+    browsableViewIntentDeclared: proof.hostProofSummary?.browsableViewIntentDeclared === true,
+    launchObserved: proof.hostProofSummary?.launchObserved === true,
+    localProofPageObserved: proof.hostProofSummary?.localProofPageObserved === true,
+    exactUrlPolicyClaimed: proof.hostProofSummary?.exactUrlPolicyClaimed === true,
+    knownActiveTabProofClaimed: proof.hostProofSummary?.knownActiveTabProofClaimed === true,
+    deviceOwnerEnrollmentClaimed: proof.hostProofSummary?.deviceOwnerEnrollmentClaimed === true,
+    vpnDnsBrowserProofClaimed: proof.hostProofSummary?.vpnDnsBrowserProofClaimed === true,
+    usageStatsRouteProofClaimed: proof.hostProofSummary?.usageStatsRouteProofClaimed === true,
+    accessibilityRouteProofClaimed: proof.hostProofSummary?.accessibilityRouteProofClaimed === true,
+    enforcementClaimed: proof.hostProofSummary?.enforcementClaimed === true,
+    rawUrlPersisted: proof.hostProofSummary?.rawUrlPersisted === true,
+    rawPageContentPersisted: proof.hostProofSummary?.rawPageContentPersisted === true,
   };
 }
 
@@ -398,6 +439,43 @@ function validateWindowsManagedCdpProof(proof) {
   }
   if (proof.activeTabEnforcementClaimed || proof.finalPolicyExecutionClaimed || proof.enforcementClaimed) {
     failures.push('Windows managed CDP proof made active-tab enforcement, final policy, or enforcement claims');
+  }
+  return failures;
+}
+
+function validateAndroidOwnedShellProof(proof) {
+  if (proof === null) {
+    return [
+      'missing Android owned shell proof artifact: output/browser-plan-proof/05-cross-platform-inventory-matrix/15-android-owned-browser-shell-proof.json',
+    ];
+  }
+
+  const failures = [];
+  if (proof.resultState !== 'android-owned-browser-shell-build-install-launch-proof') {
+    failures.push(`Android owned shell proof has unexpected resultState: ${proof.resultState}`);
+  }
+  if (!proof.ownedBrowserShellPackageInstalled) {
+    failures.push('Android owned shell proof did not install the owned browser shell package');
+  }
+  if (!proof.ownedBrowserShellSourceDeclared || !proof.webViewDeclared || !proof.browsableViewIntentDeclared) {
+    failures.push('Android owned shell proof lacks source-backed package/WebView/BROWSABLE VIEW evidence');
+  }
+  if (!proof.launchObserved || !proof.localProofPageObserved) {
+    failures.push('Android owned shell proof did not observe launched proof UI');
+  }
+  if (
+    proof.exactUrlPolicyClaimed ||
+    proof.knownActiveTabProofClaimed ||
+    proof.deviceOwnerEnrollmentClaimed ||
+    proof.vpnDnsBrowserProofClaimed ||
+    proof.usageStatsRouteProofClaimed ||
+    proof.accessibilityRouteProofClaimed ||
+    proof.enforcementClaimed
+  ) {
+    failures.push('Android owned shell proof made exact URL, active tab, platform policy, or enforcement claims');
+  }
+  if (proof.rawUrlPersisted || proof.rawPageContentPersisted) {
+    failures.push('Android owned shell proof persisted raw URL or raw page content');
   }
   return failures;
 }

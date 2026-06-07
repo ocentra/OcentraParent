@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "proofId": "browser-platform-android-owned-shell-proof",
+  "generatedAt": "2026-06-07T10:20:00.978Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "c9c13718038758b356c6857a803c5996e7146f6b",
+  "baseCommit": "9421f3383cd0f3922bc3e04081f55ca903e6e62d",
+  "hostProofSummary": {
+    "adbInstalled": true,
+    "adbPathPersisted": false,
+    "adbPathSha256": "8f7574d08793a80ccaddee5ceeb0fbcf8589faaf0c7318fe2d32ad984a3c29df",
+    "emulatorPathPersisted": false,
+    "emulatorPathSha256": "527a50968879bcf80bd6856c7aff47ebbb8de1c2263310e38123ac574e932fdb",
+    "emulatorAvdCount": 1,
+    "emulatorLaunchedByProof": true,
+    "emulatorCleanupAttempted": true,
+    "attachedDeviceCount": 1,
+    "bootedDeviceCount": 1,
+    "ownedBrowserShellPackageInstalled": true,
+    "ownedBrowserShellSourceDeclared": true,
+    "webViewDeclared": true,
+    "browsableViewIntentDeclared": true,
+    "launchObserved": true,
+    "localProofPageObserved": true,
+    "screenshotsCaptured": false,
+    "screenshotsPersisted": false,
+    "uiTreeCaptured": true,
+    "uiTreeRawPersisted": false,
+    "rawInstalledPackageListPersisted": false,
+    "rawIntentResolutionPersisted": false,
+    "rawUrlPersisted": false,
+    "rawPageContentPersisted": false,
+    "exactUrlPolicyClaimed": false,
+    "knownActiveTabProofClaimed": false,
+    "deviceOwnerEnrollmentClaimed": false,
+    "vpnDnsBrowserProofClaimed": false,
+    "usageStatsRouteProofClaimed": false,
+    "accessibilityRouteProofClaimed": false,
+    "enforcementClaimed": false,
+    "resultState": "android-owned-browser-shell-build-install-launch-proof"
+  },
+  "proofUrlRef": "redacted-android-owned-browser-proof-url-5c2376d4704c97e2",
+  "proofUrlPersisted": false,
+  "apk": {
+    "path": "platforms/android/agent/browser-shell/build/outputs/apk/debug/browser-shell-debug.apk",
+    "exists": true,
+    "sha256": "f0bf5e11b208707e0fc1dcb06f7c0ae3e3e7e8f7c728ffab757b011aba323390"
+  },
+  "devices": [
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "packageInstalled": true,
+      "viewIntentResolved": false,
+      "rawIntentResolutionPersisted": false,
+      "rawUrlPersisted": false,
+      "rawPageContentPersisted": false,
+      "launchObserved": true,
+      "localProofPageObserved": true,
+      "uiTreeCaptured": true,
+      "uiTreeRawPersisted": false,
+      "uiTreeSha256": "ac4f9f816e5d930717d709ff6a9d70486292209ecef4e79b25b838690c9a572b",
+      "screenshotCaptured": false,
+      "screenshotPersisted": false,
+      "screenshotPath": null,
+      "screenshotSha256": null,
+      "exactUrlPolicyClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "deviceOwnerEnrollmentClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "sourceBoundary": {
+    "settingsPath": "platforms/android/agent/settings.gradle",
+    "settingsSha256": "860d642411691efd7dea78706b6a760da4c9012984e28c63912504ecea144da0",
+    "manifestPath": "platforms/android/agent/browser-shell/src/main/AndroidManifest.xml",
+    "manifestSha256": "7b3d0b84614ebbe2837f8cbae53b1dee1cd9b5c75a1aa8993170c9af234242b3",
+    "activityPath": "platforms/android/agent/browser-shell/src/main/java/ca/ocentra/parent/browser/OcentraOwnedBrowserShellActivity.java",
+    "activitySha256": "d8deae4fe0005f4958e2ed2f5500a895b73edbd62de6d52d55ca846efa4633fb",
+    "buildGradlePath": "platforms/android/agent/browser-shell/build.gradle",
+    "buildGradleSha256": "3004b074f53cd347854c53740f031e1c730ef4950508cbab22517214b909c70e",
+    "rawSourcePersisted": false,
+    "ownedBrowserShellModuleIncluded": true,
+    "ownedBrowserShellSourceDeclared": true,
+    "webViewDeclared": true,
+    "browsableViewIntentDeclared": true,
+    "cleartextLimitedToDebugProof": true,
+    "deviceOwnerDeclared": false,
+    "accessibilityServiceDeclared": false,
+    "vpnServiceDeclared": false,
+    "usageStatsPermissionDeclared": false,
+    "negativeBoundaryState": "owned-browser-shell-build-and-launch-only-no-device-owner-no-accessibility-no-vpn-no-usagestats-no-enforcement"
+  },
+  "negativeChecks": [
+    {
+      "claim": "managed-exact-url-on-android",
+      "rejected": true
+    },
+    {
+      "claim": "known-active-tab-on-android",
+      "rejected": true
+    },
+    {
+      "claim": "android-device-owner-policy",
+      "rejected": true
+    },
+    {
+      "claim": "android-vpn-dns-browser-proof",
+      "rejected": true
+    },
+    {
+      "claim": "android-usagestats-route-proof",
+      "rejected": true
+    },
+    {
+      "claim": "android-accessibility-route-proof",
+      "rejected": true
+    },
+    {
+      "claim": "android-browser-enforcement",
+      "rejected": true
+    }
+  ]
+}

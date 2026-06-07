@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-platform-inventory-matrix-proof",
-  "generatedAt": "2026-06-07T09:21:08.915Z",
+  "generatedAt": "2026-06-07T10:20:33.107Z",
   "proofContract": "packages/activity-domain/src/browser-platform-inventory-matrix.ts",
   "sourceWorkpack": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
   "rows": [
@@ -246,7 +246,8 @@
     "non-windows-managed-exact-url-not-claimed",
     "non-windows-known-active-tab-not-claimed",
     "linux-wsl-package-inventory-boundary-proof-present-desktop-adapter-still-manual-required",
-    "android-browser-package-visibility-proof-present-owned-shell-still-manual-required",
+    "android-browser-package-visibility-proof-present",
+    "android-owned-browser-shell-emulator-proof-present-device-policy-still-manual-required",
     "windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed",
     "windows-managed-cdp-exact-url-proof-present-final-enforcement-still-unclaimed",
     "ios-familycontrols-safari-extension-manual-required",
@@ -265,6 +266,28 @@
     "exactUrlProofClaimed": false,
     "knownActiveTabProofClaimed": false,
     "enforcementClaimed": false
+  },
+  "androidOwnedShellProof": {
+    "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/15-android-owned-browser-shell-proof.json",
+    "proofId": "browser-platform-android-owned-shell-proof",
+    "resultState": "android-owned-browser-shell-build-install-launch-proof",
+    "attachedDeviceCount": 1,
+    "bootedDeviceCount": 1,
+    "ownedBrowserShellPackageInstalled": true,
+    "ownedBrowserShellSourceDeclared": true,
+    "webViewDeclared": true,
+    "browsableViewIntentDeclared": true,
+    "launchObserved": true,
+    "localProofPageObserved": true,
+    "exactUrlPolicyClaimed": false,
+    "knownActiveTabProofClaimed": false,
+    "deviceOwnerEnrollmentClaimed": false,
+    "vpnDnsBrowserProofClaimed": false,
+    "usageStatsRouteProofClaimed": false,
+    "accessibilityRouteProofClaimed": false,
+    "enforcementClaimed": false,
+    "rawUrlPersisted": false,
+    "rawPageContentPersisted": false
   },
   "linuxHostProof": {
     "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/12-linux-host-package-proof.json",
