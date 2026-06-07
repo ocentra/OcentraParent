@@ -350,6 +350,15 @@ dev-only repo when it claims consumer readiness.
   provider contact, legal disclosure execution, remote support sessions,
   production SLA, provider-secret custody, default hosted family data, and child
   activity custody as explicit non-claims.
+- `production-support-proof-status-matrix-closure-proof` adds a parent-domain
+  proof/status matrix closure row set after PR534. It reconciles existing
+  status-backend runtime, public runtime/publication, privacy/legal disclosure,
+  provider-secret, export/delete lifecycle, and release-installer support proof
+  refs without duplicating the underlying proofs. It preserves real public
+  runtime, status backend execution, signing/store proof, updater execution,
+  support backend upload execution, account/billing provider execution, legal
+  disclosure execution, production SLA, provider-secret custody, and child
+  activity custody as explicit non-claims.
 - `production-support-privacy-legal-disclosure-status-proof` adds
   logging-domain privacy/legal disclosure status rows for disclosure requested,
   parent-authorized, legal-review queued, legal-review running,
@@ -879,6 +888,16 @@ package/runtime proof.
       remote support sessions, production SLA, provider-secret custody, default
       Ocentra-hosted family data, and child activity custody remain
       unimplemented or unclaimed.
+- [ ] Production support proof/status matrix closure proof. Current
+      `production-support-proof-status-matrix-closure-proof` reconciles the
+      status-backend runtime, public runtime/publication, privacy/legal,
+      provider-secret, export/delete, and release-installer support proof refs
+      into one source-backed status pack after PR534. It remains deterministic
+      contract/read-model proof only: real public runtime, real status backend
+      execution, signing/store proof, updater execution, support backend upload
+      execution, account/billing provider execution, legal disclosure
+      execution, production SLA, provider-secret custody, and child activity
+      custody remain unimplemented, manual-required, or unclaimed.
 - [ ] Production support privacy/legal disclosure status proof. Current
       `production-support-privacy-legal-disclosure-status-proof` covers
       privacy/legal disclosure requested, parent-authorized, legal-review
