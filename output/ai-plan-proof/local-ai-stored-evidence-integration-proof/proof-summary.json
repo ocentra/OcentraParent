@@ -1,0 +1,76 @@
+{
+  "status": "ok",
+  "proofKind": "local-ai-stored-evidence-integration-proof",
+  "generatedAt": "2026-06-07T18:46:43.464Z",
+  "sourceProofs": {
+    "storedEvidenceContext": "output/ai-plan-proof/local-ai-stored-evidence-context/proof-summary.json"
+  },
+  "output": "output/ai-plan-proof/local-ai-stored-evidence-integration-proof/proof-summary.json",
+  "contextRow": {
+    "rowId": "mixed-stored-evidence-ready",
+    "selectedEvidenceRefs": [
+      "browser-ref-youtube-ordinary-video",
+      "app-game-ref-native-game",
+      "network-flow-ref-live-capture-storage",
+      "screen-summary-ref-live-ocr"
+    ],
+    "auditEvidenceRefs": [
+      "youtube-ordinary-video-query-store-summary",
+      "native-game-query-store-summary",
+      "network-live-capture-storage-query-row",
+      "screen-winrt-ocr-result-live-wikipedia-browser-ocr-query-store-summary"
+    ],
+    "localModelRuntimeRefs": [
+      "stored-context-local-runtime"
+    ],
+    "parentRuleReferences": [
+      "stored-evidence-safety-rule"
+    ],
+    "custodyLabels": [
+      "child-device-query-store"
+    ],
+    "validationGateSummary": "ready stored-evidence context for local-only model input"
+  },
+  "evaluationInput": {
+    "requestId": "stored-evidence-integration-request",
+    "evidenceReferenceCount": 4,
+    "parentRuleReferenceCount": 1,
+    "recentActivityReferenceCount": 4,
+    "modelRequest": {
+      "providerId": "stored-evidence-integration-provider",
+      "modelId": "stored-evidence-integration-model",
+      "promptVersion": "stored-evidence-integration-v1"
+    }
+  },
+  "inferenceResult": {
+    "dryRunId": "stored-evidence-integration-dry-run",
+    "state": "ready-dry-run",
+    "action": "warn",
+    "confidence": 0.62,
+    "evidenceReferenceCount": 4,
+    "parentRuleReferenceCount": 1,
+    "localOnly": true,
+    "dryRunOnly": true,
+    "modelExecuted": false,
+    "remoteApiClaimed": false,
+    "policyAuthorityClaimed": false,
+    "enforcementClaimed": false,
+    "productionModelQualityClaimed": false,
+    "rawPromptRetained": false
+  },
+  "assertions": {
+    "storedContextReady": true,
+    "allStoredEvidenceRefsReachEvaluationInput": true,
+    "dryRunConsumesStoredEvidenceRefs": true,
+    "dryRunPreservesParentRuleRefs": true,
+    "dryRunPreservesRuntimeRef": true,
+    "localOnly": true,
+    "noRawPromptRetention": true,
+    "noRemoteOrPolicyAuthority": true
+  },
+  "nonClaims": [
+    "This proof integrates existing stored-evidence context output with the local AI dry-run contract.",
+    "It does not create fresh captures, execute a production model, prove model quality, render portal UI, or dispatch enforcement.",
+    "It does not retain raw prompt text, raw model output, or raw screenshots, and it does not use remote/API AI."
+  ]
+}

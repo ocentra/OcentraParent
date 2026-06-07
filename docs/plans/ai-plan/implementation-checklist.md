@@ -24,6 +24,7 @@ consumes the same results.
 | Mobile dormant AI provider proof                  | P2 route proof           | `output/ai-plan-proof/mobile-dormant-ai-provider-proof/proof-summary.json`                                                             | Proves mobile provider remains dormant while trusted desktop/laptop capacity exists, rejects low battery/thermal or disabled fallback policy, and becomes eligible only for explicit light fallback work. Physical household LAN provider discovery and production model execution remain planned.                                                                                                                                                                                                           |
 | Local AI runtime status read model                | P3 contract proved       | `output/ai-plan-proof/local-ai-runtime-status-read-model-proof/proof-summary.json`                                                     | Projects existing provider proof rows into parent-facing runtime status rows with provider/runtime/model refs, child-safety priority visibility, ready/queued/degraded/unavailable counts, and setup/unavailable visibility. It does not render the production portal, execute a model, prove model quality, use remote/API AI, grant policy authority, or dispatch enforcement.                                                                                                                             |
 | Stored-evidence context builder                   | P3 replay proved         | `output/ai-plan-proof/local-ai-stored-evidence-context/proof-summary.json`                                                             | Consumes existing stored browser, app/game, network-flow, and screen-summary proof artifacts through `buildLocalAiEvidenceContext`, proving a ready mixed context with child-device custody, runtime refs, parent-rule refs, and audit refs; hosted non-activity custody rejection; and partial missing-evidence degradation. It does not create fresh capture, execute a model, prove model quality, render portal UI, dispatch enforcement, or use remote/API AI.                                          |
+| Stored-evidence AI integration                    | P3 integration proved    | `output/ai-plan-proof/local-ai-stored-evidence-integration-proof/proof-summary.json`                                                   | Consumes the ready stored-evidence context proof row, builds a schema-valid `LocalAiEvaluationInput`, and feeds it through the local text dry-run contract while preserving stored evidence refs, parent-rule refs, runtime refs, local-only mode, and no raw prompt/model-output/screenshot retention. It does not create fresh captures, execute a production model, prove model quality, render portal UI, dispatch enforcement, or use remote/API AI.                                                    |
 | Windows WinRT OCR worker over captured pixels     | P3 real OCR proved       | `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`                                                                      | Proves real selected-window browser/native captures can run through Windows WinRT OCR, become schema-valid `ScreenAnalysisResult` evidence, feed allow dry-run policy decisions, and delete raw temp images. It does not claim production OCR quality, service runtime integration, or cross-platform OCR parity.                                                                                                                                                                                            |
 | Guided VLM worker contract                        | P3 contract proved       | `output/ai-plan-proof/screen-vlm-worker-contract-proof/proof-summary.json`                                                             | Proves source-cited encrypted queue jobs can enter a guided local VLM worker contract, schema-bound model output can convert into `ScreenAnalysisResult` evidence, policy eligibility requires deleted-image/query-store custody, and raw retention/remote AI are rejected. It does not claim live model execution, production VLM quality, portal UI, or enforcement.                                                                                                                                       |
 | VLM execution readiness/status handoff            | P3 contract proved       | `output/ai-plan-proof/screen-vlm-execution-readiness-proof/proof-summary.json`                                                         | Proves encrypted temp-queue VLM jobs can become accepted readiness handoffs, queued/completed/manual-required status rows preserve local model/runtime/template refs, and completed rows require deleted-image/query-store custody. It explicitly does not claim live model execution, production VLM quality, portal runtime rendering, policy authority, or enforcement.                                                                                                                                   |
@@ -124,7 +125,9 @@ consumes the same results.
 - [x] Local text inference dry-run implemented without model-execution,
       remote/API, policy-authority, enforcement, production-model-quality, or
       raw prompt-retention claims.
-- [ ] Output parser implemented.
+- [x] Output parser implemented for screen-derived local AI model input/output,
+      with malformed output, remote runtime, and missing observation-evidence
+      rejection proof.
 - [x] Invalid output and timeout degrade safely.
 - [x] Local provider queue and same-device routing implemented.
 - [x] Household provider route selection implemented and proved with desktop/
@@ -226,7 +229,9 @@ consumes the same results.
 
 - [x] TypeScript contract tests.
 - [x] Rust parity tests.
-- [ ] Stored-evidence integration tests.
+- [x] Stored-evidence integration proof validates stored context output feeding
+      a schema-valid local AI evaluation input and local text dry-run result
+      without raw retention, remote/API AI, policy authority, or enforcement.
 - [x] Provider route/status tests.
 - [x] Model output parser tests exist in
       `packages/parent-domain/tests/screen-ai-model-output-parser-proof.test.ts`
@@ -263,6 +268,11 @@ consumes the same results.
 - [x] local AI stored-evidence context proof run:
       `node --check scripts/test/local-ai-stored-evidence-context-proof.mjs`
       and `node scripts/test/local-ai-stored-evidence-context-proof.mjs`.
+- [x] local AI stored-evidence integration proof artifacts under
+      `output/ai-plan-proof/local-ai-stored-evidence-integration-proof`.
+- [x] local AI stored-evidence integration proof run:
+      `node --check scripts/test/local-ai-stored-evidence-integration-proof.mjs`
+      and `node scripts/test/local-ai-stored-evidence-integration-proof.mjs`.
 - [x] local AI prompt/template version proof artifacts under
       `output/ai-plan-proof/local-ai-prompt-template-version-proof`.
 - [x] local AI prompt/template version proof run:

@@ -139,6 +139,14 @@ claim needs proof, not slogans.
   partial context with explicit missing evidence kinds. It consumes existing
   proof artifacts and does not create fresh capture, execute a model, prove
   model quality, render portal UI, dispatch enforcement, or use remote/API AI.
+- `scripts/test/local-ai-stored-evidence-integration-proof.mjs` now proves the
+  next integration step from stored context output into local AI analysis input:
+  the ready stored-evidence row becomes a schema-valid
+  `LocalAiEvaluationInput` and feeds `runLocalAiTextInferenceDryRun` while
+  preserving stored evidence refs, parent-rule refs, runtime refs, local-only
+  mode, and no raw prompt/model-output/screenshot retention. It does not create
+  fresh captures, execute a production model, prove model quality, render portal
+  UI, dispatch enforcement, or use remote/API AI.
 - `LocalAiParentRuleContextBuilderProofSchema` and
   `scripts/test/local-ai-parent-rule-context-builder-proof.mjs` now prove the
   parent-rule context builder path over the existing stored-evidence context
@@ -390,6 +398,9 @@ variants.
 - [x] One local AI runtime access lane per physical device, with child-safety
       priority and no duplicate same-device model load proof.
 - [x] Evidence context builder proof path.
+- [x] Stored-evidence integration proof path into local AI evaluation input and
+      dry-run result without raw retention, remote/API AI, policy authority, or
+      enforcement.
 - [x] Parent-rule context proof path.
 - [x] Parent-rule context builder proof path.
 - [x] Local text inference dry-run proof path without model-execution,
