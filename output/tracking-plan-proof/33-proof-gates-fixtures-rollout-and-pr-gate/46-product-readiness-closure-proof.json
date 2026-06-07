@@ -76,6 +76,12 @@
       "proofTier": "P0_CONTRACT"
     },
     {
+      "coverageTag": "authority-runtime-readiness-blocker",
+      "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/55-authority-runtime-readiness-blocker-proof.json",
+      "status": "authority_required",
+      "proofTier": "P0_CONTRACT"
+    },
+    {
       "coverageTag": "child-runtime-artifact-gate",
       "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json",
       "status": "manual_required",
@@ -136,6 +142,7 @@
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/54-notification-preference-status-handoff-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/42-notification-local-outbox-readiness-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/48-authority-enrollment-manual-required-proof.json",
+        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/55-authority-runtime-readiness-blocker-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/51-provider-delivery-artifact-gate-proof.json",
@@ -187,8 +194,8 @@
     "productReadyClaimed": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "9fa3691d04c8e28372dc4f98241b830225f4b2de",
-  "gitStatusShort": "",
+  "baseCommitAtGeneration": "c9758364718c48a527ea98fcdae7eca790725bb7",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/21-authority-enrollment-manual-required-proof.json\n M output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/21-authority-enrollment-source-snapshot.md\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/48-authority-enrollment-manual-required-proof.json\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\n M packages/parent-domain/src/tracking-product-readiness-closure-proof.ts\n M scripts/test/tracking-product-readiness-closure-proof.mjs\n M test-results/tracking-authority-enrollment-manual-required-proof/proof.json\n M test-results/tracking-product-readiness-closure-proof/product-readiness-closure-read-model.json\n M test-results/tracking-product-readiness-closure-proof/proof.json\n?? packages/parent-domain/src/tracking-authority-runtime-readiness-blocker-proof.ts\n?? packages/parent-domain/tests/tracking-authority-runtime-readiness-blocker-proof.test.ts\n?? scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -199,7 +206,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-product-readiness-closure-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  17:31:46\n   Duration  933ms (transform 140ms, setup 0ms, import 702ms, tests 17ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  17:47:32\n   Duration  861ms (transform 135ms, setup 0ms, import 621ms, tests 18ms, environment 0ms)",
       "stderr": ""
     }
   ],
