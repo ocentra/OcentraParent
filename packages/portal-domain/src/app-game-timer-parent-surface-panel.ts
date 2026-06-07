@@ -40,6 +40,11 @@ const TimerParentSurfaceDetails = {
   ChildUxLocalArtifactRecordTargets: decodeDisplayText('Child UX local artifact targets'),
   ChildUxLocalArtifactRefs: decodeDisplayText('Child UX local artifact refs'),
   ChildUxLocalArtifactSkipped: decodeDisplayText('Child UX local artifact skipped'),
+  ChildUxParentSurfaceIntentHistoryVisible: decodeDisplayText('Child UX parent-surface history visible'),
+  ChildUxParentSurfaceIntentManualRequired: decodeDisplayText('Child UX parent-surface manual required'),
+  ChildUxParentSurfaceIntentPreferenceSetup: decodeDisplayText('Child UX parent-surface preference setup'),
+  ChildUxParentSurfaceIntentRefs: decodeDisplayText('Child UX parent-surface refs'),
+  ChildUxParentSurfaceIntentUnavailable: decodeDisplayText('Child UX parent-surface unavailable'),
   ChildUxHandoffBlocked: decodeDisplayText('Child UX handoff blocked'),
   ChildUxHandoffReady: decodeDisplayText('Child UX handoff ready'),
   ChildUxHandoffRefs: decodeDisplayText('Child UX handoff refs'),
@@ -194,6 +199,7 @@ function readModelSummary(
       TimerParentSurfaceDetails.ChildUxLocalArtifactRecordTargets,
       joinedOrNotReported(readModel.childUxLocalHandoffArtifactRecords.map((record) => record.targetDomain))
     ),
+    ...parentSurfaceIntentDetails(readModel),
     detail(TimerParentSurfaceDetails.TimerRuntime, claimedValue(readModel.timerRuntimeClaimed)),
     detail(TimerParentSurfaceDetails.SchedulerPersistence, claimedValue(readModel.schedulerPersistenceClaimed)),
     detail(TimerParentSurfaceDetails.DurableSchedulerStorage, claimedValue(readModel.durableSchedulerStorageClaimed)),
@@ -203,6 +209,33 @@ function readModelSummary(
     detail(PortalDetails.ChildDelivery, Readable.NotClaimed),
     detail(PortalDetails.PlatformState, Readable.NotClaimed),
     detail(PortalDetails.ProductClaim, productClaim),
+  ];
+}
+
+function parentSurfaceIntentDetails(
+  readModel: AgentAppGameTimerParentSurfaceReadModel
+): readonly AppGameTimerParentSurfacePanelDetail[] {
+  return [
+    detail(
+      TimerParentSurfaceDetails.ChildUxParentSurfaceIntentManualRequired,
+      countText(readModel.childUxParentSurfaceIntentManualActionRequiredCount)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxParentSurfaceIntentUnavailable,
+      countText(readModel.childUxParentSurfaceIntentUnavailableVisibleCount)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxParentSurfaceIntentHistoryVisible,
+      countText(readModel.childUxParentSurfaceIntentHistoryVisibleCount)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxParentSurfaceIntentPreferenceSetup,
+      countText(readModel.childUxParentSurfaceIntentPreferenceSetupRequiredCount)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxParentSurfaceIntentRefs,
+      joinedOrNotReported(readModel.childUxParentSurfaceIntentReferenceIds)
+    ),
   ];
 }
 

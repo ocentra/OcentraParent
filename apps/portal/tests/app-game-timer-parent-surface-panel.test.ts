@@ -41,6 +41,11 @@ const TimerParentSurfaceReadModel = {
   childUxLocalHandoffArtifactSkippedCount: 0,
   childUxLocalHandoffArtifactReferenceIds: [],
   childUxLocalHandoffArtifactRecords: [],
+  childUxParentSurfaceIntentManualActionRequiredCount: 0,
+  childUxParentSurfaceIntentUnavailableVisibleCount: 0,
+  childUxParentSurfaceIntentHistoryVisibleCount: 0,
+  childUxParentSurfaceIntentPreferenceSetupRequiredCount: 0,
+  childUxParentSurfaceIntentReferenceIds: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -174,6 +179,11 @@ function expectControlActionResultVisibility() {
         rawPrivateSourceRowsIncluded: false,
       },
     ],
+    childUxParentSurfaceIntentManualActionRequiredCount: 1,
+    childUxParentSurfaceIntentUnavailableVisibleCount: 0,
+    childUxParentSurfaceIntentHistoryVisibleCount: 1,
+    childUxParentSurfaceIntentPreferenceSetupRequiredCount: 1,
+    childUxParentSurfaceIntentReferenceIds: ['app-game-child-ux-parent-surface-action-result-app-game-1'],
   };
   const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(actionResultModel))]);
 
@@ -211,6 +221,11 @@ function expectNoRuntimeSummaryDetails(
     ['Child UX local artifact refs', 'Not reported'],
     ['Child UX local artifact sources', 'Not reported'],
     ['Child UX local artifact targets', 'Not reported'],
+    ['Child UX parent-surface manual required', '0'],
+    ['Child UX parent-surface unavailable', '0'],
+    ['Child UX parent-surface history visible', '0'],
+    ['Child UX parent-surface preference setup', '0'],
+    ['Child UX parent-surface refs', 'Not reported'],
     ['Adapter dispatch', 'Not claimed'],
     ['Child delivery', 'Not claimed'],
     ['Platform state', 'Not claimed'],
@@ -238,6 +253,11 @@ function expectActionResultSummaryDetails(
     ['Child UX local artifact refs', 'app-game-child-ux-local-handoff-action-result-app-game-1'],
     ['Child UX local artifact sources', 'action-result-app-game-1'],
     ['Child UX local artifact targets', AgentAppGameTimerParentSurfaceTargetDomain.NativeGame],
+    ['Child UX parent-surface manual required', '1'],
+    ['Child UX parent-surface unavailable', '0'],
+    ['Child UX parent-surface history visible', '1'],
+    ['Child UX parent-surface preference setup', '1'],
+    ['Child UX parent-surface refs', 'app-game-child-ux-parent-surface-action-result-app-game-1'],
   ] as const) {
     expect(summaryDetails).toContainEqual({ label: detail[0], value: detail[1] });
   }

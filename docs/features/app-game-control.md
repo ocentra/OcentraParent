@@ -386,6 +386,12 @@ control with better evidence and local audit.
   scheduler/outbox, provider, preference, quiet-hours, and manual-proof refs,
   while rendered parent UI, preference mutation, provider delivery, child
   delivery, runtime, adapter dispatch, and platform claims remain false.
+- Timer parent-surface child UX parent-surface intent aggregates now flow through
+  the live agent protocol, Rust service read model, and App/Game Sessions portal
+  summary as manual-required, unavailable, history-visible, preference-setup,
+  and reference-id visibility without rendering parent notification/preference
+  UI or claiming delivery, mutation, adapter dispatch, platform enforcement, or
+  raw private rows.
 - The App/Game Sessions portal route now has a route-level app/game
   notification parent-surface panel that projects the live service
   notification-readiness read-model event into schema-backed manual/unavailable
@@ -1209,10 +1215,15 @@ diagnostics, or raw private source rows.
       credential, and smoke-proof setup before any delivery claim, while
       manual-required and unavailable rows stay blocked/unscheduled. Child UX
       provider-preflight rows now bridge into the existing V0.8 provider-status
-      boundary as manual-required or unavailable rows; live child UI, provider
-      delivery/receipt ingestion, retry execution, quiet-hours runtime, durable
-      service persistence/export, package export, adapter dispatch, and
-      platform execution remain.
+      boundary as manual-required or unavailable rows. Provider and preference
+      status handoffs now combine into redacted parent-surface intent rows, and
+      the live timer parent-surface service/portal read model renders the
+      parent-surface intent manual-required, unavailable, history-visible,
+      preference-setup, and reference-id aggregates. Rendered parent
+      notification/preference UI, live child UI, provider delivery/receipt
+      ingestion, retry execution, quiet-hours runtime, durable service
+      persistence/export, package export, adapter dispatch, and platform
+      execution remain.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

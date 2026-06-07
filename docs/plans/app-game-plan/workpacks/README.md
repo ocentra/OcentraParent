@@ -124,6 +124,7 @@ before `DONE` or PR-ready reporting.
 116. WP125 app/game timer parent-surface child UX local outbox preference preflight.
 117. WP126 app/game timer parent-surface child UX local outbox preference status handoff.
 118. WP127 app/game timer parent-surface child UX local outbox parent surface intent.
+119. WP128 app/game timer parent-surface child UX local outbox parent surface live visibility.
 
 ## Standard AI Worker Checklist
 

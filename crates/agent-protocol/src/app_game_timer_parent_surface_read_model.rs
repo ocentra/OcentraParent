@@ -73,6 +73,11 @@ pub struct AppGameTimerParentSurfaceReadModel {
     pub child_ux_local_handoff_artifact_reference_ids: Vec<String>,
     pub child_ux_local_handoff_artifact_records:
         Vec<AppGameTimerParentSurfaceChildUxLocalArtifactRecord>,
+    pub child_ux_parent_surface_intent_manual_action_required_count: u64,
+    pub child_ux_parent_surface_intent_unavailable_visible_count: u64,
+    pub child_ux_parent_surface_intent_history_visible_count: u64,
+    pub child_ux_parent_surface_intent_preference_setup_required_count: u64,
+    pub child_ux_parent_surface_intent_reference_ids: Vec<String>,
     pub timer_runtime_claimed: bool,
     pub scheduler_persistence_claimed: bool,
     pub durable_scheduler_storage_claimed: bool,

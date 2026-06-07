@@ -142,6 +142,30 @@ fn assert_child_ux_local_artifact_visibility(decoded: &AppGameTimerParentSurface
         .concat()]
     );
     assert_eq!(decoded.child_ux_local_handoff_artifact_records.len(), 1);
+    assert_eq!(
+        decoded.child_ux_parent_surface_intent_manual_action_required_count,
+        1
+    );
+    assert_eq!(
+        decoded.child_ux_parent_surface_intent_unavailable_visible_count,
+        0
+    );
+    assert_eq!(
+        decoded.child_ux_parent_surface_intent_history_visible_count,
+        1
+    );
+    assert_eq!(
+        decoded.child_ux_parent_surface_intent_preference_setup_required_count,
+        1
+    );
+    assert_eq!(
+        decoded.child_ux_parent_surface_intent_reference_ids,
+        vec![[
+            constants::value::APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX,
+            APP_GAME_TEST_ACTION_RESULT_ID
+        ]
+        .concat()]
+    );
     let artifact_record = &decoded.child_ux_local_handoff_artifact_records[0];
     assert_eq!(
         artifact_record.source_result_id,

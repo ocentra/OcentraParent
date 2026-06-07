@@ -27,6 +27,22 @@ fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
     assert_eq!(serialized["childUxLocalHandoffArtifactRecordCount"], 1);
     assert_eq!(serialized["childUxLocalHandoffArtifactSkippedCount"], 0);
     assert_eq!(
+        serialized["childUxParentSurfaceIntentManualActionRequiredCount"],
+        1
+    );
+    assert_eq!(
+        serialized["childUxParentSurfaceIntentUnavailableVisibleCount"],
+        0
+    );
+    assert_eq!(
+        serialized["childUxParentSurfaceIntentHistoryVisibleCount"],
+        1
+    );
+    assert_eq!(
+        serialized["childUxParentSurfaceIntentPreferenceSetupRequiredCount"],
+        1
+    );
+    assert_eq!(
         serialized["childUxLocalHandoffArtifactRecords"][0]["childDeliveryClaimed"],
         false
     );
@@ -66,6 +82,11 @@ fn app_game_timer_parent_surface_read_model() -> AppGameTimerParentSurfaceReadMo
         child_ux_local_handoff_artifact_skipped_count: 0,
         child_ux_local_handoff_artifact_reference_ids: vec![child_ux_artifact_reference_id()],
         child_ux_local_handoff_artifact_records: vec![child_ux_artifact_record()],
+        child_ux_parent_surface_intent_manual_action_required_count: 1,
+        child_ux_parent_surface_intent_unavailable_visible_count: 0,
+        child_ux_parent_surface_intent_history_visible_count: 1,
+        child_ux_parent_surface_intent_preference_setup_required_count: 1,
+        child_ux_parent_surface_intent_reference_ids: vec![child_ux_parent_surface_reference_id()],
         timer_runtime_claimed: false,
         scheduler_persistence_claimed: false,
         durable_scheduler_storage_claimed: false,
@@ -88,6 +109,14 @@ fn app_game_timer_parent_surface_read_model() -> AppGameTimerParentSurfaceReadMo
             evidence: Vec::new(),
         }],
     }
+}
+
+fn child_ux_parent_surface_reference_id() -> String {
+    [
+        constants::value::APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX,
+        APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
+    ]
+    .concat()
 }
 
 fn child_ux_artifact_record() -> AppGameTimerParentSurfaceChildUxLocalArtifactRecord {

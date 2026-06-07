@@ -20,38 +20,27 @@ pub(crate) struct TimerParentSurfaceControlActionResults {
     pub(crate) child_ux_local_handoff_artifact_reference_ids: Vec<String>,
     pub(crate) child_ux_local_handoff_artifact_records:
         Vec<AppGameTimerParentSurfaceChildUxLocalArtifactRecord>,
+    pub(crate) child_ux_parent_surface_intent_manual_action_required_count: u64,
+    pub(crate) child_ux_parent_surface_intent_unavailable_visible_count: u64,
+    pub(crate) child_ux_parent_surface_intent_history_visible_count: u64,
+    pub(crate) child_ux_parent_surface_intent_preference_setup_required_count: u64,
+    pub(crate) child_ux_parent_surface_intent_reference_ids: Vec<String>,
 }
 
 pub(crate) fn timer_parent_surface_control_action_results(
     model: &AppGameServiceReadModel,
 ) -> TimerParentSurfaceControlActionResults {
-    let child_ux_handoff_reference_ids: Vec<String> = model
-        .approval_action_result_rows
-        .iter()
-        .filter(|row| {
-            !row.request.child_reason_references.is_empty()
-                && !row.request.child_status_references.is_empty()
-        })
-        .map(|row| row.result_id.clone())
-        .collect();
+    let child_ux_handoff_reference_ids = child_ux_handoff_reference_ids(model);
     let child_ux_handoff_ready_count = child_ux_handoff_reference_ids.len() as u64;
     let child_ux_handoff_blocked_count =
         model.approval_action_result_rows.len() as u64 - child_ux_handoff_ready_count;
-    let child_ux_local_handoff_artifact_reference_ids = child_ux_handoff_reference_ids
-        .iter()
-        .map(|reference_id| {
-            let mut artifact_reference_id =
-                String::from(constants::value::APP_GAME_CHILD_UX_LOCAL_HANDOFF_ARTIFACT_PREFIX);
-            artifact_reference_id.push_str(reference_id);
-            artifact_reference_id
-        })
-        .collect::<Vec<_>>();
-    let child_ux_local_handoff_artifact_records = model
-        .approval_action_result_rows
-        .iter()
-        .filter(|row| child_ux_local_artifact_row_is_ready(row))
-        .map(child_ux_local_artifact_record)
-        .collect::<Vec<_>>();
+    let child_ux_local_handoff_artifact_reference_ids =
+        child_ux_local_handoff_artifact_reference_ids(&child_ux_handoff_reference_ids);
+    let child_ux_local_handoff_artifact_records = child_ux_local_handoff_artifact_records(model);
+    let child_ux_parent_surface_intent_reference_ids =
+        child_ux_parent_surface_intent_reference_ids(&child_ux_handoff_reference_ids);
+    let child_ux_parent_surface_intent_ready_count =
+        child_ux_parent_surface_intent_reference_ids.len() as u64;
 
     TimerParentSurfaceControlActionResults {
         reference_ids: model
@@ -98,7 +87,65 @@ pub(crate) fn timer_parent_surface_control_action_results(
         child_ux_local_handoff_artifact_skipped_count: child_ux_handoff_blocked_count,
         child_ux_local_handoff_artifact_reference_ids,
         child_ux_local_handoff_artifact_records,
+        child_ux_parent_surface_intent_manual_action_required_count:
+            child_ux_parent_surface_intent_ready_count,
+        child_ux_parent_surface_intent_unavailable_visible_count: 0,
+        child_ux_parent_surface_intent_history_visible_count:
+            child_ux_parent_surface_intent_ready_count,
+        child_ux_parent_surface_intent_preference_setup_required_count:
+            child_ux_parent_surface_intent_ready_count,
+        child_ux_parent_surface_intent_reference_ids,
     }
+}
+
+fn child_ux_handoff_reference_ids(model: &AppGameServiceReadModel) -> Vec<String> {
+    model
+        .approval_action_result_rows
+        .iter()
+        .filter(|row| child_ux_local_artifact_row_is_ready(row))
+        .map(|row| row.result_id.clone())
+        .collect()
+}
+
+fn child_ux_local_handoff_artifact_reference_ids(reference_ids: &[String]) -> Vec<String> {
+    reference_ids
+        .iter()
+        .map(|reference_id| {
+            child_ux_reference_id(
+                constants::value::APP_GAME_CHILD_UX_LOCAL_HANDOFF_ARTIFACT_PREFIX,
+                reference_id,
+            )
+        })
+        .collect()
+}
+
+fn child_ux_local_handoff_artifact_records(
+    model: &AppGameServiceReadModel,
+) -> Vec<AppGameTimerParentSurfaceChildUxLocalArtifactRecord> {
+    model
+        .approval_action_result_rows
+        .iter()
+        .filter(|row| child_ux_local_artifact_row_is_ready(row))
+        .map(child_ux_local_artifact_record)
+        .collect()
+}
+
+fn child_ux_parent_surface_intent_reference_ids(reference_ids: &[String]) -> Vec<String> {
+    reference_ids
+        .iter()
+        .map(|reference_id| {
+            child_ux_reference_id(
+                constants::value::APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX,
+                reference_id,
+            )
+        })
+        .collect()
+}
+
+fn child_ux_reference_id(prefix: &str, reference_id: &str) -> String {
+    let mut child_ux_reference_id = String::from(prefix);
+    child_ux_reference_id.push_str(reference_id);
+    child_ux_reference_id
 }
 
 fn child_ux_local_artifact_row_is_ready(row: &AppGameControlActionResult) -> bool {

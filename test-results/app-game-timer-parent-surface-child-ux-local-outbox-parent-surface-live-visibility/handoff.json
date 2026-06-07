@@ -1,0 +1,24 @@
+{
+  "workpack": "WP128",
+  "branch": "codex/app-game-control-product-completion",
+  "scope": "timer-parent-surface child UX local outbox parent-surface live visibility",
+  "status": "focused-validation-passed",
+  "contractFields": [
+    "childUxParentSurfaceIntentManualActionRequiredCount",
+    "childUxParentSurfaceIntentUnavailableVisibleCount",
+    "childUxParentSurfaceIntentHistoryVisibleCount",
+    "childUxParentSurfaceIntentPreferenceSetupRequiredCount",
+    "childUxParentSurfaceIntentReferenceIds"
+  ],
+  "noClaims": [
+    "parent-notification-ui-rendered",
+    "parent-preference-ui-rendered",
+    "parent-preference-mutation",
+    "provider-delivery",
+    "receipt-ingestion",
+    "child-delivery",
+    "adapter-dispatch",
+    "platform-enforcement",
+    "raw-private-source-rows"
+  ]
+}

@@ -1,0 +1,32 @@
+cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- --run tests/app-game-timer-parent-surface-read-model.test.ts
+PASS: 1 file, 4 tests.
+
+cargo test -p ocentra-parent-agent-protocol app_game_timer_parent_surface_read_model --quiet
+PASS: 1 test.
+
+cargo test -p ocentra-parent-agent-service app_game_timer_parent_surface_payload --quiet
+PASS: 1 test.
+
+cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain
+PASS.
+
+cmd /c npm run build --workspace @ocentra-parent/portal-domain
+PASS.
+
+cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/app-game-timer-parent-surface-panel.test.ts
+PASS: 19 files, 78 tests.
+
+cmd /c npx prettier --write <changed TypeScript/docs/proof files>
+PASS.
+
+cargo fmt -p ocentra-parent-agent-protocol -p ocentra-parent-agent-service
+PASS.
+
+node scripts/check-no-test-doubles.mjs
+PASS: No test doubles found across 2158 checked source files.
+
+node scripts/check-source-shape.mjs
+PASS: Source shape guard passed with existing advisory warnings.
+
+git diff --check
+PASS.

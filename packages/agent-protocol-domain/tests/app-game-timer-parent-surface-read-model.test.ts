@@ -42,6 +42,11 @@ const TimerParentSurfaceReadModel = {
   childUxLocalHandoffArtifactSkippedCount: 0,
   childUxLocalHandoffArtifactReferenceIds: [],
   childUxLocalHandoffArtifactRecords: [],
+  childUxParentSurfaceIntentManualActionRequiredCount: 0,
+  childUxParentSurfaceIntentUnavailableVisibleCount: 0,
+  childUxParentSurfaceIntentHistoryVisibleCount: 0,
+  childUxParentSurfaceIntentPreferenceSetupRequiredCount: 0,
+  childUxParentSurfaceIntentReferenceIds: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -117,6 +122,11 @@ const ActionResultReadModel = {
       rawPrivateSourceRowsIncluded: false,
     },
   ],
+  childUxParentSurfaceIntentManualActionRequiredCount: 1,
+  childUxParentSurfaceIntentUnavailableVisibleCount: 0,
+  childUxParentSurfaceIntentHistoryVisibleCount: 1,
+  childUxParentSurfaceIntentPreferenceSetupRequiredCount: 1,
+  childUxParentSurfaceIntentReferenceIds: ['app-game-child-ux-parent-surface-action-result-app-game-1'],
 } as const;
 
 describe('agent app-game timer parent surface parser', () => {

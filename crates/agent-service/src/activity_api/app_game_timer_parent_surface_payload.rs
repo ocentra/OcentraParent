@@ -117,6 +117,16 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
             .child_ux_local_handoff_artifact_reference_ids,
         child_ux_local_handoff_artifact_records: control_action_results
             .child_ux_local_handoff_artifact_records,
+        child_ux_parent_surface_intent_manual_action_required_count: control_action_results
+            .child_ux_parent_surface_intent_manual_action_required_count,
+        child_ux_parent_surface_intent_unavailable_visible_count: control_action_results
+            .child_ux_parent_surface_intent_unavailable_visible_count,
+        child_ux_parent_surface_intent_history_visible_count: control_action_results
+            .child_ux_parent_surface_intent_history_visible_count,
+        child_ux_parent_surface_intent_preference_setup_required_count: control_action_results
+            .child_ux_parent_surface_intent_preference_setup_required_count,
+        child_ux_parent_surface_intent_reference_ids: control_action_results
+            .child_ux_parent_surface_intent_reference_ids,
         timer_runtime_claimed: active_timer_state_exists,
         scheduler_persistence_claimed: active_timer_state_exists,
         durable_scheduler_storage_claimed: active_timer_state_exists,
