@@ -1,0 +1,46 @@
+{
+  "proof": "network-vpn-proxy-tor-tunnel-classifier",
+  "checkedAt": "2026-06-07T00:40:59.887Z",
+  "branch": "codex/network-vpn-proxy-tunnel-proof-artifacts",
+  "sourceCommit": "1ec9170079836cb60d65a6c281d58dc20ac0363c",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
+  "originMain": "8c8fad79a50e914922fbc84984878211e127897e",
+  "mergeBase": "8c8fad79a50e914922fbc84984878211e127897e",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\24-vpn-proxy-tor-tunnel-classifier",
+  "testRoot": "test-results\\network-vpn-proxy-tunnel-classifier-proof",
+  "commands": [
+    {
+      "name": "network-vpn-proxy-tunnel-classifier-tests",
+      "command": "cargo test -p ocentra-network-evidence tunnel_classifier",
+      "status": 0,
+      "log": "output\\network-plan-proof\\24-vpn-proxy-tor-tunnel-classifier\\tunnel-classifier-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\24-vpn-proxy-tor-tunnel-classifier\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\24-vpn-proxy-tor-tunnel-classifier\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedTunnelClassifier": "output\\network-plan-proof\\24-vpn-proxy-tor-tunnel-classifier\\expected-vpn-proxy-tunnel-classifier.json",
+    "proofSummary": "output\\network-plan-proof\\24-vpn-proxy-tor-tunnel-classifier\\proof-summary.json",
+    "testProof": "test-results\\network-vpn-proxy-tunnel-classifier-proof\\proof.json"
+  },
+  "provenRows": [
+    "24 VPN/proxy/Tor/tunnel classifier"
+  ],
+  "notClaimed": [
+    "hidden destination identification from tunnel indicators",
+    "visited URL, page content, message, search query, or decrypted payload visibility",
+    "network adapter enforcement",
+    "remote desktop, torrent, download classifier, AI, policy, broker, family-hub, or portal runtime integration"
+  ]
+}
