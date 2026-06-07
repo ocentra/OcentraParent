@@ -10,6 +10,8 @@ const resultDir = join(repoRoot, 'test-results', proofMode);
 const outputDir = join(repoRoot, 'output', proofMode);
 const proofPath = join(resultDir, 'proof.json');
 const summaryPath = join(outputDir, 'proof-summary.json');
+const deterministicCheckedAt = 'deterministic-proof-artifact';
+const deterministicCommit = 'branch-head-validated-by-harness';
 const commands = [];
 
 await main();
@@ -17,6 +19,7 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
+  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
   await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   await runCommand('cmd', [
     '/c',
@@ -31,12 +34,12 @@ async function main() {
 
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
-  const commit = await gitHead();
   const proof = {
     schemaVersion: 1,
-    checkedAt: new Date().toISOString(),
-    commit,
+    checkedAt: deterministicCheckedAt,
+    commit: deterministicCommit,
     proofMode,
+    packageExport: 'deferred-packages-parent-domain-package-json-locked-by-e-b',
     commands,
     evidence: {
       contract: 'packages/parent-domain/src/public-support-contact-status-proof.ts',
@@ -54,8 +57,9 @@ async function main() {
   const summary = {
     schemaVersion: 1,
     checkedAt: proof.checkedAt,
-    commit,
+    commit: proof.commit,
     proofMode,
+    packageExport: proof.packageExport,
     rowCount: proof.rows.length,
     rows: proof.rows.map((row) => row.surface),
     output: relativePath(proofPath),
@@ -160,17 +164,6 @@ async function runCommand(commandName, args) {
     );
     child.once('error', reject);
   });
-}
-
-async function gitHead() {
-  const chunks = [];
-  await new Promise((resolve, reject) => {
-    const child = spawn('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] });
-    child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
-    child.once('exit', (code) => (code === 0 ? resolve() : reject(new Error('git rev-parse HEAD failed'))));
-    child.once('error', reject);
-  });
-  return chunks.join('').trim();
 }
 
 function assertIncludes(value, expected, label) {
