@@ -241,8 +241,8 @@ UsageStats permission, or privileged browser enforcement adapter is currently
 declared. WP05 remains partial/manual-required.
 
 SOCIAL-23/SOCIAL-24 addendum: `test:social-alert-report-intent-ui-proof`
-now covers the service-backed Browser-route alert/report intent panel through
-the real Rust WebSocket command
+now covers the service-backed Browser-route alert/report intent panel plus
+provider-status boundary rows through the real Rust WebSocket command
 `agent.browser.social-alert-report.read-model.get`. Evidence:
 `test-results/social-alert-report-intent-ui-proof/proof.json` and
 `output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/`.

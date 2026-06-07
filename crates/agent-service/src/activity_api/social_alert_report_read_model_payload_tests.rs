@@ -2,6 +2,8 @@ use ocentra_parent_agent_protocol::{
     constants, LogFieldValue, SocialAlertReportReadModelSnapshot,
     SOCIAL_ALERT_REPORT_CLAIM_NOT_CLAIMED, SOCIAL_ALERT_REPORT_DELIVERY_LOCAL_OUTBOX_ONLY,
     SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK, SOCIAL_ALERT_REPORT_INTENT_MANUAL_REQUIRED,
+    SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_ADAPTER_REQUIRED,
+    SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED,
 };
 
 use super::social_alert_report_read_model_payload::{
@@ -18,6 +20,7 @@ fn social_alert_report_payload_reports_honest_service_rows() {
     );
 
     assert_eq!(decoded.intents.len(), 2);
+    assert_eq!(decoded.provider_status_rows.len(), 2);
     assert_eq!(
         decoded.intents[0].intent_kind,
         SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK
@@ -31,6 +34,20 @@ fn social_alert_report_payload_reports_honest_service_rows() {
         SOCIAL_ALERT_REPORT_INTENT_MANUAL_REQUIRED
     );
     assert!(!decoded.intents[0].provider_delivery_attempted);
+    assert_eq!(
+        decoded.provider_status_rows[0].source_preflight_status,
+        SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_ADAPTER_REQUIRED
+    );
+    assert_eq!(
+        decoded.provider_status_rows[0].provider_status,
+        SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED
+    );
+    assert!(decoded.provider_status_rows[0]
+        .provider_receipt_refs
+        .is_empty());
+    assert!(!decoded.provider_status_rows[0].provider_delivery_implemented);
+    assert!(!decoded.provider_status_rows[0].provider_delivery_observed);
+    assert!(!decoded.provider_status_rows[0].delivered_notification_claimed);
     assert!(!decoded.intents[0].parent_notification_ui_claimed);
     assert!(!decoded.intents[0].final_policy_decision_claimed);
     assert!(!decoded.intents[0].enforcement_claimed);

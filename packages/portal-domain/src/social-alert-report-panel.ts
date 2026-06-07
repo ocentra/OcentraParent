@@ -4,6 +4,7 @@ import {
 } from '@ocentra-parent/parent-domain/social-alert-report-intent';
 import {
   SocialAlertReportReadModelSnapshotSchema,
+  type SocialAlertReportProviderStatusRow,
   type SocialAlertReportReadModelSnapshot,
 } from '@ocentra-parent/agent-protocol-domain/social-alert-report-read-model';
 import { type DisplayText, decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
@@ -60,6 +61,8 @@ const SocialAlertReportTitles = {
   FeedVideoGate: decodeDisplayText('Feed and video gate alert intent'),
   HighRiskSignal: decodeDisplayText('High-risk social alert intent'),
   ManualRequired: decodeDisplayText('Manual alert/report proof required'),
+  ProviderManualRequired: decodeDisplayText('Provider status manual required'),
+  ProviderUnavailable: decodeDisplayText('Provider status unavailable'),
   WeeklySummary: decodeDisplayText('Weekly social report intent'),
 } as const;
 
@@ -72,21 +75,20 @@ export function createSocialAlertReportPanelIntent(snapshotInput: unknown): Soci
 }
 
 function populatedPanelIntent(snapshot: SocialAlertReportReadModelSnapshot): SocialAlertReportPanelIntent {
+  const rows = [...snapshot.intents.map(intentRow), ...snapshot.providerStatusRows.map(providerStatusRow)];
   return {
     eyebrow: SocialAlertReportCopy.Title,
     title: SocialAlertReportCopy.Title,
     body: SocialAlertReportCopy.Body,
-    state: detailValue(
-      snapshot.intents.length > 0 ? SocialAlertReportValues.ReadyState : SocialAlertReportValues.EmptyState
-    ),
-    summary: detailValue(String(snapshot.intents.length) + SocialAlertReportValues.RowsSummarySuffix),
+    state: detailValue(rows.length > 0 ? SocialAlertReportValues.ReadyState : SocialAlertReportValues.EmptyState),
+    summary: detailValue(String(rows.length) + SocialAlertReportValues.RowsSummarySuffix),
     productClaim: SocialAlertReportCopy.ProductClaim,
     metrics: [
-      detail(PortalDetails.RowsReturned, String(snapshot.intents.length)),
+      detail(PortalDetails.RowsReturned, String(rows.length)),
       detail(PortalDetails.GeneratedAt, snapshot.generatedAt),
       detail(PortalDetails.ProductClaim, SocialAlertReportCopy.ProductClaim),
     ],
-    rows: snapshot.intents.map(intentRow),
+    rows,
     emptyMessage: SocialAlertReportCopy.Empty,
   };
 }
@@ -142,6 +144,25 @@ function intentTitle(intent: SocialAlertReportIntent): DisplayText {
     return SocialAlertReportTitles.CapabilityUnavailable;
   }
   return SocialAlertReportTitles.ManualRequired;
+}
+
+function providerStatusRow(row: SocialAlertReportProviderStatusRow): SocialAlertReportPanelRow {
+  return {
+    key: detailValue(row.statusEntryId),
+    title:
+      row.providerStatus === 'unavailable'
+        ? SocialAlertReportTitles.ProviderUnavailable
+        : SocialAlertReportTitles.ProviderManualRequired,
+    details: [
+      detail(PortalDetails.Status, row.providerStatus),
+      detail(PortalDetails.Capability, row.deliveryClaimState),
+      detail(PortalDetails.ReasonCodes, row.sourcePreflightStatus),
+      detail(PortalDetails.EvidenceReferences, refsValue(row.readinessRefs)),
+      detail(PortalDetails.PolicyEvaluation, refsValue(row.manualProofRequirements)),
+      detail(PortalDetails.InterventionAuditId, row.providerAttemptRef),
+      detail(PortalDetails.ProductClaim, SocialAlertReportCopy.ProductClaim),
+    ],
+  };
 }
 
 function evidenceRefsValue(intent: SocialAlertReportIntent): PortalDetailValue {

@@ -2,7 +2,7 @@ use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
     AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
     SocialAlertReportReadModelSnapshot, AGENT_PROTOCOL_SCHEMA_VERSION,
-    SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK,
+    SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK, SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED,
 };
 
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
@@ -21,10 +21,21 @@ async fn social_alert_report_command_reports_service_backed_intent_rows() {
         AgentEventName::AgentBrowserSocialAlertReportReadModelReported
     );
     assert_eq!(read_model.intents.len(), 2);
+    assert_eq!(read_model.provider_status_rows.len(), 2);
     assert_eq!(
         read_model.intents[0].intent_kind,
         SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK
     );
+    assert_eq!(
+        read_model.provider_status_rows[0].provider_status,
+        SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED
+    );
+    assert!(read_model.provider_status_rows[0]
+        .provider_receipt_refs
+        .is_empty());
+    assert!(!read_model.provider_status_rows[0].provider_delivery_implemented);
+    assert!(!read_model.provider_status_rows[0].provider_delivery_observed);
+    assert!(!read_model.provider_status_rows[0].delivered_notification_claimed);
     assert!(!read_model.intents[0].provider_delivery_attempted);
     assert!(!read_model.intents[0].parent_notification_ui_claimed);
     assert!(!read_model.intents[0].final_policy_decision_claimed);

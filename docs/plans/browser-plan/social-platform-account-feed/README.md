@@ -430,8 +430,9 @@ browser gate execution, final policy execution, and enforcement unclaimed.
 The follow-up `social-alert-report-intent-ui-proof` adds the service-backed
 Browser-route proof for those alert/report intent rows. The real portal requests
 `agent.browser.social-alert-report.read-model.get` from the local Rust service,
-renders one local-outbox high-risk intent row and one manual-required row, and
-writes `test-results/social-alert-report-intent-ui-proof/proof.json` plus
+renders one local-outbox high-risk intent row, one manual-required row, and two
+manual-required provider-status boundary rows, then writes
+`test-results/social-alert-report-intent-ui-proof/proof.json` plus
 desktop/mobile screenshots under
 `output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/`.
 It does not claim provider dispatch/receipt, parent notification UI delivery,

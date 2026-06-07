@@ -316,10 +316,11 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   time-budget application, browser gate execution, final policy execution, and
   enforcement unclaimed.
 - `social-alert-report-intent-ui-proof` now renders those alert/report intent
-  rows through the real Browser-route portal and real Rust WebSocket command
+  rows plus provider status boundary rows through the real Browser-route portal
+  and real Rust WebSocket command
   `agent.browser.social-alert-report.read-model.get`. The proof captures
-  desktop/mobile screenshots for one local-outbox high-risk intent and one
-  manual-required row at
+  desktop/mobile screenshots for one local-outbox high-risk intent, one
+  manual-required row, and two manual-required provider-status handoff rows at
   `output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/`
   and records `test-results/social-alert-report-intent-ui-proof/proof.json`.
   Provider dispatch/receipt, parent notification UI delivery, report delivery,

@@ -13,9 +13,11 @@ describe('social alert/report panel intent', () => {
   it('renders ref-only rows from a parsed service snapshot', () => {
     const intent = createSocialAlertReportPanelIntent(serviceSnapshot());
 
-    expect(intent.rows).toHaveLength(1);
+    expect(intent.rows).toHaveLength(2);
     expect(intent.rows[0]?.title).toBe('Manual alert/report proof required');
+    expect(intent.rows[1]?.title).toBe('Provider status manual required');
     expect(intent.rows[0]?.details.some((detail) => detail.value === 'manual-required')).toBe(true);
+    expect(intent.rows[1]?.details.some((detail) => detail.value === 'not-observed')).toBe(true);
   });
 });
 
@@ -26,6 +28,7 @@ function serviceSnapshot(): unknown {
     childProfileId: 'child-social-alert-report-service',
     generatedAt: '2026-06-07T01:39:00Z',
     intents: [manualRequiredIntent()],
+    providerStatusRows: [providerStatusRow()],
     claimBoundaries: {
       providerDelivery: 'not-claimed',
       reportDelivery: 'not-claimed',
@@ -33,6 +36,27 @@ function serviceSnapshot(): unknown {
       finalPolicyDecision: 'not-claimed',
       enforcement: 'not-claimed',
     },
+  };
+}
+
+function providerStatusRow(): unknown {
+  return {
+    statusEntryId: 'social-provider-status-social-alert-report-manual-required',
+    sourceIntentRef: 'social-alert-report-manual-required',
+    sourcePreflightStatus: 'manual-required',
+    providerStatus: 'manual-required',
+    statusProofState: 'manual-action-required',
+    deliveryClaimState: 'not-observed',
+    providerAttemptRef: 'social-provider-attempt-not-started-social-alert-report-manual-required',
+    readinessRefs: ['provider-delivery-runtime-proof-required'],
+    providerReceiptRefs: [],
+    manualProofRequirements: ['provider-delivery-runtime-proof-required'],
+    providerDeliveryImplemented: false,
+    providerDeliveryObserved: false,
+    deliveredNotificationClaimed: false,
+    sensitiveProviderPayloadClaimed: false,
+    providerStoresChildEvidenceClaimed: false,
+    lastCheckedAt: '2026-06-07T01:39:00Z',
   };
 }
 

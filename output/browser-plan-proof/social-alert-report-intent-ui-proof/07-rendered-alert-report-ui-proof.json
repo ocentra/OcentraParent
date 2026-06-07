@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T05:18:34.977Z",
-  "commit": "bbd3e4721cddf756ecf0be3b2174962756b83311",
+  "checkedAt": "2026-06-07T06:26:16.086Z",
+  "commit": "09d988ac206686d6a2dd01dbbde1521251861900",
   "workpackIds": [
     "social-alert-report-intent-ui-proof",
     "social-23-tests-fixtures-playwright-manual-proof"
@@ -26,12 +26,13 @@
     "command": "agent.browser.social-alert-report.read-model.get",
     "event": "agent.browser.social-alert-report.read-model.reported",
     "socialAlertReportSnapshot": "reported",
-    "renderedState": "two service-backed alert/report intent rows"
+    "renderedState": "two service-backed alert/report intent rows plus two provider status boundary rows"
   },
   "assertions": [
     "Portal browser route renders the social alert/report region from the real app shell.",
     "The route starts with zero rows, then requests the service-backed alert/report read model over the real WebSocket path.",
-    "The reported service snapshot renders one local-outbox high-risk alert intent and one manual-required proof row.",
+    "The reported service snapshot renders one local-outbox high-risk alert intent, one manual-required proof row, and provider status boundary rows for manual-required provider handoff.",
+    "Provider status rows keep provider receipts empty and provider delivery unobserved.",
     "The rendered copy explicitly keeps provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement unclaimed.",
     "Desktop and mobile screenshots were captured from the real portal route."
   ],
@@ -51,9 +52,10 @@
     "assertions": [
       "named-social-alert-report-region",
       "zero-row-before-command-visible",
-      "service-backed-two-row-summary-visible",
+      "service-backed-four-row-summary-visible",
       "high-risk-local-outbox-row-visible",
       "manual-required-row-visible",
+      "provider-status-manual-required-row-visible",
       "non-claim-copy-visible",
       "provider-report-notification-final-policy-enforcement-claims-not-visible",
       "no-unlabeled-buttons",
@@ -64,9 +66,11 @@
       "hasNamedRegion": true,
       "headings": [
         "Social alerts and reports",
-        "2 social alert/report rows",
+        "4 social alert/report rows",
         "High-risk social alert intent",
-        "Manual alert/report proof required"
+        "Manual alert/report proof required",
+        "Provider status manual required",
+        "Provider status manual required"
       ],
       "labels": [
         "Rows returned",
@@ -85,11 +89,25 @@
         "Evidence references",
         "Policy evaluation",
         "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Capability",
+        "Reason codes",
+        "Evidence references",
+        "Policy evaluation",
+        "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Capability",
+        "Reason codes",
+        "Evidence references",
+        "Policy evaluation",
+        "Intervention audit ID",
         "Product claim"
       ],
       "values": [
-        "2",
-        "2026-06-07T05:18:29.989Z",
+        "4",
+        "2026-06-07T06:26:10.511Z",
         "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
         "local-outbox-eligible",
         "local-outbox-only",
@@ -104,6 +122,20 @@
         "policy-decision:evidence-social-manual-gap",
         "policy-ref-social-manual-required",
         "audit-ref-social-alert-report",
+        "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
+        "manual-required",
+        "not-observed",
+        "provider-adapter-required",
+        "provider-adapter-required-social-alert-report-high-risk-service, provider-credentials-required-social-alert-report-high-risk-service, provider-smoke-proof-required-social-alert-report-high-risk-service",
+        "provider-adapter-required-social-alert-report-high-risk-service, provider-credentials-required-social-alert-report-high-risk-service, provider-smoke-proof-required-social-alert-report-high-risk-service",
+        "social-provider-attempt-not-started-social-alert-report-high-risk-service",
+        "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
+        "manual-required",
+        "not-observed",
+        "manual-required",
+        "provider-delivery-runtime-proof-required",
+        "provider-delivery-runtime-proof-required",
+        "social-provider-attempt-not-started-social-alert-report-manual-required",
         "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed."
       ],
       "buttons": [

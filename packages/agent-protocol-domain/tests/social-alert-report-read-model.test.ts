@@ -32,7 +32,9 @@ describe('social alert/report read model adapter', () => {
       return;
     }
     expect(result.value.intents).toHaveLength(1);
+    expect(result.value.providerStatusRows).toHaveLength(1);
     expect(result.value.intents[0]?.intentKind).toBe(SocialAlertReportIntentKind.HighRiskSignal);
+    expect(result.value.providerStatusRows[0]?.providerStatus).toBe('manual-required');
     expect(result.value.claimBoundaries.providerDelivery).toBe('not-claimed');
   });
 
@@ -51,6 +53,12 @@ describe('social alert/report read model adapter', () => {
       SocialAlertReportReadModelSnapshotSchema.safeParse({
         ...snapshot(),
         intents: [{ ...intent(), providerDeliveryAttempted: true }],
+      }).success
+    ).toBe(false);
+    expect(
+      SocialAlertReportReadModelSnapshotSchema.safeParse({
+        ...snapshot(),
+        providerStatusRows: [{ ...providerStatusRow(), providerReceiptRefs: ['provider-receipt-claimed'] }],
       }).success
     ).toBe(false);
   });
@@ -90,6 +98,7 @@ function snapshot() {
     childProfileId: 'child-social-alert-report-service',
     generatedAt: Timestamp,
     intents: [intent()],
+    providerStatusRows: [providerStatusRow()],
     claimBoundaries: {
       providerDelivery: 'not-claimed',
       reportDelivery: 'not-claimed',
@@ -97,6 +106,35 @@ function snapshot() {
       finalPolicyDecision: 'not-claimed',
       enforcement: 'not-claimed',
     },
+  };
+}
+
+function providerStatusRow() {
+  return {
+    statusEntryId: 'social-provider-status-social-alert-report-high-risk-service',
+    sourceIntentRef: 'social-alert-report-high-risk-service',
+    sourcePreflightStatus: 'provider-adapter-required',
+    providerStatus: 'manual-required',
+    statusProofState: 'manual-action-required',
+    deliveryClaimState: 'not-observed',
+    providerAttemptRef: 'social-provider-attempt-not-started-social-alert-report-high-risk-service',
+    readinessRefs: [
+      'provider-adapter-required-social-alert-report-high-risk-service',
+      'provider-credentials-required-social-alert-report-high-risk-service',
+      'provider-smoke-proof-required-social-alert-report-high-risk-service',
+    ],
+    providerReceiptRefs: [],
+    manualProofRequirements: [
+      'provider-adapter-required-social-alert-report-high-risk-service',
+      'provider-credentials-required-social-alert-report-high-risk-service',
+      'provider-smoke-proof-required-social-alert-report-high-risk-service',
+    ],
+    providerDeliveryImplemented: false,
+    providerDeliveryObserved: false,
+    deliveredNotificationClaimed: false,
+    sensitiveProviderPayloadClaimed: false,
+    providerStoresChildEvidenceClaimed: false,
+    lastCheckedAt: Timestamp,
   };
 }
 

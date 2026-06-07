@@ -52,7 +52,7 @@ async function assertSocialAlertReportRoute(page: Page): Promise<void> {
 async function requestSocialAlertReportReadModel(page: Page): Promise<void> {
   const alertRegion = page.getByRole('region', { name: 'Social alerts and reports' });
   await alertRegion.getByRole('button', { name: 'Social alerts and reports' }).click();
-  await expect(alertRegion.getByRole('heading', { name: '2 social alert/report rows' })).toBeVisible({
+  await expect(alertRegion.getByRole('heading', { name: '4 social alert/report rows' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
 }
@@ -61,8 +61,20 @@ async function assertServiceBackedSocialAlertReportRows(page: Page): Promise<voi
   const alertRegion = page.getByRole('region', { name: 'Social alerts and reports' });
   await expect(alertRegion.getByRole('heading', { name: 'High-risk social alert intent' })).toBeVisible();
   await expect(alertRegion.getByRole('heading', { name: 'Manual alert/report proof required' })).toBeVisible();
+  await expect(alertRegion.getByRole('heading', { name: 'Provider status manual required' }).first()).toBeVisible();
   await expect(alertRegion.getByText('local-outbox-only').first()).toBeVisible();
   await expect(alertRegion.getByText('manual-required').first()).toBeVisible();
+  await expect(alertRegion.getByText('provider-adapter-required').first()).toBeVisible();
+  await expect(
+    alertRegion.getByText('provider-adapter-required-social-alert-report-high-risk-service').first()
+  ).toBeVisible();
+  await expect(
+    alertRegion.getByText('provider-credentials-required-social-alert-report-high-risk-service').first()
+  ).toBeVisible();
+  await expect(
+    alertRegion.getByText('provider-smoke-proof-required-social-alert-report-high-risk-service').first()
+  ).toBeVisible();
+  await expect(alertRegion.getByText('not-observed').first()).toBeVisible();
   await expect(alertRegion.getByText('social-high-risk-signal').first()).toBeVisible();
   await expect(alertRegion.getByText('social-manual-review-required').first()).toBeVisible();
   await expect(alertRegion.getByText('evidence-social-route-gate').first()).toBeVisible();
@@ -113,16 +125,18 @@ async function writeAccessibilitySummary(
   expect(summary.hasNamedRegion).toBe(true);
   expect(summary.unlabeledButtons).toBe(0);
   expect(summary.headings).toContain('Social alerts and reports');
-  expect(summary.headings).toContain('2 social alert/report rows');
+  expect(summary.headings).toContain('4 social alert/report rows');
   expect(summary.headings).toContain('High-risk social alert intent');
   expect(summary.headings).toContain('Manual alert/report proof required');
+  expect(summary.headings).toContain('Provider status manual required');
   expect(summary.labels).toContain('Rows returned');
   expect(summary.labels).toContain('Generated at');
   expect(summary.labels).toContain('Capability');
   expect(summary.labels).toContain('Product claim');
-  expect(summary.values).toContain('2');
+  expect(summary.values).toContain('4');
   expect(summary.values).toContain('local-outbox-only');
   expect(summary.values).toContain('manual-required');
+  expect(summary.values).toContain('not-observed');
 
   await mkdir(path.dirname(accessibilitySummaryPath), { recursive: true });
   await writeFile(
@@ -133,9 +147,10 @@ async function writeAccessibilitySummary(
         assertions: [
           'named-social-alert-report-region',
           'zero-row-before-command-visible',
-          'service-backed-two-row-summary-visible',
+          'service-backed-four-row-summary-visible',
           'high-risk-local-outbox-row-visible',
           'manual-required-row-visible',
+          'provider-status-manual-required-row-visible',
           'non-claim-copy-visible',
           'provider-report-notification-final-policy-enforcement-claims-not-visible',
           'no-unlabeled-buttons',

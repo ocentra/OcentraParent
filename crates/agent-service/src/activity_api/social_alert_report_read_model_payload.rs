@@ -2,16 +2,17 @@ use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
     LogLevel, SocialAlertReportClaimBoundaries, SocialAlertReportDeviceRef,
     SocialAlertReportEvidenceRef, SocialAlertReportIntent, SocialAlertReportParentActionRef,
-    SocialAlertReportParentActor, SocialAlertReportReadModelSnapshot,
-    SOCIAL_ALERT_REPORT_ACTION_OPEN_PARENT_REVIEW, SOCIAL_ALERT_REPORT_ACTION_REVIEW_MANUALLY,
-    SOCIAL_ALERT_REPORT_ADAPTER_NOT_DISPATCHED, SOCIAL_ALERT_REPORT_AUDIT_REF,
-    SOCIAL_ALERT_REPORT_BODY_HIGH_RISK, SOCIAL_ALERT_REPORT_BODY_MANUAL_REQUIRED,
-    SOCIAL_ALERT_REPORT_CAPABILITY_READY, SOCIAL_ALERT_REPORT_CHILD_PROFILE_ID,
-    SOCIAL_ALERT_REPORT_CLAIM_NOT_CLAIMED, SOCIAL_ALERT_REPORT_CONTRACT_SCHEMA_VERSION,
-    SOCIAL_ALERT_REPORT_DELIVERY_LOCAL_OUTBOX_ONLY, SOCIAL_ALERT_REPORT_DELIVERY_MANUAL_REQUIRED,
-    SOCIAL_ALERT_REPORT_DEVICE_ID, SOCIAL_ALERT_REPORT_DEVICE_LABEL,
-    SOCIAL_ALERT_REPORT_EVIDENCE_KIND_POLICY_DECISION, SOCIAL_ALERT_REPORT_EVIDENCE_MANUAL_GAP,
-    SOCIAL_ALERT_REPORT_EVIDENCE_ROUTE_GATE, SOCIAL_ALERT_REPORT_EXPLANATION_EVENT_FEED_VIDEO_GATE,
+    SocialAlertReportParentActor, SocialAlertReportProviderStatusRow,
+    SocialAlertReportReadModelSnapshot, SOCIAL_ALERT_REPORT_ACTION_OPEN_PARENT_REVIEW,
+    SOCIAL_ALERT_REPORT_ACTION_REVIEW_MANUALLY, SOCIAL_ALERT_REPORT_ADAPTER_NOT_DISPATCHED,
+    SOCIAL_ALERT_REPORT_AUDIT_REF, SOCIAL_ALERT_REPORT_BODY_HIGH_RISK,
+    SOCIAL_ALERT_REPORT_BODY_MANUAL_REQUIRED, SOCIAL_ALERT_REPORT_CAPABILITY_READY,
+    SOCIAL_ALERT_REPORT_CHILD_PROFILE_ID, SOCIAL_ALERT_REPORT_CLAIM_NOT_CLAIMED,
+    SOCIAL_ALERT_REPORT_CONTRACT_SCHEMA_VERSION, SOCIAL_ALERT_REPORT_DELIVERY_LOCAL_OUTBOX_ONLY,
+    SOCIAL_ALERT_REPORT_DELIVERY_MANUAL_REQUIRED, SOCIAL_ALERT_REPORT_DEVICE_ID,
+    SOCIAL_ALERT_REPORT_DEVICE_LABEL, SOCIAL_ALERT_REPORT_EVIDENCE_KIND_POLICY_DECISION,
+    SOCIAL_ALERT_REPORT_EVIDENCE_MANUAL_GAP, SOCIAL_ALERT_REPORT_EVIDENCE_ROUTE_GATE,
+    SOCIAL_ALERT_REPORT_EXPLANATION_EVENT_FEED_VIDEO_GATE,
     SOCIAL_ALERT_REPORT_EXPLANATION_EVENT_MANUAL_REQUIRED,
     SOCIAL_ALERT_REPORT_EXPLANATION_SNAPSHOT, SOCIAL_ALERT_REPORT_FAMILY_ID,
     SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK, SOCIAL_ALERT_REPORT_INTENT_MANUAL_REQUIRED,
@@ -26,7 +27,16 @@ use ocentra_parent_agent_protocol::{
     SOCIAL_ALERT_REPORT_PLATFORM_ANDROID, SOCIAL_ALERT_REPORT_POLICY_HIGH_RISK,
     SOCIAL_ALERT_REPORT_POLICY_MANUAL_REQUIRED, SOCIAL_ALERT_REPORT_POLICY_VERSION,
     SOCIAL_ALERT_REPORT_PRIORITY_ATTENTION, SOCIAL_ALERT_REPORT_PRIORITY_URGENT,
-    SOCIAL_ALERT_REPORT_PROVIDER_CHANNEL_IN_APP, SOCIAL_ALERT_REPORT_REASON_HIGH_RISK,
+    SOCIAL_ALERT_REPORT_PROVIDER_ADAPTER_REQUIRED, SOCIAL_ALERT_REPORT_PROVIDER_ATTEMPT_HIGH_RISK,
+    SOCIAL_ALERT_REPORT_PROVIDER_ATTEMPT_MANUAL, SOCIAL_ALERT_REPORT_PROVIDER_CHANNEL_IN_APP,
+    SOCIAL_ALERT_REPORT_PROVIDER_CREDENTIALS_REQUIRED,
+    SOCIAL_ALERT_REPORT_PROVIDER_DELIVERY_NOT_OBSERVED,
+    SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_ADAPTER_REQUIRED,
+    SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_MANUAL_REQUIRED,
+    SOCIAL_ALERT_REPORT_PROVIDER_SMOKE_REQUIRED, SOCIAL_ALERT_REPORT_PROVIDER_STATUS_HIGH_RISK,
+    SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL,
+    SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED,
+    SOCIAL_ALERT_REPORT_PROVIDER_STATUS_PROOF_MANUAL_ACTION, SOCIAL_ALERT_REPORT_REASON_HIGH_RISK,
     SOCIAL_ALERT_REPORT_REASON_MANUAL_REQUIRED, SOCIAL_ALERT_REPORT_SCHEMA_VERSION,
     SOCIAL_ALERT_REPORT_SEVERITY_CRITICAL, SOCIAL_ALERT_REPORT_SEVERITY_WARNING,
     SOCIAL_ALERT_REPORT_STATUS_LOCAL_OUTBOX, SOCIAL_ALERT_REPORT_STATUS_MANUAL_REQUIRED,
@@ -47,6 +57,10 @@ pub fn social_alert_report_read_model_from_service() -> SocialAlertReportReadMod
         intents: vec![
             high_risk_intent(&generated_at),
             manual_required_intent(&generated_at),
+        ],
+        provider_status_rows: vec![
+            high_risk_provider_status_row(&generated_at),
+            manual_required_provider_status_row(&generated_at),
         ],
         claim_boundaries: SocialAlertReportClaimBoundaries {
             provider_delivery: SOCIAL_ALERT_REPORT_CLAIM_NOT_CLAIMED.to_string(),
@@ -100,6 +114,69 @@ fn read_model_pairs(read_model: &SocialAlertReportReadModelSnapshot) -> Vec<Fiel
             ),
         ),
     ]
+}
+
+fn high_risk_provider_status_row(last_checked_at: &str) -> SocialAlertReportProviderStatusRow {
+    provider_status_row(
+        SOCIAL_ALERT_REPORT_PROVIDER_STATUS_HIGH_RISK,
+        SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK,
+        SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_ADAPTER_REQUIRED,
+        SOCIAL_ALERT_REPORT_PROVIDER_ATTEMPT_HIGH_RISK,
+        vec![
+            SOCIAL_ALERT_REPORT_PROVIDER_ADAPTER_REQUIRED.to_string(),
+            SOCIAL_ALERT_REPORT_PROVIDER_CREDENTIALS_REQUIRED.to_string(),
+            SOCIAL_ALERT_REPORT_PROVIDER_SMOKE_REQUIRED.to_string(),
+        ],
+        vec![
+            SOCIAL_ALERT_REPORT_PROVIDER_ADAPTER_REQUIRED.to_string(),
+            SOCIAL_ALERT_REPORT_PROVIDER_CREDENTIALS_REQUIRED.to_string(),
+            SOCIAL_ALERT_REPORT_PROVIDER_SMOKE_REQUIRED.to_string(),
+        ],
+        last_checked_at,
+    )
+}
+
+fn manual_required_provider_status_row(
+    last_checked_at: &str,
+) -> SocialAlertReportProviderStatusRow {
+    provider_status_row(
+        SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL,
+        SOCIAL_ALERT_REPORT_INTENT_MANUAL_REQUIRED,
+        SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_MANUAL_REQUIRED,
+        SOCIAL_ALERT_REPORT_PROVIDER_ATTEMPT_MANUAL,
+        vec![SOCIAL_ALERT_REPORT_MANUAL_PROOF_REQUIRED.to_string()],
+        vec![SOCIAL_ALERT_REPORT_MANUAL_PROOF_REQUIRED.to_string()],
+        last_checked_at,
+    )
+}
+
+fn provider_status_row(
+    status_entry_id: &'static str,
+    source_intent_ref: &'static str,
+    source_preflight_status: &'static str,
+    provider_attempt_ref: &'static str,
+    readiness_refs: Vec<String>,
+    manual_proof_requirements: Vec<String>,
+    last_checked_at: &str,
+) -> SocialAlertReportProviderStatusRow {
+    SocialAlertReportProviderStatusRow {
+        status_entry_id: status_entry_id.to_string(),
+        source_intent_ref: source_intent_ref.to_string(),
+        source_preflight_status: source_preflight_status.to_string(),
+        provider_status: SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED.to_string(),
+        status_proof_state: SOCIAL_ALERT_REPORT_PROVIDER_STATUS_PROOF_MANUAL_ACTION.to_string(),
+        delivery_claim_state: SOCIAL_ALERT_REPORT_PROVIDER_DELIVERY_NOT_OBSERVED.to_string(),
+        provider_attempt_ref: provider_attempt_ref.to_string(),
+        readiness_refs,
+        provider_receipt_refs: Vec::new(),
+        manual_proof_requirements,
+        provider_delivery_implemented: false,
+        provider_delivery_observed: false,
+        delivered_notification_claimed: false,
+        sensitive_provider_payload_claimed: false,
+        provider_stores_child_evidence_claimed: false,
+        last_checked_at: last_checked_at.to_string(),
+    }
 }
 
 fn high_risk_intent(created_at: &str) -> SocialAlertReportIntent {

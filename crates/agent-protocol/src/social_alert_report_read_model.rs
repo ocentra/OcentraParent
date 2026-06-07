@@ -59,6 +59,26 @@ pub const SOCIAL_ALERT_REPORT_PAYLOAD_PARENT_ACTION_LINK_REF: &str = "parent-act
 pub const SOCIAL_ALERT_REPORT_DELIVERY_LOCAL_OUTBOX_ONLY: &str = "local-outbox-only";
 pub const SOCIAL_ALERT_REPORT_DELIVERY_MANUAL_REQUIRED: &str = "manual-required";
 pub const SOCIAL_ALERT_REPORT_ADAPTER_NOT_DISPATCHED: &str = "not-dispatched";
+pub const SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_ADAPTER_REQUIRED: &str =
+    "provider-adapter-required";
+pub const SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_MANUAL_REQUIRED: &str = "manual-required";
+pub const SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED: &str = "manual-required";
+pub const SOCIAL_ALERT_REPORT_PROVIDER_STATUS_PROOF_MANUAL_ACTION: &str = "manual-action-required";
+pub const SOCIAL_ALERT_REPORT_PROVIDER_DELIVERY_NOT_OBSERVED: &str = "not-observed";
+pub const SOCIAL_ALERT_REPORT_PROVIDER_STATUS_HIGH_RISK: &str =
+    "social-provider-status-social-alert-report-high-risk-service";
+pub const SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL: &str =
+    "social-provider-status-social-alert-report-manual-required";
+pub const SOCIAL_ALERT_REPORT_PROVIDER_ATTEMPT_HIGH_RISK: &str =
+    "social-provider-attempt-not-started-social-alert-report-high-risk-service";
+pub const SOCIAL_ALERT_REPORT_PROVIDER_ATTEMPT_MANUAL: &str =
+    "social-provider-attempt-not-started-social-alert-report-manual-required";
+pub const SOCIAL_ALERT_REPORT_PROVIDER_ADAPTER_REQUIRED: &str =
+    "provider-adapter-required-social-alert-report-high-risk-service";
+pub const SOCIAL_ALERT_REPORT_PROVIDER_CREDENTIALS_REQUIRED: &str =
+    "provider-credentials-required-social-alert-report-high-risk-service";
+pub const SOCIAL_ALERT_REPORT_PROVIDER_SMOKE_REQUIRED: &str =
+    "provider-smoke-proof-required-social-alert-report-high-risk-service";
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -68,6 +88,7 @@ pub struct SocialAlertReportReadModelSnapshot {
     pub child_profile_id: String,
     pub generated_at: String,
     pub intents: Vec<SocialAlertReportIntent>,
+    pub provider_status_rows: Vec<SocialAlertReportProviderStatusRow>,
     pub claim_boundaries: SocialAlertReportClaimBoundaries,
 }
 
@@ -125,6 +146,27 @@ pub struct SocialAlertReportIntent {
     pub adapter_dispatch_state: String,
     pub adapter_action_claimed: bool,
     pub created_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SocialAlertReportProviderStatusRow {
+    pub status_entry_id: String,
+    pub source_intent_ref: String,
+    pub source_preflight_status: String,
+    pub provider_status: String,
+    pub status_proof_state: String,
+    pub delivery_claim_state: String,
+    pub provider_attempt_ref: String,
+    pub readiness_refs: Vec<String>,
+    pub provider_receipt_refs: Vec<String>,
+    pub manual_proof_requirements: Vec<String>,
+    pub provider_delivery_implemented: bool,
+    pub provider_delivery_observed: bool,
+    pub delivered_notification_claimed: bool,
+    pub sensitive_provider_payload_claimed: bool,
+    pub provider_stores_child_evidence_claimed: bool,
+    pub last_checked_at: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
