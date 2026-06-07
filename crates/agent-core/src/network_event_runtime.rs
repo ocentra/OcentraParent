@@ -32,6 +32,10 @@ mod remote_delivery_event_chain_journal_types;
 #[cfg(test)]
 mod remote_delivery_event_chain_store;
 #[cfg(test)]
+mod remote_delivery_durable_envelope;
+#[cfg(test)]
+mod remote_delivery_durable_envelope_types;
+#[cfg(test)]
 mod remote_delivery_receipt_ledger;
 #[cfg(test)]
 mod remote_delivery_receipt_ledger_types;
@@ -60,6 +64,13 @@ pub use remote_delivery_event_chain_journal::prove_network_runtime_remote_event_
 #[cfg(test)]
 pub use remote_delivery_event_chain_journal_types::{
     NetworkRuntimeRemoteEventChainJournalError, NetworkRuntimeRemoteEventChainJournalReport,
+};
+#[cfg(test)]
+pub use remote_delivery_durable_envelope::prove_network_runtime_remote_delivery_durable_envelope;
+#[cfg(test)]
+pub use remote_delivery_durable_envelope_types::{
+    NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
+    NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
 };
 #[cfg(test)]
 pub use remote_delivery_receipt_ledger::prove_network_runtime_remote_delivery_receipt_ledger;
