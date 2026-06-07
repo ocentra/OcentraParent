@@ -363,10 +363,11 @@ expose location or device-status features. Parents expect this category.
   parent report summary, policy evidence drill-in, and retention audit/export
   consumer-readiness rows from the existing tracking service read-model and
   active product-surface summary proof, keeps source proof refs, evidence refs,
-  policy decision refs, report surface refs, and audit refs attached, and
-  explicitly rejects portal UI completion, child-device delivery, provider
-  delivery, notification receipt ingestion, authority, physical-device, and
-  product-complete claims.
+  stored journal refs, stored read-model row refs, policy decision refs, report
+  surface refs, and audit refs attached, and explicitly rejects portal UI
+  completion, child-device delivery, provider delivery, notification receipt
+  ingestion, authority, physical-device, AI execution, and product-complete
+  claims.
 - WP32 report/export read-model proof now exists through
   `node scripts/test/tracking-report-export-read-model-proof.mjs`. It derives
   redacted report export, retention audit export, family dashboard summary, and
@@ -684,7 +685,8 @@ accessibility beyond the hosted parent route are proved.
       policy evidence drill-in, and retention audit/export rows. This is not
       portal UI completion, child-device delivery, provider delivery,
       notification receipt ingestion, authority, physical-device, or
-      product-complete proof.
+      product-complete proof; the rows now require stored journal refs and
+      stored read-model row refs before report/policy use.
 - [x] WP32 report/export read-model proof for redacted report export,
       retention audit export, family dashboard summary, and policy drill-in
       export packet rows, plus narrow hosted parent-route rendering of those

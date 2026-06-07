@@ -109,6 +109,11 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       retention settings proof refs without claiming raw location payload
       export, portal UI, platform runtime, device delivery, authority, provider,
       notification receipt, or product-ready behavior.
+- [x] Require parent report summary, policy drill-in, and retention audit
+      export consumer rows to cite stored journal refs and stored read-model row
+      refs before report/policy use without claiming AI execution, portal
+      completion, platform runtime, device delivery, provider delivery,
+      authority, or product-ready behavior.
 
 ## Where We Are
 
@@ -145,6 +150,15 @@ state recorded in `proof-summary.json`, `10-journal-sqlite-proof.json`,
 `27-retention-settings-write-command-proof.json`,
 `28-report-export-read-model-proof.json`,
 the hosted UI proof output, and the implementation checklist.
+The report/policy consumer proof now requires the parent report summary,
+policy evidence drill-in, and retention audit export rows to carry stored
+journal refs plus stored read-model row refs before report/policy use. The
+repeatable `node scripts/test/tracking-report-policy-consumer-proof.mjs`
+command records the stored-ref row counts in
+`output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json`
+while keeping AI execution, portal completion, platform runtime, child-device
+delivery, provider delivery, notification receipt, physical-device, authority,
+production, and product-ready claims false.
 The hosted parent route now consumes the typed retention settings write
 preflight response as a command/result rendering path and captures the accepted
 result plus mutation proof refs in
@@ -248,6 +262,8 @@ This workpack can be assigned independently, implemented against the owning doma
   hosted packet rendering only, not raw location payload export, service
   mutation, platform runtime, child-device/runtime execution, or product-ready
   export delivery.
+- AI analysis execution still needs its own stored-ref consumer proof before any
+  AI/report/policy completion claim.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready

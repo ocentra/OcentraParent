@@ -67,6 +67,14 @@ This remains local emulator evidence only; Android system geofence delivery, dwe
 physical-device behavior, authority, provider delivery, production workers, and
 product-ready Android tracking remain proof-gated.
 
+Location/geofence report/policy consumer addendum: WP32 report/policy consumer
+rows now require stored journal refs and stored read-model row refs for parent
+report summary, policy drill-in, and retention audit/export use through
+`output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json`.
+AI execution, full report/policy UI, child-device runtime, provider delivery,
+authority, physical-device behavior, production, and product-ready tracking
+remain proof-gated.
+
 ## AI, Policy, And Parent Control
 
 | Capability               | Status              | Expectation docs                                                                                                                             | Current proof                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Next gap                                                                                                          |

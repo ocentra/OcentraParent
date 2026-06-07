@@ -518,7 +518,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json`,
       and the hosted parent route now renders and screenshots those packet rows
       without raw location payload export or product-ready report delivery
-      claims.
+      claims. Report/policy consumer rows now also require stored journal refs
+      and stored read-model row refs before report/policy use, with proof row
+      counts in
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json`;
+      AI execution remains separately proof-gated.
 - [x] Tracking report/export read-model packet proof exists for redacted report
       export, retention audit export, family dashboard summary, and policy
       drill-in export packet rows. Proof:
