@@ -189,6 +189,22 @@ compete on control while staying clear about attribution confidence and privacy.
   side-effect authority, adapter execution, enforcement-command publication,
   raw PCAP, exact URL, decrypted payload, page content, video content,
   private-message content, search-query content, and host filtering claims.
+- E-D added row10k remote delivery transport dispatch-state proof in
+  `agent-core`: the row10j available-metadata invariant now feeds deterministic
+  manual-required blocked dispatch records for every row10g prepared outbox
+  candidate. The proof writes
+  `output/network-plan-proof/10k-remote-delivery-transport-dispatch-state/proof-summary.json`
+  and
+  `test-results/network-remote-delivery-transport-dispatch-state-proof/proof.json`,
+  keeps blocked dispatch record count equal to source outbox and manual-required
+  candidate counts, preserves outbox and handoff refs, and names a future
+  transport seam without claiming live send or ack behavior. Dispatch-ready
+  candidates, dispatch attempts, remote acknowledgements, broker/family-hub
+  delivery, provider/child delivery, remote delete/export propagation,
+  product-ready delivery, policy authority, side-effect authority, adapter
+  execution, enforcement-command publication, raw PCAP, exact URL, decrypted
+  payload, page content, video content, private-message content, search-query
+  content, and host filtering remain false.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,

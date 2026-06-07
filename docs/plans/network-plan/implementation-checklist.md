@@ -215,6 +215,22 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       execution, enforcement-command publication, raw PCAP, exact URL, decrypted
       payload, page content, video content, private-message content,
       search-query content, and host filtering claims.
+- [x] `10k-remote-delivery-transport-dispatch-state`: local blocked dispatch
+      state seam for the row10j available-metadata invariant. Row10k proof writes
+      `output/network-plan-proof/10k-remote-delivery-transport-dispatch-state/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-transport-dispatch-state-proof/proof.json`
+      and proves every row10g prepared outbox candidate becomes a
+      manual-required blocked dispatch record with preserved outbox/handoff refs
+      and a future transport seam ref. Blocked dispatch count equals source
+      outbox and manual-required candidate counts, while dispatch-ready
+      candidates, dispatch attempts, remote acknowledgements, live
+      broker/family-hub delivery, provider/child-device delivery, remote
+      delete/export propagation, product-ready delivery, policy authority,
+      side-effect authority, adapter execution, enforcement-command publication,
+      raw PCAP, exact URL, decrypted payload, page content, video content,
+      private-message content, search-query content, and host filtering remain
+      false.
 - [x] `11-manual-platform-proof.md`: OS/device/permission details, exact manual
       steps, screenshots/logs, and manual-required labels for platform claims.
       E-D row11 proof now writes
@@ -375,7 +391,8 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   execution, provider/child-device delivery, product-ready remote delivery, and
   host filtering remain open. Row10j now proves available remote metadata across
   the row10b through row10i chain stays non-enforcing until those artifacts
-  exist.
+  exist, and row10k now maps that metadata into manual-required blocked dispatch
+  records without attempting live transport.
 - [x] TypeScript Effect Schema contracts land before Rust/service/portal
       consumers where TypeScript domain boundaries are touched. Workpack 03
       added the `activity-domain` network contracts before Rust protocol parity.
