@@ -1,11 +1,11 @@
 {
   "proof": "network-proof-pack-reconciliation",
-  "checkedAt": "2026-06-06T23:52:34.919Z",
+  "checkedAt": "2026-06-07T00:33:18.268Z",
   "branch": "codex/network-proof-pack-reconciliation",
-  "sourceCommit": "b7b0045fb4909cf929b99e86ff117999369bb3de",
+  "sourceCommit": "8e582896e424c14c41276edb8ce82a972c4b7583",
   "artifactCommit": "see the enclosing git commit for generated proof artifacts",
-  "originMain": "75e8c57b300b7452bd41b846e8a409059df8a6df",
-  "mergeBase": "75e8c57b300b7452bd41b846e8a409059df8a6df",
+  "originMain": "8c8fad79a50e914922fbc84984878211e127897e",
+  "mergeBase": "8c8fad79a50e914922fbc84984878211e127897e",
   "sourceStatusShort": "",
   "proofRoot": "output/network-plan-proof/proof-pack-reconciliation",
   "testRoot": "test-results/network-proof-pack-reconciliation",
@@ -794,16 +794,16 @@
   "pendingBranchChecks": [
     {
       "branch": "codex/network-content-claim-invariant-proof",
-      "expectedHead": "5f883b36ec717b5347340fb13cc2613c63e8a7e3",
+      "expectedHead": "14927eb4eee7fc72d4477e596edc544ba6f4f10e",
       "reason": "pipeline-level unsupported video/private-message/search content claim fields are branch-only until integrated",
-      "remoteHead": "5f883b36ec717b5347340fb13cc2613c63e8a7e3",
+      "remoteHead": "14927eb4eee7fc72d4477e596edc544ba6f4f10e",
       "currentMainEvidence": false
     },
     {
       "branch": "codex/network-manual-followup-owner-ledger-proof",
-      "expectedHead": "c6477df42f815f52fc769166fa9275dbdd666d4d",
+      "expectedHead": "3938df7f0b6318452d806ef969bf15a787852765",
       "reason": "manual/deferred follow-up owner ledger sourceRef fix is branch-only until integrated",
-      "remoteHead": "c6477df42f815f52fc769166fa9275dbdd666d4d",
+      "remoteHead": "3938df7f0b6318452d806ef969bf15a787852765",
       "currentMainEvidence": false
     }
   ],
