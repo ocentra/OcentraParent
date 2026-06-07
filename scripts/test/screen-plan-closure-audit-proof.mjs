@@ -49,7 +49,7 @@ const workpacks = [
     label: 'Live view optional mode',
     status: workpackStatus('28 Live view optional mode'),
     requiredProof: 'output/screen-plan-proof/live-view-worker-startup/proof-summary.json',
-    gate: 'Fail-closed platform permission gate, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, and worker startup gate proof exist; real platform live-view prompt screenshots, actual production worker start, relay/cache execution, physical-device parity, and privacy/legal approval remain.',
+    gate: 'Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, and worker startup gate proof exist; real platform live-view prompt screenshots, actual production worker start, relay/cache execution, physical-device parity, and privacy/legal approval remain.',
   },
   {
     id: '30',
@@ -137,6 +137,7 @@ const summary = {
     'output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/parent-redaction-policy.json',
     'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
     'output/screen-plan-proof/live-view-session-transport/proof-summary.json',
+    'output/screen-plan-proof/live-view-platform-permission/proof-summary.json',
     'output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json',
     'output/screen-plan-proof/live-view-service-session/proof-summary.json',
     'output/screen-plan-proof/live-view-runtime/proof-summary.json',

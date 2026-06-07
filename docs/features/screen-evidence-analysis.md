@@ -496,6 +496,17 @@ only with explicit parent settings.
   production live-view worker startup, platform prompt screenshots, relay/cache
   execution, physical-device parity, privacy/legal approval, or
   product-complete live view.
+- `ScreenLiveViewProductionReadinessEvidenceSchema` and
+  `scripts/test/screen-live-view-platform-permission-proof.mjs` now prove live
+  view cannot become product-ready from opaque proof refs or ordinary capture
+  permission. A ready bundle must carry a matching live-view prompt artifact
+  ref/digest, viewer audit, live transport proof, physical-device parity proof,
+  privacy/legal approval, production worker start proof, and relay/cache proof
+  when relay-backed. The current proof keeps Android MediaProjection as
+  capture-only evidence and records `liveViewProductReady:false`; it does not
+  provide real platform prompt screenshots, live transport, physical-device
+  parity, production worker start, relay/cache execution, or privacy/legal
+  approval.
 - `scripts/test/screen-live-view-worker-startup-proof.mjs` now proves the Rust
   `agent-service` live-view worker startup gate behind that runtime decision
   boundary. The gate refuses to start the worker unless the runtime is

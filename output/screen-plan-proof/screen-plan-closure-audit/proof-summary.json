@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T11:10:10.594Z",
+  "generatedAt": "2026-06-07T11:24:35.577Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -93,7 +93,7 @@
       "status": "~",
       "requiredProof": "output/screen-plan-proof/live-view-worker-startup/proof-summary.json",
       "proofPresent": true,
-      "gate": "Fail-closed platform permission gate, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, and worker startup gate proof exist; real platform live-view prompt screenshots, actual production worker start, relay/cache execution, physical-device parity, and privacy/legal approval remain."
+      "gate": "Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, and worker startup gate proof exist; real platform live-view prompt screenshots, actual production worker start, relay/cache execution, physical-device parity, and privacy/legal approval remain."
     },
     {
       "id": "30",
@@ -147,6 +147,10 @@
     },
     {
       "artifact": "output/screen-plan-proof/live-view-session-transport/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-platform-permission/proof-summary.json",
       "present": true
     },
     {
