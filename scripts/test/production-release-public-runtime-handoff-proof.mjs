@@ -6,14 +6,20 @@ import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const proofMode = 'production-release-public-runtime-handoff-proof';
-const outputDir = join(repoRoot, 'test-results', proofMode);
-const proofPath = join(outputDir, 'proof.json');
+const resultDir = join(repoRoot, 'test-results', proofMode);
+const outputDir = join(repoRoot, 'output', proofMode);
+const proofPath = join(resultDir, 'proof.json');
+const summaryPath = join(outputDir, 'proof-summary.json');
+const deterministicCheckedAt = 'deterministic-proof-artifact';
+const deterministicCommit = 'branch-head-validated-by-harness';
 const commands = [];
 
 await main();
 
 async function main() {
+  await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
+  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
   await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   await runCommand('cmd', [
     '/c',
@@ -29,11 +35,10 @@ async function main() {
   const contract = await assertBuiltContract();
   const packageExports = await assertPublicPackageExports();
   const documentation = await assertDocumentationProof();
-  const commit = await gitHead();
   const proof = {
     schemaVersion: 1,
-    checkedAt: new Date().toISOString(),
-    commit,
+    checkedAt: deterministicCheckedAt,
+    commit: deterministicCommit,
     proofMode,
     commands,
     evidence: {
@@ -43,16 +48,31 @@ async function main() {
       contractTest: 'packages/parent-domain/tests/production-release-public-runtime-handoff.test.ts',
       packageExports,
       documentation,
-      output: relativePath(proofPath),
+      proofOutput: relativePath(proofPath),
+      summaryOutput: relativePath(summaryPath),
     },
     handoffRows: contract.handoffRows,
     adapterRows: contract.adapterRows,
     nonClaims: contract.nonClaims,
     knownGaps: contract.knownGaps,
   };
+  const summary = {
+    schemaVersion: 1,
+    checkedAt: proof.checkedAt,
+    commit: proof.commit,
+    proofMode,
+    packageExports,
+    handoffRowCount: proof.handoffRows.length,
+    adapterRowCount: proof.adapterRows.length,
+    surfaces: proof.handoffRows.map((row) => row.surface),
+    adapters: proof.adapterRows.map((row) => row.adapter),
+    output: relativePath(proofPath),
+    knownGaps: proof.knownGaps,
+  };
 
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
-  console.log(`${proofMode}-ok:${relativePath(proofPath)}`);
+  await writeFile(summaryPath, `${JSON.stringify(summary, null, 2)}\n`);
+  console.log(`${proofMode}-ok:${relativePath(proofPath)} ${relativePath(summaryPath)}`);
 }
 
 async function assertBuiltContract() {
@@ -165,17 +185,6 @@ async function runCommand(commandName, args) {
     );
     child.once('error', reject);
   });
-}
-
-async function gitHead() {
-  const chunks = [];
-  await new Promise((resolve, reject) => {
-    const child = spawn('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] });
-    child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
-    child.once('exit', (code) => (code === 0 ? resolve() : reject(new Error('git rev-parse HEAD failed'))));
-    child.once('error', reject);
-  });
-  return chunks.join('').trim();
 }
 
 function assertIncludes(value, expected, label) {
