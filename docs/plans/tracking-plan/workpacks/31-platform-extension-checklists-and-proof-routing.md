@@ -31,6 +31,7 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 - `21-authority-enrollment-manual-required-proof.json`
 - `21-authority-enrollment-source-snapshot.md`
 - `21-authority-enrollment-validation-commands.log`
+- `22-authority-runtime-readiness-blocker-proof.json`
 
 ## AI Worker Checklist
 
@@ -91,6 +92,16 @@ entitlement, iOS App Review approval, and desktop managed-policy evidence rows
 under this workpack root plus the WP33 companion gate. It does not claim
 authority enrollment, hard-control runtime, physical-device behavior, provider
 delivery, production workers, or product-ready tracking.
+Authority-runtime readiness blocker proof now exists through
+`node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`. It
+consumes the existing authority enrollment manual-required rows, writes
+`22-authority-runtime-readiness-blocker-proof.json` under this workpack root
+plus the WP33 companion gate, and records authority-required blockers for
+enrollment, hard-control runtime, parent-visible authority status,
+physical-device authority proof, production authority workers, and
+product-ready authority behavior. It does not claim enrolled authority,
+hard-control runtime, physical-device behavior, production workers, or
+product-ready tracking.
 
 ## Where We Want To Be
 
@@ -110,6 +121,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
 - scripts/test/tracking-platform-extension-inventory-proof.mjs
 - scripts/test/tracking-authority-enrollment-manual-required-proof.mjs
+- scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs
 - `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`
 - `apps/portal/src/tracking-status-panel.ts`
 - `apps/portal/src/TrackingStatusRoutePanel.tsx`
@@ -199,3 +211,30 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Known gaps/manual-required states: real enrolled-device authority state,
       hard-control runtime, physical-device behavior, provider delivery,
       production workers, and product-ready tracking remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain authority-runtime readiness blocker
+      proof/test, focused proof script, product-readiness closure proof model,
+      closure harness, owning tracking feature doc, implementation checklist,
+      WP31, WP33, generated WP31/WP33 authority-runtime blocker artifacts, and
+      refreshed closure proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`
+      passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-authority-runtime-readiness-blocker-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/55-authority-runtime-readiness-blocker-proof.json`,
+      `output/tracking-plan-proof/tracking-authority-runtime-readiness-blocker-proof/proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
+      `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
+      `test-results/tracking-authority-runtime-readiness-blocker-proof/proof.json`,
+      and `test-results/tracking-product-readiness-closure-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP31, and WP33 updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta instead of editing the shared checklist directly.
+- [x] Known gaps/manual-required states: real enrolled-device authority state,
+      hard-control runtime, parent-visible authority runtime,
+      physical-device behavior, provider delivery, production workers, and
+      product-ready tracking remain proof-gated.

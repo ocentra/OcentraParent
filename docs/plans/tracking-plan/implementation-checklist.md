@@ -376,6 +376,19 @@ accounting cannot pass without those proof refs while still keeping
 notification runtime, authority enrollment, hard-control runtime,
 physical-device behavior, provider delivery, production workers, and
 product-ready tracking unclaimed.
+WP31/WP33 now also have authority-runtime readiness blocker proof from
+`node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`,
+written to
+`output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-authority-runtime-readiness-blocker-proof.json`,
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/55-authority-runtime-readiness-blocker-proof.json`,
+and
+`test-results/tracking-authority-runtime-readiness-blocker-proof/proof.json`.
+It consumes the authority-enrollment manual-required proof to record the
+concrete authority runtime blockers without claiming enrolled authority,
+hard-control runtime, physical-device behavior, production workers, or
+product-ready tracking. The tracking product-readiness closure proof now
+consumes this authority-runtime blocker too, so local/CI closure accounting
+cannot pass without the WP31 authority-runtime blocker proof ref.
 WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
 The runtime proof command also records the full `minimumSeriousMvpAudit` in
 generated `00-run-metadata.json`; both are first-checkpoint P1

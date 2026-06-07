@@ -223,6 +223,16 @@ expose location or device-status features. Parents expect this category.
   and keeps Android/iOS physical background, actual child-device runtime,
   full product parent/child UI, authority, provider delivery/receipt,
   production workers, and product-ready tracking unclaimed.
+- WP31/WP33 authority-runtime readiness blocker proof now exists through
+  `node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`.
+  It consumes the existing authority-enrollment manual-required proof rows,
+  writes WP31/WP33 artifacts, and records authority-required blockers for
+  Android device-owner enrollment, Android managed-profile enrollment, iOS
+  Family Controls entitlement, iOS App Review approval, desktop managed policy,
+  hard-control runtime, parent-visible authority status, physical-device
+  authority proof, production authority workers, and product-ready authority
+  behavior. It keeps enrolled authority, hard-control runtime, physical-device
+  behavior, production workers, and product-ready tracking unclaimed.
 - WP32 hosted report/policy consumer rendering proof now exists through
   `npm run test:tracking-plan-hosted-ui-proof`. It renders parent report
   summary, policy evidence drill-in, and retention audit export consumer rows
