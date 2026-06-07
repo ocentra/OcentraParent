@@ -28,6 +28,10 @@ Shared activity and evidence contracts for child-device observations.
   explicit parent approval, audit refs, custody labels, TTL/delete or
   no-retention behavior, platform-proof refs for live view, and no remote input
   control before those non-default modes can be represented.
+- Screen live-view platform-permission gate contracts that keep ordinary
+  screen-capture permission proof from satisfying live view readiness unless
+  live-view permission evidence, viewer audit, live transport proof,
+  no-frame-retention custody, and no-remote-input boundaries are present.
 - Screen evidence settings UI proof contracts that build disabled, observe-only,
   and strict dry-run parent intent drafts from the real settings schemas without
   claiming child-agent persistence.
@@ -149,6 +153,12 @@ flowchart LR
   `screen-optional-retention-live-preflight-proof`; runtime retention
   enablement, live transport/relay/cache, platform permission prompts, parent
   UI persistence, privacy/legal approval, and production adapters remain open.
+- Screen live-view platform permission now has
+  `screen-live-view-platform-permission-proof`; it proves capture-only platform
+  consent cannot be reused as live-view readiness. Real live transport,
+  service live-view session runtime, platform prompt screenshots, parent UI
+  persistence, relay/cache execution, privacy/legal approval, and production
+  adapters remain open.
 - Screen child disclosure now has `screen-child-disclosure-proof`; rendered
   child-agent delivery, platform-specific screenshots, and product-complete
   child UX remain separate proof gates.
