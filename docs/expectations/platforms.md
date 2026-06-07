@@ -66,6 +66,13 @@ behavior belongs behind platform adapters and must be proved per platform.
   envelope refs only; it does not prove external writer execution/delivery,
   Microsoft Store execution, provider credentials, platform adapter execution,
   child-device delivery, app blocking, or product-claim approval.
+- Windows app-install package-source adapter evidence proof may attach
+  sanitized local host command evidence, such as `Get-AppxPackage`
+  availability and Microsoft Store package-source probe metadata, to move the
+  Windows row out of pure adapter-evidence-gap. It still does not prove
+  Microsoft Store execution, provider credentials, store integration, platform
+  interception, production adapter implementation, child delivery, app
+  blocking, or product-claim approval.
 - Validation needs real Windows adapter tests or guarded integration/manual evidence for each claimed OS capability, plus contract tests for every event shape crossing TypeScript and Rust.
 
 ## macOS

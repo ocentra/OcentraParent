@@ -419,6 +419,18 @@ generic app blocking covers this concern.
   records that platform adapter evidence gap proof under
   `test-results/app-install-purchase-platform-adapter-evidence-gap-proof/proof.json`
   when run and validates the public parent-domain package export.
+- `packages/parent-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts`
+  now consumes platform adapter evidence gap rows and package-source adapter
+  execution rows to attach sanitized Windows host command evidence for
+  Microsoft Store package-source inspection readiness while keeping Microsoft
+  Store execution, provider/store APIs, store integration, platform
+  interception, production platform adapters, child delivery, portal UI, app
+  blocking, child activity data, and hosted custody unclaimed.
+- `scripts/test/app-install-purchase-windows-package-source-adapter-evidence-proof.mjs`
+  records that Windows package-source adapter evidence proof under
+  `test-results/app-install-purchase-windows-package-source-adapter-evidence-proof/proof.json`
+  when run, emits a sanitized Windows host evidence artifact, and validates the
+  public parent-domain package export.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -534,6 +546,9 @@ through a parent-domain gate until portal tests, child delivery proof,
 provider/store API execution proof, and platform adapter proof are present,
 link provider/store API execution rows to platform proof-readiness rows so real
 adapter evidence gaps are named per platform before any adapter/product claim,
+attach sanitized Windows host package-source command evidence to the Windows
+adapter evidence row without claiming Microsoft Store integration or a
+production adapter,
 and links provider/store preflight rows back to that gate so provider/store proof
 stays required/manual/unsupported before product claims, and route those
 denied/manual/unsupported product-claim states through parent-visible store
@@ -774,6 +789,14 @@ Ocentra-hosted family data custody.
       provider/store execution, product-claim approval, child delivery, portal
       UI, app blocking, child activity data, and hosted custody remain
       unclaimed.
+- [x] Windows package-source adapter evidence proof linking platform adapter
+      evidence gap rows and package-source adapter execution rows to a
+      sanitized Windows host `Get-AppxPackage` evidence artifact when available
+      while macOS remains manual-required, Linux unavailable, Android/iOS
+      blocked-before-claim, and Microsoft Store execution, provider/store APIs,
+      store integration, platform interception, production platform adapters,
+      child delivery, portal UI, app blocking, child activity data, and hosted
+      custody remain unclaimed.
 
 ## Next AI Instructions
 

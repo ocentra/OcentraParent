@@ -175,6 +175,14 @@ Expected contract families:
   implementation, product-claim approval, provider/store execution, portal UI,
   child-device delivery, app blocking, child activity data custody, or
   Ocentra-hosted family data custody.
+- Windows package-source adapter evidence proof rows link platform adapter
+  evidence gap rows and package-source adapter execution rows to sanitized
+  Windows host command evidence for Microsoft Store package-source inspection
+  readiness when available, or keep the Windows row manual-required when the
+  host command/API is absent, without claiming Microsoft Store execution,
+  provider API execution, store integration, platform interception, production
+  platform adapter implementation, child-device delivery, portal UI, app
+  blocking, child activity data custody, or Ocentra-hosted family data custody.
 - Provider/store report status runtime proof rows link provider/store execution
   readiness rows to parent-owned runtime report writer receipts so store
   report statuses can be ready, manual-required, or unavailable without
@@ -718,6 +726,12 @@ Expected contract families:
   child-device delivery, app blocking, child activity custody,
   Ocentra-hosted family data custody, or proof that platform/store claims are
   product-ready.
+- Do not treat Windows package-source adapter evidence proof refs as Microsoft
+  Store execution, provider/store execution, store integration, platform
+  interception, production platform adapter implementation, product-claim
+  approval, child-device delivery, portal approval/report UI, app blocking,
+  child activity custody, Ocentra-hosted family data custody, or proof that
+  Windows install/purchase product claims are ready.
 
 ## Done Signal
 

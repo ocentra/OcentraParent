@@ -137,6 +137,10 @@
       "import": "./dist/app-install-purchase-platform-adapter-evidence-gap-proof.js",
       "types": "./dist/app-install-purchase-platform-adapter-evidence-gap-proof.d.ts"
     },
+    "./app-install-purchase-windows-package-source-adapter-evidence": {
+      "import": "./dist/app-install-purchase-windows-package-source-adapter-evidence.js",
+      "types": "./dist/app-install-purchase-windows-package-source-adapter-evidence.d.ts"
+    },
     "./billing-entitlement": {
       "import": "./dist/billing-entitlement.js",
       "types": "./dist/billing-entitlement.d.ts"
