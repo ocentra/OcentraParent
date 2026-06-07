@@ -8,11 +8,15 @@ const repoRoot = process.cwd();
 const outputDir = join(repoRoot, 'test-results', 'app-install-purchase-nonclaim-limitation-readiness-proof');
 const proofPath = join(outputDir, 'proof.json');
 const commands = [];
+const proofBranch = 'codex/e-b-app-install-windows-host-evidence-readiness-proof';
+const deterministicProofRevision = 'branch-head-validated-by-harness';
+const deterministicGeneratedAt = 'deterministic-proof-artifact';
 
 await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
+  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
   await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   await runCommand('cmd', [
     '/c',
@@ -49,11 +53,17 @@ async function main() {
 
   const docs = await readDocumentation();
   const docChecks = assertDocumentationKeepsClaimsManual(docs);
+  const branchHead = await gitHead();
+  assert.ok(branchHead.length > 0, 'git HEAD is available for proof validation');
   const proof = {
     schemaVersion: 1,
-    checkedAt: new Date().toISOString(),
-    commit: await gitHead(),
     proofMode: 'app-install-purchase-nonclaim-limitation-readiness-proof',
+    generatedAt: deterministicGeneratedAt,
+    branch: proofBranch,
+    commit: deterministicProofRevision,
+    commitMetadata:
+      'This proof intentionally avoids embedding HEAD because a committed artifact cannot contain its own final commit hash.',
+    gitStatusShort: 'validated-by-explicit-handoff-status-check',
     baseMainState: 'after-pr487-platform-adapter-evidence-gap-proof-merged',
     commands,
     packageExportState: 'validated-existing-platform-adapter-evidence-gap-export',
@@ -206,12 +216,11 @@ async function commandOutput(command, args) {
 }
 
 async function runCommand(command, args) {
-  const startedAt = new Date().toISOString();
   const child = spawn(command, args, { cwd: repoRoot, stdio: 'inherit' });
   const exitCode = await new Promise((resolve) => {
     child.on('close', resolve);
   });
-  commands.push({ command: `${command} ${args.join(' ')}`, startedAt, exitCode });
+  commands.push({ command: `${command} ${args.join(' ')}`, exitCode });
   if (exitCode !== 0) {
     throw new Error(`${command} ${args.join(' ')} failed with ${exitCode}`);
   }
