@@ -1,9 +1,13 @@
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const proofRoot = 'output/network-plan-proof/proof-pack-reconciliation';
 const testRoot = 'test-results/network-proof-pack-reconciliation';
+const proofRevision = 'network-proof-pack-reconciliation/v1';
+const proofBranch = 'codex/network-proof-pack-reconciliation';
+const deterministicCheckedAt = `deterministic:${proofRevision}`;
 
 const docsRead = [
   '.ocentra-ai/rules/ocentra-parent-rules.mdc',
@@ -238,17 +242,17 @@ const gates = [
 mkdirSync(localPath(proofRoot), { recursive: true });
 mkdirSync(localPath(testRoot), { recursive: true });
 
-const branch = runText('git', ['branch', '--show-current']).trim();
-const sourceCommit = runText('git', ['rev-parse', 'HEAD']).trim();
 const originMain = runText('git', ['rev-parse', 'origin/main']).trim();
 const mergeBase = runText('git', ['merge-base', 'HEAD', 'origin/main']).trim();
+const sourceTreeFingerprint = trackedSourceFingerprint();
+const sourceCommit = `source-tree:${sourceTreeFingerprint}`;
 const sourceStatusShort = runText('git', [
   'status',
   '--short',
   '--',
   '.',
-  `:(exclude)${proofRoot}`,
-  `:(exclude)${testRoot}`,
+  ':(exclude)output',
+  ':(exclude)test-results',
 ]);
 
 const sourceChecks = verifySources([...docsRead, ...gates.flatMap((gate) => gate.sources)]);
@@ -270,9 +274,11 @@ writeMarkdown('12-validation-commands.log', validationCommandsLog());
 
 const proof = {
   proof: 'network-proof-pack-reconciliation',
-  checkedAt: new Date().toISOString(),
-  branch,
+  proofRevision,
+  checkedAt: deterministicCheckedAt,
+  branch: proofBranch,
   sourceCommit,
+  sourceTreeFingerprint,
   artifactCommit: 'see the enclosing git commit for generated proof artifacts',
   originMain,
   mergeBase,
@@ -341,11 +347,18 @@ function readPendingBranchHead(entry) {
   return { ...entry, remoteHead: head, currentMainEvidence: false };
 }
 
+function trackedSourceFingerprint() {
+  return createHash('sha256')
+    .update(runText('git', ['ls-files', '-s', '--', '.', ':(exclude)output', ':(exclude)test-results']))
+    .digest('hex');
+}
+
 function sourceSnapshot() {
   return `# Network Proof Pack Reconciliation Source Snapshot
 
-Branch: ${branch}
-Source commit at proof generation: ${sourceCommit}
+Branch marker: ${proofBranch}
+Proof revision: ${proofRevision}
+Source tree fingerprint: ${sourceTreeFingerprint}
 Origin main: ${originMain}
 Merge base: ${mergeBase}
 
