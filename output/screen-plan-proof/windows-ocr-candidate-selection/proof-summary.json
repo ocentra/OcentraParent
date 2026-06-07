@@ -1,0 +1,68 @@
+{
+  "proof": "screen-ocr-windows-candidate-selection-proof",
+  "generatedAt": "2026-06-07T06:25:29.823Z",
+  "proofTier": "P2_AGGREGATE_SELECTION_PROOF",
+  "platformScope": "windows-service-ocr-only",
+  "selectedCurrentRoute": {
+    "providerKind": "localOcr",
+    "modelId": "windows-winrt-ocr",
+    "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+    "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+    "reason": "WinRT OCR is the current Windows service OCR route because it has real service capture, local OCR, policy dry-run, read-model, redaction, queue drain, and raw-image deletion proof."
+  },
+  "fallbackCandidates": [
+    {
+      "candidate": "tesseract-5.5-windows",
+      "status": "measured-fallback-baseline",
+      "matchedTerms": [
+        "vimeo",
+        "video",
+        "player"
+      ],
+      "durationMs": 783,
+      "peakWorkingSetMiB": 44.3,
+      "reason": "Tesseract extracted expected text from a retained real public Vimeo screenshot artifact with CPU and memory measurement, but it is not selected as production OCR."
+    },
+    {
+      "candidate": "paddleocr-3.x-ppocrv5",
+      "status": "not-selected-runtime-blocked",
+      "error": "NotImplementedError: (Unimplemented) ConvertPirAttribute2RuntimeAttribute not support [pir::ArrayAttribute<pir::DoubleAttribute>]  (at ..\\paddle\\fluid\\framework\\new_executor\\instruction\\onednn\\onednn_instruction.cc:118)",
+      "reason": "Current PP-OCRv5 package/model cache exists but local inference fails before text extraction, so it cannot be selected."
+    },
+    {
+      "candidate": "paddleocr-2.x-pinned-python310",
+      "status": "measured-legacy-fallback-candidate",
+      "matchedTerms": [
+        "vimeo",
+        "video",
+        "player"
+      ],
+      "peakRssMiB": 720,
+      "reason": "Pinned PaddleOCR 2.x can extract comparable Vimeo text locally, but dependency, custody, packaging, and quality review remain before selection."
+    }
+  ],
+  "evidenceArtifacts": {
+    "winRtService": "output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json",
+    "winRtRedaction": "output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/proof-summary.json",
+    "tesseractBaseline": "output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json",
+    "paddleOcrEvaluation": "output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json"
+  },
+  "assertions": {
+    "windowsServiceOcrSelected": true,
+    "selectedRouteHasRealCaptureProof": true,
+    "selectedRouteHasDeletionProof": true,
+    "selectedRouteHasRedactionProof": true,
+    "selectedRouteHasPolicyReadModelProof": true,
+    "tesseractFallbackMeasured": true,
+    "paddleCurrentCandidateBlocked": true,
+    "paddleNotSelectedForProduction": true,
+    "noCrossPlatformOcrClaim": true,
+    "noProductionQualityClaim": true
+  },
+  "nonClaims": [
+    "This proof selects the current Windows service OCR route only; it does not close macOS, Linux, Android, or iOS OCR parity.",
+    "This proof does not rerun a new live capture; it aggregates retained real service and OCR proof artifacts already produced in the screen plan.",
+    "This proof does not claim final production OCR quality, broad language coverage, authenticated social coverage, or VLM completion.",
+    "This proof does not select PaddleOCR or Tesseract as the production OCR runtime."
+  ]
+}

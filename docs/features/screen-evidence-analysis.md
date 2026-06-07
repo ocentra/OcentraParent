@@ -531,6 +531,14 @@ only with explicit parent settings.
   recorded init/predict timing, CPU time, and peak RSS. This proves a local
   PaddleOCR-family fallback can analyze the captured evidence, but it does not
   unblock current PP-OCRv5 or select production OCR.
+- `scripts/test/screen-ocr-windows-candidate-selection-proof.mjs` now records
+  the current Windows service OCR route decision. It aggregates the real WinRT
+  OCR service proof, WinRT redaction service proof, Tesseract baseline, and
+  PaddleOCR/PP-OCR blocker evidence to select `windows-winrt-ocr` as the current
+  Windows service OCR route for this lane. Tesseract remains a measured fallback
+  baseline, current PP-OCRv5 remains not selected because local inference is
+  blocked, and pinned PaddleOCR 2.x remains a measured fallback candidate only.
+  This is not a cross-platform OCR or final production-quality claim.
 - `scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs` records the
   small guided VLM classifier readiness boundary for screen-plan WP36 by
   reusing the typed execution-readiness proof. It proves local-only custody,
@@ -725,6 +733,9 @@ parity, and UI remain separate proof gates.
   fallback that extracts comparable text from the retained Vimeo screenshot, but
   production OCR selection, broader quality/resource proof, and current 3.x
   runtime resolution remain open.
+- [x] Windows service OCR route selection proof chooses WinRT OCR for the
+      current Windows service path from retained real service/redaction evidence
+      while leaving Tesseract/PaddleOCR as non-selected fallback candidates.
 - [~] Small guided VLM classifier readiness records local-only handoff,
   template/version, max-pixel, open-ended prompt rejection, deletion,
   provider-command probes, and manual-required gates, but live model execution,
