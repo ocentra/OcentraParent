@@ -51,60 +51,120 @@ const TimerParentSurfaceReadModel = {
 } as const;
 
 describe('app-game timer parent-surface portal route panel', () => {
-  it('attaches the renderer only to App/Game Sessions', () => {
-    expect(shouldRenderAppGameTimerParentSurfaceRoute(PortalRoute.AppGameSessions)).toBe(true);
-    expect(shouldRenderAppGameTimerParentSurfaceRoute(PortalRoute.Overview)).toBe(false);
-  });
-
-  it('uses the latest service-backed timer parent-surface event for the route intent', () => {
-    const liveActivity = resolveLiveActivityState([
-      timerParentSurfaceEvent(JSON.stringify(TimerParentSurfaceReadModel)),
-    ]);
-
-    expect(liveActivity.appGameTimerParentSurfaceReadModel).toMatchObject({
-      ok: true,
-      value: {
-        returned: 2,
-        timerRuntimeClaimed: false,
-        adapterDispatchClaimed: false,
-        childDeliveryClaimed: false,
-        platformEnforcementClaimed: false,
-      },
-    });
-
-    const intent = createAppGameTimerParentSurfacePanelIntent(liveActivity.appGameTimerParentSurfaceReadModel);
-    expect(intent.summaryDetails).toContainEqual({
-      label: 'Adapter dispatch',
-      value: 'Not claimed',
-    });
-    expect(intent.summaryDetails).toContainEqual({
-      label: 'Child delivery',
-      value: 'Not claimed',
-    });
-    expect(intent.summaryDetails).toContainEqual({
-      label: 'Platform state',
-      value: 'Not claimed',
-    });
-    expect(intent.rows.map((row) => row.title)).toEqual(['identity-study-timer', 'identity-voxel-quest']);
-    expect(rowPairs(intent.rows[0])).toContainEqual(['Target type', 'Native app']);
-    expect(rowPairs(intent.rows[0])).toContainEqual(['Status', 'Ready for parent surface']);
-    expect(rowPairs(intent.rows[1])).toContainEqual(['Target type', 'Native game']);
-    expect(rowPairs(intent.rows[1])).toContainEqual(['Status', 'Blocked by source freshness']);
-  });
-
-  it('keeps absent or invalid service input explicit instead of inventing rows', () => {
-    const intent = createAppGameTimerParentSurfacePanelIntent(null);
-
-    expect(intent.loadState).toBe('Unavailable');
-    expect(intent.rows).toEqual([]);
-    expect(intent.emptyMessage).toBe('No app/game timer parent-surface read model has been reported yet.');
-    expect(intent.summaryDetails).toContainEqual({
-      label: 'Product claim',
-      value:
-        'Parent-surface rendering only; timer runtime, scheduler persistence, audit, rollback, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.',
-    });
-  });
+  it('attaches the renderer only to App/Game Sessions', expectRouteAttachment);
+  it('uses the latest service-backed timer parent-surface event for the route intent', expectServiceBackedIntent);
+  it(
+    'shows active timer state-store visibility without upgrading audit or adapter claims',
+    expectActiveStateVisibility
+  );
+  it('keeps absent or invalid service input explicit instead of inventing rows', expectAbsentServiceInput);
 });
+
+function expectRouteAttachment() {
+  expect(shouldRenderAppGameTimerParentSurfaceRoute(PortalRoute.AppGameSessions)).toBe(true);
+  expect(shouldRenderAppGameTimerParentSurfaceRoute(PortalRoute.Overview)).toBe(false);
+}
+
+function expectServiceBackedIntent() {
+  const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(TimerParentSurfaceReadModel))]);
+
+  expect(liveActivity.appGameTimerParentSurfaceReadModel).toMatchObject({
+    ok: true,
+    value: {
+      returned: 2,
+      timerRuntimeClaimed: false,
+      adapterDispatchClaimed: false,
+      childDeliveryClaimed: false,
+      platformEnforcementClaimed: false,
+    },
+  });
+
+  const intent = createAppGameTimerParentSurfacePanelIntent(liveActivity.appGameTimerParentSurfaceReadModel);
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Timer runtime',
+    value: 'Not claimed',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Scheduler persistence',
+    value: 'Not claimed',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Durable scheduler storage',
+    value: 'Not claimed',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Adapter dispatch',
+    value: 'Not claimed',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Child delivery',
+    value: 'Not claimed',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Platform state',
+    value: 'Not claimed',
+  });
+  expect(intent.rows.map((row) => row.title)).toEqual(['identity-study-timer', 'identity-voxel-quest']);
+  expect(rowPairs(intent.rows[0])).toContainEqual(['Target type', 'Native app']);
+  expect(rowPairs(intent.rows[0])).toContainEqual(['Status', 'Ready for parent surface']);
+  expect(rowPairs(intent.rows[1])).toContainEqual(['Target type', 'Native game']);
+  expect(rowPairs(intent.rows[1])).toContainEqual(['Status', 'Blocked by source freshness']);
+}
+
+function expectActiveStateVisibility() {
+  const activeStateModel = {
+    ...TimerParentSurfaceReadModel,
+    timerRuntimeClaimed: true,
+    schedulerPersistenceClaimed: true,
+    durableSchedulerStorageClaimed: true,
+  };
+  const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(activeStateModel))]);
+
+  const intent = createAppGameTimerParentSurfacePanelIntent(liveActivity.appGameTimerParentSurfaceReadModel);
+
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Timer runtime',
+    value: 'Ready',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Scheduler persistence',
+    value: 'Ready',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Durable scheduler storage',
+    value: 'Ready',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Audit runtime',
+    value: 'Not claimed',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Rollback runtime',
+    value: 'Not claimed',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Adapter dispatch',
+    value: 'Not claimed',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Product claim',
+    value:
+      'Active timer state-store is visible; live scheduling, audit, rollback, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.',
+  });
+}
+
+function expectAbsentServiceInput() {
+  const intent = createAppGameTimerParentSurfacePanelIntent(null);
+
+  expect(intent.loadState).toBe('Unavailable');
+  expect(intent.rows).toEqual([]);
+  expect(intent.emptyMessage).toBe('No app/game timer parent-surface read model has been reported yet.');
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Product claim',
+    value:
+      'Parent-surface rendering only; active timer state-store is shown only when reported by the service. Live scheduling, audit, rollback, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.',
+  });
+}
 
 function timerParentSurfaceEvent(serializedReadModel: string): AgentEventEnvelope {
   return AgentEventEnvelopeSchema.parse({

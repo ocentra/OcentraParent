@@ -240,7 +240,7 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
     'No app/game timer parent-surface read model has been reported yet.'
   ),
   [PortalDevTextToken.AppGameTimerParentSurfaceNoRuntimeClaim]: decodeDisplayText(
-    'Parent-surface rendering only; timer runtime, scheduler persistence, audit, rollback, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.'
+    'Parent-surface rendering only; active timer state-store is shown only when reported by the service. Live scheduling, audit, rollback, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.'
   ),
   [PortalDevTextToken.TrackingStatusSurface]: decodeDisplayText('Tracking status proof'),
   [PortalDevTextToken.TrackingStatusSurfaceBody]: decodeDisplayText('Location states are fixture proof only.'),

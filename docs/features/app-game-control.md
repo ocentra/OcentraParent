@@ -644,6 +644,11 @@ and durable scheduler state-store visibility for the parent surface while still
 leaving live scheduling execution, audit/rollback runtime, adapter dispatch,
 child delivery, broad blocking, platform enforcement, and raw private source
 rows unclaimed.
+The parent portal timer parent-surface intent now renders those active
+state-store flags directly, including separate timer runtime, scheduler
+persistence, durable scheduler storage, audit runtime, and rollback runtime
+rows, so parent-visible copy no longer says the active state store is unclaimed
+when the service reports one.
 
 ## Checklist
 

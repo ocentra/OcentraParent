@@ -1,0 +1,34 @@
+{
+  "workpack": "112-timer-parent-surface-active-state-portal-visibility",
+  "branch": "codex/app-game-control-product-completion",
+  "visibleState": {
+    "timerRuntime": true,
+    "schedulerPersistence": true,
+    "durableSchedulerStorage": true,
+    "auditRuntime": true,
+    "rollbackRuntime": true
+  },
+  "claimBoundary": {
+    "liveSchedulingExecutionClaimed": false,
+    "auditRuntimeExecutionClaimed": false,
+    "rollbackExecutionClaimed": false,
+    "adapterDispatchClaimed": false,
+    "childDeliveryClaimed": false,
+    "platformEnforcementClaimed": false,
+    "rawPrivateSourceRowsIncluded": false
+  },
+  "validation": [
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- app-game-timer-parent-surface-read-model",
+      "result": "passed"
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/portal -- app-game-timer-parent-surface-panel",
+      "result": "passed"
+    },
+    {
+      "command": "cmd /c node scripts/check-source-shape.mjs",
+      "result": "passed with existing advisory warnings"
+    }
+  ]
+}

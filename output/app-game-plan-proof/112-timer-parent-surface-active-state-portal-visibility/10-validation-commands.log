@@ -1,0 +1,11 @@
+cmd /c "npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain"
+cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- app-game-timer-parent-surface-read-model
+cmd /c npm run test --workspace @ocentra-parent/portal -- app-game-timer-parent-surface-panel
+cmd /c npx prettier --check packages/agent-protocol-domain/src/app-game-timer-parent-surface-read-model.ts packages/agent-protocol-domain/tests/app-game-timer-parent-surface-read-model.test.ts packages/portal-domain/src/app-game-timer-parent-surface-panel.ts apps/portal/tests/app-game-timer-parent-surface-panel.test.ts packages/text-domain/src/portal-dev.ts docs/features/app-game-control.md docs/plans/app-game-plan/implementation-checklist.md docs/plans/app-game-plan/workpacks/README.md docs/plans/app-game-plan/workpacks/112-timer-parent-surface-active-state-portal-visibility.md output/app-game-plan-proof/112-timer-parent-surface-active-state-portal-visibility/00-summary.md output/app-game-plan-proof/112-timer-parent-surface-active-state-portal-visibility/10-validation-commands.log test-results/app-game-timer-parent-surface-active-state-portal-visibility/handoff.json
+cmd /c node scripts/check-no-test-doubles.mjs
+cmd /c node scripts/check-source-shape.mjs
+git diff --check
+cmd /c npm run lanes:guard
+cmd /c npm run hub:guard
+
+Result: focused protocol/portal build/test/format, source guards, and lane/hub validation passed.

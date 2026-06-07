@@ -85,6 +85,29 @@ describe('agent app-game timer parent surface parser', () => {
     });
   });
 
+  it('accepts active timer state-store flags while keeping runtime overclaims rejected', () => {
+    const parsed = parseAgentAppGameTimerParentSurfaceEvent(
+      timerParentSurfaceEvent(
+        JSON.stringify({
+          ...TimerParentSurfaceReadModel,
+          timerRuntimeClaimed: true,
+          schedulerPersistenceClaimed: true,
+          durableSchedulerStorageClaimed: true,
+        })
+      )
+    );
+
+    expect(parsed).toEqual({
+      ok: true,
+      value: {
+        ...TimerParentSurfaceReadModel,
+        timerRuntimeClaimed: true,
+        schedulerPersistenceClaimed: true,
+        durableSchedulerStorageClaimed: true,
+      },
+    });
+  });
+
   it('rejects invalid payloads and runtime overclaims', () => {
     expect(
       parseAgentAppGameTimerParentSurfaceEvent({
@@ -104,7 +127,7 @@ describe('agent app-game timer parent surface parser', () => {
         timerParentSurfaceEvent(
           JSON.stringify({
             ...TimerParentSurfaceReadModel,
-            timerRuntimeClaimed: true,
+            auditRuntimeClaimed: true,
           })
         )
       )
