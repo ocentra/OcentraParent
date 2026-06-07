@@ -169,10 +169,26 @@ const assertions = {
 };
 const localProviderRuntimeProbe = {
   ollama: probeCommand('ollama', ['list']),
-  lmstudio: probeCommand('lmstudio', ['--version']),
+  lmStudioCliVersion: probeCommand('lms', ['version']),
+  lmStudioCliStatus: probeCommand('lms', ['status']),
+  lmStudioServerStatus: probeCommand('lms', ['server', 'status']),
+  lmStudioLoadedModels: probeCommand('lms', ['ps']),
+  legacyLmStudioCommand: probeCommand('lmstudio', ['--version']),
   llamaServer: probeCommand('llama-server', ['--version']),
 };
-const providerRuntimeAvailable = Object.values(localProviderRuntimeProbe).some((probe) => probe.available);
+const providerCommandAvailable = Object.values(localProviderRuntimeProbe).some((probe) => probe.available);
+const lmStudioCliDetected = localProviderRuntimeProbe.lmStudioCliVersion.available;
+const lmStudioStatusText =
+  `${localProviderRuntimeProbe.lmStudioCliStatus.output} ${localProviderRuntimeProbe.lmStudioServerStatus.output}`.toLowerCase();
+const lmStudioServerRunning =
+  localProviderRuntimeProbe.lmStudioServerStatus.available &&
+  !lmStudioStatusText.includes('not running') &&
+  !lmStudioStatusText.includes('server: off');
+const loadedLmStudioModelsAvailable = localProviderRuntimeProbe.lmStudioLoadedModels.available;
+const providerRuntimeAvailable =
+  localProviderRuntimeProbe.ollama.available ||
+  localProviderRuntimeProbe.llamaServer.available ||
+  (lmStudioCliDetected && lmStudioServerRunning && loadedLmStudioModelsAvailable);
 
 const screenProof = {
   proof: 'screen-vlm-guided-classifier-readiness-proof',
@@ -186,6 +202,18 @@ const screenProof = {
   },
   statusRows,
   localProviderRuntimeProbe,
+  providerRuntimeState: {
+    providerCommandAvailable,
+    providerRuntimeAvailable,
+    lmStudioCliDetected,
+    lmStudioServerRunning,
+    loadedLmStudioModelsAvailable,
+    liveVlmInferenceReady: providerRuntimeAvailable,
+    note:
+      lmStudioCliDetected && !providerRuntimeAvailable
+        ? 'LM Studio CLI is installed, but this lane did not find a running server or loaded local VLM model; live VLM quality proof remains open.'
+        : 'No local VLM provider runtime is ready for live inference in this proof.',
+  },
   assertions,
   validationCommands: [
     'npm run build --workspace @ocentra-parent/activity-domain',
@@ -201,8 +229,10 @@ const screenProof = {
   ],
   openChecklistClaims: [
     providerRuntimeAvailable
-      ? 'a local VLM provider command was detected, but live model execution is not run by this proof'
-      : 'no local VLM provider command was detected on PATH in this Windows lane',
+      ? 'a local VLM provider runtime appears available, but live model execution is not run by this proof'
+      : lmStudioCliDetected
+        ? 'LM Studio lms CLI is detected, but the local server/model runtime is not ready for live inference'
+        : 'no local VLM provider command was detected on PATH in this Windows lane',
     'detector-specific prompt-pack quality is not measured by this proof',
     'real crop extraction and visual classifier quality are not measured by this proof',
     'CPU/GPU/memory/runtime measurements remain unclaimed',
