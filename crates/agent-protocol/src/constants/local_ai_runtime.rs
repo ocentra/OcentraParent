@@ -29,6 +29,13 @@ pub const UNAVAILABLE_REASON_RUNTIME_PROCESS_FAILED: &str = "local-ai-runtime-pr
 pub const UNAVAILABLE_REASON_RUNTIME_PROCESS_TIMEOUT: &str = "local-ai-runtime-process-timeout";
 pub const UNAVAILABLE_REASON_RUNTIME_PROCESS_EMPTY_OUTPUT: &str =
     "local-ai-runtime-process-empty-output";
+pub const WINDOWS_COMMAND_INTERPRETER: &str = "cmd.exe";
+pub const WINDOWS_COMMAND_RUN_ARG: &str = "/C";
+pub const WINDOWS_BATCH_EXTENSION_CMD: &str = "cmd";
+pub const WINDOWS_BATCH_EXTENSION_BAT: &str = "bat";
+pub const TEST_SCREEN_SERVICE_WINRT_OCR_ADAPTER_CMD: &str = "screen-service-winrt-ocr-adapter.cmd";
+pub const TEST_SCREEN_SERVICE_WINRT_OCR_ADAPTER_BAT: &str = "screen-service-winrt-ocr-adapter.BAT";
+pub const TEST_SCREEN_SERVICE_WINRT_OCR_ADAPTER_EXE: &str = "screen-service-winrt-ocr-adapter.exe";
 pub const CAPABILITY_FLAGS_NONE: &str = "none";
 pub const PRIVACY_MODE_LOCAL_ONLY: &str = "local-only";
 pub const ADAPTER_BOUNDARY_STATUS_ONLY: &str = "status-only";

@@ -385,5 +385,7 @@ pub const SCREEN_PROVIDER_KIND: &str = "providerKind";
 pub const SCREEN_TEMPLATE_VERSION: &str = "promptOrTemplateVersion";
 pub const SCREEN_CUSTODY_STATE: &str = "custodyState";
 pub const SCREEN_PARENT_EXPLANATION_REFS: &str = "parentExplanationRefs";
+pub const SCREEN_OCR_TEXT_SNIPPETS: &str = "ocrTextSnippets";
+pub const SCREEN_REDACTION_NOTES: &str = "redactionNotes";
 pub const SCREEN_EXPLANATION_REASONS: &str = "explanationReasons";
 pub const SCREEN_DELETION_REASONS: &str = "deletionReasons";
