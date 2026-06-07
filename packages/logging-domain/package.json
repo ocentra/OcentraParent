@@ -73,6 +73,14 @@
       "import": "./dist/provider-secret-execution-readiness-read-model.js",
       "types": "./dist/provider-secret-execution-readiness-read-model.d.ts"
     },
+    "./provider-secret-rotation-revocation-status": {
+      "import": "./dist/provider-secret-rotation-revocation-status.js",
+      "types": "./dist/provider-secret-rotation-revocation-status.d.ts"
+    },
+    "./provider-secret-rotation-revocation-status-read-model": {
+      "import": "./dist/provider-secret-rotation-revocation-status-read-model.js",
+      "types": "./dist/provider-secret-rotation-revocation-status-read-model.d.ts"
+    },
     "./privacy-legal-disclosure-status": {
       "import": "./dist/privacy-legal-disclosure-status.js",
       "types": "./dist/privacy-legal-disclosure-status.d.ts"
