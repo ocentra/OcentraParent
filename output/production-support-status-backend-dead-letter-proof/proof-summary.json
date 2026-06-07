@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T04:25:59.436Z",
-  "commit": "010e52061809874417462e37775f2ca2d17ea6d2",
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
   "proofMode": "production-support-status-backend-dead-letter-proof",
   "rowCount": 48,
   "targets": [
