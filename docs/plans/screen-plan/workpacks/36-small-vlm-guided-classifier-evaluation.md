@@ -15,7 +15,7 @@ This is AI-pass work. Capture MVP should define the route/result contracts and d
 - [~] Use detector-specific JSON prompts.
 - [~] Limit image pixels and crop regions.
 - [x] Reject open-ended descriptions.
-- [ ] Measure runtime and quality.
+- [~] Measure runtime and quality.
 - [~] Record uncertainty/manual-required behavior.
 
 ## Proof
@@ -43,11 +43,45 @@ manual-required behavior when the runtime is unavailable. The focused worker
 contract now rejects open-ended prompts such as `Describe the screen in detail.`
 before local worker handoff.
 
-The current Windows-lane proof also records local provider command probes for
-`ollama`, LM Studio `lms`, legacy `lmstudio`, and `llama-server`. The LM Studio
-`lms` CLI is available at v0.0.47, but the local server is off/not running and
-`lms ps` cannot list loaded models because it tries to spawn the missing
-`C:\Program Files\LM Studio\LM Studio.exe` service path. `ollama`, legacy
-`lmstudio`, and `llama-server` are not available on PATH in this worktree. It
-does not run a local VLM, measure classifier quality, prove crop extraction, or
-select a production VLM model.
+The retained Windows-lane local VLM matrix and live crop quality proofs now go
+beyond readiness:
+
+```powershell
+node scripts/test/screen-ai-local-vlm-proof.mjs
+node scripts/test/screen-vlm-live-crop-quality-proof.mjs
+node scripts/test/screen-vlm-runtime-resource-measurement-proof.mjs
+node scripts/test/screen-vlm-resource-crop-readiness-proof.mjs
+node scripts/test/screen-vlm-model-selection-proof.mjs
+```
+
+Artifacts:
+
+```text
+output/screen-ai-pipeline-proof/proof-summary.json
+output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json
+output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json
+output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json
+output/screen-plan-proof/36-vlm-model-selection/proof-summary.json
+```
+
+The retained local matrix runs Qwen2-VL over real captured Windows/browser
+proof images and schema-validates the guided classifier output. The retained
+live crop proof loads public live pages for video, school/productivity, browser
+game, shopping, and public social/feed categories, captures managed-browser
+crops, runs local Qwen2-VL, records expected visible term/category matches, and
+deletes raw crop files after analysis. The retained resource proof records
+per-sample wall time, CPU time, peak working set, model/mmproj paths, bounded
+crop dimensions, and no-raw-retention custody. These are local Windows proof
+artifacts, not broad production rollout claims.
+
+## Current Decision
+
+- Keep the guided local VLM route as the Windows proof-leading VLM path when
+  OCR/structured evidence is insufficient.
+- Keep open-ended descriptions rejected; detector-specific JSON prompts and
+  bounded crops remain required.
+- Do not claim authenticated-account social coverage from the public-feed
+  proof.
+- Do not claim cross-platform VLM parity, hardware rollout thresholds, or
+  production model-quality completion until separate device/profile proof
+  artifacts exist.
