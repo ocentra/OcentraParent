@@ -29,6 +29,10 @@ import {
   shouldRenderAppGamePolicyReadinessRoute,
 } from './AppGamePolicyReadinessRoutePanel';
 import {
+  AppGameTimerParentSurfaceRoutePanel,
+  shouldRenderAppGameTimerParentSurfaceRoute,
+} from './AppGameTimerParentSurfaceRoutePanel';
+import {
   BrowserParentExplanationRoutePanel,
   shouldRenderBrowserParentExplanationRoute,
 } from './BrowserParentExplanationRoutePanel';
@@ -120,6 +124,13 @@ export function ParentPortalRoute({
           actions={actions}
           commandEnabled={state.socket?.readyState === WebSocket.OPEN}
           readModelResult={activityState.appGamePolicyReadinessReadModel}
+        />
+      ) : null}
+      {shouldRenderAppGameTimerParentSurfaceRoute(route) ? (
+        <AppGameTimerParentSurfaceRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          readModelResult={activityState.appGameTimerParentSurfaceReadModel}
         />
       ) : null}
       {shouldRenderBrowserParentExplanationRoute(route) ? <BrowserParentExplanationRoutePanel /> : null}

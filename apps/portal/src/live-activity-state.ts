@@ -57,6 +57,10 @@ import {
   type AgentAppGamePolicyReadinessResult,
 } from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
 import {
+  parseAgentAppGameTimerParentSurfaceEvent,
+  type AgentAppGameTimerParentSurfaceResult,
+} from '@ocentra-parent/agent-protocol-domain/app-game-timer-parent-surface-read-model';
+import {
   createAppGameNotificationParentSurfaceReadModelFromReadiness,
   parseActivityMemoryGraphReadModel,
   PortalBrowserInventoryFields,
@@ -116,6 +120,8 @@ export interface PortalLiveActivityState {
   readonly policyPreviewReadModel: PortalPolicyPreviewReadModel | null;
   readonly appGamePolicyReadinessEvent: AgentEventEnvelope | null;
   readonly appGamePolicyReadinessReadModel: AgentAppGamePolicyReadinessResult | null;
+  readonly appGameTimerParentSurfaceEvent: AgentEventEnvelope | null;
+  readonly appGameTimerParentSurfaceReadModel: AgentAppGameTimerParentSurfaceResult | null;
 }
 
 export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]): PortalLiveActivityState {
@@ -195,6 +201,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     appGamePolicyReadinessEvent,
     appGamePolicyReadinessReadModel:
       appGamePolicyReadinessEvent === null ? null : parseAgentAppGamePolicyReadinessEvent(appGamePolicyReadinessEvent),
+    ...resolveAppGameTimerParentSurfaceReadModel(events),
   };
 }
 
@@ -239,6 +246,14 @@ function resolveActivityTrackingReadModel(events: readonly AgentEventEnvelope[])
   return {
     activityTrackingReadModelEvent: event,
     activityTrackingReadModel: event === null ? null : parseAgentActivityTrackingReadModelEvent(event),
+  };
+}
+
+function resolveAppGameTimerParentSurfaceReadModel(events: readonly AgentEventEnvelope[]) {
+  const event = latestEvent(events, AgentEvent.ActivityAppGameTimerParentSurfaceReadModelReported);
+  return {
+    appGameTimerParentSurfaceEvent: event,
+    appGameTimerParentSurfaceReadModel: event === null ? null : parseAgentAppGameTimerParentSurfaceEvent(event),
   };
 }
 

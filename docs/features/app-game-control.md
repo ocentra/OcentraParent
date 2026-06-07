@@ -632,6 +632,11 @@ It reports native-app/native-game target rows plus source/compiler/manual
 blockers for parent-surface consumption, while explicitly not claiming timer
 runtime, scheduler persistence, durable storage, audit/rollback runtime, adapter
 dispatch, child delivery, platform enforcement, or raw private source rows.
+The parent portal App/Game Sessions route now consumes that live service event,
+shows a refresh command, and renders timer parent-surface rows for native app
+and native game targets while keeping timer runtime, scheduler persistence,
+audit/rollback runtime, adapter dispatch, child delivery, platform enforcement,
+and raw private source rows unclaimed.
 
 ## Checklist
 
