@@ -1,13 +1,13 @@
 
 running 6 tests
-test tests::signature_alert::signature_alert_ingestion_keeps_false_positive_fixture_non_enforcing ... ok
 test tests::signature_alert::signature_alert_ingestion_converts_suricata_and_snort_rows_to_typed_records ... ok
-test tests::signature_alert::signature_alert_ingestion_rejects_empty_ingestion_refs ... ok
-test tests::signature_alert::signature_alert_ingestion_rejects_empty_alert_identity_refs ... ok
+test tests::signature_alert::signature_alert_ingestion_keeps_false_positive_fixture_non_enforcing ... ok
 test tests::signature_alert::signature_alert_ingestion_rejects_content_live_ips_and_authority_claims ... ok
+test tests::signature_alert::signature_alert_ingestion_rejects_empty_alert_identity_refs ... ok
 test tests::signature_alert::signature_alert_ingestion_rejects_empty_flow_custody_refs_and_duplicates ... ok
+test tests::signature_alert::signature_alert_ingestion_rejects_empty_ingestion_refs ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 207 filtered out; finished in 0.00s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
      Running unittests src\lib.rs (target\debug\deps\ocentra_network_evidence-36610952c1128119.exe)

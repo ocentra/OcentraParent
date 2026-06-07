@@ -149,6 +149,7 @@ packages/parent-domain/src/app-install-purchase-parent-action-delivery-readiness
 packages/parent-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts:1 file has 292 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-parent-review-action-proof.ts:1 file has 343 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts:1 file has 296 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts:1 file has 428 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-platform-artifact-proof.ts:1 file has 332 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-platform-limitation-action-proof.ts:1 file has 285 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-product-claim-gate-proof.ts:1 file has 325 lines; crossed 250-line advisory band; maximum is 1000
