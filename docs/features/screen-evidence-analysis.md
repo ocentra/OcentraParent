@@ -921,12 +921,14 @@ parity, and UI remain separate proof gates.
       PP-OCRv5 mobile detector, server detector, and preprocessing variants still
       extract zero text. Production OCR selection remains tracked by the
       PaddleOCR/PP-OCR and Windows route-selection gates, not this baseline row.
-- [~] PaddleOCR/PP-OCR candidate readiness records current package availability,
-  current PP-OCRv5 mobile-detector and cached server-detector local execution
-  with zero extracted text from the retained Vimeo screenshot, zero text from
-  deleted preprocessing variants, and a pinned local PaddleOCR 2.x fallback
-  that extracts comparable text; PaddleOCR is not selected and broader PP-OCRv5
-  quality/resource proof remains open.
+- [x] PaddleOCR/PP-OCR candidate readiness records current package availability,
+      current PP-OCRv5 mobile-detector and cached server-detector local execution
+      with zero extracted text from the retained Vimeo screenshot, zero text from
+      deleted preprocessing variants, and a pinned local PaddleOCR 2.x fallback
+      that extracts comparable text. The candidate evaluation is complete as an
+      explicit non-selection for the current Windows production OCR route; a future
+      PaddleOCR production gate requires a new candidate or an explicit
+      productionization decision for the pinned 2.x fallback.
 - [x] Windows service OCR route selection proof chooses WinRT OCR for the
       current Windows service path from retained real service/redaction evidence
       while leaving Tesseract/PaddleOCR as non-selected fallback candidates.
