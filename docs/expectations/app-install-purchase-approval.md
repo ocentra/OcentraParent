@@ -167,6 +167,14 @@ Expected contract families:
   adapter implementation, child-device delivery, runtime writer/report
   delivery, portal approval/report UI, app blocking, child activity data
   custody, or Ocentra-hosted family data custody.
+- Platform adapter evidence gap proof rows link provider/store API execution
+  rows with platform proof-readiness rows into adapter-evidence-gap,
+  manual-adapter-evidence-required, platform-unavailable, and
+  blocked-before-claim states across Windows, macOS, Linux, Android, and iOS
+  without claiming real platform adapter evidence, platform adapter
+  implementation, product-claim approval, provider/store execution, portal UI,
+  child-device delivery, app blocking, child activity data custody, or
+  Ocentra-hosted family data custody.
 - Provider/store report status runtime proof rows link provider/store execution
   readiness rows to parent-owned runtime report writer receipts so store
   report statuses can be ready, manual-required, or unavailable without
@@ -684,6 +692,12 @@ Expected contract families:
   writer/report delivery, portal approval/report UI, app blocking, child
   activity custody, Ocentra-hosted family data custody, or proof that
   platform/store claims are product-ready.
+- Do not treat platform adapter evidence gap proof refs as real platform
+  adapter evidence, platform adapter implementation, platform interception,
+  product claim approval, provider/store execution, portal approval/report UI,
+  child-device delivery, app blocking, child activity custody,
+  Ocentra-hosted family data custody, or proof that platform/store claims are
+  product-ready.
 
 ## Done Signal
 

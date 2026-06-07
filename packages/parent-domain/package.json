@@ -129,6 +129,10 @@
       "import": "./dist/app-install-purchase-provider-store-api-execution-proof.js",
       "types": "./dist/app-install-purchase-provider-store-api-execution-proof.d.ts"
     },
+    "./app-install-purchase-platform-adapter-evidence-gap-proof": {
+      "import": "./dist/app-install-purchase-platform-adapter-evidence-gap-proof.js",
+      "types": "./dist/app-install-purchase-platform-adapter-evidence-gap-proof.d.ts"
+    },
     "./billing-entitlement": {
       "import": "./dist/billing-entitlement.js",
       "types": "./dist/billing-entitlement.d.ts"
