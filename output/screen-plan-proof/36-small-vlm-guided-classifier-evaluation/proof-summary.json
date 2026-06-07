@@ -1,6 +1,6 @@
 {
   "proof": "screen-vlm-guided-classifier-readiness-proof",
-  "generatedAt": "2026-06-07T03:03:27.592Z",
+  "generatedAt": "2026-06-07T03:56:48.591Z",
   "proofTier": "P3_CONTRACT_LOCAL_VLM_READINESS",
   "modelConstants": {
     "modelRuntimeRef": "screen-local-vlm-runtime",
@@ -70,7 +70,31 @@
       "status": 1,
       "output": "'ollama' is not recognized as an internal or external command, operable program or batch file."
     },
-    "lmstudio": {
+    "lmStudioCliVersion": {
+      "command": "lms",
+      "available": true,
+      "status": 0,
+      "output": "\u001b[38;5;166m __ __ ___ ______ ___ _______ ____\u001b[0m \u001b[38;5;214m / / / |/ / / __/ /___ _____/ (_)__ / ___/ / / _/\u001b[0m \u001b[38;5;226m / /__/ /|_/ / _\\ \\/ __/ // / _ / / _ \\ / /__/ /___/ / \u001b[0m \u001b[38;5;46m/____/_/ /_/ /___/\\__/\\_,_/\\_,_/_/\\___/ \\___/____/___/ \u001b[0m lms - LM Studio CLI - v0.0.47 GitHub: https://github.com/lmstudio-ai/lms"
+    },
+    "lmStudioCliStatus": {
+      "command": "lms",
+      "available": true,
+      "status": 0,
+      "output": "Server: OFF (i) To start the server, run the following command: lms server start"
+    },
+    "lmStudioServerStatus": {
+      "command": "lms",
+      "available": true,
+      "status": 0,
+      "output": "The server is not running."
+    },
+    "lmStudioLoadedModels": {
+      "command": "lms",
+      "available": false,
+      "status": 1,
+      "output": "Waking up LM Studio service... node:events:496 throw er; // Unhandled 'error' event ^ Error: spawn C:\\Program Files\\LM Studio\\LM Studio.exe ENOENT at ChildProcess._handle.onexit (node:internal/child_process:286:19) at onErrorNT (node:internal/child_process:484:16) at process.processTicksAndRejections (node:internal/process/task_queues:82:21) Emitted 'error' event on ChildProcess instance at: at ChildProcess._handle.onexit (node:internal/child_process:292:12) at onErrorNT (node:internal/child_process:484:16) at process.processTicksAndRejections (node:internal/process/task_queues:82:21) { errno: -4058, code: 'ENOENT', syscall: 'spawn C:\\\\Program Files\\\\LM Studio\\\\LM Studio.exe', path: 'C:\\\\Program Files\\\\LM Studio\\\\LM Studio.exe', spawnargs: [ '--run-as-service' ] } Node.js v20.12.2"
+    },
+    "legacyLmStudioCommand": {
       "command": "lmstudio",
       "available": false,
       "status": 1,
@@ -82,6 +106,15 @@
       "status": 1,
       "output": "'llama-server' is not recognized as an internal or external command, operable program or batch file."
     }
+  },
+  "providerRuntimeState": {
+    "providerCommandAvailable": true,
+    "providerRuntimeAvailable": false,
+    "lmStudioCliDetected": true,
+    "lmStudioServerRunning": false,
+    "loadedLmStudioModelsAvailable": false,
+    "liveVlmInferenceReady": false,
+    "note": "LM Studio CLI is installed, but this lane did not find a running server or loaded local VLM model; live VLM quality proof remains open."
   },
   "assertions": {
     "sourceReadinessProofPassed": true,
@@ -106,7 +139,7 @@
     "completed status rows require deleted query-store custody before policy eligibility"
   ],
   "openChecklistClaims": [
-    "no local VLM provider command was detected on PATH in this Windows lane",
+    "LM Studio lms CLI is detected, but the local server/model runtime is not ready for live inference",
     "detector-specific prompt-pack quality is not measured by this proof",
     "real crop extraction and visual classifier quality are not measured by this proof",
     "CPU/GPU/memory/runtime measurements remain unclaimed"
