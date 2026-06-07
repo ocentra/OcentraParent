@@ -282,3 +282,27 @@ adapter dispatch or intervention refs in the protocol parser, and keeps
 store-backed read-model stream rows non-dispatching. This does not create a new
 event bus, publish portal business events, execute AI, execute final policy
 actions, mutate the browser, execute child intervention, or enforce.
+
+## Action-Intent Outbox Handoff Addendum - 2026-06-07
+
+`browser-runtime-action-intent-outbox-handoff-proof` maps dry-run browser policy
+decision events that carry `policyPreviewId` and `assistantActionIntentId` into
+prepared local action-intent outbox candidates. The candidate preserves the
+policy preview ref, action intent ref, source event ref, outbox ref, and handoff
+ref so later browser subscribers can reason about pending work without reading a
+parallel source.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `scripts/test/browser-runtime-action-intent-outbox-handoff-proof.mjs`
+- `test-results/browser-runtime-action-intent-outbox-handoff-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-outbox-handoff/01-browser-runtime-action-intent-outbox-handoff-proof.md`
+- `cargo test -p ocentra-parent-agent-core browser_runtime_action_intent --quiet`
+- `cargo test -p ocentra-parent-agent-core browser_runtime_chain_carries_dry_run --quiet`
+
+The proof keeps `dispatchAttemptCount`, `adapterExecutionCount`,
+`childInterventionExecutionCount`, and `enforcementExecutionCount` at zero. It
+does not create a generic event bus, implement external transport, execute final
+policy, mutate browser state, execute child intervention, or enforce.

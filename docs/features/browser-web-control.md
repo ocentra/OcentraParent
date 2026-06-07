@@ -126,6 +126,10 @@ control while being more honest about managed versus unmanaged sources.
   read-model rows remain non-dispatching. This is event-chain visibility only;
   it does not publish portal business events, execute final policy actions,
   mutate the browser, execute child intervention, or enforce.
+- Browser-plan WP13 now also maps those dry-run policy decision events into
+  prepared local action-intent outbox candidates with source event, policy
+  preview, action intent, outbox, and handoff refs. Dispatch attempts, adapter
+  execution, browser mutation, child intervention, and enforcement remain zero.
 - Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
   through activity-domain inventory contracts, Rust protocol, and service
   payload/read-model proof. Contract tests cover mixed managed, unmanaged, and

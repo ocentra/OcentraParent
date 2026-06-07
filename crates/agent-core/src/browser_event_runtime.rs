@@ -7,6 +7,8 @@ use ocentra_eventing::{
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
+mod action_handoff;
+
 use crate::{browser_event_runtime_refs::previous_phase_ref, BrowserRuntimePhase};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -216,6 +218,12 @@ impl BrowserRuntimeReport {
                 })
                 .unwrap_or(false)
         })
+    }
+
+    pub fn action_intent_handoff_summary(
+        &self,
+    ) -> Option<(usize, String, String, String, String, String)> {
+        action_handoff::handoff_summary(self)
     }
 }
 

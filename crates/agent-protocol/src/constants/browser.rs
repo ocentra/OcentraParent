@@ -78,6 +78,9 @@ pub const TEST_BROWSER_RUNTIME_POLICY_EVALUATION_REF: &str = "browser-policy-eva
 pub const TEST_BROWSER_RUNTIME_POLICY_DECISION_REF: &str = "browser-policy-decision-ref-test";
 pub const TEST_BROWSER_RUNTIME_POLICY_PREVIEW_ID: &str = "browser-policy-preview-test";
 pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_ID: &str = "browser-action-intent-test";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF: &str = "browser-action-intent-outbox-test";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF: &str =
+    "browser-action-intent-handoff-test";
 pub const TEST_BROWSER_RUNTIME_INTERVENTION_COMMAND_REF: &str =
     "browser-intervention-command-ref-test";
 pub const TEST_BROWSER_RUNTIME_INTERVENTION_RESULT_REF: &str =

@@ -99,6 +99,39 @@ async fn browser_runtime_chain_carries_dry_run_action_handoff_without_dispatch()
     assert!(!policy_event.intervention_command_allowed);
 }
 
+#[tokio::test]
+async fn browser_runtime_action_intent_handoff_prepares_outbox_without_dispatch() {
+    let report = publish_browser_runtime_chain_for_input(
+        BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+    )
+    .await
+    .unwrap();
+
+    assert!(!report.stored_events.is_empty());
+    assert!(!report.intervention_command_published());
+
+    let (candidate_count, policy_preview_id, action_intent_id, event_ref, outbox_ref, handoff_ref) =
+        report.action_intent_handoff_summary().unwrap();
+    assert_eq!(candidate_count, 1);
+    assert_eq!(
+        policy_preview_id,
+        constants::browser::TEST_BROWSER_RUNTIME_POLICY_PREVIEW_ID
+    );
+    assert_eq!(
+        action_intent_id,
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID
+    );
+    assert!(event_ref.ends_with(constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED));
+    assert_eq!(
+        outbox_ref,
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF
+    );
+    assert_eq!(
+        handoff_ref,
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF
+    );
+}
+
 fn assert_all_payloads_preserve_browser_context(
     report: &BrowserRuntimeReport,
     capability_status: &str,

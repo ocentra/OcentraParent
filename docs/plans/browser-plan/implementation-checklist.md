@@ -537,6 +537,20 @@ store-backed read-model stream rows non-dispatching. It does not create a new
 event bus, publish portal business events, execute AI, execute final policy
 actions, mutate the browser, execute child intervention, or enforce.
 
+WP13 action-intent outbox handoff addendum:
+`browser-runtime-action-intent-outbox-handoff-proof` derives prepared local
+action-intent candidates from dry-run browser policy decision events while
+preserving policy preview, action intent, source event, outbox, and handoff
+refs. Evidence:
+`test-results/browser-runtime-action-intent-outbox-handoff-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-outbox-handoff/01-browser-runtime-action-intent-outbox-handoff-proof.md`.
+The proof validates that candidate rows remain `PreparedNotDispatched` with
+zero dispatch attempts, adapter execution, child intervention execution, browser
+mutation, or enforcement execution. It does not create a generic event bus,
+external transport, final policy execution, browser mutation, child
+intervention, or enforcement path.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:
