@@ -69,7 +69,7 @@ const workpacks = [
     label: 'Small VLM guided classifier evaluation',
     status: workpackStatus('36 Small VLM guided classifier evaluation'),
     requiredProof: 'output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json',
-    gate: 'Current proof detects the local llama.cpp/Qwen2-VL runtime and retained local VLM matrix over controlled browser/native captures, but live external-site/operator VLM quality, crop extraction, and resource measurement remain open.',
+    gate: 'Current proof detects the local llama.cpp/Qwen2-VL runtime, retained controlled local VLM matrix, and retained nine-scenario live operator matrix; crop extraction, resource measurement, authenticated-account social proof, and production model selection remain open.',
   },
 ];
 
@@ -131,7 +131,7 @@ const summary = {
     noProductCompleteClaim: true,
   },
   nonClaims: [
-    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/transport/session runtime, current PP-OCRv5 quality resolution/production OCR selection, or live VLM provider/runtime quality gates.',
+    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/transport/session runtime, current PP-OCRv5 quality resolution/production OCR selection, VLM crop/resource suitability, authenticated-account social proof, or production model selection gates.',
     'This audit does not replace real device/runtime proof for remaining partial rows.',
     'This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied.',
   ],

@@ -14,6 +14,13 @@ const vlmModel =
 const vlmMmproj =
   process.env.OCENTRA_PARENT_LOCAL_VLM_MMPROJ ?? join(localAiModelRoot, 'mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf');
 const localVlmMatrixProofPath = resolve(repoRoot, 'output', 'ai-plan-proof', 'real-analysis', 'proof-summary.json');
+const liveOperatorProofPath = resolve(
+  repoRoot,
+  'output',
+  'screen-ai-pipeline-proof',
+  'live-operator',
+  'proof-summary.json'
+);
 
 runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
 runCommand('cmd', [
@@ -187,6 +194,31 @@ const localProviderRuntimeProbe = {
   llamaMtmdCli: probeCommand(vlmBinary, ['--version'], { existsRequired: true }),
 };
 const localVlmMatrixProof = await readOptionalJson(localVlmMatrixProofPath);
+const liveOperatorProof = await readOptionalJson(liveOperatorProofPath);
+const requiredLiveOperatorScenarioIds = [
+  'youtube-ordinary-video',
+  'youtube-education-video',
+  'vimeo-video',
+  'facebook-social-surface',
+  'browser-game',
+  'shopping-page',
+  'school-productivity',
+  'native-app',
+  'protected-unsupported-state',
+];
+const liveOperatorRequiredScenarioStatus = Object.fromEntries(
+  requiredLiveOperatorScenarioIds.map((id) => [id, liveOperatorProof?.requiredScenarioStatus?.[id] === true])
+);
+const retainedLiveOperatorVlmQualityAvailable =
+  liveOperatorProof?.fullRequiredMatrixComplete === true &&
+  liveOperatorProof?.passedScenarioCount === requiredLiveOperatorScenarioIds.length &&
+  liveOperatorProof?.liveExternalUrlProof === true &&
+  liveOperatorProof?.localVlmAnalysisProof === true &&
+  liveOperatorProof?.policyDryRunProof === true &&
+  liveOperatorProof?.rawImagesDeletedAfterAnalysis === true &&
+  liveOperatorProof?.controlledFixtureProof === false &&
+  liveOperatorProof?.productCompleteClaimed === false &&
+  Object.values(liveOperatorRequiredScenarioStatus).every(Boolean);
 const localLlamaRuntime = {
   binary: redactHome(vlmBinary),
   binaryExists: existsSync(vlmBinary),
@@ -204,6 +236,17 @@ const localLlamaRuntime = {
   matrixRawImagesDeleted: localVlmMatrixProof?.rawImagesDeletedAfterAnalysis === true,
   matrixUsesControlledFixtures: localVlmMatrixProof?.localFixturesAreLiveExternalSites === false,
   liveOperatorExternalUrlProofStillRequired: localVlmMatrixProof?.liveOperatorExternalUrlProofStillRequired !== false,
+  liveOperatorProofPath: relativePath(liveOperatorProofPath),
+  liveOperatorProofPresent: liveOperatorProof !== null,
+  liveOperatorScenarioCount: liveOperatorProof?.scenarioCount ?? 0,
+  liveOperatorPassedScenarioCount: liveOperatorProof?.passedScenarioCount ?? 0,
+  liveOperatorRequiredScenarioStatus,
+  liveOperatorFullRequiredMatrixComplete: liveOperatorProof?.fullRequiredMatrixComplete === true,
+  liveOperatorExternalUrlProof: liveOperatorProof?.liveExternalUrlProof === true,
+  liveOperatorLocalVlmAnalysisProof: liveOperatorProof?.localVlmAnalysisProof === true,
+  liveOperatorPolicyDryRunProof: liveOperatorProof?.policyDryRunProof === true,
+  liveOperatorRawImagesDeleted: liveOperatorProof?.rawImagesDeletedAfterAnalysis === true,
+  retainedLiveOperatorVlmQualityAvailable,
 };
 const providerCommandAvailable = Object.values(localProviderRuntimeProbe).some((probe) => probe.available);
 const lmStudioCliDetected = localProviderRuntimeProbe.lmStudioCliVersion.available;
@@ -251,12 +294,15 @@ const screenProof = {
     loadedLmStudioModelsAvailable,
     localLlamaRuntimeAvailable,
     retainedLocalVlmMatrixAvailable,
+    retainedLiveOperatorVlmQualityAvailable,
     liveVlmInferenceReady: providerRuntimeAvailable,
-    note: retainedLocalVlmMatrixAvailable
-      ? 'Local llama.cpp/Qwen2-VL runtime files exist and the retained local VLM matrix proof shows real local model execution over controlled browser/native window captures with schema, policy, and deletion proof; live external-site/operator quality remains open.'
-      : lmStudioCliDetected && !providerRuntimeAvailable
-        ? 'LM Studio CLI is installed, but this lane did not find a running server or loaded local VLM model; live VLM quality proof remains open.'
-        : 'No local VLM provider runtime is ready for live inference in this proof.',
+    note: retainedLiveOperatorVlmQualityAvailable
+      ? 'Local llama.cpp/Qwen2-VL runtime files exist; retained controlled matrix proof and retained nine-scenario live operator proof show real local VLM analysis, schema validation, policy dry-run, and raw deletion over public/live URL plus native-app captures. Crop extraction, resource suitability, authenticated-account social proof, and production model selection remain open.'
+      : retainedLocalVlmMatrixAvailable
+        ? 'Local llama.cpp/Qwen2-VL runtime files exist and the retained local VLM matrix proof shows real local model execution over controlled browser/native window captures with schema, policy, and deletion proof; live external-site/operator classification proof remains open.'
+        : lmStudioCliDetected && !providerRuntimeAvailable
+          ? 'LM Studio CLI is installed, but this lane did not find a running server or loaded local VLM model; live VLM quality proof remains open.'
+          : 'No local VLM provider runtime is ready for live inference in this proof.',
   },
   assertions,
   validationCommands: [
@@ -273,20 +319,27 @@ const screenProof = {
     retainedLocalVlmMatrixAvailable
       ? 'retained local llama.cpp/Qwen2-VL matrix proves real local VLM execution over controlled browser/native window captures with policy and deletion proof'
       : null,
+    retainedLiveOperatorVlmQualityAvailable
+      ? 'retained nine-scenario live operator proof covers public/live URL and native-app captures through local VLM classification, schema validation, policy dry-run, and raw image deletion'
+      : null,
   ].filter(Boolean),
   openChecklistClaims: [
-    providerRuntimeAvailable
-      ? 'a local VLM provider runtime appears available and retained matrix proof exists, but live external-site/operator quality is not measured by this proof'
-      : lmStudioCliDetected
-        ? 'LM Studio lms CLI is detected, but the local server/model runtime is not ready for live inference'
-        : 'no local VLM provider command was detected on PATH in this Windows lane',
+    retainedLiveOperatorVlmQualityAvailable
+      ? 'detector-specific crop extraction quality is not measured by this readiness proof'
+      : providerRuntimeAvailable
+        ? 'a local VLM provider runtime appears available and retained matrix proof exists, but live external-site/operator classification is not measured by this proof'
+        : lmStudioCliDetected
+          ? 'LM Studio lms CLI is detected, but the local server/model runtime is not ready for live inference'
+          : 'no local VLM provider command was detected on PATH in this Windows lane',
     'detector-specific prompt-pack quality is not measured by this proof',
     'real crop extraction and visual classifier quality are not measured by this proof',
     'CPU/GPU/memory/runtime measurements remain unclaimed',
   ],
   nonClaims: [
     'This screen-plan proof reuses the VLM execution-readiness contract proof and does not run live VLM inference.',
-    'Retained local VLM matrix artifacts use controlled browser/native window captures, not live external sites.',
+    retainedLiveOperatorVlmQualityAvailable
+      ? 'This proof cross-checks the retained live operator matrix artifact instead of rerunning the nine live URL/app captures.'
+      : 'Retained local VLM matrix artifacts use controlled browser/native window captures, not live external sites.',
     'This proof does not claim production model quality, portal runtime rendering, enforcement, or final screen-AI pipeline completion.',
     'This proof does not upload raw screenshots or retain raw images.',
   ],
