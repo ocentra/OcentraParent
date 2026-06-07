@@ -200,6 +200,13 @@ expose location or device-status features. Parents expect this category.
   Android/iOS physical-device behavior, background runtime, precise desktop
   location, authority enrollment, provider delivery, production upload workers,
   and product-ready tracking unclaimed.
+- WP33 physical-device artifact gate proof now exists through
+  `node scripts/test/tracking-physical-device-artifact-gate-proof.mjs`. It
+  checks the Android physical background/geofence and iOS region-monitoring proof
+  roots for the exact required artifact names, writes the gate proof under WP33,
+  and keeps the current rows `manual-required` with physical-device behavior,
+  authority enrollment, provider delivery, production workers, and product-ready
+  tracking unclaimed until those real-device artifacts exist.
 - WP08 Android emulator foreground proof now exists through
   `npm run test:tracking-plan-android-emulator-proof`. It builds and installs
   the debug APK on `Pixel_9_Pro_XL_API_35`, observes foreground-service state,
