@@ -1,0 +1,23 @@
+{
+  "workpack": "WP118",
+  "slug": "timer-parent-surface-child-ux-local-handoff-artifact",
+  "branch": "codex/app-game-control-product-completion",
+  "status": "validated",
+  "scope": [
+    "parent-domain child UX local handoff artifact bridge",
+    "ready-only JSONL artifact serialization and schema parse-back",
+    "blocked missing-ref row exclusion from child-local artifact"
+  ],
+  "noClaims": [
+    "child device UI runtime",
+    "child runtime delivery",
+    "notification provider delivery",
+    "adapter dispatch",
+    "broad blocking",
+    "platform enforcement",
+    "private diagnostics",
+    "raw private source rows",
+    "package export"
+  ],
+  "productChecklist": "deferred because another lane owns docs/product-capability-checklist.md"
+}

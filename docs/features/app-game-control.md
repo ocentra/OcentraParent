@@ -1161,8 +1161,11 @@ diagnostics, or raw private source rows.
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
       time-limit, request, manual-required, and unavailable states with
-      evidence/child refs and no diagnostics; live child UI, notifications,
-      service persistence, and platform execution remain.
+      evidence/child refs and no diagnostics. Parent-domain child UX handoff
+      rows now produce a schema-validated local JSONL artifact for ready app
+      and game rows while blocked missing-ref rows stay out of the artifact;
+      live child UI, notifications, service persistence, package export,
+      adapter dispatch, and platform execution remain.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps
