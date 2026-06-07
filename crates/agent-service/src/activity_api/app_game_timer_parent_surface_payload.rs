@@ -85,6 +85,12 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
     let active_timer_state_exists = active_timer_state.is_some();
     let (audit_runtime_claimed, rollback_runtime_claimed) =
         timer_audit_rollback_runtime_claims(active_timer_state);
+    let control_action_result_reference_ids = model
+        .approval_action_result_rows
+        .iter()
+        .map(|row| row.result_id.clone())
+        .collect::<Vec<_>>();
+    let control_action_result_count = control_action_result_reference_ids.len() as u64;
 
     AppGameTimerParentSurfaceReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
@@ -96,6 +102,8 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
         blocked_by_source_freshness_count,
         blocked_by_compiler_decision_count,
         runtime_manual_required_count,
+        control_action_result_count,
+        control_action_result_reference_ids,
         timer_runtime_claimed: active_timer_state_exists,
         scheduler_persistence_claimed: active_timer_state_exists,
         durable_scheduler_storage_claimed: active_timer_state_exists,

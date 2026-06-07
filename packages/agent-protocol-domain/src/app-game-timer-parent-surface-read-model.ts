@@ -49,6 +49,8 @@ export const AgentAppGameTimerParentSurfaceReadModelSchema = withParser(
     blockedBySourceFreshnessCount: TimerParentSurfaceCount,
     blockedByCompilerDecisionCount: TimerParentSurfaceCount,
     runtimeManualRequiredCount: TimerParentSurfaceCount,
+    controlActionResultCount: TimerParentSurfaceCount,
+    controlActionResultReferenceIds: Schema.Array(TimerParentSurfaceText),
     timerRuntimeClaimed: Schema.Boolean,
     schedulerPersistenceClaimed: Schema.Boolean,
     durableSchedulerStorageClaimed: Schema.Boolean,

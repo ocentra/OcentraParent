@@ -28,6 +28,8 @@ const TimerParentSurfaceReadModel = {
   blockedBySourceFreshnessCount: 1,
   blockedByCompilerDecisionCount: 0,
   runtimeManualRequiredCount: 0,
+  controlActionResultCount: 0,
+  controlActionResultReferenceIds: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -85,6 +87,27 @@ describe('agent app-game timer parent surface parser', () => {
     });
   });
 
+  it('accepts replayed control action-result references without adapter overclaims', () => {
+    const parsed = parseAgentAppGameTimerParentSurfaceEvent(
+      timerParentSurfaceEvent(
+        JSON.stringify({
+          ...TimerParentSurfaceReadModel,
+          controlActionResultCount: 1,
+          controlActionResultReferenceIds: ['action-result-app-game-1'],
+        })
+      )
+    );
+
+    expect(parsed).toEqual({
+      ok: true,
+      value: {
+        ...TimerParentSurfaceReadModel,
+        controlActionResultCount: 1,
+        controlActionResultReferenceIds: ['action-result-app-game-1'],
+      },
+    });
+  });
+
   it('accepts active timer state-store flags while keeping runtime overclaims rejected', () => {
     const parsed = parseAgentAppGameTimerParentSurfaceEvent(
       timerParentSurfaceEvent(
@@ -111,7 +134,9 @@ describe('agent app-game timer parent surface parser', () => {
       },
     });
   });
+});
 
+describe('agent app-game timer parent surface parser rejection handling', () => {
   it('rejects invalid payloads and runtime overclaims', () => {
     expect(
       parseAgentAppGameTimerParentSurfaceEvent({

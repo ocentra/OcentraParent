@@ -18,6 +18,8 @@ fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
         blocked_by_source_freshness_count: 0,
         blocked_by_compiler_decision_count: 0,
         runtime_manual_required_count: 0,
+        control_action_result_count: 0,
+        control_action_result_reference_ids: Vec::new(),
         timer_runtime_claimed: false,
         scheduler_persistence_claimed: false,
         durable_scheduler_storage_claimed: false,

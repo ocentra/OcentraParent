@@ -48,6 +48,8 @@ fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claim
     assert_eq!(decoded.blocked_by_source_freshness_count, 0);
     assert_eq!(decoded.blocked_by_compiler_decision_count, 0);
     assert_eq!(decoded.runtime_manual_required_count, 0);
+    assert_eq!(decoded.control_action_result_count, 0);
+    assert!(decoded.control_action_result_reference_ids.is_empty());
     assert!(!decoded.timer_runtime_claimed);
     assert!(!decoded.scheduler_persistence_claimed);
     assert!(!decoded.durable_scheduler_storage_claimed);

@@ -42,6 +42,8 @@ pub struct AppGameTimerParentSurfaceReadModel {
     pub blocked_by_source_freshness_count: u64,
     pub blocked_by_compiler_decision_count: u64,
     pub runtime_manual_required_count: u64,
+    pub control_action_result_count: u64,
+    pub control_action_result_reference_ids: Vec<String>,
     pub timer_runtime_claimed: bool,
     pub scheduler_persistence_claimed: bool,
     pub durable_scheduler_storage_claimed: bool,

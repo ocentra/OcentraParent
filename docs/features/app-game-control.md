@@ -655,6 +655,12 @@ model. Parent-visible audit and rollback rows can therefore show active-state
 visibility when those references exist, while durable audit log read-models,
 rollback execution, adapter dispatch, child delivery, broad blocking, platform
 enforcement, and raw private source rows remain unclaimed.
+The timer parent-surface service now also maps existing app/game SQLite replay
+control action-result rows into parent-visible count and result-reference
+fields. The parent portal renders those action-result refs as replay
+visibility, while live scheduling automation, adapter dispatch, child delivery,
+broad blocking, platform enforcement, and raw private source rows remain
+unclaimed.
 
 ## Checklist
 

@@ -27,6 +27,8 @@ const TimerParentSurfaceReadModel = {
   blockedBySourceFreshnessCount: 1,
   blockedByCompilerDecisionCount: 0,
   runtimeManualRequiredCount: 0,
+  controlActionResultCount: 0,
+  controlActionResultReferenceIds: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -57,6 +59,7 @@ describe('app-game timer parent-surface portal route panel', () => {
     'shows active timer state-store visibility without upgrading audit or adapter claims',
     expectActiveStateVisibility
   );
+  it('shows replayed control action-result visibility without adapter claims', expectControlActionResultVisibility);
   it('keeps absent or invalid service input explicit instead of inventing rows', expectAbsentServiceInput);
 });
 
@@ -91,6 +94,14 @@ function expectServiceBackedIntent() {
   expect(intent.summaryDetails).toContainEqual({
     label: 'Durable scheduler storage',
     value: 'Not claimed',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Control action results',
+    value: '0',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Control action result refs',
+    value: 'Not reported',
   });
   expect(intent.summaryDetails).toContainEqual({
     label: 'Adapter dispatch',
@@ -152,6 +163,35 @@ function expectActiveStateVisibility() {
     label: 'Product claim',
     value:
       'Active timer state-store is visible; live scheduling execution, durable audit logs, rollback execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.',
+  });
+}
+
+function expectControlActionResultVisibility() {
+  const actionResultModel = {
+    ...TimerParentSurfaceReadModel,
+    controlActionResultCount: 1,
+    controlActionResultReferenceIds: ['action-result-app-game-1'],
+  };
+  const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(actionResultModel))]);
+
+  const intent = createAppGameTimerParentSurfacePanelIntent(liveActivity.appGameTimerParentSurfaceReadModel);
+
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Control action results',
+    value: '1',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Control action result refs',
+    value: 'action-result-app-game-1',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Adapter dispatch',
+    value: 'Not claimed',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Product claim',
+    value:
+      'Control action-result rows are visible from app/game SQLite replay; live scheduling automation, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.',
   });
 }
 

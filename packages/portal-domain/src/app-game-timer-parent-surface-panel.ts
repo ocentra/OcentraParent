@@ -33,6 +33,8 @@ const TimerParentSurfaceTargetLabels = {
 
 const TimerParentSurfaceDetails = {
   AuditRuntime: decodeDisplayText('Audit runtime'),
+  ControlActionResultRefs: decodeDisplayText('Control action result refs'),
+  ControlActionResults: decodeDisplayText('Control action results'),
   DurableSchedulerStorage: decodeDisplayText('Durable scheduler storage'),
   RollbackRuntime: decodeDisplayText('Rollback runtime'),
   SchedulerPersistence: decodeDisplayText('Scheduler persistence'),
@@ -40,8 +42,14 @@ const TimerParentSurfaceDetails = {
 } as const;
 
 const TimerParentSurfaceProductClaims = {
+  ActiveStateAndControlResults: decodeDisplayText(
+    'Active timer state-store and control action-result rows are visible; live scheduling automation, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.'
+  ),
   ActiveStateStore: decodeDisplayText(
     'Active timer state-store is visible; live scheduling execution, durable audit logs, rollback execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.'
+  ),
+  ControlActionResults: decodeDisplayText(
+    'Control action-result rows are visible from app/game SQLite replay; live scheduling automation, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.'
   ),
 } as const;
 
@@ -128,6 +136,8 @@ function readModelSummary(
     detail(PortalDetails.RowsReturned, countText(readModel.returned)),
     detail(PortalDetails.ReadModelRows, displayText(String(readModel.readyForParentSurfaceCount))),
     detail(PortalDetails.ManualReview, displayText(String(readModel.runtimeManualRequiredCount))),
+    detail(TimerParentSurfaceDetails.ControlActionResults, countText(readModel.controlActionResultCount)),
+    detail(TimerParentSurfaceDetails.ControlActionResultRefs, actionResultReferences(readModel)),
     detail(TimerParentSurfaceDetails.TimerRuntime, claimedValue(readModel.timerRuntimeClaimed)),
     detail(TimerParentSurfaceDetails.SchedulerPersistence, claimedValue(readModel.schedulerPersistenceClaimed)),
     detail(TimerParentSurfaceDetails.DurableSchedulerStorage, claimedValue(readModel.durableSchedulerStorageClaimed)),
@@ -167,12 +177,18 @@ function timerSurfaceLoadState(readModel: AgentAppGameTimerParentSurfaceReadMode
 }
 
 function productClaim(readModel: AgentAppGameTimerParentSurfaceReadModel, fallback: DisplayText): DisplayText {
-  if (
-    readModel.timerRuntimeClaimed ||
-    readModel.schedulerPersistenceClaimed ||
-    readModel.durableSchedulerStorageClaimed
-  ) {
+  const hasActiveState =
+    readModel.timerRuntimeClaimed || readModel.schedulerPersistenceClaimed || readModel.durableSchedulerStorageClaimed;
+  const hasControlActionResults = readModel.controlActionResultCount > 0;
+
+  if (hasActiveState && hasControlActionResults) {
+    return TimerParentSurfaceProductClaims.ActiveStateAndControlResults;
+  }
+  if (hasActiveState) {
     return TimerParentSurfaceProductClaims.ActiveStateStore;
+  }
+  if (hasControlActionResults) {
+    return TimerParentSurfaceProductClaims.ControlActionResults;
   }
   return fallback;
 }
@@ -192,6 +208,13 @@ function evidenceReferences(row: AgentAppGameTimerParentSurfaceRow): DisplayText
     return resolvePortalDevText(PortalDevTextToken.NotReported);
   }
   return displayText(uniqueReferences.join(DetailSeparator));
+}
+
+function actionResultReferences(readModel: AgentAppGameTimerParentSurfaceReadModel): DisplayText {
+  if (readModel.controlActionResultReferenceIds.length === 0) {
+    return resolvePortalDevText(PortalDevTextToken.NotReported);
+  }
+  return displayText(readModel.controlActionResultReferenceIds.join(DetailSeparator));
 }
 
 function readableValue(value: unknown): DisplayText {
