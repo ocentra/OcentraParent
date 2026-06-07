@@ -414,26 +414,27 @@ function providerStorePlatformEvidenceRefsAreComplete(row: ProviderStorePlatform
 }
 
 function providerStorePlatformEvidenceClaimsStayUnimplemented(row: ProviderStorePlatformEvidenceRowCandidate): boolean {
-  return (
-    row.productClaimApprovalClaim === 'not-claimed' &&
-    row.googlePlayExecutionClaim === 'not-executed' &&
-    row.appleAppStoreExecutionClaim === 'not-executed' &&
-    row.microsoftStoreExecutionClaim === 'not-executed' &&
-    row.billingProviderContactClaim === 'not-executed' &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformInterceptionClaim === 'not-claimed' &&
-    row.productionPlatformAdapterClaim === 'not-implemented' &&
-    row.runtimeWriterExecutionClaim === 'not-executed' &&
-    row.runtimeWriterDeliveryClaim === 'not-delivered' &&
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.portalApprovalUiClaim === 'not-claimed' &&
-    row.portalReportUiClaim === 'not-claimed' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
-  );
+  const nonClaimChecks = [
+    row.productClaimApprovalClaim === 'not-claimed',
+    row.googlePlayExecutionClaim === 'not-executed',
+    row.appleAppStoreExecutionClaim === 'not-executed',
+    row.microsoftStoreExecutionClaim === 'not-executed',
+    row.billingProviderContactClaim === 'not-executed',
+    row.providerApiExecutionClaim === 'not-executed',
+    row.storeIntegrationClaim === 'not-claimed',
+    row.platformInterceptionClaim === 'not-claimed',
+    row.productionPlatformAdapterClaim === 'not-implemented',
+    row.runtimeWriterExecutionClaim === 'not-executed',
+    row.runtimeWriterDeliveryClaim === 'not-delivered',
+    row.childDeviceDeliveryClaim === 'not-delivered',
+    row.runtimeReportDeliveryClaim === 'not-delivered',
+    row.portalApprovalUiClaim === 'not-claimed',
+    row.portalReportUiClaim === 'not-claimed',
+    row.appBlockingClaim === 'not-claimed',
+    row.childDataCustody === 'no-child-activity-data',
+    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed',
+  ];
+  return nonClaimChecks.every(Boolean);
 }
 
 function providerStorePlatformEvidenceProofIsHonest(
