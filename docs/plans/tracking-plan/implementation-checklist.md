@@ -416,6 +416,19 @@ hard-control runtime, physical-device behavior, production workers, or
 product-ready tracking. The tracking product-readiness closure proof now
 consumes this authority-runtime blocker too, so local/CI closure accounting
 cannot pass without the WP31 authority-runtime blocker proof ref.
+WP30/WP33 now also have full product UI readiness blocker proof from
+`node scripts/test/tracking-full-product-ui-readiness-blocker-proof.mjs`,
+written to
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/31-full-product-ui-readiness-blocker-proof.json`,
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/56-full-product-ui-readiness-blocker-proof.json`,
+and `test-results/tracking-full-product-ui-readiness-blocker-proof/proof.json`.
+It consumes the hosted UI artifact inventory and child-runtime artifact gate to
+record the full parent/child product UI blockers while keeping hosted-route
+evidence acknowledged and full product UI, physical-device, authority,
+provider-delivery, production, and product-ready tracking claims false. The
+tracking product-readiness closure proof now consumes this full-product UI
+blocker too, so local/CI closure accounting cannot pass without the WP30/WP33
+full-product UI blocker proof ref.
 WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
 The runtime proof command also records the full `minimumSeriousMvpAudit` in
 generated `00-run-metadata.json`; both are first-checkpoint P1

@@ -29,6 +29,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'provider-runtime-readiness-blocker',
   'escalation-runtime-readiness-blocker',
   'child-runtime-product-readiness-blocker',
+  'full-product-ui-readiness-blocker',
   'retention-product-readiness-blocker'
 );
 
@@ -52,6 +53,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'provider-runtime-readiness-blocker',
   'escalation-runtime-readiness-blocker',
   'child-runtime-product-readiness-blocker',
+  'full-product-ui-readiness-blocker',
   'retention-product-readiness-blocker',
 ] as const;
 
