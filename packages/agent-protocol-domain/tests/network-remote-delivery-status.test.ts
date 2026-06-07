@@ -78,7 +78,7 @@ const RemoteDeliveryStatus = {
 } satisfies AgentNetworkRemoteDeliveryStatus;
 
 describe('agent network remote delivery status contract', () => {
-  it('parses row10f status from a typed agent event', () => {
+  it('parses row10h outbox status from a typed agent event', () => {
     const parsed = parseAgentNetworkRemoteDeliveryStatusEvent(
       eventWithPayload({
         [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(RemoteDeliveryStatus),

@@ -66,6 +66,10 @@ service shell.
   event type, correlation id, durable refs, receipt refs, and local receipt-ack
   refs and rejecting duplicate durable envelopes without dispatching transport
   or claiming remote acknowledgements.
+- Network policy-preview proof that reads stored ActivityStore network flow
+  rows, maps destination-domain metadata into a domain policy target, resolves
+  parent-rule contexts only when they cite stored network activity event refs,
+  and keeps the resulting decision dry-run with enforcement handoff disabled.
 
 ## Must Not Own
 
@@ -128,3 +132,7 @@ flowchart LR
   broker/family-hub dispatch, remote acknowledgements, provider/child-device
   delivery, retry execution, remote delete/export propagation, and product-ready
   remote delivery remain separate gaps.
+- Network policy preview is stored-row dry-run proof only; AI model execution,
+  full policy-engine execution, adapter authorization, adapter action,
+  enforcement-command publication, exact URL/content inference, raw PCAP, and
+  host filtering remain separate proof-gated gaps.

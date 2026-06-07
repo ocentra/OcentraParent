@@ -205,6 +205,19 @@ compete on control while staying clear about attribution confidence and privacy.
   execution, enforcement-command publication, raw PCAP, exact URL, decrypted
   payload, page content, video content, private-message content, search-query
   content, and host filtering remain false.
+- E-D added policy-preview stored-flow evidence proof across `agent-core`,
+  `agent-service`, and `agent-protocol-domain`: stored ActivityStore network
+  flow rows now feed the existing policy-preview read model, map
+  `destinationDomain` to a domain policy target, resolve parent-rule contexts
+  only when they cite the stored network activity event ref, and serialize the
+  latest dry-run decision through the service payload. The proof writes
+  `output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json`
+  and `test-results/network-policy-preview-stored-flow-evidence-proof/proof.json`.
+  It reuses the row34 evidence-grade mapper as the grade-specific dependency and
+  does not claim AI execution, full policy-engine execution, adapter
+  authorization, adapter action, enforcement-command publication, exact URL,
+  decrypted payload, page content, video content, private-message content,
+  search-query content, raw PCAP, or host filtering.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,
@@ -644,7 +657,17 @@ UI rendering remain open.
       E-D portal status proof also renders service-backed platform/capability
       state, active/tombstone/exportable row counts, retention delete refs, and
       degraded adapter state without local risk scoring or adapter authority.
-- [ ] Policy preview over stored flow evidence.
+- [x] Policy preview over stored flow evidence.
+      Stored ActivityStore network flow rows now feed the existing
+      policy-preview read model and service payload with parent-rule evidence
+      refs, dry-run decision state, and disabled enforcement handoff. Proof:
+      `output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json`
+      and
+      `test-results/network-policy-preview-stored-flow-evidence-proof/proof.json`.
+      Row34 remains the evidence-grade policy mapper dependency; this item does
+      not claim AI execution, full policy-engine execution, adapter
+      authorization, enforcement command publication, exact URL/content, raw
+      PCAP, or host filtering.
 - [ ] Adapter capability status.
       Row37 DNS adapter, Row38 Windows Firewall, Row39 WFP, and Row40 Android
       VpnService plus Row41 Apple Network Extension and Row42 Linux proof gates
