@@ -1,6 +1,6 @@
 {
   "proof": "screen-vlm-guided-classifier-readiness-proof",
-  "generatedAt": "2026-06-06T23:46:38.004Z",
+  "generatedAt": "2026-06-07T03:03:27.592Z",
   "proofTier": "P3_CONTRACT_LOCAL_VLM_READINESS",
   "modelConstants": {
     "modelRuntimeRef": "screen-local-vlm-runtime",
@@ -63,6 +63,26 @@
       }
     }
   ],
+  "localProviderRuntimeProbe": {
+    "ollama": {
+      "command": "ollama",
+      "available": false,
+      "status": 1,
+      "output": "'ollama' is not recognized as an internal or external command, operable program or batch file."
+    },
+    "lmstudio": {
+      "command": "lmstudio",
+      "available": false,
+      "status": 1,
+      "output": "'lmstudio' is not recognized as an internal or external command, operable program or batch file."
+    },
+    "llamaServer": {
+      "command": "llama-server",
+      "available": false,
+      "status": 1,
+      "output": "'llama-server' is not recognized as an internal or external command, operable program or batch file."
+    }
+  },
   "assertions": {
     "sourceReadinessProofPassed": true,
     "localOnly": true,
@@ -70,7 +90,8 @@
     "manualRequiredCovered": true,
     "completedRowsRequireDeletedQueryStore": true,
     "maxImagePixelsBounded": true,
-    "guidedTemplateVersionPinned": true
+    "guidedTemplateVersionPinned": true,
+    "openEndedPromptsRejected": true
   },
   "validationCommands": [
     "npm run build --workspace @ocentra-parent/activity-domain",
@@ -80,11 +101,12 @@
   "completedChecklistClaims": [
     "guided VLM worker template/version is pinned",
     "image pixel budget is bounded for local worker handoff",
+    "open-ended screen description prompts are rejected before worker handoff",
     "manual-required behavior is represented when runtime is unavailable",
     "completed status rows require deleted query-store custody before policy eligibility"
   ],
   "openChecklistClaims": [
-    "configured local Gemma-family or Qwen image runtime is not executed by this proof",
+    "no local VLM provider command was detected on PATH in this Windows lane",
     "detector-specific prompt-pack quality is not measured by this proof",
     "real crop extraction and visual classifier quality are not measured by this proof",
     "CPU/GPU/memory/runtime measurements remain unclaimed"

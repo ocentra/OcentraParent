@@ -14,7 +14,7 @@ This is AI-pass work. Capture MVP should define the route/result contracts and d
 - [~] Evaluate Qwen2.5-VL or other candidates only if default runtime is insufficient.
 - [~] Use detector-specific JSON prompts.
 - [~] Limit image pixels and crop regions.
-- [ ] Reject open-ended descriptions.
+- [x] Reject open-ended descriptions.
 - [ ] Measure runtime and quality.
 - [~] Record uncertainty/manual-required behavior.
 
@@ -39,7 +39,11 @@ output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary
 This proof reuses the existing local VLM execution-readiness contract proof to
 show the guided worker template/version, local-only custody, bounded image-pixel
 budget, deleted query-store requirement before completed status, and
-manual-required behavior when the runtime is unavailable.
+manual-required behavior when the runtime is unavailable. The focused worker
+contract now rejects open-ended prompts such as `Describe the screen in detail.`
+before local worker handoff.
 
-It does not run a local VLM, measure classifier quality, prove crop extraction,
-or select a production VLM model.
+The current Windows-lane proof also records local provider command probes for
+`ollama`, `lmstudio`, and `llama-server`; none are available on PATH in this
+worktree. It does not run a local VLM, measure classifier quality, prove crop
+extraction, or select a production VLM model.

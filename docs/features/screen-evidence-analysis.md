@@ -493,9 +493,12 @@ only with explicit parent settings.
   small guided VLM classifier readiness boundary for screen-plan WP36 by
   reusing the typed execution-readiness proof. It proves local-only custody,
   guided worker template/version pinning, bounded image pixels, deleted
-  query-store custody before completed status, and manual-required behavior
-  when runtime is unavailable. It does not run live VLM inference, measure
-  classifier quality, prove crop extraction, or select a production VLM model.
+  query-store custody before completed status, open-ended prompt rejection, and
+  manual-required behavior when runtime is unavailable. The proof now records
+  local provider command probes for `ollama`, `lmstudio`, and `llama-server`;
+  none are available on PATH in this Windows lane. It does not run live VLM
+  inference, measure classifier quality, prove crop extraction, or select a
+  production VLM model.
 - `scripts/test/screen-ai-service-winrt-ocr-proof.mjs` now proves the
   service-owned Windows WinRT OCR analysis path over real live Chrome/Wikipedia
   pixels: the Rust service cadence loop captures an active-window frame into
@@ -654,9 +657,9 @@ parity, and UI remain separate proof gates.
   and local-only/household-mesh routing non-claims, but install/runtime,
   quality, and resource comparison remain open.
 - [~] Small guided VLM classifier readiness records local-only handoff,
-  template/version, max-pixel, deletion, and manual-required gates, but live
-  model execution, crop extraction, quality, and resource measurement remain
-  open.
+  template/version, max-pixel, open-ended prompt rejection, deletion,
+  provider-command probes, and manual-required gates, but live model execution,
+  crop extraction, quality, and resource measurement remain open.
 - [x] Service WinRT OCR proof analyzes live public browser pixels through the
       encrypted service queue, records a `localOcr` Activity Screen row, drains
       the queue, and deletes adapter temp image material.
