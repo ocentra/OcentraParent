@@ -1,0 +1,160 @@
+{
+  "proof": "screen-plan-closure-audit",
+  "generatedAt": "2026-06-07T02:17:35.934Z",
+  "branchScope": "codex/screen-ai-full-scope-b",
+  "checklist": {
+    "path": "docs/plans/screen-plan/implementation-checklist.md",
+    "completeCount": 31,
+    "partialCount": 8,
+    "openCount": 1,
+    "completeRows": [
+      "01 Source index and doc reconciliation",
+      "02 Current screen snapshot and gap map",
+      "03 Contract boundary and Effect schemas",
+      "04 Parent opt-in settings contract",
+      "05 Capability/status contract",
+      "06 Capture scope model",
+      "07 Capture trigger model",
+      "08 Platform adapter abstraction",
+      "09 Windows capture adapter plan/proof",
+      "14 Protected surface detector",
+      "15 Encrypted temporary image queue",
+      "16 Queue scheduler and debouncer",
+      "17 Local OCR/vision runtime model",
+      "18 Screen analysis result schema",
+      "19 Sensitive text and redaction model",
+      "20 Result validator and invalid-output handling",
+      "21 Journal and SQLite ingest",
+      "22 Deletion and retention proof",
+      "23 Policy compiler for screen-derived evidence",
+      "24 Enforcement handoff guard",
+      "25 Parent portal summary UI",
+      "26 Child disclosure UX",
+      "27 Screenshot retention optional mode",
+      "29 Proof tiers and proof packs",
+      "31 Screen intelligence router",
+      "32 Browser structured extraction before screenshot",
+      "33 Managed browser CDP screenshot capture path",
+      "37 Household mesh screen-analysis queue",
+      "38 Local AI resource scheduler/priority queue",
+      "39 Redacted summary-only remote boundary",
+      "40 Detector prompt packs and schema tests"
+    ],
+    "partialRows": [
+      "10 macOS capture adapter plan/proof",
+      "11 Linux capture adapter plan/proof",
+      "12 Android MediaProjection adapter plan/proof",
+      "28 Live view optional mode",
+      "30 Test suite, Playwright, rollout, PR gate",
+      "34 OCR Tesseract baseline",
+      "35 OCR PaddleOCR/PP-OCR evaluation",
+      "36 Small VLM guided classifier evaluation"
+    ],
+    "openRows": [
+      "13 iOS ReplayKit adapter plan/proof"
+    ]
+  },
+  "remainingExternalProofGates": [
+    {
+      "id": "10",
+      "label": "macOS capture adapter plan/proof",
+      "status": "~",
+      "requiredProof": "output/screen-plan-proof/macos-screen-capture/proof-summary.json",
+      "proofPresent": false,
+      "gate": "Requires real macOS ScreenCaptureKit/permission proof on macOS hardware."
+    },
+    {
+      "id": "11",
+      "label": "Linux capture adapter plan/proof",
+      "status": "~",
+      "requiredProof": "output/screen-plan-proof/linux-screen-capture/proof-summary.json",
+      "proofPresent": false,
+      "gate": "Requires real Linux X11/Wayland portal proof on a Linux desktop session."
+    },
+    {
+      "id": "12",
+      "label": "Android MediaProjection adapter plan/proof",
+      "status": "~",
+      "requiredProof": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
+      "proofPresent": true,
+      "gate": "Needs physical/emulator parity beyond the existing consent/capture proof before broad Android product claim."
+    },
+    {
+      "id": "13",
+      "label": "iOS ReplayKit adapter plan/proof",
+      "status": "open",
+      "requiredProof": "output/screen-plan-proof/ios-replaykit/proof-summary.json",
+      "proofPresent": false,
+      "gate": "Requires real iOS ReplayKit entitlement/device proof."
+    },
+    {
+      "id": "28",
+      "label": "Live view optional mode",
+      "status": "~",
+      "requiredProof": "output/screen-plan-proof/live-view-platform-permission/proof-summary.json",
+      "proofPresent": false,
+      "gate": "Requires real platform permission and live transport proof; current proof is contract/preflight only."
+    },
+    {
+      "id": "30",
+      "label": "Test suite, Playwright, rollout, PR gate",
+      "status": "~",
+      "requiredProof": null,
+      "proofPresent": null,
+      "gate": "Final closure waits for partial platform/model gates or explicit product non-claim handoff."
+    },
+    {
+      "id": "34",
+      "label": "OCR Tesseract baseline",
+      "status": "~",
+      "requiredProof": "output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json",
+      "proofPresent": true,
+      "gate": "Local tesseract binary and language data are not installed/proved in this Windows lane."
+    },
+    {
+      "id": "35",
+      "label": "OCR PaddleOCR/PP-OCR evaluation",
+      "status": "~",
+      "requiredProof": "output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json",
+      "proofPresent": true,
+      "gate": "Current proof is packaging/version/local-only gate only; no package install, model cache, runtime, or quality comparison claim."
+    },
+    {
+      "id": "36",
+      "label": "Small VLM guided classifier evaluation",
+      "status": "~",
+      "requiredProof": "output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json",
+      "proofPresent": true,
+      "gate": "Current proof is local VLM readiness/manual-required only; no live VLM runtime or quality measurement claim."
+    }
+  ],
+  "currentWindowsEvidence": [
+    {
+      "artifact": "output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/portal-screen-analysis-redaction.png",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/parent-redaction-policy.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
+      "present": true
+    }
+  ],
+  "assertions": {
+    "wp19Closed": true,
+    "remainingGatesExplicit": true,
+    "externalRuntimeProofsNotInvented": true,
+    "noProductCompleteClaim": true
+  },
+  "nonClaims": [
+    "This audit does not complete macOS, Linux, Android parity, iOS, live-view transport, Tesseract runtime, PaddleOCR runtime, or live VLM quality gates.",
+    "This audit does not replace real device/runtime proof for remaining partial rows.",
+    "This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied."
+  ]
+}

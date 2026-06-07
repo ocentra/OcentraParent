@@ -46,6 +46,7 @@ static JSON-only claims, or fixture screenshots used as final proof.
 | Parent Settings catalog proof                 | `output/screen-plan-proof/settings-ui/proof-summary.json`                                                                                                            | Real Rust agent plus Vite portal render the Settings route with the 474-setting Screen catalog, proof-required controls, unavailable sensitive modes, and fail-closed gates.      | Read-only catalog proof; local writable intent proof is tracked separately.                                        |
 | Parent Settings writable intent proof         | `output/screen-plan-proof/settings-writable-controls/proof-summary.json`                                                                                             | Real Rust agent plus Vite portal render and click Settings controls that build schema-valid disabled, observe-only, and strict dry-run local screen-summary setting drafts.       | Does not persist settings to the Rust service or enable raw screenshot retention, live view, or raw remote upload. |
 | Remote/retention/live boundary                | `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`                                                                                              | Contract proof keeps raw screenshot retention, live view, and raw remote upload disabled for local summaries; parent-approved redacted summary export requires audit and custody. | Does not prove live-view transport, writable retention UI, or privacy/legal approval.                              |
+| Screen-plan closure audit                     | `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`                                                                                              | Enumerates the remaining partial/open platform, live-view, and model-quality gates after the current Windows/service/eventing proof stack.                                        | Does not complete the remaining gates or replace real device/runtime proof.                                        |
 
 ## Known Gaps
 
@@ -60,6 +61,8 @@ static JSON-only claims, or fixture screenshots used as final proof.
   and iOS ReplayKit proof.
 - Writable raw screenshot retention mode UI and privacy/legal approval.
 - Live view transport/platform proof and explicit UI.
+- Tesseract installed-runtime proof, PaddleOCR runtime/quality comparison, and
+  live VLM quality measurement.
 - Browser/network/mobile/broad block action adapters from screen-derived
   decisions.
 - Production parent explanation UX.

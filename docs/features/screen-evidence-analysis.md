@@ -553,6 +553,13 @@ only with explicit parent settings.
   is a stacked artifact gate; it does not rerun the live operator session or
   claim managed-browser trigger ownership, authenticated-account social proof,
   or broad browser/network/mobile adapters.
+- `scripts/test/screen-plan-closure-audit-proof.mjs` now records the remaining
+  partial/open screen-plan gates at
+  `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`. This
+  prevents the stacked product-path artifact from being treated as full
+  screen-plan completion before macOS, Linux, Android parity, iOS, live-view
+  transport, Tesseract runtime, PaddleOCR runtime, and live VLM quality gates
+  are completed or explicitly left as non-claims.
 - Service-persisted product settings, retention controls, and quality proof are
   incomplete.
 - Raw screen control settings are preserved as design inputs, not
@@ -665,6 +672,9 @@ parity, and UI remain separate proof gates.
 - [x] Final screen-AI product path artifact gate validates retained real-run
       trigger, capture, AI, policy, action/read-model, and deletion/custody
       artifacts without raw screenshot retention.
+- [x] Screen-plan closure audit records remaining partial/open platform,
+      live-view, and model-quality gates so screen is not claimed
+      product-complete prematurely.
 - [x] Screen eventing runtime proof publishes typed capture, queue, AI-result,
       summary, policy, action dry-run, deletion, and portal-read-model events
       through `ocentra-eventing` without raw-image escape.

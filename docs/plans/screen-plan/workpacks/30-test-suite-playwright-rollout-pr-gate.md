@@ -2,16 +2,17 @@
 
 ## Target State
 
-Unit, integration, contract, security, E2E, UI, performance, manual tests and merge-blocking gates are complete.
+Unit, integration, contract, security, E2E, UI, performance, manual tests and
+merge-blocking gates are complete or explicitly recorded as non-claims before
+any full screen-plan completion claim.
 
 ## Current State
 
 The screen plan now has contract, service, eventing, Playwright, live-operator,
 real-trigger, cadence, capture-analysis-policy, portal, deletion/custody, child
-disclosure, and final stacked product-path proof artifacts. The remaining
-rollout gate is not missing those proof classes; it is missing the final
-screen-plan closure pass across still-partial platform/model workpacks and the
-single final handoff after the whole B scope is done.
+disclosure, and final stacked product-path proof artifacts. The closure audit
+also records the current partial/open gates so the stacked product-path artifact
+cannot be misread as full screen-plan completion.
 
 The rollout gate remains partial because macOS live capture proof, Linux
 root/Wayland portal proof, physical Android parity, iOS ReplayKit proof,
@@ -35,8 +36,10 @@ proof, and production startup wiring are still non-claims.
 - [x] Add capture plus analysis plus policy dry-run proof.
 - [x] Update feature docs/checklist for completed proof gates.
 - [x] Record known gaps.
+- [x] Run a screen-plan closure audit that proves remaining platform/model/
+      live-view gates are explicit and not product-complete claims.
 - [ ] Run final screen-plan closure validation after partial platform/model
-      workpacks are either completed or explicitly left as non-claims.
+      workpacks are completed or deliberately accepted as non-claims.
 - [ ] Write final whole-slice handoff only after screen, AI, and pipeline plans
       are complete on the unified B branch.
 
@@ -47,6 +50,8 @@ proof, and production startup wiring are still non-claims.
 - Real trigger proof artifacts.
 - Operator live proof artifacts.
 - Cadence proof artifacts.
+- Closure audit artifact:
+  `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`.
 - Feature/checklist updates.
 - Final branch handoff with scope, proof, and gaps after the full B scope is
   complete.
