@@ -1,0 +1,114 @@
+{
+  "proof": "network-remote-delivery-outbox-status-bridge-proof",
+  "proofRevision": "network-remote-delivery-outbox-status-bridge-proof/v1",
+  "checkedAt": "deterministic:network-remote-delivery-outbox-status-bridge-proof/v1",
+  "sourceFingerprint": "source-tree:2f2460530ed36486c636dd877456ac25754b3fd6e7a10bd27d74f8bb4316e662",
+  "sourceRefs": [
+    "scripts/test/network-remote-delivery-outbox-status-bridge-proof.mjs",
+    "crates/agent-protocol/src/constants/network_flow.rs",
+    "crates/agent-protocol/src/network_flow.rs",
+    "crates/agent-protocol/src/network_flow_tests.rs",
+    "crates/agent-service/src/network_remote_delivery_status_payload.rs",
+    "crates/agent-service/src/network_remote_delivery_status_service_tests.rs",
+    "crates/agent-service/src/websocket.rs",
+    "packages/agent-protocol-domain/src/defaults.ts",
+    "packages/agent-protocol-domain/src/network-remote-delivery-status.ts",
+    "packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts",
+    "docs/features/network-domain-control.md",
+    "docs/plans/network-plan/implementation-checklist.md",
+    "docs/plans/network-plan/workpacks/README.md",
+    "crates/agent-protocol/readme.md",
+    "crates/agent-service/readme.md",
+    "packages/agent-protocol-domain/readme.md"
+  ],
+  "sourceBase": "60304716a09386a4f56796eb44d62dcf19ca5f92",
+  "proofRoot": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge",
+  "testRoot": "test-results\\network-remote-delivery-outbox-status-bridge-proof",
+  "commands": [
+    {
+      "name": "agent-protocol-remote-delivery-status-test",
+      "command": "cargo test -p ocentra-parent-agent-protocol network_remote_delivery_status",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge\\agent-protocol-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-service-remote-delivery-status-test",
+      "command": "cargo test -p ocentra-parent-agent-service network_remote_delivery_status",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge\\agent-service-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-protocol-domain-dependency-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/schema-domain --workspace @ocentra-parent/logging-domain --workspace @ocentra-parent/activity-domain --workspace @ocentra-parent/parent-domain --workspace @ocentra-parent/agent-protocol-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge\\agent-protocol-domain-dependency-build.log"
+    },
+    {
+      "name": "agent-protocol-domain-remote-delivery-status-test",
+      "command": "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-remote-delivery-status.test.ts",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge\\agent-protocol-domain-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-protocol-domain-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge\\agent-protocol-domain-build.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge\\source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge\\git-diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "sourceSnapshot": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge\\00-source-snapshot.md",
+    "expectedRemoteDeliveryOutboxStatusBridge": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge\\expected-remote-delivery-outbox-status-bridge.json",
+    "securityNegativeLog": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge\\09-security-negative-proof.log",
+    "validationCommands": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge\\12-validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\10h-remote-delivery-outbox-status-bridge\\proof-summary.json",
+    "testProof": "test-results\\network-remote-delivery-outbox-status-bridge-proof\\proof.json"
+  },
+  "coveredRows": [
+    "network-plan supplemental row 10h remote delivery outbox status bridge",
+    "network-plan supplemental row 10g remote delivery outbox handoff",
+    "network-plan supplemental row 10f remote delivery status bridge",
+    "network-plan supplemental row 10e remote delivery durable envelope/store status"
+  ],
+  "provenBoundaries": [
+    "agent-protocol status payload carries row10g outbox refs, handoff refs, replay/support refs, prepared candidate counts, duplicate rejection, and mismatch counters",
+    "agent-service builds the remote-delivery status from row10g outbox handoff proof state without spawning a live transport dispatch",
+    "agent-protocol-domain parser rejects stale outbox refs, nonzero dispatch/ack counters, and mismatched prepared candidate counts",
+    "the bridge keeps broker delivery, family-hub relay delivery, provider delivery, child-device delivery, remote delete/export propagation, product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement commands, and host filtering false",
+    "the bridge keeps raw PCAP, exact URL, decrypted payload, page content, video content, private-message content, and search-query content unavailable from network-only outbox status"
+  ],
+  "notClaimed": [
+    "live broker delivery",
+    "live family-hub relay delivery",
+    "transport dispatch attempt",
+    "remote acknowledgement implementation",
+    "remote provider delivery",
+    "child-device delivery",
+    "remote delete/export propagation implementation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}

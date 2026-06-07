@@ -89,6 +89,8 @@ pub const TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF: &str =
     "network.remote-delivery.durable-envelope-support-status.10e";
 pub const TEST_REMOTE_DELIVERY_STATUS_BRIDGE_REF: &str =
     "network.remote-delivery.status-bridge.10f";
+pub const TEST_REMOTE_DELIVERY_OUTBOX_STATUS_BRIDGE_REF: &str =
+    "network.remote-delivery.outbox-status-bridge.10h";
 pub const TEST_REMOTE_DELIVERY_OUTBOX_REF: &str = "network.remote-delivery.outbox.10g";
 pub const TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF: &str =
     "network.remote-delivery.outbox-handoff.10g";
@@ -158,3 +160,5 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_DURABLE_ENVELOPE: &str =
     "network runtime remote durable envelope proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF: &str =
     "network runtime remote outbox handoff proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_STATUS_BRIDGE: &str =
+    "network runtime remote outbox status bridge proof";
