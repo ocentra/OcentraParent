@@ -490,8 +490,14 @@ only with explicit parent settings.
   and an explicit local inference attempt against the retained real public Vimeo
   screenshot. The runtime attempt fails before text extraction with
   `ConvertPirAttribute2RuntimeAttribute not support [pir::ArrayAttribute<pir::DoubleAttribute>]`,
-  so PaddleOCR is not selected for production and Tesseract/WinRT remain the only
-  runtime-proved local OCR paths in this lane.
+  so the current PP-OCRv5 path is not selected for production. The same proof
+  can run an explicitly prepared isolated Python 3.10 fallback with
+  `paddleocr` 2.7.0.3, `paddlepaddle` 2.6.2, and `numpy<2`; that fallback
+  completed local inference against the same real Vimeo screenshot, extracted 15
+  text strings, matched the `vimeo`, `video`, and `player` baseline terms, and
+  recorded init/predict timing, CPU time, and peak RSS. This proves a local
+  PaddleOCR-family fallback can analyze the captured evidence, but it does not
+  unblock current PP-OCRv5 or select production OCR.
 - `scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs` records the
   small guided VLM classifier readiness boundary for screen-plan WP36 by
   reusing the typed execution-readiness proof. It proves local-only custody,
@@ -657,9 +663,11 @@ parity, and UI remain separate proof gates.
   measurement, and derived failure-mode scenarios are recorded against a
   retained real public Vimeo screenshot artifact, but production-quality
   selection and PaddleOCR comparison remain open.
-- [~] PaddleOCR/PP-OCR candidate readiness records current package availability
-  and local-only/household-mesh routing non-claims, but install/runtime,
-  quality, and resource comparison remain open.
+- [~] PaddleOCR/PP-OCR candidate readiness records current package availability,
+  current PP-OCRv5 runtime blocker evidence, and a pinned local PaddleOCR 2.x
+  fallback that extracts comparable text from the retained Vimeo screenshot, but
+  production OCR selection, broader quality/resource proof, and current 3.x
+  runtime resolution remain open.
 - [~] Small guided VLM classifier readiness records local-only handoff,
   template/version, max-pixel, open-ended prompt rejection, deletion,
   provider-command probes, and manual-required gates, but live model execution,

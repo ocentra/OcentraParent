@@ -8,6 +8,9 @@ const repoRoot = process.cwd();
 const outputRoot = resolve(repoRoot, 'output', 'screen-plan-proof', '35-ocr-paddleocr-ppocr-evaluation');
 const proofSummaryPath = join(outputRoot, 'proof-summary.json');
 const runtimeLogPath = join(outputRoot, 'paddleocr-runtime-attempt.log');
+const legacyRuntimeLogPath = join(outputRoot, 'paddleocr-2x-py310-runtime.log');
+const legacyRuntimeScriptPath = join(outputRoot, 'paddleocr-2x-py310-runtime.py');
+const legacyRuntimePythonPath = join(outputRoot, 'paddleocr-2x-py310-venv', 'Scripts', 'python.exe');
 const sourceImagePath = resolve(
   repoRoot,
   'output',
@@ -60,6 +63,10 @@ const tesseractComparisonReady = localRuntimeReady && tesseractInstalled;
 const explicitRuntimeRunRequested = process.env.OCENTRA_RUN_PADDLEOCR_LOCAL === '1';
 const runtimeExecutionAllowed = explicitRuntimeRunRequested && localRuntimeReady;
 const runtimeAttempt = runtimeExecutionAllowed ? runPaddleOcrRuntimeAttempt() : null;
+const explicitLegacyRuntimeRunRequested = process.env.OCENTRA_RUN_PADDLEOCR_2X_LOCAL === '1';
+const legacyRuntimeAvailable = existsSync(legacyRuntimePythonPath);
+const legacyRuntimeExecutionAllowed = explicitLegacyRuntimeRunRequested && legacyRuntimeAvailable;
+const legacyRuntimeAttempt = legacyRuntimeExecutionAllowed ? runLegacyPaddleOcrRuntimeAttempt() : null;
 const tesseractText = await readOptionalText(tesseractTextPath);
 const tesseractTerms = ['vimeo', 'video', 'player'].filter((term) => tesseractText.toLowerCase().includes(term));
 const modelCache = [
@@ -118,9 +125,13 @@ const summary = {
     remoteModelDownloadAllowedByDefault: false,
     runtimeExecutionAllowed,
     explicitRuntimeRunEnv: 'OCENTRA_RUN_PADDLEOCR_LOCAL=1',
+    legacyRuntimeExecutionAllowed,
+    explicitLegacyRuntimeRunEnv: 'OCENTRA_RUN_PADDLEOCR_2X_LOCAL=1',
     reason: runtimeExecutionAllowed
       ? 'Explicit local runtime execution was requested and local packages are importable; inference is attempted against the retained real Vimeo screenshot artifact.'
-      : 'The gate records packaging/current-version facts only; it does not download models or call remote OCR services by default.',
+      : legacyRuntimeExecutionAllowed
+        ? 'Explicit pinned local 2.x runtime execution was requested inside an isolated Python 3.10 venv; inference is attempted against the retained real Vimeo screenshot artifact.'
+        : 'The gate records packaging/current-version facts only; it does not download models or call remote OCR services by default.',
   },
   modelCacheCustody: {
     cacheRoot: join(process.env.USERPROFILE ?? '', '.paddlex', 'official_models'),
@@ -132,35 +143,50 @@ const summary = {
     status:
       runtimeAttempt?.status === 0
         ? 'runtime-comparison-complete'
-        : runtimeExecutionAllowed
-          ? 'runtime-blocked'
-          : 'not-run',
+        : legacyRuntimeAttempt?.status === 0
+          ? 'legacy-runtime-comparison-complete-current-candidate-blocked'
+          : runtimeExecutionAllowed
+            ? 'runtime-blocked'
+            : legacyRuntimeExecutionAllowed
+              ? 'legacy-runtime-blocked'
+              : 'not-run',
     paddleOcrRuntimeReady: localRuntimeReady,
     tesseractRuntimeReady: tesseractInstalled,
     comparedAgainstTesseract: runtimeAttempt?.status === 0,
+    legacyFallbackComparedAgainstTesseract: legacyRuntimeAttempt?.status === 0,
     tesseractMatchedTerms: tesseractTerms,
     paddleOcrRuntimeAttempt: runtimeAttempt,
+    legacyPaddleOcr2xRuntimeAttempt: legacyRuntimeAttempt,
     reason: runtimeAttempt
       ? runtimeAttempt.status === 0
         ? 'PaddleOCR completed local inference and can be compared against the Tesseract baseline.'
         : 'PaddleOCR packages and models are present, but local inference fails before OCR text extraction; Tesseract remains the only runtime-proved OCR baseline in this lane.'
-      : tesseractComparisonReady
-        ? 'Both runtimes are importable/available, but this proof run did not request runtime execution.'
-        : 'This Windows lane lacks one or more local OCR runtimes, so quality comparison remains a follow-up proof.',
+      : legacyRuntimeAttempt
+        ? legacyRuntimeAttempt.status === 0
+          ? 'The current PaddleOCR 3.x/PP-OCRv5 candidate remains unproved, but an isolated pinned PaddleOCR 2.x/PaddlePaddle 2.x fallback completed local inference against the same real Vimeo screenshot and can be compared against Tesseract.'
+          : 'The isolated pinned PaddleOCR 2.x/PaddlePaddle 2.x fallback was attempted but did not complete local inference.'
+        : tesseractComparisonReady
+          ? 'Both runtimes are importable/available, but this proof run did not request runtime execution.'
+          : 'This Windows lane lacks one or more local OCR runtimes, so quality comparison remains a follow-up proof.',
   },
   placementDecision: {
     selectedForProduction: false,
     preferredNextHost:
       runtimeAttempt?.status === 0
         ? 'child-device-or-household-mesh-after-resource-measurement'
-        : 'not-selected-runtime-blocked',
+        : legacyRuntimeAttempt?.status === 0
+          ? 'not-selected-current-ppocrv5-candidate-blocked'
+          : 'not-selected-runtime-blocked',
     decision:
-      'Do not select PaddleOCR/PP-OCR for production screen OCR until local package install, model-cache custody, no-upload inference, Tesseract comparison, and CPU/GPU/memory/runtime proof pass.',
+      'Do not select PaddleOCR/PP-OCR for production screen OCR until the current PP-OCRv5 path or an explicitly pinned fallback has package install, model-cache custody, no-upload inference, Tesseract comparison, and CPU/GPU/memory/runtime proof accepted.',
   },
   nonClaims: [
     runtimeExecutionAllowed
       ? 'This proof attempts local PaddleOCR inference only because OCENTRA_RUN_PADDLEOCR_LOCAL=1 was set.'
       : 'This proof does not install PaddleOCR, download OCR models, or run PaddleOCR inference by default.',
+    legacyRuntimeExecutionAllowed
+      ? 'This proof attempts the pinned PaddleOCR 2.x fallback only because OCENTRA_RUN_PADDLEOCR_2X_LOCAL=1 was set and an isolated Python 3.10 venv already exists.'
+      : 'This proof does not create or install the pinned PaddleOCR 2.x fallback venv by default.',
     'This proof does not call PaddleOCR remote API or any hosted OCR endpoint.',
     'This proof does not claim PaddleOCR quality, latency, CPU, GPU, or memory suitability.',
     'This proof does not replace the existing typed OCR route proof.',
@@ -234,6 +260,85 @@ print(json.dumps({
     extractedTextCount: parsed?.texts?.length ?? 0,
     initSeconds: parsed?.initSeconds ?? null,
     predictSeconds: parsed?.predictSeconds ?? null,
+    error,
+  };
+}
+
+function runLegacyPaddleOcrRuntimeAttempt() {
+  const code = String.raw`
+from paddleocr import PaddleOCR
+from pathlib import Path
+import json
+import os
+import psutil
+import threading
+import time
+
+image = Path(r"${sourceImagePath}").resolve()
+process = psutil.Process(os.getpid())
+peak_rss = process.memory_info().rss
+sampling = True
+
+def sample_memory():
+    global peak_rss
+    while sampling:
+        peak_rss = max(peak_rss, process.memory_info().rss)
+        time.sleep(0.05)
+
+sampler = threading.Thread(target=sample_memory, daemon=True)
+sampler.start()
+start_cpu = process.cpu_times()
+start = time.perf_counter()
+ocr = PaddleOCR(use_angle_cls=False, lang="en", show_log=False)
+init_seconds = time.perf_counter() - start
+start = time.perf_counter()
+result = ocr.ocr(str(image), cls=False)
+predict_seconds = time.perf_counter() - start
+sampling = False
+sampler.join(timeout=1)
+end_cpu = process.cpu_times()
+texts = []
+for page in result or []:
+    for item in page or []:
+        if isinstance(item, (list, tuple)) and len(item) >= 2:
+            text_score = item[1]
+            if isinstance(text_score, (list, tuple)) and text_score:
+                texts.append(str(text_score[0]))
+cpu_time_ms = int(((end_cpu.user + end_cpu.system) - (start_cpu.user + start_cpu.system)) * 1000)
+print(json.dumps({
+    "initSeconds": round(init_seconds, 3),
+    "predictSeconds": round(predict_seconds, 3),
+    "texts": texts,
+    "textCount": len(texts),
+    "cpuTimeMs": cpu_time_ms,
+    "peakRssBytes": peak_rss,
+}, ensure_ascii=False))
+`;
+  writeFileSync(legacyRuntimeScriptPath, code);
+  const start = performance.now();
+  const result = runOptional(legacyRuntimePythonPath, [legacyRuntimeScriptPath]);
+  const durationMs = Math.round(performance.now() - start);
+  const combinedLog = normalizeLog(stripAnsi(`${result.stdout}${result.stderr}`));
+  writeFileSync(legacyRuntimeLogPath, combinedLog);
+  const parsed = parseJsonLine(result.stdout);
+  const extractedTexts = parsed?.texts ?? [];
+  const extractedText = extractedTexts.join(' ').toLowerCase();
+  const matchedTerms = ['vimeo', 'video', 'player'].filter((term) => extractedText.includes(term));
+  const error = result.status === 0 ? null : summarizeRuntimeError(combinedLog);
+  return {
+    status: result.status,
+    durationMs,
+    logPath: legacyRuntimeLogPath,
+    pythonPath: legacyRuntimePythonPath,
+    mode: 'PaddleOCR 2.7.0.3 + PaddlePaddle 2.6.2 in isolated Python 3.10 venv',
+    extractedTexts,
+    extractedTextCount: extractedTexts.length,
+    matchedTerms,
+    initSeconds: parsed?.initSeconds ?? null,
+    predictSeconds: parsed?.predictSeconds ?? null,
+    cpuTimeMs: parsed?.cpuTimeMs ?? null,
+    peakRssBytes: parsed?.peakRssBytes ?? null,
+    peakRssMiB: bytesToMiB(parsed?.peakRssBytes ?? null),
     error,
   };
 }
@@ -315,6 +420,10 @@ function parsePythonBool(stdout) {
 
 function oneLine(value) {
   return value.replace(/\s+/g, ' ').trim();
+}
+
+function bytesToMiB(value) {
+  return value === null ? null : Math.round((value / 1024 / 1024) * 10) / 10;
 }
 
 function assert(condition, message) {

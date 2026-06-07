@@ -55,14 +55,14 @@ const workpacks = [
     label: 'OCR Tesseract baseline',
     status: workpackStatus('34 OCR Tesseract baseline'),
     requiredProof: 'output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json',
-    gate: 'Local Tesseract extraction, CPU/memory measurement, and derived failure-mode capture are proved; PaddleOCR comparison remains open.',
+    gate: 'Local Tesseract extraction, CPU/memory measurement, and derived failure-mode capture are proved; production OCR selection remains open.',
   },
   {
     id: '35',
     label: 'OCR PaddleOCR/PP-OCR evaluation',
     status: workpackStatus('35 OCR PaddleOCR/PP-OCR evaluation'),
     requiredProof: 'output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json',
-    gate: 'Current proof installs/imports PaddleOCR/PaddlePaddle and records local PP-OCRv5 model-cache custody, but local inference is runtime-blocked before text extraction; no production selection or quality comparison claim.',
+    gate: 'Current PP-OCRv5 inference remains runtime-blocked before text extraction, but an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally; no production selection or broad quality claim.',
   },
   {
     id: '36',
@@ -131,7 +131,7 @@ const summary = {
     noProductCompleteClaim: true,
   },
   nonClaims: [
-    'This audit does not complete macOS, Linux, Android parity, iOS, live-view transport, PaddleOCR runtime error resolution/quality comparison, or live VLM provider/runtime quality gates.',
+    'This audit does not complete macOS, Linux, Android parity, iOS, live-view transport, current PP-OCRv5 resolution/production OCR selection, or live VLM provider/runtime quality gates.',
     'This audit does not replace real device/runtime proof for remaining partial rows.',
     'This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied.',
   ],
