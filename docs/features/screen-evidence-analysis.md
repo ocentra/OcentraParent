@@ -105,6 +105,15 @@ only with explicit parent settings.
   calls the shared producer after queue removal. This closes the TTL deletion
   event producer hop without claiming parent retention UI persistence, final
   enforcement, a new live capture run, or model quality.
+- `scripts/test/screen-ai-degraded-portal-proof.mjs` now proves the real Rust
+  service plus parent portal Screen Analysis route can render degraded Activity
+  Screen OCR/VLM read-model rows from the local activity store. The proof fixes
+  the portal's default Activity Screen command payload, preserves
+  model/runtime/template refs, renders `localOcr` `modelUnavailable` and
+  `localVision` `degraded` rows, and screenshots the portal state under
+  `output/ai-plan-proof/activity-screen-ai-degraded-portal-proof`. This is
+  degraded read-model visibility proof; it does not execute OCR/VLM inference,
+  capture fresh pixels, grant policy authority, or dispatch enforcement.
 - `scripts/test/screen-child-disclosure-proof.mjs` now proves the screen child
   disclosure contract. It defines child-visible disabled, paused, active
   capture, protected-surface, and deleted-summary states with calm tokenized

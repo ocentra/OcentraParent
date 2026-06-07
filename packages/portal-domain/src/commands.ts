@@ -1,6 +1,14 @@
 import { AgentCommand, AgentEvent, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 
+export const PortalActivitySurfaceDefaultRequestPayload = {
+  [AgentProtocolDefaults.Field.ScopeKind]: 'family',
+  [AgentProtocolDefaults.Field.FamilyId]: 'family-local',
+  [AgentProtocolDefaults.Field.RequestedAt]: '2026-06-06T00:00:00.000Z',
+  [AgentProtocolDefaults.Field.RangeStart]: '2026-06-06T00:00:00.000Z',
+  [AgentProtocolDefaults.Field.RangeEnd]: '2026-06-06T23:59:59.999Z',
+} as const;
+
 export const PortalOverviewCommands = [
   {
     command: AgentCommand.HealthCheck,
@@ -44,7 +52,7 @@ export const PortalOverviewCommands = [
   },
   {
     command: AgentCommand.ActivityScreenReadModelGet,
-    payload: {},
+    payload: PortalActivitySurfaceDefaultRequestPayload,
   },
   {
     command: AgentCommand.ActivityAppUseReadModelGet,
@@ -155,7 +163,7 @@ export const PortalCommandButtons = [
     label: resolvePortalDevText(PortalDevTextToken.GetActivityScreenReadModel),
     command: AgentCommand.ActivityScreenReadModelGet,
     resultEvent: AgentEvent.ActivityScreenReadModelReported,
-    payload: {},
+    payload: PortalActivitySurfaceDefaultRequestPayload,
   },
   {
     label: resolvePortalDevText(PortalDevTextToken.GetActivityAppUseReadModel),

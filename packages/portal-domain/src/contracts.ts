@@ -9,7 +9,7 @@ export {
   type PortalClipboardText,
   type PortalDetailValue,
 } from './detail-values';
-export { PortalCommandButtons, PortalOverviewCommands } from './commands';
+export { PortalActivitySurfaceDefaultRequestPayload, PortalCommandButtons, PortalOverviewCommands } from './commands';
 export { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
 export { PortalDiagnostics } from './diagnostics';
 export {
