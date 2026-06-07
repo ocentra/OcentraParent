@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T18:11:17.727Z",
+  "generatedAt": "2026-06-07T18:22:29.182Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -226,6 +226,10 @@
       "present": true
     },
     {
+      "artifact": "output/screen-plan-proof/external-gates/proof-summary.json",
+      "present": true
+    },
+    {
       "artifact": "output/screen-plan-proof/macos/proof-summary.json",
       "present": true
     },
@@ -272,6 +276,7 @@
     "readinessProofsPresent": true,
     "platformProductGatesRemainBlocked": true,
     "wp34TesseractBaselineClosed": true,
+    "externalGatesKeepProductNonClaim": true,
     "noProductCompleteClaim": true
   },
   "nonClaims": [

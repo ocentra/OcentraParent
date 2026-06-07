@@ -1,0 +1,118 @@
+{
+  "proof": "screen-plan-external-gates",
+  "generatedAt": "2026-06-07T18:22:09.989Z",
+  "manifest": {
+    "path": "output/screen-plan-proof/external-gates/manual-evidence-manifest.json",
+    "present": false,
+    "entryCount": 0
+  },
+  "gateResults": [
+    {
+      "gateId": "macos-live-capture-permission",
+      "platform": "macos",
+      "evidenceKind": "platform-permission-prompt-screenshot",
+      "workpack": "10 macOS capture adapter plan/proof",
+      "requirement": "real macOS ScreenCaptureKit session with Screen Recording permission, display/window pixels, OCR, and deletion proof",
+      "status": "missing",
+      "artifactPath": null,
+      "reason": "No matching manifest entry exists."
+    },
+    {
+      "gateId": "linux-desktop-session-capture",
+      "platform": "linux-wayland",
+      "evidenceKind": "platform-session-recording",
+      "workpack": "11 Linux capture adapter plan/proof",
+      "requirement": "real Linux X11 or Wayland portal desktop-session capture with deletion proof",
+      "status": "missing",
+      "artifactPath": null,
+      "reason": "No matching manifest entry exists."
+    },
+    {
+      "gateId": "android-physical-mediaprojection-capture",
+      "platform": "android-mediaprojection",
+      "evidenceKind": "physical-device-capture-recording",
+      "workpack": "12 Android MediaProjection adapter plan/proof",
+      "requirement": "real physical Android MediaProjection capture, stop callback, deletion, and local OCR proof",
+      "status": "missing",
+      "artifactPath": null,
+      "reason": "No matching manifest entry exists."
+    },
+    {
+      "gateId": "ios-physical-replaykit-capture",
+      "platform": "ios-replaykit",
+      "evidenceKind": "physical-device-capture-recording",
+      "workpack": "13 iOS ReplayKit adapter plan/proof",
+      "requirement": "real physical iOS ReplayKit or broadcast-extension capture with deletion proof",
+      "status": "missing",
+      "artifactPath": null,
+      "reason": "No matching manifest entry exists."
+    },
+    {
+      "gateId": "live-view-platform-prompt",
+      "platform": "android-mediaprojection",
+      "evidenceKind": "platform-permission-prompt-screenshot",
+      "workpack": "28 Live view optional mode",
+      "requirement": "real live-view platform prompt artifact, not ordinary capture-only permission evidence",
+      "status": "missing",
+      "artifactPath": null,
+      "reason": "No matching manifest entry exists."
+    },
+    {
+      "gateId": "live-view-physical-device-parity",
+      "platform": "android-mediaprojection",
+      "evidenceKind": "physical-device-capture-recording",
+      "workpack": "28 Live view optional mode",
+      "requirement": "physical-device parity for live view transport/custody/deletion behavior",
+      "status": "missing",
+      "artifactPath": null,
+      "reason": "No matching manifest entry exists."
+    },
+    {
+      "gateId": "live-view-hosted-relay-infrastructure",
+      "platform": "hosted-relay",
+      "evidenceKind": "hosted-relay-proof",
+      "workpack": "28 Live view optional mode",
+      "requirement": "hosted relay infrastructure proof with end-to-end encrypted custody and no raw-frame retention",
+      "status": "missing",
+      "artifactPath": null,
+      "reason": "No matching manifest entry exists."
+    },
+    {
+      "gateId": "live-view-privacy-legal-approval",
+      "platform": "policy-approval",
+      "evidenceKind": "privacy-legal-approval",
+      "workpack": "28 Live view optional mode",
+      "requirement": "privacy/legal approval record for optional live view",
+      "status": "missing",
+      "artifactPath": null,
+      "reason": "No matching manifest entry exists."
+    }
+  ],
+  "counts": {
+    "requiredGateCount": 8,
+    "satisfiedGateCount": 0,
+    "missingGateCount": 8,
+    "invalidGateCount": 0
+  },
+  "assertions": {
+    "allCurrentExternalGatesEnumerated": true,
+    "productCompleteAllowed": false,
+    "currentBranchMustRemainNonClaim": true,
+    "rejectsFixtureOrStaticEvidence": true
+  },
+  "negativeChecks": [
+    {
+      "name": "fixture artifact path is rejected",
+      "rejected": true
+    },
+    {
+      "name": "raw private content is rejected",
+      "rejected": true
+    }
+  ],
+  "nonClaims": [
+    "This proof does not fabricate or substitute platform evidence.",
+    "This proof does not mark screen-plan product complete while any external gate is missing or invalid.",
+    "Real external evidence must be attached through the manifest with digest-backed artifacts from live devices or live host sessions."
+  ]
+}

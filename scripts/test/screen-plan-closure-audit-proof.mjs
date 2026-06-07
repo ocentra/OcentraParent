@@ -15,6 +15,8 @@ const windowsOcrSelectionPath = join(
 
 const checklist = readText(checklistPath);
 const windowsOcrSelection = readJson(windowsOcrSelectionPath);
+const externalGatesPath = join(repoRoot, 'output', 'screen-plan-proof', 'external-gates', 'proof-summary.json');
+const externalGates = readJson(externalGatesPath);
 const workpacks = [
   {
     id: '10',
@@ -164,6 +166,14 @@ assert(
   windowsOcrSelection.selectedCurrentRoute?.modelId === 'windows-winrt-ocr',
   'Closure audit expects Windows OCR selection to name windows-winrt-ocr.'
 );
+assert(
+  externalGates.assertions?.currentBranchMustRemainNonClaim === true,
+  'Closure audit expects external gates to keep the screen plan in non-claim state.'
+);
+assert(
+  externalGates.counts?.missingGateCount > 0,
+  'Closure audit expects remaining external gates to be missing until real artifacts are attached.'
+);
 
 const summary = {
   proof: 'screen-plan-closure-audit',
@@ -206,6 +216,7 @@ const summary = {
     'output/screen-plan-proof/live-view-runtime/proof-summary.json',
     'output/screen-plan-proof/live-view-worker-startup/proof-summary.json',
     'output/screen-plan-proof/live-view-relay-cache/proof-summary.json',
+    'output/screen-plan-proof/external-gates/proof-summary.json',
     'output/screen-plan-proof/macos/proof-summary.json',
     'output/screen-plan-proof/linux/proof-summary.json',
     'output/screen-plan-proof/android/proof-summary.json',
@@ -226,6 +237,7 @@ const summary = {
     readinessProofsPresent: missingReadinessProofs.length === 0,
     platformProductGatesRemainBlocked: productBlockedWorkpacks.length >= 4,
     wp34TesseractBaselineClosed: completeRows.includes('34 OCR Tesseract baseline'),
+    externalGatesKeepProductNonClaim: externalGates.assertions.currentBranchMustRemainNonClaim === true,
     noProductCompleteClaim: true,
   },
   nonClaims: [
