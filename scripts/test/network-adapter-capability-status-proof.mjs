@@ -208,7 +208,7 @@ function safeName(value) {
 }
 
 function normalizeCommandOutput(value) {
-  return `${value
+  const lines = value
     .replace(/\r\n/gu, '\n')
     .replace(/\\/gu, '/')
     .replace(/target\/debug\/deps\/[^\s)]+/gu, 'target/debug/deps/<test-binary>')
@@ -217,7 +217,27 @@ function normalizeCommandOutput(value) {
     .replace(/target\(s\) in [^\n]+/gu, 'target(s) in <duration>')
     .replace(/finished in [^\n]+/giu, 'finished in <duration>')
     .replace(/Duration [^\n]+/gu, 'Duration <duration>')
-    .trim()}\n`;
+    .split('\n')
+    .filter((line) => !/^\s+Compiling /u.test(line))
+    .filter((line) => !/^\s+Blocking waiting for file lock on build directory$/u.test(line));
+  return `${stableRustTestLines(lines).join('\n').trim()}\n`;
+}
+
+function stableRustTestLines(lines) {
+  const sortedTestLines = lines.filter(isRustTestLine).sort();
+  let nextTestLine = 0;
+  return lines.map((line) => {
+    if (!isRustTestLine(line)) {
+      return line;
+    }
+    const sortedLine = sortedTestLines[nextTestLine];
+    nextTestLine += 1;
+    return sortedLine;
+  });
+}
+
+function isRustTestLine(line) {
+  return /^test .+ \.\.\. ok$/u.test(line);
 }
 
 function readText(path) {

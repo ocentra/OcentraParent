@@ -148,6 +148,7 @@ packages/parent-domain/src/app-install-purchase-child-device-delivery-readiness-
 packages/parent-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts:1 file has 367 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-external-runtime-delivery-handoff-proof.ts:1 file has 309 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-external-runtime-device-delivery-proof.ts:1 file has 337 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-external-runtime-writer-delivery-blocker-proof.ts:1 file has 353 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-external-runtime-writer-delivery-boundary-proof.ts:1 file has 312 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-external-runtime-writer-readiness-proof.ts:1 file has 323 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-external-runtime-writer-transport-preflight-proof.ts:1 file has 388 lines; crossed 250-line advisory band; maximum is 1000
