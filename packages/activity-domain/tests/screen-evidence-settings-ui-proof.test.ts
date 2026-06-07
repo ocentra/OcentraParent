@@ -11,10 +11,11 @@ describe('screen evidence settings UI proof', () => {
   specifyDisabledIntent();
   specifyObserveOnlyIntent();
   specifyStrictDryRunIntent();
+  specifyApprovedRawRetentionIntent();
 });
 
 function specifyWritableIntentProof() {
-  it('builds disabled, observe-only, and strict dry-run parent setting intents from real schemas', () => {
+  it('builds disabled, observe-only, strict dry-run, and approved raw-retention intents from real schemas', () => {
     const proof = screenEvidenceSettingsWritableUiProof();
 
     expect(ScreenEvidenceSettingsUiProofSchema.safeParse(proof).success).toBe(true);
@@ -29,8 +30,10 @@ function specifyWritableIntentProof() {
       'disabledLocalSummary',
       'observeOnlyLocalSummary',
       'strictDryRunLocalSummary',
+      'approvedRawRetentionLocalTtl',
     ]);
     expect(proof.intents.map((intent) => ScreenAnalysisParentSettingSchema.safeParse(intent.setting).success)).toEqual([
+      true,
       true,
       true,
       true,
@@ -39,7 +42,7 @@ function specifyWritableIntentProof() {
       proof.intents.map(
         (intent) => ScreenEvidenceRemoteBoundarySettingSchema.safeParse(intent.remoteBoundarySetting).success
       )
-    ).toEqual([true, true, true]);
+    ).toEqual([true, true, true, true]);
   });
 }
 
@@ -88,5 +91,20 @@ function specifyStrictDryRunIntent() {
     expect(remoteBoundary?.rawScreenshotRetentionMode).toBe('disabled');
     expect(remoteBoundary?.liveViewMode).toBe('disabled');
     expect(remoteBoundary?.rawScreenshotRemoteUploadEnabled).toBe(false);
+  });
+}
+
+function specifyApprovedRawRetentionIntent() {
+  it('requires approved local short TTL retention to stay local and deletion-bound', () => {
+    const rawRetention = screenEvidenceSettingsWritableUiProof().intents[3]?.setting;
+    const remoteBoundary = screenEvidenceSettingsWritableUiProof().intents[3]?.remoteBoundarySetting;
+
+    expect(rawRetention?.retainRawImage).toBe(true);
+    expect(rawRetention?.temporaryImageTtlSeconds).toBe(120);
+    expect(rawRetention?.deleteAfterSuccess).toBe(true);
+    expect(rawRetention?.deleteAfterExpiry).toBe(true);
+    expect(remoteBoundary?.rawScreenshotRetentionMode).toBe('parentApprovedLocalShortTtl');
+    expect(remoteBoundary?.rawScreenshotRemoteUploadEnabled).toBe(false);
+    expect(remoteBoundary?.liveViewMode).toBe('disabled');
   });
 }

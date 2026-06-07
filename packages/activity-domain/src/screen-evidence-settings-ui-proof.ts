@@ -8,7 +8,12 @@ import { ScreenEvidenceSchemaVersion } from './screen-evidence-primitives';
 const ScreenSettingsUiTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const ScreenEvidenceSettingsUiIntentKeySchema = withParser(
-  Schema.Literal('disabledLocalSummary', 'observeOnlyLocalSummary', 'strictDryRunLocalSummary')
+  Schema.Literal(
+    'disabledLocalSummary',
+    'observeOnlyLocalSummary',
+    'strictDryRunLocalSummary',
+    'approvedRawRetentionLocalTtl'
+  )
 );
 
 export const ScreenEvidenceSettingsUiIntentSchema = withParser(
@@ -41,7 +46,7 @@ export const ScreenEvidenceSettingsUiProofSchema = withParser(
     validationStatusValue: ScreenSettingsUiTextSchema,
     defaultIntentKey: ScreenEvidenceSettingsUiIntentKeySchema,
     intents: Schema.Array(ScreenEvidenceSettingsUiIntentSchema).pipe(
-      Schema.filter((value) => value.length === 3 || 'Expected three parent Screen settings UI intents')
+      Schema.filter((value) => value.length === 4 || 'Expected four parent Screen settings UI intents')
     ),
   })
 );
@@ -74,6 +79,9 @@ const ScreenSettingsUiCopy = {
   strictLabel: 'Enable strict dry-run review',
   strictDetail:
     'One-minute cadence, selected triggers, local OCR, redaction, and policy dry-run become explicit parent intent.',
+  rawRetentionLabel: 'Approve local short-TTL retention',
+  rawRetentionDetail:
+    'Parent-approved local raw screenshot retention uses a short TTL and keeps delete-after-success and delete-after-expiry required.',
 } as const;
 
 const DisabledSetting = ScreenAnalysisParentSettingSchema.parse({
@@ -136,6 +144,15 @@ const StrictDryRunSetting = ScreenAnalysisParentSettingSchema.parse({
   reason: 'parent enabled strict local screen summary dry run',
 });
 
+const ApprovedRawRetentionSetting = ScreenAnalysisParentSettingSchema.parse({
+  ...StrictDryRunSetting,
+  temporaryImageTtlSeconds: 120,
+  retainRawImage: true,
+  changedByParentRef: 'screen-settings-ui-parent-raw-retention-local-ttl',
+  settingVersion: 4,
+  reason: 'parent approved local short TTL raw screenshot retention',
+});
+
 const DisabledRemoteBoundarySetting = ScreenEvidenceRemoteBoundarySettingSchema.parse({
   schemaVersion: ScreenEvidenceSchemaVersion,
   parentSettingRef: 'screen-settings-ui-remote-boundary',
@@ -191,6 +208,12 @@ export function screenEvidenceSettingsWritableUiProof(): ScreenEvidenceSettingsU
         ScreenSettingsUiCopy.strictDetail,
         StrictDryRunSetting
       ),
+      intent(
+        'approvedRawRetentionLocalTtl',
+        ScreenSettingsUiCopy.rawRetentionLabel,
+        ScreenSettingsUiCopy.rawRetentionDetail,
+        ApprovedRawRetentionSetting
+      ),
     ],
   });
 }
@@ -207,11 +230,22 @@ function intent(
     detail,
     setting,
     remoteBoundarySetting: {
-      ...DisabledRemoteBoundarySetting,
+      ...remoteBoundaryForSetting(setting),
       parentSettingRef: setting.changedByParentRef,
       settingVersion: setting.settingVersion,
       changedByParentRef: setting.changedByParentRef,
       changedAt: setting.changedAt,
     },
   };
+}
+
+function remoteBoundaryForSetting(setting: typeof DisabledSetting) {
+  if (setting.retainRawImage) {
+    return ScreenEvidenceRemoteBoundarySettingSchema.parse({
+      ...DisabledRemoteBoundarySetting,
+      rawScreenshotRetentionMode: 'parentApprovedLocalShortTtl',
+      reason: 'parent approved local short TTL raw screenshot retention without raw remote upload',
+    });
+  }
+  return DisabledRemoteBoundarySetting;
 }

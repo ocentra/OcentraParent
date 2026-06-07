@@ -12,10 +12,11 @@
     "portal": 4490
   },
   "persistedStore": {
-    "activeSettingVersion": 3,
+    "activeSettingVersion": 4,
     "revisionCount": 1,
     "auditCount": 1,
-    "retainRawImage": false,
+    "retainRawImage": true,
+    "temporaryImageTtlSeconds": 120,
     "policyUseEnabled": true,
     "auditEventId": "screen-setting-audit-1"
   },
@@ -23,6 +24,8 @@
     "Writable screen settings proof",
     "Save selected screen setting",
     "Refresh persisted screen setting",
+    "Approve local short-TTL retention",
+    "parentApprovedLocalShortTtl",
     "service accepted persisted setting",
     "screen-settings-request-1",
     "screen-setting-audit-1",
@@ -32,7 +35,7 @@
   ],
   "nonClaims": [
     "This proves the real parent Settings route can submit schema-valid screen settings through the Rust service WebSocket command path.",
-    "It proves local JSON persistence and portal-visible service acknowledgement for no-raw-retention strict dry-run settings.",
-    "It does not enable raw screenshot retention, live view, raw remote screenshot upload, broad platform parity, or production OCR/VLM quality."
+    "It proves local JSON persistence and portal-visible service acknowledgement for parent-approved local short-TTL raw screenshot retention.",
+    "It does not enable raw screenshot retention by default, live view, raw remote screenshot upload, broad platform parity, privacy/legal approval, or production OCR/VLM quality."
   ]
 }

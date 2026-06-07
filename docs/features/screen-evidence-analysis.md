@@ -321,16 +321,18 @@ only with explicit parent settings.
   not parent portal form submission, product-complete retention-control UI,
   raw retention enablement, live view, or raw remote upload.
 - `scripts/test/screen-settings-portal-service-command-proof.mjs` now proves
-  the real parent Settings route submits schema-valid screen setting changes
-  through the Rust service WebSocket command path. The proof starts the actual
-  agent and Vite portal, clicks the strict dry-run setting, sends
-  `agent.screen-settings.replace`, renders the accepted service response and
-  audit ref, sends `agent.screen-settings.get`, verifies the persisted strict
-  no-raw-retention JSON store, and captures
+  the real parent Settings route submits the parent-approved local short-TTL raw
+  retention intent through the Rust service WebSocket command path. The proof
+  starts the actual agent and Vite portal, clicks the approved retention
+  setting, sends `agent.screen-settings.replace`, renders the accepted service
+  response and audit ref, sends `agent.screen-settings.get`, verifies the
+  persisted JSON store has `retainRawImage:true` with
+  `temporaryImageTtlSeconds:120`, and captures
   `output/screen-plan-proof/settings-service-command/parent-settings-service-command.png`.
-  This is portal-to-service settings persistence proof; product-complete
-  retention controls, raw retention, live view, raw remote upload, and
-  production OCR/VLM quality remain separate gates.
+  This is portal-to-service settings persistence proof for the local approved
+  short-TTL mode; raw retention still remains disabled by default, raw remote
+  upload remains forbidden, and live view, relay/cache, privacy/legal approval,
+  broad platform parity, and production OCR/VLM quality remain separate gates.
 - `scripts/test/screen-ai-service-cadence-proof.mjs` now proves an explicit
   opt-in Rust service cadence loop on Windows: it opens a real foreground
   browser fixture, records three timed active-window captures through the
@@ -760,7 +762,8 @@ only with explicit parent settings.
 
 ## Current Gap
 
-Product-complete parent retention controls, actual production live-view worker
+Product-complete retention-control rollout beyond the proved parent-approved
+local short-TTL Settings command path, actual production live-view worker
 start/relay-cache transport,
 platform permission prompt proof, physical-device live-view parity, child-agent
 disclosure runtime deployment,

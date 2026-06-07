@@ -179,6 +179,14 @@ const ParentApprovedSummaryBoundarySetting = {
   reason: 'parent approved redacted screen summary export',
 } as const;
 
+const ParentApprovedLocalRawRetentionBoundarySetting = {
+  ...DisabledRemoteBoundarySetting,
+  settingVersion: 4,
+  rawScreenshotRetentionMode: 'parentApprovedLocalShortTtl',
+  changedByParentRef: 'parent-setting-screen-retention-local-ttl-approval',
+  reason: 'parent approved local short TTL raw screenshot retention',
+} as const;
+
 describe('screen evidence retention contracts', () => {
   specifyParentOptInSettings();
   specifyQueueDeletionStates();
@@ -304,6 +312,10 @@ function specifyRemoteBoundaryDefaults() {
     expect(approvedSummary.remoteSummaryMode).toBe('parentApprovedRedactedSummary');
     expect(approvedSummary.remoteSummaryDestinationCustodyState).toBe('parent-owned-export');
     expect(approvedSummary.remoteSummaryRedactedOnly).toBe(true);
+    expect(
+      ScreenEvidenceRemoteBoundarySettingSchema.parse(ParentApprovedLocalRawRetentionBoundarySetting)
+        .rawScreenshotRetentionMode
+    ).toBe('parentApprovedLocalShortTtl');
   });
 }
 
@@ -344,6 +356,12 @@ function specifyRemoteBoundaryRejections() {
         ...DisabledRemoteBoundarySetting,
         remoteSummaryMode: 'disabled',
         parentApprovedRemoteSummary: true,
+      }).success
+    ).toBe(false);
+    expect(
+      ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+        ...ParentApprovedLocalRawRetentionBoundarySetting,
+        rawScreenshotRemoteUploadEnabled: true,
       }).success
     ).toBe(false);
   });

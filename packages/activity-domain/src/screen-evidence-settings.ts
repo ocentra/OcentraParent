@@ -24,6 +24,7 @@ import { ScreenOcrTextRetentionModeSchema } from './screen-ocr-redaction';
 const RequiredFalse = Schema.Literal(false);
 const RequiredTrue = Schema.Literal(true);
 const ScreenDisabledMode = Schema.Literal('disabled');
+const ScreenRawScreenshotRetentionModeSchema = withParser(Schema.Literal('disabled', 'parentApprovedLocalShortTtl'));
 const ScreenRemoteSummaryModeSchema = withParser(Schema.Literal('disabled', 'parentApprovedRedactedSummary'));
 const ApprovedRawRetentionMaxTtlSeconds = 120;
 
@@ -129,7 +130,7 @@ export const ScreenEvidenceRemoteBoundarySettingSchema = withParser(
     schemaVersion: Schema.Literal(ScreenEvidenceSchemaVersion),
     parentSettingRef: ScreenEvidenceParentSettingRefSchema,
     settingVersion: ScreenEvidenceSettingVersionSchema,
-    rawScreenshotRetentionMode: ScreenDisabledMode,
+    rawScreenshotRetentionMode: ScreenRawScreenshotRetentionModeSchema,
     liveViewMode: ScreenDisabledMode,
     rawScreenshotRemoteUploadEnabled: RequiredFalse,
     remoteSummaryMode: ScreenRemoteSummaryModeSchema,
@@ -156,6 +157,12 @@ export const ScreenEvidenceRemoteBoundarySettingSchema = withParser(
           value.remoteSummaryApprovalRef === null &&
           value.remoteSummaryDestinationCustodyState === 'unavailable') ||
         'Expected disabled remote screen summaries to have no approval ref or destination custody'
+    ),
+    Schema.filter(
+      (value) =>
+        value.rawScreenshotRetentionMode !== 'parentApprovedLocalShortTtl' ||
+        (!value.rawScreenshotRemoteUploadEnabled && value.liveViewMode === 'disabled') ||
+        'Expected local raw screenshot retention mode to keep raw remote upload and live view disabled'
     )
   )
 );

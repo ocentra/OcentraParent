@@ -84,7 +84,9 @@ try {
   page = await browser.newPage({ viewport: { width: 1600, height: 1200 } });
   await page.goto(`http://127.0.0.1:${portalPort}/#/settings-rules`, { waitUntil: 'domcontentloaded' });
   await page.getByText('Writable screen settings proof').waitFor({ timeout: 20000 });
-  await page.getByRole('button', { name: 'Enable strict dry-run review' }).click();
+  await page.getByRole('button', { name: 'Approve local short-TTL retention' }).click();
+  await expectText('parentApprovedLocalShortTtl');
+  await expectText('120');
   await page.getByRole('button', { name: 'Save selected screen setting' }).click();
   await expectText('service accepted persisted setting');
   await expectText('screen-settings-request-1');
@@ -94,8 +96,12 @@ try {
   await expectText('screen-settings-request-2');
   await expectText('Screen settings state reported.');
   const store = JSON.parse(await readFile(screenSettingsStorePath, 'utf8'));
-  if (store.active_setting_version !== 3 || store.settings?.[0]?.setting?.retainRawImage !== false) {
-    throw new Error('Screen settings store did not persist strict no-raw-retention setting.');
+  if (
+    store.active_setting_version !== 4 ||
+    store.settings?.[0]?.setting?.retainRawImage !== true ||
+    store.settings?.[0]?.setting?.temporaryImageTtlSeconds !== 120
+  ) {
+    throw new Error('Screen settings store did not persist approved local short-TTL raw-retention setting.');
   }
   await page.screenshot({ path: artifactScreenshotPath, fullPage: true });
   await writeFile(artifactSummaryPath, `${JSON.stringify(proofSummary(store), null, 2)}\n`);
@@ -130,6 +136,7 @@ function proofSummary(store) {
       revisionCount: store.settings.length,
       auditCount: store.audit_events.length,
       retainRawImage: store.settings[0].setting.retainRawImage,
+      temporaryImageTtlSeconds: store.settings[0].setting.temporaryImageTtlSeconds,
       policyUseEnabled: store.settings[0].setting.policyUseEnabled,
       auditEventId: store.audit_events[0].audit_event_id,
     },
@@ -137,6 +144,8 @@ function proofSummary(store) {
       'Writable screen settings proof',
       'Save selected screen setting',
       'Refresh persisted screen setting',
+      'Approve local short-TTL retention',
+      'parentApprovedLocalShortTtl',
       'service accepted persisted setting',
       'screen-settings-request-1',
       'screen-setting-audit-1',
@@ -146,8 +155,8 @@ function proofSummary(store) {
     ],
     nonClaims: [
       'This proves the real parent Settings route can submit schema-valid screen settings through the Rust service WebSocket command path.',
-      'It proves local JSON persistence and portal-visible service acknowledgement for no-raw-retention strict dry-run settings.',
-      'It does not enable raw screenshot retention, live view, raw remote screenshot upload, broad platform parity, or production OCR/VLM quality.',
+      'It proves local JSON persistence and portal-visible service acknowledgement for parent-approved local short-TTL raw screenshot retention.',
+      'It does not enable raw screenshot retention by default, live view, raw remote screenshot upload, broad platform parity, privacy/legal approval, or production OCR/VLM quality.',
     ],
   };
 }
