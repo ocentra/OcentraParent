@@ -187,6 +187,14 @@ gap remains real runtime writer delivery, provider/store execution, child
 delivery, portal approval/report UI, and platform adapter evidence before any
 app-install product claim can be upgraded.
 
+Provider/store platform evidence proof now links provider/store execution
+preflight rows with Windows package-source runtime handoff rows and records the
+exact missing provider/store, platform adapter, and child-device artifacts for
+Windows, macOS, Linux, Android, and iOS before any product claim. Provider/store
+execution, store integration, production platform adapters, runtime writer
+delivery, child-device delivery, portal approval/report UI, app blocking, child
+activity data, and hosted custody remain unclaimed.
+
 ## Multi-Device, Remote, And Platforms
 
 | Capability                       | Status                        | Expectation docs                                                                                                                | Current proof                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Next gap                                                                                                                                                                                                                                               |

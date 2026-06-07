@@ -434,6 +434,18 @@ generic app blocking covers this concern.
   Windows package-source runtime handoff rows that record sanitized command
   probe status and package-source evidence refs while non-Windows platforms stay
   manual-required, unavailable, or blocked-before-claim.
+- `packages/parent-domain/src/app-install-purchase-provider-store-platform-evidence-proof.ts`
+  now links provider/store execution preflight rows with Windows package-source
+  runtime handoff rows and records exact missing provider/store, platform
+  adapter, and child-device artifacts before any product claim while preserving
+  no provider/store execution, store integration, production platform adapters,
+  runtime writer delivery, child delivery, portal UI, app blocking, child
+  activity data, or hosted custody claims.
+- `scripts/test/app-install-purchase-provider-store-platform-evidence-proof.mjs`
+  records that provider/store platform evidence proof under
+  `test-results/app-install-purchase-provider-store-platform-evidence-proof/proof.json`
+  when run, validates the public parent-domain package export, and records the
+  product checklist row update.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -894,6 +906,13 @@ Ocentra-hosted family data custody.
       without runtime writer execution/delivery, provider/store execution,
       portal approval/report UI, child delivery, app blocking, child activity
       data, or hosted custody claims.
+- [x] Provider/store platform evidence proof linking provider/store execution
+      preflight rows with Windows package-source runtime handoff rows and
+      recording exact missing provider/store, platform adapter, and child-device
+      artifacts before any product claim without provider/store execution, store
+      integration, production platform adapters, runtime writer delivery, child
+      delivery, portal UI, app blocking, child activity data, or hosted custody
+      claims.
 
 ## Next AI Instructions
 

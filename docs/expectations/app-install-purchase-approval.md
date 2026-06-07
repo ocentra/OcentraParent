@@ -191,6 +191,15 @@ Expected contract families:
   interception, production platform adapter implementation, child-device
   delivery, portal approval/report UI, app blocking, child activity data
   custody, or Ocentra-hosted family data custody.
+- Provider/store platform evidence proof rows link provider/store execution
+  preflight rows with Windows package-source runtime handoff rows, record exact
+  missing provider/store, platform adapter, and child-device artifacts for each
+  platform/store row, and keep Windows/macOS manual-required, Linux unavailable,
+  and Android/iOS blocked-before-claim without claiming provider API execution,
+  store integration, platform interception, production platform adapter
+  implementation, runtime writer delivery, child-device delivery, portal
+  approval/report UI, app blocking, child activity data custody, or
+  Ocentra-hosted family data custody.
 - Provider/store report status runtime proof rows link provider/store execution
   readiness rows to parent-owned runtime report writer receipts so store
   report statuses can be ready, manual-required, or unavailable without
@@ -823,6 +832,11 @@ Expected contract families:
   implementation, child-device delivery, portal approval/report UI, app
   blocking, child activity custody, Ocentra-hosted family data custody, or proof
   that Windows install/purchase product claims are ready.
+- Do not treat provider/store platform evidence proof refs as provider/store
+  execution, store integration, production platform adapter execution, runtime
+  writer delivery, child-device delivery, portal approval/report UI, app
+  blocking, child activity custody, Ocentra-hosted family data custody, or proof
+  that app-install product claims are ready.
 
 ## Done Signal
 

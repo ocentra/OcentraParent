@@ -101,6 +101,13 @@ behavior belongs behind platform adapters and must be proved per platform.
   delivery, Microsoft Store execution, provider credentials, store integration,
   production adapter implementation, child-device delivery, app blocking, or
   product-claim approval.
+- Windows app-install provider/store platform evidence proof may combine
+  provider/store execution preflight rows with package-source runtime handoff
+  rows to name missing Microsoft Store credential, provider response, production
+  platform adapter, platform policy, and child-device delivery receipt artifacts.
+  It still does not prove provider/store execution, store integration,
+  production adapter execution, runtime writer delivery, child-device delivery,
+  app blocking, or product-claim approval.
 - Validation needs real Windows adapter tests or guarded integration/manual evidence for each claimed OS capability, plus contract tests for every event shape crossing TypeScript and Rust.
 
 ## macOS

@@ -1,0 +1,595 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-07T13:45:00.000Z",
+  "commitMetadataState": "omitted-for-deterministic-proof-artifact",
+  "proofMode": "app-install-purchase-provider-store-platform-evidence",
+  "baseMainState": "after-pr514-and-pr520-merged",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-provider-store-platform-evidence-proof.test.ts",
+      "exitCode": 0
+    }
+  ],
+  "packageExportState": "validated-via-public-parent-domain-subpath-export",
+  "checklistState": "updated-app-install-purchase-approval-row",
+  "evidence": {
+    "providerStorePlatformEvidenceContract": "packages/parent-domain/src/app-install-purchase-provider-store-platform-evidence-proof.ts",
+    "sourceProviderStorePreflightContract": "packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts",
+    "sourceWindowsPackageSourceRuntimeHandoffContract": "packages/parent-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts",
+    "contractTest": "packages/parent-domain/tests/app-install-purchase-provider-store-platform-evidence-proof.test.ts",
+    "hostEvidenceArtifact": "test-results\\app-install-purchase-provider-store-platform-evidence-proof\\windows-host-evidence.json",
+    "featureDoc": "docs/features/app-install-purchase-approval.md",
+    "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
+    "platformExpectationDoc": "docs/expectations/platforms.md",
+    "checklistDoc": "docs/product-capability-checklist.md",
+    "packageReadme": "packages/parent-domain/README.md",
+    "packageExport": "@ocentra-parent/parent-domain/app-install-purchase-provider-store-platform-evidence-proof",
+    "output": "test-results\\app-install-purchase-provider-store-platform-evidence-proof\\proof.json"
+  },
+  "windowsHostEvidenceSummary": {
+    "artifactRef": "windows-package-source-host-evidence-get-appxpackage",
+    "hostPlatform": "win32",
+    "commandName": "Get-AppxPackage",
+    "commandAvailable": true,
+    "commandExitCode": 0,
+    "evidenceSummary": "Get-AppxPackage available; sanitized Microsoft Store package-source probe returned {\"Name\":\"Microsoft.WindowsStore\",\"Publisher\":\"CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US\",\"SignatureKind\":3}"
+  },
+  "providerStorePlatformEvidenceSummary": {
+    "providerStorePlatformEvidenceRows": 5,
+    "manualRequiredRows": 2,
+    "platformUnavailableRows": 1,
+    "blockedBeforeClaimRows": 2,
+    "providerExecutedRows": 0,
+    "platformAdapterImplementedRows": 0,
+    "childDeliveredRows": 0
+  },
+  "providerStorePlatformEvidenceRows": [
+    {
+      "schemaVersion": "app-install-purchase-provider-store-platform-evidence-proof",
+      "providerStorePlatformEvidenceRowId": "provider-store-platform-evidence-windows-microsoft-store",
+      "sourceProviderStoreExecutionPreflightProofVersion": "app-install-purchase-provider-store-execution-preflight-proof",
+      "sourceProviderStoreExecutionPreflightRowId": "provider-store-execution-preflight-windows-microsoft-store",
+      "sourceProviderStoreExecutionPreflightState": "preflight-ready",
+      "sourceWindowsPackageSourceRuntimeHandoffProofVersion": "app-install-purchase-windows-package-source-adapter-evidence",
+      "sourceWindowsPackageSourceRuntimeHandoffRowId": "windows-package-source-runtime-handoff-windows-microsoft-store",
+      "sourceRuntimeHandoffState": "windows-runtime-handoff-ready",
+      "platform": "windows",
+      "storeSurface": "microsoft-store",
+      "providerStorePlatformEvidenceState": "manual-provider-store-platform-evidence-required",
+      "packageSourceEvidenceRefs": [
+        "windows-package-source-host-evidence-get-appxpackage"
+      ],
+      "providerStorePreflightRefs": [
+        "Microsoft Store family purchase or app-request API proof",
+        "Windows child-device package source artifact with parent-visible request id",
+        "limitation report artifact before product support claim",
+        "Windows package family or app identity artifact",
+        "installer/source channel artifact linked to the child request",
+        "parent-visible limitation report before product support claim",
+        "windows-microsoft-store-approved-api-proof-ref",
+        "platform-adapter-boundary-windows-microsoft-store",
+        "package-source-capture-status-windows-microsoft-store"
+      ],
+      "missingProviderStoreArtifactRefs": [
+        "missing-microsoft-store-provider-credential-proof",
+        "missing-microsoft-store-provider-api-response-proof",
+        "missing-billing-provider-contact-proof"
+      ],
+      "missingPlatformArtifactRefs": [
+        "missing-windows-production-platform-adapter-execution-proof",
+        "missing-windows-platform-interception-policy-proof"
+      ],
+      "missingChildDeviceArtifactRefs": [
+        "missing-windows-child-device-delivery-receipt-proof"
+      ],
+      "requiredPortalTestRefs": [
+        "portal-approval-report-test-windows-microsoft-store",
+        "portal-report-test-windows-microsoft-store"
+      ],
+      "blockerRefs": [
+        "Microsoft Store family purchase or app-request API proof",
+        "Windows child-device package source artifact with parent-visible request id",
+        "limitation report artifact before product support claim",
+        "Windows package family or app identity artifact",
+        "installer/source channel artifact linked to the child request",
+        "parent-visible limitation report before product support claim",
+        "windows-microsoft-store-approved-api-proof-ref",
+        "platform-adapter-boundary-windows-microsoft-store",
+        "package-source-capture-status-windows-microsoft-store",
+        "windows-host-package-source-proof",
+        "windows-guarded-adapter-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable",
+        "provider-store-api-execution-proof-windows-microsoft-store",
+        "platform-adapter-proof-windows-microsoft-store",
+        "missing-microsoft-store-provider-credential-proof",
+        "missing-microsoft-store-provider-api-response-proof",
+        "missing-billing-provider-contact-proof",
+        "missing-windows-production-platform-adapter-execution-proof",
+        "missing-windows-platform-interception-policy-proof",
+        "missing-windows-child-device-delivery-receipt-proof"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "app-install-purchase-request-audit-report-ref",
+        "app-install-purchase-decision-audit-report-ref",
+        "app-install-purchase-child-facing-report-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "package-source-adapter-execution-windows-microsoft-store-audit-ref"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "billingProviderContactClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "productionPlatformAdapterClaim": "not-implemented",
+      "runtimeWriterExecutionClaim": "not-executed",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "provider store platform evidence proof boundary only; links provider store execution preflight rows with Windows package-source runtime handoff rows and records exact missing provider store platform and child-device artifacts before any product claim no Google Play execution no Apple App Store execution no Microsoft Store execution no billing provider contact no provider API execution no store integration no platform interception no production platform adapter no runtime writer execution no runtime writer delivery no child-device delivery no runtime report delivery no portal approval UI no portal report UI no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-07T13:45:00.000Z"
+    },
+    {
+      "schemaVersion": "app-install-purchase-provider-store-platform-evidence-proof",
+      "providerStorePlatformEvidenceRowId": "provider-store-platform-evidence-macos-mac-app-store",
+      "sourceProviderStoreExecutionPreflightProofVersion": "app-install-purchase-provider-store-execution-preflight-proof",
+      "sourceProviderStoreExecutionPreflightRowId": "provider-store-execution-preflight-macos-mac-app-store",
+      "sourceProviderStoreExecutionPreflightState": "manual-provider-proof-required",
+      "sourceWindowsPackageSourceRuntimeHandoffProofVersion": "app-install-purchase-windows-package-source-adapter-evidence",
+      "sourceWindowsPackageSourceRuntimeHandoffRowId": "windows-package-source-runtime-handoff-macos-mac-app-store",
+      "sourceRuntimeHandoffState": "manual-runtime-handoff-required",
+      "platform": "macos",
+      "storeSurface": "mac-app-store",
+      "providerStorePlatformEvidenceState": "manual-provider-store-platform-evidence-required",
+      "packageSourceEvidenceRefs": [
+        "platform-adapter-proof-macos-mac-app-store",
+        "macos-signing-receipt-proof",
+        "macos-store-source-manual-proof",
+        "macos-app-install-adapter-manual-proof",
+        "macos-receipt-signing-adapter-proof"
+      ],
+      "providerStorePreflightRefs": [
+        "Mac App Store listing source artifact",
+        "macOS child-device package or receipt artifact with parent-visible request id",
+        "limitation report artifact before product support claim",
+        "macOS bundle identifier or receipt artifact",
+        "installer/source channel artifact linked to the child request",
+        "parent-visible limitation report before product support claim",
+        "macos-mac-app-store-approved-api-proof-ref",
+        "platform-adapter-boundary-macos-mac-app-store",
+        "package-source-capture-status-macos-mac-app-store"
+      ],
+      "missingProviderStoreArtifactRefs": [
+        "missing-mac-app-store-credential-proof",
+        "missing-mac-app-store-receipt-response-proof",
+        "missing-billing-provider-contact-proof"
+      ],
+      "missingPlatformArtifactRefs": [
+        "missing-macos-signing-receipt-entitlement-proof",
+        "missing-macos-platform-adapter-execution-proof"
+      ],
+      "missingChildDeviceArtifactRefs": [
+        "missing-macos-child-device-delivery-receipt-proof"
+      ],
+      "requiredPortalTestRefs": [
+        "portal-approval-report-test-macos-mac-app-store",
+        "portal-report-test-macos-mac-app-store"
+      ],
+      "blockerRefs": [
+        "Mac App Store listing source artifact",
+        "macOS child-device package or receipt artifact with parent-visible request id",
+        "limitation report artifact before product support claim",
+        "macOS bundle identifier or receipt artifact",
+        "installer/source channel artifact linked to the child request",
+        "parent-visible limitation report before product support claim",
+        "macos-mac-app-store-approved-api-proof-ref",
+        "platform-adapter-boundary-macos-mac-app-store",
+        "package-source-capture-status-macos-mac-app-store",
+        "macos-signing-receipt-proof",
+        "macos-store-source-manual-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable",
+        "provider-store-api-execution-proof-macos-mac-app-store",
+        "platform-adapter-proof-macos-mac-app-store",
+        "missing-mac-app-store-credential-proof",
+        "missing-mac-app-store-receipt-response-proof",
+        "missing-billing-provider-contact-proof",
+        "missing-macos-signing-receipt-entitlement-proof",
+        "missing-macos-platform-adapter-execution-proof",
+        "missing-macos-child-device-delivery-receipt-proof"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "app-install-purchase-request-audit-report-ref",
+        "app-install-purchase-decision-audit-report-ref",
+        "app-install-purchase-child-facing-report-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "package-source-adapter-execution-macos-mac-app-store-audit-ref"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "billingProviderContactClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "productionPlatformAdapterClaim": "not-implemented",
+      "runtimeWriterExecutionClaim": "not-executed",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "provider store platform evidence proof boundary only; links provider store execution preflight rows with Windows package-source runtime handoff rows and records exact missing provider store platform and child-device artifacts before any product claim no Google Play execution no Apple App Store execution no Microsoft Store execution no billing provider contact no provider API execution no store integration no platform interception no production platform adapter no runtime writer execution no runtime writer delivery no child-device delivery no runtime report delivery no portal approval UI no portal report UI no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-07T13:45:00.000Z"
+    },
+    {
+      "schemaVersion": "app-install-purchase-provider-store-platform-evidence-proof",
+      "providerStorePlatformEvidenceRowId": "provider-store-platform-evidence-linux-linux-package-manager",
+      "sourceProviderStoreExecutionPreflightProofVersion": "app-install-purchase-provider-store-execution-preflight-proof",
+      "sourceProviderStoreExecutionPreflightRowId": "provider-store-execution-preflight-linux-linux-package-manager",
+      "sourceProviderStoreExecutionPreflightState": "provider-unavailable",
+      "sourceWindowsPackageSourceRuntimeHandoffProofVersion": "app-install-purchase-windows-package-source-adapter-evidence",
+      "sourceWindowsPackageSourceRuntimeHandoffRowId": "windows-package-source-runtime-handoff-linux-linux-package-manager",
+      "sourceRuntimeHandoffState": "platform-unavailable",
+      "platform": "linux",
+      "storeSurface": "linux-package-manager",
+      "providerStorePlatformEvidenceState": "platform-unavailable",
+      "packageSourceEvidenceRefs": [
+        "platform-adapter-proof-linux-linux-package-manager",
+        "linux-package-manager-source-path-proof",
+        "linux-package-manager-source-adapter-proof"
+      ],
+      "providerStorePreflightRefs": [
+        "target distro package-manager metadata policy",
+        "Linux child-device package source artifact with parent-visible request id",
+        "limitation report artifact before product support claim",
+        "target distro package-manager record",
+        "installer/source channel artifact linked to the child request",
+        "parent-visible limitation report before product support claim",
+        "linux-linux-package-manager-approved-api-proof-ref",
+        "platform-adapter-boundary-linux-linux-package-manager",
+        "package-source-capture-status-linux-linux-package-manager"
+      ],
+      "missingProviderStoreArtifactRefs": [
+        "missing-linux-package-manager-provider-proof"
+      ],
+      "missingPlatformArtifactRefs": [
+        "missing-tested-linux-distro-package-manager-source-proof"
+      ],
+      "missingChildDeviceArtifactRefs": [
+        "missing-linux-child-device-delivery-receipt-proof"
+      ],
+      "requiredPortalTestRefs": [
+        "portal-approval-report-test-linux-linux-package-manager",
+        "portal-report-test-linux-linux-package-manager"
+      ],
+      "blockerRefs": [
+        "target distro package-manager metadata policy",
+        "Linux child-device package source artifact with parent-visible request id",
+        "limitation report artifact before product support claim",
+        "target distro package-manager record",
+        "installer/source channel artifact linked to the child request",
+        "parent-visible limitation report before product support claim",
+        "linux-linux-package-manager-approved-api-proof-ref",
+        "platform-adapter-boundary-linux-linux-package-manager",
+        "package-source-capture-status-linux-linux-package-manager",
+        "linux-package-manager-source-path-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable",
+        "provider-store-api-execution-proof-linux-linux-package-manager",
+        "platform-adapter-proof-linux-linux-package-manager",
+        "missing-linux-package-manager-provider-proof",
+        "missing-tested-linux-distro-package-manager-source-proof",
+        "missing-linux-child-device-delivery-receipt-proof"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "app-install-purchase-request-audit-report-ref",
+        "app-install-purchase-decision-audit-report-ref",
+        "app-install-purchase-child-facing-report-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "package-source-adapter-execution-linux-linux-package-manager-audit-ref"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "billingProviderContactClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "productionPlatformAdapterClaim": "not-implemented",
+      "runtimeWriterExecutionClaim": "not-executed",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "provider store platform evidence proof boundary only; links provider store execution preflight rows with Windows package-source runtime handoff rows and records exact missing provider store platform and child-device artifacts before any product claim no Google Play execution no Apple App Store execution no Microsoft Store execution no billing provider contact no provider API execution no store integration no platform interception no production platform adapter no runtime writer execution no runtime writer delivery no child-device delivery no runtime report delivery no portal approval UI no portal report UI no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-07T13:45:00.000Z"
+    },
+    {
+      "schemaVersion": "app-install-purchase-provider-store-platform-evidence-proof",
+      "providerStorePlatformEvidenceRowId": "provider-store-platform-evidence-android-google-play",
+      "sourceProviderStoreExecutionPreflightProofVersion": "app-install-purchase-provider-store-execution-preflight-proof",
+      "sourceProviderStoreExecutionPreflightRowId": "provider-store-execution-preflight-android-google-play",
+      "sourceProviderStoreExecutionPreflightState": "manual-provider-proof-required",
+      "sourceWindowsPackageSourceRuntimeHandoffProofVersion": "app-install-purchase-windows-package-source-adapter-evidence",
+      "sourceWindowsPackageSourceRuntimeHandoffRowId": "windows-package-source-runtime-handoff-android-google-play",
+      "sourceRuntimeHandoffState": "blocked-before-claim",
+      "platform": "android",
+      "storeSurface": "google-play",
+      "providerStorePlatformEvidenceState": "blocked-before-claim",
+      "packageSourceEvidenceRefs": [
+        "platform-adapter-proof-android-google-play",
+        "android-device-owner-or-managed-profile-proof",
+        "google-play-policy-review-proof",
+        "android-device-owner-managed-profile-adapter-proof",
+        "google-play-policy-adapter-proof"
+      ],
+      "providerStorePreflightRefs": [
+        "Google Play approved API or managed-family policy proof",
+        "Android child-device package source artifact with parent-visible request id",
+        "limitation report artifact before product support claim",
+        "Android package name and installer source artifact",
+        "signing certificate or Play source artifact linked to the child request",
+        "real device or managed-profile proof before product support claim",
+        "android-google-play-approved-api-proof-ref",
+        "platform-adapter-boundary-android-google-play",
+        "package-source-capture-status-android-google-play"
+      ],
+      "missingProviderStoreArtifactRefs": [
+        "missing-google-play-api-policy-proof",
+        "missing-google-play-provider-response-proof"
+      ],
+      "missingPlatformArtifactRefs": [
+        "missing-android-device-owner-managed-profile-proof",
+        "missing-android-platform-adapter-execution-proof"
+      ],
+      "missingChildDeviceArtifactRefs": [
+        "missing-android-child-device-delivery-receipt-proof"
+      ],
+      "requiredPortalTestRefs": [
+        "portal-approval-report-test-android-google-play",
+        "portal-report-test-android-google-play"
+      ],
+      "blockerRefs": [
+        "Google Play approved API or managed-family policy proof",
+        "Android child-device package source artifact with parent-visible request id",
+        "limitation report artifact before product support claim",
+        "Android package name and installer source artifact",
+        "signing certificate or Play source artifact linked to the child request",
+        "real device or managed-profile proof before product support claim",
+        "android-google-play-approved-api-proof-ref",
+        "platform-adapter-boundary-android-google-play",
+        "package-source-capture-status-android-google-play",
+        "android-device-owner-or-managed-profile-proof",
+        "google-play-policy-review-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable",
+        "provider-store-api-execution-proof-android-google-play",
+        "platform-adapter-proof-android-google-play",
+        "missing-google-play-api-policy-proof",
+        "missing-google-play-provider-response-proof",
+        "missing-android-device-owner-managed-profile-proof",
+        "missing-android-platform-adapter-execution-proof",
+        "missing-android-child-device-delivery-receipt-proof"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "app-install-purchase-request-audit-report-ref",
+        "app-install-purchase-decision-audit-report-ref",
+        "app-install-purchase-child-facing-report-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "package-source-adapter-execution-android-google-play-audit-ref"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "billingProviderContactClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "productionPlatformAdapterClaim": "not-implemented",
+      "runtimeWriterExecutionClaim": "not-executed",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "provider store platform evidence proof boundary only; links provider store execution preflight rows with Windows package-source runtime handoff rows and records exact missing provider store platform and child-device artifacts before any product claim no Google Play execution no Apple App Store execution no Microsoft Store execution no billing provider contact no provider API execution no store integration no platform interception no production platform adapter no runtime writer execution no runtime writer delivery no child-device delivery no runtime report delivery no portal approval UI no portal report UI no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-07T13:45:00.000Z"
+    },
+    {
+      "schemaVersion": "app-install-purchase-provider-store-platform-evidence-proof",
+      "providerStorePlatformEvidenceRowId": "provider-store-platform-evidence-ios-apple-app-store",
+      "sourceProviderStoreExecutionPreflightProofVersion": "app-install-purchase-provider-store-execution-preflight-proof",
+      "sourceProviderStoreExecutionPreflightRowId": "provider-store-execution-preflight-ios-apple-app-store",
+      "sourceProviderStoreExecutionPreflightState": "manual-provider-proof-required",
+      "sourceWindowsPackageSourceRuntimeHandoffProofVersion": "app-install-purchase-windows-package-source-adapter-evidence",
+      "sourceWindowsPackageSourceRuntimeHandoffRowId": "windows-package-source-runtime-handoff-ios-apple-app-store",
+      "sourceRuntimeHandoffState": "blocked-before-claim",
+      "platform": "ios",
+      "storeSurface": "apple-app-store",
+      "providerStorePlatformEvidenceState": "blocked-before-claim",
+      "packageSourceEvidenceRefs": [
+        "platform-adapter-proof-ios-apple-app-store",
+        "ios-family-controls-entitlement-proof",
+        "apple-review-proof",
+        "ios-family-controls-adapter-entitlement-proof",
+        "apple-review-platform-adapter-proof"
+      ],
+      "providerStorePreflightRefs": [
+        "Apple App Store or Family Controls entitlement proof",
+        "iOS child-device app source artifact with parent-visible request id",
+        "limitation report artifact before product support claim",
+        "iOS bundle identifier and App Store source artifact",
+        "Family Controls or Screen Time entitlement artifact linked to the child request",
+        "real device or TestFlight proof before product support claim",
+        "ios-apple-app-store-approved-api-proof-ref",
+        "platform-adapter-boundary-ios-apple-app-store",
+        "package-source-capture-status-ios-apple-app-store"
+      ],
+      "missingProviderStoreArtifactRefs": [
+        "missing-apple-app-store-family-controls-evidence-proof",
+        "missing-apple-review-proof"
+      ],
+      "missingPlatformArtifactRefs": [
+        "missing-ios-family-controls-entitlement-proof",
+        "missing-ios-platform-adapter-execution-proof"
+      ],
+      "missingChildDeviceArtifactRefs": [
+        "missing-ios-child-device-delivery-receipt-proof"
+      ],
+      "requiredPortalTestRefs": [
+        "portal-approval-report-test-ios-apple-app-store",
+        "portal-report-test-ios-apple-app-store"
+      ],
+      "blockerRefs": [
+        "Apple App Store or Family Controls entitlement proof",
+        "iOS child-device app source artifact with parent-visible request id",
+        "limitation report artifact before product support claim",
+        "iOS bundle identifier and App Store source artifact",
+        "Family Controls or Screen Time entitlement artifact linked to the child request",
+        "real device or TestFlight proof before product support claim",
+        "ios-apple-app-store-approved-api-proof-ref",
+        "platform-adapter-boundary-ios-apple-app-store",
+        "package-source-capture-status-ios-apple-app-store",
+        "ios-family-controls-entitlement-proof",
+        "apple-review-proof",
+        "app-install-limitation-summary-ready",
+        "app-install-limitation-summary-manual-required",
+        "app-install-limitation-summary-unavailable",
+        "provider-store-api-execution-proof-ios-apple-app-store",
+        "platform-adapter-proof-ios-apple-app-store",
+        "missing-apple-app-store-family-controls-evidence-proof",
+        "missing-apple-review-proof",
+        "missing-ios-family-controls-entitlement-proof",
+        "missing-ios-platform-adapter-execution-proof",
+        "missing-ios-child-device-delivery-receipt-proof"
+      ],
+      "auditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "app-install-purchase-request-audit-report-ref",
+        "app-install-purchase-decision-audit-report-ref",
+        "app-install-purchase-child-facing-report-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "package-source-adapter-execution-ios-apple-app-store-audit-ref"
+      ],
+      "reportRuntimeRefs": [
+        "parent-owned-storage-report-output-ref",
+        "app-install-purchase-platform-limitation-report-ref",
+        "app-install-report-runtime-request-audit-history",
+        "app-install-report-runtime-parent-decision-audit-history",
+        "app-install-report-runtime-child-facing-state-report",
+        "app-install-report-runtime-platform-limitation-report"
+      ],
+      "productClaimApprovalClaim": "not-claimed",
+      "googlePlayExecutionClaim": "not-executed",
+      "appleAppStoreExecutionClaim": "not-executed",
+      "microsoftStoreExecutionClaim": "not-executed",
+      "billingProviderContactClaim": "not-executed",
+      "providerApiExecutionClaim": "not-executed",
+      "storeIntegrationClaim": "not-claimed",
+      "platformInterceptionClaim": "not-claimed",
+      "productionPlatformAdapterClaim": "not-implemented",
+      "runtimeWriterExecutionClaim": "not-executed",
+      "runtimeWriterDeliveryClaim": "not-delivered",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "runtimeReportDeliveryClaim": "not-delivered",
+      "portalApprovalUiClaim": "not-claimed",
+      "portalReportUiClaim": "not-claimed",
+      "appBlockingClaim": "not-claimed",
+      "childDataCustody": "no-child-activity-data",
+      "ocentraHostedFamilyDataCustodyClaim": "not-claimed",
+      "claimBoundary": "provider store platform evidence proof boundary only; links provider store execution preflight rows with Windows package-source runtime handoff rows and records exact missing provider store platform and child-device artifacts before any product claim no Google Play execution no Apple App Store execution no Microsoft Store execution no billing provider contact no provider API execution no store integration no platform interception no production platform adapter no runtime writer execution no runtime writer delivery no child-device delivery no runtime report delivery no portal approval UI no portal report UI no app blocking no child activity data no Ocentra-hosted family data custody",
+      "evaluatedAt": "2026-06-07T13:45:00.000Z"
+    }
+  ],
+  "nonClaims": [
+    "no-product-claim-approval",
+    "no-google-play-execution",
+    "no-apple-app-store-execution",
+    "no-microsoft-store-execution",
+    "no-billing-provider-contact",
+    "no-provider-api-execution",
+    "no-store-integration",
+    "no-platform-interception",
+    "no-production-platform-adapter",
+    "no-runtime-writer-execution",
+    "no-runtime-writer-delivery",
+    "no-child-device-delivery",
+    "no-runtime-report-delivery",
+    "no-portal-approval-ui",
+    "no-portal-report-ui",
+    "no-app-blocking",
+    "no-child-activity-data",
+    "no-ocentra-hosted-family-data-custody"
+  ],
+  "knownGaps": [
+    "Provider/store platform evidence rows are manual or blocked proof rows only; no Google Play Apple App Store Microsoft Store provider API execution or billing provider contact is implemented.",
+    "Windows package-source runtime handoff can attach sanitized local package-source evidence, but Microsoft Store credential provider response platform adapter and child-device delivery artifacts remain missing.",
+    "macOS remains manual-required, Linux is unavailable, and Android/iOS stay blocked-before-claim until store/provider credentials platform adapter evidence and child-device delivery proof exist."
+  ]
+}
