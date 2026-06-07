@@ -113,6 +113,10 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
 - Refreshed tracking product-readiness closure proof also consumes the
   notification preference status handoff gate:
   `54-notification-preference-status-handoff-proof.json`
+- Refreshed tracking product-readiness closure proof also consumes the full
+  product UI runtime artifact gate and production worker runtime artifact gate:
+  `59-full-product-ui-runtime-artifact-gate-proof.json`,
+  `58-production-worker-runtime-artifact-gate-proof.json`
 - Tracking escalation-runtime readiness blocker proof:
   `53-escalation-runtime-readiness-blocker-proof.json`
 - Tracking notification preference status handoff proof:

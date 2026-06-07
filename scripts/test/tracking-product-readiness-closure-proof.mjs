@@ -79,8 +79,16 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/56-full-product-ui-readiness-blocker-proof.json'
   ),
   sourceProof(
+    'full-product-ui-runtime-artifact-gate',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/59-full-product-ui-runtime-artifact-gate-proof.json'
+  ),
+  sourceProof(
     'production-durable-workers-readiness-blocker',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/57-production-durable-workers-readiness-blocker-proof.json'
+  ),
+  sourceProof(
+    'production-worker-runtime-artifact-gate',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/58-production-worker-runtime-artifact-gate-proof.json'
   ),
   sourceProof(
     'retention-product-readiness-blocker',

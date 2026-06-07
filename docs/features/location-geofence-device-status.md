@@ -259,8 +259,9 @@ expose location or device-status features. Parents expect this category.
   geofence blocker, notification receipt boundary, notification preference
   preflight, notification local outbox readiness, authority-enrollment
   manual-required, child-runtime blocker, child-runtime artifact gate, full
-  product UI readiness blocker, production durable workers readiness blocker,
-  physical-device artifact gate, provider-delivery artifact gate,
+  product UI readiness blocker, full product UI runtime artifact gate,
+  production durable workers readiness blocker, production worker runtime
+  artifact gate, physical-device artifact gate, provider-delivery artifact gate,
   provider-runtime readiness blocker, escalation-runtime readiness blocker, and
   retention product-readiness blocker proof refs, writes
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
