@@ -131,8 +131,8 @@
     "productReadyClaimed": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "a9784c55f3b3a219f9dd7c063bf7a42b092272ca",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M packages/parent-domain/src/tracking-product-readiness-closure-proof.ts\n M scripts/test/tracking-product-readiness-closure-proof.mjs",
+  "baseCommitAtGeneration": "ac02a276e0a9f8e8c60988aa2cb29a61e716fbd3",
+  "gitStatusShort": "",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -143,7 +143,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-product-readiness-closure-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  16:06:14\n   Duration  766ms (transform 123ms, setup 0ms, import 548ms, tests 15ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  16:10:45\n   Duration  875ms (transform 130ms, setup 0ms, import 606ms, tests 13ms, environment 0ms)",
       "stderr": ""
     }
   ],
