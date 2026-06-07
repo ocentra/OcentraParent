@@ -31,6 +31,35 @@ export const AgentBrowserRuntimePhase = {
   ReadModelProjected: 'ReadModelProjected',
 } as const;
 
+export const AgentBrowserRuntimeCapabilityStatus = {
+  Available: 'available',
+  TabListOnly: 'tab-list-only',
+  UnsupportedBrowser: 'unsupported-browser',
+  UnmanagedBrowser: 'unmanaged-browser',
+  ManagedProfileMissing: 'managed-profile-missing',
+  BridgeMissing: 'bridge-missing',
+  PermissionLimited: 'permission-limited',
+  Stale: 'stale',
+  AdapterError: 'adapter-error',
+  DisabledByParent: 'disabled-by-parent',
+} as const;
+
+export const AgentBrowserRuntimeCustodyLabel = {
+  ChildDeviceLocal: 'child-device-local',
+  LocalNetworkChildAgent: 'local-network-child-agent',
+  ParentCache: 'parent-cache',
+  ParentOwnedExport: 'parent-owned-export',
+  Unavailable: 'unavailable',
+} as const;
+
+export const AgentBrowserRuntimeQueryVisibility = {
+  LiveLocal: 'live-local',
+  LiveLan: 'live-lan',
+  ParentCache: 'parent-cache',
+  ParentOwnedExport: 'parent-owned-export',
+  Unavailable: 'unavailable',
+} as const;
+
 export const AgentBrowserRuntimeEventTypeSchema = withParser(
   Schema.Literal(
     AgentBrowserRuntimeEventType.EvidenceObserved,
@@ -61,11 +90,50 @@ export const AgentBrowserRuntimePhaseSchema = withParser(
   )
 );
 
+export const AgentBrowserRuntimeCapabilityStatusSchema = withParser(
+  Schema.Literal(
+    AgentBrowserRuntimeCapabilityStatus.Available,
+    AgentBrowserRuntimeCapabilityStatus.TabListOnly,
+    AgentBrowserRuntimeCapabilityStatus.UnsupportedBrowser,
+    AgentBrowserRuntimeCapabilityStatus.UnmanagedBrowser,
+    AgentBrowserRuntimeCapabilityStatus.ManagedProfileMissing,
+    AgentBrowserRuntimeCapabilityStatus.BridgeMissing,
+    AgentBrowserRuntimeCapabilityStatus.PermissionLimited,
+    AgentBrowserRuntimeCapabilityStatus.Stale,
+    AgentBrowserRuntimeCapabilityStatus.AdapterError,
+    AgentBrowserRuntimeCapabilityStatus.DisabledByParent
+  )
+);
+
+export const AgentBrowserRuntimeCustodyLabelSchema = withParser(
+  Schema.Literal(
+    AgentBrowserRuntimeCustodyLabel.ChildDeviceLocal,
+    AgentBrowserRuntimeCustodyLabel.LocalNetworkChildAgent,
+    AgentBrowserRuntimeCustodyLabel.ParentCache,
+    AgentBrowserRuntimeCustodyLabel.ParentOwnedExport,
+    AgentBrowserRuntimeCustodyLabel.Unavailable
+  )
+);
+
+export const AgentBrowserRuntimeQueryVisibilitySchema = withParser(
+  Schema.Literal(
+    AgentBrowserRuntimeQueryVisibility.LiveLocal,
+    AgentBrowserRuntimeQueryVisibility.LiveLan,
+    AgentBrowserRuntimeQueryVisibility.ParentCache,
+    AgentBrowserRuntimeQueryVisibility.ParentOwnedExport,
+    AgentBrowserRuntimeQueryVisibility.Unavailable
+  )
+);
+
 export const AgentBrowserRuntimeEventPayloadSchema = withParser(
   Schema.Struct({
     phase: AgentBrowserRuntimePhaseSchema,
     sourceRef: BrowserRuntimeText,
     evidenceRef: BrowserRuntimeText,
+    capabilityStatus: AgentBrowserRuntimeCapabilityStatusSchema,
+    custodyLabel: AgentBrowserRuntimeCustodyLabelSchema,
+    queryVisibility: AgentBrowserRuntimeQueryVisibilitySchema,
+    degradedReason: NullableBrowserRuntimeText,
     journalRef: NullableBrowserRuntimeText,
     aiRequestRef: NullableBrowserRuntimeText,
     aiAnalysisRef: NullableBrowserRuntimeText,
@@ -125,6 +193,9 @@ export const AgentBrowserRuntimeEventChainStreamSchema = withParser(
 
 export type AgentBrowserRuntimeEventType = Infer<typeof AgentBrowserRuntimeEventTypeSchema>;
 export type AgentBrowserRuntimePhase = Infer<typeof AgentBrowserRuntimePhaseSchema>;
+export type AgentBrowserRuntimeCapabilityStatus = Infer<typeof AgentBrowserRuntimeCapabilityStatusSchema>;
+export type AgentBrowserRuntimeCustodyLabel = Infer<typeof AgentBrowserRuntimeCustodyLabelSchema>;
+export type AgentBrowserRuntimeQueryVisibility = Infer<typeof AgentBrowserRuntimeQueryVisibilitySchema>;
 export type AgentBrowserRuntimeEventPayload = Infer<typeof AgentBrowserRuntimeEventPayloadSchema>;
 export type AgentBrowserRuntimeEventChainEntry = Infer<typeof AgentBrowserRuntimeEventChainEntrySchema>;
 export type AgentBrowserRuntimeEventChainStream = Infer<typeof AgentBrowserRuntimeEventChainStreamSchema>;
@@ -221,10 +292,20 @@ function numberField(fields: LogFields, key: string): number | null {
 
 function browserRuntimePayloadIsHonest(payload: {
   readonly exactUrlClaimed: boolean;
+  readonly capabilityStatus: AgentBrowserRuntimeCapabilityStatus;
+  readonly custodyLabel: AgentBrowserRuntimeCustodyLabel;
+  readonly queryVisibility: AgentBrowserRuntimeQueryVisibility;
+  readonly degradedReason: string | null;
   readonly interventionCommandAllowed: boolean;
   readonly interventionCommandRef: string | null;
   readonly interventionResultRef: string | null;
 }): boolean {
+  if (!browserRuntimeContextSupportsExactUrl(payload) && payload.exactUrlClaimed) {
+    return false;
+  }
+  if (!browserRuntimeUnavailableContextHasReason(payload)) {
+    return false;
+  }
   if (!payload.exactUrlClaimed && payload.interventionCommandAllowed) {
     return false;
   }
@@ -232,6 +313,40 @@ function browserRuntimePayloadIsHonest(payload: {
     return payload.interventionCommandRef === null && payload.interventionResultRef === null;
   }
   return payload.interventionCommandRef !== null;
+}
+
+function browserRuntimeContextSupportsExactUrl(payload: {
+  readonly capabilityStatus: AgentBrowserRuntimeCapabilityStatus;
+  readonly custodyLabel: AgentBrowserRuntimeCustodyLabel;
+  readonly queryVisibility: AgentBrowserRuntimeQueryVisibility;
+}): boolean {
+  const capabilityAllowsExactUrl =
+    payload.capabilityStatus === AgentBrowserRuntimeCapabilityStatus.Available ||
+    payload.capabilityStatus === AgentBrowserRuntimeCapabilityStatus.TabListOnly;
+  const queryAllowsExactUrl =
+    payload.queryVisibility === AgentBrowserRuntimeQueryVisibility.LiveLocal ||
+    payload.queryVisibility === AgentBrowserRuntimeQueryVisibility.LiveLan;
+  return (
+    capabilityAllowsExactUrl &&
+    queryAllowsExactUrl &&
+    payload.custodyLabel !== AgentBrowserRuntimeCustodyLabel.Unavailable
+  );
+}
+
+function browserRuntimeUnavailableContextHasReason(payload: {
+  readonly capabilityStatus: AgentBrowserRuntimeCapabilityStatus;
+  readonly queryVisibility: AgentBrowserRuntimeQueryVisibility;
+  readonly degradedReason: string | null;
+}): boolean {
+  if (
+    payload.queryVisibility !== AgentBrowserRuntimeQueryVisibility.Unavailable &&
+    payload.capabilityStatus !== AgentBrowserRuntimeCapabilityStatus.BridgeMissing &&
+    payload.capabilityStatus !== AgentBrowserRuntimeCapabilityStatus.Stale &&
+    payload.capabilityStatus !== AgentBrowserRuntimeCapabilityStatus.AdapterError
+  ) {
+    return true;
+  }
+  return payload.degradedReason !== null;
 }
 
 function phaseMatchesEventType(phase: AgentBrowserRuntimePhase, eventType: AgentBrowserRuntimeEventType): boolean {

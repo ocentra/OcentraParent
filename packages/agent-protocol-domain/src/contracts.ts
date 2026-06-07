@@ -51,6 +51,10 @@ export {
   type SerializedAgentMessage,
 } from './primitives';
 export {
+  AgentBrowserRuntimeCapabilityStatus,
+  AgentBrowserRuntimeCapabilityStatusSchema,
+  AgentBrowserRuntimeCustodyLabel,
+  AgentBrowserRuntimeCustodyLabelSchema,
   AgentBrowserRuntimeEventChainEntrySchema,
   AgentBrowserRuntimeEventChainStreamSchema,
   AgentBrowserRuntimeEventPayloadSchema,
@@ -58,6 +62,8 @@ export {
   AgentBrowserRuntimeEventTypeSchema,
   AgentBrowserRuntimePhase,
   AgentBrowserRuntimePhaseSchema,
+  AgentBrowserRuntimeQueryVisibility,
+  AgentBrowserRuntimeQueryVisibilitySchema,
   parseAgentBrowserRuntimeEventChainStreamFields,
   type AgentBrowserRuntimeEventChainEntry,
   type AgentBrowserRuntimeEventChainStream,

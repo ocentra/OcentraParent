@@ -512,6 +512,18 @@ This claims portal state consumption only; it does not claim a new portal visual
 surface, AI execution, policy execution, browser mutation, child intervention
 execution, or enforcement.
 
+WP13 context stream addendum: `browser-runtime-context-stream-proof` carries
+browser read-model context through the browser runtime event chain. Event
+payloads now include capability status, custody label, query visibility, and
+degraded reason so subscribers can distinguish exact/live rows from
+manual-required, unavailable, or degraded rows without a side channel. Evidence:
+`test-results/browser-runtime-context-stream-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-context-stream/01-browser-runtime-context-stream-proof.md`.
+The proof validates unsupported exact URL context rejection, unavailable context
+requiring a degraded reason, service stream serialization, protocol parsing, and
+portal state visibility. It does not create a new event bus, execute AI, execute
+policy, mutate the browser, execute child intervention, or enforce.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

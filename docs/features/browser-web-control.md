@@ -113,6 +113,12 @@ control while being more honest about managed versus unmanaged sources.
   and count drift before exposing the stream as state. No new visual surface,
   AI execution, policy execution, browser mutation, child intervention
   execution, or enforcement is claimed by this proof.
+- Browser-plan WP13 now carries browser read-model context through the event
+  chain payload itself: capability status, custody label, query visibility, and
+  degraded reason. The protocol parser rejects unsupported exact URL context and
+  unavailable context without a degraded reason before the portal exposes the
+  stream as state. This is event-chain context only; it does not execute AI,
+  execute policy, mutate the browser, execute child intervention, or enforce.
 - Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
   through activity-domain inventory contracts, Rust protocol, and service
   payload/read-model proof. Contract tests cover mixed managed, unmanaged, and

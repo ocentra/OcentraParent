@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AgentBrowserRuntimeCapabilityStatus,
+  AgentBrowserRuntimeCustodyLabel,
   AgentBrowserRuntimeEventType,
   AgentBrowserRuntimePhase,
+  AgentBrowserRuntimeQueryVisibility,
   AgentProtocolDefaults,
   parseAgentBrowserRuntimeEventChainStreamFields,
 } from '../src/contracts';
@@ -10,6 +13,10 @@ const EvidenceObservedPayload = {
   phase: AgentBrowserRuntimePhase.EvidenceObserved,
   sourceRef: 'browser-source.managed-devtools',
   evidenceRef: 'browser-evidence.1',
+  capabilityStatus: AgentBrowserRuntimeCapabilityStatus.TabListOnly,
+  custodyLabel: AgentBrowserRuntimeCustodyLabel.ChildDeviceLocal,
+  queryVisibility: AgentBrowserRuntimeQueryVisibility.LiveLocal,
+  degradedReason: null,
   journalRef: 'browser-journal.1',
   aiRequestRef: null,
   aiAnalysisRef: null,
@@ -71,6 +78,8 @@ function specifyStreamParsing() {
   ]);
   expect(parsed.value.entries.at(0)?.payload.phase).toBe(AgentBrowserRuntimePhase.EvidenceObserved);
   expect(parsed.value.entries.at(0)?.payload.aiAuthority).toBe(false);
+  expect(parsed.value.entries.at(0)?.payload.capabilityStatus).toBe(AgentBrowserRuntimeCapabilityStatus.TabListOnly);
+  expect(parsed.value.entries.at(0)?.payload.queryVisibility).toBe(AgentBrowserRuntimeQueryVisibility.LiveLocal);
   expect(parsed.value.entries.at(0)?.payload.interventionCommandAllowed).toBe(false);
 }
 
@@ -100,6 +109,30 @@ function specifyRejections() {
       ])
     )
   ).toEqual({ ok: false, reason: 'invalid-entry' });
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields([
+        entry(AgentBrowserRuntimeEventType.EvidenceObserved, {
+          ...EvidenceObservedPayload,
+          capabilityStatus: AgentBrowserRuntimeCapabilityStatus.BridgeMissing,
+          queryVisibility: AgentBrowserRuntimeQueryVisibility.Unavailable,
+        }),
+      ])
+    )
+  ).toEqual({ ok: false, reason: 'invalid-entry' });
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields([
+        entry(AgentBrowserRuntimeEventType.EvidenceObserved, {
+          ...EvidenceObservedPayload,
+          exactUrlClaimed: false,
+          capabilityStatus: AgentBrowserRuntimeCapabilityStatus.BridgeMissing,
+          queryVisibility: AgentBrowserRuntimeQueryVisibility.Unavailable,
+          degradedReason: 'browser-bridge-no-page-targets',
+        }),
+      ])
+    ).ok
+  ).toBe(true);
   expect(
     parseAgentBrowserRuntimeEventChainStreamFields({
       ...streamFields(),

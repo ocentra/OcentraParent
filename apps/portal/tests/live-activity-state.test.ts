@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AgentBrowserRuntimeCapabilityStatus,
+  AgentBrowserRuntimeCustodyLabel,
   AgentBrowserRuntimeEventType,
   AgentBrowserRuntimePhase,
   AgentEvent,
+  AgentBrowserRuntimeQueryVisibility,
   AgentEventEnvelopeSchema,
   AgentProtocolDefaults,
   type AgentEventEnvelope,
@@ -177,15 +180,26 @@ function expectBrowserRuntimeStreamCounts(state: ResolvedLiveActivityState): voi
 function expectBrowserRuntimeStreamEntries(state: ResolvedLiveActivityState): void {
   const stream = state.browserRuntimeEventChainStream;
 
-  expect(stream?.entries.map((entry) => entry.eventType)).toEqual([
+  if (stream === null) {
+    throw new Error('Expected browser runtime event-chain stream');
+  }
+  const firstPayload = stream.entries[0]?.payload;
+  if (firstPayload === undefined) {
+    throw new Error('Expected first browser runtime event-chain payload');
+  }
+
+  expect(stream.entries.map((entry) => entry.eventType)).toEqual([
     AgentBrowserRuntimeEventType.EvidenceObserved,
     AgentBrowserRuntimeEventType.EvidenceJournaled,
     AgentBrowserRuntimeEventType.AuditEntryCommitted,
     AgentBrowserRuntimeEventType.ReadModelProjected,
   ]);
-  expect(stream?.entries.at(0)?.payload.exactUrlClaimed).toBe(false);
-  expect(stream?.entries.at(0)?.payload.interventionCommandAllowed).toBe(false);
-  expect(stream?.entries.at(0)?.payload.phase).toBe(AgentBrowserRuntimePhase.EvidenceObserved);
+  expect(firstPayload.exactUrlClaimed).toBe(false);
+  expect(firstPayload.capabilityStatus).toBe(AgentBrowserRuntimeCapabilityStatus.BridgeMissing);
+  expect(firstPayload.queryVisibility).toBe(AgentBrowserRuntimeQueryVisibility.Unavailable);
+  expect(firstPayload.degradedReason).toBe('browser-bridge-no-page-targets');
+  expect(firstPayload.interventionCommandAllowed).toBe(false);
+  expect(firstPayload.phase).toBe(AgentBrowserRuntimePhase.EvidenceObserved);
 }
 
 function browserRuntimeEventChainStreamEvent(
@@ -230,6 +244,10 @@ function browserRuntimeStreamEntry(
   eventRef: string,
   payloadOverrides: Partial<{
     readonly phase: AgentBrowserRuntimePhase;
+    readonly capabilityStatus: AgentBrowserRuntimeCapabilityStatus;
+    readonly custodyLabel: AgentBrowserRuntimeCustodyLabel;
+    readonly queryVisibility: AgentBrowserRuntimeQueryVisibility;
+    readonly degradedReason: string | null;
     readonly aiAuthority: boolean;
   }> = {}
 ): Record<string, unknown> {
@@ -240,6 +258,10 @@ function browserRuntimeStreamEntry(
       phase: payloadOverrides.phase ?? browserRuntimePhaseForEventType(eventType),
       sourceRef: 'browser-runtime-source-ref',
       evidenceRef: 'browser-runtime-evidence-ref',
+      capabilityStatus: payloadOverrides.capabilityStatus ?? AgentBrowserRuntimeCapabilityStatus.BridgeMissing,
+      custodyLabel: payloadOverrides.custodyLabel ?? AgentBrowserRuntimeCustodyLabel.ChildDeviceLocal,
+      queryVisibility: payloadOverrides.queryVisibility ?? AgentBrowserRuntimeQueryVisibility.Unavailable,
+      degradedReason: payloadOverrides.degradedReason ?? 'browser-bridge-no-page-targets',
       journalRef: 'browser-runtime-journal-ref',
       aiRequestRef: null,
       aiAnalysisRef: null,

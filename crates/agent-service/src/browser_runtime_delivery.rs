@@ -48,6 +48,10 @@ pub(crate) fn browser_runtime_input_from_row(
     BrowserRuntimeInput {
         source_ref: row.source_id.clone(),
         evidence_ref: row.browser_evidence_id.clone(),
+        capability_status: row.capability_status.as_protocol_str().to_string(),
+        custody_label: row.custody_label.as_protocol_str().to_string(),
+        query_visibility: row.query_visibility.as_protocol_str().to_string(),
+        degraded_reason: row.degraded_reason.clone(),
         journal_ref: latest_event_ref.clone(),
         ai_request_ref: None,
         ai_analysis_ref: None,

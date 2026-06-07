@@ -54,6 +54,22 @@ async fn service_browser_runtime_streams_protocol_event_chain_entries() {
         true
     );
     assert_eq!(
+        entries[0][constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS],
+        constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY
+    );
+    assert_eq!(
+        entries[0][constants::field::PAYLOAD][constants::field::CUSTODY_LABEL],
+        constants::browser::CUSTODY_CHILD_DEVICE_LOCAL
+    );
+    assert_eq!(
+        entries[0][constants::field::PAYLOAD][constants::field::QUERY_VISIBILITY],
+        constants::browser::QUERY_VISIBILITY_LIVE_LOCAL
+    );
+    assert_eq!(
+        entries[0][constants::field::PAYLOAD][constants::field::DEGRADED_REASON],
+        Value::Null
+    );
+    assert_eq!(
         entries.last().unwrap()[constants::field::EVENT_TYPE],
         constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED
     );
@@ -87,6 +103,18 @@ async fn service_browser_runtime_stream_keeps_unavailable_rows_manual_required()
     assert_eq!(
         entries.last().unwrap()[constants::field::PAYLOAD][constants::field::EXACT_URL_CLAIMED],
         false
+    );
+    assert_eq!(
+        entries.last().unwrap()[constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS],
+        constants::browser::CAPABILITY_STATUS_BRIDGE_MISSING
+    );
+    assert_eq!(
+        entries.last().unwrap()[constants::field::PAYLOAD][constants::field::QUERY_VISIBILITY],
+        constants::browser::QUERY_VISIBILITY_UNAVAILABLE
+    );
+    assert_eq!(
+        entries.last().unwrap()[constants::field::PAYLOAD][constants::field::DEGRADED_REASON],
+        constants::value::BROWSER_BRIDGE_NO_PAGE_TARGETS
     );
 }
 
@@ -128,6 +156,18 @@ async fn websocket_browser_runtime_stream_command_reports_store_backed_chain() {
     assert_eq!(
         entries.last().unwrap()[constants::field::EVENT_TYPE],
         constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED
+    );
+    assert_eq!(
+        entries[0][constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS],
+        constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY
+    );
+    assert_eq!(
+        entries[0][constants::field::PAYLOAD][constants::field::QUERY_VISIBILITY],
+        constants::browser::QUERY_VISIBILITY_LIVE_LOCAL
+    );
+    assert_eq!(
+        entries[0][constants::field::PAYLOAD][constants::field::DEGRADED_REASON],
+        constants::value::BROWSER_BRIDGE_NO_PAGE_TARGETS
     );
 }
 

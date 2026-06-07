@@ -231,3 +231,28 @@ Evidence:
 This claims portal state consumption only. It does not claim a new portal visual
 surface, AI execution, policy execution, browser mutation, child intervention
 execution, or enforcement.
+
+## Context Stream Addendum - 2026-06-07
+
+`browser-runtime-context-stream-proof` carries browser read-model context through
+the reusable browser runtime event chain. Each event payload now includes
+capability status, custody label, query visibility, and degraded reason so
+subscribers can distinguish exact/live rows from manual-required, unavailable,
+or degraded rows without reading a parallel source.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime.rs`
+- `crates/agent-service/src/browser_runtime_delivery.rs`
+- `crates/agent-service/src/browser_runtime_stream_events.rs`
+- `packages/agent-protocol-domain/src/browser-runtime-events.ts`
+- `apps/portal/tests/live-activity-state.test.ts`
+- `scripts/test/browser-runtime-context-stream-proof.mjs`
+- `test-results/browser-runtime-context-stream-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-context-stream/01-browser-runtime-context-stream-proof.md`
+- `cmd /c node scripts/test/browser-runtime-context-stream-proof.mjs`
+
+The proof validates that unsupported exact URL context is rejected, unavailable
+context needs a degraded reason, and portal state receives the same context from
+the typed protocol parser. This does not create a new event bus, execute AI,
+execute policy, mutate the browser, execute child intervention, or enforce.

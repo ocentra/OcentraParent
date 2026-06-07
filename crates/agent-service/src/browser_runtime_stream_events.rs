@@ -64,6 +64,26 @@ fn insert_payload_refs(fields: &mut Map<String, Value>, payload: &BrowserRuntime
         constants::field::EVIDENCE_REF,
         &payload.evidence_ref,
     );
+    insert_payload_field(
+        fields,
+        constants::field::CAPABILITY_STATUS,
+        &payload.capability_status,
+    );
+    insert_payload_field(
+        fields,
+        constants::field::CUSTODY_LABEL,
+        &payload.custody_label,
+    );
+    insert_payload_field(
+        fields,
+        constants::field::QUERY_VISIBILITY,
+        &payload.query_visibility,
+    );
+    insert_payload_field(
+        fields,
+        constants::field::DEGRADED_REASON,
+        &payload.degraded_reason,
+    );
     insert_payload_field(fields, constants::field::JOURNAL_REF, &payload.journal_ref);
     insert_payload_field(
         fields,

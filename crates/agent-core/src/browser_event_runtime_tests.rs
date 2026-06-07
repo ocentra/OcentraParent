@@ -22,6 +22,13 @@ async fn browser_runtime_chain_publishes_ordered_managed_decision_phases() {
     );
     assert_previous_refs_follow_published_events(&report);
     assert!(report.intervention_command_published());
+    assert_all_payloads_preserve_browser_context(
+        &report,
+        constants::browser::CAPABILITY_STATUS_AVAILABLE,
+        constants::browser::CUSTODY_CHILD_DEVICE_LOCAL,
+        constants::browser::QUERY_VISIBILITY_LIVE_LOCAL,
+        None,
+    );
 }
 
 #[tokio::test]
@@ -40,6 +47,13 @@ async fn browser_runtime_chain_keeps_manual_required_rows_non_executing() {
     assert!(!phases.contains(&BrowserRuntimePhase::InterventionResultObserved));
     assert!(!report.intervention_command_published());
     assert_previous_refs_follow_published_events(&report);
+    assert_all_payloads_preserve_browser_context(
+        &report,
+        constants::browser::CAPABILITY_STATUS_AVAILABLE,
+        constants::browser::CUSTODY_CHILD_DEVICE_LOCAL,
+        constants::browser::QUERY_VISIBILITY_LIVE_LOCAL,
+        None,
+    );
 
     let policy_event = decoded_payloads(&report)
         .into_iter()
@@ -48,6 +62,21 @@ async fn browser_runtime_chain_keeps_manual_required_rows_non_executing() {
     assert!(!policy_event.ai_authority);
     assert!(!policy_event.policy_authority);
     assert!(!policy_event.intervention_command_allowed);
+}
+
+fn assert_all_payloads_preserve_browser_context(
+    report: &BrowserRuntimeReport,
+    capability_status: &str,
+    custody_label: &str,
+    query_visibility: &str,
+    degraded_reason: Option<&str>,
+) {
+    for payload in decoded_payloads(report) {
+        assert_eq!(payload.capability_status, capability_status);
+        assert_eq!(payload.custody_label, custody_label);
+        assert_eq!(payload.query_visibility, query_visibility);
+        assert_eq!(payload.degraded_reason.as_deref(), degraded_reason);
+    }
 }
 
 fn assert_previous_refs_follow_published_events(report: &BrowserRuntimeReport) {
