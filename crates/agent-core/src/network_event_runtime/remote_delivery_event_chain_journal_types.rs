@@ -1,9 +1,13 @@
-use ocentra_eventing::{EventingError, ReplayMode, SourceComponent};
+use ocentra_eventing::EventingError;
+#[cfg(test)]
+use ocentra_eventing::{ReplayMode, SourceComponent};
 
+#[cfg(test)]
 use super::remote_delivery_status::NetworkRuntimeRemoteDeliveryStatusReport;
 use super::{NetworkRuntimeEventPayload, NetworkRuntimeRemoteDeliveryStatusError};
 
 #[derive(Clone, Debug)]
+#[cfg(test)]
 pub struct NetworkRuntimeRemoteEventChainJournalReport {
     pub remote_delivery_status: NetworkRuntimeRemoteDeliveryStatusReport,
     pub event_chain_journal_ref: SourceComponent,

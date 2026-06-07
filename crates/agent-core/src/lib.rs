@@ -140,7 +140,14 @@ pub use journal_error::JournalError;
 pub use network_capture::{collect_network_snapshot, NetworkObservation};
 pub use network_capture_event::{network_observation_event, network_snapshot_events};
 pub use network_event_runtime::{
-    publish_network_runtime_chain_for_observation, NetworkRuntimeEventPayload, NetworkRuntimeReport,
+    prove_network_runtime_remote_delivery_durable_envelope,
+    publish_network_runtime_chain_for_observation, NetworkRuntimeEventPayload,
+    NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
+    NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
+    NetworkRuntimeRemoteDeliveryReceiptLedgerError,
+    NetworkRuntimeRemoteDeliveryReceiptLedgerReport, NetworkRuntimeRemoteDeliveryState,
+    NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
+    NetworkRuntimeRemoteEventChainJournalError, NetworkRuntimeReport,
 };
 pub use network_event_runtime_phase::NetworkRuntimePhase;
 pub use network_event_runtime_state::{
