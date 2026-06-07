@@ -58,6 +58,10 @@ mod browser_policy_runtime;
 mod browser_policy_runtime_support;
 mod browser_policy_store;
 mod browser_runtime;
+#[cfg_attr(not(test), allow(dead_code))]
+mod browser_runtime_delivery;
+#[cfg(test)]
+mod browser_runtime_delivery_tests;
 mod browser_runtime_paths;
 mod browser_runtime_status;
 #[cfg(test)]

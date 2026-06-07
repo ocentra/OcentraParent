@@ -90,6 +90,26 @@ This does not change service WebSocket routing, portal UI, browser mutation, AI
 execution, policy execution, or enforcement. Manual-required rows skip
 intervention command/result phases while keeping audit and read-model projection
 visible.
+
+## Service Delivery Addendum - 2026-06-07
+
+`browser-runtime-service-delivery-proof` adds the service-side adapter from
+`BrowserEvidenceReadModel` rows into the reusable browser event-runtime chain.
+It mirrors the existing network runtime delivery shape without adding a new
+browser-private event bus.
+
+Evidence:
+
+- `crates/agent-service/src/browser_runtime_delivery.rs`
+- `crates/agent-service/src/browser_runtime_delivery_tests.rs`
+- `test-results/browser-runtime-service-delivery-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-service-delivery/01-browser-runtime-service-delivery-proof.md`
+- `cmd /c node scripts/test/browser-runtime-service-delivery-proof.mjs`
+
+The delivery proof keeps managed exact-URL rows evidence-only, keeps unavailable
+rows manual-required, and proves no intervention command events are emitted from
+read-model delivery alone. It does not change service WebSocket routing, portal
+UI, AI execution, policy execution, browser mutation, or enforcement.
 Remaining read-model work requires portal adapter/UI consumption,
 journal/SQLite inventory row proof, recent tab evidence reconciliation,
 intervention row reconciliation, real service proof scripts, and UI snapshots

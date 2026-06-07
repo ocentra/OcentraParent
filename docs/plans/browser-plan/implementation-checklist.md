@@ -441,6 +441,17 @@ The proof validates that manual-required rows skip intervention command/result
 phases while keeping audit/read-model visibility. It does not claim service
 WebSocket delivery, portal UI, AI execution, policy execution, browser mutation,
 or enforcement.
+
+WP13 service delivery addendum: `browser-runtime-service-delivery-proof` maps
+service-owned `BrowserEvidenceReadModel` rows into the reusable browser
+event-runtime chain without creating a parallel bus or changing WebSocket/UI
+routes. Evidence:
+`test-results/browser-runtime-service-delivery-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-service-delivery/01-browser-runtime-service-delivery-proof.md`.
+The proof validates managed exact-URL rows remain evidence-only, unavailable
+rows remain manual-required, and intervention command events stay at zero during
+read-model delivery. It does not claim portal UI, AI execution, policy
+execution, browser mutation, or enforcement.
 Package subpath exports are deferred while `packages/parent-domain/package.json`
 is locked by E-B.
 
