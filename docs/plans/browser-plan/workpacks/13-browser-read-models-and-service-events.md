@@ -114,3 +114,30 @@ Remaining read-model work requires portal adapter/UI consumption,
 journal/SQLite inventory row proof, recent tab evidence reconciliation,
 intervention row reconciliation, real service proof scripts, and UI snapshots
 before product-facing status can claim more than the typed service event.
+
+## Event-Chain Stream Addendum - 2026-06-07
+
+`browser-runtime-event-chain-stream-proof` exposes the browser runtime chain
+through typed protocol command/event names and a service WebSocket route:
+`agent.browser.runtime.event-chain.stream.get` ->
+`agent.browser.runtime.event-chain.stream.reported`. The route reads the real
+browser evidence read model from the activity store, streams rows through the
+reusable browser event runtime, and returns protocol-facing camelCase event
+payloads with event refs.
+
+Evidence:
+
+- `crates/agent-protocol/src/transport.rs`
+- `packages/agent-protocol-domain/src/contracts.ts`
+- `crates/agent-service/src/browser_runtime_stream_payload.rs`
+- `crates/agent-service/src/browser_runtime_stream_events.rs`
+- `crates/agent-service/src/browser_runtime_stream_tests.rs`
+- `test-results/browser-runtime-event-chain-stream-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-event-chain-stream/01-browser-runtime-event-chain-stream-proof.md`
+- `cmd /c node scripts/test/browser-runtime-event-chain-stream-proof.mjs`
+
+The proof validates typed protocol parity, store-backed WebSocket delivery,
+manual-required handling for unavailable rows, zero intervention command events,
+and camelCase stream payloads. It does not claim portal UI consumption, AI
+execution, policy execution, browser mutation, child intervention execution, or
+enforcement.

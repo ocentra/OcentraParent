@@ -221,6 +221,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.browser.evidence.recent.get',
     'agent.browser.managed.bridge.poll',
     'agent.browser.intervention.read-model.get',
+    'agent.browser.runtime.event-chain.stream.get',
     'agent.network.flow.read-model.get',
     'agent.network.runtime.event-chain.stream.get',
     'agent.network.remote-delivery.status.get',
@@ -302,6 +303,7 @@ export const AgentEventNameSchema = withParser(
     'agent.browser.evidence.recent.reported',
     'agent.browser.managed.status.reported',
     'agent.browser.intervention.read-model.reported',
+    'agent.browser.runtime.event-chain.stream.reported',
     'agent.network.flow.read-model.reported',
     'agent.network.runtime.event-chain.stream.reported',
     'agent.network.remote-delivery.status.reported',
@@ -450,6 +452,7 @@ export const AgentCommand = {
   BrowserEvidenceRecentGet: AgentCommandNameSchema.parse('agent.browser.evidence.recent.get'),
   BrowserManagedBridgePoll: AgentCommandNameSchema.parse('agent.browser.managed.bridge.poll'),
   BrowserInterventionReadModelGet: AgentCommandNameSchema.parse('agent.browser.intervention.read-model.get'),
+  BrowserRuntimeEventChainStreamGet: AgentCommandNameSchema.parse('agent.browser.runtime.event-chain.stream.get'),
   NetworkFlowReadModelGet: AgentCommandNameSchema.parse('agent.network.flow.read-model.get'),
   NetworkRuntimeEventChainStreamGet: AgentCommandNameSchema.parse('agent.network.runtime.event-chain.stream.get'),
   NetworkRemoteDeliveryStatusGet: AgentCommandNameSchema.parse('agent.network.remote-delivery.status.get'),
@@ -559,6 +562,9 @@ export const AgentEvent = {
   BrowserEvidenceRecentReported: AgentEventNameSchema.parse('agent.browser.evidence.recent.reported'),
   BrowserManagedStatusReported: AgentEventNameSchema.parse('agent.browser.managed.status.reported'),
   BrowserInterventionReadModelReported: AgentEventNameSchema.parse('agent.browser.intervention.read-model.reported'),
+  BrowserRuntimeEventChainStreamReported: AgentEventNameSchema.parse(
+    'agent.browser.runtime.event-chain.stream.reported'
+  ),
   NetworkFlowReadModelReported: AgentEventNameSchema.parse('agent.network.flow.read-model.reported'),
   NetworkRuntimeEventChainStreamReported: AgentEventNameSchema.parse(
     'agent.network.runtime.event-chain.stream.reported'

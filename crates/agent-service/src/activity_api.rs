@@ -357,7 +357,7 @@ async fn load_activity_recent_summary() -> Option<ActivityRecentSummary> {
     .flatten()
 }
 
-async fn load_browser_evidence_read_model(
+pub(crate) async fn load_browser_evidence_read_model(
 ) -> Option<ocentra_parent_agent_protocol::BrowserEvidenceReadModel> {
     let path = activity_db_path();
     tokio::task::spawn_blocking(move || {
@@ -408,7 +408,7 @@ async fn load_activity_tracking_read_model(
     .flatten()
 }
 
-pub(super) fn activity_store_error_event(
+pub(crate) fn activity_store_error_event(
     command: AgentCommandEnvelope,
     event_id_suffix: &str,
     event: AgentEventName,

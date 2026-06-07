@@ -133,6 +133,8 @@ pub mod event_id {
     pub const BROWSER_INVENTORY_READ_MODEL_REPORTED: &str = "browser-inventory-read-model-reported";
     pub const BROWSER_EVIDENCE_RECENT_REPORTED: &str = "browser-evidence-recent-reported";
     pub const BROWSER_MANAGED_STATUS_REPORTED: &str = "browser-managed-status-reported";
+    pub const BROWSER_RUNTIME_EVENT_CHAIN_STREAM_REPORTED: &str =
+        "browser-runtime-event-chain-stream-reported";
     pub const NETWORK_FLOW_READ_MODEL_REPORTED: &str = "network-flow-read-model-reported";
     pub const NETWORK_RUNTIME_EVENT_CHAIN_STREAM_REPORTED: &str =
         "network-runtime-event-chain-stream-reported";

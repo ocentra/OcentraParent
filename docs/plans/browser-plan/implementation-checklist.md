@@ -455,6 +455,18 @@ execution, browser mutation, or enforcement.
 Package subpath exports are deferred while `packages/parent-domain/package.json`
 is locked by E-B.
 
+WP13 event-chain stream addendum: `browser-runtime-event-chain-stream-proof`
+adds typed browser runtime stream command/event parity and a service WebSocket
+route that reads the activity-store browser evidence read model, streams it
+through the reusable browser event runtime, and returns camelCase event-chain
+payloads. Evidence:
+`test-results/browser-runtime-event-chain-stream-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-event-chain-stream/01-browser-runtime-event-chain-stream-proof.md`.
+The proof validates store-backed WebSocket delivery, manual-required handling
+for unavailable rows, zero intervention command events, and protocol parity.
+It does not claim portal UI consumption, AI execution, policy execution,
+browser mutation, child intervention execution, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

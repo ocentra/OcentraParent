@@ -64,6 +64,11 @@ mod browser_runtime_delivery;
 mod browser_runtime_delivery_tests;
 mod browser_runtime_paths;
 mod browser_runtime_status;
+mod browser_runtime_stream_api;
+mod browser_runtime_stream_events;
+mod browser_runtime_stream_payload;
+#[cfg(test)]
+mod browser_runtime_stream_tests;
 #[cfg(test)]
 mod browser_runtime_tests;
 mod dev_log;

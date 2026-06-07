@@ -28,6 +28,7 @@ use crate::{
     browser_policy_api::build_browser_policy_event,
     browser_policy_runtime::BrowserPolicyRuntime,
     browser_runtime::build_browser_managed_status_report,
+    browser_runtime_stream_api::build_browser_runtime_event_chain_stream_report,
     enforcement_api::{
         build_enforcement_audit_report, build_enforcement_broad_adapter_proof_report,
         build_enforcement_policy_dispatch_report, build_enforcement_product_control_spine_report,
@@ -196,6 +197,7 @@ async fn build_command_event(
         | AgentCommandName::AgentBrowserEvidenceRecentGet
         | AgentCommandName::AgentBrowserManagedBridgePoll
         | AgentCommandName::AgentBrowserInterventionReadModelGet
+        | AgentCommandName::AgentBrowserRuntimeEventChainStreamGet
         | AgentCommandName::AgentNetworkFlowReadModelGet
         | AgentCommandName::AgentNetworkRuntimeEventChainStreamGet
         | AgentCommandName::AgentNetworkRemoteDeliveryStatusGet
@@ -401,6 +403,9 @@ async fn build_browser_network_command_report(command: AgentCommandEnvelope) -> 
         }
         AgentCommandName::AgentBrowserInterventionReadModelGet => {
             build_browser_intervention_read_model_report(command).await
+        }
+        AgentCommandName::AgentBrowserRuntimeEventChainStreamGet => {
+            build_browser_runtime_event_chain_stream_report(command).await
         }
         AgentCommandName::AgentNetworkFlowReadModelGet => {
             build_network_flow_read_model_report(command).await

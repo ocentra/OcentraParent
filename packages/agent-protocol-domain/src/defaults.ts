@@ -374,6 +374,8 @@ export const AgentProtocolDefaults = {
     NetworkProtocol: 'networkProtocol',
     NetworkPolicyMappingMode: 'networkPolicyMappingMode',
     NetworkRequestedPolicyAction: 'networkRequestedPolicyAction',
+    BrowserRuntimeEventChainStream: 'browserRuntimeEventChainStream',
+    BrowserRuntimeStreamedEvents: 'browserRuntimeStreamedEvents',
     NetworkRuntimeEventChainStream: 'networkRuntimeEventChainStream',
     NetworkRuntimeStreamedEvents: 'networkRuntimeStreamedEvents',
     NetworkRemoteDeliveryStatus: 'networkRemoteDeliveryStatus',

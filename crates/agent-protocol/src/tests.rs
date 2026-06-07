@@ -130,6 +130,17 @@ fn network_runtime_stream_command_and_event_names_serialize_to_contract_shape() 
 }
 
 #[test]
+fn browser_runtime_stream_command_and_event_names_serialize_to_contract_shape() {
+    let command = serde_json::to_value(AgentCommandName::AgentBrowserRuntimeEventChainStreamGet)
+        .expect("command serializes");
+    let event = serde_json::to_value(AgentEventName::AgentBrowserRuntimeEventChainStreamReported)
+        .expect("event serializes");
+
+    assert_eq!(command, "agent.browser.runtime.event-chain.stream.get");
+    assert_eq!(event, "agent.browser.runtime.event-chain.stream.reported");
+}
+
+#[test]
 fn network_remote_delivery_status_command_and_event_names_serialize_to_contract_shape() {
     let command = serde_json::to_value(AgentCommandName::AgentNetworkRemoteDeliveryStatusGet)
         .expect("command serializes");

@@ -130,6 +130,8 @@ pub enum AgentCommandName {
     AgentBrowserManagedBridgePoll,
     #[serde(rename = "agent.browser.intervention.read-model.get")]
     AgentBrowserInterventionReadModelGet,
+    #[serde(rename = "agent.browser.runtime.event-chain.stream.get")]
+    AgentBrowserRuntimeEventChainStreamGet,
     #[serde(rename = "agent.network.flow.read-model.get")]
     AgentNetworkFlowReadModelGet,
     #[serde(rename = "agent.network.runtime.event-chain.stream.get")]
@@ -286,6 +288,8 @@ pub enum AgentEventName {
     AgentBrowserManagedStatusReported,
     #[serde(rename = "agent.browser.intervention.read-model.reported")]
     AgentBrowserInterventionReadModelReported,
+    #[serde(rename = "agent.browser.runtime.event-chain.stream.reported")]
+    AgentBrowserRuntimeEventChainStreamReported,
     #[serde(rename = "agent.network.flow.read-model.reported")]
     AgentNetworkFlowReadModelReported,
     #[serde(rename = "agent.network.runtime.event-chain.stream.reported")]
