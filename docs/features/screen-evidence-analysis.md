@@ -279,6 +279,16 @@ only with explicit parent settings.
   `output/screen-plan-proof/settings-writable-controls/proof-summary.json`.
   This is not service persistence, child-agent runtime application, raw
   retention enablement, live view, or remote screenshot upload.
+- `ScreenAnalysisParentSetting` Rust protocol structs and
+  `scripts/test/screen-settings-service-persistence-proof.mjs` now prove the
+  service-side parent screen setting persistence boundary. The service runtime
+  returns a disabled default without silently enabling capture, trigger capture,
+  policy use, or raw image retention; persists a parent strict dry-run setting
+  to a local child-device JSON store across reload; and rejects raw image
+  retention, observe-only policy use, stale base versions, and unsafe
+  inconsistent settings before persistence. This is backend persistence proof,
+  not parent portal command wiring, product-complete retention-control UI, raw
+  retention enablement, live view, or raw remote upload.
 - `scripts/test/screen-ai-service-cadence-proof.mjs` now proves an explicit
   opt-in Rust service cadence loop on Windows: it opens a real foreground
   browser fixture, records three timed active-window captures through the
@@ -577,14 +587,14 @@ only with explicit parent settings.
   screen-plan completion before macOS, Linux, Android parity, iOS, live-view
   transport, Tesseract runtime, PaddleOCR runtime, and live VLM quality gates
   are completed or explicitly left as non-claims.
-- Service-persisted product settings, retention controls, and quality proof are
-  incomplete.
+- Parent portal command wiring for persisted product settings,
+  product-complete retention controls, and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
 
 ## Current Gap
 
-Service persistence for parent setting changes, parent retention controls,
+Parent portal command wiring for persisted parent setting changes, parent retention controls,
 optional raw-retention runtime enablement, live-view transport/relay/cache,
 platform permission prompt proof, child-agent disclosure runtime deployment,
 privacy/legal approval, authenticated-account
@@ -641,6 +651,9 @@ parity, and UI remain separate proof gates.
 - [x] Parent Settings route renders read-only Screen settings/capability proof.
 - [x] Parent Settings route renders writable local screen-summary intent draft
       proof.
+- [x] Service-side parent settings persistence proves disabled defaults, local
+      JSON-backed strict dry-run setting reload, and rejection of raw retention
+      or unsafe policy/capture combinations.
 - [x] Raw-retention/live-view/remote boundary rejects raw screenshot retention,
       live view, and raw remote upload by default.
 - [x] Optional raw-retention/live-view preflight contract requires explicit
@@ -728,8 +741,9 @@ parity, and UI remain separate proof gates.
       payloads, grants one child-owned lease, validates provider results on the
       child agent before policy, and rejects invalid provider results.
 
-Service persistence for parent setting changes, product-complete retention
-controls, production OCR/VLM quality, authenticated-account social proof,
+Parent portal command wiring for persisted parent setting changes,
+product-complete retention controls, production OCR/VLM quality,
+authenticated-account social proof,
 remaining production startup subscriptions for live producers beyond the service
 capture/queue, deletion, and analysis row-ready/policy-ref handoffs,
 child-agent disclosure runtime deployment, production household mesh transport over
