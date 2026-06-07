@@ -846,12 +846,14 @@ parity, and UI remain separate proof gates.
   against the isolated local PaddleOCR 2.x fallback are recorded against a
   retained real public Vimeo screenshot artifact; Tesseract is a measured
   fallback while the current Windows service OCR route is WinRT and current
-  PP-OCRv5 still extracts zero text.
+  PP-OCRv5 mobile detector, server detector, and preprocessing variants still
+  extract zero text.
 - [~] PaddleOCR/PP-OCR candidate readiness records current package availability,
-  current PP-OCRv5 local execution with zero extracted text from the retained
-  Vimeo screenshot and deleted preprocessing variants, and a pinned local
-  PaddleOCR 2.x fallback that extracts comparable text; PaddleOCR is not
-  selected and broader PP-OCRv5 quality/resource proof remains open.
+  current PP-OCRv5 mobile-detector and cached server-detector local execution
+  with zero extracted text from the retained Vimeo screenshot, zero text from
+  deleted preprocessing variants, and a pinned local PaddleOCR 2.x fallback
+  that extracts comparable text; PaddleOCR is not selected and broader PP-OCRv5
+  quality/resource proof remains open.
 - [x] Windows service OCR route selection proof chooses WinRT OCR for the
       current Windows service path from retained real service/redaction evidence
       while leaving Tesseract/PaddleOCR as non-selected fallback candidates.

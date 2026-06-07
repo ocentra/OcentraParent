@@ -70,7 +70,7 @@ const workpacks = [
     label: 'OCR PaddleOCR/PP-OCR evaluation',
     status: workpackStatus('35 OCR PaddleOCR/PP-OCR evaluation'),
     requiredProof: 'output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json',
-    gate: 'Current PP-OCRv5 inference now runs locally with oneDNN/MKLDNN disabled but extracts zero text from the real proof image and deleted preprocessing variants; an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally. PaddleOCR is not selected; current Windows service OCR route selection is WinRT, while PP-OCRv5 quality/resource resolution and broad quality remain open.',
+    gate: 'Current PP-OCRv5 mobile-detector inference and cached server-detector inference now run locally with oneDNN/MKLDNN disabled but extract zero text from the real proof image, and deleted preprocessing variants also extract zero text; an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally. PaddleOCR is not selected; current Windows service OCR route selection is WinRT, while PP-OCRv5 quality/resource resolution and broad quality remain open.',
   },
   {
     id: '36',

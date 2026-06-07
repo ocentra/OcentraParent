@@ -1,6 +1,6 @@
 {
   "proof": "screen-ocr-paddleocr-ppocr-evaluation",
-  "generatedAt": "2026-06-07T12:09:05.250Z",
+  "generatedAt": "2026-06-07T12:33:59.211Z",
   "sourceEvidence": {
     "sourceImagePath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\browser-plan-proof\\social-14-managed-browser-feed-short-video-gate\\06-live-screenshots\\vimeo-public-video.png",
     "sourceImageExists": true,
@@ -101,18 +101,29 @@
     ],
     "paddleOcrRuntimeAttempt": {
       "status": 0,
-      "durationMs": 23336,
+      "durationMs": 24923,
       "logPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-plan-proof\\35-ocr-paddleocr-ppocr-evaluation\\paddleocr-runtime-attempt.log",
       "mode": "PP-OCRv5_mobile_det + en_PP-OCRv5_mobile_rec with orientation/unwarping/textline disabled, CPU device, enable_mkldnn=false, cpu_threads=2",
       "extractedTexts": [],
       "extractedTextCount": 0,
-      "initSeconds": 2.749,
-      "predictSeconds": 13.794,
+      "initSeconds": 2.569,
+      "predictSeconds": 14.509,
+      "error": null
+    },
+    "paddleOcrServerDetectorRuntimeAttempt": {
+      "status": 0,
+      "durationMs": 51142,
+      "logPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-plan-proof\\35-ocr-paddleocr-ppocr-evaluation\\paddleocr-server-detector-runtime-attempt.log",
+      "mode": "PP-OCRv5_server_det + en_PP-OCRv5_mobile_rec with orientation/unwarping/textline disabled, CPU device, enable_mkldnn=false, cpu_threads=2",
+      "extractedTexts": [],
+      "extractedTextCount": 0,
+      "initSeconds": 2.471,
+      "predictSeconds": 41.292,
       "error": null
     },
     "paddleOcrPreprocessRuntimeAttempt": {
       "status": 0,
-      "durationMs": 90954,
+      "durationMs": 81072,
       "logPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-plan-proof\\35-ocr-paddleocr-ppocr-evaluation\\paddleocr-preprocess-runtime-attempt.log",
       "mode": "PP-OCRv5 mobile detector/recognizer over original, 2x upscale, grayscale contrast 2x upscale, and grayscale sharpen 2x upscale variants",
       "variantCount": 4,
@@ -121,7 +132,7 @@
           "name": "original",
           "width": 1280,
           "height": 900,
-          "predictSeconds": 15.235,
+          "predictSeconds": 12.801,
           "texts": [],
           "textCount": 0
         },
@@ -129,7 +140,7 @@
           "name": "upscale2",
           "width": 2560,
           "height": 1800,
-          "predictSeconds": 23.991,
+          "predictSeconds": 19.285,
           "texts": [],
           "textCount": 0
         },
@@ -137,7 +148,7 @@
           "name": "gray_contrast2_upscale2",
           "width": 2560,
           "height": 1800,
-          "predictSeconds": 20.582,
+          "predictSeconds": 18.816,
           "texts": [],
           "textCount": 0
         },
@@ -145,7 +156,7 @@
           "name": "gray_sharp_upscale2",
           "width": 2560,
           "height": 1800,
-          "predictSeconds": 21.111,
+          "predictSeconds": 20.891,
           "texts": [],
           "textCount": 0
         }
@@ -157,7 +168,7 @@
     },
     "legacyPaddleOcr2xRuntimeAttempt": {
       "status": 0,
-      "durationMs": 7826,
+      "durationMs": 9245,
       "logPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-plan-proof\\35-ocr-paddleocr-ppocr-evaluation\\paddleocr-2x-py310-runtime.log",
       "pythonPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-plan-proof\\35-ocr-paddleocr-ppocr-evaluation\\paddleocr-2x-py310-venv\\Scripts\\python.exe",
       "mode": "PaddleOCR 2.7.0.3 + PaddlePaddle 2.6.2 in isolated Python 3.10 venv",
@@ -184,14 +195,14 @@
         "video",
         "player"
       ],
-      "initSeconds": 1.331,
-      "predictSeconds": 2.411,
-      "cpuTimeMs": 32609,
-      "peakRssBytes": 753274880,
-      "peakRssMiB": 718.4,
+      "initSeconds": 1.565,
+      "predictSeconds": 3.498,
+      "cpuTimeMs": 33500,
+      "peakRssBytes": 753688576,
+      "peakRssMiB": 718.8,
       "error": null
     },
-    "reason": "PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but it extracted zero text from the retained real Vimeo screenshot and from deleted preprocessing variants; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane."
+    "reason": "PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but the mobile detector, cached server detector, and deleted preprocessing variants all extracted zero text from the retained real Vimeo screenshot; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane."
   },
   "placementDecision": {
     "selectedForProduction": false,

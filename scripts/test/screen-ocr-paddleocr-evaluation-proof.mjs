@@ -8,6 +8,7 @@ const repoRoot = process.cwd();
 const outputRoot = resolve(repoRoot, 'output', 'screen-plan-proof', '35-ocr-paddleocr-ppocr-evaluation');
 const proofSummaryPath = join(outputRoot, 'proof-summary.json');
 const runtimeLogPath = join(outputRoot, 'paddleocr-runtime-attempt.log');
+const serverDetectorRuntimeLogPath = join(outputRoot, 'paddleocr-server-detector-runtime-attempt.log');
 const preprocessRuntimeLogPath = join(outputRoot, 'paddleocr-preprocess-runtime-attempt.log');
 const legacyRuntimeLogPath = join(outputRoot, 'paddleocr-2x-py310-runtime.log');
 const legacyRuntimeScriptPath = join(outputRoot, 'paddleocr-2x-py310-runtime.py');
@@ -64,6 +65,7 @@ const tesseractComparisonReady = localRuntimeReady && tesseractInstalled;
 const explicitRuntimeRunRequested = process.env.OCENTRA_RUN_PADDLEOCR_LOCAL === '1';
 const runtimeExecutionAllowed = explicitRuntimeRunRequested && localRuntimeReady;
 const runtimeAttempt = runtimeExecutionAllowed ? runPaddleOcrRuntimeAttempt() : null;
+const serverDetectorRuntimeAttempt = runtimeExecutionAllowed ? runPaddleOcrServerDetectorRuntimeAttempt() : null;
 const preprocessRuntimeAttempt = runtimeExecutionAllowed ? runPaddleOcrPreprocessRuntimeAttempt() : null;
 const explicitLegacyRuntimeRunRequested = process.env.OCENTRA_RUN_PADDLEOCR_2X_LOCAL === '1';
 const legacyRuntimeAvailable = existsSync(legacyRuntimePythonPath);
@@ -160,15 +162,19 @@ const summary = {
     legacyFallbackComparedAgainstTesseract: legacyRuntimeAttempt?.status === 0,
     tesseractMatchedTerms: tesseractTerms,
     paddleOcrRuntimeAttempt: runtimeAttempt,
+    paddleOcrServerDetectorRuntimeAttempt: serverDetectorRuntimeAttempt,
     paddleOcrPreprocessRuntimeAttempt: preprocessRuntimeAttempt,
     legacyPaddleOcr2xRuntimeAttempt: legacyRuntimeAttempt,
     reason: runtimeAttempt
       ? runtimeAttempt.status === 0
         ? runtimeAttempt.extractedTextCount > 0
           ? 'PaddleOCR completed local inference and can be compared against the Tesseract baseline.'
-          : preprocessRuntimeAttempt?.allVariantsDeleted === true
-            ? 'PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but it extracted zero text from the retained real Vimeo screenshot and from deleted preprocessing variants; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane.'
-            : 'PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but it extracted zero text from the retained real Vimeo screenshot; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane.'
+          : serverDetectorRuntimeAttempt?.extractedTextCount === 0 &&
+              preprocessRuntimeAttempt?.allVariantsDeleted === true
+            ? 'PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but the mobile detector, cached server detector, and deleted preprocessing variants all extracted zero text from the retained real Vimeo screenshot; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane.'
+            : preprocessRuntimeAttempt?.allVariantsDeleted === true
+              ? 'PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but it extracted zero text from the retained real Vimeo screenshot and from deleted preprocessing variants; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane.'
+              : 'PaddleOCR completed local PP-OCRv5 inference only after disabling oneDNN/MKLDNN through the documented constructor option, but it extracted zero text from the retained real Vimeo screenshot; Tesseract and the pinned PaddleOCR 2.x fallback remain the only text-extracting OCR candidates in this lane.'
         : 'PaddleOCR packages and models are present, but local inference fails before OCR text extraction; Tesseract remains the only runtime-proved OCR baseline in this lane.'
       : legacyRuntimeAttempt
         ? legacyRuntimeAttempt.status === 0
@@ -270,6 +276,65 @@ print(json.dumps({
     durationMs,
     logPath: runtimeLogPath,
     mode: 'PP-OCRv5_mobile_det + en_PP-OCRv5_mobile_rec with orientation/unwarping/textline disabled, CPU device, enable_mkldnn=false, cpu_threads=2',
+    extractedTexts: parsed?.texts ?? [],
+    extractedTextCount: parsed?.texts?.length ?? 0,
+    initSeconds: parsed?.initSeconds ?? null,
+    predictSeconds: parsed?.predictSeconds ?? null,
+    error,
+  };
+}
+
+function runPaddleOcrServerDetectorRuntimeAttempt() {
+  const code = String.raw`
+from paddleocr import PaddleOCR
+from pathlib import Path
+import json
+import time
+image = Path(r"${sourceImagePath}")
+start = time.perf_counter()
+ocr = PaddleOCR(
+    text_detection_model_name="PP-OCRv5_server_det",
+    text_recognition_model_name="en_PP-OCRv5_mobile_rec",
+    use_doc_orientation_classify=False,
+    use_doc_unwarping=False,
+    use_textline_orientation=False,
+    device="cpu",
+    enable_mkldnn=False,
+    cpu_threads=2,
+)
+init_seconds = time.perf_counter() - start
+start = time.perf_counter()
+result = ocr.predict(str(image))
+predict_seconds = time.perf_counter() - start
+texts = []
+raw_items = []
+for item in result:
+    data = item.json if hasattr(item, "json") else item.to_json() if hasattr(item, "to_json") else item
+    raw_items.append(data)
+    if isinstance(data, dict):
+        for key in ("rec_texts", "texts"):
+            values = data.get(key)
+            if isinstance(values, list):
+                texts.extend(str(value) for value in values)
+print(json.dumps({
+    "initSeconds": round(init_seconds, 3),
+    "predictSeconds": round(predict_seconds, 3),
+    "texts": texts,
+    "itemCount": len(raw_items),
+}, ensure_ascii=False))
+`;
+  const start = performance.now();
+  const result = runOptional('python', ['-c', code]);
+  const durationMs = Math.round(performance.now() - start);
+  const combinedLog = normalizeLog(stripAnsi(`${result.stdout}${result.stderr}`));
+  writeFileSync(serverDetectorRuntimeLogPath, combinedLog);
+  const parsed = parseJsonLine(result.stdout);
+  const error = result.status === 0 ? null : summarizeRuntimeError(combinedLog);
+  return {
+    status: result.status,
+    durationMs,
+    logPath: serverDetectorRuntimeLogPath,
+    mode: 'PP-OCRv5_server_det + en_PP-OCRv5_mobile_rec with orientation/unwarping/textline disabled, CPU device, enable_mkldnn=false, cpu_threads=2',
     extractedTexts: parsed?.texts ?? [],
     extractedTextCount: parsed?.texts?.length ?? 0,
     initSeconds: parsed?.initSeconds ?? null,

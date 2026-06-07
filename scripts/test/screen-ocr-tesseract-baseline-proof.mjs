@@ -204,6 +204,7 @@ function readOptionalJson(path) {
 function buildPaddleOcrComparison(evaluation, expectedTerms) {
   const runtimeComparison = evaluation?.runtimeAndQualityComparison ?? {};
   const currentAttempt = runtimeComparison.paddleOcrRuntimeAttempt ?? null;
+  const serverDetectorAttempt = runtimeComparison.paddleOcrServerDetectorRuntimeAttempt ?? null;
   const preprocessAttempt = runtimeComparison.paddleOcrPreprocessRuntimeAttempt ?? null;
   const legacyAttempt = runtimeComparison.legacyPaddleOcr2xRuntimeAttempt ?? null;
   const legacyMatchedTerms = Array.isArray(legacyAttempt?.matchedTerms) ? legacyAttempt.matchedTerms : [];
@@ -215,6 +216,8 @@ function buildPaddleOcrComparison(evaluation, expectedTerms) {
     tesseractMatchedTerms: matchedTerms,
     currentPpOcrV5Status: currentAttempt?.status ?? null,
     currentPpOcrV5ExtractedTextCount: currentAttempt?.extractedTextCount ?? null,
+    currentPpOcrV5ServerDetectorStatus: serverDetectorAttempt?.status ?? null,
+    currentPpOcrV5ServerDetectorExtractedTextCount: serverDetectorAttempt?.extractedTextCount ?? null,
     currentPpOcrV5PreprocessMaxTextCount: preprocessAttempt?.maxExtractedTextCount ?? null,
     legacyFallbackStatus: legacyAttempt?.status ?? null,
     legacyFallbackExtractedTextCount: legacyAttempt?.extractedTextCount ?? null,
@@ -223,8 +226,9 @@ function buildPaddleOcrComparison(evaluation, expectedTerms) {
     conclusion:
       expectedTerms.every((term) => legacyMatchedTerms.includes(term)) &&
       currentAttempt?.extractedTextCount === 0 &&
+      serverDetectorAttempt?.extractedTextCount === 0 &&
       preprocessAttempt?.maxExtractedTextCount === 0
-        ? 'Tesseract and the isolated local PaddleOCR 2.x fallback both matched the expected Vimeo proof terms; current PP-OCRv5 local inference still extracts zero text, so Windows service OCR selection remains WinRT and PaddleOCR remains unselected.'
+        ? 'Tesseract and the isolated local PaddleOCR 2.x fallback both matched the expected Vimeo proof terms; current PP-OCRv5 mobile detector, server detector, and preprocessing variants still extract zero text, so Windows service OCR selection remains WinRT and PaddleOCR remains unselected.'
         : 'PaddleOCR comparison is incomplete or not production-selectable for this proof image.',
   };
 }

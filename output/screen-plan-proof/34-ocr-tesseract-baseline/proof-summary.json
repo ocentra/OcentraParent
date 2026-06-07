@@ -1,6 +1,6 @@
 {
   "proof": "screen-ocr-tesseract-baseline",
-  "generatedAt": "2026-06-07T12:12:06.825Z",
+  "generatedAt": "2026-06-07T12:34:13.477Z",
   "officialSourceSnapshot": {
     "project": "https://github.com/tesseract-ocr/tesseract",
     "documentation": "https://tesseract-ocr.github.io/tessdoc/",
@@ -27,10 +27,10 @@
     "sourceImageKind": "retained real managed-browser public Vimeo screenshot artifact",
     "sourceImageExists": true,
     "commandStatus": 0,
-    "durationMs": 759,
-    "cpuTimeMs": 344,
-    "peakWorkingSetBytes": 46485504,
-    "peakWorkingSetMiB": 44.3,
+    "durationMs": 965,
+    "cpuTimeMs": 453,
+    "peakWorkingSetBytes": 46854144,
+    "peakWorkingSetMiB": 44.7,
     "outputArtifact": "output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-tesseract-output.txt",
     "outputCharacterCount": 469,
     "matchedTerms": [
@@ -54,10 +54,10 @@
         "description": "Same retained real screenshot with sparse-text OCR segmentation.",
         "sourceImage": "output/browser-plan-proof/social-14-managed-browser-feed-short-video-gate/06-live-screenshots/vimeo-public-video.png",
         "commandStatus": 0,
-        "durationMs": 768,
-        "cpuTimeMs": 375,
-        "peakWorkingSetBytes": 46104576,
-        "peakWorkingSetMiB": 44,
+        "durationMs": 888,
+        "cpuTimeMs": 391,
+        "peakWorkingSetBytes": 46055424,
+        "peakWorkingSetMiB": 43.9,
         "outputCharacterCount": 494,
         "matchedTerms": [
           "vimeo",
@@ -71,9 +71,9 @@
         "description": "Same retained real screenshot downscaled before OCR to simulate small text sensitivity.",
         "sourceImage": "output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-downscaled.png",
         "commandStatus": 0,
-        "durationMs": 626,
-        "cpuTimeMs": 203,
-        "peakWorkingSetBytes": 32264192,
+        "durationMs": 719,
+        "cpuTimeMs": 281,
+        "peakWorkingSetBytes": 32292864,
         "peakWorkingSetMiB": 30.8,
         "outputCharacterCount": 106,
         "matchedTerms": [
@@ -88,10 +88,10 @@
         "description": "Same retained real screenshot cropped to the lower player/control region before OCR.",
         "sourceImage": "output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-player-crop.png",
         "commandStatus": 0,
-        "durationMs": 641,
-        "cpuTimeMs": 250,
-        "peakWorkingSetBytes": 39780352,
-        "peakWorkingSetMiB": 37.9,
+        "durationMs": 757,
+        "cpuTimeMs": 297,
+        "peakWorkingSetBytes": 39849984,
+        "peakWorkingSetMiB": 38,
         "outputCharacterCount": 350,
         "matchedTerms": [
           "vimeo",
@@ -127,6 +127,8 @@
       ],
       "currentPpOcrV5Status": 0,
       "currentPpOcrV5ExtractedTextCount": 0,
+      "currentPpOcrV5ServerDetectorStatus": 0,
+      "currentPpOcrV5ServerDetectorExtractedTextCount": 0,
       "currentPpOcrV5PreprocessMaxTextCount": 0,
       "legacyFallbackStatus": 0,
       "legacyFallbackExtractedTextCount": 15,
@@ -136,7 +138,7 @@
         "player"
       ],
       "legacyFallbackMatchedExpectedTerms": true,
-      "conclusion": "Tesseract and the isolated local PaddleOCR 2.x fallback both matched the expected Vimeo proof terms; current PP-OCRv5 local inference still extracts zero text, so Windows service OCR selection remains WinRT and PaddleOCR remains unselected."
+      "conclusion": "Tesseract and the isolated local PaddleOCR 2.x fallback both matched the expected Vimeo proof terms; current PP-OCRv5 mobile detector, server detector, and preprocessing variants still extract zero text, so Windows service OCR selection remains WinRT and PaddleOCR remains unselected."
     },
     "reason": "Tesseract is installed and extracted expected text from a retained real public Vimeo screenshot artifact; the isolated local PaddleOCR 2.x fallback extracted the same expected terms, while current PP-OCRv5 remains unselected because it still extracts zero text."
   },
