@@ -318,6 +318,17 @@ dev-only repo when it claims consumer readiness.
   execution, provider execution, account lookup, billing provider contact,
   legal disclosure execution, remote support sessions, production SLA,
   provider-secret custody, and child activity custody as explicit non-claims.
+- `production-support-status-backend-runtime-closure-proof` adds a parent-domain
+  closure contract that composes the status backend runtime execution,
+  queue/audit persistence, dead-letter, payload-custody, redaction-manifest,
+  and public-runtime follow-through proof refs. It proves only support-safe
+  status labels and source refs while preserving real status backend execution,
+  durable queue storage, retry-worker execution, audit persistence, dead-letter
+  payload custody, status backend payload custody, redaction manifest execution,
+  public runtime execution, provider execution, support backend upload
+  execution, account lookup, billing provider contact, legal disclosure
+  execution, remote support sessions, production SLA, provider-secret custody,
+  and child activity custody as explicit non-claims.
 - `production-support-privacy-legal-disclosure-status-proof` adds
   logging-domain privacy/legal disclosure status rows for disclosure requested,
   parent-authorized, legal-review queued, legal-review running,
@@ -806,6 +817,19 @@ package/runtime proof.
       disclosure execution, remote support sessions, production SLA,
       provider-secret custody, and child activity custody remain unimplemented
       or unclaimed.
+- [ ] Production support status backend runtime closure proof. Current
+      `production-support-status-backend-runtime-closure-proof` composes the
+      status backend runtime execution, queue/audit persistence, dead-letter,
+      payload-custody, redaction-manifest, and public-runtime follow-through
+      proof refs into one support-safe closure read model. It remains
+      deterministic parent-domain contract proof only: real status backend
+      execution, durable queue storage, retry-worker execution, audit
+      persistence, dead-letter payload custody, status backend payload custody,
+      redaction manifest execution, public runtime execution, provider
+      execution, support backend upload execution, account lookup, billing
+      provider contact, legal disclosure execution, remote support sessions,
+      production SLA, provider-secret custody, and child activity custody
+      remain unimplemented or unclaimed.
 - [ ] Production support privacy/legal disclosure status proof. Current
       `production-support-privacy-legal-disclosure-status-proof` covers
       privacy/legal disclosure requested, parent-authorized, legal-review
