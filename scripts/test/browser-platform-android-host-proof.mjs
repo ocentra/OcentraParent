@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
+import { inflateSync } from 'node:zlib';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -281,24 +282,26 @@ function captureDeviceSurfaceEvidence(adbPath, serial, headlessEmulator) {
     allowFailure: true,
   });
 
-  const screenshotCaptured = screenshot.length > 8;
-  if (screenshotCaptured) {
+  const screenshotUsable = screenshot.length > 8 && pngHasVisibleNonBlackPixel(screenshot);
+  if (screenshotUsable) {
     writeFileSync(screenshotProofPath, screenshot);
+  } else if (existsSync(screenshotProofPath)) {
+    rmSync(screenshotProofPath);
   }
 
   return {
     serialRef,
-    screenshotCaptured,
-    screenshotPersisted: screenshotCaptured,
-    screenshotCaptureState: screenshotCaptured
+    screenshotCaptured: screenshotUsable,
+    screenshotPersisted: screenshotUsable,
+    screenshotCaptureState: screenshotUsable
       ? 'captured'
-      : headlessEmulator
+      : screenshot.length > 8 || headlessEmulator
         ? 'not-used-headless-emulator-screencap-was-black'
         : 'not-captured',
-    screenshotPath: screenshotCaptured
+    screenshotPath: screenshotUsable
       ? 'output/browser-plan-proof/05-cross-platform-inventory-matrix/11-android-host-device-screenshot.png'
       : null,
-    screenshotSha256: screenshotCaptured ? sha256(screenshot) : null,
+    screenshotSha256: screenshotUsable ? sha256(screenshot) : null,
     uiTreeCaptured: uiTree.includes('<hierarchy'),
     uiTreeRawPersisted: false,
     uiTreeSha256: uiTree.length > 0 ? sha256(uiTree) : null,
@@ -309,6 +312,120 @@ function captureDeviceSurfaceEvidence(adbPath, serial, headlessEmulator) {
     pageContentCaptured: false,
     browserSecretCaptured: false,
   };
+}
+
+function pngHasVisibleNonBlackPixel(buffer) {
+  try {
+    const png = decodePng(buffer);
+    return png.pixels.some((value, index) => {
+      if (png.channels === 4 && index % 4 === 3) {
+        return false;
+      }
+      return value > 12;
+    });
+  } catch {
+    return false;
+  }
+}
+
+function decodePng(buffer) {
+  const signature = buffer.subarray(0, 8).toString('hex');
+  if (signature !== '89504e470d0a1a0a') {
+    throw new Error('Expected PNG signature');
+  }
+  let offset = 8;
+  let width = 0;
+  let height = 0;
+  let bitDepth = 0;
+  let colorType = 0;
+  const chunks = [];
+  while (offset < buffer.length) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.subarray(offset + 4, offset + 8).toString('ascii');
+    const data = buffer.subarray(offset + 8, offset + 8 + length);
+    offset += 12 + length;
+    if (type === 'IHDR') {
+      width = data.readUInt32BE(0);
+      height = data.readUInt32BE(4);
+      bitDepth = data.readUInt8(8);
+      colorType = data.readUInt8(9);
+    }
+    if (type === 'IDAT') {
+      chunks.push(data);
+    }
+    if (type === 'IEND') {
+      break;
+    }
+  }
+  if (bitDepth !== 8 || width <= 0 || height <= 0 || chunks.length === 0) {
+    throw new Error('Expected 8-bit PNG with image data');
+  }
+  const channels = pngChannels(colorType);
+  const stride = width * channels;
+  const inflated = inflateSync(Buffer.concat(chunks));
+  const pixels = Buffer.alloc(stride * height);
+  for (let y = 0; y < height; y += 1) {
+    const sourceOffset = y * (stride + 1);
+    const filter = inflated[sourceOffset];
+    const source = inflated.subarray(sourceOffset + 1, sourceOffset + 1 + stride);
+    const targetOffset = y * stride;
+    unfilterPngScanline(filter, source, pixels, targetOffset, stride, channels);
+  }
+  return { channels, pixels };
+}
+
+function pngChannels(colorType) {
+  if (colorType === 0) {
+    return 1;
+  }
+  if (colorType === 2) {
+    return 3;
+  }
+  if (colorType === 6) {
+    return 4;
+  }
+  throw new Error(`Unsupported PNG color type ${colorType}`);
+}
+
+function unfilterPngScanline(filter, source, target, targetOffset, stride, bytesPerPixel) {
+  for (let x = 0; x < stride; x += 1) {
+    const raw = source[x];
+    const left = x >= bytesPerPixel ? target[targetOffset + x - bytesPerPixel] : 0;
+    const up = targetOffset >= stride ? target[targetOffset + x - stride] : 0;
+    const upperLeft =
+      x >= bytesPerPixel && targetOffset >= stride ? target[targetOffset + x - stride - bytesPerPixel] : 0;
+    target[targetOffset + x] = (raw + pngFilterValue(filter, left, up, upperLeft)) & 0xff;
+  }
+}
+
+function pngFilterValue(filter, left, up, upperLeft) {
+  if (filter === 0) {
+    return 0;
+  }
+  if (filter === 1) {
+    return left;
+  }
+  if (filter === 2) {
+    return up;
+  }
+  if (filter === 3) {
+    return Math.floor((left + up) / 2);
+  }
+  if (filter === 4) {
+    return paeth(left, up, upperLeft);
+  }
+  throw new Error(`Unsupported PNG filter ${filter}`);
+}
+
+function paeth(left, up, upperLeft) {
+  const estimate = left + up - upperLeft;
+  const leftDistance = Math.abs(estimate - left);
+  const upDistance = Math.abs(estimate - up);
+  const upperLeftDistance = Math.abs(estimate - upperLeft);
+  if (leftDistance <= upDistance && leftDistance <= upperLeftDistance) {
+    return left;
+  }
+  return upDistance <= upperLeftDistance ? up : upperLeft;
 }
 
 function queryPackage(adbPath, serial, target) {

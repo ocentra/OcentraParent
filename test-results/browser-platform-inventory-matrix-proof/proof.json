@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-platform-inventory-matrix-proof",
-  "generatedAt": "2026-06-07T02:44:00.277Z",
+  "generatedAt": "2026-06-07T05:04:40.853Z",
   "proofContract": "packages/activity-domain/src/browser-platform-inventory-matrix.ts",
   "sourceWorkpack": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
   "rows": [

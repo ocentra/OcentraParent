@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofId": "browser-platform-linux-host-proof",
-  "generatedAt": "2026-06-07T01:15:04.336Z",
+  "generatedAt": "2026-06-07T05:04:36.068Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "99643058b19903f3b7c5970fdc0bf48e0bacc418",
-  "baseCommit": "8c8fad79a50e914922fbc84984878211e127897e",
+  "commit": "42168c98190b522de26df609879e7063daa67ccf",
+  "baseCommit": "39ab1c72f20fa79ebe440c652d2baf791334ed99",
   "hostProofSummary": {
     "wslAvailable": true,
     "distroName": "Ubuntu-22.04",
