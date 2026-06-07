@@ -469,6 +469,16 @@ only with explicit parent settings.
   platform live-view permission-prompt screenshots, relay/cache execution,
   parent UI persistence, physical-device parity, and privacy/legal approval
   remain separate gates.
+- `scripts/test/screen-live-view-service-session-proof.mjs` now consumes the
+  real loopback live-frame transport/deletion artifact and proves the service
+  session readiness boundary. The new `ScreenLiveViewServiceSessionGateSchema`
+  accepts disabled and loopback-transport-only rows while keeping product live
+  view false, and rejects product-readiness overclaims without live-view
+  permission evidence, parent UI persistence, service runtime, no frame cache,
+  no session recording, and no remote input. The proof writes
+  `output/screen-plan-proof/live-view-service-session/proof-summary.json`. This
+  is not production service runtime, platform prompt screenshot, relay/cache,
+  parent UI persistence, privacy/legal approval, or product-complete live view.
 - `ScreenManagedBrowserCdpScreenshotRequestSchema`,
   `ScreenManagedBrowserCdpScreenshotArtifactSchema`, and
   `scripts/test/screen-managed-browser-cdp-capture-proof.mjs` now prove the
@@ -747,6 +757,11 @@ parity, and UI remain separate proof gates.
 - [x] Local live-view session transport proof captures one real active-window
       frame, validates view-only loopback delivery with digest/HMAC, and deletes
       the raw temp frame without cache, recording, or remote input.
+- [x] Live-view service-session readiness proof consumes the real loopback
+      transport/deletion artifact as a non-product-ready row and rejects
+      product readiness until service runtime, live-view platform prompt proof,
+      parent UI persistence, no frame cache, no recording, and no remote input
+      are present.
 - [x] Local AI resource scheduler prevents multiple heavy OCR/VLM jobs and
       prioritizes policy-blocking screen analysis.
 - [x] Detector-specific prompt packs replace open-ended screen descriptions and

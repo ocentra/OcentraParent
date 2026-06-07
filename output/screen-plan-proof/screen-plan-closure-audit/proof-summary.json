@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T08:16:55.024Z",
+  "generatedAt": "2026-06-07T08:31:42.751Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -93,7 +93,7 @@
       "status": "~",
       "requiredProof": "output/screen-plan-proof/live-view-platform-permission/proof-summary.json",
       "proofPresent": true,
-      "gate": "Fail-closed platform permission gate and local loopback live-frame transport proof exist; real platform live-view prompt screenshots, production service session runtime, relay/cache execution, privacy/legal approval, and product UI persistence remain."
+      "gate": "Fail-closed platform permission gate, local loopback live-frame transport proof, and service-session readiness boundary proof exist; real platform live-view prompt screenshots, production service session runtime, relay/cache execution, privacy/legal approval, and product UI persistence remain."
     },
     {
       "id": "30",
@@ -147,6 +147,10 @@
     },
     {
       "artifact": "output/screen-plan-proof/live-view-session-transport/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-service-session/proof-summary.json",
       "present": true
     },
     {

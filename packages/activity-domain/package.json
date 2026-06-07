@@ -229,6 +229,10 @@
       "import": "./dist/screen-ai-browser-trigger-proof.js",
       "types": "./dist/screen-ai-browser-trigger-proof.d.ts"
     },
+    "./screen-live-view-service-session": {
+      "import": "./dist/screen-live-view-service-session.js",
+      "types": "./dist/screen-live-view-service-session.d.ts"
+    },
     "./tracking": {
       "import": "./dist/tracking.js",
       "types": "./dist/tracking.d.ts"

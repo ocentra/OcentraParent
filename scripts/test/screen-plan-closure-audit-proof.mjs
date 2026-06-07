@@ -41,7 +41,7 @@ const workpacks = [
     label: 'Live view optional mode',
     status: workpackStatus('28 Live view optional mode'),
     requiredProof: 'output/screen-plan-proof/live-view-platform-permission/proof-summary.json',
-    gate: 'Fail-closed platform permission gate and local loopback live-frame transport proof exist; real platform live-view prompt screenshots, production service session runtime, relay/cache execution, privacy/legal approval, and product UI persistence remain.',
+    gate: 'Fail-closed platform permission gate, local loopback live-frame transport proof, and service-session readiness boundary proof exist; real platform live-view prompt screenshots, production service session runtime, relay/cache execution, privacy/legal approval, and product UI persistence remain.',
   },
   {
     id: '30',
@@ -121,6 +121,7 @@ const summary = {
     'output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/parent-redaction-policy.json',
     'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
     'output/screen-plan-proof/live-view-session-transport/proof-summary.json',
+    'output/screen-plan-proof/live-view-service-session/proof-summary.json',
     'output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json',
     'output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json',
     'output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json',

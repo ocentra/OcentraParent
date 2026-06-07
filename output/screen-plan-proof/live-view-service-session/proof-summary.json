@@ -1,0 +1,106 @@
+{
+  "proof": "screen-live-view-service-session-proof",
+  "generatedAt": "2026-06-07T08:31:46.343Z",
+  "claim": "The real loopback live-frame transport artifact can be represented as a non-product-ready service-session readiness row, while product live view remains blocked until service runtime, live-view platform prompt evidence, parent UI persistence, and no-retention/no-input gates are proven.",
+  "sourceEvidence": {
+    "transportProof": "output/screen-plan-proof/live-view-session-transport/proof-summary.json",
+    "transportProofPresent": true,
+    "realPixelsCaptured": true,
+    "localTransportDeliveredFrame": true,
+    "rawFrameDeletedAfterTransport": true,
+    "platformPermissionProof": "output/screen-plan-proof/live-view-platform-permission/proof-summary.json",
+    "platformPermissionProofPresent": true,
+    "platformGateLiveViewProductReady": false
+  },
+  "currentRows": [
+    {
+      "liveViewMode": "disabled",
+      "transportMode": "none",
+      "permissionEvidenceKind": "missing",
+      "serviceSessionState": "disabled",
+      "parentUiPersistenceState": "notRequired",
+      "relayCacheState": "notUsed",
+      "liveTransportProofRef": null,
+      "rawFrameDeletedAfterTransport": true,
+      "productLiveViewReady": false
+    },
+    {
+      "liveViewMode": "lanOnlyView",
+      "transportMode": "lanMutualAuth",
+      "permissionEvidenceKind": "screen-capture-only",
+      "serviceSessionState": "loopbackTransportOnly",
+      "parentUiPersistenceState": "missing",
+      "relayCacheState": "notUsed",
+      "liveTransportProofRef": "screen-live-view-loopback-transport-proof",
+      "rawFrameDeletedAfterTransport": true,
+      "productLiveViewReady": false
+    }
+  ],
+  "futureReferenceRows": [
+    {
+      "referenceOnly": true,
+      "liveViewMode": "lanOnlyView",
+      "transportMode": "lanMutualAuth",
+      "requiredPermissionEvidenceKind": "live-view-permission",
+      "requiredServiceSessionState": "serviceRuntimeReady",
+      "requiredParentUiPersistenceState": "proved",
+      "requiredRelayCacheState": "notUsed",
+      "readyOnlyAfterEvidenceExists": true
+    },
+    {
+      "referenceOnly": true,
+      "liveViewMode": "relayBackedView",
+      "transportMode": "relayEndToEndEncrypted",
+      "requiredPermissionEvidenceKind": "live-view-permission",
+      "requiredServiceSessionState": "serviceRuntimeReady",
+      "requiredParentUiPersistenceState": "proved",
+      "requiredRelayCacheState": "proved",
+      "readyOnlyAfterEvidenceExists": true
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "loopback transport cannot mark product live view ready",
+      "rejected": true
+    },
+    {
+      "name": "product live view requires live-view permission evidence",
+      "rejected": true
+    },
+    {
+      "name": "product live view requires parent UI persistence proof",
+      "rejected": true
+    },
+    {
+      "name": "product live view cannot cache frames",
+      "rejected": true
+    },
+    {
+      "name": "product live view cannot record sessions",
+      "rejected": true
+    },
+    {
+      "name": "product live view cannot allow remote input",
+      "rejected": true
+    }
+  ],
+  "gapStatus": {
+    "loopbackTransportProofExists": true,
+    "serviceSessionRuntimeProofExists": false,
+    "parentUiPersistenceProofExists": false,
+    "relayCacheProofExists": false,
+    "liveViewProductReady": false
+  },
+  "assertions": {
+    "realLoopbackTransportArtifactConsumed": true,
+    "rawFrameDeletionCarriedForward": true,
+    "loopbackTransportRemainsNonProductReady": true,
+    "productReadinessOverclaimRejected": true,
+    "noRemoteInputNoRecordingNoFrameCache": true
+  },
+  "nonClaims": [
+    "This proof does not implement production service live-view session workers.",
+    "This proof does not claim platform live-view permission-prompt screenshots or privacy/legal approval.",
+    "This proof does not claim parent UI persistence, relay/cache execution, session recording, remote input, or product-complete live view."
+  ]
+}
