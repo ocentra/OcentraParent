@@ -312,6 +312,14 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   delivery, receipt ingestion, scheduler runtime, parent notification UI,
   report delivery execution, final policy execution, connector/native runtime,
   and enforcement remain unclaimed.
+- `social-alert-report-parent-surface-intent-proof` now adds a parent-domain
+  social alert/report parent-surface intent read model for provider-status
+  handoff rows. It exposes manual-action-required and unavailable-visible rows
+  with notification status refs, readiness refs, audit refs, and manual proof
+  requirements for future authenticated drill-in. It does not render parent
+  notification UI and does not claim provider delivery, receipts, report
+  delivery execution, final policy execution, connector/native runtime, or
+  enforcement.
 - `social-report-writer-delivery-proof` now adds a parent-owned report writer
   delivery-readiness boundary for social report intents. It proves report-ready
   rows can cite parent-owned report artifacts and receipts while keeping
@@ -403,7 +411,8 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
       enforcement remain unproved.
 - [ ] Alert and report integration. Alert/report intent proof exists with
       ref-only local-outbox/report linkage, a parent-owned local outbox JSONL
-      bridge for eligible rows, plus service-backed Browser-route rendering.
+      bridge for eligible rows, parent-surface manual/unavailable intent rows,
+      plus service-backed Browser-route rendering.
       `social-alert-report-provider-preflight-proof` now requires adapter,
       credential, and smoke proof refs before delivery can be claimed.
       `social-alert-report-provider-status-handoff-proof` maps those rows into

@@ -255,6 +255,14 @@ must not claim provider dispatch, provider receipt, scheduler runtime, parent
 notification UI delivery, report delivery execution, final policy execution,
 connector/native runtime, or enforcement.
 
+Social alert/report parent-surface intent contracts may project provider-status
+handoff rows into parent-visible manual-action-required and unavailable-visible
+surface intent rows with notification status refs, readiness refs, audit refs,
+and manual proof requirements. They may prepare data for a future authenticated
+parent notification surface, but must not claim rendered parent notification UI,
+provider dispatch, provider receipt, report delivery execution, final policy
+execution, connector/native runtime, or enforcement.
+
 Social proof artifact gates may verify checklist ownership, proof folders,
 required source/security/validation/UI-marker files, README references, and
 feature/expectation coverage. They may cite rendered Playwright/screenshot

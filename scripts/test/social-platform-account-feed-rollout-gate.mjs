@@ -18,6 +18,8 @@ const requiredRolloutProofFiles = [
   'test-results/social-alert-report-local-outbox-bridge-proof/proof.json',
   'test-results/social-alert-report-local-outbox-bridge-proof/local-outbox-records.jsonl',
   'output/browser-plan-proof/social-alert-report-local-outbox-bridge-proof/01-social-alert-report-local-outbox-bridge-proof.md',
+  'test-results/social-alert-report-parent-surface-intent-proof/proof.json',
+  'output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md',
 ];
 
 const rolloutGuards = [
@@ -159,6 +161,7 @@ function manifestFor(rows, failures) {
       'social-live-evidence-decision-memory-proof-present',
       'social-alert-report-intent-proof-present',
       'social-alert-report-local-outbox-bridge-proof-present',
+      'social-alert-report-parent-surface-intent-proof-present',
       'social-alert-report-intent-ui-proof-present',
       'social-alert-report-provider-preflight-proof-present',
       'social-alert-report-provider-status-handoff-proof-present',
@@ -220,6 +223,7 @@ function markdownFor(manifest) {
     'Live SOCIAL-19 evidence-bound decision memory proof is present.',
     'Ref-only social alert/report intent proof is present.',
     'Parent-owned social alert/report local outbox JSONL bridge proof is present.',
+    'Social alert/report parent-surface intent proof is present for manual/unavailable status rows.',
     'Service-backed social alert/report intent UI proof is present for the real Browser route.',
     'Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.',
     'Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.',

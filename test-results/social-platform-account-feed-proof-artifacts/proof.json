@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-07T07:12:49.585Z",
+  "generatedAt": "2026-06-07T07:37:43.043Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -422,6 +422,7 @@
     "liveEvidenceDecisionMemoryBoundary": "proof-present",
     "alertReportIntent": "proof-present",
     "alertReportLocalOutboxBridge": "parent-owned-local-outbox-jsonl-proof-present",
+    "alertReportParentSurfaceIntent": "manual-unavailable-parent-surface-intent-proof-present",
     "alertReportIntentUi": "service-backed-browser-route-proof-present",
     "alertReportProviderPreflight": "provider-adapter-required-proof-present",
     "alertReportProviderStatusHandoff": "provider-status-boundary-proof-present",
@@ -482,6 +483,14 @@
     },
     {
       "file": "output/browser-plan-proof/social-alert-report-local-outbox-bridge-proof/01-social-alert-report-local-outbox-bridge-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-parent-surface-intent-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md",
       "present": true
     }
   ]

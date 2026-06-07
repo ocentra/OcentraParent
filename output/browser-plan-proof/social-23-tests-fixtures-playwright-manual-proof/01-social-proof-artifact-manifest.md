@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-07T07:12:49.585Z
+Generated: 2026-06-07T07:37:43.043Z
 
 Rows checked: 22
 Proof-present rows: 21
@@ -52,6 +52,7 @@ Live public connector boundary proof is present for SOCIAL-18 Google/YouTube, Me
 Live-evidence decision memory proof is present for SOCIAL-19 ref-only cache snapshots.
 Ref-only social alert/report intent proof is present.
 Parent-owned social alert/report local outbox JSONL bridge proof is present.
+Social alert/report parent-surface intent proof is present for manual/unavailable status rows.
 Service-backed social alert/report intent UI proof is present for the real Browser route.
 Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.
 Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.

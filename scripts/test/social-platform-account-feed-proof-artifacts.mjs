@@ -20,6 +20,8 @@ const requiredSupplementalProofFiles = [
   'test-results/social-alert-report-local-outbox-bridge-proof/proof.json',
   'test-results/social-alert-report-local-outbox-bridge-proof/local-outbox-records.jsonl',
   'output/browser-plan-proof/social-alert-report-local-outbox-bridge-proof/01-social-alert-report-local-outbox-bridge-proof.md',
+  'test-results/social-alert-report-parent-surface-intent-proof/proof.json',
+  'output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md',
 ];
 
 if (!existsSync(proofRoot)) {
@@ -195,6 +197,7 @@ function manifestFor(rows, failures) {
       liveEvidenceDecisionMemoryBoundary: 'proof-present',
       alertReportIntent: 'proof-present',
       alertReportLocalOutboxBridge: 'parent-owned-local-outbox-jsonl-proof-present',
+      alertReportParentSurfaceIntent: 'manual-unavailable-parent-surface-intent-proof-present',
       alertReportIntentUi: 'service-backed-browser-route-proof-present',
       alertReportProviderPreflight: 'provider-adapter-required-proof-present',
       alertReportProviderStatusHandoff: 'provider-status-boundary-proof-present',
@@ -253,6 +256,7 @@ function markdownFor(manifest) {
     'Live-evidence decision memory proof is present for SOCIAL-19 ref-only cache snapshots.',
     'Ref-only social alert/report intent proof is present.',
     'Parent-owned social alert/report local outbox JSONL bridge proof is present.',
+    'Social alert/report parent-surface intent proof is present for manual/unavailable status rows.',
     'Service-backed social alert/report intent UI proof is present for the real Browser route.',
     'Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.',
     'Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.',

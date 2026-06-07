@@ -419,6 +419,21 @@ provider delivery, receipts, scheduler runtime, parent notification UI, report
 delivery execution, final policy execution, connector/native runtime, and
 enforcement remain unclaimed.
 
+The follow-up `social-alert-report-parent-surface-intent-proof` adds
+`packages/parent-domain/src/social-alert-report-parent-surface-intent-proof.ts`
+and
+`packages/parent-domain/tests/social-alert-report-parent-surface-intent-proof.test.ts`,
+a parent-domain parent-surface intent read model for social alert/report
+provider-status handoff rows. The proof writes
+`test-results/social-alert-report-parent-surface-intent-proof/proof.json`,
+`test-results/social-alert-report-parent-surface-intent-proof/parent-surface-intent-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md`.
+It projects provider-status handoff rows into parent-visible manual/unavailable
+surface intent rows with status/readiness/audit refs, but it does not render
+parent notification UI or claim provider delivery, receipts, report delivery
+execution, final policy execution, connector/native runtime, or enforcement.
+
 The follow-up `social-report-writer-delivery-proof` adds
 `packages/parent-domain/src/social-report-writer-delivery-proof.ts` and
 `packages/parent-domain/tests/social-report-writer-delivery-proof.test.ts`, a
