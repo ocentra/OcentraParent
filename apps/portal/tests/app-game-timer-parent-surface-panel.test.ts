@@ -37,6 +37,9 @@ const TimerParentSurfaceReadModel = {
   childUxHandoffReadyCount: 0,
   childUxHandoffBlockedCount: 0,
   childUxHandoffReferenceIds: [],
+  childUxLocalHandoffArtifactRecordCount: 0,
+  childUxLocalHandoffArtifactSkippedCount: 0,
+  childUxLocalHandoffArtifactReferenceIds: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -91,67 +94,8 @@ function expectServiceBackedIntent() {
   });
 
   const intent = createAppGameTimerParentSurfacePanelIntent(liveActivity.appGameTimerParentSurfaceReadModel);
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Timer runtime',
-    value: 'Not claimed',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Scheduler persistence',
-    value: 'Not claimed',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Durable scheduler storage',
-    value: 'Not claimed',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Control action results',
-    value: '0',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Control action result refs',
-    value: 'Not reported',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Control action result statuses',
-    value: 'Not reported',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Child-facing reason refs',
-    value: 'Not reported',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Child-facing status refs',
-    value: 'Not reported',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Child UX handoff ready',
-    value: '0',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Child UX handoff blocked',
-    value: '0',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Child UX handoff refs',
-    value: 'Not reported',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Adapter dispatch',
-    value: 'Not claimed',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Child delivery',
-    value: 'Not claimed',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Platform state',
-    value: 'Not claimed',
-  });
-  expect(intent.rows.map((row) => row.title)).toEqual(['identity-study-timer', 'identity-voxel-quest']);
-  expect(rowPairs(intent.rows[0])).toContainEqual(['Target type', 'Native app']);
-  expect(rowPairs(intent.rows[0])).toContainEqual(['Status', 'Ready for parent surface']);
-  expect(rowPairs(intent.rows[1])).toContainEqual(['Target type', 'Native game']);
-  expect(rowPairs(intent.rows[1])).toContainEqual(['Status', 'Blocked by source freshness']);
+  expectNoRuntimeSummaryDetails(intent.summaryDetails);
+  expectTimerParentSurfaceRows(intent.rows);
 }
 
 function expectActiveStateVisibility() {
@@ -211,51 +155,15 @@ function expectControlActionResultVisibility() {
     childUxHandoffReadyCount: 1,
     childUxHandoffBlockedCount: 0,
     childUxHandoffReferenceIds: ['action-result-app-game-1'],
+    childUxLocalHandoffArtifactRecordCount: 1,
+    childUxLocalHandoffArtifactSkippedCount: 0,
+    childUxLocalHandoffArtifactReferenceIds: ['app-game-child-ux-local-handoff-action-result-app-game-1'],
   };
   const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(actionResultModel))]);
 
   const intent = createAppGameTimerParentSurfacePanelIntent(liveActivity.appGameTimerParentSurfaceReadModel);
 
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Control action results',
-    value: '1',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Control action result refs',
-    value: 'action-result-app-game-1',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Control action result statuses',
-    value: 'enforced',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Control action capabilities',
-    value: 'supported',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Control action enforcement statuses',
-    value: 'actually-enforced',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Child-facing reason refs',
-    value: 'parent-approved',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Child-facing status refs',
-    value: 'child-status-limit-reached',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Child UX handoff ready',
-    value: '1',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Child UX handoff blocked',
-    value: '0',
-  });
-  expect(intent.summaryDetails).toContainEqual({
-    label: 'Child UX handoff refs',
-    value: 'action-result-app-game-1',
-  });
+  expectActionResultSummaryDetails(intent.summaryDetails);
   expect(intent.summaryDetails).toContainEqual({
     label: 'Adapter dispatch',
     value: 'Not claimed',
@@ -265,6 +173,62 @@ function expectControlActionResultVisibility() {
     value:
       'Control action-result rows are visible from app/game SQLite replay; live scheduling automation, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.',
   });
+}
+
+function expectNoRuntimeSummaryDetails(
+  summaryDetails: ReturnType<typeof createAppGameTimerParentSurfacePanelIntent>['summaryDetails']
+) {
+  for (const detail of [
+    ['Timer runtime', 'Not claimed'],
+    ['Scheduler persistence', 'Not claimed'],
+    ['Durable scheduler storage', 'Not claimed'],
+    ['Control action results', '0'],
+    ['Control action result refs', 'Not reported'],
+    ['Control action result statuses', 'Not reported'],
+    ['Child-facing reason refs', 'Not reported'],
+    ['Child-facing status refs', 'Not reported'],
+    ['Child UX handoff ready', '0'],
+    ['Child UX handoff blocked', '0'],
+    ['Child UX handoff refs', 'Not reported'],
+    ['Child UX local artifact records', '0'],
+    ['Child UX local artifact skipped', '0'],
+    ['Child UX local artifact refs', 'Not reported'],
+    ['Adapter dispatch', 'Not claimed'],
+    ['Child delivery', 'Not claimed'],
+    ['Platform state', 'Not claimed'],
+  ] as const) {
+    expect(summaryDetails).toContainEqual({ label: detail[0], value: detail[1] });
+  }
+}
+
+function expectActionResultSummaryDetails(
+  summaryDetails: ReturnType<typeof createAppGameTimerParentSurfacePanelIntent>['summaryDetails']
+) {
+  for (const detail of [
+    ['Control action results', '1'],
+    ['Control action result refs', 'action-result-app-game-1'],
+    ['Control action result statuses', 'enforced'],
+    ['Control action capabilities', 'supported'],
+    ['Control action enforcement statuses', 'actually-enforced'],
+    ['Child-facing reason refs', 'parent-approved'],
+    ['Child-facing status refs', 'child-status-limit-reached'],
+    ['Child UX handoff ready', '1'],
+    ['Child UX handoff blocked', '0'],
+    ['Child UX handoff refs', 'action-result-app-game-1'],
+    ['Child UX local artifact records', '1'],
+    ['Child UX local artifact skipped', '0'],
+    ['Child UX local artifact refs', 'app-game-child-ux-local-handoff-action-result-app-game-1'],
+  ] as const) {
+    expect(summaryDetails).toContainEqual({ label: detail[0], value: detail[1] });
+  }
+}
+
+function expectTimerParentSurfaceRows(rows: ReturnType<typeof createAppGameTimerParentSurfacePanelIntent>['rows']) {
+  expect(rows.map((row) => row.title)).toEqual(['identity-study-timer', 'identity-voxel-quest']);
+  expect(rowPairs(rows[0])).toContainEqual(['Target type', 'Native app']);
+  expect(rowPairs(rows[0])).toContainEqual(['Status', 'Ready for parent surface']);
+  expect(rowPairs(rows[1])).toContainEqual(['Target type', 'Native game']);
+  expect(rowPairs(rows[1])).toContainEqual(['Status', 'Blocked by source freshness']);
 }
 
 function expectAbsentServiceInput() {

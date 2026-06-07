@@ -1,4 +1,6 @@
 pub const ACTIVITY_CAPTURE_APP_GAME_ERROR: &str = "activity-capture-app-game-error";
+pub const APP_GAME_CHILD_UX_LOCAL_HANDOFF_ARTIFACT_PREFIX: &str =
+    "app-game-child-ux-local-handoff-";
 pub const ACTIVITY_CAPTURE_IO_ERROR: &str = "activity-capture-io-error";
 pub const ACTIVITY_CAPTURE_INVALID_KEY_LENGTH: &str = "activity-capture-invalid-key-length";
 pub const ACTIVITY_CAPTURE_JOURNAL_ERROR: &str = "activity-capture-journal-error";

@@ -35,6 +35,9 @@ const TimerParentSurfaceDetails = {
   AuditRuntime: decodeDisplayText('Audit runtime'),
   ChildFacingReasonRefs: decodeDisplayText('Child-facing reason refs'),
   ChildFacingStatusRefs: decodeDisplayText('Child-facing status refs'),
+  ChildUxLocalArtifactRecords: decodeDisplayText('Child UX local artifact records'),
+  ChildUxLocalArtifactRefs: decodeDisplayText('Child UX local artifact refs'),
+  ChildUxLocalArtifactSkipped: decodeDisplayText('Child UX local artifact skipped'),
   ChildUxHandoffBlocked: decodeDisplayText('Child UX handoff blocked'),
   ChildUxHandoffReady: decodeDisplayText('Child UX handoff ready'),
   ChildUxHandoffRefs: decodeDisplayText('Child UX handoff refs'),
@@ -169,6 +172,18 @@ function readModelSummary(
     detail(TimerParentSurfaceDetails.ChildUxHandoffReady, countText(readModel.childUxHandoffReadyCount)),
     detail(TimerParentSurfaceDetails.ChildUxHandoffBlocked, countText(readModel.childUxHandoffBlockedCount)),
     detail(TimerParentSurfaceDetails.ChildUxHandoffRefs, joinedOrNotReported(readModel.childUxHandoffReferenceIds)),
+    detail(
+      TimerParentSurfaceDetails.ChildUxLocalArtifactRecords,
+      countText(readModel.childUxLocalHandoffArtifactRecordCount)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxLocalArtifactSkipped,
+      countText(readModel.childUxLocalHandoffArtifactSkippedCount)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxLocalArtifactRefs,
+      joinedOrNotReported(readModel.childUxLocalHandoffArtifactReferenceIds)
+    ),
     detail(TimerParentSurfaceDetails.TimerRuntime, claimedValue(readModel.timerRuntimeClaimed)),
     detail(TimerParentSurfaceDetails.SchedulerPersistence, claimedValue(readModel.schedulerPersistenceClaimed)),
     detail(TimerParentSurfaceDetails.DurableSchedulerStorage, claimedValue(readModel.durableSchedulerStorageClaimed)),

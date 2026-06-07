@@ -51,55 +51,9 @@ fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claim
     let decoded: AppGameTimerParentSurfaceReadModel =
         serde_json::from_str(read_model_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
-    assert_eq!(decoded.returned, 1);
-    assert_eq!(
-        decoded.capability_status,
-        APP_GAME_TIMER_PARENT_SURFACE_STATUS_READY
-    );
-    assert_eq!(decoded.ready_for_parent_surface_count, 1);
-    assert_eq!(decoded.blocked_by_source_freshness_count, 0);
-    assert_eq!(decoded.blocked_by_compiler_decision_count, 0);
-    assert_eq!(decoded.runtime_manual_required_count, 0);
-    assert_eq!(decoded.control_action_result_count, 1);
-    assert_eq!(
-        decoded.control_action_result_reference_ids,
-        vec![APP_GAME_TEST_ACTION_RESULT_ID]
-    );
-    assert_eq!(
-        decoded.control_action_result_statuses,
-        vec![APP_GAME_CONTROL_ACTION_STATUS_ENFORCED]
-    );
-    assert_eq!(
-        decoded.control_action_result_capability_states,
-        vec![APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED]
-    );
-    assert_eq!(
-        decoded.control_action_result_enforcement_statuses,
-        vec![APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED]
-    );
-    assert_eq!(
-        decoded.child_facing_reason_reference_ids,
-        vec![APP_GAME_TEST_REASON_PARENT_APPROVED.to_string()]
-    );
-    assert_eq!(
-        decoded.child_facing_status_reference_ids,
-        vec![APP_GAME_TEST_ACTION_REFERENCE_ID.to_string()]
-    );
-    assert_eq!(decoded.child_ux_handoff_ready_count, 1);
-    assert_eq!(decoded.child_ux_handoff_blocked_count, 0);
-    assert_eq!(
-        decoded.child_ux_handoff_reference_ids,
-        vec![APP_GAME_TEST_ACTION_RESULT_ID.to_string()]
-    );
-    assert!(!decoded.timer_runtime_claimed);
-    assert!(!decoded.scheduler_persistence_claimed);
-    assert!(!decoded.durable_scheduler_storage_claimed);
-    assert!(!decoded.audit_runtime_claimed);
-    assert!(!decoded.rollback_runtime_claimed);
-    assert!(!decoded.adapter_dispatch_claimed);
-    assert!(!decoded.child_delivery_claimed);
-    assert!(!decoded.platform_enforcement_claimed);
-    assert!(!decoded.raw_private_source_rows_included);
+    assert_parent_surface_counts_and_no_overclaims(&decoded);
+    assert_control_action_result_visibility(&decoded);
+    assert_child_ux_local_artifact_visibility(&decoded);
     assert_eq!(
         decoded.rows[0].target_domain,
         APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME
@@ -117,6 +71,74 @@ fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claim
             APP_GAME_TEST_WINDOWS_ROW_ID,
             APP_GAME_TEST_AUTHORITY_ID
         ]
+    );
+}
+
+fn assert_parent_surface_counts_and_no_overclaims(decoded: &AppGameTimerParentSurfaceReadModel) {
+    assert_eq!(decoded.returned, 1);
+    assert_eq!(
+        decoded.capability_status,
+        APP_GAME_TIMER_PARENT_SURFACE_STATUS_READY
+    );
+    assert_eq!(decoded.ready_for_parent_surface_count, 1);
+    assert_eq!(decoded.blocked_by_source_freshness_count, 0);
+    assert_eq!(decoded.blocked_by_compiler_decision_count, 0);
+    assert_eq!(decoded.runtime_manual_required_count, 0);
+    assert!(!decoded.timer_runtime_claimed);
+    assert!(!decoded.scheduler_persistence_claimed);
+    assert!(!decoded.durable_scheduler_storage_claimed);
+    assert!(!decoded.audit_runtime_claimed);
+    assert!(!decoded.rollback_runtime_claimed);
+    assert!(!decoded.adapter_dispatch_claimed);
+    assert!(!decoded.child_delivery_claimed);
+    assert!(!decoded.platform_enforcement_claimed);
+    assert!(!decoded.raw_private_source_rows_included);
+}
+
+fn assert_control_action_result_visibility(decoded: &AppGameTimerParentSurfaceReadModel) {
+    assert_eq!(decoded.control_action_result_count, 1);
+    assert_eq!(
+        decoded.control_action_result_reference_ids,
+        vec![APP_GAME_TEST_ACTION_RESULT_ID]
+    );
+    assert_eq!(
+        decoded.control_action_result_statuses,
+        vec![APP_GAME_CONTROL_ACTION_STATUS_ENFORCED]
+    );
+    assert_eq!(
+        decoded.control_action_result_capability_states,
+        vec![APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED]
+    );
+    assert_eq!(
+        decoded.control_action_result_enforcement_statuses,
+        vec![APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED]
+    );
+}
+
+fn assert_child_ux_local_artifact_visibility(decoded: &AppGameTimerParentSurfaceReadModel) {
+    assert_eq!(
+        decoded.child_facing_reason_reference_ids,
+        vec![APP_GAME_TEST_REASON_PARENT_APPROVED.to_string()]
+    );
+    assert_eq!(
+        decoded.child_facing_status_reference_ids,
+        vec![APP_GAME_TEST_ACTION_REFERENCE_ID.to_string()]
+    );
+    assert_eq!(decoded.child_ux_handoff_ready_count, 1);
+    assert_eq!(decoded.child_ux_handoff_blocked_count, 0);
+    assert_eq!(
+        decoded.child_ux_handoff_reference_ids,
+        vec![APP_GAME_TEST_ACTION_RESULT_ID.to_string()]
+    );
+    assert_eq!(decoded.child_ux_local_handoff_artifact_record_count, 1);
+    assert_eq!(decoded.child_ux_local_handoff_artifact_skipped_count, 0);
+    assert_eq!(
+        decoded.child_ux_local_handoff_artifact_reference_ids,
+        vec![[
+            constants::value::APP_GAME_CHILD_UX_LOCAL_HANDOFF_ARTIFACT_PREFIX,
+            APP_GAME_TEST_ACTION_RESULT_ID
+        ]
+        .concat()]
     );
 }
 

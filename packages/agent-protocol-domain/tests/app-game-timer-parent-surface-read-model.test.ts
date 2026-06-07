@@ -38,6 +38,9 @@ const TimerParentSurfaceReadModel = {
   childUxHandoffReadyCount: 0,
   childUxHandoffBlockedCount: 0,
   childUxHandoffReferenceIds: [],
+  childUxLocalHandoffArtifactRecordCount: 0,
+  childUxLocalHandoffArtifactSkippedCount: 0,
+  childUxLocalHandoffArtifactReferenceIds: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -83,6 +86,23 @@ const TimerParentSurfaceReadModel = {
   ],
 } as const;
 
+const ActionResultReadModel = {
+  ...TimerParentSurfaceReadModel,
+  controlActionResultCount: 1,
+  controlActionResultReferenceIds: ['action-result-app-game-1'],
+  controlActionResultStatuses: ['enforced'],
+  controlActionResultCapabilityStates: ['supported'],
+  controlActionResultEnforcementStatuses: ['actually-enforced'],
+  childFacingReasonReferenceIds: ['parent-approved'],
+  childFacingStatusReferenceIds: ['child-status-limit-reached'],
+  childUxHandoffReadyCount: 1,
+  childUxHandoffBlockedCount: 0,
+  childUxHandoffReferenceIds: ['action-result-app-game-1'],
+  childUxLocalHandoffArtifactRecordCount: 1,
+  childUxLocalHandoffArtifactSkippedCount: 0,
+  childUxLocalHandoffArtifactReferenceIds: ['app-game-child-ux-local-handoff-action-result-app-game-1'],
+} as const;
+
 describe('agent app-game timer parent surface parser', () => {
   it('parses the dedicated timer parent-surface read-model event payload', () => {
     const parsed = parseAgentAppGameTimerParentSurfaceEvent(
@@ -97,38 +117,12 @@ describe('agent app-game timer parent surface parser', () => {
 
   it('accepts replayed control action-result references without adapter overclaims', () => {
     const parsed = parseAgentAppGameTimerParentSurfaceEvent(
-      timerParentSurfaceEvent(
-        JSON.stringify({
-          ...TimerParentSurfaceReadModel,
-          controlActionResultCount: 1,
-          controlActionResultReferenceIds: ['action-result-app-game-1'],
-          controlActionResultStatuses: ['enforced'],
-          controlActionResultCapabilityStates: ['supported'],
-          controlActionResultEnforcementStatuses: ['actually-enforced'],
-          childFacingReasonReferenceIds: ['parent-approved'],
-          childFacingStatusReferenceIds: ['child-status-limit-reached'],
-          childUxHandoffReadyCount: 1,
-          childUxHandoffBlockedCount: 0,
-          childUxHandoffReferenceIds: ['action-result-app-game-1'],
-        })
-      )
+      timerParentSurfaceEvent(JSON.stringify(ActionResultReadModel))
     );
 
     expect(parsed).toEqual({
       ok: true,
-      value: {
-        ...TimerParentSurfaceReadModel,
-        controlActionResultCount: 1,
-        controlActionResultReferenceIds: ['action-result-app-game-1'],
-        controlActionResultStatuses: ['enforced'],
-        controlActionResultCapabilityStates: ['supported'],
-        controlActionResultEnforcementStatuses: ['actually-enforced'],
-        childFacingReasonReferenceIds: ['parent-approved'],
-        childFacingStatusReferenceIds: ['child-status-limit-reached'],
-        childUxHandoffReadyCount: 1,
-        childUxHandoffBlockedCount: 0,
-        childUxHandoffReferenceIds: ['action-result-app-game-1'],
-      },
+      value: ActionResultReadModel,
     });
   });
 

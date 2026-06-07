@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::AppGameServiceReadModel;
+use ocentra_parent_agent_protocol::{constants, AppGameServiceReadModel};
 
 pub(crate) struct TimerParentSurfaceControlActionResults {
     pub(crate) reference_ids: Vec<String>,
@@ -10,6 +10,9 @@ pub(crate) struct TimerParentSurfaceControlActionResults {
     pub(crate) child_ux_handoff_ready_count: u64,
     pub(crate) child_ux_handoff_blocked_count: u64,
     pub(crate) child_ux_handoff_reference_ids: Vec<String>,
+    pub(crate) child_ux_local_handoff_artifact_record_count: u64,
+    pub(crate) child_ux_local_handoff_artifact_skipped_count: u64,
+    pub(crate) child_ux_local_handoff_artifact_reference_ids: Vec<String>,
 }
 
 pub(crate) fn timer_parent_surface_control_action_results(
@@ -27,6 +30,15 @@ pub(crate) fn timer_parent_surface_control_action_results(
     let child_ux_handoff_ready_count = child_ux_handoff_reference_ids.len() as u64;
     let child_ux_handoff_blocked_count =
         model.approval_action_result_rows.len() as u64 - child_ux_handoff_ready_count;
+    let child_ux_local_handoff_artifact_reference_ids = child_ux_handoff_reference_ids
+        .iter()
+        .map(|reference_id| {
+            let mut artifact_reference_id =
+                String::from(constants::value::APP_GAME_CHILD_UX_LOCAL_HANDOFF_ARTIFACT_PREFIX);
+            artifact_reference_id.push_str(reference_id);
+            artifact_reference_id
+        })
+        .collect::<Vec<_>>();
 
     TimerParentSurfaceControlActionResults {
         reference_ids: model
@@ -68,6 +80,10 @@ pub(crate) fn timer_parent_surface_control_action_results(
         child_ux_handoff_ready_count,
         child_ux_handoff_blocked_count,
         child_ux_handoff_reference_ids,
+        child_ux_local_handoff_artifact_record_count: child_ux_local_handoff_artifact_reference_ids
+            .len() as u64,
+        child_ux_local_handoff_artifact_skipped_count: child_ux_handoff_blocked_count,
+        child_ux_local_handoff_artifact_reference_ids,
     }
 }
 

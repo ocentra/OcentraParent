@@ -28,6 +28,9 @@ fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
         child_ux_handoff_ready_count: 0,
         child_ux_handoff_blocked_count: 0,
         child_ux_handoff_reference_ids: Vec::new(),
+        child_ux_local_handoff_artifact_record_count: 0,
+        child_ux_local_handoff_artifact_skipped_count: 0,
+        child_ux_local_handoff_artifact_reference_ids: Vec::new(),
         timer_runtime_claimed: false,
         scheduler_persistence_claimed: false,
         durable_scheduler_storage_claimed: false,
@@ -67,6 +70,8 @@ fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
     assert_eq!(serialized["durableSchedulerStorageClaimed"], false);
     assert_eq!(serialized["auditRuntimeClaimed"], false);
     assert_eq!(serialized["rollbackRuntimeClaimed"], false);
+    assert_eq!(serialized["childUxLocalHandoffArtifactRecordCount"], 0);
+    assert_eq!(serialized["childUxLocalHandoffArtifactSkippedCount"], 0);
     assert_eq!(serialized["adapterDispatchClaimed"], false);
     assert_eq!(serialized["childDeliveryClaimed"], false);
     assert_eq!(serialized["platformEnforcementClaimed"], false);

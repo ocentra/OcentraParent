@@ -115,6 +115,7 @@ before `DONE` or PR-ready reporting.
 107. WP116 app/game timer parent-surface child reason/status refs.
 108. WP117 app/game timer parent-surface child UX handoff readiness.
 109. WP118 app/game timer parent-surface child UX local handoff artifact.
+110. WP119 app/game timer parent-surface child UX local artifact visibility.
 
 ## Standard AI Worker Checklist
 

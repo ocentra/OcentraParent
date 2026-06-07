@@ -1163,8 +1163,10 @@ diagnostics, or raw private source rows.
       time-limit, request, manual-required, and unavailable states with
       evidence/child refs and no diagnostics. Parent-domain child UX handoff
       rows now produce a schema-validated local JSONL artifact for ready app
-      and game rows while blocked missing-ref rows stay out of the artifact;
-      live child UI, notifications, service persistence, package export,
+      and game rows while blocked missing-ref rows stay out of the artifact,
+      and the timer parent-surface service/portal read model now renders
+      artifact record counts, skipped counts, and artifact refs; live child UI,
+      notifications, durable service persistence/export, package export,
       adapter dispatch, and platform execution remain.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,

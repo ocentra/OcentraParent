@@ -1,0 +1,24 @@
+{
+  "workpack": "WP119",
+  "slug": "timer-parent-surface-child-ux-local-artifact-visibility",
+  "branch": "codex/app-game-control-product-completion",
+  "status": "validated",
+  "scope": [
+    "Rust timer parent-surface child UX local artifact fields",
+    "agent-service artifact count and reference derivation from ready child UX rows",
+    "agent-protocol-domain parser fields",
+    "portal timer parent-surface artifact summary details"
+  ],
+  "noClaims": [
+    "child device UI runtime",
+    "child runtime delivery",
+    "notification provider delivery",
+    "adapter dispatch",
+    "broad blocking",
+    "platform enforcement",
+    "private diagnostics",
+    "raw private source rows",
+    "package export"
+  ],
+  "productChecklist": "deferred because another lane owns docs/product-capability-checklist.md"
+}
