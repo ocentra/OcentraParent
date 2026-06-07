@@ -139,6 +139,8 @@ export const AgentBrowserRuntimeEventPayloadSchema = withParser(
     aiAnalysisRef: NullableBrowserRuntimeText,
     policyEvaluationRef: NullableBrowserRuntimeText,
     policyDecisionRef: NullableBrowserRuntimeText,
+    policyPreviewId: NullableBrowserRuntimeText,
+    assistantActionIntentId: NullableBrowserRuntimeText,
     interventionCommandRef: NullableBrowserRuntimeText,
     interventionResultRef: NullableBrowserRuntimeText,
     auditEntryRef: NullableBrowserRuntimeText,
@@ -147,6 +149,8 @@ export const AgentBrowserRuntimeEventPayloadSchema = withParser(
     exactUrlClaimed: Schema.Boolean,
     aiAuthority: Schema.Literal(false),
     policyAuthority: Schema.Boolean,
+    dryRun: Schema.Boolean,
+    adapterDispatchClaimed: Schema.Boolean,
     interventionCommandAllowed: Schema.Boolean,
     observedAt: BrowserRuntimeText,
   }).pipe(
@@ -296,6 +300,8 @@ function browserRuntimePayloadIsHonest(payload: {
   readonly custodyLabel: AgentBrowserRuntimeCustodyLabel;
   readonly queryVisibility: AgentBrowserRuntimeQueryVisibility;
   readonly degradedReason: string | null;
+  readonly dryRun: boolean;
+  readonly adapterDispatchClaimed: boolean;
   readonly interventionCommandAllowed: boolean;
   readonly interventionCommandRef: string | null;
   readonly interventionResultRef: string | null;
@@ -309,10 +315,16 @@ function browserRuntimePayloadIsHonest(payload: {
   if (!payload.exactUrlClaimed && payload.interventionCommandAllowed) {
     return false;
   }
+  if (!browserRuntimeDryRunHasNoDispatch(payload)) {
+    return false;
+  }
+  if (payload.adapterDispatchClaimed && !payload.interventionCommandAllowed) {
+    return false;
+  }
   if (!payload.interventionCommandAllowed) {
     return payload.interventionCommandRef === null && payload.interventionResultRef === null;
   }
-  return payload.interventionCommandRef !== null;
+  return payload.interventionCommandRef !== null && payload.adapterDispatchClaimed;
 }
 
 function browserRuntimeContextSupportsExactUrl(payload: {
@@ -347,6 +359,24 @@ function browserRuntimeUnavailableContextHasReason(payload: {
     return true;
   }
   return payload.degradedReason !== null;
+}
+
+function browserRuntimeDryRunHasNoDispatch(payload: {
+  readonly dryRun: boolean;
+  readonly adapterDispatchClaimed: boolean;
+  readonly interventionCommandAllowed: boolean;
+  readonly interventionCommandRef: string | null;
+  readonly interventionResultRef: string | null;
+}): boolean {
+  if (!payload.dryRun) {
+    return true;
+  }
+  return (
+    !payload.adapterDispatchClaimed &&
+    !payload.interventionCommandAllowed &&
+    payload.interventionCommandRef === null &&
+    payload.interventionResultRef === null
+  );
 }
 
 function phaseMatchesEventType(phase: AgentBrowserRuntimePhase, eventType: AgentBrowserRuntimeEventType): boolean {

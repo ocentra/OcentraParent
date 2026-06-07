@@ -256,3 +256,29 @@ The proof validates that unsupported exact URL context is rejected, unavailable
 context needs a degraded reason, and portal state receives the same context from
 the typed protocol parser. This does not create a new event bus, execute AI,
 execute policy, mutate the browser, execute child intervention, or enforce.
+
+## Dry-Run Action Handoff Addendum - 2026-06-07
+
+`browser-runtime-dry-run-action-handoff-proof` extends the browser runtime
+event-chain payload with policy preview id, parent action-intent id, `dryRun`,
+and `adapterDispatchClaimed` fields. A dry-run policy/action handoff can now
+publish evidence, journal, policy-evaluation, policy-decision, audit, and
+read-model phases while the intervention command and result phases stay absent.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime.rs`
+- `crates/agent-service/src/browser_runtime_delivery.rs`
+- `crates/agent-service/src/browser_runtime_stream_events.rs`
+- `packages/agent-protocol-domain/src/browser-runtime-events.ts`
+- `scripts/test/browser-runtime-dry-run-action-handoff-proof.mjs`
+- `test-results/browser-runtime-dry-run-action-handoff-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-dry-run-action-handoff/01-browser-runtime-dry-run-action-handoff-proof.md`
+- `cmd /c node scripts/test/browser-runtime-dry-run-action-handoff-proof.mjs`
+
+The proof validates that dry-run policy/action rows can publish policy phases
+without publishing intervention command/result phases, rejects forged dry-run
+adapter dispatch or intervention refs in the protocol parser, and keeps
+store-backed read-model stream rows non-dispatching. This does not create a new
+event bus, publish portal business events, execute AI, execute final policy
+actions, mutate the browser, execute child intervention, or enforce.

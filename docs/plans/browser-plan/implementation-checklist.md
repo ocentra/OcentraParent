@@ -524,6 +524,19 @@ requiring a degraded reason, service stream serialization, protocol parsing, and
 portal state visibility. It does not create a new event bus, execute AI, execute
 policy, mutate the browser, execute child intervention, or enforce.
 
+WP13 dry-run action handoff addendum:
+`browser-runtime-dry-run-action-handoff-proof` carries policy preview and
+parent action-intent refs through the existing browser runtime event chain with
+explicit `dryRun` and `adapterDispatchClaimed` flags. Evidence:
+`test-results/browser-runtime-dry-run-action-handoff-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-dry-run-action-handoff/01-browser-runtime-dry-run-action-handoff-proof.md`.
+The proof validates that dry-run policy/action rows can publish policy phases
+without publishing intervention command/result phases, rejects forged dry-run
+adapter dispatch or intervention refs in the protocol parser, and keeps
+store-backed read-model stream rows non-dispatching. It does not create a new
+event bus, publish portal business events, execute AI, execute final policy
+actions, mutate the browser, execute child intervention, or enforce.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

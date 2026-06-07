@@ -110,6 +110,16 @@ fn insert_policy_refs(fields: &mut Map<String, Value>, payload: &BrowserRuntimeE
     );
     insert_payload_field(
         fields,
+        constants::field::POLICY_PREVIEW_ID,
+        &payload.policy_preview_id,
+    );
+    insert_payload_field(
+        fields,
+        constants::field::ACTION_INTENT_ID,
+        &payload.action_intent_id,
+    );
+    insert_payload_field(
+        fields,
         constants::field::INTERVENTION_COMMAND_REF,
         &payload.intervention_command_ref,
     );
@@ -146,6 +156,12 @@ fn insert_payload_flags(fields: &mut Map<String, Value>, payload: &BrowserRuntim
         fields,
         constants::field::POLICY_AUTHORITY,
         payload.policy_authority,
+    );
+    insert_payload_field(fields, constants::field::POLICY_DRY_RUN, payload.dry_run);
+    insert_payload_field(
+        fields,
+        constants::field::ADAPTER_DISPATCH_CLAIMED,
+        payload.adapter_dispatch_claimed,
     );
     insert_payload_field(
         fields,

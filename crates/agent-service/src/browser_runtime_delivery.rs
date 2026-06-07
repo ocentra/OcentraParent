@@ -57,6 +57,8 @@ pub(crate) fn browser_runtime_input_from_row(
         ai_analysis_ref: None,
         policy_evaluation_ref: None,
         policy_decision_ref: None,
+        policy_preview_id: None,
+        action_intent_id: None,
         intervention_command_ref: None,
         intervention_result_ref: None,
         audit_entry_ref: latest_event_ref.clone(),
@@ -65,6 +67,8 @@ pub(crate) fn browser_runtime_input_from_row(
         exact_url_claimed: row_has_exact_url_boundary(row),
         ai_authority: false,
         policy_authority: false,
+        dry_run: false,
+        adapter_dispatch_claimed: false,
         intervention_command_allowed: false,
     }
 }

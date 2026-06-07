@@ -22,6 +22,8 @@ const EvidenceObservedPayload = {
   aiAnalysisRef: null,
   policyEvaluationRef: null,
   policyDecisionRef: null,
+  policyPreviewId: null,
+  assistantActionIntentId: null,
   interventionCommandRef: null,
   interventionResultRef: null,
   auditEntryRef: 'browser-audit.1',
@@ -30,6 +32,8 @@ const EvidenceObservedPayload = {
   exactUrlClaimed: true,
   aiAuthority: false,
   policyAuthority: false,
+  dryRun: false,
+  adapterDispatchClaimed: false,
   interventionCommandAllowed: false,
   observedAt: '2026-06-07T19:30:00Z',
 } as const;
@@ -53,8 +57,24 @@ const ReadModelProjectedPayload = {
   previousPhaseRef: 'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.audit-entry.committed',
 } as const;
 
+const PolicyDecisionPayload = {
+  ...EvidenceObservedPayload,
+  phase: AgentBrowserRuntimePhase.PolicyDecisionCompleted,
+  policyEvaluationRef: 'browser-policy-evaluation-ref-test',
+  policyDecisionRef: 'browser-policy-decision-ref-test',
+  policyPreviewId: 'browser-policy-preview-test',
+  assistantActionIntentId: 'browser-action-intent-test',
+  exactUrlClaimed: true,
+  policyAuthority: true,
+  dryRun: true,
+  adapterDispatchClaimed: false,
+  previousPhaseRef:
+    'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.policy-evaluation.requested',
+} as const;
+
 describe('agent browser runtime event contracts', () => {
   it('parses service-backed browser runtime stream fields', specifyStreamParsing);
+  it('parses dry-run policy action handoff without adapter dispatch', specifyDryRunActionHandoffParsing);
   it('rejects mismatched phases, overclaims, invalid json, and count drift', specifyRejections);
 });
 
@@ -80,6 +100,25 @@ function specifyStreamParsing() {
   expect(parsed.value.entries.at(0)?.payload.aiAuthority).toBe(false);
   expect(parsed.value.entries.at(0)?.payload.capabilityStatus).toBe(AgentBrowserRuntimeCapabilityStatus.TabListOnly);
   expect(parsed.value.entries.at(0)?.payload.queryVisibility).toBe(AgentBrowserRuntimeQueryVisibility.LiveLocal);
+  expect(parsed.value.entries.at(0)?.payload.interventionCommandAllowed).toBe(false);
+  expect(parsed.value.entries.at(0)?.payload.dryRun).toBe(false);
+  expect(parsed.value.entries.at(0)?.payload.adapterDispatchClaimed).toBe(false);
+}
+
+function specifyDryRunActionHandoffParsing() {
+  const parsed = parseAgentBrowserRuntimeEventChainStreamFields(
+    streamFields([entry(AgentBrowserRuntimeEventType.PolicyDecisionCompleted, PolicyDecisionPayload)])
+  );
+
+  expect(parsed.ok).toBe(true);
+  if (!parsed.ok) {
+    return;
+  }
+
+  expect(parsed.value.entries.at(0)?.payload.policyPreviewId).toBe('browser-policy-preview-test');
+  expect(parsed.value.entries.at(0)?.payload.assistantActionIntentId).toBe('browser-action-intent-test');
+  expect(parsed.value.entries.at(0)?.payload.dryRun).toBe(true);
+  expect(parsed.value.entries.at(0)?.payload.adapterDispatchClaimed).toBe(false);
   expect(parsed.value.entries.at(0)?.payload.interventionCommandAllowed).toBe(false);
 }
 
@@ -139,6 +178,27 @@ function specifyRejections() {
       [AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents]: 5,
     })
   ).toEqual({ ok: false, reason: 'invalid-stream' });
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields([
+        entry(AgentBrowserRuntimeEventType.PolicyDecisionCompleted, {
+          ...PolicyDecisionPayload,
+          adapterDispatchClaimed: true,
+        }),
+      ])
+    )
+  ).toEqual({ ok: false, reason: 'invalid-entry' });
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields([
+        entry(AgentBrowserRuntimeEventType.PolicyDecisionCompleted, {
+          ...PolicyDecisionPayload,
+          interventionCommandAllowed: true,
+          interventionCommandRef: 'browser-intervention-command-ref-test',
+        }),
+      ])
+    )
+  ).toEqual({ ok: false, reason: 'invalid-entry' });
 }
 
 function streamFields(entries = validEntries()) {

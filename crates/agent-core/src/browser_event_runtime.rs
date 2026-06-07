@@ -22,6 +22,8 @@ pub struct BrowserRuntimeInput {
     pub ai_analysis_ref: Option<String>,
     pub policy_evaluation_ref: Option<String>,
     pub policy_decision_ref: Option<String>,
+    pub policy_preview_id: Option<String>,
+    pub action_intent_id: Option<String>,
     pub intervention_command_ref: Option<String>,
     pub intervention_result_ref: Option<String>,
     pub audit_entry_ref: Option<String>,
@@ -30,6 +32,8 @@ pub struct BrowserRuntimeInput {
     pub exact_url_claimed: bool,
     pub ai_authority: bool,
     pub policy_authority: bool,
+    pub dry_run: bool,
+    pub adapter_dispatch_claimed: bool,
     pub intervention_command_allowed: bool,
 }
 
@@ -55,6 +59,8 @@ impl BrowserRuntimeInput {
             policy_decision_ref: Some(
                 constants::browser::TEST_BROWSER_RUNTIME_POLICY_DECISION_REF.to_string(),
             ),
+            policy_preview_id: None,
+            action_intent_id: None,
             intervention_command_ref: Some(
                 constants::browser::TEST_BROWSER_RUNTIME_INTERVENTION_COMMAND_REF.to_string(),
             ),
@@ -71,7 +77,26 @@ impl BrowserRuntimeInput {
             exact_url_claimed: true,
             ai_authority: false,
             policy_authority: true,
+            dry_run: false,
+            adapter_dispatch_claimed: true,
             intervention_command_allowed: true,
+        }
+    }
+
+    pub fn dry_run_action_handoff_fixture() -> Self {
+        Self {
+            policy_preview_id: Some(
+                constants::browser::TEST_BROWSER_RUNTIME_POLICY_PREVIEW_ID.to_string(),
+            ),
+            action_intent_id: Some(
+                constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID.to_string(),
+            ),
+            intervention_command_ref: None,
+            intervention_result_ref: None,
+            dry_run: true,
+            adapter_dispatch_claimed: false,
+            intervention_command_allowed: false,
+            ..Self::managed_decision_fixture()
         }
     }
 
@@ -81,6 +106,7 @@ impl BrowserRuntimeInput {
             intervention_result_ref: None,
             exact_url_claimed: false,
             policy_authority: false,
+            adapter_dispatch_claimed: false,
             intervention_command_allowed: false,
             ..Self::managed_decision_fixture()
         }
@@ -101,6 +127,8 @@ pub struct BrowserRuntimeEventPayload {
     pub ai_analysis_ref: Option<String>,
     pub policy_evaluation_ref: Option<String>,
     pub policy_decision_ref: Option<String>,
+    pub policy_preview_id: Option<String>,
+    pub action_intent_id: Option<String>,
     pub intervention_command_ref: Option<String>,
     pub intervention_result_ref: Option<String>,
     pub audit_entry_ref: Option<String>,
@@ -109,6 +137,8 @@ pub struct BrowserRuntimeEventPayload {
     pub exact_url_claimed: bool,
     pub ai_authority: bool,
     pub policy_authority: bool,
+    pub dry_run: bool,
+    pub adapter_dispatch_claimed: bool,
     pub intervention_command_allowed: bool,
     pub observed_at: String,
 }
@@ -128,6 +158,8 @@ impl BrowserRuntimeEventPayload {
             ai_analysis_ref: input.ai_analysis_ref.clone(),
             policy_evaluation_ref: input.policy_evaluation_ref.clone(),
             policy_decision_ref: input.policy_decision_ref.clone(),
+            policy_preview_id: input.policy_preview_id.clone(),
+            action_intent_id: input.action_intent_id.clone(),
             intervention_command_ref: input.intervention_command_ref.clone(),
             intervention_result_ref: input.intervention_result_ref.clone(),
             audit_entry_ref: input.audit_entry_ref.clone(),
@@ -136,6 +168,8 @@ impl BrowserRuntimeEventPayload {
             exact_url_claimed: input.exact_url_claimed,
             ai_authority: input.ai_authority,
             policy_authority: input.policy_authority,
+            dry_run: input.dry_run,
+            adapter_dispatch_claimed: input.adapter_dispatch_claimed,
             intervention_command_allowed: input.intervention_command_allowed,
             observed_at: input.observed_at.clone(),
         }

@@ -62,6 +62,41 @@ async fn browser_runtime_chain_keeps_manual_required_rows_non_executing() {
     assert!(!policy_event.ai_authority);
     assert!(!policy_event.policy_authority);
     assert!(!policy_event.intervention_command_allowed);
+    assert!(!policy_event.adapter_dispatch_claimed);
+}
+
+#[tokio::test]
+async fn browser_runtime_chain_carries_dry_run_action_handoff_without_dispatch() {
+    let report = publish_browser_runtime_chain_for_input(
+        BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+    )
+    .await
+    .unwrap();
+
+    let phases = decoded_phases(&report);
+    assert!(phases.contains(&BrowserRuntimePhase::PolicyEvaluationRequested));
+    assert!(phases.contains(&BrowserRuntimePhase::PolicyDecisionCompleted));
+    assert!(!phases.contains(&BrowserRuntimePhase::InterventionCommandIssued));
+    assert!(!phases.contains(&BrowserRuntimePhase::InterventionResultObserved));
+    assert!(!report.intervention_command_published());
+    assert_previous_refs_follow_published_events(&report);
+
+    let policy_event = decoded_payloads(&report)
+        .into_iter()
+        .find(|payload| payload.phase == BrowserRuntimePhase::PolicyDecisionCompleted)
+        .unwrap();
+    assert_eq!(
+        policy_event.policy_preview_id.as_deref(),
+        Some(constants::browser::TEST_BROWSER_RUNTIME_POLICY_PREVIEW_ID)
+    );
+    assert_eq!(
+        policy_event.action_intent_id.as_deref(),
+        Some(constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID)
+    );
+    assert!(policy_event.dry_run);
+    assert!(policy_event.policy_authority);
+    assert!(!policy_event.adapter_dispatch_claimed);
+    assert!(!policy_event.intervention_command_allowed);
 }
 
 fn assert_all_payloads_preserve_browser_context(

@@ -70,6 +70,22 @@ async fn service_browser_runtime_streams_protocol_event_chain_entries() {
         Value::Null
     );
     assert_eq!(
+        entries[0][constants::field::PAYLOAD][constants::field::POLICY_DRY_RUN],
+        false
+    );
+    assert_eq!(
+        entries[0][constants::field::PAYLOAD][constants::field::ADAPTER_DISPATCH_CLAIMED],
+        false
+    );
+    assert_eq!(
+        entries[0][constants::field::PAYLOAD][constants::field::POLICY_PREVIEW_ID],
+        Value::Null
+    );
+    assert_eq!(
+        entries[0][constants::field::PAYLOAD][constants::field::ACTION_INTENT_ID],
+        Value::Null
+    );
+    assert_eq!(
         entries.last().unwrap()[constants::field::EVENT_TYPE],
         constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED
     );

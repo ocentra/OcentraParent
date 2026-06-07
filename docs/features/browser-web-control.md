@@ -119,6 +119,13 @@ control while being more honest about managed versus unmanaged sources.
   unavailable context without a degraded reason before the portal exposes the
   stream as state. This is event-chain context only; it does not execute AI,
   execute policy, mutate the browser, execute child intervention, or enforce.
+- Browser-plan WP13 now carries dry-run policy/action handoff context through
+  the same event chain: policy preview id, parent action-intent id, `dryRun`,
+  and `adapterDispatchClaimed`. The protocol parser rejects dry-run rows that
+  try to claim adapter dispatch or hidden intervention refs, and service
+  read-model rows remain non-dispatching. This is event-chain visibility only;
+  it does not publish portal business events, execute final policy actions,
+  mutate the browser, execute child intervention, or enforce.
 - Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
   through activity-domain inventory contracts, Rust protocol, and service
   payload/read-model proof. Contract tests cover mixed managed, unmanaged, and
