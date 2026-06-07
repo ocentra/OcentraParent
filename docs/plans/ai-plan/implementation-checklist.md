@@ -65,7 +65,7 @@ consumes the same results.
 - [x] Parent assistant feature doc remains the owner for remote/assistant status
       changes; no remote/assistant status change was made in this source-index
       reconciliation.
-- [ ] Product capability checklist updated when proof/gaps change.
+- [x] Product capability checklist updated when proof/gaps change.
 
 ## V0.6 Contracts
 
