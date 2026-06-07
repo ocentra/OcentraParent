@@ -76,8 +76,23 @@ function expectPopulatedDashboard(dashboard: ActivityUiIntent['appGameDashboard'
     true,
     true,
   ]);
+  expect(
+    dashboard.rows.map((row) => [row.label, row.inventoryState, row.capabilityStatus, row.manualRequired])
+  ).toContainEqual([
+    'VPN Proxy Portable <script>alert(1)</script> with a display name that is deliberately too long for one row',
+    'stale',
+    'manual-required',
+    true,
+  ]);
+  expect(dashboard.rows.map((row) => [row.label, row.capabilityStatus, row.manualRequired, row.tone])).toContainEqual([
+    'Voxel Quest Candidate',
+    'permission-required',
+    true,
+    'gold',
+  ]);
   expect(dashboard.rows.some((row) => row.label.includes('<script>alert(1)</script>'))).toBe(true);
   expect(dashboard.capabilityRows.map((row) => row.label)).toContain('manual-required');
+  expect(dashboard.capabilityRows.map((row) => row.label)).toContain('permission-required');
   expectSourceStatusRows(dashboard);
   expectSourcePanelSections(dashboard);
 }
