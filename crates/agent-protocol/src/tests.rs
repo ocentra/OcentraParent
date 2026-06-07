@@ -152,6 +152,26 @@ fn browser_inventory_command_and_event_names_serialize_to_contract_shape() {
 }
 
 #[test]
+fn app_game_timer_parent_surface_command_and_event_names_serialize_to_contract_shape() {
+    let command =
+        serde_json::to_value(AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet)
+            .expect("command serializes");
+    let event = serde_json::to_value(
+        AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
+    )
+    .expect("event serializes");
+
+    assert_eq!(
+        command,
+        "agent.activity.app-game.timer-parent-surface.read-model.get"
+    );
+    assert_eq!(
+        event,
+        "agent.activity.app-game.timer-parent-surface.read-model.reported"
+    );
+}
+
+#[test]
 fn local_network_route_serializes_to_typescript_contract_shape() {
     let serialized = serde_json::to_value(AgentRoute::LocalNetwork).expect("route serializes");
 

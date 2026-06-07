@@ -211,6 +211,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.activity.app-game.boundary.read-model.get',
     'agent.activity.app-game.policy-readiness.read-model.get',
     'agent.activity.app-game.notification-readiness.read-model.get',
+    'agent.activity.app-game.timer-parent-surface.read-model.get',
     'agent.browser.social-dashboard.read-model.get',
     'agent.browser.social-audit-explanation.read-model.get',
     'agent.browser.social-alert-report.read-model.get',
@@ -286,6 +287,7 @@ export const AgentEventNameSchema = withParser(
     'agent.activity.app-game.boundary.read-model.reported',
     'agent.activity.app-game.policy-readiness.read-model.reported',
     'agent.activity.app-game.notification-readiness.read-model.reported',
+    'agent.activity.app-game.timer-parent-surface.read-model.reported',
     'agent.browser.social-dashboard.read-model.reported',
     'agent.browser.social-audit-explanation.read-model.reported',
     'agent.browser.social-alert-report.read-model.reported',
@@ -421,6 +423,9 @@ export const AgentCommand = {
   ActivityAppGameNotificationReadinessReadModelGet: AgentCommandNameSchema.parse(
     'agent.activity.app-game.notification-readiness.read-model.get'
   ),
+  ActivityAppGameTimerParentSurfaceReadModelGet: AgentCommandNameSchema.parse(
+    'agent.activity.app-game.timer-parent-surface.read-model.get'
+  ),
   BrowserSocialDashboardReadModelGet: AgentCommandNameSchema.parse('agent.browser.social-dashboard.read-model.get'),
   BrowserSocialAuditExplanationReadModelGet: AgentCommandNameSchema.parse(
     'agent.browser.social-audit-explanation.read-model.get'
@@ -521,6 +526,9 @@ export const AgentEvent = {
   ),
   ActivityAppGameNotificationReadinessReadModelReported: AgentEventNameSchema.parse(
     'agent.activity.app-game.notification-readiness.read-model.reported'
+  ),
+  ActivityAppGameTimerParentSurfaceReadModelReported: AgentEventNameSchema.parse(
+    'agent.activity.app-game.timer-parent-surface.read-model.reported'
   ),
   BrowserSocialDashboardReadModelReported: AgentEventNameSchema.parse(
     'agent.browser.social-dashboard.read-model.reported'

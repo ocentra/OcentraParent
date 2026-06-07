@@ -44,6 +44,11 @@ mod app_game_policy_readiness_payload;
 mod app_game_policy_readiness_payload_tests;
 #[cfg(test)]
 mod app_game_policy_readiness_service_tests;
+mod app_game_timer_parent_surface_payload;
+#[cfg(test)]
+mod app_game_timer_parent_surface_payload_tests;
+#[cfg(test)]
+mod app_game_timer_parent_surface_service_tests;
 mod browser_intervention_payload;
 mod browser_intervention_report;
 pub(crate) mod social_alert_report_read_model_payload;
@@ -76,6 +81,7 @@ use self::app_game_notification_readiness_payload::{
 use self::app_game_policy_readiness_payload::{
     app_game_policy_readiness_from_service_model, app_game_policy_readiness_payload,
 };
+pub use self::app_game_timer_parent_surface_payload::build_activity_app_game_timer_parent_surface_report;
 pub use activity_memory_graph_report::build_activity_memory_graph_report;
 pub use browser_intervention_report::build_browser_intervention_read_model_report;
 

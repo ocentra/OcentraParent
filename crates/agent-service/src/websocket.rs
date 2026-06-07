@@ -12,7 +12,8 @@ use crate::{
     activity_api::{
         build_activity_app_game_boundary_read_model_report,
         build_activity_app_game_notification_readiness_report,
-        build_activity_app_game_policy_readiness_report, build_activity_ingest_status_report,
+        build_activity_app_game_policy_readiness_report,
+        build_activity_app_game_timer_parent_surface_report, build_activity_ingest_status_report,
         build_activity_memory_graph_report, build_activity_recent_summary_report,
         build_activity_tracking_read_model_report, build_browser_evidence_recent_report,
         build_browser_intervention_read_model_report, build_browser_inventory_read_model_report,
@@ -251,6 +252,7 @@ fn is_activity_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentActivityAppGameBoundaryReadModelGet
             | AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet
             | AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet
+            | AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet
             | AgentCommandName::AgentBrowserSocialDashboardReadModelGet
             | AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet
             | AgentCommandName::AgentBrowserSocialAlertReportReadModelGet
@@ -344,6 +346,9 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         }
         AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet => {
             build_activity_app_game_notification_readiness_report(command).await
+        }
+        AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet => {
+            build_activity_app_game_timer_parent_surface_report(command).await
         }
         AgentCommandName::AgentBrowserSocialDashboardReadModelGet => {
             build_browser_social_dashboard_read_model_report(command).await

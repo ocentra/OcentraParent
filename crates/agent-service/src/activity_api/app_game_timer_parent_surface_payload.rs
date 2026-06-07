@@ -1,0 +1,280 @@
+use ocentra_parent_agent_protocol::{
+    constants, ActivityEvidenceKind, ActivityEvidenceRef, AgentCommandEnvelope, AgentEventEnvelope,
+    AgentEventName, AppGameServiceReadModel, AppGameTimerParentSurfaceReadModel,
+    AppGameTimerParentSurfaceRow, LogFieldValue, LogFields, LogLevel, APP_GAME_PRODUCT_NATIVE_GAME,
+    APP_GAME_SCHEMA_VERSION, APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_COMPILER_DECISION,
+    APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_SOURCE_FRESHNESS,
+    APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
+    APP_GAME_TIMER_PARENT_SURFACE_STATE_RUNTIME_MANUAL_REQUIRED,
+    APP_GAME_TIMER_PARENT_SURFACE_STATUS_NO_ROWS, APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL,
+    APP_GAME_TIMER_PARENT_SURFACE_STATUS_READY, APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
+    APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
+};
+
+use crate::{
+    activity_surface_store::load_app_game_model, event_builder::build_event,
+    fields::fields_from_pairs,
+};
+
+use super::activity_store_error_event;
+
+pub async fn build_activity_app_game_timer_parent_surface_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    match load_app_game_model().await {
+        Some(model) => {
+            let read_model = app_game_timer_parent_surface_from_service_model(model);
+            build_event(
+                constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED,
+                &command.message_id,
+                command.source,
+                AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
+                LogLevel::Info,
+                app_game_timer_parent_surface_payload(&read_model),
+                None,
+            )
+        }
+        None => activity_store_error_event(
+            command,
+            constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED,
+            AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
+        ),
+    }
+}
+
+pub fn app_game_timer_parent_surface_from_service_model(
+    model: AppGameServiceReadModel,
+) -> AppGameTimerParentSurfaceReadModel {
+    let rows = timer_parent_surface_rows(&model);
+    let returned = rows.len() as u64;
+    let ready_for_parent_surface_count = count_rows_with_state(
+        &rows,
+        APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
+    );
+    let blocked_by_source_freshness_count = count_rows_with_state(
+        &rows,
+        APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_SOURCE_FRESHNESS,
+    );
+    let blocked_by_compiler_decision_count = count_rows_with_state(
+        &rows,
+        APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_COMPILER_DECISION,
+    );
+    let runtime_manual_required_count = count_rows_with_state(
+        &rows,
+        APP_GAME_TIMER_PARENT_SURFACE_STATE_RUNTIME_MANUAL_REQUIRED,
+    );
+
+    AppGameTimerParentSurfaceReadModel {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        generated_at: model.generated_at,
+        custody_label: APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
+        capability_status: timer_parent_surface_status(returned, ready_for_parent_surface_count),
+        returned,
+        ready_for_parent_surface_count,
+        blocked_by_source_freshness_count,
+        blocked_by_compiler_decision_count,
+        runtime_manual_required_count,
+        timer_runtime_claimed: false,
+        scheduler_persistence_claimed: false,
+        durable_scheduler_storage_claimed: false,
+        audit_runtime_claimed: false,
+        rollback_runtime_claimed: false,
+        adapter_dispatch_claimed: false,
+        child_delivery_claimed: false,
+        platform_enforcement_claimed: false,
+        raw_private_source_rows_included: false,
+        rows,
+    }
+}
+
+pub fn app_game_timer_parent_surface_payload(
+    read_model: &AppGameTimerParentSurfaceReadModel,
+) -> LogFields {
+    fields_from_pairs(vec![
+        (
+            constants::field::GENERATED_AT,
+            LogFieldValue::String(read_model.generated_at.clone()),
+        ),
+        (
+            constants::field::CUSTODY_LABEL,
+            LogFieldValue::String(read_model.custody_label.clone()),
+        ),
+        (
+            constants::field::CAPABILITY_STATUS,
+            LogFieldValue::String(read_model.capability_status.clone()),
+        ),
+        (
+            constants::field::RETURNED,
+            LogFieldValue::Number(read_model.returned as f64),
+        ),
+        (
+            constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL,
+            LogFieldValue::String(
+                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
+            ),
+        ),
+    ])
+}
+
+fn timer_parent_surface_rows(model: &AppGameServiceReadModel) -> Vec<AppGameTimerParentSurfaceRow> {
+    let mut rows = Vec::new();
+    let policy_evidence = policy_evidence_refs(model);
+    let platform_evidence = platform_authority_row_refs(model);
+    let approval_evidence = approval_authority_refs(model);
+
+    for identity in &model.identity_rows {
+        let mut evidence = identity.evidence.clone();
+        push_local_db_row_evidence(&mut evidence, &identity.identity_id);
+        push_evidence(&mut evidence, policy_evidence.clone());
+        push_evidence(&mut evidence, platform_evidence.clone());
+        push_evidence(&mut evidence, approval_evidence.clone());
+
+        rows.push(timer_parent_surface_row(
+            &identity.identity_id,
+            if identity.product_kind == APP_GAME_PRODUCT_NATIVE_GAME {
+                APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME
+            } else {
+                APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP
+            },
+            timer_surface_state(model),
+            evidence.len() as u64,
+            evidence,
+        ));
+    }
+
+    if rows.is_empty() && !model.evidence_claim_rows.is_empty() {
+        rows.push(timer_parent_surface_row(
+            APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
+            APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
+            APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_SOURCE_FRESHNESS,
+            model.evidence_claim_rows.len() as u64,
+            evidence_claim_refs(model),
+        ));
+    }
+
+    rows
+}
+
+fn timer_parent_surface_row(
+    row_id: &str,
+    target_domain: &'static str,
+    timer_surface_state: &'static str,
+    row_count: u64,
+    evidence: Vec<ActivityEvidenceRef>,
+) -> AppGameTimerParentSurfaceRow {
+    AppGameTimerParentSurfaceRow {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        row_id: row_id.to_string(),
+        target_domain: target_domain.to_string(),
+        timer_surface_state: timer_surface_state.to_string(),
+        row_count,
+        evidence_reference_ids: evidence.iter().map(|row| row.evidence_id.clone()).collect(),
+        evidence,
+    }
+}
+
+fn timer_surface_state(model: &AppGameServiceReadModel) -> &'static str {
+    if model.evidence_claim_rows.is_empty() {
+        APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_SOURCE_FRESHNESS
+    } else if platform_authority_row_count(model) == 0 {
+        APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_COMPILER_DECISION
+    } else if model.approval_authority_rows.is_empty() {
+        APP_GAME_TIMER_PARENT_SURFACE_STATE_RUNTIME_MANUAL_REQUIRED
+    } else {
+        APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE
+    }
+}
+
+fn timer_parent_surface_status(returned: u64, ready_count: u64) -> String {
+    if returned == 0 {
+        APP_GAME_TIMER_PARENT_SURFACE_STATUS_NO_ROWS.to_string()
+    } else if ready_count == returned {
+        APP_GAME_TIMER_PARENT_SURFACE_STATUS_READY.to_string()
+    } else {
+        APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL.to_string()
+    }
+}
+
+fn policy_evidence_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
+    let mut evidence = evidence_claim_refs(model);
+    push_evidence(&mut evidence, identity_refs(model));
+    evidence
+}
+
+fn evidence_claim_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
+    let mut evidence = Vec::new();
+    for row in &model.evidence_claim_rows {
+        push_evidence(&mut evidence, row.evidence.clone());
+        push_local_db_row_evidence(&mut evidence, &row.claim_id);
+    }
+    evidence
+}
+
+fn identity_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
+    let mut evidence = Vec::new();
+    for row in &model.identity_rows {
+        push_evidence(&mut evidence, row.evidence.clone());
+        push_local_db_row_evidence(&mut evidence, &row.identity_id);
+    }
+    evidence
+}
+
+fn approval_authority_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
+    let mut evidence = Vec::new();
+    for row in &model.approval_authority_rows {
+        push_local_db_row_evidence(&mut evidence, &row.authority_id);
+    }
+    evidence
+}
+
+fn platform_authority_row_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
+    let mut evidence = Vec::new();
+    for matrix in &model.platform_authority_matrices {
+        for row in &matrix.rows {
+            push_local_db_row_evidence(&mut evidence, &row.row_id);
+        }
+    }
+    evidence
+}
+
+fn platform_authority_row_count(model: &AppGameServiceReadModel) -> u64 {
+    model
+        .platform_authority_matrices
+        .iter()
+        .map(|matrix| matrix.rows.len() as u64)
+        .sum()
+}
+
+fn count_rows_with_state(rows: &[AppGameTimerParentSurfaceRow], state: &str) -> u64 {
+    rows.iter()
+        .filter(|row| row.timer_surface_state == state)
+        .count() as u64
+}
+
+fn push_evidence(target: &mut Vec<ActivityEvidenceRef>, rows: Vec<ActivityEvidenceRef>) {
+    for evidence in rows {
+        if target
+            .iter()
+            .any(|candidate| candidate.evidence_id == evidence.evidence_id)
+        {
+            continue;
+        }
+        target.push(evidence);
+    }
+}
+
+fn push_local_db_row_evidence(target: &mut Vec<ActivityEvidenceRef>, evidence_id: &str) {
+    if evidence_id.is_empty() {
+        return;
+    }
+    push_evidence(
+        target,
+        vec![ActivityEvidenceRef {
+            evidence_id: evidence_id.to_string(),
+            kind: ActivityEvidenceKind::LocalDbRow,
+            digest: None,
+            uri: None,
+        }],
+    );
+}

@@ -11,6 +11,7 @@ mod app_game_authority_classifier;
 mod app_game_boundary_read_model;
 mod app_game_notification_readiness;
 mod app_game_policy_readiness;
+mod app_game_timer_parent_surface_read_model;
 mod browser;
 mod browser_intervention;
 mod browser_intervention_parse;
@@ -75,6 +76,7 @@ pub use app_game_authority_classifier::*;
 pub use app_game_boundary_read_model::*;
 pub use app_game_notification_readiness::*;
 pub use app_game_policy_readiness::*;
+pub use app_game_timer_parent_surface_read_model::*;
 pub use browser::*;
 pub use browser_intervention::*;
 pub use browser_intervention_values::*;
@@ -165,6 +167,8 @@ mod app_game_notification_readiness_tests;
 mod app_game_policy_readiness_tests;
 #[cfg(test)]
 mod app_game_tests;
+#[cfg(test)]
+mod app_game_timer_parent_surface_read_model_tests;
 #[cfg(test)]
 mod browser_intervention_tests;
 #[cfg(test)]

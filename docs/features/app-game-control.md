@@ -625,6 +625,13 @@ into redacted parent setup rows. It still does not mutate parent preferences,
 send or receive provider notifications, run scheduler/outbox or production
 retry/quiet-hours workers, deliver to child devices, execute adapters, prove
 mobile UI, or prove platform support.
+The app/game timer parent-surface service read model now has a dedicated
+agent-protocol-domain contract, Rust protocol mirror, and service websocket
+command/event backed by the existing app-game ActivityStore service read model.
+It reports native-app/native-game target rows plus source/compiler/manual
+blockers for parent-surface consumption, while explicitly not claiming timer
+runtime, scheduler persistence, durable storage, audit/rollback runtime, adapter
+dispatch, child delivery, platform enforcement, or raw private source rows.
 
 ## Checklist
 
