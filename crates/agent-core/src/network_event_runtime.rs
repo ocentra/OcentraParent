@@ -41,6 +41,10 @@ mod remote_delivery_receipt_ledger;
 mod remote_delivery_receipt_ledger_types;
 mod remote_delivery_status;
 #[cfg(test)]
+mod remote_delivery_transport_dispatch_state;
+#[cfg(test)]
+mod remote_delivery_transport_dispatch_state_types;
+#[cfg(test)]
 mod review;
 
 pub use broker_delivery::{
