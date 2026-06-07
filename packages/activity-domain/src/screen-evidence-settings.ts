@@ -19,6 +19,7 @@ import {
   ScreenEvidenceSnippetLimitSchema,
   ScreenEvidenceTtlSecondsSchema,
 } from './screen-evidence-primitives';
+import { ScreenOcrTextRetentionModeSchema } from './screen-ocr-redaction';
 
 const RequiredFalse = Schema.Literal(false);
 const RequiredTrue = Schema.Literal(true);
@@ -39,6 +40,9 @@ export const ScreenAnalysisParentSettingSchema = withParser(
     ocrTextEnabled: Schema.Boolean,
     ocrTextSnippetLimit: ScreenEvidenceSnippetLimitSchema,
     redactionMode: ScreenRedactionModeSchema,
+    ocrTextRetentionMode: ScreenOcrTextRetentionModeSchema,
+    credentialSuppressionEnabled: RequiredTrue,
+    piiRedactionEnabled: Schema.Boolean,
     temporaryImageTtlSeconds: ScreenEvidenceTtlSecondsSchema,
     maxRetryCount: ScreenEvidenceRetryCountSchema,
     deleteAfterSuccess: RequiredTrue,
@@ -76,6 +80,23 @@ export const ScreenAnalysisParentSettingSchema = withParser(
         !value.triggerCaptureEnabled ||
         (value.screenAnalysisEnabled && value.enabledTriggers.length > 0) ||
         'Expected trigger capture to require parent opt-in and at least one trigger'
+    ),
+    Schema.filter(
+      (value) =>
+        value.ocrTextEnabled ||
+        (value.ocrTextSnippetLimit === 0 &&
+          value.redactionMode === 'disabled' &&
+          value.ocrTextRetentionMode === 'disabled' &&
+          !value.piiRedactionEnabled) ||
+        'Expected disabled OCR text settings to retain no snippets or PII redaction mode'
+    ),
+    Schema.filter(
+      (value) =>
+        !value.ocrTextEnabled ||
+        (value.ocrTextSnippetLimit > 0 &&
+          value.redactionMode !== 'disabled' &&
+          value.ocrTextRetentionMode !== 'disabled') ||
+        'Expected enabled OCR text settings to select explicit snippet retention and redaction behavior'
     )
   )
 );

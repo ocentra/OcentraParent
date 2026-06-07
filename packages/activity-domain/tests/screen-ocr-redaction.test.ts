@@ -5,6 +5,7 @@ import {
   ScreenOcrRedactionSchemaVersion,
   redactScreenOcrText,
 } from '../src/screen-ocr-redaction';
+import { ScreenAnalysisParentSettingSchema } from '../src/screen-evidence-settings';
 
 const EvidenceRef = {
   evidenceId: 'screen-ocr-redaction-evidence',
@@ -50,6 +51,7 @@ describe('screen OCR redaction contracts', () => {
   specifyDisabledOcrTextContracts();
   specifyUnsafePolicyRejections();
   specifyRedactionProofBoundary();
+  specifyParentSettingSelection();
 });
 
 function specifyRedactedSnippetContracts() {
@@ -148,5 +150,56 @@ function specifyRedactionProofBoundary() {
 
     expect(proof.result.redactionNotes).toEqual(['piiLikeTextRedacted', 'credentialLikeTextRedacted']);
     expect(remoteAi.success).toBe(false);
+  });
+}
+
+function specifyParentSettingSelection() {
+  it('keeps OCR text retention and redaction as explicit parent-selected settings', () => {
+    const selectedSetting = ScreenAnalysisParentSettingSchema.parse({
+      schemaVersion: 1,
+      screenAnalysisEnabled: true,
+      analysisMode: 'policyDryRun',
+      cadenceCaptureEnabled: true,
+      cadenceSeconds: 60,
+      strictModeEnabled: true,
+      triggerCaptureEnabled: true,
+      enabledTriggers: ['timedCadence'],
+      allowedCaptureScope: 'activeWindow',
+      ocrTextEnabled: true,
+      ocrTextSnippetLimit: 2,
+      redactionMode: 'localSensitiveText',
+      ocrTextRetentionMode: 'redactedSnippets',
+      credentialSuppressionEnabled: true,
+      piiRedactionEnabled: true,
+      temporaryImageTtlSeconds: 60,
+      maxRetryCount: 1,
+      deleteAfterSuccess: true,
+      deleteAfterExpiry: true,
+      retainRawImage: false,
+      policyUseEnabled: true,
+      changedByParentRef: 'parent-setting-screen-1',
+      changedAt: '2026-06-06T22:51:00.000Z',
+      settingVersion: 3,
+      reason: 'parent selected local sensitive OCR snippet redaction',
+    });
+    const disabledSetting = ScreenAnalysisParentSettingSchema.parse({
+      ...selectedSetting,
+      ocrTextEnabled: false,
+      ocrTextSnippetLimit: 0,
+      redactionMode: 'disabled',
+      ocrTextRetentionMode: 'disabled',
+      piiRedactionEnabled: false,
+      settingVersion: 4,
+    });
+    const unsafeDisabled = ScreenAnalysisParentSettingSchema.safeParse({
+      ...selectedSetting,
+      ocrTextEnabled: false,
+    });
+
+    expect(selectedSetting.ocrTextRetentionMode).toBe('redactedSnippets');
+    expect(selectedSetting.credentialSuppressionEnabled).toBe(true);
+    expect(selectedSetting.piiRedactionEnabled).toBe(true);
+    expect(disabledSetting.ocrTextSnippetLimit).toBe(0);
+    expect(unsafeDisabled.success).toBe(false);
   });
 }

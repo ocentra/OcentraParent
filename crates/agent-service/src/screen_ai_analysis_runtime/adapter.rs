@@ -20,8 +20,8 @@ use tokio::{io::AsyncWriteExt, time::timeout};
 
 use super::{
     adapter_output_fields::optional_string_array, adapter_process::adapter_process_command,
-    adapter_redaction::apply_service_ocr_redaction, queue::QueuedScreenImage,
-    ScreenAiAnalysisRuntimeConfig,
+    adapter_redaction::apply_service_ocr_redaction, config::ScreenOcrRedactionPolicy,
+    queue::QueuedScreenImage, ScreenAiAnalysisRuntimeConfig,
 };
 
 #[derive(Clone, Debug, PartialEq)]
@@ -149,8 +149,9 @@ pub(super) fn runtime_status(command: Option<&Path>, timestamp: &str) -> LocalMo
     }
 }
 
-pub(super) fn parsed_generation_output(
+pub(super) fn parsed_generation_output_with_policy(
     generation: &LocalAiChatGenerationResult,
+    policy: &ScreenOcrRedactionPolicy,
 ) -> Option<ScreenAiAnalysisAdapterOutput> {
     if generation.generation_state != LocalAiGenerationState::Complete {
         return None;
@@ -164,27 +165,33 @@ pub(super) fn parsed_generation_output(
         return None;
     }
     let provider_kind = output_provider_kind(&parsed)?;
-    Some(apply_service_ocr_redaction(ScreenAiAnalysisAdapterOutput {
-        summary,
-        primary_category,
-        confidence,
-        policy_eligible: required_bool(&parsed, constants::field::SCREEN_POLICY_ELIGIBLE)?,
-        provider_kind,
-        model_runtime_ref: optional_string(&parsed, constants::field::SCREEN_MODEL_RUNTIME_REF)
-            .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string()),
-        model_id: optional_string(&parsed, constants::field::SCREEN_MODEL_ID)
-            .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string()),
-        prompt_or_template_version: optional_string(
-            &parsed,
-            constants::field::SCREEN_TEMPLATE_VERSION,
-        )
-        .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION.to_string()),
-        ocr_text_snippets: optional_string_array(
-            &parsed,
-            constants::field::SCREEN_OCR_TEXT_SNIPPETS,
-        ),
-        redaction_notes: optional_string_array(&parsed, constants::field::SCREEN_REDACTION_NOTES),
-    }))
+    Some(apply_service_ocr_redaction(
+        ScreenAiAnalysisAdapterOutput {
+            summary,
+            primary_category,
+            confidence,
+            policy_eligible: required_bool(&parsed, constants::field::SCREEN_POLICY_ELIGIBLE)?,
+            provider_kind,
+            model_runtime_ref: optional_string(&parsed, constants::field::SCREEN_MODEL_RUNTIME_REF)
+                .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string()),
+            model_id: optional_string(&parsed, constants::field::SCREEN_MODEL_ID)
+                .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string()),
+            prompt_or_template_version: optional_string(
+                &parsed,
+                constants::field::SCREEN_TEMPLATE_VERSION,
+            )
+            .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION.to_string()),
+            ocr_text_snippets: optional_string_array(
+                &parsed,
+                constants::field::SCREEN_OCR_TEXT_SNIPPETS,
+            ),
+            redaction_notes: optional_string_array(
+                &parsed,
+                constants::field::SCREEN_REDACTION_NOTES,
+            ),
+        },
+        policy,
+    ))
 }
 
 fn output_provider_kind(value: &Value) -> Option<String> {
