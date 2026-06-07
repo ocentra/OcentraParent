@@ -285,6 +285,7 @@ async function assertHostedRetentionSettingsProof(page: Page, trackingProofRegio
   await expect(page.getByText('service-write-command-accepted')).toBeVisible();
   await expect(page.getByText('retention-window-setting').first()).toBeVisible();
   await expect(page.getByText('20-retention-settings-mutation-proof.json', { exact: false }).first()).toBeVisible();
+  await expect(page.getByText('agent-service-local-retention-settings-state').first()).toBeVisible();
   await expect(page.getByText('Portal command/result rendering only').first()).toBeVisible();
   await expect(
     trackingProofRegion.getByText(
@@ -736,8 +737,9 @@ function assertAccessibilityRetentionAndEvidenceValues(actualValues: readonly st
     'tracking-retention-settings-write-command',
     'tracking-retention-settings-write-retention-window',
     'retention-window-setting',
+    'agent-service-local-retention-settings-state',
     'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
-    'Portal command/result rendering only; service mutation execution is local proof, while platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
+    'Portal command/result rendering only; service mutation execution and local state revision are local proof, while durable product persistence, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
     'read-only evidence drawer',
     'Display-only evidence drill-in; policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
     'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json',

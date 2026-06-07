@@ -95,9 +95,9 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       execution, or production readiness.
 - [x] Send and render hosted retention settings write-preflight result from the
       typed service command while proving only local service execution and
-      keeping durable product settings, platform runtime, child-device delivery,
-      provider delivery, authority, physical-device execution, and
-      product-ready claims false.
+      local service state revision while keeping durable product settings,
+      platform runtime, child-device delivery, provider delivery, authority,
+      physical-device execution, and product-ready claims false.
 - [x] Render and screenshot hosted read-only evidence drawer drill-in from the
       selected service-backed citation without claiming policy evaluation,
       action dispatch, child-device delivery, provider delivery, physical-device
@@ -205,11 +205,11 @@ remote-AI disabled rows. The repeatable hosted proof captures it at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
 and now also clicks the hosted write-preflight button, renders the typed service
 accepted result, command id, setting kind, source writer/read-model refs,
-mutation proof refs, applied local retention values, and explicit
-no-product-claim boundary. It still records no durable product settings,
-product-ready service mutation execution, platform runtime, child-device
-delivery, provider delivery, authority, physical-device, or product readiness
-claim.
+mutation proof refs, applied local retention values, local service state
+revision/snapshot ref, and explicit no-product-claim boundary. It still records
+no durable product settings, product-ready service mutation execution, platform
+runtime, child-device delivery, provider delivery, authority, physical-device,
+or product readiness claim.
 The hosted route now also renders a read-only evidence drawer card from the
 selected service-backed citation. The repeatable hosted proof captures it at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png`
@@ -427,9 +427,10 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
       checklist, WP07, WP30, and WP32 updated; central product capability
       checklist remains hub/primary sequenced.
 - [x] Known gaps/manual-required states: hosted route only proves command/result
-      rendering plus local service execution. Durable product settings, applied
-      product-ready service mutation execution, platform runtime, child-device
-      delivery/runtime execution, Android/iOS physical proof, authority,
+      rendering plus local service execution and local service state revision.
+      Durable product settings, applied product-ready service mutation
+      execution, platform runtime, child-device delivery/runtime execution,
+      Android/iOS physical proof, authority,
       provider delivery, notification receipts, production workers, and full
       parent/child UI beyond the hosted route remain proof-gated.
 - [x] Workpack id and branch:

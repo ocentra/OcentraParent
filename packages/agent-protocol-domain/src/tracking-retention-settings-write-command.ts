@@ -61,6 +61,9 @@ export const AgentTrackingRetentionSettingsWriteResultSchema = withParser(
     parentExportPrepared: Schema.Boolean,
     remoteSyncEnabled: Schema.Literal(false),
     remoteAiEnabled: Schema.Literal(false),
+    localServiceStateRevision: Schema.Union(Schema.Number.pipe(Schema.int(), Schema.positive()), Schema.Null),
+    localServiceStateSnapshotRef: RetentionWriteText,
+    durableSettingsPersisted: Schema.Literal(false),
     commandTransportClaimed: Schema.Literal(true),
     serviceWritePreflightClaimed: Schema.Literal(true),
     serviceMutationExecuted: Schema.Boolean,
@@ -102,6 +105,14 @@ export const AgentTrackingRetentionSettingsWriteResultSchema = withParser(
           result.settingsKind !== 'retention-window-setting' ||
           result.appliedRetentionWindowHours !== null ||
           'Retention-window write results must include the applied retention window'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (result) =>
+          result.writeState !== 'service-write-command-accepted' ||
+          result.localServiceStateRevision !== null ||
+          'Accepted write results must include a local service state revision'
       )
     )
 );

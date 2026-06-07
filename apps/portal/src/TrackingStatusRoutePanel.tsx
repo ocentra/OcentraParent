@@ -649,6 +649,12 @@ function TrackingRetentionSettingsWritePreflightRow({
       <TrackingStatusDetail label={PortalDetails.Custody} value={proof.writePreflight.parentExportPrepared} />
       <TrackingStatusDetail label={PortalDetails.Destination} value={proof.writePreflight.remoteSyncEnabled} />
       <TrackingStatusDetail label={PortalDetails.LocalAiResult} value={proof.writePreflight.remoteAiEnabled} />
+      <TrackingStatusDetail label={PortalDetails.RowCount} value={proof.writePreflight.localServiceStateRevision} />
+      <TrackingStatusDetail
+        label={PortalDetails.RuntimeReference}
+        value={proof.writePreflight.localServiceStateSnapshotRef}
+      />
+      <TrackingStatusDetail label={PortalDetails.Database} value={proof.writePreflight.durableSettingsPersistedRows} />
       <TrackingStatusDetail label={PortalDetails.Transport} value={proof.writePreflight.commandTransportClaimedRows} />
       <TrackingStatusDetail
         label={PortalDetails.Events}

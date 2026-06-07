@@ -30,6 +30,9 @@ export type TrackingRetentionSettingsWritePreflight = {
   readonly parentExportPrepared: PortalDetailValue;
   readonly remoteSyncEnabled: PortalDetailValue;
   readonly remoteAiEnabled: PortalDetailValue;
+  readonly localServiceStateRevision: PortalDetailValue;
+  readonly localServiceStateSnapshotRef: PortalDetailValue;
+  readonly durableSettingsPersistedRows: PortalDetailValue;
   readonly commandTransportClaimedRows: PortalDetailValue;
   readonly serviceWritePreflightClaimedRows: PortalDetailValue;
   readonly serviceMutationExecutedRows: PortalDetailValue;
@@ -211,6 +214,9 @@ function retentionSettingsWritePreflight(
     parentExportPrepared: detailFromFlag(value.parentExportPrepared),
     remoteSyncEnabled: detailFromFlag(value.remoteSyncEnabled),
     remoteAiEnabled: detailFromFlag(value.remoteAiEnabled),
+    localServiceStateRevision: detailFromValue(value.localServiceStateRevision ?? 0),
+    localServiceStateSnapshotRef: detailFromValue(value.localServiceStateSnapshotRef),
+    durableSettingsPersistedRows: detailFromFlag(value.durableSettingsPersisted),
     commandTransportClaimedRows: detailFromFlag(value.commandTransportClaimed),
     serviceWritePreflightClaimedRows: detailFromFlag(value.serviceWritePreflightClaimed),
     serviceMutationExecutedRows: detailFromFlag(value.serviceMutationExecuted),
@@ -240,6 +246,9 @@ function emptyRetentionSettingsWritePreflight(): TrackingRetentionSettingsWriteP
     parentExportPrepared: detailFromValue(0),
     remoteSyncEnabled: detailFromValue(0),
     remoteAiEnabled: detailFromValue(0),
+    localServiceStateRevision: detailFromValue(0),
+    localServiceStateSnapshotRef: notReported(),
+    durableSettingsPersistedRows: detailFromValue(0),
     commandTransportClaimedRows: detailFromValue(0),
     serviceWritePreflightClaimedRows: detailFromValue(0),
     serviceMutationExecutedRows: detailFromValue(0),
@@ -272,6 +281,9 @@ function appendRetentionSettingsWritePreflight(
   appendDetail(metadata, PortalDetails.Custody, writePreflight.parentExportPrepared);
   appendDetail(metadata, PortalDetails.Destination, writePreflight.remoteSyncEnabled);
   appendDetail(metadata, PortalDetails.LocalAiResult, writePreflight.remoteAiEnabled);
+  appendDetail(metadata, PortalDetails.RowCount, writePreflight.localServiceStateRevision);
+  appendDetail(metadata, PortalDetails.RuntimeReference, writePreflight.localServiceStateSnapshotRef);
+  appendDetail(metadata, PortalDetails.Database, writePreflight.durableSettingsPersistedRows);
   appendDetail(metadata, PortalDetails.Transport, writePreflight.commandTransportClaimedRows);
   appendDetail(metadata, PortalDetails.Events, writePreflight.serviceWritePreflightClaimedRows);
   appendDetail(metadata, PortalDetails.Database, writePreflight.serviceMutationExecutedRows);

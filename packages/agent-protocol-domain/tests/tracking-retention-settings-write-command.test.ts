@@ -35,6 +35,9 @@ const TrackingRetentionSettingsWriteResult = {
   parentExportPrepared: false,
   remoteSyncEnabled: false,
   remoteAiEnabled: false,
+  localServiceStateRevision: 1,
+  localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
+  durableSettingsPersisted: false,
   commandTransportClaimed: true,
   serviceWritePreflightClaimed: true,
   serviceMutationExecuted: true,
@@ -105,6 +108,14 @@ describe('agent tracking retention settings write result parser', () => {
     expect(
       parseAgentTrackingRetentionSettingsWriteResultEvent(
         writeResultEvent(JSON.stringify({ ...TrackingRetentionSettingsWriteResult, serviceMutationExecuted: false }))
+      )
+    ).toEqual({
+      ok: false,
+      reason: 'invalid-payload',
+    });
+    expect(
+      parseAgentTrackingRetentionSettingsWriteResultEvent(
+        writeResultEvent(JSON.stringify({ ...TrackingRetentionSettingsWriteResult, durableSettingsPersisted: true }))
       )
     ).toEqual({
       ok: false,

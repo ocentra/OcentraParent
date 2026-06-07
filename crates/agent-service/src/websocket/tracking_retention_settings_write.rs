@@ -3,13 +3,32 @@ use ocentra_parent_agent_protocol::{
     TrackingRetentionSettingsWriteRequest, TrackingRetentionSettingsWriteResult,
     AGENT_PROTOCOL_SCHEMA_VERSION,
 };
+use std::sync::{Mutex, OnceLock};
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
+
+#[derive(Debug, Default)]
+struct LocalRetentionSettingsState {
+    revision: u64,
+    retention_window_hours: Option<u16>,
+    delete_after_alert_resolved: bool,
+    parent_export_prepared: bool,
+    remote_sync_enabled: bool,
+    remote_ai_enabled: bool,
+}
+
+static LOCAL_RETENTION_SETTINGS_STATE: OnceLock<Mutex<LocalRetentionSettingsState>> =
+    OnceLock::new();
 
 pub(crate) async fn build_tracking_retention_settings_write_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let (request, accepted) = parse_write_request(&command);
+    let local_state_revision = if accepted {
+        Some(apply_local_retention_settings_state(&request))
+    } else {
+        None
+    };
     let result = TrackingRetentionSettingsWriteResult {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         command_id: request.command_id,
@@ -26,6 +45,11 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
         parent_export_prepared: request.requested_parent_export,
         remote_sync_enabled: false,
         remote_ai_enabled: false,
+        local_service_state_revision: local_state_revision,
+        local_service_state_snapshot_ref:
+            constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF
+                .to_string(),
+        durable_settings_persisted: false,
         command_transport_claimed: true,
         service_write_preflight_claimed: true,
         service_mutation_executed: accepted,
@@ -53,6 +77,21 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
         )]),
         None,
     )
+}
+
+fn apply_local_retention_settings_state(request: &TrackingRetentionSettingsWriteRequest) -> u64 {
+    let state = LOCAL_RETENTION_SETTINGS_STATE
+        .get_or_init(|| Mutex::new(LocalRetentionSettingsState::default()));
+    let mut guard = state
+        .lock()
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    guard.revision += 1;
+    guard.retention_window_hours = request.requested_retention_window_hours;
+    guard.delete_after_alert_resolved = request.requested_delete_after_alert_resolved;
+    guard.parent_export_prepared = request.requested_parent_export;
+    guard.remote_sync_enabled = false;
+    guard.remote_ai_enabled = false;
+    guard.revision
 }
 
 fn parse_write_request(
@@ -135,6 +174,14 @@ mod tests {
         assert_eq!(write_result.applied_retention_window_hours, Some(168));
         assert!(!write_result.remote_sync_enabled);
         assert!(!write_result.remote_ai_enabled);
+        assert!(write_result
+            .local_service_state_revision
+            .is_some_and(|revision| revision > 0));
+        assert_eq!(
+            write_result.local_service_state_snapshot_ref,
+            constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF
+        );
+        assert!(!write_result.durable_settings_persisted);
         assert!(!write_result.portal_writable_ui_claimed);
         assert!(!write_result.platform_runtime_claimed);
         assert!(!write_result.child_device_delivery_claimed);
@@ -162,6 +209,8 @@ mod tests {
             write_result.write_state,
             constants::tracking_retention_settings_write::WRITE_STATE_REJECTED
         );
+        assert_eq!(write_result.local_service_state_revision, None);
+        assert!(!write_result.durable_settings_persisted);
         assert!(!write_result.service_mutation_executed);
         assert!(!write_result.product_claim_ready);
     }

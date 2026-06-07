@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T08:11:09.182Z",
-  "commit": "07d7658e98d8a1df700e572cd511685f728025b3",
+  "checkedAt": "2026-06-07T08:50:09.786Z",
+  "commit": "d13e9f99499e5793610aa75873237372852b78c9",
   "workpackIds": [
     "30-parent-and-child-ui-ux-surfaces",
     "31-platform-extension-checklists-and-proof-routing",
@@ -498,6 +498,9 @@
         "Custody",
         "Destination",
         "Local AI result",
+        "Row count",
+        "Runtime reference",
+        "Database",
         "Transport",
         "Events",
         "Database",
@@ -1018,6 +1021,9 @@
         "0",
         "0",
         "1",
+        "agent-service-local-retention-settings-state",
+        "0",
+        "1",
         "1",
         "1",
         "0",
@@ -1028,7 +1034,7 @@
         "0",
         "0",
         "Not reported",
-        "Portal command/result rendering only; service mutation execution is local proof, while platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.",
+        "Portal command/result rendering only; service mutation execution and local state revision are local proof, while durable product persistence, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.",
         "P2 service proof",
         "read-only evidence drawer",
         "tracking-hosted-expected-place-event",
@@ -1216,61 +1222,61 @@
         {
           "proofId": "family-dashboard-rollup",
           "left": 21,
-          "top": -16534,
+          "top": -16659,
           "right": 366,
-          "bottom": -15206,
+          "bottom": -15331,
           "width": 345,
           "height": 1328
         },
         {
           "proofId": "missing-device-ui",
           "left": 21,
-          "top": -6719,
+          "top": -6844,
           "right": 366,
-          "bottom": -4874,
+          "bottom": -4999,
           "width": 345,
           "height": 1845
         },
         {
           "proofId": "notification-parent-surface-history-ui",
           "left": 21,
-          "top": -12041,
+          "top": -12166,
           "right": 366,
-          "bottom": -10103,
+          "bottom": -10228,
           "width": 345,
           "height": 1937
         },
         {
           "proofId": "parent-action-readiness-ui",
           "left": 21,
-          "top": -10097,
+          "top": -10222,
           "right": 366,
-          "bottom": -6725,
+          "bottom": -6850,
           "width": 345,
           "height": 3373
         },
         {
           "proofId": "report-policy-consumer-ui",
           "left": 21,
-          "top": -15200,
+          "top": -15325,
           "right": 366,
-          "bottom": -13727,
+          "bottom": -13852,
           "width": 345,
           "height": 1473
         },
         {
           "proofId": "report-export-ui",
           "left": 21,
-          "top": -13721,
+          "top": -13846,
           "right": 366,
-          "bottom": -12047,
+          "bottom": -12172,
           "width": 345,
           "height": 1674
         },
         {
           "proofId": "service-backed-evidence-drawer",
           "left": 21,
-          "top": -2548,
+          "top": -2549,
           "right": 366,
           "bottom": -1775,
           "width": 345,
@@ -1281,34 +1287,34 @@
           "left": 21,
           "top": -1769,
           "right": 366,
-          "bottom": -1323,
+          "bottom": -1324,
           "width": 345,
           "height": 446
         },
         {
           "proofId": "retention-settings-ui",
           "left": 21,
-          "top": -4868,
+          "top": -4993,
           "right": 366,
-          "bottom": -2554,
+          "bottom": -2555,
           "width": 345,
-          "height": 2314
+          "height": 2438
         },
         {
           "proofId": "child-check-in",
           "left": 21,
-          "top": -865,
+          "top": -866,
           "right": 366,
-          "bottom": -322,
+          "bottom": -323,
           "width": 345,
           "height": 543
         },
         {
           "proofId": "child-runtime-ui",
           "left": 21,
-          "top": -316,
+          "top": -317,
           "right": 366,
-          "bottom": 248,
+          "bottom": 247,
           "width": 345,
           "height": 564
         }
@@ -1334,7 +1340,7 @@
   },
   "commands": [
     {
-      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-lCKQx8\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-lCKQx8\\seed-tracking.sql",
+      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-7R85R4\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-7R85R4\\seed-tracking.sql",
       "exitCode": 0
     },
     {
@@ -1515,6 +1521,9 @@
       "commandTransportClaimedRows": 1,
       "serviceWritePreflightClaimedRows": 1,
       "serviceMutationExecutedRows": 1,
+      "localServiceStateRevision": 1,
+      "localServiceStateSnapshotRef": "agent-service-local-retention-settings-state",
+      "durableSettingsPersistedRows": 0,
       "appliedRetentionWindowHours": 168,
       "remoteSyncEnabledRows": 0,
       "remoteAiEnabledRows": 0,
@@ -1573,8 +1582,8 @@
     "This proof renders notification parent-surface history/preference rows but does not claim preference mutation, quiet-hours runtime, provider delivery, receipt ingestion, child-device delivery, physical-device proof, authority, production storage, adapter dispatch, or product readiness.",
     "This proof renders parent action readiness rows for expected-place alert policy and parent acknowledgement actions but does not claim live service mutation, alert delivery, provider delivery, receipt ingestion, child-device runtime, physical-device proof, authority, production workers, adapter dispatch, or product readiness.",
     "This proof renders missing-device last-known, offline, contact-requested, and manual-required rows but does not claim current-location runtime, powered-off tracking, remote sync, provider delivery, physical-device proof, OS lost-mode API execution, authority, production workers, or product readiness.",
-    "This proof renders retention settings read-model rows and local service execution proof but does not claim writable product settings, durable production persistence, or platform runtime execution.",
-    "This proof sends and renders a typed retention settings write result with local service mutation execution but does not claim product-ready service behavior, platform runtime execution, child-device delivery, provider delivery, physical-device proof, authority, or production behavior.",
+    "This proof renders retention settings read-model rows and local service execution proof with a local service state revision but does not claim writable product settings, durable production persistence, or platform runtime execution.",
+    "This proof sends and renders a typed retention settings write result with local service mutation execution and local state snapshot ref but does not claim product-ready service behavior, platform runtime execution, child-device delivery, provider delivery, physical-device proof, authority, or production behavior.",
     "This proof renders unsupported/manual platform rows in the hosted portal but does not claim physical-device execution, authority enrollment, provider delivery, or product-ready tracking.",
     "This proof does not claim full child-device UI or authority-enrolled hard-control readiness."
   ],
