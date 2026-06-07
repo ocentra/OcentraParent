@@ -1,0 +1,3 @@
+cargo test -p ocentra-parent-agent-core network_runtime_remote_delivery_durable_envelope -> 0
+cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings -> 0
+node scripts/check-source-shape.mjs -> 0

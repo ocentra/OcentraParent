@@ -26,6 +26,10 @@ mod broker_delivery;
 mod queue;
 mod refs;
 #[cfg(test)]
+mod remote_delivery_durable_envelope;
+#[cfg(test)]
+mod remote_delivery_durable_envelope_types;
+#[cfg(test)]
 mod remote_delivery_event_chain_journal;
 #[cfg(test)]
 mod remote_delivery_event_chain_journal_types;
@@ -55,6 +59,13 @@ pub use queue::{
     NetworkRuntimeQueueTtlReport,
 };
 use refs::NetworkRuntimeChainRefs;
+#[cfg(test)]
+pub use remote_delivery_durable_envelope::prove_network_runtime_remote_delivery_durable_envelope;
+#[cfg(test)]
+pub use remote_delivery_durable_envelope_types::{
+    NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
+    NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
+};
 #[cfg(test)]
 pub use remote_delivery_event_chain_journal::prove_network_runtime_remote_event_chain_journal;
 #[cfg(test)]

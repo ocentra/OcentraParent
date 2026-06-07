@@ -1,0 +1,76 @@
+{
+  "proof": "network-remote-delivery-durable-envelope-proof",
+  "proofRevision": "network-remote-delivery-durable-envelope-proof/v1",
+  "checkedAt": "deterministic:network-remote-delivery-durable-envelope-proof/v1",
+  "sourceFingerprint": "source-tree:e3134546213efc48b09ba21efa38223581273a763ba8a5bf466489edf2438706",
+  "sourceRefs": [
+    "scripts/test/network-remote-delivery-durable-envelope-proof.mjs",
+    "crates/agent-protocol/src/constants/network_flow.rs",
+    "crates/agent-core/src/network_event_runtime.rs",
+    "crates/agent-core/src/network_event_runtime_state.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_durable_envelope.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_durable_envelope_types.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger_types.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_store.rs",
+    "crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs"
+  ],
+  "mergeBase": "f957c4aa90ed42ea266d423236f89361d1d2241a",
+  "proofRoot": "output\\network-plan-proof\\10e-remote-delivery-durable-envelope-status",
+  "testRoot": "test-results\\network-remote-delivery-durable-envelope-proof",
+  "commands": [
+    {
+      "name": "agent-core-remote-delivery-durable-envelope-test",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime_remote_delivery_durable_envelope",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10e-remote-delivery-durable-envelope-status\\agent-core-remote-delivery-durable-envelope-test.log"
+    },
+    {
+      "name": "agent-core-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10e-remote-delivery-durable-envelope-status\\agent-core-clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10e-remote-delivery-durable-envelope-status\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedRemoteDeliveryDurableEnvelopeStatus": "output\\network-plan-proof\\10e-remote-delivery-durable-envelope-status\\expected-remote-delivery-durable-envelope-status.json",
+    "securityNegativeLog": "output\\network-plan-proof\\10e-remote-delivery-durable-envelope-status\\09-security-negative-proof.log",
+    "validationCommands": "output\\network-plan-proof\\10e-remote-delivery-durable-envelope-status\\12-validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\10e-remote-delivery-durable-envelope-status\\proof-summary.json",
+    "testProof": "test-results\\network-remote-delivery-durable-envelope-proof\\proof.json"
+  },
+  "coveredRows": [
+    "network-plan supplemental row 10e remote delivery durable envelope/store status",
+    "network-plan supplemental row 10d remote delivery receipt ledger/local ack status",
+    "network-plan supplemental row 10c remote delivery event-chain journal/export boundary status"
+  ],
+  "provenBoundaries": [
+    "agent-core builds deterministic durable envelope records from row10d local receipt ledger records",
+    "durable records preserve receipt sequence, event id, event type, and correlation id for every source receipt",
+    "row10e refs mark durable envelope, durable store, replay, delete/export readiness, and support-status boundaries that future broker/family-hub delivery can consume",
+    "the proof keeps broker delivery, family-hub relay delivery, remote acknowledgement implementation, provider delivery, child-device delivery, remote delete/export propagation, product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement commands, and host filtering false",
+    "the proof keeps raw PCAP, exact URL, decrypted payload, page content, video content, private-message content, and search-query content unavailable from network-only durable envelope records"
+  ],
+  "notClaimed": [
+    "live broker delivery",
+    "live family-hub relay delivery",
+    "remote acknowledgement implementation",
+    "remote provider delivery",
+    "child-device delivery",
+    "remote delete/export propagation implementation",
+    "product-ready remote delivery",
+    "cross-process transport implementation",
+    "policy authority",
+    "side-effect authority",
+    "adapter execution",
+    "host filtering",
+    "full network-plan completion",
+    "available-metadata remote no-enforcement invariant"
+  ]
+}

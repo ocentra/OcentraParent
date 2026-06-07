@@ -4,8 +4,11 @@ use ocentra_eventing::{
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::{
+    prove_network_runtime_remote_delivery_durable_envelope,
     prove_network_runtime_remote_delivery_receipt_ledger,
     prove_network_runtime_remote_delivery_status, prove_network_runtime_remote_event_chain_journal,
+    NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
+    NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
     NetworkRuntimeRemoteDeliveryReceiptLedgerError,
     NetworkRuntimeRemoteDeliveryReceiptLedgerReport, NetworkRuntimeRemoteDeliveryState,
     NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
@@ -295,6 +298,115 @@ async fn network_runtime_remote_delivery_receipt_ledger_rejects_transport_action
     assert_eq!(report.receipt_event_id_mismatch_count, 0);
     assert_eq!(report.receipt_event_type_mismatch_count, 0);
     assert_eq!(report.receipt_correlation_mismatch_count, 0);
+    assert_eq!(report.enforcement_command_event_count, 0);
+    assert_eq!(report.adapter_action_executed_count, 0);
+    assert_eq!(report.raw_pcap_available_count, 0);
+    assert_eq!(report.exact_url_available_count, 0);
+    assert_eq!(report.decrypted_payload_available_count, 0);
+    assert_eq!(report.page_content_available_count, 0);
+    assert_eq!(report.video_content_available_count, 0);
+    assert_eq!(report.private_message_content_available_count, 0);
+    assert_eq!(report.search_query_available_count, 0);
+}
+
+#[tokio::test]
+async fn network_runtime_remote_delivery_durable_envelope_preserves_receipt_refs_without_transport()
+{
+    let proof_result: Result<
+        NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
+        NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
+    > = prove_network_runtime_remote_delivery_durable_envelope().await;
+    let report =
+        proof_result.expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DURABLE_ENVELOPE);
+
+    assert_eq!(
+        report.durable_envelope_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_ENVELOPE_REF
+    );
+    assert_eq!(
+        report.durable_store_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_STORE_REF
+    );
+    assert_eq!(
+        report.durable_replay_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_REPLAY_REF
+    );
+    assert_eq!(
+        report.delete_export_readiness_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_DELETE_EXPORT_REF
+    );
+    assert_eq!(
+        report.durable_support_status_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF
+    );
+    assert_eq!(
+        report.receipt_ledger.receipt_ledger_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_LEDGER_REF
+    );
+    assert_eq!(
+        report.receipt_ledger.local_receipt_ack_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF
+    );
+    assert!(report.durable_store_ready);
+    assert!(report.durable_replay_ready);
+    assert!(report.delete_export_readiness_recorded);
+    assert!(report.durable_records_match_receipts);
+    assert!(report.durable_envelope_count > 0);
+    assert_eq!(
+        report.source_receipt_record_count,
+        report.durable_envelope_count
+    );
+    assert_eq!(
+        report.durable_store_write_count,
+        report.durable_envelope_count
+    );
+    assert_eq!(
+        report.durable_replay_ready_count,
+        report.durable_envelope_count
+    );
+    assert_eq!(
+        report.delete_export_ready_count,
+        report.durable_envelope_count
+    );
+    assert_eq!(report.ordered_sequence_count, report.durable_envelope_count);
+    assert_eq!(report.unique_event_id_count, report.durable_envelope_count);
+    assert_eq!(report.unique_correlation_id_count, 1);
+    for durable_record in &report.durable_records {
+        assert_eq!(
+            durable_record.durable_envelope_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_ENVELOPE_REF
+        );
+        assert_eq!(
+            durable_record.receipt_ledger_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_LEDGER_REF
+        );
+        assert_eq!(
+            durable_record.local_receipt_ack_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF
+        );
+        assert_eq!(
+            durable_record.delete_export_readiness_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_DELETE_EXPORT_REF
+        );
+    }
+}
+
+#[tokio::test]
+async fn network_runtime_remote_delivery_durable_envelope_rejects_delivery_action_and_content_claims(
+) {
+    let report = prove_network_runtime_remote_delivery_durable_envelope()
+        .await
+        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DURABLE_ENVELOPE);
+
+    assert!(!report.broker_delivery_implemented);
+    assert!(!report.family_hub_delivery_implemented);
+    assert!(!report.remote_delivery_ack_implemented);
+    assert!(!report.provider_delivery_implemented);
+    assert!(!report.child_device_delivery_implemented);
+    assert!(!report.remote_delete_export_propagation_implemented);
+    assert!(!report.product_ready_remote_delivery);
+    assert!(!report.policy_authority);
+    assert!(!report.side_effect_authority);
     assert_eq!(report.enforcement_command_event_count, 0);
     assert_eq!(report.adapter_action_executed_count, 0);
     assert_eq!(report.raw_pcap_available_count, 0);

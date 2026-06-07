@@ -109,6 +109,18 @@ compete on control while staying clear about attribution confidence and privacy.
   content, video content, private-message content, search-query content, and
   host filtering false for the row10d remote projection fixture. This is not a
   full available-metadata remote no-enforcement invariant.
+- E-D added row10e remote delivery durable-envelope proof in `agent-core`: local
+  receipt-ledger records now produce deterministic durable envelope records that
+  preserve receipt sequence, event id, event type, correlation id,
+  receipt-ledger refs, local receipt-ack refs, durable store refs, replay refs,
+  delete/export readiness refs, and support-status refs. This marks the local
+  durable envelope/store boundary for future broker/family-hub transport while
+  keeping remote acknowledgement implementation, provider delivery,
+  child-device delivery, remote delete/export propagation, product-ready remote
+  delivery, policy authority, side-effect authority, adapter execution,
+  enforcement-command publication, raw PCAP, exact URL, decrypted payload, page
+  content, video content, private-message content, search-query content, and
+  host filtering false.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,
