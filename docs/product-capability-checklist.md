@@ -282,6 +282,15 @@ execution, signing/store proof, updater execution, support backend upload
 execution, account/billing provider execution, legal disclosure execution,
 production SLA, provider-secret custody, or child activity custody.
 
+`production-support-backend-provider-runtime-readiness-proof` adds the support
+backend upload/provider runtime readiness row set that composes existing support
+upload execution runtime, upload custody/audit, provider-secret readiness,
+account/SLA, privacy/legal, and case-resolution proof refs. It does not claim
+real support backend upload execution, provider-secret delivery/custody
+execution, account lookup execution, billing provider contact execution, legal
+disclosure execution, remote support sessions, production SLA, default
+Ocentra-hosted family data, or child activity custody.
+
 ## Checklist Rules
 
 - A row must move from `planned` to `in progress` only when a branch or merged
