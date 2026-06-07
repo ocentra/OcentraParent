@@ -117,6 +117,8 @@ function expectActiveStateVisibility() {
     timerRuntimeClaimed: true,
     schedulerPersistenceClaimed: true,
     durableSchedulerStorageClaimed: true,
+    auditRuntimeClaimed: true,
+    rollbackRuntimeClaimed: true,
   };
   const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(activeStateModel))]);
 
@@ -136,11 +138,11 @@ function expectActiveStateVisibility() {
   });
   expect(intent.summaryDetails).toContainEqual({
     label: 'Audit runtime',
-    value: 'Not claimed',
+    value: 'Ready',
   });
   expect(intent.summaryDetails).toContainEqual({
     label: 'Rollback runtime',
-    value: 'Not claimed',
+    value: 'Ready',
   });
   expect(intent.summaryDetails).toContainEqual({
     label: 'Adapter dispatch',
@@ -149,7 +151,7 @@ function expectActiveStateVisibility() {
   expect(intent.summaryDetails).toContainEqual({
     label: 'Product claim',
     value:
-      'Active timer state-store is visible; live scheduling, audit, rollback, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.',
+      'Active timer state-store is visible; live scheduling execution, durable audit logs, rollback execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.',
   });
 }
 
@@ -162,7 +164,7 @@ function expectAbsentServiceInput() {
   expect(intent.summaryDetails).toContainEqual({
     label: 'Product claim',
     value:
-      'Parent-surface rendering only; active timer state-store is shown only when reported by the service. Live scheduling, audit, rollback, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.',
+      'Parent-surface rendering only; active timer state-store is shown only when reported by the service. Live scheduling execution, durable audit logs, rollback execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.',
   });
 }
 

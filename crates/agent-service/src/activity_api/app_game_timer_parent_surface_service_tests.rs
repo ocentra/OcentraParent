@@ -136,8 +136,8 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
     assert!(read_model.timer_runtime_claimed);
     assert!(read_model.scheduler_persistence_claimed);
     assert!(read_model.durable_scheduler_storage_claimed);
-    assert!(!read_model.audit_runtime_claimed);
-    assert!(!read_model.rollback_runtime_claimed);
+    assert!(read_model.audit_runtime_claimed);
+    assert!(read_model.rollback_runtime_claimed);
     assert!(!read_model.adapter_dispatch_claimed);
     assert!(!read_model.child_delivery_claimed);
     assert!(!read_model.platform_enforcement_claimed);

@@ -649,6 +649,12 @@ state-store flags directly, including separate timer runtime, scheduler
 persistence, durable scheduler storage, audit runtime, and rollback runtime
 rows, so parent-visible copy no longer says the active state store is unclaimed
 when the service reports one.
+The timer parent-surface service now also maps existing active enforcement timer
+audit sequence and rollback token references into the shared app/game read
+model. Parent-visible audit and rollback rows can therefore show active-state
+visibility when those references exist, while durable audit log read-models,
+rollback execution, adapter dispatch, child delivery, broad blocking, platform
+enforcement, and raw private source rows remain unclaimed.
 
 ## Checklist
 

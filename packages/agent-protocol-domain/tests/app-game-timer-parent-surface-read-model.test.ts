@@ -93,6 +93,8 @@ describe('agent app-game timer parent surface parser', () => {
           timerRuntimeClaimed: true,
           schedulerPersistenceClaimed: true,
           durableSchedulerStorageClaimed: true,
+          auditRuntimeClaimed: true,
+          rollbackRuntimeClaimed: true,
         })
       )
     );
@@ -104,6 +106,8 @@ describe('agent app-game timer parent surface parser', () => {
         timerRuntimeClaimed: true,
         schedulerPersistenceClaimed: true,
         durableSchedulerStorageClaimed: true,
+        auditRuntimeClaimed: true,
+        rollbackRuntimeClaimed: true,
       },
     });
   });
@@ -127,7 +131,7 @@ describe('agent app-game timer parent surface parser', () => {
         timerParentSurfaceEvent(
           JSON.stringify({
             ...TimerParentSurfaceReadModel,
-            auditRuntimeClaimed: true,
+            adapterDispatchClaimed: true,
           })
         )
       )

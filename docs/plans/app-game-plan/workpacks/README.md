@@ -109,6 +109,7 @@ before `DONE` or PR-ready reporting.
 101. WP110 app/game timer parent-surface portal renderer.
 102. WP111 app/game timer parent-surface active state-store bridge.
 103. WP112 app/game timer parent-surface active-state portal visibility.
+104. WP113 app/game timer parent-surface audit rollback active-state visibility.
 
 ## Standard AI Worker Checklist
 

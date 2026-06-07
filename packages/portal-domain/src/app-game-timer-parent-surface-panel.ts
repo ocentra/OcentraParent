@@ -41,7 +41,7 @@ const TimerParentSurfaceDetails = {
 
 const TimerParentSurfaceProductClaims = {
   ActiveStateStore: decodeDisplayText(
-    'Active timer state-store is visible; live scheduling, audit, rollback, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.'
+    'Active timer state-store is visible; live scheduling execution, durable audit logs, rollback execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.'
   ),
 } as const;
 

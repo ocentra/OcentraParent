@@ -83,6 +83,8 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
         APP_GAME_TIMER_PARENT_SURFACE_STATE_RUNTIME_MANUAL_REQUIRED,
     );
     let active_timer_state_exists = active_timer_state.is_some();
+    let (audit_runtime_claimed, rollback_runtime_claimed) =
+        timer_audit_rollback_runtime_claims(active_timer_state);
 
     AppGameTimerParentSurfaceReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
@@ -97,14 +99,28 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
         timer_runtime_claimed: active_timer_state_exists,
         scheduler_persistence_claimed: active_timer_state_exists,
         durable_scheduler_storage_claimed: active_timer_state_exists,
-        audit_runtime_claimed: false,
-        rollback_runtime_claimed: false,
+        audit_runtime_claimed,
+        rollback_runtime_claimed,
         adapter_dispatch_claimed: false,
         child_delivery_claimed: false,
         platform_enforcement_claimed: false,
         raw_private_source_rows_included: false,
         rows,
     }
+}
+
+fn timer_audit_rollback_runtime_claims(
+    active_timer_state: Option<&EnforcementActiveTimerState>,
+) -> (bool, bool) {
+    let audit_runtime_claimed = active_timer_state
+        .and_then(|state| state.audit_event.journal_sequence.as_ref())
+        .is_some();
+    let rollback_runtime_claimed = active_timer_state
+        .and_then(|state| state.action.rollback_token.as_ref())
+        .or_else(|| active_timer_state.and_then(|state| state.result.rollback_token.as_ref()))
+        .or_else(|| active_timer_state.and_then(|state| state.timer_event.rollback_token.as_ref()))
+        .is_some();
+    (audit_runtime_claimed, rollback_runtime_claimed)
 }
 
 pub fn app_game_timer_parent_surface_payload(
