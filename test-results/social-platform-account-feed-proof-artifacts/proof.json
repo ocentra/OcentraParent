@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-07T00:34:11.780Z",
+  "generatedAt": "2026-06-07T04:16:54.032Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -424,6 +424,7 @@
     "scheduleTimeBudgetCompiler": "proof-present",
     "parentSensitivitySettings": "proof-present",
     "sourceCustodySettings": "proof-present",
+    "sourceCustodyMutation": "service-backed-proof-present",
     "enforcement": "not-claimed",
     "productChecklistUpgrade": "not-claimed"
   },

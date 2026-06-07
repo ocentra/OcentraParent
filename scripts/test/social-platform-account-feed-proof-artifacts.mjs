@@ -182,6 +182,7 @@ function manifestFor(rows, failures) {
       scheduleTimeBudgetCompiler: 'proof-present',
       parentSensitivitySettings: 'proof-present',
       sourceCustodySettings: 'proof-present',
+      sourceCustodyMutation: 'service-backed-proof-present',
       enforcement: 'not-claimed',
       productChecklistUpgrade: 'not-claimed',
     },
@@ -229,9 +230,10 @@ function markdownFor(manifest) {
     'Schedule/time-budget compiler contract proof is present.',
     'Parent sensitivity settings contract proof is present.',
     'Source custody settings contract proof is present over source/privacy refs.',
+    'Service-backed source custody mutation proof is present over redacted refs.',
     'It does not prove runtime connector behavior, native app control, final',
     'policy execution, provider/report delivery, applied schedules/budgets,',
-    'runtime custody mutation, enforcement, or product checklist completion.',
+    'enforcement, or product checklist completion.',
   ].join('\n');
 }
 

@@ -147,10 +147,10 @@ function manifestFor(rows, failures) {
       'social-schedule-time-budget-compiler-proof-present',
       'social-parent-sensitivity-settings-proof-present',
       'social-source-custody-settings-proof-present',
+      'social-source-custody-mutation-proof-present',
       'provider-report-delivery-not-claimed',
       'applied-schedule-time-budget-not-claimed',
       'connector-native-runtime-not-claimed',
-      'runtime-custody-mutation-not-claimed',
       'final-policy-execution-not-claimed',
       'enforcement-not-claimed',
       'product-checklist-upgrade-not-claimed',
@@ -196,9 +196,10 @@ function markdownFor(manifest) {
     'Ref-only social alert/report intent proof is present.',
     'Schedule/time-budget compiler proof and parent sensitivity',
     'settings proof are present. Source custody settings proof is present over',
-    'source/privacy refs; connector/native runtime, provider/report delivery,',
-    'applied schedules/budgets, runtime custody mutation, final policy',
-    'execution, and enforcement remain unclaimed.',
+    'source/privacy refs, and service-backed source custody mutation proof is',
+    'present. Connector/native runtime, provider/report delivery, applied',
+    'schedules/budgets, final policy execution, and enforcement remain',
+    'unclaimed.',
   ].join('\n');
 }
 
