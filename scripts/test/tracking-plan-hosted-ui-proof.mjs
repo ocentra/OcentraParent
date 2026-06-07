@@ -468,6 +468,8 @@ async function writeProof(playwright) {
       missingDeviceWp29HostedUiProof: relativePath(missingDeviceWp29HostedUiProofPath),
       missingDeviceWp33HostedUiProof: relativePath(missingDeviceWp33HostedUiProofPath),
       retentionSettingsScreenshot: relativePath(retentionSettingsScreenshot),
+      retentionLocalServiceStateProof:
+        'output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json',
       evidenceDrawerScreenshot: relativePath(evidenceDrawerScreenshot),
       evidenceDrawerHostedUiProof: relativePath(evidenceDrawerHostedUiProofPath),
       childCheckInScreenshot: relativePath(childCheckInScreenshot),
@@ -613,6 +615,8 @@ async function writeProof(playwright) {
         'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json',
       writeCommandProof:
         'output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json',
+      localServiceStateProof:
+        'output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json',
       mutationProof:
         'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
       screenshot: relativePath(retentionSettingsScreenshot),
@@ -631,6 +635,7 @@ async function writeProof(playwright) {
         commandTransportClaimedRows: 1,
         serviceWritePreflightClaimedRows: 1,
         serviceMutationExecutedRows: 1,
+        localServiceStateReadbackClaimedRows: 1,
         localServiceStateRevision: 1,
         localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
         durableSettingsPersistedRows: 0,

@@ -3,7 +3,7 @@
   "proofMode": "tracking-hosted-ui-artifact-inventory-proof",
   "generatedAt": "2026-06-06T23:45:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "6a7cb0efdce5e171e893c2554f8ae5c568b89f22",
+  "baseCommitAtGeneration": "f3e3283dab1afe8ab856b4ef7a2980024e881468",
   "requiredProofTier": "P2_HOSTED_CI",
   "currentProofTier": "P2_HOSTED_CI",
   "currentStatus": "proved",
@@ -76,92 +76,92 @@
       ],
       "hasNamedRegion": true,
       "headingCount": 29,
-      "labelCount": 510,
+      "labelCount": 521,
       "layoutBoxCount": 11
     }
   },
   "screenshots": [
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary.png",
-      "bytes": 486946,
+      "bytes": 489240,
       "width": 1280,
       "height": 720
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png",
-      "bytes": 184122,
+      "bytes": 183903,
       "width": 390,
       "height": 844
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png",
-      "bytes": 35182,
+      "bytes": 35015,
       "width": 944,
-      "height": 166
+      "height": 167
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png",
-      "bytes": 137712,
+      "bytes": 137647,
       "width": 944,
       "height": 788
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png",
-      "bytes": 68689,
+      "bytes": 69001,
       "width": 944,
-      "height": 511
+      "height": 512
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png",
-      "bytes": 77244,
+      "bytes": 77269,
       "width": 944,
-      "height": 539
+      "height": 538
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png",
-      "bytes": 138138,
+      "bytes": 138439,
       "width": 944,
       "height": 1370
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-policy-consumer.png",
-      "bytes": 139310,
+      "bytes": 139576,
       "width": 944,
       "height": 1629
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-export.png",
-      "bytes": 139913,
+      "bytes": 139790,
       "width": 944,
       "height": 1756
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png",
-      "bytes": 144009,
+      "bytes": 143663,
       "width": 944,
       "height": 2174
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png",
-      "bytes": 158921,
+      "bytes": 158720,
       "width": 944,
       "height": 3866
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-missing-device.png",
-      "bytes": 139982,
+      "bytes": 139838,
       "width": 944,
       "height": 2702
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png",
-      "bytes": 187133,
+      "bytes": 191952,
       "width": 944,
-      "height": 833
+      "height": 1082
     },
     {
       "path": "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui.png",
-      "bytes": 115166,
+      "bytes": 115174,
       "width": 944,
       "height": 1481
     }
@@ -218,54 +218,54 @@
       {
         "proofId": "family-dashboard-rollup",
         "left": 21,
-        "top": -16235,
+        "top": -16709,
         "right": 366,
-        "bottom": -14907,
+        "bottom": -15381,
         "width": 345,
         "height": 1328
       },
       {
         "proofId": "missing-device-ui",
         "left": 21,
-        "top": -6420,
+        "top": -6894,
         "right": 366,
-        "bottom": -4575,
+        "bottom": -5049,
         "width": 345,
         "height": 1845
       },
       {
         "proofId": "notification-parent-surface-history-ui",
         "left": 21,
-        "top": -11742,
+        "top": -12216,
         "right": 366,
-        "bottom": -9804,
+        "bottom": -10278,
         "width": 345,
         "height": 1937
       },
       {
         "proofId": "parent-action-readiness-ui",
         "left": 21,
-        "top": -9798,
+        "top": -10272,
         "right": 366,
-        "bottom": -6426,
+        "bottom": -6900,
         "width": 345,
         "height": 3373
       },
       {
         "proofId": "report-policy-consumer-ui",
         "left": 21,
-        "top": -14901,
+        "top": -15375,
         "right": 366,
-        "bottom": -13428,
+        "bottom": -13902,
         "width": 345,
         "height": 1473
       },
       {
         "proofId": "report-export-ui",
         "left": 21,
-        "top": -13422,
+        "top": -13896,
         "right": 366,
-        "bottom": -11748,
+        "bottom": -12222,
         "width": 345,
         "height": 1674
       },
@@ -290,25 +290,25 @@
       {
         "proofId": "retention-settings-ui",
         "left": 21,
-        "top": -4569,
+        "top": -5043,
         "right": 366,
         "bottom": -2554,
         "width": 345,
-        "height": 2014
+        "height": 2488
       },
       {
         "proofId": "child-check-in",
         "left": 21,
         "top": -866,
         "right": 366,
-        "bottom": -323,
+        "bottom": -322,
         "width": 345,
         "height": 543
       },
       {
         "proofId": "child-runtime-ui",
         "left": 21,
-        "top": -317,
+        "top": -316,
         "right": 366,
         "bottom": 248,
         "width": 345,

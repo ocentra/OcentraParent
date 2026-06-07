@@ -95,8 +95,9 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       execution, or production readiness.
 - [x] Send and render hosted retention settings write-preflight result from the
       typed service command while proving only local service execution and
-      local service state revision while keeping durable product settings,
-      platform runtime, child-device delivery, provider delivery, authority,
+      local service state revision, and render the local service-state proof
+      artifact reference, while keeping durable product settings, platform
+      runtime, child-device delivery, provider delivery, authority,
       physical-device execution, and product-ready claims false.
 - [x] Render and screenshot hosted read-only evidence drawer drill-in from the
       selected service-backed citation without claiming policy evaluation,

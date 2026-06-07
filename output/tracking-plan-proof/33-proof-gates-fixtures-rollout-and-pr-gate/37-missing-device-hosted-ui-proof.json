@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T08:50:09.786Z",
-  "commit": "d13e9f99499e5793610aa75873237372852b78c9",
+  "checkedAt": "2026-06-07T09:43:03.936Z",
+  "commit": "f3e3283dab1afe8ab856b4ef7a2980024e881468",
   "workpackIds": [
     "30-parent-and-child-ui-ux-surfaces",
     "31-platform-extension-checklists-and-proof-routing",
@@ -60,6 +60,7 @@
     "missingDeviceWp29HostedUiProof": "output/tracking-plan-proof/29-missing-device-mode/20-missing-device-hosted-ui-proof.json",
     "missingDeviceWp33HostedUiProof": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/37-missing-device-hosted-ui-proof.json",
     "retentionSettingsScreenshot": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png",
+    "retentionLocalServiceStateProof": "output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json",
     "evidenceDrawerScreenshot": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png",
     "evidenceDrawerHostedUiProof": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json",
     "childCheckInScreenshot": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png",
@@ -459,6 +460,7 @@
         "Missing proof",
         "Proof tier",
         "Rows returned",
+        "Runtime reference",
         "Runtime reference",
         "Adapter boundary",
         "Missing proof",
@@ -982,6 +984,7 @@
         "P2 service proof",
         "5",
         "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json",
         "Hosted retention settings rendering only; writable product settings, service mutation, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.",
         "Manual proof required",
         "No product claim",
@@ -1222,61 +1225,61 @@
         {
           "proofId": "family-dashboard-rollup",
           "left": 21,
-          "top": -16659,
+          "top": -16709,
           "right": 366,
-          "bottom": -15331,
+          "bottom": -15381,
           "width": 345,
           "height": 1328
         },
         {
           "proofId": "missing-device-ui",
           "left": 21,
-          "top": -6844,
+          "top": -6894,
           "right": 366,
-          "bottom": -4999,
+          "bottom": -5049,
           "width": 345,
           "height": 1845
         },
         {
           "proofId": "notification-parent-surface-history-ui",
           "left": 21,
-          "top": -12166,
+          "top": -12216,
           "right": 366,
-          "bottom": -10228,
+          "bottom": -10278,
           "width": 345,
           "height": 1937
         },
         {
           "proofId": "parent-action-readiness-ui",
           "left": 21,
-          "top": -10222,
+          "top": -10272,
           "right": 366,
-          "bottom": -6850,
+          "bottom": -6900,
           "width": 345,
           "height": 3373
         },
         {
           "proofId": "report-policy-consumer-ui",
           "left": 21,
-          "top": -15325,
+          "top": -15375,
           "right": 366,
-          "bottom": -13852,
+          "bottom": -13902,
           "width": 345,
           "height": 1473
         },
         {
           "proofId": "report-export-ui",
           "left": 21,
-          "top": -13846,
+          "top": -13896,
           "right": 366,
-          "bottom": -12172,
+          "bottom": -12222,
           "width": 345,
           "height": 1674
         },
         {
           "proofId": "service-backed-evidence-drawer",
           "left": 21,
-          "top": -2549,
+          "top": -2548,
           "right": 366,
           "bottom": -1775,
           "width": 345,
@@ -1287,34 +1290,34 @@
           "left": 21,
           "top": -1769,
           "right": 366,
-          "bottom": -1324,
+          "bottom": -1323,
           "width": 345,
           "height": 446
         },
         {
           "proofId": "retention-settings-ui",
           "left": 21,
-          "top": -4993,
+          "top": -5043,
           "right": 366,
-          "bottom": -2555,
+          "bottom": -2554,
           "width": 345,
-          "height": 2438
+          "height": 2488
         },
         {
           "proofId": "child-check-in",
           "left": 21,
           "top": -866,
           "right": 366,
-          "bottom": -323,
+          "bottom": -322,
           "width": 345,
           "height": 543
         },
         {
           "proofId": "child-runtime-ui",
           "left": 21,
-          "top": -317,
+          "top": -316,
           "right": 366,
-          "bottom": 247,
+          "bottom": 248,
           "width": 345,
           "height": 564
         }
@@ -1340,7 +1343,7 @@
   },
   "commands": [
     {
-      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-7R85R4\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-7R85R4\\seed-tracking.sql",
+      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-XcZMDC\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-XcZMDC\\seed-tracking.sql",
       "exitCode": 0
     },
     {
@@ -1504,6 +1507,7 @@
   "retentionSettingsHostedUiProof": {
     "sourceProof": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
     "writeCommandProof": "output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json",
+    "localServiceStateProof": "output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json",
     "mutationProof": "output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json",
     "screenshot": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png",
     "renderedRows": [
@@ -1521,6 +1525,7 @@
       "commandTransportClaimedRows": 1,
       "serviceWritePreflightClaimedRows": 1,
       "serviceMutationExecutedRows": 1,
+      "localServiceStateReadbackClaimedRows": 1,
       "localServiceStateRevision": 1,
       "localServiceStateSnapshotRef": "agent-service-local-retention-settings-state",
       "durableSettingsPersistedRows": 0,

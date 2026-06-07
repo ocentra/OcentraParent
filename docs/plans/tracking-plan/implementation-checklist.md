@@ -569,11 +569,12 @@ Every implementation workpack must update, or explicitly justify not updating:
       parent action readiness screenshot proof, hosted child-safe check-in
       screenshot proof, and hosted child-runtime
       disclosure/safe-help/location-share consent screenshot proof exist; hosted
-      retention settings write-preflight command/result rendering is proved, and
+      retention settings write-preflight command/result rendering is proved,
+      including a visible local service-state proof artifact reference, and
       hosted React service-data coverage from the parsed tracking read model is
-      rendered and proved, but live parent/child UI beyond that route,
-      actual child-device delivery/runtime execution, physical-device proof,
-      authority, provider delivery, and production proof remain pending.
+      rendered and proved, but live parent/child UI beyond that route, actual
+      child-device delivery/runtime execution, physical-device proof, authority,
+      provider delivery, and production proof remain pending.
 - [x] Minimum Serious MVP first-checkpoint audit exists in tracked
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/proof-summary.json`
       and generated

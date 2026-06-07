@@ -604,6 +604,7 @@ function TrackingRetentionSettingsHostedUiProofCard({
         <TrackingStatusDetail label={PortalDetails.ProofTier} value={proof.proofTier} />
         <TrackingStatusDetail label={PortalDetails.RowsReturned} value={proof.rowsReturned} />
         <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proof.proofArtifact} />
+        <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proof.localStateProofArtifact} />
         <TrackingStatusDetail label={PortalDetails.AdapterBoundary} value={proof.boundary} />
         <TrackingStatusDetail label={PortalDetails.MissingProof} value={proof.missingProof} />
         <TrackingStatusDetail label={PortalDetails.ProductClaim} value={proof.productClaim} />

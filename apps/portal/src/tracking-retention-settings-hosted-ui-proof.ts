@@ -59,6 +59,7 @@ export type TrackingRetentionSettingsHostedUiProof = {
   readonly proofTier: PortalDisplayText;
   readonly rowsReturned: PortalDetailValue;
   readonly proofArtifact: TrackingStatusProofArtifact;
+  readonly localStateProofArtifact: TrackingStatusProofArtifact;
   readonly boundary: PortalDisplayText;
   readonly missingProof: PortalDisplayText;
   readonly productClaim: PortalDisplayText;
@@ -113,6 +114,7 @@ export function trackingRetentionSettingsHostedUiProof(
     proofTier: PortalText.Resolve(PortalTextToken.TrackingProofService),
     rowsReturned: detailFromValue(rows.length),
     proofArtifact: TrackingStatusProofArtifacts.RetentionSettingsReadModel,
+    localStateProofArtifact: TrackingStatusProofArtifacts.RetentionLocalServiceState,
     boundary: PortalText.Resolve(PortalTextToken.TrackingRetentionSettingsHostedBoundary),
     missingProof: PortalText.Resolve(PortalTextToken.TrackingManualRequired),
     productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
@@ -171,6 +173,7 @@ function appendRetentionSettingsHostedUiSummary(
   appendDetail(metadata, PortalDetails.ProofTier, toDetail(proof.proofTier));
   appendDetail(metadata, PortalDetails.RowsReturned, proof.rowsReturned);
   appendDetail(metadata, PortalDetails.RuntimeReference, toDetail(proof.proofArtifact));
+  appendDetail(metadata, PortalDetails.RuntimeReference, toDetail(proof.localStateProofArtifact));
   appendDetail(metadata, PortalDetails.AdapterBoundary, toDetail(proof.boundary));
   appendDetail(metadata, PortalDetails.MissingProof, toDetail(proof.missingProof));
   appendDetail(metadata, PortalDetails.ProductClaim, toDetail(proof.productClaim));
