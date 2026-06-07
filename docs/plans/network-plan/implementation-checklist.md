@@ -524,7 +524,7 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       remains primary-owned. The portal source-gate slice updated this network
       feature doc and checklist only; expectation contracts and module README
       ownership did not change.
-- [ ] `DONE` report includes workpack, touched paths, validation, proof, known
+- [x] `DONE` report includes workpack, touched paths, validation, proof, known
       gaps, screenshots, and documentation changes.
 
 ## Base Workpack Checklist
