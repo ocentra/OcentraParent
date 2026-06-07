@@ -383,6 +383,10 @@ accounting cannot pass without those proof refs while still keeping
 notification runtime, authority enrollment, hard-control runtime,
 physical-device behavior, provider delivery, production workers, and
 product-ready tracking unclaimed.
+It also now carries the retention product-readiness proof's writable product
+settings and platform retention enforcement blockers in the aggregate remaining
+blocker list, so the top-level closure row cannot omit retention's product-ready
+runtime blockers while still reporting remaining-blocker accounting complete.
 WP31/WP33 now also have authority-runtime readiness blocker proof from
 `node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`,
 written to
