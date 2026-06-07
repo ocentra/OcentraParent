@@ -18,6 +18,12 @@ export {
   type AppGameNotificationParentSurfacePanelIntent,
   type AppGameNotificationParentSurfacePanelRow,
 } from './app-game-notification-parent-surface-panel';
+export {
+  createLocalAiRuntimePanelIntent,
+  type LocalAiRuntimePanelCard,
+  type LocalAiRuntimePanelDetail,
+  type LocalAiRuntimePanelIntent,
+} from './local-ai-runtime-panel';
 export { createAppGameNotificationParentSurfaceReadModelFromReadiness } from './app-game-notification-parent-surface-live-readiness';
 export {
   PortalFrameChromeNumberFields,

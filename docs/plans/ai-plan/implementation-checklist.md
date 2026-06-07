@@ -218,7 +218,8 @@ consumes the same results.
 
 - [x] AI runtime status surface read-model proof; production portal screenshot
       remains follow-up UI work.
-- [ ] AI jobs/activity surface.
+- [x] AI jobs/activity surface renders existing local runtime status and LAN AI
+      job events on the `#/ai-runtime` portal route.
 - [ ] AI decision explanation surface.
 - [ ] Memory/graph evidence surface.
 - [ ] Remote boundary surface.

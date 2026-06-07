@@ -28,6 +28,7 @@ import {
   AppGamePolicyReadinessRoutePanel,
   shouldRenderAppGamePolicyReadinessRoute,
 } from './AppGamePolicyReadinessRoutePanel';
+import { AiRuntimeRoutePanel, shouldRenderAiRuntimeRoute } from './AiRuntimeRoutePanel';
 import {
   BrowserParentExplanationRoutePanel,
   shouldRenderBrowserParentExplanationRoute,
@@ -121,6 +122,13 @@ export function ParentPortalRoute({
           actions={actions}
           commandEnabled={state.socket?.readyState === WebSocket.OPEN}
           readModelResult={activityState.appGamePolicyReadinessReadModel}
+        />
+      ) : null}
+      {shouldRenderAiRuntimeRoute(route) ? (
+        <AiRuntimeRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          liveActivity={activityState}
         />
       ) : null}
       {shouldRenderBrowserParentExplanationRoute(route) ? <BrowserParentExplanationRoutePanel /> : null}

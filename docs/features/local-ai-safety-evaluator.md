@@ -301,6 +301,13 @@ claim needs proof, not slogans.
   verifier writes
   `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json` and
   does not rerun live capture/model inference or claim remote/API AI.
+- `apps/portal/src/AiRuntimeRoutePanel.tsx` and
+  `packages/portal-domain/src/local-ai-runtime-panel.ts` now render the existing
+  `agent.local-ai.runtime.status.reported` and `agent.lan-ai.job.reported`
+  events on the `#/ai-runtime` product route. This closes the first AI
+  jobs/activity visibility surface for service-reported runtime/job rows only;
+  it does not claim model quality, physical LAN execution, policy authority, or
+  enforcement.
 - `ScreenAiStricterParentRuleProofSchema` and
   `scripts/test/screen-ai-stricter-parent-rule-proof.mjs` now consume the real
   service WinRT OCR policy decision and prove a stricter parent-authored screen
@@ -392,11 +399,11 @@ public/live surface proof, production parent explanation portal rendering,
 broader enforcement handoff, production browser-trigger producers, physical
 household family AI hub runtime/discovery beyond the loopback proof,
 production remote assistant provider execution and portal assistant UI,
-cloud-streamed frame proof, mobile browser parity, live service AI event
-consumers, degraded-result event flow, production household mesh transport over
-physical LAN, live provider advertisement/heartbeat gossip, live lease expiry
-and dead-letter handling, and validation against production external evidence
-variants.
+memory/graph evidence UI, remote boundary UI, cloud-streamed frame proof,
+mobile browser parity, live service AI event consumers, degraded-result event
+flow, production household mesh transport over physical LAN, live provider
+advertisement/heartbeat gossip, live lease expiry and dead-letter handling, and
+validation against production external evidence variants.
 
 ## Checklist
 
@@ -495,13 +502,16 @@ variants.
 - [x] Policy-only enforcement consumption proof validates policy-decision refs
       feed adapter handoff while raw AI output and raw pixels remain outside the
       enforcement path.
+- [x] AI jobs/activity portal surface renders existing local runtime status and
+      LAN AI job events on the `#/ai-runtime` route without model-quality,
+      physical LAN execution, policy-authority, or enforcement claims.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub
 runtime/discovery, production mesh bridge transport over real LAN, live provider
 advertisement/heartbeat gossip, lease expiry/dead-letter handling, live service
-AI event consumers, degraded-result event flow, and broad enforcement handoff
-remain in the Current Gap section above.
+AI event consumers, degraded-result event flow, memory/graph UI, remote boundary
+UI, and broad enforcement handoff remain in the Current Gap section above.
 
 ## Next AI Instructions
 
