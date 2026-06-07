@@ -14,7 +14,12 @@ export const ProductionSupportProcessRuntimeStatusSurfaceSchema = withParser(
     'redaction-review-running',
     'backend-upload-failed',
     'case-resolution-succeeded',
-    'support-process-manual-required'
+    'support-process-manual-required',
+    'incident-runtime-requested',
+    'incident-runtime-authorized',
+    'incident-runtime-running',
+    'incident-runtime-evidence-ready',
+    'incident-runtime-manual-required'
   )
 );
 
@@ -28,6 +33,7 @@ export const ProductionSupportProcessRuntimeStatusStateSchema = withParser(
     'failed',
     'manual-required',
     'not-implemented',
+    'runtime-evidence-ready',
     'executed'
   )
 );
@@ -40,6 +46,7 @@ export const ProductionSupportProcessRuntimeStatusSourceProofSchema = withParser
     'production-support-backend-upload-execution-runtime-proof',
     'production-support-case-resolution-status-proof',
     'production-support-publication-runtime-readiness-proof',
+    'production-support-status-backend-runtime-execution-proof',
     'data-custody-expectation',
     'documentation-expectation'
   )
@@ -56,6 +63,8 @@ export const ProductionSupportProcessRuntimeStatusDataClassSchema = withParser(
     'manual-proof-status',
     'support-runbook-status',
     'audit-status',
+    'incident-runtime-status',
+    'runtime-evidence-status',
     'child-activity-evidence',
     'raw-support-bundle',
     'provider-secret',
@@ -77,6 +86,7 @@ export const ProductionSupportProcessRuntimeStatusNonClaimSchema = withParser(
     'no-remote-support-session',
     'no-child-activity-custody',
     'no-provider-secrets',
+    'no-incident-runtime-execution',
     'no-default-ocentra-hosted-family-data'
   )
 );
@@ -110,6 +120,11 @@ export const RequiredProductionSupportProcessRuntimeStatusSurfaces = [
   'backend-upload-failed',
   'case-resolution-succeeded',
   'support-process-manual-required',
+  'incident-runtime-requested',
+  'incident-runtime-authorized',
+  'incident-runtime-running',
+  'incident-runtime-evidence-ready',
+  'incident-runtime-manual-required',
 ] as const;
 
 export const RequiredProductionSupportProcessRuntimeStatusNonClaims = [
@@ -120,5 +135,6 @@ export const RequiredProductionSupportProcessRuntimeStatusNonClaims = [
   'no-remote-support-session',
   'no-child-activity-custody',
   'no-provider-secrets',
+  'no-incident-runtime-execution',
   'no-default-ocentra-hosted-family-data',
 ] as const;

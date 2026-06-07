@@ -189,11 +189,14 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
 - `production-support-process-runtime-status-proof` may summarize support
   process requested, parent-consent authorized, privacy/legal queued, redaction
   review running, backend-upload failed, case-resolution succeeded, and
-  manual-required runtime status rows with support-safe status, audit, and
-  manual proof refs, but it must not include raw child activity, raw support
-  bundles, provider secrets, account lookup results, billing contact records,
-  backend upload payloads, public runtime payloads, remote support transcripts,
-  production SLA commitments, or default Ocentra-hosted family data.
+  manual-required runtime status rows plus incident runtime requested,
+  authorized, running, evidence-ready, and manual-required rows with
+  support-safe status, runtime evidence, audit, and manual proof refs, but it
+  must not include raw child activity, raw support bundles, provider secrets,
+  account lookup results, billing contact records, backend upload payloads,
+  public runtime payloads, incident runtime payloads, remote support
+  transcripts, production SLA commitments, or default Ocentra-hosted family
+  data.
 - `production-support-status-backend-public-runtime-followthrough-proof` may
   summarize status backend/public runtime follow-through rows with support-safe
   status labels, backend handoff refs, public runtime handoff refs, and manual

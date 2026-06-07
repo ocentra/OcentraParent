@@ -26,10 +26,16 @@ function acceptsSupportProcessRuntimeRows(): void {
       'backend-upload-failed': 1,
       'case-resolution-succeeded': 1,
       'support-process-manual-required': 1,
+      'incident-runtime-requested': 1,
+      'incident-runtime-authorized': 1,
+      'incident-runtime-running': 1,
+      'incident-runtime-evidence-ready': 1,
+      'incident-runtime-manual-required': 1,
     });
     expect(proof.backendUploadExecutionState).toBe('manual-required');
     expect(proof.publicRuntimeExecutionState).toBe('not-implemented');
     expect(proof.providerExecutionState).toBe('not-implemented');
+    expect(proof.incidentRuntimeExecutionState).toBe('manual-required');
     expect(proof.productionSlaState).toBe('not-implemented');
     expect(proof.remoteSupportSessionState).toBe('not-implemented');
     expect(proof.childActivityCustodyState).toBe('not-implemented');
@@ -78,6 +84,12 @@ function rejectsIncompleteRuntimeCoverage(): void {
         nonClaims: ProductionSupportProcessRuntimeStatusReadModel.nonClaims.filter(
           (nonClaim) => nonClaim !== 'no-provider-secrets'
         ),
+      }).success
+    ).toBe(false);
+    expect(
+      ProductionSupportProcessRuntimeStatusProofSchema.safeParse({
+        ...ProductionSupportProcessRuntimeStatusReadModel,
+        incidentRuntimeExecutionState: 'executed',
       }).success
     ).toBe(false);
   });

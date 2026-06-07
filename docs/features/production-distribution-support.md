@@ -133,11 +133,14 @@ dev-only repo when it claims consumer readiness.
 - `production-support-process-runtime-status-proof` adds parent-domain support
   process runtime status rows for support process requested, parent consent
   authorized, privacy/legal queued, redaction review running, backend-upload
-  failed, case resolution succeeded, and manual-required support process
-  states. It proves deterministic support-safe status metadata while preserving
-  real backend upload execution, public runtime execution, provider execution,
-  production SLA, remote support sessions, provider secrets, child activity
-  custody, and default Ocentra-hosted family data as explicit non-claims.
+  failed, case resolution succeeded, manual-required support process, incident
+  runtime requested, incident runtime authorized, incident runtime running,
+  incident runtime evidence-ready, and incident runtime manual-required states.
+  It proves deterministic support-safe status metadata while preserving real
+  incident runtime execution, real backend upload execution, public runtime
+  execution, provider execution, production SLA, remote support sessions,
+  provider secrets, child activity custody, and default Ocentra-hosted family
+  data as explicit non-claims.
 - `production-support-account-sla-status-proof` adds parent-domain production
   support account/SLA status rows for account lookup request/result boundaries,
   billing provider contact status, remote support request/session boundaries,
@@ -582,12 +585,14 @@ package/runtime proof.
 - [ ] Production support process runtime status proof. Current
       `production-support-process-runtime-status-proof` covers requested,
       authorized, queued, running, failed, succeeded, and manual-required
-      support process runtime status rows with support workflow, incident
-      status, backend upload status/runtime, case resolution, publication
-      runtime, custody, and documentation refs. Real backend upload execution,
-      public runtime execution, provider execution, production SLA, remote
-      support sessions, provider secrets, child activity custody, and default
-      Ocentra-hosted family data remain unclaimed.
+      support process runtime status rows plus incident runtime requested,
+      authorized, running, evidence-ready, and manual-required rows with
+      support workflow, incident status, status-backend runtime execution,
+      backend upload status/runtime, case resolution, publication runtime,
+      custody, and documentation refs. Real incident runtime execution, backend
+      upload execution, public runtime execution, provider execution,
+      production SLA, remote support sessions, provider secrets, child activity
+      custody, and default Ocentra-hosted family data remain unclaimed.
 - [ ] Production support account/SLA status proof. Current
       `production-support-account-sla-status-proof` covers account lookup
       request/result status, billing provider contact status, remote support

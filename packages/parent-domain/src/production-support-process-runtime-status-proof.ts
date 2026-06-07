@@ -22,6 +22,7 @@ type ProductionSupportProcessRuntimeStatusProofCandidate = {
   readonly backendUploadExecutionState: string;
   readonly publicRuntimeExecutionState: string;
   readonly providerExecutionState: string;
+  readonly incidentRuntimeExecutionState: string;
   readonly productionSlaState: string;
   readonly remoteSupportSessionState: string;
   readonly childActivityCustodyState: string;
@@ -73,6 +74,7 @@ export const ProductionSupportProcessRuntimeStatusProofSchema = withParser(
     backendUploadExecutionState: ProductionSupportProcessRuntimeStatusStateSchema,
     publicRuntimeExecutionState: ProductionSupportProcessRuntimeStatusStateSchema,
     providerExecutionState: ProductionSupportProcessRuntimeStatusStateSchema,
+    incidentRuntimeExecutionState: ProductionSupportProcessRuntimeStatusStateSchema,
     productionSlaState: ProductionSupportProcessRuntimeStatusStateSchema,
     remoteSupportSessionState: ProductionSupportProcessRuntimeStatusStateSchema,
     childActivityCustodyState: ProductionSupportProcessRuntimeStatusStateSchema,
@@ -120,6 +122,7 @@ function productionSupportProcessRuntimeStatusProofIsHonest(
     proof.backendUploadExecutionState === 'manual-required' &&
     proof.publicRuntimeExecutionState === 'not-implemented' &&
     proof.providerExecutionState === 'not-implemented' &&
+    proof.incidentRuntimeExecutionState === 'manual-required' &&
     proof.productionSlaState === 'not-implemented' &&
     proof.remoteSupportSessionState === 'not-implemented' &&
     proof.childActivityCustodyState === 'not-implemented' &&

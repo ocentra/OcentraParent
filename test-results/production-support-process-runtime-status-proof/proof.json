@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T05:37:27.895Z",
-  "commit": "41705c46d7c3c0ee8a08768672852bbf02b4f46c",
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
   "proofMode": "production-support-process-runtime-status-proof",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -32,7 +32,10 @@
         "parent-consent-status",
         "privacy-legal-status",
         "redaction-review-status"
-      ]
+      ],
+      "runtimeReference": "production-support-process-runtime-support-process-requested",
+      "auditReference": "production-support-process-audit-support-process-requested",
+      "manualRequirement": "support-process-requested-requires-runtime-publication-support-and-manual-proof"
     },
     {
       "surface": "parent-consent-authorized",
@@ -44,7 +47,10 @@
         "parent-consent-status",
         "privacy-legal-status",
         "redaction-review-status"
-      ]
+      ],
+      "runtimeReference": "production-support-process-runtime-parent-consent-authorized",
+      "auditReference": "production-support-process-audit-parent-consent-authorized",
+      "manualRequirement": "parent-consent-authorized-requires-runtime-publication-support-and-manual-proof"
     },
     {
       "surface": "privacy-legal-queued",
@@ -56,7 +62,10 @@
         "parent-consent-status",
         "privacy-legal-status",
         "redaction-review-status"
-      ]
+      ],
+      "runtimeReference": "production-support-process-runtime-privacy-legal-queued",
+      "auditReference": "production-support-process-audit-privacy-legal-queued",
+      "manualRequirement": "privacy-legal-queued-requires-runtime-publication-support-and-manual-proof"
     },
     {
       "surface": "redaction-review-running",
@@ -68,7 +77,10 @@
         "parent-consent-status",
         "privacy-legal-status",
         "redaction-review-status"
-      ]
+      ],
+      "runtimeReference": "production-support-process-runtime-redaction-review-running",
+      "auditReference": "production-support-process-audit-redaction-review-running",
+      "manualRequirement": "redaction-review-running-requires-runtime-publication-support-and-manual-proof"
     },
     {
       "surface": "backend-upload-failed",
@@ -80,7 +92,10 @@
         "backend-upload-status",
         "audit-status",
         "manual-proof-status"
-      ]
+      ],
+      "runtimeReference": "production-support-process-runtime-backend-upload-failed",
+      "auditReference": "production-support-process-audit-backend-upload-failed",
+      "manualRequirement": "backend-upload-failed-requires-runtime-publication-support-and-manual-proof"
     },
     {
       "surface": "case-resolution-succeeded",
@@ -91,7 +106,10 @@
         "support-case-status",
         "case-resolution-status",
         "audit-status"
-      ]
+      ],
+      "runtimeReference": "production-support-process-runtime-case-resolution-succeeded",
+      "auditReference": "production-support-process-audit-case-resolution-succeeded",
+      "manualRequirement": "case-resolution-succeeded-requires-runtime-publication-support-and-manual-proof"
     },
     {
       "surface": "support-process-manual-required",
@@ -102,7 +120,85 @@
         "support-case-status",
         "support-runbook-status",
         "manual-proof-status"
-      ]
+      ],
+      "runtimeReference": "production-support-process-runtime-support-process-manual-required",
+      "auditReference": "production-support-process-audit-support-process-manual-required",
+      "manualRequirement": "support-process-manual-required-requires-runtime-publication-support-and-manual-proof"
+    },
+    {
+      "surface": "incident-runtime-requested",
+      "sourceProof": "production-incident-support-status-proof",
+      "runtimeState": "requested",
+      "backendUploadState": "manual-required",
+      "supportSafeDataClasses": [
+        "support-case-status",
+        "incident-runtime-status",
+        "audit-status",
+        "manual-proof-status"
+      ],
+      "runtimeReference": "production-support-process-runtime-incident-runtime-requested",
+      "auditReference": "production-support-process-audit-incident-runtime-requested",
+      "manualRequirement": "incident-runtime-requested-requires-runtime-publication-support-and-manual-proof"
+    },
+    {
+      "surface": "incident-runtime-authorized",
+      "sourceProof": "support-incident-workflow-proof",
+      "runtimeState": "authorized",
+      "backendUploadState": "manual-required",
+      "supportSafeDataClasses": [
+        "support-case-status",
+        "incident-runtime-status",
+        "audit-status",
+        "manual-proof-status"
+      ],
+      "runtimeReference": "production-support-process-runtime-incident-runtime-authorized",
+      "auditReference": "production-support-process-audit-incident-runtime-authorized",
+      "manualRequirement": "incident-runtime-authorized-requires-runtime-publication-support-and-manual-proof"
+    },
+    {
+      "surface": "incident-runtime-running",
+      "sourceProof": "production-support-status-backend-runtime-execution-proof",
+      "runtimeState": "running",
+      "backendUploadState": "manual-required",
+      "supportSafeDataClasses": [
+        "support-case-status",
+        "incident-runtime-status",
+        "audit-status",
+        "manual-proof-status"
+      ],
+      "runtimeReference": "production-support-process-runtime-incident-runtime-running",
+      "auditReference": "production-support-process-audit-incident-runtime-running",
+      "manualRequirement": "incident-runtime-running-requires-runtime-publication-support-and-manual-proof"
+    },
+    {
+      "surface": "incident-runtime-evidence-ready",
+      "sourceProof": "production-support-status-backend-runtime-execution-proof",
+      "runtimeState": "runtime-evidence-ready",
+      "backendUploadState": "manual-required",
+      "supportSafeDataClasses": [
+        "support-case-status",
+        "incident-runtime-status",
+        "runtime-evidence-status",
+        "audit-status"
+      ],
+      "runtimeReference": "production-support-process-runtime-incident-runtime-evidence-ready",
+      "auditReference": "production-support-process-audit-incident-runtime-evidence-ready",
+      "manualRequirement": "incident-runtime-evidence-ready-requires-runtime-publication-support-and-manual-proof"
+    },
+    {
+      "surface": "incident-runtime-manual-required",
+      "sourceProof": "production-support-publication-runtime-readiness-proof",
+      "runtimeState": "manual-required",
+      "backendUploadState": "manual-required",
+      "supportSafeDataClasses": [
+        "support-case-status",
+        "incident-runtime-status",
+        "support-runbook-status",
+        "manual-proof-status"
+      ],
+      "runtimeReference": "production-support-process-runtime-incident-runtime-manual-required",
+      "auditReference": "production-support-process-audit-incident-runtime-manual-required",
+      "manualRequirement": "incident-runtime-manual-required-requires-runtime-publication-support-and-manual-proof"
     }
   ],
   "nonClaims": [
@@ -113,10 +209,12 @@
     "no-remote-support-session",
     "no-child-activity-custody",
     "no-provider-secrets",
+    "no-incident-runtime-execution",
     "no-default-ocentra-hosted-family-data"
   ],
   "knownGaps": [
     "Support process runtime status rows are deterministic local proof only; public runtime execution remains unimplemented.",
+    "Incident runtime execution rows are readiness/status proof only; real incident runtime execution remains manual-required.",
     "Support backend upload execution, provider execution, remote support sessions, and production SLA remain manual-required or not implemented.",
     "No child activity evidence, raw support bundles, provider secrets, account lookup results, billing contact records, remote transcripts, or default Ocentra-hosted family data are included."
   ]
