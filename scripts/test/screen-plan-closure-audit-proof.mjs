@@ -69,7 +69,7 @@ const workpacks = [
     label: 'Small VLM guided classifier evaluation',
     status: workpackStatus('36 Small VLM guided classifier evaluation'),
     requiredProof: 'output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json',
-    gate: 'Current proof detects the local llama.cpp/Qwen2-VL runtime, retained controlled local VLM matrix, retained nine-scenario live operator matrix, bounded retained VLM inputs, managed-browser CDP crop capture path, retained proof-image VLM wall/CPU/RSS measurement, and public-live CDP crop quality; authenticated-account social proof and production model selection remain open.',
+    gate: 'Current proof detects the local llama.cpp/Qwen2-VL runtime, retained controlled local VLM matrix, retained nine-scenario live operator matrix, bounded retained VLM inputs, managed-browser CDP crop capture path, retained proof-image VLM wall/CPU/RSS measurement, public-live CDP crop quality, and current Windows local VLM route selection; authenticated-account social proof, broad rollout thresholds, and hardware fallback matrix remain open.',
   },
 ];
 
@@ -125,6 +125,7 @@ const summary = {
     'output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json',
     'output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json',
     'output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json',
+    'output/screen-plan-proof/36-vlm-model-selection/proof-summary.json',
   ].map((artifact) => ({
     artifact,
     present: existsSync(join(repoRoot, artifact)),
@@ -136,7 +137,7 @@ const summary = {
     noProductCompleteClaim: true,
   },
   nonClaims: [
-    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/production service session runtime/relay-cache execution/product UI persistence, current PP-OCRv5 quality resolution/production OCR selection, authenticated-account social proof, or production model selection gates.',
+    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/production service session runtime/relay-cache execution/product UI persistence, current PP-OCRv5 quality resolution/production OCR selection, authenticated-account social proof, broad VLM rollout thresholds, or hardware fallback matrix gates.',
     'This audit does not replace real device/runtime proof for remaining partial rows.',
     'This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied.',
   ],

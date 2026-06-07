@@ -1,6 +1,6 @@
 {
   "proof": "screen-vlm-guided-classifier-readiness-proof",
-  "generatedAt": "2026-06-07T08:16:54.942Z",
+  "generatedAt": "2026-06-07T08:43:44.002Z",
   "proofTier": "P3_CONTRACT_LOCAL_VLM_READINESS",
   "modelConstants": {
     "modelRuntimeRef": "screen-local-vlm-runtime",
@@ -169,7 +169,12 @@
     "liveCropQualityProofPresent": true,
     "liveCropQualityScenarioId": "vimeo-public-home-crop",
     "liveCropQualityExpectedCategoryMatched": true,
-    "liveCropQualityRawImageDeleted": true
+    "liveCropQualityRawImageDeleted": true,
+    "modelSelectionProofPath": "output/screen-plan-proof/36-vlm-model-selection/proof-summary.json",
+    "modelSelectionProofPresent": true,
+    "modelSelectionStatus": "selected-current-windows-local-proof-route",
+    "modelSelectionCurrentRouteSelected": true,
+    "modelSelectionNoRemoteProviderSelected": true
   },
   "providerRuntimeState": {
     "providerCommandAvailable": true,
@@ -184,8 +189,9 @@
     "managedBrowserCdpCropPathVerified": true,
     "retainedRuntimeResourceMeasurementAvailable": true,
     "retainedLiveCropQualityAvailable": true,
+    "currentLocalVlmRouteSelected": true,
     "liveVlmInferenceReady": true,
-    "note": "Local llama.cpp/Qwen2-VL runtime files exist; retained controlled matrix proof and retained nine-scenario live operator proof show real local VLM analysis, schema validation, policy dry-run, and raw deletion over public/live URL plus native-app captures. Resource/crop audit proves retained VLM inputs stayed within the max pixel budget and CDP crop capture exists. Retained proof-image VLM measurement records per-sample wall time, CPU seconds, and peak working set. Public-live CDP crop quality proof shows a Vimeo crop classified as video with expected visible text and deletion. Authenticated-account social proof and production model selection remain open."
+    "note": "Local llama.cpp/Qwen2-VL runtime files exist; retained controlled matrix proof and retained nine-scenario live operator proof show real local VLM analysis, schema validation, policy dry-run, and raw deletion over public/live URL plus native-app captures. Resource/crop audit proves retained VLM inputs stayed within the max pixel budget and CDP crop capture exists. Retained proof-image VLM measurement records per-sample wall time, CPU seconds, and peak working set. Public-live CDP crop quality proof shows a Vimeo crop classified as video with expected visible text and deletion. Current-route selection chooses cached local llama.cpp/Qwen2-VL for the Windows proof path when the selection artifact is present; authenticated-account social proof and broad rollout calibration remain open."
   },
   "assertions": {
     "sourceReadinessProofPassed": true,
@@ -213,17 +219,17 @@
     "retained controlled and live-operator VLM capture inputs are bounded below the worker max-image-pixel budget",
     "managed-browser CDP crop capture path exists and deletes captured material",
     "retained proof-image VLM inference records per-sample wall time, CPU seconds, and peak working set inside the local measurement envelope",
-    "public-live managed-browser CDP crop is analyzed by local VLM with expected video category/text and raw crop deletion"
+    "public-live managed-browser CDP crop is analyzed by local VLM with expected video category/text and raw crop deletion",
+    "current Windows local VLM proof route selects cached llama.cpp/Qwen2-VL after runtime, resource, quality, local-only, and deletion evidence"
   ],
   "openChecklistClaims": [
     "authenticated-account social crop quality remains outside this public-live proof",
-    "detector-specific prompt-pack quality is not measured by this proof",
-    "production model selection remains unclaimed"
+    "broad production rollout thresholds and hardware fallback matrix remain outside this proof"
   ],
   "nonClaims": [
     "This screen-plan proof reuses the VLM execution-readiness contract proof and does not run live VLM inference.",
     "This proof cross-checks the retained live operator matrix artifact instead of rerunning the nine live URL/app captures.",
-    "This proof does not claim production model quality, portal runtime rendering, enforcement, or final screen-AI pipeline completion.",
+    "This proof selects the current Windows local VLM proof route only; it does not claim broad production rollout thresholds, authenticated social quality, portal runtime rendering, enforcement, or final screen-AI pipeline completion.",
     "This proof does not upload raw screenshots or retain raw images."
   ]
 }

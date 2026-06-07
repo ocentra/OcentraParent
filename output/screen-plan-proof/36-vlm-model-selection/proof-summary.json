@@ -1,0 +1,107 @@
+{
+  "proof": "screen-vlm-model-selection-proof",
+  "generatedAt": "2026-06-07T08:43:37.474Z",
+  "proofTier": "P2_CURRENT_LOCAL_VLM_ROUTE_SELECTION",
+  "claim": "The current Windows screen-plan proof path selects the cached local llama.cpp/Qwen2-VL route for guided VLM classification because it is the only measured local route with runtime availability, bounded input custody, resource measurement, public-live crop quality, local-only custody, and deletion proof.",
+  "selectedRoute": {
+    "selectionStatus": "selected-current-windows-local-proof-route",
+    "providerKind": "localVision",
+    "runtimeBinary": "%USERPROFILE%\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+    "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+    "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
+    "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+    "promptOrTemplateVersion": "screen-vlm-guided-current-route-selection-v1",
+    "selectedFor": [
+      "windows-service-proof-path",
+      "guided-screen-classification",
+      "public-live-managed-browser-crop",
+      "retained-parent-proof-screenshots"
+    ]
+  },
+  "sourceEvidence": {
+    "readiness": "output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json",
+    "resourceCrop": "output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json",
+    "runtimeMeasurement": "output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json",
+    "liveCropQuality": "output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json"
+  },
+  "candidateEvidence": {
+    "localLlamaRuntimeAvailable": true,
+    "retainedMatrixAvailable": true,
+    "retainedLiveOperatorAvailable": true,
+    "boundedInputsAvailable": true,
+    "runtimeResourcesWithinEnvelope": true,
+    "publicLiveCropQualityPassed": true,
+    "localOnlyCustody": true,
+    "deletionCustody": true
+  },
+  "candidateRejected": [
+    {
+      "candidate": "lm-studio-cli-server",
+      "reason": "CLI detected but local server and loaded models are unavailable in the current proof environment.",
+      "evidence": {
+        "command": "lms",
+        "available": true,
+        "status": 0,
+        "output": "The server is not running."
+      }
+    },
+    {
+      "candidate": "ollama",
+      "reason": "Ollama command is unavailable in the current proof environment.",
+      "evidence": {
+        "command": "ollama",
+        "available": false,
+        "status": 1,
+        "output": "'ollama' is not recognized as an internal or external command, operable program or batch file."
+      }
+    },
+    {
+      "candidate": "llama-server-path",
+      "reason": "Generic llama-server command is unavailable; the cached llama-mtmd CLI is the measured route.",
+      "evidence": {
+        "command": "llama-server",
+        "available": false,
+        "status": 1,
+        "output": "'llama-server' is not recognized as an internal or external command, operable program or batch file."
+      }
+    }
+  ],
+  "selectionDecision": {
+    "selected": true,
+    "selectedModelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+    "selectedProviderKind": "localVision",
+    "selectedModelLabel": "Qwen2-VL-2B-Instruct-Q4_K_M via llama-mtmd-cli b9279",
+    "decisionScope": "current Windows local screen-plan proof route"
+  },
+  "remainingQualityGates": [
+    "authenticated-account social/feed proof",
+    "broader platform parity",
+    "longer model calibration set",
+    "production rollout policy thresholds",
+    "hardware-specific model fallback matrix"
+  ],
+  "assertions": {
+    "selectedRouteHasRuntimeArtifacts": true,
+    "selectedRouteHasRealLocalVlmProof": true,
+    "selectedRouteHasLiveOperatorProof": true,
+    "selectedRouteHasBoundedInputProof": true,
+    "selectedRouteHasResourceMeasurement": true,
+    "selectedRouteHasPublicLiveCropQuality": true,
+    "selectedRouteIsLocalOnly": true,
+    "selectedRoutePreservesDeletionCustody": true,
+    "noRemoteProviderSelected": true
+  },
+  "completedChecklistClaims": [
+    "current Windows local VLM proof route selects cached llama.cpp/Qwen2-VL after runtime, resource, quality, local-only, and deletion evidence",
+    "LM Studio, Ollama, and generic llama-server remain non-selected in this environment because they lack equivalent measured readiness"
+  ],
+  "openChecklistClaims": [
+    "authenticated-account social crop quality remains outside this public-live proof",
+    "broad production rollout thresholds and hardware fallback matrix remain open"
+  ],
+  "nonClaims": [
+    "This proof selects the current local Windows proof route; it does not claim every platform or hardware profile.",
+    "This proof does not claim authenticated-account social/feed model quality.",
+    "This proof does not use remote/API AI or retain raw screenshots."
+  ]
+}
