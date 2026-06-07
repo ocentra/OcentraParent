@@ -31,6 +31,7 @@ Proof root: `output/tracking-plan-proof/26-alert-severity-and-notification-model
 - `26-notification-parent-surface-history-proof.json`
 - `27-notification-parent-surface-hosted-ui-proof.json`
 - `28-notification-local-outbox-readiness-proof.json`
+- `29-provider-delivery-artifact-gate-proof.json`
 
 ## AI Worker Checklist
 
@@ -71,6 +72,19 @@ while keeping provider delivery, receipt ingestion runtime, credentials, cloud
 routing, parent notification UI, retry/quiet-hours runtime, child-device
 delivery, physical-device proof, authority proof, production durable outbox
 storage, adapter dispatch, and product-ready notification behavior unclaimed.
+Tracking provider-delivery artifact gate proof now checks
+`output/tracking-plan-proof/notification-provider-delivery/` for the exact
+real-runtime artifact names required before provider delivery can be claimed:
+run metadata, redacted runtime config, credential-presence attestation,
+minimal payload snapshot, provider attempt/response, receipt webhook event,
+receipt ingestion result, retry/quiet-hours worker log, parent notification UI
+screenshot, and result summary. It writes WP26/WP33 artifacts through
+`node scripts/test/tracking-provider-delivery-artifact-gate-proof.mjs` and
+keeps provider delivery runtime, webhook receipt ingestion runtime,
+credentials, adapter dispatch, retry/quiet-hours runtime, parent notification
+UI runtime, production durable outbox storage, child-device delivery,
+physical-device behavior, authority, and product-ready notification behavior
+unclaimed until those artifacts exist.
 Tracking notification preference preflight proof now derives
 parent-preference-required, source-manual-required, and source-unavailable rows
 from those provider-notification proof rows through

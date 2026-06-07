@@ -317,6 +317,17 @@ unsupported/manual platform screenshots, accessibility assertions, 10-card
 no-overlap layout geometry, and no-product-claim boundaries without claiming
 full parent/child UI, child-device runtime, physical-device proof, authority,
 provider delivery, or production proof.
+WP26/WP33 additionally have provider-delivery artifact gate proof from
+`node scripts/test/tracking-provider-delivery-artifact-gate-proof.mjs`, written
+to
+`output/tracking-plan-proof/26-alert-severity-and-notification-model/29-provider-delivery-artifact-gate-proof.json`,
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/51-provider-delivery-artifact-gate-proof.json`,
+and `test-results/tracking-provider-delivery-artifact-gate-proof/proof.json`.
+It requires concrete provider-runtime artifact names before provider delivery
+or receipt runtime can be claimed and keeps provider delivery, webhook receipt
+ingestion, credentials, adapter dispatch, retry/quiet-hours runtime,
+production durable outbox storage, child-device delivery, physical-device
+behavior, authority, and product-ready tracking unclaimed.
 WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
 The runtime proof command also records the full `minimumSeriousMvpAudit` in
 generated `00-run-metadata.json`; both are first-checkpoint P1
