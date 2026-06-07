@@ -613,16 +613,18 @@ only with explicit parent settings.
   screenshots and records per-sample wall time, sampled CPU seconds, and peak
   working set while producing normalized screen-analysis JSON. It also records
   `output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json`, which
-  captures a real public Vimeo managed-browser crop through CDP, analyzes the
-  crop with local Qwen2-VL, matches the expected `video` category and visible
-  text, and deletes the raw crop. It also records
+  captures real public Vimeo, Wikipedia, 2048 browser game, and eBay
+  managed-browser crops through CDP, analyzes each crop with local Qwen2-VL,
+  matches expected `video`, `school`, `game`, and `shopping` categories plus
+  visible terms, and deletes each raw crop. It also records
   `output/screen-plan-proof/36-vlm-model-selection/proof-summary.json`, which
   selects the cached local llama.cpp/Qwen2-VL route for the current Windows
   proof path after runtime, resource, quality, local-only, and deletion
   evidence. It also records
   `output/screen-plan-proof/36-vlm-rollout-fallback-gate/proof-summary.json`,
   which allows that Windows route only inside the measured local image/resource
-  envelope and proves runtime-missing, oversized-input, over-budget, and
+  envelope after public live video/school/game/shopping crop quality passes,
+  and proves runtime-missing, oversized-input, over-budget, and
   authenticated-social-unproved states fall back to OCR/manual-required instead
   of remote AI or raw screenshot retention. It still does not claim
   authenticated-account social proof, broader rollout thresholds across more
@@ -714,7 +716,8 @@ disclosure runtime deployment,
 privacy/legal approval, authenticated-account
 social proof beyond public/live surface proof, production OCR/VLM quality beyond
 the WinRT OCR service proof, controlled fixtures, the full live operator matrix,
-retained bounded-input proof, and retained proof-image VLM resource measurement,
+public live crop matrix, retained bounded-input proof, and retained proof-image
+VLM resource measurement,
 production local vision adapter quality beyond
 the service proof adapter, service-owned live trigger event producers beyond the
 timed cadence
@@ -841,9 +844,10 @@ parity, and UI remain separate proof gates.
   bounded VLM input dimensions and managed-browser CDP crop capture/deletion,
   and the retained proof-image runtime measurement records per-sample wall time,
   sampled CPU seconds, peak working set, and normalized local VLM output.
-  The public-live crop quality proof verifies a real Vimeo CDP crop with local
-  Qwen2-VL category/text match and deletion. The current-route model selection
-  proof chooses cached local llama.cpp/Qwen2-VL for the Windows proof path, and
+  The public-live crop quality proof verifies real Vimeo, Wikipedia, 2048
+  browser game, and eBay CDP crops with local Qwen2-VL category/text matches
+  and deletion. The current-route model selection proof chooses cached local
+  llama.cpp/Qwen2-VL for the Windows proof path, and
   the measured fallback gate blocks runtime-missing, oversized-input,
   over-budget, and authenticated-social-unproved states before remote AI.
   Authenticated-account social proof and broader rollout thresholds across more

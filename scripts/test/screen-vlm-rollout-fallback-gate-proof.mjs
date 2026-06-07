@@ -49,7 +49,7 @@ const decisions = [
     runtimeAvailable: modelSelection.assertions.selectedRouteHasRuntimeArtifacts,
     withinImageBudget: resourceCrop.captureBudgetSummary.allSamplesWithinPixelBudget,
     withinResourceEnvelope: observed.allSamplesWithinResourceEnvelope,
-    publicLiveQualityPassed: liveCropQuality.assertions.expectedCategoryMatched,
+    publicLiveQualityPassed: liveCropQuality.assertions.expectedCategoryMatchedForEveryCrop,
     deletionCustodyProved: modelSelection.assertions.selectedRoutePreservesDeletionCustody,
     authenticatedSocialQualityProved: false,
   }),
@@ -106,6 +106,9 @@ const proof = {
     runtimeMeasurementPresent: existsSync(runtimeMeasurementPath),
     liveCropQuality: relativePath(liveCropQualityPath),
     liveCropQualityPresent: existsSync(liveCropQualityPath),
+    liveCropQualityScenarioCount: liveCropQuality.scenarioCount,
+    liveCropQualityCategoriesCovered: liveCropQuality.summary.categoriesCovered,
+    liveCropQualityHostsCovered: liveCropQuality.summary.publicHostsCovered,
   },
   measuredEnvelope: {
     maxImagePixels,
@@ -135,6 +138,7 @@ const proof = {
   },
   completedChecklistClaims: [
     'current Windows local VLM rollout gate allows Qwen2-VL only within the measured local image/resource envelope',
+    'real public video, school/productivity, browser game, and shopping crop categories are covered before selecting the current Windows local VLM route',
     'runtime-missing, oversized-input, over-budget, and authenticated-social-unproved states fall back to OCR/manual-required instead of remote AI',
   ],
   openChecklistClaims: [
