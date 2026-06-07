@@ -1,1 +1,5 @@
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.22s
+name=network-evidence-clippy
+command=cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings
+status=0
+result=passed
+note=live command output is intentionally not embedded because cargo timing and target cache lines are nondeterministic
