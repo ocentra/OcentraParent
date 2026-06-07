@@ -572,6 +572,18 @@ generic app blocking covers this concern.
   when run, validates the public parent-domain package export, and records the
   deferred product checklist row delta while `docs/product-capability-checklist.md`
   remains locked outside this lane.
+- `packages/parent-domain/src/app-install-purchase-runtime-delivery-receipt-boundary-proof.ts`
+  consumes the parent-owned withheld dispatch preflight packets into runtime
+  delivery receipt boundary rows that require external writer dispatch
+  execution, provider/store execution receipt, platform adapter execution
+  receipt, and child-device transport receipt proof refs before any delivery
+  receipt claim.
+- `scripts/test/app-install-purchase-runtime-delivery-receipt-boundary-proof.mjs`
+  records that runtime delivery receipt boundary proof under
+  `test-results/app-install-purchase-runtime-delivery-receipt-boundary-proof/proof.json`
+  when run. This branch intentionally leaves package export, parent-domain
+  README, and product checklist edits untouched so the post-PR531 E-C backend
+  runtime closure can finish those shared files.
 - `packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts`
   links provider/store execution readiness rows and runtime writer execution
   delivery receipts into parent-owned provider/store execution preflight ready,
@@ -855,6 +867,14 @@ Ocentra-hosted family data custody.
       external runtime writer execution/delivery, provider/store execution,
       platform adapters, child-device delivery, runtime report delivery, app
       blocking, child activity data, or hosted family data custody.
+- [x] Runtime delivery receipt boundary proof consuming withheld dispatch
+      packets into receipt-blocked/manual-required rows that require external
+      writer dispatch execution, provider/store execution receipt, platform
+      adapter execution receipt, and child-device transport receipt proof refs
+      before any receipt or child-delivery claim, without claiming external
+      runtime writer execution/delivery, provider/store execution, platform
+      adapters, child-device delivery, runtime report delivery, app blocking,
+      child activity data, or hosted family data custody.
 - [x] Provider/store execution preflight proof linking provider/store execution
       readiness rows and runtime writer execution delivery receipts into
       parent-owned ready/manual/unavailable preflight rows without provider API
