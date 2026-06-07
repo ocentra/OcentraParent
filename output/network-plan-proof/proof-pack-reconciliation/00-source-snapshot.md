@@ -1,9 +1,9 @@
 # Network Proof Pack Reconciliation Source Snapshot
 
 Branch: codex/network-proof-pack-reconciliation
-Source commit at proof generation: 8e582896e424c14c41276edb8ce82a972c4b7583
-Origin main: 8c8fad79a50e914922fbc84984878211e127897e
-Merge base: 8c8fad79a50e914922fbc84984878211e127897e
+Source commit at proof generation: 2d56e3e2efc5c21b6aa61161f9544243f81eb49e
+Origin main: 05018555053df0e52ea9b0149c28885d3a5838b2
+Merge base: 05018555053df0e52ea9b0149c28885d3a5838b2
 
 Source status excluding this proof pack:
 
