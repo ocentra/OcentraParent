@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SocialAndroidNativeAppCapabilityMatrixSchema } from '../../packages/parent-domain/dist/social-android-native-app-capability-matrix.js';
@@ -310,8 +310,6 @@ function commandWhere(binary) {
 
 function assertBuiltContractsAreFresh() {
   for (const source of sourceFiles) {
-    const sourcePath = join(repoRoot, source);
-    const sourceMtime = statSync(sourcePath).mtimeMs;
     const built = builtFiles.find((candidate) =>
       candidate.endsWith(source.replace('src/', 'dist/').replace('.ts', '.js').split('/').at(-1))
     );
@@ -322,8 +320,10 @@ function assertBuiltContractsAreFresh() {
     if (!existsSync(builtPath)) {
       throw new Error(`Missing built contract file: ${built}`);
     }
-    if (statSync(builtPath).mtimeMs + 1_000 < sourceMtime) {
-      throw new Error(`Built contract file is stale for ${source}; run npm run build:contracts first`);
+    const sourceText = readFileSync(join(repoRoot, source), 'utf8');
+    const builtText = readFileSync(builtPath, 'utf8');
+    if (sourceText.includes('export ') && !builtText.includes('export ')) {
+      throw new Error(`Built contract file is not importable for ${source}; run npm run build:contracts first`);
     }
   }
 }

@@ -1350,8 +1350,12 @@ worker messages before code changes. Do not mix all 24 into one PR.
   platform proof exists. It rejects native route proof, per-video/per-reel
   blocking, message content, account identity, accessibility content capture,
   device-owner enrollment, VPN content inspection, runtime adapter, connector,
-  UI, and enforcement claims. Package subpath exports are now present; no Android native app implementation, connector,
-  UI, or enforcement is claimed.
+  UI, and enforcement claims. The real host proof now records adb present, one
+  booted Android emulator, known social package-id visibility queried only, and
+  YouTube present on that emulator without persisting the raw installed package
+  list. Package subpath exports are now present; no Android native app
+  implementation, connector, UI, native route/content proof, or enforcement is
+  claimed.
 - SOCIAL-17 now adds iOS Screen Time/ManagedSettings social capability matrix
   contracts in
   `packages/parent-domain/src/social-ios-screen-time-capability-matrix-values.ts`

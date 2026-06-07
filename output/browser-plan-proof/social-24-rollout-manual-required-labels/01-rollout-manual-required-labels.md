@@ -1,10 +1,10 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-06T16:58:27.718Z
+Generated: 2026-06-07T00:34:11.814Z
 
 Rows checked: 23
-Proof-present rows: 20
-Partial/manual-required rows: 3
+Proof-present rows: 21
+Partial/manual-required rows: 2
 Rollout state: partial/manual-required
 Product claimed: false
 
@@ -25,7 +25,7 @@ Product claimed: false
 | SOCIAL-13 | proof-present | [x] |
 | SOCIAL-14 | proof-present | [x] |
 | SOCIAL-15 | proof-present | [x] |
-| SOCIAL-16 | partial-manual-required | [~] |
+| SOCIAL-16 | proof-present | [x] |
 | SOCIAL-17 | partial-manual-required | [~] |
 | SOCIAL-18 | proof-present | [x] |
 | SOCIAL-19 | proof-present | [x] |

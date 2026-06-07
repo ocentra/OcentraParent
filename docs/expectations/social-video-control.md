@@ -168,6 +168,10 @@ states. They must not claim native social route proof, per-video or per-reel
 blocking, message content, account identity, accessibility content capture,
 device-owner enrollment, VPN content inspection, runtime adapters, connector
 authority, UI delivery, or enforcement until platform proof exists.
+Host/device proof may query only the known public social package ids needed for
+the matrix and must not persist raw installed package lists, UI trees, logcat,
+content, account identity, native route state, device-owner enrollment, runtime
+adapter behavior, connector authority, UI delivery, or enforcement.
 
 iOS Screen Time/ManagedSettings social capability matrix contracts may
 represent FamilyControls authorization, application-token selection,

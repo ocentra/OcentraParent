@@ -197,10 +197,12 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   permission-required, manual-required, unavailable, or not-implemented states
   while rejecting native route proof, per-video/per-reel blocking, content
   capture, account identity, connector/UI/runtime-adapter, and enforcement
-  claims. SOCIAL-16 also has a real host proof that checks the local adb
-  installation and attached-device state; the current proof records adb present
-  with no attached device and keeps Android native app support manual-device
-  proof required.
+  claims. SOCIAL-16 also has a real Android emulator host proof that checks the
+  local adb installation, attached-device state, and known social package ids
+  without persisting the raw installed package list. The current proof records
+  adb present, one booted emulator, package visibility queried for known social
+  package ids, and YouTube installed on that emulator while keeping native
+  route/content, runtime-adapter, UI delivery, and enforcement claims false.
 - Browser-plan SOCIAL-17 now adds iOS Screen Time/ManagedSettings social
   capability matrix contracts. They keep iOS social native app support
   entitlement-required, token-selection-required, or

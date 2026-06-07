@@ -258,10 +258,12 @@ device list, and known public social package ids only when a real device or
 emulator is attached. The current proof writes
 `test-results/social-android-native-app-host-proof/proof.json` and
 `output/browser-plan-proof/social-16-android-native-app-capability-matrix/11-android-host-device-proof.json`
-with adb installed, zero attached devices, package visibility not queried, and
-manual-device-proof-required state. It does not capture screenshots, UI trees,
-logcat, raw installed package lists, native routes, content, account identity,
-runtime adapter behavior, UI delivery, or enforcement.
+with adb installed and device-package-visibility-proof state on a booted Android
+emulator. It records one attached emulator, queries known public social package
+ids only, records YouTube present on the emulator, and keeps raw installed
+package lists out of the artifact. It does not capture screenshots, UI trees,
+logcat, native routes, content, account identity, runtime adapter behavior, UI
+delivery, or enforcement.
 
 SOCIAL-17 now adds
 `packages/parent-domain/src/social-ios-screen-time-capability-matrix-values.ts`
