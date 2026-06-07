@@ -96,6 +96,13 @@ alternative.
   worker execution, and stays stopped unless runtime readiness, a real
   live-view prompt artifact, relay/cache execution when needed, physical-device
   parity, and privacy/legal approval are all proved.
+- `scripts/test/screen-live-view-relay-cache-proof.mjs` now proves the
+  relay/cache execution item with a real captured frame and a forced local
+  relay-backed handoff. The proof writes only an encrypted relay envelope,
+  verifies the frame digest after parent-side decryption, deletes the relay
+  cache and raw temp frame, and keeps session recording, raw-frame cache, remote
+  input, hosted relay infrastructure, platform prompts, physical parity,
+  privacy/legal approval, and product live view unclaimed.
 - Raw screen control settings are preserved as design inputs for both summary
   and live-view decisions.
 
@@ -107,10 +114,11 @@ platform-permission gate exist, parent Settings can render readiness rows,
 live-view parent UI persistence is carried into service/runtime proofs, and the
 Rust worker startup gate stays fail-closed while distinguishing "startup
 permitted" from "worker actually started." Optional raw-retention persistence/
-runtime, actual live-view permission prompts, live transport, relay/cache
-execution, platform screenshots, physical-device parity, privacy/legal approval,
-and a started production live-view worker remain before any product-complete
-claim.
+runtime, actual live-view permission prompts, live transport, platform
+screenshots, physical-device parity, privacy/legal approval, and a started
+production live-view worker remain before any product-complete claim. Relay/cache
+execution now has a local forced-relay proof only, not hosted relay
+infrastructure.
 
 ## Checklist
 
@@ -128,11 +136,14 @@ claim.
 - [x] Rust service worker startup gate refuses to start without real platform,
       relay/cache when needed, physical parity, and privacy/legal proof; startup
       permission is not treated as actual worker execution.
+- [x] Relay/cache execution proof uses a real captured frame, encrypted forced
+      relay envelope, parent digest verification, no raw-frame cache, no
+      recording, no remote input, and deletion after delivery.
 - [~] Platform permission proof gate exists; real live-view prompt/platform
   screenshots remain.
 - [ ] Runtime enablement, optional raw-retention persistence/runtime, live
-      transport, relay/cache, physical parity, and platform prompt proof before
-      product claim.
+      transport, physical parity, hosted relay infrastructure, and platform
+      prompt proof before product claim.
 - [ ] Privacy/legal review before public claim.
 
 ## Next AI Instructions

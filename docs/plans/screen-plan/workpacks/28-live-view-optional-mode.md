@@ -56,6 +56,14 @@ frame cache/session recording/remote input stay false, and the raw temp frame is
 deleted. These proofs close the local transport/runtime evidence bundle, but
 they do not satisfy platform live-view permission-prompt screenshots,
 relay/cache execution, physical-device parity, or privacy/legal approval.
+`scripts/test/screen-live-view-relay-cache-proof.mjs` now proves the
+relay-backed transport/cache item with a real captured frame: it writes an
+end-to-end encrypted relay envelope to an ephemeral local relay cache, verifies
+the frame digest after parent-side decryption, then deletes both the relay cache
+and raw temp frame. This closes relay/cache execution proof as a local forced
+relay/cache harness only; real platform prompt screenshots, physical-device
+parity, privacy/legal approval, hosted relay infrastructure, and product live
+view remain open.
 
 ## Checklist
 
@@ -71,7 +79,7 @@ relay/cache execution, physical-device parity, or privacy/legal approval.
 - [x] Add fail-closed Rust service worker startup gate proof.
 - [x] Add local loopback live-view transport/session/runtime proof.
 - [ ] Add real live-view platform prompt proof.
-- [ ] Add relay/cache execution proof for relay-backed mode.
+- [x] Add relay/cache execution proof for relay-backed mode.
 - [ ] Add physical-device parity and privacy/legal approval proof.
 
 ## Proof
@@ -86,5 +94,6 @@ relay/cache execution, physical-device parity, or privacy/legal approval.
 - `output/screen-plan-proof/live-view-runtime/proof-summary.json`.
 - `output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json`.
 - `output/screen-plan-proof/live-view-worker-startup/proof-summary.json`.
+- `output/screen-plan-proof/live-view-relay-cache/proof-summary.json`.
 - Capture-adapter platform consent reference:
   `output/screen-plan-proof/android-mediaprojection/proof-summary.json`.

@@ -1,0 +1,21 @@
+{
+  "actualScope": "activeWindow",
+  "analysisTempPath": "output\\screen-plan-proof\\live-view-relay-cache\\capture\\capture.png.tmp",
+  "appNameDigest": "616efbe96852d8c957d6be5634ed41e871cf1ecf134c9b9693f614daeb15137c",
+  "appNamePresent": true,
+  "captured": true,
+  "height": 1048,
+  "imageByteSize": 462033,
+  "imageDigest": "1f204a54d2f28b885362dd114a143a9e492de0c3ec2e2e2d2aeb594a1dfaa00e",
+  "monitorId": 131073,
+  "monitorNameDigest": "6689fe97ab15dbea1df2d626239d2c60c05314a74a547936663b5682945c31c9",
+  "monitorNamePresent": true,
+  "pid": 6044,
+  "rawImagePersistedInProof": false,
+  "requestedScope": "activeWindow",
+  "status": "available",
+  "titleDigest": "616efbe96852d8c957d6be5634ed41e871cf1ecf134c9b9693f614daeb15137c",
+  "titlePresent": true,
+  "width": 1936,
+  "windowId": 265636
+}

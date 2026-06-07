@@ -568,6 +568,13 @@ only with explicit parent settings.
   screenshot, relay/cache execution, physical-device live-view parity,
   privacy/legal approval, live platform worker session, or product-complete
   live view.
+- `scripts/test/screen-live-view-relay-cache-proof.mjs` now proves the
+  relay-backed live-view cache execution item with a real captured frame. The
+  proof writes an end-to-end encrypted relay envelope to an ephemeral local
+  relay cache, verifies the digest after parent-side decryption, deletes the raw
+  temp frame and relay cache, and rejects raw-frame cache, session recording,
+  remote input, hosted relay infrastructure, platform prompt, physical parity,
+  privacy/legal, and product-live-view claims.
 - `ScreenManagedBrowserCdpScreenshotRequestSchema`,
   `ScreenManagedBrowserCdpScreenshotArtifactSchema`, and
   `scripts/test/screen-managed-browser-cdp-capture-proof.mjs` now prove the
@@ -897,6 +904,10 @@ parity, and UI remain separate proof gates.
       permission from actual worker execution and refuses permission until
       runtime readiness, real platform prompt artifact, relay/cache when needed,
       physical-device parity, and privacy/legal approval exist.
+- [x] Live-view relay/cache proof uses a real captured frame, encrypted
+      forced-relay cache envelope, parent digest verification, raw temp
+      deletion, relay-cache deletion, no raw-frame cache, no recording, and no
+      remote input.
 - [x] Local AI resource scheduler prevents multiple heavy OCR/VLM jobs and
       prioritizes policy-blocking screen analysis.
 - [x] Detector-specific prompt packs replace open-ended screen descriptions and

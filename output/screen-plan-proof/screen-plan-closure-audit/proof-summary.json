@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T17:27:19.838Z",
+  "generatedAt": "2026-06-07T17:48:38.697Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -97,7 +97,7 @@
       "readinessProof": "output/screen-plan-proof/live-view-worker-startup/proof-summary.json",
       "readinessProofPresent": true,
       "productReady": null,
-      "gate": "Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, and worker startup gate proof exist; real platform live-view prompt screenshots, actual production worker start, relay/cache execution, physical-device parity, and privacy/legal approval remain."
+      "gate": "Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, worker startup gate proof, and local forced-relay/cache execution proof exist; real platform live-view prompt screenshots, actual production worker start, physical-device parity, hosted relay infrastructure, and privacy/legal approval remain."
     },
     {
       "id": "30",
@@ -170,7 +170,7 @@
       "label": "Live view optional mode",
       "status": "~",
       "productReady": null,
-      "gate": "Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, and worker startup gate proof exist; real platform live-view prompt screenshots, actual production worker start, relay/cache execution, physical-device parity, and privacy/legal approval remain."
+      "gate": "Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, worker startup gate proof, and local forced-relay/cache execution proof exist; real platform live-view prompt screenshots, actual production worker start, physical-device parity, hosted relay infrastructure, and privacy/legal approval remain."
     },
     {
       "id": "30",
@@ -229,6 +229,10 @@
       "present": true
     },
     {
+      "artifact": "output/screen-plan-proof/live-view-relay-cache/proof-summary.json",
+      "present": true
+    },
+    {
       "artifact": "output/screen-plan-proof/macos/proof-summary.json",
       "present": true
     },
@@ -278,7 +282,7 @@
     "noProductCompleteClaim": true
   },
   "nonClaims": [
-    "This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/actual production worker start/relay-cache execution/physical-device parity, current PP-OCRv5 quality resolution, cross-platform OCR parity, authenticated-account social proof, or broader VLM hardware rollout-threshold gates.",
+    "This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/actual production worker start/physical-device parity/hosted relay infrastructure/privacy-legal approval, current PP-OCRv5 quality resolution, cross-platform OCR parity, authenticated-account social proof, or broader VLM hardware rollout-threshold gates.",
     "This audit does not replace real device/runtime proof for remaining partial rows.",
     "This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied."
   ]
