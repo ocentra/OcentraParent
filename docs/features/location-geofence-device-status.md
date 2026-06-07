@@ -409,7 +409,9 @@ expose location or device-status features. Parents expect this category.
 - Android emulator package/service/status proof now exists through
   `npm run test:tracking-plan-android-emulator-proof`. It builds the Android
   debug APK, installs and launches it on an emulator, captures foreground
-  service state, UI tree, screenshot, logcat, battery, and connectivity dumps,
+  service state, UI tree, screenshot, logcat, battery, connectivity dumps, and
+  a WP10 status-gap bridge for local low-power, killed/restarted,
+  pending-upload, and manual-required rows,
   and writes proof under
   `output/tracking-plan-proof/08-android-foreground-location-adapter/`,
   `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`,
