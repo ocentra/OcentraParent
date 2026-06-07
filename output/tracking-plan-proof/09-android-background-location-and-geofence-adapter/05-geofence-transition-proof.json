@@ -1,79 +1,35 @@
 {
-  "proofMode": "tracking-android-permission-background-proof",
-  "generatedAt": "2026-06-05T23:46:00.000Z",
-  "rows": [
-    {
-      "rowId": "tracking-android-background-permission",
-      "caseKind": "background-permission-manual-required",
-      "source": "android-emulator-background-proof",
-      "claimState": "scaffold-observed",
-      "observedAt": "2026-06-05T23:46:00.000Z",
-      "packageLaunchObserved": true,
-      "foregroundServiceObserved": true,
-      "foregroundPermissionRequested": false,
-      "foregroundLocationSampleCaptured": false,
-      "backgroundPermissionRequested": false,
-      "geofenceTransitionCount": 0,
-      "evidenceRefs": [
-        "wp09-background-permission-manual-required"
-      ],
-      "manualProofRefs": [
-        "android-settings-background-permission-proof-plan"
-      ],
-      "parentVisibleStatusToken": "tracking-android-background-permission-manual-required",
-      "missingProofReasonRefs": [
-        "tracking-android-background-permission-grant-not-captured"
-      ],
-      "foregroundPermissionClaimed": false,
-      "foregroundLocationSampleClaimed": false,
-      "backgroundPermissionClaimed": false,
-      "backgroundLocationRuntimeClaimed": false,
-      "geofenceRuntimeClaimed": false,
-      "physicalDeviceProofClaimed": false,
-      "productReadyAndroidTrackingClaimed": false
-    },
-    {
-      "rowId": "tracking-android-geofence-transition",
-      "caseKind": "geofence-transition-manual-required",
-      "source": "physical-device-manual-plan",
-      "claimState": "scaffold-observed",
-      "observedAt": "2026-06-05T23:46:00.000Z",
-      "packageLaunchObserved": true,
-      "foregroundServiceObserved": true,
-      "foregroundPermissionRequested": false,
-      "foregroundLocationSampleCaptured": false,
-      "backgroundPermissionRequested": false,
-      "geofenceTransitionCount": 0,
-      "evidenceRefs": [
-        "wp09-geofence-transition-count-zero"
-      ],
-      "manualProofRefs": [
-        "physical-device-geofence-transition-proof-plan"
-      ],
-      "parentVisibleStatusToken": "tracking-android-geofence-transition-manual-required",
-      "missingProofReasonRefs": [
-        "tracking-android-geofence-transition-not-captured"
-      ],
-      "foregroundPermissionClaimed": false,
-      "foregroundLocationSampleClaimed": false,
-      "backgroundPermissionClaimed": false,
-      "backgroundLocationRuntimeClaimed": false,
-      "geofenceRuntimeClaimed": false,
-      "physicalDeviceProofClaimed": false,
-      "productReadyAndroidTrackingClaimed": false
-    }
-  ],
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-07T00:12:44.112Z",
+  "commit": "0f4340c8e744ca2425bd0d3c784ddd3a48f54d2e",
+  "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
+  "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+  "currentStatus": "manual_required",
+  "packageLaunchObserved": true,
+  "foregroundServiceObserved": true,
+  "backgroundLocationPermissionRequested": false,
   "geofenceTransitionCount": 0,
-  "nonClaims": {
-    "foregroundPermissionClaimed": false,
-    "foregroundLocationSampleClaimed": false,
-    "backgroundPermissionClaimed": false,
-    "backgroundLocationRuntimeClaimed": false,
-    "geofenceRuntimeClaimed": false,
-    "physicalDeviceProofClaimed": false,
-    "deviceOwnerAuthorityClaimed": false,
-    "notificationDeliveryClaimed": false,
-    "providerDeliveryClaimed": false,
-    "productReadyAndroidTrackingClaimed": false
+  "missingProofReason": "No background location/geofence permission or transition adapter is present in the current scaffold.",
+  "device": {
+    "serial": "emulator-5554",
+    "androidRelease": "15",
+    "androidSdk": "35",
+    "buildFingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.036/12592187:user/release-keys",
+    "productModel": "sdk_gphone64_x86_64",
+    "productManufacturer": "Google",
+    "abi": "x86_64"
+  },
+  "artifacts": {
+    "packageDump": "test-results/tracking-plan-android-emulator-proof/03-package-dump.txt",
+    "serviceDump": "test-results/tracking-plan-android-emulator-proof/04-service-dump.txt",
+    "activityDump": "test-results/tracking-plan-android-emulator-proof/05-activity-dump.txt",
+    "windowDump": "test-results/tracking-plan-android-emulator-proof/06-window-dump.txt",
+    "battery": "test-results/tracking-plan-android-emulator-proof/07-battery.txt",
+    "connectivity": "test-results/tracking-plan-android-emulator-proof/08-connectivity.txt",
+    "ui": "test-results/tracking-plan-android-emulator-proof/09-ui.xml",
+    "screenshot": "test-results/tracking-plan-android-emulator-proof/10-screen.png",
+    "logcat": "test-results/tracking-plan-android-emulator-proof/11-logcat.txt",
+    "screenshotInspection": "test-results/tracking-plan-android-emulator-proof/12-screenshot-inspection.json",
+    "foregroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-grant.txt"
   }
 }

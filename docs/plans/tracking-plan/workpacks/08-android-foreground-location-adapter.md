@@ -33,10 +33,12 @@ Proof root: `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 
 - [ ] Prove foreground permission UX.
 - [ ] Prove fused/current sample.
-- [ ] Prove last-known sample or unavailable state.
+- [x] Prove emulator foreground permission grant and app-reported last-known
+      sample state.
 - [ ] Preserve accuracy and timestamp from provider.
 - [x] Document emulator device, OS version, app build, foreground service
-      scaffold, and proof commands without claiming location samples.
+      scaffold, and proof commands without claiming fused/current,
+      physical-device, or product-ready location behavior.
 - [x] Generate the Android Studio/local proof artifact plan before device work.
 - [x] Record parent-domain manual-required proof rows for missing foreground
       permission grant and foreground location sample before device/runtime work.
@@ -51,13 +53,19 @@ foreground Android location claim. Runtime/product-complete behavior is still
 not claimed.
 
 `npm run test:tracking-plan-android-emulator-proof` now fills the local
-emulator scaffold layer: it builds the Android debug APK, installs and launches
-it on an emulator, captures foreground-service state, UI tree, screenshot,
-logcat, device metadata, and writes
-`03-runtime-location-evidence.json` as `manual_required` when foreground
-location permission/sample evidence is still absent. This proves the package
-and service shell can be observed locally; it does not prove foreground Android
-location.
+emulator foreground proof layer: it builds the Android debug APK, installs and
+launches it on `Pixel_9_Pro_XL_API_35`, grants the declared foreground
+location runtime permissions, captures foreground-service state, UI tree,
+headless screenshot inspection, logcat, package permission state, device
+metadata, battery/connectivity dumps, and writes
+`03-runtime-location-evidence.json` as
+`foreground_permission_granted_last_known_sample_observed` when the app UI
+reports `foreground-location-permission-granted` and
+`last-known-location-sample-observed`. This proves emulator foreground
+permission readiness plus app-emitted last-known sample state; it does not
+prove fused/current sample collection, raw coordinate export, physical Android
+device behavior, background/geofence transitions, authority, provider delivery,
+or product-ready Android tracking.
 
 `node scripts/test/tracking-android-permission-background-proof.mjs` now records
 WP08 parent-domain manual-required rows for the foreground permission grant and
@@ -99,7 +107,9 @@ This workpack can be assigned independently, implemented against the owning doma
       proof artifacts, and focused Android permission/background proof results.
 - [x] Validation commands and results:
       `node scripts/test/tracking-android-permission-background-proof.mjs`
-      passed locally.
+      passed locally for manual-required rows;
+      `npm run test:tracking-plan-android-emulator-proof` passed locally for
+      the emulator foreground permission and last-known sample-state proof.
 - [x] Proof artifacts under
       `output/tracking-plan-proof/08-android-foreground-location-adapter/`,
       including `02-platform-permission-proof.md`,
@@ -109,8 +119,10 @@ This workpack can be assigned independently, implemented against the owning doma
       checklist, and this workpack doc updated for the local manual-required
       foreground permission/sample proof; central capability row update remains
       a hub/primary-owned doc delta.
-- [x] Known gaps/manual-required states: actual foreground permission grant,
-      foreground location sample, fused/current provider sample, last-known
-      provider sample, physical-device proof, authority, provider delivery,
-      notification delivery, and product-ready Android tracking remain
-      unclaimed.
+- [x] Known gaps/manual-required states: foreground permission grant and
+      app-reported last-known sample state are now observed on emulator;
+      foreground permission UX dialog proof, fused/current provider sample, raw
+      coordinate export, provider accuracy/timestamp artifact export,
+      physical-device proof, authority, provider delivery, notification
+      delivery, background/geofence transitions, and product-ready Android
+      tracking remain unclaimed.

@@ -1,78 +1,39 @@
 {
-  "proofMode": "tracking-android-permission-background-proof",
-  "generatedAt": "2026-06-05T23:46:00.000Z",
-  "rows": [
-    {
-      "rowId": "tracking-android-foreground-permission",
-      "caseKind": "foreground-permission-manual-required",
-      "source": "android-emulator-foreground-proof",
-      "claimState": "scaffold-observed",
-      "observedAt": "2026-06-05T23:46:00.000Z",
-      "packageLaunchObserved": true,
-      "foregroundServiceObserved": true,
-      "foregroundPermissionRequested": false,
-      "foregroundLocationSampleCaptured": false,
-      "backgroundPermissionRequested": false,
-      "geofenceTransitionCount": 0,
-      "evidenceRefs": [
-        "wp08-runtime-location-evidence-manual-required"
-      ],
-      "manualProofRefs": [
-        "android-studio-foreground-permission-proof-plan"
-      ],
-      "parentVisibleStatusToken": "tracking-android-foreground-permission-manual-required",
-      "missingProofReasonRefs": [
-        "tracking-android-foreground-permission-grant-not-captured"
-      ],
-      "foregroundPermissionClaimed": false,
-      "foregroundLocationSampleClaimed": false,
-      "backgroundPermissionClaimed": false,
-      "backgroundLocationRuntimeClaimed": false,
-      "geofenceRuntimeClaimed": false,
-      "physicalDeviceProofClaimed": false,
-      "productReadyAndroidTrackingClaimed": false
-    },
-    {
-      "rowId": "tracking-android-foreground-sample",
-      "caseKind": "foreground-sample-manual-required",
-      "source": "physical-device-manual-plan",
-      "claimState": "scaffold-observed",
-      "observedAt": "2026-06-05T23:46:00.000Z",
-      "packageLaunchObserved": true,
-      "foregroundServiceObserved": true,
-      "foregroundPermissionRequested": false,
-      "foregroundLocationSampleCaptured": false,
-      "backgroundPermissionRequested": false,
-      "geofenceTransitionCount": 0,
-      "evidenceRefs": [
-        "wp08-foreground-location-sample-absent"
-      ],
-      "manualProofRefs": [
-        "physical-device-foreground-location-proof-plan"
-      ],
-      "parentVisibleStatusToken": "tracking-android-foreground-sample-manual-required",
-      "missingProofReasonRefs": [
-        "tracking-android-foreground-location-sample-not-captured"
-      ],
-      "foregroundPermissionClaimed": false,
-      "foregroundLocationSampleClaimed": false,
-      "backgroundPermissionClaimed": false,
-      "backgroundLocationRuntimeClaimed": false,
-      "geofenceRuntimeClaimed": false,
-      "physicalDeviceProofClaimed": false,
-      "productReadyAndroidTrackingClaimed": false
-    }
-  ],
-  "nonClaims": {
-    "foregroundPermissionClaimed": false,
-    "foregroundLocationSampleClaimed": false,
-    "backgroundPermissionClaimed": false,
-    "backgroundLocationRuntimeClaimed": false,
-    "geofenceRuntimeClaimed": false,
-    "physicalDeviceProofClaimed": false,
-    "deviceOwnerAuthorityClaimed": false,
-    "notificationDeliveryClaimed": false,
-    "providerDeliveryClaimed": false,
-    "productReadyAndroidTrackingClaimed": false
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-07T00:12:44.112Z",
+  "commit": "0f4340c8e744ca2425bd0d3c784ddd3a48f54d2e",
+  "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
+  "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+  "currentStatus": "foreground_permission_granted_last_known_sample_observed",
+  "packageLaunchObserved": true,
+  "foregroundServiceObserved": true,
+  "locationEvidenceCaptured": true,
+  "locationEvidenceBoundary": "app-ui-reported-last-known-sample-state-without-raw-coordinate-export",
+  "foregroundLocationPermissionRequested": true,
+  "foregroundLocationPermissionGranted": true,
+  "foregroundLocationPermissionStateText": "foreground-location-permission-granted",
+  "foregroundLocationSampleStateText": "last-known-location-sample-observed",
+  "missingProofReason": "Foreground location permission grant and app-emitted last-known sample state were observed on the emulator package; fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.",
+  "device": {
+    "serial": "emulator-5554",
+    "androidRelease": "15",
+    "androidSdk": "35",
+    "buildFingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.036/12592187:user/release-keys",
+    "productModel": "sdk_gphone64_x86_64",
+    "productManufacturer": "Google",
+    "abi": "x86_64"
+  },
+  "artifacts": {
+    "packageDump": "test-results/tracking-plan-android-emulator-proof/03-package-dump.txt",
+    "serviceDump": "test-results/tracking-plan-android-emulator-proof/04-service-dump.txt",
+    "activityDump": "test-results/tracking-plan-android-emulator-proof/05-activity-dump.txt",
+    "windowDump": "test-results/tracking-plan-android-emulator-proof/06-window-dump.txt",
+    "battery": "test-results/tracking-plan-android-emulator-proof/07-battery.txt",
+    "connectivity": "test-results/tracking-plan-android-emulator-proof/08-connectivity.txt",
+    "ui": "test-results/tracking-plan-android-emulator-proof/09-ui.xml",
+    "screenshot": "test-results/tracking-plan-android-emulator-proof/10-screen.png",
+    "logcat": "test-results/tracking-plan-android-emulator-proof/11-logcat.txt",
+    "screenshotInspection": "test-results/tracking-plan-android-emulator-proof/12-screenshot-inspection.json",
+    "foregroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-grant.txt"
   }
 }

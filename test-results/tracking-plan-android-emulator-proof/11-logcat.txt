@@ -1,25 +1,26 @@
 --------- beginning of main
-06-04 11:18:53.067  4525  4525 I ra.parent.agent: Late-enabling -Xcheck:jni
-06-04 11:18:53.278  4525  4525 I ra.parent.agent: Using CollectorTypeCMC GC.
-06-04 11:18:53.281  4525  4525 W ra.parent.agent: Unexpected CPU variant for x86: x86_64.
-06-04 11:18:53.281  4525  4525 W ra.parent.agent: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
-06-04 11:18:53.336  4525  4525 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
-06-04 11:18:54.083  4525  4525 W ziparchive: Unable to open '/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.dm': No such file or directory
-06-04 11:18:54.084  4525  4525 W ziparchive: Unable to open '/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.dm': No such file or directory
-06-04 11:18:54.097  4525  4525 D nativeloader: Configuring clns-7 for other apk /data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.apk. target_sdk_version=35, uses_libraries=, library_path=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/ca.ocentra.parent.agent
-06-04 11:18:54.103  4525  4525 D CompatChangeReporter: Compat change id reported: 202956589; UID 10212; state: ENABLED
-06-04 11:18:54.160  4525  4525 V GraphicsEnvironment: Currently set values for:
-06-04 11:18:54.165  4525  4525 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
-06-04 11:18:54.165  4525  4525 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
-06-04 11:18:54.165  4525  4525 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
-06-04 11:18:54.166  4525  4525 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
-06-04 11:18:54.796  4525  4525 D CompatChangeReporter: Compat change id reported: 279646685; UID 10212; state: ENABLED
-06-04 11:18:54.803  4525  4525 D CompatChangeReporter: Compat change id reported: 63938206; UID 10212; state: ENABLED
-06-04 11:18:54.825  4525  4525 D CompatChangeReporter: Compat change id reported: 309578419; UID 10212; state: ENABLED
-06-04 11:18:54.869  4525  4525 W HWUI    : Unknown dataspace 0
-06-04 11:18:54.992  4525  4573 I EGL_emulation: Opening libGLESv1_CM_emulation.so
-06-04 11:18:54.994  4525  4573 I EGL_emulation: Opening libGLESv2_emulation.so
-06-04 11:18:55.036  4525  4573 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
-06-04 11:18:55.086  4525  4573 I Gralloc4: mapper 4.x is not supported
-06-04 11:18:56.548  4525  4531 I ra.parent.agent: Compiler allocated 4219KB to compile void android.widget.TextView.<init>(android.content.Context, android.util.AttributeSet, int, int)
-06-04 11:18:57.358  4525  4531 I ra.parent.agent: Compiler allocated 5174KB to compile void android.view.ViewRootImpl.performTraversals()
+06-06 20:12:34.292  4520  4520 I ra.parent.agent: Late-enabling -Xcheck:jni
+06-06 20:12:34.417  4520  4520 I ra.parent.agent: Using CollectorTypeCMC GC.
+06-06 20:12:34.421  4520  4520 W ra.parent.agent: Unexpected CPU variant for x86: x86_64.
+06-06 20:12:34.421  4520  4520 W ra.parent.agent: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+06-06 20:12:34.485  4520  4520 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+06-06 20:12:35.097  4520  4520 W ziparchive: Unable to open '/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.dm': No such file or directory
+06-06 20:12:35.097  4520  4520 W ziparchive: Unable to open '/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.dm': No such file or directory
+06-06 20:12:35.105  4520  4520 D nativeloader: Configuring clns-7 for other apk /data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.apk. target_sdk_version=35, uses_libraries=, library_path=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/ca.ocentra.parent.agent
+06-06 20:12:35.111  4520  4520 D CompatChangeReporter: Compat change id reported: 202956589; UID 10212; state: ENABLED
+06-06 20:12:35.172  4520  4520 V GraphicsEnvironment: Currently set values for:
+06-06 20:12:35.173  4520  4520 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+06-06 20:12:35.173  4520  4520 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+06-06 20:12:35.173  4520  4520 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
+06-06 20:12:35.173  4520  4520 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+06-06 20:12:35.699  4520  4520 D CompatChangeReporter: Compat change id reported: 279646685; UID 10212; state: ENABLED
+06-06 20:12:35.749  4520  4520 D CompatChangeReporter: Compat change id reported: 63938206; UID 10212; state: ENABLED
+06-06 20:12:35.789  4520  4520 D CompatChangeReporter: Compat change id reported: 309578419; UID 10212; state: ENABLED
+06-06 20:12:35.870  4520  4520 W HWUI    : Unknown dataspace 0
+06-06 20:12:36.268  4520  4551 I EGL_emulation: Opening libGLESv1_CM_emulation.so
+06-06 20:12:36.268  4520  4551 I EGL_emulation: Opening libGLESv2_emulation.so
+06-06 20:12:36.385  4520  4551 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+06-06 20:12:36.488  4520  4551 I Gralloc4: mapper 4.x is not supported
+06-06 20:12:36.870  4520  4544 I HWUI    : Davey! duration=928ms; Flags=1, FrameTimelineVsyncId=218965, IntendedVsync=501052099410, Vsync=501202099404, InputEventId=0, HandleInputStart=501216155000, AnimationStart=501216450300, PerformTraversalsStart=501216499700, DrawStart=501661716300, FrameDeadline=501068766076, FrameInterval=501213499200, FrameStartTime=16666666, SyncQueued=501694951800, SyncStart=501695540800, IssueDrawCommandsStart=501696562200, SwapBuffers=501764162800, FrameCompleted=501980972200, DequeueBufferDuration=55600, QueueBufferDuration=642300, GpuCompleted=501979850100, SwapBuffersCompleted=501980972200, DisplayPresentTime=16960825855817, CommandSubmissionCompleted=501764162800,
+06-06 20:12:37.840  4520  4524 I ra.parent.agent: Compiler allocated 4219KB to compile void android.widget.TextView.<init>(android.content.Context, android.util.AttributeSet, int, int)
+06-06 20:12:38.469  4520  4524 I ra.parent.agent: Compiler allocated 5174KB to compile void android.view.ViewRootImpl.performTraversals()
