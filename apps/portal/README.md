@@ -41,8 +41,10 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   degraded states.
 - Displays the Screen settings/capability catalog proof, local writable
   screen-summary intent draft proof, and service-backed Settings get/replace
-  command proof on the Settings route while leaving product-complete retention
-  controls, raw retention, live view, and raw remote upload unclaimed.
+  command proof on the Settings route. It also renders optional raw-retention
+  and live-view readiness rows from the screen visibility capability contract
+  while leaving product-complete retention controls, raw retention, live view,
+  live transport, remote input, and raw remote upload unclaimed.
 - Displays LAN source-matrix diagnostics from the service-backed add-device read
   model so workpack/source proof status is visible in Devices/LAN and
   Activity/Network review.

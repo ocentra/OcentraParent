@@ -696,6 +696,10 @@ parity, and UI remain separate proof gates.
 - [x] Optional raw-retention/live-view capability status records disabled,
       manual-required, and blocked child/device readiness rows and rejects
       product readiness without runtime/deletion or live-view transport proof.
+- [x] Parent Settings renders optional raw-retention/live-view readiness rows
+      from the same domain proof through the real portal/agent path without
+      enabling raw retention, live view, live transport, relay/cache, remote
+      input, or privacy/legal approval.
 - [x] Local AI resource scheduler prevents multiple heavy OCR/VLM jobs and
       prioritizes policy-blocking screen analysis.
 - [x] Detector-specific prompt packs replace open-ended screen descriptions and
@@ -784,8 +788,9 @@ authenticated-account social proof,
 remaining production startup subscriptions for live producers beyond the service
 capture/queue, deletion, and analysis row-ready/policy-ref handoffs,
 child-agent disclosure runtime deployment, production household mesh transport over
-physical LAN, broad adapters, and production explanation portal rendering remain
-in the Current Gap section above.
+physical LAN, writable optional retention/live-view runtime settings,
+broad adapters, and production explanation portal rendering remain in the
+Current Gap section above.
 
 ## Next AI Instructions
 

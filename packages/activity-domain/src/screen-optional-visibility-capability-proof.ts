@@ -17,6 +17,8 @@ import {
   type ScreenOptionalVisibilityCapabilityStatus,
 } from './screen-optional-visibility-capability-status';
 
+export const ScreenOptionalVisibilityCapabilityProofGeneratedAt = '2026-06-07T05:55:00Z';
+
 export const ScreenOptionalVisibilityCapabilityProofSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ScreenOptionalVisibilityCapabilityStatusSchemaVersion),

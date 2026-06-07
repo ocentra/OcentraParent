@@ -76,6 +76,16 @@ alternative.
   opt-in modes, rejects "ready" raw retention without runtime and deletion
   proof, and rejects live-view readiness when the only platform evidence is
   capture consent.
+- The parent Settings route now renders those optional raw-retention and
+  live-view readiness rows from the same domain proof using the real Rust agent
+  and Vite portal path
+  (`scripts/test/screen-optional-visibility-capability-status-portal-proof.mjs`,
+  `output/screen-plan-proof/optional-visibility-capability-status-portal/proof-summary.json`,
+  and
+  `output/screen-plan-proof/optional-visibility-capability-status-portal/parent-optional-visibility-capability-status.png`).
+  The UI proof shows disabled, manual-required, blocked, and capture-only
+  permission evidence without enabling raw retention, live view, live
+  transport, relay/cache, remote input, or privacy/legal approval.
 - Raw screen control settings are preserved as design inputs for both summary
   and live-view decisions.
 
@@ -83,10 +93,11 @@ alternative.
 
 Need runtime product implementation for optional screenshots or live view. The
 contract preflight, parent opt-in/device status, and fail-closed
-platform-permission gate exist, but service runtime enablement, parent
-retention/live-view UI, actual live-view permission prompts, live transport,
-relay/cache execution, platform screenshots, and privacy/legal approval remain
-before any product-complete claim.
+platform-permission gate exist, and parent Settings can render readiness rows.
+Service runtime enablement, writable parent retention/live-view persistence,
+actual live-view permission prompts, live transport, relay/cache execution,
+platform screenshots, and privacy/legal approval remain before any
+product-complete claim.
 
 ## Checklist
 
@@ -97,10 +108,12 @@ before any product-complete claim.
 - [x] Retention and deletion controls.
 - [x] Audit for capture/view/export.
 - [x] Remote route/custody model if away-from-home.
+- [x] Parent Settings route renders optional raw-retention/live-view readiness
+      rows without enabling those modes.
 - [~] Platform permission proof gate exists; real live-view prompt/platform
   screenshots remain.
-- [ ] Runtime enablement, live transport, and parent UI persistence before
-      product claim.
+- [ ] Runtime enablement, writable live/retention settings persistence, live
+      transport, and platform prompt proof before product claim.
 - [ ] Privacy/legal review before public claim.
 
 ## Next AI Instructions

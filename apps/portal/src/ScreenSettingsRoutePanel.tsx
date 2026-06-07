@@ -13,6 +13,7 @@ import {
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
 import type { PortalRenderActions } from './portal-actions';
+import { ScreenOptionalVisibilityCapabilityStatusCard } from './ScreenOptionalVisibilityCapabilityStatusCard';
 import { ScreenSettingsWritableControls } from './ScreenSettingsWritableControls';
 
 type ScreenSettingsDetailValue =
@@ -47,6 +48,7 @@ export function ScreenSettingsRoutePanel({
           )}
         >
           <ScreenSettingsWritableControls actions={actions} commandEnabled={commandEnabled} events={events} />
+          <ScreenOptionalVisibilityCapabilityStatusCard />
           {proof.metrics.map((metric) => (
             <ScreenSettingsMetricCard key={metric.label} metric={metric} />
           ))}
