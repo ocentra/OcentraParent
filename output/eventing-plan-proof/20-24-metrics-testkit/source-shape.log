@@ -863,8 +863,9 @@ crates/ocentra-network-evidence/src/linux_adapter_gate.rs:1 file has 464 lines; 
 crates/ocentra-network-evidence/src/live_capture.rs:1 file has 283 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/performance.rs:1 file has 414 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/performance.rs:306 function has 66 lines; warning starts at 64 of 80
-crates/ocentra-network-evidence/src/pipeline.rs:1 file has 504 lines; crossed 500-line advisory band; maximum is 1000
-crates/ocentra-network-evidence/src/pipeline.rs:151 function has 73 lines; warning starts at 64 of 80
+crates/ocentra-network-evidence/src/pipeline.rs:1 file has 675 lines; crossed 500-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/pipeline.rs:1 file has 15 functions; warning starts at 15 of 18
+crates/ocentra-network-evidence/src/pipeline.rs:224 function has 70 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/platform_claims.rs:1 file has 389 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/readiness.rs:1 file has 392 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/readiness.rs:1 file has 16 functions; warning starts at 15 of 18
@@ -883,6 +884,8 @@ crates/ocentra-network-evidence/src/tests/app_game_session.rs:1 file has 272 lin
 crates/ocentra-network-evidence/src/tests/dns_adapter.rs:1 file has 308 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/linux_adapter_gate.rs:1 file has 322 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/local_ai_queue.rs:1 file has 265 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/tests/pipeline.rs:1 file has 287 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/tests/pipeline.rs:12 function has 71 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/tests/platform_claims.rs:1 file has 396 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/risk_budget.rs:1 file has 446 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/risk_budget.rs:1 file has 15 functions; warning starts at 15 of 18

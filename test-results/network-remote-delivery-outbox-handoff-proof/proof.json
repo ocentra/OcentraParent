@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-outbox-handoff-proof",
   "proofRevision": "network-remote-delivery-outbox-handoff-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-outbox-handoff-proof/v1",
-  "sourceFingerprint": "source-tree:ccb5bdd235614e0b59ae62cbf4cd333fa1defb6f0b63c4db83caa427e98fc54f",
+  "sourceFingerprint": "source-tree:54fb1964170ca068d33af9bb6e7680687a3f4fba430771f0673070c5c7c5096d",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-outbox-handoff-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",

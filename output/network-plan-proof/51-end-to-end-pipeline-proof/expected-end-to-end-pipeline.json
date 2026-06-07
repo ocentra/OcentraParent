@@ -1,6 +1,8 @@
 {
   "path": [
     "trigger-ref",
+    "capture-ref",
+    "ingest-ref",
     "typed-event-ref",
     "evidence-bundle",
     "local-ai-queue-refs-only",
@@ -9,23 +11,28 @@
     "risk-budget",
     "policy-decision",
     "adapter-proof-state",
+    "action-result-state",
     "audit-event",
     "portal-read-model",
     "retention-delete-export"
   ],
   "requiredRefFamilies": [
     "trigger",
+    "capture",
+    "ingest",
     "typed event",
     "evidence",
     "AI detection/audit",
     "policy decision",
     "adapter capability/action artifacts",
+    "action result",
     "audit",
     "portal/read-model",
     "retention/delete/export"
   ],
   "noBypassInvariants": [
     "weak or unavailable evidence cannot authorize adapter apply",
+    "manual-required, dry-run, and unavailable action results stay non-enforcing",
     "AI remains advisory",
     "portal/UI has no policy authority",
     "network evidence has no adapter authority",

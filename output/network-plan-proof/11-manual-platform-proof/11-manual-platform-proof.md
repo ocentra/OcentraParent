@@ -1,8 +1,11 @@
 # Network Manual Platform Proof
 
 Branch: codex/network-policy-preview-stored-flow-evidence-on-row10k
-Source commit: 2919cf31b72913571e254fd11089d5763bc16f16
-Source status:  M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-clippy.log
+Source commit: b6920254182c4936e6af540ac1c65b49e8bc5792
+Source status:  M crates/ocentra-network-evidence/src/pipeline.rs
+ M crates/ocentra-network-evidence/src/tests/pipeline.rs
+ M docs/plans/network-plan/implementation-checklist.md
+ M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-clippy.log
  M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-tests.log
  M output/eventing-plan-proof/14-24-runtime-lifecycle/proof-summary.json
  M output/eventing-plan-proof/18-24-handler-policy/eventing-clippy.log
@@ -14,6 +17,7 @@ Source status:  M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-cl
  M output/eventing-plan-proof/20-24-metrics-testkit/eventing-metrics-tests.log
  M output/eventing-plan-proof/20-24-metrics-testkit/proof-summary.json
  M output/eventing-plan-proof/20-24-metrics-testkit/source-shape.log
+ M output/eventing-plan-proof/25-30-queue-policy/eventing-clippy.log
  M output/eventing-plan-proof/25-30-queue-policy/eventing-tests.log
  M output/eventing-plan-proof/25-30-queue-policy/proof-summary.json
  M output/eventing-plan-proof/25-30-queue-policy/source-shape.log
@@ -21,20 +25,12 @@ Source status:  M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-cl
  M output/eventing-plan-proof/31-35-request-response/eventing-tests.log
  M output/eventing-plan-proof/31-35-request-response/proof-summary.json
  M output/eventing-plan-proof/31-35-request-response/source-shape.log
+ M output/eventing-plan-proof/36-41-journal-replay/eventing-clippy.log
  M output/eventing-plan-proof/36-41-journal-replay/eventing-tests.log
  M output/eventing-plan-proof/36-41-journal-replay/proof-summary.json
  M output/eventing-plan-proof/36-41-journal-replay/source-shape.log
- M output/eventing-plan-proof/42-44-parent-child-protocol-contracts/proof-summary.json
- M output/eventing-plan-proof/45-50-network-protocol-contracts/proof-summary.json
  M output/eventing-plan-proof/51-54-parent-child-runtime/proof-summary.json
  M output/eventing-plan-proof/52-ui-typed-intent-boundary/proof-summary.json
- M output/eventing-plan-proof/55-56-enforcement-journal-action/proof-summary.json
- M output/eventing-plan-proof/57-network-workpack-10-reusable-crate/proof-summary.json
- M output/eventing-plan-proof/58-network-event-chain-exact-refs/proof-summary.json
- M output/eventing-plan-proof/59-weak-network-evidence-command-routing/proof-summary.json
- M output/eventing-plan-proof/60-61-command-boundary/proof-summary.json
- M output/eventing-plan-proof/62-network-proof-links/proof-summary.json
- M output/eventing-plan-proof/63-delivery-decision-proof/proof-summary.json
  M output/eventing-plan-proof/63-type-safety-source-gate/eventing-clippy.log
  M output/eventing-plan-proof/63-type-safety-source-gate/eventing-tests.log
  M output/eventing-plan-proof/63-type-safety-source-gate/proof-summary.json
@@ -56,7 +52,6 @@ Source status:  M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-cl
  M output/eventing-plan-proof/69-compatibility-matrix/eventing-clippy.log
  M output/eventing-plan-proof/69-compatibility-matrix/proof-summary.json
  M output/eventing-plan-proof/69-compatibility-matrix/source-shape.log
- M output/eventing-plan-proof/70-topology-manifest/eventing-clippy.log
  M output/eventing-plan-proof/70-topology-manifest/proof-summary.json
  M output/eventing-plan-proof/70-topology-manifest/source-shape.log
  M output/eventing-plan-proof/70-topology-manifest/topology-manifest-example.log
@@ -71,7 +66,6 @@ Source status:  M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-cl
  M output/eventing-plan-proof/72-contract-registry/proof-summary.json
  M output/eventing-plan-proof/72-contract-registry/source-shape.log
  M output/eventing-plan-proof/73-duplicate-subscriber/duplicate-subscriber-test.log
- M output/eventing-plan-proof/73-duplicate-subscriber/eventing-clippy.log
  M output/eventing-plan-proof/73-duplicate-subscriber/proof-summary.json
  M output/eventing-plan-proof/73-duplicate-subscriber/source-shape.log
  M output/eventing-plan-proof/74-lifecycle-clear/eventing-clippy.log
@@ -83,16 +77,13 @@ Source status:  M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-cl
  M output/eventing-plan-proof/74-production-shutdown/proof-summary.json
  M output/eventing-plan-proof/74-production-shutdown/source-shape.log
  M output/eventing-plan-proof/75-family-variants/eventing-clippy.log
+ M output/eventing-plan-proof/75-family-variants/family-variant-tests.log
  M output/eventing-plan-proof/75-family-variants/proof-summary.json
  M output/eventing-plan-proof/75-family-variants/source-shape.log
+ M output/eventing-plan-proof/delivery-semantics/eventing-clippy.log
  M output/eventing-plan-proof/delivery-semantics/eventing-delivery-tests.log
  M output/eventing-plan-proof/delivery-semantics/proof-summary.json
  M output/eventing-plan-proof/delivery-semantics/source-shape.log
- M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-command-boundary-proof.log
- M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-enforcement-journal-action-proof.log
- M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-network-protocol-contract-proof.log
- M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-network-runtime-proof.log
- M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-parent-child-protocol-contract-proof.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-parent-child-runtime-proof.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-ui-typed-intent-boundary-proof.log
  M output/eventing-plan-proof/full-eventing-plan/command-logs/source-shape.log
@@ -126,14 +117,19 @@ Source status:  M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-cl
  M output/network-plan-proof/46-ai-detection-fixture-proof/proof-summary.json
  M output/network-plan-proof/46-ai-detection-fixture-proof/source-shape.log
  M output/network-plan-proof/47-ai-audit-narrative-proof/ai-audit-narrative-tests.log
+ M output/network-plan-proof/47-ai-audit-narrative-proof/clippy.log
  M output/network-plan-proof/47-ai-audit-narrative-proof/proof-summary.json
  M output/network-plan-proof/47-ai-audit-narrative-proof/source-shape.log
  M output/network-plan-proof/48-risk-budget-threshold-proof/clippy.log
  M output/network-plan-proof/48-risk-budget-threshold-proof/proof-summary.json
  M output/network-plan-proof/48-risk-budget-threshold-proof/risk-budget-threshold-tests.log
  M output/network-plan-proof/48-risk-budget-threshold-proof/source-shape.log
+ M output/network-plan-proof/51-end-to-end-pipeline-proof/clippy.log
+ M output/network-plan-proof/51-end-to-end-pipeline-proof/expected-end-to-end-pipeline.json
+ M output/network-plan-proof/51-end-to-end-pipeline-proof/pipeline-tests.log
+ M output/network-plan-proof/51-end-to-end-pipeline-proof/source-shape.log
  M output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json
- M test-results/eventing-network-runtime-proof/proof.json
+ M scripts/test/network-end-to-end-pipeline-proof.mjs
  M test-results/eventing-runtime-proof/proof.json
  M test-results/network-ai-audit-narrative-proof/proof.json
  M test-results/network-ai-detection-fixture-proof/proof.json

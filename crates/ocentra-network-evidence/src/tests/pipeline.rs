@@ -1,10 +1,11 @@
 use crate::{
-    prove_network_end_to_end_pipeline, NetworkCascadeNextCheck, NetworkCascadeSignalStrength,
-    NetworkCascadeSourceKind, NetworkCrossSliceEvidenceSource, NetworkDnsAdapterBoundaryReason,
-    NetworkDnsAdapterCapabilityState, NetworkDnsAdapterProofState, NetworkEndToEndPipelineError,
-    NetworkEndToEndPipelineInput, NetworkEndToEndPipelineRefs, NetworkEndToEndUnsupportedClaims,
-    NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMode,
-    NetworkInterventionState, NetworkLocalAiQueueStatus, NetworkRiskBudgetState,
+    prove_network_end_to_end_pipeline, NetworkActionResultState, NetworkCascadeNextCheck,
+    NetworkCascadeSignalStrength, NetworkCascadeSourceKind, NetworkCrossSliceEvidenceSource,
+    NetworkDnsAdapterBoundaryReason, NetworkDnsAdapterCapabilityState, NetworkDnsAdapterProofState,
+    NetworkEndToEndPipelineError, NetworkEndToEndPipelineInput, NetworkEndToEndPipelineRefs,
+    NetworkEndToEndUnsupportedClaims, NetworkEvidenceGrade, NetworkEvidencePolicyAction,
+    NetworkEvidencePolicyMode, NetworkInterventionState, NetworkLocalAiQueueStatus,
+    NetworkRiskBudgetState,
 };
 
 #[test]
@@ -13,7 +14,17 @@ fn end_to_end_pipeline_carries_refs_from_trigger_to_retention_export() {
         prove_network_end_to_end_pipeline(pipeline_input()).expect("pipeline proof should build");
 
     assert_eq!(proof.trigger_ref, "trigger:network:flow:1");
+    assert_eq!(proof.capture_ref, "capture:network:bounded:1");
+    assert_eq!(proof.ingest_ref, "ingest:network:metadata:1");
     assert_eq!(proof.typed_event_ref, "event:network:flow-observed:1");
+    assert_eq!(proof.capture_ingest.trigger_ref, proof.trigger_ref);
+    assert_eq!(proof.capture_ingest.capture_ref, proof.capture_ref);
+    assert_eq!(proof.capture_ingest.ingest_ref, proof.ingest_ref);
+    assert_eq!(proof.capture_ingest.typed_event_ref, proof.typed_event_ref);
+    assert_eq!(
+        proof.capture_ingest.summary_refs,
+        vec!["summary:network:flow:1".to_owned()]
+    );
     assert_eq!(
         proof.evidence_bundle.evidence_refs,
         vec!["evidence:network:tunnel:1".to_owned()]
@@ -48,6 +59,18 @@ fn end_to_end_pipeline_carries_refs_from_trigger_to_retention_export() {
         vec!["event:network:flow-observed:1".to_owned()]
     );
     assert_eq!(
+        proof.action_result.result_state,
+        NetworkActionResultState::ManualRequired
+    );
+    assert_eq!(
+        proof.action_result.action_result_ref,
+        "action-result:network:dns:1"
+    );
+    assert_eq!(
+        proof.action_result.evidence_refs,
+        proof.evidence_bundle.evidence_refs
+    );
+    assert_eq!(
         proof.retention_delete_export.evidence_refs,
         proof.evidence_bundle.evidence_refs
     );
@@ -80,10 +103,54 @@ fn end_to_end_pipeline_keeps_weak_evidence_non_enforcing() {
         .boundary_reasons
         .contains(&NetworkDnsAdapterBoundaryReason::PolicyNotAdapterApproved));
     assert!(!proof.adapter_proof.adapter_apply_authorized);
+    assert_eq!(
+        proof.action_result.result_state,
+        NetworkActionResultState::ManualRequired
+    );
+    assert!(!proof.action_result.adapter_result_accepted);
+    assert!(!proof.action_result.enforcement_command_published);
     assert!(!proof.adapter_proof.enforcement_command_published);
     assert!(!proof.adapter_action_executed);
     assert_eq!(proof.enforcement_commands_published, 0);
     assert!(proof.weak_or_unavailable_evidence_enforcement_blocked);
+}
+
+#[test]
+fn end_to_end_pipeline_carries_dry_run_action_result_state() {
+    let mut input = pipeline_input();
+    input.adapter_dry_run = true;
+
+    let proof = prove_network_end_to_end_pipeline(input).expect("pipeline proof should build");
+
+    assert_eq!(
+        proof.adapter_proof.proof_state,
+        NetworkDnsAdapterProofState::DryRun
+    );
+    assert_eq!(
+        proof.action_result.result_state,
+        NetworkActionResultState::DryRun
+    );
+    assert!(!proof.action_result.adapter_result_accepted);
+    assert_eq!(proof.enforcement_commands_published, 0);
+}
+
+#[test]
+fn end_to_end_pipeline_carries_unavailable_action_result_state() {
+    let mut input = pipeline_input();
+    input.adapter_capability_state = NetworkDnsAdapterCapabilityState::Unavailable;
+
+    let proof = prove_network_end_to_end_pipeline(input).expect("pipeline proof should build");
+
+    assert_eq!(
+        proof.adapter_proof.proof_state,
+        NetworkDnsAdapterProofState::Unavailable
+    );
+    assert_eq!(
+        proof.action_result.result_state,
+        NetworkActionResultState::Unavailable
+    );
+    assert!(!proof.action_result.adapter_result_accepted);
+    assert_eq!(proof.enforcement_commands_published, 0);
 }
 
 #[test]
@@ -176,6 +243,8 @@ fn pipeline_input() -> NetworkEndToEndPipelineInput {
 fn pipeline_refs() -> NetworkEndToEndPipelineRefs {
     NetworkEndToEndPipelineRefs {
         trigger_ref: "trigger:network:flow:1".to_owned(),
+        capture_ref: "capture:network:bounded:1".to_owned(),
+        ingest_ref: "ingest:network:metadata:1".to_owned(),
         typed_event_ref: "event:network:flow-observed:1".to_owned(),
         summary_refs: vec!["summary:network:flow:1".to_owned()],
         analyzer_alert_refs: vec!["alert:network:signature:1".to_owned()],
@@ -200,6 +269,7 @@ fn pipeline_refs() -> NetworkEndToEndPipelineRefs {
         cascade_ref: "cascade:network:1".to_owned(),
         household_policy_ref: "household-policy:network:1".to_owned(),
         dns_adapter_plan_ref: "dns-adapter-plan:network:1".to_owned(),
+        action_result_ref: "action-result:network:dns:1".to_owned(),
         target_domain: "vpn.example.test".to_owned(),
         adapter_authorization_ref: Some("adapter-auth:network:dns:1".to_owned()),
         adapter_capability_proof_ref: Some("adapter-capability:network:dns:1".to_owned()),

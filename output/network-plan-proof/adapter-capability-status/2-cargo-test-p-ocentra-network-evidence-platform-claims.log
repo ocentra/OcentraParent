@@ -5,7 +5,7 @@ test tests::platform_claims::platform_claim_manifest_rejects_broad_or_live_platf
 test tests::platform_claims::platform_claim_manifest_rejects_proof_source_that_publishes_enforcement_command ... ok
 test tests::platform_claims::platform_claim_manifest_reports_unavailable_states_without_execution ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 214 filtered out; finished in <duration>
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 216 filtered out; finished in <duration>
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
      Running unittests src/lib.rs (target/debug/deps/<test-binary>)

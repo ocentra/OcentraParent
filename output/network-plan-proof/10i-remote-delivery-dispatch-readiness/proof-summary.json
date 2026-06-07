@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-dispatch-readiness-proof",
   "proofRevision": "network-remote-delivery-dispatch-readiness-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-dispatch-readiness-proof/v1",
-  "sourceFingerprint": "source-tree:373c09c72e0a81a4f28adf14d3636b3f87db0581dd7183ae2fc281779922557d",
+  "sourceFingerprint": "source-tree:6dceccc4e5deecb783c298b6f03a80063b969d0e347fd4f09d673ba5835cae28",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-dispatch-readiness-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
