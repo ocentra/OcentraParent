@@ -33,7 +33,10 @@ const TimerParentSurfaceTargetLabels = {
 
 const TimerParentSurfaceDetails = {
   AuditRuntime: decodeDisplayText('Audit runtime'),
+  ControlActionCapabilities: decodeDisplayText('Control action capabilities'),
+  ControlActionEnforcementStatuses: decodeDisplayText('Control action enforcement statuses'),
   ControlActionResultRefs: decodeDisplayText('Control action result refs'),
+  ControlActionResultStatuses: decodeDisplayText('Control action result statuses'),
   ControlActionResults: decodeDisplayText('Control action results'),
   DurableSchedulerStorage: decodeDisplayText('Durable scheduler storage'),
   RollbackRuntime: decodeDisplayText('Rollback runtime'),
@@ -138,6 +141,18 @@ function readModelSummary(
     detail(PortalDetails.ManualReview, displayText(String(readModel.runtimeManualRequiredCount))),
     detail(TimerParentSurfaceDetails.ControlActionResults, countText(readModel.controlActionResultCount)),
     detail(TimerParentSurfaceDetails.ControlActionResultRefs, actionResultReferences(readModel)),
+    detail(
+      TimerParentSurfaceDetails.ControlActionResultStatuses,
+      joinedOrNotReported(readModel.controlActionResultStatuses)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ControlActionCapabilities,
+      joinedOrNotReported(readModel.controlActionResultCapabilityStates)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ControlActionEnforcementStatuses,
+      joinedOrNotReported(readModel.controlActionResultEnforcementStatuses)
+    ),
     detail(TimerParentSurfaceDetails.TimerRuntime, claimedValue(readModel.timerRuntimeClaimed)),
     detail(TimerParentSurfaceDetails.SchedulerPersistence, claimedValue(readModel.schedulerPersistenceClaimed)),
     detail(TimerParentSurfaceDetails.DurableSchedulerStorage, claimedValue(readModel.durableSchedulerStorageClaimed)),
@@ -211,10 +226,14 @@ function evidenceReferences(row: AgentAppGameTimerParentSurfaceRow): DisplayText
 }
 
 function actionResultReferences(readModel: AgentAppGameTimerParentSurfaceReadModel): DisplayText {
-  if (readModel.controlActionResultReferenceIds.length === 0) {
+  return joinedOrNotReported(readModel.controlActionResultReferenceIds);
+}
+
+function joinedOrNotReported(values: readonly string[]): DisplayText {
+  if (values.length === 0) {
     return resolvePortalDevText(PortalDevTextToken.NotReported);
   }
-  return displayText(readModel.controlActionResultReferenceIds.join(DetailSeparator));
+  return displayText(values.join(DetailSeparator));
 }
 
 function readableValue(value: unknown): DisplayText {

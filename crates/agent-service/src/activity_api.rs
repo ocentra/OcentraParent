@@ -44,6 +44,7 @@ mod app_game_policy_readiness_payload;
 mod app_game_policy_readiness_payload_tests;
 #[cfg(test)]
 mod app_game_policy_readiness_service_tests;
+mod app_game_timer_parent_surface_action_results;
 mod app_game_timer_parent_surface_payload;
 #[cfg(test)]
 mod app_game_timer_parent_surface_payload_tests;

@@ -65,6 +65,13 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
     assert_eq!(read_model.runtime_manual_required_count, 0);
     assert_eq!(read_model.control_action_result_count, 0);
     assert!(read_model.control_action_result_reference_ids.is_empty());
+    assert!(read_model.control_action_result_statuses.is_empty());
+    assert!(read_model
+        .control_action_result_capability_states
+        .is_empty());
+    assert!(read_model
+        .control_action_result_enforcement_statuses
+        .is_empty());
     assert!(!read_model.timer_runtime_claimed);
     assert!(!read_model.scheduler_persistence_claimed);
     assert!(!read_model.durable_scheduler_storage_claimed);
@@ -142,6 +149,13 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
     assert!(read_model.rollback_runtime_claimed);
     assert_eq!(read_model.control_action_result_count, 0);
     assert!(read_model.control_action_result_reference_ids.is_empty());
+    assert!(read_model.control_action_result_statuses.is_empty());
+    assert!(read_model
+        .control_action_result_capability_states
+        .is_empty());
+    assert!(read_model
+        .control_action_result_enforcement_statuses
+        .is_empty());
     assert!(!read_model.adapter_dispatch_claimed);
     assert!(!read_model.child_delivery_claimed);
     assert!(!read_model.platform_enforcement_claimed);

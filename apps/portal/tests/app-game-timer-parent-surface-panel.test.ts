@@ -29,6 +29,9 @@ const TimerParentSurfaceReadModel = {
   runtimeManualRequiredCount: 0,
   controlActionResultCount: 0,
   controlActionResultReferenceIds: [],
+  controlActionResultStatuses: [],
+  controlActionResultCapabilityStates: [],
+  controlActionResultEnforcementStatuses: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -104,6 +107,10 @@ function expectServiceBackedIntent() {
     value: 'Not reported',
   });
   expect(intent.summaryDetails).toContainEqual({
+    label: 'Control action result statuses',
+    value: 'Not reported',
+  });
+  expect(intent.summaryDetails).toContainEqual({
     label: 'Adapter dispatch',
     value: 'Not claimed',
   });
@@ -171,6 +178,9 @@ function expectControlActionResultVisibility() {
     ...TimerParentSurfaceReadModel,
     controlActionResultCount: 1,
     controlActionResultReferenceIds: ['action-result-app-game-1'],
+    controlActionResultStatuses: ['enforced'],
+    controlActionResultCapabilityStates: ['supported'],
+    controlActionResultEnforcementStatuses: ['actually-enforced'],
   };
   const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(actionResultModel))]);
 
@@ -183,6 +193,18 @@ function expectControlActionResultVisibility() {
   expect(intent.summaryDetails).toContainEqual({
     label: 'Control action result refs',
     value: 'action-result-app-game-1',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Control action result statuses',
+    value: 'enforced',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Control action capabilities',
+    value: 'supported',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Control action enforcement statuses',
+    value: 'actually-enforced',
   });
   expect(intent.summaryDetails).toContainEqual({
     label: 'Adapter dispatch',

@@ -30,6 +30,9 @@ const TimerParentSurfaceReadModel = {
   runtimeManualRequiredCount: 0,
   controlActionResultCount: 0,
   controlActionResultReferenceIds: [],
+  controlActionResultStatuses: [],
+  controlActionResultCapabilityStates: [],
+  controlActionResultEnforcementStatuses: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -94,6 +97,9 @@ describe('agent app-game timer parent surface parser', () => {
           ...TimerParentSurfaceReadModel,
           controlActionResultCount: 1,
           controlActionResultReferenceIds: ['action-result-app-game-1'],
+          controlActionResultStatuses: ['enforced'],
+          controlActionResultCapabilityStates: ['supported'],
+          controlActionResultEnforcementStatuses: ['actually-enforced'],
         })
       )
     );
@@ -104,6 +110,9 @@ describe('agent app-game timer parent surface parser', () => {
         ...TimerParentSurfaceReadModel,
         controlActionResultCount: 1,
         controlActionResultReferenceIds: ['action-result-app-game-1'],
+        controlActionResultStatuses: ['enforced'],
+        controlActionResultCapabilityStates: ['supported'],
+        controlActionResultEnforcementStatuses: ['actually-enforced'],
       },
     });
   });

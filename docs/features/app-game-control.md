@@ -661,6 +661,12 @@ fields. The parent portal renders those action-result refs as replay
 visibility, while live scheduling automation, adapter dispatch, child delivery,
 broad blocking, platform enforcement, and raw private source rows remain
 unclaimed.
+The same timer parent-surface read model now aggregates parent-safe
+action-result statuses, capability states, and enforcement-result statuses from
+those replay rows. Parents can see whether replayed control rows are enforced,
+manual-required, supported, or unavailable without receiving raw action request
+payloads, adapter execution access, child delivery, platform enforcement, or
+private source rows.
 
 ## Checklist
 

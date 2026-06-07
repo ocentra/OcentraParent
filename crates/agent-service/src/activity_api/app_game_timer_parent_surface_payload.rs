@@ -21,6 +21,7 @@ use crate::{
 };
 
 use super::activity_store_error_event;
+use super::app_game_timer_parent_surface_action_results::timer_parent_surface_control_action_results;
 
 pub async fn build_activity_app_game_timer_parent_surface_report(
     command: AgentCommandEnvelope,
@@ -85,12 +86,8 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
     let active_timer_state_exists = active_timer_state.is_some();
     let (audit_runtime_claimed, rollback_runtime_claimed) =
         timer_audit_rollback_runtime_claims(active_timer_state);
-    let control_action_result_reference_ids = model
-        .approval_action_result_rows
-        .iter()
-        .map(|row| row.result_id.clone())
-        .collect::<Vec<_>>();
-    let control_action_result_count = control_action_result_reference_ids.len() as u64;
+    let control_action_results = timer_parent_surface_control_action_results(&model);
+    let control_action_result_count = control_action_results.reference_ids.len() as u64;
 
     AppGameTimerParentSurfaceReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
@@ -103,7 +100,10 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
         blocked_by_compiler_decision_count,
         runtime_manual_required_count,
         control_action_result_count,
-        control_action_result_reference_ids,
+        control_action_result_reference_ids: control_action_results.reference_ids,
+        control_action_result_statuses: control_action_results.statuses,
+        control_action_result_capability_states: control_action_results.capability_states,
+        control_action_result_enforcement_statuses: control_action_results.enforcement_statuses,
         timer_runtime_claimed: active_timer_state_exists,
         scheduler_persistence_claimed: active_timer_state_exists,
         durable_scheduler_storage_claimed: active_timer_state_exists,
