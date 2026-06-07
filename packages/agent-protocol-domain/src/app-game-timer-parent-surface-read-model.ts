@@ -57,6 +57,32 @@ export const AgentAppGameTimerParentSurfaceChildUxLocalArtifactRecordSchema = wi
   })
 );
 
+export const AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecordSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AppGameSchemaVersion),
+    parentSurfaceIntentReferenceId: TimerParentSurfaceText,
+    sourceResultId: TimerParentSurfaceText,
+    sourceArtifactReferenceId: TimerParentSurfaceText,
+    targetDomain: Schema.Literal(
+      AgentAppGameTimerParentSurfaceTargetDomain.NativeApp,
+      AgentAppGameTimerParentSurfaceTargetDomain.NativeGame
+    ),
+    historyVisibility: Schema.Literal('history-row-visible'),
+    parentSurfaceStatus: Schema.Literal('manual-action-required'),
+    preferenceVisibility: Schema.Literal('preference-setup-required'),
+    drillInReferenceIds: Schema.Array(TimerParentSurfaceText),
+    manualProofReferenceIds: Schema.Array(TimerParentSurfaceText),
+    sensitiveDetailIncluded: Schema.Literal(false),
+    parentNotificationUiRendered: Schema.Literal(false),
+    parentPreferenceMutationClaimed: Schema.Literal(false),
+    providerDeliveryClaimed: Schema.Literal(false),
+    childDeliveryClaimed: Schema.Literal(false),
+    adapterDispatchClaimed: Schema.Literal(false),
+    platformEnforcementClaimed: Schema.Literal(false),
+    rawPrivateSourceRowsIncluded: Schema.Literal(false),
+  })
+);
+
 export const AgentAppGameTimerParentSurfaceReadModelSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
@@ -87,6 +113,9 @@ export const AgentAppGameTimerParentSurfaceReadModelSchema = withParser(
     childUxParentSurfaceIntentHistoryVisibleCount: TimerParentSurfaceCount,
     childUxParentSurfaceIntentPreferenceSetupRequiredCount: TimerParentSurfaceCount,
     childUxParentSurfaceIntentReferenceIds: Schema.Array(TimerParentSurfaceText),
+    childUxParentSurfaceIntentRecords: Schema.Array(
+      AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecordSchema
+    ),
     timerRuntimeClaimed: Schema.Boolean,
     schedulerPersistenceClaimed: Schema.Boolean,
     durableSchedulerStorageClaimed: Schema.Boolean,
@@ -109,6 +138,9 @@ export type AgentAppGameTimerParentSurfaceState = Infer<
 export type AgentAppGameTimerParentSurfaceRow = Infer<typeof AgentAppGameTimerParentSurfaceRowSchema>;
 export type AgentAppGameTimerParentSurfaceChildUxLocalArtifactRecord = Infer<
   typeof AgentAppGameTimerParentSurfaceChildUxLocalArtifactRecordSchema
+>;
+export type AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord = Infer<
+  typeof AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecordSchema
 >;
 export type AgentAppGameTimerParentSurfaceReadModel = Infer<typeof AgentAppGameTimerParentSurfaceReadModelSchema>;
 

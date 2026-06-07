@@ -204,6 +204,10 @@ pub const LAN_NON_CLAIM_REMOTE_DESKTOP_NOT_IMPLEMENTED: &str = "remote-desktop-n
 pub const LAN_READ_MODEL_JSON_EXPECTATION: &str = "read model payload is JSON";
 pub const LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION: &str = "honest non claims are an array";
 pub const LAN_PROVIDER_CUSTODY_LOCAL_NETWORK_AI_PROVIDER: &str = "local-network-ai-provider";
+pub const APP_GAME_CHILD_UX_PARENT_SURFACE_HISTORY_ROW_VISIBLE: &str = "history-row-visible";
+pub const APP_GAME_CHILD_UX_PARENT_SURFACE_MANUAL_ACTION_REQUIRED: &str = "manual-action-required";
+pub const APP_GAME_CHILD_UX_PARENT_SURFACE_PREFERENCE_SETUP_REQUIRED: &str =
+    "preference-setup-required";
 pub const TRANSPORT_WEBSOCKET: &str = "websocket";
 pub const TRUE: &str = "true";
 pub const UNKNOWN_HOST: &str = "unknown-host";

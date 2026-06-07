@@ -1,0 +1,27 @@
+{
+  "workpack": "WP129",
+  "branch": "codex/app-game-control-product-completion",
+  "scope": "timer-parent-surface child UX local outbox parent-surface live records",
+  "status": "focused-validation-passed",
+  "contractFields": [
+    "childUxParentSurfaceIntentRecords",
+    "childUxParentSurfaceIntentRecords.parentSurfaceIntentReferenceId",
+    "childUxParentSurfaceIntentRecords.sourceResultId",
+    "childUxParentSurfaceIntentRecords.sourceArtifactReferenceId",
+    "childUxParentSurfaceIntentRecords.targetDomain",
+    "childUxParentSurfaceIntentRecords.drillInReferenceIds",
+    "childUxParentSurfaceIntentRecords.manualProofReferenceIds"
+  ],
+  "noClaims": [
+    "parent-notification-ui-rendered",
+    "parent-preference-ui-rendered",
+    "parent-preference-mutation",
+    "provider-delivery",
+    "receipt-ingestion",
+    "child-delivery",
+    "adapter-dispatch",
+    "platform-enforcement",
+    "raw-private-source-rows",
+    "raw-target-values"
+  ]
+}

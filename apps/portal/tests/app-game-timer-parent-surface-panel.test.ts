@@ -46,6 +46,7 @@ const TimerParentSurfaceReadModel = {
   childUxParentSurfaceIntentHistoryVisibleCount: 0,
   childUxParentSurfaceIntentPreferenceSetupRequiredCount: 0,
   childUxParentSurfaceIntentReferenceIds: [],
+  childUxParentSurfaceIntentRecords: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -184,6 +185,32 @@ function expectControlActionResultVisibility() {
     childUxParentSurfaceIntentHistoryVisibleCount: 1,
     childUxParentSurfaceIntentPreferenceSetupRequiredCount: 1,
     childUxParentSurfaceIntentReferenceIds: ['app-game-child-ux-parent-surface-action-result-app-game-1'],
+    childUxParentSurfaceIntentRecords: [
+      {
+        schemaVersion: AppGameSchemaVersion,
+        parentSurfaceIntentReferenceId: 'app-game-child-ux-parent-surface-action-result-app-game-1',
+        sourceResultId: 'action-result-app-game-1',
+        sourceArtifactReferenceId: 'app-game-child-ux-local-handoff-action-result-app-game-1',
+        targetDomain: AgentAppGameTimerParentSurfaceTargetDomain.NativeGame,
+        historyVisibility: 'history-row-visible',
+        parentSurfaceStatus: 'manual-action-required',
+        preferenceVisibility: 'preference-setup-required',
+        drillInReferenceIds: [
+          'app-game-child-ux-local-handoff-action-result-app-game-1',
+          'parent-approved',
+          'child-status-limit-reached',
+        ],
+        manualProofReferenceIds: ['parent-approved', 'child-status-limit-reached'],
+        sensitiveDetailIncluded: false,
+        parentNotificationUiRendered: false,
+        parentPreferenceMutationClaimed: false,
+        providerDeliveryClaimed: false,
+        childDeliveryClaimed: false,
+        adapterDispatchClaimed: false,
+        platformEnforcementClaimed: false,
+        rawPrivateSourceRowsIncluded: false,
+      },
+    ],
   };
   const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(actionResultModel))]);
 
@@ -226,6 +253,11 @@ function expectNoRuntimeSummaryDetails(
     ['Child UX parent-surface history visible', '0'],
     ['Child UX parent-surface preference setup', '0'],
     ['Child UX parent-surface refs', 'Not reported'],
+    ['Child UX parent-surface sources', 'Not reported'],
+    ['Child UX parent-surface artifact refs', 'Not reported'],
+    ['Child UX parent-surface targets', 'Not reported'],
+    ['Child UX parent-surface drill-in refs', 'Not reported'],
+    ['Child UX parent-surface manual proof refs', 'Not reported'],
     ['Adapter dispatch', 'Not claimed'],
     ['Child delivery', 'Not claimed'],
     ['Platform state', 'Not claimed'],
@@ -258,6 +290,14 @@ function expectActionResultSummaryDetails(
     ['Child UX parent-surface history visible', '1'],
     ['Child UX parent-surface preference setup', '1'],
     ['Child UX parent-surface refs', 'app-game-child-ux-parent-surface-action-result-app-game-1'],
+    ['Child UX parent-surface sources', 'action-result-app-game-1'],
+    ['Child UX parent-surface artifact refs', 'app-game-child-ux-local-handoff-action-result-app-game-1'],
+    ['Child UX parent-surface targets', AgentAppGameTimerParentSurfaceTargetDomain.NativeGame],
+    [
+      'Child UX parent-surface drill-in refs',
+      'app-game-child-ux-local-handoff-action-result-app-game-1 | parent-approved | child-status-limit-reached',
+    ],
+    ['Child UX parent-surface manual proof refs', 'parent-approved | child-status-limit-reached'],
   ] as const) {
     expect(summaryDetails).toContainEqual({ label: detail[0], value: detail[1] });
   }

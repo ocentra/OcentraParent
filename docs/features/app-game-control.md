@@ -1223,7 +1223,11 @@ diagnostics, or raw private source rows.
       notification/preference UI, live child UI, provider delivery/receipt
       ingestion, retry execution, quiet-hours runtime, durable service
       persistence/export, package export, adapter dispatch, and platform
-      execution remain.
+      execution remain. The live timer parent-surface read model now also
+      carries structured parent-surface intent records with source result ids,
+      parent-surface intent refs, artifact refs, target domains, drill-in refs,
+      and manual-proof refs while keeping raw targets and private diagnostics
+      out of the parent portal summary.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

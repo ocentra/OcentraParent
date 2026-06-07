@@ -45,10 +45,11 @@ use super::app_game_timer_parent_surface_payload::{
 fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claims() {
     let read_model = app_game_timer_parent_surface_from_service_model(service_model());
     let payload = app_game_timer_parent_surface_payload(&read_model);
-    let read_model_json = string_payload(
-        &payload,
-        constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL,
-    );
+    let read_model_json =
+        match payload.get(constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL) {
+            Some(LogFieldValue::String(value)) => value.as_str(),
+            _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        };
     let decoded: AppGameTimerParentSurfaceReadModel =
         serde_json::from_str(read_model_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
@@ -142,6 +143,11 @@ fn assert_child_ux_local_artifact_visibility(decoded: &AppGameTimerParentSurface
         .concat()]
     );
     assert_eq!(decoded.child_ux_local_handoff_artifact_records.len(), 1);
+    assert_child_ux_parent_surface_intent_visibility(decoded);
+    assert_child_ux_local_artifact_record_visibility(decoded);
+}
+
+fn assert_child_ux_parent_surface_intent_visibility(decoded: &AppGameTimerParentSurfaceReadModel) {
     assert_eq!(
         decoded.child_ux_parent_surface_intent_manual_action_required_count,
         1
@@ -166,6 +172,34 @@ fn assert_child_ux_local_artifact_visibility(decoded: &AppGameTimerParentSurface
         ]
         .concat()]
     );
+    assert_eq!(decoded.child_ux_parent_surface_intent_records.len(), 1);
+    let parent_surface_record = &decoded.child_ux_parent_surface_intent_records[0];
+    assert_eq!(
+        parent_surface_record.parent_surface_intent_reference_id,
+        [
+            constants::value::APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX,
+            APP_GAME_TEST_ACTION_RESULT_ID
+        ]
+        .concat()
+    );
+    assert_eq!(
+        parent_surface_record.source_artifact_reference_id,
+        [
+            constants::value::APP_GAME_CHILD_UX_LOCAL_HANDOFF_ARTIFACT_PREFIX,
+            APP_GAME_TEST_ACTION_RESULT_ID
+        ]
+        .concat()
+    );
+    assert!(!parent_surface_record.parent_notification_ui_rendered);
+    assert!(!parent_surface_record.parent_preference_mutation_claimed);
+    assert!(!parent_surface_record.provider_delivery_claimed);
+    assert!(!parent_surface_record.child_delivery_claimed);
+    assert!(!parent_surface_record.adapter_dispatch_claimed);
+    assert!(!parent_surface_record.platform_enforcement_claimed);
+    assert!(!parent_surface_record.raw_private_source_rows_included);
+}
+
+fn assert_child_ux_local_artifact_record_visibility(decoded: &AppGameTimerParentSurfaceReadModel) {
     let artifact_record = &decoded.child_ux_local_handoff_artifact_records[0];
     assert_eq!(
         artifact_record.source_result_id,
@@ -353,7 +387,12 @@ fn evidence_claim() -> AppGameEvidenceClaim {
         launcher_ref: None,
         catalog_ref: None,
         confidence: 1.0,
-        evidence: vec![local_db_ref(APP_GAME_TEST_EVIDENCE_REF_ID)],
+        evidence: vec![ActivityEvidenceRef {
+            evidence_id: APP_GAME_TEST_EVIDENCE_REF_ID.to_string(),
+            kind: ActivityEvidenceKind::LocalDbRow,
+            digest: None,
+            uri: None,
+        }],
     }
 }
 
@@ -432,21 +471,5 @@ fn platform_matrix() -> AppGamePlatformAuthorityMatrix {
             last_checked_at: APP_GAME_TEST_TIMESTAMP.to_string(),
         }],
         generated_at: APP_GAME_TEST_TIMESTAMP.to_string(),
-    }
-}
-
-fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
-    ActivityEvidenceRef {
-        evidence_id: evidence_id.to_string(),
-        kind: ActivityEvidenceKind::LocalDbRow,
-        digest: None,
-        uri: None,
-    }
-}
-
-fn string_payload<'a>(payload: &'a ocentra_parent_agent_protocol::LogFields, key: &str) -> &'a str {
-    match payload.get(key) {
-        Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
     }
 }

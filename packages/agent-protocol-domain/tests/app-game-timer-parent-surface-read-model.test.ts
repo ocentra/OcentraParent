@@ -47,6 +47,7 @@ const TimerParentSurfaceReadModel = {
   childUxParentSurfaceIntentHistoryVisibleCount: 0,
   childUxParentSurfaceIntentPreferenceSetupRequiredCount: 0,
   childUxParentSurfaceIntentReferenceIds: [],
+  childUxParentSurfaceIntentRecords: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -127,6 +128,32 @@ const ActionResultReadModel = {
   childUxParentSurfaceIntentHistoryVisibleCount: 1,
   childUxParentSurfaceIntentPreferenceSetupRequiredCount: 1,
   childUxParentSurfaceIntentReferenceIds: ['app-game-child-ux-parent-surface-action-result-app-game-1'],
+  childUxParentSurfaceIntentRecords: [
+    {
+      schemaVersion: AppGameSchemaVersion,
+      parentSurfaceIntentReferenceId: 'app-game-child-ux-parent-surface-action-result-app-game-1',
+      sourceResultId: 'action-result-app-game-1',
+      sourceArtifactReferenceId: 'app-game-child-ux-local-handoff-action-result-app-game-1',
+      targetDomain: AgentAppGameTimerParentSurfaceTargetDomain.NativeGame,
+      historyVisibility: 'history-row-visible',
+      parentSurfaceStatus: 'manual-action-required',
+      preferenceVisibility: 'preference-setup-required',
+      drillInReferenceIds: [
+        'app-game-child-ux-local-handoff-action-result-app-game-1',
+        'parent-approved',
+        'child-status-limit-reached',
+      ],
+      manualProofReferenceIds: ['parent-approved', 'child-status-limit-reached'],
+      sensitiveDetailIncluded: false,
+      parentNotificationUiRendered: false,
+      parentPreferenceMutationClaimed: false,
+      providerDeliveryClaimed: false,
+      childDeliveryClaimed: false,
+      adapterDispatchClaimed: false,
+      platformEnforcementClaimed: false,
+      rawPrivateSourceRowsIncluded: false,
+    },
+  ],
 } as const;
 
 describe('agent app-game timer parent surface parser', () => {
@@ -219,6 +246,7 @@ describe('agent app-game timer parent surface parser rejection handling', () => 
                 childDeliveryClaimed: true,
               },
             ],
+            childUxParentSurfaceIntentRecords: [],
           })
         )
       )

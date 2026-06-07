@@ -41,9 +41,14 @@ const TimerParentSurfaceDetails = {
   ChildUxLocalArtifactRefs: decodeDisplayText('Child UX local artifact refs'),
   ChildUxLocalArtifactSkipped: decodeDisplayText('Child UX local artifact skipped'),
   ChildUxParentSurfaceIntentHistoryVisible: decodeDisplayText('Child UX parent-surface history visible'),
+  ChildUxParentSurfaceIntentArtifactRefs: decodeDisplayText('Child UX parent-surface artifact refs'),
+  ChildUxParentSurfaceIntentDrillInRefs: decodeDisplayText('Child UX parent-surface drill-in refs'),
   ChildUxParentSurfaceIntentManualRequired: decodeDisplayText('Child UX parent-surface manual required'),
+  ChildUxParentSurfaceIntentManualProofRefs: decodeDisplayText('Child UX parent-surface manual proof refs'),
   ChildUxParentSurfaceIntentPreferenceSetup: decodeDisplayText('Child UX parent-surface preference setup'),
   ChildUxParentSurfaceIntentRefs: decodeDisplayText('Child UX parent-surface refs'),
+  ChildUxParentSurfaceIntentSources: decodeDisplayText('Child UX parent-surface sources'),
+  ChildUxParentSurfaceIntentTargets: decodeDisplayText('Child UX parent-surface targets'),
   ChildUxParentSurfaceIntentUnavailable: decodeDisplayText('Child UX parent-surface unavailable'),
   ChildUxHandoffBlocked: decodeDisplayText('Child UX handoff blocked'),
   ChildUxHandoffReady: decodeDisplayText('Child UX handoff ready'),
@@ -235,6 +240,28 @@ function parentSurfaceIntentDetails(
     detail(
       TimerParentSurfaceDetails.ChildUxParentSurfaceIntentRefs,
       joinedOrNotReported(readModel.childUxParentSurfaceIntentReferenceIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxParentSurfaceIntentSources,
+      joinedOrNotReported(readModel.childUxParentSurfaceIntentRecords.map((record) => record.sourceResultId))
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxParentSurfaceIntentArtifactRefs,
+      joinedOrNotReported(readModel.childUxParentSurfaceIntentRecords.map((record) => record.sourceArtifactReferenceId))
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxParentSurfaceIntentTargets,
+      joinedOrNotReported(readModel.childUxParentSurfaceIntentRecords.map((record) => record.targetDomain))
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxParentSurfaceIntentDrillInRefs,
+      joinedOrNotReported(readModel.childUxParentSurfaceIntentRecords.flatMap((record) => record.drillInReferenceIds))
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxParentSurfaceIntentManualProofRefs,
+      joinedOrNotReported(
+        readModel.childUxParentSurfaceIntentRecords.flatMap((record) => record.manualProofReferenceIds)
+      )
     ),
   ];
 }
