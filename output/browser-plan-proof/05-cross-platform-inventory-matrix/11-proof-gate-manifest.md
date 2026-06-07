@@ -1,6 +1,6 @@
 # WP05 Platform Inventory Matrix Proof Gate
 
-Generated: 2026-06-07T06:44:32.355Z
+Generated: 2026-06-07T07:45:44.722Z
 
 Rows checked: 12
 Host-observed rows: 2
@@ -31,4 +31,4 @@ No product checklist upgrade is claimed.
 Non-Windows managed exact URL and known-active tab support remain manual-required or unsupported until separate real platform proof exists.
 Android emulator package-visibility proof is present, but owned browser shell custody, exact URL, active tab, device-owner policy, and enforcement remain unclaimed.
 Linux WSL package/PATH/desktop-entry boundary proof is present, but Linux desktop browser adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.
-Windows host browser executable proof and queried URL-association-key boundary evidence are present, but default-handler visibility, managed launch, bridge custody, exact URL, active tab, and enforcement remain unclaimed.
+Windows host browser executable proof and default URL handler association boundary evidence are present, but managed launch, bridge custody, exact URL, active tab, and enforcement remain unclaimed.

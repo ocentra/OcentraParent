@@ -79,7 +79,7 @@ async function main() {
         ? 'android-browser-package-visibility-proof-present-owned-shell-still-manual-required'
         : 'android-owned-browser-shell-manual-required',
       windowsHostProof
-        ? 'windows-host-browser-inventory-proof-present-managed-exact-url-still-unclaimed'
+        ? 'windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed'
         : 'windows-host-browser-inventory-proof-required',
       'ios-familycontrols-safari-extension-manual-required',
       'firefox-bidi-extension-later-adapter',
@@ -223,7 +223,7 @@ function markdownFor(proof) {
       ? 'Linux WSL package/PATH/desktop-entry boundary proof is present, but Linux desktop browser adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.'
       : 'Linux desktop package and adapter proof remains manual-required.',
     proof.windowsHostProof
-      ? 'Windows host browser executable proof and queried URL-association-key boundary evidence are present, but default-handler visibility, managed launch, bridge custody, exact URL, active tab, and enforcement remain unclaimed.'
+      ? 'Windows host browser executable proof and default URL handler association boundary evidence are present, but managed launch, bridge custody, exact URL, active tab, and enforcement remain unclaimed.'
       : 'Windows host browser inventory proof remains required.',
   ].join('\n');
 }
@@ -281,6 +281,8 @@ async function readWindowsHostProof() {
     windowsHost: proof.hostProofSummary?.windowsHost === true,
     executableVisible: proof.hostProofSummary?.executableVisible === true,
     defaultUrlHandlerVisible: proof.hostProofSummary?.defaultUrlHandlerVisible === true,
+    defaultUrlHandlerAssociationVisible: proof.hostProofSummary?.defaultUrlHandlerAssociationVisible === true,
+    knownDefaultBrowserHandlerVisible: proof.hostProofSummary?.knownDefaultBrowserHandlerVisible === true,
     managedLaunchClaimed: proof.hostProofSummary?.managedLaunchClaimed === true,
     exactUrlProofClaimed: proof.hostProofSummary?.exactUrlProofClaimed === true,
     knownActiveTabProofClaimed: proof.hostProofSummary?.knownActiveTabProofClaimed === true,
@@ -301,6 +303,9 @@ function validateWindowsHostProof(proof) {
   }
   if (!proof.executableVisible && !proof.defaultUrlHandlerVisible) {
     failures.push('Windows host proof lacks browser executable and default URL handler evidence');
+  }
+  if (proof.defaultUrlHandlerVisible && !proof.defaultUrlHandlerAssociationVisible) {
+    failures.push('Windows host proof saw a handler without marking the default-handler association boundary visible');
   }
   if (
     proof.managedLaunchClaimed ||

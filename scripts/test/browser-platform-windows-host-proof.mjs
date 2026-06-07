@@ -44,12 +44,20 @@ const knownBrowserTargets = [
   },
 ];
 
+const knownUrlAssociationHandlers = [
+  { browserFamily: 'edge', progIdPrefix: 'MSEdgeHTM' },
+  { browserFamily: 'chrome', progIdPrefix: 'ChromeHTML' },
+  { browserFamily: 'firefox', progIdPrefix: 'FirefoxURL' },
+  { browserFamily: 'firefox', progIdPrefix: 'FirefoxHTML' },
+];
+
 mkdirSync(proofRoot, { recursive: true });
 
 const pathVisibility = knownBrowserTargets.map((target) => queryTarget(target));
 const urlAssociations = ['http', 'https'].map(queryUrlAssociation);
 const executableVisible = pathVisibility.some((entry) => entry.executableVisible || entry.appPathRegistryVisible);
 const defaultUrlHandlerVisible = urlAssociations.some((entry) => entry.progIdRef !== null);
+const knownDefaultBrowserHandlerVisible = urlAssociations.some((entry) => entry.knownBrowserFamily !== null);
 const negativeChecks = [
   { claim: 'windows-managed-launch', rejected: true },
   { claim: 'windows-managed-exact-url', rejected: true },
@@ -72,6 +80,8 @@ const proof = {
     urlAssociationRegistryQueriedOnly: true,
     executableVisible,
     defaultUrlHandlerVisible,
+    defaultUrlHandlerAssociationVisible: defaultUrlHandlerVisible,
+    knownDefaultBrowserHandlerVisible,
     rawPathPersisted: false,
     rawRegistryValuePersisted: false,
     managedLaunchClaimed: false,
@@ -135,16 +145,27 @@ function queryTarget(target) {
 function queryUrlAssociation(scheme) {
   const key = `HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\${scheme}\\UserChoice`;
   const progId = registryValue(key, 'ProgId');
+  const knownBrowserFamily = progId === null ? null : knownBrowserFamilyForProgId(progId);
 
   return {
     scheme,
     userChoiceKeyRef: redactedRef('windows-url-association-key', key),
     progIdRef: progId === null ? null : redactedRef('windows-url-association-progid', progId),
+    knownBrowserFamily,
+    defaultHandlerAssociationVisible: progId !== null,
     rawRegistryValuePersisted: false,
     exactUrlProofClaimed: false,
     knownActiveTabProofClaimed: false,
     enforcementClaimed: false,
   };
+}
+
+function knownBrowserFamilyForProgId(progId) {
+  const normalizedProgId = progId.trim();
+  return (
+    knownUrlAssociationHandlers.find((handler) => normalizedProgId.startsWith(handler.progIdPrefix))?.browserFamily ??
+    null
+  );
 }
 
 function registryDefault(key) {
@@ -155,7 +176,7 @@ function registryDefault(key) {
 
 function registryValue(key, valueName) {
   const output = registryQuery(key);
-  const expression = new RegExp(`\\b${escapeRegExp(valueName)}\\s+REG_\\w+\\s+(.+)`, 'u');
+  const expression = new RegExp(`\\b${escapeRegExp(valueName)}\\s+REG_\\w+\\s+(.+)`, 'iu');
   const match = output.match(expression);
   return match?.[1]?.trim() ?? null;
 }

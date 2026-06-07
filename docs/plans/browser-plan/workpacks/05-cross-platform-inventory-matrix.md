@@ -64,7 +64,8 @@ active tab, Snap/Flatpak, and enforcement remain unclaimed.
 now captures real Windows host browser inventory boundary evidence for WP05.
 The proof queries known public Edge/Chrome/Firefox executable locations, Windows
 App Paths registry keys, and HTTP/HTTPS URL association user-choice keys, stores
-only redacted hash refs, and writes
+only redacted hash refs plus normalized known-browser-family labels for
+recognized handler ProgIds, and writes
 `test-results/browser-platform-windows-host-proof/proof.json` plus
 `output/browser-plan-proof/05-cross-platform-inventory-matrix/13-windows-host-browser-proof.json`.
 The matrix gate reads that artifact and reports host-observed Windows rows, but
@@ -124,11 +125,11 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service/portal parity updated only after contracts exist; no Rust/service/portal surface changed in this contract-only slice.
 - [x] Raw evidence artifacts captured or marked N/A: this slice is a platform support matrix contract and has no bridge/CDP, journal, SQLite, policy, or action runtime evidence.
-- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Windows host browser executable proof and queried URL-association-key boundary evidence, Android emulator package-visibility proof, and WSL Linux package/PATH boundary proof are present, while default-handler visibility, managed launch/bridge custody/exact URL/active tab, live macOS/Linux desktop/owned-shell Android/iOS fixtures, and manual proof remain manual-required.
+- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Windows host browser executable proof and default URL handler association boundary evidence, Android emulator package-visibility proof, and WSL Linux package/PATH boundary proof are present, while managed launch/bridge custody/exact URL/active tab, live macOS/Linux desktop/owned-shell Android/iOS fixtures, and manual proof remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured: non-Windows entries reject managed exact-URL and known-active claims; iOS remains unsupported; unsupported entries cannot keep exact URL available.
-- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility, UI-tree/logcat hash evidence, and source-backed no-owned-shell/no-WebView/no-privileged-browser-adapter boundary evidence are captured in `11-android-host-device-proof.json`, WSL Linux package/PATH boundary evidence is captured in `12-linux-host-package-proof.json`, Windows host browser executable proof and queried URL-association-key boundary evidence are captured in `13-windows-host-browser-proof.json`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
+- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility, UI-tree/logcat hash evidence, and source-backed no-owned-shell/no-WebView/no-privileged-browser-adapter boundary evidence are captured in `11-android-host-device-proof.json`, WSL Linux package/PATH boundary evidence is captured in `12-linux-host-package-proof.json`, Windows host browser executable proof and default URL handler association boundary evidence are captured in `13-windows-host-browser-proof.json`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
 - [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md), including `test-results/browser-platform-inventory-matrix-proof/proof.json` and `output/browser-plan-proof/05-cross-platform-inventory-matrix/11-proof-gate-manifest.md`.
 - [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
@@ -137,10 +138,9 @@ Fill this before reporting `DONE` or PR-ready:
 
 No browser product claim until real platform proof exists for the exact
 capability being upgraded.
-Windows host browser executable proof and queried URL-association-key boundary
-evidence are now captured, but default-handler visibility,
-managed launch, bridge custody, exact URL, active-tab, managed profile repair,
-and enforcement remain unclaimed.
+Windows host browser executable proof and default URL handler association
+boundary evidence are now captured, but managed launch, bridge custody, exact
+URL, active-tab, managed profile repair, and enforcement remain unclaimed.
 Android emulator package visibility and source-backed Android agent boundary
 evidence are now proved, but the owned browser shell, exact URL, active-tab,
 device-owner policy, VPN/DNS browser proof, UsageStats/Accessibility route
