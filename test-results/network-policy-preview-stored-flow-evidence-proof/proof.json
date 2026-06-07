@@ -2,7 +2,7 @@
   "proof": "network-policy-preview-stored-flow-evidence-proof",
   "proofRevision": "network-policy-preview-stored-flow-evidence-proof/v1",
   "checkedAt": "deterministic:network-policy-preview-stored-flow-evidence-proof/v1",
-  "sourceFingerprint": "source-tree:94710a556bcf8a4f209bded8c5e4610a07c4f1627479705a1011c6845bf3780c",
+  "sourceFingerprint": "source-tree:83eeb23df4c07a992d922610a2c7cccd085a99e2bdbf2881d04a6855613e648f",
   "sourceRefs": [
     "scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs",
     "crates/agent-core/src/activity_store_policy_preview.rs",
@@ -27,7 +27,7 @@
     "docs/plans/network-plan/implementation-checklist.md",
     "docs/plans/network-plan/workpacks/README.md"
   ],
-  "sourceBase": "731ddfcb670bb6b9b8cf60ea3efae81b331ccb32",
+  "sourceBase": "929763224eb281d44face01dc5455b6940b68f65",
   "proofRoot": "output\\network-plan-proof\\policy-preview-stored-flow-evidence",
   "testRoot": "test-results\\network-policy-preview-stored-flow-evidence-proof",
   "commands": [

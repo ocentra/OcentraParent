@@ -5,63 +5,115 @@
       "group": "06-adapter-action-proof",
       "path": "output/network-plan-proof/37-dns-proxy-block-redirect-adapter/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-dns-adapter"
+      "parsedProof": "network-dns-adapter",
+      "freshness": {
+        "kind": "legacy-run-metadata-reference",
+        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+        "hasDirtyStatus": true
+      }
     },
     {
       "id": "windows-firewall-adapter",
       "group": "06-adapter-action-proof",
       "path": "output/network-plan-proof/38-windows-firewall-adapter/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-windows-firewall-adapter"
+      "parsedProof": "network-windows-firewall-adapter",
+      "freshness": {
+        "kind": "legacy-run-metadata-reference",
+        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+        "hasDirtyStatus": true
+      }
     },
     {
       "id": "windows-wfp-gate",
       "group": "06-adapter-action-proof",
       "path": "output/network-plan-proof/39-windows-wfp-proof-gate/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-windows-wfp-proof-gate"
+      "parsedProof": "network-windows-wfp-proof-gate",
+      "freshness": {
+        "kind": "legacy-run-metadata-reference",
+        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+        "hasDirtyStatus": true
+      }
     },
     {
       "id": "android-vpnservice-gate",
       "group": "06-adapter-action-proof",
       "path": "output/network-plan-proof/40-android-vpnservice-proof-gate/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-android-vpnservice-proof-gate"
+      "parsedProof": "network-android-vpnservice-proof-gate",
+      "freshness": {
+        "kind": "legacy-run-metadata-reference",
+        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+        "hasDirtyStatus": true
+      }
     },
     {
       "id": "apple-network-extension-gate",
       "group": "06-adapter-action-proof",
       "path": "output/network-plan-proof/41-apple-network-extension-proof-gate/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-apple-network-extension-proof-gate"
+      "parsedProof": "network-apple-network-extension-proof-gate",
+      "freshness": {
+        "kind": "legacy-run-metadata-reference",
+        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+        "hasDirtyStatus": true
+      }
     },
     {
       "id": "linux-adapter-gate",
       "group": "06-adapter-action-proof",
       "path": "output/network-plan-proof/42-linux-adapter-proof-gate/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-linux-adapter-proof-gate"
+      "parsedProof": "network-linux-adapter-proof-gate",
+      "freshness": {
+        "kind": "legacy-run-metadata-reference",
+        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+        "hasDirtyStatus": true
+      }
     },
     {
       "id": "platform-claims",
       "group": "06-adapter-action-proof",
       "path": "output/network-plan-proof/52-platform-claims-proof/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-platform-claims"
+      "parsedProof": "network-platform-claims",
+      "freshness": {
+        "kind": "legacy-run-metadata-reference",
+        "branch": "codex/network-platform-claims-proof",
+        "commit": "33f0618ff507e24459fb5e42c0b38f0be6aeb194",
+        "hasDirtyStatus": false
+      }
     },
     {
       "id": "adapter-capability-status",
       "group": "06-adapter-action-proof",
       "path": "output/network-plan-proof/adapter-capability-status/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-adapter-capability-status"
+      "parsedProof": "network-adapter-capability-status",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-adapter-capability-status-proof"
+      }
     },
     {
       "id": "action-result-state",
       "group": "06-adapter-action-proof",
       "path": "output/network-plan-proof/53-action-result-state-proof/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-action-result-state-proof"
+      "parsedProof": "network-action-result-state-proof",
+      "freshness": {
+        "kind": "legacy-run-metadata-reference",
+        "branch": "codex/network-action-result-state-proof",
+        "commit": "2e7eeac84a11d9ca430e6eeec0cab961ebd8afda",
+        "hasDirtyStatus": false
+      }
     }
   ]
 }

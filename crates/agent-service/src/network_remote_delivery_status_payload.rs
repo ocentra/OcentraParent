@@ -54,9 +54,13 @@ pub(crate) async fn network_remote_delivery_status_payload() -> Result<LogFields
 }
 
 async fn network_remote_delivery_status() -> Result<NetworkRemoteDeliveryStatus, ()> {
-    let report = prove_network_runtime_remote_delivery_outbox_handoff()
-        .await
-        .map_err(|_| ())?;
+    let runtime_handle = tokio::runtime::Handle::current();
+    let report = tokio::task::spawn_blocking(move || {
+        runtime_handle.block_on(prove_network_runtime_remote_delivery_outbox_handoff())
+    })
+    .await
+    .map_err(|_| ())?
+    .map_err(|_| ())?;
     Ok(status_from_report(&report))
 }
 

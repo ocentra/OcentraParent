@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-durable-envelope-proof",
   "proofRevision": "network-remote-delivery-durable-envelope-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-durable-envelope-proof/v1",
-  "sourceFingerprint": "source-tree:e3134546213efc48b09ba21efa38223581273a763ba8a5bf466489edf2438706",
+  "sourceFingerprint": "source-tree:71a97ae49efaf461bd0eb958e3b150554118807263482c951f44e2a8f28611e8",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-durable-envelope-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
@@ -15,7 +15,7 @@
     "crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_store.rs",
     "crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs"
   ],
-  "mergeBase": "c6fecb9f4a3c4e9b47b1cc9a538af3c6f3cab733",
+  "mergeBase": "929763224eb281d44face01dc5455b6940b68f65",
   "proofRoot": "output\\network-plan-proof\\10e-remote-delivery-durable-envelope-status",
   "testRoot": "test-results\\network-remote-delivery-durable-envelope-proof",
   "commands": [

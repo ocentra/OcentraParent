@@ -1,8 +1,8 @@
 # Row10h Remote Delivery Outbox Status Bridge Source Snapshot
 
 proofRevision=network-remote-delivery-outbox-status-bridge-proof/v1
-branchMarker=codex/network-row10h-remote-outbox-status-bridge-on-row10g
-sourceBase=60304716a09386a4f56796eb44d62dcf19ca5f92
+scopeMarker=row10h-remote-delivery-outbox-status-bridge
+sourceBase=929763224eb281d44face01dc5455b6940b68f65
 worktreeStatus=expected to contain generated row10h proof artifacts until committed
 
 Inspected paths:
@@ -19,9 +19,9 @@ Inspected paths:
 - docs/features/network-domain-control.md
 - docs/plans/network-plan/implementation-checklist.md
 - docs/plans/network-plan/workpacks/README.md
-- crates/agent-protocol/readme.md
-- crates/agent-service/readme.md
-- packages/agent-protocol-domain/readme.md
+- crates/agent-protocol/README.md
+- crates/agent-service/README.md
+- packages/agent-protocol-domain/README.md
 
 Before-state gap:
 - Row10g produced prepared outbox candidates, but the service/protocol status event still exposed only durable-envelope refs.

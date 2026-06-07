@@ -4,7 +4,7 @@ use crate::{
     adapter_capability_status_values::{
         normalize_portal_ref, normalize_ref, status_counts, status_entry_from_platform_entry,
     },
-    NetworkPlatformClaimManifestProof, NetworkPlatformClaimTarget,
+    NetworkPlatformClaimManifestProof, NetworkPlatformClaimState, NetworkPlatformClaimTarget,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -86,6 +86,10 @@ pub enum NetworkAdapterCapabilityStatusError {
     PlatformManifestClaimsLiveAdapterExecution,
     PlatformManifestPublishesEnforcementCommand,
     PlatformManifestAllowsUiPolicyAuthority,
+    PlatformManifestClaimsMissingPlatformRef,
+    PlatformManifestClaimsMissingPermissionOrManualFollowup,
+    PlatformManifestEntryCountsMismatch,
+    PlatformManifestManualFollowupMismatch,
     PlatformEntryMissingPlatformRef(NetworkPlatformClaimTarget),
     PlatformEntryMissingCapabilityOrFollowup(NetworkPlatformClaimTarget),
     PlatformEntryMissingAuditRef(NetworkPlatformClaimTarget),
@@ -118,6 +122,7 @@ pub fn build_network_adapter_capability_status(
     if !manifest.ui_has_no_policy_authority {
         return Err(NetworkAdapterCapabilityStatusError::PlatformManifestAllowsUiPolicyAuthority);
     }
+    validate_platform_manifest_summary(&manifest)?;
 
     let manual_followup_count = manifest.manual_followups.len();
     let entries = manifest
@@ -141,9 +146,11 @@ pub fn build_network_adapter_capability_status(
         manual_required_count: counts.manual_required,
         unavailable_count: counts.unavailable,
         manual_followup_count,
-        every_status_names_platform: true,
-        every_status_names_capability_or_followup: true,
-        every_status_names_audit_ref: true,
+        every_status_names_platform: every_status_names_platform(&entries),
+        every_status_names_capability_or_followup: every_status_names_capability_or_followup(
+            &entries,
+        ),
+        every_status_names_audit_ref: every_status_names_audit_ref(&entries),
         portal_status_from_service_read_model: true,
         broader_platform_capability_ux_claimed: false,
         no_live_adapter_execution_claimed: true,
@@ -172,4 +179,74 @@ fn reject_status_claims(
         return Err(NetworkAdapterCapabilityStatusError::BroaderPlatformCapabilityUxClaimRejected);
     }
     Ok(())
+}
+
+fn validate_platform_manifest_summary(
+    manifest: &NetworkPlatformClaimManifestProof,
+) -> Result<(), NetworkAdapterCapabilityStatusError> {
+    if !manifest.every_claim_names_platform {
+        return Err(NetworkAdapterCapabilityStatusError::PlatformManifestClaimsMissingPlatformRef);
+    }
+    if !manifest.every_claim_names_permission_or_manual_followup {
+        return Err(
+            NetworkAdapterCapabilityStatusError::PlatformManifestClaimsMissingPermissionOrManualFollowup,
+        );
+    }
+    if manifest.ready_claims
+        != count_claim_state(&manifest.entries, NetworkPlatformClaimState::Ready)
+        || manifest.dry_run_claims
+            != count_claim_state(&manifest.entries, NetworkPlatformClaimState::DryRun)
+        || manifest.research_only_claims
+            != count_claim_state(&manifest.entries, NetworkPlatformClaimState::ResearchOnly)
+        || manifest.manual_required_claims
+            != count_claim_state(&manifest.entries, NetworkPlatformClaimState::ManualRequired)
+        || manifest.unavailable_claims
+            != count_claim_state(&manifest.entries, NetworkPlatformClaimState::Unavailable)
+    {
+        return Err(NetworkAdapterCapabilityStatusError::PlatformManifestEntryCountsMismatch);
+    }
+    let expected_manual_followups = manifest
+        .entries
+        .iter()
+        .filter(|entry| !entry.missing_required_artifacts.is_empty())
+        .count();
+    if manifest.manual_followups.len() != expected_manual_followups
+        || manifest.manual_followups.iter().any(|followup| {
+            !manifest.entries.iter().any(|entry| {
+                entry.target == followup.target
+                    && entry.missing_required_artifacts == followup.missing_required_artifacts
+            })
+        })
+    {
+        return Err(NetworkAdapterCapabilityStatusError::PlatformManifestManualFollowupMismatch);
+    }
+    Ok(())
+}
+
+fn count_claim_state(
+    entries: &[crate::NetworkPlatformClaimEntry],
+    state: NetworkPlatformClaimState,
+) -> usize {
+    entries
+        .iter()
+        .filter(|entry| entry.claim_state == state)
+        .count()
+}
+
+fn every_status_names_platform(entries: &[NetworkAdapterCapabilityStatusEntry]) -> bool {
+    entries
+        .iter()
+        .all(|entry| !entry.device_or_os_refs.is_empty())
+}
+
+fn every_status_names_capability_or_followup(
+    entries: &[NetworkAdapterCapabilityStatusEntry],
+) -> bool {
+    entries.iter().all(|entry| {
+        !entry.adapter_capability_refs.is_empty() || !entry.missing_required_artifacts.is_empty()
+    })
+}
+
+fn every_status_names_audit_ref(entries: &[NetworkAdapterCapabilityStatusEntry]) -> bool {
+    entries.iter().all(|entry| !entry.audit_refs.is_empty())
 }

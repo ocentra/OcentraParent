@@ -5,14 +5,26 @@
       "group": "classification-proof",
       "path": "output/network-plan-proof/24-vpn-proxy-tor-tunnel-classifier/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-vpn-proxy-tor-tunnel-classifier"
+      "parsedProof": "network-vpn-proxy-tor-tunnel-classifier",
+      "freshness": {
+        "kind": "legacy-run-metadata-reference",
+        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+        "hasDirtyStatus": true
+      }
     },
     {
       "id": "remote-torrent-download",
       "group": "classification-proof",
       "path": "output/network-plan-proof/25-remote-torrent-download-classifier/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-remote-torrent-download-classifier"
+      "parsedProof": "network-remote-torrent-download-classifier",
+      "freshness": {
+        "kind": "legacy-run-metadata-reference",
+        "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+        "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+        "hasDirtyStatus": true
+      }
     }
   ]
 }

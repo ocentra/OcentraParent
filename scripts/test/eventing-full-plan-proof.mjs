@@ -164,15 +164,12 @@ writeGroupedLog('11-network-consumer-proof.log', commands, [
 ]);
 
 const proof = {
+  schemaVersion: 1,
   proof: 'eventing-full-plan',
-  checkedAt: new Date().toISOString(),
-  branch: runText('git', ['branch', '--show-current']).trim(),
-  commit: runText('git', ['rev-parse', 'HEAD']).trim(),
-  originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
-  mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
-  statusShort: runText('git', ['status', '--short']),
   proofRoot,
   testRoot,
+  runContext:
+    'This committed proof artifact is deterministic; branch, commit, pushed state, and validation command output are reported in the worker handoff.',
   commands,
   requiredProofPack: [
     '00-source-snapshot.md',
@@ -216,7 +213,7 @@ function runCommand(entry) {
   const result = spawnSync(entry.command, entry.args, { encoding: 'utf8', shell: false });
   const safeName = entry.name.replace(/[^a-zA-Z0-9_.-]/g, '-');
   const log = join(logRoot, `${safeName}.log`);
-  writeFileSync(log, `${result.stdout ?? ''}${result.stderr ?? ''}`);
+  writeFileSync(log, normalizeCommandOutput(`${result.stdout ?? ''}${result.stderr ?? ''}`));
   if (result.status !== 0) {
     throw new Error(`${entry.name} failed with exit ${result.status}; log=${log}`);
   }
@@ -240,16 +237,9 @@ function sourceSnapshot() {
   return [
     '# Eventing Full Plan Source Snapshot',
     '',
-    `branch: ${runText('git', ['branch', '--show-current']).trim()}`,
-    `head: ${runText('git', ['rev-parse', 'HEAD']).trim()}`,
-    `origin/main: ${runText('git', ['rev-parse', 'origin/main']).trim()}`,
-    `merge-base: ${runText('git', ['merge-base', 'HEAD', 'origin/main']).trim()}`,
+    'Deterministic full-eventing-plan proof for reusable eventing and approved consumer-boundary evidence.',
     '',
-    '## Status',
-    '',
-    '```text',
-    runText('git', ['status', '--short']).trimEnd(),
-    '```',
+    'Run-specific branch, commit, pushed state, and validation command output are reported in the worker handoff; this committed artifact is kept deterministic so rerunning the proof does not dirty the checkout.',
     '',
     '## Inspected Paths',
     '',
@@ -274,4 +264,37 @@ function runText(command, args) {
     throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}`);
   }
   return `${result.stdout ?? ''}${result.stderr ?? ''}`;
+}
+
+function normalizeCommandOutput(value) {
+  const lines = value
+    .replace(/\r\n/gu, '\n')
+    .replace(/\\/gu, '/')
+    .replace(/target\/debug\/deps\/[^\s)]+/gu, 'target/debug/deps/<test-binary>')
+    .replace(/\b\d+\.\d+s\b/gu, '<duration>s')
+    .replace(/\b\d+\.\d{2}ms\b/gu, '<duration>ms')
+    .replace(/target\(s\) in [^\n]+/gu, 'target(s) in <duration>')
+    .replace(/finished in [^\n]+/giu, 'finished in <duration>')
+    .replace(/Duration [^\n]+/gu, 'Duration <duration>')
+    .split('\n')
+    .filter((line) => !/^\s+Compiling /u.test(line))
+    .filter((line) => !/^\s+Blocking waiting for file lock on build directory$/u.test(line));
+  return `${stableRustTestLines(lines).join('\n').trim()}\n`;
+}
+
+function stableRustTestLines(lines) {
+  const sortedTestLines = lines.filter(isRustTestLine).sort();
+  let nextTestLine = 0;
+  return lines.map((line) => {
+    if (!isRustTestLine(line)) {
+      return line;
+    }
+    const sortedLine = sortedTestLines[nextTestLine];
+    nextTestLine += 1;
+    return sortedLine;
+  });
+}
+
+function isRustTestLine(line) {
+  return /^test .+ \.\.\. ok$/u.test(line);
 }

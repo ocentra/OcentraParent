@@ -1,4 +1,4 @@
-running 217 tests
+running 219 tests
 test tests::action_result::action_result_accepts_blocked_state_from_policy_and_adapter_result_refs ... ok
 test tests::action_result::action_result_accepts_process_termination_result_without_live_mutation_claims ... ok
 test tests::action_result::action_result_dry_run_is_non_result_without_adapter_artifacts ... ok
@@ -9,7 +9,9 @@ test tests::action_result::action_result_requires_adapter_proof_apply_result_and
 test tests::action_result::action_result_routes_weak_policy_or_manual_adapter_state_to_manual_required ... ok
 test tests::adapter_capability_status::adapter_capability_status_derives_specific_states_from_platform_manifest ... ok
 test tests::adapter_capability_status::adapter_capability_status_preserves_manual_followups_and_unavailable_rows ... ok
+test tests::adapter_capability_status_rejections::adapter_capability_status_rejects_mismatched_manual_followups ... ok
 test tests::adapter_capability_status_rejections::adapter_capability_status_rejects_parallel_or_live_authority_claims ... ok
+test tests::adapter_capability_status_rejections::adapter_capability_status_rejects_stale_platform_manifest_summary ... ok
 test tests::adapter_capability_status_rejections::adapter_capability_status_rejects_unsafe_platform_manifest_entries ... ok
 test tests::ai_audit::ai_audit_report_generates_parent_readable_narrative_with_cited_refs ... ok
 test tests::ai_audit::ai_audit_report_recommends_confirmation_for_uncertain_detection ... ok
@@ -217,7 +219,7 @@ test tests::zeek::zeek_generator_rejects_empty_refs_and_visible_value_mismatch .
 test tests::zeek::zeek_generator_rejects_missing_or_mismatched_comparison_artifacts ... ok
 test tests::zeek::zeek_generator_rejects_network_only_content_signature_live_and_authority_claims ... ok
 
-test result: ok. 217 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in <duration>
+test result: ok. 219 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in <duration>
 
 
 running 0 tests

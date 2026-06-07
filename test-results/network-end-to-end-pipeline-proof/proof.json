@@ -1,11 +1,9 @@
 {
+  "schemaVersion": 1,
   "proof": "network-end-to-end-pipeline",
-  "checkedAt": "2026-06-05T09:58:30.854Z",
-  "branch": "codex/eventing-network-runtime-implementation",
-  "commit": "479c76c236fe434a10faa15d4c6a1e0ecc78428b",
-  "sourceStatusShort": "",
   "proofRoot": "output\\network-plan-proof\\51-end-to-end-pipeline-proof",
   "testRoot": "test-results\\network-end-to-end-pipeline-proof",
+  "runContext": "This committed proof artifact is deterministic; branch, commit, pushed state, and validation command output are reported in the worker handoff.",
   "commands": [
     {
       "name": "agent-core-network-runtime-typed-event-refs",

@@ -5,7 +5,7 @@ crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff.rs:1 
 crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff.rs:42 function has 64 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger.rs:16 function has 70 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_status.rs:62 function has 73 lines; warning starts at 64 of 80
-crates/agent-core/src/network_event_runtime.rs:1 file has 359 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/network_event_runtime.rs:1 file has 363 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:1 file has 768 lines; crossed 750-line advisory band; maximum is 1000
 crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:31 function has 77 lines; warning starts at 64 of 80

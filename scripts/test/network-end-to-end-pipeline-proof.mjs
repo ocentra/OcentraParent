@@ -102,13 +102,12 @@ const commands = [
 const commandResults = commands.map(runCommand);
 
 const proof = {
+  schemaVersion: 1,
   proof: 'network-end-to-end-pipeline',
-  checkedAt: new Date().toISOString(),
-  branch: runText('git', ['branch', '--show-current']).trim(),
-  commit: runText('git', ['rev-parse', 'HEAD']).trim(),
-  sourceStatusShort: sourceStatusShort(),
   proofRoot,
   testRoot,
+  runContext:
+    'This committed proof artifact is deterministic; branch, commit, pushed state, and validation command output are reported in the worker handoff.',
   commands: commandResults,
   artifacts: {
     expectedEndToEndPipeline: join(proofRoot, 'expected-end-to-end-pipeline.json'),
@@ -143,7 +142,7 @@ console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function runCommand(entry) {
   const result = spawnSync(entry.command, entry.args, { encoding: 'utf8', shell: false });
-  writeFileSync(entry.log, `${result.stdout ?? ''}${result.stderr ?? ''}`);
+  writeFileSync(entry.log, normalizeCommandOutput(`${result.stdout ?? ''}${result.stderr ?? ''}`));
   if (result.status !== 0) {
     throw new Error(`${entry.name} failed with exit ${result.status}`);
   }
@@ -163,13 +162,35 @@ function runText(command, args) {
   return `${result.stdout ?? ''}${result.stderr ?? ''}`;
 }
 
-function sourceStatusShort() {
-  return runText('git', [
-    'status',
-    '--short',
-    '--',
-    '.',
-    ':(exclude)output/network-plan-proof/51-end-to-end-pipeline-proof',
-    ':(exclude)test-results/network-end-to-end-pipeline-proof',
-  ]);
+function normalizeCommandOutput(value) {
+  const lines = value
+    .replace(/\r\n/gu, '\n')
+    .replace(/\\/gu, '/')
+    .replace(/target\/debug\/deps\/[^\s)]+/gu, 'target/debug/deps/<test-binary>')
+    .replace(/\b\d+\.\d+s\b/gu, '<duration>s')
+    .replace(/\b\d+\.\d{2}ms\b/gu, '<duration>ms')
+    .replace(/target\(s\) in [^\n]+/gu, 'target(s) in <duration>')
+    .replace(/finished in [^\n]+/giu, 'finished in <duration>')
+    .replace(/Duration [^\n]+/gu, 'Duration <duration>')
+    .split('\n')
+    .filter((line) => !/^\s+Compiling /u.test(line))
+    .filter((line) => !/^\s+Blocking waiting for file lock on build directory$/u.test(line));
+  return `${stableRustTestLines(lines).join('\n').trim()}\n`;
+}
+
+function stableRustTestLines(lines) {
+  const sortedTestLines = lines.filter(isRustTestLine).sort();
+  let nextTestLine = 0;
+  return lines.map((line) => {
+    if (!isRustTestLine(line)) {
+      return line;
+    }
+    const sortedLine = sortedTestLines[nextTestLine];
+    nextTestLine += 1;
+    return sortedLine;
+  });
+}
+
+function isRustTestLine(line) {
+  return /^test .+ \.\.\. ok$/u.test(line);
 }

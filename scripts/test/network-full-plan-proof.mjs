@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const proofRoot = 'output/network-plan-proof/full-network-plan';
@@ -8,6 +9,77 @@ const commandLogRoot = `${proofRoot}/command-logs`;
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 mkdirSync(commandLogRoot, { recursive: true });
+
+const freshnessCommandSpecs = [
+  ['eventing-full-plan-proof', 'node', ['scripts/test/eventing-full-plan-proof.mjs']],
+  [
+    'network-policy-preview-stored-flow-evidence-proof',
+    'node',
+    ['scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs'],
+  ],
+  ['network-adapter-capability-status-proof', 'node', ['scripts/test/network-adapter-capability-status-proof.mjs']],
+  [
+    'network-remote-delivery-event-chain-journal-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-event-chain-journal-proof.mjs'],
+  ],
+  [
+    'network-remote-delivery-receipt-ledger-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-receipt-ledger-proof.mjs'],
+  ],
+  [
+    'network-remote-delivery-durable-envelope-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-durable-envelope-proof.mjs'],
+  ],
+  [
+    'network-remote-delivery-outbox-handoff-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-outbox-handoff-proof.mjs'],
+  ],
+  [
+    'network-remote-delivery-outbox-status-bridge-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-outbox-status-bridge-proof.mjs'],
+  ],
+  [
+    'network-remote-delivery-dispatch-readiness-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-dispatch-readiness-proof.mjs'],
+  ],
+  [
+    'network-remote-delivery-no-enforcement-invariant-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-no-enforcement-invariant-proof.mjs'],
+  ],
+  [
+    'network-remote-delivery-transport-dispatch-state-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-transport-dispatch-state-proof.mjs'],
+  ],
+  ['network-end-to-end-pipeline-proof', 'node', ['scripts/test/network-end-to-end-pipeline-proof.mjs']],
+  [
+    'agent-service-clippy',
+    'cargo',
+    ['clippy', '-p', 'ocentra-parent-agent-service', '--all-targets', '--', '-D', 'warnings'],
+  ],
+];
+
+const refreshedProofByName = new Map([
+  ['eventing-full-plan', 'eventing-full-plan-proof'],
+  ['network-policy-preview-stored-flow-evidence-proof', 'network-policy-preview-stored-flow-evidence-proof'],
+  ['network-adapter-capability-status', 'network-adapter-capability-status-proof'],
+  ['network-remote-delivery-event-chain-journal-proof', 'network-remote-delivery-event-chain-journal-proof'],
+  ['network-remote-delivery-receipt-ledger-proof', 'network-remote-delivery-receipt-ledger-proof'],
+  ['network-remote-delivery-durable-envelope-proof', 'network-remote-delivery-durable-envelope-proof'],
+  ['network-remote-delivery-outbox-handoff-proof', 'network-remote-delivery-outbox-handoff-proof'],
+  ['network-remote-delivery-outbox-status-bridge-proof', 'network-remote-delivery-outbox-status-bridge-proof'],
+  ['network-remote-delivery-dispatch-readiness-proof', 'network-remote-delivery-dispatch-readiness-proof'],
+  ['network-remote-delivery-no-enforcement-invariant-proof', 'network-remote-delivery-no-enforcement-invariant-proof'],
+  ['network-remote-delivery-transport-dispatch-state-proof', 'network-remote-delivery-transport-dispatch-state-proof'],
+  ['network-end-to-end-pipeline', 'network-end-to-end-pipeline-proof'],
+]);
 
 const proofArtifacts = [
   [
@@ -186,6 +258,11 @@ const proofArtifacts = [
     'output/network-plan-proof/10g-remote-delivery-outbox-handoff/proof-summary.json',
   ],
   [
+    'remote-outbox-status-bridge',
+    '10-remote-delivery-proof',
+    'output/network-plan-proof/10h-remote-delivery-outbox-status-bridge/proof-summary.json',
+  ],
+  [
     'remote-dispatch-readiness',
     '10-remote-delivery-proof',
     'output/network-plan-proof/10i-remote-delivery-dispatch-readiness/proof-summary.json',
@@ -226,9 +303,11 @@ const commandSpecs = [
   ['git-diff-check', 'git', ['diff', '--check']],
 ];
 
+const refreshCommands = freshnessCommandSpecs.map(runCommand);
 const artifacts = proofArtifacts.map(readArtifact);
-const commands = commandSpecs.map(runCommand);
+const commands = [...refreshCommands, ...commandSpecs.map(runCommand)];
 const groupedArtifacts = groupArtifacts(artifacts);
+const freshnessAudit = summarizeFreshness(artifacts);
 
 writeFileSync(`${proofRoot}/00-source-snapshot.md`, sourceSnapshot());
 writeGroupedLog('01-contract-proof.log', groupedArtifacts['01-contract-proof'], commands);
@@ -251,6 +330,7 @@ const proof = {
   proofRoot,
   testRoot,
   commands,
+  freshnessAudit,
   artifactCount: artifacts.length,
   artifacts,
   requiredProofPack: [
@@ -308,7 +388,14 @@ function readArtifact([id, group, path]) {
   }
   const text = readFileSync(path, isBinary(path) ? undefined : 'utf8');
   const parsed = isJson(path) ? JSON.parse(text) : null;
-  return { id, group, path, kind: artifactKind(path), parsedProof: parsed?.proof ?? null };
+  return {
+    id,
+    group,
+    path,
+    kind: artifactKind(path),
+    parsedProof: parsed?.proof ?? null,
+    freshness: artifactFreshness(path, parsed),
+  };
 }
 
 function runCommand([name, command, args]) {
@@ -420,6 +507,95 @@ function normalizeCommandOutput(value) {
     .filter((line) => !/^\s+Compiling /u.test(line))
     .filter((line) => !/^\s+Blocking waiting for file lock on build directory$/u.test(line));
   return `${stableRustTestLines(lines).join('\n').trim()}\n`;
+}
+
+function artifactFreshness(path, parsed) {
+  if (!parsed) {
+    return isBinary(path) ? { kind: 'binary-reference' } : { kind: 'file-reference' };
+  }
+  const proof = parsed.proof ?? null;
+  if (proof && refreshedProofByName.has(proof)) {
+    return { kind: 'refreshed-by-aggregate-command', command: refreshedProofByName.get(proof) };
+  }
+  if (typeof parsed.sourceFingerprint === 'string' && Array.isArray(parsed.sourceRefs)) {
+    const actualFingerprints = sourceFingerprintsForRefs(parsed.sourceRefs);
+    const matchingFingerprint = actualFingerprints.find(
+      (fingerprint) => fingerprint.value === parsed.sourceFingerprint
+    );
+    if (!matchingFingerprint) {
+      throw new Error(
+        `source fingerprint mismatch for ${path}: expected ${parsed.sourceFingerprint}, actual ${actualFingerprints
+          .map((fingerprint) => fingerprint.value)
+          .join(' or ')}`
+      );
+    }
+    return {
+      kind: 'source-fingerprint-match',
+      refCount: parsed.sourceRefs.length,
+      convention: matchingFingerprint.name,
+    };
+  }
+  if (typeof parsed.checkedAt === 'string' && parsed.checkedAt.startsWith('deterministic:')) {
+    return { kind: 'deterministic-proof-reference' };
+  }
+  if (parsed.branch || parsed.commit || parsed.sourceCommit || parsed.statusShort || parsed.sourceStatusShort) {
+    return {
+      kind: 'legacy-run-metadata-reference',
+      branch: parsed.branch ?? null,
+      commit: parsed.commit ?? parsed.sourceCommit ?? null,
+      hasDirtyStatus: Boolean(parsed.statusShort || parsed.sourceStatusShort),
+    };
+  }
+  return { kind: 'json-proof-reference' };
+}
+
+function sourceFingerprintsForRefs(sourceRefs) {
+  return [
+    { name: 'all-source-refs', value: `source-tree:${sourceFingerprintForRefs(sourceRefs)}` },
+    {
+      name: 'source-refs-excluding-proof-harness',
+      value: `source-tree:${sourceFingerprintForRefs(sourceRefs.filter((sourceRef) => !sourceRef.startsWith('scripts/test/')))}`,
+    },
+  ];
+}
+
+function sourceFingerprintForRefs(sourceRefs) {
+  const hash = createHash('sha256');
+  for (const filePath of sourceRefs) {
+    if (!existsSync(filePath)) {
+      throw new Error(`source fingerprint ref missing: ${filePath}`);
+    }
+    hash.update(filePath);
+    hash.update('\0');
+    hash.update(readFileSync(filePath, 'utf8').replace(/\r\n/gu, '\n'));
+    hash.update('\0');
+  }
+  return hash.digest('hex');
+}
+
+function summarizeFreshness(artifactsToSummarize) {
+  const counts = artifactsToSummarize.reduce((summary, artifact) => {
+    const kind = artifact.freshness.kind;
+    summary[kind] = (summary[kind] ?? 0) + 1;
+    return summary;
+  }, {});
+  const legacyMetadataArtifacts = artifactsToSummarize
+    .filter((artifact) => artifact.freshness.kind === 'legacy-run-metadata-reference')
+    .map((artifact) => artifact.id);
+  const refreshedArtifacts = artifactsToSummarize
+    .filter((artifact) => artifact.freshness.kind === 'refreshed-by-aggregate-command')
+    .map((artifact) => artifact.id);
+  const fingerprintCheckedArtifacts = artifactsToSummarize
+    .filter((artifact) => artifact.freshness.kind === 'source-fingerprint-match')
+    .map((artifact) => artifact.id);
+  return {
+    policy:
+      'Aggregate proof reruns current critical proof scripts, verifies source-tree fingerprints where artifacts provide sourceRefs, and labels legacy row artifacts instead of silently treating old branch metadata as fresh.',
+    counts,
+    refreshedArtifacts,
+    fingerprintCheckedArtifacts,
+    legacyMetadataArtifacts,
+  };
 }
 
 function stableRustTestLines(lines) {

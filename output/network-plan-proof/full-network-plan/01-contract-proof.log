@@ -2,6 +2,58 @@ artifact=contract-boundary
 path=output/network-plan-proof/03-contract-boundary-and-effect-schemas/proof-summary.json
 kind=json
 
+command=node scripts/test/eventing-full-plan-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/eventing-full-plan-proof.log
+
+command=node scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-policy-preview-stored-flow-evidence-proof.log
+
+command=node scripts/test/network-adapter-capability-status-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-adapter-capability-status-proof.log
+
+command=node scripts/test/network-remote-delivery-event-chain-journal-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-event-chain-journal-proof.log
+
+command=node scripts/test/network-remote-delivery-receipt-ledger-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-receipt-ledger-proof.log
+
+command=node scripts/test/network-remote-delivery-durable-envelope-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-durable-envelope-proof.log
+
+command=node scripts/test/network-remote-delivery-outbox-handoff-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-outbox-handoff-proof.log
+
+command=node scripts/test/network-remote-delivery-outbox-status-bridge-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-outbox-status-bridge-proof.log
+
+command=node scripts/test/network-remote-delivery-dispatch-readiness-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-dispatch-readiness-proof.log
+
+command=node scripts/test/network-remote-delivery-no-enforcement-invariant-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-no-enforcement-invariant-proof.log
+
+command=node scripts/test/network-remote-delivery-transport-dispatch-state-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-transport-dispatch-state-proof.log
+
+command=node scripts/test/network-end-to-end-pipeline-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-end-to-end-pipeline-proof.log
+
+command=cargo clippy -p ocentra-parent-agent-service --all-targets -- -D warnings
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/agent-service-clippy.log
+
 command=cargo test -p ocentra-network-evidence
 status=0
 log=output/network-plan-proof/full-network-plan/command-logs/network-evidence-tests.log

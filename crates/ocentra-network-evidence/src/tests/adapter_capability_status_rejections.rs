@@ -54,6 +54,54 @@ fn adapter_capability_status_rejects_unsafe_platform_manifest_entries() {
     );
 }
 
+#[test]
+fn adapter_capability_status_rejects_stale_platform_manifest_summary() {
+    let mut count_mismatch_manifest = manifest();
+    count_mismatch_manifest.ready_claims = 0;
+
+    assert_eq!(
+        build_network_adapter_capability_status(input_with_manifest(count_mismatch_manifest)),
+        Err(NetworkAdapterCapabilityStatusError::PlatformManifestEntryCountsMismatch)
+    );
+
+    let mut missing_platform_manifest = manifest();
+    missing_platform_manifest.every_claim_names_platform = false;
+
+    assert_eq!(
+        build_network_adapter_capability_status(input_with_manifest(missing_platform_manifest)),
+        Err(NetworkAdapterCapabilityStatusError::PlatformManifestClaimsMissingPlatformRef)
+    );
+
+    let mut missing_permission_manifest = manifest();
+    missing_permission_manifest.every_claim_names_permission_or_manual_followup = false;
+
+    assert_eq!(
+        build_network_adapter_capability_status(input_with_manifest(missing_permission_manifest)),
+        Err(
+            NetworkAdapterCapabilityStatusError::PlatformManifestClaimsMissingPermissionOrManualFollowup
+        )
+    );
+}
+
+#[test]
+fn adapter_capability_status_rejects_mismatched_manual_followups() {
+    let mut missing_followup_manifest = manifest();
+    missing_followup_manifest.entries[0].claim_state = NetworkPlatformClaimState::ManualRequired;
+    missing_followup_manifest.entries[0]
+        .adapter_capability_refs
+        .clear();
+    missing_followup_manifest.entries[0]
+        .missing_required_artifacts
+        .push("windows-missing-adapter-proof".to_owned());
+    missing_followup_manifest.ready_claims = 0;
+    missing_followup_manifest.manual_required_claims = 1;
+
+    assert_eq!(
+        build_network_adapter_capability_status(input_with_manifest(missing_followup_manifest)),
+        Err(NetworkAdapterCapabilityStatusError::PlatformManifestManualFollowupMismatch)
+    );
+}
+
 fn input_with_manifest(
     platform_manifest: NetworkPlatformClaimManifestProof,
 ) -> NetworkAdapterCapabilityStatusInput {

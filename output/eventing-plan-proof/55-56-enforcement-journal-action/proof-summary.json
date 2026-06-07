@@ -1,7 +1,7 @@
 {
   "proof": "eventing-rows-55-56-enforcement-journal-action",
-  "checkedAt": "2026-06-05T19:06:50.892Z",
-  "commit": "628fcbe10f9a13f0a09d9c7617e1900aa591ad61",
+  "checkedAt": "2026-06-07T18:53:50.416Z",
+  "commit": "bc480eacd2ff5b054b5cd666a3cd72cb36cc8c0c",
   "commands": [
     "cargo test -p ocentra-parent-agent-service enforcement_execute",
     "cargo test -p ocentra-parent-agent-service enforcement_supported_adapter_runtime_proof",

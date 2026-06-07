@@ -1,7 +1,7 @@
 {
   "proof": "eventing-handler-policy",
   "proofRoot": "output\\eventing-plan-proof\\18-24-handler-policy",
-  "checkedAt": "2026-06-05T21:33:18.158Z",
+  "checkedAt": "2026-06-07T18:55:32.933Z",
   "commands": [
     {
       "name": "eventing-tests",

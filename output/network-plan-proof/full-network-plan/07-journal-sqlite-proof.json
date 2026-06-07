@@ -5,28 +5,44 @@
       "group": "07-journal-sqlite-proof",
       "path": "output/network-plan-proof/10c-remote-delivery-event-chain-journal-status/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-remote-delivery-event-chain-journal-proof"
+      "parsedProof": "network-remote-delivery-event-chain-journal-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-event-chain-journal-proof"
+      }
     },
     {
       "id": "receipt-ledger",
       "group": "07-journal-sqlite-proof",
       "path": "output/network-plan-proof/10d-remote-delivery-receipt-ledger-status/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-remote-delivery-receipt-ledger-proof"
+      "parsedProof": "network-remote-delivery-receipt-ledger-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-receipt-ledger-proof"
+      }
     },
     {
       "id": "durable-envelope",
       "group": "07-journal-sqlite-proof",
       "path": "output/network-plan-proof/10e-remote-delivery-durable-envelope-status/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-remote-delivery-durable-envelope-proof"
+      "parsedProof": "network-remote-delivery-durable-envelope-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-durable-envelope-proof"
+      }
     },
     {
       "id": "stored-flow-policy-preview",
       "group": "07-journal-sqlite-proof",
       "path": "output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json",
       "kind": "json",
-      "parsedProof": "network-policy-preview-stored-flow-evidence-proof"
+      "parsedProof": "network-policy-preview-stored-flow-evidence-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-policy-preview-stored-flow-evidence-proof"
+      }
     }
   ]
 }

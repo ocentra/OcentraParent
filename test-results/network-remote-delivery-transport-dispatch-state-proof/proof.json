@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-transport-dispatch-state-proof",
   "proofRevision": "network-remote-delivery-transport-dispatch-state-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-transport-dispatch-state-proof/v1",
-  "sourceFingerprint": "source-tree:995b1a982ae0df53e49e9bc61dbcb51dc8ec4f4413ef968fcd506a22beab0c0b",
+  "sourceFingerprint": "source-tree:071b3f2d3e672d7e411e5dabd1b796fddad3eb46571c18a8b43d1fcaec99a269",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-transport-dispatch-state-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
@@ -18,7 +18,7 @@
     "docs/plans/network-plan/implementation-checklist.md",
     "docs/plans/network-plan/workpacks/README.md"
   ],
-  "sourceBase": "731ddfcb670bb6b9b8cf60ea3efae81b331ccb32",
+  "sourceBase": "929763224eb281d44face01dc5455b6940b68f65",
   "proofRoot": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state",
   "testRoot": "test-results\\network-remote-delivery-transport-dispatch-state-proof",
   "commands": [
