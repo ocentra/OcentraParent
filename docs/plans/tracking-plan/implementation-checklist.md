@@ -451,7 +451,9 @@ response, cross-surface accessibility, or end-to-end product UI trace artifacts
 can be treated as present. The current row remains `manual-required` and keeps
 full product UI runtime, child-device delivery runtime, physical-device
 behavior, authority, provider delivery, production product UI, and product-ready
-tracking unclaimed.
+tracking unclaimed. The tracking product-readiness closure proof now consumes
+this full-product UI runtime artifact gate too, so aggregate closure accounting
+cannot pass without the WP30/WP33 full-product UI runtime artifact gate ref.
 WP33 now also has production durable workers readiness blocker proof from
 `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`,
 written to
@@ -477,7 +479,10 @@ escalation-timeout, provider-receipt, child-device-delivery, authority-status,
 or audit durable storage worker runtime can be treated as present. The current
 row remains `manual-required` and keeps production worker execution, durable
 production storage, physical-device behavior, authority, provider
-delivery/receipt runtime, and product-ready tracking unclaimed.
+delivery/receipt runtime, and product-ready tracking unclaimed. The tracking
+product-readiness closure proof now consumes this production worker runtime
+artifact gate too, so aggregate closure accounting cannot pass without the WP33
+production worker runtime artifact gate ref.
 WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
 The runtime proof command also records the full `minimumSeriousMvpAudit` in
 generated `00-run-metadata.json`; both are first-checkpoint P1
