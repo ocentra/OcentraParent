@@ -153,6 +153,13 @@ mobile readiness, and control catalogs.
   payload custody, status-backend payload custody, redaction execution, real
   status backend execution, public runtime, provider execution, support upload,
   legal/SLA, provider-secret custody, and child activity custody unclaimed.
+- `production-support-status-backend-durable-queue-runtime-proof` contracts for
+  the durable status-backend queue runtime boundary, linking queue storage,
+  retry-worker, audit-persistence, dead-letter, runtime execution, and runtime
+  closure refs while keeping real status backend execution, durable storage,
+  retry worker execution, audit persistence, dead-letter payload custody, public
+  runtime, provider execution, support upload, legal/SLA, provider-secret
+  custody, and child activity custody unclaimed.
 - Parent-owned sync/export and stateless report compiler status contracts for
   parent-authorized remote compilation from parent-owned storage, source
   connector/cursor refs, requested data classes and time windows, temp TTL and
@@ -503,6 +510,14 @@ flowchart LR
   execution, public runtime, provider execution, support backend upload, account
   lookup, billing provider contact, legal execution, remote support, production
   SLA, provider-secret custody, or child activity custody.
+- `production-support-status-backend-durable-queue-runtime-proof` remains
+  contract/read-model runtime-boundary proof only; it links queue/audit,
+  dead-letter, runtime execution, and runtime closure refs but does not implement
+  durable queue storage, retry worker execution, audit persistence, dead-letter
+  payload custody, real status backend execution, public runtime, provider
+  execution, support backend upload, account lookup, billing provider contact,
+  legal execution, remote support, production SLA, provider-secret custody, or
+  child activity custody.
 - Parent-owned sync/export and stateless report compiler proofs remain
   contract/status proof only; real compiler runtime/cloud worker, connector
   OAuth/provider APIs, portal controls/UI, upload/download, deletion execution,
