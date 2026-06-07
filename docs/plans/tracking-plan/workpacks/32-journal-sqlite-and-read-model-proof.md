@@ -55,6 +55,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `30-ai-stored-ref-consumer-proof.json`
 - `31-hosted-storage-default-boundary-proof.json`
 - `32-report-policy-consumer-hosted-ui-proof.json`
+- `33-retention-local-service-state-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -107,6 +108,10 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [x] Render the service-backed retention write result in hosted portal proof
       from the typed command response, including local service state revision
       evidence, without claiming durable product settings, platform, device,
+      provider, authority, notification receipt, or product-ready behavior.
+- [x] Derive retention local service state readback rows from the accepted
+      write-command proof, including applied values, service state revision, and
+      snapshot ref, without claiming durable product settings, platform, device,
       provider, authority, notification receipt, or product-ready behavior.
 - [x] Add redacted report/export read-model packet rows that compose service
       read-model, report/policy consumer, family dashboard rollup, and
@@ -168,6 +173,7 @@ state recorded in `proof-summary.json`, `10-journal-sqlite-proof.json`,
 `23-family-dashboard-rollup-proof.json`,
 `27-retention-settings-write-command-proof.json`,
 `28-report-export-read-model-proof.json`,
+`33-retention-local-service-state-proof.json`,
 the hosted UI proof output, and the implementation checklist.
 The report/policy consumer proof now requires the parent report summary,
 policy evidence drill-in, and retention audit export rows to carry stored
@@ -245,6 +251,12 @@ applied local retention values from the typed request. It keeps durable writable
 UI, product-ready service behavior, platform runtime, child-device delivery,
 provider delivery, notification receipt, physical-device, authority,
 production, and product-ready claims false.
+The retention local service state proof derives a parent-domain readback row from
+that accepted write-command result, requiring the local service state revision,
+snapshot ref, source read-model refs, source mutation refs, and applied
+retention values while keeping durable product settings, platform runtime,
+child-device delivery, provider delivery, notification receipt, physical-device,
+authority, production, and product-ready claims false.
 The hosted parent route now renders those retention settings read-model rows as
 a narrow proof card and captures
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
@@ -310,6 +322,9 @@ This workpack can be assigned independently, implemented against the owning doma
 - Retention settings write-command proof is local service execution plus local
   service state revision proof, not durable writable UI, production persistence,
   or product-ready service execution proof.
+- Retention local service state readback proof is a derived parent-domain
+  evidence row from the accepted write command, not durable persistence or
+  platform/device runtime proof.
 - Report/export read-model proof is redacted evidence-ref packet readiness plus
   hosted packet rendering only, not raw location payload export, service
   mutation, platform runtime, child-device/runtime execution, or product-ready
@@ -532,6 +547,27 @@ This workpack can be assigned independently, implemented against the owning doma
       read-only citation display only; policy evaluation, action dispatch,
       child-device delivery/runtime execution, provider delivery, physical-device
       proof, authority, and product readiness remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain retention local service state proof source and
+      test, proof harness, tracking feature doc, implementation checklist, WP07,
+      WP32, and generated WP07/WP32/WP33 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-retention-local-service-state-proof.mjs`
+      passed locally.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/33-retention-local-service-state-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/40-retention-local-service-state-proof.json`,
+      and
+      `test-results/tracking-retention-local-service-state-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, and WP32 updated; central product capability checklist
+      remains hub/primary sequenced.
+- [x] Known gaps/manual-required states: durable product settings, platform
+      runtime, child-device delivery, Android/iOS physical proof, authority,
+      provider delivery, notification receipts, production workers, and
+      product-ready retention behavior remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: parent-domain retention settings mutation proof source and

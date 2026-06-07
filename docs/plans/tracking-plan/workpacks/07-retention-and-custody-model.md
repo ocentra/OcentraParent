@@ -44,6 +44,7 @@ Proof root: `output/tracking-plan-proof/07-retention-and-custody-model/`
 - `19-retention-settings-writer-boundary-proof.json`
 - `20-retention-settings-mutation-proof.json`
 - `21-retention-settings-write-command-proof.json`
+- `22-retention-local-service-state-proof.json`
 - `16-validation-commands.log`
 
 ## AI Worker Checklist
@@ -70,6 +71,11 @@ through `node scripts/test/tracking-retention-settings-mutation-proof.mjs`,
 while remote sync and remote AI stay disabled. Typed service transport proof for
 the retention settings write command local-execution result now exists through
 `node scripts/test/tracking-retention-settings-write-command-proof.mjs`.
+Local service state readback proof now derives the accepted write-command result
+into parent-domain rows through
+`node scripts/test/tracking-retention-local-service-state-proof.mjs`, preserving
+the applied retention values, service state revision, and snapshot ref without
+claiming durable product settings.
 The hosted parent route now also sends that typed write command and renders the
 service accepted result with applied local retention values. Durable product
 settings, platform behavior, applied product-ready writable retention execution,
@@ -79,6 +85,7 @@ and product claim readiness are not claimed beyond the proof state recorded in
 `19-retention-settings-writer-boundary-proof.json`,
 `20-retention-settings-mutation-proof.json`,
 `21-retention-settings-write-command-proof.json`,
+`22-retention-local-service-state-proof.json`,
 the WP30 hosted UI proof artifact, and the implementation checklist.
 
 ## Where We Want To Be
@@ -105,6 +112,9 @@ This workpack can be assigned independently, implemented against the owning doma
 - Platform, provider, applied product-ready writable retention execution, and
   product claims remain manual-required until the assigned proof artifacts
   exist.
+- Local service state readback proof is derived from the accepted local write
+  command result; it is not durable settings persistence or physical-device
+  behavior proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -206,6 +216,27 @@ This workpack can be assigned independently, implemented against the owning doma
       delivery, Android/iOS physical proof, authority, provider delivery,
       notification receipts, production workers, and product-ready retention
       behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain retention local service state proof source and
+      test, proof harness, tracking feature doc, implementation checklist, WP07,
+      WP32, and generated WP07/WP32/WP33 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-retention-local-service-state-proof.mjs`
+      passed locally.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/33-retention-local-service-state-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/40-retention-local-service-state-proof.json`,
+      and
+      `test-results/tracking-retention-local-service-state-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, and WP32 updated; central product capability checklist
+      remains hub/primary sequenced.
+- [x] Known gaps/manual-required states: durable product settings, platform
+      runtime, child-device delivery, Android/iOS physical proof, authority,
+      provider delivery, notification receipts, production workers, and
+      product-ready retention behavior remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: portal live activity state, portal event-result routing,

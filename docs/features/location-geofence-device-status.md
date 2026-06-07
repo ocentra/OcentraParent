@@ -122,6 +122,14 @@ expose location or device-status features. Parents expect this category.
   writable UI, platform runtime, child-device delivery, physical-device,
   authority, provider-delivery, notification receipts, production, and
   product-ready claims false.
+- WP07/WP32 local service state readback proof now exists through
+  `node scripts/test/tracking-retention-local-service-state-proof.mjs`. It
+  derives a parent-domain proof row from the typed write-command proof, keeps the
+  applied retention values, local service state revision, and snapshot ref in the
+  evidence chain, writes WP07/WP32/WP33 artifacts, and keeps durable product
+  settings, platform runtime, child-device delivery, physical-device, authority,
+  provider-delivery, notification receipts, production, and product-ready claims
+  false.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
@@ -772,11 +780,17 @@ accessibility beyond the hosted parent route are proved.
       proves protocol request/result parsers, Rust protocol serialization, and
       Rust service WebSocket response for a no-product-claim local execution
       result with a local in-service state revision and snapshot ref, while
-      durable settings persistence remains false.
-      result; the hosted route now sends and renders that result without
-      claiming product-ready service execution, platform runtime, child-device
-      delivery/runtime execution, provider delivery, notification receipt
-      ingestion, authority, physical-device, or product-complete proof.
+      durable settings persistence remains false. The hosted route now sends and
+      renders that result without claiming product-ready service execution,
+      platform runtime, child-device delivery/runtime execution, provider
+      delivery, notification receipt ingestion, authority, physical-device, or
+      product-complete proof.
+- [x] WP07/WP32 retention local service state readback proof. This derives the
+      local service state revision, snapshot ref, and applied retention values
+      from the accepted write-command proof into parent-domain rows while keeping
+      durable product settings, platform runtime, child-device delivery/runtime
+      execution, provider delivery, notification receipt ingestion, authority,
+      physical-device, production, and product-complete proof unclaimed.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
 - [x] P3 WSL/local replay proof for the tracking read-model proof stack and
