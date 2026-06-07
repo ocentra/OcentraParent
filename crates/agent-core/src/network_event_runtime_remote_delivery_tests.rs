@@ -24,11 +24,11 @@ async fn network_runtime_remote_delivery_status_preserves_broker_family_hub_refs
 
     assert_eq!(
         report.broker_status,
-        NetworkRuntimeRemoteDeliveryState::RequirementsSatisfiedButNotImplemented
+        NetworkRuntimeRemoteDeliveryState::FixtureRequirementsRecordedButNotImplemented
     );
     assert_eq!(
         report.family_hub_status,
-        NetworkRuntimeRemoteDeliveryState::RequirementsSatisfiedButNotImplemented
+        NetworkRuntimeRemoteDeliveryState::FixtureRequirementsRecordedButNotImplemented
     );
     assert_eq!(
         report.family_hub_decision.route_kind,
@@ -187,7 +187,7 @@ async fn network_runtime_remote_event_chain_journal_rejects_delivery_and_content
 
     assert_eq!(
         report.remote_delivery_status.broker_status,
-        NetworkRuntimeRemoteDeliveryState::RequirementsSatisfiedButNotImplemented
+        NetworkRuntimeRemoteDeliveryState::FixtureRequirementsRecordedButNotImplemented
     );
     assert!(!report.broker_delivery_implemented);
     assert!(!report.family_hub_delivery_implemented);
@@ -195,9 +195,13 @@ async fn network_runtime_remote_event_chain_journal_rejects_delivery_and_content
     assert!(!report.side_effect_authority);
     assert_eq!(report.enforcement_command_event_count, 0);
     assert_eq!(report.adapter_action_executed_count, 0);
+    assert_eq!(report.raw_pcap_available_count, 0);
     assert_eq!(report.exact_url_available_count, 0);
     assert_eq!(report.decrypted_payload_available_count, 0);
     assert_eq!(report.page_content_available_count, 0);
+    assert_eq!(report.video_content_available_count, 0);
+    assert_eq!(report.private_message_content_available_count, 0);
+    assert_eq!(report.search_query_available_count, 0);
 }
 
 #[tokio::test]
@@ -236,7 +240,7 @@ async fn network_runtime_remote_delivery_receipt_ledger_preserves_local_ack_boun
     );
     assert_eq!(
         report.remote_delivery_status.family_hub_status,
-        NetworkRuntimeRemoteDeliveryState::RequirementsSatisfiedButNotImplemented
+        NetworkRuntimeRemoteDeliveryState::FixtureRequirementsRecordedButNotImplemented
     );
     assert!(report.receipt_ledger_ready);
     assert!(report.receipt_replay_ready);
@@ -293,7 +297,11 @@ async fn network_runtime_remote_delivery_receipt_ledger_rejects_transport_action
     assert_eq!(report.receipt_correlation_mismatch_count, 0);
     assert_eq!(report.enforcement_command_event_count, 0);
     assert_eq!(report.adapter_action_executed_count, 0);
+    assert_eq!(report.raw_pcap_available_count, 0);
     assert_eq!(report.exact_url_available_count, 0);
     assert_eq!(report.decrypted_payload_available_count, 0);
     assert_eq!(report.page_content_available_count, 0);
+    assert_eq!(report.video_content_available_count, 0);
+    assert_eq!(report.private_message_content_available_count, 0);
+    assert_eq!(report.search_query_available_count, 0);
 }

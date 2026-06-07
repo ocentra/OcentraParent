@@ -8,6 +8,19 @@ const testRoot = join('test-results', 'network-remote-delivery-receipt-ledger-pr
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 
+const sourceFiles = [
+  'scripts/test/network-remote-delivery-receipt-ledger-proof.mjs',
+  'crates/agent-protocol/src/constants/network_flow.rs',
+  'crates/agent-core/src/network_event_runtime.rs',
+  'crates/agent-core/src/network_event_runtime_state.rs',
+  'crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger.rs',
+  'crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger_types.rs',
+  'crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_store.rs',
+  'crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_journal.rs',
+  'crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_journal_types.rs',
+  'crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs',
+];
+
 assertSourceContracts();
 
 const expectedStatus = {
@@ -34,7 +47,7 @@ const expectedStatus = {
     'receipt refs must all cite row10d',
     'receipt records must preserve replay sequence, event id, event type, and correlation id',
     'receipt ledger cannot claim live broker/family-hub delivery',
-    'receipt ledger cannot carry exact content or adapter-action claims',
+    'receipt ledger cannot carry raw PCAP, exact content, or adapter-action claims',
   ],
   noClaims: [
     'live broker delivery',
@@ -45,11 +58,15 @@ const expectedStatus = {
     'product-ready remote delivery',
     'policy authority',
     'side-effect authority',
-    'enforcement command publication',
+    'enforcement command publication in the row10d remote projection fixture',
     'adapter action execution',
+    'raw PCAP',
     'exact URL from network-only evidence',
     'decrypted payload',
     'page content',
+    'video content',
+    'private-message content',
+    'search-query content',
     'host filtering',
   ],
 };
@@ -99,12 +116,13 @@ writeFileSync(
   [
     'checkedAt=deterministic:network-remote-delivery-receipt-ledger-proof/v1',
     'asserted=no exact URL/page/message/search claim from network-only evidence',
+    'asserted=no video content, private-message content, or search-query content claim from network-only evidence',
     'asserted=no decrypted payload or raw PCAP without custody claim',
     'asserted=no live broker/family-hub delivery claim',
     'asserted=no family-hub delivery acknowledgement implementation claim',
     'asserted=no remote provider or child-device delivery claim',
     'asserted=no product-ready remote delivery claim',
-    'asserted=no policy authority, side-effect authority, adapter action, host filtering, or enforcement command publication claim',
+    'asserted=no policy authority, side-effect authority, adapter action, host filtering, or enforcement command publication in this row10d remote projection fixture',
   ].join('\n') + '\n'
 );
 
@@ -113,6 +131,7 @@ const proof = {
   proofRevision: 'network-remote-delivery-receipt-ledger-proof/v1',
   checkedAt: 'deterministic:network-remote-delivery-receipt-ledger-proof/v1',
   sourceFingerprint: `source-tree:${sourceFingerprint()}`,
+  sourceRefs: sourceFiles,
   mergeBase: mergeBase(),
   proofRoot,
   testRoot,
@@ -133,8 +152,8 @@ const proof = {
     'agent-core builds a deterministic local receipt ledger from row10c ocentra-eventing projection replay records',
     'receipt records preserve replay sequence, event id, event type, and correlation id for every exportable event-chain envelope',
     'row10d refs mark receipt ledger, local receipt ack, replay, and support-status boundaries that future broker/family-hub delivery can consume',
-    'the proof keeps broker delivery, family-hub relay delivery, family-hub delivery acknowledgement implementation, provider delivery, child-device delivery, product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement commands, and host filtering false',
-    'the proof keeps exact URL, decrypted payload, and page content unavailable from network-only receipt ledger records',
+    'the proof keeps broker delivery, family-hub relay delivery, family-hub delivery acknowledgement implementation, provider delivery, child-device delivery, product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement commands, and host filtering false for this row10d remote projection fixture',
+    'the proof keeps raw PCAP, exact URL, decrypted payload, page content, video content, private-message content, and search-query content unavailable from network-only receipt ledger records',
   ],
   notClaimed: [
     'live broker delivery',
@@ -150,6 +169,7 @@ const proof = {
     'adapter execution',
     'host filtering',
     'full network-plan completion',
+    'available-metadata remote no-enforcement invariant',
   ],
 };
 
@@ -161,17 +181,26 @@ console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 function assertSourceContracts() {
   const protocolConstants = readText('crates/agent-protocol/src/constants/network_flow.rs');
   const coreRuntime = readText('crates/agent-core/src/network_event_runtime.rs');
+  const coreState = readText('crates/agent-core/src/network_event_runtime_state.rs');
   const coreStore = readText('crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_store.rs');
   const coreProof = readText('crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger.rs');
   const coreTests = readText('crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs');
   const requiredSnippets = [
     [protocolConstants, 'TEST_REMOTE_EVENT_CHAIN_RECEIPT_LEDGER_REF'],
     [coreRuntime, 'prove_network_runtime_remote_delivery_receipt_ledger'],
+    [coreState, 'raw_pcap_available'],
+    [coreState, 'video_content_available'],
+    [coreState, 'private_message_content_available'],
+    [coreState, 'search_query_available'],
     [coreStore, 'publish_network_runtime_remote_event_chain_store'],
+    [coreStore, 'raw_pcap_available_count'],
+    [coreStore, 'private_message_content_available_count'],
     [coreProof, 'receipt_records_from_projection'],
     [coreProof, 'remote_delivery_ack_implemented: false'],
+    [coreProof, 'search_query_available_count'],
     [coreTests, 'network_runtime_remote_delivery_receipt_ledger_preserves_local_ack_boundary_without_transport'],
     [coreTests, 'remote_delivery_ack_implemented'],
+    [coreTests, 'video_content_available_count'],
   ];
   for (const [haystack, needle] of requiredSnippets) {
     assertIncludes(haystack, needle, `source contract snippet ${needle}`);
@@ -201,14 +230,6 @@ function runText(command, args) {
 }
 
 function sourceFingerprint() {
-  const sourceFiles = [
-    'scripts/test/network-remote-delivery-receipt-ledger-proof.mjs',
-    'crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger.rs',
-    'crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger_types.rs',
-    'crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_store.rs',
-    'crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_journal.rs',
-    'crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs',
-  ];
   const hash = createHash('sha256');
   for (const filePath of sourceFiles) {
     hash.update(filePath);
@@ -234,24 +255,40 @@ function assertIncludes(text, expected, label) {
 }
 
 function normalizeLogText(text) {
-  const normalizedLines = sortConsecutiveTestLines(
-    text
-      .replace(/\r\n/g, '\n')
-      .split('\n')
-      .filter((line) => !line.includes('Blocking waiting for'))
-      .filter((line) => !line.trimStart().startsWith('Compiling '))
-      .filter((line) => !line.trimStart().startsWith('Checking '))
-      .map((line) =>
-        line
-          .replace(/finished in [0-9.]+s/g, 'finished in <duration>')
-          .replace(/target\(s\) in [0-9.]+s/g, 'target(s) in <duration>')
-      )
+  const normalizedLines = sortSourceShapeWarningLines(
+    sortConsecutiveTestLines(
+      text
+        .replace(/\r\n/g, '\n')
+        .split('\n')
+        .filter((line) => !line.includes('Blocking waiting for'))
+        .filter((line) => !line.trimStart().startsWith('Compiling '))
+        .filter((line) => !line.trimStart().startsWith('Checking '))
+        .map((line) =>
+          line
+            .replace(/finished in [0-9.]+s/g, 'finished in <duration>')
+            .replace(/target\(s\) in [0-9.]+s/g, 'target(s) in <duration>')
+        )
+    )
   );
   const trimmed = normalizedLines
     .join('\n')
     .replace(/[ \t]+$/gm, '')
     .replace(/\s+$/u, '');
   return trimmed.length === 0 ? '' : `${trimmed}\n`;
+}
+
+function sortSourceShapeWarningLines(lines) {
+  const warningHeaderIndex = lines.findIndex((line) => line.startsWith('Source shape warnings:'));
+  if (warningHeaderIndex === -1) {
+    return lines;
+  }
+  return [
+    ...lines.slice(0, warningHeaderIndex + 1),
+    ...lines
+      .slice(warningHeaderIndex + 1)
+      .filter((line) => line.trim().length > 0)
+      .sort(),
+  ];
 }
 
 function sortConsecutiveTestLines(lines) {

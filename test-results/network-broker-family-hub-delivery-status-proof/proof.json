@@ -2,8 +2,8 @@
   "proof": "network-broker-family-hub-delivery-status",
   "proofRevision": "network-broker-family-hub-delivery-status-proof/v1",
   "checkedAt": "deterministic:network-broker-family-hub-delivery-status-proof/v1",
-  "sourceFingerprint": "source-tree:7153e54131cb8b3320dd021a4fa411361ece6d5e08c404748b089882ebed659c",
-  "mergeBase": "73d0b579a85a4acd66d00ce26c24f0354a3e0e5d",
+  "sourceFingerprint": "source-tree:65ae397cbe01bf44a0ed1dc3328a9468a02c75f611a4a873e0b7b3164c0aac07",
+  "mergeBase": "f957c4aa90ed42ea266d423236f89361d1d2241a",
   "proofRoot": "output\\network-plan-proof\\10b-broker-family-hub-delivery-status",
   "testRoot": "test-results\\network-broker-family-hub-delivery-status-proof",
   "commands": [
@@ -49,7 +49,7 @@
   ],
   "provenBehavior": [
     "broker and family-hub relay routes carry custody, auth, encryption, retention, replay, deletion, offset, dedupe, broker config, identity, and relay policy refs",
-    "requirements-satisfied broker and family-hub decisions remain explicit status rows rather than live transport claims",
+    "fixture-recorded broker and family-hub decisions remain explicit status rows rather than live transport claims",
     "local idempotency and overflow dead-letter evidence remains attached to the remote-delivery status",
     "subscriber filters remain scoped to the network event namespace",
     "duplicate and family-hub status proof does not publish enforcement command events or execute adapter actions"

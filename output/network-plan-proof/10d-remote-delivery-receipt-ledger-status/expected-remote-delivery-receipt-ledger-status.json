@@ -22,7 +22,7 @@
     "receipt refs must all cite row10d",
     "receipt records must preserve replay sequence, event id, event type, and correlation id",
     "receipt ledger cannot claim live broker/family-hub delivery",
-    "receipt ledger cannot carry exact content or adapter-action claims"
+    "receipt ledger cannot carry raw PCAP, exact content, or adapter-action claims"
   ],
   "noClaims": [
     "live broker delivery",
@@ -33,11 +33,15 @@
     "product-ready remote delivery",
     "policy authority",
     "side-effect authority",
-    "enforcement command publication",
+    "enforcement command publication in the row10d remote projection fixture",
     "adapter action execution",
+    "raw PCAP",
     "exact URL from network-only evidence",
     "decrypted payload",
     "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
     "host filtering"
   ]
 }

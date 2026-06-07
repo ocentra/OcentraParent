@@ -114,8 +114,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       journal refs, receipt-ledger refs, local receipt-ack refs, replay refs,
       and support-status refs while keeping remote acknowledgement delivery,
       provider delivery, child-device delivery, policy authority, side-effect
-      authority, adapter execution, enforcement commands, exact URL, decrypted
-      payload, page content, and host filtering unimplemented.
+      authority, adapter execution, enforcement commands, raw PCAP, exact URL,
+      decrypted payload, page content, video content, private-message content,
+      search-query content, and host filtering unimplemented for the row10d
+      remote projection fixture. Full available-metadata remote no-enforcement
+      invariant proof remains a row10 follow-up.
 - [x] `11-manual-platform-proof.md`: OS/device/permission details, exact manual
       steps, screenshots/logs, and manual-required labels for platform claims.
       E-D row11 proof now writes
@@ -262,8 +265,8 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   preserving local deletion refs and exportable-row counts. Row10a now proves
   broker route delivery semantics, duplicate idempotency rejection, replay plan
   refs, dropped-event audit refs, and zero duplicate adapter-action counts.
-  Row10b now materializes broker/family-hub delivery requirements into
-  requirements-satisfied-but-not-implemented status rows with custody, auth,
+  Row10b now materializes broker/family-hub delivery fixture requirements into
+  fixture-requirements-recorded-but-not-implemented status rows with custody, auth,
   encryption, retention, replay, deletion, offset, dedupe, broker config,
   identity, and relay-policy refs. Row10c now journals local runtime event-chain
   envelopes through the reusable eventing NDJSON journal and replay projection

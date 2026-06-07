@@ -13,7 +13,7 @@ use super::{
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum NetworkRuntimeRemoteDeliveryState {
-    RequirementsSatisfiedButNotImplemented,
+    FixtureRequirementsRecordedButNotImplemented,
     ManualRequired,
 }
 
@@ -142,7 +142,7 @@ fn delivery_state_from_decision(
         | EventDeliveryDecisionState::ExternalRelayRouteRequirementsSatisfied
             if !implemented =>
         {
-            NetworkRuntimeRemoteDeliveryState::RequirementsSatisfiedButNotImplemented
+            NetworkRuntimeRemoteDeliveryState::FixtureRequirementsRecordedButNotImplemented
         }
         _ => NetworkRuntimeRemoteDeliveryState::ManualRequired,
     }

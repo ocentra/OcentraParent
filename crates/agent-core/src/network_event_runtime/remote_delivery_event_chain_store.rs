@@ -76,6 +76,9 @@ pub(super) fn unsupported_claim_counts(
         adapter_action_executed_count: count_payloads(payloads, |payload| {
             payload.claim_boundary.adapter_action_executed
         }),
+        raw_pcap_available_count: count_payloads(payloads, |payload| {
+            payload.claim_boundary.raw_pcap_available
+        }),
         exact_url_available_count: count_payloads(payloads, |payload| {
             payload.claim_boundary.exact_url_available
         }),
@@ -84,6 +87,15 @@ pub(super) fn unsupported_claim_counts(
         }),
         page_content_available_count: count_payloads(payloads, |payload| {
             payload.claim_boundary.page_content_available
+        }),
+        video_content_available_count: count_payloads(payloads, |payload| {
+            payload.claim_boundary.video_content_available
+        }),
+        private_message_content_available_count: count_payloads(payloads, |payload| {
+            payload.claim_boundary.private_message_content_available
+        }),
+        search_query_available_count: count_payloads(payloads, |payload| {
+            payload.claim_boundary.search_query_available
         }),
     }
 }

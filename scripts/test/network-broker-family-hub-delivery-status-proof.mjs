@@ -46,8 +46,8 @@ assertSourceContracts();
 const statusLog = [
   'network row10b broker/family-hub remote delivery status',
   '',
-  'brokerStatus=requirements-satisfied-but-not-implemented',
-  'familyHubStatus=requirements-satisfied-but-not-implemented',
+  'brokerStatus=fixture-requirements-recorded-but-not-implemented',
+  'familyHubStatus=fixture-requirements-recorded-but-not-implemented',
   'brokerDeliveryImplemented=false',
   'familyHubDeliveryImplemented=false',
   'crossProcessReplayImplemented=false',
@@ -82,7 +82,7 @@ const proof = {
   ],
   provenBehavior: [
     'broker and family-hub relay routes carry custody, auth, encryption, retention, replay, deletion, offset, dedupe, broker config, identity, and relay policy refs',
-    'requirements-satisfied broker and family-hub decisions remain explicit status rows rather than live transport claims',
+    'fixture-recorded broker and family-hub decisions remain explicit status rows rather than live transport claims',
     'local idempotency and overflow dead-letter evidence remains attached to the remote-delivery status',
     'subscriber filters remain scoped to the network event namespace',
     'duplicate and family-hub status proof does not publish enforcement command events or execute adapter actions',
@@ -126,7 +126,7 @@ function assertSourceContracts() {
 
   assertIncludes(
     statusSource,
-    'NetworkRuntimeRemoteDeliveryState::RequirementsSatisfiedButNotImplemented',
+    'NetworkRuntimeRemoteDeliveryState::FixtureRequirementsRecordedButNotImplemented',
     'remote delivery status exposes explicit not-implemented state'
   );
   assertIncludes(
