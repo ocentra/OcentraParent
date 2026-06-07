@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
@@ -15,9 +15,21 @@ async function main() {
   await mkdir(appGameProofDir, { recursive: true });
   await mkdir(appProofDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/text-domain']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/agent-protocol-domain']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/portal-domain']);
+  const buildWorkspaces = [
+    ['@ocentra-parent/schema-domain', 'schema-domain'],
+    ['@ocentra-parent/logging-domain', 'logging-domain'],
+    ['@ocentra-parent/parent-domain', 'parent-domain'],
+    ['@ocentra-parent/activity-domain', 'activity-domain'],
+    ['@ocentra-parent/text-domain', 'text-domain'],
+    ['@ocentra-parent/agent-protocol-domain', 'agent-protocol-domain'],
+    ['@ocentra-parent/portal-domain', 'portal-domain'],
+  ];
+  for (const [, packageDir] of buildWorkspaces) {
+    await rm(join(repoRoot, 'packages', packageDir, 'tsconfig.tsbuildinfo'), { force: true });
+  }
+  for (const [workspace] of buildWorkspaces) {
+    await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', workspace]);
+  }
   await runCommand('cmd', [
     '/c',
     'npm',
