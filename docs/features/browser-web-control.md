@@ -143,6 +143,14 @@ control while being more honest about managed versus unmanaged sources.
   request/response path, and dry-run rows return pending candidates while
   manual-required rows return none. Dispatch, adapter execution, browser
   mutation, child intervention execution, and enforcement remain zero.
+- Browser-plan WP13 now projects that named subscriber status through the
+  service-backed browser runtime event-chain stream payload. Current
+  store-backed browser rows still report zero pending candidates because the
+  browser evidence read model does not yet persist policy preview or parent
+  action-intent refs; a dry-run action-intent input can project one pending
+  candidate through the same service payload. Dispatch, adapter execution,
+  browser mutation, child intervention execution, final policy execution, and
+  enforcement remain unclaimed.
 - Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
   through activity-domain inventory contracts, Rust protocol, and service
   payload/read-model proof. Contract tests cover mixed managed, unmanaged, and

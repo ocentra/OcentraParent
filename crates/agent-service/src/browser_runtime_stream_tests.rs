@@ -1,8 +1,8 @@
 use std::fs::remove_file;
 
 use ocentra_parent_agent_core::{
-    browser_tab_observation_event, ActivityStore, BrowserBridgeTargetObservation,
-    BrowserRuntimePhase,
+    browser_tab_observation_event, request_browser_runtime_action_intent_status_for_input,
+    ActivityStore, BrowserBridgeTargetObservation, BrowserRuntimeInput, BrowserRuntimePhase,
 };
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, ActivityEvent, AgentCommandEnvelope, AgentCommandName,
@@ -18,7 +18,7 @@ use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK,
     browser_runtime_stream_payload::{
         browser_runtime_event_chain_stream_payload,
-        stream_browser_runtime_event_chain_for_read_model,
+        stream_browser_runtime_event_chain_for_read_model, BrowserRuntimeServiceStreamReport,
     },
     lan_pairing::LanPairingRuntime,
     websocket::handle_command_text_for_test,
@@ -41,6 +41,15 @@ async fn service_browser_runtime_streams_protocol_event_chain_entries() {
     assert_eq!(report.manual_required_rows, 0);
     assert_eq!(report.intervention_command_events, 0);
     assert_eq!(report.read_model_projection_events, 1);
+    assert_eq!(report.action_intent_candidates, 0);
+    assert_eq!(report.action_intent_dispatch_attempts, 0);
+    assert_eq!(report.action_intent_adapter_executions, 0);
+    assert_eq!(report.action_intent_child_intervention_executions, 0);
+    assert_eq!(report.action_intent_enforcement_executions, 0);
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
+        Some(&LogFieldValue::Number(0.0))
+    );
     assert_eq!(
         entries[0][constants::field::EVENT_TYPE],
         constants::browser::EVENT_BROWSER_EVIDENCE_OBSERVED
@@ -88,6 +97,41 @@ async fn service_browser_runtime_streams_protocol_event_chain_entries() {
     assert_eq!(
         entries.last().unwrap()[constants::field::EVENT_TYPE],
         constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED
+    );
+}
+
+#[tokio::test]
+async fn service_browser_runtime_action_intent_status_projects_pending_candidate() {
+    let status = request_browser_runtime_action_intent_status_for_input(
+        BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+    )
+    .await
+    .unwrap()
+    .request_report
+    .response;
+    let mut report = BrowserRuntimeServiceStreamReport::default();
+    report.record_action_intent_status(&status);
+    let payload = browser_runtime_event_chain_stream_payload(&report);
+
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS),
+        Some(&LogFieldValue::Number(0.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_ADAPTER_EXECUTIONS),
+        Some(&LogFieldValue::Number(0.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_INTERVENTION_EXECUTIONS),
+        Some(&LogFieldValue::Number(0.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS),
+        Some(&LogFieldValue::Number(0.0))
     );
 }
 

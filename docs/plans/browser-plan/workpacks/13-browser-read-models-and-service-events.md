@@ -354,3 +354,29 @@ The subscriber returns one pending candidate for dry-run policy decision events
 with policy preview and action-intent refs, and zero candidates for
 manual-required rows. It does not execute adapter dispatch, final policy,
 browser mutation, child intervention, or enforcement.
+
+## Action-Intent Service Status Addendum - 2026-06-07
+
+`browser-runtime-action-intent-service-status-proof` keeps the existing
+service-backed browser runtime event-chain stream command and enriches its
+payload with action-intent status counters from the named Rust event-bus
+subscriber. Current store-backed browser evidence rows still project zero
+pending action-intent candidates because the evidence read model does not carry
+policy preview or parent action-intent refs yet; a dry-run action-intent input
+projects one pending candidate through the same service payload.
+
+Evidence:
+
+- `crates/agent-service/src/browser_runtime_stream_payload.rs`
+- `crates/agent-service/src/browser_runtime_stream_tests.rs`
+- `crates/agent-protocol/src/constants/field.rs`
+- `packages/agent-protocol-domain/src/defaults.ts`
+- `scripts/test/browser-runtime-action-intent-service-status-proof.mjs`
+- `test-results/browser-runtime-action-intent-service-status-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-service-status/01-browser-runtime-action-intent-service-status-proof.md`
+- `cargo test -p ocentra-parent-agent-service service_browser_runtime_action_intent_status --quiet`
+
+The service payload keeps dispatch attempts, adapter execution, child
+intervention execution, final policy execution, browser mutation, and
+enforcement at zero. It does not add a new browser command family, execute
+policy, mutate browser state, execute child intervention, or enforce.

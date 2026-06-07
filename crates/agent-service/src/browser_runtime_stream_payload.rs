@@ -1,4 +1,8 @@
-use ocentra_parent_agent_core::{publish_browser_runtime_chain_for_input, BrowserRuntimeReport};
+use ocentra_parent_agent_core::{
+    publish_browser_runtime_chain_for_input,
+    request_browser_runtime_action_intent_status_for_input,
+    BrowserRuntimeActionIntentStatusResponse, BrowserRuntimeReport,
+};
 use ocentra_parent_agent_protocol::{
     constants, BrowserEvidenceReadModel, LogFieldValue, LogFields,
 };
@@ -18,6 +22,11 @@ pub(crate) struct BrowserRuntimeServiceStreamReport {
     pub(crate) manual_required_rows: usize,
     pub(crate) intervention_command_events: usize,
     pub(crate) read_model_projection_events: usize,
+    pub(crate) action_intent_candidates: usize,
+    pub(crate) action_intent_dispatch_attempts: usize,
+    pub(crate) action_intent_adapter_executions: usize,
+    pub(crate) action_intent_child_intervention_executions: usize,
+    pub(crate) action_intent_enforcement_executions: usize,
     pub(crate) entries: Vec<BrowserRuntimeServiceStreamEntry>,
 }
 
@@ -35,6 +44,11 @@ pub(crate) async fn stream_browser_runtime_event_chain_for_read_model(
             stream.exact_url_rows += 1;
         } else {
             stream.manual_required_rows += 1;
+        }
+        if let Ok(report) =
+            request_browser_runtime_action_intent_status_for_input(input.clone()).await
+        {
+            stream.record_action_intent_status(&report.request_report.response);
         }
         match publish_browser_runtime_chain_for_input(input).await {
             Ok(report) => stream.record_success(&report),
@@ -78,6 +92,26 @@ pub(crate) fn browser_runtime_event_chain_stream_payload(
             count_value(report.read_model_projection_events),
         ),
         (
+            constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES,
+            count_value(report.action_intent_candidates),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS,
+            count_value(report.action_intent_dispatch_attempts),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_ACTION_INTENT_ADAPTER_EXECUTIONS,
+            count_value(report.action_intent_adapter_executions),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_INTERVENTION_EXECUTIONS,
+            count_value(report.action_intent_child_intervention_executions),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS,
+            count_value(report.action_intent_enforcement_executions),
+        ),
+        (
             constants::field::BROWSER_RUNTIME_EVENT_CHAIN_STREAM,
             LogFieldValue::String(
                 serde_json::to_string(&report.entries)
@@ -104,6 +138,19 @@ impl BrowserRuntimeServiceStreamReport {
             })
             .count();
         self.entries.extend(entries);
+    }
+
+    pub(crate) fn record_action_intent_status(
+        &mut self,
+        status: &BrowserRuntimeActionIntentStatusResponse,
+    ) {
+        self.action_intent_candidates += status.candidate_count;
+        self.action_intent_dispatch_attempts += usize::from(status.dispatch_attempt_count);
+        self.action_intent_adapter_executions += usize::from(status.adapter_execution_count);
+        self.action_intent_child_intervention_executions +=
+            usize::from(status.child_intervention_execution_count);
+        self.action_intent_enforcement_executions +=
+            usize::from(status.enforcement_execution_count);
     }
 }
 

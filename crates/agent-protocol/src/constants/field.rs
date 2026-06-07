@@ -316,6 +316,15 @@ pub const NETWORK_PRODUCT_PATH_UNAVAILABLE_ROWS: &str = "networkProductPathUnava
 pub const NETWORK_PRODUCT_PATH_WEAK_OR_UNAVAILABLE_BLOCKED_ROWS: &str =
     "networkProductPathWeakOrUnavailableBlockedRows";
 pub const BROWSER_RUNTIME_EVENT_CHAIN_STREAM: &str = "browserRuntimeEventChainStream";
+pub const BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES: &str = "browserRuntimeActionIntentCandidates";
+pub const BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS: &str =
+    "browserRuntimeActionIntentDispatchAttempts";
+pub const BROWSER_RUNTIME_ACTION_INTENT_ADAPTER_EXECUTIONS: &str =
+    "browserRuntimeActionIntentAdapterExecutions";
+pub const BROWSER_RUNTIME_ACTION_INTENT_CHILD_INTERVENTION_EXECUTIONS: &str =
+    "browserRuntimeActionIntentChildInterventionExecutions";
+pub const BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS: &str =
+    "browserRuntimeActionIntentEnforcementExecutions";
 pub const BROWSER_RUNTIME_EXACT_URL_ROWS: &str = "browserRuntimeExactUrlRows";
 pub const BROWSER_RUNTIME_FAILED_ROWS: &str = "browserRuntimeFailedRows";
 pub const BROWSER_RUNTIME_INTERVENTION_COMMAND_EVENTS: &str =

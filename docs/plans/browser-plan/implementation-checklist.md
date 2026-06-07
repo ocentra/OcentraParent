@@ -578,6 +578,20 @@ This uses the reusable `ocentra-eventing` request path and does not execute
 adapter dispatch, browser mutation, child intervention, final policy, or
 enforcement.
 
+WP13 action-intent service status addendum:
+`browser-runtime-action-intent-service-status-proof` projects the named
+event-bus subscriber status through the existing service-backed browser runtime
+event-chain stream payload. Current store-backed browser rows report zero
+pending action-intent candidates because policy preview and parent action-intent
+refs are not persisted in the browser evidence read model yet; a dry-run
+action-intent input projects one pending candidate through the service payload.
+Evidence:
+`test-results/browser-runtime-action-intent-service-status-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-service-status/01-browser-runtime-action-intent-service-status-proof.md`.
+This keeps dispatch attempts, adapter execution, browser mutation, child
+intervention execution, final policy execution, and enforcement at zero.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:
