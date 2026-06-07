@@ -39,6 +39,10 @@ transports.
 - Network runtime event contracts for the local eventing spine, including
   flow/domain/classification, AI advisory, policy, enforcement dry-run/result,
   audit, and portal read-model update shapes mirrored from `crates/agent-protocol`.
+- Network remote delivery status event parsing for the row10b through row10e
+  service bridge, including stale-ref rejection and no-claim booleans for live
+  delivery, product readiness, policy authority, adapter execution, and exact
+  content.
 
 ## Must Not Own
 
@@ -118,3 +122,8 @@ flowchart LR
   protocol event chain only. Broker/family-hub delivery, service WebSocket
   streaming of the event chain, host filtering, adapter execution, and portal UI
   rendering remain separate proof-gated work.
+- Network remote delivery status parsing proves the service payload shape only.
+  Broker/family-hub transport, remote acknowledgement, provider/child-device
+  delivery, cross-process replay, remote delete/export propagation, product
+  readiness, policy authority, adapter execution, exact content, and host
+  filtering remain separate proof-gated work.

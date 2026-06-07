@@ -362,6 +362,7 @@ export const AgentProtocolDefaults = {
     NetworkProtocol: 'networkProtocol',
     NetworkRuntimeEventChainStream: 'networkRuntimeEventChainStream',
     NetworkRuntimeStreamedEvents: 'networkRuntimeStreamedEvents',
+    NetworkRemoteDeliveryStatus: 'networkRemoteDeliveryStatus',
     Observer: 'observer',
     Online: 'online',
     Origin: 'origin',
@@ -462,5 +463,16 @@ export const AgentProtocolDefaults = {
   },
   Primitive: {
     String: 'string',
+  },
+  NetworkRemoteDeliveryStatus: {
+    StatusRef: 'network.remote-delivery.status-bridge.10f',
+    EventChainJournalRef: 'network.remote-delivery.event-chain-journal.10c',
+    ReceiptLedgerRef: 'network.remote-delivery.event-chain.receipt-ledger.10d',
+    LocalReceiptAckRef: 'network.remote-delivery.event-chain.local-receipt-ack.10d',
+    DurableEnvelopeRef: 'network.remote-delivery.durable-envelope.10e',
+    DurableStoreRef: 'network.remote-delivery.durable-envelope-store.10e',
+    DurableReplayRef: 'network.remote-delivery.durable-envelope-replay.10e',
+    DurableDeleteExportRef: 'network.remote-delivery.durable-envelope-delete-export.10e',
+    DurableSupportStatusRef: 'network.remote-delivery.durable-envelope-support-status.10e',
   },
 } as const;

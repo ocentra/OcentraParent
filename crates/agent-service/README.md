@@ -47,6 +47,12 @@ development paths and orchestrates runtime commands.
   `agent.network.flow.read-model.get`, backed by ActivityStore SQLite rows and
   local `ocentra-eventing` runtime delivery counts for stored network rows
   without broker, family-hub, adapter, or host-filter claims.
+- Network remote delivery status reports through
+  `agent.network.remote-delivery.status.get`, derived from the local row10e
+  durable envelope proof and serialized as a typed status bridge for row10b
+  through row10e refs without broker/family-hub transport, remote
+  acknowledgement, provider or child-device delivery, policy, adapter, exact
+  content, or host-filter claims.
 - App/game live process capture bridge rows through the existing activity
   capture journal/store path, exposing runtime-only app/game rows to the
   existing app-use/games read models without foreground, policy, or adapter
@@ -148,6 +154,11 @@ flowchart LR
 - Network runtime delivery output is service-local and read-model-count only;
   broker/family-hub delivery, cross-process durable replay/retention, policy
   execution, adapter execution, and host filtering remain separate gaps.
+- Network remote delivery status output is a read-only proof/status bridge; real
+  broker or family-hub transport, remote acknowledgement, provider/child-device
+  delivery, cross-process replay, remote delete/export propagation, product
+  readiness, policy execution, adapter execution, and host filtering remain
+  separate gaps.
 - App/game live process, optional foreground, Windows shortcut inventory,
   Windows packaged-app manifest capture, and Windows registry inventory capture
   have bounded service proof; subscribed foreground transitions, policy

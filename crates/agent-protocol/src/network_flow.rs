@@ -106,6 +106,70 @@ pub struct ActivityNetworkFlowDigest {
     pub unusual_indicators: Vec<ActivityNetworkFlowIndicator>,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkRemoteDeliveryStatusState {
+    #[serde(rename = "fixture-requirements-recorded-but-not-implemented")]
+    FixtureRequirementsRecordedButNotImplemented,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkRemoteDeliveryStatus {
+    pub status_ref: String,
+    pub broker_status: NetworkRemoteDeliveryStatusState,
+    pub family_hub_status: NetworkRemoteDeliveryStatusState,
+    pub custody_proof_ref: String,
+    pub publisher_auth_ref: String,
+    pub subscriber_auth_ref: String,
+    pub encryption_ref: String,
+    pub retention_policy_ref: String,
+    pub replay_plan_ref: String,
+    pub deletion_plan_ref: String,
+    pub offset_policy_ref: String,
+    pub dedupe_policy_ref: String,
+    pub transport_config_ref: String,
+    pub relay_identity_ref: String,
+    pub relay_policy_ref: String,
+    pub broker_missing_artifact_count: u64,
+    pub family_hub_missing_artifact_count: u64,
+    pub accepted_event_type_count: u64,
+    pub local_idempotency_queue_proved: bool,
+    pub dropped_event_dead_letter_count: u64,
+    pub queued_duplicate_rejected: bool,
+    pub completed_duplicate_rejected: bool,
+    pub event_chain_journal_ref: String,
+    pub receipt_ledger_ref: String,
+    pub local_receipt_ack_ref: String,
+    pub durable_envelope_ref: String,
+    pub durable_store_ref: String,
+    pub durable_replay_ref: String,
+    pub durable_delete_export_ref: String,
+    pub durable_support_status_ref: String,
+    pub durable_envelope_ready: bool,
+    pub durable_envelope_missing_artifact_count: u64,
+    pub broker_delivery_implemented: bool,
+    pub family_hub_delivery_implemented: bool,
+    pub remote_delivery_ack_implemented: bool,
+    pub provider_delivery_implemented: bool,
+    pub child_device_delivery_implemented: bool,
+    pub cross_process_replay_implemented: bool,
+    pub remote_delete_export_propagation_implemented: bool,
+    pub product_ready_remote_delivery: bool,
+    pub policy_authority: bool,
+    pub side_effect_authority: bool,
+    pub enforcement_command_event_count: u64,
+    pub adapter_action_executed_count: u64,
+    pub raw_pcap_available_count: u64,
+    pub exact_url_available_count: u64,
+    pub decrypted_payload_available_count: u64,
+    pub page_content_available_count: u64,
+    pub video_content_available_count: u64,
+    pub private_message_content_available_count: u64,
+    pub search_query_available_count: u64,
+}
+
 #[path = "network_flow_events.rs"]
 mod network_flow_events;
 
