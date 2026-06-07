@@ -172,7 +172,7 @@ Required files:
 - [x] Portal hides stale, permission-limited, manual-required, or not-claimed
       states.
 - [x] Raw private executable paths leak into parent UI.
-- [ ] Malicious app/game metadata causes XSS or layout breakage.
+- [x] Malicious app/game metadata causes XSS or layout breakage.
 
 ## Platform Extension Checklist
 
