@@ -17,6 +17,12 @@
     "reportSurfaceRefs": [
       "parent-report-location-summary-row"
     ],
+    "storedJournalRefs": [
+      "tracking-journal-row-report-summary"
+    ],
+    "storedReadModelRowRefs": [
+      "tracking-read-model-row-report-summary"
+    ],
     "evidenceReferences": [
       {
         "evidenceReferenceId": "tracking-report-policy-evidence-summary",
@@ -57,6 +63,12 @@
     ],
     "reportSurfaceRefs": [
       "parent-policy-evidence-drill-in-row"
+    ],
+    "storedJournalRefs": [
+      "tracking-journal-row-policy-drill-in"
+    ],
+    "storedReadModelRowRefs": [
+      "tracking-read-model-row-policy-drill-in"
     ],
     "evidenceReferences": [
       {
@@ -120,6 +132,12 @@
     ],
     "reportSurfaceRefs": [
       "parent-retention-audit-export-row"
+    ],
+    "storedJournalRefs": [
+      "tracking-journal-row-retention-export"
+    ],
+    "storedReadModelRowRefs": [
+      "tracking-read-model-row-retention-export"
     ],
     "evidenceReferences": [
       {

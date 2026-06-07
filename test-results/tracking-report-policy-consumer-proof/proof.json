@@ -1,9 +1,9 @@
 {
   "proofMode": "tracking-report-policy-consumer-proof",
   "generatedAt": "2026-06-05T20:25:00.000Z",
-  "branch": "codex/tracking-report-policy-consumer-proof",
-  "baseCommitAtGeneration": "42ab73366b775922ecec88655eab97070a630305",
-  "gitStatusShort": "",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "baseCommitAtGeneration": "16220ad03fed0ed19a68da3f85d25dc1344d6341",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md\n M docs/product-capability-checklist.md\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json\n M output/tracking-plan-proof/report-policy-consumer-proof/00-source-snapshot.md\n M output/tracking-plan-proof/report-policy-consumer-proof/01-contract-proof.log\n M output/tracking-plan-proof/report-policy-consumer-proof/proof.json\n M packages/parent-domain/src/tracking-report-policy-consumer-proof.ts\n M packages/parent-domain/tests/tracking-report-policy-consumer-proof.test.ts\n M scripts/test/tracking-report-policy-consumer-proof.mjs\n M test-results/tracking-report-policy-consumer-proof/proof.json\n M test-results/tracking-report-policy-consumer-proof/report-policy-consumer-read-model.json",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-report-policy-consumer-proof tracking-location-policy"
@@ -25,6 +25,8 @@
     "sourceProofRefRows": 3,
     "productSurfaceSummaryRefRows": 3,
     "evidenceReferenceRows": 3,
+    "storedJournalRefRows": 3,
+    "storedReadModelRowRefRows": 3,
     "portalUiClaimedRows": 0,
     "childDeviceDeliveryClaimedRows": 0,
     "providerDeliveryClaimedRows": 0,
@@ -69,6 +71,12 @@
       "reportSurfaceRefs": [
         "parent-report-location-summary-row"
       ],
+      "storedJournalRefs": [
+        "tracking-journal-row-report-summary"
+      ],
+      "storedReadModelRowRefs": [
+        "tracking-read-model-row-report-summary"
+      ],
       "evidenceReferences": [
         {
           "evidenceReferenceId": "tracking-report-policy-evidence-summary",
@@ -109,6 +117,12 @@
       ],
       "reportSurfaceRefs": [
         "parent-policy-evidence-drill-in-row"
+      ],
+      "storedJournalRefs": [
+        "tracking-journal-row-policy-drill-in"
+      ],
+      "storedReadModelRowRefs": [
+        "tracking-read-model-row-policy-drill-in"
       ],
       "evidenceReferences": [
         {
@@ -172,6 +186,12 @@
       ],
       "reportSurfaceRefs": [
         "parent-retention-audit-export-row"
+      ],
+      "storedJournalRefs": [
+        "tracking-journal-row-retention-export"
+      ],
+      "storedReadModelRowRefs": [
+        "tracking-read-model-row-retention-export"
       ],
       "evidenceReferences": [
         {

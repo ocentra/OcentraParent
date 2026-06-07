@@ -29,6 +29,8 @@ describe('tracking report policy consumer proof', () => {
         'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json'
       );
       expect(row.evidenceReferences.length).toBeGreaterThan(0);
+      expect(row.storedJournalRefs.length).toBeGreaterThan(0);
+      expect(row.storedReadModelRowRefs.length).toBeGreaterThan(0);
       expect(row.reportConsumerClaimed).toBe(true);
       expect(row.portalUiClaimed).toBe(false);
       expect(row.childDeviceDeliveryClaimed).toBe(false);
@@ -47,6 +49,8 @@ describe('tracking report policy consumer proof', () => {
     expect(policyRow.policyDecision?.schemaVersion).toBe(TrackingPolicySchemaVersion);
     expect(policyRow.policyDecision?.action).toBe('notify-parent');
     expect(policyRow.policyDecision?.evidenceReferences).toEqual(policyRow.evidenceReferences);
+    expect(policyRow.storedJournalRefs).toContain('tracking-journal-row-policy-drill-in');
+    expect(policyRow.storedReadModelRowRefs).toContain('tracking-read-model-row-policy-drill-in');
     expect(policyRow.reasonCodes).toContain('tracking-policy-decision-drill-in-consumed');
     expect(policyRow.auditRefs).toContain('tracking-report-policy-audit-policy-drill-in');
   });
@@ -69,6 +73,12 @@ describe('tracking report policy consumer proof', () => {
       TrackingReportPolicyConsumerRowSchema.safeParse({ ...reportRow, productSurfaceSummaryRefs: [] }).success
     ).toBe(false);
     expect(TrackingReportPolicyConsumerRowSchema.safeParse({ ...reportRow, evidenceReferences: [] }).success).toBe(
+      false
+    );
+    expect(TrackingReportPolicyConsumerRowSchema.safeParse({ ...reportRow, storedJournalRefs: [] }).success).toBe(
+      false
+    );
+    expect(TrackingReportPolicyConsumerRowSchema.safeParse({ ...reportRow, storedReadModelRowRefs: [] }).success).toBe(
       false
     );
   });

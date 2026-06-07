@@ -17,6 +17,14 @@ export const TrackingReportPolicyConsumerProofRefSchema = TrackingReportPolicyCo
   Schema.brand('TrackingReportPolicyConsumerProofRef')
 );
 
+export const TrackingReportPolicyConsumerJournalRefSchema = TrackingReportPolicyConsumerTextSchema.pipe(
+  Schema.brand('TrackingReportPolicyConsumerJournalRef')
+);
+
+export const TrackingReportPolicyConsumerReadModelRowRefSchema = TrackingReportPolicyConsumerTextSchema.pipe(
+  Schema.brand('TrackingReportPolicyConsumerReadModelRowRef')
+);
+
 export const TrackingReportPolicyConsumerKindSchema = withParser(
   Schema.Literal('parent-report-summary', 'policy-evidence-drill-in', 'retention-audit-export')
 );
@@ -39,6 +47,8 @@ export const TrackingReportPolicyConsumerRowSchema = withParser(
     sourceProofRefs: Schema.Array(TrackingReportPolicyConsumerProofRefSchema),
     productSurfaceSummaryRefs: Schema.Array(TrackingReportPolicyConsumerProofRefSchema),
     reportSurfaceRefs: Schema.Array(TrackingReportPolicyConsumerProofRefSchema),
+    storedJournalRefs: Schema.Array(TrackingReportPolicyConsumerJournalRefSchema),
+    storedReadModelRowRefs: Schema.Array(TrackingReportPolicyConsumerReadModelRowRefSchema),
     evidenceReferences: Schema.Array(TrackingEvidenceTraceSchema),
     policyDecision: Schema.Union(TrackingPolicyDecisionSchema, Schema.Null),
     reasonCodes: Schema.Array(TrackingPolicyReasonCodeSchema),
@@ -66,6 +76,17 @@ export const TrackingReportPolicyConsumerRowSchema = withParser(
     )
     .pipe(
       Schema.filter((row) => row.evidenceReferences.length > 0 || 'Tracking report/policy consumers need evidence refs')
+    )
+    .pipe(
+      Schema.filter(
+        (row) => row.storedJournalRefs.length > 0 || 'Tracking report/policy consumers need stored journal refs'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (row) =>
+          row.storedReadModelRowRefs.length > 0 || 'Tracking report/policy consumers need stored read-model row refs'
+      )
     )
     .pipe(
       Schema.filter(
@@ -132,6 +153,8 @@ export function buildTrackingReportPolicyConsumerProof(generatedAt: string): Tra
         consumerKind: 'parent-report-summary',
         generatedAt: timestamp,
         evidenceReferences: [reportEvidence],
+        storedJournalRefs: ['tracking-journal-row-report-summary'],
+        storedReadModelRowRefs: ['tracking-read-model-row-report-summary'],
         policyDecision: null,
         reasonCodes: ['tracking-product-surface-summary-consumed'],
         auditRefs: ['tracking-report-policy-audit-report-summary'],
@@ -142,6 +165,8 @@ export function buildTrackingReportPolicyConsumerProof(generatedAt: string): Tra
         consumerKind: 'policy-evidence-drill-in',
         generatedAt: timestamp,
         evidenceReferences: [policyEvidence],
+        storedJournalRefs: ['tracking-journal-row-policy-drill-in'],
+        storedReadModelRowRefs: ['tracking-read-model-row-policy-drill-in'],
         policyDecision,
         reasonCodes: ['tracking-policy-decision-drill-in-consumed'],
         auditRefs: ['tracking-report-policy-audit-policy-drill-in'],
@@ -152,6 +177,8 @@ export function buildTrackingReportPolicyConsumerProof(generatedAt: string): Tra
         consumerKind: 'retention-audit-export',
         generatedAt: timestamp,
         evidenceReferences: [retentionEvidence],
+        storedJournalRefs: ['tracking-journal-row-retention-export'],
+        storedReadModelRowRefs: ['tracking-read-model-row-retention-export'],
         policyDecision: null,
         reasonCodes: ['tracking-retention-tombstone-summary-consumed'],
         auditRefs: ['tracking-report-policy-audit-retention-export'],
@@ -175,6 +202,8 @@ function row(input: {
   readonly consumerKind: TrackingReportPolicyConsumerKind;
   readonly generatedAt: string;
   readonly evidenceReferences: readonly TrackingReportPolicyEvidence[];
+  readonly storedJournalRefs: readonly string[];
+  readonly storedReadModelRowRefs: readonly string[];
   readonly policyDecision: TrackingReportPolicyDecision | null;
   readonly reasonCodes: readonly string[];
   readonly auditRefs: readonly string[];
@@ -196,6 +225,8 @@ function row(input: {
       'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json',
     ],
     reportSurfaceRefs: input.reportSurfaceRefs,
+    storedJournalRefs: input.storedJournalRefs,
+    storedReadModelRowRefs: input.storedReadModelRowRefs,
     evidenceReferences: input.evidenceReferences,
     policyDecision: input.policyDecision,
     reasonCodes: input.reasonCodes,

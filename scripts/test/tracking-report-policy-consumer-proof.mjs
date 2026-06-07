@@ -76,6 +76,8 @@ function summarize(rows) {
     sourceProofRefRows: rows.filter((row) => row.sourceProofRefs.length > 0).length,
     productSurfaceSummaryRefRows: rows.filter((row) => row.productSurfaceSummaryRefs.length > 0).length,
     evidenceReferenceRows: rows.filter((row) => row.evidenceReferences.length > 0).length,
+    storedJournalRefRows: rows.filter((row) => row.storedJournalRefs.length > 0).length,
+    storedReadModelRowRefRows: rows.filter((row) => row.storedReadModelRowRefs.length > 0).length,
     portalUiClaimedRows: rows.filter((row) => row.portalUiClaimed).length,
     childDeviceDeliveryClaimedRows: rows.filter((row) => row.childDeviceDeliveryClaimed).length,
     providerDeliveryClaimedRows: rows.filter((row) => row.providerDeliveryClaimed).length,
@@ -97,7 +99,9 @@ function assertProof(proof) {
     summary.policyDecisionRows !== 1 ||
     summary.sourceProofRefRows !== 3 ||
     summary.productSurfaceSummaryRefRows !== 3 ||
-    summary.evidenceReferenceRows !== 3
+    summary.evidenceReferenceRows !== 3 ||
+    summary.storedJournalRefRows !== 3 ||
+    summary.storedReadModelRowRefRows !== 3
   ) {
     throw new Error(`Unexpected tracking report policy consumer summary: ${JSON.stringify(summary)}`);
   }
@@ -144,6 +148,7 @@ async function writeCompanionPack(path, proof) {
       '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
       '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-report-policy-consumer-proof tracking-location-policy: PASS',
       '- Report, policy drill-in, and retention export consumer rows parse through parent-domain schemas.',
+      '- Every consumer row carries stored journal refs and stored read-model row refs before report/policy use.',
       '',
     ].join('\n'),
     'utf8'
