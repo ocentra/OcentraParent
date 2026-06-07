@@ -68,6 +68,7 @@ public final class MainActivity extends Activity {
             AppGameAndroidChildRuntimeDeliveryProof.createChildRuntimeDeliveryBundle(this);
         Bundle appGameChildRuntimeNotificationRequestQueue =
             AppGameAndroidChildRuntimeNotificationRequestQueueProof.createRequestQueueBundle(this);
+        Bundle backgroundLocationProof = TrackingAndroidBackgroundLocationProof.createBackgroundLocationBundle(this);
         if (TrackingAndroidForegroundLocationProof.shouldRequestForegroundLocationPermission(this)) {
             requestPermissions(
                 TrackingAndroidForegroundLocationProof.foregroundLocationPermissions(),
@@ -85,7 +86,8 @@ public final class MainActivity extends Activity {
                 permissionProof,
                 privilegedProof,
                 screenProof,
-                foregroundLocationProof
+                foregroundLocationProof,
+                backgroundLocationProof
             )
         );
         TrackingAndroidForegroundLocationProof.requestForegroundLocationSample(
@@ -98,7 +100,8 @@ public final class MainActivity extends Activity {
                     permissionProof,
                     privilegedProof,
                     screenProof,
-                    updatedForegroundLocationProof
+                    updatedForegroundLocationProof,
+                    TrackingAndroidBackgroundLocationProof.createBackgroundLocationBundle(this)
                 )
             )
         );
@@ -117,7 +120,8 @@ public final class MainActivity extends Activity {
         Bundle permissionProof,
         Bundle privilegedProof,
         Bundle screenProof,
-        Bundle foregroundLocationProof
+        Bundle foregroundLocationProof,
+        Bundle backgroundLocationProof
     ) {
         String foregroundLocationMetadata = foregroundLocationProof.getBoolean("foregroundLocationSampleCaptured")
             ? "\n" +
@@ -269,6 +273,14 @@ public final class MainActivity extends Activity {
             "\n" +
             foregroundLocationProof.getString(
                 TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_SAMPLE_STATE
+            ) +
+            "\n" +
+            backgroundLocationProof.getString(
+                TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_LOCATION_PERMISSION_STATE
+            ) +
+            "\n" +
+            backgroundLocationProof.getString(
+                TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_STATE
             ) +
             foregroundLocationMetadata;
     }
