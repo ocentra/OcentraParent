@@ -37,10 +37,18 @@ async function main() {
     packageProofModule.AppInstallPurchaseWindowsPackageSourceAdapterEvidenceProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseWindowsPackageSourceAdapterEvidenceProofReadModel.schemaVersion
   );
+  assert.equal(
+    packageProofModule.AppInstallPurchaseWindowsPackageSourceRuntimeHandoffProofReadModel.schemaVersion,
+    proofModule.AppInstallPurchaseWindowsPackageSourceRuntimeHandoffProofReadModel.schemaVersion
+  );
 
   const parsedReadModel =
     proofModule.buildAppInstallPurchaseWindowsPackageSourceAdapterEvidenceProof(hostEvidenceArtifact);
   const summary = proofModule.summarizeAppInstallPurchaseWindowsPackageSourceAdapterEvidenceProof(parsedReadModel);
+  const runtimeHandoffReadModel =
+    proofModule.buildAppInstallPurchaseWindowsPackageSourceRuntimeHandoffProof(hostEvidenceArtifact);
+  const runtimeHandoffSummary =
+    proofModule.summarizeAppInstallPurchaseWindowsPackageSourceRuntimeHandoffProof(runtimeHandoffReadModel);
 
   assert.equal(summary.windowsPackageSourceAdapterEvidenceRows, 5);
   assert.equal(summary.manualAdapterEvidenceRows, 1);
@@ -52,6 +60,17 @@ async function main() {
     summary.windowsHostEvidenceCollectedRows + summary.windowsHostManualRows,
     1,
     'Windows row must be exactly host-evidence-collected or manual-required'
+  );
+  assert.equal(runtimeHandoffSummary.runtimeHandoffRows, 5);
+  assert.equal(runtimeHandoffSummary.manualRuntimeHandoffRows, 1);
+  assert.equal(runtimeHandoffSummary.platformUnavailableRows, 1);
+  assert.equal(runtimeHandoffSummary.blockedBeforeClaimRows, 2);
+  assert.equal(runtimeHandoffSummary.providerExecutedRows, 0);
+  assert.equal(runtimeHandoffSummary.childDeliveredRows, 0);
+  assert.equal(
+    runtimeHandoffSummary.windowsRuntimeHandoffReadyRows + runtimeHandoffSummary.windowsRuntimeHandoffManualRows,
+    1,
+    'Windows runtime handoff row must be exactly ready or manual-required'
   );
 
   const proof = {
@@ -65,6 +84,8 @@ async function main() {
     checklistState: 'updated-app-install-purchase-approval-row',
     evidence: {
       windowsPackageSourceAdapterEvidenceContract:
+        'packages/parent-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts',
+      windowsPackageSourceRuntimeHandoffContract:
         'packages/parent-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts',
       sourcePlatformAdapterEvidenceGapContract:
         'packages/parent-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts',
@@ -90,8 +111,10 @@ async function main() {
     },
     windowsPackageSourceAdapterEvidenceSummary: summary,
     windowsPackageSourceAdapterEvidenceRows: parsedReadModel.windowsPackageSourceAdapterEvidenceRows,
+    windowsPackageSourceRuntimeHandoffSummary: runtimeHandoffSummary,
+    windowsPackageSourceRuntimeHandoffRows: runtimeHandoffReadModel.runtimeHandoffRows,
     nonClaims: parsedReadModel.nonClaims,
-    knownGaps: parsedReadModel.knownGaps,
+    knownGaps: [...parsedReadModel.knownGaps, ...runtimeHandoffReadModel.knownGaps],
   };
 
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);

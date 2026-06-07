@@ -430,7 +430,10 @@ generic app blocking covers this concern.
   records that Windows package-source adapter evidence proof under
   `test-results/app-install-purchase-windows-package-source-adapter-evidence-proof/proof.json`
   when run, emits a sanitized Windows host evidence artifact, and validates the
-  public parent-domain package export.
+  public parent-domain package export. The same proof now exposes typed
+  Windows package-source runtime handoff rows that record sanitized command
+  probe status and package-source evidence refs while non-Windows platforms stay
+  manual-required, unavailable, or blocked-before-claim.
 - `packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts`
   now converts runtime writer delivery rows and parent action delivery
   readiness rows into deterministic parent-owned runtime writer envelope and
@@ -797,6 +800,12 @@ Ocentra-hosted family data custody.
       store integration, platform interception, production platform adapters,
       child delivery, portal UI, app blocking, child activity data, and hosted
       custody remain unclaimed.
+- [x] Windows package-source runtime handoff proof projecting sanitized command
+      probe status, package-source evidence refs, manual-required,
+      unavailable, and blocked-before-claim rows into a parent-domain read model
+      without runtime writer execution/delivery, provider/store execution,
+      portal approval/report UI, child delivery, app blocking, child activity
+      data, or hosted custody claims.
 
 ## Next AI Instructions
 
