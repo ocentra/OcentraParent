@@ -113,7 +113,7 @@ async function main() {
     proofMode: 'browser-plan-closure-audit-proof',
     generatedAt: new Date().toISOString(),
     branch: git(['rev-parse', '--abbrev-ref', 'HEAD']),
-    commit: git(['rev-parse', 'HEAD']),
+    sourceCommitAtGeneration: git(['rev-parse', 'HEAD']),
     baseCommit: git(['rev-parse', 'origin/main']),
     checklist: relativePath(checklistPath),
     summary: {
@@ -257,7 +257,7 @@ function markdownFor(proof) {
     '',
     `Generated: ${proof.generatedAt}`,
     `Branch: ${proof.branch}`,
-    `Commit: ${proof.commit}`,
+    `Source commit at generation: ${proof.sourceCommitAtGeneration}`,
     `Base: ${proof.baseCommit}`,
     '',
     `Checklist rows: ${proof.summary.checklistRows}`,

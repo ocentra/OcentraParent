@@ -1,9 +1,9 @@
 # Browser Plan Closure Audit
 
-Generated: 2026-06-07T02:55:27.126Z
+Generated: 2026-06-07T03:05:37.251Z
 Branch: codex/browser-child-intervention-endpoint-flow
-Commit: a25e0d72099e371a71272d88c56bd814d2ba74be
-Base: b62671a4f6efda4f24fccab20572131453fd8cb3
+Source commit at generation: ee687ce046b2337f7bb3d5ef72e488f5dcc5f348
+Base: 05018555053df0e52ea9b0149c28885d3a5838b2
 
 Checklist rows: 97
 Complete rows: 93
