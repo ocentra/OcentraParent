@@ -6,6 +6,7 @@ import {
   AgentBrowserRuntimePhase,
   AgentBrowserRuntimeQueryVisibility,
   AgentProtocolDefaults,
+  deriveAgentBrowserRuntimeActionIntentStatus,
   parseAgentBrowserRuntimeEventChainStreamFields,
 } from '../src/contracts';
 
@@ -75,6 +76,7 @@ const PolicyDecisionPayload = {
 describe('agent browser runtime event contracts', () => {
   it('parses service-backed browser runtime stream fields', specifyStreamParsing);
   it('parses dry-run policy action handoff without adapter dispatch', specifyDryRunActionHandoffParsing);
+  it('derives pending action-intent subscriber status from dry-run stream entries', specifyActionIntentStatus);
   it('rejects mismatched phases, overclaims, invalid json, and count drift', specifyRejections);
 });
 
@@ -120,6 +122,49 @@ function specifyDryRunActionHandoffParsing() {
   expect(parsed.value.entries.at(0)?.payload.dryRun).toBe(true);
   expect(parsed.value.entries.at(0)?.payload.adapterDispatchClaimed).toBe(false);
   expect(parsed.value.entries.at(0)?.payload.interventionCommandAllowed).toBe(false);
+}
+
+function specifyActionIntentStatus() {
+  const parsed = parseAgentBrowserRuntimeEventChainStreamFields(
+    streamFields([
+      entry(AgentBrowserRuntimeEventType.PolicyDecisionCompleted, PolicyDecisionPayload),
+      entry(AgentBrowserRuntimeEventType.ReadModelProjected, ReadModelProjectedPayload),
+    ])
+  );
+
+  expect(parsed.ok).toBe(true);
+  if (!parsed.ok) {
+    return;
+  }
+
+  const status = deriveAgentBrowserRuntimeActionIntentStatus(parsed.value);
+  expect(status).toMatchObject({
+    candidateCount: 1,
+    dispatchAttemptCount: 0,
+    adapterExecutionCount: 0,
+    childInterventionExecutionCount: 0,
+    enforcementExecutionCount: 0,
+    dryRunOnly: true,
+    policyAuthorityOnly: true,
+  });
+  expect(status.candidates).toEqual([
+    {
+      eventRef: `event-ref-${AgentBrowserRuntimeEventType.PolicyDecisionCompleted}`,
+      policyPreviewId: 'browser-policy-preview-test',
+      assistantActionIntentId: 'browser-action-intent-test',
+      sourceRef: 'browser-source.managed-devtools',
+      evidenceRef: 'browser-evidence.1',
+      observedAt: '2026-06-07T19:30:00Z',
+    },
+  ]);
+
+  const emptyParsed = parseAgentBrowserRuntimeEventChainStreamFields(streamFields());
+  expect(emptyParsed.ok).toBe(true);
+  if (!emptyParsed.ok) {
+    return;
+  }
+  const emptyStatus = deriveAgentBrowserRuntimeActionIntentStatus(emptyParsed.value);
+  expect(emptyStatus.candidateCount).toBe(0);
 }
 
 function specifyRejections() {

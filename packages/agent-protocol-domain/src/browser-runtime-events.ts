@@ -204,6 +204,26 @@ export type AgentBrowserRuntimeEventPayload = Infer<typeof AgentBrowserRuntimeEv
 export type AgentBrowserRuntimeEventChainEntry = Infer<typeof AgentBrowserRuntimeEventChainEntrySchema>;
 export type AgentBrowserRuntimeEventChainStream = Infer<typeof AgentBrowserRuntimeEventChainStreamSchema>;
 
+export type AgentBrowserRuntimeActionIntentCandidate = {
+  readonly eventRef: string;
+  readonly policyPreviewId: string;
+  readonly assistantActionIntentId: string;
+  readonly sourceRef: string;
+  readonly evidenceRef: string;
+  readonly observedAt: string;
+};
+
+export type AgentBrowserRuntimeActionIntentStatus = {
+  readonly candidateCount: number;
+  readonly dispatchAttemptCount: 0;
+  readonly adapterExecutionCount: 0;
+  readonly childInterventionExecutionCount: 0;
+  readonly enforcementExecutionCount: 0;
+  readonly dryRunOnly: true;
+  readonly policyAuthorityOnly: true;
+  readonly candidates: readonly AgentBrowserRuntimeActionIntentCandidate[];
+};
+
 export type AgentBrowserRuntimeEventChainStreamFailureReason =
   | 'missing-json-field'
   | 'invalid-json'
@@ -268,6 +288,22 @@ export function parseAgentBrowserRuntimeEventChainStreamFields(
   );
 }
 
+export function deriveAgentBrowserRuntimeActionIntentStatus(
+  stream: AgentBrowserRuntimeEventChainStream
+): AgentBrowserRuntimeActionIntentStatus {
+  const candidates = stream.entries.flatMap((entry) => actionIntentCandidateFromEntry(entry));
+  return {
+    candidateCount: candidates.length,
+    dispatchAttemptCount: 0,
+    adapterExecutionCount: 0,
+    childInterventionExecutionCount: 0,
+    enforcementExecutionCount: 0,
+    dryRunOnly: true,
+    policyAuthorityOnly: true,
+    candidates,
+  };
+}
+
 function streamResult(
   parsed: SafeParseResult<AgentBrowserRuntimeEventChainStream>
 ): AgentBrowserRuntimeEventChainStreamResult {
@@ -292,6 +328,31 @@ function parserFailure(
 function numberField(fields: LogFields, key: string): number | null {
   const value = fields[key];
   return typeof value === 'number' ? value : null;
+}
+
+function actionIntentCandidateFromEntry(
+  entry: AgentBrowserRuntimeEventChainEntry
+): AgentBrowserRuntimeActionIntentCandidate[] {
+  const payload = entry.payload;
+  if (
+    payload.phase !== AgentBrowserRuntimePhase.PolicyDecisionCompleted ||
+    !payload.dryRun ||
+    !payload.policyAuthority ||
+    payload.policyPreviewId === null ||
+    payload.assistantActionIntentId === null
+  ) {
+    return [];
+  }
+  return [
+    {
+      eventRef: entry.eventRef,
+      policyPreviewId: payload.policyPreviewId,
+      assistantActionIntentId: payload.assistantActionIntentId,
+      sourceRef: payload.sourceRef,
+      evidenceRef: payload.evidenceRef,
+      observedAt: payload.observedAt,
+    },
+  ];
 }
 
 function browserRuntimePayloadIsHonest(payload: {

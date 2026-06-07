@@ -551,6 +551,19 @@ mutation, or enforcement execution. It does not create a generic event bus,
 external transport, final policy execution, browser mutation, child
 intervention, or enforcement path.
 
+WP13 action-intent status bridge addendum:
+`browser-runtime-action-intent-status-bridge-proof` derives pending
+action-intent subscriber status from the existing browser runtime event-chain
+stream. The typed protocol-domain projection accepts only dry-run policy
+decision events with policy preview and parent action-intent refs, preserves the
+source event/evidence refs, and pins dispatch, adapter execution, child
+intervention execution, and enforcement counts to zero. Evidence:
+`test-results/browser-runtime-action-intent-status-bridge-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-action-intent-status-bridge/01-browser-runtime-action-intent-status-bridge-proof.md`.
+This does not create a new command family, generic event bus, external
+transport, browser mutation path, child intervention execution path, or
+enforcement path.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

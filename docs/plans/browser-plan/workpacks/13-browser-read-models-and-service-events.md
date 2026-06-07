@@ -306,3 +306,27 @@ The proof keeps `dispatchAttemptCount`, `adapterExecutionCount`,
 `childInterventionExecutionCount`, and `enforcementExecutionCount` at zero. It
 does not create a generic event bus, implement external transport, execute final
 policy, mutate browser state, execute child intervention, or enforce.
+
+## Action-Intent Status Bridge Addendum - 2026-06-07
+
+`browser-runtime-action-intent-status-bridge-proof` adds a typed
+protocol-domain subscriber projection over the existing browser runtime
+event-chain stream. It derives pending action-intent candidates only from
+dry-run policy decision events that carry a policy preview id and parent
+action-intent id, preserving the stream event ref, source ref, evidence ref, and
+observed-at timestamp.
+
+Evidence:
+
+- `packages/agent-protocol-domain/src/browser-runtime-events.ts`
+- `packages/agent-protocol-domain/tests/browser-runtime-events.test.ts`
+- `scripts/test/browser-runtime-action-intent-status-bridge-proof.mjs`
+- `test-results/browser-runtime-action-intent-status-bridge-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-status-bridge/01-browser-runtime-action-intent-status-bridge-proof.md`
+- `cmd /c node scripts/test/browser-runtime-action-intent-status-bridge-proof.mjs`
+
+The projection uses the existing browser runtime stream command/event instead
+of adding a new command family. It keeps dispatch attempts, adapter execution,
+child intervention execution, and enforcement at zero. It does not create a new
+generic event bus, implement external transport, execute final policy, mutate
+browser state, execute child intervention, or enforce.

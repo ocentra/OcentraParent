@@ -130,6 +130,12 @@ control while being more honest about managed versus unmanaged sources.
   prepared local action-intent outbox candidates with source event, policy
   preview, action intent, outbox, and handoff refs. Dispatch attempts, adapter
   execution, browser mutation, child intervention, and enforcement remain zero.
+- Browser-plan WP13 now also derives pending action-intent subscriber status
+  from the existing browser runtime event-chain stream. The projection accepts
+  only dry-run policy-decision events with policy preview and parent
+  action-intent refs, preserves event/evidence refs, and keeps dispatch, adapter
+  execution, child intervention execution, and enforcement at zero without
+  adding a new command family or generic event bus.
 - Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
   through activity-domain inventory contracts, Rust protocol, and service
   payload/read-model proof. Contract tests cover mixed managed, unmanaged, and
