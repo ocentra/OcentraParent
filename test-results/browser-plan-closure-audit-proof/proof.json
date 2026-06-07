@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-plan-closure-audit-proof",
-  "generatedAt": "2026-06-07T12:05:44.287Z",
+  "generatedAt": "2026-06-07T12:30:56.728Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "sourceCommitAtGeneration": "ee7adb24c70ba56cf28c7d61fd5d058a56f61d9c",
-  "baseCommit": "4f191cfdbe556be592813ab56c3a5e234d1184da",
+  "sourceCommitAtGeneration": "75fd6213abe09968929f45c3106543ade842fb9c",
+  "baseCommit": "3ae5f3aebbd71208936257b93bd5111e638c87ed",
   "checklist": "docs/plans/browser-plan/implementation-checklist.md",
   "summary": {
     "checklistRows": 97,

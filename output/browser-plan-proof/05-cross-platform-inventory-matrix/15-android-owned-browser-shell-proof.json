@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofId": "browser-platform-android-owned-shell-proof",
-  "generatedAt": "2026-06-07T11:40:26.270Z",
+  "generatedAt": "2026-06-07T12:28:51.565Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "93c8693fda75c2ecb62762cc1a824a6b416ca06a",
-  "baseCommit": "188336c71100d18c875020799d1791a26802a7fd",
+  "commit": "75fd6213abe09968929f45c3106543ade842fb9c",
+  "baseCommit": "3ae5f3aebbd71208936257b93bd5111e638c87ed",
   "hostProofSummary": {
     "adbInstalled": true,
     "adbPathPersisted": false,
@@ -62,7 +62,7 @@
     "enforcementClaimed": false,
     "resultState": "android-owned-browser-shell-device-owner-policy-mutation-proof"
   },
-  "proofUrlRef": "redacted-android-owned-browser-proof-url-26265c2b46300b08",
+  "proofUrlRef": "redacted-android-owned-browser-proof-url-987a949703e5e213",
   "proofUrlPersisted": false,
   "apk": {
     "path": "platforms/android/agent/browser-shell/build/outputs/apk/debug/browser-shell-debug.apk",
@@ -85,7 +85,7 @@
       "deviceOwnerPolicyMutationLimitedToProofLaunchedEmulator": true,
       "deviceOwnerSetResultSha256": "f2fa0a3f495c0db737c45046f0db949943aa0ed21d1bf3564008debf0f657d79",
       "deviceOwnerQuerySha256": "6924b0045b2c9973a150fe8f40184794a2754a1f0ad169c2b9fb61833ec3b4cd",
-      "devicePolicyDumpSha256": "0f388dc6822f3cdc9885665698de7b255045e1189a42c2d1a451322f85dbef01",
+      "devicePolicyDumpSha256": "dfc57a90053e56af6062fc1322cb8c5f18ab7b8a3a6564e04baa8a93f092050b",
       "rawDpmOutputPersisted": false,
       "viewIntentResolved": false,
       "afterPolicyViewIntentResolved": false,

@@ -27,6 +27,15 @@ const packageName = 'com.ocentra.parent.browser';
 const activityName = 'ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity';
 const deviceAdminReceiverName = 'ca.ocentra.parent.browser.OcentraOwnedBrowserDeviceAdminReceiver';
 const deviceAdminComponentName = `${packageName}/${deviceAdminReceiverName}`;
+const browserViewIntentArgs = [
+  '-a',
+  'android.intent.action.VIEW',
+  '-c',
+  'android.intent.category.DEFAULT',
+  '-c',
+  'android.intent.category.BROWSABLE',
+  '-d',
+];
 const proofAvdName = 'OcentraParentDeviceOwnerProof';
 const proofAvdPackage = 'system-images;android-33;aosp_atd;x86_64';
 const proofAvdDevice = 'pixel_6';
@@ -253,19 +262,7 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
     allowFailure: true,
   });
   const beforePolicyResolveOutput = command(
-    [
-      '-s',
-      serial,
-      'shell',
-      'cmd',
-      'package',
-      'resolve-activity',
-      '--brief',
-      '-a',
-      'android.intent.action.VIEW',
-      '-d',
-      proofUrl,
-    ],
+    ['-s', serial, 'shell', 'cmd', 'package', 'resolve-activity', '--brief', ...browserViewIntentArgs, proofUrl],
     { adbPath, allowFailure: true }
   );
   command(
@@ -276,9 +273,7 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
       'am',
       'start',
       '-W',
-      '-a',
-      'android.intent.action.VIEW',
-      '-d',
+      ...browserViewIntentArgs,
       proofUrl,
       '-n',
       `${packageName}/${activityName}`,
@@ -288,23 +283,11 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
 
   const explicitUiTree = await waitForOwnedBrowserUi(adbPath, serial);
   const afterPolicyResolveOutput = command(
-    [
-      '-s',
-      serial,
-      'shell',
-      'cmd',
-      'package',
-      'resolve-activity',
-      '--brief',
-      '-a',
-      'android.intent.action.VIEW',
-      '-d',
-      proofUrl,
-    ],
+    ['-s', serial, 'shell', 'cmd', 'package', 'resolve-activity', '--brief', ...browserViewIntentArgs, proofUrl],
     { adbPath, allowFailure: true }
   );
   command(['-s', serial, 'shell', 'am', 'force-stop', packageName], { adbPath, allowFailure: true });
-  command(['-s', serial, 'shell', 'am', 'start', '-W', '-a', 'android.intent.action.VIEW', '-d', proofUrl], {
+  command(['-s', serial, 'shell', 'am', 'start', '-W', ...browserViewIntentArgs, proofUrl], {
     adbPath,
     allowFailure: false,
   });

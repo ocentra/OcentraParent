@@ -1,6 +1,6 @@
 # WP05 Platform Inventory Matrix Proof Gate
 
-Generated: 2026-06-07T12:05:48.912Z
+Generated: 2026-06-07T12:31:03.144Z
 
 Rows checked: 12
 Host-observed rows: 3
