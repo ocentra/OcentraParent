@@ -80,6 +80,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `../25-policy-compiler-for-tracking-rules/proof.json`
 - Tracking notification receipt boundary proof:
   `22-notification-receipt-boundary-proof.json`
+- WP18 child check-in timeout escalation proof:
+  `31-child-check-in-timeout-escalation-proof.json`
 - Hosted child-safe check-in screenshot:
   `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 - Notification preference preflight proof:
@@ -202,6 +204,18 @@ notification status refs, reason refs, provider attempt refs, and audit refs
 while keeping actual webhook/provider receipt ingestion, provider delivery,
 credentials, adapter dispatch, child-device delivery, authority, physical-device
 proof, and production durable outbox storage unclaimed.
+
+This branch refreshes
+`node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`, which
+derives WP18 child check-in rows for waiting, safe response, help response,
+call-parent response, and expired timeout states. The WP18/WP33 proof now
+records optional location-sample request state, attached response
+location-evidence refs, prompt/response audit coverage, alert outcome
+projection, and rule-only timeout escalation basis while keeping child-device
+delivery/runtime execution, rendered child UI, provider delivery, notification
+receipt runtime, live location sample runtime, physical-device proof, authority,
+production timeout workers, adapter dispatch, and product-ready child check-in
+behavior unclaimed.
 
 This branch adds `node scripts/test/tracking-place-category-ambiguity-proof.mjs`,
 which derives WP21 place-category ambiguity review rows from the existing POI
@@ -557,26 +571,29 @@ test:tracking-plan-hosted-ui-proof` passed.
       behavior remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain child check-in timeout escalation
-      proof/test, proof script, owning tracking feature doc, implementation
-      checklist, WP18, WP33, generated WP18/WP33 proof artifacts, and hub doc
-      delta queue.
+- [x] Touched files: parent-domain child check-in timeout proof model/test,
+      proof script, owning tracking feature doc, implementation checklist,
+      WP18, WP33, generated WP18/WP33 proof artifacts, and hub doc delta queue.
 - [x] Validation commands and results:
       `node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`
-      passed.
+      passed after adding optional location-sample, prompt/response audit,
+      alert-outcome, and rule-only escalation assertions.
 - [x] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/31-child-check-in-timeout-escalation-proof.json`,
       `output/tracking-plan-proof/18-child-check-in-flow/31-child-check-in-timeout-escalation-proof.json`,
-      and `test-results/tracking-child-check-in-timeout-escalation-proof/proof.json`.
+      `test-results/tracking-child-check-in-timeout-escalation-proof/proof.json`,
+      and
+      `test-results/tracking-child-check-in-timeout-escalation-proof/tracking-child-check-in-timeout-read-model.json`.
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP18, and WP33 updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta.
-- [x] Known gaps/manual-required states: child-device delivery/runtime
-      execution, rendered child UI, provider delivery, notification receipt
-      runtime, live location sample runtime, physical-device proof, authority
-      proof, production timeout workers, adapter dispatch, and product-ready
-      child check-in behavior remain proof-gated.
+- [x] Known gaps/manual-required states: this remains P1 fixture proof.
+      Child-device delivery/runtime execution, rendered child-device UI,
+      provider delivery, notification receipt runtime, live location sample
+      runtime, physical-device proof, authority proof, production timeout
+      workers, adapter dispatch, and product-ready child check-in behavior
+      remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: hosted parent action readiness proof model, portal route

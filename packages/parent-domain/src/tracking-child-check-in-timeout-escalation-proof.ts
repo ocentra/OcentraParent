@@ -48,6 +48,18 @@ export const TrackingChildCheckInTimeoutStateSchema = withParser(
     'manual-required'
   )
 );
+export const TrackingChildCheckInTimeoutAlertOutcomeSchema = withParser(
+  Schema.Literal('awaiting-child-response', 'alert-resolved-safe', 'parent-review-required')
+);
+export const TrackingChildCheckInTimeoutLocationSampleStateSchema = withParser(
+  Schema.Literal('requested-not-yet-attached', 'attached-from-child-response', 'not-attached')
+);
+export const TrackingChildCheckInTimeoutAuditCoverageStateSchema = withParser(
+  Schema.Literal('prompt-audited', 'prompt-and-response-audited')
+);
+export const TrackingChildCheckInTimeoutEscalationBasisSchema = withParser(
+  Schema.Literal('none', 'child-help-response', 'child-call-parent-response', 'expired-rule-only-timeout')
+);
 
 const TrackingChildCheckInTimeoutRowBaseSchema = Schema.Struct({
   rowId: TrackingChildCheckInTimeoutRowIdSchema,
@@ -60,6 +72,10 @@ const TrackingChildCheckInTimeoutRowBaseSchema = Schema.Struct({
   escalates: Schema.Boolean,
   includeLocationIfPermitted: Schema.Boolean,
   locationEvidenceReferenceId: Schema.Union(TrackingChildCheckInTimeoutText, Schema.Null),
+  locationSampleState: TrackingChildCheckInTimeoutLocationSampleStateSchema,
+  auditCoverageState: TrackingChildCheckInTimeoutAuditCoverageStateSchema,
+  alertOutcome: TrackingChildCheckInTimeoutAlertOutcomeSchema,
+  escalationBasis: TrackingChildCheckInTimeoutEscalationBasisSchema,
   evidenceReferenceIds: Schema.Array(TrackingChildCheckInTimeoutText),
   policyDecisionRefs: Schema.Array(TrackingChildCheckInTimeoutText),
   auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
@@ -93,6 +109,12 @@ const TrackingChildCheckInTimeoutReadModelBaseSchema = Schema.Struct({
   waitingCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   resolvedCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   escalationReadyCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+  locationSampleRequestedCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+  attachedLocationSampleCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+  auditedPromptCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+  auditedResponseCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+  ruleOnlyEscalationCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+  safeAlertOutcomeCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   readinessNonClaims: Schema.Array(TrackingChildCheckInTimeoutNonClaimSchema),
   childDeviceDeliveryRuntimeClaimed: Schema.Literal(false),
   childDeviceResponseRuntimeClaimed: Schema.Literal(false),
@@ -155,6 +177,13 @@ export function buildTrackingChildCheckInTimeoutReadModel(
       'expired-timeout-escalation-ready',
       'manual-required',
     ]),
+    locationSampleRequestedCount: rows.filter((row) => row.includeLocationIfPermitted).length,
+    attachedLocationSampleCount: rows.filter((row) => row.locationSampleState === 'attached-from-child-response')
+      .length,
+    auditedPromptCount: rows.filter((row) => row.auditCoverageState === 'prompt-audited').length,
+    auditedResponseCount: rows.filter((row) => row.auditCoverageState === 'prompt-and-response-audited').length,
+    ruleOnlyEscalationCount: rows.filter((row) => row.escalationBasis === 'expired-rule-only-timeout').length,
+    safeAlertOutcomeCount: rows.filter((row) => row.alertOutcome === 'alert-resolved-safe').length,
     readinessNonClaims: RequiredTrackingChildCheckInTimeoutNonClaims,
     childDeviceDeliveryRuntimeClaimed: false,
     childDeviceResponseRuntimeClaimed: false,
@@ -195,6 +224,10 @@ function childCheckInTimeoutRowForRequest(
     escalates: escalationStateEscalates(resolutionState),
     includeLocationIfPermitted: request.includeLocationIfPermitted,
     locationEvidenceReferenceId: response?.locationEvidenceReference?.evidenceReferenceId ?? null,
+    locationSampleState: locationSampleStateFor(request, response),
+    auditCoverageState: response === null ? 'prompt-audited' : 'prompt-and-response-audited',
+    alertOutcome: alertOutcomeFor(resolutionState),
+    escalationBasis: escalationBasisFor(resolutionState),
     evidenceReferenceIds: evidenceReferenceIdsFor(request, response, alert),
     policyDecisionRefs: alert === null ? [] : [alert.policyDecisionId],
     auditRefs: auditRefsFor(request, response, resolution.reasonCodes, resolutionState),
@@ -257,6 +290,46 @@ function escalationStateEscalates(state: TrackingChildCheckInTimeoutState): bool
     state === 'expired-timeout-escalation-ready' ||
     state === 'manual-required'
   );
+}
+
+function locationSampleStateFor(
+  request: TrackingChildCheckInRequest,
+  response: TrackingChildCheckInResponse | null
+): 'requested-not-yet-attached' | 'attached-from-child-response' | 'not-attached' {
+  if (!request.includeLocationIfPermitted) {
+    return 'not-attached';
+  }
+  if (response?.locationEvidenceReference !== null && response !== null) {
+    return 'attached-from-child-response';
+  }
+  return 'requested-not-yet-attached';
+}
+
+function alertOutcomeFor(
+  state: TrackingChildCheckInTimeoutState
+): 'awaiting-child-response' | 'alert-resolved-safe' | 'parent-review-required' {
+  if (state === 'safe-response-recorded' || state === 'cancelled') {
+    return 'alert-resolved-safe';
+  }
+  if (escalationStateEscalates(state)) {
+    return 'parent-review-required';
+  }
+  return 'awaiting-child-response';
+}
+
+function escalationBasisFor(
+  state: TrackingChildCheckInTimeoutState
+): 'none' | 'child-help-response' | 'child-call-parent-response' | 'expired-rule-only-timeout' {
+  if (state === 'help-response-escalation-ready') {
+    return 'child-help-response';
+  }
+  if (state === 'call-parent-response-escalation-ready') {
+    return 'child-call-parent-response';
+  }
+  if (state === 'expired-timeout-escalation-ready') {
+    return 'expired-rule-only-timeout';
+  }
+  return 'none';
 }
 
 function evidenceReferenceIdsFor(
@@ -322,6 +395,10 @@ function trackingChildCheckInTimeoutRowIsHonest(row: TrackingChildCheckInTimeout
     row.auditRefs.length > 0 &&
     row.manualProofRequirements.length > 0 &&
     row.escalates === escalationStateEscalates(row.resolutionState) &&
+    row.locationSampleState === locationSampleStateFromRow(row) &&
+    row.auditCoverageState === (row.sourceResponseKind === null ? 'prompt-audited' : 'prompt-and-response-audited') &&
+    row.alertOutcome === alertOutcomeFor(row.resolutionState) &&
+    row.escalationBasis === escalationBasisFor(row.resolutionState) &&
     row.childDeviceDeliveryRuntimeClaimed === false &&
     row.childDeviceResponseRuntimeClaimed === false &&
     row.renderedChildDeviceUiClaimed === false &&
@@ -344,10 +421,33 @@ function trackingChildCheckInTimeoutReadModelIsHonest(readModel: TrackingChildCh
         'expired-timeout-escalation-ready',
         'manual-required',
       ]) &&
+    readModel.locationSampleRequestedCount === readModel.rows.filter((row) => row.includeLocationIfPermitted).length &&
+    readModel.attachedLocationSampleCount ===
+      readModel.rows.filter((row) => row.locationSampleState === 'attached-from-child-response').length &&
+    readModel.auditedPromptCount ===
+      readModel.rows.filter((row) => row.auditCoverageState === 'prompt-audited').length &&
+    readModel.auditedResponseCount ===
+      readModel.rows.filter((row) => row.auditCoverageState === 'prompt-and-response-audited').length &&
+    readModel.ruleOnlyEscalationCount ===
+      readModel.rows.filter((row) => row.escalationBasis === 'expired-rule-only-timeout').length &&
+    readModel.safeAlertOutcomeCount ===
+      readModel.rows.filter((row) => row.alertOutcome === 'alert-resolved-safe').length &&
     readModel.childDeviceDeliveryRuntimeClaimed === false &&
     readModel.renderedChildDeviceUiClaimed === false &&
     readModel.providerDeliveryClaimed === false &&
     readModel.physicalDeviceProofClaimed === false &&
     readModel.productClaimReady === false
   );
+}
+
+function locationSampleStateFromRow(
+  row: TrackingChildCheckInTimeoutRowInput
+): 'requested-not-yet-attached' | 'attached-from-child-response' | 'not-attached' {
+  if (!row.includeLocationIfPermitted) {
+    return 'not-attached';
+  }
+  if (row.locationEvidenceReferenceId !== null) {
+    return 'attached-from-child-response';
+  }
+  return 'requested-not-yet-attached';
 }

@@ -54,6 +54,12 @@ async function main() {
   assert.equal(readModel.waitingCount, 1, 'waiting rows');
   assert.equal(readModel.resolvedCount, 1, 'resolved rows');
   assert.equal(readModel.escalationReadyCount, 3, 'escalation-ready rows');
+  assert.equal(readModel.locationSampleRequestedCount, 5, 'location sample requested rows');
+  assert.equal(readModel.attachedLocationSampleCount, 2, 'attached location sample rows');
+  assert.equal(readModel.auditedPromptCount, 2, 'prompt-only audit rows');
+  assert.equal(readModel.auditedResponseCount, 3, 'prompt-and-response audit rows');
+  assert.equal(readModel.ruleOnlyEscalationCount, 1, 'rule-only timeout escalation rows');
+  assert.equal(readModel.safeAlertOutcomeCount, 1, 'safe alert outcome rows');
   assert.equal(readModel.childDeviceDeliveryRuntimeClaimed, false, 'no child delivery runtime');
   assert.equal(readModel.renderedChildDeviceUiClaimed, false, 'no rendered child UI');
   assert.equal(readModel.providerDeliveryClaimed, false, 'no provider delivery');
@@ -89,11 +95,20 @@ async function writeProofArtifacts({ checkedAt, commit, readModel }) {
       'tracking-child-check-in.help-response-escalation-ready',
       'tracking-child-check-in.call-parent-response-escalation-ready',
       'tracking-child-check-in.expired-timeout-escalation-ready',
+      'tracking-child-check-in.optional-location-sample-requested',
+      'tracking-child-check-in.location-sample-attached-from-response',
+      'tracking-child-check-in.prompt-and-response-audit-refs-preserved',
+      'tracking-child-check-in.rule-only-timeout-escalation',
       'tracking-child-check-in.no-child-runtime-or-device-claim',
     ],
     productClaims: {
       childCheckInTimeoutRowsClaimed: true,
       childCheckInResolutionContractClaimed: true,
+      optionalLocationSampleRequestClaimed: true,
+      childResponseLocationEvidenceRefClaimed: true,
+      promptAndResponseAuditRefsClaimed: true,
+      alertOutcomeProjectionClaimed: true,
+      ruleOnlyTimeoutEscalationClaimed: true,
       childDeviceDeliveryRuntimeClaimed: false,
       childDeviceResponseRuntimeClaimed: false,
       renderedChildDeviceUiClaimed: false,
@@ -107,7 +122,7 @@ async function writeProofArtifacts({ checkedAt, commit, readModel }) {
       productClaimReady: false,
     },
     missingProofReason:
-      'P1 fixture proof covers child check-in timeout and escalation readiness rows over existing tracking check-in contracts and runtime resolver. Child-device delivery/runtime execution, rendered child-device UI, provider delivery, receipt runtime, live location sample runtime, physical-device proof, authority proof, production timeout workers, and adapter dispatch remain unclaimed.',
+      'P1 fixture proof covers child check-in timeout, optional location-sample request/attached evidence refs, prompt/response audit refs, safe alert outcome projection, and rule-only timeout escalation rows over existing tracking check-in contracts and runtime resolver. Child-device delivery/runtime execution, rendered child-device UI, provider delivery, receipt runtime, live location sample runtime, physical-device proof, authority proof, production timeout workers, and adapter dispatch remain unclaimed.',
     commands,
   };
 
@@ -141,6 +156,7 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- requiredProofTier: P1_FIXTURE_SIMULATION',
     '- currentProofTier: P1_FIXTURE_SIMULATION',
     '- status: proved',
+    '- proves optional location sample request/attached refs, prompt/response audit refs, alert outcome projection, and rule-only timeout escalation over fixture rows',
     '- proof module: packages/parent-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
     '- proof tests: packages/parent-domain/tests/tracking-child-check-in-timeout-escalation-proof.test.ts',
     '- proof harness: scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs',
@@ -155,6 +171,8 @@ function securityNegativeProof() {
     'workpack=18-child-check-in-flow',
     'Child check-in rows preserve request, response, alert, evidence, policy, audit, parent action, and timeout refs.',
     'Escalation-ready rows are derived only from help/call-parent/no-response or expired timeout states.',
+    'Expired timeout escalation is rule-only and does not infer child intent, blame, or device delivery.',
+    'Optional location sample evidence is an attached child response ref only when present in the source read model.',
     'Child-device delivery/runtime execution, rendered child UI, provider delivery, receipt runtime, live location sample runtime, physical-device proof, authority proof, production timeout workers, and adapter dispatch are all non-claims.',
     '',
   ].join('\n');

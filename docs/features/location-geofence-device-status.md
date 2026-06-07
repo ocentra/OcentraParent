@@ -614,10 +614,13 @@ accessibility beyond the hosted parent route are proved.
       product-ready proof.
 - [x] Child check-in timeout escalation readiness rows. This proves waiting,
       safe, help, call-parent, and expired-timeout rows from the existing child
-      check-in resolver and policy refs. It is not child-device delivery,
-      rendered child UI, provider delivery, receipt runtime, live location
-      runtime, physical-device, authority, production timeout worker, or adapter
-      dispatch proof.
+      check-in resolver and policy refs, including optional location-sample
+      request state, attached response location-evidence refs, prompt/response
+      audit coverage, alert outcome projection, and rule-only timeout
+      escalation basis. It is not child-device delivery, rendered child UI,
+      provider delivery, receipt runtime, live location runtime,
+      physical-device, authority, production timeout worker, or adapter dispatch
+      proof.
 - [x] Tracking alert intents map to provider-status boundary evidence with
       evidence refs, policy decision refs, notification status refs, reason refs,
       and minimal/authenticated-drill-in payload boundaries. This is not

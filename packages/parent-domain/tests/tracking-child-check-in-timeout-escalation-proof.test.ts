@@ -14,19 +14,18 @@ const EvidenceTrace = {
 
 describe('tracking child check-in timeout escalation proof', () => {
   it('derives waiting, safe, help, call-parent, and timeout escalation rows', () => {
-    const readModel = buildTrackingChildCheckInTimeoutReadModel(
-      {
-        generatedAt: '2026-06-06T18:10:00.000Z',
-        readinessId: 'tracking-child-check-in-timeout-escalation-proof',
-        sourceContractRefs: ['tracking-location-policy', 'tracking-wp18-child-check-in'],
-      },
-      trackingPolicyReadModelFixture()
-    );
+    const readModel = proofReadModel();
 
     expect(readModel.rows).toHaveLength(5);
     expect(readModel.waitingCount).toBe(1);
     expect(readModel.resolvedCount).toBe(1);
     expect(readModel.escalationReadyCount).toBe(3);
+    expect(readModel.locationSampleRequestedCount).toBe(5);
+    expect(readModel.attachedLocationSampleCount).toBe(2);
+    expect(readModel.auditedPromptCount).toBe(2);
+    expect(readModel.auditedResponseCount).toBe(3);
+    expect(readModel.ruleOnlyEscalationCount).toBe(1);
+    expect(readModel.safeAlertOutcomeCount).toBe(1);
     expect(readModel.productClaimReady).toBe(false);
     expect(readModel.childDeviceDeliveryRuntimeClaimed).toBe(false);
     expect(readModel.renderedChildDeviceUiClaimed).toBe(false);
@@ -40,33 +39,27 @@ describe('tracking child check-in timeout escalation proof', () => {
   });
 
   it('preserves evidence, audit, location, and parent action refs for escalation rows', () => {
-    const readModel = buildTrackingChildCheckInTimeoutReadModel(
-      {
-        generatedAt: '2026-06-06T18:10:00.000Z',
-        readinessId: 'tracking-child-check-in-timeout-escalation-proof',
-        sourceContractRefs: ['tracking-location-policy', 'tracking-wp18-child-check-in'],
-      },
-      trackingPolicyReadModelFixture()
-    );
+    const readModel = proofReadModel();
     const help = readModel.rows.find((row) => row.checkInId === 'tracking-check-in-help');
     const timeout = readModel.rows.find((row) => row.checkInId === 'tracking-check-in-expired');
 
     expect(help?.escalates).toBe(true);
     expect(help?.locationEvidenceReferenceId).toBe('tracking-child-check-in-help-location');
+    expect(help?.locationSampleState).toBe('attached-from-child-response');
+    expect(help?.auditCoverageState).toBe('prompt-and-response-audited');
+    expect(help?.alertOutcome).toBe('parent-review-required');
+    expect(help?.escalationBasis).toBe('child-help-response');
     expect(help?.parentActionRefs).toContain('tracking-parent-review-child-check-in-tracking-check-in-help');
+    expect(timeout?.locationSampleState).toBe('requested-not-yet-attached');
+    expect(timeout?.auditCoverageState).toBe('prompt-audited');
+    expect(timeout?.alertOutcome).toBe('parent-review-required');
+    expect(timeout?.escalationBasis).toBe('expired-rule-only-timeout');
     expect(timeout?.manualProofRequirements).toContain('timeout-worker-proof-required');
     expect(timeout?.providerDeliveryClaimed).toBe(false);
   });
 
   it('rejects rows and read models that claim child runtime or physical proof', () => {
-    const readModel = buildTrackingChildCheckInTimeoutReadModel(
-      {
-        generatedAt: '2026-06-06T18:10:00.000Z',
-        readinessId: 'tracking-child-check-in-timeout-escalation-proof',
-        sourceContractRefs: ['tracking-location-policy', 'tracking-wp18-child-check-in'],
-      },
-      trackingPolicyReadModelFixture()
-    );
+    const readModel = proofReadModel();
     const unsafeRow = TrackingChildCheckInTimeoutRowSchema.safeParse({
       ...readModel.rows[0],
       childDeviceDeliveryRuntimeClaimed: true,
@@ -83,6 +76,17 @@ describe('tracking child check-in timeout escalation proof', () => {
 
 function rowState(readModel: ReturnType<typeof buildTrackingChildCheckInTimeoutReadModel>, checkInId: string) {
   return readModel.rows.find((row) => row.checkInId === checkInId)?.resolutionState;
+}
+
+function proofReadModel() {
+  return buildTrackingChildCheckInTimeoutReadModel(
+    {
+      generatedAt: '2026-06-06T18:10:00.000Z',
+      readinessId: 'tracking-child-check-in-timeout-escalation-proof',
+      sourceContractRefs: ['tracking-location-policy', 'tracking-wp18-child-check-in'],
+    },
+    trackingPolicyReadModelFixture()
+  );
 }
 
 function trackingPolicyReadModelFixture() {
