@@ -212,7 +212,8 @@ expose location or device-status features. Parents expect this category.
 - WP33 tracking product-readiness closure proof now exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`. It cites the
   current pre-device, Android emulator, iOS simulator, WSL/local, hosted UI
-  artifact inventory, Android system geofence blocker, child-runtime blocker,
+  artifact inventory, Android system geofence blocker,
+  authority-enrollment manual-required, child-runtime blocker,
   physical-device artifact gate, provider-delivery artifact gate,
   provider-runtime readiness blocker, escalation-runtime readiness blocker, and
   retention product-readiness blocker proof refs, writes
