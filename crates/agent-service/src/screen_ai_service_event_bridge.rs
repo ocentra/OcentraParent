@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use ocentra_parent_agent_core::{
-    ActivityStore, ScreenRuntimeCaptureInput, ScreenRuntimeDeletionInput, ScreenRuntimeInput,
-    ScreenRuntimeReport,
+    ActivityStore, ScreenRuntimeCaptureInput, ScreenRuntimeDegradedInput,
+    ScreenRuntimeDeletionInput, ScreenRuntimeInput, ScreenRuntimeReport,
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityScreenReadModelRow, SCREEN_DELETION_DELETED, SCREEN_DELETION_EXPIRED_DELETED,
@@ -56,6 +56,16 @@ pub(crate) async fn publish_screen_deletion_event_chain(
 ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
     let input = screen_runtime_deletion_input_from_service_row(row)?;
     ocentra_parent_agent_core::publish_screen_deletion_event_for_input(input, observed_at)
+        .await
+        .map_err(|_| ScreenAiServiceEventBridgeError::EventPublishFailed)
+}
+
+pub(crate) async fn publish_screen_degraded_event_chain(
+    row: ActivityScreenReadModelRow,
+    observed_at: &str,
+) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
+    let input = screen_runtime_degraded_input_from_service_row(row)?;
+    ocentra_parent_agent_core::publish_screen_degraded_event_chain_for_input(input, observed_at)
         .await
         .map_err(|_| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }
@@ -173,6 +183,35 @@ pub(crate) fn screen_runtime_capture_input_from_service_row(
         model_runtime_ref: row.model_runtime_ref,
         model_id: row.model_id,
         prompt_or_template_version: row.prompt_or_template_version,
+    })
+}
+
+pub(crate) fn screen_runtime_degraded_input_from_service_row(
+    row: ActivityScreenReadModelRow,
+) -> Result<ScreenRuntimeDegradedInput, ScreenAiServiceEventBridgeError> {
+    if row.raw_image_retained {
+        return Err(ScreenAiServiceEventBridgeError::RawImageRetained);
+    }
+    if !deletion_state_is_safe(&row.image_deletion_state) {
+        return Err(ScreenAiServiceEventBridgeError::UnsafeDeletionState);
+    }
+    let deletion_proof_ref = row
+        .deletion_reasons
+        .first()
+        .cloned()
+        .ok_or(ScreenAiServiceEventBridgeError::MissingDeletionProof)?;
+    Ok(ScreenRuntimeDegradedInput {
+        queue_job_id: row.queue_job_id,
+        screen_analysis_result_id: row.row_id.clone(),
+        capture_reason: row.capture_reason,
+        capture_scope: row.capture_scope,
+        image_digest: row.image_digest,
+        summary: row.label,
+        model_runtime_ref: row.model_runtime_ref,
+        model_id: row.model_id,
+        prompt_or_template_version: row.prompt_or_template_version,
+        deletion_proof_ref,
+        portal_read_model_ref: row.row_id,
     })
 }
 

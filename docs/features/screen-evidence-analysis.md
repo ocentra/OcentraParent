@@ -913,7 +913,8 @@ parity, and UI remain separate proof gates.
       through `ocentra-eventing` without raw-image escape.
 - [x] Screen service event bridge proof maps service Activity Screen read-model
       rows into the existing typed screen event chain, rejects raw retention and
-      missing policy refs, and avoids a duplicate service event bus.
+      missing policy refs, publishes degraded AI rows without policy/action
+      refs, and avoids a duplicate service event bus.
 - [x] Screen service event subscription proof consumes typed service row-ready
       events from the service-started subscriber runtime, invokes the existing
       bridge, publishes downstream screen runtime events for safe rows, and
