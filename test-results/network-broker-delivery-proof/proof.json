@@ -1,0 +1,73 @@
+{
+  "proof": "network-broker-delivery",
+  "checkedAt": "2026-06-07T01:35:22.495Z",
+  "branch": "codex/network-broker-delivery-proof-artifacts",
+  "sourceCommit": "65f6316f7561d54f93a176da15be872009fe1741",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
+  "originMain": "c646ea1b43a5a3a259de7b6cf4285cb41780a78f",
+  "mergeBase": "c646ea1b43a5a3a259de7b6cf4285cb41780a78f",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\10a-broker-delivery-proof",
+  "testRoot": "test-results\\network-broker-delivery-proof",
+  "commands": [
+    {
+      "name": "network-broker-delivery-tests",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime_broker_delivery",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10a-broker-delivery-proof\\broker-delivery-tests.log"
+    },
+    {
+      "name": "network-queue-idempotency-tests",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime_queue_idempotency_rejects_queued_and_completed_duplicates",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10a-broker-delivery-proof\\queue-idempotency-tests.log"
+    },
+    {
+      "name": "network-queue-overflow-tests",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime_queue_overflow_dead_letters_oldest_flow",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10a-broker-delivery-proof\\queue-overflow-tests.log"
+    },
+    {
+      "name": "eventing-delivery-decision-tests",
+      "command": "cargo test -p ocentra-eventing delivery_decision",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10a-broker-delivery-proof\\eventing-delivery-decision-tests.log"
+    },
+    {
+      "name": "agent-core-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10a-broker-delivery-proof\\agent-core-clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10a-broker-delivery-proof\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "brokerDeliveryProofLog": "output\\network-plan-proof\\10a-broker-delivery-proof\\10a-broker-delivery-proof.log",
+    "proofSummary": "output\\network-plan-proof\\10a-broker-delivery-proof\\proof-summary.json",
+    "testProof": "test-results\\network-broker-delivery-proof\\proof.json"
+  },
+  "provenRows": [
+    "10a Broker delivery semantics proof"
+  ],
+  "provenBehavior": [
+    "broker route requirements can be satisfied while live broker delivery remains false",
+    "local network queue idempotency rejects queued and completed duplicate events",
+    "queue overflow creates dropped-event dead-letter audit evidence",
+    "broker replay, dropped-event audit, and adapter-action ledger refs are preserved",
+    "duplicate broker routes do not create duplicate enforcement command events or adapter actions"
+  ],
+  "notClaimed": [
+    "live broker delivery",
+    "relay-hub delivery",
+    "cross-process broker transport",
+    "production retention/delete/export propagation",
+    "adapter execution",
+    "enforcement command publication from duplicate broker events"
+  ]
+}
