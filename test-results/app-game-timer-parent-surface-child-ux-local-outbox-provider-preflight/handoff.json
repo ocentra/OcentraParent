@@ -1,0 +1,37 @@
+{
+  "workpack": "WP123",
+  "scope": "timer-parent-surface-child-ux-local-outbox-provider-preflight",
+  "branch": "codex/app-game-control-product-completion",
+  "claims": {
+    "childDeliveryRuntimeClaimed": false,
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "providerCredentialsClaimed": false,
+    "retryExecutionRuntimeClaimed": false,
+    "quietHoursTimerRuntimeClaimed": false,
+    "parentNotificationUiClaimed": false,
+    "productionDurableOutboxStorageClaimed": false,
+    "adapterDispatchClaimed": false,
+    "platformEnforcementClaimed": false,
+    "broadBlockingClaimed": false,
+    "rawPrivateSourceRowsIncluded": false,
+    "privateDiagnosticsIncluded": false
+  },
+  "artifacts": {
+    "summary": "output/app-game-plan-proof/123-timer-parent-surface-child-ux-local-outbox-provider-preflight/00-summary.md",
+    "validation": "output/app-game-plan-proof/123-timer-parent-surface-child-ux-local-outbox-provider-preflight/10-validation-commands.log"
+  },
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-child-facing-ux-local-outbox-provider-preflight",
+      "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "cmd /c npx prettier --check packages/parent-domain/src/app-game-child-facing-ux-local-outbox-provider-preflight.ts packages/parent-domain/tests/app-game-child-facing-ux-local-outbox-provider-preflight.test.ts docs/features/app-game-control.md docs/plans/app-game-plan/implementation-checklist.md docs/plans/app-game-plan/workpacks/README.md docs/plans/app-game-plan/workpacks/123-timer-parent-surface-child-ux-local-outbox-provider-preflight.md output/app-game-plan-proof/123-timer-parent-surface-child-ux-local-outbox-provider-preflight/00-summary.md output/app-game-plan-proof/123-timer-parent-surface-child-ux-local-outbox-provider-preflight/10-validation-commands.log test-results/app-game-timer-parent-surface-child-ux-local-outbox-provider-preflight/handoff.json",
+      "cmd /c node scripts/check-no-test-doubles.mjs",
+      "cmd /c node scripts/check-source-shape.mjs",
+      "git diff --check",
+      "cmd /c npm run lanes:guard",
+      "cmd /c npm run hub:guard"
+    ]
+  }
+}
