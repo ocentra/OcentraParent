@@ -48,6 +48,35 @@ fn parsed_generation_output_rejects_unknown_provider_kind() {
 }
 
 #[test]
+fn parsed_generation_output_applies_service_ocr_redaction() {
+    let parsed = parsed_generation_output(&complete_generation(sensitive_adapter_output_text()))
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        parsed.ocr_text_snippets,
+        vec![
+            constants::activity_store::TEST_SCREEN_OCR_SNIPPET_EMAIL_REDACTED.to_string(),
+            constants::activity_store::TEST_SCREEN_OCR_SNIPPET_PHONE_REDACTED.to_string()
+        ]
+    );
+    assert!(!parsed
+        .ocr_text_snippets
+        .iter()
+        .any(|snippet| snippet == constants::activity_store::TEST_SCREEN_OCR_SNIPPET_EMAIL_RAW));
+    assert!(!parsed.ocr_text_snippets.iter().any(
+        |snippet| snippet == constants::activity_store::TEST_SCREEN_OCR_SNIPPET_CREDENTIAL_RAW
+    ));
+    assert!(parsed
+        .redaction_notes
+        .iter()
+        .any(|note| note == constants::local_ai_runtime::SCREEN_OCR_REDACTION_NOTE_PII));
+    assert!(parsed
+        .redaction_notes
+        .iter()
+        .any(|note| note == constants::local_ai_runtime::SCREEN_OCR_REDACTION_NOTE_CREDENTIAL));
+}
+
+#[test]
 fn adapter_launch_detects_windows_batch_wrappers() {
     assert!(is_windows_batch_adapter(Path::new(
         constants::local_ai_runtime::TEST_SCREEN_SERVICE_WINRT_OCR_ADAPTER_CMD
@@ -105,6 +134,43 @@ fn adapter_output_text(provider_kind: &str) -> String {
         Value::from(vec![
             constants::activity_store::TEST_SCREEN_REDACTION_NOTE_PII,
         ]),
+    );
+    Value::Object(output).to_string()
+}
+
+fn sensitive_adapter_output_text() -> String {
+    let mut output = Map::new();
+    output.insert(
+        constants::field::SCREEN_SUMMARY.to_string(),
+        Value::from(constants::activity_store::TEST_SCREEN_SUMMARY),
+    );
+    output.insert(
+        constants::field::SCREEN_PRIMARY_CATEGORY.to_string(),
+        Value::from(SCREEN_CATEGORY_SCHOOL),
+    );
+    output.insert(
+        constants::field::SCREEN_CONFIDENCE.to_string(),
+        Value::from(SCREEN_POLICY_CONFIDENCE_READY),
+    );
+    output.insert(
+        constants::field::SCREEN_POLICY_ELIGIBLE.to_string(),
+        Value::from(true),
+    );
+    output.insert(
+        constants::field::SCREEN_PROVIDER_KIND.to_string(),
+        Value::from(SCREEN_PROVIDER_LOCAL_OCR),
+    );
+    output.insert(
+        constants::field::SCREEN_OCR_TEXT_SNIPPETS.to_string(),
+        Value::from(vec![
+            constants::activity_store::TEST_SCREEN_OCR_SNIPPET_EMAIL_RAW,
+            constants::activity_store::TEST_SCREEN_OCR_SNIPPET_CREDENTIAL_RAW,
+            constants::activity_store::TEST_SCREEN_OCR_SNIPPET_PHONE_RAW,
+        ]),
+    );
+    output.insert(
+        constants::field::SCREEN_REDACTION_NOTES.to_string(),
+        Value::from(Vec::<String>::new()),
     );
     Value::Object(output).to_string()
 }

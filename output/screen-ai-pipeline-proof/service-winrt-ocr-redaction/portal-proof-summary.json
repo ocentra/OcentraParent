@@ -1,0 +1,15 @@
+{
+  "proof": "screen-ai-service-winrt-ocr-redaction-portal-proof",
+  "proofTier": "P3_REAL_CAPTURE_LOCAL_OCR_SERVICE_PORTAL",
+  "route": "#/screen-analysis",
+  "screenshot": "output\\screen-ai-pipeline-proof\\service-winrt-ocr-redaction\\portal-screen-analysis-redaction.png",
+  "assertions": {
+    "realPortalRouteRenderedServiceRow": true,
+    "redactedEmailRendered": true,
+    "redactedPhoneRendered": true,
+    "piiRedactionNoteRendered": true,
+    "credentialRedactionNoteRendered": true,
+    "rawEmailOmitted": true,
+    "rawPhoneOmitted": true
+  }
+}
