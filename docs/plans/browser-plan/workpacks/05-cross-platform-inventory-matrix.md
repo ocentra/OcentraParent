@@ -36,6 +36,11 @@ known public browser package ids, records Chrome package visibility and the
 default VIEW handler as redacted refs, captures UI-tree and logcat hashes, and
 writes `test-results/browser-platform-android-host-proof/proof.json` plus
 `output/browser-plan-proof/05-cross-platform-inventory-matrix/11-android-host-device-proof.json`.
+The proof also hashes the Android agent manifest, Gradle application id, and
+`ChildAndroidPrivilegedCapabilityProof` source to prove the current Android
+package is an agent wrapper, not an owned browser shell: no WebView, VIEW
+handler, AccessibilityService, VpnService, DeviceAdminReceiver, UsageStats
+permission, or owned browser package id is declared.
 The screenshot path remains explicitly unused when the headless emulator
 returns a black screencap. The matrix gate reads that artifact and reports
 `android-browser-package-visibility-proof`, but WP05 remains partial: the
@@ -108,7 +113,7 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured: non-Windows entries reject managed exact-URL and known-active claims; iOS remains unsupported; unsupported entries cannot keep exact URL available.
-- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility plus UI-tree/logcat hash evidence is captured in `11-android-host-device-proof.json`, WSL Linux package/PATH boundary evidence is captured in `12-linux-host-package-proof.json`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
+- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility, UI-tree/logcat hash evidence, and source-backed no-owned-shell/no-WebView/no-privileged-browser-adapter boundary evidence are captured in `11-android-host-device-proof.json`, WSL Linux package/PATH boundary evidence is captured in `12-linux-host-package-proof.json`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
 - [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md), including `test-results/browser-platform-inventory-matrix-proof/proof.json` and `output/browser-plan-proof/05-cross-platform-inventory-matrix/11-proof-gate-manifest.md`.
 - [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
@@ -116,9 +121,10 @@ Fill this before reporting `DONE` or PR-ready:
 ## Manual-Required Gaps
 
 No non-Windows browser product claim until real platform proof exists.
-Android emulator package visibility is now proved, but the owned browser shell,
-exact URL, active-tab, device-owner policy, VPN/DNS browser proof,
-UsageStats/Accessibility route proof, and enforcement remain unclaimed.
+Android emulator package visibility and source-backed Android agent boundary
+evidence are now proved, but the owned browser shell, exact URL, active-tab,
+device-owner policy, VPN/DNS browser proof, UsageStats/Accessibility route
+proof, and enforcement remain unclaimed.
 WSL Linux package/PATH evidence is now proved, but no Chrome/Chromium/Firefox/Edge
 command, package, desktop entry, desktop adapter, exact URL, active-tab, Snap,
 Flatpak, or enforcement claim is upgraded.

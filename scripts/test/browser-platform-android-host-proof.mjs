@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
@@ -63,10 +63,11 @@ const browserPackageVisible = packageVisibility.some(
   (entry) => entry.targetId !== 'ocentra-owned-browser-shell' && entry.installed
 );
 const bootedDeviceCount = attachedDevices.filter((device) => device.bootCompleted).length;
+const androidSourceBoundaryProof = inspectAndroidSourceBoundary();
 const negativeChecks = [
   {
     claim: 'owned-browser-shell-custody',
-    rejected: !ownedShellVisible,
+    rejected: !ownedShellVisible && !androidSourceBoundaryProof.ownedBrowserShellDeclared,
   },
   {
     claim: 'managed-exact-url-on-android',
@@ -125,6 +126,7 @@ const proof = {
     exactUrlProofClaimed: false,
     knownActiveTabProofClaimed: false,
     ownedShellCustodyClaimed: false,
+    ownedBrowserShellSourceDeclared: androidSourceBoundaryProof.ownedBrowserShellDeclared,
     managedProfileClaimed: false,
     deviceOwnerEnrollmentClaimed: false,
     vpnDnsBrowserProofClaimed: false,
@@ -143,6 +145,7 @@ const proof = {
   packageVisibility,
   defaultViewHandlers,
   deviceSurfaceEvidence,
+  androidSourceBoundaryProof,
   negativeChecks,
 };
 
@@ -361,6 +364,57 @@ function resolveDefaultViewHandler(adbPath, serial) {
     urlContentCaptured: false,
     exactUrlProofClaimed: false,
   };
+}
+
+function inspectAndroidSourceBoundary() {
+  const manifestPath = 'platforms/android/agent/app/src/main/AndroidManifest.xml';
+  const buildGradlePath = 'platforms/android/agent/app/build.gradle';
+  const privilegedProofPath =
+    'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/ChildAndroidPrivilegedCapabilityProof.java';
+  const manifest = readRepoText(manifestPath);
+  const buildGradle = readRepoText(buildGradlePath);
+  const privilegedProof = readRepoText(privilegedProofPath);
+  const expectedNegativeMarkers = [
+    'ACCESSIBILITY_STATE = "not-declared"',
+    'VPN_SERVICE_STATE = "not-declared"',
+    'DNS_FILTERING_STATE = "not-implemented"',
+    'DEVICE_OWNER_STATE = "blocked-without-enrollment"',
+    'MANAGED_PROFILE_STATE = "blocked-without-enrollment"',
+    'CHILD_AGENT_PARITY_STATE = "not-claimed"',
+  ];
+  const missingNegativeMarkers = expectedNegativeMarkers.filter((marker) => !privilegedProof.includes(marker));
+  if (missingNegativeMarkers.length > 0) {
+    throw new Error(
+      `Android privileged proof is missing expected negative markers: ${missingNegativeMarkers.join(', ')}`
+    );
+  }
+
+  return {
+    manifestPath,
+    manifestSha256: sha256(manifest),
+    buildGradlePath,
+    buildGradleSha256: sha256(buildGradle),
+    privilegedProofPath,
+    privilegedProofSha256: sha256(privilegedProof),
+    rawSourcePersisted: false,
+    packageIdDeclared: manifest.includes('ca.ocentra.parent.agent') || buildGradle.includes('ca.ocentra.parent.agent'),
+    ownedBrowserShellDeclared: manifest.includes('com.ocentra.parent.browser'),
+    webViewDeclared: manifest.includes('android.webkit.WebView') || manifest.includes('WebView'),
+    viewIntentHandlerDeclared:
+      manifest.includes('android.intent.action.VIEW') || manifest.includes('android.intent.category.BROWSABLE'),
+    accessibilityServiceDeclared:
+      manifest.includes('AccessibilityService') || manifest.includes('android.permission.BIND_ACCESSIBILITY_SERVICE'),
+    vpnServiceDeclared: manifest.includes('VpnService') || manifest.includes('android.permission.BIND_VPN_SERVICE'),
+    deviceAdminReceiverDeclared: manifest.includes('DeviceAdminReceiver'),
+    usageStatsPermissionDeclared: manifest.includes('android.permission.PACKAGE_USAGE_STATS'),
+    privilegedNegativeMarkers: expectedNegativeMarkers,
+    negativeBoundaryState:
+      'source-backed-no-owned-browser-shell-no-webview-no-view-handler-no-accessibility-no-vpn-no-device-admin',
+  };
+}
+
+function readRepoText(relativePath) {
+  return readFileSync(join(repoRoot, relativePath), 'utf8');
 }
 
 function command(args, { adbPath, allowFailure }) {

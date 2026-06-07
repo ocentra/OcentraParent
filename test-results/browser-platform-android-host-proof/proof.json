@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "proofId": "browser-platform-android-host-proof",
-  "generatedAt": "2026-06-07T03:26:18.900Z",
+  "generatedAt": "2026-06-07T03:43:44.358Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "9c49d32ba51d9740f0f80931b5e172621366fd80",
+  "commit": "50935e5f21384f5090ae3f23484d4510adb257c7",
   "baseCommit": "05018555053df0e52ea9b0149c28885d3a5838b2",
   "hostProofSummary": {
     "adbInstalled": true,
@@ -33,6 +33,7 @@
     "exactUrlProofClaimed": false,
     "knownActiveTabProofClaimed": false,
     "ownedShellCustodyClaimed": false,
+    "ownedBrowserShellSourceDeclared": false,
     "managedProfileClaimed": false,
     "deviceOwnerEnrollmentClaimed": false,
     "vpnDnsBrowserProofClaimed": false,
@@ -127,15 +128,41 @@
       "screenshotSha256": null,
       "uiTreeCaptured": true,
       "uiTreeRawPersisted": false,
-      "uiTreeSha256": "dfb651a8565d73c96c7d40958e5f9dfd8fad19e83c9f51f0e97cd59e5931db9f",
+      "uiTreeSha256": "99eff4df9e3fa6ebace225d40fc740f96de84f07750bc3759d9e3a39e7a9647e",
       "logcatCaptured": true,
       "logcatRawPersisted": false,
-      "logcatSha256": "d8d7740babe57cd0e33e6f62a9a7e5818e1444e607e8232dcaa8409684441999",
+      "logcatSha256": "7b52b7a8dee97a391b1c74ca6f54f180f5773002196151b163b1048b3e1c8c52",
       "exactUrlProofClaimed": false,
       "pageContentCaptured": false,
       "browserSecretCaptured": false
     }
   ],
+  "androidSourceBoundaryProof": {
+    "manifestPath": "platforms/android/agent/app/src/main/AndroidManifest.xml",
+    "manifestSha256": "7bac9ee9fb0283494ef4657959bd895921045ef075e5592028ea318a99f98ad5",
+    "buildGradlePath": "platforms/android/agent/app/build.gradle",
+    "buildGradleSha256": "44307192afce892bc37806cd46afe360dc766be48579f08c28493452f670da63",
+    "privilegedProofPath": "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/ChildAndroidPrivilegedCapabilityProof.java",
+    "privilegedProofSha256": "73db68afc00d8179c796c6e36ded91660128962a8f015b909f4f422378ead116",
+    "rawSourcePersisted": false,
+    "packageIdDeclared": true,
+    "ownedBrowserShellDeclared": false,
+    "webViewDeclared": false,
+    "viewIntentHandlerDeclared": false,
+    "accessibilityServiceDeclared": false,
+    "vpnServiceDeclared": false,
+    "deviceAdminReceiverDeclared": false,
+    "usageStatsPermissionDeclared": false,
+    "privilegedNegativeMarkers": [
+      "ACCESSIBILITY_STATE = \"not-declared\"",
+      "VPN_SERVICE_STATE = \"not-declared\"",
+      "DNS_FILTERING_STATE = \"not-implemented\"",
+      "DEVICE_OWNER_STATE = \"blocked-without-enrollment\"",
+      "MANAGED_PROFILE_STATE = \"blocked-without-enrollment\"",
+      "CHILD_AGENT_PARITY_STATE = \"not-claimed\""
+    ],
+    "negativeBoundaryState": "source-backed-no-owned-browser-shell-no-webview-no-view-handler-no-accessibility-no-vpn-no-device-admin"
+  },
   "negativeChecks": [
     {
       "claim": "owned-browser-shell-custody",
