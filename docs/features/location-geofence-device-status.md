@@ -571,6 +571,13 @@ expose location or device-status features. Parents expect this category.
   and WP33 proof artifacts while keeping release, product-ready iOS tracking,
   Core Location runtime, entitlement, TestFlight/device, physical-device,
   authority, and notification delivery claims blocked.
+- WP31/WP33 authority enrollment manual-required proof now exists through
+  `node scripts/test/tracking-authority-enrollment-manual-required-proof.mjs`.
+  It records Android device-owner, Android managed-profile, iOS Family Controls
+  entitlement, iOS App Review approval, and desktop managed-policy evidence
+  rows while keeping authority enrollment, hard-control runtime,
+  physical-device behavior, provider delivery, production workers, and
+  product-ready tracking unclaimed.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, actual child-device delivery/runtime
   execution, full parent/child UI beyond the hosted parent route, and broader
@@ -723,6 +730,12 @@ accessibility beyond the hosted parent route are proved.
       and the WP33 companion artifact while keeping release/product-ready iOS
       tracking blocked until disclosure, Apple review, entitlement,
       TestFlight/device, and runtime Core Location proof exist.
+- [x] Authority enrollment manual-required proof records Android device-owner,
+      Android managed-profile, iOS Family Controls entitlement, iOS App Review,
+      and desktop managed-policy evidence requirements under WP31/WP33 without
+      claiming authority enrollment, hard-control runtime, physical-device
+      behavior, provider delivery, production workers, or product-ready
+      tracking.
 - [x] Expected-place schedule and exception contracts.
 - [x] Parent acknowledgement and escalation contracts.
 - [x] Parent acknowledgement action readiness rows. This proves parent

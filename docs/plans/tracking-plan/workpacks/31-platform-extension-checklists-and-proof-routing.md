@@ -28,6 +28,9 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 - `19-unsupported-manual-hosted-ui.png`
 - `20-platform-extension-inventory-proof.json`
 - `20-platform-extension-inventory-source-snapshot.md`
+- `21-authority-enrollment-manual-required-proof.json`
+- `21-authority-enrollment-source-snapshot.md`
+- `21-authority-enrollment-validation-commands.log`
 
 ## AI Worker Checklist
 
@@ -38,6 +41,8 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 - [x] Keep CI/package proof separate from real device capability proof.
 - [x] Route iOS simulator package build/install/launch proof separately from
       iOS Core Location, background, entitlement, and physical-device claims.
+- [x] Record authority enrollment/manual-required evidence requirements without
+      claiming hard-control runtime.
 
 ## Where We Are
 
@@ -79,6 +84,14 @@ Android/iOS physical-device behavior, background runtime, precise desktop
 location, authority enrollment, provider delivery, production upload workers,
 and product-ready tracking unclaimed.
 
+Authority enrollment manual-required proof now exists through
+`node scripts/test/tracking-authority-enrollment-manual-required-proof.mjs`.
+It records Android device-owner, Android managed-profile, iOS Family Controls
+entitlement, iOS App Review approval, and desktop managed-policy evidence rows
+under this workpack root plus the WP33 companion gate. It does not claim
+authority enrollment, hard-control runtime, physical-device behavior, provider
+delivery, production workers, or product-ready tracking.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.
@@ -96,6 +109,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - docs/plans/tracking-plan/implementation-checklist.md
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
 - scripts/test/tracking-platform-extension-inventory-proof.mjs
+- scripts/test/tracking-authority-enrollment-manual-required-proof.mjs
 - `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`
 - `apps/portal/src/tracking-status-panel.ts`
 - `apps/portal/src/TrackingStatusRoutePanel.tsx`
@@ -166,3 +180,22 @@ This workpack can be assigned independently, implemented against the owning doma
       Android/iOS foreground/background physical-device behavior, precise
       desktop location, authority enrollment, provider delivery, production
       upload workers, and product-ready tracking remain unclaimed.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain authority enrollment proof/test, focused
+      proof script, owning tracking feature doc, implementation checklist,
+      WP31, WP33, generated WP31/WP33 proof artifacts, and hub doc delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-authority-enrollment-manual-required-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/21-authority-enrollment-manual-required-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/48-authority-enrollment-manual-required-proof.json`,
+      and `test-results/tracking-authority-enrollment-manual-required-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP31, and WP33 updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta instead of editing the shared checklist directly.
+- [x] Known gaps/manual-required states: real enrolled-device authority state,
+      hard-control runtime, physical-device behavior, provider delivery,
+      production workers, and product-ready tracking remain proof-gated.
