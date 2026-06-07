@@ -112,6 +112,7 @@ before `DONE` or PR-ready reporting.
 104. WP113 app/game source-gated policy preview timer service response consumer parent-surface status read-model parent-surface read-model handoff.
 105. WP114 app/game source-gated policy preview timer service response consumer parent-surface status read-model parent-surface read-model contract.
 106. WP115 app/game source-gated policy preview timer service response consumer parent-surface status read-model parent-surface read-model service handoff.
+107. WP116 app/game source-gated policy preview timer service response consumer parent-surface status read-model parent-surface read-model service read-model handoff.
 
 ## Standard AI Worker Checklist
 

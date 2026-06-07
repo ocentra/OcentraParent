@@ -1042,6 +1042,21 @@ mobile UI, or prove platform support.
       runtime, durable scheduler storage, audit runtime/logs, rollback
       runtime/execution, adapter dispatch, child delivery, broad blocking,
       platform enforcement, or raw private source rows.
+      Source-gated policy preview timer service response-consumer
+      parent-surface status read-model parent-surface read-model service
+      read-model handoff now consumes those service handoff rows and records
+      which native app/native game rows require future service read-model proof
+      before service read-model runtime visibility, while source and compiler
+      blockers remain blocked. It remains parent-domain proof only and does
+      not claim package exports, service command registration, service handler
+      implementation, service read-model runtime emission, service event
+      runtime emission, service events, read APIs, read API responses, response
+      consumer implementation, runtime persistence, parent-surface rendering,
+      portal UI/consumer rendering, agent-protocol implementation, Rust
+      protocol mirror, evaluator runtime, timer runtime/scheduling, scheduler
+      persistence runtime, durable scheduler storage, audit runtime/logs,
+      rollback runtime/execution, adapter dispatch, child delivery, broad
+      blocking, platform enforcement, or raw private source rows.
       Source-gated policy preview timer audit/rollback read-model proof now
       consumes those audit/rollback handoff rows and records that future
       parent-visible scheduling status still requires service timer runtime,
