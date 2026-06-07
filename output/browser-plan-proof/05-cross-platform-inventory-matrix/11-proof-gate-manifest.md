@@ -1,6 +1,6 @@
 # WP05 Platform Inventory Matrix Proof Gate
 
-Generated: 2026-06-07T01:15:15.105Z
+Generated: 2026-06-07T02:44:00.277Z
 
 Rows checked: 12
 Fixture-backed rows: 2
