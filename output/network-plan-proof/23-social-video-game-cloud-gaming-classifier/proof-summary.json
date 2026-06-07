@@ -1,8 +1,8 @@
 {
   "proof": "network-social-video-game-cloud-gaming-classifier",
-  "checkedAt": "2026-06-07T00:48:33.378Z",
+  "checkedAt": "2026-06-07T00:59:40.194Z",
   "branch": "codex/network-category-risk-proof-artifacts",
-  "sourceCommit": "8d6f714eb03cd0ad7e5b4bd8cbc034eb7fe22c7a",
+  "sourceCommit": "d8d931a47f7714a479c71dd9da056e42afbe401f",
   "artifactCommit": "see the enclosing git commit for generated proof artifacts",
   "originMain": "8c8fad79a50e914922fbc84984878211e127897e",
   "mergeBase": "8c8fad79a50e914922fbc84984878211e127897e",
