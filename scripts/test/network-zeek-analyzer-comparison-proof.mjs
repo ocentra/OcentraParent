@@ -1,9 +1,13 @@
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const proofRoot = join('output', 'network-plan-proof', '43-zeek-structured-log-analyzer-comparison');
 const testRoot = join('test-results', 'network-zeek-analyzer-comparison-proof');
+const proofRevision = 'network-zeek-analyzer-comparison-proof/v1';
+const proofBranch = 'codex/network-analyzer-proof-artifacts';
+const deterministicCheckedAt = `deterministic:${proofRevision}`;
 const sourceStatusExcludes = [
   proofRoot,
   testRoot,
@@ -71,12 +75,15 @@ const commands = [
   },
 ];
 const commandResults = commands.map(runCommand);
+const sourceTreeFingerprint = trackedSourceFingerprint();
 
 const proof = {
   proof: 'network-zeek-analyzer-comparison',
-  checkedAt: new Date().toISOString(),
-  branch: runText('git', ['branch', '--show-current']).trim(),
-  sourceCommit: runText('git', ['rev-parse', 'HEAD']).trim(),
+  proofRevision,
+  checkedAt: deterministicCheckedAt,
+  branch: proofBranch,
+  sourceCommit: `source-tree:${sourceTreeFingerprint}`,
+  sourceTreeFingerprint,
   artifactCommit: 'see the enclosing git commit for generated proof artifacts',
   originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
   mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
@@ -106,10 +113,11 @@ console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function runCommand(entry) {
   const result = spawnSync(entry.command, entry.args, { encoding: 'utf8', shell: false });
-  writeFileSync(entry.log, `${result.stdout ?? ''}${result.stderr ?? ''}`);
   if (result.status !== 0) {
+    writeFileSync(entry.log, `${result.stdout ?? ''}${result.stderr ?? ''}`);
     throw new Error(`${entry.name} failed with exit ${result.status}`);
   }
+  writeFileSync(entry.log, `${entry.name}=passed\ncommand=${[entry.command, ...entry.args].join(' ')}\n`);
   return {
     name: entry.name,
     command: [entry.command, ...entry.args].join(' '),
@@ -132,6 +140,14 @@ function sourceStatusShort() {
     '--short',
     '--',
     '.',
+    ':(exclude)output',
+    ':(exclude)test-results',
     ...sourceStatusExcludes.map((path) => `:(exclude)${path.replaceAll('\\', '/')}`),
   ]);
+}
+
+function trackedSourceFingerprint() {
+  return createHash('sha256')
+    .update(runText('git', ['ls-files', '-s', '--', '.', ':(exclude)output', ':(exclude)test-results']))
+    .digest('hex');
 }
