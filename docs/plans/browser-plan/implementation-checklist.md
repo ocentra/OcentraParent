@@ -331,6 +331,17 @@ manual-required/unavailable rows. Evidence:
 This advances provider-readiness/status proof without claiming provider
 dispatch, receipt ingestion, parent notification UI delivery, report delivery
 execution, final policy execution, connector/native runtime, or enforcement.
+`social-alert-report-scheduler-bridge-proof` now consumes the social
+alert/report local outbox bridge and writes only linked rows into the existing
+notification local outbox scheduler JSONL schema. Evidence:
+`test-results/social-alert-report-scheduler-bridge-proof/proof.json`,
+`test-results/social-alert-report-scheduler-bridge-proof/scheduler-records.jsonl`,
+and
+`output/browser-plan-proof/social-alert-report-scheduler-bridge-proof/01-social-alert-report-scheduler-bridge-proof.md`.
+This advances the quiet-hours/preference handoff boundary without claiming
+provider delivery, receipt ingestion, quiet-hours timer execution, retry worker
+execution, parent/child notification UI delivery, report delivery execution,
+final policy execution, connector/native runtime, or enforcement.
 Package subpath exports are deferred while `packages/parent-domain/package.json`
 is locked by E-B.
 

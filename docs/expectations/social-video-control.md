@@ -271,6 +271,15 @@ claim runtime connector behavior, native app control, final policy execution,
 enforcement, or product completion from contract-only rows or unavailable-state
 shells.
 
+Social alert/report scheduler bridge rows may move parent-owned local outbox
+records into the existing notification local outbox scheduler JSONL schema only
+when the source row is already linked. Manual-required and unavailable rows must
+remain visible but unscheduled. The bridge may prove quiet-hours/preference
+handoff readiness and audit refs only; it must not claim provider delivery,
+receipt ingestion, quiet-hours timer execution, retry worker execution,
+parent/child notification UI delivery, report delivery execution, final policy
+execution, connector/native runtime, enforcement, or product completion.
+
 Rollout/manual-required gates may label rows as partial/manual-required only.
 They must preserve product completion as unclaimed until notification delivery,
 connector/native runtime, final policy execution, enforcement, release

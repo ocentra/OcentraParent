@@ -419,6 +419,22 @@ provider delivery, receipts, scheduler runtime, parent notification UI, report
 delivery execution, final policy execution, connector/native runtime, and
 enforcement remain unclaimed.
 
+The follow-up `social-alert-report-scheduler-bridge-proof` adds
+`packages/parent-domain/src/social-alert-report-scheduler-bridge.ts` and
+`packages/parent-domain/tests/social-alert-report-scheduler-bridge.test.ts`, a
+parent-domain bridge from social alert/report local outbox rows into the
+existing notification local outbox scheduler schema. The proof writes
+`test-results/social-alert-report-scheduler-bridge-proof/proof.json`,
+`test-results/social-alert-report-scheduler-bridge-proof/scheduler-records.jsonl`,
+and
+`output/browser-plan-proof/social-alert-report-scheduler-bridge-proof/01-social-alert-report-scheduler-bridge-proof.md`.
+It proves only linked local outbox rows become deterministic scheduler JSONL
+records; manual-required/unavailable rows remain visible but unscheduled.
+Provider delivery, receipt ingestion, quiet-hours timer execution, retry worker
+execution, parent/child notification UI delivery, report delivery execution,
+final policy execution, connector/native runtime, and enforcement remain
+unclaimed.
+
 The follow-up `social-alert-report-parent-surface-intent-proof` adds
 `packages/parent-domain/src/social-alert-report-parent-surface-intent-proof.ts`
 and

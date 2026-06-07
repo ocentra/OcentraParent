@@ -247,6 +247,12 @@ blocking, mobile UI, or platform support.
   app/game local outbox records becoming deterministic scheduler JSONL rows,
   with manual/unavailable rows kept unscheduled and no production runtime,
   provider/UI/child/adapter claims.
+- Parent-domain social alert/report scheduler bridge proof for linked social
+  alert/report local outbox rows becoming deterministic scheduler JSONL rows,
+  with manual/unavailable rows kept unscheduled and no provider delivery,
+  receipt ingestion, quiet-hours timer execution, retry worker execution,
+  parent/child UI delivery, report delivery execution, final policy execution,
+  connector/native runtime, adapter dispatch, or enforcement claims.
 - Logging-domain app/game notification audit-history bridge proof for linked
   app/game local outbox rows becoming metadata-only audit-history entries, with
   manual/unavailable rows kept blocked/manual and no production runtime,
