@@ -41,7 +41,7 @@ Proof root: `output/tracking-plan-proof/12-ios-background-region-significant-cha
 - [ ] Prove background/terminated degraded behavior. Parent-domain
       manual-required row now exists; real background delivery and relaunch proof
       remain pending.
-- [ ] Document App Store/privacy disclosure implications before release claims.
+- [x] Document App Store/privacy disclosure implications before release claims.
 - [x] Generate the iOS simulator/local and physical-device proof artifact plan
       before device work.
 - [x] Route simulator package build/install/launch proof through the tracking
@@ -74,6 +74,17 @@ WP12 background/region manual-required rows into the WP33 rollout gate artifact
 `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/27-ios-location-manual-required-proof.json`
 without claiming Always authorization, region monitoring, significant-change,
 visits, background delivery, entitlement, or physical-device behavior.
+`node scripts/test/tracking-ios-privacy-disclosure-release-proof.mjs` now records the
+WP12 App Store/privacy disclosure release gate. It writes parent-domain release
+gate rows for location-purpose copy, background-location copy, region-monitoring
+copy, notification copy, data-custody copy, App Store review evidence, and
+privacy nutrition label evidence under
+`output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/20-ios-privacy-disclosure-release-proof.json`
+and the WP33 companion artifact
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/47-ios-privacy-disclosure-release-proof.json`.
+It blocks release/product-ready iOS tracking claims until disclosure, Apple
+review, entitlement, TestFlight/device, and runtime Core Location artifacts
+exist.
 
 ## Where We Want To Be
 
@@ -119,3 +130,5 @@ This workpack can be assigned independently, implemented against the owning doma
       `test-results/tracking-ios-location-manual-required-proof/proof.json`.
 - [x] WP33 companion gate added:
       `test-results/tracking-ios-location-wp33-gate-proof/proof.json`.
+- [x] iOS privacy disclosure release gate proof added:
+      `test-results/tracking-ios-privacy-disclosure-release-proof/proof.json`.
