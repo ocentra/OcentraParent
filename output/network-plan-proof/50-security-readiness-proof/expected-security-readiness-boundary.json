@@ -11,7 +11,8 @@
     "staged rollout",
     "known gap signoff"
   ],
-  "productionGate": "Production rollout remains blocked unless external audit or penetration-test signoff is supplied.",
+  "productionGate": "Production rollout remains blocked unless external audit or penetration-test signoff proof artifact refs are supplied.",
+  "externalSignoffArtifactGate": "External signoff proof requires signoff, artifact, digest, and scope refs before production-ready state can be represented.",
   "unsupportedClaimsRejected": [
     "default remote upload",
     "raw PCAP without custody",
@@ -24,5 +25,5 @@
     "adapter authority",
     "enforcement command"
   ],
-  "authorityBoundary": "Readiness proof records gate refs and blocked/ready states only; it does not deploy, enable uploads, publish commands, or claim production rollout without external signoff."
+  "authorityBoundary": "Readiness proof records gate refs and blocked/ready states only; it does not deploy, enable uploads, publish commands, or claim production rollout without external signoff artifact proof."
 }
