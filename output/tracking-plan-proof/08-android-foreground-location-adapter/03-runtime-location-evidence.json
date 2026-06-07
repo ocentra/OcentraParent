@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T01:26:54.810Z",
-  "commit": "935f87e45644f4ad3ca016848c3ec9492eb2c700",
+  "checkedAt": "2026-06-07T01:52:44.667Z",
+  "commit": "698601c6d88f6b0968f628182c9ac124cc02bdb0",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "foreground_permission_granted_last_known_sample_metadata_observed",
@@ -14,7 +14,7 @@
   "foregroundLocationPermissionStateText": "foreground-location-permission-granted",
   "foregroundLocationSampleStateText": "last-known-location-sample-observed",
   "foregroundLocationProvider": "gps",
-  "foregroundLocationObservedAtEpochMillis": 1780795608302,
+  "foregroundLocationObservedAtEpochMillis": 1780797158282,
   "foregroundLocationAccuracyMeters": 5,
   "missingProofReason": "Foreground location permission grant, app-emitted last-known sample state, provider, observed timestamp, and accuracy were observed on the emulator package; raw coordinates, fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.",
   "device": {
@@ -41,6 +41,10 @@
     "foregroundLocationSeed": "test-results/tracking-plan-android-emulator-proof/14-foreground-location-seed.txt",
     "backgroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/15-background-location-permission-grant.txt",
     "geofenceTransitionRoute": "test-results/tracking-plan-android-emulator-proof/16-geofence-transition-route.txt",
-    "geofenceTransitionPrefs": "test-results/tracking-plan-android-emulator-proof/17-geofence-transition-prefs.xml"
+    "geofenceTransitionPrefs": "test-results/tracking-plan-android-emulator-proof/17-geofence-transition-prefs.xml",
+    "backgroundLocationSamplePrefs": "test-results/tracking-plan-android-emulator-proof/20-background-location-sample-prefs.xml",
+    "backgroundActivityForSample": "test-results/tracking-plan-android-emulator-proof/21-background-activity-for-sample.txt",
+    "backgroundLocationSampleRoute": "test-results/tracking-plan-android-emulator-proof/22-background-location-sample-route.txt",
+    "relaunchAfterBackgroundSample": "test-results/tracking-plan-android-emulator-proof/23-relaunch-after-background-sample.txt"
   }
 }

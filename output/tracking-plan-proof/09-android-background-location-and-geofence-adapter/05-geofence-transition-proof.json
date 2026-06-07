@@ -1,15 +1,24 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T01:26:54.810Z",
-  "commit": "935f87e45644f4ad3ca016848c3ec9492eb2c700",
+  "checkedAt": "2026-06-07T01:52:44.667Z",
+  "commit": "698601c6d88f6b0968f628182c9ac124cc02bdb0",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
-  "currentStatus": "background_permission_granted_emulator_enter_exit_transition_observed",
+  "currentStatus": "background_permission_granted_emulator_sample_and_enter_exit_transition_observed",
   "packageLaunchObserved": true,
   "foregroundServiceObserved": true,
   "backgroundLocationPermissionRequested": true,
   "backgroundLocationPermissionGranted": true,
   "backgroundLocationPermissionStateText": "background-location-permission-granted",
+  "backgroundLocationSampleStateText": "background-location-sample-observed-emulator-foreground-service",
+  "backgroundLocationSampleCaptured": true,
+  "backgroundLocationSampleCount": 17,
+  "backgroundLocationSampleProvider": "gps",
+  "backgroundLocationSampleObservedAtEpochMillis": 1780797161284,
+  "backgroundLocationSampleAccuracyMeters": 5,
+  "backgroundLocationSampleSource": "android-location-manager-gps-listener-foreground-service",
+  "backgroundLocationSampleActivityBackgrounded": true,
+  "backgroundLocationSampleBoundary": "emulator-foreground-service-location-manager-gps-listener-background-activity-sample-only",
   "backgroundGeofenceStateText": "background-geofence-transition-observed-emulator",
   "geofenceTransitionCount": 3,
   "geofenceEnterCount": 2,
@@ -20,7 +29,7 @@
   "geofenceHasInsideState": true,
   "geofenceInsideState": true,
   "geofenceTransitionBoundary": "emulator-location-manager-gps-listener-local-geofence-enter-exit-only",
-  "missingProofReason": "Background location permission grant and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, and product-ready tracking remain unclaimed.",
+  "missingProofReason": "Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.",
   "device": {
     "serial": "emulator-5554",
     "androidRelease": "15",
@@ -45,6 +54,10 @@
     "foregroundLocationSeed": "test-results/tracking-plan-android-emulator-proof/14-foreground-location-seed.txt",
     "backgroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/15-background-location-permission-grant.txt",
     "geofenceTransitionRoute": "test-results/tracking-plan-android-emulator-proof/16-geofence-transition-route.txt",
-    "geofenceTransitionPrefs": "test-results/tracking-plan-android-emulator-proof/17-geofence-transition-prefs.xml"
+    "geofenceTransitionPrefs": "test-results/tracking-plan-android-emulator-proof/17-geofence-transition-prefs.xml",
+    "backgroundLocationSamplePrefs": "test-results/tracking-plan-android-emulator-proof/20-background-location-sample-prefs.xml",
+    "backgroundActivityForSample": "test-results/tracking-plan-android-emulator-proof/21-background-activity-for-sample.txt",
+    "backgroundLocationSampleRoute": "test-results/tracking-plan-android-emulator-proof/22-background-location-sample-route.txt",
+    "relaunchAfterBackgroundSample": "test-results/tracking-plan-android-emulator-proof/23-relaunch-after-background-sample.txt"
   }
 }
