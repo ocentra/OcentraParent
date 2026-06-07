@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T03:39:17.294Z",
-  "commit": "05018555053df0e52ea9b0149c28885d3a5838b2",
+  "checkedAt": "2026-06-07T04:25:30.874Z",
+  "commit": "f2444ecf6d06dfb102d3bc656725b451bfc8d448",
   "proofMode": "app-install-purchase-nonclaim-limitation-readiness-proof",
   "baseMainState": "after-pr487-platform-adapter-evidence-gap-proof-merged",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-07T03:39:11.591Z",
+      "startedAt": "2026-06-07T04:25:20.607Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts",
-      "startedAt": "2026-06-07T03:39:14.243Z",
+      "startedAt": "2026-06-07T04:25:25.367Z",
       "exitCode": 0
     }
   ],
