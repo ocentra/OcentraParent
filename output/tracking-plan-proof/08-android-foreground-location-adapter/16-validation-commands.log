@@ -1,9 +1,5 @@
 PASS cmd /c npm run release:package:android
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe devices
-PASS C:\Users\sujan\AppData\Local\Android\Sdk\emulator\emulator.exe -avd Pixel_9_Pro_XL_API_35 -no-window -no-snapshot-save -no-audio -no-boot-anim -gpu swiftshader_indirect
-PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe devices
-PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe devices
-PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe devices
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell getprop sys.boot_completed
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 logcat -c
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 install -r C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-a\OcentraParent\target\release-packages\android\ocentra-parent-agent-android-debug-latest.apk
@@ -33,5 +29,5 @@ PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell dumpsys connectivity
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 exec-out uiautomator dump /dev/tty
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell pidof -s ca.ocentra.parent.agent
-PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 logcat --pid 4549 -d
+PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 logcat --pid 5051 -d
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 exec-out screencap -p

@@ -1,7 +1,7 @@
 Activity Resolver Table:
   Non-Data Actions:
       android.intent.action.MAIN:
-        ab5e33c ca.ocentra.parent.agent/.MainActivity filter 71638c5
+        c298954 ca.ocentra.parent.agent/.MainActivity filter 7f40fd
           Action: "android.intent.action.MAIN"
           Category: "android.intent.category.LAUNCHER"
 
@@ -12,9 +12,9 @@ Key Set Manager:
       Signing KeySets: 64
 
 Packages:
-  Package [ca.ocentra.parent.agent] (474dcb1):
+  Package [ca.ocentra.parent.agent] (5904f0f):
     appId=10212
-    pkg=Package{73d1cc0 ca.ocentra.parent.agent}
+    pkg=Package{d905428 ca.ocentra.parent.agent}
     codePath=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==
     resourcePath=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==
     legacyNativeLibraryDir=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/lib
@@ -34,8 +34,8 @@ Packages:
     forceQueryable=false
     scannedAsStoppedSystemApp=false
     supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
-    timeStamp=2026-06-06 20:50:15
-    lastUpdateTime=2026-06-06 20:50:15
+    timeStamp=2026-06-06 21:02:09
+    lastUpdateTime=2026-06-06 21:02:09
     installerPackageName=null
     installerPackageUid=-1
     initiatingPackageName=com.android.shell
@@ -43,7 +43,7 @@ Packages:
     packageSource=1
     appMetadataFilePath=null
     appMetadataSource=0
-    signatures=PackageSignatures{47edf9 version:2, signatures:[9f56ad0e], past signatures:[]}
+    signatures=PackageSignatures{f083541 version:2, signatures:[9f56ad0e], past signatures:[]}
     installPermissionsFixed=false
     pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]
     privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
@@ -60,14 +60,17 @@ Packages:
       android.permission.FOREGROUND_SERVICE: granted=true
       android.permission.FOREGROUND_SERVICE_DATA_SYNC: granted=true
       android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION: granted=true
-    User 0: ceDataInode=344746 deDataInode=49803 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false
+    User 0: ceDataInode=344697 deDataInode=49803 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false
       installReason=0
       dataDir=/data/user/0/ca.ocentra.parent.agent
-      firstInstallTime=2026-06-06 20:50:15
+      firstInstallTime=2026-06-06 21:02:09
       uninstallReason=0
       overlay paths:
         /product/overlay/EmulationPixel9ProXL/EmulationPixel9ProXLOverlay.apk
         /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /data/resource-cache/com.android.systemui-neutral-IjRl.frro
+        /data/resource-cache/com.android.systemui-accent-po0G.frro
+        /data/resource-cache/com.android.systemui-dynamic-R6pc.frro
       legacy overlay paths:
         /product/overlay/EmulationPixel9ProXL/EmulationPixel9ProXLOverlay.apk
         /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
@@ -88,7 +91,7 @@ Queries:
       ca.ocentra.parent.agent
   queryable via interaction:
     User 0:
-      [com.android.dynsystem,com.android.emulator.multidisplay,android,com.android.server.telecom,com.android.providers.settings,com.android.DeviceAsWebcam,com.android.keychain,com.android.inputdevices,com.android.settings,com.android.location.fused,com.android.localtransport]:
+      [com.android.emulator.multidisplay,android,com.android.location.fused,com.android.server.telecom,com.android.inputdevices,com.android.dynsystem,com.android.keychain,com.android.DeviceAsWebcam,com.android.localtransport,com.android.settings,com.android.providers.settings]:
         ca.ocentra.parent.agent
       com.google.android.inputmethod.latin:
         ca.ocentra.parent.agent

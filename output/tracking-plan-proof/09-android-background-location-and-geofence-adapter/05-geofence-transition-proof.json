@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T00:50:34.078Z",
-  "commit": "5e83cd0a2d6064d6c09bd4005bbe602e22da7d85",
+  "checkedAt": "2026-06-07T01:02:21.639Z",
+  "commit": "30a3a1de96b6e3ab141d903fa968f33c509c883e",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "background_permission_granted_geofence_transition_manual_required",
