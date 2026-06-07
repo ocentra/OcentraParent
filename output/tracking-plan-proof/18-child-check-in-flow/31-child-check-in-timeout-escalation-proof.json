@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T17:47:39.004Z",
-  "commit": "fb58951f",
+  "checkedAt": "2026-06-07T02:10:59.202Z",
+  "commit": "cf707ed2",
   "workpackId": "18-child-check-in-flow",
   "requiredProofTier": "P1_FIXTURE_SIMULATION",
   "currentProofTier": "P1_FIXTURE_SIMULATION",
@@ -34,6 +34,10 @@
         "escalates": false,
         "includeLocationIfPermitted": true,
         "locationEvidenceReferenceId": null,
+        "locationSampleState": "requested-not-yet-attached",
+        "auditCoverageState": "prompt-audited",
+        "alertOutcome": "awaiting-child-response",
+        "escalationBasis": "none",
         "evidenceReferenceIds": [
           "tracking-child-check-in-evidence-1",
           "tracking-child-check-in-evidence-1"
@@ -69,6 +73,10 @@
         "escalates": false,
         "includeLocationIfPermitted": true,
         "locationEvidenceReferenceId": "tracking-child-check-in-safe-location",
+        "locationSampleState": "attached-from-child-response",
+        "auditCoverageState": "prompt-and-response-audited",
+        "alertOutcome": "alert-resolved-safe",
+        "escalationBasis": "none",
         "evidenceReferenceIds": [
           "tracking-child-check-in-evidence-1",
           "tracking-child-check-in-safe-location",
@@ -106,6 +114,10 @@
         "escalates": true,
         "includeLocationIfPermitted": true,
         "locationEvidenceReferenceId": "tracking-child-check-in-help-location",
+        "locationSampleState": "attached-from-child-response",
+        "auditCoverageState": "prompt-and-response-audited",
+        "alertOutcome": "parent-review-required",
+        "escalationBasis": "child-help-response",
         "evidenceReferenceIds": [
           "tracking-child-check-in-evidence-1",
           "tracking-child-check-in-help-location",
@@ -147,6 +159,10 @@
         "escalates": true,
         "includeLocationIfPermitted": true,
         "locationEvidenceReferenceId": null,
+        "locationSampleState": "requested-not-yet-attached",
+        "auditCoverageState": "prompt-and-response-audited",
+        "alertOutcome": "parent-review-required",
+        "escalationBasis": "child-call-parent-response",
         "evidenceReferenceIds": [
           "tracking-child-check-in-evidence-1",
           "tracking-child-check-in-evidence-1"
@@ -187,6 +203,10 @@
         "escalates": true,
         "includeLocationIfPermitted": true,
         "locationEvidenceReferenceId": null,
+        "locationSampleState": "requested-not-yet-attached",
+        "auditCoverageState": "prompt-audited",
+        "alertOutcome": "parent-review-required",
+        "escalationBasis": "expired-rule-only-timeout",
         "evidenceReferenceIds": [
           "tracking-child-check-in-evidence-1",
           "tracking-child-check-in-evidence-1"
@@ -219,6 +239,12 @@
     "waitingCount": 1,
     "resolvedCount": 1,
     "escalationReadyCount": 3,
+    "locationSampleRequestedCount": 5,
+    "attachedLocationSampleCount": 2,
+    "auditedPromptCount": 2,
+    "auditedResponseCount": 3,
+    "ruleOnlyEscalationCount": 1,
+    "safeAlertOutcomeCount": 1,
     "readinessNonClaims": [
       "no-child-device-delivery-runtime",
       "no-child-device-response-runtime",
@@ -249,11 +275,20 @@
     "tracking-child-check-in.help-response-escalation-ready",
     "tracking-child-check-in.call-parent-response-escalation-ready",
     "tracking-child-check-in.expired-timeout-escalation-ready",
+    "tracking-child-check-in.optional-location-sample-requested",
+    "tracking-child-check-in.location-sample-attached-from-response",
+    "tracking-child-check-in.prompt-and-response-audit-refs-preserved",
+    "tracking-child-check-in.rule-only-timeout-escalation",
     "tracking-child-check-in.no-child-runtime-or-device-claim"
   ],
   "productClaims": {
     "childCheckInTimeoutRowsClaimed": true,
     "childCheckInResolutionContractClaimed": true,
+    "optionalLocationSampleRequestClaimed": true,
+    "childResponseLocationEvidenceRefClaimed": true,
+    "promptAndResponseAuditRefsClaimed": true,
+    "alertOutcomeProjectionClaimed": true,
+    "ruleOnlyTimeoutEscalationClaimed": true,
     "childDeviceDeliveryRuntimeClaimed": false,
     "childDeviceResponseRuntimeClaimed": false,
     "renderedChildDeviceUiClaimed": false,
@@ -266,7 +301,7 @@
     "adapterDispatchClaimed": false,
     "productClaimReady": false
   },
-  "missingProofReason": "P1 fixture proof covers child check-in timeout and escalation readiness rows over existing tracking check-in contracts and runtime resolver. Child-device delivery/runtime execution, rendered child-device UI, provider delivery, receipt runtime, live location sample runtime, physical-device proof, authority proof, production timeout workers, and adapter dispatch remain unclaimed.",
+  "missingProofReason": "P1 fixture proof covers child check-in timeout, optional location-sample request/attached evidence refs, prompt/response audit refs, safe alert outcome projection, and rule-only timeout escalation rows over existing tracking check-in contracts and runtime resolver. Child-device delivery/runtime execution, rendered child-device UI, provider delivery, receipt runtime, live location sample runtime, physical-device proof, authority proof, production timeout workers, and adapter dispatch remain unclaimed.",
   "commands": [
     {
       "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run build"

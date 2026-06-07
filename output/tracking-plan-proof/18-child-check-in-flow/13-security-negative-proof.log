@@ -1,4 +1,6 @@
 workpack=18-child-check-in-flow
 Child check-in rows preserve request, response, alert, evidence, policy, audit, parent action, and timeout refs.
 Escalation-ready rows are derived only from help/call-parent/no-response or expired timeout states.
+Expired timeout escalation is rule-only and does not infer child intent, blame, or device delivery.
+Optional location sample evidence is an attached child response ref only when present in the source read model.
 Child-device delivery/runtime execution, rendered child UI, provider delivery, receipt runtime, live location sample runtime, physical-device proof, authority proof, production timeout workers, and adapter dispatch are all non-claims.
