@@ -87,6 +87,15 @@ pub const TEST_REMOTE_DELIVERY_DURABLE_DELETE_EXPORT_REF: &str =
     "network.remote-delivery.durable-envelope-delete-export.10e";
 pub const TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF: &str =
     "network.remote-delivery.durable-envelope-support-status.10e";
+pub const TEST_REMOTE_DELIVERY_STATUS_BRIDGE_REF: &str =
+    "network.remote-delivery.status-bridge.10f";
+pub const TEST_REMOTE_DELIVERY_OUTBOX_REF: &str = "network.remote-delivery.outbox.10g";
+pub const TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF: &str =
+    "network.remote-delivery.outbox-handoff.10g";
+pub const TEST_REMOTE_DELIVERY_OUTBOX_REPLAY_REF: &str =
+    "network.remote-delivery.outbox-replay.10g";
+pub const TEST_REMOTE_DELIVERY_OUTBOX_SUPPORT_STATUS_REF: &str =
+    "network.remote-delivery.outbox-support-status.10g";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_PATH_PREFIX: &str =
     "ocentra-network-remote-event-chain-journal";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION: &str = "ndjson";
@@ -147,3 +156,5 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_RECEIPT_LEDGER: &str =
     "network runtime remote receipt ledger proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_DURABLE_ENVELOPE: &str =
     "network runtime remote durable envelope proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF: &str =
+    "network runtime remote outbox handoff proof";
