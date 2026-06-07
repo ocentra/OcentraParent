@@ -186,6 +186,24 @@ execution, revocation execution, support backend upload execution, account
 lookup execution, billing provider contact execution, remote support session
 execution, production SLA, or default Ocentra-hosted family data.
 
+## Provider Secret Execution Readiness Contract
+
+`src/provider-secret-execution-readiness.ts` owns the logging-domain schema
+proof for provider-secret execution readiness rows, while
+`src/provider-secret-execution-readiness-read-model.ts` owns the current fixture
+rows. They record execution boundary, backend secret-store preflight, rotation
+preflight, revocation preflight, operator approval, manual execution, and
+support-safe audit export states with custody status, preflight, operator,
+manual proof, and audit refs.
+
+This contract is metadata-only. It does not claim provider secrets, payment
+provider tokens, raw child activity, raw support bundle payloads, account
+lookup results, billing provider contact records, remote support transcripts,
+backend secret store execution, rotation execution, revocation execution,
+provider-secret execution delivery, support backend upload execution, account
+lookup execution, billing provider contact execution, remote support session
+execution, production SLA, or default Ocentra-hosted family data.
+
 ## Privacy Legal Disclosure Status Contract
 
 `src/privacy-legal-disclosure-status.ts` owns the logging-domain schema proof

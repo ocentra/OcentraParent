@@ -178,6 +178,17 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   default Ocentra-hosted family data, or any claim that Ocentra-hosted services
   executed provider-secret custody, backend secret storage, rotation, or
   revocation.
+- `provider-secret-execution-readiness-proof` may summarize provider-secret
+  execution boundary, backend secret-store preflight, rotation preflight,
+  revocation preflight, operator approval, manual execution, and support-safe
+  audit export rows with custody status refs, preflight refs, operator approval
+  refs, manual proof refs, and audit refs, but it must not include raw child
+  activity, provider secrets, payment provider tokens, raw support bundle
+  payloads, account lookup results, billing provider contact records, support
+  backend payloads, remote support session transcripts, production SLA claims,
+  default Ocentra-hosted family data, or any claim that Ocentra-hosted services
+  executed backend secret storage, rotation, revocation, or provider-secret
+  delivery.
 - `production-support-data-export-delete-lifecycle-proof` may summarize
   parent-authorized local export/delete requested, authorized, queued, running,
   succeeded, failed, and manual-required lifecycle status rows with local queue,
