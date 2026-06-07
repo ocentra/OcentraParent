@@ -1,8 +1,8 @@
 use crate::{
-    evaluate_network_readiness_proof, NetworkHardeningReadinessProof, NetworkReadinessFindingCode,
-    NetworkReadinessGate, NetworkReadinessProofError, NetworkReadinessProofInput,
-    NetworkReadinessState, NetworkRetentionReadinessProof, NetworkRolloutReadinessProof,
-    NetworkSupportReadinessProof,
+    evaluate_network_readiness_proof, NetworkExternalSignoffReadinessProof,
+    NetworkHardeningReadinessProof, NetworkReadinessFindingCode, NetworkReadinessGate,
+    NetworkReadinessProofError, NetworkReadinessProofInput, NetworkReadinessState,
+    NetworkRetentionReadinessProof, NetworkRolloutReadinessProof, NetworkSupportReadinessProof,
 };
 
 #[test]
@@ -50,16 +50,13 @@ fn readiness_proof_blocks_production_claim_without_external_signoff() {
         vec![NetworkReadinessFindingCode::ExternalAuditOrPenTestMissing]
     );
     assert!(!proof.production_rollout_ready);
-    assert_eq!(proof.external_audit_or_pen_test_ref, None);
+    assert!(proof.external_audit_or_pen_test_refs.is_empty());
 }
 
 #[test]
-fn readiness_proof_allows_production_ready_only_with_external_signoff() {
-    let proof = evaluate_network_readiness_proof(readiness_input(
-        true,
-        Some("external-pen-test-signoff-row50"),
-    ))
-    .expect("external signoff should allow production-ready readiness state");
+fn readiness_proof_allows_production_ready_only_with_external_signoff_artifact() {
+    let proof = evaluate_network_readiness_proof(readiness_input(true, Some(external_signoff())))
+        .expect("external signoff proof should allow production-ready readiness state");
 
     assert_eq!(
         proof.readiness_state,
@@ -68,8 +65,28 @@ fn readiness_proof_allows_production_ready_only_with_external_signoff() {
     assert!(proof.finding_codes.is_empty());
     assert!(proof.production_rollout_ready);
     assert_eq!(
-        proof.external_audit_or_pen_test_ref,
-        Some("external-pen-test-signoff-row50".to_owned())
+        proof.external_audit_or_pen_test_refs,
+        vec![
+            "external-pen-test-signoff-row50".to_owned(),
+            "output/network-plan-proof/50-security-readiness-proof/external-signoff-artifact.json"
+                .to_owned(),
+            "external-pen-test-artifact-digest-row50".to_owned(),
+            "external-pen-test-scope-row50".to_owned()
+        ]
+    );
+}
+
+#[test]
+fn readiness_proof_rejects_external_signoff_without_artifact_refs() {
+    assert_eq!(
+        evaluate_network_readiness_proof(readiness_input(
+            true,
+            Some(NetworkExternalSignoffReadinessProof {
+                artifact_ref: " ".to_owned(),
+                ..external_signoff()
+            }),
+        )),
+        Err(NetworkReadinessProofError::EmptyExternalAuditOrPenTestProofRef)
     );
 }
 
@@ -141,7 +158,7 @@ fn readiness_proof_rejects_missing_hardening_support_and_rollout_refs() {
 
 fn readiness_input(
     production_rollout_claimed: bool,
-    external_audit_or_pen_test_ref: Option<&str>,
+    external_audit_or_pen_test: Option<NetworkExternalSignoffReadinessProof>,
 ) -> NetworkReadinessProofInput {
     NetworkReadinessProofInput {
         readiness_report_ref: "network-readiness-row50".to_owned(),
@@ -152,7 +169,7 @@ fn readiness_input(
         hardening: hardening_proof(),
         support: support_proof(),
         rollout: rollout_proof(),
-        external_audit_or_pen_test_ref: external_audit_or_pen_test_ref.map(str::to_owned),
+        external_audit_or_pen_test,
         production_rollout_claimed,
         default_remote_upload_claimed: false,
         raw_pcap_without_custody_claimed: false,
@@ -164,6 +181,17 @@ fn readiness_input(
         policy_authority_claimed: false,
         adapter_authority_claimed: false,
         enforcement_command_claimed: false,
+    }
+}
+
+fn external_signoff() -> NetworkExternalSignoffReadinessProof {
+    NetworkExternalSignoffReadinessProof {
+        signoff_ref: "external-pen-test-signoff-row50".to_owned(),
+        artifact_ref:
+            "output/network-plan-proof/50-security-readiness-proof/external-signoff-artifact.json"
+                .to_owned(),
+        artifact_digest_ref: "external-pen-test-artifact-digest-row50".to_owned(),
+        scope_ref: "external-pen-test-scope-row50".to_owned(),
     }
 }
 

@@ -65,6 +65,14 @@ pub struct NetworkRolloutReadinessProof {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NetworkExternalSignoffReadinessProof {
+    pub signoff_ref: String,
+    pub artifact_ref: String,
+    pub artifact_digest_ref: String,
+    pub scope_ref: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NetworkReadinessProofInput {
     pub readiness_report_ref: String,
     pub threat_model_ref: String,
@@ -74,7 +82,7 @@ pub struct NetworkReadinessProofInput {
     pub hardening: NetworkHardeningReadinessProof,
     pub support: NetworkSupportReadinessProof,
     pub rollout: NetworkRolloutReadinessProof,
-    pub external_audit_or_pen_test_ref: Option<String>,
+    pub external_audit_or_pen_test: Option<NetworkExternalSignoffReadinessProof>,
     pub production_rollout_claimed: bool,
     pub default_remote_upload_claimed: bool,
     pub raw_pcap_without_custody_claimed: bool,
@@ -101,7 +109,7 @@ pub struct NetworkReadinessProof {
     pub hardening_refs: Vec<String>,
     pub support_refs: Vec<String>,
     pub rollout_refs: Vec<String>,
-    pub external_audit_or_pen_test_ref: Option<String>,
+    pub external_audit_or_pen_test_refs: Vec<String>,
     pub production_rollout_ready: bool,
     pub default_remote_upload_enabled: bool,
     pub raw_pcap_without_custody_available: bool,
@@ -125,7 +133,7 @@ pub enum NetworkReadinessProofError {
     EmptyHardeningRef,
     EmptySupportRef,
     EmptyRolloutRef,
-    EmptyExternalAuditOrPenTestRef,
+    EmptyExternalAuditOrPenTestProofRef,
     DefaultRemoteUploadClaimRejected,
     RawPcapWithoutCustodyClaimRejected,
     ExactUrlClaimRejected,
@@ -143,8 +151,18 @@ pub fn evaluate_network_readiness_proof(
 ) -> Result<NetworkReadinessProof, NetworkReadinessProofError> {
     validate_input(&input)?;
 
-    let external_signoff = input.external_audit_or_pen_test_ref.clone();
-    let production_rollout_ready = input.production_rollout_claimed && external_signoff.is_some();
+    let external_signoff_refs: Vec<String> = input
+        .external_audit_or_pen_test
+        .as_ref()
+        .map(|proof| {
+            external_signoff_ref_slice(proof)
+                .into_iter()
+                .map(str::to_owned)
+                .collect()
+        })
+        .unwrap_or_default();
+    let production_rollout_ready =
+        input.production_rollout_claimed && !external_signoff_refs.is_empty();
     let readiness_state = if production_rollout_ready {
         NetworkReadinessState::ProductionReadyWithExternalSignoff
     } else if input.production_rollout_claimed {
@@ -152,7 +170,7 @@ pub fn evaluate_network_readiness_proof(
     } else {
         NetworkReadinessState::InternalProofReady
     };
-    let finding_codes = if input.production_rollout_claimed && external_signoff.is_none() {
+    let finding_codes = if input.production_rollout_claimed && external_signoff_refs.is_empty() {
         vec![NetworkReadinessFindingCode::ExternalAuditOrPenTestMissing]
     } else {
         Vec::new()
@@ -170,7 +188,7 @@ pub fn evaluate_network_readiness_proof(
         hardening_refs: hardening_refs(input.hardening),
         support_refs: support_refs(input.support),
         rollout_refs: rollout_refs(input.rollout),
-        external_audit_or_pen_test_ref: external_signoff,
+        external_audit_or_pen_test_refs: external_signoff_refs,
         production_rollout_ready,
         default_remote_upload_enabled: false,
         raw_pcap_without_custody_available: false,
@@ -202,13 +220,7 @@ fn validate_input(input: &NetworkReadinessProofInput) -> Result<(), NetworkReadi
     validate_hardening(&input.hardening)?;
     validate_support(&input.support)?;
     validate_rollout(&input.rollout)?;
-    if input
-        .external_audit_or_pen_test_ref
-        .as_ref()
-        .is_some_and(|value| value.trim().is_empty())
-    {
-        return Err(NetworkReadinessProofError::EmptyExternalAuditOrPenTestRef);
-    }
+    validate_external_signoff(input.external_audit_or_pen_test.as_ref())?;
     validate_claims(input)
 }
 
@@ -285,6 +297,19 @@ fn validate_rollout(
     for value in rollout_ref_slice(proof) {
         if value.trim().is_empty() {
             return Err(NetworkReadinessProofError::EmptyRolloutRef);
+        }
+    }
+    Ok(())
+}
+
+fn validate_external_signoff(
+    proof: Option<&NetworkExternalSignoffReadinessProof>,
+) -> Result<(), NetworkReadinessProofError> {
+    if let Some(proof) = proof {
+        for value in external_signoff_ref_slice(proof) {
+            if value.trim().is_empty() {
+                return Err(NetworkReadinessProofError::EmptyExternalAuditOrPenTestProofRef);
+            }
         }
     }
     Ok(())
@@ -387,5 +412,14 @@ fn rollout_ref_slice(proof: &NetworkRolloutReadinessProof) -> [&str; 6] {
         proof.monitoring_ref.as_str(),
         proof.incident_response_ref.as_str(),
         proof.known_gap_signoff_ref.as_str(),
+    ]
+}
+
+fn external_signoff_ref_slice(proof: &NetworkExternalSignoffReadinessProof) -> [&str; 4] {
+    [
+        proof.signoff_ref.as_str(),
+        proof.artifact_ref.as_str(),
+        proof.artifact_digest_ref.as_str(),
+        proof.scope_ref.as_str(),
     ]
 }

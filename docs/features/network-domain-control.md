@@ -257,9 +257,9 @@ compete on control while staying clear about attribution confidence and privacy.
   provenance and rollback, support materials, staff training, staged rollout,
   and known-gap signoff refs produce internal-ready, production-blocked, or
   production-ready-with-external-signoff states. Production rollout stays
-  blocked without external audit or penetration-test signoff, and default remote
-  upload, raw PCAP without custody, exact-content, policy/adapter authority, and
-  enforcement-command claims are rejected.
+  blocked without external audit or penetration-test signoff artifact proof
+  refs, and default remote upload, raw PCAP without custody, exact-content,
+  policy/adapter authority, and enforcement-command claims are rejected.
 - E-D added an evidence-grade policy mapper in `ocentra-network-evidence`:
   A/B/C/D evidence plus parent rule refs, policy decision refs, evidence refs,
   and optional local-AI result refs map to dry-run, parent-review, or
@@ -493,11 +493,13 @@ UI rendering remain open.
       manual/unavailable/degraded path states and rejecting realtime/production
       claims. Row50 security readiness proof now gates production rollout on
       threat-model/privacy/compliance/retention/hardening/support/staged-rollout
-      refs plus external audit or penetration-test signoff for production-ready
-      state. Row11a now records the aggregate network hardening/support proof
+      refs plus external audit or penetration-test signoff artifact proof refs
+      for production-ready state. Row11a now records the aggregate network
+      hardening/support proof
       pack for key rotation, secret handling, rule/model provenance, rollback,
       parent/user guides, FAQ, support playbook, staff training, staged rollout,
-      incident response, known-gap signoff, and external signoff refs. Row52
+      incident response, known-gap signoff, and external signoff artifact refs.
+      Row52
       platform-claim manifest proof now composes Windows Firewall/WFP, Android
       VpnService, Apple Network Extension macOS/iOS, and Linux nftables/eBPF/TUN
       gates into exact OS/device/permission claim rows, records manual

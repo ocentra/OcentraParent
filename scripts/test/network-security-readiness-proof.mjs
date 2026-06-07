@@ -28,7 +28,9 @@ writeFileSync(
         'known gap signoff',
       ],
       productionGate:
-        'Production rollout remains blocked unless external audit or penetration-test signoff is supplied.',
+        'Production rollout remains blocked unless external audit or penetration-test signoff proof artifact refs are supplied.',
+      externalSignoffArtifactGate:
+        'External signoff proof requires signoff, artifact, digest, and scope refs before production-ready state can be represented.',
       unsupportedClaimsRejected: [
         'default remote upload',
         'raw PCAP without custody',
@@ -42,7 +44,7 @@ writeFileSync(
         'enforcement command',
       ],
       authorityBoundary:
-        'Readiness proof records gate refs and blocked/ready states only; it does not deploy, enable uploads, publish commands, or claim production rollout without external signoff.',
+        'Readiness proof records gate refs and blocked/ready states only; it does not deploy, enable uploads, publish commands, or claim production rollout without external signoff artifact proof.',
     },
     null,
     2
@@ -94,13 +96,13 @@ const proof = {
   provenRows: ['50 Security, privacy, compliance, deployment, support, and staged rollout proof'],
   provenBoundaries: [
     'security, privacy, compliance, retention, hardening, support, and rollout gate refs',
-    'production blocked without external audit or penetration-test signoff',
-    'production-ready state only with external signoff ref',
+    'production blocked without external audit or penetration-test signoff proof',
+    'production-ready state only with external signoff artifact proof refs',
     'unsupported content/upload/authority/enforcement claim rejection',
   ],
   notClaimed: [
     'production deployment or rollout execution',
-    'external audit completion unless a signoff ref is supplied',
+    'external audit completion unless signoff, artifact, digest, and scope refs are supplied',
     'default remote upload of child network evidence',
     'raw PCAP without custody',
     'exact URL, page content, private message, search query, or decrypted payload availability',
