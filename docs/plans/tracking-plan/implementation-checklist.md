@@ -90,19 +90,19 @@ Every checked item must cite one or more proof artifacts.
       `LocationManager` sample metadata, and raw coordinate proof export now
       exist under
       `output/tracking-plan-proof/08-android-foreground-location-adapter/`;
-      WP09 emulator background permission plus foreground-service-backed
-      background-activity sample and local-geofence enter/exit proof now records
-      declared and granted `ACCESS_BACKGROUND_LOCATION`, app UI background
-      permission text, app-owned background sample storage with provider/
-      timestamp/accuracy, app-owned local geofence transition rows, and an
-      outside/inside/outside emulator `geo fix` route under
+      WP09 emulator background permission plus Android app Settings page
+      routing, foreground-service-backed background-activity sample, and
+      local-geofence enter/exit proof now records declared and granted
+      `ACCESS_BACKGROUND_LOCATION`, app UI background permission text, app
+      details Settings activity/window routing, app-owned background sample storage with
+      provider/timestamp/accuracy, app-owned local geofence transition rows,
+      and an outside/inside/outside emulator `geo fix` route under
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`;
       WP08/WP09 parent-domain manual-required proof rows also exist under
       `output/tracking-plan-proof/08-android-foreground-location-adapter/` and
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`;
-      Android 11+ settings-page background flow, Android system geofencing,
-      dwell transition delivery, and physical-device proof remain required
-      before this can be checked.
+      Android system geofencing, dwell transition delivery, and physical-device
+      proof remain required before this can be checked.
 - [ ] iOS background/region claims have real device permission/background
       proof. WP11/WP12 parent-domain manual-required proof rows now keep
       authorization, sample, degraded-state, Always/background, region,
@@ -120,10 +120,11 @@ Every checked item must cite one or more proof artifacts.
       permission UX dialog capture, foreground permission grant, app-reported
       current `LocationManager` sample metadata plus raw coordinate proof
       export, background
-      location permission grant state, foreground-service-backed
-      background-activity sample storage, emulator local-geofence enter/exit
-      rows, UI tree, headless screenshot inspection, logcat, battery, and
-      connectivity dumps are captured without claiming fused provider capture,
+      location permission grant state, Android app Settings page routing,
+      foreground-service-backed background-activity sample storage, emulator
+      local-geofence enter/exit rows, UI tree, headless screenshot inspection,
+      logcat, battery, and connectivity dumps are captured without claiming
+      fused provider capture,
       Android system geofencing, dwell transitions, notification delivery,
       physical-device, or authority behavior. Emulator proof:
       `test-results/tracking-plan-android-emulator-proof/proof.json`.
@@ -308,7 +309,7 @@ proof artifacts under their assigned proof roots. It proves emulator package
 mechanics, foreground permission-controller UX dialog, foreground runtime
 permission grant, app-reported current `LocationManager`
 provider/timestamp/accuracy/source metadata plus raw coordinate proof export,
-background location permission grant state,
+background location permission grant state, Android app Settings page routing,
 foreground-service-backed background-activity sample storage, app-owned
 GPS-listener local-geofence enter/exit rows, and status scaffold behavior only;
 fused provider capture, Android system geofencing, dwell transitions,
@@ -422,9 +423,10 @@ Every implementation workpack must update, or explicitly justify not updating:
 - [x] Android emulator package launch, foreground-service scaffold, foreground
       permission-controller UX dialog, runtime permission grant, app-reported
       current `LocationManager` sample metadata plus raw coordinate proof export,
-      background location permission grant state, foreground-service-backed
-      background-activity sample storage, local-geofence enter/exit rows,
-      battery, and connectivity status proof exists at P3 local-dev tier;
+      background location permission grant state, Android app Settings page
+      routing, foreground-service-backed background-activity sample storage,
+      local-geofence enter/exit rows, battery, and connectivity status proof
+      exists at P3 local-dev tier;
       fused provider location, physical-device behavior, Android system
       geofencing, and dwell behavior are not claimed by it.
 - [x] iOS simulator package proof harness exists and is wired to macOS
@@ -450,9 +452,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       manual-required platform proof through
       `node scripts/test/tracking-android-status-proof.mjs`.
 - [ ] Android background/geofence proof is not complete. The emulator proof now
-      records background permission grant state, foreground-service-backed
-      background-activity sample storage, and local-geofence enter/exit rows,
-      but Android 11+ settings-page flow, Android system geofencing, dwell
+      records background permission grant state, Android app Settings page
+      routing, foreground-service-backed background-activity sample storage,
+      and local-geofence enter/exit rows, but Android system geofencing, dwell
       transitions, physical-device proof, authority, and product-ready tracking
       remain manual-required.
 - [ ] iOS background/region proof is not complete. Parent-domain manual-required

@@ -1,1 +1,1 @@
-PASS adb shell am force-stop ca.ocentra.parent.agent
+SKIP force-stop before refresh; preserve foreground-service proof state after Settings-page capture.

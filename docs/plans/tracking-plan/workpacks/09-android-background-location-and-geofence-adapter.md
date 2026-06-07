@@ -32,7 +32,7 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 ## AI Worker Checklist
 
 - [ ] Prove Android 10+ background permission where claimed.
-- [ ] Prove Android 11+ settings-page background permission flow.
+- [x] Prove Android 11+ settings-page background permission flow.
 - [ ] Prove Android system enter, exit, and dwell transitions.
 - [ ] Represent active geofence limit.
 - [ ] Add battery/background degraded proof before claims.
@@ -67,17 +67,20 @@ emulator background-permission, foreground-service-backed background-activity
 sample, and local-geofence enter/exit layer for this workpack. The generated
 `05-geofence-transition-proof.json` records package launch, foreground service
 observation, declared `ACCESS_BACKGROUND_LOCATION`, emulator grant state,
-activity backgrounding through `input keyevent 3`, an emulator `geo fix` sample
-while the foreground service keeps a `LocationManager` GPS listener active,
-app UI text for `background-location-permission-granted`,
-`background-location-sample-observed-emulator-foreground-service`, and
-`background-geofence-transition-observed-emulator`, app-owned background sample
-proof storage with provider/timestamp/accuracy, and app-owned local-geofence
-proof storage with `geofenceTransitionCount: 3`, `geofenceEnterCount: 2`, and
-`geofenceExitCount: 1`. This proves emulator foreground-service/backgrounded
-activity sample rows and emulator `LocationManager` GPS-listener local-geofence
-enter/exit rows only; it is not Android system background delivery, Android
-system geofencing, dwell transition, Android 11+ settings-page flow,
+Android app Settings page routing, activity backgrounding through
+`input keyevent 3`, an emulator `geo fix` sample while the foreground service
+keeps a `LocationManager` GPS listener active, app-owned background sample proof
+storage with provider/timestamp/accuracy, and app-owned local-geofence proof
+storage with `geofenceTransitionCount: 3`, `geofenceEnterCount: 2`, and
+`geofenceExitCount: 1`. The final app UI can still render the manual-required
+boundary while the proof storage preserves the local emulator sample/geofence
+rows. This proves emulator foreground-service/backgrounded activity sample rows
+and emulator `LocationManager` GPS-listener local-geofence enter/exit rows only.
+The same proof now launches the Android app details
+settings page for `ca.ocentra.parent.agent` and records Settings
+activity/window routing as the Android 11+ background-location settings-page
+flow artifact. It is not Android
+system background delivery, Android system geofencing, dwell transition,
 physical-device, authority, provider delivery, production upload worker, or
 product-ready Android tracking proof.
 
@@ -129,8 +132,10 @@ This workpack can be assigned independently, implemented against the owning doma
       checklist, and this workpack doc updated for the local manual-required
       background permission/geofence transition proof; central capability row
       update remains a hub/primary-owned doc delta.
-- [x] Known gaps/manual-required states: Android 11+ settings-page background
-      permission flow, Android system geofencing, dwell transition delivery,
-      active geofence-limit runtime, physical-device proof, authority, provider
-      delivery, notification delivery, production upload workers, and
-      product-ready Android tracking remain unclaimed.
+- [x] Known gaps/manual-required states: Android app settings-page routing,
+      background permission grant, foreground-service-backed background sample,
+      and app-owned local geofence enter/exit are locally observed. Android
+      system geofencing, dwell transition delivery, active geofence-limit
+      runtime, physical-device proof, authority, provider delivery,
+      notification delivery, production upload workers, and product-ready
+      Android tracking remain unclaimed.

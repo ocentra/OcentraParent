@@ -1,0 +1,15 @@
+{
+  "observed": true,
+  "settingsPackageObserved": true,
+  "settingsActivityObserved": true,
+  "packageRouteObserved": true,
+  "appSettingsCopyObserved": false,
+  "appLabelObserved": false,
+  "packageNameObserved": false,
+  "permissionCopyObserved": false,
+  "text": [],
+  "launchArtifact": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page-launch.txt",
+  "uiArtifact": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page.xml",
+  "activityArtifact": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page-activity.txt",
+  "windowArtifact": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page-window.txt"
+}

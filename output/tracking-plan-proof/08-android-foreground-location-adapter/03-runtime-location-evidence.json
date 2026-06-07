@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T02:47:27.973Z",
-  "commit": "055cd32d1c2bc188df8fdeba49a1b5ed96087a1b",
+  "checkedAt": "2026-06-07T03:16:06.824Z",
+  "commit": "db73b52b09f5edcc35d19757963286fe38bd5a70",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "foreground_permission_ux_current_sample_raw_coordinate_observed",
@@ -46,11 +46,11 @@
   "foregroundLocationPermissionStateText": "foreground-location-permission-granted",
   "foregroundLocationSampleStateText": "current-location-sample-observed-emulator-location-manager",
   "foregroundLocationProvider": "gps",
-  "foregroundLocationObservedAtEpochMillis": 1780800442050,
+  "foregroundLocationObservedAtEpochMillis": 1780802141186,
   "foregroundLocationAccuracyMeters": 5,
   "foregroundLocationSampleSource": "android-location-manager-current-listener-emulator",
-  "foregroundLocationLatitude": 37.421998333333335,
-  "foregroundLocationLongitude": -122.084,
+  "foregroundLocationLatitude": 37.42099833333333,
+  "foregroundLocationLongitude": -122.08299833333334,
   "foregroundRawCoordinateExportObserved": true,
   "fusedForegroundSampleClaimed": false,
   "missingProofReason": "Foreground location permission UX dialog, permission grant, app-emitted emulator current LocationManager sample, provider, observed timestamp, accuracy, source, and raw latitude/longitude were observed on the emulator package; fused provider, background/geofence, physical-device, authority, provider delivery, and product-ready tracking remain unclaimed.",
@@ -86,6 +86,11 @@
     "backgroundLocationSamplePrefs": "test-results/tracking-plan-android-emulator-proof/20-background-location-sample-prefs.xml",
     "backgroundActivityForSample": "test-results/tracking-plan-android-emulator-proof/21-background-activity-for-sample.txt",
     "backgroundLocationSampleRoute": "test-results/tracking-plan-android-emulator-proof/22-background-location-sample-route.txt",
-    "relaunchAfterBackgroundSample": "test-results/tracking-plan-android-emulator-proof/23-relaunch-after-background-sample.txt"
+    "relaunchAfterBackgroundSample": "test-results/tracking-plan-android-emulator-proof/23-relaunch-after-background-sample.txt",
+    "backgroundLocationSettingsPageLaunch": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page-launch.txt",
+    "backgroundLocationSettingsPage": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page.xml",
+    "backgroundLocationSettingsPageActivity": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page-activity.txt",
+    "backgroundLocationSettingsPageWindow": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page-window.txt",
+    "backgroundLocationSettingsPageProof": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page.json"
   }
 }

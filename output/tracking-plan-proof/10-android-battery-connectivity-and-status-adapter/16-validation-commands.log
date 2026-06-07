@@ -17,6 +17,12 @@ PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell input keyevent 4
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell pm grant ca.ocentra.parent.agent android.permission.ACCESS_FINE_LOCATION
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell pm grant ca.ocentra.parent.agent android.permission.ACCESS_COARSE_LOCATION
+PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell am start -a android.settings.APPLICATION_DETAILS_SETTINGS -d package:ca.ocentra.parent.agent
+PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 exec-out uiautomator dump /dev/tty
+PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell dumpsys activity activities
+PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell dumpsys window
+PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell input keyevent 4
+PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell am start -n ca.ocentra.parent.agent/.MainActivity
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell pm grant ca.ocentra.parent.agent android.permission.ACCESS_BACKGROUND_LOCATION
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell input keyevent 224
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell wm dismiss-keyguard
@@ -44,7 +50,6 @@ PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 emu geo fix -122.084 37.422
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 emu geo fix -122.090 37.427
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 emu geo fix -122.084 37.422
-PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell am force-stop ca.ocentra.parent.agent
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell am start -n ca.ocentra.parent.agent/.MainActivity
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell input keyevent 224
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell wm dismiss-keyguard
@@ -58,5 +63,5 @@ PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell run-as ca.ocentra.parent.agent cat shared_prefs/tracking_geofence_transition_proof.xml
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell run-as ca.ocentra.parent.agent cat shared_prefs/tracking_background_location_sample_proof.xml
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell pidof -s ca.ocentra.parent.agent
-PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 logcat --pid 5273 -d
+PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 logcat --pid 4519 -d
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 exec-out screencap -p
