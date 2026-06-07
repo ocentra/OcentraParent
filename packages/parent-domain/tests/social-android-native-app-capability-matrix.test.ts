@@ -6,6 +6,10 @@ import {
 
 describe('social Android native app capability matrix contracts', () => {
   it('accepts an honest Android social native-app capability matrix', acceptsHonestMatrix);
+  it(
+    'accepts package visibility as manual-required when no Android device proof exists',
+    acceptsManualRequiredPackageVisibility
+  );
   it('rejects missing required Android social surfaces', rejectsMissingSurface);
   it('rejects route, content, connector, UI, runtime adapter, and enforcement claims', rejectsRuntimeClaims);
   it('rejects unsupported Android capability upgrades', rejectsCapabilityUpgrades);
@@ -24,6 +28,24 @@ function acceptsHonestMatrix() {
   expect(rowState(parsed, 'android-accessibility-route-hints')).toEqual({
     capabilityState: 'permission-required',
     proofState: 'permission-grant-required',
+    policyScope: 'manual-review-only',
+  });
+}
+
+function acceptsManualRequiredPackageVisibility() {
+  const matrix = validMatrix();
+  const parsed = SocialAndroidNativeAppCapabilityMatrixSchema.parse({
+    ...matrix,
+    rows: replaceRow(matrix, 'android-package-visibility', {
+      capabilityState: 'manual-required',
+      proofState: 'manual-device-proof-required',
+      policyScope: 'manual-review-only',
+    }),
+  });
+
+  expect(rowState(parsed, 'android-package-visibility')).toEqual({
+    capabilityState: 'manual-required',
+    proofState: 'manual-device-proof-required',
     policyScope: 'manual-review-only',
   });
 }

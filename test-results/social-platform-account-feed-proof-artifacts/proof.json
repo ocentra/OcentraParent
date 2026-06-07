@@ -1,0 +1,549 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-platform-account-feed-proof-artifacts",
+  "generatedAt": "2026-06-07T13:13:42.618Z",
+  "proofRoot": "output/browser-plan-proof",
+  "rows": [
+    {
+      "rowNumber": 1,
+      "rowId": "SOCIAL-01",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-01-social-video-gating-plan-folder-readme",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-plan-folder-readme-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 2,
+      "rowId": "SOCIAL-02",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-02-platform-route-contracts",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-evidence-route-schema-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 3,
+      "rowId": "SOCIAL-03",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-03-social-url-pattern-library",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-pattern-library-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-url-pattern-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 4,
+      "rowId": "SOCIAL-04",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-04-account-flow-evidence-contracts",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-account-flow-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 5,
+      "rowId": "SOCIAL-05",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-05-managed-dom-form-shape-detector",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-detector-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-form-shape-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 6,
+      "rowId": "SOCIAL-06",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-06-social-account-identity-registry",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-registry-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-identity-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 7,
+      "rowId": "SOCIAL-07",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-07-parent-approval-contracts",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-approval-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 8,
+      "rowId": "SOCIAL-08",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-08-feed-reels-shorts-route-classification",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-classification-proof.md",
+        "06-live-screenshots",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-route-classification-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 9,
+      "rowId": "SOCIAL-09",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-09-video-social-metadata-extractor",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-metadata-proof.md",
+        "06-live-screenshots",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-metadata-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 10,
+      "rowId": "SOCIAL-10",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-10-social-ai-analysis-contracts",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-evidence-ai-boundary-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 11,
+      "rowId": "SOCIAL-11",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-11-social-risk-benefit-signal-model",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-evidence-risk-benefit-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 12,
+      "rowId": "SOCIAL-12",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-12-parent-policy-compiler-social-targets",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-evidence-policy-compiler-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 13,
+      "rowId": "SOCIAL-13",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-13-managed-browser-account-creation-gate",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-surface-proof.md",
+        "06-live-screenshots",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 14,
+      "rowId": "SOCIAL-14",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-14-managed-browser-feed-short-video-gate",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "06-live-screenshots",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-route-gate-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 15,
+      "rowId": "SOCIAL-15",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-15-unmanaged-social-bypass-detector",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-process-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 16,
+      "rowId": "SOCIAL-16",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-16-android-native-app-capability-matrix",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-android-host-device-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 17,
+      "rowId": "SOCIAL-17",
+      "expectedStatus": "[~]",
+      "expectedState": "partial-manual-required",
+      "proofDirectory": "social-17-ios-screentime-managedsettings-matrix",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-ios-host-tooling-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "partial-manual-required",
+      "failures": []
+    },
+    {
+      "rowNumber": 18,
+      "rowId": "SOCIAL-18",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-18-platform-connector-authorization-boundary",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "06-live-screenshots",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-public-connector-boundary-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 19,
+      "rowId": "SOCIAL-19",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-19-memory-cache-account-video-channel-decisions",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-evidence-decision-memory-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 20,
+      "rowId": "SOCIAL-20",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-20-parent-social-dashboard-ux",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "06-ui-snapshots",
+        "07-rendered-portal-ui-proof.json",
+        "08-security-negative-proof.md",
+        "08-validation-commands.log",
+        "09-security-negative-proof.log",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 21,
+      "rowId": "SOCIAL-21",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-21-child-approval-block-ux",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "06-ui-snapshots",
+        "07-rendered-child-ui-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 22,
+      "rowId": "SOCIAL-22",
+      "expectedStatus": "[x]",
+      "expectedState": "proof-present",
+      "proofDirectory": "social-22-audit-explanation-read-model",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.log",
+        "01-contract-proof.md",
+        "02-service-read-model-proof.log",
+        "03-service-read-model-proof.json",
+        "04-service-no-claim-boundaries.md",
+        "06-ui-snapshots",
+        "07-rendered-explanation-ui-proof.json",
+        "08-security-negative-proof.log",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "proof-present",
+      "failures": []
+    }
+  ],
+  "summary": {
+    "totalRows": 22,
+    "completeRows": 21,
+    "partialRows": 1,
+    "failures": 0,
+    "playwrightState": "rendered-proof-bundle-ui-present-runtime-delivery-manual-required",
+    "productClaimed": false
+  },
+  "manualProofBoundary": {
+    "screenshots": "rendered-proof-bundle-ui-screenshots-present",
+    "playwright": "service-backed-dashboard-and-explanation-playwright-present",
+    "renderedUi": "parent-dashboard-child-intervention-parent-explanation-proof-present",
+    "serviceBackedExplanationReadModel": "proof-present",
+    "livePlatformRouteBoundary": "proof-present",
+    "liveSocialUrlPatternBoundary": "proof-present",
+    "liveAccountFlowBoundary": "proof-present",
+    "liveFormShapeBoundary": "proof-present",
+    "liveIdentityRegistryBoundary": "proof-present",
+    "liveParentApprovalBoundary": "proof-present",
+    "liveRouteClassification": "proof-present",
+    "liveMetadataExtraction": "proof-present",
+    "liveEvidenceAiBoundary": "proof-present",
+    "liveEvidenceRiskBenefitBoundary": "proof-present",
+    "liveEvidencePolicyCompilerBoundary": "proof-present",
+    "livePublicConnectorBoundary": "proof-present",
+    "liveEvidenceDecisionMemoryBoundary": "proof-present",
+    "alertReportIntent": "proof-present",
+    "alertReportLocalOutboxBridge": "parent-owned-local-outbox-jsonl-proof-present",
+    "alertReportParentSurfaceIntent": "manual-unavailable-parent-surface-intent-proof-present",
+    "alertReportSchedulerBridge": "parent-owned-scheduler-jsonl-proof-present",
+    "alertReportPreferencePreflight": "parent-preference-quiet-hours-proof-present",
+    "alertReportPreferenceStatusHandoff": "notification-preference-status-handoff-proof-present",
+    "alertReportAuditHistoryBridge": "logging-domain-audit-history-handoff-proof-present",
+    "alertReportIntentUi": "service-backed-browser-route-proof-present",
+    "alertReportProviderPreflight": "provider-adapter-required-proof-present",
+    "alertReportProviderStatusHandoff": "provider-status-boundary-proof-present",
+    "reportWriterDelivery": "parent-owned-proof-present",
+    "appliedScheduleTimeBudget": "parent-owned-proof-present",
+    "scheduleTimeBudgetCompiler": "proof-present",
+    "parentSensitivitySettings": "proof-present",
+    "sourceCustodySettings": "proof-present",
+    "sourceCustodyMutation": "service-backed-proof-present",
+    "enforcement": "not-claimed",
+    "productChecklistUpgrade": "not-claimed"
+  },
+  "failures": [],
+  "supplementalProofFiles": [
+    {
+      "file": "test-results/social-alert-report-intent-ui-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/07-rendered-alert-report-ui-proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-ui-playwright.log",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-provider-preflight-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-provider-status-handoff-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-provider-status-handoff-proof/01-social-alert-report-provider-status-handoff-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-local-outbox-bridge-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-local-outbox-bridge-proof/local-outbox-records.jsonl",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-local-outbox-bridge-proof/01-social-alert-report-local-outbox-bridge-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-parent-surface-intent-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-scheduler-bridge-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-scheduler-bridge-proof/scheduler-records.jsonl",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-scheduler-bridge-proof/01-social-alert-report-scheduler-bridge-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-preference-preflight-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-preference-preflight-proof/preference-preflight-read-model.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-preference-preflight-proof/01-social-alert-report-preference-preflight-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-preference-status-handoff-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-preference-status-handoff-proof/preference-status-handoff-read-model.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-preference-status-handoff-proof/01-social-alert-report-preference-status-handoff-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-audit-history-bridge-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-audit-history-bridge-proof/audit-history-handoff.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-audit-history-bridge-proof/01-social-alert-report-audit-history-bridge-proof.md",
+      "present": true
+    }
+  ]
+}

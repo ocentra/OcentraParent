@@ -211,6 +211,10 @@ export const AgentCommandNameSchema = withParser(
     'agent.activity.app-game.boundary.read-model.get',
     'agent.activity.app-game.policy-readiness.read-model.get',
     'agent.activity.app-game.notification-readiness.read-model.get',
+    'agent.browser.social-dashboard.read-model.get',
+    'agent.browser.social-audit-explanation.read-model.get',
+    'agent.browser.social-alert-report.read-model.get',
+    'agent.browser.social-source-custody.mutation.apply',
     'agent.activity.network.read-model.get',
     'agent.activity.tracking.read-model.get',
     'agent.browser.inventory.read-model.get',
@@ -282,6 +286,10 @@ export const AgentEventNameSchema = withParser(
     'agent.activity.app-game.boundary.read-model.reported',
     'agent.activity.app-game.policy-readiness.read-model.reported',
     'agent.activity.app-game.notification-readiness.read-model.reported',
+    'agent.browser.social-dashboard.read-model.reported',
+    'agent.browser.social-audit-explanation.read-model.reported',
+    'agent.browser.social-alert-report.read-model.reported',
+    'agent.browser.social-source-custody.mutation.applied',
     'agent.activity.network.read-model.reported',
     'agent.activity.tracking.read-model.reported',
     'agent.browser.inventory.read-model.reported',
@@ -371,6 +379,24 @@ export function isAgentProtocolLogText(value: unknown): value is string {
   return typeof value === 'string';
 }
 
+export {
+  parseAgentSocialAlertReportReadModelEvent,
+  SocialAlertReportReadModelSnapshotSchema,
+  type AgentSocialAlertReportReadModelFailureReason,
+  type AgentSocialAlertReportReadModelResult,
+  type SocialAlertReportReadModelIntent,
+  type SocialAlertReportReadModelSnapshot,
+} from './social-alert-report-read-model';
+
+export {
+  parseAgentSocialSourceCustodyMutationEvent,
+  SocialSourceCustodyMutationSnapshotSchema,
+  type AgentSocialSourceCustodyMutationFailureReason,
+  type AgentSocialSourceCustodyMutationResult,
+  type SocialSourceCustodyMutationSettings,
+  type SocialSourceCustodyMutationSnapshot,
+} from './social-source-custody-mutation';
+
 export const AgentCommand = {
   HealthCheck: AgentCommandNameSchema.parse('agent.health.check'),
   LogSnapshotGet: AgentCommandNameSchema.parse('agent.log.snapshot.get'),
@@ -394,6 +420,16 @@ export const AgentCommand = {
   ),
   ActivityAppGameNotificationReadinessReadModelGet: AgentCommandNameSchema.parse(
     'agent.activity.app-game.notification-readiness.read-model.get'
+  ),
+  BrowserSocialDashboardReadModelGet: AgentCommandNameSchema.parse('agent.browser.social-dashboard.read-model.get'),
+  BrowserSocialAuditExplanationReadModelGet: AgentCommandNameSchema.parse(
+    'agent.browser.social-audit-explanation.read-model.get'
+  ),
+  BrowserSocialAlertReportReadModelGet: AgentCommandNameSchema.parse(
+    'agent.browser.social-alert-report.read-model.get'
+  ),
+  BrowserSocialSourceCustodyMutationApply: AgentCommandNameSchema.parse(
+    'agent.browser.social-source-custody.mutation.apply'
   ),
   ActivityNetworkReadModelGet: AgentCommandNameSchema.parse('agent.activity.network.read-model.get'),
   ActivityTrackingReadModelGet: AgentCommandNameSchema.parse('agent.activity.tracking.read-model.get'),
@@ -485,6 +521,18 @@ export const AgentEvent = {
   ),
   ActivityAppGameNotificationReadinessReadModelReported: AgentEventNameSchema.parse(
     'agent.activity.app-game.notification-readiness.read-model.reported'
+  ),
+  BrowserSocialDashboardReadModelReported: AgentEventNameSchema.parse(
+    'agent.browser.social-dashboard.read-model.reported'
+  ),
+  BrowserSocialAuditExplanationReadModelReported: AgentEventNameSchema.parse(
+    'agent.browser.social-audit-explanation.read-model.reported'
+  ),
+  BrowserSocialAlertReportReadModelReported: AgentEventNameSchema.parse(
+    'agent.browser.social-alert-report.read-model.reported'
+  ),
+  BrowserSocialSourceCustodyMutationApplied: AgentEventNameSchema.parse(
+    'agent.browser.social-source-custody.mutation.applied'
   ),
   ActivityNetworkReadModelReported: AgentEventNameSchema.parse('agent.activity.network.read-model.reported'),
   ActivityTrackingReadModelReported: AgentEventNameSchema.parse('agent.activity.tracking.read-model.reported'),

@@ -1,12 +1,3 @@
-use ocentra_parent_agent_core::{
-    collect_process_snapshot, tracking_read_model_for_store,
-    windows_browser_inventory_observations, ActivityStore, ProcessObservation,
-};
-use ocentra_parent_agent_protocol::{
-    constants, ActivityIngestStatus, ActivityRecentSummary, AgentCommandEnvelope,
-    AgentEventEnvelope, AgentEventName, BrowserInventoryReadModel, LogLevel,
-};
-
 use crate::{
     activity_network_flow_payload::network_flow_read_model_payload_with_runtime_delivery,
     activity_payload::{
@@ -27,6 +18,15 @@ use crate::{
     time::timestamp_now,
     tracking_read_model_payload::tracking_read_model_payload,
 };
+use ocentra_parent_agent_core::{
+    collect_process_snapshot, tracking_read_model_for_store,
+    windows_browser_inventory_observations, windows_browser_package_observations, ActivityStore,
+    ProcessObservation,
+};
+use ocentra_parent_agent_protocol::{
+    constants, ActivityIngestStatus, ActivityRecentSummary, AgentCommandEnvelope,
+    AgentEventEnvelope, AgentEventName, BrowserInventoryReadModel, LogLevel,
+};
 
 mod activity_memory_graph_report;
 mod app_game_boundary_read_model_payload;
@@ -46,6 +46,26 @@ mod app_game_policy_readiness_payload_tests;
 mod app_game_policy_readiness_service_tests;
 mod browser_intervention_payload;
 mod browser_intervention_report;
+pub(crate) mod social_alert_report_read_model_payload;
+#[cfg(test)]
+mod social_alert_report_read_model_payload_tests;
+#[cfg(test)]
+mod social_alert_report_read_model_service_tests;
+pub(crate) mod social_audit_explanation_read_model_payload;
+#[cfg(test)]
+mod social_audit_explanation_read_model_payload_tests;
+#[cfg(test)]
+mod social_audit_explanation_read_model_service_tests;
+pub(crate) mod social_dashboard_read_model_payload;
+#[cfg(test)]
+mod social_dashboard_read_model_payload_tests;
+#[cfg(test)]
+mod social_dashboard_read_model_service_tests;
+pub(crate) mod social_source_custody_mutation_payload;
+#[cfg(test)]
+mod social_source_custody_mutation_payload_tests;
+#[cfg(test)]
+mod social_source_custody_mutation_service_tests;
 
 use self::app_game_boundary_read_model_payload::{
     app_game_boundary_read_model_from_service_model, app_game_boundary_read_model_payload,
@@ -56,7 +76,6 @@ use self::app_game_notification_readiness_payload::{
 use self::app_game_policy_readiness_payload::{
     app_game_policy_readiness_from_service_model, app_game_policy_readiness_payload,
 };
-
 pub use activity_memory_graph_report::build_activity_memory_graph_report;
 pub use browser_intervention_report::build_browser_intervention_read_model_report;
 
@@ -298,8 +317,13 @@ pub(crate) fn browser_inventory_read_model_from_service_defaults(
     process_observations: Vec<ProcessObservation>,
 ) -> BrowserInventoryReadModel {
     let candidate_paths = system_browser_candidate_paths();
-    let observations =
+    let mut observations =
         windows_browser_inventory_observations(&candidate_paths, &process_observations, None);
+    let package_identities =
+        ocentra_parent_agent_core::live_windows_browser_package_entries_with_limit(
+            constants::browser::PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY,
+        );
+    observations.extend(windows_browser_package_observations(&package_identities));
     browser_inventory_read_model_from_windows_inventory(generated_at, &observations)
 }
 

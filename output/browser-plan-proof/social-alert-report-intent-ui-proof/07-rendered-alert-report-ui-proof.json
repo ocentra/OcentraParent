@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-07T06:26:16.086Z",
+  "commit": "09d988ac206686d6a2dd01dbbde1521251861900",
+  "workpackIds": [
+    "social-alert-report-intent-ui-proof",
+    "social-23-tests-fixtures-playwright-manual-proof"
+  ],
+  "proofMode": "real-portal-browser-route-service-backed-social-alert-report-intents",
+  "route": "#/browser",
+  "currentStatus": "service-backed-social-alert-report-intents-rendered",
+  "productClaimReady": false,
+  "artifacts": {
+    "proof": "test-results/social-alert-report-intent-ui-proof/proof.json",
+    "outputProof": "output/browser-plan-proof/social-alert-report-intent-ui-proof/07-rendered-alert-report-ui-proof.json",
+    "playwrightLog": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-ui-playwright.log",
+    "securityNegativeLog": "output/browser-plan-proof/social-alert-report-intent-ui-proof/09-security-negative-proof.log",
+    "validationCommands": "output/browser-plan-proof/social-alert-report-intent-ui-proof/08-validation-commands.log",
+    "desktopScreenshot": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png",
+    "mobileScreenshot": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png",
+    "accessibilitySummary": "test-results/social-alert-report-intent-ui-proof/accessibility-summary.json"
+  },
+  "serviceBoundary": {
+    "route": "#/browser",
+    "source": "real Vite portal route with real Rust service WebSocket command",
+    "command": "agent.browser.social-alert-report.read-model.get",
+    "event": "agent.browser.social-alert-report.read-model.reported",
+    "socialAlertReportSnapshot": "reported",
+    "renderedState": "two service-backed alert/report intent rows plus two provider status boundary rows"
+  },
+  "assertions": [
+    "Portal browser route renders the social alert/report region from the real app shell.",
+    "The route starts with zero rows, then requests the service-backed alert/report read model over the real WebSocket path.",
+    "The reported service snapshot renders one local-outbox high-risk alert intent, one manual-required proof row, and provider status boundary rows for manual-required provider handoff.",
+    "Provider status rows keep provider receipts empty and provider delivery unobserved.",
+    "The rendered copy explicitly keeps provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement unclaimed.",
+    "Desktop and mobile screenshots were captured from the real portal route."
+  ],
+  "nonClaims": [
+    "This proof does not claim provider dispatch, provider receipt, parent notification UI delivery, report delivery, final policy decision, or enforcement.",
+    "This proof does not claim native app control, connector authorization, or child-device execution.",
+    "This proof does not seed browser-local portal-only rows; rows are returned by the real local Rust service command.",
+    "This proof does not claim product readiness for social/video control."
+  ],
+  "remainingGapsBeforeProductReady": [
+    "Provider/native runtime delivery remains pending.",
+    "Parent report delivery and notification UI delivery remain pending.",
+    "Final policy execution and enforcement remain separate proof gates."
+  ],
+  "accessibilitySummary": {
+    "route": "#/browser",
+    "assertions": [
+      "named-social-alert-report-region",
+      "zero-row-before-command-visible",
+      "service-backed-four-row-summary-visible",
+      "high-risk-local-outbox-row-visible",
+      "manual-required-row-visible",
+      "provider-status-manual-required-row-visible",
+      "non-claim-copy-visible",
+      "provider-report-notification-final-policy-enforcement-claims-not-visible",
+      "no-unlabeled-buttons",
+      "desktop-screenshot",
+      "mobile-screenshot"
+    ],
+    "summary": {
+      "hasNamedRegion": true,
+      "headings": [
+        "Social alerts and reports",
+        "4 social alert/report rows",
+        "High-risk social alert intent",
+        "Manual alert/report proof required",
+        "Provider status manual required",
+        "Provider status manual required"
+      ],
+      "labels": [
+        "Rows returned",
+        "Generated at",
+        "Product claim",
+        "Status",
+        "Capability",
+        "Reason codes",
+        "Evidence references",
+        "Policy evaluation",
+        "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Capability",
+        "Reason codes",
+        "Evidence references",
+        "Policy evaluation",
+        "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Capability",
+        "Reason codes",
+        "Evidence references",
+        "Policy evaluation",
+        "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Capability",
+        "Reason codes",
+        "Evidence references",
+        "Policy evaluation",
+        "Intervention audit ID",
+        "Product claim"
+      ],
+      "values": [
+        "4",
+        "2026-06-07T06:26:10.511Z",
+        "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
+        "local-outbox-eligible",
+        "local-outbox-only",
+        "social-high-risk-signal",
+        "policy-decision:evidence-social-route-gate",
+        "policy-ref-social-high-risk",
+        "audit-ref-social-alert-report",
+        "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
+        "manual-required",
+        "manual-required",
+        "social-manual-review-required",
+        "policy-decision:evidence-social-manual-gap",
+        "policy-ref-social-manual-required",
+        "audit-ref-social-alert-report",
+        "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
+        "manual-required",
+        "not-observed",
+        "provider-adapter-required",
+        "provider-adapter-required-social-alert-report-high-risk-service, provider-credentials-required-social-alert-report-high-risk-service, provider-smoke-proof-required-social-alert-report-high-risk-service",
+        "provider-adapter-required-social-alert-report-high-risk-service, provider-credentials-required-social-alert-report-high-risk-service, provider-smoke-proof-required-social-alert-report-high-risk-service",
+        "social-provider-attempt-not-started-social-alert-report-high-risk-service",
+        "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
+        "manual-required",
+        "not-observed",
+        "manual-required",
+        "provider-delivery-runtime-proof-required",
+        "provider-delivery-runtime-proof-required",
+        "social-provider-attempt-not-started-social-alert-report-manual-required",
+        "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed."
+      ],
+      "buttons": [
+        {
+          "text": "Social alerts and reports",
+          "disabled": false
+        }
+      ],
+      "unlabeledButtons": 0
+    },
+    "screenshots": {
+      "desktop": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png",
+      "mobile": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png"
+    }
+  },
+  "commands": [
+    {
+      "command": "cmd /c npm run build:contracts",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/agent-protocol-domain run test -- social-alert-report-read-model.test.ts",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/portal-domain run test -- social-alert-report-panel.test.ts",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/portal run test -- social-alert-report-panel.test.ts",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/portal run type-check",
+      "exitCode": 0
+    },
+    {
+      "command": "cargo test -p ocentra-parent-agent-protocol social_alert_report --quiet",
+      "exitCode": 0
+    },
+    {
+      "command": "cargo test -p ocentra-parent-agent-service social_alert_report --quiet",
+      "exitCode": 0
+    },
+    {
+      "command": "cargo build -p ocentra-parent-agent-service",
+      "exitCode": 0
+    },
+    {
+      "command": "C:\\Program Files\\nodejs\\node.exe C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-d\\OcentraParent\\node_modules\\@playwright\\test\\cli.js test --config C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-d\\OcentraParent\\apps\\portal\\playwright.config.ts social-alert-report-ui-proof.spec.ts --workers=1",
+      "exitCode": 0
+    },
+    {
+      "command": "git rev-parse HEAD",
+      "exitCode": 0
+    }
+  ]
+}

@@ -133,11 +133,30 @@ export {
   type AppGamePolicyReadinessPanelRow,
 } from './app-game-policy-readiness-panel';
 export {
+  createBrowserParentExplanationPanelIntent,
+  type BrowserParentExplanationPanelDetail,
+  type BrowserParentExplanationPanelIntent,
+  type BrowserParentExplanationPanelRow,
+} from './browser-parent-explanation-panel';
+
+export {
   createSocialDashboardPanelIntent,
   type SocialDashboardPanelDetail,
   type SocialDashboardPanelIntent,
   type SocialDashboardPanelRow,
 } from './social-dashboard-panel';
+export {
+  createSocialAuditExplanationPanelIntent,
+  type SocialAuditExplanationPanelDetail,
+  type SocialAuditExplanationPanelIntent,
+  type SocialAuditExplanationPanelRow,
+} from './social-audit-explanation-panel';
+export {
+  createSocialAlertReportPanelIntent,
+  type SocialAlertReportPanelDetail,
+  type SocialAlertReportPanelIntent,
+  type SocialAlertReportPanelRow,
+} from './social-alert-report-panel';
 export {
   PortalRoute,
   PortalDevToolWindow,
@@ -179,6 +198,12 @@ export {
   type BrowserChildInterventionPageModel,
   type BrowserChildInterventionPageTheme,
 } from './browser-child-intervention-page';
+export {
+  createSocialChildInterventionPageModels,
+  type SocialChildInterventionPageModelOptions,
+  type SocialChildInterventionPageModelResult,
+  type SocialChildInterventionRequestedUrlResolver,
+} from './social-child-intervention-page-model';
 
 export type PortalDisplayText = DisplayText;
 
@@ -425,6 +450,8 @@ export const PortalTiming = {
 
 export const PortalEnvironment = {
   AgentWebSocketUrl: 'VITE_AGENT_WS_URL',
+  BrowserParentExplanationProofBundle: 'VITE_BROWSER_PARENT_EXPLANATION_PROOF_BUNDLE',
+  SocialAuditExplanationProofBundle: 'VITE_SOCIAL_AUDIT_EXPLANATION_PROOF_BUNDLE',
 } as const;
 
 export const PortalText = {

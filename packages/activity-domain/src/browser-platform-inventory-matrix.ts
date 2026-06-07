@@ -23,7 +23,7 @@ export const BrowserInventoryPlatformSchema = withParser(
   Schema.Literal('windows', 'macos', 'linux', 'android', 'ios', 'unknown')
 );
 export const BrowserInventoryPlatformProofStateSchema = withParser(
-  Schema.Literal('fixture-backed', 'manual-required', 'unsupported', 'not-claimed')
+  Schema.Literal('host-observed', 'fixture-backed', 'manual-required', 'unsupported', 'not-claimed')
 );
 export const BrowserInventoryPlatformProofRequirementSchema = withParser(
   BrowserPlatformMatrixText.pipe(Schema.brand('BrowserInventoryPlatformProofRequirement'))
@@ -89,6 +89,7 @@ export const BrowserInventoryPlatform = {
 } as const;
 
 export const BrowserInventoryPlatformProofState = {
+  HostObserved: BrowserInventoryPlatformProofStateSchema.parse('host-observed'),
   FixtureBacked: BrowserInventoryPlatformProofStateSchema.parse('fixture-backed'),
   ManualRequired: BrowserInventoryPlatformProofStateSchema.parse('manual-required'),
   Unsupported: BrowserInventoryPlatformProofStateSchema.parse('unsupported'),
@@ -100,7 +101,7 @@ const BrowserInventoryPlatformMatrixEntryHonestyChecks = [
   nonWindowsEntryDoesNotClaimActiveTab,
   unsupportedEntryHasUnsupportedExactUrl,
   manualEntryHasProofRequirement,
-  fixtureBackedEntryIsWindowsOnly,
+  hostObservedOrFixtureBackedEntryIsWindowsOnly,
   iosEntryIsUnsupported,
 ] as const;
 
@@ -111,10 +112,10 @@ export const BrowserInventoryPlatformMatrix = BrowserInventoryPlatformMatrixSche
     windowsCandidate('chrome', 'Google Chrome', 'windows-managed-chrome-candidate'),
     manualCandidate('macos', 'chrome', 'Google Chrome', 'macos-chrome-cdp-candidate-manual-required'),
     unsupportedEntry('macos', 'unknown', 'Safari', 'macos-safari-webkit-later-adapter'),
-    manualCandidate('linux', 'chrome', 'Google Chrome', 'linux-chrome-cdp-candidate-manual-required'),
+    linuxHostObservedCandidate('chrome', 'Google Chrome', 'linux-chrome-host-observed-launch-proof'),
     manualCandidate('linux', 'unknown-chromium', 'Chromium', 'linux-chromium-cdp-candidate-manual-required'),
     unsupportedEntry('linux', 'firefox', 'Mozilla Firefox', 'linux-firefox-bidi-later-adapter'),
-    ownedShellCandidate('android', 'unknown-chromium', 'Android owned browser shell'),
+    androidOwnedShellHostObservedCandidate('unknown-chromium', 'Android owned browser shell'),
     unsupportedEntry('android', 'chrome', 'Android Chrome', 'android-external-chrome-device-policy-required'),
     unsupportedEntry('android', 'firefox', 'Android Firefox', 'android-firefox-later-adapter'),
     unsupportedEntry('ios', 'unknown', 'iOS Safari', 'ios-safari-familycontrols-manual-required'),
@@ -146,9 +147,9 @@ function windowsCandidate(
     managedProfileState: 'missing',
     unmanagedFallbackCapability: 'os-block-manual-required',
     capabilityStatus: 'managed-profile-missing',
-    proofState: 'fixture-backed',
+    proofState: 'host-observed',
     reasonCode,
-    proofRequirement: 'managed launch and bridge proof required before exact URL claims',
+    proofRequirement: 'host inventory proof exists; managed launch and bridge proof required before exact URL claims',
   });
 }
 
@@ -178,18 +179,43 @@ function manualCandidate(
   });
 }
 
-function ownedShellCandidate(
-  platform: 'android',
+function linuxHostObservedCandidate(
+  browserFamily: 'chrome',
+  productName: string,
+  reasonCode: string
+): BrowserInventoryPlatformMatrixEntry {
+  return BrowserInventoryPlatformMatrixEntrySchema.parse({
+    schemaVersion: BrowserEvidenceSchemaVersion,
+    platform: 'linux',
+    browserFamily,
+    browserChannel: 'stable',
+    productName,
+    installState: 'installed',
+    managementTier: 'manual-required',
+    supportTier: 'candidate',
+    exactUrlCapability: 'manual-required',
+    activeTabCapability: 'manual-required',
+    managedProfileState: 'manual-required',
+    unmanagedFallbackCapability: 'unsupported',
+    capabilityStatus: 'permission-limited',
+    proofState: 'host-observed',
+    reasonCode,
+    proofRequirement:
+      'Linux WSL browser install and launch proof exists; desktop adapter and managed profile proof required before exact URL claims',
+  });
+}
+
+function androidOwnedShellHostObservedCandidate(
   browserFamily: 'unknown-chromium',
   productName: string
 ): BrowserInventoryPlatformMatrixEntry {
   return BrowserInventoryPlatformMatrixEntrySchema.parse({
     schemaVersion: BrowserEvidenceSchemaVersion,
-    platform,
+    platform: 'android',
     browserFamily,
     browserChannel: 'unknown',
     productName,
-    installState: 'unknown',
+    installState: 'installed',
     managementTier: 'owned-shell',
     supportTier: 'candidate',
     exactUrlCapability: 'manual-required',
@@ -197,9 +223,10 @@ function ownedShellCandidate(
     managedProfileState: 'manual-required',
     unmanagedFallbackCapability: 'unsupported',
     capabilityStatus: 'permission-limited',
-    proofState: 'manual-required',
-    reasonCode: 'android-owned-browser-shell-manual-required',
-    proofRequirement: 'owned browser shell package, policy channel, and device proof required',
+    proofState: 'host-observed',
+    reasonCode: 'android-owned-browser-shell-browser-role-routing-proof',
+    proofRequirement:
+      'Android owned browser shell build/install/launch, Device Owner policy mutation, and browser-role implicit routing proof exist; exact URL, active tab, physical device, and enforcement proof still required',
   });
 }
 
@@ -249,8 +276,36 @@ function manualEntryHasProofRequirement(entry: BrowserInventoryPlatformMatrixEnt
   return entry.proofState !== 'manual-required' || entry.proofRequirement !== null;
 }
 
-function fixtureBackedEntryIsWindowsOnly(entry: BrowserInventoryPlatformMatrixEntryCandidate): boolean {
-  return entry.proofState !== 'fixture-backed' || entry.platform === 'windows';
+function linuxHostObservedEntryStaysManual(entry: BrowserInventoryPlatformMatrixEntryCandidate): boolean {
+  return (
+    entry.platform === 'linux' &&
+    entry.proofState === 'host-observed' &&
+    entry.exactUrlCapability === 'manual-required' &&
+    entry.activeTabCapability === 'manual-required' &&
+    entry.managementTier === 'manual-required'
+  );
+}
+
+function androidHostObservedEntryStaysOwnedShellManual(entry: BrowserInventoryPlatformMatrixEntryCandidate): boolean {
+  return (
+    entry.platform === 'android' &&
+    entry.proofState === 'host-observed' &&
+    entry.exactUrlCapability === 'manual-required' &&
+    entry.activeTabCapability === 'manual-required' &&
+    entry.managementTier === 'owned-shell'
+  );
+}
+
+function hostObservedOrFixtureBackedEntryIsWindowsOnly(entry: BrowserInventoryPlatformMatrixEntryCandidate): boolean {
+  if (entry.proofState !== 'host-observed' && entry.proofState !== 'fixture-backed') {
+    return true;
+  }
+
+  return (
+    entry.platform === 'windows' ||
+    linuxHostObservedEntryStaysManual(entry) ||
+    androidHostObservedEntryStaysOwnedShellManual(entry)
+  );
 }
 
 function iosEntryIsUnsupported(entry: BrowserInventoryPlatformMatrixEntryCandidate): boolean {

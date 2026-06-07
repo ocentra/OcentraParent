@@ -127,7 +127,11 @@ route-only classifier for dynamic feeds, short-video feed surfaces, and exact
 single-short-video routes. It consumes validated route evidence and sanitized
 surface hints only, without claiming feed content, recommendations, messages, AI
 decisions, policy decisions, connector access, native app control, UI delivery,
-or enforcement. Activity-domain package subpath exports are now present.
+or enforcement. `scripts/test/social-feed-route-classification-live-proof.mjs`
+now captures real public Reddit, Twitch, TikTok, Instagram, and YouTube Shorts
+routes with Playwright, stores route-only hashes plus screenshots, and parses
+the captures through the classifier. Activity-domain package subpath exports are
+now present.
 
 SOCIAL-09 now adds
 `packages/activity-domain/src/browser-social-video-metadata.ts`, a bounded
@@ -135,7 +139,11 @@ metadata-ref extractor for managed social video/post/feed route evidence. It can
 record title, description, author hash, thumbnail hash, duration, publish date,
 category, and restriction refs, but rejects page body, transcript text, messages,
 feed content, AI decisions, policy decisions, connector access, native app
-control, UI delivery, and enforcement. Package subpath exports are now present.
+control, UI delivery, and enforcement.
+`scripts/test/social-video-metadata-live-proof.mjs` now captures real public
+YouTube Shorts, Vimeo, Reddit, and Instagram routes, reads only title/meta
+attributes plus screenshot hashes, and parses bounded refs through the
+extractor. Package subpath exports are now present.
 
 SOCIAL-10 now adds social-specific AI analysis contracts in
 `packages/activity-domain/src/browser-social-ai-analysis-values.ts`,
@@ -146,7 +154,11 @@ evidence refs, candidate classifications, confidence, uncertainty, model runtime
 refs, and degraded states for managed-browser social route evidence. They reject
 raw browser/page/feed/message/transcript/screenshot/native/connector state,
 final policy actions, enforcement, raw model text/content storage, native app
-control, connector claims, and inconsistent degraded states. Activity-domain package subpath exports are now present.
+control, connector claims, and inconsistent degraded states.
+`scripts/test/social-ai-analysis-live-evidence-proof.mjs` consumes the live
+SOCIAL-09 metadata proof refs and emits degraded `model-unavailable` AI
+input/result rows without executing a model or claiming provider selection.
+Activity-domain package subpath exports are now present.
 
 SOCIAL-11 now adds
 `packages/activity-domain/src/browser-social-riskbenefit-values.ts` and
@@ -156,17 +168,38 @@ results. Signal rows carry canonical risk or benefit kinds, severity, state,
 confidence, and evidence refs, while signal sets copy analysis provenance and
 degraded state. They reject raw message/feed/page/model use, account identity
 verification claims, final policy decisions, native app control, connector
-claims, UI delivery, and enforcement. Package subpath exports are now present.
+claims, UI delivery, and enforcement.
+`scripts/test/social-risk-benefit-live-evidence-proof.mjs` consumes SOCIAL-10
+degraded AI result refs and emits unavailable risk/benefit signal sets without
+classifying content or claiming final policy/enforcement authority. Package
+subpath exports are now present.
 
 SOCIAL-12 now adds parent-domain social policy compiler contracts in
 `packages/parent-domain/src/social-policy-compiler-values.ts` and
 `packages/parent-domain/src/social-policy-compiler.ts`. The compiler consumes
-parent-owned evidence, signal-set, parent-rule, and schedule refs and produces
-decision candidates for allow, warn, parent-review, block, manual-review, or
-unknown outcomes. It rejects raw signal payloads, raw model text,
+parent-owned evidence, signal-set, parent-rule, schedule, and time-budget refs
+and produces decision candidates for allow, warn, parent-review, block,
+manual-review, or unknown outcomes. It rejects raw signal payloads, raw model text,
 activity-domain object transfer, UI/runtime/enforcement, native app, and
 connector claims. Decision candidates are not final policy decisions or
 enforcement handoffs. Package subpath exports are now present.
+
+`social-policy-schedule-time-budget-proof` strengthens SOCIAL-12 with explicit
+schedule and time-budget state refs in
+`packages/parent-domain/src/social-policy-compiler-values.ts`,
+`packages/parent-domain/src/social-policy-compiler.ts`, and
+`packages/parent-domain/tests/social-policy-compiler.test.ts`. It writes
+`test-results/social-policy-schedule-time-budget-proof/proof.json` and
+`output/browser-plan-proof/social-policy-schedule-time-budget-proof/01-social-policy-schedule-time-budget-proof.md`.
+The proof remains contract-only: it does not claim runtime policy execution,
+applied schedules, applied time budgets, browser mutation, or enforcement.
+`social-policy-live-evidence-compiler-proof` consumes SOCIAL-11 live-evidence
+signal refs and writes
+`test-results/social-policy-live-evidence-compiler-proof/proof.json` plus
+`output/browser-plan-proof/social-12-parent-policy-compiler-social-targets/11-live-evidence-policy-compiler-proof.json`.
+It emits non-final manual-review candidates and keeps final policy decisions,
+runtime gates, UI delivery, native app control, connector authorization, raw
+signal/model storage, and enforcement unclaimed.
 
 SOCIAL-13 now adds
 `packages/activity-domain/src/browser-social-account-creation-gate.ts`, a
@@ -199,6 +232,14 @@ managed-browser-required state. It rejects exact URL proof, managed-session
 boundaries, route evidence, social account proof, feed/video route proof,
 messages, account identity, native app control, connector access, child/parent
 UI, process termination, managed browser relaunch, and enforcement. Activity-domain package subpath exports are now present.
+`scripts/test/social-unmanaged-bypass-live-process-proof.mjs` now adds the
+live-process proof: it launches a real local system browser against public
+social/video surfaces, stores only redacted executable/process/command/target
+refs, writes
+`test-results/social-unmanaged-bypass-live-process-proof/proof.json` and
+`output/browser-plan-proof/social-15-unmanaged-social-bypass-detector/11-live-process-proof.json`,
+and keeps exact URL, route/content, UI, native, connector, process-control, and
+enforcement claims false.
 
 SOCIAL-16 now adds
 `packages/parent-domain/src/social-android-native-app-capability-matrix-values.ts`
@@ -211,6 +252,18 @@ rejects native route proof, per-video/per-reel blocking, messages, account
 identity, accessibility content capture, device-owner enrollment, VPN content
 inspection, runtime adapters, connector access, UI delivery, and enforcement.
 Package subpath exports are now present.
+`scripts/test/social-android-native-app-host-proof.mjs` now records the real
+host/device boundary for this row. It checks the local adb binary, attached
+device list, and known public social package ids only when a real device or
+emulator is attached. The current proof writes
+`test-results/social-android-native-app-host-proof/proof.json` and
+`output/browser-plan-proof/social-16-android-native-app-capability-matrix/11-android-host-device-proof.json`
+with adb installed and device-package-visibility-proof state on a booted Android
+emulator. It records one attached emulator, queries known public social package
+ids only, records YouTube present on the emulator, and keeps raw installed
+package lists out of the artifact. It does not capture screenshots, UI trees,
+logcat, native routes, content, account identity, runtime adapter behavior, UI
+delivery, or enforcement.
 
 SOCIAL-17 now adds
 `packages/parent-domain/src/social-ios-screen-time-capability-matrix-values.ts`
@@ -219,6 +272,18 @@ iOS Screen Time/ManagedSettings capability matrix. It keeps Apple entitlement,
 token selection, DeviceActivity, and ManagedSettings shield states explicit
 while rejecting raw app identity, native route proof, content capture, runtime
 adapters, connector access, UI delivery, and enforcement.
+`scripts/test/social-ios-screen-time-host-proof.mjs` now records the real
+host/tooling boundary for this row. It checks whether the current host is macOS,
+whether Apple/iOS tooling such as xcrun, xcodebuild, idevice_id, and ios-deploy
+is available, and whether any iOS device refs are visible without persisting raw
+tool paths, raw device serials, or environment details. The current proof writes
+`test-results/social-ios-screen-time-host-proof/proof.json` and
+`output/browser-plan-proof/social-17-ios-screentime-managedsettings-matrix/11-ios-host-tooling-proof.json`
+with `isDarwinHost=false`, `appleToolingAvailable=false`,
+`attachedDeviceCount=0`, and `host-tooling-unavailable` state. It does not claim
+FamilyControls authorization, token selection, DeviceActivity runtime,
+ManagedSettings runtime, raw application identity, native route proof, content
+capture, UI delivery, connector authorization, or enforcement.
 
 SOCIAL-18 now adds
 `packages/parent-domain/src/social-platform-connector-authorization-values.ts`
@@ -228,6 +293,23 @@ TikTok, platform export/import, and parent-provided account refs. It models
 parent authorization, custody, scopes, expiry, revocation, manual-required
 state, and proof refs without token storage, OAuth clients, provider APIs, raw
 account/message/feed data, policy decisions, UI, native control, or enforcement.
+`scripts/test/social-platform-connector-authorization-proof.mjs` captures real
+public Google/YouTube supervision, Meta Family Center, and TikTok Family
+Pairing pages with Playwright and writes
+`output/browser-plan-proof/social-18-platform-connector-authorization-boundary/11-live-public-connector-boundary-proof.json`
+plus screenshots. This proves public adjacent-source boundary visibility only;
+connector implementation, token storage, OAuth, provider API calls, raw account
+or message/feed capture, UI delivery, native app control, policy execution, and
+enforcement remain unclaimed.
+
+`social-video-source-custody-settings-proof` now adds
+`packages/activity-domain/src/social-video-source-custody-settings.ts`, an
+activity-domain source custody settings contract over source/privacy refs. It
+models enabled redacted-ref use, parent-review connector refs,
+disabled/manual-required/unavailable states, retention labels, and manual proof
+requirements without raw message/video custody, screenshots, connector tokens,
+connector APIs, runtime settings UI, runtime custody mutation, final policy
+decisions, or enforcement.
 
 SOCIAL-19 now adds
 `packages/parent-domain/src/social-decision-memory-cache-values.ts` and
@@ -237,17 +319,24 @@ feed policy input only when decision refs are present and no invalidation
 reasons exist; stale, miss, and manual-required rows cannot. It does not claim a
 runtime cache store, raw content storage, connector data storage, UI, native
 control, final policy decisions, or enforcement.
+`social-decision-memory-live-evidence-proof` consumes SOCIAL-12 live-evidence
+policy candidate refs and writes
+`test-results/social-decision-memory-live-evidence-proof/proof.json` plus
+`output/browser-plan-proof/social-19-memory-cache-account-video-channel-decisions/11-live-evidence-decision-memory-proof.json`.
+The proof emits account miss, video fresh-hit, and channel stale-hit rows while
+keeping runtime cache storage, raw content storage, connector data, UI, native
+control, final policy decisions, and enforcement unclaimed.
 
 SOCIAL-20 now adds `packages/parent-domain/src/social-dashboard-ux-values.ts`,
 `packages/parent-domain/src/social-dashboard-ux.ts`, and
 `packages/text-domain/src/social-dashboard-ux-text.ts`, parent social dashboard
 UX section contracts and schema-backed copy tokens for account approvals,
 feed/video gates, native app capability, connector boundaries, decision memory,
-and manual-required gaps. It now also renders the parent Browser-route social
-dashboard shell in `apps/portal` and records desktop/mobile screenshots for the
-honest unavailable zero-row state. It does not claim service-backed social
-snapshots, runtime fetches, notifications, connector authorization, native
-control, policy execution, or enforcement.
+settings/custody, and manual-required gaps. It now also renders the parent
+Browser-route social dashboard shell in `apps/portal`, requests a real Rust
+service-backed snapshot, and records desktop/mobile screenshots for the
+seven-row state. It does not claim settings mutation, notifications, connector
+authorization, native control, policy execution, or enforcement.
 
 SOCIAL-21 now adds
 `packages/parent-domain/src/social-child-approval-block-ux-values.ts`,
@@ -265,10 +354,17 @@ SOCIAL-22 now adds
 `packages/parent-domain/src/social-audit-explanation-read-model.ts`, a ref-only
 audit/explanation read-model contract for account approval, feed/video gate,
 native-app gap, connector boundary, decision memory, and manual-required gap
-rows. It links evidence, policy, parent approval, memory, manual gap, and audit
-refs while rejecting runtime audit stores, rendered explanation UI,
-notifications, raw account/video/message content, connector authorization,
-native app control, final policy decisions, and enforcement.
+rows. It also wires `agent.browser.social-audit-explanation.read-model.get` to a
+Rust service-built `agent.browser.social-audit-explanation.read-model.reported`
+payload and lets `apps/portal/src/SocialAuditExplanationRoutePanel.tsx` request
+that live snapshot before falling back to the dedicated proof bundle.
+`scripts/test/social-audit-explanation-ui-proof.mjs` captures real Browser-route
+desktop/mobile screenshots, and
+`scripts/test/social-audit-explanation-service-proof.mjs` writes
+`test-results/social-audit-explanation-service-proof/proof.json`. The row still
+rejects runtime audit stores, notifications, raw account/video/message content,
+connector authorization, native app control, final policy decisions, and
+enforcement.
 
 SOCIAL-23 now adds `scripts/test/social-platform-account-feed-proof-artifacts.mjs`,
 a proof artifact gate for SOCIAL-01 through SOCIAL-22. It validates checklist
@@ -276,15 +372,203 @@ ownership, proof directory references, required proof files, README references,
 and feature/expectation coverage, then writes
 `test-results/social-platform-account-feed-proof-artifacts/proof.json` and
 `output/browser-plan-proof/social-23-tests-fixtures-playwright-manual-proof/01-social-proof-artifact-manifest.md`.
-SOCIAL-20 now has rendered parent Browser-route screenshots, but Playwright
-remains manual-required for child UI, explanation UI, service-backed social
-data, connector/native runtime, final policy execution, and enforcement.
+SOCIAL-20 now has rendered parent Browser-route screenshots with a service-backed
+settings/custody manual-required row, SOCIAL-21 has child-agent-served
+intervention screenshots, and SOCIAL-22 has Browser-route social explanation
+screenshots plus service-backed read-model command proof.
+`social-source-custody-mutation-proof` now proves runtime custody mutation
+through the Rust service WebSocket command/event path by applying a redacted-ref
+settings snapshot. Playwright remains manual-required for connector/native
+runtime, final policy execution, and enforcement.
 
 SOCIAL-24 now adds `scripts/test/social-platform-account-feed-rollout-gate.mjs`,
 a rollout/manual-required label gate for SOCIAL-01 through SOCIAL-23. It writes
 `test-results/social-platform-account-feed-rollout-gate/proof.json` and
 `output/browser-plan-proof/social-24-rollout-manual-required-labels/01-rollout-manual-required-labels.md`.
 SOCIAL rollout state: partial/manual-required. Product checklist upgrade is not
-claimed. Service-backed social rows, child/explanation UI, connector/native
-runtime, final policy execution, enforcement, release readiness, and product
-completion remain unclaimed.
+claimed. Service-backed social rows including settings/custody, child
+intervention UI, social explanation delivery, and runtime custody mutation now
+have proof, but connector/native runtime, final policy execution, enforcement,
+release readiness, and product completion remain unclaimed.
+
+The follow-up `social-alert-report-intent-proof` adds
+`packages/parent-domain/src/social-alert-report-intent-values.ts`,
+`packages/parent-domain/src/social-alert-report-intent.ts`, and
+`packages/parent-domain/tests/social-alert-report-intent.test.ts`, a
+parent-domain alert/report intent boundary for high-risk social signals,
+account approval alerts, feed/video gate alerts, weekly summaries,
+manual-required states, and unavailable capability states. The proof writes
+`test-results/social-alert-report-intent-proof/proof.json` and
+`output/browser-plan-proof/social-alert-report-intent-proof/01-social-alert-report-intent-proof.md`.
+It proves ref-only local-outbox/report linkage and rejects raw
+account/video/message content, screenshots, provider delivery, report delivery,
+parent notification UI, final policy decisions, and enforcement.
+
+The follow-up `social-alert-report-local-outbox-bridge-proof` adds
+`packages/parent-domain/src/social-alert-report-local-outbox-bridge.ts` and
+`packages/parent-domain/tests/social-alert-report-local-outbox-bridge.test.ts`,
+a parent-domain bridge from parsed social alert/report intents into the existing
+parent-owned `NotificationLocalOutboxRecord` JSONL schema. The proof writes
+`test-results/social-alert-report-local-outbox-bridge-proof/proof.json`,
+`test-results/social-alert-report-local-outbox-bridge-proof/local-outbox-records.jsonl`,
+and
+`output/browser-plan-proof/social-alert-report-local-outbox-bridge-proof/01-social-alert-report-local-outbox-bridge-proof.md`.
+It proves only local-outbox-eligible rows are queued and reread through the
+existing parser; manual-required/unavailable rows stay out of queued JSONL, and
+provider delivery, receipts, scheduler runtime, parent notification UI, report
+delivery execution, final policy execution, connector/native runtime, and
+enforcement remain unclaimed.
+
+The follow-up `social-alert-report-scheduler-bridge-proof` adds
+`packages/parent-domain/src/social-alert-report-scheduler-bridge.ts` and
+`packages/parent-domain/tests/social-alert-report-scheduler-bridge.test.ts`, a
+parent-domain bridge from social alert/report local outbox rows into the
+existing notification local outbox scheduler schema. The proof writes
+`test-results/social-alert-report-scheduler-bridge-proof/proof.json`,
+`test-results/social-alert-report-scheduler-bridge-proof/scheduler-records.jsonl`,
+and
+`output/browser-plan-proof/social-alert-report-scheduler-bridge-proof/01-social-alert-report-scheduler-bridge-proof.md`.
+It proves only linked local outbox rows become deterministic scheduler JSONL
+records; manual-required/unavailable rows remain visible but unscheduled.
+Provider delivery, receipt ingestion, quiet-hours timer execution, retry worker
+execution, parent/child notification UI delivery, report delivery execution,
+final policy execution, connector/native runtime, and enforcement remain
+unclaimed.
+
+The follow-up `social-alert-report-preference-preflight-proof` adds
+`packages/parent-domain/src/social-alert-report-preference-preflight.ts` and
+`packages/parent-domain/tests/social-alert-report-preference-preflight.test.ts`,
+a parent-domain boundary from social alert/report scheduler rows into parent
+notification preference and quiet-hours preflight rows. The proof writes
+`test-results/social-alert-report-preference-preflight-proof/proof.json`,
+`test-results/social-alert-report-preference-preflight-proof/preference-preflight-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-preference-preflight-proof/01-social-alert-report-preference-preflight-proof.md`.
+It proves scheduled rows require parent notification preference,
+frequency-control, and quiet-hours policy proof before delivery can be claimed;
+manual-required/unavailable rows remain blocked. Parent notification preference
+UI, notification history UI, quiet-hours timer execution, provider delivery,
+child delivery, report delivery execution, final policy execution,
+connector/native runtime, and enforcement remain unclaimed.
+
+The follow-up `social-alert-report-preference-status-handoff-proof` adds
+`packages/parent-domain/src/social-alert-report-preference-status-handoff.ts`
+and
+`packages/parent-domain/tests/social-alert-report-preference-status-handoff.test.ts`,
+a parent-domain boundary from social alert/report preference-preflight rows into
+the existing V3 notification preference and quiet-hours status entries. The
+proof writes
+`test-results/social-alert-report-preference-status-handoff-proof/proof.json`,
+`test-results/social-alert-report-preference-status-handoff-proof/preference-status-handoff-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-preference-status-handoff-proof/01-social-alert-report-preference-status-handoff-proof.md`.
+It proves scheduled/manual-required rows remain manual-required, unavailable
+rows remain disabled/not-sent, and provider receipt refs stay empty. Parent
+notification preference UI, notification history UI, parent notification UI,
+quiet-hours timer runtime, provider delivery, child delivery, report delivery
+execution, final policy execution, connector/native runtime, and enforcement
+remain unclaimed.
+
+The follow-up `social-alert-report-audit-history-bridge-proof` adds
+`scripts/test/social-alert-report-audit-history-bridge-proof.mjs`, a proof that
+maps social alert/report local outbox rows into the existing logging-domain
+notification audit-history handoff. The proof writes
+`test-results/social-alert-report-audit-history-bridge-proof/proof.json`,
+`test-results/social-alert-report-audit-history-bridge-proof/audit-history-handoff.json`,
+and
+`output/browser-plan-proof/social-alert-report-audit-history-bridge-proof/01-social-alert-report-audit-history-bridge-proof.md`.
+It proves linked rows become queued audit-history entries while
+manual-required/unavailable rows become blocked/manual audit entries.
+Provider delivery, receipt ingestion, notification history UI, child delivery,
+quiet-hours timer execution, retry worker execution, report delivery execution,
+final policy execution, connector/native runtime, and enforcement remain
+unclaimed.
+
+The follow-up `social-alert-report-parent-surface-intent-proof` adds
+`packages/parent-domain/src/social-alert-report-parent-surface-intent-proof.ts`
+and
+`packages/parent-domain/tests/social-alert-report-parent-surface-intent-proof.test.ts`,
+a parent-domain parent-surface intent read model for social alert/report
+provider-status handoff rows. The proof writes
+`test-results/social-alert-report-parent-surface-intent-proof/proof.json`,
+`test-results/social-alert-report-parent-surface-intent-proof/parent-surface-intent-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md`.
+It projects provider-status handoff rows into parent-visible manual/unavailable
+surface intent rows with status/readiness/audit refs, but it does not render
+parent notification UI or claim provider delivery, receipts, report delivery
+execution, final policy execution, connector/native runtime, or enforcement.
+
+The follow-up `social-report-writer-delivery-proof` adds
+`packages/parent-domain/src/social-report-writer-delivery-proof.ts` and
+`packages/parent-domain/tests/social-report-writer-delivery-proof.test.ts`, a
+parent-owned report writer delivery-readiness boundary for social report
+intents. The proof writes
+`test-results/social-report-writer-delivery-proof/proof.json` and
+`output/browser-plan-proof/social-report-writer-delivery-proof/01-social-report-writer-delivery-proof.md`.
+It proves parent-owned report artifact and receipt rows for social report
+intents while keeping external runtime report delivery, provider dispatch,
+provider receipt ingestion, raw social content, final policy execution, and
+enforcement unclaimed.
+
+The follow-up `social-applied-schedule-time-budget-proof` adds
+`packages/parent-domain/src/social-applied-schedule-time-budget-proof.ts` and
+`packages/parent-domain/tests/social-applied-schedule-time-budget-proof.test.ts`,
+a parent-owned schedule/time-budget application-readiness boundary for SOCIAL-12
+compiler candidates. The proof writes
+`test-results/social-applied-schedule-time-budget-proof/proof.json` and
+`output/browser-plan-proof/social-applied-schedule-time-budget-proof/01-social-applied-schedule-time-budget-proof.md`.
+It proves evaluated schedule and budget refs can feed a runtime handoff row
+while keeping runtime-applied schedules, runtime time-budget application,
+browser gate execution, final policy execution, and enforcement unclaimed.
+
+The follow-up `social-alert-report-intent-ui-proof` adds the service-backed
+Browser-route proof for those alert/report intent rows. The real portal requests
+`agent.browser.social-alert-report.read-model.get` from the local Rust service,
+renders one local-outbox high-risk intent row, one manual-required row, and two
+manual-required provider-status boundary rows, then writes
+`test-results/social-alert-report-intent-ui-proof/proof.json` plus
+desktop/mobile screenshots under
+`output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/`.
+It does not claim provider dispatch/receipt, parent notification UI delivery,
+report delivery, final policy execution, connector/native runtime, or
+enforcement.
+
+The follow-up `social-alert-report-provider-preflight-proof` adds
+`packages/parent-domain/src/social-alert-report-provider-preflight-proof.ts`
+and
+`packages/parent-domain/tests/social-alert-report-provider-preflight-proof.test.ts`.
+It consumes parsed social alert/report intents and turns local-outbox rows into
+provider-adapter-required preflight rows with adapter, credential, and provider
+smoke proof requirements. The proof writes
+`test-results/social-alert-report-provider-preflight-proof/proof.json` and
+`output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md`.
+It does not claim provider dispatch, receipt ingestion, parent notification UI
+delivery, report delivery execution, final policy execution, connector/native
+runtime, or enforcement.
+
+The follow-up `social-alert-report-provider-status-handoff-proof` adds
+`packages/parent-domain/src/social-alert-report-provider-status-handoff-proof.ts`
+and
+`packages/parent-domain/tests/social-alert-report-provider-status-handoff-proof.test.ts`.
+It maps parsed social alert/report provider-preflight rows into the existing
+V0.8 notification provider status boundary as manual-required or unavailable.
+The proof writes
+`test-results/social-alert-report-provider-status-handoff-proof/proof.json` and
+`output/browser-plan-proof/social-alert-report-provider-status-handoff-proof/01-social-alert-report-provider-status-handoff-proof.md`.
+It does not claim provider dispatch, delivered notification receipts, parent
+notification UI delivery, report delivery execution, final policy execution,
+connector/native runtime, or enforcement.
+
+The follow-up `social-parent-sensitivity-settings-proof` adds
+`packages/parent-domain/src/social-parent-sensitivity-settings-values.ts`,
+`packages/parent-domain/src/social-parent-sensitivity-settings.ts`, and
+`packages/parent-domain/tests/social-parent-sensitivity-settings.test.ts`, a
+parent sensitivity settings boundary for high-risk alerts, feed/video review,
+account-flow review, connector data use, native-app gap review, and weekly
+summary sensitivity rows. The proof writes
+`test-results/social-parent-sensitivity-settings-proof/proof.json` and
+`output/browser-plan-proof/social-parent-sensitivity-settings-proof/01-social-parent-sensitivity-settings-proof.md`.
+It proves ref-only policy/alert candidate settings and rejects raw
+message/video content, screenshots, connector tokens/API calls, runtime
+settings UI, final policy decisions, and enforcement.

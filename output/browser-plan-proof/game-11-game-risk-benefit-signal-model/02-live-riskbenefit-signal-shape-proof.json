@@ -1,0 +1,717 @@
+{
+  "schemaVersion": 1,
+  "proofId": "browser-game-riskbenefit-signal-live-evidence-proof",
+  "generatedAt": "2026-06-06T20:23:33.321Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "482084c81c14fb97c9f5cecce9f2c6ddd0607515",
+  "baseCommit": "e9118e91b1be80973a3fb75c5ae8ff76f0d6718c",
+  "captureMode": "real-public-browser-game-riskbenefit-signal-shapes",
+  "targets": [
+    {
+      "targetId": "poki-subway-surfers",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 351539,
+      "bodySha256": "b73018db1a5732ef7595760e2286dc264b72f7c9ec912f7081535e4957844f10",
+      "inputOriginSha256": "f9b232b1f68e6833e5875b782274f5aeb719a114cedc674ea2fddc4fbc258da7",
+      "inputPathSha256": "c9e4e52602ab9978fa98f3cebaa2efe5ecb447763240abefa740170da024aadc",
+      "finalOriginSha256": "f9b232b1f68e6833e5875b782274f5aeb719a114cedc674ea2fddc4fbc258da7",
+      "finalPathSha256": "c9e4e52602ab9978fa98f3cebaa2efe5ecb447763240abefa740170da024aadc",
+      "rawUrlPersisted": false,
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawChatContentPersisted": false,
+      "rawModelTextPersisted": false
+    },
+    {
+      "targetId": "code-org-minecraft",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 471212,
+      "bodySha256": "b58565af5124f5ecc1a54bc554279778727d9447e14eb2bb833b3641c28a6d61",
+      "inputOriginSha256": "6785ad3888129d98da7c78600a0670a8dbb63d42ec8ef5071f272d15ad3c87a1",
+      "inputPathSha256": "8108e2eb5112e5264cb0e8bfff7a06f4af8e1d25e9f106adf4e352db485e5111",
+      "finalOriginSha256": "6785ad3888129d98da7c78600a0670a8dbb63d42ec8ef5071f272d15ad3c87a1",
+      "finalPathSha256": "8d772dcbb300b6aaf55d75ec2d8d474796d3d05c216c89970b2983aecc2338f8",
+      "rawUrlPersisted": false,
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawChatContentPersisted": false,
+      "rawModelTextPersisted": false
+    },
+    {
+      "targetId": "chess-play-online",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=UTF-8",
+      "contentLength": 114960,
+      "bodySha256": "1452cfb906d1814fd86ef9eebf9de63aadefc7fab386052c68733e3132250f7f",
+      "inputOriginSha256": "1e76d9acdaa1d09f7881b8ef8a593a6b926a3cd57d263a84ce6cf6edf900e283",
+      "inputPathSha256": "c98a6799eead2719f98cf1973c99a48a29ccdfb2e8cbaef51f160c6e894260fb",
+      "finalOriginSha256": "1e76d9acdaa1d09f7881b8ef8a593a6b926a3cd57d263a84ce6cf6edf900e283",
+      "finalPathSha256": "c98a6799eead2719f98cf1973c99a48a29ccdfb2e8cbaef51f160c6e894260fb",
+      "rawUrlPersisted": false,
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawChatContentPersisted": false,
+      "rawModelTextPersisted": false
+    },
+    {
+      "targetId": "xbox-cloud-play",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 6388831,
+      "bodySha256": "de93ed300ca263b6806139ec0cd95556aaa5510eedb63bc539336486ded41d2a",
+      "inputOriginSha256": "c671f65a7182028d27403cb4710407c2b099fba7fcc1921b6ca6e49b450e7244",
+      "inputPathSha256": "5b26e27ee6ed081569893464078e64733cd44843e86d270083ae31be5f1751a4",
+      "finalOriginSha256": "c671f65a7182028d27403cb4710407c2b099fba7fcc1921b6ca6e49b450e7244",
+      "finalPathSha256": "5b26e27ee6ed081569893464078e64733cd44843e86d270083ae31be5f1751a4",
+      "rawUrlPersisted": false,
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawChatContentPersisted": false,
+      "rawModelTextPersisted": false
+    },
+    {
+      "targetId": "roblox-discover",
+      "status": 200,
+      "responseOk": true,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 69384,
+      "bodySha256": "60a5a78534cf8049bead4285f0609f9f240b19079f036c4b2f62ecef2e33991b",
+      "inputOriginSha256": "14647379c0b84766cd19a0f3cd89f3e40591b98a52ed4c6a2d51e4a5e3b1d5be",
+      "inputPathSha256": "0bafeafd1e1b8070062af4236700f29becf6adaa4bc4d3429cfd58c4ca7c6cd8",
+      "finalOriginSha256": "14647379c0b84766cd19a0f3cd89f3e40591b98a52ed4c6a2d51e4a5e3b1d5be",
+      "finalPathSha256": "5745fa814ed227575d66a75222624a63feb35b7023afaa405b84de12f3506538",
+      "rawUrlPersisted": false,
+      "rawPageBodyPersisted": false,
+      "rawGamePayloadPersisted": false,
+      "rawChatContentPersisted": false,
+      "rawModelTextPersisted": false
+    }
+  ],
+  "signalSets": [
+    {
+      "schemaVersion": "browser-game-riskbenefit-signal-contract",
+      "signalSetId": "browser-game-signal-set-poki-subway-surfers",
+      "familyId": "family-browser-game-riskbenefit-live-proof",
+      "childProfileId": "child-browser-game-riskbenefit-live-proof",
+      "deviceId": "device-browser-game-riskbenefit-live-proof",
+      "modeledAt": "2026-06-06T20:23:33.321Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-poki-subway-surfers-source",
+        "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-poki-subway-surfers-response-hash"
+      ],
+      "signalSourceKind": "game-ai-analysis",
+      "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-poki-subway-surfers-analysis-ref",
+      "metadataRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-poki-subway-surfers-metadata-ref",
+      "parentRuleRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-poki-subway-surfers-parent-rule-ref",
+      "riskSignals": [
+        {
+          "signalId": "browser-game-riskSignal-poki-subway-surfers-1",
+          "kind": "addiction-loop",
+          "severity": "medium",
+          "state": "candidate",
+          "confidence": "medium",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-poki-subway-surfers-risk-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-poki-subway-surfers-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "signalId": "browser-game-riskSignal-poki-subway-surfers-2",
+          "kind": "privacy-risk",
+          "severity": "low",
+          "state": "candidate",
+          "confidence": "medium",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-poki-subway-surfers-risk-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-poki-subway-surfers-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "benefitSignals": [
+        {
+          "signalId": "browser-game-benefitSignal-poki-subway-surfers-1",
+          "kind": "problem-solving",
+          "severity": "low",
+          "state": "candidate",
+          "confidence": "medium",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-poki-subway-surfers-benefit-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-poki-subway-surfers-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "recommendedPolicyInput": "parent-review-candidate",
+      "confidence": "medium",
+      "degradedState": "none",
+      "uncertaintyReasons": [],
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "enforcementClaimed": false,
+      "rawGamePayloadUsed": false,
+      "rawChatContentUsed": false,
+      "rawPageBodyUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-riskbenefit-signal-contract",
+      "signalSetId": "browser-game-signal-set-code-org-minecraft",
+      "familyId": "family-browser-game-riskbenefit-live-proof",
+      "childProfileId": "child-browser-game-riskbenefit-live-proof",
+      "deviceId": "device-browser-game-riskbenefit-live-proof",
+      "modeledAt": "2026-06-06T20:23:33.321Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-code-org-minecraft-source",
+        "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-code-org-minecraft-response-hash"
+      ],
+      "signalSourceKind": "game-ai-analysis",
+      "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-code-org-minecraft-analysis-ref",
+      "metadataRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-code-org-minecraft-metadata-ref",
+      "parentRuleRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-code-org-minecraft-parent-rule-ref",
+      "riskSignals": [],
+      "benefitSignals": [
+        {
+          "signalId": "browser-game-benefitSignal-code-org-minecraft-1",
+          "kind": "educational-value",
+          "severity": "medium",
+          "state": "candidate",
+          "confidence": "high",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-code-org-minecraft-benefit-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-code-org-minecraft-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "signalId": "browser-game-benefitSignal-code-org-minecraft-2",
+          "kind": "homework-relevance",
+          "severity": "medium",
+          "state": "candidate",
+          "confidence": "high",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-code-org-minecraft-benefit-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-code-org-minecraft-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "signalId": "browser-game-benefitSignal-code-org-minecraft-3",
+          "kind": "skill-building",
+          "severity": "medium",
+          "state": "candidate",
+          "confidence": "high",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-code-org-minecraft-benefit-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-code-org-minecraft-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "recommendedPolicyInput": "allow-candidate",
+      "confidence": "high",
+      "degradedState": "none",
+      "uncertaintyReasons": [],
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "enforcementClaimed": false,
+      "rawGamePayloadUsed": false,
+      "rawChatContentUsed": false,
+      "rawPageBodyUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-riskbenefit-signal-contract",
+      "signalSetId": "browser-game-signal-set-chess-play-online",
+      "familyId": "family-browser-game-riskbenefit-live-proof",
+      "childProfileId": "child-browser-game-riskbenefit-live-proof",
+      "deviceId": "device-browser-game-riskbenefit-live-proof",
+      "modeledAt": "2026-06-06T20:23:33.321Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-chess-play-online-source",
+        "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-chess-play-online-response-hash"
+      ],
+      "signalSourceKind": "game-metadata",
+      "analysisRef": null,
+      "metadataRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-chess-play-online-metadata-ref",
+      "parentRuleRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-chess-play-online-parent-rule-ref",
+      "riskSignals": [
+        {
+          "signalId": "browser-game-riskSignal-chess-play-online-1",
+          "kind": "multiplayer-contact",
+          "severity": "medium",
+          "state": "candidate",
+          "confidence": "medium",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-chess-play-online-risk-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-chess-play-online-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "benefitSignals": [
+        {
+          "signalId": "browser-game-benefitSignal-chess-play-online-1",
+          "kind": "problem-solving",
+          "severity": "medium",
+          "state": "candidate",
+          "confidence": "medium",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-chess-play-online-benefit-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-chess-play-online-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "signalId": "browser-game-benefitSignal-chess-play-online-2",
+          "kind": "skill-building",
+          "severity": "medium",
+          "state": "candidate",
+          "confidence": "medium",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-chess-play-online-benefit-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-chess-play-online-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "recommendedPolicyInput": "time-limit-candidate",
+      "confidence": "medium",
+      "degradedState": "none",
+      "uncertaintyReasons": [],
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "enforcementClaimed": false,
+      "rawGamePayloadUsed": false,
+      "rawChatContentUsed": false,
+      "rawPageBodyUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-riskbenefit-signal-contract",
+      "signalSetId": "browser-game-signal-set-xbox-cloud-play",
+      "familyId": "family-browser-game-riskbenefit-live-proof",
+      "childProfileId": "child-browser-game-riskbenefit-live-proof",
+      "deviceId": "device-browser-game-riskbenefit-live-proof",
+      "modeledAt": "2026-06-06T20:23:33.321Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-xbox-cloud-play-source",
+        "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-xbox-cloud-play-response-hash"
+      ],
+      "signalSourceKind": "manual-required",
+      "analysisRef": null,
+      "metadataRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-xbox-cloud-play-metadata-ref",
+      "parentRuleRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-xbox-cloud-play-parent-rule-ref",
+      "riskSignals": [
+        {
+          "signalId": "browser-game-riskSignal-xbox-cloud-play-1",
+          "kind": "unknown-risk",
+          "severity": "unknown",
+          "state": "manual-required",
+          "confidence": "unknown",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-xbox-cloud-play-risk-evidence"
+          ],
+          "analysisRef": null,
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "benefitSignals": [
+        {
+          "signalId": "browser-game-benefitSignal-xbox-cloud-play-1",
+          "kind": "unknown-benefit",
+          "severity": "unknown",
+          "state": "manual-required",
+          "confidence": "unknown",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-xbox-cloud-play-benefit-evidence"
+          ],
+          "analysisRef": null,
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "recommendedPolicyInput": "manual-review-candidate",
+      "confidence": "low",
+      "degradedState": "manual-required",
+      "uncertaintyReasons": [
+        "manual-required",
+        "missing-analysis"
+      ],
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "enforcementClaimed": false,
+      "rawGamePayloadUsed": false,
+      "rawChatContentUsed": false,
+      "rawPageBodyUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false
+    },
+    {
+      "schemaVersion": "browser-game-riskbenefit-signal-contract",
+      "signalSetId": "browser-game-signal-set-roblox-discover",
+      "familyId": "family-browser-game-riskbenefit-live-proof",
+      "childProfileId": "child-browser-game-riskbenefit-live-proof",
+      "deviceId": "device-browser-game-riskbenefit-live-proof",
+      "modeledAt": "2026-06-06T20:23:33.321Z",
+      "sourceEvidenceRefs": [
+        "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-source",
+        "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-response-hash"
+      ],
+      "signalSourceKind": "game-ai-analysis",
+      "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-analysis-ref",
+      "metadataRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-metadata-ref",
+      "parentRuleRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-parent-rule-ref",
+      "riskSignals": [
+        {
+          "signalId": "browser-game-riskSignal-roblox-discover-1",
+          "kind": "user-generated-content-risk",
+          "severity": "high",
+          "state": "candidate",
+          "confidence": "medium",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-risk-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "signalId": "browser-game-riskSignal-roblox-discover-2",
+          "kind": "chat-risk",
+          "severity": "high",
+          "state": "candidate",
+          "confidence": "medium",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-risk-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        },
+        {
+          "signalId": "browser-game-riskSignal-roblox-discover-3",
+          "kind": "privacy-risk",
+          "severity": "medium",
+          "state": "candidate",
+          "confidence": "medium",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-risk-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "benefitSignals": [
+        {
+          "signalId": "browser-game-benefitSignal-roblox-discover-1",
+          "kind": "creativity",
+          "severity": "medium",
+          "state": "candidate",
+          "confidence": "medium",
+          "evidenceRefs": [
+            "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-benefit-evidence"
+          ],
+          "analysisRef": "parent-proof-browser-game-riskbenefit-signal-live-evidence-proof-roblox-discover-analysis-ref",
+          "rawGamePayloadUsed": false,
+          "rawChatContentUsed": false,
+          "rawPageBodyUsed": false,
+          "rawModelTextUsed": false,
+          "accountOrPurchaseExecutionClaimed": false,
+          "cloudFrameAnalysisClaimed": false,
+          "nativeGameControlClaimed": false,
+          "policyDecisionClaimed": false,
+          "enforcementClaimed": false
+        }
+      ],
+      "recommendedPolicyInput": "parent-review-candidate",
+      "confidence": "medium",
+      "degradedState": "none",
+      "uncertaintyReasons": [],
+      "finalPolicyDecisionClaimed": false,
+      "runtimeGateExecutedClaimed": false,
+      "enforcementClaimed": false,
+      "rawGamePayloadUsed": false,
+      "rawChatContentUsed": false,
+      "rawPageBodyUsed": false,
+      "rawModelTextUsed": false,
+      "accountOrPurchaseExecutionClaimed": false,
+      "nativeGameControlClaimed": false,
+      "cloudFrameAnalysisClaimed": false
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "set-final-policy-decision",
+      "rejected": true
+    },
+    {
+      "name": "set-runtime-gate",
+      "rejected": true
+    },
+    {
+      "name": "set-enforcement",
+      "rejected": true
+    },
+    {
+      "name": "set-raw-game-payload",
+      "rejected": true
+    },
+    {
+      "name": "set-raw-chat-content",
+      "rejected": true
+    },
+    {
+      "name": "set-raw-page-body",
+      "rejected": true
+    },
+    {
+      "name": "set-raw-model-text",
+      "rejected": true
+    },
+    {
+      "name": "set-account-purchase-execution",
+      "rejected": true
+    },
+    {
+      "name": "set-native-game-control",
+      "rejected": true
+    },
+    {
+      "name": "set-cloud-frame-analysis",
+      "rejected": true
+    },
+    {
+      "name": "set-empty-signals",
+      "rejected": true
+    },
+    {
+      "name": "set-allow-with-high-risk",
+      "rejected": true
+    },
+    {
+      "name": "set-block-without-risk",
+      "rejected": true
+    },
+    {
+      "name": "set-degraded-high-confidence",
+      "rejected": true
+    },
+    {
+      "name": "set-unknown-confidence",
+      "rejected": true
+    },
+    {
+      "name": "set-manual-source-not-degraded",
+      "rejected": true
+    },
+    {
+      "name": "risk-raw-game-payload",
+      "rejected": true
+    },
+    {
+      "name": "risk-raw-chat-content",
+      "rejected": true
+    },
+    {
+      "name": "risk-raw-page-body",
+      "rejected": true
+    },
+    {
+      "name": "risk-raw-model-text",
+      "rejected": true
+    },
+    {
+      "name": "risk-policy-decision",
+      "rejected": true
+    },
+    {
+      "name": "risk-enforcement",
+      "rejected": true
+    },
+    {
+      "name": "risk-unknown-candidate",
+      "rejected": true
+    },
+    {
+      "name": "benefit-raw-game-payload",
+      "rejected": true
+    },
+    {
+      "name": "benefit-raw-chat-content",
+      "rejected": true
+    },
+    {
+      "name": "benefit-raw-page-body",
+      "rejected": true
+    },
+    {
+      "name": "benefit-raw-model-text",
+      "rejected": true
+    },
+    {
+      "name": "benefit-policy-decision",
+      "rejected": true
+    },
+    {
+      "name": "benefit-enforcement",
+      "rejected": true
+    },
+    {
+      "name": "benefit-unknown-candidate",
+      "rejected": true
+    }
+  ],
+  "summary": {
+    "targetCount": 5,
+    "signalSetCount": 5,
+    "riskSignalCount": 7,
+    "benefitSignalCount": 8,
+    "negativeChecks": 30,
+    "recommendedPolicyInputs": [
+      "parent-review-candidate",
+      "allow-candidate",
+      "time-limit-candidate",
+      "manual-review-candidate"
+    ],
+    "rawUrlIncluded": false,
+    "rawPageBodyIncluded": false,
+    "rawGamePayloadIncluded": false,
+    "rawChatContentIncluded": false,
+    "rawModelTextIncluded": false,
+    "accountOrPurchaseExecutionClaimed": false,
+    "nativeGameControlClaimed": false,
+    "cloudFrameAnalysisClaimed": false,
+    "finalPolicyDecisionClaimed": false,
+    "runtimeGateExecutedClaimed": false,
+    "enforcementClaimed": false,
+    "productChecklistUpgradeClaimed": false
+  }
+}

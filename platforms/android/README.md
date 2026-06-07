@@ -56,6 +56,18 @@ area.
   connectivity dump. It records foreground location, background/geofence,
   notification delivery, physical-device, Device Owner, and managed-profile
   behavior as not claimed/manual-required.
+- `browser-platform-android-owned-shell-proof` covers the browser-plan WP05
+  owned-browser-shell package boundary. It builds the separate
+  `platforms/android/agent/browser-shell` APK, creates a disposable AOSP ATD
+  emulator, installs `com.ocentra.parent.browser`, launches a local proof page
+  through a `VIEW`/`BROWSABLE` WebView shell, observes Device Owner enrollment
+  for the shell's `DeviceAdminReceiver`, observes the Device Owner app
+  configuring persistent HTTP/HTTPS browser routing policy, deletes the
+  temporary AVD, and records redacted UI-tree, APK, source, Device Policy
+  Manager, and device refs. It does not claim exact URL policy, known active tab,
+  implicit routing enforcement, VPN/DNS, UsageStats, Accessibility, browser
+  blocking, broad content-filter enforcement, physical-device behavior, Play
+  signing, or release readiness.
 
 ## Gaps To Fill
 

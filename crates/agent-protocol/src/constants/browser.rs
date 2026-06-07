@@ -176,6 +176,8 @@ pub const INVENTORY_REASON_WINDOWS_CHROMIUM_FORK_MANUAL_REQUIRED: &str =
     "windows-chromium-fork-manual-required";
 pub const INVENTORY_REASON_WINDOWS_MANAGED_PROFILE_REQUIRED: &str =
     "windows-managed-profile-required";
+pub const INVENTORY_REASON_WINDOWS_PACKAGE_MANUAL_REQUIRED: &str =
+    "windows-package-browser-manual-required";
 pub const INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER: &str =
     "windows-unsupported-later-adapter";
 pub const INVENTORY_ROW_ID_EDGE_STABLE: &str = "browser-inventory-edge-stable";
@@ -398,6 +400,23 @@ pub const DEVTOOLS_TEST_BROWSER_LIKE_PROCESS: &str = "embedded-browser-shell.exe
 pub const DEVTOOLS_TEST_BLANK_AND_INTERNAL_LIST_BODY: &str = r#"[{"id":"target-blank","type":"page","url":"about:blank","title":"Blank"},{"id":"target-internal","type":"page","url":"chrome://settings","title":"Settings"}]"#;
 pub const DEVTOOLS_TEST_EMPTY_LIST_BODY: &str = "[]";
 pub const DEVTOOLS_TEST_EXECUTABLE_PATH: &str = "browser.exe";
+pub const DEVTOOLS_TEST_EDGE_SHORTCUT_FILE_NAME: &str = "Microsoft Edge.lnk";
+pub const DEVTOOLS_TEST_EDGE_STORE_PACKAGE_APPLICATION_ID: &str = "App";
+pub const DEVTOOLS_TEST_EDGE_STORE_PACKAGE_DISPLAY_NAME: &str = "Microsoft Edge";
+pub const DEVTOOLS_TEST_EDGE_STORE_PACKAGE_NAME: &str = "Microsoft.MicrosoftEdge.Stable";
+pub const DEVTOOLS_TEST_EDGE_STORE_PACKAGE_USER_MODEL_ID: &str =
+    "Microsoft.MicrosoftEdge.Stable!App";
+pub const DEVTOOLS_TEST_EDGE_STORE_PACKAGE_MANIFEST_XML: &str = r#"<Package xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10">
+  <Identity Name="Microsoft.MicrosoftEdge.Stable" Publisher="CN=Microsoft Corporation" Version="1.0.0.0" />
+  <Properties>
+    <DisplayName>Microsoft Edge</DisplayName>
+  </Properties>
+  <Applications>
+    <Application Id="App">
+      <uap:VisualElements DisplayName="Microsoft Edge" />
+    </Application>
+  </Applications>
+</Package>"#;
 pub const DEVTOOLS_TEST_INVALID_JSON_BODY: &str = "{";
 pub const DEVTOOLS_TEST_INVALID_LIST_BODY: &str = r#"{"id":"not-array"}"#;
 pub const DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR: &str = "windows-browser-inventory-test";
@@ -475,14 +494,41 @@ pub const PATH_SEGMENT_OPERA_GX_STABLE: &str = "Opera GX Stable";
 pub const PATH_SEGMENT_OPERA_SOFTWARE: &str = "Opera Software";
 pub const PATH_SEGMENT_OPERA_STABLE: &str = "Opera Stable";
 pub const PATH_SEGMENT_PORTABLE_NORMALIZED: &str = "portable";
+pub const PATH_SEGMENT_PROGRAMS: &str = "Programs";
+pub const PATH_SEGMENT_START_MENU: &str = "Start Menu";
 pub const PATH_SEGMENT_TOR_BROWSER: &str = "Tor Browser";
 pub const PATH_SEGMENT_TOR_BROWSER_NORMALIZED: &str = "tor browser";
 pub const PATH_SEGMENT_USER_DATA: &str = "User Data";
 pub const PATH_SEGMENT_USER_DATA_NORMALIZED: &str = "user data";
 pub const PATH_SEGMENT_VIVALDI: &str = "Vivaldi";
 pub const PATH_SEGMENT_WEBVIEW_NORMALIZED: &str = "webview";
+pub const PATH_SEGMENT_WINDOWS: &str = "Windows";
 pub const PATH_SEGMENT_WINDOWS_APPS: &str = "WindowsApps";
 pub const PATH_SEGMENT_WINDOWS_APPS_NORMALIZED: &str = "windowsapps";
+pub const PACKAGE_FRAGMENT_ARC: &str = "arc";
+pub const PACKAGE_FRAGMENT_BRAVE: &str = "brave";
+pub const PACKAGE_FRAGMENT_CHROME: &str = "chrome";
+pub const PACKAGE_FRAGMENT_CHROMIUM: &str = "chromium";
+pub const PACKAGE_FRAGMENT_DUCKDUCKGO: &str = "duckduckgo";
+pub const PACKAGE_FRAGMENT_EDGE: &str = "edge";
+pub const PACKAGE_FRAGMENT_FIREFOX: &str = "firefox";
+pub const PACKAGE_FRAGMENT_MICROSOFT_EDGE: &str = "microsoftedge";
+pub const PACKAGE_FRAGMENT_OPERA: &str = "opera";
+pub const PACKAGE_FRAGMENT_TOR: &str = "tor";
+pub const PACKAGE_FRAGMENT_VIVALDI: &str = "vivaldi";
+pub const PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY: usize = 128;
+pub const SHORTCUT_LINK_FLAGS_HAS_LINK_INFO: u32 = 0x0000_0002;
+pub const SHORTCUT_LINK_FLAGS_OFFSET: usize = 0x0000_0014;
+pub const SHORTCUT_LINK_HEADER_SIZE: u32 = 0x0000_004c;
+pub const SHORTCUT_LINK_INFO_FLAGS_OFFSET: usize = 0x0000_0008;
+pub const SHORTCUT_LINK_INFO_HEADER_SIZE: u32 = 0x0000_001c;
+pub const SHORTCUT_LINK_INFO_LOCAL_BASE_PATH_FLAG: u32 = 0x0000_0001;
+pub const SHORTCUT_LINK_INFO_LOCAL_BASE_PATH_OFFSET: usize = 0x0000_0010;
+pub const SHORTCUT_LINK_INFO_MIN_SIZE: usize = 0x0000_001c;
+pub const SHORTCUT_LINK_INFO_SECTION_OFFSET: usize = 0x0000_004c;
+pub const SHORTCUT_LINK_INFO_SIZE_OFFSET: usize = 0x0000_0000;
+pub const SHORTCUT_SCAN_LIMIT_BROWSER_DISCOVERY: usize = 128;
+pub const WINDOWS_SHORTCUT_EXTENSION: &str = "lnk";
 pub const PATH_SEPARATOR_COLON: &str = ":";
 pub const PATH_SEPARATOR_FORWARD: &str = "/";
 pub const PATH_SEPARATOR_BACKSLASH: &str = "\\";

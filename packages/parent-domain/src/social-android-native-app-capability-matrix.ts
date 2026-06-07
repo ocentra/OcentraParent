@@ -107,18 +107,46 @@ function socialAndroidNativeAppCapabilityRowIsHonest(row: SocialAndroidNativeApp
   if (socialAndroidNativeAppCapabilityRowClaimsRuntime(row)) {
     return false;
   }
+
   if (row.surface === 'android-package-visibility') {
-    return row.capabilityState === 'app-level-capable-with-proof' && row.policyScope === 'app-level-only';
+    return androidPackageVisibilityRowIsHonest(row);
   }
   if (row.surface === 'android-usage-stats-foreground') {
-    return row.capabilityState === 'permission-required' && row.proofState === 'permission-grant-required';
+    return androidUsageStatsForegroundRowIsHonest(row);
   }
   if (row.surface === 'android-accessibility-route-hints') {
-    return row.capabilityState !== 'app-level-capable-with-proof' && row.reasons.includes('route-level-unavailable');
+    return androidAccessibilityRouteHintsRowIsHonest(row);
   }
   if (row.surface === 'android-vpn-domain-hints') {
-    return row.policyScope === 'domain-level-only' && row.reasons.includes('vpn-domain-only');
+    return androidVpnDomainHintsRowIsHonest(row);
   }
+  return androidManualDeviceProofRowIsHonest(row);
+}
+
+function androidPackageVisibilityRowIsHonest(row: SocialAndroidNativeAppCapabilityRowCandidate): boolean {
+  return (
+    (row.capabilityState === 'app-level-capable-with-proof' &&
+      row.proofState === 'existing-parent-domain-proof-ref' &&
+      row.policyScope === 'app-level-only') ||
+    (row.capabilityState === 'manual-required' &&
+      row.proofState === 'manual-device-proof-required' &&
+      row.policyScope === 'manual-review-only')
+  );
+}
+
+function androidUsageStatsForegroundRowIsHonest(row: SocialAndroidNativeAppCapabilityRowCandidate): boolean {
+  return row.capabilityState === 'permission-required' && row.proofState === 'permission-grant-required';
+}
+
+function androidAccessibilityRouteHintsRowIsHonest(row: SocialAndroidNativeAppCapabilityRowCandidate): boolean {
+  return row.capabilityState !== 'app-level-capable-with-proof' && row.reasons.includes('route-level-unavailable');
+}
+
+function androidVpnDomainHintsRowIsHonest(row: SocialAndroidNativeAppCapabilityRowCandidate): boolean {
+  return row.policyScope === 'domain-level-only' && row.reasons.includes('vpn-domain-only');
+}
+
+function androidManualDeviceProofRowIsHonest(row: SocialAndroidNativeAppCapabilityRowCandidate): boolean {
   return (
     row.capabilityState === 'manual-required' &&
     row.proofState === 'manual-device-proof-required' &&

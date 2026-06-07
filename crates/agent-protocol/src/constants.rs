@@ -117,6 +117,14 @@ pub mod event_id {
         "activity-app-game-policy-readiness-read-model-reported";
     pub const ACTIVITY_APP_GAME_NOTIFICATION_READINESS_READ_MODEL_REPORTED: &str =
         "activity-app-game-notification-readiness-read-model-reported";
+    pub const BROWSER_SOCIAL_DASHBOARD_READ_MODEL_REPORTED: &str =
+        "browser-social-dashboard-read-model-reported";
+    pub const BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL_REPORTED: &str =
+        "browser-social-audit-explanation-read-model-reported";
+    pub const BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL_REPORTED: &str =
+        "browser-social-alert-report-read-model-reported";
+    pub const BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION_APPLIED: &str =
+        "browser-social-source-custody-mutation-applied";
     pub const ACTIVITY_NETWORK_READ_MODEL_REPORTED: &str = "activity-network-read-model-reported";
     pub const ACTIVITY_TRACKING_READ_MODEL_REPORTED: &str = "activity-tracking-read-model-reported";
     pub const BROWSER_INVENTORY_READ_MODEL_REPORTED: &str = "browser-inventory-read-model-reported";

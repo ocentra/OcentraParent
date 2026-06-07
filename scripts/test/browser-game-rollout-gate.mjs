@@ -82,7 +82,214 @@ function expectedRows() {
         expectedState: 'scaffold-proof-present',
       };
     }
-    if (rowNumber >= 2) {
+    if (rowNumber === 2) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-route-proof-present',
+      };
+    }
+    if (rowNumber === 3) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-portal-pattern-proof-present',
+      };
+    }
+    if (rowNumber === 4) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-cloud-pattern-proof-present',
+      };
+    }
+    if (rowNumber === 5) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-url-shape-proof-present',
+      };
+    }
+    if (rowNumber === 6) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-runtime-signal-shape-proof-present',
+      };
+    }
+    if (rowNumber === 7) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-metadata-shape-proof-present',
+      };
+    }
+    if (rowNumber === 8) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-hidden-analysis-profile-safety-proof-present',
+      };
+    }
+    if (rowNumber === 9) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-educational-classifier-proof-present',
+      };
+    }
+    if (rowNumber === 10) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-ai-analysis-proof-present',
+      };
+    }
+    if (rowNumber === 11) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-riskbenefit-signal-proof-present',
+      };
+    }
+    if (rowNumber === 12) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-memory-cache-proof-present',
+      };
+    }
+    if (rowNumber === 13) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-account-purchase-gate-proof-present',
+      };
+    }
+    if (rowNumber === 14) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-cloud-gaming-gate-proof-present',
+      };
+    }
+    if (rowNumber === 15) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-unblocked-site-detection-proof-present',
+      };
+    }
+    if (rowNumber === 16) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-ugc-multiplayer-chat-risk-proof-present',
+      };
+    }
+    if (rowNumber === 17) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-policy-compiler-proof-present',
+      };
+    }
+    if (rowNumber === 18) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-hold-block-adapter-proof-present',
+      };
+    }
+    if (rowNumber === 19) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-child-checking-block-ux-proof-present',
+      };
+    }
+    if (rowNumber === 20) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-parent-dashboard-ux-proof-present',
+      };
+    }
+    if (rowNumber === 21) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-journal-sqlite-read-model-proof-present',
+      };
+    }
+    if (rowNumber === 22) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-rendered-child-intervention-proof-present',
+      };
+    }
+    if (rowNumber === 23) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'live-android-ios-host-proof-present',
+      };
+    }
+    if (rowNumber === 24) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'rollout-label-proof-present',
+      };
+    }
+    if (rowNumber >= 22) {
       return {
         rowNumber,
         rowId,
@@ -139,7 +346,7 @@ function manifestFor(rows, failures) {
     rows,
     summary: {
       totalRows: rows.length,
-      completeRows: rows.filter((row) => row.expectedState === 'scaffold-proof-present').length,
+      completeRows: rows.filter((row) => row.expectedStatus === '[x]').length,
       partialRows: rows.filter((row) => row.expectedState === 'partial-manual-required').length,
       openRows: rows.filter((row) => row.expectedState === 'open-manual-required').length,
       failures: failures.length,
@@ -148,12 +355,30 @@ function manifestFor(rows, failures) {
     },
     guardTexts: rolloutGuards.map((guard) => guard.text),
     noClaimLabels: [
-      'browser-game-route-contracts-open',
+      'browser-game-live-route-contracts-proof-present',
+      'browser-game-live-portal-pattern-proof-present',
+      'browser-game-live-cloud-pattern-proof-present',
+      'browser-game-live-url-shape-proof-present',
+      'browser-game-live-runtime-signal-shape-proof-present',
+      'browser-game-live-metadata-shape-proof-present',
+      'browser-game-live-riskbenefit-signal-proof-present',
+      'browser-game-live-memory-cache-proof-present',
+      'browser-game-live-account-purchase-gate-proof-present',
+      'browser-game-live-cloud-gaming-gate-proof-present',
+      'browser-game-live-unblocked-site-detection-proof-present',
+      'browser-game-live-ugc-multiplayer-chat-risk-proof-present',
+      'browser-game-live-policy-compiler-proof-present',
+      'browser-game-live-hold-block-adapter-proof-present',
+      'browser-game-live-child-checking-block-ux-proof-present',
+      'browser-game-live-parent-dashboard-ux-proof-present',
+      'browser-game-live-journal-sqlite-read-model-proof-present',
+      'browser-game-live-rendered-child-intervention-proof-present',
+      'browser-game-live-android-ios-host-proof-present',
       'proof-artifact-coverage-contract-only',
-      'playwright-manual-required-no-rendered-browser-game-ui',
+      'playwright-live-rendered-child-intervention-screenshots-present',
       'runtime-signal-proof-manual-required',
       'metadata-ai-memory-proof-manual-required',
-      'child-parent-ui-not-claimed',
+      'child-intervention-ui-rendered-proof-present',
       'cloud-streamed-frame-analysis-not-claimed',
       'native-game-control-not-claimed',
       'enforcement-not-claimed',
@@ -171,7 +396,7 @@ function markdownFor(manifest) {
     `Generated: ${manifest.generatedAt}`,
     '',
     `Rows checked: ${manifest.summary.totalRows}`,
-    `Scaffold-proof rows: ${manifest.summary.completeRows}`,
+    `Proof-present rows: ${manifest.summary.completeRows}`,
     `Partial/manual-required rows: ${manifest.summary.partialRows}`,
     `Open/manual-required rows: ${manifest.summary.openRows}`,
     `Rollout state: ${manifest.summary.rolloutState}`,
@@ -182,10 +407,33 @@ function markdownFor(manifest) {
     rows,
     '',
     'GAME rollout state: partial/manual-required.',
+    'GAME-02 live route contract proof is present.',
+    'GAME-03 live portal pattern library proof is present.',
+    'GAME-04 live cloud pattern library proof is present.',
+    'GAME-05 live URL-shape parser proof is present.',
+    'GAME-06 live runtime signal shape proof is present.',
+    'GAME-07 live metadata shape proof is present.',
+    'GAME-08 live hidden analysis profile safety proof is present.',
+    'GAME-09 live educational classifier proof is present.',
+    'GAME-10 live AI analysis proof is present.',
+    'GAME-11 live risk/benefit signal proof is present.',
+    'GAME-12 live memory/cache proof is present.',
+    'GAME-13 live account/signup/purchase gate proof is present.',
+    'GAME-14 live cloud-gaming gate proof is present.',
+    'GAME-15 live unblocked-site detection proof is present.',
+    'GAME-16 live UGC/multiplayer/chat risk proof is present.',
+    'GAME-17 live policy compiler proof is present.',
+    'GAME-18 live hold/block adapter proof is present.',
+    'GAME-19 live child checking/block UX proof is present.',
+    'GAME-20 live parent dashboard UX proof is present.',
+    'GAME-21 live journal/SQLite read-model shape proof is present.',
+    'GAME-22 live rendered child intervention proof is present.',
+    'GAME-23 live Android host emulator proof is present.',
+    'GAME-24 rollout/manual-required label proof is present.',
     'Product checklist upgrade is not claimed.',
-    'Browser-game route contracts, runtime signals, metadata, AI, memory,',
-    'child/parent UI, cloud-streamed frame analysis, native game control,',
-    'and enforcement remain open or manual-required until separate proof exists.',
+    'Final policy decisions, notification or approval delivery, cloud-streamed',
+    'frame analysis, native game control, enforcement, release readiness, and',
+    'product completion remain unclaimed until separate proof exists.',
   ].join('\n');
 }
 

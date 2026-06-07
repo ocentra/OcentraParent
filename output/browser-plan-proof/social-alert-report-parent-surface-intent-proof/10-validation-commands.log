@@ -1,0 +1,5 @@
+$ cmd /c npm run build --workspace @ocentra-parent/parent-domain
+exit=0
+
+$ cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-alert-report-parent-surface-intent-proof social-alert-report-provider-status-handoff-proof
+exit=0

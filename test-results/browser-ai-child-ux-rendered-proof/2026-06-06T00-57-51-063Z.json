@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-06T00:58:06.594Z",
+  "browser": {
+    "bridge": "chromium-devtools-protocol",
+    "channel": "stable",
+    "executablePath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "family": "chrome",
+    "id": "chrome-stable"
+  },
+  "browserVersion": "Chrome/148.0.7778.217",
+  "requestedUrl": "https://www.youtube.com/watch?v=XzUB8_gj6xM",
+  "capturedLocation": "https://www.youtube.com/watch?v=XzUB8_gj6xM",
+  "childAgentEndpoint": "/api/browser/intervention/page",
+  "htmlPath": "..\\..\\..\\..\\AppData\\Local\\Temp\\ocentra-parent-browser-ai-child-ux-agent-voi60q\\browser-intervention-page.html",
+  "cases": [
+    {
+      "action": "checking-hold",
+      "adapterProofRef": "child-agent-endpoint-proof-checking",
+      "deliveryState": "checking-hold-rendered",
+      "endpointUrl": "http://127.0.0.1:57399/api/browser/intervention/page?target=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXzUB8_gj6xM&state=checking",
+      "observed": {
+        "href": "http://127.0.0.1:57399/api/browser/intervention/page?target=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXzUB8_gj6xM&state=checking",
+        "title": "Ocentra is checking this page",
+        "markerPresent": true,
+        "primaryTextPresent": true,
+        "targetTextPresent": true,
+        "backdropPresent": true,
+        "askParentButtonPresent": false
+      },
+      "outcome": "checking",
+      "primaryText": "Ocentra is checking whether this page matches your family rules.",
+      "ruleId": "browser-ai-checking-youtube-video",
+      "screenshotPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-d\\OcentraParent\\test-results\\browser-ai-child-ux-rendered-proof\\2026-06-06T00-57-51-063Z-screenshots\\chrome-stable-child-ux-checking.png",
+      "snapshotId": "browser-ai-child-ux-checking",
+      "state": "checking",
+      "surface": "managed-browser-hold-page"
+    },
+    {
+      "action": "warn",
+      "adapterProofRef": "child-agent-endpoint-proof-warning",
+      "deliveryState": "warn-page-rendered",
+      "endpointUrl": "http://127.0.0.1:57399/api/browser/intervention/page?target=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXzUB8_gj6xM&state=warning",
+      "observed": {
+        "href": "http://127.0.0.1:57399/api/browser/intervention/page?target=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXzUB8_gj6xM&state=warning",
+        "title": "This page needs a different choice",
+        "markerPresent": true,
+        "primaryTextPresent": true,
+        "targetTextPresent": true,
+        "backdropPresent": true,
+        "askParentButtonPresent": false
+      },
+      "outcome": "warned",
+      "primaryText": "This page may need a different choice right now.",
+      "ruleId": "browser-ai-warning-youtube-video",
+      "screenshotPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-d\\OcentraParent\\test-results\\browser-ai-child-ux-rendered-proof\\2026-06-06T00-57-51-063Z-screenshots\\chrome-stable-child-ux-warning.png",
+      "snapshotId": "browser-ai-child-ux-warning",
+      "state": "warning",
+      "surface": "managed-browser-warning-page"
+    },
+    {
+      "action": "approval-hold",
+      "adapterProofRef": "child-agent-endpoint-proof-approval_required",
+      "deliveryState": "approval-hold-rendered",
+      "endpointUrl": "http://127.0.0.1:57399/api/browser/intervention/page?target=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXzUB8_gj6xM&state=approval_required",
+      "observed": {
+        "href": "http://127.0.0.1:57399/api/browser/intervention/page?target=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXzUB8_gj6xM&state=approval_required",
+        "title": "Ask your parent to continue",
+        "markerPresent": true,
+        "primaryTextPresent": true,
+        "targetTextPresent": true,
+        "backdropPresent": true,
+        "askParentButtonPresent": false
+      },
+      "outcome": "approval_required",
+      "primaryText": "This video needs parent approval.",
+      "ruleId": "browser-ai-approval-youtube-video",
+      "screenshotPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-d\\OcentraParent\\test-results\\browser-ai-child-ux-rendered-proof\\2026-06-06T00-57-51-063Z-screenshots\\chrome-stable-child-ux-approval_required.png",
+      "snapshotId": "browser-ai-child-ux-approval_required",
+      "state": "approval_required",
+      "surface": "parent-approval-hold-page"
+    },
+    {
+      "action": "time-limit",
+      "adapterProofRef": "child-agent-endpoint-proof-limited",
+      "deliveryState": "warn-page-rendered",
+      "endpointUrl": "http://127.0.0.1:57399/api/browser/intervention/page?target=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXzUB8_gj6xM&state=limited",
+      "observed": {
+        "href": "http://127.0.0.1:57399/api/browser/intervention/page?target=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXzUB8_gj6xM&state=limited",
+        "title": "Your browser time is used up",
+        "markerPresent": true,
+        "primaryTextPresent": true,
+        "targetTextPresent": true,
+        "backdropPresent": true,
+        "askParentButtonPresent": false
+      },
+      "outcome": "limited",
+      "primaryText": "This site is limited right now.",
+      "ruleId": "browser-ai-limited-youtube-video",
+      "screenshotPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-d\\OcentraParent\\test-results\\browser-ai-child-ux-rendered-proof\\2026-06-06T00-57-51-063Z-screenshots\\chrome-stable-child-ux-limited.png",
+      "snapshotId": "browser-ai-child-ux-limited",
+      "state": "limited",
+      "surface": "managed-browser-warning-page"
+    },
+    {
+      "action": "block",
+      "adapterProofRef": "child-agent-endpoint-proof-blocked",
+      "deliveryState": "block-page-rendered",
+      "endpointUrl": "http://127.0.0.1:57399/api/browser/intervention/page?target=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXzUB8_gj6xM&state=blocked",
+      "observed": {
+        "href": "http://127.0.0.1:57399/api/browser/intervention/page?target=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXzUB8_gj6xM&state=blocked",
+        "title": "This page is blocked",
+        "markerPresent": true,
+        "primaryTextPresent": true,
+        "targetTextPresent": true,
+        "backdropPresent": true,
+        "askParentButtonPresent": false
+      },
+      "outcome": "blocked",
+      "primaryText": "This page is blocked by your parent rule.",
+      "ruleId": "browser-ai-block-youtube-video",
+      "screenshotPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-d\\OcentraParent\\test-results\\browser-ai-child-ux-rendered-proof\\2026-06-06T00-57-51-063Z-screenshots\\chrome-stable-child-ux-blocked.png",
+      "snapshotId": "browser-ai-child-ux-blocked",
+      "state": "blocked",
+      "surface": "managed-browser-block-page"
+    }
+  ],
+  "assertions": {
+    "approvalRendered": true,
+    "blockRendered": true,
+    "checkingRendered": true,
+    "childAgentEndpointRendered": true,
+    "liveTargetCapturedBeforeRender": true,
+    "noRawCopyClaims": true,
+    "timeLimitRendered": true,
+    "warningRendered": true,
+    "expectedStateCoverage": true
+  }
+}

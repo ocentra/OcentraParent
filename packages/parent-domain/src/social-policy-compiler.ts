@@ -14,11 +14,14 @@ import {
   SocialParentPolicyConfidenceSchema,
   SocialParentPolicyDecisionCandidateIdSchema,
   SocialParentPolicyReasonCodesSchema,
+  SocialParentPolicyScheduleStateSchema,
   SocialParentPolicyTargetKindSchema,
+  SocialParentPolicyTimeBudgetStateSchema,
   SocialPolicyEvidenceRefsSchema,
   SocialPolicyParentRuleRefsSchema,
   SocialPolicyScheduleRefsSchema,
   SocialPolicySignalSetRefsSchema,
+  SocialPolicyTimeBudgetRefsSchema,
 } from './social-policy-compiler-values';
 import type { SocialParentPolicyReasonCodeSchema } from './social-policy-compiler-values';
 
@@ -35,6 +38,9 @@ const SocialParentPolicyCompilerInputBaseSchema = Schema.Struct({
   signalSetRefs: SocialPolicySignalSetRefsSchema,
   parentRuleRefs: SocialPolicyParentRuleRefsSchema,
   scheduleContextRefs: SocialPolicyScheduleRefsSchema,
+  timeBudgetContextRefs: SocialPolicyTimeBudgetRefsSchema,
+  scheduleState: SocialParentPolicyScheduleStateSchema,
+  timeBudgetState: SocialParentPolicyTimeBudgetStateSchema,
   compilerMode: SocialParentPolicyCompilerModeSchema,
   rawSignalPayloadIncluded: Schema.Boolean,
   rawModelTextIncluded: Schema.Boolean,
@@ -68,6 +74,9 @@ const SocialParentPolicyDecisionCandidateBaseSchema = Schema.Struct({
   signalSetRefs: SocialPolicySignalSetRefsSchema,
   parentRuleRefs: SocialPolicyParentRuleRefsSchema,
   scheduleContextRefs: SocialPolicyScheduleRefsSchema,
+  timeBudgetContextRefs: SocialPolicyTimeBudgetRefsSchema,
+  scheduleState: SocialParentPolicyScheduleStateSchema,
+  timeBudgetState: SocialParentPolicyTimeBudgetStateSchema,
   actionCandidate: SocialParentPolicyActionCandidateSchema,
   reasonCodes: SocialParentPolicyReasonCodesSchema,
   confidence: SocialParentPolicyConfidenceSchema,
@@ -133,6 +142,9 @@ export function compileSocialParentPolicyCandidate(
     signalSetRefs: input.signalSetRefs,
     parentRuleRefs: input.parentRuleRefs,
     scheduleContextRefs: input.scheduleContextRefs,
+    timeBudgetContextRefs: input.timeBudgetContextRefs,
+    scheduleState: input.scheduleState,
+    timeBudgetState: input.timeBudgetState,
     actionCandidate: parsed.actionCandidate,
     reasonCodes: parsed.reasonCodes,
     confidence: parsed.confidence,
@@ -154,10 +166,41 @@ function socialPolicyCompilerInputIsConsistent(value: Infer<typeof SocialParentP
   if (socialPolicyCompilerInputClaimsAuthority(value)) {
     return false;
   }
+
   if (value.compilerMode === 'contract-only') {
-    return value.signalSetRefs.length > 0 && value.parentRuleRefs.length > 0 && value.targetKind !== 'manual-required';
+    return socialPolicyCompilerContractOnlyInputIsConsistent(value);
   }
-  return value.signalSetRefs.length === 0 || value.targetKind === 'manual-required';
+
+  return socialPolicyCompilerManualInputIsConsistent(value);
+}
+
+function socialPolicyCompilerContractOnlyInputIsConsistent(
+  value: Infer<typeof SocialParentPolicyCompilerInputBaseSchema>
+): boolean {
+  return (
+    value.signalSetRefs.length > 0 &&
+    value.parentRuleRefs.length > 0 &&
+    value.scheduleContextRefs.length > 0 &&
+    value.timeBudgetContextRefs.length > 0 &&
+    value.scheduleState !== 'manual-required' &&
+    value.scheduleState !== 'unavailable' &&
+    value.timeBudgetState !== 'manual-required' &&
+    value.timeBudgetState !== 'unavailable' &&
+    value.targetKind !== 'manual-required'
+  );
+}
+
+function socialPolicyCompilerManualInputIsConsistent(
+  value: Infer<typeof SocialParentPolicyCompilerInputBaseSchema>
+): boolean {
+  return (
+    value.signalSetRefs.length === 0 ||
+    value.targetKind === 'manual-required' ||
+    value.scheduleState === 'manual-required' ||
+    value.scheduleState === 'unavailable' ||
+    value.timeBudgetState === 'manual-required' ||
+    value.timeBudgetState === 'unavailable'
+  );
 }
 
 function socialPolicyDecisionCandidateIsConsistent(value: Infer<typeof SocialParentPolicyDecisionCandidateBaseSchema>) {
@@ -196,7 +239,12 @@ function allowSocialPolicyActionIsConsistent(value: SocialPolicyDecisionCandidat
 }
 
 function contractOnlySocialPolicyActionIsConsistent(value: SocialPolicyDecisionCandidateInput): boolean {
-  return value.compilerMode === 'contract-only' && value.signalSetRefs.length > 0;
+  return (
+    value.compilerMode === 'contract-only' &&
+    value.signalSetRefs.length > 0 &&
+    value.scheduleContextRefs.length > 0 &&
+    value.timeBudgetContextRefs.length > 0
+  );
 }
 
 function socialPolicyCompilerInputClaimsAuthority(value: Infer<typeof SocialParentPolicyCompilerInputBaseSchema>) {

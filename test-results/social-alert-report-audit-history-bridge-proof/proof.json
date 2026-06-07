@@ -1,0 +1,551 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-alert-report-audit-history-bridge-proof",
+  "generatedAt": "2026-06-07T08:18:00Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "1ac6a9ee1b302f3b1ad6416d798b1bac938a761e",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/logging-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-alert-report-local-outbox-bridge social-alert-report-intent",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/logging-domain -- notification-audit-history notification-audit-history-handoff",
+      "exitCode": 0
+    }
+  ],
+  "checks": [
+    {
+      "label": "scripts/test/social-alert-report-audit-history-bridge-proof.mjs exists",
+      "pass": true
+    },
+    {
+      "label": "packages/logging-domain/src/notification-audit-history-handoff.ts exists",
+      "pass": true
+    },
+    {
+      "label": "packages/logging-domain/tests/notification-audit-history-handoff.test.ts exists",
+      "pass": true
+    },
+    {
+      "label": "provider delivery non-claim guard",
+      "pass": true
+    },
+    {
+      "label": "parent UI non-claim guard",
+      "pass": true
+    },
+    {
+      "label": "child delivery non-claim guard",
+      "pass": true
+    },
+    {
+      "label": "social feature audit bridge note",
+      "pass": true
+    },
+    {
+      "label": "social expectation audit bridge note",
+      "pass": true
+    },
+    {
+      "label": "notification expectation note",
+      "pass": true
+    },
+    {
+      "label": "social README audit bridge note",
+      "pass": true
+    }
+  ],
+  "summary": {
+    "sourceRows": 4,
+    "linkedLocalOutboxRows": 2,
+    "manualRequiredRows": 1,
+    "unavailableRows": 1,
+    "auditHistoryEntries": 4,
+    "queuedAuditEntryCount": 2,
+    "manualRequiredAuditEntryCount": 1,
+    "unavailableAuditEntryCount": 1,
+    "providerStatuses": {
+      "queued": 2,
+      "manual-required": 1,
+      "unavailable": 1
+    },
+    "retryLifecycleStates": {
+      "not-scheduled": 2,
+      "manual-review-required": 1,
+      "provider-unavailable": 1
+    },
+    "quietHoursStates": {
+      "allow": 2,
+      "manual-required": 1,
+      "unavailable": 1
+    },
+    "escalationStates": {
+      "none": 2,
+      "manual-required": 1,
+      "unavailable": 1
+    },
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "providerCredentialsClaimed": false,
+    "cloudRoutingClaimed": false,
+    "parentNotificationUiClaimed": false,
+    "childDeliveryClaimed": false,
+    "retryExecutionRuntimeClaimed": false,
+    "quietHoursTimerRuntimeClaimed": false,
+    "productionDurableOutboxStorageClaimed": false,
+    "adapterDispatchClaimed": false
+  },
+  "claimsProved": [
+    "Social alert/report local outbox bridge rows parse before audit-history handoff",
+    "Linked social alert/report local outbox rows become queued audit-history entries with evidence, policy, and audit refs",
+    "Manual-required and unavailable social alert/report rows become blocked audit-history entries without queued provider sends",
+    "Audit-history entries reuse the logging-domain redaction-safe payload and no Ocentra-hosted child data custody states",
+    "Provider delivery, receipt ingestion, credentials, cloud routing, parent UI, child delivery, retry execution, quiet-hours timer execution, durable outbox storage, adapter dispatch, final policy execution, connector/native runtime, and enforcement remain unclaimed"
+  ],
+  "claimsNotProved": [
+    "provider adapter implementation or delivery",
+    "provider webhook receipt ingestion",
+    "provider credentials",
+    "production retry worker or quiet-hours timer execution",
+    "durable production local outbox storage",
+    "parent notification history UI or parent preference UI",
+    "child app, overlay, push, or local notification delivery",
+    "external report delivery execution",
+    "final policy evaluator execution",
+    "connector or native-app runtime",
+    "enforcement",
+    "product checklist completion"
+  ],
+  "evidence": {
+    "existingAuditHandoffSource": "packages/logging-domain/src/notification-audit-history-handoff.ts",
+    "existingAuditHandoffTest": "packages/logging-domain/tests/notification-audit-history-handoff.test.ts",
+    "existingAuditHistoryContract": "packages/logging-domain/src/notification-audit-history.ts",
+    "socialLocalOutboxBridge": "packages/parent-domain/src/social-alert-report-local-outbox-bridge.ts",
+    "harness": "scripts/test/social-alert-report-audit-history-bridge-proof.mjs",
+    "handoffArtifact": "test-results/social-alert-report-audit-history-bridge-proof/audit-history-handoff.json",
+    "proof": "test-results/social-alert-report-audit-history-bridge-proof/proof.json",
+    "manifest": "output/browser-plan-proof/social-alert-report-audit-history-bridge-proof/01-social-alert-report-audit-history-bridge-proof.md"
+  },
+  "sourceRows": [
+    {
+      "handoffEntryId": "social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-high-risk-audit-history-proof",
+      "sourceStatus": "queued-local-outbox",
+      "sourceNotificationIntentRef": "social-alert-report-high-risk-audit-history-proof",
+      "sourceOutboxRecordRef": "local-outbox-record-social-alert-report-high-risk-audit-history-proof",
+      "providerChannelRef": "in-app",
+      "reasonCodeRef": "social-high-risk-signal",
+      "auditRefs": [
+        "audit-ref-social-alert-report-audit-history-proof"
+      ],
+      "evidenceRefs": [
+        "evidence-social-alert-report-audit-history-proof"
+      ],
+      "policyRefs": [
+        "policy-ref-social-alert-report-audit-history-proof"
+      ],
+      "blockedReasonRefs": []
+    },
+    {
+      "handoffEntryId": "social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-account-approval-audit-history-proof",
+      "sourceStatus": "queued-local-outbox",
+      "sourceNotificationIntentRef": "social-alert-report-account-approval-audit-history-proof",
+      "sourceOutboxRecordRef": "local-outbox-record-social-alert-report-account-approval-audit-history-proof",
+      "providerChannelRef": "email",
+      "reasonCodeRef": "social-account-approval-needed",
+      "auditRefs": [
+        "audit-ref-social-alert-report-audit-history-proof"
+      ],
+      "evidenceRefs": [
+        "evidence-social-alert-report-audit-history-proof"
+      ],
+      "policyRefs": [
+        "policy-ref-social-alert-report-audit-history-proof"
+      ],
+      "blockedReasonRefs": []
+    },
+    {
+      "handoffEntryId": "social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-manual-required-audit-history-proof",
+      "sourceStatus": "manual-required",
+      "sourceNotificationIntentRef": "social-alert-report-manual-required-audit-history-proof",
+      "sourceOutboxRecordRef": null,
+      "providerChannelRef": "in-app",
+      "reasonCodeRef": "social-manual-review-required",
+      "auditRefs": [
+        "audit-ref-social-alert-report-audit-history-proof"
+      ],
+      "evidenceRefs": [
+        "evidence-social-alert-report-audit-history-proof"
+      ],
+      "policyRefs": [
+        "policy-ref-social-alert-report-audit-history-proof"
+      ],
+      "blockedReasonRefs": [
+        "provider preference setup before social alert/report audit history can queue"
+      ]
+    },
+    {
+      "handoffEntryId": "social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-unavailable-audit-history-proof",
+      "sourceStatus": "unavailable",
+      "sourceNotificationIntentRef": "social-alert-report-unavailable-audit-history-proof",
+      "sourceOutboxRecordRef": null,
+      "providerChannelRef": "in-app",
+      "reasonCodeRef": "social-capability-unavailable",
+      "auditRefs": [
+        "audit-ref-social-alert-report-audit-history-proof"
+      ],
+      "evidenceRefs": [
+        "evidence-social-alert-report-audit-history-proof"
+      ],
+      "policyRefs": [
+        "policy-ref-social-alert-report-audit-history-proof"
+      ],
+      "blockedReasonRefs": [
+        "local evidence and policy readiness before unavailable social alert/report audit history can queue"
+      ]
+    }
+  ],
+  "readModel": {
+    "schemaVersion": 1,
+    "handoffReadModelId": "social-alert-report-audit-history-bridge-proof",
+    "generatedAt": "2026-06-07T08:18:00Z",
+    "sourceReadModelRef": "social-alert-report-local-outbox-bridge-audit-history-proof",
+    "sourceContractRefs": [
+      "social-alert-report-local-outbox-bridge",
+      "notification-audit-history-handoff",
+      "notification-audit-history-contract",
+      "social-video-control-feature-doc",
+      "notification-expectations"
+    ],
+    "sourceRows": [
+      {
+        "handoffEntryId": "social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-high-risk-audit-history-proof",
+        "sourceStatus": "queued-local-outbox",
+        "sourceNotificationIntentRef": "social-alert-report-high-risk-audit-history-proof",
+        "sourceOutboxRecordRef": "local-outbox-record-social-alert-report-high-risk-audit-history-proof",
+        "providerChannelRef": "in-app",
+        "reasonCodeRef": "social-high-risk-signal",
+        "auditRefs": [
+          "audit-ref-social-alert-report-audit-history-proof"
+        ],
+        "evidenceRefs": [
+          "evidence-social-alert-report-audit-history-proof"
+        ],
+        "policyRefs": [
+          "policy-ref-social-alert-report-audit-history-proof"
+        ],
+        "blockedReasonRefs": []
+      },
+      {
+        "handoffEntryId": "social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-account-approval-audit-history-proof",
+        "sourceStatus": "queued-local-outbox",
+        "sourceNotificationIntentRef": "social-alert-report-account-approval-audit-history-proof",
+        "sourceOutboxRecordRef": "local-outbox-record-social-alert-report-account-approval-audit-history-proof",
+        "providerChannelRef": "email",
+        "reasonCodeRef": "social-account-approval-needed",
+        "auditRefs": [
+          "audit-ref-social-alert-report-audit-history-proof"
+        ],
+        "evidenceRefs": [
+          "evidence-social-alert-report-audit-history-proof"
+        ],
+        "policyRefs": [
+          "policy-ref-social-alert-report-audit-history-proof"
+        ],
+        "blockedReasonRefs": []
+      },
+      {
+        "handoffEntryId": "social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-manual-required-audit-history-proof",
+        "sourceStatus": "manual-required",
+        "sourceNotificationIntentRef": "social-alert-report-manual-required-audit-history-proof",
+        "sourceOutboxRecordRef": null,
+        "providerChannelRef": "in-app",
+        "reasonCodeRef": "social-manual-review-required",
+        "auditRefs": [
+          "audit-ref-social-alert-report-audit-history-proof"
+        ],
+        "evidenceRefs": [
+          "evidence-social-alert-report-audit-history-proof"
+        ],
+        "policyRefs": [
+          "policy-ref-social-alert-report-audit-history-proof"
+        ],
+        "blockedReasonRefs": [
+          "provider preference setup before social alert/report audit history can queue"
+        ]
+      },
+      {
+        "handoffEntryId": "social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-unavailable-audit-history-proof",
+        "sourceStatus": "unavailable",
+        "sourceNotificationIntentRef": "social-alert-report-unavailable-audit-history-proof",
+        "sourceOutboxRecordRef": null,
+        "providerChannelRef": "in-app",
+        "reasonCodeRef": "social-capability-unavailable",
+        "auditRefs": [
+          "audit-ref-social-alert-report-audit-history-proof"
+        ],
+        "evidenceRefs": [
+          "evidence-social-alert-report-audit-history-proof"
+        ],
+        "policyRefs": [
+          "policy-ref-social-alert-report-audit-history-proof"
+        ],
+        "blockedReasonRefs": [
+          "local evidence and policy readiness before unavailable social alert/report audit history can queue"
+        ]
+      }
+    ],
+    "auditHistoryEntries": [
+      {
+        "schemaVersion": 1,
+        "auditEntryId": "notification-audit-history-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-high-risk-audit-history-proof",
+        "providerStatus": "queued",
+        "retryLifecycleState": "not-scheduled",
+        "quietHoursState": "allow",
+        "escalationState": "none",
+        "payloadRedactionState": "minimal-operational-fields-only",
+        "childDataCustodyState": "no-ocentra-hosted-child-data",
+        "notificationIntentRef": "social-alert-report-high-risk-audit-history-proof",
+        "providerStatusRef": "provider-status-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-high-risk-audit-history-proof",
+        "providerAttemptRef": "provider-attempt-not-executed-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-high-risk-audit-history-proof",
+        "deliveryResultRef": "delivery-result-not-claimed-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-high-risk-audit-history-proof",
+        "retryLifecycleRef": "retry-lifecycle-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-high-risk-audit-history-proof",
+        "redactionPolicyRef": "notification-redaction-minimal-operational-fields",
+        "custodyPolicyRef": "notification-no-ocentra-hosted-child-data",
+        "auditRefs": [
+          "audit-ref-social-alert-report-audit-history-proof"
+        ],
+        "evidenceRefs": [
+          "evidence-social-alert-report-audit-history-proof"
+        ],
+        "receiptRefs": [],
+        "retryRefs": [],
+        "manualRequiredRefs": [],
+        "quietHoursRefs": [],
+        "escalationRefs": [],
+        "manualProofRequirements": [],
+        "redactionSafePayloadFields": [
+          "alert-id-ref",
+          "family-scope-ref",
+          "device-scope-ref",
+          "severity",
+          "reason-code",
+          "provider-channel",
+          "provider-status",
+          "retry-lifecycle-state",
+          "parent-action-link-ref",
+          "audit-entry-ref"
+        ],
+        "providerAdapterImplemented": false,
+        "sendAttemptExecuted": false,
+        "retryExecutionObserved": false,
+        "webhookReceiptIngested": false,
+        "providerCredentialPresent": false,
+        "notificationHistoryUiClaimed": false,
+        "rawChildDataIncluded": false,
+        "rawEvidencePayloadIncluded": false,
+        "sensitiveProviderPayloadIncluded": false,
+        "ocentraHostedChildDataStored": false,
+        "providerStoresChildEvidenceClaimed": false,
+        "lastCheckedAt": "2026-06-07T08:18:00Z"
+      },
+      {
+        "schemaVersion": 1,
+        "auditEntryId": "notification-audit-history-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-account-approval-audit-history-proof",
+        "providerStatus": "queued",
+        "retryLifecycleState": "not-scheduled",
+        "quietHoursState": "allow",
+        "escalationState": "none",
+        "payloadRedactionState": "minimal-operational-fields-only",
+        "childDataCustodyState": "no-ocentra-hosted-child-data",
+        "notificationIntentRef": "social-alert-report-account-approval-audit-history-proof",
+        "providerStatusRef": "provider-status-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-account-approval-audit-history-proof",
+        "providerAttemptRef": "provider-attempt-not-executed-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-account-approval-audit-history-proof",
+        "deliveryResultRef": "delivery-result-not-claimed-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-account-approval-audit-history-proof",
+        "retryLifecycleRef": "retry-lifecycle-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-account-approval-audit-history-proof",
+        "redactionPolicyRef": "notification-redaction-minimal-operational-fields",
+        "custodyPolicyRef": "notification-no-ocentra-hosted-child-data",
+        "auditRefs": [
+          "audit-ref-social-alert-report-audit-history-proof"
+        ],
+        "evidenceRefs": [
+          "evidence-social-alert-report-audit-history-proof"
+        ],
+        "receiptRefs": [],
+        "retryRefs": [],
+        "manualRequiredRefs": [],
+        "quietHoursRefs": [],
+        "escalationRefs": [],
+        "manualProofRequirements": [],
+        "redactionSafePayloadFields": [
+          "alert-id-ref",
+          "family-scope-ref",
+          "device-scope-ref",
+          "severity",
+          "reason-code",
+          "provider-channel",
+          "provider-status",
+          "retry-lifecycle-state",
+          "parent-action-link-ref",
+          "audit-entry-ref"
+        ],
+        "providerAdapterImplemented": false,
+        "sendAttemptExecuted": false,
+        "retryExecutionObserved": false,
+        "webhookReceiptIngested": false,
+        "providerCredentialPresent": false,
+        "notificationHistoryUiClaimed": false,
+        "rawChildDataIncluded": false,
+        "rawEvidencePayloadIncluded": false,
+        "sensitiveProviderPayloadIncluded": false,
+        "ocentraHostedChildDataStored": false,
+        "providerStoresChildEvidenceClaimed": false,
+        "lastCheckedAt": "2026-06-07T08:18:00Z"
+      },
+      {
+        "schemaVersion": 1,
+        "auditEntryId": "notification-audit-history-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-manual-required-audit-history-proof",
+        "providerStatus": "manual-required",
+        "retryLifecycleState": "manual-review-required",
+        "quietHoursState": "manual-required",
+        "escalationState": "manual-required",
+        "payloadRedactionState": "minimal-operational-fields-only",
+        "childDataCustodyState": "no-ocentra-hosted-child-data",
+        "notificationIntentRef": "social-alert-report-manual-required-audit-history-proof",
+        "providerStatusRef": "provider-status-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-manual-required-audit-history-proof",
+        "providerAttemptRef": "provider-attempt-not-executed-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-manual-required-audit-history-proof",
+        "deliveryResultRef": "delivery-result-not-claimed-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-manual-required-audit-history-proof",
+        "retryLifecycleRef": "retry-lifecycle-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-manual-required-audit-history-proof",
+        "redactionPolicyRef": "notification-redaction-minimal-operational-fields",
+        "custodyPolicyRef": "notification-no-ocentra-hosted-child-data",
+        "auditRefs": [
+          "audit-ref-social-alert-report-audit-history-proof"
+        ],
+        "evidenceRefs": [
+          "evidence-social-alert-report-audit-history-proof"
+        ],
+        "receiptRefs": [],
+        "retryRefs": [],
+        "manualRequiredRefs": [
+          "provider preference setup before social alert/report audit history can queue"
+        ],
+        "quietHoursRefs": [
+          "notification-quiet-hours-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-manual-required-audit-history-proof"
+        ],
+        "escalationRefs": [
+          "notification-escalation-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-manual-required-audit-history-proof"
+        ],
+        "manualProofRequirements": [
+          "provider preference setup before social alert/report audit history can queue"
+        ],
+        "redactionSafePayloadFields": [
+          "alert-id-ref",
+          "family-scope-ref",
+          "device-scope-ref",
+          "severity",
+          "reason-code",
+          "provider-channel",
+          "provider-status",
+          "retry-lifecycle-state",
+          "parent-action-link-ref",
+          "audit-entry-ref"
+        ],
+        "providerAdapterImplemented": false,
+        "sendAttemptExecuted": false,
+        "retryExecutionObserved": false,
+        "webhookReceiptIngested": false,
+        "providerCredentialPresent": false,
+        "notificationHistoryUiClaimed": false,
+        "rawChildDataIncluded": false,
+        "rawEvidencePayloadIncluded": false,
+        "sensitiveProviderPayloadIncluded": false,
+        "ocentraHostedChildDataStored": false,
+        "providerStoresChildEvidenceClaimed": false,
+        "lastCheckedAt": "2026-06-07T08:18:00Z"
+      },
+      {
+        "schemaVersion": 1,
+        "auditEntryId": "notification-audit-history-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-unavailable-audit-history-proof",
+        "providerStatus": "unavailable",
+        "retryLifecycleState": "provider-unavailable",
+        "quietHoursState": "unavailable",
+        "escalationState": "unavailable",
+        "payloadRedactionState": "minimal-operational-fields-only",
+        "childDataCustodyState": "no-ocentra-hosted-child-data",
+        "notificationIntentRef": "social-alert-report-unavailable-audit-history-proof",
+        "providerStatusRef": "provider-status-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-unavailable-audit-history-proof",
+        "providerAttemptRef": "provider-attempt-not-executed-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-unavailable-audit-history-proof",
+        "deliveryResultRef": "delivery-result-not-claimed-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-unavailable-audit-history-proof",
+        "retryLifecycleRef": "retry-lifecycle-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-unavailable-audit-history-proof",
+        "redactionPolicyRef": "notification-redaction-minimal-operational-fields",
+        "custodyPolicyRef": "notification-no-ocentra-hosted-child-data",
+        "auditRefs": [
+          "audit-ref-social-alert-report-audit-history-proof"
+        ],
+        "evidenceRefs": [
+          "evidence-social-alert-report-audit-history-proof"
+        ],
+        "receiptRefs": [],
+        "retryRefs": [],
+        "manualRequiredRefs": [
+          "local evidence and policy readiness before unavailable social alert/report audit history can queue"
+        ],
+        "quietHoursRefs": [
+          "notification-quiet-hours-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-unavailable-audit-history-proof"
+        ],
+        "escalationRefs": [
+          "notification-escalation-social-alert-report-audit-social-alert-report-outbox-bridge-social-alert-report-unavailable-audit-history-proof"
+        ],
+        "manualProofRequirements": [
+          "local evidence and policy readiness before unavailable social alert/report audit history can queue"
+        ],
+        "redactionSafePayloadFields": [
+          "alert-id-ref",
+          "family-scope-ref",
+          "device-scope-ref",
+          "severity",
+          "reason-code",
+          "provider-channel",
+          "provider-status",
+          "retry-lifecycle-state",
+          "parent-action-link-ref",
+          "audit-entry-ref"
+        ],
+        "providerAdapterImplemented": false,
+        "sendAttemptExecuted": false,
+        "retryExecutionObserved": false,
+        "webhookReceiptIngested": false,
+        "providerCredentialPresent": false,
+        "notificationHistoryUiClaimed": false,
+        "rawChildDataIncluded": false,
+        "rawEvidencePayloadIncluded": false,
+        "sensitiveProviderPayloadIncluded": false,
+        "ocentraHostedChildDataStored": false,
+        "providerStoresChildEvidenceClaimed": false,
+        "lastCheckedAt": "2026-06-07T08:18:00Z"
+      }
+    ],
+    "queuedAuditEntryCount": 2,
+    "manualRequiredAuditEntryCount": 1,
+    "unavailableAuditEntryCount": 1,
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "providerCredentialsClaimed": false,
+    "cloudRoutingClaimed": false,
+    "parentNotificationUiClaimed": false,
+    "childDeliveryClaimed": false,
+    "retryExecutionRuntimeClaimed": false,
+    "quietHoursTimerRuntimeClaimed": false,
+    "productionDurableOutboxStorageClaimed": false,
+    "adapterDispatchClaimed": false
+  },
+  "failures": []
+}

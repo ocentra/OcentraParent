@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import { AgentEvent, type AgentEventName } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
   PARENT_PORTAL_ROUTE,
   PortalDom,
@@ -27,6 +28,15 @@ import {
   AppGamePolicyReadinessRoutePanel,
   shouldRenderAppGamePolicyReadinessRoute,
 } from './AppGamePolicyReadinessRoutePanel';
+import {
+  BrowserParentExplanationRoutePanel,
+  shouldRenderBrowserParentExplanationRoute,
+} from './BrowserParentExplanationRoutePanel';
+import {
+  shouldRenderSocialAuditExplanationRoute,
+  SocialAuditExplanationRoutePanel,
+} from './SocialAuditExplanationRoutePanel';
+import { shouldRenderSocialAlertReportRoute, SocialAlertReportRoutePanel } from './SocialAlertReportRoutePanel';
 import { shouldRenderSocialDashboardRoute, SocialDashboardRoutePanel } from './SocialDashboardRoutePanel';
 import { ScreenSettingsRoutePanel, shouldRenderScreenSettingsRoute } from './ScreenSettingsRoutePanel';
 import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
@@ -50,6 +60,7 @@ export function ParentPortalRoute({
 }: ParentPortalRouteProps): ReactElement {
   const routeContext = parentPortalRouteContext(route);
   const activityState = resolveLiveActivityState(state.events);
+  const browserPanelEvent = resolveBrowserPanelEvent(state.selectedCommandResultEvent);
   const serviceState = resolveParentPortalServiceState({
     connectionState: state.connectionState,
     events: state.events,
@@ -111,10 +122,63 @@ export function ParentPortalRoute({
           readModelResult={activityState.appGamePolicyReadinessReadModel}
         />
       ) : null}
-      {shouldRenderSocialDashboardRoute(route) ? <SocialDashboardRoutePanel snapshot={null} /> : null}
+      {shouldRenderBrowserParentExplanationRoute(route) ? <BrowserParentExplanationRoutePanel /> : null}
+      {shouldRenderSocialAuditExplanationRoute(route) &&
+      browserPanelEvent === AgentEvent.BrowserSocialAuditExplanationReadModelReported ? (
+        <SocialAuditExplanationRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          events={state.events}
+        />
+      ) : null}
+      {shouldRenderSocialAlertReportRoute(route) &&
+      browserPanelEvent === AgentEvent.BrowserSocialAlertReportReadModelReported ? (
+        <SocialAlertReportRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          events={state.events}
+        />
+      ) : null}
+      {shouldRenderSocialDashboardRoute(route) &&
+      browserPanelEvent === AgentEvent.BrowserSocialDashboardReadModelReported ? (
+        <SocialDashboardRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          events={state.events}
+        />
+      ) : null}
       {shouldRenderScreenSettingsRoute(route) ? <ScreenSettingsRoutePanel /> : null}
     </div>
   );
+}
+
+function resolveBrowserPanelEvent(selectedEvent: AgentEventName): AgentEventName {
+  if (browserHashIncludes(AgentEvent.BrowserSocialAlertReportReadModelReported)) {
+    return AgentEvent.BrowserSocialAlertReportReadModelReported;
+  }
+  if (browserHashIncludes(AgentEvent.BrowserSocialAuditExplanationReadModelReported)) {
+    return AgentEvent.BrowserSocialAuditExplanationReadModelReported;
+  }
+  if (browserHashIncludes(AgentEvent.BrowserSocialDashboardReadModelReported)) {
+    return AgentEvent.BrowserSocialDashboardReadModelReported;
+  }
+  if (selectedEvent === AgentEvent.BrowserSocialAlertReportReadModelReported) {
+    return selectedEvent;
+  }
+  if (selectedEvent === AgentEvent.BrowserSocialAuditExplanationReadModelReported) {
+    return selectedEvent;
+  }
+  if (selectedEvent === AgentEvent.BrowserSocialDashboardReadModelReported) {
+    return selectedEvent;
+  }
+  return AgentEvent.BrowserSocialDashboardReadModelReported;
+}
+
+function browserHashIncludes(event: AgentEventName): boolean {
+  return window.location.hash
+    .split(PortalDom.HashQuerySeparator)
+    .slice(1)
+    .some((part) => part.includes(event));
 }
 
 function latestReportedAt(state: PortalRuntimeState): string {

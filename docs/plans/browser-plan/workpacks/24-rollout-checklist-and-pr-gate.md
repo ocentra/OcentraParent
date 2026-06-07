@@ -53,6 +53,9 @@ updates, and no overclaim regressions.
   and all remaining enhancement-track scope is complete.
 - Hub guard must be rerun before commit/PR after the accumulated dirty browser
   WIP is reconciled under the active lock.
+- `cmd /c node scripts/test/browser-plan-closure-audit-proof.mjs` records the
+  current browser-plan closure state and fails if any row outside the known
+  real-platform blockers remains unchecked or partial.
 
 ## AI Worker Checklist
 

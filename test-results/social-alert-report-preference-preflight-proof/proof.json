@@ -1,0 +1,913 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-alert-report-preference-preflight-proof",
+  "generatedAt": "2026-06-07T08:27:00Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "1ac6a9ee1b302f3b1ad6416d798b1bac938a761e",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-alert-report-preference-preflight social-alert-report-scheduler-bridge social-alert-report-local-outbox-bridge",
+      "exitCode": 0
+    }
+  ],
+  "checks": [
+    {
+      "label": "packages/parent-domain/src/social-alert-report-preference-preflight.ts exists",
+      "pass": true
+    },
+    {
+      "label": "packages/parent-domain/tests/social-alert-report-preference-preflight.test.ts exists",
+      "pass": true
+    },
+    {
+      "label": "scripts/test/social-alert-report-preference-preflight-proof.mjs exists",
+      "pass": true
+    },
+    {
+      "label": "preference UI non-claim",
+      "pass": true
+    },
+    {
+      "label": "quiet-hours runtime non-claim",
+      "pass": true
+    },
+    {
+      "label": "provider delivery non-claim",
+      "pass": true
+    },
+    {
+      "label": "final policy non-claim",
+      "pass": true
+    },
+    {
+      "label": "enforcement non-claim",
+      "pass": true
+    },
+    {
+      "label": "quiet-hours overclaim rejection test",
+      "pass": true
+    },
+    {
+      "label": "provider delivery overclaim rejection test",
+      "pass": true
+    },
+    {
+      "label": "social feature preference preflight note",
+      "pass": true
+    },
+    {
+      "label": "social expectation preference preflight note",
+      "pass": true
+    },
+    {
+      "label": "notification expectation preference preflight note",
+      "pass": true
+    },
+    {
+      "label": "social README preference preflight proof note",
+      "pass": true
+    }
+  ],
+  "summary": {
+    "sourceSchedulerRows": 4,
+    "parentPreferenceRequiredCount": 2,
+    "manualRequiredCount": 1,
+    "unavailableCount": 1,
+    "parentNotificationPreferenceUiClaimed": false,
+    "parentNotificationHistoryUiClaimed": false,
+    "parentFrequencyControlUiClaimed": false,
+    "quietHoursTimerRuntimeClaimed": false,
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "providerCredentialsClaimed": false,
+    "cloudRoutingClaimed": false,
+    "childDeliveryClaimed": false,
+    "retryExecutionRuntimeClaimed": false,
+    "productionDurableOutboxStorageClaimed": false,
+    "adapterDispatchClaimed": false,
+    "reportDeliveryExecutionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "claimsProved": [
+    "Social alert/report scheduler bridge rows can be projected into parent notification preference preflight rows",
+    "Scheduled local rows require parent notification preference setup, frequency control setup, and quiet-hours policy proof before delivery can be claimed",
+    "Manual-required and unavailable scheduler rows stay blocked before preference preflight",
+    "The proof reuses the existing notification preference and quiet-hours state contracts"
+  ],
+  "claimsNotProved": [
+    "parent notification preference UI",
+    "parent notification history UI",
+    "parent frequency control UI",
+    "production quiet-hours timer execution",
+    "provider dispatch or provider delivery",
+    "provider credentials or receipt ingestion",
+    "child delivery",
+    "retry worker execution",
+    "durable production outbox storage",
+    "external report delivery execution",
+    "final policy evaluator execution",
+    "connector or native-app runtime",
+    "enforcement",
+    "product checklist completion"
+  ],
+  "evidence": {
+    "source": "packages/parent-domain/src/social-alert-report-preference-preflight.ts",
+    "test": "packages/parent-domain/tests/social-alert-report-preference-preflight.test.ts",
+    "schedulerBridge": "packages/parent-domain/src/social-alert-report-scheduler-bridge.ts",
+    "localOutboxBridge": "packages/parent-domain/src/social-alert-report-local-outbox-bridge.ts",
+    "harness": "scripts/test/social-alert-report-preference-preflight-proof.mjs",
+    "proof": "test-results/social-alert-report-preference-preflight-proof/proof.json",
+    "readModel": "test-results/social-alert-report-preference-preflight-proof/preference-preflight-read-model.json",
+    "manifest": "output/browser-plan-proof/social-alert-report-preference-preflight-proof/01-social-alert-report-preference-preflight-proof.md"
+  },
+  "sourceReadModel": {
+    "schemaVersion": "v0.6",
+    "bridgeId": "social-alert-report-local-outbox-bridge-for-preference-preflight",
+    "generatedAt": "2026-06-07T08:27:00Z",
+    "family": {
+      "familyId": "family-social-alert-report-preference-preflight"
+    },
+    "outboxRootRef": "parent-owned-social-alert-report-local-outbox-root-for-preference",
+    "rows": [
+      {
+        "bridgeRecordId": "social-alert-report-outbox-bridge-social-alert-report-high-risk-preference",
+        "status": "linked-local-outbox-record",
+        "intent": {
+          "schemaVersion": "v0.6",
+          "alertReportIntentId": "social-alert-report-high-risk-preference",
+          "intentKind": "high-risk-signal",
+          "intentStatus": "local-outbox-eligible",
+          "priority": "urgent",
+          "severity": "critical",
+          "device": {
+            "deviceId": "device-social-alert-report-preference-preflight",
+            "childProfileId": "child-social-alert-report-preference-preflight",
+            "label": "Study Phone",
+            "platform": "android"
+          },
+          "notificationReasonCode": "social-high-risk-signal",
+          "providerChannelPreference": "in-app",
+          "parentTitleToken": "social.alert.highRisk.title",
+          "parentBodyToken": "social.alert.highRisk.body",
+          "parentActionToken": "social.alert.action.openParentReview",
+          "dashboardPanelRefs": [
+            "panel-feed-video-gates"
+          ],
+          "explanationSnapshotRef": "social-explanation-snapshot-preference",
+          "explanationEventRefs": [
+            "social-explanation-event-preference"
+          ],
+          "evidenceReferences": [
+            {
+              "evidenceReferenceId": "evidence-social-alert-report-preference",
+              "kind": "policy-decision",
+              "observedAt": "2026-06-07T08:27:00Z"
+            }
+          ],
+          "policyRefs": [
+            "policy-ref-social-alert-report-preference"
+          ],
+          "auditRefs": [
+            "audit-ref-social-alert-report-preference"
+          ],
+          "parentReportRef": null,
+          "parentActionRef": {
+            "actionReferenceId": "parent-action-social-alert-report-preference-preflight",
+            "actor": {
+              "actorId": "parent-social-alert-report-preference-preflight",
+              "role": "parent"
+            },
+            "policyVersion": "policy-social-alert-report-preference-preflight-v1",
+            "createdAt": "2026-06-07T08:27:00Z"
+          },
+          "localOutboxRecordRef": "local-outbox-record-social-alert-report-high-risk-preference",
+          "providerAttemptRefs": [],
+          "providerReceiptRefs": [],
+          "manualProofRequirements": [],
+          "minimalPayloadFields": [
+            "alert-id",
+            "family-device-scope",
+            "severity",
+            "reason-code",
+            "evidence-ref",
+            "policy-ref",
+            "explanation-ref",
+            "parent-action-link-ref"
+          ],
+          "deliveryClaimState": "local-outbox-only",
+          "rawAccountDataIncluded": false,
+          "rawVideoContentIncluded": false,
+          "rawMessageContentIncluded": false,
+          "screenshotIncluded": false,
+          "providerDeliveryAttempted": false,
+          "providerDeliveryObserved": false,
+          "providerReceiptIngested": false,
+          "cloudRoutingClaimed": false,
+          "parentNotificationUiClaimed": false,
+          "reportDeliveryClaimed": false,
+          "finalPolicyDecisionClaimed": false,
+          "enforcementClaimed": false,
+          "adapterDispatchState": "not-dispatched",
+          "adapterActionClaimed": false,
+          "createdAt": "2026-06-07T08:27:00Z"
+        },
+        "outboxRecord": {
+          "entryId": "local-outbox-record-social-alert-report-high-risk-preference",
+          "state": "queued-local",
+          "envelope": {
+            "alertRef": "social-alert-report-notification-social-alert-report-high-risk-preference",
+            "family": {
+              "familyId": "family-social-alert-report-preference-preflight"
+            },
+            "device": {
+              "deviceId": "device-social-alert-report-preference-preflight",
+              "childProfileId": "child-social-alert-report-preference-preflight",
+              "label": "Study Phone",
+              "platform": "android"
+            },
+            "parentAction": {
+              "actionReferenceId": "parent-action-social-alert-report-preference-preflight",
+              "actor": {
+                "actorId": "parent-social-alert-report-preference-preflight",
+                "role": "parent"
+              },
+              "policyVersion": "policy-social-alert-report-preference-preflight-v1",
+              "createdAt": "2026-06-07T08:27:00Z"
+            },
+            "severity": "urgent",
+            "reasonCode": "policy-violation",
+            "providerChannel": "in-app",
+            "evidenceRefs": [
+              {
+                "evidenceReferenceId": "evidence-social-alert-report-preference",
+                "kind": "policy-decision",
+                "observedAt": "2026-06-07T08:27:00Z"
+              }
+            ],
+            "policyRefs": [
+              "policy-ref-social-alert-report-preference"
+            ],
+            "auditRefs": [
+              "audit-ref-social-alert-report-preference"
+            ],
+            "payloadTemplateRef": "social.alert.highRisk.body",
+            "providerPayloadPreview": "alert id, family device scope, severity, reason code, evidence ref, policy ref, parent action link",
+            "sensitiveDetailMinimized": true,
+            "rawChildEvidenceIncluded": false,
+            "rawUrlOrTitleIncluded": false,
+            "rawMessageTextIncluded": false,
+            "screenshotOrReportIncluded": false
+          },
+          "outboxFileRef": "parent-owned-social-alert-report-local-outbox-jsonl-for-preference",
+          "localDataPathRef": "parent-owned-social-alert-report-local-outbox-data-path-for-preference",
+          "deliveryClaimState": "local-outbox-only",
+          "visibleAfterAt": null,
+          "retryAttemptCount": 0,
+          "quietHoursRef": null,
+          "retryPolicyRef": null,
+          "deadLetterRef": null,
+          "providerReceiptRef": null,
+          "manualProofRequirements": [],
+          "manualActionRequired": false,
+          "providerDeliveryAttempted": false,
+          "providerDeliveryObserved": false,
+          "providerReceiptIngested": false,
+          "providerCredentialsStored": false,
+          "cloudRoutingClaimed": false,
+          "parentNotificationUiClaimed": false,
+          "sensitiveProviderMetadataStored": false
+        },
+        "blockedReasonRefs": []
+      },
+      {
+        "bridgeRecordId": "social-alert-report-outbox-bridge-social-alert-report-account-approval-preference",
+        "status": "linked-local-outbox-record",
+        "intent": {
+          "schemaVersion": "v0.6",
+          "alertReportIntentId": "social-alert-report-account-approval-preference",
+          "intentKind": "account-approval-needed",
+          "intentStatus": "local-outbox-eligible",
+          "priority": "attention",
+          "severity": "warning",
+          "device": {
+            "deviceId": "device-social-alert-report-preference-preflight",
+            "childProfileId": "child-social-alert-report-preference-preflight",
+            "label": "Study Phone",
+            "platform": "android"
+          },
+          "notificationReasonCode": "social-account-approval-needed",
+          "providerChannelPreference": "email",
+          "parentTitleToken": "social.alert.accountApproval.title",
+          "parentBodyToken": "social.alert.accountApproval.body",
+          "parentActionToken": "social.alert.action.openParentReview",
+          "dashboardPanelRefs": [
+            "panel-feed-video-gates"
+          ],
+          "explanationSnapshotRef": "social-explanation-snapshot-preference",
+          "explanationEventRefs": [
+            "social-explanation-event-preference"
+          ],
+          "evidenceReferences": [
+            {
+              "evidenceReferenceId": "evidence-social-alert-report-preference",
+              "kind": "policy-decision",
+              "observedAt": "2026-06-07T08:27:00Z"
+            }
+          ],
+          "policyRefs": [
+            "policy-ref-social-alert-report-preference"
+          ],
+          "auditRefs": [
+            "audit-ref-social-alert-report-preference"
+          ],
+          "parentReportRef": null,
+          "parentActionRef": {
+            "actionReferenceId": "parent-action-social-alert-report-preference-preflight",
+            "actor": {
+              "actorId": "parent-social-alert-report-preference-preflight",
+              "role": "parent"
+            },
+            "policyVersion": "policy-social-alert-report-preference-preflight-v1",
+            "createdAt": "2026-06-07T08:27:00Z"
+          },
+          "localOutboxRecordRef": "local-outbox-record-social-alert-report-account-approval-preference",
+          "providerAttemptRefs": [],
+          "providerReceiptRefs": [],
+          "manualProofRequirements": [],
+          "minimalPayloadFields": [
+            "alert-id",
+            "family-device-scope",
+            "severity",
+            "reason-code",
+            "evidence-ref",
+            "policy-ref",
+            "explanation-ref",
+            "parent-action-link-ref"
+          ],
+          "deliveryClaimState": "local-outbox-only",
+          "rawAccountDataIncluded": false,
+          "rawVideoContentIncluded": false,
+          "rawMessageContentIncluded": false,
+          "screenshotIncluded": false,
+          "providerDeliveryAttempted": false,
+          "providerDeliveryObserved": false,
+          "providerReceiptIngested": false,
+          "cloudRoutingClaimed": false,
+          "parentNotificationUiClaimed": false,
+          "reportDeliveryClaimed": false,
+          "finalPolicyDecisionClaimed": false,
+          "enforcementClaimed": false,
+          "adapterDispatchState": "not-dispatched",
+          "adapterActionClaimed": false,
+          "createdAt": "2026-06-07T08:27:00Z"
+        },
+        "outboxRecord": {
+          "entryId": "local-outbox-record-social-alert-report-account-approval-preference",
+          "state": "queued-local",
+          "envelope": {
+            "alertRef": "social-alert-report-notification-social-alert-report-account-approval-preference",
+            "family": {
+              "familyId": "family-social-alert-report-preference-preflight"
+            },
+            "device": {
+              "deviceId": "device-social-alert-report-preference-preflight",
+              "childProfileId": "child-social-alert-report-preference-preflight",
+              "label": "Study Phone",
+              "platform": "android"
+            },
+            "parentAction": {
+              "actionReferenceId": "parent-action-social-alert-report-preference-preflight",
+              "actor": {
+                "actorId": "parent-social-alert-report-preference-preflight",
+                "role": "parent"
+              },
+              "policyVersion": "policy-social-alert-report-preference-preflight-v1",
+              "createdAt": "2026-06-07T08:27:00Z"
+            },
+            "severity": "attention",
+            "reasonCode": "parent-request",
+            "providerChannel": "email",
+            "evidenceRefs": [
+              {
+                "evidenceReferenceId": "evidence-social-alert-report-preference",
+                "kind": "policy-decision",
+                "observedAt": "2026-06-07T08:27:00Z"
+              }
+            ],
+            "policyRefs": [
+              "policy-ref-social-alert-report-preference"
+            ],
+            "auditRefs": [
+              "audit-ref-social-alert-report-preference"
+            ],
+            "payloadTemplateRef": "social.alert.accountApproval.body",
+            "providerPayloadPreview": "alert id, family device scope, severity, reason code, evidence ref, policy ref, parent action link",
+            "sensitiveDetailMinimized": true,
+            "rawChildEvidenceIncluded": false,
+            "rawUrlOrTitleIncluded": false,
+            "rawMessageTextIncluded": false,
+            "screenshotOrReportIncluded": false
+          },
+          "outboxFileRef": "parent-owned-social-alert-report-local-outbox-jsonl-for-preference",
+          "localDataPathRef": "parent-owned-social-alert-report-local-outbox-data-path-for-preference",
+          "deliveryClaimState": "local-outbox-only",
+          "visibleAfterAt": null,
+          "retryAttemptCount": 0,
+          "quietHoursRef": null,
+          "retryPolicyRef": null,
+          "deadLetterRef": null,
+          "providerReceiptRef": null,
+          "manualProofRequirements": [],
+          "manualActionRequired": false,
+          "providerDeliveryAttempted": false,
+          "providerDeliveryObserved": false,
+          "providerReceiptIngested": false,
+          "providerCredentialsStored": false,
+          "cloudRoutingClaimed": false,
+          "parentNotificationUiClaimed": false,
+          "sensitiveProviderMetadataStored": false
+        },
+        "blockedReasonRefs": []
+      },
+      {
+        "bridgeRecordId": "social-alert-report-outbox-bridge-social-alert-report-manual-required-preference",
+        "status": "manual-required",
+        "intent": {
+          "schemaVersion": "v0.6",
+          "alertReportIntentId": "social-alert-report-manual-required-preference",
+          "intentKind": "manual-required",
+          "intentStatus": "manual-required",
+          "priority": "attention",
+          "severity": "warning",
+          "device": {
+            "deviceId": "device-social-alert-report-preference-preflight",
+            "childProfileId": "child-social-alert-report-preference-preflight",
+            "label": "Study Phone",
+            "platform": "android"
+          },
+          "notificationReasonCode": "social-manual-review-required",
+          "providerChannelPreference": "in-app",
+          "parentTitleToken": "social.alert.manualRequired.title",
+          "parentBodyToken": "social.alert.manualRequired.body",
+          "parentActionToken": "social.alert.action.reviewManually",
+          "dashboardPanelRefs": [
+            "panel-feed-video-gates"
+          ],
+          "explanationSnapshotRef": "social-explanation-snapshot-preference",
+          "explanationEventRefs": [
+            "social-explanation-event-preference"
+          ],
+          "evidenceReferences": [
+            {
+              "evidenceReferenceId": "evidence-social-alert-report-preference",
+              "kind": "policy-decision",
+              "observedAt": "2026-06-07T08:27:00Z"
+            }
+          ],
+          "policyRefs": [
+            "policy-ref-social-alert-report-preference"
+          ],
+          "auditRefs": [
+            "audit-ref-social-alert-report-preference"
+          ],
+          "parentReportRef": null,
+          "parentActionRef": {
+            "actionReferenceId": "parent-action-social-alert-report-preference-preflight",
+            "actor": {
+              "actorId": "parent-social-alert-report-preference-preflight",
+              "role": "parent"
+            },
+            "policyVersion": "policy-social-alert-report-preference-preflight-v1",
+            "createdAt": "2026-06-07T08:27:00Z"
+          },
+          "localOutboxRecordRef": null,
+          "providerAttemptRefs": [],
+          "providerReceiptRefs": [],
+          "manualProofRequirements": [
+            "provider preference setup before social alert/report can be queued"
+          ],
+          "minimalPayloadFields": [
+            "alert-id",
+            "family-device-scope",
+            "severity",
+            "reason-code",
+            "evidence-ref",
+            "policy-ref",
+            "explanation-ref",
+            "parent-action-link-ref"
+          ],
+          "deliveryClaimState": "manual-required",
+          "rawAccountDataIncluded": false,
+          "rawVideoContentIncluded": false,
+          "rawMessageContentIncluded": false,
+          "screenshotIncluded": false,
+          "providerDeliveryAttempted": false,
+          "providerDeliveryObserved": false,
+          "providerReceiptIngested": false,
+          "cloudRoutingClaimed": false,
+          "parentNotificationUiClaimed": false,
+          "reportDeliveryClaimed": false,
+          "finalPolicyDecisionClaimed": false,
+          "enforcementClaimed": false,
+          "adapterDispatchState": "not-dispatched",
+          "adapterActionClaimed": false,
+          "createdAt": "2026-06-07T08:27:00Z"
+        },
+        "outboxRecord": null,
+        "blockedReasonRefs": [
+          "provider preference setup before social alert/report can be queued"
+        ]
+      },
+      {
+        "bridgeRecordId": "social-alert-report-outbox-bridge-social-alert-report-unavailable-preference",
+        "status": "unavailable",
+        "intent": {
+          "schemaVersion": "v0.6",
+          "alertReportIntentId": "social-alert-report-unavailable-preference",
+          "intentKind": "capability-unavailable",
+          "intentStatus": "unavailable",
+          "priority": "info",
+          "severity": "info",
+          "device": {
+            "deviceId": "device-social-alert-report-preference-preflight",
+            "childProfileId": "child-social-alert-report-preference-preflight",
+            "label": "Study Phone",
+            "platform": "android"
+          },
+          "notificationReasonCode": "social-capability-unavailable",
+          "providerChannelPreference": "in-app",
+          "parentTitleToken": "social.alert.unavailable.title",
+          "parentBodyToken": "social.alert.unavailable.body",
+          "parentActionToken": "social.alert.action.reviewManually",
+          "dashboardPanelRefs": [
+            "panel-feed-video-gates"
+          ],
+          "explanationSnapshotRef": "social-explanation-snapshot-preference",
+          "explanationEventRefs": [
+            "social-explanation-event-preference"
+          ],
+          "evidenceReferences": [
+            {
+              "evidenceReferenceId": "evidence-social-alert-report-preference",
+              "kind": "policy-decision",
+              "observedAt": "2026-06-07T08:27:00Z"
+            }
+          ],
+          "policyRefs": [
+            "policy-ref-social-alert-report-preference"
+          ],
+          "auditRefs": [
+            "audit-ref-social-alert-report-preference"
+          ],
+          "parentReportRef": null,
+          "parentActionRef": {
+            "actionReferenceId": "parent-action-social-alert-report-preference-preflight",
+            "actor": {
+              "actorId": "parent-social-alert-report-preference-preflight",
+              "role": "parent"
+            },
+            "policyVersion": "policy-social-alert-report-preference-preflight-v1",
+            "createdAt": "2026-06-07T08:27:00Z"
+          },
+          "localOutboxRecordRef": null,
+          "providerAttemptRefs": [],
+          "providerReceiptRefs": [],
+          "manualProofRequirements": [
+            "local evidence and policy readiness before unavailable social alert/report can be queued"
+          ],
+          "minimalPayloadFields": [
+            "alert-id",
+            "family-device-scope",
+            "severity",
+            "reason-code",
+            "evidence-ref",
+            "policy-ref",
+            "explanation-ref",
+            "parent-action-link-ref"
+          ],
+          "deliveryClaimState": "manual-required",
+          "rawAccountDataIncluded": false,
+          "rawVideoContentIncluded": false,
+          "rawMessageContentIncluded": false,
+          "screenshotIncluded": false,
+          "providerDeliveryAttempted": false,
+          "providerDeliveryObserved": false,
+          "providerReceiptIngested": false,
+          "cloudRoutingClaimed": false,
+          "parentNotificationUiClaimed": false,
+          "reportDeliveryClaimed": false,
+          "finalPolicyDecisionClaimed": false,
+          "enforcementClaimed": false,
+          "adapterDispatchState": "not-dispatched",
+          "adapterActionClaimed": false,
+          "createdAt": "2026-06-07T08:27:00Z"
+        },
+        "outboxRecord": null,
+        "blockedReasonRefs": [
+          "local evidence and policy readiness before unavailable social alert/report can be queued"
+        ]
+      }
+    ],
+    "linkedRecordCount": 2,
+    "manualRequiredCount": 1,
+    "unavailableCount": 1,
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "schedulerRuntimeClaimed": false,
+    "cloudRoutingClaimed": false,
+    "parentNotificationUiClaimed": false,
+    "reportDeliveryExecutionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "schedulerReadModel": {
+    "schemaVersion": "v0.6",
+    "schedulerBridgeId": "social-alert-report-scheduler-bridge-for-preference-preflight",
+    "generatedAt": "2026-06-07T08:27:00Z",
+    "family": {
+      "familyId": "family-social-alert-report-preference-preflight"
+    },
+    "sourceOutboxBridgeId": "social-alert-report-local-outbox-bridge-for-preference-preflight",
+    "schedulerArtifactRootRef": "parent-owned-social-alert-report-scheduler-root-for-preference",
+    "schedulerNowAt": "2026-06-07T08:27:00Z",
+    "rows": [
+      {
+        "schedulerBridgeRecordId": "social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-high-risk-preference",
+        "sourceBridgeRecordId": "social-alert-report-outbox-bridge-social-alert-report-high-risk-preference",
+        "status": "scheduled-local-proof-row",
+        "sourceOutboxRecordRef": "local-outbox-record-social-alert-report-high-risk-preference",
+        "schedulerRecord": {
+          "schedulerEntryId": "social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference",
+          "sourceEntryId": "local-outbox-record-social-alert-report-high-risk-preference",
+          "sourceState": "queued-local",
+          "schedulerState": "due-local",
+          "reasonCode": "policy-violation",
+          "providerChannel": "in-app",
+          "severity": "urgent",
+          "schedulerDecisionRef": "social-alert-report-scheduler-decision-social-alert-report-high-risk-preference",
+          "schedulerArtifactRef": "parent-owned-social-alert-report-scheduler-jsonl-ref-for-preference",
+          "sourceOutboxFileRef": "parent-owned-social-alert-report-local-outbox-jsonl-for-preference",
+          "localDataPathRef": "parent-owned-social-alert-report-local-outbox-data-path-for-preference",
+          "schedulerNowAt": "2026-06-07T08:27:00Z",
+          "nextAttemptAt": "2026-06-07T08:27:00Z",
+          "quietHoursWindow": null,
+          "retryWindow": null,
+          "deadLetterReviewRef": null,
+          "providerReceiptRef": null,
+          "manualProofRequirements": [],
+          "manualActionRequired": false,
+          "parentOwnedArtifactWritten": true,
+          "rawChildEvidenceIncluded": false,
+          "rawUrlOrTitleIncluded": false,
+          "rawMessageTextIncluded": false,
+          "screenshotOrReportIncluded": false,
+          "providerDeliveryAttempted": false,
+          "providerDeliveryObserved": false,
+          "providerReceiptIngested": false,
+          "providerCredentialsStored": false,
+          "cloudRoutingClaimed": false,
+          "parentNotificationUiClaimed": false,
+          "productionDurableOutboxStorageClaimed": false,
+          "sensitiveProviderMetadataStored": false,
+          "schedulerPayloadPreview": "alert id, social reason, evidence ref, explanation ref, scheduler due marker, parent action link"
+        },
+        "blockedReasonRefs": []
+      },
+      {
+        "schedulerBridgeRecordId": "social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-account-approval-preference",
+        "sourceBridgeRecordId": "social-alert-report-outbox-bridge-social-alert-report-account-approval-preference",
+        "status": "scheduled-local-proof-row",
+        "sourceOutboxRecordRef": "local-outbox-record-social-alert-report-account-approval-preference",
+        "schedulerRecord": {
+          "schedulerEntryId": "social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference",
+          "sourceEntryId": "local-outbox-record-social-alert-report-account-approval-preference",
+          "sourceState": "queued-local",
+          "schedulerState": "due-local",
+          "reasonCode": "parent-request",
+          "providerChannel": "email",
+          "severity": "attention",
+          "schedulerDecisionRef": "social-alert-report-scheduler-decision-social-alert-report-account-approval-preference",
+          "schedulerArtifactRef": "parent-owned-social-alert-report-scheduler-jsonl-ref-for-preference",
+          "sourceOutboxFileRef": "parent-owned-social-alert-report-local-outbox-jsonl-for-preference",
+          "localDataPathRef": "parent-owned-social-alert-report-local-outbox-data-path-for-preference",
+          "schedulerNowAt": "2026-06-07T08:27:00Z",
+          "nextAttemptAt": "2026-06-07T08:27:00Z",
+          "quietHoursWindow": null,
+          "retryWindow": null,
+          "deadLetterReviewRef": null,
+          "providerReceiptRef": null,
+          "manualProofRequirements": [],
+          "manualActionRequired": false,
+          "parentOwnedArtifactWritten": true,
+          "rawChildEvidenceIncluded": false,
+          "rawUrlOrTitleIncluded": false,
+          "rawMessageTextIncluded": false,
+          "screenshotOrReportIncluded": false,
+          "providerDeliveryAttempted": false,
+          "providerDeliveryObserved": false,
+          "providerReceiptIngested": false,
+          "providerCredentialsStored": false,
+          "cloudRoutingClaimed": false,
+          "parentNotificationUiClaimed": false,
+          "productionDurableOutboxStorageClaimed": false,
+          "sensitiveProviderMetadataStored": false,
+          "schedulerPayloadPreview": "alert id, social reason, evidence ref, explanation ref, scheduler due marker, parent action link"
+        },
+        "blockedReasonRefs": []
+      },
+      {
+        "schedulerBridgeRecordId": "social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-manual-required-preference",
+        "sourceBridgeRecordId": "social-alert-report-outbox-bridge-social-alert-report-manual-required-preference",
+        "status": "not-scheduled-manual-required",
+        "sourceOutboxRecordRef": null,
+        "schedulerRecord": null,
+        "blockedReasonRefs": [
+          "provider preference setup before social alert/report can be queued"
+        ]
+      },
+      {
+        "schedulerBridgeRecordId": "social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-unavailable-preference",
+        "sourceBridgeRecordId": "social-alert-report-outbox-bridge-social-alert-report-unavailable-preference",
+        "status": "not-scheduled-unavailable",
+        "sourceOutboxRecordRef": null,
+        "schedulerRecord": null,
+        "blockedReasonRefs": [
+          "local evidence and policy readiness before unavailable social alert/report can be queued"
+        ]
+      }
+    ],
+    "scheduledRecordCount": 2,
+    "unscheduledManualRequiredCount": 1,
+    "unscheduledUnavailableCount": 1,
+    "schedulerNonClaims": [
+      "no-provider-delivery-execution",
+      "no-provider-receipt-ingestion",
+      "no-provider-credentials",
+      "no-cloud-routing",
+      "no-parent-notification-ui",
+      "no-production-durable-outbox-storage",
+      "no-sensitive-detail-storage"
+    ],
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "providerCredentialsClaimed": false,
+    "cloudRoutingClaimed": false,
+    "parentNotificationUiClaimed": false,
+    "childDeliveryClaimed": false,
+    "retryExecutionRuntimeClaimed": false,
+    "quietHoursTimerRuntimeClaimed": false,
+    "productionDurableOutboxStorageClaimed": false,
+    "adapterDispatchClaimed": false,
+    "reportDeliveryExecutionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "readModel": {
+    "schemaVersion": "v0.6",
+    "preferencePreflightId": "social-alert-report-preference-preflight-proof",
+    "generatedAt": "2026-06-07T08:27:00Z",
+    "family": {
+      "familyId": "family-social-alert-report-preference-preflight"
+    },
+    "sourceSchedulerBridgeId": "social-alert-report-scheduler-bridge-for-preference-preflight",
+    "sourceContractRefs": [
+      "social-alert-report-scheduler-bridge",
+      "notification-parent-preference-boundary",
+      "notification-quiet-hours-policy-boundary",
+      "social-video-control-expectation"
+    ],
+    "rows": [
+      {
+        "preferenceRowId": "social-alert-report-preference-preflight-social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-high-risk-preference",
+        "sourceSchedulerBridgeRecordId": "social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-high-risk-preference",
+        "status": "parent-preference-required",
+        "sourceSchedulerEntryRef": "social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference",
+        "sourceOutboxRecordRef": "local-outbox-record-social-alert-report-high-risk-preference",
+        "providerChannelRef": "in-app",
+        "reasonCodeRef": "policy-violation",
+        "schedulerDecisionRef": "social-alert-report-scheduler-decision-social-alert-report-high-risk-preference",
+        "parentPreferenceState": "manual-setup-required",
+        "quietHoursDecision": "manual-required",
+        "parentPreferenceRequirementRefs": [
+          "social-parent-notification-preference-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference",
+          "social-notification-frequency-control-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference"
+        ],
+        "quietHoursRequirementRefs": [
+          "social-quiet-hours-policy-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference"
+        ],
+        "manualProofRequirements": [
+          "social-parent-notification-preference-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference",
+          "social-notification-frequency-control-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference",
+          "social-quiet-hours-policy-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-high-risk-preference"
+        ]
+      },
+      {
+        "preferenceRowId": "social-alert-report-preference-preflight-social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-account-approval-preference",
+        "sourceSchedulerBridgeRecordId": "social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-account-approval-preference",
+        "status": "parent-preference-required",
+        "sourceSchedulerEntryRef": "social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference",
+        "sourceOutboxRecordRef": "local-outbox-record-social-alert-report-account-approval-preference",
+        "providerChannelRef": "email",
+        "reasonCodeRef": "parent-request",
+        "schedulerDecisionRef": "social-alert-report-scheduler-decision-social-alert-report-account-approval-preference",
+        "parentPreferenceState": "manual-setup-required",
+        "quietHoursDecision": "manual-required",
+        "parentPreferenceRequirementRefs": [
+          "social-parent-notification-preference-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference",
+          "social-notification-frequency-control-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference"
+        ],
+        "quietHoursRequirementRefs": [
+          "social-quiet-hours-policy-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference"
+        ],
+        "manualProofRequirements": [
+          "social-parent-notification-preference-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference",
+          "social-notification-frequency-control-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference",
+          "social-quiet-hours-policy-required-social-alert-report-scheduler-local-outbox-record-social-alert-report-account-approval-preference"
+        ]
+      },
+      {
+        "preferenceRowId": "social-alert-report-preference-preflight-social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-manual-required-preference",
+        "sourceSchedulerBridgeRecordId": "social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-manual-required-preference",
+        "status": "source-manual-required",
+        "sourceSchedulerEntryRef": null,
+        "sourceOutboxRecordRef": null,
+        "providerChannelRef": null,
+        "reasonCodeRef": null,
+        "schedulerDecisionRef": null,
+        "parentPreferenceState": null,
+        "quietHoursDecision": null,
+        "parentPreferenceRequirementRefs": [
+          "provider preference setup before social alert/report can be queued"
+        ],
+        "quietHoursRequirementRefs": [
+          "provider preference setup before social alert/report can be queued"
+        ],
+        "manualProofRequirements": [
+          "provider preference setup before social alert/report can be queued"
+        ]
+      },
+      {
+        "preferenceRowId": "social-alert-report-preference-preflight-social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-unavailable-preference",
+        "sourceSchedulerBridgeRecordId": "social-alert-report-scheduler-bridge-social-alert-report-outbox-bridge-social-alert-report-unavailable-preference",
+        "status": "source-unavailable",
+        "sourceSchedulerEntryRef": null,
+        "sourceOutboxRecordRef": null,
+        "providerChannelRef": null,
+        "reasonCodeRef": null,
+        "schedulerDecisionRef": null,
+        "parentPreferenceState": null,
+        "quietHoursDecision": null,
+        "parentPreferenceRequirementRefs": [
+          "local evidence and policy readiness before unavailable social alert/report can be queued"
+        ],
+        "quietHoursRequirementRefs": [
+          "local evidence and policy readiness before unavailable social alert/report can be queued"
+        ],
+        "manualProofRequirements": [
+          "local evidence and policy readiness before unavailable social alert/report can be queued"
+        ]
+      }
+    ],
+    "parentPreferenceRequiredCount": 2,
+    "manualRequiredCount": 1,
+    "unavailableCount": 1,
+    "preflightNonClaims": [
+      "no-parent-notification-preference-ui",
+      "no-parent-notification-history-ui",
+      "no-parent-frequency-control-ui",
+      "no-quiet-hours-timer-runtime",
+      "no-provider-delivery-execution",
+      "no-provider-receipt-ingestion",
+      "no-provider-credentials",
+      "no-cloud-routing",
+      "no-child-delivery",
+      "no-retry-worker-runtime",
+      "no-production-durable-outbox-storage",
+      "no-adapter-dispatch",
+      "no-report-delivery-execution",
+      "no-final-policy-execution",
+      "no-enforcement"
+    ],
+    "parentNotificationPreferenceUiClaimed": false,
+    "parentNotificationHistoryUiClaimed": false,
+    "parentFrequencyControlUiClaimed": false,
+    "quietHoursTimerRuntimeClaimed": false,
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "providerCredentialsClaimed": false,
+    "cloudRoutingClaimed": false,
+    "childDeliveryClaimed": false,
+    "retryExecutionRuntimeClaimed": false,
+    "productionDurableOutboxStorageClaimed": false,
+    "adapterDispatchClaimed": false,
+    "reportDeliveryExecutionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "failures": []
+}

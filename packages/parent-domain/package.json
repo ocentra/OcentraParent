@@ -493,6 +493,22 @@
       "import": "./dist/social-audit-explanation-read-model.js",
       "types": "./dist/social-audit-explanation-read-model.d.ts"
     },
+    "./social-alert-report-intent-values": {
+      "import": "./dist/social-alert-report-intent-values.js",
+      "types": "./dist/social-alert-report-intent-values.d.ts"
+    },
+    "./social-alert-report-intent": {
+      "import": "./dist/social-alert-report-intent.js",
+      "types": "./dist/social-alert-report-intent.d.ts"
+    },
+    "./social-report-writer-delivery-proof": {
+      "import": "./dist/social-report-writer-delivery-proof.js",
+      "types": "./dist/social-report-writer-delivery-proof.d.ts"
+    },
+    "./social-applied-schedule-time-budget-proof": {
+      "import": "./dist/social-applied-schedule-time-budget-proof.js",
+      "types": "./dist/social-applied-schedule-time-budget-proof.d.ts"
+    },
     "./social-child-approval-block-ux-values": {
       "import": "./dist/social-child-approval-block-ux-values.js",
       "types": "./dist/social-child-approval-block-ux-values.d.ts"

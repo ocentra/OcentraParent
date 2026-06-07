@@ -1,0 +1,361 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "browser-platform-inventory-matrix-proof",
+  "generatedAt": "2026-06-07T14:44:47.100Z",
+  "proofContract": "packages/activity-domain/src/browser-platform-inventory-matrix.ts",
+  "sourceWorkpack": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
+  "rows": [
+    {
+      "platform": "windows",
+      "browserFamily": "edge",
+      "browserChannel": "stable",
+      "productName": "Microsoft Edge",
+      "supportTier": "candidate",
+      "proofState": "host-observed",
+      "exactUrlCapability": "unavailable",
+      "activeTabCapability": "unavailable",
+      "managementTier": "managed",
+      "capabilityStatus": "managed-profile-missing",
+      "reasonCode": "windows-managed-edge-candidate",
+      "proofRequirement": "host inventory proof exists; managed launch and bridge proof required before exact URL claims"
+    },
+    {
+      "platform": "windows",
+      "browserFamily": "chrome",
+      "browserChannel": "stable",
+      "productName": "Google Chrome",
+      "supportTier": "candidate",
+      "proofState": "host-observed",
+      "exactUrlCapability": "unavailable",
+      "activeTabCapability": "unavailable",
+      "managementTier": "managed",
+      "capabilityStatus": "managed-profile-missing",
+      "reasonCode": "windows-managed-chrome-candidate",
+      "proofRequirement": "host inventory proof exists; managed launch and bridge proof required before exact URL claims"
+    },
+    {
+      "platform": "macos",
+      "browserFamily": "chrome",
+      "browserChannel": "stable",
+      "productName": "Google Chrome",
+      "supportTier": "candidate",
+      "proofState": "manual-required",
+      "exactUrlCapability": "manual-required",
+      "activeTabCapability": "manual-required",
+      "managementTier": "manual-required",
+      "capabilityStatus": "permission-limited",
+      "reasonCode": "macos-chrome-cdp-candidate-manual-required",
+      "proofRequirement": "platform adapter, owned profile, and manual browser proof required"
+    },
+    {
+      "platform": "macos",
+      "browserFamily": "unknown",
+      "browserChannel": "unknown",
+      "productName": "Safari",
+      "supportTier": "unsupported",
+      "proofState": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "managementTier": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "reasonCode": "macos-safari-webkit-later-adapter",
+      "proofRequirement": "later platform-specific adapter required before product claim"
+    },
+    {
+      "platform": "linux",
+      "browserFamily": "chrome",
+      "browserChannel": "stable",
+      "productName": "Google Chrome",
+      "supportTier": "candidate",
+      "proofState": "host-observed",
+      "exactUrlCapability": "manual-required",
+      "activeTabCapability": "manual-required",
+      "managementTier": "manual-required",
+      "capabilityStatus": "permission-limited",
+      "reasonCode": "linux-chrome-host-observed-launch-proof",
+      "proofRequirement": "Linux WSL browser install and launch proof exists; desktop adapter and managed profile proof required before exact URL claims"
+    },
+    {
+      "platform": "linux",
+      "browserFamily": "unknown-chromium",
+      "browserChannel": "stable",
+      "productName": "Chromium",
+      "supportTier": "candidate",
+      "proofState": "manual-required",
+      "exactUrlCapability": "manual-required",
+      "activeTabCapability": "manual-required",
+      "managementTier": "manual-required",
+      "capabilityStatus": "permission-limited",
+      "reasonCode": "linux-chromium-cdp-candidate-manual-required",
+      "proofRequirement": "platform adapter, owned profile, and manual browser proof required"
+    },
+    {
+      "platform": "linux",
+      "browserFamily": "firefox",
+      "browserChannel": "unknown",
+      "productName": "Mozilla Firefox",
+      "supportTier": "unsupported",
+      "proofState": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "managementTier": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "reasonCode": "linux-firefox-bidi-later-adapter",
+      "proofRequirement": "later platform-specific adapter required before product claim"
+    },
+    {
+      "platform": "android",
+      "browserFamily": "unknown-chromium",
+      "browserChannel": "unknown",
+      "productName": "Android owned browser shell",
+      "supportTier": "candidate",
+      "proofState": "host-observed",
+      "exactUrlCapability": "manual-required",
+      "activeTabCapability": "manual-required",
+      "managementTier": "owned-shell",
+      "capabilityStatus": "permission-limited",
+      "reasonCode": "android-owned-browser-shell-browser-role-routing-proof",
+      "proofRequirement": "Android owned browser shell build/install/launch, Device Owner policy mutation, and browser-role implicit routing proof exist; exact URL, active tab, physical device, and enforcement proof still required"
+    },
+    {
+      "platform": "android",
+      "browserFamily": "chrome",
+      "browserChannel": "unknown",
+      "productName": "Android Chrome",
+      "supportTier": "unsupported",
+      "proofState": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "managementTier": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "reasonCode": "android-external-chrome-device-policy-required",
+      "proofRequirement": "later platform-specific adapter required before product claim"
+    },
+    {
+      "platform": "android",
+      "browserFamily": "firefox",
+      "browserChannel": "unknown",
+      "productName": "Android Firefox",
+      "supportTier": "unsupported",
+      "proofState": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "managementTier": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "reasonCode": "android-firefox-later-adapter",
+      "proofRequirement": "later platform-specific adapter required before product claim"
+    },
+    {
+      "platform": "ios",
+      "browserFamily": "unknown",
+      "browserChannel": "unknown",
+      "productName": "iOS Safari",
+      "supportTier": "unsupported",
+      "proofState": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "managementTier": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "reasonCode": "ios-safari-familycontrols-manual-required",
+      "proofRequirement": "later platform-specific adapter required before product claim"
+    },
+    {
+      "platform": "ios",
+      "browserFamily": "unknown-chromium",
+      "browserChannel": "unknown",
+      "productName": "iOS browser app",
+      "supportTier": "unsupported",
+      "proofState": "unsupported",
+      "exactUrlCapability": "unsupported",
+      "activeTabCapability": "unsupported",
+      "managementTier": "unsupported",
+      "capabilityStatus": "unsupported-browser",
+      "reasonCode": "ios-browser-app-webkit-policy-boundary",
+      "proofRequirement": "later platform-specific adapter required before product claim"
+    }
+  ],
+  "summary": {
+    "totalRows": 12,
+    "platformCounts": {
+      "windows": 2,
+      "macos": 2,
+      "linux": 3,
+      "android": 3,
+      "ios": 2
+    },
+    "proofStateCounts": {
+      "host-observed": 4,
+      "manual-required": 2,
+      "unsupported": 6
+    },
+    "manualRequiredRows": 2,
+    "unsupportedRows": 6,
+    "fixtureBackedRows": 0,
+    "hostObservedRows": 4,
+    "productClaimed": false,
+    "checklistStatusChanged": false,
+    "failures": 0
+  },
+  "proofFiles": [
+    {
+      "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/00-source-snapshot.md",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/01-contract-proof.log",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/02-rust-protocol-proof.log",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/03-runtime-evidence.json",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/04-journal-sqlite-proof.json",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/05-policy-action-proof.json",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/06-ui-snapshots/ui-not-applicable.md",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/07-playwright-ui-proof.log",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/08-security-negative-proof.log",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/09-manual-platform-proof.md",
+      "exists": true
+    },
+    {
+      "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/10-validation-commands.log",
+      "exists": true
+    }
+  ],
+  "noClaimLabels": [
+    "non-windows-managed-exact-url-not-claimed",
+    "non-windows-known-active-tab-not-claimed",
+    "linux-wsl-headless-browser-launch-proof-present-desktop-adapter-still-manual-required",
+    "android-browser-package-visibility-proof-present",
+    "android-owned-browser-shell-emulator-device-owner-policy-mutation-and-browser-role-routing-proof-present",
+    "windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed",
+    "windows-managed-cdp-exact-url-proof-present-final-enforcement-still-unclaimed",
+    "ios-familycontrols-safari-extension-manual-required",
+    "firefox-bidi-extension-later-adapter",
+    "portal-ui-not-changed",
+    "product-checklist-upgrade-not-claimed"
+  ],
+  "androidHostProof": {
+    "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/11-android-host-device-proof.json",
+    "proofId": "browser-platform-android-host-proof",
+    "resultState": "android-browser-package-visibility-proof",
+    "attachedDeviceCount": 1,
+    "bootedDeviceCount": 1,
+    "browserPackageVisible": true,
+    "ownedBrowserShellVisible": false,
+    "exactUrlProofClaimed": false,
+    "knownActiveTabProofClaimed": false,
+    "enforcementClaimed": false
+  },
+  "androidOwnedShellProof": {
+    "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/15-android-owned-browser-shell-proof.json",
+    "proofId": "browser-platform-android-owned-shell-proof",
+    "resultState": "android-owned-browser-shell-browser-role-routing-proof",
+    "attachedDeviceCount": 1,
+    "bootedDeviceCount": 1,
+    "ownedBrowserShellPackageInstalled": true,
+    "ownedBrowserShellSourceDeclared": true,
+    "webViewDeclared": true,
+    "browsableViewIntentDeclared": true,
+    "deviceAdminReceiverDeclared": true,
+    "deviceAdminMetadataDeclared": true,
+    "deviceAdminPoliciesDeclared": true,
+    "launchObserved": true,
+    "localProofPageObserved": true,
+    "deviceOwnerEnrollmentAttempted": true,
+    "deviceOwnerEnrollmentObserved": true,
+    "deviceOwnerProofLimitedToProofLaunchedEmulator": true,
+    "deviceOwnerPolicyMutationAttempted": true,
+    "deviceOwnerPolicyMutationObserved": true,
+    "deviceOwnerPolicyMutationLimitedToProofLaunchedEmulator": true,
+    "androidOwnedBrowserRoutingEnforcementObserved": true,
+    "androidBrowserRoleRoutingObserved": true,
+    "deviceOwnerPolicyMutationClaimed": true,
+    "androidOwnedBrowserRoutingEnforcementClaimed": true,
+    "exactUrlPolicyClaimed": false,
+    "knownActiveTabProofClaimed": false,
+    "deviceOwnerEnrollmentClaimed": true,
+    "vpnDnsBrowserProofClaimed": false,
+    "usageStatsRouteProofClaimed": false,
+    "accessibilityRouteProofClaimed": false,
+    "enforcementClaimed": false,
+    "rawDpmOutputPersisted": false,
+    "rawUrlPersisted": false,
+    "rawPageContentPersisted": false
+  },
+  "linuxHostProof": {
+    "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/12-linux-host-package-proof.json",
+    "proofId": "browser-platform-linux-host-proof",
+    "resultState": "linux-wsl-headless-browser-launch-proof",
+    "wslAvailable": true,
+    "browserCommandVisible": true,
+    "browserPackageInstalled": true,
+    "browserDesktopEntryVisible": true,
+    "browserLaunchAttempted": true,
+    "browserLaunchObserved": true,
+    "browserLaunchScreenshotCaptured": true,
+    "browserLaunchScreenshotPersisted": true,
+    "rawBrowserLaunchDomPersisted": false,
+    "rawBrowserLaunchUrlPersisted": false,
+    "exactUrlProofClaimed": false,
+    "knownActiveTabProofClaimed": false,
+    "enforcementClaimed": false
+  },
+  "windowsHostProof": {
+    "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/13-windows-host-browser-proof.json",
+    "proofId": "browser-platform-windows-host-proof",
+    "resultState": "windows-host-browser-inventory-boundary-proof",
+    "windowsHost": true,
+    "executableVisible": true,
+    "defaultUrlHandlerVisible": true,
+    "defaultUrlHandlerAssociationVisible": true,
+    "knownDefaultBrowserHandlerVisible": true,
+    "managedLaunchClaimed": false,
+    "exactUrlProofClaimed": false,
+    "knownActiveTabProofClaimed": false,
+    "enforcementClaimed": false
+  },
+  "windowsManagedCdpProof": {
+    "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/14-windows-managed-cdp-proof.json",
+    "proofId": "browser-platform-windows-managed-cdp-proof",
+    "resultState": "windows-managed-cdp-exact-url-proof",
+    "windowsHost": true,
+    "realManagedBrowserLaunched": true,
+    "loopbackCdpEndpointResponded": true,
+    "cdpVersionEndpointResponded": true,
+    "cdpTabListEndpointResponded": true,
+    "exactManagedUrlObserved": true,
+    "activeTabKnownByTargetSelection": true,
+    "cdpScreenshotCaptured": true,
+    "managedProfileCreated": true,
+    "managedProfileDeletedAfterProof": true,
+    "rawExecutablePathPersisted": false,
+    "rawProfilePathPersisted": false,
+    "rawCdpPayloadPersisted": false,
+    "rawPageContentPersisted": false,
+    "activeTabEnforcementClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "failures": []
+}

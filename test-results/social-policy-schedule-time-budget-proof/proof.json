@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-policy-schedule-time-budget-proof",
+  "generatedAt": "2026-06-06T14:32:05.034Z",
+  "files": [
+    "packages/parent-domain/src/social-policy-compiler-values.ts",
+    "packages/parent-domain/src/social-policy-compiler.ts",
+    "packages/parent-domain/tests/social-policy-compiler.test.ts"
+  ],
+  "outputDirectory": "output/browser-plan-proof/social-policy-schedule-time-budget-proof",
+  "checks": [
+    {
+      "label": "packages/parent-domain/src/social-policy-compiler-values.ts exists",
+      "pass": true
+    },
+    {
+      "label": "packages/parent-domain/src/social-policy-compiler.ts exists",
+      "pass": true
+    },
+    {
+      "label": "packages/parent-domain/tests/social-policy-compiler.test.ts exists",
+      "pass": true
+    },
+    {
+      "label": "time budget refs schema",
+      "pass": true
+    },
+    {
+      "label": "schedule state schema",
+      "pass": true
+    },
+    {
+      "label": "time budget state schema",
+      "pass": true
+    },
+    {
+      "label": "compiler propagates time budget refs",
+      "pass": true
+    },
+    {
+      "label": "contract-only schedule state guard",
+      "pass": true
+    },
+    {
+      "label": "contract-only time budget guard",
+      "pass": true
+    },
+    {
+      "label": "missing schedule rejection test",
+      "pass": true
+    },
+    {
+      "label": "missing time budget rejection test",
+      "pass": true
+    },
+    {
+      "label": "feature doc proof note",
+      "pass": true
+    },
+    {
+      "label": "workpack README proof note",
+      "pass": true
+    }
+  ],
+  "summary": {
+    "proofClaim": "social policy compiler requires explicit schedule and time-budget context",
+    "scheduleIntegration": "contract-proof-present",
+    "timeBudgetIntegration": "contract-proof-present",
+    "finalPolicyDecision": "not-claimed",
+    "runtimeGate": "not-claimed",
+    "enforcement": "not-claimed",
+    "failures": 0
+  },
+  "failures": []
+}

@@ -1,0 +1,305 @@
+{
+  "schemaVersion": 1,
+  "proofId": "social-ai-analysis-live-evidence-proof",
+  "generatedAt": "2026-06-06T14:14:40.335Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "228e6e8e094338d6a2b56aea42c9ee9563b4b87d",
+  "baseCommit": "0a00b9ec5445ca86eb60d3c1c2ca460b30d419f7",
+  "sourceProof": "test-results/social-video-metadata-live-proof/proof.json",
+  "liveEvidenceBoundary": {
+    "sourceProofUsesRealPublicSocialVideoSurfaces": true,
+    "sourceMetadataCaptureCount": 4,
+    "sourceScreenshotsPersisted": true,
+    "aiModelExecuted": false,
+    "modelRuntimeRefPresent": false,
+    "degradedState": "unavailable",
+    "rawPromptTextPersisted": false,
+    "rawPageBodyPersisted": false,
+    "rawFeedContentPersisted": false,
+    "rawMessageContentPersisted": false,
+    "transcriptTextPersisted": false,
+    "screenshotStoredInAiInputOrResult": false,
+    "finalPolicyActionClaimed": false,
+    "enforcementActionClaimed": false
+  },
+  "inputs": [
+    {
+      "targetId": "youtube-shorts-video",
+      "requestedTask": "video-safety",
+      "platform": "youtube-shorts",
+      "routeKind": "video",
+      "sourceEvidenceIds": [
+        "youtube-shorts-video-live-ai-source-ref",
+        "youtube-shorts-video-live-metadata-evidence"
+      ],
+      "metadataEvidenceIds": [
+        "youtube-shorts-video-live-metadata-evidence"
+      ],
+      "feedRouteClassificationIds": [],
+      "modelRuntimePreference": "manual-required",
+      "custodyLabel": "child-device-local"
+    },
+    {
+      "targetId": "vimeo-public-video",
+      "requestedTask": "video-safety",
+      "platform": "vimeo",
+      "routeKind": "video",
+      "sourceEvidenceIds": [
+        "vimeo-public-video-live-ai-source-ref",
+        "vimeo-public-video-live-metadata-evidence"
+      ],
+      "metadataEvidenceIds": [
+        "vimeo-public-video-live-metadata-evidence"
+      ],
+      "feedRouteClassificationIds": [],
+      "modelRuntimePreference": "manual-required",
+      "custodyLabel": "child-device-local"
+    },
+    {
+      "targetId": "reddit-popular-feed",
+      "requestedTask": "feed-risk-classification",
+      "platform": "reddit",
+      "routeKind": "feed",
+      "sourceEvidenceIds": [
+        "reddit-popular-feed-live-ai-source-ref",
+        "reddit-popular-feed-live-metadata-evidence"
+      ],
+      "metadataEvidenceIds": [
+        "reddit-popular-feed-live-metadata-evidence"
+      ],
+      "feedRouteClassificationIds": [
+        "reddit-popular-feed-feed-route-classification"
+      ],
+      "modelRuntimePreference": "manual-required",
+      "custodyLabel": "child-device-local"
+    },
+    {
+      "targetId": "instagram-reels-feed",
+      "requestedTask": "feed-risk-classification",
+      "platform": "instagram",
+      "routeKind": "feed",
+      "sourceEvidenceIds": [
+        "instagram-reels-feed-live-ai-source-ref",
+        "instagram-reels-feed-live-metadata-evidence"
+      ],
+      "metadataEvidenceIds": [
+        "instagram-reels-feed-live-metadata-evidence"
+      ],
+      "feedRouteClassificationIds": [
+        "instagram-reels-feed-feed-route-classification"
+      ],
+      "modelRuntimePreference": "manual-required",
+      "custodyLabel": "child-device-local"
+    }
+  ],
+  "results": [
+    {
+      "targetId": "youtube-shorts-video",
+      "requestedTask": "video-safety",
+      "platform": "youtube-shorts",
+      "routeKind": "video",
+      "classifications": [
+        "short-video-browsing",
+        "unknown"
+      ],
+      "recommendedPolicyInput": "manual-review-candidate",
+      "confidence": "unknown",
+      "uncertaintyReasons": [
+        "model-unavailable"
+      ],
+      "degradedState": "unavailable",
+      "modelRuntimeRef": null,
+      "finalPolicyActionClaimed": false,
+      "enforcementActionClaimed": false,
+      "rawModelTextStored": false,
+      "rawPageBodyStored": false,
+      "rawFeedContentStored": false,
+      "screenshotStored": false
+    },
+    {
+      "targetId": "vimeo-public-video",
+      "requestedTask": "video-safety",
+      "platform": "vimeo",
+      "routeKind": "video",
+      "classifications": [
+        "video-watch",
+        "unknown"
+      ],
+      "recommendedPolicyInput": "manual-review-candidate",
+      "confidence": "unknown",
+      "uncertaintyReasons": [
+        "model-unavailable"
+      ],
+      "degradedState": "unavailable",
+      "modelRuntimeRef": null,
+      "finalPolicyActionClaimed": false,
+      "enforcementActionClaimed": false,
+      "rawModelTextStored": false,
+      "rawPageBodyStored": false,
+      "rawFeedContentStored": false,
+      "screenshotStored": false
+    },
+    {
+      "targetId": "reddit-popular-feed",
+      "requestedTask": "feed-risk-classification",
+      "platform": "reddit",
+      "routeKind": "feed",
+      "classifications": [
+        "feed-browsing",
+        "unknown"
+      ],
+      "recommendedPolicyInput": "manual-review-candidate",
+      "confidence": "unknown",
+      "uncertaintyReasons": [
+        "model-unavailable"
+      ],
+      "degradedState": "unavailable",
+      "modelRuntimeRef": null,
+      "finalPolicyActionClaimed": false,
+      "enforcementActionClaimed": false,
+      "rawModelTextStored": false,
+      "rawPageBodyStored": false,
+      "rawFeedContentStored": false,
+      "screenshotStored": false
+    },
+    {
+      "targetId": "instagram-reels-feed",
+      "requestedTask": "feed-risk-classification",
+      "platform": "instagram",
+      "routeKind": "feed",
+      "classifications": [
+        "feed-browsing",
+        "unknown"
+      ],
+      "recommendedPolicyInput": "manual-review-candidate",
+      "confidence": "unknown",
+      "uncertaintyReasons": [
+        "model-unavailable"
+      ],
+      "degradedState": "unavailable",
+      "modelRuntimeRef": null,
+      "finalPolicyActionClaimed": false,
+      "enforcementActionClaimed": false,
+      "rawModelTextStored": false,
+      "rawPageBodyStored": false,
+      "rawFeedContentStored": false,
+      "screenshotStored": false
+    }
+  ],
+  "inputParseChecks": [
+    {
+      "targetId": "youtube-shorts-video",
+      "accepted": true
+    },
+    {
+      "targetId": "vimeo-public-video",
+      "accepted": true
+    },
+    {
+      "targetId": "reddit-popular-feed",
+      "accepted": true
+    },
+    {
+      "targetId": "instagram-reels-feed",
+      "accepted": true
+    }
+  ],
+  "resultParseChecks": [
+    {
+      "targetId": "youtube-shorts-video",
+      "accepted": true
+    },
+    {
+      "targetId": "vimeo-public-video",
+      "accepted": true
+    },
+    {
+      "targetId": "reddit-popular-feed",
+      "accepted": true
+    },
+    {
+      "targetId": "instagram-reels-feed",
+      "accepted": true
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "raw-browser-state-included",
+      "rejected": true
+    },
+    {
+      "name": "raw-page-body-included",
+      "rejected": true
+    },
+    {
+      "name": "raw-message-content-included",
+      "rejected": true
+    },
+    {
+      "name": "raw-feed-content-included",
+      "rejected": true
+    },
+    {
+      "name": "transcript-text-included",
+      "rejected": true
+    },
+    {
+      "name": "screenshot-included",
+      "rejected": true
+    },
+    {
+      "name": "connector-included",
+      "rejected": true
+    },
+    {
+      "name": "fake-video-task-without-metadata",
+      "rejected": true
+    },
+    {
+      "name": "final-policy-claim",
+      "rejected": true
+    },
+    {
+      "name": "enforcement-claim",
+      "rejected": true
+    },
+    {
+      "name": "raw-model-text-stored",
+      "rejected": true
+    },
+    {
+      "name": "raw-page-body-stored",
+      "rejected": true
+    },
+    {
+      "name": "raw-feed-content-stored",
+      "rejected": true
+    },
+    {
+      "name": "screenshot-stored",
+      "rejected": true
+    },
+    {
+      "name": "native-app-control-claim",
+      "rejected": true
+    },
+    {
+      "name": "connector-claim",
+      "rejected": true
+    },
+    {
+      "name": "fake-nondegraded-model-success",
+      "rejected": true
+    }
+  ],
+  "noClaimChecks": {
+    "aiModelExecution": false,
+    "providerRuntimeSelection": false,
+    "finalPolicyDecision": false,
+    "enforcement": false,
+    "rawContentStorage": false,
+    "nativeAppControl": false,
+    "connectorAuthorization": false,
+    "uiDelivery": false
+  }
+}

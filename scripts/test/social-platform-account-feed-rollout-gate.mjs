@@ -6,6 +6,33 @@ const root = process.cwd();
 const outputDirectory = join(root, 'output', 'browser-plan-proof', 'social-24-rollout-manual-required-labels');
 const resultDirectory = join(root, 'test-results', 'social-platform-account-feed-rollout-gate');
 const checklistPath = 'docs/plans/browser-plan/implementation-checklist.md';
+const requiredRolloutProofFiles = [
+  'test-results/social-alert-report-intent-ui-proof/proof.json',
+  'output/browser-plan-proof/social-alert-report-intent-ui-proof/07-rendered-alert-report-ui-proof.json',
+  'output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png',
+  'output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png',
+  'test-results/social-alert-report-provider-preflight-proof/proof.json',
+  'output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md',
+  'test-results/social-alert-report-provider-status-handoff-proof/proof.json',
+  'output/browser-plan-proof/social-alert-report-provider-status-handoff-proof/01-social-alert-report-provider-status-handoff-proof.md',
+  'test-results/social-alert-report-local-outbox-bridge-proof/proof.json',
+  'test-results/social-alert-report-local-outbox-bridge-proof/local-outbox-records.jsonl',
+  'output/browser-plan-proof/social-alert-report-local-outbox-bridge-proof/01-social-alert-report-local-outbox-bridge-proof.md',
+  'test-results/social-alert-report-parent-surface-intent-proof/proof.json',
+  'output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md',
+  'test-results/social-alert-report-scheduler-bridge-proof/proof.json',
+  'test-results/social-alert-report-scheduler-bridge-proof/scheduler-records.jsonl',
+  'output/browser-plan-proof/social-alert-report-scheduler-bridge-proof/01-social-alert-report-scheduler-bridge-proof.md',
+  'test-results/social-alert-report-preference-preflight-proof/proof.json',
+  'test-results/social-alert-report-preference-preflight-proof/preference-preflight-read-model.json',
+  'output/browser-plan-proof/social-alert-report-preference-preflight-proof/01-social-alert-report-preference-preflight-proof.md',
+  'test-results/social-alert-report-preference-status-handoff-proof/proof.json',
+  'test-results/social-alert-report-preference-status-handoff-proof/preference-status-handoff-read-model.json',
+  'output/browser-plan-proof/social-alert-report-preference-status-handoff-proof/01-social-alert-report-preference-status-handoff-proof.md',
+  'test-results/social-alert-report-audit-history-bridge-proof/proof.json',
+  'test-results/social-alert-report-audit-history-bridge-proof/audit-history-handoff.json',
+  'output/browser-plan-proof/social-alert-report-audit-history-bridge-proof/01-social-alert-report-audit-history-bridge-proof.md',
+];
 
 const rolloutGuards = [
   {
@@ -18,7 +45,7 @@ const rolloutGuards = [
   },
   {
     docKey: 'feature',
-    text: 'Product completion remains unclaimed.',
+    text: 'Product completion remains unclaimed;',
   },
   {
     docKey: 'browserFeature',
@@ -43,7 +70,8 @@ async function main() {
   const docs = await loadDocs();
   const rows = expectedRows().map((row) => validateChecklistRow(row, docs.checklist));
   const guardFailures = validateRolloutGuards(docs);
-  const failures = [...rows.flatMap((row) => row.failures), ...guardFailures];
+  const proofFailures = validateRolloutProofFiles();
+  const failures = [...rows.flatMap((row) => row.failures), ...guardFailures, ...proofFailures];
   const manifest = manifestFor(rows, failures);
 
   if (manifest.failures.length > 0) {
@@ -73,13 +101,15 @@ async function loadDocs() {
 }
 
 function expectedRows() {
+  const completeRows = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22]);
   return Array.from({ length: 23 }, (_, index) => {
     const rowNumber = index + 1;
+    const complete = completeRows.has(rowNumber);
     return {
       rowNumber,
       rowId: `SOCIAL-${String(rowNumber).padStart(2, '0')}`,
-      expectedStatus: rowNumber === 1 ? '[x]' : '[~]',
-      expectedState: rowNumber === 1 ? 'scaffold-proof-present' : 'partial-manual-required',
+      expectedStatus: complete ? '[x]' : '[~]',
+      expectedState: complete ? 'proof-present' : 'partial-manual-required',
     };
   });
 }
@@ -118,7 +148,7 @@ function manifestFor(rows, failures) {
     rows,
     summary: {
       totalRows: rows.length,
-      completeRows: rows.filter((row) => row.expectedState === 'scaffold-proof-present').length,
+      completeRows: rows.filter((row) => row.expectedState === 'proof-present').length,
       partialRows: rows.filter((row) => row.expectedState === 'partial-manual-required').length,
       failures: failures.length,
       rolloutState: 'partial/manual-required',
@@ -126,13 +156,49 @@ function manifestFor(rows, failures) {
     },
     guardTexts: rolloutGuards.map((guard) => guard.text),
     noClaimLabels: [
-      'rendered-social-ui-not-claimed',
-      'playwright-screenshots-manual-required',
+      'rendered-proof-bundle-social-ui-present',
+      'service-backed-dashboard-and-explanation-read-model-proof-present',
+      'social-live-platform-route-boundary-proof-present',
+      'social-live-url-pattern-boundary-proof-present',
+      'social-live-account-flow-boundary-proof-present',
+      'social-live-form-shape-boundary-proof-present',
+      'social-live-identity-registry-boundary-proof-present',
+      'social-live-parent-approval-boundary-proof-present',
+      'social-live-route-classification-proof-present',
+      'social-live-metadata-extraction-proof-present',
+      'social-live-evidence-ai-boundary-proof-present',
+      'social-live-evidence-risk-benefit-boundary-proof-present',
+      'social-live-evidence-policy-compiler-proof-present',
+      'social-live-public-connector-boundary-proof-present',
+      'social-live-evidence-decision-memory-proof-present',
+      'social-alert-report-intent-proof-present',
+      'social-alert-report-local-outbox-bridge-proof-present',
+      'social-alert-report-parent-surface-intent-proof-present',
+      'social-alert-report-scheduler-bridge-proof-present',
+      'social-alert-report-preference-preflight-proof-present',
+      'social-alert-report-preference-status-handoff-proof-present',
+      'social-alert-report-audit-history-bridge-proof-present',
+      'social-alert-report-intent-ui-proof-present',
+      'social-alert-report-provider-preflight-proof-present',
+      'social-alert-report-provider-status-handoff-proof-present',
+      'social-report-writer-delivery-proof-present',
+      'social-applied-schedule-time-budget-proof-present',
+      'social-schedule-time-budget-compiler-proof-present',
+      'social-parent-sensitivity-settings-proof-present',
+      'social-source-custody-settings-proof-present',
+      'social-source-custody-mutation-proof-present',
+      'external-runtime-report-delivery-not-claimed',
+      'provider-delivery-not-claimed',
+      'runtime-applied-schedule-time-budget-not-claimed',
       'connector-native-runtime-not-claimed',
       'final-policy-execution-not-claimed',
       'enforcement-not-claimed',
       'product-checklist-upgrade-not-claimed',
     ],
+    requiredRolloutProofFiles: requiredRolloutProofFiles.map((file) => ({
+      file,
+      present: existsSync(join(root, file)),
+    })),
     failures,
   };
 }
@@ -145,7 +211,7 @@ function markdownFor(manifest) {
     `Generated: ${manifest.generatedAt}`,
     '',
     `Rows checked: ${manifest.summary.totalRows}`,
-    `Scaffold-proof rows: ${manifest.summary.completeRows}`,
+    `Proof-present rows: ${manifest.summary.completeRows}`,
     `Partial/manual-required rows: ${manifest.summary.partialRows}`,
     `Rollout state: ${manifest.summary.rolloutState}`,
     `Product claimed: ${manifest.summary.productClaimed}`,
@@ -156,9 +222,44 @@ function markdownFor(manifest) {
     '',
     'SOCIAL rollout state: partial/manual-required.',
     'Product checklist upgrade is not claimed.',
-    'Rendered social UI, Playwright screenshots, connector/native runtime,',
-    'final policy execution, and enforcement remain unclaimed.',
+    'Rendered proof-bundle social UI exists for dashboard, child intervention,',
+    'and parent explanation states. Service-backed dashboard and explanation',
+    'read-model delivery is present. Live SOCIAL-02 platform route boundary',
+    'proof is present. Live SOCIAL-03 URL pattern proof is present.',
+    'Live SOCIAL-04 account-flow proof is present.',
+    'Live SOCIAL-05 form-shape proof is present.',
+    'Live SOCIAL-06 identity registry proof is present.',
+    'Live SOCIAL-07 parent approval contract proof is present.',
+    'Live SOCIAL-08 route classification proof is present.',
+    'Live SOCIAL-09 metadata extraction proof is present.',
+    'Live SOCIAL-10 evidence-bound AI degradation proof is present.',
+    'Live SOCIAL-11 evidence-bound risk/benefit degradation proof is present.',
+    'Live SOCIAL-12 evidence-bound policy compiler proof is present.',
+    'Live SOCIAL-18 public connector boundary proof is present.',
+    'Live SOCIAL-19 evidence-bound decision memory proof is present.',
+    'Ref-only social alert/report intent proof is present.',
+    'Parent-owned social alert/report local outbox JSONL bridge proof is present.',
+    'Social alert/report parent-surface intent proof is present for manual/unavailable status rows.',
+    'Parent-owned social alert/report scheduler JSONL bridge proof is present.',
+    'Social alert/report audit-history bridge proof is present through the logging-domain handoff.',
+    'Service-backed social alert/report intent UI proof is present for the real Browser route.',
+    'Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.',
+    'Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.',
+    'Parent-owned report writer delivery-readiness proof is present.',
+    'Parent-owned schedule/time-budget application-readiness proof is present.',
+    'Schedule/time-budget compiler proof and parent sensitivity',
+    'settings proof are present. Source custody settings proof is present over',
+    'source/privacy refs, and service-backed source custody mutation proof is',
+    'present. Connector/native runtime, external provider delivery, runtime-applied',
+    'schedules/budgets, final policy execution, and enforcement remain',
+    'unclaimed.',
   ].join('\n');
+}
+
+function validateRolloutProofFiles() {
+  return requiredRolloutProofFiles
+    .filter((file) => !existsSync(join(root, file)))
+    .map((file) => `SOCIAL-24 missing rollout proof file ${file}`);
 }
 
 function checklistRowText(rowId, checklist) {

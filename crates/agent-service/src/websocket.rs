@@ -5,6 +5,10 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
+    activity_api::social_alert_report_read_model_payload::build_browser_social_alert_report_read_model_report,
+    activity_api::social_audit_explanation_read_model_payload::build_browser_social_audit_explanation_read_model_report,
+    activity_api::social_dashboard_read_model_payload::build_browser_social_dashboard_read_model_report,
+    activity_api::social_source_custody_mutation_payload::build_browser_social_source_custody_mutation_report,
     activity_api::{
         build_activity_app_game_boundary_read_model_report,
         build_activity_app_game_notification_readiness_report,
@@ -172,23 +176,10 @@ async fn build_command_event(
         AgentCommandName::AgentLogSnapshotGet => build_log_snapshot_report(command),
         AgentCommandName::AgentDevEcho => build_dev_echo_report(command),
         AgentCommandName::AgentWatchStatusGet => build_watcher_status_report(command),
-        AgentCommandName::AgentActivityIngestStatusGet
-        | AgentCommandName::AgentActivityRecentSummaryGet
-        | AgentCommandName::AgentActivityMemoryGraphGet
-        | AgentCommandName::AgentActivityReportDailyGenerate
-        | AgentCommandName::AgentActivityReportWeeklyGenerate
-        | AgentCommandName::AgentActivityReportMonthlyGenerate
-        | AgentCommandName::AgentActivityReportSave
-        | AgentCommandName::AgentActivityReportHistoryList
-        | AgentCommandName::AgentActivityScreenReadModelGet
-        | AgentCommandName::AgentActivityAppUseReadModelGet
-        | AgentCommandName::AgentActivityBrowserReadModelGet
-        | AgentCommandName::AgentActivityGamesReadModelGet
-        | AgentCommandName::AgentActivityAppGameBoundaryReadModelGet
-        | AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet
-        | AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet
-        | AgentCommandName::AgentActivityNetworkReadModelGet
-        | AgentCommandName::AgentActivityTrackingReadModelGet => {
+        AgentCommandName::AgentBrowserSocialSourceCustodyMutationApply => {
+            build_browser_social_source_custody_mutation_report(command).await
+        }
+        command_name if is_activity_command(&command_name) => {
             build_activity_command_report(command).await
         }
         AgentCommandName::AgentBrowserInventoryReadModelGet
@@ -240,6 +231,32 @@ async fn build_command_event(
         }
         _ => build_log_snapshot_report(command),
     }
+}
+
+fn is_activity_command(command: &AgentCommandName) -> bool {
+    matches!(
+        command,
+        AgentCommandName::AgentActivityIngestStatusGet
+            | AgentCommandName::AgentActivityRecentSummaryGet
+            | AgentCommandName::AgentActivityMemoryGraphGet
+            | AgentCommandName::AgentActivityReportDailyGenerate
+            | AgentCommandName::AgentActivityReportWeeklyGenerate
+            | AgentCommandName::AgentActivityReportMonthlyGenerate
+            | AgentCommandName::AgentActivityReportSave
+            | AgentCommandName::AgentActivityReportHistoryList
+            | AgentCommandName::AgentActivityScreenReadModelGet
+            | AgentCommandName::AgentActivityAppUseReadModelGet
+            | AgentCommandName::AgentActivityBrowserReadModelGet
+            | AgentCommandName::AgentActivityGamesReadModelGet
+            | AgentCommandName::AgentActivityAppGameBoundaryReadModelGet
+            | AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet
+            | AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet
+            | AgentCommandName::AgentBrowserSocialDashboardReadModelGet
+            | AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet
+            | AgentCommandName::AgentBrowserSocialAlertReportReadModelGet
+            | AgentCommandName::AgentActivityNetworkReadModelGet
+            | AgentCommandName::AgentActivityTrackingReadModelGet
+    )
 }
 
 fn is_lan_runtime_command(command: &AgentCommandName) -> bool {
@@ -327,6 +344,15 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         }
         AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet => {
             build_activity_app_game_notification_readiness_report(command).await
+        }
+        AgentCommandName::AgentBrowserSocialDashboardReadModelGet => {
+            build_browser_social_dashboard_read_model_report(command).await
+        }
+        AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet => {
+            build_browser_social_audit_explanation_read_model_report(command).await
+        }
+        AgentCommandName::AgentBrowserSocialAlertReportReadModelGet => {
+            build_browser_social_alert_report_read_model_report(command).await
         }
         AgentCommandName::AgentActivityNetworkReadModelGet => {
             build_activity_network_read_model(command).await

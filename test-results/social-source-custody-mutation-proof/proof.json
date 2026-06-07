@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-source-custody-mutation-proof",
+  "generatedAt": "2026-06-07T04:07:56.186Z",
+  "files": [
+    "packages/agent-protocol-domain/src/social-source-custody-mutation.ts",
+    "packages/agent-protocol-domain/tests/social-source-custody-mutation.test.ts",
+    "crates/agent-protocol/src/social_source_custody_mutation.rs",
+    "crates/agent-service/src/activity_api/social_source_custody_mutation_payload.rs",
+    "crates/agent-service/src/activity_api/social_source_custody_mutation_service_tests.rs",
+    "crates/agent-service/src/websocket.rs",
+    "docs/features/social-video-control.md",
+    "docs/plans/browser-plan/social-platform-account-feed/readme.md",
+    "docs/plans/browser-plan/v0-5-social-platform-account-feed-gating-plan.md",
+    "docs/plans/browser-plan/implementation-checklist.md"
+  ],
+  "checks": [
+    {
+      "path": "packages/agent-protocol-domain/src/social-source-custody-mutation.ts",
+      "failures": []
+    },
+    {
+      "path": "packages/agent-protocol-domain/tests/social-source-custody-mutation.test.ts",
+      "failures": []
+    },
+    {
+      "path": "crates/agent-protocol/src/social_source_custody_mutation.rs",
+      "failures": []
+    },
+    {
+      "path": "crates/agent-service/src/activity_api/social_source_custody_mutation_payload.rs",
+      "failures": []
+    },
+    {
+      "path": "crates/agent-service/src/websocket.rs",
+      "failures": []
+    },
+    {
+      "path": "docs/features/social-video-control.md",
+      "failures": []
+    },
+    {
+      "path": "docs/plans/browser-plan/social-platform-account-feed/readme.md",
+      "failures": []
+    },
+    {
+      "path": "docs/plans/browser-plan/v0-5-social-platform-account-feed-gating-plan.md",
+      "failures": []
+    },
+    {
+      "path": "docs/plans/browser-plan/implementation-checklist.md",
+      "failures": []
+    }
+  ],
+  "claims": {
+    "serviceMutationExecuted": true,
+    "runtimeCustodyMutationApplied": true,
+    "settingsRemainRefOnly": true,
+    "rawContentCustody": "not-claimed",
+    "connectorApiCalls": "not-claimed",
+    "finalPolicyDecision": "not-claimed",
+    "enforcement": "not-claimed",
+    "productClaimReady": false
+  },
+  "failures": []
+}

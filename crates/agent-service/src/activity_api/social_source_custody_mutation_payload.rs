@@ -1,0 +1,139 @@
+use ocentra_parent_agent_protocol::{
+    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
+    LogLevel, SocialSourceCustodyMutationSnapshot, SocialSourceCustodySettingsSnapshot,
+    SOCIAL_SOURCE_CUSTODY_AUDIT_REF, SOCIAL_SOURCE_CUSTODY_CHILD_PROFILE_ID,
+    SOCIAL_SOURCE_CUSTODY_DEVICE_ID, SOCIAL_SOURCE_CUSTODY_EVIDENCE_REF,
+    SOCIAL_SOURCE_CUSTODY_MODE_REDACTED_REFS, SOCIAL_SOURCE_CUSTODY_MUTATION_ID,
+    SOCIAL_SOURCE_CUSTODY_MUTATION_SCHEMA_VERSION, SOCIAL_SOURCE_CUSTODY_MUTATION_STATE_APPLIED,
+    SOCIAL_SOURCE_CUSTODY_NO_CONNECTOR_API, SOCIAL_SOURCE_CUSTODY_NO_CONNECTOR_TOKEN,
+    SOCIAL_SOURCE_CUSTODY_NO_ENFORCEMENT, SOCIAL_SOURCE_CUSTODY_NO_FINAL_POLICY,
+    SOCIAL_SOURCE_CUSTODY_NO_RAW_MESSAGE, SOCIAL_SOURCE_CUSTODY_NO_RAW_VIDEO,
+    SOCIAL_SOURCE_CUSTODY_NO_RUNTIME_CUSTODY_CLAIM, SOCIAL_SOURCE_CUSTODY_NO_RUNTIME_UI,
+    SOCIAL_SOURCE_CUSTODY_NO_SCREENSHOT, SOCIAL_SOURCE_CUSTODY_PERMISSION_ENABLED,
+    SOCIAL_SOURCE_CUSTODY_PRIVACY_EVIDENCE_ID, SOCIAL_SOURCE_CUSTODY_RETENTION_REDACTED_JOURNAL,
+    SOCIAL_SOURCE_CUSTODY_SCOPE_MANAGED_BROWSER, SOCIAL_SOURCE_CUSTODY_SETTINGS_ID,
+    SOCIAL_SOURCE_CUSTODY_USE_AI_CANDIDATE, SOCIAL_SOURCE_CUSTODY_USE_PARENT_EXPLANATION,
+};
+
+use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
+
+type FieldPair = (&'static str, LogFieldValue);
+
+pub fn social_source_custody_mutation_from_command(
+    command: &AgentCommandEnvelope,
+) -> SocialSourceCustodyMutationSnapshot {
+    let requested_at = requested_at(command);
+    let applied_at = timestamp_now();
+    SocialSourceCustodyMutationSnapshot {
+        schema_version: SOCIAL_SOURCE_CUSTODY_MUTATION_SCHEMA_VERSION.to_string(),
+        mutation_id: SOCIAL_SOURCE_CUSTODY_MUTATION_ID.to_string(),
+        requested_at: requested_at.clone(),
+        applied_at: applied_at.clone(),
+        mutation_state: SOCIAL_SOURCE_CUSTODY_MUTATION_STATE_APPLIED.to_string(),
+        settings: SocialSourceCustodySettingsSnapshot {
+            schema_version: 1,
+            settings_id: SOCIAL_SOURCE_CUSTODY_SETTINGS_ID.to_string(),
+            generated_at: applied_at,
+            child_profile_ref: SOCIAL_SOURCE_CUSTODY_CHILD_PROFILE_ID.to_string(),
+            device_id: SOCIAL_SOURCE_CUSTODY_DEVICE_ID.to_string(),
+            source_privacy_evidence_ids: vec![SOCIAL_SOURCE_CUSTODY_PRIVACY_EVIDENCE_ID.to_string()],
+            evidence_refs: vec![SOCIAL_SOURCE_CUSTODY_EVIDENCE_REF.to_string()],
+            setting_scope: SOCIAL_SOURCE_CUSTODY_SCOPE_MANAGED_BROWSER.to_string(),
+            permission_state: SOCIAL_SOURCE_CUSTODY_PERMISSION_ENABLED.to_string(),
+            custody_mode: SOCIAL_SOURCE_CUSTODY_MODE_REDACTED_REFS.to_string(),
+            retention_mode: SOCIAL_SOURCE_CUSTODY_RETENTION_REDACTED_JOURNAL.to_string(),
+            permitted_downstream_uses: vec![
+                SOCIAL_SOURCE_CUSTODY_USE_AI_CANDIDATE.to_string(),
+                SOCIAL_SOURCE_CUSTODY_USE_PARENT_EXPLANATION.to_string(),
+            ],
+            disabled_use_reasons: Vec::new(),
+            parent_review_refs: Vec::new(),
+            connector_authorization_refs: Vec::new(),
+            manual_proof_requirements: Vec::new(),
+            no_claim_labels: no_claim_labels(),
+            raw_message_content_allowed: false,
+            raw_video_content_allowed: false,
+            screenshot_custody_allowed: false,
+            connector_token_stored: false,
+            connector_api_called: false,
+            runtime_settings_ui_claimed: false,
+            runtime_custody_mutation_claimed: false,
+            final_policy_decision_claimed: false,
+            enforcement_claimed: false,
+        },
+        evidence_refs: vec![SOCIAL_SOURCE_CUSTODY_EVIDENCE_REF.to_string()],
+        audit_refs: vec![SOCIAL_SOURCE_CUSTODY_AUDIT_REF.to_string()],
+        service_mutation_executed: true,
+        runtime_custody_mutation_applied: true,
+        raw_content_custody_claimed: false,
+        connector_api_called: false,
+        final_policy_decision_claimed: false,
+        enforcement_claimed: false,
+        product_claim_ready: false,
+    }
+}
+
+pub fn social_source_custody_mutation_payload(
+    mutation: &SocialSourceCustodyMutationSnapshot,
+) -> LogFields {
+    fields_from_pairs(mutation_pairs(mutation))
+}
+
+pub async fn build_browser_social_source_custody_mutation_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    let mutation = social_source_custody_mutation_from_command(&command);
+    build_event(
+        constants::event_id::BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION_APPLIED,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentBrowserSocialSourceCustodyMutationApplied,
+        LogLevel::Info,
+        social_source_custody_mutation_payload(&mutation),
+        None,
+    )
+}
+
+fn mutation_pairs(mutation: &SocialSourceCustodyMutationSnapshot) -> Vec<FieldPair> {
+    vec![
+        (
+            constants::field::GENERATED_AT,
+            LogFieldValue::String(mutation.applied_at.clone()),
+        ),
+        (
+            constants::field::CUSTODY_LABEL,
+            LogFieldValue::String(SOCIAL_SOURCE_CUSTODY_RETENTION_REDACTED_JOURNAL.to_string()),
+        ),
+        (
+            constants::field::CAPABILITY_STATUS,
+            LogFieldValue::String(SOCIAL_SOURCE_CUSTODY_MUTATION_STATE_APPLIED.to_string()),
+        ),
+        (
+            constants::field::BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION,
+            LogFieldValue::String(
+                serde_json::to_string(mutation).expect(constants::error::AGENT_EVENT_SERIALIZES),
+            ),
+        ),
+    ]
+}
+
+fn requested_at(command: &AgentCommandEnvelope) -> String {
+    match command.payload.get(constants::field::REQUESTED_AT) {
+        Some(LogFieldValue::String(value)) if !value.is_empty() => value.clone(),
+        _ => command.sent_at.clone(),
+    }
+}
+
+fn no_claim_labels() -> Vec<String> {
+    vec![
+        SOCIAL_SOURCE_CUSTODY_NO_RAW_MESSAGE.to_string(),
+        SOCIAL_SOURCE_CUSTODY_NO_RAW_VIDEO.to_string(),
+        SOCIAL_SOURCE_CUSTODY_NO_SCREENSHOT.to_string(),
+        SOCIAL_SOURCE_CUSTODY_NO_CONNECTOR_TOKEN.to_string(),
+        SOCIAL_SOURCE_CUSTODY_NO_CONNECTOR_API.to_string(),
+        SOCIAL_SOURCE_CUSTODY_NO_RUNTIME_UI.to_string(),
+        SOCIAL_SOURCE_CUSTODY_NO_RUNTIME_CUSTODY_CLAIM.to_string(),
+        SOCIAL_SOURCE_CUSTODY_NO_FINAL_POLICY.to_string(),
+        SOCIAL_SOURCE_CUSTODY_NO_ENFORCEMENT.to_string(),
+    ]
+}

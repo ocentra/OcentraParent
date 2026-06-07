@@ -20,8 +20,8 @@ describe('browser platform inventory matrix', () => {
       ios: 2,
     });
     expect(proofCounts).toEqual({
-      'fixture-backed': 2,
-      'manual-required': 4,
+      'host-observed': 4,
+      'manual-required': 2,
       unsupported: 6,
     });
   });
@@ -40,10 +40,25 @@ describe('browser platform inventory matrix', () => {
     ).toBe(true);
   });
 
-  it('marks mobile browser paths as owned-shell manual-required or unsupported only', () => {
+  it('marks Linux Chrome host-observed only for install and launch proof', () => {
+    const matrix = BrowserInventoryPlatformMatrixSchema.parse(BrowserInventoryPlatformMatrix);
+    const linuxChrome = matrix.entries.find((entry) => entry.reasonCode === 'linux-chrome-host-observed-launch-proof');
+
+    expect(linuxChrome).toMatchObject({
+      platform: 'linux',
+      browserFamily: 'chrome',
+      installState: 'installed',
+      managementTier: 'manual-required',
+      exactUrlCapability: 'manual-required',
+      activeTabCapability: 'manual-required',
+      proofState: 'host-observed',
+    });
+  });
+
+  it('marks mobile browser paths as owned-shell host-observed or unsupported only', () => {
     const matrix = BrowserInventoryPlatformMatrixSchema.parse(BrowserInventoryPlatformMatrix);
     const androidShell = matrix.entries.find(
-      (entry) => entry.reasonCode === 'android-owned-browser-shell-manual-required'
+      (entry) => entry.reasonCode === 'android-owned-browser-shell-browser-role-routing-proof'
     );
     const iosEntries = matrix.entries.filter((entry) => entry.platform === 'ios');
 
@@ -52,11 +67,14 @@ describe('browser platform inventory matrix', () => {
       managementTier: 'owned-shell',
       supportTier: 'candidate',
       exactUrlCapability: 'manual-required',
-      proofState: 'manual-required',
+      activeTabCapability: 'manual-required',
+      proofState: 'host-observed',
     });
     expect(iosEntries.every((entry) => entry.managementTier === 'unsupported')).toBe(true);
   });
+});
 
+describe('browser platform inventory matrix validation', () => {
   it('rejects unsupported entries that try to keep exact URL available', () => {
     const safari = BrowserInventoryPlatformMatrix.entries.find((entry) => entry.productName === 'Safari');
     if (safari === undefined) {

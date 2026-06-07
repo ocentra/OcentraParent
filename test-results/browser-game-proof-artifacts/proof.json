@@ -1,0 +1,439 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "browser-game-proof-artifacts",
+  "generatedAt": "2026-06-07T00:10:14.833Z",
+  "proofRoot": "output/browser-plan-proof",
+  "rows": [
+    {
+      "rowNumber": 1,
+      "rowId": "GAME-01",
+      "expectedStatus": "[x]",
+      "expectedState": "scaffold-proof-present",
+      "proofDirectory": "game-01-browser-game-plan-folder-readme",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-plan-folder-readme-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "scaffold-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 2,
+      "rowId": "GAME-02",
+      "expectedStatus": "[x]",
+      "expectedState": "live-route-proof-present",
+      "proofDirectory": "game-02-browser-game-platform-route-contracts",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-live-route-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-route-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 3,
+      "rowId": "GAME-03",
+      "expectedStatus": "[x]",
+      "expectedState": "live-portal-pattern-proof-present",
+      "proofDirectory": "game-03-known-game-portal-pattern-library",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "05-live-pattern-library-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-portal-pattern-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 4,
+      "rowId": "GAME-04",
+      "expectedStatus": "[x]",
+      "expectedState": "live-cloud-pattern-proof-present",
+      "proofDirectory": "game-04-cloud-gaming-pattern-library",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "06-live-cloud-pattern-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-cloud-pattern-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 5,
+      "rowId": "GAME-05",
+      "expectedStatus": "[x]",
+      "expectedState": "live-url-shape-proof-present",
+      "proofDirectory": "game-05-game-url-shape-parser",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-url-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-url-shape-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 6,
+      "rowId": "GAME-06",
+      "expectedStatus": "[x]",
+      "expectedState": "live-runtime-signal-shape-proof-present",
+      "proofDirectory": "game-06-game-runtime-signal-detector",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-runtime-signal-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-runtime-signal-shape-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 7,
+      "rowId": "GAME-07",
+      "expectedStatus": "[x]",
+      "expectedState": "live-metadata-shape-proof-present",
+      "proofDirectory": "game-07-game-metadata-extractor",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-metadata-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-metadata-shape-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 8,
+      "rowId": "GAME-08",
+      "expectedStatus": "[x]",
+      "expectedState": "live-hidden-analysis-profile-safety-proof-present",
+      "proofDirectory": "game-08-hidden-analysis-profile-safety",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-profile-safety-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-hidden-analysis-profile-safety-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 9,
+      "rowId": "GAME-09",
+      "expectedStatus": "[x]",
+      "expectedState": "live-educational-classifier-proof-present",
+      "proofDirectory": "game-09-educational-game-classifier-contract",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-educational-classifier-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-educational-classifier-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 10,
+      "rowId": "GAME-10",
+      "expectedStatus": "[x]",
+      "expectedState": "live-ai-analysis-proof-present",
+      "proofDirectory": "game-10-browser-game-ai-analysis-contract",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-ai-analysis-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-ai-analysis-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 11,
+      "rowId": "GAME-11",
+      "expectedStatus": "[x]",
+      "expectedState": "live-riskbenefit-signal-proof-present",
+      "proofDirectory": "game-11-game-risk-benefit-signal-model",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-riskbenefit-signal-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-riskbenefit-signal-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 12,
+      "rowId": "GAME-12",
+      "expectedStatus": "[x]",
+      "expectedState": "live-memory-cache-proof-present",
+      "proofDirectory": "game-12-browser-game-memory-cache",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-memory-cache-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-memory-cache-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 13,
+      "rowId": "GAME-13",
+      "expectedStatus": "[x]",
+      "expectedState": "live-account-purchase-gate-proof-present",
+      "proofDirectory": "game-13-game-account-signup-purchase-gating",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-account-purchase-gate-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-account-purchase-gate-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 14,
+      "rowId": "GAME-14",
+      "expectedStatus": "[x]",
+      "expectedState": "live-cloud-gaming-gate-proof-present",
+      "proofDirectory": "game-14-cloud-gaming-gating",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-cloud-gaming-gate-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-cloud-gaming-gate-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 15,
+      "rowId": "GAME-15",
+      "expectedStatus": "[x]",
+      "expectedState": "live-unblocked-site-detection-proof-present",
+      "proofDirectory": "game-15-unblocked-game-site-detection",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-unblocked-site-detection-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-unblocked-site-detection-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 16,
+      "rowId": "GAME-16",
+      "expectedStatus": "[x]",
+      "expectedState": "live-ugc-multiplayer-chat-risk-proof-present",
+      "proofDirectory": "game-16-ugc-multiplayer-chat-risk-model",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-ugc-multiplayer-chat-risk-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-ugc-multiplayer-chat-risk-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 17,
+      "rowId": "GAME-17",
+      "expectedStatus": "[x]",
+      "expectedState": "live-policy-compiler-proof-present",
+      "proofDirectory": "game-17-parent-game-policy-compiler",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-policy-compiler-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-policy-compiler-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 18,
+      "rowId": "GAME-18",
+      "expectedStatus": "[x]",
+      "expectedState": "live-hold-block-adapter-proof-present",
+      "proofDirectory": "game-18-managed-browser-game-hold-block-adapter",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-hold-block-adapter-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-hold-block-adapter-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 19,
+      "rowId": "GAME-19",
+      "expectedStatus": "[x]",
+      "expectedState": "live-child-checking-block-ux-proof-present",
+      "proofDirectory": "game-19-child-game-checking-block-ux",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-child-checking-block-ux-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-child-checking-block-ux-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 20,
+      "rowId": "GAME-20",
+      "expectedStatus": "[x]",
+      "expectedState": "live-parent-dashboard-ux-proof-present",
+      "proofDirectory": "game-20-parent-browser-game-dashboard-ux",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-dashboard-ux-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-parent-dashboard-ux-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 21,
+      "rowId": "GAME-21",
+      "expectedStatus": "[x]",
+      "expectedState": "live-journal-sqlite-read-model-proof-present",
+      "proofDirectory": "game-21-journal-sqlite-read-model",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "02-live-journal-sqlite-read-model-shape-proof.json",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-journal-sqlite-read-model-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 22,
+      "rowId": "GAME-22",
+      "expectedStatus": "[x]",
+      "expectedState": "live-rendered-child-intervention-proof-present",
+      "proofDirectory": "game-22-tests-fixtures-playwright-manual-proof",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-browser-game-proof-artifact-manifest.md",
+        "02-rendered-browser-game-child-intervention-proof.json",
+        "06-ui-snapshots",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-rendered-child-intervention-proof-present",
+      "failures": []
+    },
+    {
+      "rowNumber": 23,
+      "rowId": "GAME-23",
+      "expectedStatus": "[x]",
+      "expectedState": "live-android-ios-host-proof-present",
+      "proofDirectory": "game-23-android-ios-capability-matrix",
+      "proofFiles": [
+        "00-source-snapshot.md",
+        "01-contract-proof.md",
+        "08-security-negative-proof.md",
+        "10-validation-commands.log",
+        "11-android-host-emulator-proof.json",
+        "ui-not-applicable.md"
+      ],
+      "state": "live-android-ios-host-proof-present",
+      "failures": []
+    }
+  ],
+  "summary": {
+    "totalRows": 23,
+    "completeRows": 23,
+    "partialRows": 0,
+    "failures": 0,
+    "playwrightState": "live-rendered-child-intervention-screenshots-present",
+    "productClaimed": false
+  },
+  "manualProofBoundary": {
+    "screenshots": "live-rendered-child-intervention-screenshots-present",
+    "playwright": "live-rendered-child-intervention-screenshots-present",
+    "liveRouteEvidence": "game-02-live-route-proof-present",
+    "livePortalPatternEvidence": "game-03-live-portal-pattern-proof-present",
+    "liveCloudPatternEvidence": "game-04-live-cloud-pattern-proof-present",
+    "liveUrlShapeEvidence": "game-05-live-url-shape-proof-present",
+    "liveRuntimeSignalEvidence": "game-06-live-runtime-signal-shape-proof-present",
+    "liveMetadataEvidence": "game-07-live-metadata-shape-proof-present",
+    "liveHiddenAnalysisProfileSafetyEvidence": "game-08-live-hidden-analysis-profile-safety-proof-present",
+    "liveEducationalClassifierEvidence": "game-09-live-educational-classifier-proof-present",
+    "liveAiAnalysisEvidence": "game-10-live-ai-analysis-proof-present",
+    "liveRiskBenefitSignalEvidence": "game-11-live-riskbenefit-signal-proof-present",
+    "liveMemoryCacheEvidence": "game-12-live-memory-cache-proof-present",
+    "liveAccountPurchaseGateEvidence": "game-13-live-account-purchase-gate-proof-present",
+    "liveCloudGamingGateEvidence": "game-14-live-cloud-gaming-gate-proof-present",
+    "liveUnblockedSiteDetectionEvidence": "game-15-live-unblocked-site-detection-proof-present",
+    "liveUgcMultiplayerChatRiskEvidence": "game-16-live-ugc-multiplayer-chat-risk-proof-present",
+    "livePolicyCompilerEvidence": "game-17-live-policy-compiler-proof-present",
+    "liveHoldBlockAdapterEvidence": "game-18-live-hold-block-adapter-proof-present",
+    "liveChildCheckingBlockUxEvidence": "game-19-live-child-checking-block-ux-proof-present",
+    "liveParentDashboardUxEvidence": "game-20-live-parent-dashboard-ux-proof-present",
+    "liveJournalSqliteReadModelEvidence": "game-21-live-journal-sqlite-read-model-proof-present",
+    "liveRenderedChildInterventionEvidence": "game-22-live-rendered-child-intervention-proof-present",
+    "liveAndroidIosHostEvidence": "game-23-live-android-ios-host-proof-present",
+    "renderedUi": "child-agent-served-intervention-page-proof-present",
+    "cloudStreamedFrameAnalysis": "not-claimed",
+    "nativeGameControl": "not-claimed",
+    "enforcement": "not-claimed",
+    "productChecklistUpgrade": "not-claimed"
+  },
+  "failures": []
+}

@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "proofId": "browser-platform-android-host-proof",
+  "generatedAt": "2026-06-07T05:04:52.863Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "42168c98190b522de26df609879e7063daa67ccf",
+  "baseCommit": "39ab1c72f20fa79ebe440c652d2baf791334ed99",
+  "hostProofSummary": {
+    "adbInstalled": true,
+    "adbPathPersisted": false,
+    "adbPathSha256": "8f7574d08793a80ccaddee5ceeb0fbcf8589faaf0c7318fe2d32ad984a3c29df",
+    "adbVersionSha256": "6843ea0db38f463fc457b98199f1bd233ca7df116d8a7c854c76dbbcde5ac659",
+    "emulatorPathPersisted": false,
+    "emulatorPathSha256": "527a50968879bcf80bd6856c7aff47ebbb8de1c2263310e38123ac574e932fdb",
+    "emulatorAvdCount": 1,
+    "emulatorLaunchedByProof": true,
+    "emulatorCleanupAttempted": true,
+    "attachedDeviceCount": 1,
+    "bootedDeviceCount": 1,
+    "realDeviceOrEmulatorInspected": true,
+    "knownBrowserPackageIdsQueriedOnly": true,
+    "browserPackageVisible": true,
+    "ownedBrowserShellVisible": false,
+    "defaultViewHandlerQueried": true,
+    "rawInstalledPackageListPersisted": false,
+    "screenshotsCaptured": false,
+    "screenshotsPersisted": false,
+    "screenshotCaptureState": "not-used-headless-emulator-screencap-was-black",
+    "uiTreeCaptured": true,
+    "uiTreeRawPersisted": false,
+    "logcatCaptured": true,
+    "logcatRawPersisted": false,
+    "exactUrlProofClaimed": false,
+    "knownActiveTabProofClaimed": false,
+    "ownedShellCustodyClaimed": false,
+    "ownedBrowserShellSourceDeclared": false,
+    "managedProfileClaimed": false,
+    "deviceOwnerEnrollmentClaimed": false,
+    "vpnDnsBrowserProofClaimed": false,
+    "usageStatsRouteProofClaimed": false,
+    "accessibilityRouteProofClaimed": false,
+    "enforcementClaimed": false,
+    "resultState": "android-browser-package-visibility-proof"
+  },
+  "devices": [
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "state": "device",
+      "bootCompleted": true,
+      "rawSerialPersisted": false
+    }
+  ],
+  "packageVisibility": [
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "targetId": "android-chrome",
+      "targetPackageId": "com.android.chrome",
+      "installed": true,
+      "rawInstalledPackageListPersisted": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "ownedShellCustodyClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "targetId": "firefox-android",
+      "targetPackageId": "org.mozilla.firefox",
+      "installed": false,
+      "rawInstalledPackageListPersisted": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "ownedShellCustodyClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "targetId": "edge-android",
+      "targetPackageId": "com.microsoft.emmx",
+      "installed": false,
+      "rawInstalledPackageListPersisted": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "ownedShellCustodyClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "targetId": "samsung-internet",
+      "targetPackageId": "com.sec.android.app.sbrowser",
+      "installed": false,
+      "rawInstalledPackageListPersisted": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "ownedShellCustodyClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "targetId": "ocentra-owned-browser-shell",
+      "targetPackageId": "com.ocentra.parent.browser",
+      "installed": false,
+      "rawInstalledPackageListPersisted": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "ownedShellCustodyClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "defaultViewHandlers": [
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "componentRef": "redacted-android-view-handler-d671e678a1bdd51a",
+      "resolved": true,
+      "rawComponentPersisted": false,
+      "urlPersisted": false,
+      "urlContentCaptured": false,
+      "exactUrlProofClaimed": false
+    }
+  ],
+  "deviceSurfaceEvidence": [
+    {
+      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "screenshotCaptured": false,
+      "screenshotPersisted": false,
+      "screenshotCaptureState": "not-used-headless-emulator-screencap-was-black",
+      "screenshotPath": null,
+      "screenshotSha256": null,
+      "uiTreeCaptured": true,
+      "uiTreeRawPersisted": false,
+      "uiTreeSha256": "dfb651a8565d73c96c7d40958e5f9dfd8fad19e83c9f51f0e97cd59e5931db9f",
+      "logcatCaptured": true,
+      "logcatRawPersisted": false,
+      "logcatSha256": "2be42c1d97be21398b018c6c7721f5ea89556a04a5caae70c1a4181ad6fe65f8",
+      "exactUrlProofClaimed": false,
+      "pageContentCaptured": false,
+      "browserSecretCaptured": false
+    }
+  ],
+  "androidSourceBoundaryProof": {
+    "manifestPath": "platforms/android/agent/app/src/main/AndroidManifest.xml",
+    "manifestSha256": "7bac9ee9fb0283494ef4657959bd895921045ef075e5592028ea318a99f98ad5",
+    "buildGradlePath": "platforms/android/agent/app/build.gradle",
+    "buildGradleSha256": "44307192afce892bc37806cd46afe360dc766be48579f08c28493452f670da63",
+    "privilegedProofPath": "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/ChildAndroidPrivilegedCapabilityProof.java",
+    "privilegedProofSha256": "73db68afc00d8179c796c6e36ded91660128962a8f015b909f4f422378ead116",
+    "rawSourcePersisted": false,
+    "packageIdDeclared": true,
+    "ownedBrowserShellDeclared": false,
+    "webViewDeclared": false,
+    "viewIntentHandlerDeclared": false,
+    "accessibilityServiceDeclared": false,
+    "vpnServiceDeclared": false,
+    "deviceAdminReceiverDeclared": false,
+    "usageStatsPermissionDeclared": false,
+    "privilegedNegativeMarkers": [
+      "ACCESSIBILITY_STATE = \"not-declared\"",
+      "VPN_SERVICE_STATE = \"not-declared\"",
+      "DNS_FILTERING_STATE = \"not-implemented\"",
+      "DEVICE_OWNER_STATE = \"blocked-without-enrollment\"",
+      "MANAGED_PROFILE_STATE = \"blocked-without-enrollment\"",
+      "CHILD_AGENT_PARITY_STATE = \"not-claimed\""
+    ],
+    "negativeBoundaryState": "source-backed-no-owned-browser-shell-no-webview-no-view-handler-no-accessibility-no-vpn-no-device-admin"
+  },
+  "negativeChecks": [
+    {
+      "claim": "owned-browser-shell-custody",
+      "rejected": true
+    },
+    {
+      "claim": "managed-exact-url-on-android",
+      "rejected": true
+    },
+    {
+      "claim": "known-active-tab-on-android",
+      "rejected": true
+    },
+    {
+      "claim": "android-browser-enforcement",
+      "rejected": true
+    }
+  ]
+}

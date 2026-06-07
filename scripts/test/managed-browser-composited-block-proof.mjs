@@ -1,8 +1,7 @@
 import { spawn } from 'node:child_process';
-import { mkdir, stat, writeFile } from 'node:fs/promises';
-import { createServer as createHttpServer } from 'node:http';
+import { mkdir, mkdtemp, stat, writeFile } from 'node:fs/promises';
 import { createServer as createNetServer } from 'node:net';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { tmpdir } from 'node:os';
 import { setTimeout as delay } from 'node:timers/promises';
 
@@ -11,8 +10,11 @@ import {
   renderBrowserChildInterventionPage,
 } from '@ocentra-parent/portal-domain/contracts';
 
+import { resolveDebugAgentServicePath, stopProcessTreeAndWait } from './agent-service-process.mjs';
+
+const repoRoot = process.cwd();
 const runId = new Date().toISOString().replaceAll(':', '-').replaceAll('.', '-');
-const evidenceDirectory = join(process.cwd(), 'test-results', 'managed-browser-composited-block-proof');
+const evidenceDirectory = join(repoRoot, 'test-results', 'managed-browser-composited-block-proof');
 const screenshotDirectory = join(evidenceDirectory, `${runId}-screenshots`);
 const probeRoot = join(tmpdir(), `ocentra-parent-managed-browser-composited-block-${process.pid}`);
 const timeoutMs = envNumber('OCENTRA_PARENT_MANAGED_BROWSER_COMPOSITED_BLOCK_TIMEOUT_MS', 45_000);
@@ -29,10 +31,17 @@ async function main() {
   await mkdir(evidenceDirectory, { recursive: true });
   await mkdir(screenshotDirectory, { recursive: true });
   await mkdir(probeRoot, { recursive: true });
+  await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
 
   let profileRun;
-  let blockServer;
+  let service;
   try {
+    const runRoot = await mkdtemp(join(tmpdir(), 'ocentra-parent-managed-browser-composited-agent-'));
+    const htmlPath = join(runRoot, 'browser-intervention-page.html');
+    const agentPort = await freePort();
+    service = spawnAgentService(runRoot, agentPort, htmlPath);
+    const serviceOutput = collectOutput(service);
+    await waitForHealth(agentPort, serviceOutput);
     profileRun = await launchChromiumProfile(browser);
     const version = await waitForJson(profileRun.port, '/json/version');
     const target = await waitForFirstPageTarget(profileRun.port);
@@ -53,8 +62,10 @@ async function main() {
           label: 'Captured page before block',
         },
       });
-      blockServer = await startBlockPageServer(blockPageHtml);
-      const blockedPageUrl = `http://127.0.0.1:${blockServer.port}/blocked?target=${encodeURIComponent(requestedUrl)}`;
+      await writeFile(htmlPath, blockPageHtml, 'utf8');
+      const blockedPageUrl = `http://127.0.0.1:${agentPort}/api/browser/intervention/page?target=${encodeURIComponent(
+        requestedUrl
+      )}`;
       await client.command('Page.navigate', { url: blockedPageUrl });
       await waitForChromiumReady(client);
       await delay(750);
@@ -77,6 +88,8 @@ async function main() {
         requestedUrl,
         capturedLocation,
         blockedPageUrl,
+        childAgentEndpoint: '/api/browser/intervention/page',
+        htmlPath: relative(repoRoot, htmlPath),
         observed: observed.result?.value,
         screenshotPath,
         assertions: assertionsForCompositedBlock(observed.result?.value, capturedLocation),
@@ -91,8 +104,8 @@ async function main() {
       client.close();
     }
   } finally {
-    if (blockServer !== undefined) {
-      await blockServer.close();
+    if (service !== undefined) {
+      await stopProcessTreeAndWait(service);
     }
     if (profileRun !== undefined) {
       await cleanupProfileRun(profileRun);
@@ -124,7 +137,8 @@ function assertionsForCompositedBlock(observed, capturedLocation) {
     backdropRendered: observed?.backdropPresent === true,
     blockMarkerPresent: observed?.markerPresent === true,
     capturedTargetBeforeBlock: isSameWatchedTarget(capturedLocation, requestedUrl),
-    localBlockedUrlRendered: typeof observed?.href === 'string' && observed.href.includes('/blocked?target='),
+    childAgentEndpointRendered:
+      typeof observed?.href === 'string' && observed.href.includes('/api/browser/intervention/page?target='),
     targetUrlShown: observed?.targetTextPresent === true,
   };
 }
@@ -157,25 +171,6 @@ function printSummary(evidence, evidencePath) {
   for (const [name, passed] of Object.entries(evidence.assertions)) {
     console.log(`assertion.${name}=${passed}`);
   }
-}
-
-async function startBlockPageServer(html) {
-  const server = createHttpServer((_request, response) => {
-    response.writeHead(200, {
-      'cache-control': 'no-store',
-      'content-type': 'text/html; charset=utf-8',
-    });
-    response.end(html);
-  });
-  await new Promise((resolve, reject) => {
-    server.once('error', reject);
-    server.listen(0, '127.0.0.1', resolve);
-  });
-  const address = server.address();
-  return {
-    close: () => new Promise((resolve) => server.close(resolve)),
-    port: address.port,
-  };
 }
 
 async function launchChromiumProfile(browser) {
@@ -317,6 +312,54 @@ async function freePort() {
   const address = server.address();
   await new Promise((resolve) => server.close(resolve));
   return address.port;
+}
+
+function spawnAgentService(runRoot, agentPort, htmlPath) {
+  return spawn(resolveDebugAgentServicePath(), [], {
+    cwd: repoRoot,
+    env: {
+      ...process.env,
+      OCENTRA_PARENT_ACTIVITY_DB_PATH: join(runRoot, 'activity.sqlite'),
+      OCENTRA_PARENT_ACTIVITY_JOURNAL_KEY_PATH: join(runRoot, 'activity.key'),
+      OCENTRA_PARENT_ACTIVITY_JOURNAL_PATH: join(runRoot, 'activity.ndjson'),
+      OCENTRA_PARENT_AGENT_ADDR: `127.0.0.1:${agentPort}`,
+      OCENTRA_PARENT_AGENT_ENFORCEMENT_TIMER_STATE_PATH: join(runRoot, 'enforcement-timers.json'),
+      OCENTRA_PARENT_DEV_LOG_DIR: join(runRoot, 'logs'),
+      OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_HTML_PATH: htmlPath,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+}
+
+async function waitForHealth(agentPort, serviceOutput) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${agentPort}/health`);
+      if (response.ok) {
+        return;
+      }
+    } catch {
+      await delay(250);
+    }
+  }
+  throw new Error(`Timed out waiting for child-agent health. ${serviceOutput()}`);
+}
+
+async function runCommand(command, args) {
+  await new Promise((resolve, reject) => {
+    const child = spawn(command, args, { cwd: repoRoot, stdio: 'inherit', windowsHide: true });
+    child.once('exit', (code) => (code === 0 ? resolve() : reject(new Error(`${command} exited with ${code}`))));
+    child.once('error', reject);
+  });
+}
+
+function collectOutput(child) {
+  const chunks = [];
+  child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
+  child.stderr.on('data', (chunk) => chunks.push(String(chunk)));
+  return () => chunks.join('');
 }
 
 function safeFileName(value) {

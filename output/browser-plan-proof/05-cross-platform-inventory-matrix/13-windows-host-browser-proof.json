@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "proofId": "browser-platform-windows-host-proof",
+  "generatedAt": "2026-06-07T07:45:39.529Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "e70100843281a0045a8e1d94599e50a81e4ff043",
+  "baseCommit": "f957c4aa90ed42ea266d423236f89361d1d2241a",
+  "hostProofSummary": {
+    "platform": "win32",
+    "windowsHost": true,
+    "knownBrowserTargetsQueriedOnly": true,
+    "windowsAppPathRegistryQueriedOnly": true,
+    "urlAssociationRegistryQueriedOnly": true,
+    "executableVisible": true,
+    "defaultUrlHandlerVisible": true,
+    "defaultUrlHandlerAssociationVisible": true,
+    "knownDefaultBrowserHandlerVisible": true,
+    "rawPathPersisted": false,
+    "rawRegistryValuePersisted": false,
+    "managedLaunchClaimed": false,
+    "managedProfileClaimed": false,
+    "exactUrlProofClaimed": false,
+    "knownActiveTabProofClaimed": false,
+    "bridgeCustodyClaimed": false,
+    "enforcementClaimed": false,
+    "resultState": "windows-host-browser-inventory-boundary-proof"
+  },
+  "pathVisibility": [
+    {
+      "targetId": "microsoft-edge-stable",
+      "exeName": "msedge.exe",
+      "executableVisible": true,
+      "executablePathRefs": [
+        "windows-browser-path-0647cf87e7e9c48a"
+      ],
+      "appPathRegistryVisible": true,
+      "appPathRegistryRef": "windows-app-path-registry-0647cf87e7e9c48a",
+      "rawPathPersisted": false,
+      "rawRegistryValuePersisted": false,
+      "managedLaunchClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "targetId": "google-chrome-stable",
+      "exeName": "chrome.exe",
+      "executableVisible": true,
+      "executablePathRefs": [
+        "windows-browser-path-b98a42e7e75a6642"
+      ],
+      "appPathRegistryVisible": true,
+      "appPathRegistryRef": "windows-app-path-registry-b98a42e7e75a6642",
+      "rawPathPersisted": false,
+      "rawRegistryValuePersisted": false,
+      "managedLaunchClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "targetId": "mozilla-firefox-stable",
+      "exeName": "firefox.exe",
+      "executableVisible": true,
+      "executablePathRefs": [
+        "windows-browser-path-fccc51e18021551c"
+      ],
+      "appPathRegistryVisible": true,
+      "appPathRegistryRef": "windows-app-path-registry-fccc51e18021551c",
+      "rawPathPersisted": false,
+      "rawRegistryValuePersisted": false,
+      "managedLaunchClaimed": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "urlAssociations": [
+    {
+      "scheme": "http",
+      "userChoiceKeyRef": "windows-url-association-key-6d6b798ceb36080f",
+      "progIdRef": "windows-url-association-progid-b417aa5025abf9d9",
+      "knownBrowserFamily": "chrome",
+      "defaultHandlerAssociationVisible": true,
+      "rawRegistryValuePersisted": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "scheme": "https",
+      "userChoiceKeyRef": "windows-url-association-key-3cb62234346e9c2a",
+      "progIdRef": "windows-url-association-progid-b417aa5025abf9d9",
+      "knownBrowserFamily": "chrome",
+      "defaultHandlerAssociationVisible": true,
+      "rawRegistryValuePersisted": false,
+      "exactUrlProofClaimed": false,
+      "knownActiveTabProofClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "negativeChecks": [
+    {
+      "claim": "windows-managed-launch",
+      "rejected": true
+    },
+    {
+      "claim": "windows-managed-exact-url",
+      "rejected": true
+    },
+    {
+      "claim": "windows-known-active-tab",
+      "rejected": true
+    },
+    {
+      "claim": "windows-browser-enforcement",
+      "rejected": true
+    }
+  ]
+}

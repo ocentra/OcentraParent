@@ -1,0 +1,2 @@
+cmd /c npm run build --workspace @ocentra-parent/parent-domain
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-alert-report-preference-status-handoff social-alert-report-preference-preflight v3-notification-rule-provider-retry-contract
