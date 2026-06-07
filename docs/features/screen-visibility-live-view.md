@@ -59,15 +59,24 @@ alternative.
   delete proof, and no raw remote upload. Live-view modes require explicit
   parent approval, viewer audit, platform proof ref, LAN or relay transport
   label, no frame retention, no session recording, and no remote input.
+- The live-view platform-permission gate now has a focused
+  `ScreenLiveViewPlatformPermissionGateSchema` proof
+  (`scripts/test/screen-live-view-platform-permission-proof.mjs` and
+  `output/screen-plan-proof/live-view-platform-permission/proof-summary.json`).
+  It consumes the real Android MediaProjection capture-consent proof as
+  capture-only evidence and proves that capture permission cannot make live view
+  product-ready without live-view permission-prompt evidence, viewer audit, live
+  transport proof, no frame retention, and no remote input.
 - Raw screen control settings are preserved as design inputs for both summary
   and live-view decisions.
 
 ## Current Gap
 
 Need runtime product implementation for optional screenshots or live view. The
-contract preflight exists, but service persistence, parent retention/live-view
-UI, capture permission prompts, live transport, relay/cache execution, platform
-proof, and privacy/legal approval remain before any product-complete claim.
+contract preflight and fail-closed platform-permission gate exist, but service
+persistence, parent retention/live-view UI, actual live-view permission prompts,
+live transport, relay/cache execution, platform screenshots, and privacy/legal
+approval remain before any product-complete claim.
 
 ## Checklist
 
@@ -78,7 +87,8 @@ proof, and privacy/legal approval remain before any product-complete claim.
 - [x] Retention and deletion controls.
 - [x] Audit for capture/view/export.
 - [x] Remote route/custody model if away-from-home.
-- [ ] Platform permission proof.
+- [~] Platform permission proof gate exists; real live-view prompt/platform
+  screenshots remain.
 - [ ] Privacy/legal review before public claim.
 
 ## Next AI Instructions
