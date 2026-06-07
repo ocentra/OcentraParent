@@ -1,6 +1,7 @@
 use crate::{
-    publish_browser_runtime_chain_for_input, BrowserRuntimeEventPayload, BrowserRuntimeInput,
-    BrowserRuntimePhase, BrowserRuntimeReport,
+    publish_browser_runtime_chain_for_input,
+    request_browser_runtime_action_intent_status_for_input, BrowserRuntimeEventPayload,
+    BrowserRuntimeInput, BrowserRuntimePhase, BrowserRuntimeReport,
 };
 use ocentra_parent_agent_protocol::constants;
 
@@ -130,6 +131,63 @@ async fn browser_runtime_action_intent_handoff_prepares_outbox_without_dispatch(
         handoff_ref,
         constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF
     );
+}
+
+#[tokio::test]
+async fn browser_runtime_action_intent_event_subscriber_returns_pending_status() {
+    let report = request_browser_runtime_action_intent_status_for_input(
+        BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(report.dead_letters.len(), 0);
+    assert_eq!(report.request_report.publish_report.handled_count, 1);
+    assert_eq!(
+        report
+            .stored_events
+            .first()
+            .unwrap()
+            .contract
+            .event_type
+            .as_str(),
+        constants::browser::EVENT_BROWSER_ACTION_INTENT_STATUS_REQUESTED
+    );
+
+    let status = report.request_report.response;
+    assert_eq!(status.candidate_count, 1);
+    assert_eq!(
+        status.policy_preview_id.as_deref(),
+        Some(constants::browser::TEST_BROWSER_RUNTIME_POLICY_PREVIEW_ID)
+    );
+    assert_eq!(
+        status.action_intent_id.as_deref(),
+        Some(constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID)
+    );
+    assert_eq!(status.dispatch_attempt_count, 0);
+    assert_eq!(status.adapter_execution_count, 0);
+    assert_eq!(status.child_intervention_execution_count, 0);
+    assert_eq!(status.enforcement_execution_count, 0);
+    assert!(status.dry_run_only);
+    assert!(status.policy_authority_only);
+}
+
+#[tokio::test]
+async fn browser_runtime_action_intent_event_subscriber_keeps_manual_rows_empty() {
+    let report = request_browser_runtime_action_intent_status_for_input(
+        BrowserRuntimeInput::manual_required_fixture(),
+    )
+    .await
+    .unwrap();
+
+    let status = report.request_report.response;
+    assert_eq!(status.candidate_count, 0);
+    assert_eq!(status.policy_preview_id, None);
+    assert_eq!(status.action_intent_id, None);
+    assert_eq!(status.dispatch_attempt_count, 0);
+    assert_eq!(status.adapter_execution_count, 0);
+    assert_eq!(status.child_intervention_execution_count, 0);
+    assert_eq!(status.enforcement_execution_count, 0);
 }
 
 fn assert_all_payloads_preserve_browser_context(

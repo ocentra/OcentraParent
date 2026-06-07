@@ -121,7 +121,9 @@ pub use browser_bridge_poll::{
     BrowserBridgePollError, BrowserBridgePollSnapshot,
 };
 pub use browser_event_runtime::{
-    publish_browser_runtime_chain_for_input, BrowserRuntimeEventPayload, BrowserRuntimeInput,
+    publish_browser_runtime_chain_for_input,
+    request_browser_runtime_action_intent_status_for_input, BrowserRuntimeActionIntentStatusReport,
+    BrowserRuntimeActionIntentStatusResponse, BrowserRuntimeEventPayload, BrowserRuntimeInput,
     BrowserRuntimeReport,
 };
 pub use browser_event_runtime_phase::BrowserRuntimePhase;

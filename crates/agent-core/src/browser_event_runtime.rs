@@ -8,8 +8,14 @@ use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
 mod action_handoff;
+mod action_status;
 
 use crate::{browser_event_runtime_refs::previous_phase_ref, BrowserRuntimePhase};
+
+pub use action_status::{
+    request_browser_runtime_action_intent_status_for_input, BrowserRuntimeActionIntentStatusReport,
+    BrowserRuntimeActionIntentStatusResponse,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BrowserRuntimeInput {
@@ -266,7 +272,7 @@ impl BrowserRuntimeSpine {
             .filter(|phase| should_publish_phase(*phase, &input))
         {
             let payload = BrowserRuntimeEventPayload::from_input(phase, &input);
-            let metadata = browser_event_metadata(phase, &input)?;
+            let metadata = browser_event_metadata(phase, &input, phase.target_handler())?;
             reports.push(self.bus.publish(payload, metadata).await?);
         }
         Ok(BrowserRuntimeReport {
@@ -301,13 +307,14 @@ pub(crate) fn should_publish_phase(
 fn browser_event_metadata(
     phase: BrowserRuntimePhase,
     input: &BrowserRuntimeInput,
+    target_handler: &str,
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),
         CorrelationId::parse(browser_correlation_id(input))?,
         browser_event_source(phase, input)?,
         RecordedAt::parse(&input.observed_at)?,
-        Some(TargetHandler::parse(phase.target_handler())?),
+        Some(TargetHandler::parse(target_handler)?),
     ))
 }
 

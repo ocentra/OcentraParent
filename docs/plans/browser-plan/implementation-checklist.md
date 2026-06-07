@@ -564,6 +564,20 @@ This does not create a new command family, generic event bus, external
 transport, browser mutation path, child intervention execution path, or
 enforcement path.
 
+WP13 action-intent event subscriber addendum:
+`browser-runtime-action-intent-event-subscriber-proof` adds a named Rust
+event-bus request/response subscriber for browser action-intent status. The
+runtime publishes `browser.action-intent.status.requested`, the
+`browser-action-intent-status` subscriber completes a typed response, dry-run
+policy decision rows produce one pending candidate, and manual-required rows
+produce none. Evidence:
+`test-results/browser-runtime-action-intent-event-subscriber-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-event-subscriber/01-browser-runtime-action-intent-event-subscriber-proof.md`.
+This uses the reusable `ocentra-eventing` request path and does not execute
+adapter dispatch, browser mutation, child intervention, final policy, or
+enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

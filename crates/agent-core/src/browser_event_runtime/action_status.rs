@@ -1,0 +1,155 @@
+use std::time::Duration;
+
+use ocentra_eventing::{
+    AggregateKey, DomainEvent, EventBus, EventContract, EventResponseContract, EventSubscriber,
+    EventType, EventingError, IdempotencyKey, RequestEvent, RequestId, RequestOptions,
+    SchemaVersion, SubscriberId, TargetHandler,
+};
+use ocentra_parent_agent_protocol::constants;
+use serde::{Deserialize, Serialize};
+
+use crate::{BrowserRuntimeEventPayload, BrowserRuntimeInput, BrowserRuntimePhase};
+
+use super::{browser_aggregate_key, browser_event_metadata};
+
+#[derive(Clone, Debug)]
+pub struct BrowserRuntimeActionIntentStatusReport {
+    pub request_report: ocentra_eventing::RequestReport<BrowserRuntimeActionIntentStatusResponse>,
+    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
+    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+struct BrowserRuntimeActionIntentStatusRequest {
+    payload: BrowserRuntimeEventPayload,
+    request_id: RequestId,
+}
+
+impl DomainEvent for BrowserRuntimeActionIntentStatusRequest {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(constants::browser::EVENT_BROWSER_ACTION_INTENT_STATUS_REQUESTED)?,
+            SchemaVersion::new(constants::browser::EVENT_SCHEMA_VERSION)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(browser_aggregate_key(&self.payload.source_ref))
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        let mut value =
+            String::from(constants::browser::IDEMPOTENCY_BROWSER_ACTION_INTENT_STATUS_PREFIX);
+        value.push_str(self.request_id.as_str());
+        IdempotencyKey::parse(value)
+    }
+}
+
+impl RequestEvent for BrowserRuntimeActionIntentStatusRequest {
+    type Response = BrowserRuntimeActionIntentStatusResponse;
+
+    fn request_id(&self) -> Result<RequestId, EventingError> {
+        Ok(self.request_id.clone())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct BrowserRuntimeActionIntentStatusResponse {
+    pub candidate_count: usize,
+    pub policy_preview_id: Option<String>,
+    pub action_intent_id: Option<String>,
+    pub source_ref: String,
+    pub evidence_ref: String,
+    pub dry_run_only: bool,
+    pub policy_authority_only: bool,
+    pub dispatch_attempt_count: u8,
+    pub adapter_execution_count: u8,
+    pub child_intervention_execution_count: u8,
+    pub enforcement_execution_count: u8,
+}
+
+impl BrowserRuntimeActionIntentStatusResponse {
+    fn from_payload(payload: &BrowserRuntimeEventPayload) -> Self {
+        let has_candidate = payload.phase == BrowserRuntimePhase::PolicyDecisionCompleted
+            && payload.dry_run
+            && payload.policy_authority
+            && payload.policy_preview_id.is_some()
+            && payload.action_intent_id.is_some();
+        Self {
+            candidate_count: usize::from(has_candidate),
+            policy_preview_id: has_candidate
+                .then(|| payload.policy_preview_id.clone())
+                .flatten(),
+            action_intent_id: has_candidate
+                .then(|| payload.action_intent_id.clone())
+                .flatten(),
+            source_ref: payload.source_ref.clone(),
+            evidence_ref: payload.evidence_ref.clone(),
+            dry_run_only: true,
+            policy_authority_only: true,
+            dispatch_attempt_count: 0,
+            adapter_execution_count: 0,
+            child_intervention_execution_count: 0,
+            enforcement_execution_count: 0,
+        }
+    }
+}
+
+impl EventResponseContract for BrowserRuntimeActionIntentStatusResponse {}
+
+pub async fn request_browser_runtime_action_intent_status_for_input(
+    input: BrowserRuntimeInput,
+) -> Result<BrowserRuntimeActionIntentStatusReport, EventingError> {
+    let bus = EventBus::new();
+    bus.subscribe::<BrowserRuntimeActionIntentStatusRequest, _, _>(
+        EventSubscriber::new(
+            SubscriberId::parse(constants::browser::SUBSCRIBER_BROWSER_ACTION_INTENT_STATUS)?,
+            EventType::parse(constants::browser::EVENT_BROWSER_ACTION_INTENT_STATUS_REQUESTED)?,
+            TargetHandler::parse(constants::browser::TARGET_BROWSER_ACTION_INTENT_STATUS)?,
+        ),
+        |context| async move {
+            context
+                .complete_request(BrowserRuntimeActionIntentStatusResponse::from_payload(
+                    &context.payload().payload,
+                ))
+                .await?;
+            Ok(())
+        },
+    )
+    .await?;
+
+    let phase = BrowserRuntimePhase::PolicyDecisionCompleted;
+    let payload = BrowserRuntimeEventPayload::from_input(phase, &input);
+    let request = BrowserRuntimeActionIntentStatusRequest {
+        request_id: RequestId::parse(action_intent_status_request_id(&payload))?,
+        payload,
+    };
+    let metadata = browser_event_metadata(
+        phase,
+        &input,
+        constants::browser::TARGET_BROWSER_ACTION_INTENT_STATUS,
+    )?;
+    let request_report = bus
+        .publish_request(
+            request,
+            metadata,
+            RequestOptions::with_timeout(Duration::from_millis(
+                constants::browser::REQUEST_BROWSER_ACTION_INTENT_STATUS_TIMEOUT_MS,
+            ))?,
+        )
+        .await?;
+
+    Ok(BrowserRuntimeActionIntentStatusReport {
+        request_report,
+        stored_events: bus.journal().await,
+        dead_letters: bus.dead_letters().await,
+    })
+}
+
+fn action_intent_status_request_id(payload: &BrowserRuntimeEventPayload) -> String {
+    let mut value = String::from(constants::browser::REQUEST_BROWSER_ACTION_INTENT_STATUS_PREFIX);
+    value.push_str(&payload.evidence_ref);
+    value.push(constants::delimiter::HYPHEN);
+    value.push_str(&payload.observed_at);
+    value
+}

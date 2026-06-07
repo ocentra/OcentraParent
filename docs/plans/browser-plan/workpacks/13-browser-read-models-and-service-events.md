@@ -330,3 +330,27 @@ of adding a new command family. It keeps dispatch attempts, adapter execution,
 child intervention execution, and enforcement at zero. It does not create a new
 generic event bus, implement external transport, execute final policy, mutate
 browser state, execute child intervention, or enforce.
+
+## Action-Intent Event Subscriber Addendum - 2026-06-07
+
+`browser-runtime-action-intent-event-subscriber-proof` adds a named Rust
+event-bus request/response subscriber for browser action-intent status. It
+publishes `browser.action-intent.status.requested`, routes it to the
+`browser-action-intent-status` subscriber, and completes a typed response using
+the reusable `ocentra-eventing` request path.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime/action_status.rs`
+- `crates/agent-core/src/browser_event_runtime.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `crates/agent-protocol/src/constants/browser.rs`
+- `scripts/test/browser-runtime-action-intent-event-subscriber-proof.mjs`
+- `test-results/browser-runtime-action-intent-event-subscriber-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-event-subscriber/01-browser-runtime-action-intent-event-subscriber-proof.md`
+- `cargo test -p ocentra-parent-agent-core browser_runtime_action_intent_event_subscriber --quiet`
+
+The subscriber returns one pending candidate for dry-run policy decision events
+with policy preview and action-intent refs, and zero candidates for
+manual-required rows. It does not execute adapter dispatch, final policy,
+browser mutation, child intervention, or enforcement.

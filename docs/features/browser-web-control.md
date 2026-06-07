@@ -136,6 +136,13 @@ control while being more honest about managed versus unmanaged sources.
   action-intent refs, preserves event/evidence refs, and keeps dispatch, adapter
   execution, child intervention execution, and enforcement at zero without
   adding a new command family or generic event bus.
+- Browser-plan WP13 now also proves a named Rust event-bus subscriber for
+  browser action-intent status. The runtime publishes
+  `browser.action-intent.status.requested`, the
+  `browser-action-intent-status` subscriber completes the typed eventing
+  request/response path, and dry-run rows return pending candidates while
+  manual-required rows return none. Dispatch, adapter execution, browser
+  mutation, child intervention execution, and enforcement remain zero.
 - Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
   through activity-domain inventory contracts, Rust protocol, and service
   payload/read-model proof. Contract tests cover mixed managed, unmanaged, and
