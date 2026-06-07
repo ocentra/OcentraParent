@@ -301,7 +301,9 @@ local outbox readiness, authority-enrollment manual-required proof,
 child-runtime product-readiness blocker, child-runtime artifact gate,
 physical-device artifact gate, provider-delivery artifact gate,
 provider-runtime readiness blocker, escalation-runtime readiness blocker, and
-retention product-readiness blocker proofs. It writes
+retention product-readiness blocker proofs. The refreshed closure also consumes
+the production durable workers readiness blocker proof so local/CI proof
+accounting is explicit before any product-ready handoff. It writes
 `46-product-readiness-closure-proof.json` and
 `test-results/tracking-product-readiness-closure-proof/proof.json` while
 keeping Android/iOS physical background behavior, actual child-device runtime,
@@ -1067,4 +1069,24 @@ test:tracking-plan-hosted-ui-proof` passed.
       location upload, retention cleanup, notification outbox, escalation
       timeout, provider receipt, child-device delivery, authority status,
       production audit durable storage, production worker execution, and
+      product-ready tracking remain proof-gated.
+
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: implementation checklist proof-pack inventory wording and
+      this proof-gate doc only.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-product-readiness-closure-proof.mjs` passed;
+      `cmd /c npm run format:check` passed; `git diff --check` passed;
+      `cmd /c npm run --silent lanes:guard` passed.
+- [x] Proof artifacts: no new proof artifact added; existing closure proof
+      remains the canonical local/CI accounting artifact.
+- [x] Product doc/checklist updates: owning implementation checklist and this
+      proof-gate doc updated. Central product capability checklist is not
+      edited by this branch.
+- [x] Known gaps/manual-required states: sub-agent and local audits found no
+      missing non-duplicate local/CI proof artifact after
+      `6063f06a`; Android/iOS physical proof, actual child-device runtime,
+      full product parent/child UI beyond hosted route, authority,
+      provider delivery/receipt runtime, production worker execution, and
       product-ready tracking remain proof-gated.
