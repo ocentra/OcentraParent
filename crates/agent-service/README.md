@@ -182,6 +182,9 @@ flowchart LR
 - Screen service analysis proofs are backend/local proof hooks only; production
   OCR/VLM quality, authenticated-account surfaces, broader live trigger
   producers, retention UI, and enforcement remain separate gaps.
+- Screen service event bridge proofs map successful, capture/queue-only,
+  deletion-only, and degraded Activity Screen rows into the shared core
+  eventing runtime without raw-image escape or duplicate service event buses.
 - Screen settings persistence and WebSocket command handling are backend/runtime
   proof only; parent portal form submit wiring, product retention-control UI,
   raw screenshot retention
