@@ -68,6 +68,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `47-ios-privacy-disclosure-release-proof.json`
 - Authority enrollment manual-required proof:
   `48-authority-enrollment-manual-required-proof.json`
+- Physical-device artifact gate proof:
+  `49-physical-device-artifact-gate-proof.json`
 - Hosted parent route screenshot/accessibility proof:
   `18-hosted-ui-accessibility-proof.json`
 - Evidence quality gate proof:
@@ -755,3 +757,26 @@ test:tracking-plan-hosted-ui-proof` passed.
 - [x] Known gaps/manual-required states: real enrolled-device authority state,
       hard-control runtime, physical-device behavior, provider delivery,
       production workers, and product-ready tracking remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain physical-device artifact gate proof/test,
+      focused proof script, owning tracking feature doc, implementation
+      checklist, WP33, generated WP33 proof artifacts, and hub doc delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-physical-device-artifact-gate-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-validation-commands.log`,
+      `test-results/tracking-physical-device-artifact-gate-proof/proof.json`,
+      and
+      `test-results/tracking-physical-device-artifact-gate-proof/read-model.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and WP33 updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta instead of editing the shared checklist directly.
+- [x] Known gaps/manual-required states: Android physical-device background
+      geofence artifacts and iOS physical-device region-monitoring artifacts are
+      missing, so physical-device behavior, authority enrollment, provider
+      delivery, production workers, and product-ready tracking remain
+      proof-gated.

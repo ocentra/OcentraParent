@@ -676,11 +676,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       hosted parent action readiness proof, hosted child-safe check-in screenshot
       proof, hosted child-runtime UI proof, hosted child-runtime execution
       readiness proof, hosted read-only evidence drawer proof, hosted UI
-      artifact inventory proof, product-readiness closure proof, and
-      remaining Android foreground/background location, physical-device,
-      authority, actual child-device delivery/runtime execution, full
-      child/parent UI beyond the hosted parent route, provider-delivery, and
-      production gaps.
+      artifact inventory proof, product-readiness closure proof,
+      physical-device artifact gate proof, and remaining Android/iOS
+      physical-device behavior, authority, actual child-device delivery/runtime
+      execution, full child/parent UI beyond the hosted parent route,
+      provider-delivery, and production gaps.
 
 ## UI Snapshot Gates
 
@@ -801,6 +801,15 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-missing-device.png`.
 - [ ] Android/iOS/manual desktop claims include real-device or explicitly
       approved manual proof.
+- [x] Physical-device artifact gate proof now verifies the required Android and
+      iOS physical evidence roots and required artifact names before any
+      physical-device behavior can be claimed. Proof:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json`;
+      command:
+      `node scripts/test/tracking-physical-device-artifact-gate-proof.mjs`.
+      Current Android/iOS rows are `manual-required`, missing the real-device
+      artifact sets, and keep physical-device behavior, authority, provider
+      delivery, production workers, and product-ready tracking false.
 - [x] Authority enrollment manual-required proof records Android device-owner,
       Android managed-profile, iOS Family Controls entitlement, iOS App Review,
       and desktop managed-policy evidence requirements under WP31/WP33 without
