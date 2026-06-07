@@ -47,6 +47,15 @@ relay/cache execution when needed, physical-device parity, and privacy/legal
 approval are all proved. This closes the worker-startup gate artifact only;
 actual production worker start, real platform prompt screenshots, relay/cache
 execution, physical-device parity, and privacy/legal approval remain open.
+`scripts/test/screen-live-view-session-transport-proof.mjs`,
+`scripts/test/screen-live-view-service-session-proof.mjs`, and
+`scripts/test/screen-live-view-runtime-proof.mjs` also prove the local loopback
+transport/session/runtime boundaries: a real local capture artifact is queued,
+transported through a LAN mutual-auth loopback proof with viewer audit, raw
+frame cache/session recording/remote input stay false, and the raw temp frame is
+deleted. These proofs close the local transport/runtime evidence bundle, but
+they do not satisfy platform live-view permission-prompt screenshots,
+relay/cache execution, physical-device parity, or privacy/legal approval.
 
 ## Checklist
 
@@ -60,7 +69,10 @@ execution, physical-device parity, and privacy/legal approval remain open.
 - [x] Add fail-closed platform permission gate proof.
 - [x] Add parent UI persistence carry-forward proof.
 - [x] Add fail-closed Rust service worker startup gate proof.
-- [ ] Add real live-view platform prompt and transport proof.
+- [x] Add local loopback live-view transport/session/runtime proof.
+- [ ] Add real live-view platform prompt proof.
+- [ ] Add relay/cache execution proof for relay-backed mode.
+- [ ] Add physical-device parity and privacy/legal approval proof.
 
 ## Proof
 
@@ -69,6 +81,9 @@ execution, physical-device parity, and privacy/legal approval remain open.
 - `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`.
 - `output/screen-plan-proof/27-28-optional-retention-live-preflight/proof-summary.json`.
 - `output/screen-plan-proof/live-view-platform-permission/proof-summary.json`.
+- `output/screen-plan-proof/live-view-session-transport/proof-summary.json`.
+- `output/screen-plan-proof/live-view-service-session/proof-summary.json`.
+- `output/screen-plan-proof/live-view-runtime/proof-summary.json`.
 - `output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json`.
 - `output/screen-plan-proof/live-view-worker-startup/proof-summary.json`.
 - Capture-adapter platform consent reference:
