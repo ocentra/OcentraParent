@@ -5,10 +5,13 @@ import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
+const proofMode = 'production-support-status-backend-payload-custody-proof';
 const resultDir = join(repoRoot, 'test-results', 'production-support-status-backend-payload-custody-proof');
 const outputDir = join(repoRoot, 'output', 'production-support-status-backend-payload-custody-proof');
 const proofPath = join(resultDir, 'proof.json');
 const summaryPath = join(outputDir, 'proof-summary.json');
+const deterministicCheckedAt = 'deterministic-proof-artifact';
+const deterministicCommit = 'branch-head-validated-by-harness';
 const commands = [];
 
 await main();
@@ -16,6 +19,7 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
+  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
   await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/logging-domain']);
   await runCommand('cmd', [
     '/c',
@@ -28,24 +32,23 @@ async function main() {
     'tests/status-backend-payload-custody.test.ts',
   ]);
 
-  const commit = await gitHead();
   const readModel = await parseReadModel();
   assertReadModel(readModel);
   await assertPackageExports();
 
   const proof = {
     schemaVersion: 1,
-    checkedAt: new Date().toISOString(),
-    commit,
-    proofMode: 'production-support-status-backend-payload-custody-proof',
+    checkedAt: deterministicCheckedAt,
+    commit: deterministicCommit,
+    proofMode,
     commands,
     evidence: {
       contract: 'packages/logging-domain/src/status-backend-payload-custody.ts',
       guards: 'packages/logging-domain/src/status-backend-payload-custody-guards.ts',
       readModel: 'packages/logging-domain/src/status-backend-payload-custody-read-model.ts',
       contractTest: 'packages/logging-domain/tests/status-backend-payload-custody.test.ts',
-      proofOutput: relative(repoRoot, proofPath),
-      summaryOutput: relative(repoRoot, summaryPath),
+      proofOutput: relativePath(proofPath),
+      summaryOutput: relativePath(summaryPath),
       featureDoc: 'docs/features/production-distribution-support.md',
       expectations: ['docs/expectations/data-custody.md', 'docs/expectations/release-installer.md'],
     },
@@ -79,16 +82,16 @@ async function main() {
   const summary = {
     schemaVersion: 1,
     checkedAt: proof.checkedAt,
-    commit,
+    commit: proof.commit,
     proofMode: proof.proofMode,
     statesCovered: readModel.entries.map((entry) => entry.custodyState),
-    output: relative(repoRoot, proofPath),
+    output: relativePath(proofPath),
     claimsNotProved: proof.claimsNotProved,
   };
 
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
   await writeFile(summaryPath, `${JSON.stringify(summary, null, 2)}\n`);
-  console.log(`production-support-status-backend-payload-custody-proof-ok:${relative(repoRoot, proofPath)}`);
+  console.log(`${proofMode}-ok:${relativePath(proofPath)} ${relativePath(summaryPath)}`);
 }
 
 async function parseReadModel() {
@@ -151,13 +154,6 @@ async function runCommand(commandName, args) {
   });
 }
 
-async function gitHead() {
-  const chunks = [];
-  await new Promise((resolve, reject) => {
-    const child = spawn('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] });
-    child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
-    child.once('exit', (code) => (code === 0 ? resolve() : reject(new Error('git rev-parse HEAD failed'))));
-    child.once('error', reject);
-  });
-  return chunks.join('').trim();
+function relativePath(path) {
+  return relative(repoRoot, path).replaceAll('\\', '/');
 }
