@@ -10,7 +10,13 @@ describe('screen optional visibility capability status', () => {
   it('summarizes disabled and blocked optional visibility modes without enabling raw frames', () => {
     const proof = screenOptionalVisibilityCapabilityStatusProof(GeneratedAt);
 
-    expect(proof.rows.map((row) => row.readinessState)).toEqual(['disabled', 'manualRequired', 'disabled', 'blocked']);
+    expect(proof.rows.map((row) => row.readinessState)).toEqual([
+      'disabled',
+      'manualRequired',
+      'ready',
+      'disabled',
+      'blocked',
+    ]);
     expect(proof.rows.every((row) => !row.rawFramesRetained)).toBe(true);
     expect(proof.rows.every((row) => !row.rawRemoteUploadAllowed)).toBe(true);
     expect(proof.rows.every((row) => !row.remoteInputAllowed)).toBe(true);
@@ -35,6 +41,26 @@ describe('screen optional visibility capability status', () => {
     });
 
     expect(parsed.success).toBe(false);
+  });
+
+  it('allows raw retention readiness only with runtime and deletion proof', () => {
+    const proof = screenOptionalVisibilityCapabilityStatusProof(GeneratedAt);
+    const readyRetentionRow = proof.rows.find(
+      (row) => row.capabilityKind === 'rawScreenshotRetention' && row.readinessState === 'ready'
+    );
+
+    expect(readyRetentionRow).toBeDefined();
+    expect(readyRetentionRow?.runtimeProofRef).toBe(
+      'output/screen-plan-proof/screen-settings-service-command/proof-summary.json'
+    );
+    expect(readyRetentionRow?.deletionProofRef).toBe(
+      'output/screen-plan-proof/screen-service-deletion-event-producer/proof-summary.json'
+    );
+    expect(readyRetentionRow?.childDisclosureReady).toBe(true);
+    expect(readyRetentionRow?.childDeviceCapabilityReady).toBe(true);
+    expect(readyRetentionRow?.productModeReady).toBe(true);
+    expect(readyRetentionRow?.rawFramesRetained).toBe(false);
+    expect(readyRetentionRow?.rawRemoteUploadAllowed).toBe(false);
   });
 
   it('rejects live view readiness when the platform gate only proves capture permission', () => {

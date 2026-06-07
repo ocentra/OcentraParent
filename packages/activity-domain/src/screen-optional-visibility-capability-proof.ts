@@ -11,6 +11,7 @@ import {
   type ScreenLiveViewOptInSetting,
   type ScreenRawScreenshotRetentionOptInSetting,
 } from './screen-optional-visibility-mode';
+import { ScreenOptionalVisibilityPlatformProofRefSchema } from './screen-optional-visibility-mode-values';
 import {
   ScreenOptionalVisibilityCapabilityStatusSchema,
   ScreenOptionalVisibilityCapabilityStatusSchemaVersion,
@@ -19,15 +20,15 @@ import {
 
 export const ScreenOptionalVisibilityCapabilityProofGeneratedAt = '2026-06-07T05:55:00Z';
 
+const OptionalVisibilityProofRef = withParser(ScreenOptionalVisibilityPlatformProofRefSchema);
+
 export const ScreenOptionalVisibilityCapabilityProofSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ScreenOptionalVisibilityCapabilityStatusSchemaVersion),
     generatedAt: ActivityTimestampSchema,
     proofId: Schema.Literal('screen-optional-visibility-capability-status-proof'),
     rows: Schema.Array(ScreenOptionalVisibilityCapabilityStatusSchema).pipe(
-      Schema.filter(
-        (value) => value.length >= 4 || 'Expected disabled and blocked rows for raw retention and live view'
-      )
+      Schema.filter((value) => value.length >= 5 || 'Expected disabled, manual-required, ready, and blocked rows')
     ),
     nonClaims: Schema.Array(ScreenEvidenceReasonSchema).pipe(
       Schema.filter((value) => value.length >= 3 || 'Expected explicit optional visibility non-claims')
@@ -39,6 +40,17 @@ export function screenOptionalVisibilityCapabilityStatusProof(generatedAt: strin
   const rows = [
     rawRetentionCapabilityRow(generatedAt, disabledRawRetention(generatedAt)),
     rawRetentionCapabilityRow(generatedAt, approvedRawRetentionWithoutRuntime(generatedAt)),
+    rawRetentionCapabilityRow(generatedAt, approvedRawRetentionWithRuntimeProof(generatedAt), {
+      runtimeProofRef: OptionalVisibilityProofRef.parse(
+        'output/screen-plan-proof/screen-settings-service-command/proof-summary.json'
+      ),
+      deletionProofRef: OptionalVisibilityProofRef.parse(
+        'output/screen-plan-proof/screen-service-deletion-event-producer/proof-summary.json'
+      ),
+      childDisclosureReady: true,
+      childDeviceCapabilityReady: true,
+      productModeReady: true,
+    }),
     liveViewCapabilityRow(generatedAt, disabledLiveView(generatedAt), null),
     liveViewCapabilityRow(
       generatedAt,
@@ -53,7 +65,7 @@ export function screenOptionalVisibilityCapabilityStatusProof(generatedAt: strin
     proofId: 'screen-optional-visibility-capability-status-proof',
     rows,
     nonClaims: [
-      'This proof does not enable raw screenshot retention runtime.',
+      'This proof proves raw screenshot retention readiness only after explicit parent approval, runtime proof, deletion proof, child disclosure readiness, and child device readiness.',
       'This proof does not enable live-view transport, relay, cache, or remote input.',
       'This proof does not satisfy privacy/legal approval or physical platform live-view prompt screenshots.',
     ],
@@ -65,7 +77,11 @@ function rawRetentionCapabilityRow(
   setting: ScreenRawScreenshotRetentionOptInSetting,
   overrides: Partial<ScreenOptionalVisibilityCapabilityStatus> = {}
 ) {
-  const hasRuntimeProof = overrides.runtimeProofRef !== undefined && overrides.runtimeProofRef !== null;
+  const hasRuntimeProof =
+    overrides.runtimeProofRef !== undefined &&
+    overrides.runtimeProofRef !== null &&
+    overrides.deletionProofRef !== undefined &&
+    overrides.deletionProofRef !== null;
   return ScreenOptionalVisibilityCapabilityStatusSchema.parse({
     ...baseRow(checkedAt, 'rawScreenshotRetention', setting.parentSettingRef),
     readinessState: setting.mode === 'disabled' ? 'disabled' : hasRuntimeProof ? 'ready' : 'manualRequired',
@@ -73,7 +89,9 @@ function rawRetentionCapabilityRow(
     reason:
       setting.mode === 'disabled'
         ? 'raw screenshot retention is disabled by default'
-        : 'raw screenshot retention needs runtime and deletion proof before product readiness',
+        : hasRuntimeProof
+          ? 'raw screenshot retention is ready only with parent approval, runtime proof, deletion proof, child disclosure, and child device readiness'
+          : 'raw screenshot retention needs runtime and deletion proof before product readiness',
     ...overrides,
   });
 }
@@ -162,6 +180,19 @@ function approvedRawRetentionWithoutRuntime(changedAt: string): ScreenRawScreens
     deleteAfterTtl: true,
     deleteProofRequired: true,
     reason: 'parent approved local short TTL raw screenshot retention',
+  });
+}
+
+function approvedRawRetentionWithRuntimeProof(changedAt: string): ScreenRawScreenshotRetentionOptInSetting {
+  return ScreenRawScreenshotRetentionOptInSettingSchema.parse({
+    ...approvedRawRetentionWithoutRuntime(changedAt),
+    settingId: 'screen-retention-capability-local-ttl-runtime',
+    parentSettingRef: 'screen-parent-retention-capability-local-ttl-runtime',
+    settingVersion: 2,
+    approvalRef: 'screen-retention-runtime-approval',
+    auditRef: 'screen-retention-runtime-audit',
+    ttlSeconds: 120,
+    reason: 'parent approved local short TTL raw screenshot retention with runtime and deletion proof',
   });
 }
 

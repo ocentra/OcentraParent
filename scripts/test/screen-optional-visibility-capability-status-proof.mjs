@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -7,6 +7,20 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..', '..');
 const proofDir = join(repoRoot, 'output', 'screen-plan-proof', 'optional-visibility-capability-status');
 const proofPath = join(proofDir, 'proof-summary.json');
+const retentionRuntimeProofPath = join(
+  repoRoot,
+  'output',
+  'screen-plan-proof',
+  'screen-settings-service-command',
+  'proof-summary.json'
+);
+const retentionDeletionProofPath = join(
+  repoRoot,
+  'output',
+  'screen-plan-proof',
+  'screen-service-deletion-event-producer',
+  'proof-summary.json'
+);
 
 run('npm', ['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
 
@@ -21,9 +35,12 @@ const blockedLiveView = proof.rows.find((row) => row.capabilityKind === 'liveVie
 const manualRetention = proof.rows.find(
   (row) => row.capabilityKind === 'rawScreenshotRetention' && row.readinessState === 'manualRequired'
 );
+const readyRetention = proof.rows.find(
+  (row) => row.capabilityKind === 'rawScreenshotRetention' && row.readinessState === 'ready'
+);
 
-if (!blockedLiveView || !manualRetention) {
-  throw new Error('Expected blocked live-view and manual-required raw retention rows');
+if (!blockedLiveView || !manualRetention || !readyRetention) {
+  throw new Error('Expected blocked live-view, manual-required raw retention, and ready raw retention rows');
 }
 if (proof.rows.some((row) => row.rawFramesRetained || row.rawRemoteUploadAllowed || row.remoteInputAllowed)) {
   throw new Error(
@@ -32,6 +49,12 @@ if (proof.rows.some((row) => row.rawFramesRetained || row.rawRemoteUploadAllowed
 }
 if (blockedLiveView.liveViewPermissionGate?.permissionEvidenceKind !== 'screen-capture-only') {
   throw new Error('Expected live-view row to prove capture-only permission remains blocked');
+}
+if (!readyRetention.runtimeProofRef || !readyRetention.deletionProofRef) {
+  throw new Error('Expected ready raw-retention row to carry runtime and deletion proof refs');
+}
+if (!existsSync(retentionRuntimeProofPath) || !existsSync(retentionDeletionProofPath)) {
+  throw new Error('Expected raw-retention runtime and deletion proof artifacts to exist');
 }
 
 mkdirSync(proofDir, { recursive: true });
@@ -44,6 +67,9 @@ writeFileSync(
         readinessStates,
         blockedLiveViewReason: blockedLiveView.reason,
         manualRetentionReason: manualRetention.reason,
+        readyRetentionReason: readyRetention.reason,
+        retentionRuntimeProofPresent: existsSync(retentionRuntimeProofPath),
+        retentionDeletionProofPresent: existsSync(retentionDeletionProofPath),
       },
     },
     null,

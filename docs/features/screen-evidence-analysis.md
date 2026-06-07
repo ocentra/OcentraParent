@@ -739,15 +739,19 @@ only with explicit parent settings.
   product-complete implementation proof.
 - `scripts/test/screen-optional-visibility-capability-status-proof.mjs` now
   proves optional raw-retention/live-view parent opt-in readiness rows. Disabled
-  modes stay unavailable, approved raw retention remains manual-required until
-  runtime and deletion proof exist, and approved live view remains blocked when
-  the only platform evidence is capture consent. This is child/device
-  capability status proof, not raw retention runtime or live transport.
+  modes stay unavailable, approved raw retention remains manual-required without
+  runtime/deletion proof, and approved raw retention can become ready only when
+  existing service settings runtime proof, deletion-event proof, child
+  disclosure readiness, and child device readiness are all present while current
+  raw-frame retention and raw remote upload stay false. Approved live view
+  remains blocked when the only platform evidence is capture consent. This is a
+  child/device capability readiness proof, not active raw screenshot storage or
+  live transport.
 
 ## Current Gap
 
-Product-complete parent retention controls, optional raw-retention runtime
-enablement, actual production live-view worker start/relay-cache transport,
+Product-complete parent retention controls, active raw-retention storage
+execution, actual production live-view worker start/relay-cache transport,
 platform permission prompt proof, physical-device live-view parity, child-agent
 disclosure runtime deployment,
 privacy/legal approval, authenticated-account
