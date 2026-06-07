@@ -85,6 +85,10 @@
       "import": "./dist/app-install-purchase-external-runtime-writer-delivery-blocker-proof.js",
       "types": "./dist/app-install-purchase-external-runtime-writer-delivery-blocker-proof.d.ts"
     },
+    "./app-install-purchase-external-runtime-transport-queue-proof": {
+      "import": "./dist/app-install-purchase-external-runtime-transport-queue-proof.js",
+      "types": "./dist/app-install-purchase-external-runtime-transport-queue-proof.d.ts"
+    },
     "./app-install-purchase-runtime-report-writer-delivery-proof": {
       "import": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.js",
       "types": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.d.ts"

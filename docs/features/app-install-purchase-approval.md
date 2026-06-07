@@ -544,6 +544,20 @@ generic app blocking covers this concern.
   when run, validates the public parent-domain package export, and records the
   deferred product checklist row delta because E-C currently owns
   `docs/product-capability-checklist.md`.
+- `packages/parent-domain/src/app-install-purchase-external-runtime-transport-queue-proof.ts`
+  now consumes the external runtime writer delivery blocker rows into
+  parent-owned queue and dispatch-guard entries that keep runtime dispatch
+  blocked or manual-required until real external writer transport,
+  child-device transport, provider/store execution, and platform adapter proof
+  refs exist. It preserves no external writer execution/delivery, no
+  child-device delivery, no provider/store execution, no platform adapter, no
+  app blocking, no child activity data, and no hosted custody claims.
+- `scripts/test/app-install-purchase-external-runtime-transport-queue-proof.mjs`
+  records that external runtime transport queue proof under
+  `test-results/app-install-purchase-external-runtime-transport-queue-proof/proof.json`
+  when run, validates the public parent-domain package export, and records the
+  deferred product checklist row delta because E-C currently owns
+  `docs/product-capability-checklist.md`.
 - `packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts`
   links provider/store execution readiness rows and runtime writer execution
   delivery receipts into parent-owned provider/store execution preflight ready,
@@ -811,6 +825,14 @@ Ocentra-hosted family data custody.
       provider/store execution, platform interception/adapters, child-device
       delivery, runtime report delivery, app blocking, child activity data, or
       hosted family data custody.
+- [x] External runtime transport queue proof consuming delivery blocker rows
+      into parent-owned queue and dispatch-guard entries that keep dispatch
+      blocked or manual-required until external writer transport, child-device
+      transport, provider/store execution, and platform adapter proof refs are
+      real without claiming external runtime writer execution/delivery,
+      provider/store execution, platform adapters, child-device delivery,
+      runtime report delivery, app blocking, child activity data, or hosted
+      family data custody.
 - [x] Provider/store execution preflight proof linking provider/store execution
       readiness rows and runtime writer execution delivery receipts into
       parent-owned ready/manual/unavailable preflight rows without provider API

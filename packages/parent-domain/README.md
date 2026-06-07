@@ -267,6 +267,13 @@ mobile readiness, and control catalogs.
   delivery, child-device delivery, provider/store execution, platform
   interception/adapters, app blocking, child activity data, and Ocentra-hosted
   family data custody unclaimed.
+- App install/purchase external runtime transport queue proof contracts that
+  consume external runtime writer delivery blocker rows into parent-owned queue
+  and dispatch-guard rows. They preserve the required external writer
+  transport, child-device transport, provider/store execution, and platform
+  adapter proof refs while keeping dispatch blocked and no external writer,
+  child-device delivery, provider/store, platform adapter, app blocking, child
+  activity data, or hosted custody claims unimplemented.
 - App install/purchase runtime report writer delivery proof contracts that link
   runtime writer execution delivery receipts and report-runtime compiler output
   rows into parent-owned report delivery-ready rows and report receipts while
@@ -435,16 +442,17 @@ flowchart LR
   plus external runtime device delivery evidence, external runtime writer
   readiness, external runtime delivery handoff proof, external runtime writer
   transport preflight proof, external runtime writer delivery boundary proof,
-  and runtime report writer delivery proof; Windows package-source adapter
-  evidence proof now records sanitized local host command evidence for the
-  Windows row without claiming Microsoft Store/provider execution or a
+  external runtime writer delivery blocker proof, external runtime transport
+  queue proof, and runtime report writer delivery proof; Windows package-source
+  adapter evidence proof now records sanitized local host command evidence for
+  the Windows row without claiming Microsoft Store/provider execution or a
   production platform adapter;
   platform/store provider execution, actual provider contact, actual platform
   adapters, production child-device package capture, production package-source
   capture adapter execution,
   runtime status reader, child delivery, portal UX, external runtime writer
-  device delivery, parent action runtime delivery, and external report runtime
-  delivery remain unimplemented.
+  device delivery, external runtime transport dispatch, parent action runtime
+  delivery, and external report runtime delivery remain unimplemented.
 - Billing/subscription provider integration, account backend, entitlement
   signing/delivery runtime, provider-contact execution, entitlement admin
   override runtime, refund/credit runtime, portal billing/admin UI, support

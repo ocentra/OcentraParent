@@ -95,6 +95,11 @@ behavior belongs behind platform adapters and must be proved per platform.
   writer execution/delivery, Microsoft Store execution, provider credentials,
   platform adapter execution, child-device delivery, app blocking, or
   product-claim approval.
+- Windows app-install external runtime transport queue proof may classify
+  parent-owned queue and dispatch guard rows for follow-up runtime delivery
+  work only. It still does not prove external writer execution/delivery,
+  Microsoft Store execution, provider credentials, platform adapter execution,
+  child-device delivery, app blocking, or product-claim approval.
 - Windows app-install package-source adapter evidence proof may attach
   sanitized local host command evidence, such as `Get-AppxPackage`
   availability and Microsoft Store package-source probe metadata, to move the
