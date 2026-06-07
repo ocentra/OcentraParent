@@ -16,7 +16,8 @@ import {
   gameManualCompiledDecision,
 } from './app-game-policy-preview-handoff-fixtures';
 
-const [readyAppSource, readyGameSource, manualGameSource] = AppGameSourceFreshnessPolicyConsumptionMatrix.readiness;
+const [readyAppSource, manualAppSource, readyGameSource, manualGameSource] =
+  AppGameSourceFreshnessPolicyConsumptionMatrix.readiness;
 
 const GateOptions = {
   schemaVersion: PreviewOptions.schemaVersion,
@@ -38,6 +39,10 @@ describe('app/game source freshness preview gate', () => {
 
   it('blocks stale or missing source freshness before policy preview rows are built', () => {
     assertBlocksManualSourceFreshness();
+  });
+
+  it('blocks stale native app source freshness before policy preview rows are built', () => {
+    assertBlocksManualNativeAppSourceFreshness();
   });
 
   it('keeps source-fresh native game block-launch previews manual-required when compiler proof is manual', () => {
@@ -85,6 +90,26 @@ function assertBlocksManualSourceFreshness() {
   expect(row.adapterDispatchClaimed).toBe(false);
 }
 
+function assertBlocksManualNativeAppSourceFreshness() {
+  const row = buildManualAppRow();
+
+  expect(row.targetDomain).toBe(AppGamePolicyPreviewTargetDomain.NativeApp);
+  expect(row.sourceReadinessState).toBe(AppGameSourceFreshnessPolicyReadinessState.ManualRequired);
+  expect(row.sourcePolicyCompileAllowed).toBe(false);
+  expect(row.previewStatus).toBe(AppGameSourceFreshnessPreviewGateStatus.ManualRequired);
+  expect(row.gateState).toBe(AppGameSourceFreshnessPreviewGateState.SourceManualRequired);
+  expect(row.previewRow).toBeNull();
+  expect(row.compiledDecisionProvided).toBe(false);
+  expect(row.sourceRequirementStates).toEqual(['stale', 'empty', 'missing']);
+  expect(row.sourceReasonCodes).toEqual([
+    'stale-source-status-row',
+    'empty-source-status-row',
+    'missing-source-status-row',
+  ]);
+  expect(row.adapterDispatchClaimed).toBe(false);
+  expect(row.platformEnforcementClaimed).toBe(false);
+}
+
 function assertCompilerManualGameStaysManualRequired() {
   const row = buildCompilerManualGameRow();
 
@@ -100,11 +125,11 @@ function assertCompilerManualGameStaysManualRequired() {
 function assertBuildsReadModelCounts() {
   const readModel = buildFullReadModel();
 
-  expect(readModel.nativeAppRowCount).toBe(1);
+  expect(readModel.nativeAppRowCount).toBe(2);
   expect(readModel.nativeGameRowCount).toBe(2);
   expect(readModel.previewReadyCount).toBe(1);
-  expect(readModel.manualRequiredCount).toBe(2);
-  expect(readModel.sourceManualRequiredCount).toBe(1);
+  expect(readModel.manualRequiredCount).toBe(3);
+  expect(readModel.sourceManualRequiredCount).toBe(2);
   expect(readModel.compilerManualRequiredCount).toBe(1);
   expect(readModel.adapterDispatchClaimed).toBe(false);
 }
@@ -146,6 +171,14 @@ function buildManualGameRow() {
   });
 }
 
+function buildManualAppRow() {
+  return buildAppGameSourceFreshnessPreviewGateRow(GateOptions, {
+    rowId: 'source-gate-row-manual-app',
+    sourceReadiness: manualAppSource,
+    compiledDecision: null,
+  });
+}
+
 function buildCompilerManualGameRow() {
   return buildAppGameSourceFreshnessPreviewGateRow(GateOptions, {
     rowId: 'source-gate-row-compiler-manual-game',
@@ -170,6 +203,11 @@ function buildFullReadModel() {
       rowId: 'source-gate-row-ready-app',
       sourceReadiness: readyAppSource,
       compiledDecision: appCompiledDecision,
+    },
+    {
+      rowId: 'source-gate-row-manual-app',
+      sourceReadiness: manualAppSource,
+      compiledDecision: null,
     },
     {
       rowId: 'source-gate-row-manual-game',

@@ -76,6 +76,13 @@ control with better evidence and local audit.
   refs while the parent-visible intent and SVG dashboard omit the raw path and
   `executablePathRef` field, rendering only labels, state, counts, capability,
   durations, and evidence refs.
+- The app-plan stale evidence security reconciliation now cross-records native
+  app stale-evidence rejection from the shared app/game source-freshness preview
+  gate proof: stale or missing native-app source readiness stays
+  manual-required, blocks policy compile and preview row creation, keeps
+  compiled decisions absent, and does not dispatch adapters, execute policy,
+  claim platform enforcement, move product checklist status, or add
+  browser-game scope.
 - App/game unknown approval contracts now represent new inventory apps, unknown
   runtime processes, portable/installer candidates, launcher-game candidates,
   unknown game-like executables, child status/reason refs, parent response

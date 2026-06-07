@@ -58,6 +58,37 @@ export const AppGameSourceFreshnessPolicyConsumptionRequests = [
   },
   {
     schemaVersion: ParentContractSchemaVersion.V0_6,
+    policyRequestId: 'source-freshness-native-app-manual-request',
+    target: {
+      targetKind: TargetKind.NativeApp,
+      targetRef: 'app-target-stale-or-missing-helper',
+    },
+    requiredSources: [RequirementKind.Inventory, RequirementKind.Runtime, RequirementKind.Foreground],
+    maxSourceAgeMs: 600000,
+    sourceRowsFromActivityReadModel: true,
+    rawPrivateSourceRowsIncluded: false,
+    requestedAt: GeneratedAt,
+    sourceStatusRows: [
+      {
+        sourceKind: SourceKind.OsInstalledRecord,
+        state: ReadModelState.Stale,
+        rowCount: 1,
+        lastObservedAt: StaleObservedAt,
+        capabilityStatus: CapabilityStatus.Stale,
+        evidence: ['evidence-app-inventory-stale'],
+      },
+      {
+        sourceKind: SourceKind.ProcessSnapshot,
+        state: ReadModelState.Ready,
+        rowCount: 0,
+        lastObservedAt: null,
+        capabilityStatus: CapabilityStatus.Available,
+        evidence: [],
+      },
+    ],
+  },
+  {
+    schemaVersion: ParentContractSchemaVersion.V0_6,
     policyRequestId: 'source-freshness-native-game-ready-request',
     target: {
       targetKind: TargetKind.NativeGame,

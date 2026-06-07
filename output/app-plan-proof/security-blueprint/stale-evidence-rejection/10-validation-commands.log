@@ -1,0 +1,32 @@
+cmd /c node scripts/test/app-game-source-freshness-preview-gate-proof.mjs
+> @ocentra-parent/parent-domain@0.1.1 build
+> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist
+
+
+> @ocentra-parent/parent-domain@0.1.1 test
+> vitest run app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff
+
+
+ RUN  v4.1.6 <repo>/packages/parent-domain
+
+
+ Test Files  3 passed (3)
+      Tests  17 passed (17)
+   Start at  deterministic-time
+   Duration  deterministic-duration (transform deterministic)
+
+app-game-source-freshness-preview-gate-proof-ok
+evidence=test-results\app-game-source-freshness-preview-gate-proof\proof.json
+
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff
+> @ocentra-parent/parent-domain@0.1.1 test
+> vitest run app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff
+
+
+ RUN  v4.1.6 <repo>/packages/parent-domain
+
+
+ Test Files  3 passed (3)
+      Tests  17 passed (17)
+   Start at  deterministic-time
+   Duration  deterministic-duration (transform deterministic)

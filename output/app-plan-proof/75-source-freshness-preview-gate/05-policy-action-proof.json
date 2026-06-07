@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "previewReadyRows": 1,
-  "manualRequiredRows": 2,
-  "sourceManualRequiredRows": 1,
+  "manualRequiredRows": 3,
+  "sourceManualRequiredRows": 2,
   "compilerManualRequiredRows": 1,
   "policyEvaluatorRuntimeClaimed": false,
   "timerRuntimeClaimed": false,

@@ -101,9 +101,41 @@
     },
     {
       "schemaVersion": "v0.6",
+      "rowId": "source-gate-row-manual-app",
+      "targetDomain": "native-app",
+      "sourceReadinessId": "source-freshness-policy-readiness-2",
+      "sourcePolicyRequestId": "source-freshness-native-app-manual-request",
+      "sourceReadinessState": "manual-required",
+      "sourcePolicyCompileAllowed": false,
+      "sourceRequirementStates": [
+        "stale",
+        "empty",
+        "missing"
+      ],
+      "sourceReasonCodes": [
+        "stale-source-status-row",
+        "empty-source-status-row",
+        "missing-source-status-row"
+      ],
+      "sourceEvidenceRefs": [
+        "evidence-app-inventory-stale"
+      ],
+      "compiledDecisionProvided": false,
+      "previewStatus": "manual-required",
+      "gateState": "source-manual-required",
+      "previewRow": null,
+      "policyEvaluatorRuntimeClaimed": false,
+      "timerRuntimeClaimed": false,
+      "adapterDispatchClaimed": false,
+      "childDeliveryClaimed": false,
+      "platformEnforcementClaimed": false,
+      "generatedAt": "2026-06-05T23:45:00Z"
+    },
+    {
+      "schemaVersion": "v0.6",
       "rowId": "source-gate-row-manual-game",
       "targetDomain": "native-game",
-      "sourceReadinessId": "source-freshness-policy-readiness-3",
+      "sourceReadinessId": "source-freshness-policy-readiness-4",
       "sourcePolicyRequestId": "source-freshness-native-game-manual-request",
       "sourceReadinessState": "manual-required",
       "sourcePolicyCompileAllowed": false,
@@ -136,7 +168,7 @@
       "schemaVersion": "v0.6",
       "rowId": "source-gate-row-compiler-manual-game",
       "targetDomain": "native-game",
-      "sourceReadinessId": "source-freshness-policy-readiness-2",
+      "sourceReadinessId": "source-freshness-policy-readiness-3",
       "sourcePolicyRequestId": "source-freshness-native-game-ready-request",
       "sourceReadinessState": "policy-ready",
       "sourcePolicyCompileAllowed": true,
@@ -226,11 +258,11 @@
       "generatedAt": "2026-06-05T23:45:00Z"
     }
   ],
-  "nativeAppRowCount": 1,
+  "nativeAppRowCount": 2,
   "nativeGameRowCount": 2,
   "previewReadyCount": 1,
-  "manualRequiredCount": 2,
-  "sourceManualRequiredCount": 1,
+  "manualRequiredCount": 3,
+  "sourceManualRequiredCount": 2,
   "compilerManualRequiredCount": 1,
   "policyEvaluatorRuntimeClaimed": false,
   "timerRuntimeClaimed": false,

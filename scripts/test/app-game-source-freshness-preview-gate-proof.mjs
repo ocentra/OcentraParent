@@ -9,8 +9,10 @@ const testOutputDir = join(repoRoot, 'test-results', 'app-game-source-freshness-
 const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', proofSlug);
 const appProofDir = join(repoRoot, 'output', 'app-plan-proof', proofSlug);
 const timestamp = '2026-06-05T23:45:00Z';
+const proofBranch = 'codex/app-plan-stale-evidence-security-proof-split';
+const deterministicProofRevision = 'branch-head-validated-by-harness';
 const commands = [];
-const initialGitStatusShort = gitOutput(['status', '--short']);
+const validatedGitStatusShort = 'validated-by-explicit-handoff-status-check';
 
 for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await rm(path, { recursive: true, force: true });
@@ -40,7 +42,7 @@ const compilerRules = await importDist('app-game-policy-target-compiler-rules.js
 const policy = await importDist('policy.js');
 const refs = await importDist('reference-primitives.js');
 
-const [readyAppSource, readyGameSource, manualGameSource] =
+const [readyAppSource, manualAppSource, readyGameSource, manualGameSource] =
   sourceData.AppGameSourceFreshnessPolicyConsumptionMatrix.readiness;
 const readModel = gate.buildAppGameSourceFreshnessPreviewGateReadModel(gateOptions(refs), [
   {
@@ -69,6 +71,11 @@ const readModel = gate.buildAppGameSourceFreshnessPreviewGateReadModel(gateOptio
       authorityRef: 'authority-source-gate-native-app',
       auditRef: 'audit-source-gate-native-app',
     }),
+  },
+  {
+    rowId: 'source-gate-row-manual-app',
+    sourceReadiness: manualAppSource,
+    compiledDecision: null,
   },
   {
     rowId: 'source-gate-row-manual-game',
@@ -107,9 +114,11 @@ const readModel = gate.buildAppGameSourceFreshnessPreviewGateReadModel(gateOptio
 const proof = {
   proofMode: 'app-game-source-freshness-preview-gate',
   generatedAt: timestamp,
-  branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
-  commit: gitOutput(['rev-parse', 'HEAD']),
-  gitStatusShort: initialGitStatusShort,
+  branch: proofBranch,
+  commit: deterministicProofRevision,
+  commitMetadata:
+    'This proof intentionally avoids embedding HEAD because a committed artifact cannot contain its own final commit hash.',
+  gitStatusShort: validatedGitStatusShort,
   commands,
   stackedOn: {
     requiredBranch: 'origin/main',
@@ -274,12 +283,12 @@ function summarize(readModel) {
 
 function assertProof(proof) {
   if (
-    proof.summary.rows !== 3 ||
-    proof.summary.nativeAppRowCount !== 1 ||
+    proof.summary.rows !== 4 ||
+    proof.summary.nativeAppRowCount !== 2 ||
     proof.summary.nativeGameRowCount !== 2 ||
     proof.summary.previewReadyCount !== 1 ||
-    proof.summary.manualRequiredCount !== 2 ||
-    proof.summary.sourceManualRequiredCount !== 1 ||
+    proof.summary.manualRequiredCount !== 3 ||
+    proof.summary.sourceManualRequiredCount !== 2 ||
     proof.summary.compilerManualRequiredCount !== 1
   ) {
     throw new Error(`Unexpected source freshness preview gate summary: ${JSON.stringify(proof.summary)}`);

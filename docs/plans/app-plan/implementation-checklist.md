@@ -140,7 +140,7 @@ reason.
 - [ ] Security: platform authority guard.
 - [ ] Security: path redaction.
 - [ ] Security: malicious metadata escaping.
-- [ ] Security: stale evidence rejection.
+- [x] Security: stale evidence rejection.
 - [ ] E2E: Windows app inventory to portal.
 - [ ] E2E: Windows runtime session.
 - [ ] E2E: foreground duration.

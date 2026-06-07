@@ -1,18 +1,18 @@
 {
-  "rows": 3,
-  "nativeAppRowCount": 1,
+  "rows": 4,
+  "nativeAppRowCount": 2,
   "nativeGameRowCount": 2,
   "previewReadyCount": 1,
-  "manualRequiredCount": 2,
-  "sourceManualRequiredCount": 1,
+  "manualRequiredCount": 3,
+  "sourceManualRequiredCount": 2,
   "compilerManualRequiredCount": 1,
   "gateStates": {
     "source-fresh": 1,
-    "source-manual-required": 1,
+    "source-manual-required": 2,
     "compiler-manual-required": 1
   },
   "statuses": {
     "preview-ready": 1,
-    "manual-required": 2
+    "manual-required": 3
   }
 }
