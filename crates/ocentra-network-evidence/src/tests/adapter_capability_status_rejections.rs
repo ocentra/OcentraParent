@@ -99,6 +99,14 @@ fn adapter_capability_status_rejects_stale_platform_manifest_summary() {
             NetworkAdapterCapabilityStatusError::PlatformManifestClaimsMissingPermissionOrManualFollowup
         )
     );
+
+    let mut missing_audit_manifest = manifest();
+    missing_audit_manifest.every_claim_names_audit_ref = false;
+
+    assert_eq!(
+        build_network_adapter_capability_status(input_with_manifest(missing_audit_manifest)),
+        Err(NetworkAdapterCapabilityStatusError::PlatformManifestClaimsMissingAuditRef)
+    );
 }
 
 #[test]
@@ -147,6 +155,7 @@ fn manifest() -> NetworkPlatformClaimManifestProof {
         manual_followups: Vec::new(),
         every_claim_names_platform: true,
         every_claim_names_permission_or_manual_followup: true,
+        every_claim_names_audit_ref: true,
         no_enforcement_commands_published: true,
         no_live_adapter_execution_claimed: true,
         ui_has_no_policy_authority: true,

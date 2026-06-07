@@ -88,6 +88,7 @@ pub enum NetworkAdapterCapabilityStatusError {
     PlatformManifestAllowsUiPolicyAuthority,
     PlatformManifestClaimsMissingPlatformRef,
     PlatformManifestClaimsMissingPermissionOrManualFollowup,
+    PlatformManifestClaimsMissingAuditRef,
     PlatformManifestEntryCountsMismatch,
     PlatformManifestManualFollowupMismatch,
     PlatformEntryMissingPlatformRef(NetworkPlatformClaimTarget),
@@ -192,6 +193,9 @@ fn validate_platform_manifest_summary(
         return Err(
             NetworkAdapterCapabilityStatusError::PlatformManifestClaimsMissingPermissionOrManualFollowup,
         );
+    }
+    if !manifest.every_claim_names_audit_ref {
+        return Err(NetworkAdapterCapabilityStatusError::PlatformManifestClaimsMissingAuditRef);
     }
     if manifest.ready_claims
         != count_claim_state(&manifest.entries, NetworkPlatformClaimState::Ready)

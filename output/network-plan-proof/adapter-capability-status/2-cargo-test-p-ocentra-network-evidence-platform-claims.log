@@ -1,5 +1,5 @@
 running 6 tests
-test tests::platform_claims::platform_claim_manifest_names_exact_platform_permission_and_device_refs ... ok
+test tests::platform_claims::platform_claim_manifest_names_fixture_platform_permission_and_device_refs ... ok
 test tests::platform_claims::platform_claim_manifest_records_missing_permission_artifacts_as_manual_followup ... ok
 test tests::platform_claims::platform_claim_manifest_rejects_broad_or_live_platform_claims ... ok
 test tests::platform_claims::platform_claim_manifest_rejects_non_ready_adapter_authorization ... ok

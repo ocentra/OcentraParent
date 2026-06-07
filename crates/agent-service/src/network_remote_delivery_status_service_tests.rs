@@ -1,3 +1,4 @@
+use ocentra_parent_agent_core::prove_network_runtime_remote_delivery_transport_dispatch_state;
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
@@ -8,7 +9,9 @@ use serde::de::DeserializeOwned;
 
 use crate::{
     lan_pairing::LanPairingRuntime,
-    network_remote_delivery_status_payload::network_remote_delivery_status_payload,
+    network_remote_delivery_status_payload::{
+        blocked_dispatch_records_match_outbox_candidates, network_remote_delivery_status_payload,
+    },
     websocket::handle_command_text_for_test,
 };
 
@@ -59,6 +62,30 @@ async fn websocket_network_remote_delivery_status_command_reports_payload() {
         AgentEventName::AgentNetworkRemoteDeliveryStatusReported
     );
     assert_remote_delivery_status(&status);
+}
+
+#[tokio::test]
+async fn network_remote_delivery_status_rejects_blocked_dispatch_identity_mismatches() {
+    let mut report = prove_network_runtime_remote_delivery_transport_dispatch_state()
+        .await
+        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_TRANSPORT_DISPATCH_STATE);
+    let outbox_report = report
+        .no_enforcement_invariant
+        .dispatch_readiness
+        .outbox_handoff
+        .clone();
+
+    assert!(blocked_dispatch_records_match_outbox_candidates(
+        &report,
+        &outbox_report
+    ));
+
+    report.blocked_dispatch_records[0].sequence += 1;
+
+    assert!(!blocked_dispatch_records_match_outbox_candidates(
+        &report,
+        &outbox_report
+    ));
 }
 
 fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
@@ -179,6 +206,7 @@ fn assert_remote_delivery_non_claims(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(status.adapter_action_executed_count, 0);
     assert_eq!(status.raw_pcap_available_count, 0);
     assert_eq!(status.exact_url_available_count, 0);
+    assert_eq!(status.decrypted_payload_available_count, 0);
     assert_eq!(status.page_content_available_count, 0);
     assert_eq!(status.video_content_available_count, 0);
     assert_eq!(status.private_message_content_available_count, 0);

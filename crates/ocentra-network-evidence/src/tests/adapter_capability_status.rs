@@ -149,6 +149,7 @@ fn manifest_with_entries(
         manual_followups,
         every_claim_names_platform: true,
         every_claim_names_permission_or_manual_followup: true,
+        every_claim_names_audit_ref: true,
         no_enforcement_commands_published: true,
         no_live_adapter_execution_claimed: true,
         ui_has_no_policy_authority: true,

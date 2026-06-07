@@ -1,11 +1,11 @@
 {
   "proof": "network-platform-claims",
-  "checkedAt": "2026-06-07T21:47:58.768Z",
+  "checkedAt": "2026-06-07T22:30:27.874Z",
   "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
-  "commit": "68ce9b644f34e6f5def0be5baa559dba0d3017f0",
-  "originMain": "c3328c891af958153c1b64d92379e653de6ba2d0",
+  "commit": "51fecabb7c75391c0c12a17e25077b58f6378a41",
+  "originMain": "e1e87e41bf90db7a02f6b81da951a1c5dca3fd75",
   "mergeBase": "c3328c891af958153c1b64d92379e653de6ba2d0",
-  "sourceStatusShort": " M crates/ocentra-network-evidence/src/adapter_capability_status.rs\n M crates/ocentra-network-evidence/src/adapter_capability_status_values.rs\n M crates/ocentra-network-evidence/src/platform_claims.rs\n M crates/ocentra-network-evidence/src/tests/adapter_capability_status_rejections.rs\n M crates/ocentra-network-evidence/src/tests/platform_claims.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n M output/network-plan-proof/adapter-capability-status/1-cargo-test-p-ocentra-network-evidence-adapter-capability-status.log\n M output/network-plan-proof/adapter-capability-status/2-cargo-test-p-ocentra-network-evidence-platform-claims.log\n M output/network-plan-proof/adapter-capability-status/4-node-scripts-check-source-shape-mjs.log\n M output/network-plan-proof/adapter-capability-status/expected-adapter-capability-status.json\n M output/network-plan-proof/adapter-capability-status/proof-summary.json\n M scripts/test/network-adapter-capability-status-proof.mjs\n M scripts/test/network-platform-claims-proof.mjs\n M test-results/network-adapter-capability-status-proof/proof.json\n",
+  "sourceStatusShort": " M crates/agent-service/src/network_remote_delivery_status_payload.rs\n M crates/agent-service/src/network_remote_delivery_status_service_tests.rs\n M crates/ocentra-network-evidence/src/adapter_capability_status.rs\n M crates/ocentra-network-evidence/src/platform_claims.rs\n M crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs\n M crates/ocentra-network-evidence/src/tests/adapter_capability_status_rejections.rs\n M crates/ocentra-network-evidence/src/tests/platform_claims.rs\n M crates/ocentra-network-evidence/src/tests/windows_firewall_adapter.rs\n M crates/ocentra-network-evidence/src/windows_firewall_adapter.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M output/network-plan-proof/adapter-capability-status/2-cargo-test-p-ocentra-network-evidence-platform-claims.log\n M output/network-plan-proof/adapter-capability-status/expected-adapter-capability-status.json\n M output/network-plan-proof/adapter-capability-status/proof-summary.json\n M scripts/test/network-adapter-capability-status-proof.mjs\n M scripts/test/network-platform-claims-proof.mjs\n M scripts/test/network-remote-delivery-status-bridge-proof.mjs\n M test-results/network-adapter-capability-status-proof/proof.json\n",
   "proofRoot": "output\\network-plan-proof\\52-platform-claims-proof",
   "testRoot": "test-results\\network-platform-claims-proof",
   "commands": [
@@ -26,6 +26,12 @@
       "command": "node scripts/check-source-shape.mjs",
       "status": 0,
       "log": "output\\network-plan-proof\\52-platform-claims-proof\\source-shape.log"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\52-platform-claims-proof\\diff-check.log"
     }
   ],
   "artifacts": {
@@ -39,7 +45,7 @@
     "52 Platform claim manifest proof"
   ],
   "provenRootGates": [
-    "platform claims name exact OS/device/permission refs",
+    "platform claims name fixture platform scope, permission/entitlement, capability, and audit refs",
     "manual-required missing artifacts have explicit follow-up entries",
     "unavailable platform rows remain visible without adapter authorization",
     "proof sources cannot authorize adapters unless the platform claim row is ready",

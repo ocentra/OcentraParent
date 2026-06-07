@@ -83,7 +83,7 @@ const expectedStatus = {
     'TypeScript parser rejects missing broker or family-hub requirement artifacts',
     'Rust service serializes the status into the protocol-owned payload field',
     'WebSocket routing returns the status event from the browser/network command group',
-    'WebSocket routing returns a command-rejected warning instead of panicking if proof-derived status cannot be built',
+    'WebSocket routing keeps a command-rejected warning branch for proof-derived status build failures; runtime tests cover the deterministic success path',
     'bridge status cannot claim provider delivery, child-device delivery, policy authority, side-effect authority, adapter action, enforcement commands, exact content, or host filtering',
   ],
   noClaims: [
@@ -331,7 +331,7 @@ const proof = {
   provenBoundaries: [
     'agent-protocol defines typed command/event names and a serializable NetworkRemoteDeliveryStatus shape that preserves row10f evidence through the current row10k bridge',
     'agent-service returns agent.network.remote-delivery.status.reported from agent.network.remote-delivery.status.get over the existing browser/network WebSocket command group',
-    'agent-service returns agent.command.rejected instead of panicking if the proof-derived status cannot be built',
+    'agent-service source keeps an agent.command.rejected branch for proof-derived status build failures while runtime tests cover the deterministic success path',
     'the service status is served from the current row10k cached snapshot and preserves row10b, row10c, row10d, and row10e refs',
     'agent-protocol-domain parses the status event and rejects stale exact refs, wrong status refs, missing requirement artifacts, live/product-ready delivery claims, enforcement counts, adapter execution counts, and exact-content counters',
     'the bridge is a read-only status handoff and does not execute broker/family-hub delivery, provider delivery, child-device delivery, policy, adapter, or host filtering actions',

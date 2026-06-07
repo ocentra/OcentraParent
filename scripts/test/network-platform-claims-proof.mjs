@@ -29,8 +29,9 @@ writeFileSync(
         'Linux TUN',
       ],
       platformClaimInvariants: [
-        'every platform claim names exact OS/device refs',
+        'every platform claim names fixture platform scope, permission/entitlement, capability, and audit refs',
         'every ready claim names permission, entitlement, capability, or manual follow-up refs',
+        'every platform claim names an audit ref',
         'manual-required and unavailable states remain reportable without live execution',
         'adapter authorization is accepted only on ready platform claim rows',
         'UI has no policy authority',
@@ -70,6 +71,12 @@ const commands = [
     args: ['scripts/check-source-shape.mjs'],
     log: join(proofRoot, 'source-shape.log'),
   },
+  {
+    name: 'diff-check',
+    command: 'git',
+    args: ['diff', '--check'],
+    log: join(proofRoot, 'diff-check.log'),
+  },
 ];
 const commandResults = commands.map(runCommand);
 writeFileSync(join(proofRoot, '12-validation-commands.log'), validationCommandsLog(commandResults));
@@ -94,7 +101,7 @@ const proof = {
   },
   provenRows: ['52 Platform claim manifest proof'],
   provenRootGates: [
-    'platform claims name exact OS/device/permission refs',
+    'platform claims name fixture platform scope, permission/entitlement, capability, and audit refs',
     'manual-required missing artifacts have explicit follow-up entries',
     'unavailable platform rows remain visible without adapter authorization',
     'proof sources cannot authorize adapters unless the platform claim row is ready',
@@ -135,16 +142,16 @@ function manualPlatformProof() {
 
 Row: 52 Platform claim manifest proof
 
-Validated target rows:
+Fixture target rows:
 
-- Windows Firewall: exact target/rule refs, adapter authorization ref, capability proof ref, audit ref.
-- Windows WFP: exact target/provider/layer refs, administrator permission, driver signing/package, provider registration, layer capability, lab result, audit ref.
-- Android VpnService: exact package/service/device refs, VpnService declaration, user consent, package identity, virtual interface, traffic observation, Device Owner proof when claimed, audit ref.
-- Apple Network Extension macOS: exact bundle/extension/device refs, developer team, entitlement approval, provisioning, signing, declaration, configuration, supervision/MDM proof when claimed, audit ref.
-- Apple Network Extension iOS: exact bundle/extension/device refs, developer team, entitlement approval, provisioning, signing, declaration, configuration, supervision/MDM proof when claimed, audit ref.
-- Linux nftables: exact distro/kernel refs, permission, adapter API, adapter plan, service-manager scope, lab result, audit ref.
-- Linux eBPF: exact distro/kernel refs, permission, adapter API, adapter plan, service-manager scope, lab result, audit ref.
-- Linux TUN: exact distro/kernel refs, permission, adapter API, adapter plan, service-manager scope, lab result, audit ref.
+- Windows Firewall: fixture Windows OS scope ref, adapter authorization ref, capability proof ref, target/rule capability refs, audit ref.
+- Windows WFP: fixture target/provider/layer refs, administrator permission, driver signing/package, provider registration, layer capability, lab result, audit ref.
+- Android VpnService: fixture package/service/device refs, VpnService declaration, user consent, package identity, virtual interface, traffic observation, Device Owner proof when claimed, audit ref.
+- Apple Network Extension macOS: fixture bundle/extension/device refs, developer team, entitlement approval, provisioning, signing, declaration, configuration, supervision/MDM proof when claimed, audit ref.
+- Apple Network Extension iOS: fixture bundle/extension/device refs, developer team, entitlement approval, provisioning, signing, declaration, configuration, supervision/MDM proof when claimed, audit ref.
+- Linux nftables: fixture distro/kernel refs, permission, adapter API, adapter plan, service-manager scope, lab result, audit ref.
+- Linux eBPF: fixture distro/kernel refs, permission, adapter API, adapter plan, service-manager scope, lab result, audit ref.
+- Linux TUN: fixture distro/kernel refs, permission, adapter API, adapter plan, service-manager scope, lab result, audit ref.
 
 Manual-required and unavailable labels:
 
@@ -178,8 +185,6 @@ function validationCommandsLog(results) {
     'network-platform-claims validation commands',
     '',
     ...results.map((result) => `${result.name}: ${result.command} -> exit ${result.status}; log=${result.log}`),
-    '',
-    'Additional check run outside this harness: git diff --check -> exit 0.',
   ];
   return `${lines.join('\n')}\n`;
 }

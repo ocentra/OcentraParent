@@ -93,6 +93,7 @@ pub struct NetworkPlatformClaimManifestProof {
     pub manual_followups: Vec<NetworkPlatformClaimManualFollowup>,
     pub every_claim_names_platform: bool,
     pub every_claim_names_permission_or_manual_followup: bool,
+    pub every_claim_names_audit_ref: bool,
     pub no_enforcement_commands_published: bool,
     pub no_live_adapter_execution_claimed: bool,
     pub ui_has_no_policy_authority: bool,
@@ -159,6 +160,7 @@ pub fn build_network_platform_claim_manifest(
             || !entry.missing_required_artifacts.is_empty()
             || entry.claim_state == NetworkPlatformClaimState::Unavailable
     });
+    let every_claim_names_audit_ref = entries.iter().all(|entry| !entry.audit_refs.is_empty());
 
     Ok(NetworkPlatformClaimManifestProof {
         manifest_ref,
@@ -171,6 +173,7 @@ pub fn build_network_platform_claim_manifest(
         manual_followups,
         every_claim_names_platform,
         every_claim_names_permission_or_manual_followup,
+        every_claim_names_audit_ref,
         no_enforcement_commands_published: true,
         no_live_adapter_execution_claimed: true,
         ui_has_no_policy_authority: true,
@@ -221,13 +224,13 @@ fn windows_firewall_entry(proof: NetworkWindowsFirewallAdapterProof) -> NetworkP
         policy_decision_ref: proof.policy_decision_ref,
         parent_rule_ref: proof.parent_rule_ref,
         evidence_refs: proof.evidence_refs,
-        device_or_os_refs: compact_refs(vec![
-            Some(format!("{:?}", proof.target_kind)),
+        device_or_os_refs: compact_refs(vec![Some(proof.windows_os_scope_ref)]),
+        permission_or_entitlement_refs: compact_refs(vec![proof.adapter_authorization_ref]),
+        adapter_capability_refs: compact_refs(vec![
+            proof.adapter_capability_proof_ref,
             Some(proof.target_ref),
             Some(proof.firewall_rule_ref),
         ]),
-        permission_or_entitlement_refs: compact_refs(vec![proof.adapter_authorization_ref]),
-        adapter_capability_refs: compact_refs(vec![proof.adapter_capability_proof_ref]),
         missing_required_artifacts: proof
             .missing_required_artifacts
             .into_iter()

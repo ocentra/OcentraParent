@@ -482,10 +482,10 @@ compete on control while staying clear about attribution confidence and privacy.
   bypass policy.
 - E-D added a platform-claim manifest proof in `ocentra-network-evidence` that
   composes Windows Firewall/WFP, Android VpnService, Apple Network Extension
-  macOS/iOS, and Linux nftables/eBPF/TUN gates into exact OS/device/permission claim rows,
-  records missing artifacts as manual follow-ups, and rejects generic platform
-  support, live adapter execution, UI policy authority, and enforcement-command
-  claims.
+  macOS/iOS, and Linux nftables/eBPF/TUN gates into fixture platform-scope,
+  permission/entitlement, capability, and audit-ref rows, records missing
+  artifacts as manual follow-ups, and rejects generic platform support, live
+  adapter execution, UI policy authority, and enforcement-command claims.
 - E-D added an action-result state proof in `ocentra-network-evidence` for
   network block/terminate/unavailable outcomes. Blocked and terminated result
   states require grade-A block policy refs, apply-ready adapter proof refs,
@@ -657,10 +657,11 @@ UI rendering remain open.
       incident response, known-gap signoff, and external signoff refs. Row52
       platform-claim manifest proof now composes Windows Firewall/WFP, Android
       VpnService, Apple Network Extension macOS/iOS, and Linux nftables/eBPF/TUN
-      gates into exact OS/device/permission claim rows, records manual
-      follow-ups for missing artifacts, and rejects generic platform support,
-      live adapter execution, non-ready adapter authorization, UI policy
-      authority, and enforcement-command claims. E-D portal status proof now
+      gates into fixture platform-scope, permission/entitlement, capability,
+      and audit-ref rows, records manual follow-ups for missing artifacts, and
+      rejects generic platform support, live adapter execution, non-ready
+      adapter authorization, UI policy authority, and enforcement-command
+      claims. E-D portal status proof now
       renders service-backed network
       platform/capability state, active/tombstone/exportable row counts,
       retention delete refs, and degraded adapter state in the Activity network
@@ -701,14 +702,15 @@ UI rendering remain open.
       distro-ready, manual-required, and unavailable capability states for their
       adapter boundaries. Row11 now records the aggregate manual/platform proof
       pack for OS/device/permission artifacts and exact manual steps, and Row52
-      accounts for those claims in one exact OS/device/permission manifest with
-      manual follow-ups. The Activity network drawer now surfaces read-model
+      accounts for those claims in one platform-scope/permission/capability
+      manifest with manual follow-ups. The Activity network drawer now surfaces
+      read-model
       capability/platform status for the current service row; broader platform
       capability UX beyond the network drawer remains open. The E-D adapter
-      capability status proof now derives target-specific supported/lab-ready/
+      capability status proof now projects target-specific supported/lab-ready/
       physical-device-ready/Apple-device-ready/distro-ready, dry-run,
       research-only, manual-required, and unavailable rows from the existing
-      Row52 platform manifest instead of a duplicate matrix. Proof:
+      Row52 platform manifest through a locked target-to-status mapping. Proof:
       `output/network-plan-proof/adapter-capability-status/proof-summary.json`
       and `test-results/network-adapter-capability-status-proof/proof.json`.
       It rejects adapter authorization on non-ready status rows so dry-run,

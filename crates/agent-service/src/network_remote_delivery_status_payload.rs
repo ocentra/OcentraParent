@@ -296,12 +296,33 @@ fn apply_non_claim_status(
     status.search_query_available_count = count(report.search_query_available_count);
 }
 
-fn blocked_dispatch_records_match_outbox_candidates(
+pub(crate) fn blocked_dispatch_records_match_outbox_candidates(
     report: &NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
     outbox_report: &NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
 ) -> bool {
-    report.blocked_dispatch_record_count == report.source_outbox_candidate_count
-        && report.source_outbox_candidate_count == outbox_report.outbox_candidate_count
+    if report.blocked_dispatch_record_count != report.source_outbox_candidate_count
+        || report.source_outbox_candidate_count != outbox_report.outbox_candidate_count
+        || report.blocked_dispatch_records.len() != outbox_report.candidates.len()
+    {
+        return false;
+    }
+
+    report
+        .blocked_dispatch_records
+        .iter()
+        .zip(&outbox_report.candidates)
+        .all(|(record, candidate)| {
+            record.sequence == candidate.sequence
+                && record.event_id == candidate.event_id
+                && record.event_type == candidate.event_type
+                && record.correlation_id == candidate.correlation_id
+                && record.source_outbox_state == candidate.state
+                && record.outbox_ref == candidate.outbox_ref
+                && record.handoff_ref == candidate.handoff_ref
+                && record.dispatch_state_ref == report.dispatch_state_ref
+                && record.blocked_dispatch_ref == report.blocked_dispatch_ref
+                && record.future_transport_seam_ref == report.future_transport_seam_ref
+        })
 }
 
 fn receipt_refs(

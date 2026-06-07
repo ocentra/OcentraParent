@@ -16,19 +16,24 @@
       "log": "output/network-plan-proof/adapter-capability-status/2-cargo-test-p-ocentra-network-evidence-platform-claims.log"
     },
     {
+      "command": "cmd /c npm exec --workspace @ocentra-parent/portal -- vitest run tests/live-activity-network-flow.test.ts",
+      "status": 0,
+      "log": "output/network-plan-proof/adapter-capability-status/3-cmd-c-npm-exec-workspace-ocentra-parent-portal-vitest-run-tests-live-activity-ne.log"
+    },
+    {
       "command": "cmd /c npm exec --workspace @ocentra-parent/portal -- eslint src/network-evidence-drawer.ts src/NetworkEvidenceDrawerRoutePanel.tsx tests/live-activity-network-flow.test.ts ../../packages/portal-domain/src/details.ts",
       "status": 0,
-      "log": "output/network-plan-proof/adapter-capability-status/3-cmd-c-npm-exec-workspace-ocentra-parent-portal-eslint-src-network-evidence-drawe.log"
+      "log": "output/network-plan-proof/adapter-capability-status/4-cmd-c-npm-exec-workspace-ocentra-parent-portal-eslint-src-network-evidence-drawe.log"
     },
     {
       "command": "node scripts/check-source-shape.mjs",
       "status": 0,
-      "log": "output/network-plan-proof/adapter-capability-status/4-node-scripts-check-source-shape-mjs.log"
+      "log": "output/network-plan-proof/adapter-capability-status/5-node-scripts-check-source-shape-mjs.log"
     },
     {
       "command": "git diff --check",
       "status": 0,
-      "log": "output/network-plan-proof/adapter-capability-status/5-git-diff-check.log"
+      "log": "output/network-plan-proof/adapter-capability-status/6-git-diff-check.log"
     }
   ],
   "artifacts": {
@@ -176,7 +181,7 @@
     "Network feature checklist: Adapter capability status"
   ],
   "provenRootGates": [
-    "adapter capability status derives from the existing Row52 platform manifest instead of a duplicate matrix",
+    "adapter capability status projects existing Row52 platform manifest entries through a locked target-to-status mapping",
     "Windows Firewall ready maps to supported status",
     "Windows WFP ready maps to lab-ready status",
     "Android VpnService ready maps to physical-device-ready status",
@@ -185,7 +190,7 @@
     "manual-required and unavailable rows preserve missing-artifact follow-ups",
     "Row52 platform manifest rejects non-ready adapter authorization before status projection",
     "adapter authorization is rejected on dry-run, research-only, manual-required, or unavailable status rows",
-    "portal drawer renders service-backed capability/platform status for the current network read model",
+    "portal drawer test renders service-backed capability/platform status for the current network read model",
     "generic platform support, live adapter execution, broader platform capability UX, UI policy authority, and enforcement command publication claims are rejected"
   ],
   "notClaimed": [

@@ -774,9 +774,9 @@ crates/agent-service/src/local_ai_runtime_payload.rs:95 function has 70 lines; w
 crates/agent-service/src/local_ai_runtime_provider_proof_read_model.rs:1 file has 306 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/local_ai_runtime_provider_proof_read_model.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/agent-service/src/main.rs:1 file has 281 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 353 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 383 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 18 functions; warning starts at 15 of 18
-crates/agent-service/src/network_remote_delivery_status_payload.rs:84 function has 78 lines; warning starts at 64 of 80
+crates/agent-service/src/network_remote_delivery_status_payload.rs:93 function has 78 lines; warning starts at 64 of 80
 crates/agent-service/src/network_runtime_stream_event_values.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-service/src/network_runtime_stream_tests.rs:1 file has 390 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/parent_assistant_api/thread_store.rs:1 file has 17 functions; warning starts at 15 of 18
@@ -850,7 +850,7 @@ crates/ocentra-eventing/src/tests/request_response_support.rs:1 file has 17 func
 crates/ocentra-eventing/src/topology.rs:1 file has 256 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-eventing/src/topology.rs:1 file has 16 functions; warning starts at 15 of 18
 crates/ocentra-network-evidence/src/action_result.rs:1 file has 426 lines; crossed 250-line advisory band; maximum is 1000
-crates/ocentra-network-evidence/src/adapter_capability_status.rs:1 file has 254 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/adapter_capability_status.rs:1 file has 258 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/ai_audit.rs:1 file has 440 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/ai_audit.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/ocentra-network-evidence/src/ai_detection.rs:1 file has 597 lines; crossed 500-line advisory band; maximum is 1000
@@ -869,7 +869,8 @@ crates/ocentra-network-evidence/src/performance.rs:306 function has 66 lines; wa
 crates/ocentra-network-evidence/src/pipeline.rs:1 file has 675 lines; crossed 500-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/pipeline.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/ocentra-network-evidence/src/pipeline.rs:224 function has 70 lines; warning starts at 64 of 80
-crates/ocentra-network-evidence/src/platform_claims.rs:1 file has 399 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/platform_claims.rs:1 file has 402 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/platform_claims.rs:117 function has 65 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/readiness.rs:1 file has 392 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/readiness.rs:1 file has 16 functions; warning starts at 15 of 18
 crates/ocentra-network-evidence/src/risk_budget.rs:1 file has 582 lines; crossed 500-line advisory band; maximum is 1000
@@ -889,20 +890,20 @@ crates/ocentra-network-evidence/src/tests/linux_adapter_gate.rs:1 file has 322 l
 crates/ocentra-network-evidence/src/tests/local_ai_queue.rs:1 file has 265 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/pipeline.rs:1 file has 287 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/pipeline.rs:12 function has 71 lines; warning starts at 64 of 80
-crates/ocentra-network-evidence/src/tests/platform_claims.rs:1 file has 417 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/tests/platform_claims.rs:1 file has 435 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/risk_budget.rs:1 file has 446 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/risk_budget.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/ocentra-network-evidence/src/tests/screen_summary.rs:1 file has 268 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/signature_alert.rs:1 file has 313 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/signature_alert.rs:87 function has 74 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/tests/unmanaged_browser.rs:1 file has 250 lines; crossed 250-line advisory band; maximum is 1000
-crates/ocentra-network-evidence/src/tests/windows_firewall_adapter.rs:1 file has 356 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/tests/windows_firewall_adapter.rs:1 file has 358 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/windows_wfp_gate.rs:1 file has 351 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/zeek.rs:1 file has 392 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/zeek.rs:62 function has 64 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/tests/zeek.rs:220 function has 68 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/unmanaged_browser.rs:1 file has 281 lines; crossed 250-line advisory band; maximum is 1000
-crates/ocentra-network-evidence/src/windows_firewall_adapter.rs:1 file has 421 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/windows_firewall_adapter.rs:1 file has 428 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/windows_wfp_gate.rs:1 file has 452 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/zeek.rs:1 file has 529 lines; crossed 500-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/zeek.rs:1 file has 15 functions; warning starts at 15 of 18

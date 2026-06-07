@@ -23,6 +23,17 @@ runCommand('cmd', [
   '--workspace',
   '@ocentra-parent/portal',
   '--',
+  'vitest',
+  'run',
+  'tests/live-activity-network-flow.test.ts',
+]);
+runCommand('cmd', [
+  '/c',
+  'npm',
+  'exec',
+  '--workspace',
+  '@ocentra-parent/portal',
+  '--',
   'eslint',
   'src/network-evidence-drawer.ts',
   'src/NetworkEvidenceDrawerRoutePanel.tsx',
@@ -62,7 +73,7 @@ const proof = {
   },
   provenRows: ['Network feature checklist: Adapter capability status'],
   provenRootGates: [
-    'adapter capability status derives from the existing Row52 platform manifest instead of a duplicate matrix',
+    'adapter capability status projects existing Row52 platform manifest entries through a locked target-to-status mapping',
     'Windows Firewall ready maps to supported status',
     'Windows WFP ready maps to lab-ready status',
     'Android VpnService ready maps to physical-device-ready status',
@@ -71,7 +82,7 @@ const proof = {
     'manual-required and unavailable rows preserve missing-artifact follow-ups',
     'Row52 platform manifest rejects non-ready adapter authorization before status projection',
     'adapter authorization is rejected on dry-run, research-only, manual-required, or unavailable status rows',
-    'portal drawer renders service-backed capability/platform status for the current network read model',
+    'portal drawer test renders service-backed capability/platform status for the current network read model',
     'generic platform support, live adapter execution, broader platform capability UX, UI policy authority, and enforcement command publication claims are rejected',
   ],
   notClaimed: [
@@ -94,7 +105,7 @@ console.log(`proof=${planProofPath}`);
 
 function expectedAdapterCapabilityStatus() {
   return {
-    sourceOfTruth: 'Row52 platform claim manifest proof entries',
+    sourceOfTruth: 'Row52 platform claim manifest proof entries plus locked target-to-status projection',
     targetStatusMapping: {
       WindowsFirewall: 'supported',
       WindowsWfp: 'lab-ready',

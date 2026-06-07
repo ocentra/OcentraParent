@@ -2,16 +2,16 @@
 
 Row: 52 Platform claim manifest proof
 
-Validated target rows:
+Fixture target rows:
 
-- Windows Firewall: exact target/rule refs, adapter authorization ref, capability proof ref, audit ref.
-- Windows WFP: exact target/provider/layer refs, administrator permission, driver signing/package, provider registration, layer capability, lab result, audit ref.
-- Android VpnService: exact package/service/device refs, VpnService declaration, user consent, package identity, virtual interface, traffic observation, Device Owner proof when claimed, audit ref.
-- Apple Network Extension macOS: exact bundle/extension/device refs, developer team, entitlement approval, provisioning, signing, declaration, configuration, supervision/MDM proof when claimed, audit ref.
-- Apple Network Extension iOS: exact bundle/extension/device refs, developer team, entitlement approval, provisioning, signing, declaration, configuration, supervision/MDM proof when claimed, audit ref.
-- Linux nftables: exact distro/kernel refs, permission, adapter API, adapter plan, service-manager scope, lab result, audit ref.
-- Linux eBPF: exact distro/kernel refs, permission, adapter API, adapter plan, service-manager scope, lab result, audit ref.
-- Linux TUN: exact distro/kernel refs, permission, adapter API, adapter plan, service-manager scope, lab result, audit ref.
+- Windows Firewall: fixture Windows OS scope ref, adapter authorization ref, capability proof ref, target/rule capability refs, audit ref.
+- Windows WFP: fixture target/provider/layer refs, administrator permission, driver signing/package, provider registration, layer capability, lab result, audit ref.
+- Android VpnService: fixture package/service/device refs, VpnService declaration, user consent, package identity, virtual interface, traffic observation, Device Owner proof when claimed, audit ref.
+- Apple Network Extension macOS: fixture bundle/extension/device refs, developer team, entitlement approval, provisioning, signing, declaration, configuration, supervision/MDM proof when claimed, audit ref.
+- Apple Network Extension iOS: fixture bundle/extension/device refs, developer team, entitlement approval, provisioning, signing, declaration, configuration, supervision/MDM proof when claimed, audit ref.
+- Linux nftables: fixture distro/kernel refs, permission, adapter API, adapter plan, service-manager scope, lab result, audit ref.
+- Linux eBPF: fixture distro/kernel refs, permission, adapter API, adapter plan, service-manager scope, lab result, audit ref.
+- Linux TUN: fixture distro/kernel refs, permission, adapter API, adapter plan, service-manager scope, lab result, audit ref.
 
 Manual-required and unavailable labels:
 

@@ -1,5 +1,5 @@
 {
-  "sourceOfTruth": "Row52 platform claim manifest proof entries",
+  "sourceOfTruth": "Row52 platform claim manifest proof entries plus locked target-to-status projection",
   "targetStatusMapping": {
     "WindowsFirewall": "supported",
     "WindowsWfp": "lab-ready",

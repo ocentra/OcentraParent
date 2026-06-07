@@ -59,6 +59,7 @@ pub struct NetworkWindowsFirewallAdapterProofInput {
     pub firewall_adapter_plan_ref: String,
     pub policy_mapping: NetworkEvidencePolicyMapping,
     pub requested_action: NetworkWindowsFirewallAdapterAction,
+    pub windows_os_scope_ref: String,
     pub target_kind: NetworkWindowsFirewallTargetKind,
     pub target_ref: String,
     pub firewall_rule_ref: String,
@@ -87,6 +88,7 @@ pub struct NetworkWindowsFirewallAdapterProof {
     pub local_ai_result_ref: Option<String>,
     pub evidence_grade: NetworkEvidenceGrade,
     pub requested_action: NetworkWindowsFirewallAdapterAction,
+    pub windows_os_scope_ref: String,
     pub target_kind: NetworkWindowsFirewallTargetKind,
     pub target_ref: String,
     pub firewall_rule_ref: String,
@@ -117,6 +119,7 @@ pub enum NetworkWindowsFirewallAdapterProofError {
     EmptyParentRuleRef,
     EmptyEvidenceRef,
     EmptyLocalAiResultRef,
+    EmptyWindowsOsScopeRef,
     EmptyTargetRef,
     EmptyFirewallRuleRef,
     EmptyRequiredArtifactRef(NetworkWindowsFirewallRequiredArtifact),
@@ -135,6 +138,7 @@ struct NormalizedWindowsFirewallInput {
     parent_rule_ref: String,
     evidence_refs: Vec<String>,
     local_ai_result_ref: Option<String>,
+    windows_os_scope_ref: String,
     target_ref: String,
     firewall_rule_ref: String,
 }
@@ -173,6 +177,7 @@ pub fn plan_network_windows_firewall_adapter_proof(
         local_ai_result_ref: normalized.local_ai_result_ref,
         evidence_grade: input.policy_mapping.evidence_grade,
         requested_action: input.requested_action,
+        windows_os_scope_ref: normalized.windows_os_scope_ref,
         target_kind: input.target_kind,
         target_ref: normalized.target_ref,
         firewall_rule_ref: normalized.firewall_rule_ref,
@@ -211,6 +216,8 @@ fn normalize_windows_firewall_input(
         local_ai_result_ref: normalized_local_ai_ref(
             input.policy_mapping.local_ai_result_ref.as_deref(),
         )?,
+        windows_os_scope_ref: normalize_ref(&input.windows_os_scope_ref)
+            .ok_or(NetworkWindowsFirewallAdapterProofError::EmptyWindowsOsScopeRef)?,
         target_ref: normalize_ref(&input.target_ref)
             .ok_or(NetworkWindowsFirewallAdapterProofError::EmptyTargetRef)?,
         firewall_rule_ref: normalize_ref(&input.firewall_rule_ref)
