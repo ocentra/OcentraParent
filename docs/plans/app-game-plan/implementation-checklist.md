@@ -160,7 +160,7 @@ Required files:
 - [x] Running evidence is displayed as foreground usage.
 - [ ] Foreground evidence is displayed as content knowledge.
 - [ ] Launcher evidence is displayed as active game without child-game proof.
-- [ ] Unknown process is auto-promoted to known game.
+- [x] Unknown process is auto-promoted to known game.
 - [x] AI output directly enforces.
 - [ ] Dry-run terminates or blocks app/game.
 - [ ] Manual-required action calls an adapter.

@@ -416,6 +416,12 @@ control with better evidence and local audit.
   `output/app-game-plan-proof/merge-gates/android-normal-mode-no-suspend-hide`:
   Android package suspend remains manual-required and blocked before adapter
   dispatch unless Device Owner or Profile Owner proof exists.
+- The unknown-process auto-promotion merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/unknown-process-auto-promotion`:
+  display-label-only identities remain weak, unknown, and unknown-executable;
+  heuristic category/risk labels stay manual-review candidates; and the
+  App/Game Sessions dashboard renders unknown-process and possible-game rows as
+  manual-required review state instead of known native-game usage.
 
 ## Current Gap
 
