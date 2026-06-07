@@ -1,0 +1,154 @@
+{
+  "status": "blocked-but-actionable",
+  "proofKind": "screen-ai-adapter-blocker-ledger-proof",
+  "generatedAt": "2026-06-07T23:38:34.235Z",
+  "sourceArtifacts": {
+    "finalAdapterDependencyAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
+    "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
+    "finalProductPath": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
+    "screenAiPipelineChecklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md",
+    "aiPlanChecklist": "docs/plans/ai-plan/implementation-checklist.md"
+  },
+  "ledger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/adapter-blocker-ledger.json",
+  "closure": {
+    "finalProductPathStillValid": true,
+    "adapterCompletionStillBlocked": true,
+    "openScreenAiPipelineRowRetained": true,
+    "openAiPlanDeferralRowRetained": true,
+    "blockerRows": 6,
+    "requiredProofArtifactRows": 6,
+    "claimUpgradeRows": 0
+  },
+  "rows": [
+    {
+      "rowId": "screen-ai-broad-installed-app-manual-required",
+      "adapterClass": "broad-installed-app",
+      "expectedSourceBoundary": "app-game/enforcement adapter layer",
+      "requiredProofArtifact": "screen-derived broad installed-app apply, rollback, and audit custody proof",
+      "unblocksRows": [
+        "screen-ai-pipeline-plan: browser/network/mobile/broad adapter completion row",
+        "ai-plan: final product-complete pipeline deferral row",
+        "product-capability-checklist: Local screen evidence summaries",
+        "product-capability-checklist: Child-safety AI decision"
+      ],
+      "readinessState": "manual-required",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "finalAuditMissingArtifact": "broad installed-app apply, rollback, and audit custody proof from a screen-derived block decision",
+      "claimUpgradeAllowed": false,
+      "claimGate": "Do not move this row to product-complete until requiredProofArtifact exists and cites a screen-derived policy decision, apply result, rollback or expiry result, audit ref, and custody/deletion ref."
+    },
+    {
+      "rowId": "screen-ai-host-network-domain-manual-required",
+      "adapterClass": "host-network-domain",
+      "expectedSourceBoundary": "network/domain enforcement adapter layer",
+      "requiredProofArtifact": "screen-derived domain or IP decision to host DNS/filter apply, rollback, and audit custody proof",
+      "unblocksRows": [
+        "screen-ai-pipeline-plan: browser/network/mobile/broad adapter completion row",
+        "ai-plan: final product-complete pipeline deferral row",
+        "product-capability-checklist: Local screen evidence summaries",
+        "product-capability-checklist: Child-safety AI decision"
+      ],
+      "readinessState": "manual-required",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "finalAuditMissingArtifact": "host DNS/filter apply, rollback, and audit custody proof from a screen-derived network/domain decision",
+      "claimUpgradeAllowed": false,
+      "claimGate": "Do not move this row to product-complete until requiredProofArtifact exists and cites a screen-derived policy decision, apply result, rollback or expiry result, audit ref, and custody/deletion ref."
+    },
+    {
+      "rowId": "screen-ai-managed-active-tab-not-claimed",
+      "adapterClass": "managed-active-tab-exact-url",
+      "expectedSourceBoundary": "browser managed-control adapter layer",
+      "requiredProofArtifact": "screen-derived browser decision to exact active-tab URL action, rollback, and audit custody proof",
+      "unblocksRows": [
+        "screen-ai-pipeline-plan: browser/network/mobile/broad adapter completion row",
+        "ai-plan: final product-complete pipeline deferral row",
+        "product-capability-checklist: Local screen evidence summaries",
+        "product-capability-checklist: Child-safety AI decision"
+      ],
+      "readinessState": "not-claimed",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "finalAuditMissingArtifact": "managed active-tab exact URL apply, rollback, and audit custody proof from a screen-derived browser decision",
+      "claimUpgradeAllowed": false,
+      "claimGate": "Do not move this row to product-complete until requiredProofArtifact exists and cites a screen-derived policy decision, apply result, rollback or expiry result, audit ref, and custody/deletion ref."
+    },
+    {
+      "rowId": "screen-ai-android-mobile-control-manual-required",
+      "adapterClass": "android-device-owner-or-managed-profile",
+      "expectedSourceBoundary": "Android child-agent Device Owner or managed-profile adapter layer",
+      "requiredProofArtifact": "screen-derived mobile decision to Android DO/profile action with rollback, audit, and custody proof on real device or managed profile",
+      "unblocksRows": [
+        "screen-ai-pipeline-plan: browser/network/mobile/broad adapter completion row",
+        "ai-plan: final product-complete pipeline deferral row",
+        "product-capability-checklist: Local screen evidence summaries",
+        "product-capability-checklist: Child-safety AI decision"
+      ],
+      "readinessState": "manual-required",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "finalAuditMissingArtifact": "Android device-owner/managed-profile control proof from a screen-derived mobile decision",
+      "claimUpgradeAllowed": false,
+      "claimGate": "Do not move this row to product-complete until requiredProofArtifact exists and cites a screen-derived policy decision, apply result, rollback or expiry result, audit ref, and custody/deletion ref."
+    },
+    {
+      "rowId": "screen-ai-ios-mobile-control-manual-required",
+      "adapterClass": "ios-family-controls-device-activity",
+      "expectedSourceBoundary": "iOS Family Controls and DeviceActivity adapter layer",
+      "requiredProofArtifact": "screen-derived mobile decision to iOS Family Controls or DeviceActivity action with rollback, audit, and custody proof",
+      "unblocksRows": [
+        "screen-ai-pipeline-plan: browser/network/mobile/broad adapter completion row",
+        "ai-plan: final product-complete pipeline deferral row",
+        "product-capability-checklist: Local screen evidence summaries",
+        "product-capability-checklist: Child-safety AI decision"
+      ],
+      "readinessState": "manual-required",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "finalAuditMissingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision",
+      "claimUpgradeAllowed": false,
+      "claimGate": "Do not move this row to product-complete until requiredProofArtifact exists and cites a screen-derived policy decision, apply result, rollback or expiry result, audit ref, and custody/deletion ref."
+    },
+    {
+      "rowId": "screen-ai-linux-host-adapter-unavailable",
+      "adapterClass": "linux-host-control",
+      "expectedSourceBoundary": "Linux host enforcement adapter layer",
+      "requiredProofArtifact": "screen-derived Linux host decision to host action with rollback, audit, and custody proof",
+      "unblocksRows": [
+        "screen-ai-pipeline-plan: browser/network/mobile/broad adapter completion row",
+        "ai-plan: final product-complete pipeline deferral row",
+        "product-capability-checklist: Local screen evidence summaries",
+        "product-capability-checklist: Child-safety AI decision"
+      ],
+      "readinessState": "unavailable",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "finalAuditMissingArtifact": "Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision",
+      "claimUpgradeAllowed": false,
+      "claimGate": "Do not move this row to product-complete until requiredProofArtifact exists and cites a screen-derived policy decision, apply result, rollback or expiry result, audit ref, and custody/deletion ref."
+    }
+  ],
+  "unblockedSafeWork": [
+    "Keep codex/screen-ai-full-scope-b synced with main.",
+    "Add proof scripts or plan rows that audit missing adapter artifacts without touching docs/product-capability-checklist.md while another lane owns it.",
+    "Validate new adapter artifacts when upstream lanes provide them, then close only the matching blocker row."
+  ],
+  "nonClaims": [
+    "This proof does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or Linux adapters.",
+    "This proof does not close the final product-complete adapter row.",
+    "This proof does not edit docs/product-capability-checklist.md while another lane owns that lock."
+  ]
+}
