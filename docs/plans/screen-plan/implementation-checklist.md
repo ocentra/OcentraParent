@@ -311,7 +311,7 @@ bridge before downstream publication
 | [x]    | 31 Screen intelligence router                      |
 | [x]    | 32 Browser structured extraction before screenshot |
 | [x]    | 33 Managed browser CDP screenshot capture path     |
-| [~]    | 34 OCR Tesseract baseline                          |
+| [x]    | 34 OCR Tesseract baseline                          |
 | [~]    | 35 OCR PaddleOCR/PP-OCR evaluation                 |
 | [~]    | 36 Small VLM guided classifier evaluation          |
 | [x]    | 37 Household mesh screen-analysis queue            |

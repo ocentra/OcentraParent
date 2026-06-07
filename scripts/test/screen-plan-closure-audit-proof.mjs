@@ -111,6 +111,9 @@ const missingReadinessProofs = auditedWorkpacks.filter(
   (workpack) => workpack.readinessProof !== null && workpack.readinessProofPresent !== true
 );
 const productBlockedWorkpacks = auditedWorkpacks.filter((workpack) => workpack.productReady === false);
+const remainingProductGates = auditedWorkpacks.filter(
+  (workpack) => workpack.status !== 'x' || workpack.productReady === false
+);
 
 assert(
   completeRows.includes('19 Sensitive text and redaction model'),
@@ -175,12 +178,19 @@ const summary = {
     partialRows,
     openRows,
   },
-  remainingExternalProofGates: auditedWorkpacks.map((workpack) => ({
+  auditedProofGates: auditedWorkpacks.map((workpack) => ({
     id: workpack.id,
     label: workpack.label,
     status: workpack.status,
     readinessProof: workpack.readinessProof,
     readinessProofPresent: workpack.readinessProofPresent,
+    productReady: workpack.productReady,
+    gate: workpack.gate,
+  })),
+  remainingProductGates: remainingProductGates.map((workpack) => ({
+    id: workpack.id,
+    label: workpack.label,
+    status: workpack.status,
     productReady: workpack.productReady,
     gate: workpack.gate,
   })),
@@ -214,6 +224,7 @@ const summary = {
     remainingGatesExplicit: partialRows.length + openRows.length > 0,
     readinessProofsPresent: missingReadinessProofs.length === 0,
     platformProductGatesRemainBlocked: productBlockedWorkpacks.length >= 4,
+    wp34TesseractBaselineClosed: completeRows.includes('34 OCR Tesseract baseline'),
     noProductCompleteClaim: true,
   },
   nonClaims: [

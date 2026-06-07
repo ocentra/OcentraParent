@@ -913,13 +913,14 @@ parity, and UI remain separate proof gates.
 - [x] Windows WinRT OCR worker analyzes real browser/native captured pixels,
       emits schema-valid screen analysis evidence, feeds policy dry-run, and
       deletes raw temp images.
-- [~] Tesseract baseline source/license/runtime extraction, CPU/memory
-  measurement, derived failure-mode scenarios, and same-image comparison
-  against the isolated local PaddleOCR 2.x fallback are recorded against a
-  retained real public Vimeo screenshot artifact; Tesseract is a measured
-  fallback while the current Windows service OCR route is WinRT and current
-  PP-OCRv5 mobile detector, server detector, and preprocessing variants still
-  extract zero text.
+- [x] Tesseract baseline source/license/runtime extraction, CPU/memory
+      measurement, derived failure-mode scenarios, and same-image comparison
+      against the isolated local PaddleOCR 2.x fallback are recorded against a
+      retained real public Vimeo screenshot artifact; Tesseract is a measured
+      fallback while the current Windows service OCR route is WinRT and current
+      PP-OCRv5 mobile detector, server detector, and preprocessing variants still
+      extract zero text. Production OCR selection remains tracked by the
+      PaddleOCR/PP-OCR and Windows route-selection gates, not this baseline row.
 - [~] PaddleOCR/PP-OCR candidate readiness records current package availability,
   current PP-OCRv5 mobile-detector and cached server-detector local execution
   with zero extracted text from the retained Vimeo screenshot, zero text from

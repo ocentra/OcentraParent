@@ -26,8 +26,12 @@ screenshot: alternate page segmentation, downscaled small text, and cropped
 player UI. The current shell PATH still does not see `tesseract`, so the script
 records the standard install path explicitly.
 
-PaddleOCR/PP-OCR comparison remains open before selecting a production OCR
-runtime.
+The same retained Vimeo screenshot is now compared against the current
+PaddleOCR/PP-OCR evaluation proof. Tesseract and the isolated local PaddleOCR
+2.x fallback both match the expected `vimeo`, `video`, and `player` terms,
+while current PP-OCRv5 mobile/server/preprocessed paths still extract zero text.
+This closes the Tesseract baseline evaluation itself without selecting a
+production OCR runtime.
 
 ## Checklist
 
@@ -36,7 +40,7 @@ runtime.
 - [x] Test basic UI text extraction.
 - [x] Measure CPU/memory/runtime.
 - [x] Record failure modes on small fonts/messy UI.
-- [ ] Compare against PaddleOCR/PP-OCR before selecting.
+- [x] Compare against PaddleOCR/PP-OCR before selecting.
 
 ## Proof
 
@@ -44,9 +48,9 @@ runtime.
 - `output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-tesseract-output.txt`.
 - `output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-tesseract-failure-modes.txt`.
 - Runtime status currently records `runtime-extraction-proved`.
-- Model/runtime quality notes remain open until Tesseract is compared with
-  PaddleOCR/PP-OCR and a production OCR runtime is selected through a separate
-  quality/resource gate.
+- Model/runtime production selection remains open under the PaddleOCR/PP-OCR
+  evaluation and Windows OCR route-selection gates; this workpack only closes
+  the simple Tesseract baseline evaluation.
 
 Validation:
 

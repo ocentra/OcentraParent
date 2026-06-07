@@ -1,11 +1,11 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T17:16:11.397Z",
+  "generatedAt": "2026-06-07T17:22:59.968Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
-    "completeCount": 32,
-    "partialCount": 8,
+    "completeCount": 33,
+    "partialCount": 7,
     "openCount": 0,
     "completeRows": [
       "01 Source index and doc reconciliation",
@@ -36,6 +36,7 @@
       "31 Screen intelligence router",
       "32 Browser structured extraction before screenshot",
       "33 Managed browser CDP screenshot capture path",
+      "34 OCR Tesseract baseline",
       "37 Household mesh screen-analysis queue",
       "38 Local AI resource scheduler/priority queue",
       "39 Redacted summary-only remote boundary",
@@ -47,13 +48,12 @@
       "13 iOS ReplayKit adapter plan/proof",
       "28 Live view optional mode",
       "30 Test suite, Playwright, rollout, PR gate",
-      "34 OCR Tesseract baseline",
       "35 OCR PaddleOCR/PP-OCR evaluation",
       "36 Small VLM guided classifier evaluation"
     ],
     "openRows": []
   },
-  "remainingExternalProofGates": [
+  "auditedProofGates": [
     {
       "id": "10",
       "label": "macOS capture adapter plan/proof",
@@ -111,7 +111,7 @@
     {
       "id": "34",
       "label": "OCR Tesseract baseline",
-      "status": "~",
+      "status": "x",
       "readinessProof": "output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json",
       "readinessProofPresent": true,
       "productReady": null,
@@ -132,6 +132,64 @@
       "status": "~",
       "readinessProof": "output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json",
       "readinessProofPresent": true,
+      "productReady": null,
+      "gate": "Current proof detects the local llama.cpp/Qwen2-VL runtime, retained controlled local VLM matrix, retained nine-scenario live operator matrix, bounded retained VLM inputs, managed-browser CDP crop capture path, retained proof-image VLM wall/CPU/RSS measurement, public-live video/school/game/shopping/social-feed CDP crop quality, current Windows local VLM route selection, and measured rollout/fallback gate; authenticated-account social proof and broader hardware rollout thresholds remain open."
+    }
+  ],
+  "remainingProductGates": [
+    {
+      "id": "10",
+      "label": "macOS capture adapter plan/proof",
+      "status": "~",
+      "productReady": false,
+      "gate": "Requires real macOS ScreenCaptureKit/permission proof on macOS hardware."
+    },
+    {
+      "id": "11",
+      "label": "Linux capture adapter plan/proof",
+      "status": "x",
+      "productReady": false,
+      "gate": "Requires real Linux X11/Wayland portal proof on a Linux desktop session."
+    },
+    {
+      "id": "12",
+      "label": "Android MediaProjection adapter plan/proof",
+      "status": "~",
+      "productReady": false,
+      "gate": "Needs physical/emulator parity beyond the existing consent/capture proof before broad Android product claim."
+    },
+    {
+      "id": "13",
+      "label": "iOS ReplayKit adapter plan/proof",
+      "status": "~",
+      "productReady": false,
+      "gate": "Requires real iOS ReplayKit entitlement/device proof."
+    },
+    {
+      "id": "28",
+      "label": "Live view optional mode",
+      "status": "~",
+      "productReady": null,
+      "gate": "Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, and worker startup gate proof exist; real platform live-view prompt screenshots, actual production worker start, relay/cache execution, physical-device parity, and privacy/legal approval remain."
+    },
+    {
+      "id": "30",
+      "label": "Test suite, Playwright, rollout, PR gate",
+      "status": "~",
+      "productReady": null,
+      "gate": "Final closure waits for partial platform/model gates or explicit product non-claim handoff."
+    },
+    {
+      "id": "35",
+      "label": "OCR PaddleOCR/PP-OCR evaluation",
+      "status": "~",
+      "productReady": null,
+      "gate": "Current PP-OCRv5 mobile-detector inference and cached server-detector inference now run locally with oneDNN/MKLDNN disabled but extract zero text from the real proof image, and deleted preprocessing variants also extract zero text; an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally. PaddleOCR is not selected; current Windows service OCR route selection is WinRT, while PP-OCRv5 quality/resource resolution and broad quality remain open."
+    },
+    {
+      "id": "36",
+      "label": "Small VLM guided classifier evaluation",
+      "status": "~",
       "productReady": null,
       "gate": "Current proof detects the local llama.cpp/Qwen2-VL runtime, retained controlled local VLM matrix, retained nine-scenario live operator matrix, bounded retained VLM inputs, managed-browser CDP crop capture path, retained proof-image VLM wall/CPU/RSS measurement, public-live video/school/game/shopping/social-feed CDP crop quality, current Windows local VLM route selection, and measured rollout/fallback gate; authenticated-account social proof and broader hardware rollout thresholds remain open."
     }
@@ -223,6 +281,7 @@
     "remainingGatesExplicit": true,
     "readinessProofsPresent": true,
     "platformProductGatesRemainBlocked": true,
+    "wp34TesseractBaselineClosed": true,
     "noProductCompleteClaim": true
   },
   "nonClaims": [
