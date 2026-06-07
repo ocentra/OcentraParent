@@ -3,7 +3,7 @@
   "proofMode": "tracking-hosted-ui-artifact-inventory-proof",
   "generatedAt": "2026-06-06T23:45:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "9d4061bddc8c3a35f20b4cc68afe4d44f169ccfc",
+  "baseCommitAtGeneration": "6961e88cf157eefb23354ee49dae986270ae6857",
   "requiredProofTier": "P2_HOSTED_CI",
   "currentProofTier": "P2_HOSTED_CI",
   "currentStatus": "proved",
@@ -44,6 +44,19 @@
       "rowCount": 5,
       "executionRequirementRefCount": 20,
       "runtimeObservationRequirementRefCount": 10,
+      "childDeviceExecutionRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productReadyClaimed": false
+    },
+    "childRuntimeSnapshotRequirementsProof": {
+      "proofMode": "tracking-child-runtime.snapshot-requirements",
+      "currentProofTier": "P2_HOSTED_CI",
+      "currentStatus": "proved",
+      "rowCount": 5,
+      "requiredSnapshotKindCount": 25,
+      "visibleSnapshotRequirementCount": 5,
+      "runtimeObservationRequirementCount": 10,
       "childDeviceExecutionRuntimeClaimed": false,
       "physicalDeviceProofClaimed": false,
       "authorityProofClaimed": false,
@@ -363,7 +376,8 @@
     "wp33Proof": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/28-hosted-ui-artifact-inventory-proof.json",
     "accessibilitySummary": "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json",
     "childRuntimeBoundaryProof": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/26-child-runtime-delivery-boundary-proof.json",
-    "childRuntimeExecutionReadinessProof": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/27-child-runtime-execution-readiness-proof.json"
+    "childRuntimeExecutionReadinessProof": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/27-child-runtime-execution-readiness-proof.json",
+    "childRuntimeSnapshotRequirementsProof": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json"
   },
   "nonClaims": {
     "fullParentChildUiClaimed": false,

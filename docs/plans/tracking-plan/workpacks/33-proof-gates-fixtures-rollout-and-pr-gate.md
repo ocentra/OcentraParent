@@ -82,6 +82,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `38-child-runtime-delivery-boundary-proof.json`
 - WP30 child-runtime execution readiness proof:
   `39-child-runtime-execution-readiness-proof.json`
+- WP30 child-runtime snapshot requirements proof:
+  `40-child-runtime-snapshot-requirements-proof.json`
 
 ## Merge Blockers
 
@@ -163,10 +165,11 @@ This branch refreshes
 `node scripts/test/tracking-hosted-ui-artifact-inventory-proof.mjs` so the
 WP30/WP33 inventory gate verifies the current hosted screenshot PNG inventory,
 the child-runtime delivery boundary proof, the child-runtime execution readiness
-proof, the unsupported/manual platform screenshot/proof, all current hosted
-accessibility assertions, and no-overlap layout geometry while keeping full
-parent/child UI, child-device runtime, physical-device, authority, provider
-delivery, production, and product-ready tracking unclaimed.
+proof, the child-runtime snapshot requirements proof, the unsupported/manual
+platform screenshot/proof, all current hosted accessibility assertions, and
+no-overlap layout geometry while keeping full parent/child UI, child-device
+runtime, physical-device, authority, provider delivery, production, and
+product-ready tracking unclaimed.
 
 This branch adds `npm run test:tracking-plan-evidence-quality-gate-proof`,
 which validates location UI evidence refs, geofence rule/source refs,
