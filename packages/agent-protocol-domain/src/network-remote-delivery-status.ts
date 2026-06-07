@@ -43,6 +43,21 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   durableSupportStatusRef: NetworkRemoteDeliveryText,
   durableEnvelopeReady: Schema.Boolean,
   durableEnvelopeMissingArtifactCount: NetworkRemoteDeliveryCount,
+  outboxRef: NetworkRemoteDeliveryText,
+  outboxHandoffRef: NetworkRemoteDeliveryText,
+  outboxReplayRef: NetworkRemoteDeliveryText,
+  outboxSupportStatusRef: NetworkRemoteDeliveryText,
+  outboxCandidateCount: NetworkRemoteDeliveryCount,
+  preparedNotDispatchedCount: NetworkRemoteDeliveryCount,
+  dispatchAttemptCount: Schema.Literal(0),
+  remoteAckCount: Schema.Literal(0),
+  duplicateDurableEnvelopeRejected: Schema.Boolean,
+  outboxCandidatesMatchDurableEnvelopes: Schema.Boolean,
+  outboxCandidatesMatchReceipts: Schema.Boolean,
+  sequenceGapCount: Schema.Literal(0),
+  eventIdMismatchCount: Schema.Literal(0),
+  eventTypeMismatchCount: Schema.Literal(0),
+  correlationMismatchCount: Schema.Literal(0),
   brokerDeliveryImplemented: Schema.Literal(false),
   familyHubDeliveryImplemented: Schema.Literal(false),
   remoteDeliveryAckImplemented: Schema.Literal(false),
@@ -72,8 +87,9 @@ export const AgentNetworkRemoteDeliveryStatusSchema = withParser(
       (status: AgentNetworkRemoteDeliveryStatus) =>
         (remoteRequirementCountsMatch(status) &&
           durableEnvelopeRefsMatch(status) &&
+          outboxHandoffRefsMatch(status) &&
           localDeliveryProofMatches(status)) ||
-        'Network remote delivery status must preserve row10e durable-envelope refs without live delivery or content claims'
+        'Network remote delivery status must preserve row10g outbox refs without live delivery or content claims'
     )
   )
 );
@@ -138,6 +154,20 @@ function durableEnvelopeRefsMatch(status: AgentNetworkRemoteDeliveryStatus): boo
     status.durableReplayRef === NetworkRemoteDeliveryRefs.DurableReplayRef &&
     status.durableDeleteExportRef === NetworkRemoteDeliveryRefs.DurableDeleteExportRef &&
     status.durableSupportStatusRef === NetworkRemoteDeliveryRefs.DurableSupportStatusRef
+  );
+}
+
+function outboxHandoffRefsMatch(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  return (
+    status.outboxRef === NetworkRemoteDeliveryRefs.OutboxRef &&
+    status.outboxHandoffRef === NetworkRemoteDeliveryRefs.OutboxHandoffRef &&
+    status.outboxReplayRef === NetworkRemoteDeliveryRefs.OutboxReplayRef &&
+    status.outboxSupportStatusRef === NetworkRemoteDeliveryRefs.OutboxSupportStatusRef &&
+    status.outboxCandidateCount > 0 &&
+    status.preparedNotDispatchedCount === status.outboxCandidateCount &&
+    status.duplicateDurableEnvelopeRejected &&
+    status.outboxCandidatesMatchDurableEnvelopes &&
+    status.outboxCandidatesMatchReceipts
   );
 }
 

@@ -1,0 +1,10 @@
+Source shape warnings scoped to row10h source refs:
+crates/agent-protocol/src/network_flow_tests.rs:1 file has 440 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/network_flow_tests.rs:164 function has 75 lines; warning starts at 64 of 80
+crates/agent-service/src/network_remote_delivery_status_payload.rs:63 function has 79 lines; warning starts at 64 of 80
+crates/agent-service/src/websocket.rs:1 file has 16 functions; warning starts at 15 of 18
+crates/agent-service/src/websocket.rs:1 file has 455 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/websocket.rs:165 function has 79 lines; warning starts at 64 of 80
+packages/agent-protocol-domain/src/defaults.ts:1 file has 483 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:80 function has 66 lines; warning starts at 64 of 80
+Source shape guard passed.

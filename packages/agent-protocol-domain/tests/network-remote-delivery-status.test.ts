@@ -41,6 +41,21 @@ const RemoteDeliveryStatus = {
   durableSupportStatusRef: RemoteDeliveryStatusRefs.DurableSupportStatusRef,
   durableEnvelopeReady: true,
   durableEnvelopeMissingArtifactCount: 0,
+  outboxRef: RemoteDeliveryStatusRefs.OutboxRef,
+  outboxHandoffRef: RemoteDeliveryStatusRefs.OutboxHandoffRef,
+  outboxReplayRef: RemoteDeliveryStatusRefs.OutboxReplayRef,
+  outboxSupportStatusRef: RemoteDeliveryStatusRefs.OutboxSupportStatusRef,
+  outboxCandidateCount: 3,
+  preparedNotDispatchedCount: 3,
+  dispatchAttemptCount: 0,
+  remoteAckCount: 0,
+  duplicateDurableEnvelopeRejected: true,
+  outboxCandidatesMatchDurableEnvelopes: true,
+  outboxCandidatesMatchReceipts: true,
+  sequenceGapCount: 0,
+  eventIdMismatchCount: 0,
+  eventTypeMismatchCount: 0,
+  correlationMismatchCount: 0,
   brokerDeliveryImplemented: false,
   familyHubDeliveryImplemented: false,
   remoteDeliveryAckImplemented: false,
@@ -77,6 +92,8 @@ describe('agent network remote delivery status contract', () => {
     expectInvalid({ ...RemoteDeliveryStatus, productReadyRemoteDelivery: true });
     expectInvalid({ ...RemoteDeliveryStatus, providerDeliveryImplemented: true });
     expectInvalid({ ...RemoteDeliveryStatus, childDeviceDeliveryImplemented: true });
+    expectInvalid({ ...RemoteDeliveryStatus, dispatchAttemptCount: 1 });
+    expectInvalid({ ...RemoteDeliveryStatus, remoteAckCount: 1 });
     expectInvalid({ ...RemoteDeliveryStatus, enforcementCommandEventCount: 1 });
     expectInvalid({ ...RemoteDeliveryStatus, adapterActionExecutedCount: 1 });
     expectInvalid({ ...RemoteDeliveryStatus, exactUrlAvailableCount: 1 });
@@ -107,6 +124,18 @@ describe('agent network remote delivery status contract', () => {
     expectInvalid({
       ...RemoteDeliveryStatus,
       durableEnvelopeRef: 'wrong.network.remote-delivery.durable-envelope.10e',
+    });
+    expectInvalid({
+      ...RemoteDeliveryStatus,
+      outboxRef: 'network.remote-delivery.outbox.10f',
+    });
+    expectInvalid({
+      ...RemoteDeliveryStatus,
+      outboxHandoffRef: 'wrong.network.remote-delivery.outbox-handoff.10g',
+    });
+    expectInvalid({
+      ...RemoteDeliveryStatus,
+      preparedNotDispatchedCount: 2,
     });
     expectInvalid({
       ...RemoteDeliveryStatus,
