@@ -454,6 +454,11 @@ control with better evidence and local audit.
   blocking gates block manual-required rows before adapter dispatch, policy
   preview rows keep manual-required block-launch `not-dispatched`, and
   category/risk manual-review routes remain out of compile-ready execution.
+- The launcher/child-game merge-blocking display gate is now backed by
+  `output/app-game-plan-proof/merge-gates/launcher-child-game-boundary`: launcher
+  contracts require child-game proof before known-game classification, and the
+  App/Game Sessions dashboard keeps launcher rows as launcher-only counts rather
+  than active child-game usage.
 
 ## Current Gap
 
