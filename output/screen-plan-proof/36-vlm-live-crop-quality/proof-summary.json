@@ -1,0 +1,101 @@
+{
+  "proof": "screen-vlm-live-crop-quality-proof",
+  "generatedAt": "2026-06-07T08:16:49.131Z",
+  "proofTier": "P2_REAL_LIVE_MANAGED_BROWSER_CROP_LOCAL_VLM_QUALITY",
+  "scenario": {
+    "scenarioId": "vimeo-public-home-crop",
+    "sourceKind": "public-live-url",
+    "finalHost": "vimeo.com",
+    "requestedLiveUrlHash": "sha256:7a44bb7c3a82d2e2bd1e9fdc917944ea99a6db364a3f73e0aecfded8ecf02870",
+    "finalUrlHash": "sha256:7a44bb7c3a82d2e2bd1e9fdc917944ea99a6db364a3f73e0aecfded8ecf02870",
+    "finalUrlLength": 18,
+    "titleHash": "sha256:e1aac3bd1563760ac32dd44f56d3c9695cf6b77849dfc9bde6a9a233f018e65c",
+    "titleLength": 33,
+    "visibleTextHash": "sha256:75e779554089f301e54034ffd23f372e1a14671fb6c0a899e33265545371d5b9",
+    "visibleTextLength": 9524,
+    "readinessTermsMatched": [
+      "vimeo",
+      "video"
+    ]
+  },
+  "cropCapture": {
+    "cdpMethod": "Page.captureScreenshot",
+    "targetIdHash": "sha256:e418272815231fe517de1ccc7932741c085a838b120ff9382fc733ff6709b524",
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 900,
+      "height": 560,
+      "scale": 1
+    },
+    "imageWidth": 900,
+    "imageHeight": 560,
+    "imagePixelCount": 504000,
+    "imageByteSize": 341155,
+    "imageDigest": "sha256:5d8897da8df875cddb044304f905afaf630df58d529cba2ab2513d4e37afca8a",
+    "rawTempPathRedacted": true,
+    "rawImageRetained": false,
+    "remoteUploadAllowed": false,
+    "desktopCaptureAttempted": false
+  },
+  "localVlmAnalysis": {
+    "runtimeBinary": "%USERPROFILE%\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+    "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+    "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
+    "promptOrTemplateVersion": "screen-vlm-live-crop-quality-v1",
+    "wallMs": 27337,
+    "parsedResult": {
+      "primary_category": "video",
+      "visible_text": "Your videos, your way",
+      "risk_signals": [],
+      "confidence": 1
+    },
+    "normalizedResult": {
+      "primary_category": "video",
+      "visible_text": "Your videos, your way",
+      "risk_signals": [],
+      "confidence": 1
+    },
+    "expectedCategory": "video",
+    "categoryMatched": true,
+    "expectedTerms": [
+      "vimeo",
+      "video"
+    ],
+    "vlmTermsMatched": [
+      "video"
+    ],
+    "stdoutPreview": " ```json { \"primary_category\": \"video\", \"visible_text\": \"Your videos, your way\", \"risk_signals\": [], \"confidence\": 1 } ``` ",
+    "stderrPreview": "0.00.552.627 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.01.577.105 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.01.581.723 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
+  },
+  "deletion": {
+    "rawCropDeleted": true,
+    "tempDirDeleted": true,
+    "rawImageRetained": false
+  },
+  "assertions": {
+    "realLivePageLoaded": true,
+    "managedBrowserCropCaptured": true,
+    "localVlmExecuted": true,
+    "parseableNormalizedJson": true,
+    "expectedTermsDetectedByVlm": true,
+    "expectedCategoryMatched": true,
+    "rawCropDeleted": true,
+    "noRemoteAiUsed": true,
+    "noRawImageRetained": true
+  },
+  "completedChecklistClaims": [
+    "real public live managed-browser crop is analyzed by local Qwen2-VL",
+    "detector-specific crop output contains expected visible terms and category for the live page",
+    "raw crop image is deleted after local VLM analysis and is not retained in proof artifacts"
+  ],
+  "openChecklistClaims": [
+    "authenticated-account social proof remains outside this public live crop proof",
+    "production VLM model selection remains open"
+  ],
+  "nonClaims": [
+    "This proof uses a public live page and does not claim authenticated-account social coverage.",
+    "This proof does not retain the raw crop screenshot.",
+    "This proof does not select a production VLM model."
+  ]
+}

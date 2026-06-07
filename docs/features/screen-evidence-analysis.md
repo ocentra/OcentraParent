@@ -576,9 +576,12 @@ only with explicit parent settings.
   `output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json`,
   which runs the local llama.cpp/Qwen2-VL runtime over retained parent proof
   screenshots and records per-sample wall time, sampled CPU seconds, and peak
-  working set while producing normalized screen-analysis JSON. It still does not
-  claim detector-specific VLM crop quality, authenticated-account social proof,
-  or production VLM model selection.
+  working set while producing normalized screen-analysis JSON. It also records
+  `output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json`, which
+  captures a real public Vimeo managed-browser crop through CDP, analyzes the
+  crop with local Qwen2-VL, matches the expected `video` category and visible
+  text, and deletes the raw crop. It still does not claim authenticated-account
+  social proof or production VLM model selection.
 - `scripts/test/screen-ai-service-winrt-ocr-proof.mjs` now proves the
   service-owned Windows WinRT OCR analysis path over real live Chrome/Wikipedia
   pixels: the Rust service cadence loop captures an active-window frame into
@@ -780,8 +783,9 @@ parity, and UI remain separate proof gates.
   bounded VLM input dimensions and managed-browser CDP crop capture/deletion,
   and the retained proof-image runtime measurement records per-sample wall time,
   sampled CPU seconds, peak working set, and normalized local VLM output.
-  Detector-specific VLM crop quality, authenticated-account social proof, and
-  production model selection remain open.
+  The public-live crop quality proof verifies a real Vimeo CDP crop with local
+  Qwen2-VL category/text match and deletion. Authenticated-account social proof
+  and production model selection remain open.
 - [x] Service WinRT OCR proof analyzes live public browser pixels through the
       encrypted service queue, records a `localOcr` Activity Screen row, drains
       the queue, and deletes adapter temp image material.
