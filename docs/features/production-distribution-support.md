@@ -250,6 +250,19 @@ dev-only repo when it claims consumer readiness.
   execution, account lookup, billing provider contact, legal disclosure
   execution, remote support sessions, production SLA, provider-secret custody,
   and child activity custody as explicit non-claims.
+- `production-support-status-backend-runtime-execution-proof` adds
+  parent-domain status backend runtime execution rows for support runbook,
+  incident, public support contact, support upload, privacy/legal, and
+  account/billing targets across requested, authorized, queued, running,
+  runtime-evidence-ready, audit-ready, failed, manual-required, and
+  backend-unavailable labels. It proves support-safe queue, retry, audit,
+  dead-letter, runtime evidence, and manual proof references while preserving
+  real status backend execution, durable queue storage, retry worker execution,
+  audit persistence, dead-letter payload custody, public runtime execution,
+  provider execution, support backend upload execution, account lookup, billing
+  provider contact, legal disclosure execution, remote support sessions,
+  production SLA, provider-secret custody, status backend payload custody, and
+  child activity custody as explicit non-claims.
 - `production-support-status-backend-payload-custody-proof` adds
   logging-domain status backend payload custody rows for custody boundary,
   retention manual-required, delete request, deletion manual-required,
@@ -697,6 +710,20 @@ package/runtime proof.
       disclosure execution, remote support sessions, production SLA,
       provider-secret custody, and child activity custody remain unimplemented
       or unclaimed.
+- [ ] Production support status backend runtime execution proof. Current
+      `production-support-status-backend-runtime-execution-proof` covers
+      support runbook, incident, public support contact, support upload,
+      privacy/legal, and account/billing status backend runtime execution
+      labels for requested, authorized, queued, running,
+      runtime-evidence-ready, audit-ready, failed, manual-required, and
+      backend-unavailable rows. It remains deterministic contract/status proof
+      only: real status backend execution, durable queue storage, retry worker
+      execution, audit persistence, dead-letter payload custody, public runtime
+      execution, provider execution, support backend upload execution, account
+      lookup, billing provider contact, legal disclosure execution, remote
+      support sessions, production SLA, provider-secret custody, status backend
+      payload custody, and child activity custody remain unimplemented or
+      unclaimed.
 - [ ] Production support status backend payload custody proof. Current
       `production-support-status-backend-payload-custody-proof` covers status
       backend payload custody boundary, retention manual-required, delete

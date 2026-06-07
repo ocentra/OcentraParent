@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
+  "proofMode": "production-support-status-backend-runtime-execution-proof",
+  "rowCount": 54,
+  "targets": [
+    "support-runbook-status-runtime-execution",
+    "incident-status-runtime-execution",
+    "public-support-contact-status-runtime-execution",
+    "support-upload-status-runtime-execution",
+    "privacy-legal-status-runtime-execution",
+    "account-billing-status-runtime-execution"
+  ],
+  "readinessStates": [
+    "requested",
+    "authorized",
+    "queued",
+    "running",
+    "runtime-evidence-ready",
+    "audit-ready",
+    "failed",
+    "manual-required",
+    "backend-unavailable"
+  ],
+  "output": "test-results/production-support-status-backend-runtime-execution-proof/proof.json",
+  "knownGaps": [
+    "Status backend runtime execution remains a deterministic contract proof; no real status backend execution is implemented.",
+    "Durable queue storage, retry worker execution, audit persistence, and dead-letter payload custody remain manual-required until a real status backend worker, durable store, and audit sink exist.",
+    "Public runtime execution, provider execution, support upload execution, account lookup, billing provider contact, legal disclosure execution, remote support sessions, production SLA, provider-secret custody, status backend payload custody, and child activity custody remain unclaimed.",
+    "Package exports expose the contract, read model, and values modules; runtime execution remains manual-required until real backend workers and persistence exist."
+  ],
+  "packageExport": {
+    "state": "added-package-json-exports",
+    "exports": [
+      "./production-support-status-backend-runtime-execution",
+      "./production-support-status-backend-runtime-execution-read-model",
+      "./production-support-status-backend-runtime-execution-values"
+    ]
+  }
+}
