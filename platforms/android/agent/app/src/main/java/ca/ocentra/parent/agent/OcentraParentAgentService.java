@@ -18,6 +18,7 @@ public final class OcentraParentAgentService extends Service {
     private Bundle permissionProof;
     private Bundle privilegedProof;
     private Bundle foregroundLocationProof;
+    private Bundle backgroundLocationSampleProof;
 
     @Override
     public void onCreate() {
@@ -28,8 +29,12 @@ public final class OcentraParentAgentService extends Service {
         permissionProof = ChildAndroidPermissionCapabilityProof.createPermissionCapabilityBundle();
         privilegedProof = ChildAndroidPrivilegedCapabilityProof.createPrivilegedCapabilityBundle();
         foregroundLocationProof = TrackingAndroidForegroundLocationProof.createForegroundLocationBundle(this);
+        backgroundLocationSampleProof =
+            TrackingAndroidBackgroundLocationSampleProof.createBackgroundSampleBundle(this);
         ensureNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification());
+        backgroundLocationSampleProof =
+            TrackingAndroidBackgroundLocationSampleProof.startBackgroundSampleProof(this);
     }
 
     @Override
@@ -40,6 +45,8 @@ public final class OcentraParentAgentService extends Service {
         permissionProof = ChildAndroidPermissionCapabilityProof.createPermissionCapabilityBundle();
         privilegedProof = ChildAndroidPrivilegedCapabilityProof.createPrivilegedCapabilityBundle();
         foregroundLocationProof = TrackingAndroidForegroundLocationProof.createForegroundLocationBundle(this);
+        backgroundLocationSampleProof =
+            TrackingAndroidBackgroundLocationSampleProof.startBackgroundSampleProof(this);
         return START_STICKY;
     }
 
@@ -86,6 +93,10 @@ public final class OcentraParentAgentService extends Service {
                 " " +
                 foregroundLocationProof.getString(
                     TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_SAMPLE_STATE
+                ) +
+                " " +
+                backgroundLocationSampleProof.getString(
+                    TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_STATE
                 )
             )
             .setSmallIcon(android.R.drawable.ic_menu_view)

@@ -69,6 +69,8 @@ public final class MainActivity extends Activity {
         Bundle appGameChildRuntimeNotificationRequestQueue =
             AppGameAndroidChildRuntimeNotificationRequestQueueProof.createRequestQueueBundle(this);
         Bundle backgroundLocationProof = TrackingAndroidBackgroundLocationProof.createBackgroundLocationBundle(this);
+        Bundle backgroundLocationSampleProof =
+            TrackingAndroidBackgroundLocationSampleProof.createBackgroundSampleBundle(this);
         if (TrackingAndroidForegroundLocationProof.shouldRequestForegroundLocationPermission(this)) {
             requestPermissions(
                 TrackingAndroidForegroundLocationProof.foregroundLocationPermissions(),
@@ -88,7 +90,8 @@ public final class MainActivity extends Activity {
                 privilegedProof,
                 screenProof,
                 foregroundLocationProof,
-                backgroundLocationProof
+                backgroundLocationProof,
+                backgroundLocationSampleProof
             )
         );
         TrackingAndroidForegroundLocationProof.requestForegroundLocationSample(
@@ -102,7 +105,8 @@ public final class MainActivity extends Activity {
                     privilegedProof,
                     screenProof,
                     updatedForegroundLocationProof,
-                    TrackingAndroidBackgroundLocationProof.createBackgroundLocationBundle(this)
+                    TrackingAndroidBackgroundLocationProof.createBackgroundLocationBundle(this),
+                    TrackingAndroidBackgroundLocationSampleProof.createBackgroundSampleBundle(this)
                 )
             )
         );
@@ -122,7 +126,8 @@ public final class MainActivity extends Activity {
         Bundle privilegedProof,
         Bundle screenProof,
         Bundle foregroundLocationProof,
-        Bundle backgroundLocationProof
+        Bundle backgroundLocationProof,
+        Bundle backgroundLocationSampleProof
     ) {
         String foregroundLocationMetadata = foregroundLocationProof.getBoolean("foregroundLocationSampleCaptured")
             ? "\n" +
@@ -312,6 +317,46 @@ public final class MainActivity extends Activity {
             ":" +
             backgroundLocationProof.getString(
                 TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_SOURCE
+            ) +
+            "\n" +
+            backgroundLocationSampleProof.getString(
+                TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_STATE
+            ) +
+            "\n" +
+            TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_COUNT +
+            ":" +
+            backgroundLocationSampleProof.getInt(
+                TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_COUNT
+            ) +
+            "\n" +
+            TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_PROVIDER +
+            ":" +
+            backgroundLocationSampleProof.getString(
+                TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_PROVIDER
+            ) +
+            "\n" +
+            TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_OBSERVED_AT_EPOCH_MILLIS +
+            ":" +
+            backgroundLocationSampleProof.getLong(
+                TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_OBSERVED_AT_EPOCH_MILLIS
+            ) +
+            "\n" +
+            TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_ACCURACY_METERS +
+            ":" +
+            backgroundLocationSampleProof.getFloat(
+                TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_ACCURACY_METERS
+            ) +
+            "\n" +
+            TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_SOURCE +
+            ":" +
+            backgroundLocationSampleProof.getString(
+                TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_SOURCE
+            ) +
+            "\n" +
+            TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_ACTIVITY_BACKGROUNDED +
+            ":" +
+            backgroundLocationSampleProof.getBoolean(
+                TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_ACTIVITY_BACKGROUNDED
             ) +
             foregroundLocationMetadata;
     }
