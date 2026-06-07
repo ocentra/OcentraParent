@@ -121,6 +121,19 @@ compete on control while staying clear about attribution confidence and privacy.
   enforcement-command publication, raw PCAP, exact URL, decrypted payload, page
   content, video content, private-message content, search-query content, and
   host filtering false.
+- E-D added row10f remote delivery status bridge proof across `agent-protocol`,
+  `agent-service`, and `agent-protocol-domain`: the service now answers
+  `agent.network.remote-delivery.status.get` with
+  `agent.network.remote-delivery.status.reported`, carrying broker/family-hub
+  fixture requirement state, local idempotency/dead-letter proof,
+  event-chain journal refs, receipt-ledger refs, local receipt-ack refs, and
+  row10e durable envelope/store/replay/delete-export/support refs. The
+  TypeScript parser rejects stale durable refs, missing requirement artifacts,
+  live/product-ready delivery, remote acknowledgement, provider/child-device
+  delivery, policy authority, side-effect authority, adapter execution,
+  enforcement-command publication, raw PCAP, exact URL, decrypted payload, page
+  content, video content, private-message content, search-query content, and
+  host filtering claims.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,

@@ -6,8 +6,8 @@ use super::{
     NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
     NetworkEnforcementResultStatus, NetworkFlowObservedEvent, NetworkPolicyDecisionCompletedEvent,
     NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
-    NetworkRuntimeEventContract, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    NETWORK_FLOW_SCHEMA_VERSION,
+    NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState, NetworkRuntimeEventContract,
+    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
 };
 
 #[path = "network_flow_event_fixtures.rs"]
@@ -124,6 +124,94 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
     );
     assert_eq!(serialized["tombstoneRows"], 1);
     assert_eq!(serialized["rows"].as_array().map(Vec::len), Some(0));
+}
+
+#[test]
+fn network_remote_delivery_status_serializes_row10f_bridge_without_product_claims() {
+    let serialized = serde_json::to_value(remote_delivery_status_fixture())
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized["brokerStatus"],
+        "fixture-requirements-recorded-but-not-implemented"
+    );
+    assert_eq!(
+        serialized["durableEnvelopeRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_ENVELOPE_REF
+    );
+    assert_eq!(serialized["durableEnvelopeReady"], true);
+    assert_eq!(serialized["remoteDeliveryAckImplemented"], false);
+    assert_eq!(serialized["productReadyRemoteDelivery"], false);
+    assert_eq!(serialized["enforcementCommandEventCount"], 0);
+    assert_eq!(serialized["adapterActionExecutedCount"], 0);
+    assert_eq!(serialized["exactUrlAvailableCount"], 0);
+    assert_eq!(serialized["searchQueryAvailableCount"], 0);
+}
+
+fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
+    NetworkRemoteDeliveryStatus {
+        status_ref: constants::network_flow::TEST_REMOTE_DELIVERY_STATUS_BRIDGE_REF.to_string(),
+        broker_status:
+            NetworkRemoteDeliveryStatusState::FixtureRequirementsRecordedButNotImplemented,
+        family_hub_status:
+            NetworkRemoteDeliveryStatusState::FixtureRequirementsRecordedButNotImplemented,
+        custody_proof_ref: constants::network_flow::TEST_BROKER_CUSTODY_PROOF_REF.to_string(),
+        publisher_auth_ref: constants::network_flow::TEST_BROKER_PUBLISHER_AUTH_REF.to_string(),
+        subscriber_auth_ref: constants::network_flow::TEST_BROKER_SUBSCRIBER_AUTH_REF.to_string(),
+        encryption_ref: constants::network_flow::TEST_BROKER_ENCRYPTION_REF.to_string(),
+        retention_policy_ref: constants::network_flow::TEST_BROKER_RETENTION_POLICY_REF.to_string(),
+        replay_plan_ref: constants::network_flow::TEST_BROKER_REPLAY_PLAN_REF.to_string(),
+        deletion_plan_ref: constants::network_flow::TEST_BROKER_DELETION_PLAN_REF.to_string(),
+        offset_policy_ref: constants::network_flow::TEST_BROKER_OFFSET_POLICY_REF.to_string(),
+        dedupe_policy_ref: constants::network_flow::TEST_BROKER_DEDUPE_POLICY_REF.to_string(),
+        transport_config_ref: constants::network_flow::TEST_BROKER_CONFIG_REF.to_string(),
+        relay_identity_ref: constants::network_flow::TEST_FAMILY_HUB_IDENTITY_REF.to_string(),
+        relay_policy_ref: constants::network_flow::TEST_FAMILY_HUB_RELAY_POLICY_REF.to_string(),
+        broker_missing_artifact_count: 0,
+        family_hub_missing_artifact_count: 0,
+        accepted_event_type_count: 3,
+        local_idempotency_queue_proved: true,
+        dropped_event_dead_letter_count: 1,
+        queued_duplicate_rejected: true,
+        completed_duplicate_rejected: true,
+        event_chain_journal_ref: constants::network_flow::TEST_REMOTE_EVENT_CHAIN_JOURNAL_REF
+            .to_string(),
+        receipt_ledger_ref: constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_LEDGER_REF
+            .to_string(),
+        local_receipt_ack_ref: constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF
+            .to_string(),
+        durable_envelope_ref: constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_ENVELOPE_REF
+            .to_string(),
+        durable_store_ref: constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_STORE_REF
+            .to_string(),
+        durable_replay_ref: constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_REPLAY_REF
+            .to_string(),
+        durable_delete_export_ref:
+            constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_DELETE_EXPORT_REF.to_string(),
+        durable_support_status_ref:
+            constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF.to_string(),
+        durable_envelope_ready: true,
+        durable_envelope_missing_artifact_count: 0,
+        broker_delivery_implemented: false,
+        family_hub_delivery_implemented: false,
+        remote_delivery_ack_implemented: false,
+        provider_delivery_implemented: false,
+        child_device_delivery_implemented: false,
+        cross_process_replay_implemented: false,
+        remote_delete_export_propagation_implemented: false,
+        product_ready_remote_delivery: false,
+        policy_authority: false,
+        side_effect_authority: false,
+        enforcement_command_event_count: 0,
+        adapter_action_executed_count: 0,
+        raw_pcap_available_count: 0,
+        exact_url_available_count: 0,
+        decrypted_payload_available_count: 0,
+        page_content_available_count: 0,
+        video_content_available_count: 0,
+        private_message_content_available_count: 0,
+        search_query_available_count: 0,
+    }
 }
 
 #[test]

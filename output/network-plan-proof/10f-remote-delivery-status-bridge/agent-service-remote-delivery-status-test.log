@@ -1,0 +1,9 @@
+
+running 2 tests
+test network_remote_delivery_status_service_tests::network_remote_delivery_status_payload_serializes_row10f_bridge ... ok
+test network_remote_delivery_status_service_tests::websocket_network_remote_delivery_status_command_reports_payload ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 263 filtered out; finished in <duration>
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
+     Running unittests src\main.rs (target\debug\deps\ocentra_parent_agent_service-f9b64d6b8709d212.exe)
