@@ -1,0 +1,43 @@
+{
+  "acceptedInputs": [
+    "row10c local network runtime event-chain projection replay records",
+    "row10c exportable stored envelopes",
+    "row10b broker/family-hub delivery requirement refs"
+  ],
+  "receiptLedgerRefs": [
+    "network.remote-delivery.event-chain.receipt-ledger.10d",
+    "network.remote-delivery.event-chain.local-receipt-ack.10d",
+    "network.remote-delivery.event-chain.receipt-replay.10d",
+    "network.remote-delivery.event-chain.receipt-support-status.10d"
+  ],
+  "renderedStates": [
+    "receiptLedgerReady=true",
+    "receiptReplayReady=true",
+    "receiptRecordsMatchProjection=true",
+    "receiptRecordCount equals sourceProjectionReplayRecordCount",
+    "localReceiptAckCount equals receiptRecordCount",
+    "remoteDeliveryAckImplemented=false"
+  ],
+  "parserInvariants": [
+    "receipt refs must all cite row10d",
+    "receipt records must preserve replay sequence, event id, event type, and correlation id",
+    "receipt ledger cannot claim live broker/family-hub delivery",
+    "receipt ledger cannot carry exact content or adapter-action claims"
+  ],
+  "noClaims": [
+    "live broker delivery",
+    "live family-hub relay delivery",
+    "remote provider delivery",
+    "child-device delivery",
+    "family-hub delivery acknowledgement implementation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "host filtering"
+  ]
+}
