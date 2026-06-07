@@ -1,0 +1,10 @@
+PASS pm revoke android.permission.ACCESS_FINE_LOCATION
+
+
+PASS pm clear-permission-flags android.permission.ACCESS_FINE_LOCATION
+
+
+PASS pm revoke android.permission.ACCESS_COARSE_LOCATION
+
+
+PASS pm clear-permission-flags android.permission.ACCESS_COARSE_LOCATION
