@@ -78,5 +78,5 @@ PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell run-as ca.ocentra.parent.agent cat shared_prefs/tracking_geofence_transition_proof.xml
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell run-as ca.ocentra.parent.agent cat shared_prefs/tracking_background_location_sample_proof.xml
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell pidof -s ca.ocentra.parent.agent
-PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 logcat --pid 6510 -d
+PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 logcat --pid 6516 -d
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 exec-out screencap -p

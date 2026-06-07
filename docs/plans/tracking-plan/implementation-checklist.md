@@ -96,8 +96,8 @@ Every checked item must cite one or more proof artifacts.
       `output/tracking-plan-proof/24-ai-provider-routing/`.
 - [ ] Android background claims have real device permission/background proof.
       WP08 emulator foreground permission grant, app-reported current
-      `LocationManager` sample metadata, and raw coordinate proof export now
-      exist under
+      `LocationManager` sample metadata, Google Play Services fused foreground
+      sample metadata, and raw coordinate proof export now exist under
       `output/tracking-plan-proof/08-android-foreground-location-adapter/`;
       WP09 emulator background permission plus Android app Settings page
       routing, foreground-service-backed background-activity sample, and
@@ -135,13 +135,13 @@ Every checked item must cite one or more proof artifacts.
 - [x] Android emulator package launch, foreground-service scaffold, foreground
       permission UX dialog capture, foreground permission grant, app-reported
       current `LocationManager` sample metadata plus raw coordinate proof
-      export, background
+      export, Google Play Services fused foreground sample metadata plus raw
+      coordinate proof export, background
       location permission grant state, Android app Settings page routing,
       foreground-service-backed background-activity sample storage, emulator
       local-geofence enter/exit rows, active geofence-limit representation,
       UI tree, headless screenshot inspection,
       logcat, battery, and connectivity dumps are captured without claiming
-      fused provider capture,
       Android system geofencing, dwell transitions, notification delivery,
       physical-device, or authority behavior. Emulator proof:
       `test-results/tracking-plan-android-emulator-proof/proof.json`.

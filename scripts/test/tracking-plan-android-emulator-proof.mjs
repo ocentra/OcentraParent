@@ -102,7 +102,7 @@ async function main() {
   await driveBackgroundLocationSample(tools, selectedSerial, preGrantPermissionState);
   await driveEmulatorGeofenceTransitions(tools, selectedSerial, preGrantPermissionState);
   await refreshActivityAfterGeofenceRoute(tools, selectedSerial);
-  await delay(5_000);
+  await delay(10_000);
 
   const runtime = await collectRuntimeArtifacts(tools, selectedSerial);
   const permissionState = parsePermissionState(packageDump);
@@ -155,6 +155,10 @@ function assertFocusedProofStrength(proof) {
   }
   if (
     ![
+      'foreground_permission_granted_fused_current_sample_observed',
+      'foreground_permission_granted_fused_sample_observed',
+      'foreground_permission_ux_fused_current_sample_observed',
+      'foreground_permission_ux_fused_sample_observed',
       'foreground_permission_granted_current_sample_observed',
       'foreground_permission_ux_current_sample_raw_coordinate_observed',
       'foreground_permission_granted_current_sample_raw_coordinate_observed',
@@ -799,6 +803,22 @@ function parseUiState(uiDump) {
     foregroundLocationSampleSource: parseTextField(text, 'foregroundLocationSampleSource'),
     foregroundLocationLatitude: parseNumberTextField(text, 'foregroundLocationLatitude'),
     foregroundLocationLongitude: parseNumberTextField(text, 'foregroundLocationLongitude'),
+    fusedForegroundLocationSampleStateText: text.includes('current-fused-foreground-location-sample-observed-emulator')
+      ? 'current-fused-foreground-location-sample-observed-emulator'
+      : text.includes('last-known-fused-foreground-location-sample-observed')
+        ? 'last-known-fused-foreground-location-sample-observed'
+        : text.includes('fused-foreground-location-sample-manual-required')
+          ? 'fused-foreground-location-sample-manual-required'
+          : null,
+    fusedForegroundLocationProvider: parseTextField(text, 'fusedForegroundLocationProvider'),
+    fusedForegroundLocationObservedAtEpochMillis: parseNumberTextField(
+      text,
+      'fusedForegroundLocationObservedAtEpochMillis'
+    ),
+    fusedForegroundLocationAccuracyMeters: parseNumberTextField(text, 'fusedForegroundLocationAccuracyMeters'),
+    fusedForegroundLocationSampleSource: parseTextField(text, 'fusedForegroundLocationSampleSource'),
+    fusedForegroundLocationLatitude: parseNumberTextField(text, 'fusedForegroundLocationLatitude'),
+    fusedForegroundLocationLongitude: parseNumberTextField(text, 'fusedForegroundLocationLongitude'),
     backgroundLocationPermissionStateText: text.includes('background-location-permission-granted')
       ? 'background-location-permission-granted'
       : text.includes('background-location-permission-required')
@@ -1386,7 +1406,12 @@ function buildProof({
     workpackProof: workpackProofState(permissionState, runtime, foregroundPermissionUx, backgroundSettingsPage),
     commands,
     nonClaims: [
-      'This proof does not claim Android fused foreground location sample capture.',
+      ...([
+        'current-fused-foreground-location-sample-observed-emulator',
+        'last-known-fused-foreground-location-sample-observed',
+      ].includes(runtime.ui.fusedForegroundLocationSampleStateText)
+        ? []
+        : ['This proof does not claim Android fused foreground location sample capture.']),
       'This proof does not claim product-ready Android background location sample behavior.',
       'This proof does not claim Android system geofencing, dwell transitions, or physical-device transition delivery.',
       'This proof does not claim notification delivery or alert provider behavior.',
@@ -1412,6 +1437,18 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
     runtime.ui.foregroundLocationLatitude !== null &&
     runtime.ui.foregroundLocationLongitude !== null &&
     runtime.ui.foregroundLocationSampleSource === 'android-location-manager-current-listener-emulator';
+  const fusedForegroundCurrentSampleObserved =
+    runtime.ui.fusedForegroundLocationSampleStateText ===
+      'current-fused-foreground-location-sample-observed-emulator' &&
+    runtime.ui.fusedForegroundLocationLatitude !== null &&
+    runtime.ui.fusedForegroundLocationLongitude !== null &&
+    runtime.ui.fusedForegroundLocationSampleSource === 'google-play-services-fused-current-emulator';
+  const fusedForegroundSampleObserved =
+    fusedForegroundCurrentSampleObserved ||
+    (runtime.ui.fusedForegroundLocationSampleStateText === 'last-known-fused-foreground-location-sample-observed' &&
+      runtime.ui.fusedForegroundLocationLatitude !== null &&
+      runtime.ui.fusedForegroundLocationLongitude !== null &&
+      runtime.ui.fusedForegroundLocationSampleSource === 'google-play-services-fused-last-known');
   const geofenceEnterExitObserved =
     runtime.geofenceTransitions.enterCount > 0 && runtime.geofenceTransitions.exitCount > 0;
   const activeGeofenceLimitObserved =
@@ -1427,35 +1464,59 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
       status:
         foregroundPermissionUx.observed &&
         permissionState.foregroundLocationPermissionGranted &&
-        foregroundRawCoordinateObserved
-          ? 'foreground_permission_ux_current_sample_raw_coordinate_observed'
-          : permissionState.foregroundLocationPermissionGranted && foregroundRawCoordinateObserved
-            ? 'foreground_permission_granted_current_sample_raw_coordinate_observed'
-            : permissionState.foregroundLocationPermissionGranted && foregroundSampleMetadataObserved
-              ? 'foreground_permission_granted_last_known_sample_metadata_observed'
-              : permissionState.foregroundLocationPermissionGranted && foregroundSampleObserved
-                ? 'foreground_permission_granted_last_known_sample_observed'
-                : permissionState.foregroundLocationPermissionGranted
-                  ? 'foreground_permission_granted_sample_manual_required'
-                  : 'manual_required',
+        fusedForegroundCurrentSampleObserved
+          ? 'foreground_permission_ux_fused_current_sample_observed'
+          : permissionState.foregroundLocationPermissionGranted && fusedForegroundCurrentSampleObserved
+            ? 'foreground_permission_granted_fused_current_sample_observed'
+            : foregroundPermissionUx.observed &&
+                permissionState.foregroundLocationPermissionGranted &&
+                fusedForegroundSampleObserved
+              ? 'foreground_permission_ux_fused_sample_observed'
+              : permissionState.foregroundLocationPermissionGranted && fusedForegroundSampleObserved
+                ? 'foreground_permission_granted_fused_sample_observed'
+                : foregroundPermissionUx.observed &&
+                    permissionState.foregroundLocationPermissionGranted &&
+                    foregroundRawCoordinateObserved
+                  ? 'foreground_permission_ux_current_sample_raw_coordinate_observed'
+                  : permissionState.foregroundLocationPermissionGranted && foregroundRawCoordinateObserved
+                    ? 'foreground_permission_granted_current_sample_raw_coordinate_observed'
+                    : permissionState.foregroundLocationPermissionGranted && foregroundSampleMetadataObserved
+                      ? 'foreground_permission_granted_last_known_sample_metadata_observed'
+                      : permissionState.foregroundLocationPermissionGranted && foregroundSampleObserved
+                        ? 'foreground_permission_granted_last_known_sample_observed'
+                        : permissionState.foregroundLocationPermissionGranted
+                          ? 'foreground_permission_granted_sample_manual_required'
+                          : 'manual_required',
       proofArtifact:
         'output/tracking-plan-proof/08-android-foreground-location-adapter/03-runtime-location-evidence.json',
       reason:
         foregroundPermissionUx.observed &&
         permissionState.foregroundLocationPermissionGranted &&
-        foregroundRawCoordinateObserved
-          ? 'Foreground location permission UX dialog, permission grant, app-emitted emulator current LocationManager sample, provider, observed timestamp, accuracy, source, and raw latitude/longitude were observed on the emulator package; fused provider, background/geofence, physical-device, authority, provider delivery, and product-ready tracking remain unclaimed.'
-          : permissionState.foregroundLocationPermissionGranted && foregroundRawCoordinateObserved
-            ? 'Foreground location permission grant, app-emitted emulator current LocationManager sample, provider, observed timestamp, accuracy, source, and raw latitude/longitude were observed on the emulator package; fused provider, background/geofence, physical-device, authority, provider delivery, and product-ready tracking remain unclaimed.'
-            : permissionState.foregroundLocationPermissionGranted && foregroundSampleMetadataObserved
-              ? 'Foreground location permission grant, app-emitted last-known sample state, provider, observed timestamp, and accuracy were observed on the emulator package; raw coordinates, fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.'
-              : permissionState.foregroundLocationPermissionGranted && foregroundSampleObserved
-                ? 'Foreground location permission grant and app-emitted last-known sample state were observed on the emulator package; fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.'
-                : permissionState.foregroundLocationPermissionGranted
-                  ? 'Foreground location permission grant was observed on the emulator package, but no app-emitted foreground location sample was captured.'
-                  : permissionState.locationPermissionRequested
-                    ? 'Package launched on emulator, but foreground location permission was not granted and no runtime foreground location evidence was emitted.'
-                    : 'Package launched on emulator, but the current scaffold does not request foreground location permission.',
+        fusedForegroundCurrentSampleObserved
+          ? 'Foreground location permission UX dialog, permission grant, Google Play Services fused current foreground sample, provider, observed timestamp, accuracy, source, and raw latitude/longitude were observed on the emulator package; background/geofence, physical-device, authority, provider delivery, and product-ready tracking remain unclaimed.'
+          : permissionState.foregroundLocationPermissionGranted && fusedForegroundCurrentSampleObserved
+            ? 'Foreground location permission grant, Google Play Services fused current foreground sample, provider, observed timestamp, accuracy, source, and raw latitude/longitude were observed on the emulator package; background/geofence, physical-device, authority, provider delivery, and product-ready tracking remain unclaimed.'
+            : foregroundPermissionUx.observed &&
+                permissionState.foregroundLocationPermissionGranted &&
+                fusedForegroundSampleObserved
+              ? 'Foreground location permission UX dialog, permission grant, Google Play Services fused foreground sample, provider, observed timestamp, accuracy, source, and raw latitude/longitude were observed on the emulator package; background/geofence, physical-device, authority, provider delivery, and product-ready tracking remain unclaimed.'
+              : permissionState.foregroundLocationPermissionGranted && fusedForegroundSampleObserved
+                ? 'Foreground location permission grant, Google Play Services fused foreground sample, provider, observed timestamp, accuracy, source, and raw latitude/longitude were observed on the emulator package; background/geofence, physical-device, authority, provider delivery, and product-ready tracking remain unclaimed.'
+                : foregroundPermissionUx.observed &&
+                    permissionState.foregroundLocationPermissionGranted &&
+                    foregroundRawCoordinateObserved
+                  ? 'Foreground location permission UX dialog, permission grant, app-emitted emulator current LocationManager sample, provider, observed timestamp, accuracy, source, and raw latitude/longitude were observed on the emulator package; fused provider, background/geofence, physical-device, authority, provider delivery, and product-ready tracking remain unclaimed.'
+                  : permissionState.foregroundLocationPermissionGranted && foregroundRawCoordinateObserved
+                    ? 'Foreground location permission grant, app-emitted emulator current LocationManager sample, provider, observed timestamp, accuracy, source, and raw latitude/longitude were observed on the emulator package; fused provider, background/geofence, physical-device, authority, provider delivery, and product-ready tracking remain unclaimed.'
+                    : permissionState.foregroundLocationPermissionGranted && foregroundSampleMetadataObserved
+                      ? 'Foreground location permission grant, app-emitted last-known sample state, provider, observed timestamp, and accuracy were observed on the emulator package; raw coordinates, fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.'
+                      : permissionState.foregroundLocationPermissionGranted && foregroundSampleObserved
+                        ? 'Foreground location permission grant and app-emitted last-known sample state were observed on the emulator package; fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.'
+                        : permissionState.foregroundLocationPermissionGranted
+                          ? 'Foreground location permission grant was observed on the emulator package, but no app-emitted foreground location sample was captured.'
+                          : permissionState.locationPermissionRequested
+                            ? 'Package launched on emulator, but foreground location permission was not granted and no runtime foreground location evidence was emitted.'
+                            : 'Package launched on emulator, but the current scaffold does not request foreground location permission.',
     },
     '09-android-background-location-and-geofence-adapter': {
       status:
@@ -1640,7 +1701,20 @@ function foregroundLocationProof(proof) {
     foregroundLocationLatitude: proof.runtime.ui.foregroundLocationLatitude,
     foregroundLocationLongitude: proof.runtime.ui.foregroundLocationLongitude,
     foregroundRawCoordinateExportObserved: foregroundRawCoordinateObserved,
-    fusedForegroundSampleClaimed: false,
+    fusedForegroundLocationSampleStateText: proof.runtime.ui.fusedForegroundLocationSampleStateText,
+    fusedForegroundLocationProvider: proof.runtime.ui.fusedForegroundLocationProvider,
+    fusedForegroundLocationObservedAtEpochMillis: proof.runtime.ui.fusedForegroundLocationObservedAtEpochMillis,
+    fusedForegroundLocationAccuracyMeters: proof.runtime.ui.fusedForegroundLocationAccuracyMeters,
+    fusedForegroundLocationSampleSource: proof.runtime.ui.fusedForegroundLocationSampleSource,
+    fusedForegroundLocationLatitude: proof.runtime.ui.fusedForegroundLocationLatitude,
+    fusedForegroundLocationLongitude: proof.runtime.ui.fusedForegroundLocationLongitude,
+    fusedForegroundSampleClaimed:
+      (proof.runtime.ui.fusedForegroundLocationSampleStateText ===
+        'current-fused-foreground-location-sample-observed-emulator' ||
+        proof.runtime.ui.fusedForegroundLocationSampleStateText ===
+          'last-known-fused-foreground-location-sample-observed') &&
+      proof.runtime.ui.fusedForegroundLocationLatitude !== null &&
+      proof.runtime.ui.fusedForegroundLocationLongitude !== null,
     missingProofReason: proof.workpackProof['08-android-foreground-location-adapter'].reason,
     device: proof.device,
     artifacts: proof.runtime.artifacts,

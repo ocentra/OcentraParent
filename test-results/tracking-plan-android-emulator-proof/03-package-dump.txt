@@ -1,7 +1,7 @@
 Activity Resolver Table:
   Non-Data Actions:
       android.intent.action.MAIN:
-        c5934ac ca.ocentra.parent.agent/.MainActivity filter 9100575
+        6c8ad95 ca.ocentra.parent.agent/.MainActivity filter e937eaa
           Action: "android.intent.action.MAIN"
           Category: "android.intent.category.LAUNCHER"
 
@@ -12,9 +12,9 @@ Key Set Manager:
       Signing KeySets: 64
 
 Packages:
-  Package [ca.ocentra.parent.agent] (c973d8a):
+  Package [ca.ocentra.parent.agent] (16a837a):
     appId=10212
-    pkg=Package{5ba97e ca.ocentra.parent.agent}
+    pkg=Package{234e2e7 ca.ocentra.parent.agent}
     codePath=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==
     resourcePath=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==
     legacyNativeLibraryDir=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/lib
@@ -34,8 +34,8 @@ Packages:
     forceQueryable=false
     scannedAsStoppedSystemApp=false
     supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
-    timeStamp=2026-06-07 01:31:21
-    lastUpdateTime=2026-06-07 01:31:21
+    timeStamp=2026-06-07 08:09:54
+    lastUpdateTime=2026-06-07 08:09:55
     installerPackageName=null
     installerPackageUid=-1
     initiatingPackageName=com.android.shell
@@ -43,7 +43,7 @@ Packages:
     packageSource=1
     appMetadataFilePath=null
     appMetadataSource=0
-    signatures=PackageSignatures{a1fbedf version:2, signatures:[9f56ad0e], past signatures:[]}
+    signatures=PackageSignatures{3512e94 version:2, signatures:[9f56ad0e], past signatures:[]}
     installPermissionsFixed=false
     pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]
     privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
@@ -60,17 +60,17 @@ Packages:
       android.permission.FOREGROUND_SERVICE: granted=true
       android.permission.FOREGROUND_SERVICE_DATA_SYNC: granted=true
       android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION: granted=true
-    User 0: ceDataInode=344838 deDataInode=49803 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false
+    User 0: ceDataInode=344746 deDataInode=49803 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false
       installReason=0
       dataDir=/data/user/0/ca.ocentra.parent.agent
-      firstInstallTime=2026-06-07 01:31:21
+      firstInstallTime=2026-06-07 08:09:55
       uninstallReason=0
       overlay paths:
         /product/overlay/EmulationPixel9ProXL/EmulationPixel9ProXLOverlay.apk
         /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
-        /data/resource-cache/com.android.systemui-neutral-MzxL.frro
-        /data/resource-cache/com.android.systemui-accent-OSXr.frro
-        /data/resource-cache/com.android.systemui-dynamic-VYUw.frro
+        /data/resource-cache/com.android.systemui-neutral-wWz1.frro
+        /data/resource-cache/com.android.systemui-accent-oOHB.frro
+        /data/resource-cache/com.android.systemui-dynamic-pI12.frro
       legacy overlay paths:
         /product/overlay/EmulationPixel9ProXL/EmulationPixel9ProXLOverlay.apk
         /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
@@ -89,7 +89,9 @@ Queries:
       ca.ocentra.parent.agent
   queryable via interaction:
     User 0:
-      [com.android.inputdevices,com.android.dynsystem,com.android.server.telecom,android,com.android.localtransport,com.android.emulator.multidisplay,com.android.providers.settings,com.android.DeviceAsWebcam,com.android.keychain,com.android.location.fused,com.android.settings]:
+      [com.android.localtransport,android,com.android.settings,com.android.providers.settings,com.android.emulator.multidisplay,com.android.keychain,com.android.DeviceAsWebcam,com.android.location.fused,com.android.server.telecom,com.android.inputdevices,com.android.dynsystem]:
+        ca.ocentra.parent.agent
+      [com.google.android.gms,com.google.android.gsf]:
         ca.ocentra.parent.agent
       com.google.android.inputmethod.latin:
         ca.ocentra.parent.agent

@@ -1,7 +1,7 @@
 # Android background permission proof
 
-- Checked at: 2026-06-07T05:32:47.281Z
-- Commit: 75512da0c07beffec43ca687517c7929dceed912
+- Checked at: 2026-06-07T12:11:36.392Z
+- Commit: df13726e24cab8ef186bf04f6423088b8cdfe963
 - Device: sdk_gphone64_x86_64 / Android 15 API 35
 - Package: ca.ocentra.parent.agent
 - Resolved activity: priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
