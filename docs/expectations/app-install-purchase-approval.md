@@ -273,6 +273,26 @@ Expected contract families:
   adapter implementation, child-device delivery, runtime report delivery, real
   interception, app blocking, child activity data custody, or Ocentra-hosted
   family data custody.
+- External runtime transport queue proof rows consume external runtime writer
+  delivery blocker rows and create parent-owned queue/dispatch guard entries
+  that keep dispatch blocked or manual-required until external writer
+  transport, child-device transport, provider/store execution, and platform
+  adapter proof refs are real. They must not claim external runtime writer
+  execution, external runtime writer delivery, parent action runtime delivery,
+  provider API execution, store integration, platform interception, platform
+  adapter implementation, child-device delivery, runtime report delivery, real
+  interception, app blocking, child activity data custody, or Ocentra-hosted
+  family data custody.
+- External runtime transport dispatch preflight proof rows consume transport
+  queue rows and create parent-owned withheld dispatch packets that stay
+  blocked or manual-required until external writer transport handler,
+  provider/store execution handler, platform adapter execution handler, and
+  child-device transport receipt proof refs are real. They must not claim
+  external runtime writer execution, external runtime writer delivery, parent
+  action runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity data custody,
+  or Ocentra-hosted family data custody.
 - Provider/store execution preflight proof rows link provider/store execution
   readiness rows and runtime writer execution delivery receipts into
   parent-owned execution-ready, manual-required, and unavailable preflight states
@@ -742,6 +762,18 @@ Expected contract families:
 - Do not treat external runtime writer delivery blocker proof refs as external
   runtime writer execution, external runtime writer delivery, parent action
   runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat external runtime transport queue proof refs as external runtime
+  writer execution, external runtime writer delivery, parent action runtime
+  delivery, provider API execution, store integration, platform interception,
+  platform adapter implementation, child-device delivery, runtime report
+  delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat external runtime transport dispatch preflight proof refs as
+  external runtime writer execution, external runtime writer delivery, parent
+  action runtime delivery, provider API execution, store integration, platform
   interception, platform adapter implementation, child-device delivery, runtime
   report delivery, real interception, app blocking, child activity custody, or
   Ocentra-hosted family data custody.

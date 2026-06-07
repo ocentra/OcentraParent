@@ -544,6 +544,34 @@ generic app blocking covers this concern.
   when run, validates the public parent-domain package export, and records the
   deferred product checklist row delta because E-C currently owns
   `docs/product-capability-checklist.md`.
+- `packages/parent-domain/src/app-install-purchase-external-runtime-transport-queue-proof.ts`
+  now consumes the external runtime writer delivery blocker rows into
+  parent-owned queue and dispatch-guard entries that keep runtime dispatch
+  blocked or manual-required until real external writer transport,
+  child-device transport, provider/store execution, and platform adapter proof
+  refs exist. It preserves no external writer execution/delivery, no
+  child-device delivery, no provider/store execution, no platform adapter, no
+  app blocking, no child activity data, and no hosted custody claims.
+- `scripts/test/app-install-purchase-external-runtime-transport-queue-proof.mjs`
+  records that external runtime transport queue proof under
+  `test-results/app-install-purchase-external-runtime-transport-queue-proof/proof.json`
+  when run, validates the public parent-domain package export, and records the
+  deferred product checklist row delta because E-C currently owns
+  `docs/product-capability-checklist.md`.
+- `packages/parent-domain/src/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.ts`
+  consumes those transport queue rows into parent-owned dispatch preflight
+  packets that stay withheld or manual-required until external writer
+  transport handler, provider/store execution handler, platform adapter
+  execution handler, and child-device transport receipt proof refs are real.
+  It preserves no external writer execution/delivery, no provider/store
+  execution, no platform adapter execution, no child-device delivery, no app
+  blocking, no child activity data, and no hosted custody claims.
+- `scripts/test/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.mjs`
+  records that dispatch preflight proof under
+  `test-results/app-install-purchase-external-runtime-transport-dispatch-preflight-proof/proof.json`
+  when run, validates the public parent-domain package export, and records the
+  deferred product checklist row delta while `docs/product-capability-checklist.md`
+  remains locked outside this lane.
 - `packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts`
   links provider/store execution readiness rows and runtime writer execution
   delivery receipts into parent-owned provider/store execution preflight ready,
@@ -811,6 +839,22 @@ Ocentra-hosted family data custody.
       provider/store execution, platform interception/adapters, child-device
       delivery, runtime report delivery, app blocking, child activity data, or
       hosted family data custody.
+- [x] External runtime transport queue proof consuming delivery blocker rows
+      into parent-owned queue and dispatch-guard entries that keep dispatch
+      blocked or manual-required until external writer transport, child-device
+      transport, provider/store execution, and platform adapter proof refs are
+      real without claiming external runtime writer execution/delivery,
+      provider/store execution, platform adapters, child-device delivery,
+      runtime report delivery, app blocking, child activity data, or hosted
+      family data custody.
+- [x] External runtime transport dispatch preflight proof consuming queue rows
+      into parent-owned withheld dispatch packets that stay blocked or
+      manual-required until external writer transport handler,
+      provider/store execution handler, platform adapter execution handler, and
+      child-device transport receipt proof refs are real without claiming
+      external runtime writer execution/delivery, provider/store execution,
+      platform adapters, child-device delivery, runtime report delivery, app
+      blocking, child activity data, or hosted family data custody.
 - [x] Provider/store execution preflight proof linking provider/store execution
       readiness rows and runtime writer execution delivery receipts into
       parent-owned ready/manual/unavailable preflight rows without provider API
@@ -946,8 +990,8 @@ execution with credentials/evidence, or actual platform adapters before
 upgrading manual-required source rows, child delivery, parent action, store
 status, capture status, adapter execution, report status, or product claim
 preclaim rows. If the OS/store does not allow interception, document the
-limitation and offer the closest safe parent workflow. Pending product
-capability checklist delta while E-C owns that file: add the external runtime
-writer delivery blocker proof to the Install/purchase approval row as non-claim
-evidence of missing writer transport, platform adapter execution,
-provider/store execution, and child-device transport blockers.
+limitation and offer the closest safe parent workflow. The product capability
+checklist now records the external runtime transport queue and dispatch
+preflight proofs as non-claim evidence of missing writer transport handler,
+platform adapter execution handler, provider/store execution handler, and
+child-device transport receipt proof blockers.
