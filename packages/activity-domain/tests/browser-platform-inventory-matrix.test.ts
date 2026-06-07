@@ -20,7 +20,7 @@ describe('browser platform inventory matrix', () => {
       ios: 2,
     });
     expect(proofCounts).toEqual({
-      'fixture-backed': 2,
+      'host-observed': 2,
       'manual-required': 4,
       unsupported: 6,
     });

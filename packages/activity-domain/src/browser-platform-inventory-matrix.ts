@@ -23,7 +23,7 @@ export const BrowserInventoryPlatformSchema = withParser(
   Schema.Literal('windows', 'macos', 'linux', 'android', 'ios', 'unknown')
 );
 export const BrowserInventoryPlatformProofStateSchema = withParser(
-  Schema.Literal('fixture-backed', 'manual-required', 'unsupported', 'not-claimed')
+  Schema.Literal('host-observed', 'fixture-backed', 'manual-required', 'unsupported', 'not-claimed')
 );
 export const BrowserInventoryPlatformProofRequirementSchema = withParser(
   BrowserPlatformMatrixText.pipe(Schema.brand('BrowserInventoryPlatformProofRequirement'))
@@ -89,6 +89,7 @@ export const BrowserInventoryPlatform = {
 } as const;
 
 export const BrowserInventoryPlatformProofState = {
+  HostObserved: BrowserInventoryPlatformProofStateSchema.parse('host-observed'),
   FixtureBacked: BrowserInventoryPlatformProofStateSchema.parse('fixture-backed'),
   ManualRequired: BrowserInventoryPlatformProofStateSchema.parse('manual-required'),
   Unsupported: BrowserInventoryPlatformProofStateSchema.parse('unsupported'),
@@ -100,7 +101,7 @@ const BrowserInventoryPlatformMatrixEntryHonestyChecks = [
   nonWindowsEntryDoesNotClaimActiveTab,
   unsupportedEntryHasUnsupportedExactUrl,
   manualEntryHasProofRequirement,
-  fixtureBackedEntryIsWindowsOnly,
+  hostObservedOrFixtureBackedEntryIsWindowsOnly,
   iosEntryIsUnsupported,
 ] as const;
 
@@ -146,9 +147,9 @@ function windowsCandidate(
     managedProfileState: 'missing',
     unmanagedFallbackCapability: 'os-block-manual-required',
     capabilityStatus: 'managed-profile-missing',
-    proofState: 'fixture-backed',
+    proofState: 'host-observed',
     reasonCode,
-    proofRequirement: 'managed launch and bridge proof required before exact URL claims',
+    proofRequirement: 'host inventory proof exists; managed launch and bridge proof required before exact URL claims',
   });
 }
 
@@ -249,8 +250,10 @@ function manualEntryHasProofRequirement(entry: BrowserInventoryPlatformMatrixEnt
   return entry.proofState !== 'manual-required' || entry.proofRequirement !== null;
 }
 
-function fixtureBackedEntryIsWindowsOnly(entry: BrowserInventoryPlatformMatrixEntryCandidate): boolean {
-  return entry.proofState !== 'fixture-backed' || entry.platform === 'windows';
+function hostObservedOrFixtureBackedEntryIsWindowsOnly(entry: BrowserInventoryPlatformMatrixEntryCandidate): boolean {
+  return (
+    (entry.proofState !== 'host-observed' && entry.proofState !== 'fixture-backed') || entry.platform === 'windows'
+  );
 }
 
 function iosEntryIsUnsupported(entry: BrowserInventoryPlatformMatrixEntryCandidate): boolean {

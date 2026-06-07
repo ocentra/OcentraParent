@@ -1,19 +1,21 @@
 # WP05 Platform Inventory Matrix Proof Gate
 
-Generated: 2026-06-07T05:04:40.853Z
+Generated: 2026-06-07T06:44:32.355Z
 
 Rows checked: 12
-Fixture-backed rows: 2
+Host-observed rows: 2
+Fixture-backed rows: 0
 Manual-required rows: 4
 Unsupported rows: 6
 Product claimed: false
 Android host proof: android-browser-package-visibility-proof
 Linux host proof: linux-wsl-package-inventory-boundary-proof
+Windows host proof: windows-host-browser-inventory-boundary-proof
 
 | Platform | Browser | Product | Proof State | Exact URL | Active Tab | Reason |
 | --- | --- | --- | --- | --- | --- | --- |
-| windows | edge | Microsoft Edge | fixture-backed | unavailable | unavailable | windows-managed-edge-candidate |
-| windows | chrome | Google Chrome | fixture-backed | unavailable | unavailable | windows-managed-chrome-candidate |
+| windows | edge | Microsoft Edge | host-observed | unavailable | unavailable | windows-managed-edge-candidate |
+| windows | chrome | Google Chrome | host-observed | unavailable | unavailable | windows-managed-chrome-candidate |
 | macos | chrome | Google Chrome | manual-required | manual-required | manual-required | macos-chrome-cdp-candidate-manual-required |
 | macos | unknown | Safari | unsupported | unsupported | unsupported | macos-safari-webkit-later-adapter |
 | linux | chrome | Google Chrome | manual-required | manual-required | manual-required | linux-chrome-cdp-candidate-manual-required |
@@ -29,3 +31,4 @@ No product checklist upgrade is claimed.
 Non-Windows managed exact URL and known-active tab support remain manual-required or unsupported until separate real platform proof exists.
 Android emulator package-visibility proof is present, but owned browser shell custody, exact URL, active tab, device-owner policy, and enforcement remain unclaimed.
 Linux WSL package/PATH/desktop-entry boundary proof is present, but Linux desktop browser adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.
+Windows host browser executable proof and queried URL-association-key boundary evidence are present, but default-handler visibility, managed launch, bridge custody, exact URL, active tab, and enforcement remain unclaimed.

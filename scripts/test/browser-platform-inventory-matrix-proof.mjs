@@ -11,6 +11,7 @@ const proofPath = join(resultDirectory, 'proof.json');
 const manifestPath = join(outputDirectory, '11-proof-gate-manifest.md');
 const androidHostProofPath = join(outputDirectory, '11-android-host-device-proof.json');
 const linuxHostProofPath = join(outputDirectory, '12-linux-host-package-proof.json');
+const windowsHostProofPath = join(outputDirectory, '13-windows-host-browser-proof.json');
 
 const requiredProofFiles = [
   '00-source-snapshot.md',
@@ -42,9 +43,11 @@ async function main() {
   }));
   const androidHostProof = await readAndroidHostProof();
   const linuxHostProof = await readLinuxHostProof();
+  const windowsHostProof = await readWindowsHostProof();
   const failures = [
     ...validateMatrix(matrix.entries),
     ...proofFiles.filter((file) => !file.exists).map((file) => `missing proof artifact: ${file.path}`),
+    ...validateWindowsHostProof(windowsHostProof),
   ];
   const proof = {
     schemaVersion: 1,
@@ -60,6 +63,7 @@ async function main() {
       manualRequiredRows: matrix.entries.filter((entry) => entry.proofState === 'manual-required').length,
       unsupportedRows: matrix.entries.filter((entry) => entry.proofState === 'unsupported').length,
       fixtureBackedRows: matrix.entries.filter((entry) => entry.proofState === 'fixture-backed').length,
+      hostObservedRows: matrix.entries.filter((entry) => entry.proofState === 'host-observed').length,
       productClaimed: false,
       checklistStatusChanged: false,
       failures: failures.length,
@@ -74,6 +78,9 @@ async function main() {
       androidHostProof
         ? 'android-browser-package-visibility-proof-present-owned-shell-still-manual-required'
         : 'android-owned-browser-shell-manual-required',
+      windowsHostProof
+        ? 'windows-host-browser-inventory-proof-present-managed-exact-url-still-unclaimed'
+        : 'windows-host-browser-inventory-proof-required',
       'ios-familycontrols-safari-extension-manual-required',
       'firefox-bidi-extension-later-adapter',
       'portal-ui-not-changed',
@@ -81,6 +88,7 @@ async function main() {
     ],
     androidHostProof,
     linuxHostProof,
+    windowsHostProof,
     failures,
   };
 
@@ -141,8 +149,11 @@ function validateMatrix(entries) {
     if (entry.supportTier === 'unsupported' && entry.exactUrlCapability !== 'unsupported') {
       failures.push(`${key} is unsupported without unsupported exactUrlCapability`);
     }
-    if (entry.proofState === 'fixture-backed' && entry.platform !== 'windows') {
-      failures.push(`${key} is fixture-backed outside Windows`);
+    if (
+      (entry.proofState === 'host-observed' || entry.proofState === 'fixture-backed') &&
+      entry.platform !== 'windows'
+    ) {
+      failures.push(`${key} is host-observed/fixture-backed outside Windows`);
     }
     if (entry.platform === 'ios' && entry.managementTier !== 'unsupported') {
       failures.push(`${key} upgrades iOS browser management before platform proof`);
@@ -190,12 +201,14 @@ function markdownFor(proof) {
     `Generated: ${proof.generatedAt}`,
     '',
     `Rows checked: ${proof.summary.totalRows}`,
+    `Host-observed rows: ${proof.summary.hostObservedRows}`,
     `Fixture-backed rows: ${proof.summary.fixtureBackedRows}`,
     `Manual-required rows: ${proof.summary.manualRequiredRows}`,
     `Unsupported rows: ${proof.summary.unsupportedRows}`,
     `Product claimed: ${proof.summary.productClaimed}`,
     `Android host proof: ${proof.androidHostProof?.resultState ?? 'not-present'}`,
     `Linux host proof: ${proof.linuxHostProof?.resultState ?? 'not-present'}`,
+    `Windows host proof: ${proof.windowsHostProof?.resultState ?? 'not-present'}`,
     '',
     '| Platform | Browser | Product | Proof State | Exact URL | Active Tab | Reason |',
     '| --- | --- | --- | --- | --- | --- | --- |',
@@ -209,6 +222,9 @@ function markdownFor(proof) {
     proof.linuxHostProof
       ? 'Linux WSL package/PATH/desktop-entry boundary proof is present, but Linux desktop browser adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.'
       : 'Linux desktop package and adapter proof remains manual-required.',
+    proof.windowsHostProof
+      ? 'Windows host browser executable proof and queried URL-association-key boundary evidence are present, but default-handler visibility, managed launch, bridge custody, exact URL, active tab, and enforcement remain unclaimed.'
+      : 'Windows host browser inventory proof remains required.',
   ].join('\n');
 }
 
@@ -250,6 +266,51 @@ async function readLinuxHostProof() {
     knownActiveTabProofClaimed: proof.hostProofSummary?.knownActiveTabProofClaimed === true,
     enforcementClaimed: proof.hostProofSummary?.enforcementClaimed === true,
   };
+}
+
+async function readWindowsHostProof() {
+  if (!existsSync(windowsHostProofPath)) {
+    return null;
+  }
+
+  const proof = JSON.parse(await readFile(windowsHostProofPath, 'utf8'));
+  return {
+    path: relativePath(windowsHostProofPath),
+    proofId: proof.proofId,
+    resultState: proof.hostProofSummary?.resultState ?? 'unknown',
+    windowsHost: proof.hostProofSummary?.windowsHost === true,
+    executableVisible: proof.hostProofSummary?.executableVisible === true,
+    defaultUrlHandlerVisible: proof.hostProofSummary?.defaultUrlHandlerVisible === true,
+    managedLaunchClaimed: proof.hostProofSummary?.managedLaunchClaimed === true,
+    exactUrlProofClaimed: proof.hostProofSummary?.exactUrlProofClaimed === true,
+    knownActiveTabProofClaimed: proof.hostProofSummary?.knownActiveTabProofClaimed === true,
+    enforcementClaimed: proof.hostProofSummary?.enforcementClaimed === true,
+  };
+}
+
+function validateWindowsHostProof(proof) {
+  if (proof === null) {
+    return [
+      'missing Windows host proof artifact: output/browser-plan-proof/05-cross-platform-inventory-matrix/13-windows-host-browser-proof.json',
+    ];
+  }
+
+  const failures = [];
+  if (!proof.windowsHost) {
+    failures.push('Windows host proof was not captured on a Windows host');
+  }
+  if (!proof.executableVisible && !proof.defaultUrlHandlerVisible) {
+    failures.push('Windows host proof lacks browser executable and default URL handler evidence');
+  }
+  if (
+    proof.managedLaunchClaimed ||
+    proof.exactUrlProofClaimed ||
+    proof.knownActiveTabProofClaimed ||
+    proof.enforcementClaimed
+  ) {
+    failures.push('Windows host proof made managed launch, exact URL, active tab, or enforcement claims');
+  }
+  return failures;
 }
 
 function countBy(values) {

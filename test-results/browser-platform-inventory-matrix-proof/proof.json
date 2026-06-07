@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-platform-inventory-matrix-proof",
-  "generatedAt": "2026-06-07T05:04:40.853Z",
+  "generatedAt": "2026-06-07T06:44:32.355Z",
   "proofContract": "packages/activity-domain/src/browser-platform-inventory-matrix.ts",
   "sourceWorkpack": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
   "rows": [
@@ -11,13 +11,13 @@
       "browserChannel": "stable",
       "productName": "Microsoft Edge",
       "supportTier": "candidate",
-      "proofState": "fixture-backed",
+      "proofState": "host-observed",
       "exactUrlCapability": "unavailable",
       "activeTabCapability": "unavailable",
       "managementTier": "managed",
       "capabilityStatus": "managed-profile-missing",
       "reasonCode": "windows-managed-edge-candidate",
-      "proofRequirement": "managed launch and bridge proof required before exact URL claims"
+      "proofRequirement": "host inventory proof exists; managed launch and bridge proof required before exact URL claims"
     },
     {
       "platform": "windows",
@@ -25,13 +25,13 @@
       "browserChannel": "stable",
       "productName": "Google Chrome",
       "supportTier": "candidate",
-      "proofState": "fixture-backed",
+      "proofState": "host-observed",
       "exactUrlCapability": "unavailable",
       "activeTabCapability": "unavailable",
       "managementTier": "managed",
       "capabilityStatus": "managed-profile-missing",
       "reasonCode": "windows-managed-chrome-candidate",
-      "proofRequirement": "managed launch and bridge proof required before exact URL claims"
+      "proofRequirement": "host inventory proof exists; managed launch and bridge proof required before exact URL claims"
     },
     {
       "platform": "macos",
@@ -184,13 +184,14 @@
       "ios": 2
     },
     "proofStateCounts": {
-      "fixture-backed": 2,
+      "host-observed": 2,
       "manual-required": 4,
       "unsupported": 6
     },
     "manualRequiredRows": 4,
     "unsupportedRows": 6,
-    "fixtureBackedRows": 2,
+    "fixtureBackedRows": 0,
+    "hostObservedRows": 2,
     "productClaimed": false,
     "checklistStatusChanged": false,
     "failures": 0
@@ -246,6 +247,7 @@
     "non-windows-known-active-tab-not-claimed",
     "linux-wsl-package-inventory-boundary-proof-present-desktop-adapter-still-manual-required",
     "android-browser-package-visibility-proof-present-owned-shell-still-manual-required",
+    "windows-host-browser-inventory-proof-present-managed-exact-url-still-unclaimed",
     "ios-familycontrols-safari-extension-manual-required",
     "firefox-bidi-extension-later-adapter",
     "portal-ui-not-changed",
@@ -271,6 +273,18 @@
     "browserCommandVisible": false,
     "browserPackageInstalled": false,
     "browserDesktopEntryVisible": false,
+    "exactUrlProofClaimed": false,
+    "knownActiveTabProofClaimed": false,
+    "enforcementClaimed": false
+  },
+  "windowsHostProof": {
+    "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/13-windows-host-browser-proof.json",
+    "proofId": "browser-platform-windows-host-proof",
+    "resultState": "windows-host-browser-inventory-boundary-proof",
+    "windowsHost": true,
+    "executableVisible": true,
+    "defaultUrlHandlerVisible": false,
+    "managedLaunchClaimed": false,
     "exactUrlProofClaimed": false,
     "knownActiveTabProofClaimed": false,
     "enforcementClaimed": false
