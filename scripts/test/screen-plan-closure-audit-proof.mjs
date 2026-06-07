@@ -41,7 +41,7 @@ const workpacks = [
     label: 'Live view optional mode',
     status: workpackStatus('28 Live view optional mode'),
     requiredProof: 'output/screen-plan-proof/live-view-platform-permission/proof-summary.json',
-    gate: 'Fail-closed platform permission gate exists; real live-view platform prompt screenshots, service session runtime, and live transport proof remain.',
+    gate: 'Fail-closed platform permission gate and local loopback live-frame transport proof exist; real platform live-view prompt screenshots, production service session runtime, relay/cache execution, privacy/legal approval, and product UI persistence remain.',
   },
   {
     id: '30',
@@ -120,6 +120,7 @@ const summary = {
     'output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/portal-screen-analysis-redaction.png',
     'output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/parent-redaction-policy.json',
     'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
+    'output/screen-plan-proof/live-view-session-transport/proof-summary.json',
   ].map((artifact) => ({
     artifact,
     present: existsSync(join(repoRoot, artifact)),
@@ -131,7 +132,7 @@ const summary = {
     noProductCompleteClaim: true,
   },
   nonClaims: [
-    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/transport/session runtime, current PP-OCRv5 quality resolution/production OCR selection, VLM crop/resource suitability, authenticated-account social proof, or production model selection gates.',
+    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/production service session runtime/relay-cache execution/product UI persistence, current PP-OCRv5 quality resolution/production OCR selection, VLM crop/resource suitability, authenticated-account social proof, or production model selection gates.',
     'This audit does not replace real device/runtime proof for remaining partial rows.',
     'This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied.',
   ],

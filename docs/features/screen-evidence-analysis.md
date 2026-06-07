@@ -457,6 +457,18 @@ only with explicit parent settings.
   `output/screen-plan-proof/27-28-optional-retention-live-preflight/proof-summary.json`.
   This is not runtime retention enablement, live transport, relay/cache,
   platform permission prompt proof, or privacy/legal approval.
+- `scripts/test/screen-live-view-session-transport-proof.mjs` now proves the
+  first runtime transport slice for optional live view. It captures a real
+  active-window frame through the Rust screen-capture adapter, keeps the raw
+  temp frame only until transport, sends the frame over a local view-only
+  loopback session with digest/HMAC/sequence validation, deletes the raw temp
+  frame after transport, and records no raw-frame cache, session recording, or
+  remote input at
+  `output/screen-plan-proof/live-view-session-transport/proof-summary.json`.
+  This is a local harness proof only; production service session workers,
+  platform live-view permission-prompt screenshots, relay/cache execution,
+  parent UI persistence, physical-device parity, and privacy/legal approval
+  remain separate gates.
 - `ScreenManagedBrowserCdpScreenshotRequestSchema`,
   `ScreenManagedBrowserCdpScreenshotArtifactSchema`, and
   `scripts/test/screen-managed-browser-cdp-capture-proof.mjs` now prove the
@@ -623,8 +635,9 @@ only with explicit parent settings.
   `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`. This
   prevents the stacked product-path artifact from being treated as full
   screen-plan completion before macOS, Linux, Android parity, iOS, live-view
-  transport, Tesseract runtime, PaddleOCR runtime, and live VLM quality gates
-  are completed or explicitly left as non-claims.
+  platform prompt/production service session/runtime UI, current PP-OCRv5
+  quality/resource, and live VLM quality gates are completed or explicitly left
+  as non-claims.
 - Product-complete retention controls and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -638,8 +651,9 @@ only with explicit parent settings.
 ## Current Gap
 
 Product-complete parent retention controls, optional raw-retention runtime
-enablement, live-view transport/relay/cache,
-platform permission prompt proof, child-agent disclosure runtime deployment,
+enablement, production live-view service session/relay-cache transport,
+platform permission prompt proof, parent UI persistence, physical-device
+live-view parity, child-agent disclosure runtime deployment,
 privacy/legal approval, authenticated-account
 social proof beyond public/live surface proof, production OCR/VLM quality beyond
 the WinRT OCR service proof, controlled fixtures, and the full live operator
@@ -710,11 +724,15 @@ parity, and UI remain separate proof gates.
       opt-in, custody, audit, deletion/no-retention, and platform-proof gates.
 - [x] Optional raw-retention/live-view capability status records disabled,
       manual-required, and blocked child/device readiness rows and rejects
-      product readiness without runtime/deletion or live-view transport proof.
+      product readiness without runtime/deletion, live-view platform prompt, and
+      production session/UI proof.
 - [x] Parent Settings renders optional raw-retention/live-view readiness rows
       from the same domain proof through the real portal/agent path without
       enabling raw retention, live view, live transport, relay/cache, remote
       input, or privacy/legal approval.
+- [x] Local live-view session transport proof captures one real active-window
+      frame, validates view-only loopback delivery with digest/HMAC, and deletes
+      the raw temp frame without cache, recording, or remote input.
 - [x] Local AI resource scheduler prevents multiple heavy OCR/VLM jobs and
       prioritizes policy-blocking screen analysis.
 - [x] Detector-specific prompt packs replace open-ended screen descriptions and
