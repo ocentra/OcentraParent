@@ -61,6 +61,11 @@ behavior belongs behind platform adapters and must be proved per platform.
   platform proof-readiness refs are attached; it does not prove real Windows
   adapter evidence, Microsoft Store execution, provider credentials, child
   delivery, app blocking, or product-claim approval.
+- Windows app-install external runtime device delivery evidence proof may link
+  parent-owned writer envelope, delivery result receipt, and child delivery
+  envelope refs only; it does not prove external writer execution/delivery,
+  Microsoft Store execution, provider credentials, platform adapter execution,
+  child-device delivery, app blocking, or product-claim approval.
 - Validation needs real Windows adapter tests or guarded integration/manual evidence for each claimed OS capability, plus contract tests for every event shape crossing TypeScript and Rust.
 
 ## macOS

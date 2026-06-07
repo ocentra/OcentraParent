@@ -195,6 +195,14 @@ Expected contract families:
   platform adapter implementation, child-device delivery, runtime report
   delivery, real interception, app blocking, child activity data custody, or
   Ocentra-hosted family data custody.
+- External runtime device delivery evidence proof rows link runtime writer
+  execution delivery receipts and child-device delivery runtime-writer envelope
+  rows into external runtime evidence-ready/manual-required rows without
+  claiming external runtime writer execution, external runtime writer delivery,
+  parent action runtime delivery, provider API execution, store integration,
+  platform interception, platform adapter implementation, child-device delivery,
+  runtime report delivery, real interception, app blocking, child activity data
+  custody, or Ocentra-hosted family data custody.
 - Provider/store execution preflight proof rows link provider/store execution
   readiness rows and runtime writer execution delivery receipts into
   parent-owned execution-ready, manual-required, and unavailable preflight states
@@ -412,8 +420,14 @@ Expected contract families:
   delivery rows, missing runtime writer delivery/parent action readiness/
   envelope/receipt/audit/report coverage rejection, provider/store/platform/
   child delivery/report delivery/app-blocking/custody overclaim rejection, and
-  required non-claim coverage. Public package export visibility remains a
-  required follow-up once `packages/parent-domain/package.json` is available.
+  required non-claim coverage.
+- TypeScript schema tests and a proof harness for external runtime device
+  delivery evidence rows, missing runtime writer execution receipt/child
+  delivery envelope/audit/report coverage rejection, external runtime writer/
+  provider/store/platform/child delivery/report delivery/app-blocking/custody
+  overclaim rejection, public package export visibility, and required non-claim
+  coverage. Product checklist visibility is updated in the install/purchase
+  approval row.
 - TypeScript schema tests and a proof harness for provider/store execution
   preflight rows, missing provider/store readiness or runtime writer execution
   delivery receipt coverage rejection, provider/store execution/store
@@ -607,6 +621,12 @@ Expected contract families:
   implementation, child-device delivery, runtime report delivery, real
   interception, app blocking, child activity custody, or Ocentra-hosted family
   data custody.
+- Do not treat external runtime device delivery evidence proof refs as external
+  runtime writer execution, external runtime writer delivery, parent action
+  runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
 - Do not treat provider/store execution preflight proof refs as Google Play,
   Apple App Store, Microsoft Store, billing provider execution/contact,
   provider API execution, store integration, platform interception, platform
