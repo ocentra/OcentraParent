@@ -1,0 +1,126 @@
+{
+  "status": "blocked-by-upstream-adapter-artifacts",
+  "proofKind": "screen-ai-final-adapter-dependency-audit",
+  "generatedAt": "2026-06-07T22:23:47.749Z",
+  "sourceArtifacts": {
+    "adapterReadiness": "output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json",
+    "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
+    "finalProductPath": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
+    "checklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
+  },
+  "closure": {
+    "windowsOwnedProcessAdaptersProved": true,
+    "finalPathArtifactGateStillValid": true,
+    "portalReadModelAndDeletionStillProved": true,
+    "broadBrowserNetworkMobileProductComplete": false,
+    "openChecklistRowRetained": true,
+    "executedAdapterRows": 2,
+    "blockedAdapterRows": 6,
+    "claimUpgradeRows": 0
+  },
+  "blockedRows": [
+    {
+      "rowId": "screen-ai-broad-installed-app-manual-required",
+      "boundary": "broad-installed-app-blocking",
+      "readinessState": "manual-required",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "claimFlagsAllFalse": true,
+      "missingArtifact": "broad installed-app apply, rollback, and audit custody proof from a screen-derived block decision"
+    },
+    {
+      "rowId": "screen-ai-host-network-domain-manual-required",
+      "boundary": "host-network-domain-blocking",
+      "readinessState": "manual-required",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "claimFlagsAllFalse": true,
+      "missingArtifact": "host DNS/filter apply, rollback, and audit custody proof from a screen-derived network/domain decision"
+    },
+    {
+      "rowId": "screen-ai-managed-active-tab-not-claimed",
+      "boundary": "managed-exact-active-tab-enforcement",
+      "readinessState": "not-claimed",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "claimFlagsAllFalse": true,
+      "missingArtifact": "managed active-tab exact URL apply, rollback, and audit custody proof from a screen-derived browser decision"
+    },
+    {
+      "rowId": "screen-ai-android-mobile-control-manual-required",
+      "boundary": "android-mobile-control-adapter",
+      "readinessState": "manual-required",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "claimFlagsAllFalse": true,
+      "missingArtifact": "Android device-owner/managed-profile control proof from a screen-derived mobile decision"
+    },
+    {
+      "rowId": "screen-ai-ios-mobile-control-manual-required",
+      "boundary": "ios-mobile-control-adapter",
+      "readinessState": "manual-required",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "claimFlagsAllFalse": true,
+      "missingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision"
+    },
+    {
+      "rowId": "screen-ai-linux-host-adapter-unavailable",
+      "boundary": "linux-host-adapter",
+      "readinessState": "unavailable",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "claimFlagsAllFalse": true,
+      "missingArtifact": "Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision"
+    }
+  ],
+  "nextRequiredArtifacts": [
+    {
+      "rowId": "screen-ai-broad-installed-app-manual-required",
+      "boundary": "broad-installed-app-blocking",
+      "missingArtifact": "broad installed-app apply, rollback, and audit custody proof from a screen-derived block decision"
+    },
+    {
+      "rowId": "screen-ai-host-network-domain-manual-required",
+      "boundary": "host-network-domain-blocking",
+      "missingArtifact": "host DNS/filter apply, rollback, and audit custody proof from a screen-derived network/domain decision"
+    },
+    {
+      "rowId": "screen-ai-managed-active-tab-not-claimed",
+      "boundary": "managed-exact-active-tab-enforcement",
+      "missingArtifact": "managed active-tab exact URL apply, rollback, and audit custody proof from a screen-derived browser decision"
+    },
+    {
+      "rowId": "screen-ai-android-mobile-control-manual-required",
+      "boundary": "android-mobile-control-adapter",
+      "missingArtifact": "Android device-owner/managed-profile control proof from a screen-derived mobile decision"
+    },
+    {
+      "rowId": "screen-ai-ios-mobile-control-manual-required",
+      "boundary": "ios-mobile-control-adapter",
+      "missingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision"
+    },
+    {
+      "rowId": "screen-ai-linux-host-adapter-unavailable",
+      "boundary": "linux-host-adapter",
+      "missingArtifact": "Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision"
+    }
+  ],
+  "nonClaims": [
+    "This audit does not implement broad installed-app blocking, host network/domain blocking, managed active-tab enforcement, Android/iOS mobile control, or Linux host control.",
+    "This audit does not close the product-complete adapter checklist row; it verifies that the row remains open until upstream execution artifacts exist.",
+    "This audit reuses retained proof artifacts and does not rerun live capture, local AI inference, portal rendering, or adapter execution."
+  ]
+}
