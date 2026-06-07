@@ -19,18 +19,6 @@ const sourceProofRefs = [
   'test-results/tracking-child-runtime-artifact-gate-proof/proof.json',
 ];
 
-const requiredFullProductUiArtifactRefs = [
-  'output/tracking-plan-proof/product-parent-child-ui-runtime/01-parent-overview-runtime.png',
-  'output/tracking-plan-proof/product-parent-child-ui-runtime/02-parent-device-detail-runtime.png',
-  'output/tracking-plan-proof/product-parent-child-ui-runtime/03-parent-notification-history-preferences-runtime.png',
-  'output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png',
-  'output/tracking-plan-proof/product-parent-child-ui-runtime/05-child-device-rendered-check-in-runtime.png',
-  'output/tracking-plan-proof/product-parent-child-ui-runtime/06-child-device-rendered-location-consent-runtime.png',
-  'output/tracking-plan-proof/product-parent-child-ui-runtime/07-child-device-safe-help-response-runtime.png',
-  'output/tracking-plan-proof/product-parent-child-ui-runtime/08-cross-surface-accessibility-report.json',
-  'output/tracking-plan-proof/product-parent-child-ui-runtime/09-product-ui-end-to-end-trace.json',
-];
-
 await main();
 
 async function main() {
@@ -54,7 +42,7 @@ async function main() {
       sourceProofRefs,
       hostedScreenshotRefs: hostedUiProof.screenshots.map((screenshot) => screenshot.path),
       hostedAssertionRefs: hostedUiProof.requiredAssertions,
-      fullProductUiArtifactRefs: requiredFullProductUiArtifactRefs,
+      fullProductUiArtifactRefs: uiBlockerModule.RequiredTrackingFullProductUiRuntimeArtifactRefs,
     },
     childRuntimeArtifactGateProof.readModel
   );

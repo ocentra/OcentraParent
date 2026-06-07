@@ -192,6 +192,17 @@ expose location or device-status features. Parents expect this category.
   tracking UI. Hosted-route evidence stays acknowledged, but full product
   parent/child UI, child-device runtime UI, physical-device, authority,
   provider delivery, production, and product-ready claims remain false.
+- WP30/WP33 full product UI runtime artifact gate proof now exists through
+  `node scripts/test/tracking-full-product-ui-runtime-artifact-gate-proof.mjs`.
+  It imports the required product parent/child UI artifact refs from the full
+  product UI readiness blocker source, checks the shared tracking proof root for
+  parent overview, device detail, notification history/preferences, production
+  retention-settings write result, rendered child-device check-in and location
+  consent, safe/help response, cross-surface accessibility, and end-to-end
+  product UI trace artifacts, writes WP30/WP33 artifacts, and keeps full product
+  UI runtime, child-device delivery runtime, physical-device behavior,
+  authority, provider delivery, production product UI, and product-ready
+  tracking unclaimed until those runtime artifacts exist.
 - WP33 production durable workers readiness blocker proof now exists through
   `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`.
   It consumes the production-support durable queue runtime boundary plus the
@@ -855,6 +866,16 @@ accessibility beyond the hosted parent route are proved.
       proof only; it is not live service mutation, alert/provider delivery,
       receipt ingestion, child-device runtime, physical-device, authority,
       production worker, adapter dispatch, or product-ready tracking proof.
+- [x] Full product UI runtime artifact gate proof records the exact required
+      parent overview, parent device-detail, notification history/preferences,
+      retention production write result, rendered child-device check-in,
+      rendered child-device location consent, safe/help response,
+      cross-surface accessibility, and end-to-end product UI trace artifact
+      refs before full product UI runtime can be treated as present. Current
+      rows are manual-required and keep full product UI runtime,
+      child-device delivery runtime, physical-device behavior, authority,
+      provider delivery, production product UI, and product-ready tracking
+      unclaimed.
 - [x] WP25 P1 parent-policy compiler/evaluator runtime proof for tracking
       rules, deterministic parent-policy final authority, AI non-authority,
       manual-required fallback, and dry-run/preview output. This is not runtime

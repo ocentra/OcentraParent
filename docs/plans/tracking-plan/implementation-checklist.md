@@ -409,6 +409,22 @@ provider-delivery, production, and product-ready tracking claims false. The
 tracking product-readiness closure proof now consumes this full-product UI
 blocker too, so local/CI closure accounting cannot pass without the WP30/WP33
 full-product UI blocker proof ref.
+WP30/WP33 now also have full product UI runtime artifact gate proof from
+`node scripts/test/tracking-full-product-ui-runtime-artifact-gate-proof.mjs`,
+written to
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/32-full-product-ui-runtime-artifact-gate-proof.json`,
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/59-full-product-ui-runtime-artifact-gate-proof.json`,
+and `test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json`.
+It reuses the required parent/child UI runtime artifact refs from the full
+product UI readiness blocker source and checks the shared tracking proof root
+before parent overview, parent device-detail, notification
+history/preferences, production retention-settings write result, rendered
+child-device check-in, rendered child-device location consent, safe/help
+response, cross-surface accessibility, or end-to-end product UI trace artifacts
+can be treated as present. The current row remains `manual-required` and keeps
+full product UI runtime, child-device delivery runtime, physical-device
+behavior, authority, provider delivery, production product UI, and product-ready
+tracking unclaimed.
 WP33 now also has production durable workers readiness blocker proof from
 `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`,
 written to
@@ -921,6 +937,16 @@ Every implementation workpack must update, or explicitly justify not updating:
       runtime, parent receipt runtime, runtime observation, physical-device
       proof, authority, provider delivery, production workers, and product-ready
       tracking false.
+- [x] Full product UI runtime artifact gate proof now verifies the exact
+      required parent/child product UI runtime artifact refs before full product
+      tracking UI can be treated as present. Proof:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/59-full-product-ui-runtime-artifact-gate-proof.json`;
+      command:
+      `node scripts/test/tracking-full-product-ui-runtime-artifact-gate-proof.mjs`.
+      Current rows are `manual-required`, missing the real full product UI
+      artifact set, and keep full product UI runtime, child-device delivery
+      runtime, physical-device behavior, authority, provider delivery,
+      production product UI, and product-ready tracking false.
 - [x] Production worker runtime artifact gate proof now verifies the exact
       required `tracking-production/*.json` artifact refs before any tracking
       production worker runtime can be treated as present. Proof:
