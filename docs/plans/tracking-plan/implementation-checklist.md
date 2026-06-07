@@ -622,8 +622,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       routing, hosted parent route screenshot/accessibility proof, hosted
       notification parent-surface history/preference-intent screenshot proof,
       hosted parent action readiness proof, hosted child-safe check-in screenshot
-      proof, hosted child-runtime UI proof, hosted read-only evidence drawer
-      proof, hosted UI artifact inventory proof, and
+      proof, hosted child-runtime UI proof, hosted child-runtime execution
+      readiness proof, hosted read-only evidence drawer proof, hosted UI
+      artifact inventory proof, and
       remaining Android foreground/background location, physical-device,
       authority, actual child-device delivery/runtime execution, full
       child/parent UI beyond the hosted parent route, provider-delivery, and
@@ -681,8 +682,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`;
       the hosted report/policy consumer screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-policy-consumer.png`;
-      the refreshed hosted artifact inventory proof verifies these PNG artifacts
-      plus the unsupported/manual platform screenshot under
+      the refreshed hosted artifact inventory proof verifies these PNG artifacts,
+      the child-runtime execution readiness proof artifact, plus the
+      unsupported/manual platform screenshot under
       `test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json`;
       actual child-device runtime and full parent/child screenshots remain
       pending.

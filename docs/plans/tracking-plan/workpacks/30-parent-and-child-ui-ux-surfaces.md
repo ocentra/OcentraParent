@@ -138,8 +138,9 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - [x] Verify all current hosted screenshot PNG artifacts, evidence drawer proof
       output, unsupported/manual platform proof output, accessibility
       assertions, and no-overlap layout geometry are present and non-empty
-      through a dedicated artifact inventory proof without claiming full
-      parent/child UI or device runtime execution.
+      through a dedicated artifact inventory proof, including the child-runtime
+      execution readiness artifact, without claiming full parent/child UI or
+      device runtime execution.
 - [x] Ensure child copy avoids accusation.
 - [x] Keep portal as authoring/display surface, not evaluator for the hosted
       evidence drawer proof; broader UI/product paths remain separately gated.
