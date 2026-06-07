@@ -38,6 +38,25 @@ export const AgentAppGameTimerParentSurfaceRowSchema = withParser(
   })
 );
 
+export const AgentAppGameTimerParentSurfaceChildUxLocalArtifactRecordSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AppGameSchemaVersion),
+    artifactReferenceId: TimerParentSurfaceText,
+    sourceResultId: TimerParentSurfaceText,
+    targetDomain: Schema.Literal(
+      AgentAppGameTimerParentSurfaceTargetDomain.NativeApp,
+      AgentAppGameTimerParentSurfaceTargetDomain.NativeGame
+    ),
+    childReasonReferenceIds: Schema.Array(TimerParentSurfaceText),
+    childStatusReferenceIds: Schema.Array(TimerParentSurfaceText),
+    childDeliveryClaimed: Schema.Literal(false),
+    notificationDeliveryClaimed: Schema.Literal(false),
+    adapterDispatchClaimed: Schema.Literal(false),
+    platformEnforcementClaimed: Schema.Literal(false),
+    rawPrivateSourceRowsIncluded: Schema.Literal(false),
+  })
+);
+
 export const AgentAppGameTimerParentSurfaceReadModelSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
@@ -62,6 +81,7 @@ export const AgentAppGameTimerParentSurfaceReadModelSchema = withParser(
     childUxLocalHandoffArtifactRecordCount: TimerParentSurfaceCount,
     childUxLocalHandoffArtifactSkippedCount: TimerParentSurfaceCount,
     childUxLocalHandoffArtifactReferenceIds: Schema.Array(TimerParentSurfaceText),
+    childUxLocalHandoffArtifactRecords: Schema.Array(AgentAppGameTimerParentSurfaceChildUxLocalArtifactRecordSchema),
     timerRuntimeClaimed: Schema.Boolean,
     schedulerPersistenceClaimed: Schema.Boolean,
     durableSchedulerStorageClaimed: Schema.Boolean,
@@ -82,6 +102,9 @@ export type AgentAppGameTimerParentSurfaceState = Infer<
   typeof AgentAppGameTimerParentSurfaceRowSchema
 >['timerSurfaceState'];
 export type AgentAppGameTimerParentSurfaceRow = Infer<typeof AgentAppGameTimerParentSurfaceRowSchema>;
+export type AgentAppGameTimerParentSurfaceChildUxLocalArtifactRecord = Infer<
+  typeof AgentAppGameTimerParentSurfaceChildUxLocalArtifactRecordSchema
+>;
 export type AgentAppGameTimerParentSurfaceReadModel = Infer<typeof AgentAppGameTimerParentSurfaceReadModelSchema>;
 
 export type AgentAppGameTimerParentSurfaceFailureReason =

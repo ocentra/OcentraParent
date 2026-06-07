@@ -1165,9 +1165,11 @@ diagnostics, or raw private source rows.
       rows now produce a schema-validated local JSONL artifact for ready app
       and game rows while blocked missing-ref rows stay out of the artifact,
       and the timer parent-surface service/portal read model now renders
-      artifact record counts, skipped counts, and artifact refs; live child UI,
-      notifications, durable service persistence/export, package export,
-      adapter dispatch, and platform execution remain.
+      artifact record counts, skipped counts, artifact refs, and structured
+      parent-safe artifact records with source result ids, target domains, and
+      child reason/status refs; live child UI, notifications, durable service
+      persistence/export, package export, adapter dispatch, and platform
+      execution remain.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

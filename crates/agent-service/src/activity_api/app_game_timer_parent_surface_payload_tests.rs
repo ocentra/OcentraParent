@@ -33,7 +33,8 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_TEST_REASON_PARENT_APPROVED, APP_GAME_TEST_TARGET_ID, APP_GAME_TEST_TARGET_VALUE,
     APP_GAME_TEST_TIMESTAMP, APP_GAME_TEST_WINDOWS_LIMITATION, APP_GAME_TEST_WINDOWS_ROW_ID,
     APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
-    APP_GAME_TIMER_PARENT_SURFACE_STATUS_READY, APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
+    APP_GAME_TIMER_PARENT_SURFACE_STATUS_READY, APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
+    APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
 };
 
 use super::app_game_timer_parent_surface_payload::{
@@ -140,6 +141,29 @@ fn assert_child_ux_local_artifact_visibility(decoded: &AppGameTimerParentSurface
         ]
         .concat()]
     );
+    assert_eq!(decoded.child_ux_local_handoff_artifact_records.len(), 1);
+    let artifact_record = &decoded.child_ux_local_handoff_artifact_records[0];
+    assert_eq!(
+        artifact_record.source_result_id,
+        APP_GAME_TEST_ACTION_RESULT_ID
+    );
+    assert_eq!(
+        artifact_record.target_domain,
+        APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP
+    );
+    assert_eq!(
+        artifact_record.child_reason_reference_ids,
+        vec![APP_GAME_TEST_REASON_PARENT_APPROVED.to_string()]
+    );
+    assert_eq!(
+        artifact_record.child_status_reference_ids,
+        vec![APP_GAME_TEST_ACTION_REFERENCE_ID.to_string()]
+    );
+    assert!(!artifact_record.child_delivery_claimed);
+    assert!(!artifact_record.notification_delivery_claimed);
+    assert!(!artifact_record.adapter_dispatch_claimed);
+    assert!(!artifact_record.platform_enforcement_claimed);
+    assert!(!artifact_record.raw_private_source_rows_included);
 }
 
 fn service_model() -> AppGameServiceReadModel {

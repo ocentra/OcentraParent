@@ -40,6 +40,7 @@ const TimerParentSurfaceReadModel = {
   childUxLocalHandoffArtifactRecordCount: 0,
   childUxLocalHandoffArtifactSkippedCount: 0,
   childUxLocalHandoffArtifactReferenceIds: [],
+  childUxLocalHandoffArtifactRecords: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -158,6 +159,21 @@ function expectControlActionResultVisibility() {
     childUxLocalHandoffArtifactRecordCount: 1,
     childUxLocalHandoffArtifactSkippedCount: 0,
     childUxLocalHandoffArtifactReferenceIds: ['app-game-child-ux-local-handoff-action-result-app-game-1'],
+    childUxLocalHandoffArtifactRecords: [
+      {
+        schemaVersion: AppGameSchemaVersion,
+        artifactReferenceId: 'app-game-child-ux-local-handoff-action-result-app-game-1',
+        sourceResultId: 'action-result-app-game-1',
+        targetDomain: AgentAppGameTimerParentSurfaceTargetDomain.NativeGame,
+        childReasonReferenceIds: ['parent-approved'],
+        childStatusReferenceIds: ['child-status-limit-reached'],
+        childDeliveryClaimed: false,
+        notificationDeliveryClaimed: false,
+        adapterDispatchClaimed: false,
+        platformEnforcementClaimed: false,
+        rawPrivateSourceRowsIncluded: false,
+      },
+    ],
   };
   const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(actionResultModel))]);
 
@@ -193,6 +209,8 @@ function expectNoRuntimeSummaryDetails(
     ['Child UX local artifact records', '0'],
     ['Child UX local artifact skipped', '0'],
     ['Child UX local artifact refs', 'Not reported'],
+    ['Child UX local artifact sources', 'Not reported'],
+    ['Child UX local artifact targets', 'Not reported'],
     ['Adapter dispatch', 'Not claimed'],
     ['Child delivery', 'Not claimed'],
     ['Platform state', 'Not claimed'],
@@ -218,6 +236,8 @@ function expectActionResultSummaryDetails(
     ['Child UX local artifact records', '1'],
     ['Child UX local artifact skipped', '0'],
     ['Child UX local artifact refs', 'app-game-child-ux-local-handoff-action-result-app-game-1'],
+    ['Child UX local artifact sources', 'action-result-app-game-1'],
+    ['Child UX local artifact targets', AgentAppGameTimerParentSurfaceTargetDomain.NativeGame],
   ] as const) {
     expect(summaryDetails).toContainEqual({ label: detail[0], value: detail[1] });
   }

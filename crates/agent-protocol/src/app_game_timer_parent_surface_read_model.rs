@@ -32,6 +32,22 @@ pub struct AppGameTimerParentSurfaceRow {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct AppGameTimerParentSurfaceChildUxLocalArtifactRecord {
+    pub schema_version: u16,
+    pub artifact_reference_id: String,
+    pub source_result_id: String,
+    pub target_domain: String,
+    pub child_reason_reference_ids: Vec<String>,
+    pub child_status_reference_ids: Vec<String>,
+    pub child_delivery_claimed: bool,
+    pub notification_delivery_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppGameTimerParentSurfaceReadModel {
     pub schema_version: u16,
     pub generated_at: String,
@@ -55,6 +71,8 @@ pub struct AppGameTimerParentSurfaceReadModel {
     pub child_ux_local_handoff_artifact_record_count: u64,
     pub child_ux_local_handoff_artifact_skipped_count: u64,
     pub child_ux_local_handoff_artifact_reference_ids: Vec<String>,
+    pub child_ux_local_handoff_artifact_records:
+        Vec<AppGameTimerParentSurfaceChildUxLocalArtifactRecord>,
     pub timer_runtime_claimed: bool,
     pub scheduler_persistence_claimed: bool,
     pub durable_scheduler_storage_claimed: bool,

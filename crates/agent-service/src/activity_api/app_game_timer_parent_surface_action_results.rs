@@ -1,4 +1,9 @@
-use ocentra_parent_agent_protocol::{constants, AppGameServiceReadModel};
+use ocentra_parent_agent_protocol::{
+    constants, AppGameControlActionResult, AppGameServiceReadModel,
+    AppGameTimerParentSurfaceChildUxLocalArtifactRecord, APP_GAME_CONTROL_POLICY_KIND_GAME,
+    APP_GAME_SCHEMA_VERSION, APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
+    APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
+};
 
 pub(crate) struct TimerParentSurfaceControlActionResults {
     pub(crate) reference_ids: Vec<String>,
@@ -13,6 +18,8 @@ pub(crate) struct TimerParentSurfaceControlActionResults {
     pub(crate) child_ux_local_handoff_artifact_record_count: u64,
     pub(crate) child_ux_local_handoff_artifact_skipped_count: u64,
     pub(crate) child_ux_local_handoff_artifact_reference_ids: Vec<String>,
+    pub(crate) child_ux_local_handoff_artifact_records:
+        Vec<AppGameTimerParentSurfaceChildUxLocalArtifactRecord>,
 }
 
 pub(crate) fn timer_parent_surface_control_action_results(
@@ -38,6 +45,12 @@ pub(crate) fn timer_parent_surface_control_action_results(
             artifact_reference_id.push_str(reference_id);
             artifact_reference_id
         })
+        .collect::<Vec<_>>();
+    let child_ux_local_handoff_artifact_records = model
+        .approval_action_result_rows
+        .iter()
+        .filter(|row| child_ux_local_artifact_row_is_ready(row))
+        .map(child_ux_local_artifact_record)
         .collect::<Vec<_>>();
 
     TimerParentSurfaceControlActionResults {
@@ -84,6 +97,45 @@ pub(crate) fn timer_parent_surface_control_action_results(
             .len() as u64,
         child_ux_local_handoff_artifact_skipped_count: child_ux_handoff_blocked_count,
         child_ux_local_handoff_artifact_reference_ids,
+        child_ux_local_handoff_artifact_records,
+    }
+}
+
+fn child_ux_local_artifact_row_is_ready(row: &AppGameControlActionResult) -> bool {
+    !row.request.child_reason_references.is_empty()
+        && !row.request.child_status_references.is_empty()
+}
+
+fn child_ux_local_artifact_record(
+    row: &AppGameControlActionResult,
+) -> AppGameTimerParentSurfaceChildUxLocalArtifactRecord {
+    AppGameTimerParentSurfaceChildUxLocalArtifactRecord {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        artifact_reference_id: child_ux_local_artifact_reference_id(&row.result_id),
+        source_result_id: row.result_id.clone(),
+        target_domain: child_ux_local_artifact_target_domain(row),
+        child_reason_reference_ids: row.request.child_reason_references.clone(),
+        child_status_reference_ids: row.request.child_status_references.clone(),
+        child_delivery_claimed: false,
+        notification_delivery_claimed: false,
+        adapter_dispatch_claimed: false,
+        platform_enforcement_claimed: false,
+        raw_private_source_rows_included: false,
+    }
+}
+
+fn child_ux_local_artifact_reference_id(reference_id: &str) -> String {
+    let mut artifact_reference_id =
+        String::from(constants::value::APP_GAME_CHILD_UX_LOCAL_HANDOFF_ARTIFACT_PREFIX);
+    artifact_reference_id.push_str(reference_id);
+    artifact_reference_id
+}
+
+fn child_ux_local_artifact_target_domain(row: &AppGameControlActionResult) -> String {
+    if row.request.policy_kind == APP_GAME_CONTROL_POLICY_KIND_GAME {
+        APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME.to_string()
+    } else {
+        APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP.to_string()
     }
 }
 

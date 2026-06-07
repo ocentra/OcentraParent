@@ -1,13 +1,47 @@
 use super::{
-    constants, AppGameTimerParentSurfaceReadModel, AppGameTimerParentSurfaceRow,
-    APP_GAME_SCHEMA_VERSION, APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    constants, AppGameTimerParentSurfaceChildUxLocalArtifactRecord,
+    AppGameTimerParentSurfaceReadModel, AppGameTimerParentSurfaceRow, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
     APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL, APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
 };
 
 #[test]
 fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
-    let read_model = AppGameTimerParentSurfaceReadModel {
+    let serialized = serde_json::to_value(app_game_timer_parent_surface_read_model())
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized["custodyLabel"],
+        APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE
+    );
+    assert_eq!(
+        serialized["capabilityStatus"],
+        APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL
+    );
+    assert_eq!(serialized["timerRuntimeClaimed"], false);
+    assert_eq!(serialized["schedulerPersistenceClaimed"], false);
+    assert_eq!(serialized["durableSchedulerStorageClaimed"], false);
+    assert_eq!(serialized["auditRuntimeClaimed"], false);
+    assert_eq!(serialized["rollbackRuntimeClaimed"], false);
+    assert_eq!(serialized["childUxLocalHandoffArtifactRecordCount"], 1);
+    assert_eq!(serialized["childUxLocalHandoffArtifactSkippedCount"], 0);
+    assert_eq!(
+        serialized["childUxLocalHandoffArtifactRecords"][0]["childDeliveryClaimed"],
+        false
+    );
+    assert_eq!(serialized["adapterDispatchClaimed"], false);
+    assert_eq!(serialized["childDeliveryClaimed"], false);
+    assert_eq!(serialized["platformEnforcementClaimed"], false);
+    assert_eq!(serialized["rawPrivateSourceRowsIncluded"], false);
+    assert_eq!(
+        serialized["rows"][0]["timerSurfaceState"],
+        APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE
+    );
+}
+
+fn app_game_timer_parent_surface_read_model() -> AppGameTimerParentSurfaceReadModel {
+    AppGameTimerParentSurfaceReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
         generated_at: constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT
             .to_string(),
@@ -28,9 +62,10 @@ fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
         child_ux_handoff_ready_count: 0,
         child_ux_handoff_blocked_count: 0,
         child_ux_handoff_reference_ids: Vec::new(),
-        child_ux_local_handoff_artifact_record_count: 0,
+        child_ux_local_handoff_artifact_record_count: 1,
         child_ux_local_handoff_artifact_skipped_count: 0,
-        child_ux_local_handoff_artifact_reference_ids: Vec::new(),
+        child_ux_local_handoff_artifact_reference_ids: vec![child_ux_artifact_reference_id()],
+        child_ux_local_handoff_artifact_records: vec![child_ux_artifact_record()],
         timer_runtime_claimed: false,
         scheduler_persistence_claimed: false,
         durable_scheduler_storage_claimed: false,
@@ -52,32 +87,29 @@ fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
             ],
             evidence: Vec::new(),
         }],
-    };
+    }
+}
 
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+fn child_ux_artifact_record() -> AppGameTimerParentSurfaceChildUxLocalArtifactRecord {
+    AppGameTimerParentSurfaceChildUxLocalArtifactRecord {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        artifact_reference_id: child_ux_artifact_reference_id(),
+        source_result_id: APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME.to_string(),
+        target_domain: APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME.to_string(),
+        child_reason_reference_ids: Vec::new(),
+        child_status_reference_ids: Vec::new(),
+        child_delivery_claimed: false,
+        notification_delivery_claimed: false,
+        adapter_dispatch_claimed: false,
+        platform_enforcement_claimed: false,
+        raw_private_source_rows_included: false,
+    }
+}
 
-    assert_eq!(
-        serialized["custodyLabel"],
-        APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE
-    );
-    assert_eq!(
-        serialized["capabilityStatus"],
-        APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL
-    );
-    assert_eq!(serialized["timerRuntimeClaimed"], false);
-    assert_eq!(serialized["schedulerPersistenceClaimed"], false);
-    assert_eq!(serialized["durableSchedulerStorageClaimed"], false);
-    assert_eq!(serialized["auditRuntimeClaimed"], false);
-    assert_eq!(serialized["rollbackRuntimeClaimed"], false);
-    assert_eq!(serialized["childUxLocalHandoffArtifactRecordCount"], 0);
-    assert_eq!(serialized["childUxLocalHandoffArtifactSkippedCount"], 0);
-    assert_eq!(serialized["adapterDispatchClaimed"], false);
-    assert_eq!(serialized["childDeliveryClaimed"], false);
-    assert_eq!(serialized["platformEnforcementClaimed"], false);
-    assert_eq!(serialized["rawPrivateSourceRowsIncluded"], false);
-    assert_eq!(
-        serialized["rows"][0]["timerSurfaceState"],
-        APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE
-    );
+fn child_ux_artifact_reference_id() -> String {
+    [
+        constants::value::APP_GAME_CHILD_UX_LOCAL_HANDOFF_ARTIFACT_PREFIX,
+        APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
+    ]
+    .concat()
 }

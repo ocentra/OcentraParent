@@ -41,6 +41,7 @@ const TimerParentSurfaceReadModel = {
   childUxLocalHandoffArtifactRecordCount: 0,
   childUxLocalHandoffArtifactSkippedCount: 0,
   childUxLocalHandoffArtifactReferenceIds: [],
+  childUxLocalHandoffArtifactRecords: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -101,6 +102,21 @@ const ActionResultReadModel = {
   childUxLocalHandoffArtifactRecordCount: 1,
   childUxLocalHandoffArtifactSkippedCount: 0,
   childUxLocalHandoffArtifactReferenceIds: ['app-game-child-ux-local-handoff-action-result-app-game-1'],
+  childUxLocalHandoffArtifactRecords: [
+    {
+      schemaVersion: AppGameSchemaVersion,
+      artifactReferenceId: 'app-game-child-ux-local-handoff-action-result-app-game-1',
+      sourceResultId: 'action-result-app-game-1',
+      targetDomain: AgentAppGameTimerParentSurfaceTargetDomain.NativeGame,
+      childReasonReferenceIds: ['parent-approved'],
+      childStatusReferenceIds: ['child-status-limit-reached'],
+      childDeliveryClaimed: false,
+      notificationDeliveryClaimed: false,
+      adapterDispatchClaimed: false,
+      platformEnforcementClaimed: false,
+      rawPrivateSourceRowsIncluded: false,
+    },
+  ],
 } as const;
 
 describe('agent app-game timer parent surface parser', () => {
@@ -175,6 +191,24 @@ describe('agent app-game timer parent surface parser rejection handling', () => 
           JSON.stringify({
             ...TimerParentSurfaceReadModel,
             adapterDispatchClaimed: true,
+          })
+        )
+      )
+    ).toEqual({
+      ok: false,
+      reason: 'invalid-payload',
+    });
+    expect(
+      parseAgentAppGameTimerParentSurfaceEvent(
+        timerParentSurfaceEvent(
+          JSON.stringify({
+            ...ActionResultReadModel,
+            childUxLocalHandoffArtifactRecords: [
+              {
+                ...ActionResultReadModel.childUxLocalHandoffArtifactRecords[0],
+                childDeliveryClaimed: true,
+              },
+            ],
           })
         )
       )

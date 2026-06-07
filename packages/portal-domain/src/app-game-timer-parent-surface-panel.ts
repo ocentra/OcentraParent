@@ -36,6 +36,8 @@ const TimerParentSurfaceDetails = {
   ChildFacingReasonRefs: decodeDisplayText('Child-facing reason refs'),
   ChildFacingStatusRefs: decodeDisplayText('Child-facing status refs'),
   ChildUxLocalArtifactRecords: decodeDisplayText('Child UX local artifact records'),
+  ChildUxLocalArtifactRecordSources: decodeDisplayText('Child UX local artifact sources'),
+  ChildUxLocalArtifactRecordTargets: decodeDisplayText('Child UX local artifact targets'),
   ChildUxLocalArtifactRefs: decodeDisplayText('Child UX local artifact refs'),
   ChildUxLocalArtifactSkipped: decodeDisplayText('Child UX local artifact skipped'),
   ChildUxHandoffBlocked: decodeDisplayText('Child UX handoff blocked'),
@@ -183,6 +185,14 @@ function readModelSummary(
     detail(
       TimerParentSurfaceDetails.ChildUxLocalArtifactRefs,
       joinedOrNotReported(readModel.childUxLocalHandoffArtifactReferenceIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxLocalArtifactRecordSources,
+      joinedOrNotReported(readModel.childUxLocalHandoffArtifactRecords.map((record) => record.sourceResultId))
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildUxLocalArtifactRecordTargets,
+      joinedOrNotReported(readModel.childUxLocalHandoffArtifactRecords.map((record) => record.targetDomain))
     ),
     detail(TimerParentSurfaceDetails.TimerRuntime, claimedValue(readModel.timerRuntimeClaimed)),
     detail(TimerParentSurfaceDetails.SchedulerPersistence, claimedValue(readModel.schedulerPersistenceClaimed)),
