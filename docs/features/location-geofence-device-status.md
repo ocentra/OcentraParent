@@ -130,6 +130,14 @@ expose location or device-status features. Parents expect this category.
   settings, platform runtime, child-device delivery, physical-device, authority,
   provider-delivery, notification receipts, production, and product-ready claims
   false.
+- WP07/WP32 durable retention settings proof now exists through
+  `node scripts/test/tracking-retention-durable-settings-proof.mjs`. It derives
+  manual-required durable persistence rows from the local service state readback
+  proof, records the required durable store boundary and visible failure state,
+  writes WP07/WP32/WP33 artifacts, and keeps production durable persistence,
+  writable product settings, platform runtime, child-device delivery,
+  physical-device, authority, provider-delivery, notification receipts,
+  production, and product-ready claims false.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
@@ -579,9 +587,10 @@ remote-AI disabled rows plus narrow hosted-route rendering, plus
 retention-settings writer-boundary preflight proof for the same five settings
 rows, plus typed service transport write-command proof for retention settings
 preflight, plus hosted route command/result rendering for that typed write
-preflight, plus WP32 report/export read-model packet proof for redacted report,
-retention audit, family dashboard summary, and policy drill-in export packets,
-plus WP24/WP32 AI stored-ref consumer proof for AI parent-report,
+preflight, plus durable persistence manual-required boundary proof, plus WP32
+report/export read-model packet proof for redacted report, retention audit,
+family dashboard summary, and policy drill-in export packets, plus WP24/WP32 AI
+stored-ref consumer proof for AI parent-report,
 policy-drill-in, and metadata-fallback context rows,
 plus hosted notification parent-surface history/preference intent rendering
 with screenshot/accessibility proof and hosted missing-device state rendering
@@ -608,8 +617,10 @@ accessibility beyond the hosted parent route are proved.
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
       disabled write intents, and the service transport now accepts a typed
       write command/preflight result. The hosted parent route now sends and
-      renders that write-preflight result; applied product-ready service
-      mutation execution remains pending.
+      renders that write-preflight result. Local service-state readback and
+      durable persistence manual-required boundary proof now exist; production
+      durable settings persistence and applied product-ready writable retention
+      execution remain pending.
 - [x] Alert intent contract.
 - [x] Expected-place alert policy UI-readiness rows. This proves parent
       alert/check-in/suppression/manual readiness rows from expected-place
@@ -794,6 +805,13 @@ accessibility beyond the hosted parent route are proved.
       durable product settings, platform runtime, child-device delivery/runtime
       execution, provider delivery, notification receipt ingestion, authority,
       physical-device, production, and product-complete proof unclaimed.
+- [x] WP07/WP32 durable retention settings proof. This derives manual-required
+      durable persistence rows from the local service state readback proof,
+      records the required durable store boundary and visible failure state, and
+      keeps production durable persistence, writable product settings, platform
+      runtime, child-device delivery/runtime execution, provider delivery,
+      notification receipt ingestion, authority, physical-device, production,
+      and product-complete proof unclaimed.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
 - [x] P3 WSL/local replay proof for the tracking read-model proof stack and

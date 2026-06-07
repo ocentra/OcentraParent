@@ -56,6 +56,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `31-hosted-storage-default-boundary-proof.json`
 - `32-report-policy-consumer-hosted-ui-proof.json`
 - `33-retention-local-service-state-proof.json`
+- `34-retention-durable-settings-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -174,6 +175,7 @@ state recorded in `proof-summary.json`, `10-journal-sqlite-proof.json`,
 `27-retention-settings-write-command-proof.json`,
 `28-report-export-read-model-proof.json`,
 `33-retention-local-service-state-proof.json`,
+`34-retention-durable-settings-proof.json`,
 the hosted UI proof output, and the implementation checklist.
 The report/policy consumer proof now requires the parent report summary,
 policy evidence drill-in, and retention audit export rows to carry stored
@@ -568,6 +570,28 @@ This workpack can be assigned independently, implemented against the owning doma
       runtime, child-device delivery, Android/iOS physical proof, authority,
       provider delivery, notification receipts, production workers, and
       product-ready retention behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain retention durable settings proof source and
+      test, proof harness, tracking feature doc, implementation checklist,
+      WP07, WP32, and generated WP07/WP32/WP33 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-retention-durable-settings-proof.mjs`
+      passed locally.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/34-retention-durable-settings-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/41-retention-durable-settings-proof.json`,
+      and
+      `test-results/tracking-retention-durable-settings-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, and WP32 updated; central product capability checklist
+      remains hub/primary sequenced because E-B owns the lock.
+- [x] Known gaps/manual-required states: production durable settings
+      persistence, product-ready writable settings, platform runtime,
+      child-device delivery, Android/iOS physical proof, authority, provider
+      delivery, notification receipts, production workers, and product-ready
+      retention behavior remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: parent-domain retention settings mutation proof source and

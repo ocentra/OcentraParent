@@ -45,6 +45,7 @@ Proof root: `output/tracking-plan-proof/07-retention-and-custody-model/`
 - `20-retention-settings-mutation-proof.json`
 - `21-retention-settings-write-command-proof.json`
 - `22-retention-local-service-state-proof.json`
+- `23-retention-durable-settings-proof.json`
 - `16-validation-commands.log`
 
 ## AI Worker Checklist
@@ -76,6 +77,11 @@ into parent-domain rows through
 `node scripts/test/tracking-retention-local-service-state-proof.mjs`, preserving
 the applied retention values, service state revision, and snapshot ref without
 claiming durable product settings.
+Durable settings proof now derives manual-required durable persistence rows from
+that local service state through
+`node scripts/test/tracking-retention-durable-settings-proof.mjs`, making the
+durable store requirement and visible failure boundary explicit without
+claiming production persistence or product-ready writable settings.
 The hosted parent route now also sends that typed write command and renders the
 service accepted result with applied local retention values. Durable product
 settings, platform behavior, applied product-ready writable retention execution,
@@ -86,6 +92,7 @@ and product claim readiness are not claimed beyond the proof state recorded in
 `20-retention-settings-mutation-proof.json`,
 `21-retention-settings-write-command-proof.json`,
 `22-retention-local-service-state-proof.json`,
+`23-retention-durable-settings-proof.json`,
 the WP30 hosted UI proof artifact, and the implementation checklist.
 
 ## Where We Want To Be
@@ -115,6 +122,9 @@ This workpack can be assigned independently, implemented against the owning doma
 - Local service state readback proof is derived from the accepted local write
   command result; it is not durable settings persistence or physical-device
   behavior proof.
+- Durable settings proof is a manual-required readiness boundary over local
+  service state. It does not claim production durable persistence, platform
+  runtime, or product-ready writable settings.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -237,6 +247,28 @@ This workpack can be assigned independently, implemented against the owning doma
       runtime, child-device delivery, Android/iOS physical proof, authority,
       provider delivery, notification receipts, production workers, and
       product-ready retention behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain retention durable settings proof source and
+      test, proof harness, tracking feature doc, implementation checklist, WP07,
+      WP32, and generated WP07/WP32/WP33 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-retention-durable-settings-proof.mjs`
+      passed locally.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/34-retention-durable-settings-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/41-retention-durable-settings-proof.json`,
+      and
+      `test-results/tracking-retention-durable-settings-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP07, and WP32 updated; central product capability checklist
+      remains hub/primary sequenced because E-B owns the lock.
+- [x] Known gaps/manual-required states: production durable settings
+      persistence, product-ready writable settings, platform runtime,
+      child-device delivery, Android/iOS physical proof, authority, provider
+      delivery, notification receipts, production workers, and product-ready
+      retention behavior remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: portal live activity state, portal event-result routing,
