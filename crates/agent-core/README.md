@@ -56,6 +56,11 @@ service shell.
   from event-chain projection replay rows while preserving sequence, event id,
   event type, correlation id, journal refs, and local receipt-ack refs without
   claiming live remote acknowledgement delivery.
+- Network remote durable envelope proof that builds local durable store records
+  from receipt-ledger rows while preserving sequence, event id, event type,
+  correlation id, receipt refs, local receipt-ack refs, replay refs,
+  delete/export readiness refs, and support-status refs without claiming live
+  remote acknowledgement implementation or product-ready remote delivery.
 
 ## Must Not Own
 
@@ -110,3 +115,7 @@ flowchart LR
   provider acknowledgements, child-device acknowledgements, remote
   retention/delete/export propagation, and delivery retries remain separate
   gaps.
+- Network durable envelopes are local store/readiness records only; live
+  broker/family-hub transport, remote provider acknowledgements, child-device
+  acknowledgements, cross-process transport, remote delete/export propagation,
+  delivery retries, and product-ready remote delivery remain separate gaps.
