@@ -10,9 +10,37 @@ use ocentra_parent_agent_protocol::{
 use super::screen_ai_service_event_bridge::ScreenAiServiceEventBridgeError;
 use super::screen_ai_service_event_subscription::{
     publish_screen_service_row_ready_event, subscribe_screen_service_row_ready_events,
-    ScreenAiServiceEventSubscriptionDispatch, ScreenAiServiceEventSubscriptionState,
-    ScreenAiServiceRowReadyEvent,
+    ScreenAiServiceEventRuntime, ScreenAiServiceEventSubscriptionDispatch,
+    ScreenAiServiceEventSubscriptionState, ScreenAiServiceRowReadyEvent,
 };
+
+#[tokio::test]
+async fn screen_service_event_runtime_start_registers_subscriber_for_production_startup() {
+    let runtime = ScreenAiServiceEventRuntime::start()
+        .await
+        .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES);
+
+    let publish = runtime
+        .publish_row_ready(
+            service_screen_row(),
+            constants::screen_flow::TEST_SCREEN_ACTION_REF,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        )
+        .await
+        .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_PUBLISHES);
+
+    assert_eq!(publish.handler_reports.len(), 1);
+    assert_eq!(publish.handler_reports[0].outcome, HandlerOutcome::Handled);
+    assert_eq!(
+        runtime.dispatches(),
+        vec![ScreenAiServiceEventSubscriptionDispatch::Published {
+            queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
+            screen_analysis_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
+            downstream_event_count: ScreenRuntimePhase::ordered_chain().len(),
+            raw_image_escaped: false,
+        }]
+    );
+}
 
 #[tokio::test]
 async fn screen_service_event_subscription_publishes_existing_runtime_chain() {

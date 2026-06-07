@@ -59,11 +59,14 @@ only with explicit parent settings.
   new live capture run or always-on production subscription claim.
 - `scripts/test/screen-service-event-subscription-proof.mjs` now proves a
   service-owned `screen.service.row.ready` subscriber using `ocentra-eventing`.
-  The subscriber consumes typed Activity Screen rows, invokes the existing
-  service bridge, records accepted/rejected row dispatch state, publishes the
-  ordered downstream screen runtime chain for safe rows, and rejects raw-image
-  retained rows before downstream screen events are recorded. This is
-  subscriber runtime proof; service startup wiring for every live producer
+  The service startup now retains `ScreenAiServiceEventRuntime::start()` before
+  serving requests, and the runtime-start test proves that helper registers the
+  real subscriber and dispatches through the event bus. The subscriber consumes
+  typed Activity Screen rows, invokes the existing service bridge, records
+  accepted/rejected row dispatch state, publishes the ordered downstream screen
+  runtime chain for safe rows, and rejects raw-image retained rows before
+  downstream screen events are recorded. This is subscriber startup/runtime
+  proof; externally proving every live trigger producer against the subscriber
   remains a separate production gate.
 - `scripts/test/screen-service-analysis-row-ready-proof.mjs` now proves the
   service analysis runtime starts the service row-ready event runtime, converts
@@ -880,9 +883,9 @@ parity, and UI remain separate proof gates.
       rows into the existing typed screen event chain, rejects raw retention and
       missing policy refs, and avoids a duplicate service event bus.
 - [x] Screen service event subscription proof consumes typed service row-ready
-      events, invokes the existing bridge, publishes downstream screen runtime
-      events for safe rows, and rejects raw-retained rows before downstream
-      publication.
+      events from the service-started subscriber runtime, invokes the existing
+      bridge, publishes downstream screen runtime events for safe rows, and
+      rejects raw-retained rows before downstream publication.
 - [x] Screen service analysis row-ready producer proof starts the event
       subscriber runtime from the service analysis loop, publishes
       `screen.service.row.ready`, and gates current analysis rows as
@@ -908,12 +911,11 @@ parity, and UI remain separate proof gates.
 
 Product-complete retention controls, production OCR/VLM quality,
 authenticated-account social proof,
-remaining production startup subscriptions for live producers beyond the service
-capture/queue, deletion, and analysis row-ready/policy-ref handoffs,
-child-agent disclosure runtime deployment, production household mesh transport over
-physical LAN, writable optional retention/live-view runtime settings,
-broad adapters, and production explanation portal rendering remain in the
-Current Gap section above.
+externally proved live producer coverage beyond the service capture/queue,
+deletion, and analysis row-ready/policy-ref handoffs, child-agent disclosure
+runtime deployment, production household mesh transport over physical LAN,
+writable optional retention/live-view runtime settings, broad adapters, and
+production explanation portal rendering remain in the Current Gap section above.
 
 ## Next AI Instructions
 

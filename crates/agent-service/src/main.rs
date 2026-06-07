@@ -285,6 +285,10 @@ async fn main() {
     screen_ai_foreground_runtime::spawn_screen_ai_foreground_runtime();
     screen_ai_analysis_runtime::spawn_screen_ai_analysis_runtime();
     screen_ai_retention_sweeper_runtime::spawn_screen_ai_retention_sweeper_runtime();
+    let _screen_ai_service_event_runtime =
+        screen_ai_service_event_subscription::ScreenAiServiceEventRuntime::start()
+            .await
+            .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES);
 
     axum::serve(listener, app::router(network))
         .await

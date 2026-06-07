@@ -73,7 +73,8 @@ static JSON-only claims, or fixture screenshots used as final proof.
   public/live operator matrix, public live crop matrix, and current WinRT OCR
   route evidence.
 - Authenticated-account social proof beyond public/live surface proof.
-- Service-owned browser live trigger producers beyond consumed scheduler inputs.
+- Externally proved browser/live trigger producer coverage beyond consumed
+  scheduler inputs and service-started row-ready subscriber wiring.
 - macOS live capture proof, Linux Wayland/root proof, physical Android proof,
   and iOS ReplayKit proof.
 - Writable raw screenshot retention mode UI and privacy/legal approval.
