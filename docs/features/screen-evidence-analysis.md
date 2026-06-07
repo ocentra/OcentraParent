@@ -605,8 +605,14 @@ only with explicit parent settings.
   `output/screen-plan-proof/36-vlm-model-selection/proof-summary.json`, which
   selects the cached local llama.cpp/Qwen2-VL route for the current Windows
   proof path after runtime, resource, quality, local-only, and deletion
-  evidence. It still does not claim authenticated-account social proof, broad
-  rollout thresholds, or hardware fallback coverage.
+  evidence. It also records
+  `output/screen-plan-proof/36-vlm-rollout-fallback-gate/proof-summary.json`,
+  which allows that Windows route only inside the measured local image/resource
+  envelope and proves runtime-missing, oversized-input, over-budget, and
+  authenticated-social-unproved states fall back to OCR/manual-required instead
+  of remote AI or raw screenshot retention. It still does not claim
+  authenticated-account social proof, broader rollout thresholds across more
+  hardware profiles, or cross-platform model/runtime parity.
 - `scripts/test/screen-ai-service-winrt-ocr-proof.mjs` now proves the
   service-owned Windows WinRT OCR analysis path over real live Chrome/Wikipedia
   pixels: the Rust service cadence loop captures an active-window frame into
@@ -820,9 +826,11 @@ parity, and UI remain separate proof gates.
   sampled CPU seconds, peak working set, and normalized local VLM output.
   The public-live crop quality proof verifies a real Vimeo CDP crop with local
   Qwen2-VL category/text match and deletion. The current-route model selection
-  proof chooses cached local llama.cpp/Qwen2-VL for the Windows proof path.
-  Authenticated-account social proof, broad rollout thresholds, and hardware
-  fallback coverage remain open.
+  proof chooses cached local llama.cpp/Qwen2-VL for the Windows proof path, and
+  the measured fallback gate blocks runtime-missing, oversized-input,
+  over-budget, and authenticated-social-unproved states before remote AI.
+  Authenticated-account social proof and broader rollout thresholds across more
+  hardware profiles remain open.
 - [x] Service WinRT OCR proof analyzes live public browser pixels through the
       encrypted service queue, records a `localOcr` Activity Screen row, drains
       the queue, and deletes adapter temp image material.

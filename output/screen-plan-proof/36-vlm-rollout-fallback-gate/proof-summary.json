@@ -1,0 +1,135 @@
+{
+  "proof": "screen-vlm-rollout-fallback-gate-proof",
+  "generatedAt": "2026-06-07T09:25:34.157Z",
+  "proofTier": "P2_CURRENT_WINDOWS_VLM_ROLLOUT_FALLBACK_GATE",
+  "claim": "The current Windows local VLM route is allowed only inside the measured image/resource/local-custody envelope; missing runtime, oversized inputs, over-budget resources, or unproved authenticated-social quality fall back to OCR/manual-required instead of using a remote provider or retaining raw screenshots.",
+  "sourceEvidence": {
+    "modelSelection": "output/screen-plan-proof/36-vlm-model-selection/proof-summary.json",
+    "modelSelectionPresent": true,
+    "resourceCrop": "output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json",
+    "resourceCropPresent": true,
+    "runtimeMeasurement": "output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json",
+    "runtimeMeasurementPresent": true,
+    "liveCropQuality": "output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json",
+    "liveCropQualityPresent": true
+  },
+  "measuredEnvelope": {
+    "maxImagePixels": 2073600,
+    "maxObservedPixels": 1129442,
+    "maxImageByteSize": 1089292,
+    "maxWallMs": 180000,
+    "maxWallMsObserved": 29729,
+    "maxPeakWorkingSetBytes": 10737418240,
+    "maxPeakWorkingSetBytesObserved": 3527712768,
+    "maxCpuSeconds": 300,
+    "maxCpuSecondsObserved": 247.390625
+  },
+  "selectedRoute": {
+    "selectionStatus": "selected-current-windows-local-proof-route",
+    "providerKind": "localVision",
+    "runtimeBinary": "%USERPROFILE%\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+    "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+    "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
+    "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+    "promptOrTemplateVersion": "screen-vlm-guided-current-route-selection-v1",
+    "selectedFor": [
+      "windows-service-proof-path",
+      "guided-screen-classification",
+      "public-live-managed-browser-crop",
+      "retained-parent-proof-screenshots"
+    ],
+    "decision": "allow-local-vlm",
+    "fallback": null
+  },
+  "rolloutDecisions": [
+    {
+      "name": "current-windows-local-vlm-route",
+      "decision": "allow-local-vlm",
+      "fallback": null,
+      "evidence": {
+        "runtimeAvailable": true,
+        "withinImageBudget": true,
+        "withinResourceEnvelope": true,
+        "publicLiveQualityPassed": true,
+        "deletionCustodyProved": true,
+        "authenticatedSocialQualityProved": false
+      }
+    },
+    {
+      "name": "runtime-missing",
+      "decision": "block-local-vlm-route",
+      "fallback": "manual-required",
+      "evidence": {
+        "runtimeAvailable": false,
+        "withinImageBudget": true,
+        "withinResourceEnvelope": true,
+        "publicLiveQualityPassed": true,
+        "deletionCustodyProved": true,
+        "authenticatedSocialQualityProved": false
+      }
+    },
+    {
+      "name": "oversized-image",
+      "decision": "block-local-vlm-route",
+      "fallback": "ocr-first-or-manual-required",
+      "evidence": {
+        "runtimeAvailable": true,
+        "withinImageBudget": false,
+        "withinResourceEnvelope": true,
+        "publicLiveQualityPassed": true,
+        "deletionCustodyProved": true,
+        "authenticatedSocialQualityProved": false
+      }
+    },
+    {
+      "name": "resource-over-budget",
+      "decision": "block-local-vlm-route",
+      "fallback": "ocr-first-or-manual-required",
+      "evidence": {
+        "runtimeAvailable": true,
+        "withinImageBudget": true,
+        "withinResourceEnvelope": false,
+        "publicLiveQualityPassed": true,
+        "deletionCustodyProved": true,
+        "authenticatedSocialQualityProved": false
+      }
+    },
+    {
+      "name": "authenticated-social-quality-missing",
+      "decision": "block-local-vlm-route",
+      "fallback": "manual-required-auth-social-proof",
+      "evidence": {
+        "runtimeAvailable": true,
+        "withinImageBudget": true,
+        "withinResourceEnvelope": true,
+        "publicLiveQualityPassed": true,
+        "deletionCustodyProved": true,
+        "authenticatedSocialQualityProved": false,
+        "requiresAuthenticatedSocialQuality": true
+      }
+    }
+  ],
+  "assertions": {
+    "currentRouteAllowedInMeasuredEnvelope": true,
+    "missingRuntimeFallsBack": true,
+    "oversizedImageFallsBack": true,
+    "overBudgetResourcesFallBack": true,
+    "authenticatedSocialRequiresSeparateProof": true,
+    "noRemoteProviderSelected": true,
+    "noRawImageRetentionRequired": true
+  },
+  "completedChecklistClaims": [
+    "current Windows local VLM rollout gate allows Qwen2-VL only within the measured local image/resource envelope",
+    "runtime-missing, oversized-input, over-budget, and authenticated-social-unproved states fall back to OCR/manual-required instead of remote AI"
+  ],
+  "openChecklistClaims": [
+    "broad production rollout thresholds across more hardware profiles remain open",
+    "authenticated-account social/feed quality remains outside this public-live proof",
+    "cross-platform VLM model/runtime parity remains open"
+  ],
+  "nonClaims": [
+    "This proof does not claim broad hardware rollout readiness.",
+    "This proof does not claim authenticated-account social/feed quality.",
+    "This proof does not use remote/API AI or retain raw screenshots."
+  ]
+}

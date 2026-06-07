@@ -49,6 +49,13 @@ const vlmModelSelectionProofPath = resolve(
   '36-vlm-model-selection',
   'proof-summary.json'
 );
+const vlmRolloutFallbackGateProofPath = resolve(
+  repoRoot,
+  'output',
+  'screen-plan-proof',
+  '36-vlm-rollout-fallback-gate',
+  'proof-summary.json'
+);
 
 runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
 runCommand('cmd', [
@@ -227,6 +234,7 @@ const vlmResourceCropProof = await readOptionalJson(vlmResourceCropProofPath);
 const vlmRuntimeResourceMeasurementProof = await readOptionalJson(vlmRuntimeResourceMeasurementProofPath);
 const vlmLiveCropQualityProof = await readOptionalJson(vlmLiveCropQualityProofPath);
 const vlmModelSelectionProof = await readOptionalJson(vlmModelSelectionProofPath);
+const vlmRolloutFallbackGateProof = await readOptionalJson(vlmRolloutFallbackGateProofPath);
 const requiredLiveOperatorScenarioIds = [
   'youtube-ordinary-video',
   'youtube-education-video',
@@ -313,6 +321,18 @@ const localLlamaRuntime = {
   modelSelectionStatus: vlmModelSelectionProof?.selectedRoute?.selectionStatus ?? null,
   modelSelectionCurrentRouteSelected: vlmModelSelectionProof?.selectionDecision?.selected === true,
   modelSelectionNoRemoteProviderSelected: vlmModelSelectionProof?.assertions?.noRemoteProviderSelected === true,
+  rolloutFallbackGateProofPath: relativePath(vlmRolloutFallbackGateProofPath),
+  rolloutFallbackGateProofPresent: vlmRolloutFallbackGateProof !== null,
+  rolloutFallbackGateCurrentRouteAllowed:
+    vlmRolloutFallbackGateProof?.assertions?.currentRouteAllowedInMeasuredEnvelope === true,
+  rolloutFallbackGateMissingRuntimeFallsBack: vlmRolloutFallbackGateProof?.assertions?.missingRuntimeFallsBack === true,
+  rolloutFallbackGateOversizedImageFallsBack: vlmRolloutFallbackGateProof?.assertions?.oversizedImageFallsBack === true,
+  rolloutFallbackGateOverBudgetResourcesFallBack:
+    vlmRolloutFallbackGateProof?.assertions?.overBudgetResourcesFallBack === true,
+  rolloutFallbackGateAuthenticatedSocialRequiresSeparateProof:
+    vlmRolloutFallbackGateProof?.assertions?.authenticatedSocialRequiresSeparateProof === true,
+  rolloutFallbackGateNoRemoteProviderSelected:
+    vlmRolloutFallbackGateProof?.assertions?.noRemoteProviderSelected === true,
 };
 const providerCommandAvailable = Object.values(localProviderRuntimeProbe).some((probe) => probe.available);
 const lmStudioCliDetected = localProviderRuntimeProbe.lmStudioCliVersion.available;
@@ -377,9 +397,17 @@ const screenProof = {
       localLlamaRuntime.modelSelectionProofPresent &&
       localLlamaRuntime.modelSelectionCurrentRouteSelected &&
       localLlamaRuntime.modelSelectionNoRemoteProviderSelected,
+    currentLocalVlmFallbackGateProved:
+      localLlamaRuntime.rolloutFallbackGateProofPresent &&
+      localLlamaRuntime.rolloutFallbackGateCurrentRouteAllowed &&
+      localLlamaRuntime.rolloutFallbackGateMissingRuntimeFallsBack &&
+      localLlamaRuntime.rolloutFallbackGateOversizedImageFallsBack &&
+      localLlamaRuntime.rolloutFallbackGateOverBudgetResourcesFallBack &&
+      localLlamaRuntime.rolloutFallbackGateAuthenticatedSocialRequiresSeparateProof &&
+      localLlamaRuntime.rolloutFallbackGateNoRemoteProviderSelected,
     liveVlmInferenceReady: providerRuntimeAvailable,
     note: retainedLiveOperatorVlmQualityAvailable
-      ? 'Local llama.cpp/Qwen2-VL runtime files exist; retained controlled matrix proof and retained nine-scenario live operator proof show real local VLM analysis, schema validation, policy dry-run, and raw deletion over public/live URL plus native-app captures. Resource/crop audit proves retained VLM inputs stayed within the max pixel budget and CDP crop capture exists. Retained proof-image VLM measurement records per-sample wall time, CPU seconds, and peak working set. Public-live CDP crop quality proof shows a Vimeo crop classified as video with expected visible text and deletion. Current-route selection chooses cached local llama.cpp/Qwen2-VL for the Windows proof path when the selection artifact is present; authenticated-account social proof and broad rollout calibration remain open.'
+      ? 'Local llama.cpp/Qwen2-VL runtime files exist; retained controlled matrix proof and retained nine-scenario live operator proof show real local VLM analysis, schema validation, policy dry-run, and raw deletion over public/live URL plus native-app captures. Resource/crop audit proves retained VLM inputs stayed within the max pixel budget and CDP crop capture exists. Retained proof-image VLM measurement records per-sample wall time, CPU seconds, and peak working set. Public-live CDP crop quality proof shows a Vimeo crop classified as video with expected visible text and deletion. Current-route selection chooses cached local llama.cpp/Qwen2-VL for the Windows proof path when the selection artifact is present. The rollout/fallback gate allows that route only inside the measured local envelope and blocks runtime-missing, oversized, over-budget, and authenticated-social-unproved states; authenticated-account social proof and broader hardware rollout calibration remain open.'
       : retainedLocalVlmMatrixAvailable
         ? 'Local llama.cpp/Qwen2-VL runtime files exist and the retained local VLM matrix proof shows real local model execution over controlled browser/native window captures with schema, policy, and deletion proof; live external-site/operator classification proof remains open.'
         : lmStudioCliDetected && !providerRuntimeAvailable
@@ -422,6 +450,9 @@ const screenProof = {
     localLlamaRuntime.modelSelectionProofPresent && localLlamaRuntime.modelSelectionCurrentRouteSelected
       ? 'current Windows local VLM proof route selects cached llama.cpp/Qwen2-VL after runtime, resource, quality, local-only, and deletion evidence'
       : null,
+    localLlamaRuntime.rolloutFallbackGateProofPresent && localLlamaRuntime.rolloutFallbackGateCurrentRouteAllowed
+      ? 'current Windows local VLM rollout fallback gate blocks runtime-missing, oversized-input, over-budget, and authenticated-social-unproved states before remote AI'
+      : null,
   ].filter(Boolean),
   openChecklistClaims: [
     retainedLiveOperatorVlmQualityAvailable && localLlamaRuntime.liveCropQualityProofPresent
@@ -431,14 +462,14 @@ const screenProof = {
         : lmStudioCliDetected
           ? 'LM Studio lms CLI is detected, but the local server/model runtime is not ready for live inference'
           : 'no local VLM provider command was detected on PATH in this Windows lane',
-    'broad production rollout thresholds and hardware fallback matrix remain outside this proof',
+    'broader production rollout thresholds across more hardware profiles remain outside this proof',
   ],
   nonClaims: [
     'This screen-plan proof reuses the VLM execution-readiness contract proof and does not run live VLM inference.',
     retainedLiveOperatorVlmQualityAvailable
       ? 'This proof cross-checks the retained live operator matrix artifact instead of rerunning the nine live URL/app captures.'
       : 'Retained local VLM matrix artifacts use controlled browser/native window captures, not live external sites.',
-    'This proof selects the current Windows local VLM proof route only; it does not claim broad production rollout thresholds, authenticated social quality, portal runtime rendering, enforcement, or final screen-AI pipeline completion.',
+    'This proof selects and gates the current Windows local VLM proof route only; it does not claim broad production rollout thresholds across more hardware profiles, authenticated social quality, portal runtime rendering, enforcement, or final screen-AI pipeline completion.',
     'This proof does not upload raw screenshots or retain raw images.',
   ],
 };
