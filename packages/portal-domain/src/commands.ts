@@ -83,6 +83,10 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
+    command: AgentCommand.BrowserRuntimeEventChainStreamGet,
+    payload: {},
+  },
+  {
     command: AgentCommand.NetworkRuntimeEventChainStreamGet,
     payload: {},
   },
@@ -223,6 +227,12 @@ export const PortalCommandButtons = [
     label: resolvePortalDevText(PortalDevTextToken.PollManagedBrowserBridge),
     command: AgentCommand.BrowserManagedBridgePoll,
     resultEvent: AgentEvent.BrowserManagedStatusReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetBrowserRuntimeEventChainStream),
+    command: AgentCommand.BrowserRuntimeEventChainStreamGet,
+    resultEvent: AgentEvent.BrowserRuntimeEventChainStreamReported,
     payload: {},
   },
   {

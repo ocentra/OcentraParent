@@ -101,6 +101,81 @@ describe('portal live activity network service state', () => {
   });
 });
 
+describe('portal browser runtime event-chain state', () => {
+  it('parses browser runtime event-chain stream payload without action overclaim', () => {
+    const state = resolveLiveActivityState([browserRuntimeEventChainStreamEvent()]);
+    const stream = state.browserRuntimeEventChainStream;
+
+    expect(state.browserRuntimeEventChainStreamEvent?.event).toBe('agent.browser.runtime.event-chain.stream.reported');
+    expect(stream?.observedRows).toBe(1);
+    expect(stream?.streamedEvents).toBe(4);
+    expect(stream?.failedRows).toBe(0);
+    expect(stream?.exactUrlRows).toBe(0);
+    expect(stream?.manualRequiredRows).toBe(1);
+    expect(stream?.interventionCommandEvents).toBe(0);
+    expect(stream?.readModelProjectionEvents).toBe(1);
+    expect(stream?.entries.map((entry) => entry.eventType)).toEqual([
+      'browser.evidence.observed',
+      'browser.evidence.journaled',
+      'browser.audit-entry.committed',
+      'browser.read-model.projected',
+    ]);
+    expect(stream?.entries.at(0)?.payload['exactUrlClaimed']).toBe(false);
+    expect(stream?.entries.at(0)?.payload['interventionCommandAllowed']).toBe(false);
+  });
+});
+
+function browserRuntimeEventChainStreamEvent(): AgentEventEnvelope {
+  return eventWithPayload(AgentEvent.BrowserRuntimeEventChainStreamReported, {
+    [AgentProtocolDefaults.Field.BrowserRuntimeObservedRows]: 1,
+    [AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents]: 4,
+    [AgentProtocolDefaults.Field.BrowserRuntimeFailedRows]: 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeExactUrlRows]: 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeManualRequiredRows]: 1,
+    [AgentProtocolDefaults.Field.BrowserRuntimeInterventionCommandEvents]: 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents]: 1,
+    [AgentProtocolDefaults.Field.BrowserRuntimeEventChainStream]: JSON.stringify([
+      browserRuntimeStreamEntry('browser.evidence.observed', 'cmd-browser-runtime-stream-browser.evidence.observed'),
+      browserRuntimeStreamEntry('browser.evidence.journaled', 'cmd-browser-runtime-stream-browser.evidence.journaled'),
+      browserRuntimeStreamEntry(
+        'browser.audit-entry.committed',
+        'cmd-browser-runtime-stream-browser.audit-entry.committed'
+      ),
+      browserRuntimeStreamEntry(
+        'browser.read-model.projected',
+        'cmd-browser-runtime-stream-browser.read-model.projected'
+      ),
+    ]),
+  });
+}
+
+function browserRuntimeStreamEntry(eventType: string, eventRef: string): Record<string, unknown> {
+  return {
+    [AgentProtocolDefaults.Field.EventType]: eventType,
+    [AgentProtocolDefaults.Field.EventRef]: eventRef,
+    [AgentProtocolDefaults.Field.Payload]: {
+      phase: 'read-model-projected',
+      sourceRef: 'browser-runtime-source-ref',
+      evidenceRef: 'browser-runtime-evidence-ref',
+      journalRef: 'browser-runtime-journal-ref',
+      aiRequestRef: null,
+      aiAnalysisRef: null,
+      policyEvaluationRef: null,
+      policyDecisionRef: null,
+      interventionCommandRef: null,
+      interventionResultRef: null,
+      auditEntryRef: 'browser-runtime-audit-ref',
+      readModelRef: 'browser-runtime-read-model-ref',
+      previousPhaseRef: 'browser-runtime-previous-phase-ref',
+      exactUrlClaimed: false,
+      aiAuthority: false,
+      policyAuthority: true,
+      interventionCommandAllowed: false,
+      observedAt: '2026-05-21T01:00:00Z',
+    },
+  };
+}
+
 function eventWithPayload(
   event: AgentEventEnvelope['event'],
   payload: AgentEventEnvelope['payload']

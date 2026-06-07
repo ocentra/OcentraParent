@@ -141,3 +141,28 @@ manual-required handling for unavailable rows, zero intervention command events,
 and camelCase stream payloads. It does not claim portal UI consumption, AI
 execution, policy execution, browser mutation, child intervention execution, or
 enforcement.
+
+## Portal Stream Consumer Addendum - 2026-06-07
+
+`browser-runtime-portal-stream-consumer-proof` adds parent portal consumption of
+the browser runtime stream without adding a new visual surface. The overview
+command list requests `agent.browser.runtime.event-chain.stream.get`,
+command-result routing accepts
+`agent.browser.runtime.event-chain.stream.reported`, and
+`PortalLiveActivityState` parses stream counts and entries so the portal can
+consume the evented chain as state.
+
+Evidence:
+
+- `packages/portal-domain/src/commands.ts`
+- `apps/portal/src/event-results.ts`
+- `apps/portal/src/live-activity-state.ts`
+- `apps/portal/tests/live-activity-state.test.ts`
+- `test-results/browser-runtime-portal-stream-consumer-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-portal-stream-consumer/01-browser-runtime-portal-stream-consumer-proof.md`
+- `cmd /c node scripts/test/browser-runtime-portal-stream-consumer-proof.mjs`
+
+The proof validates that manual-required rows remain visible to portal state and
+intervention command events remain zero. It does not claim a new portal visual
+surface, AI execution, policy execution, browser mutation, child intervention
+execution, or enforcement.

@@ -467,6 +467,20 @@ for unavailable rows, zero intervention command events, and protocol parity.
 It does not claim portal UI consumption, AI execution, policy execution,
 browser mutation, child intervention execution, or enforcement.
 
+WP13 portal-consumer addendum: `browser-runtime-portal-stream-consumer-proof`
+adds non-visual parent portal consumption for the browser runtime stream. The
+portal overview command list now requests
+`agent.browser.runtime.event-chain.stream.get`, command-result routing accepts
+`agent.browser.runtime.event-chain.stream.reported`, and
+`PortalLiveActivityState` parses event-chain stream counts and entries.
+Evidence:
+`test-results/browser-runtime-portal-stream-consumer-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-portal-stream-consumer/01-browser-runtime-portal-stream-consumer-proof.md`.
+The proof validates manual-required stream rows stay visible and intervention
+command events remain zero. It does not claim a new portal visual surface, AI
+execution, policy execution, browser mutation, child intervention execution, or
+enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

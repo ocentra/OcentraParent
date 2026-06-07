@@ -102,6 +102,23 @@ type NetworkFlowReadModelState = {
   readonly readModel: ActivityNetworkFlowReadModel | null;
 };
 
+export interface PortalBrowserRuntimeEventChainEntry {
+  readonly eventType: string;
+  readonly eventRef: string;
+  readonly payload: Record<string, unknown>;
+}
+
+export interface PortalBrowserRuntimeEventChainStream {
+  readonly observedRows: number | null;
+  readonly streamedEvents: number | null;
+  readonly failedRows: number | null;
+  readonly exactUrlRows: number | null;
+  readonly manualRequiredRows: number | null;
+  readonly interventionCommandEvents: number | null;
+  readonly readModelProjectionEvents: number | null;
+  readonly entries: readonly PortalBrowserRuntimeEventChainEntry[];
+}
+
 export interface PortalNetworkRuntimeEventChainStream {
   readonly streamedEventCount: number | null;
   readonly events: readonly AgentNetworkRuntimeEventResult[];
@@ -120,6 +137,8 @@ export interface PortalLiveActivityState {
   readonly browserInventoryReadModel: BrowserInventoryReadModel | null;
   readonly browserManagedEvent: AgentEventEnvelope | null;
   readonly browserManagedStatus: BrowserManagedSessionStatus | null;
+  readonly browserRuntimeEventChainStreamEvent: AgentEventEnvelope | null;
+  readonly browserRuntimeEventChainStream: PortalBrowserRuntimeEventChainStream | null;
   readonly localAiRuntimeStatusEvent: AgentEventEnvelope | null;
   readonly lanAiJobEvent: AgentEventEnvelope | null;
   readonly parentAssistantBoundaryEvent: AgentEventEnvelope | null;
@@ -199,6 +218,7 @@ function resolveBrowserState(events: readonly AgentEventEnvelope[]) {
   const browserEvidenceEvent = latestEvent(events, AgentEvent.BrowserEvidenceRecentReported);
   const browserInventoryEvent = latestEvent(events, AgentEvent.BrowserInventoryReadModelReported);
   const browserManagedEvent = latestEvent(events, AgentEvent.BrowserManagedStatusReported);
+  const browserRuntimeEventChainStreamEvent = latestEvent(events, AgentEvent.BrowserRuntimeEventChainStreamReported);
 
   return {
     browserEvidenceEvent,
@@ -209,6 +229,8 @@ function resolveBrowserState(events: readonly AgentEventEnvelope[]) {
       browserInventoryEvent === null ? null : parseBrowserInventoryReadModel(browserInventoryEvent.payload),
     browserManagedEvent,
     browserManagedStatus: browserManagedEvent === null ? null : parseBrowserManagedStatus(browserManagedEvent.payload),
+    browserRuntimeEventChainStreamEvent,
+    browserRuntimeEventChainStream: parseNullableBrowserRuntimeEventChainStream(browserRuntimeEventChainStreamEvent),
     ...resolveLocalAiActivityEvents(events),
   };
 }
@@ -510,6 +532,79 @@ function parseNullableNetworkRuntimeEventChainStream(
   };
 }
 
+function parseNullableBrowserRuntimeEventChainStream(
+  event: AgentEventEnvelope | null
+): PortalBrowserRuntimeEventChainStream | null {
+  if (event === null) {
+    return null;
+  }
+
+  const entries = parseBrowserRuntimeEventChainEntries(
+    event.payload[AgentProtocolDefaults.Field.BrowserRuntimeEventChainStream]
+  );
+  if (entries === null) {
+    return null;
+  }
+
+  return {
+    observedRows: numericPayloadValue(event.payload[AgentProtocolDefaults.Field.BrowserRuntimeObservedRows]),
+    streamedEvents: numericPayloadValue(event.payload[AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents]),
+    failedRows: numericPayloadValue(event.payload[AgentProtocolDefaults.Field.BrowserRuntimeFailedRows]),
+    exactUrlRows: numericPayloadValue(event.payload[AgentProtocolDefaults.Field.BrowserRuntimeExactUrlRows]),
+    manualRequiredRows: numericPayloadValue(event.payload[AgentProtocolDefaults.Field.BrowserRuntimeManualRequiredRows]),
+    interventionCommandEvents: numericPayloadValue(
+      event.payload[AgentProtocolDefaults.Field.BrowserRuntimeInterventionCommandEvents]
+    ),
+    readModelProjectionEvents: numericPayloadValue(
+      event.payload[AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents]
+    ),
+    entries,
+  };
+}
+
+function parseBrowserRuntimeEventChainEntries(
+  value: AgentProtocolLogFields[keyof AgentProtocolLogFields] | undefined
+): readonly PortalBrowserRuntimeEventChainEntry[] | null {
+  const decoded = parseJsonRecord(value);
+  if (!Array.isArray(decoded)) {
+    return null;
+  }
+
+  const entries: PortalBrowserRuntimeEventChainEntry[] = [];
+  for (const entry of decoded) {
+    const parsed = parseBrowserRuntimeEventChainEntry(entry);
+    if (parsed === null) {
+      return null;
+    }
+    entries.push(parsed);
+  }
+  return entries;
+}
+
+function parseBrowserRuntimeEventChainEntry(value: unknown): PortalBrowserRuntimeEventChainEntry | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return null;
+  }
+  const entry = value as Record<string, unknown>;
+  const eventType = entry[AgentProtocolDefaults.Field.EventType];
+  const eventRef = entry[AgentProtocolDefaults.Field.EventRef];
+  const payload = entry[AgentProtocolDefaults.Field.Payload];
+  if (
+    !isProtocolText(eventType) ||
+    !isProtocolText(eventRef) ||
+    typeof payload !== 'object' ||
+    payload === null ||
+    Array.isArray(payload)
+  ) {
+    return null;
+  }
+  return {
+    eventType,
+    eventRef,
+    payload: payload as Record<string, unknown>,
+  };
+}
+
 function networkRuntimeEventInputs(event: AgentEventEnvelope): readonly unknown[] {
   const rawStream = event.payload[AgentProtocolDefaults.Field.NetworkRuntimeEventChainStream];
   if (typeof rawStream !== AgentProtocolDefaults.Primitive.String) {
@@ -526,6 +621,10 @@ function networkRuntimeEventInputs(event: AgentEventEnvelope): readonly unknown[
 
 function numericPayloadValue(value: AgentProtocolLogFields[keyof AgentProtocolLogFields] | undefined): number | null {
   return typeof value === AgentProtocolDefaults.Primitive.Number ? Number(value) : null;
+}
+
+function isProtocolText(value: unknown): value is string {
+  return typeof value === AgentProtocolDefaults.Primitive.String;
 }
 
 function parseLanAddDeviceReadModel(payload: AgentProtocolLogFields): AgentLanBrowserAddDeviceReadModel | null {

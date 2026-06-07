@@ -440,7 +440,17 @@ function expectReadModelEnforcementAndUnmanagedFields() {
 
 function expectReadModelBrowserRuntimeStreamFields() {
   expect(AgentProtocolDefaults.Field.BrowserRuntimeEventChainStream).toBe('browserRuntimeEventChainStream');
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeObservedRows).toBe('browserRuntimeObservedRows');
   expect(AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents).toBe('browserRuntimeStreamedEvents');
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeFailedRows).toBe('browserRuntimeFailedRows');
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeExactUrlRows).toBe('browserRuntimeExactUrlRows');
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeManualRequiredRows).toBe('browserRuntimeManualRequiredRows');
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeInterventionCommandEvents).toBe(
+    'browserRuntimeInterventionCommandEvents'
+  );
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents).toBe(
+    'browserRuntimeReadModelProjectionEvents'
+  );
 }
 
 function expectReadModelNetworkStatusFields() {
