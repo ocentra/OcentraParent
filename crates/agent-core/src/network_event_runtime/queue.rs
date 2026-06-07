@@ -1,9 +1,13 @@
+#[cfg(test)]
 use std::time::Duration;
 
 use ocentra_eventing::{
-    EventBus, EventQueuePolicy, EventSubscriber, EventType, EventingError, ManualEventClock,
-    QueueDrainReport, SubscriberId, TargetHandler,
+    EventBus, EventQueuePolicy, EventSubscriber, EventType, EventingError, QueueDrainReport,
+    SubscriberId, TargetHandler,
 };
+
+#[cfg(test)]
+use ocentra_eventing::ManualEventClock;
 
 use ocentra_parent_agent_protocol::constants;
 
@@ -12,6 +16,7 @@ use crate::{network_event_runtime_phase::NetworkRuntimePhase, NetworkObservation
 use super::{network_event_metadata, NetworkRuntimeEventPayload};
 
 #[derive(Clone, Debug)]
+#[cfg(test)]
 pub struct NetworkRuntimeQueueDrainReport {
     pub queued_publish_report: ocentra_eventing::PublishReport,
     pub drain_report: ocentra_eventing::QueueDrainReport,
@@ -21,13 +26,16 @@ pub struct NetworkRuntimeQueueDrainReport {
 
 #[derive(Clone, Debug)]
 pub struct NetworkRuntimeQueueOverflowReport {
+    #[cfg(test)]
     pub first_publish_report: ocentra_eventing::PublishReport,
+    #[cfg(test)]
     pub overflow_publish_report: ocentra_eventing::PublishReport,
     pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
     pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
 }
 
 #[derive(Clone, Debug)]
+#[cfg(test)]
 pub struct NetworkRuntimeQueueTtlReport {
     pub queued_publish_report: ocentra_eventing::PublishReport,
     pub drain_report: ocentra_eventing::QueueDrainReport,
@@ -37,14 +45,18 @@ pub struct NetworkRuntimeQueueTtlReport {
 
 #[derive(Clone, Debug)]
 pub struct NetworkRuntimeQueueIdempotencyReport {
+    #[cfg(test)]
     pub first_publish_report: ocentra_eventing::PublishReport,
     pub queued_duplicate_error: EventingError,
+    #[cfg(test)]
     pub drain_report: ocentra_eventing::QueueDrainReport,
     pub completed_duplicate_error: EventingError,
     pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
+    #[cfg(test)]
     pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
 }
 
+#[cfg(test)]
 pub async fn queue_network_runtime_flow_until_subscriber(
     observation: NetworkObservation,
     observed_at: &str,
@@ -76,15 +88,20 @@ pub async fn queue_network_runtime_flow_overflow_dead_letters(
         publish_flow_observation(&bus, &first_observation, first_observed_at).await?;
     let overflow_publish_report =
         publish_flow_observation(&bus, &overflow_observation, overflow_observed_at).await?;
+    #[cfg(not(test))]
+    let _ = (&first_publish_report, &overflow_publish_report);
 
     Ok(NetworkRuntimeQueueOverflowReport {
+        #[cfg(test)]
         first_publish_report,
+        #[cfg(test)]
         overflow_publish_report,
         stored_events: bus.journal().await,
         dead_letters: bus.dead_letters().await,
     })
 }
 
+#[cfg(test)]
 pub async fn queue_network_runtime_flow_expires_before_drain(
     observation: NetworkObservation,
     observed_at: &str,
@@ -120,15 +137,20 @@ pub async fn queue_network_runtime_flow_rejects_duplicate_idempotency(
         duplicate_publish_error(publish_flow_observation(&bus, &observation, observed_at).await)?;
 
     let drain_report = subscribe_flow_observer(&bus).await?;
+    #[cfg(not(test))]
+    let _ = (&first_publish_report, &drain_report);
 
     let completed_duplicate_error =
         duplicate_publish_error(publish_flow_observation(&bus, &observation, observed_at).await)?;
     Ok(NetworkRuntimeQueueIdempotencyReport {
+        #[cfg(test)]
         first_publish_report,
         queued_duplicate_error,
+        #[cfg(test)]
         drain_report,
         completed_duplicate_error,
         stored_events: bus.journal().await,
+        #[cfg(test)]
         dead_letters: bus.dead_letters().await,
     })
 }

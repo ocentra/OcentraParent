@@ -1,0 +1,65 @@
+{
+  "acceptedInputs": [
+    "row10b broker/family-hub remote delivery status requirements",
+    "row10c event-chain journal/export refs",
+    "row10d receipt ledger/local acknowledgement refs",
+    "row10e durable envelope/store/replay/delete-export refs"
+  ],
+  "commandAndEvent": {
+    "command": "agent.network.remote-delivery.status.get",
+    "event": "agent.network.remote-delivery.status.reported",
+    "payloadField": "networkRemoteDeliveryStatus"
+  },
+  "bridgeRefs": [
+    "network.remote-delivery.status-bridge.10f",
+    "network.remote-delivery.event-chain-journal.10c",
+    "network.remote-delivery.event-chain.receipt-ledger.10d",
+    "network.remote-delivery.event-chain.local-receipt-ack.10d",
+    "network.remote-delivery.durable-envelope.10e",
+    "network.remote-delivery.durable-envelope-store.10e",
+    "network.remote-delivery.durable-envelope-replay.10e",
+    "network.remote-delivery.durable-envelope-delete-export.10e",
+    "network.remote-delivery.durable-envelope-support-status.10e"
+  ],
+  "renderedStates": [
+    "brokerStatus=fixture-requirements-recorded-but-not-implemented",
+    "familyHubStatus=fixture-requirements-recorded-but-not-implemented",
+    "durableEnvelopeReady=true",
+    "durableEnvelopeMissingArtifactCount=0",
+    "localIdempotencyQueueProved=true",
+    "queuedDuplicateRejected=true",
+    "completedDuplicateRejected=true",
+    "productReadyRemoteDelivery=false"
+  ],
+  "parserInvariants": [
+    "TypeScript parser rejects stale or wrong durable-envelope refs even when they contain row10e text",
+    "TypeScript parser rejects stale or wrong status refs even when they contain row10f text",
+    "TypeScript parser rejects missing broker or family-hub requirement artifacts",
+    "Rust service serializes the status into the protocol-owned payload field",
+    "WebSocket routing returns the status event from the browser/network command group",
+    "WebSocket routing returns a command-rejected warning instead of panicking if proof-derived status cannot be built",
+    "bridge status cannot claim provider delivery, child-device delivery, policy authority, side-effect authority, adapter action, enforcement commands, exact content, or host filtering"
+  ],
+  "noClaims": [
+    "live broker delivery",
+    "live family-hub relay delivery",
+    "remote acknowledgement implementation",
+    "remote provider delivery",
+    "child-device delivery",
+    "cross-process replay implementation",
+    "remote delete/export propagation implementation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}

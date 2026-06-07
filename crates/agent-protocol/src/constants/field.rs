@@ -255,6 +255,7 @@ pub const NETWORK_RUNTIME_FAILED_ROWS: &str = "networkRuntimeFailedRows";
 pub const NETWORK_RUNTIME_MANUAL_REQUIRED_ROWS: &str = "networkRuntimeManualRequiredRows";
 pub const NETWORK_RUNTIME_OBSERVED_ROWS: &str = "networkRuntimeObservedRows";
 pub const NETWORK_RUNTIME_PUBLISH_REPORTS: &str = "networkRuntimePublishReports";
+pub const NETWORK_REMOTE_DELIVERY_STATUS: &str = "networkRemoteDeliveryStatus";
 pub const NETWORK_RUNTIME_STREAMED_EVENTS: &str = "networkRuntimeStreamedEvents";
 pub const NETWORK_RUNTIME_STORED_EVENTS: &str = "networkRuntimeStoredEvents";
 pub const NONCE: &str = "nonce";

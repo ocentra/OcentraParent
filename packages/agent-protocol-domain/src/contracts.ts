@@ -219,6 +219,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.browser.intervention.read-model.get',
     'agent.network.flow.read-model.get',
     'agent.network.runtime.event-chain.stream.get',
+    'agent.network.remote-delivery.status.get',
     'agent.local-ai.runtime.status.get',
     'agent.local-ai.chat.generate',
     'agent.parent-assistant.answer.generate',
@@ -289,6 +290,7 @@ export const AgentEventNameSchema = withParser(
     'agent.browser.intervention.read-model.reported',
     'agent.network.flow.read-model.reported',
     'agent.network.runtime.event-chain.stream.reported',
+    'agent.network.remote-delivery.status.reported',
     'agent.local-ai.runtime.status.reported',
     'agent.local-ai.chat.generation.reported',
     'agent.parent-assistant.answer.reported',
@@ -401,6 +403,7 @@ export const AgentCommand = {
   BrowserInterventionReadModelGet: AgentCommandNameSchema.parse('agent.browser.intervention.read-model.get'),
   NetworkFlowReadModelGet: AgentCommandNameSchema.parse('agent.network.flow.read-model.get'),
   NetworkRuntimeEventChainStreamGet: AgentCommandNameSchema.parse('agent.network.runtime.event-chain.stream.get'),
+  NetworkRemoteDeliveryStatusGet: AgentCommandNameSchema.parse('agent.network.remote-delivery.status.get'),
   LocalAiRuntimeStatusGet: AgentCommandNameSchema.parse('agent.local-ai.runtime.status.get'),
   LocalAiChatGenerate: AgentCommandNameSchema.parse('agent.local-ai.chat.generate'),
   ParentAssistantAnswerGenerate: AgentCommandNameSchema.parse('agent.parent-assistant.answer.generate'),
@@ -493,6 +496,7 @@ export const AgentEvent = {
   NetworkRuntimeEventChainStreamReported: AgentEventNameSchema.parse(
     'agent.network.runtime.event-chain.stream.reported'
   ),
+  NetworkRemoteDeliveryStatusReported: AgentEventNameSchema.parse('agent.network.remote-delivery.status.reported'),
   LocalAiRuntimeStatusReported: AgentEventNameSchema.parse('agent.local-ai.runtime.status.reported'),
   LocalAiChatGenerationReported: AgentEventNameSchema.parse('agent.local-ai.chat.generation.reported'),
   ParentAssistantAnswerReported: AgentEventNameSchema.parse('agent.parent-assistant.answer.reported'),

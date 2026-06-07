@@ -17,6 +17,7 @@ use super::remote_delivery_event_chain_journal_types::{
 use super::{network_event_metadata, should_publish_phase, NetworkRuntimeEventPayload};
 
 pub(super) struct NetworkRuntimeRemoteEventChainStore {
+    #[cfg(test)]
     pub stored_events: Vec<StoredEventEnvelope>,
     pub projection: ReplayReadReport,
     pub payloads: Vec<NetworkRuntimeEventPayload>,
@@ -55,6 +56,7 @@ pub(super) async fn publish_network_runtime_remote_event_chain_store(
     assert_projection_matches(&stored_events, &projection.records)?;
     let payloads = decode_payloads(&projection.records)?;
     Ok(NetworkRuntimeRemoteEventChainStore {
+        #[cfg(test)]
         stored_events,
         projection,
         payloads,
