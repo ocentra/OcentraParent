@@ -83,15 +83,19 @@ content-filter enforcement, physical-device behavior, Play signing, or release
 readiness.
 
 2026-06-07 codex-d continuation: `scripts/test/browser-platform-linux-host-proof.mjs`
-now captures real WSL Ubuntu package/PATH/desktop-entry boundary evidence for
-WP05. The proof queries only known public Linux browser commands, Debian package
-names, and desktop-entry globs, then writes
+now captures real WSL Ubuntu package/PATH/desktop-entry boundary evidence plus
+a positive headless Linux browser launch proof for WP05. The proof queries only
+known public Linux browser commands, Debian package names, and desktop-entry
+globs, launches the observed Linux browser against a local proof document,
+captures DOM hash evidence and a screenshot, then writes
 `test-results/browser-platform-linux-host-proof/proof.json` plus
-`output/browser-plan-proof/05-cross-platform-inventory-matrix/12-linux-host-package-proof.json`.
-The current host has WSL available but no known Chrome/Chromium/Firefox/Edge
-command, package, or desktop-entry proof. This is useful negative evidence, but
-not Linux desktop browser support: managed profile, desktop adapter, exact URL,
-active tab, Snap/Flatpak, and enforcement remain unclaimed.
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/12-linux-host-package-proof.json`
+and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/12-linux-headless-browser-screenshot.png`.
+The current host has WSL available and Google Chrome installed/launchable, so
+the Linux Chrome row is host-observed for install and launch only. Linux desktop
+adapter integration, managed profile, exact URL, active tab, Snap/Flatpak, and
+enforcement remain unclaimed.
 
 2026-06-07 codex-d continuation: `scripts/test/browser-platform-windows-host-proof.mjs`
 now captures real Windows host browser inventory boundary evidence for WP05.
@@ -180,11 +184,11 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service/portal parity updated only after contracts exist; no Rust/service/portal surface changed in this contract-only slice.
 - [x] Raw evidence artifacts captured or marked N/A: this slice is a platform support matrix contract and has no bridge/CDP, journal, SQLite, policy, or action runtime evidence.
-- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Windows host browser executable proof and default URL handler association boundary evidence, Windows Ocentra-launched managed CDP proof for an exact local proof URL, Android emulator package-visibility proof, Android owned browser shell build/install/launch proof, Android proof-created AVD Device Owner enrollment proof, Android proof-created AVD persistent browser routing policy mutation proof, and WSL Linux package/PATH boundary proof are present, while exact active-tab enforcement, final policy execution, implicit Android browser routing enforcement, browser blocking, live macOS/Linux desktop/iOS fixtures, and manual proof remain manual-required.
+- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Windows host browser executable proof and default URL handler association boundary evidence, Windows Ocentra-launched managed CDP proof for an exact local proof URL, Android emulator package-visibility proof, Android owned browser shell build/install/launch proof, Android proof-created AVD Device Owner enrollment proof, Android proof-created AVD persistent browser routing policy mutation proof, and WSL Linux package/PATH/desktop-entry/headless-launch proof are present, while exact active-tab enforcement, final policy execution, implicit Android browser routing enforcement, browser blocking, live macOS/iOS fixtures, and manual proof remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured: non-Windows entries reject managed exact-URL and known-active claims; iOS remains unsupported; unsupported entries cannot keep exact URL available.
-- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility, UI-tree/logcat hash evidence, and source-backed no-privileged-browser-adapter boundary evidence are captured in `11-android-host-device-proof.json`, Android owned browser shell build/install/launch, local proof-page UI evidence, proof-created AVD Device Owner enrollment evidence, and proof-created AVD persistent browser routing policy mutation evidence are captured in `15-android-owned-browser-shell-proof.json`, WSL Linux package/PATH boundary evidence is captured in `12-linux-host-package-proof.json`, Windows host browser executable proof and default URL handler association boundary evidence are captured in `13-windows-host-browser-proof.json`, Windows managed CDP exact-local-URL proof and screenshot evidence are captured in `14-windows-managed-cdp-proof.json` and `14-windows-managed-cdp-screenshot.png`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
+- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility, UI-tree/logcat hash evidence, and source-backed no-privileged-browser-adapter boundary evidence are captured in `11-android-host-device-proof.json`, Android owned browser shell build/install/launch, local proof-page UI evidence, proof-created AVD Device Owner enrollment evidence, and proof-created AVD persistent browser routing policy mutation evidence are captured in `15-android-owned-browser-shell-proof.json`, WSL Linux package/PATH/desktop-entry/headless-launch evidence is captured in `12-linux-host-package-proof.json` and `12-linux-headless-browser-screenshot.png`, Windows host browser executable proof and default URL handler association boundary evidence are captured in `13-windows-host-browser-proof.json`, Windows managed CDP exact-local-URL proof and screenshot evidence are captured in `14-windows-managed-cdp-proof.json` and `14-windows-managed-cdp-screenshot.png`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
 - [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md), including `test-results/browser-platform-inventory-matrix-proof/proof.json` and `output/browser-plan-proof/05-cross-platform-inventory-matrix/11-proof-gate-manifest.md`.
 - [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
@@ -206,10 +210,10 @@ are now proved, but exact URL policy, active-tab policy, implicit browser
 routing enforcement, VPN/DNS browser proof, UsageStats/Accessibility route
 proof, final policy execution, browser blocking, physical-device behavior, and
 broad content-filter enforcement remain unclaimed.
-WSL Linux package/PATH evidence is now proved, but no Chrome/Chromium/Firefox/Edge
-command, package, desktop entry, desktop adapter, exact URL, active-tab, Snap,
-Flatpak, or enforcement claim is upgraded.
-Remaining work requires real macOS app bundle inventory, positive Linux desktop
-browser inventory, Android implicit browser routing enforcement proof, and iOS
-FamilyControls/ManagedSettings/Safari-extension proof before this workpack can
-be marked complete.
+WSL Linux package/PATH/desktop-entry evidence and a headless Google Chrome
+launch/screenshot are now proved, but Linux desktop adapter integration,
+managed profile, exact URL, active-tab, Snap, Flatpak, and enforcement remain
+unclaimed.
+Remaining work requires real macOS app bundle inventory, Android implicit
+browser routing enforcement proof, and iOS FamilyControls/ManagedSettings/Safari-extension
+proof before this workpack can be marked complete.

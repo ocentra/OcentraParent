@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-platform-inventory-matrix-proof",
-  "generatedAt": "2026-06-07T11:42:29.902Z",
+  "generatedAt": "2026-06-07T12:05:48.912Z",
   "proofContract": "packages/activity-domain/src/browser-platform-inventory-matrix.ts",
   "sourceWorkpack": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
   "rows": [
@@ -67,13 +67,13 @@
       "browserChannel": "stable",
       "productName": "Google Chrome",
       "supportTier": "candidate",
-      "proofState": "manual-required",
+      "proofState": "host-observed",
       "exactUrlCapability": "manual-required",
       "activeTabCapability": "manual-required",
       "managementTier": "manual-required",
       "capabilityStatus": "permission-limited",
-      "reasonCode": "linux-chrome-cdp-candidate-manual-required",
-      "proofRequirement": "platform adapter, owned profile, and manual browser proof required"
+      "reasonCode": "linux-chrome-host-observed-launch-proof",
+      "proofRequirement": "Linux WSL browser install and launch proof exists; desktop adapter and managed profile proof required before exact URL claims"
     },
     {
       "platform": "linux",
@@ -184,14 +184,14 @@
       "ios": 2
     },
     "proofStateCounts": {
-      "host-observed": 2,
-      "manual-required": 4,
+      "host-observed": 3,
+      "manual-required": 3,
       "unsupported": 6
     },
-    "manualRequiredRows": 4,
+    "manualRequiredRows": 3,
     "unsupportedRows": 6,
     "fixtureBackedRows": 0,
-    "hostObservedRows": 2,
+    "hostObservedRows": 3,
     "productClaimed": false,
     "checklistStatusChanged": false,
     "failures": 0
@@ -245,7 +245,7 @@
   "noClaimLabels": [
     "non-windows-managed-exact-url-not-claimed",
     "non-windows-known-active-tab-not-claimed",
-    "linux-wsl-package-inventory-boundary-proof-present-desktop-adapter-still-manual-required",
+    "linux-wsl-headless-browser-launch-proof-present-desktop-adapter-still-manual-required",
     "android-browser-package-visibility-proof-present",
     "android-owned-browser-shell-emulator-device-owner-policy-mutation-proof-present-routing-enforcement-still-manual-required",
     "windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed",
@@ -305,11 +305,17 @@
   "linuxHostProof": {
     "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/12-linux-host-package-proof.json",
     "proofId": "browser-platform-linux-host-proof",
-    "resultState": "linux-wsl-package-inventory-boundary-proof",
+    "resultState": "linux-wsl-headless-browser-launch-proof",
     "wslAvailable": true,
-    "browserCommandVisible": false,
-    "browserPackageInstalled": false,
-    "browserDesktopEntryVisible": false,
+    "browserCommandVisible": true,
+    "browserPackageInstalled": true,
+    "browserDesktopEntryVisible": true,
+    "browserLaunchAttempted": true,
+    "browserLaunchObserved": true,
+    "browserLaunchScreenshotCaptured": true,
+    "browserLaunchScreenshotPersisted": true,
+    "rawBrowserLaunchDomPersisted": false,
+    "rawBrowserLaunchUrlPersisted": false,
     "exactUrlProofClaimed": false,
     "knownActiveTabProofClaimed": false,
     "enforcementClaimed": false

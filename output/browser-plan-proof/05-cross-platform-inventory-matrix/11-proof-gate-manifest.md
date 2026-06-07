@@ -1,16 +1,16 @@
 # WP05 Platform Inventory Matrix Proof Gate
 
-Generated: 2026-06-07T11:42:29.902Z
+Generated: 2026-06-07T12:05:48.912Z
 
 Rows checked: 12
-Host-observed rows: 2
+Host-observed rows: 3
 Fixture-backed rows: 0
-Manual-required rows: 4
+Manual-required rows: 3
 Unsupported rows: 6
 Product claimed: false
 Android host proof: android-browser-package-visibility-proof
 Android owned shell proof: android-owned-browser-shell-device-owner-policy-mutation-proof
-Linux host proof: linux-wsl-package-inventory-boundary-proof
+Linux host proof: linux-wsl-headless-browser-launch-proof
 Windows host proof: windows-host-browser-inventory-boundary-proof
 Windows managed CDP proof: windows-managed-cdp-exact-url-proof
 
@@ -20,7 +20,7 @@ Windows managed CDP proof: windows-managed-cdp-exact-url-proof
 | windows | chrome | Google Chrome | host-observed | unavailable | unavailable | windows-managed-chrome-candidate |
 | macos | chrome | Google Chrome | manual-required | manual-required | manual-required | macos-chrome-cdp-candidate-manual-required |
 | macos | unknown | Safari | unsupported | unsupported | unsupported | macos-safari-webkit-later-adapter |
-| linux | chrome | Google Chrome | manual-required | manual-required | manual-required | linux-chrome-cdp-candidate-manual-required |
+| linux | chrome | Google Chrome | host-observed | manual-required | manual-required | linux-chrome-host-observed-launch-proof |
 | linux | unknown-chromium | Chromium | manual-required | manual-required | manual-required | linux-chromium-cdp-candidate-manual-required |
 | linux | firefox | Mozilla Firefox | unsupported | unsupported | unsupported | linux-firefox-bidi-later-adapter |
 | android | unknown-chromium | Android owned browser shell | manual-required | manual-required | manual-required | android-owned-browser-shell-manual-required |
@@ -33,6 +33,6 @@ No product checklist upgrade is claimed.
 Non-Windows managed exact URL and known-active tab support remain manual-required or unsupported until separate real platform proof exists.
 Android emulator package-visibility proof is present; exact URL, active tab, device-owner policy, and enforcement remain unclaimed.
 Android owned browser shell build/install/launch proof plus proof-launched emulator Device Owner enrollment and persistent HTTP/HTTPS routing policy mutation evidence is present, but implicit browser routing enforcement, content-filter policy, known active tab, VPN/DNS, UsageStats, Accessibility, physical-device behavior, and broad enforcement remain unclaimed unless observed in the proof.
-Linux WSL package/PATH/desktop-entry boundary proof is present, but Linux desktop browser adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.
+Linux WSL package/PATH/desktop-entry evidence plus a real headless Linux browser launch and screenshot proof are present, but Linux desktop adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.
 Windows host browser executable proof and default URL handler association boundary evidence are present, but managed launch, bridge custody, exact URL, active tab, and enforcement remain unclaimed.
 Windows managed CDP proof is present for an Ocentra-launched managed browser profile reaching the exact local proof URL and capturing a CDP screenshot, but active-tab enforcement, final policy execution, browser blocking, and non-Windows support remain unclaimed.

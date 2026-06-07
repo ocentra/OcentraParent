@@ -112,7 +112,7 @@ export const BrowserInventoryPlatformMatrix = BrowserInventoryPlatformMatrixSche
     windowsCandidate('chrome', 'Google Chrome', 'windows-managed-chrome-candidate'),
     manualCandidate('macos', 'chrome', 'Google Chrome', 'macos-chrome-cdp-candidate-manual-required'),
     unsupportedEntry('macos', 'unknown', 'Safari', 'macos-safari-webkit-later-adapter'),
-    manualCandidate('linux', 'chrome', 'Google Chrome', 'linux-chrome-cdp-candidate-manual-required'),
+    linuxHostObservedCandidate('chrome', 'Google Chrome', 'linux-chrome-host-observed-launch-proof'),
     manualCandidate('linux', 'unknown-chromium', 'Chromium', 'linux-chromium-cdp-candidate-manual-required'),
     unsupportedEntry('linux', 'firefox', 'Mozilla Firefox', 'linux-firefox-bidi-later-adapter'),
     ownedShellCandidate('android', 'unknown-chromium', 'Android owned browser shell'),
@@ -176,6 +176,32 @@ function manualCandidate(
     proofState: 'manual-required',
     reasonCode,
     proofRequirement: 'platform adapter, owned profile, and manual browser proof required',
+  });
+}
+
+function linuxHostObservedCandidate(
+  browserFamily: 'chrome',
+  productName: string,
+  reasonCode: string
+): BrowserInventoryPlatformMatrixEntry {
+  return BrowserInventoryPlatformMatrixEntrySchema.parse({
+    schemaVersion: BrowserEvidenceSchemaVersion,
+    platform: 'linux',
+    browserFamily,
+    browserChannel: 'stable',
+    productName,
+    installState: 'installed',
+    managementTier: 'manual-required',
+    supportTier: 'candidate',
+    exactUrlCapability: 'manual-required',
+    activeTabCapability: 'manual-required',
+    managedProfileState: 'manual-required',
+    unmanagedFallbackCapability: 'unsupported',
+    capabilityStatus: 'permission-limited',
+    proofState: 'host-observed',
+    reasonCode,
+    proofRequirement:
+      'Linux WSL browser install and launch proof exists; desktop adapter and managed profile proof required before exact URL claims',
   });
 }
 
@@ -252,7 +278,13 @@ function manualEntryHasProofRequirement(entry: BrowserInventoryPlatformMatrixEnt
 
 function hostObservedOrFixtureBackedEntryIsWindowsOnly(entry: BrowserInventoryPlatformMatrixEntryCandidate): boolean {
   return (
-    (entry.proofState !== 'host-observed' && entry.proofState !== 'fixture-backed') || entry.platform === 'windows'
+    (entry.proofState !== 'host-observed' && entry.proofState !== 'fixture-backed') ||
+    entry.platform === 'windows' ||
+    (entry.platform === 'linux' &&
+      entry.proofState === 'host-observed' &&
+      entry.exactUrlCapability === 'manual-required' &&
+      entry.activeTabCapability === 'manual-required' &&
+      entry.managementTier === 'manual-required')
   );
 }
 

@@ -20,8 +20,8 @@ describe('browser platform inventory matrix', () => {
       ios: 2,
     });
     expect(proofCounts).toEqual({
-      'host-observed': 2,
-      'manual-required': 4,
+      'host-observed': 3,
+      'manual-required': 3,
       unsupported: 6,
     });
   });
@@ -40,6 +40,21 @@ describe('browser platform inventory matrix', () => {
     ).toBe(true);
   });
 
+  it('marks Linux Chrome host-observed only for install and launch proof', () => {
+    const matrix = BrowserInventoryPlatformMatrixSchema.parse(BrowserInventoryPlatformMatrix);
+    const linuxChrome = matrix.entries.find((entry) => entry.reasonCode === 'linux-chrome-host-observed-launch-proof');
+
+    expect(linuxChrome).toMatchObject({
+      platform: 'linux',
+      browserFamily: 'chrome',
+      installState: 'installed',
+      managementTier: 'manual-required',
+      exactUrlCapability: 'manual-required',
+      activeTabCapability: 'manual-required',
+      proofState: 'host-observed',
+    });
+  });
+
   it('marks mobile browser paths as owned-shell manual-required or unsupported only', () => {
     const matrix = BrowserInventoryPlatformMatrixSchema.parse(BrowserInventoryPlatformMatrix);
     const androidShell = matrix.entries.find(
@@ -56,7 +71,9 @@ describe('browser platform inventory matrix', () => {
     });
     expect(iosEntries.every((entry) => entry.managementTier === 'unsupported')).toBe(true);
   });
+});
 
+describe('browser platform inventory matrix validation', () => {
   it('rejects unsupported entries that try to keep exact URL available', () => {
     const safari = BrowserInventoryPlatformMatrix.entries.find((entry) => entry.productName === 'Safari');
     if (safari === undefined) {

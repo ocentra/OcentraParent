@@ -51,6 +51,7 @@ async function main() {
   const failures = [
     ...validateMatrix(matrix.entries),
     ...proofFiles.filter((file) => !file.exists).map((file) => `missing proof artifact: ${file.path}`),
+    ...validateLinuxHostProof(linuxHostProof),
     ...validateWindowsHostProof(windowsHostProof),
     ...validateWindowsManagedCdpProof(windowsManagedCdpProof),
     ...validateAndroidOwnedShellProof(androidOwnedShellProof),
@@ -78,9 +79,11 @@ async function main() {
     noClaimLabels: [
       'non-windows-managed-exact-url-not-claimed',
       'non-windows-known-active-tab-not-claimed',
-      linuxHostProof
-        ? 'linux-wsl-package-inventory-boundary-proof-present-desktop-adapter-still-manual-required'
-        : 'macos-linux-platform-adapters-manual-required',
+      linuxHostProof?.browserLaunchObserved === true
+        ? 'linux-wsl-headless-browser-launch-proof-present-desktop-adapter-still-manual-required'
+        : linuxHostProof
+          ? 'linux-wsl-package-inventory-boundary-proof-present-desktop-adapter-still-manual-required'
+          : 'macos-linux-platform-adapters-manual-required',
       androidHostProof
         ? 'android-browser-package-visibility-proof-present'
         : 'android-owned-browser-shell-manual-required',
@@ -165,9 +168,10 @@ function validateMatrix(entries) {
     }
     if (
       (entry.proofState === 'host-observed' || entry.proofState === 'fixture-backed') &&
-      entry.platform !== 'windows'
+      entry.platform !== 'windows' &&
+      !linuxHostLaunchRowIsAllowed(entry)
     ) {
-      failures.push(`${key} is host-observed/fixture-backed outside Windows`);
+      failures.push(`${key} is host-observed/fixture-backed outside Windows/Linux launch proof allowance`);
     }
     if (entry.platform === 'ios' && entry.managementTier !== 'unsupported') {
       failures.push(`${key} upgrades iOS browser management before platform proof`);
@@ -239,7 +243,7 @@ function markdownFor(proof) {
       ? 'Android owned browser shell build/install/launch proof plus proof-launched emulator Device Owner enrollment and persistent HTTP/HTTPS routing policy mutation evidence is present, but implicit browser routing enforcement, content-filter policy, known active tab, VPN/DNS, UsageStats, Accessibility, physical-device behavior, and broad enforcement remain unclaimed unless observed in the proof.'
       : 'Android owned browser shell build/install/launch proof remains manual-required.',
     proof.linuxHostProof
-      ? 'Linux WSL package/PATH/desktop-entry boundary proof is present, but Linux desktop browser adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.'
+      ? 'Linux WSL package/PATH/desktop-entry evidence plus a real headless Linux browser launch and screenshot proof are present, but Linux desktop adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.'
       : 'Linux desktop package and adapter proof remains manual-required.',
     proof.windowsHostProof
       ? 'Windows host browser executable proof and default URL handler association boundary evidence are present, but managed launch, bridge custody, exact URL, active tab, and enforcement remain unclaimed.'
@@ -331,6 +335,12 @@ async function readLinuxHostProof() {
     browserCommandVisible: proof.hostProofSummary?.browserCommandVisible === true,
     browserPackageInstalled: proof.hostProofSummary?.browserPackageInstalled === true,
     browserDesktopEntryVisible: proof.hostProofSummary?.browserDesktopEntryVisible === true,
+    browserLaunchAttempted: proof.hostProofSummary?.browserLaunchAttempted === true,
+    browserLaunchObserved: proof.hostProofSummary?.browserLaunchObserved === true,
+    browserLaunchScreenshotCaptured: proof.hostProofSummary?.browserLaunchScreenshotCaptured === true,
+    browserLaunchScreenshotPersisted: proof.hostProofSummary?.browserLaunchScreenshotPersisted === true,
+    rawBrowserLaunchDomPersisted: proof.hostProofSummary?.rawBrowserLaunchDomPersisted === true,
+    rawBrowserLaunchUrlPersisted: proof.hostProofSummary?.rawBrowserLaunchUrlPersisted === true,
     exactUrlProofClaimed: proof.hostProofSummary?.exactUrlProofClaimed === true,
     knownActiveTabProofClaimed: proof.hostProofSummary?.knownActiveTabProofClaimed === true,
     enforcementClaimed: proof.hostProofSummary?.enforcementClaimed === true,
@@ -389,6 +399,35 @@ async function readWindowsManagedCdpProof() {
   };
 }
 
+function validateLinuxHostProof(proof) {
+  if (proof === null) {
+    return [
+      'missing Linux host proof artifact: output/browser-plan-proof/05-cross-platform-inventory-matrix/12-linux-host-package-proof.json',
+    ];
+  }
+
+  const failures = [];
+  if (proof.resultState !== 'linux-wsl-headless-browser-launch-proof') {
+    failures.push(`Linux host proof has unexpected resultState: ${proof.resultState}`);
+  }
+  if (!proof.wslAvailable) {
+    failures.push('Linux host proof did not observe WSL Linux availability');
+  }
+  if (!proof.browserCommandVisible || !proof.browserPackageInstalled || !proof.browserDesktopEntryVisible) {
+    failures.push('Linux host proof lacks command, package, and desktop-entry browser evidence');
+  }
+  if (!proof.browserLaunchAttempted || !proof.browserLaunchObserved || !proof.browserLaunchScreenshotCaptured) {
+    failures.push('Linux host proof did not observe a real headless browser launch with screenshot evidence');
+  }
+  if (proof.rawBrowserLaunchDomPersisted || proof.rawBrowserLaunchUrlPersisted) {
+    failures.push('Linux host proof persisted raw launch DOM or raw launch URL evidence');
+  }
+  if (proof.exactUrlProofClaimed || proof.knownActiveTabProofClaimed || proof.enforcementClaimed) {
+    failures.push('Linux host proof made exact URL, active tab, or enforcement claims');
+  }
+  return failures;
+}
+
 function validateWindowsHostProof(proof) {
   if (proof === null) {
     return [
@@ -415,6 +454,18 @@ function validateWindowsHostProof(proof) {
     failures.push('Windows host proof made managed launch, exact URL, active tab, or enforcement claims');
   }
   return failures;
+}
+
+function linuxHostLaunchRowIsAllowed(entry) {
+  return (
+    entry.platform === 'linux' &&
+    entry.browserFamily === 'chrome' &&
+    entry.proofState === 'host-observed' &&
+    entry.reasonCode === 'linux-chrome-host-observed-launch-proof' &&
+    entry.exactUrlCapability === 'manual-required' &&
+    entry.activeTabCapability === 'manual-required' &&
+    entry.managementTier === 'manual-required'
+  );
 }
 
 function validateWindowsManagedCdpProof(proof) {
