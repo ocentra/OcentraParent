@@ -399,6 +399,7 @@ export const PortalDom = {
     TrackingProofNotificationParentSurfaceHistory: 'notification-parent-surface-history-ui',
     TrackingProofParentActionReadiness: 'parent-action-readiness-ui',
     TrackingProofMissingDevice: 'missing-device-ui',
+    TrackingProofReportPolicyConsumer: 'report-policy-consumer-ui',
     TrackingProofReportExport: 'report-export-ui',
     TrackingProofRetentionSettings: 'retention-settings-ui',
   },

@@ -16,6 +16,7 @@ import { trackingNotificationParentSurfaceHostedUiProof } from '../src/tracking-
 import { trackingParentActionReadinessHostedUiProof } from '../src/tracking-parent-action-readiness-hosted-ui-proof';
 import { trackingMissingDeviceHostedUiProof } from '../src/tracking-missing-device-hosted-ui-proof';
 import { trackingReportExportHostedUiProof } from '../src/tracking-report-export-hosted-ui-proof';
+import { trackingReportPolicyConsumerHostedUiProof } from '../src/tracking-report-policy-consumer-hosted-ui-proof';
 import { trackingRetentionSettingsHostedUiProof } from '../src/tracking-retention-settings-hosted-ui-proof';
 import {
   trackingFamilyDashboardHostedRollupProof,
@@ -282,6 +283,77 @@ const ExpectedReportExportHostedUiRows = [
     evidence: 'tracking-report-export-evidence-policy-drill-in',
   },
 ] as const;
+
+const ExpectedReportExportHostedUiProof = {
+  title: 'Report export read-model UI',
+  body: 'Hosted route renders redacted report/export packet rows from existing read-model proof refs without exposing raw location payloads or claiming product-ready export.',
+  proofTier: 'P2 service proof',
+  rowsReturned: '4',
+  proofArtifact: TrackingStatusProofArtifacts.ReportExportReadModel,
+  boundary:
+    'Hosted report/export packet rendering only; raw location payload export, service mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.',
+  missingProof: 'Manual proof required',
+  productClaim: 'No product claim',
+  rawLocationPayloadClaimedRows: '0',
+  serviceMutationClaimedRows: '0',
+  platformRuntimeClaimedRows: '0',
+  childDeviceDeliveryClaimedRows: '0',
+  providerDeliveryClaimedRows: '0',
+  notificationReceiptClaimedRows: '0',
+  physicalDeviceClaimedRows: '0',
+  authorityClaimedRows: '0',
+  productClaimReadyRows: '0',
+  rows: ExpectedReportExportHostedUiRows,
+} as const;
+
+const ExpectedReportPolicyConsumerHostedUiRows = [
+  {
+    title: 'Parent report summary consumer',
+    status: 'consumer-ready',
+    storedJournalRef: 'tracking-journal-row-report-summary',
+    storedReadModelRef: 'tracking-read-model-row-report-summary',
+    evidence: 'tracking-report-policy-evidence-summary',
+    reportSurface: 'parent-report-location-summary-row',
+  },
+  {
+    title: 'Policy evidence drill-in consumer',
+    status: 'consumer-ready',
+    storedJournalRef: 'tracking-journal-row-policy-drill-in',
+    storedReadModelRef: 'tracking-read-model-row-policy-drill-in',
+    evidence: 'tracking-report-policy-evidence-decision',
+    reportSurface: 'parent-policy-evidence-drill-in-row',
+  },
+  {
+    title: 'Retention audit export consumer',
+    status: 'consumer-ready',
+    storedJournalRef: 'tracking-journal-row-retention-export',
+    storedReadModelRef: 'tracking-read-model-row-retention-export',
+    evidence: 'tracking-report-policy-evidence-retention',
+    reportSurface: 'parent-retention-audit-export-row',
+  },
+] as const;
+
+const ExpectedReportPolicyConsumerHostedUiProof = {
+  title: 'Report policy consumer UI',
+  body: 'Hosted route renders parent report summary, policy drill-in, and retention audit consumer rows from stored journal/read-model refs without claiming product-ready report or policy execution.',
+  proofTier: 'P2 service proof',
+  rowsReturned: '3',
+  proofArtifact: TrackingStatusProofArtifacts.ReportPolicyConsumer,
+  boundary:
+    'Hosted report/policy consumer rendering only; AI execution, product policy mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, production, and product readiness remain unclaimed.',
+  missingProof: 'Manual proof required',
+  productClaim: 'No product claim',
+  aiExecutionClaimedRows: '0',
+  policyMutationClaimedRows: '0',
+  platformRuntimeClaimedRows: '0',
+  childDeviceDeliveryClaimedRows: '0',
+  providerDeliveryClaimedRows: '0',
+  notificationReceiptClaimedRows: '0',
+  physicalDeviceClaimedRows: '0',
+  authorityClaimedRows: '0',
+  productClaimReadyRows: '0',
+  rows: ExpectedReportPolicyConsumerHostedUiRows,
+} as const;
 
 const ExpectedNotificationParentSurfaceRows = [
   {
@@ -597,29 +669,18 @@ describe('tracking dashboard and platform proof surface', () => {
   it('renders report export read-model packets without raw export, mutation, runtime, or product claims', () => {
     const proof = trackingReportExportHostedUiProof();
 
-    expect(proof).toEqual({
-      title: 'Report export read-model UI',
-      body: 'Hosted route renders redacted report/export packet rows from existing read-model proof refs without exposing raw location payloads or claiming product-ready export.',
-      proofTier: 'P2 service proof',
-      rowsReturned: '4',
-      proofArtifact: TrackingStatusProofArtifacts.ReportExportReadModel,
-      boundary:
-        'Hosted report/export packet rendering only; raw location payload export, service mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.',
-      missingProof: 'Manual proof required',
-      productClaim: 'No product claim',
-      rawLocationPayloadClaimedRows: '0',
-      serviceMutationClaimedRows: '0',
-      platformRuntimeClaimedRows: '0',
-      childDeviceDeliveryClaimedRows: '0',
-      providerDeliveryClaimedRows: '0',
-      notificationReceiptClaimedRows: '0',
-      physicalDeviceClaimedRows: '0',
-      authorityClaimedRows: '0',
-      productClaimReadyRows: '0',
-      rows: ExpectedReportExportHostedUiRows,
-    });
+    expect(proof).toEqual(ExpectedReportExportHostedUiProof);
     expect(JSON.stringify(proof)).not.toMatch(
       /(?:raw location payload exported|service mutation executed|product-ready export delivered)/iu
+    );
+  });
+
+  it('renders report policy consumer rows without AI, mutation, device, or product claims', () => {
+    const proof = trackingReportPolicyConsumerHostedUiProof();
+
+    expect(proof).toEqual(ExpectedReportPolicyConsumerHostedUiProof);
+    expect(JSON.stringify(proof)).not.toMatch(
+      /(?:AI execution claimed|policy mutation executed|physical device proved|product ready)/iu
     );
   });
 

@@ -1,4 +1,5 @@
 import { decodeDisplayText, decodeTextTokenId, type DisplayText } from './contracts';
+import { PortalDevTrackingReportText, PortalDevTrackingReportTextToken } from './portal-dev-tracking-report-text';
 import { PortalProductText, PortalProductTextToken } from './portal-product-text';
 
 export const PortalDevTextToken = {
@@ -51,24 +52,7 @@ export const PortalDevTextToken = {
     'portal.dev.trackingFamilyDashboardRetentionAuditEvidence'
   ),
   TrackingFamilyDashboardHostedBoundary: decodeTextTokenId('portal.dev.trackingFamilyDashboardHostedBoundary'),
-  TrackingReportExportHostedUi: decodeTextTokenId('portal.dev.trackingReportExportHostedUi'),
-  TrackingReportExportHostedUiBody: decodeTextTokenId('portal.dev.trackingReportExportHostedUiBody'),
-  TrackingReportExportRedactedReport: decodeTextTokenId('portal.dev.trackingReportExportRedactedReport'),
-  TrackingReportExportRetentionAudit: decodeTextTokenId('portal.dev.trackingReportExportRetentionAudit'),
-  TrackingReportExportFamilySummary: decodeTextTokenId('portal.dev.trackingReportExportFamilySummary'),
-  TrackingReportExportPolicyDrillIn: decodeTextTokenId('portal.dev.trackingReportExportPolicyDrillIn'),
-  TrackingReportExportReadModelReady: decodeTextTokenId('portal.dev.trackingReportExportReadModelReady'),
-  TrackingReportExportRedactedCustody: decodeTextTokenId('portal.dev.trackingReportExportRedactedCustody'),
-  TrackingReportExportLocalCustody: decodeTextTokenId('portal.dev.trackingReportExportLocalCustody'),
-  TrackingReportExportRedactedReportEvidence: decodeTextTokenId(
-    'portal.dev.trackingReportExportRedactedReportEvidence'
-  ),
-  TrackingReportExportRetentionAuditEvidence: decodeTextTokenId(
-    'portal.dev.trackingReportExportRetentionAuditEvidence'
-  ),
-  TrackingReportExportFamilySummaryEvidence: decodeTextTokenId('portal.dev.trackingReportExportFamilySummaryEvidence'),
-  TrackingReportExportPolicyDrillInEvidence: decodeTextTokenId('portal.dev.trackingReportExportPolicyDrillInEvidence'),
-  TrackingReportExportHostedBoundary: decodeTextTokenId('portal.dev.trackingReportExportHostedBoundary'),
+  ...PortalDevTrackingReportTextToken,
   TrackingNotificationParentSurfaceHostedUi: decodeTextTokenId('portal.dev.trackingNotificationParentSurfaceHostedUi'),
   TrackingNotificationParentSurfaceHostedUiBody: decodeTextTokenId(
     'portal.dev.trackingNotificationParentSurfaceHostedUiBody'
@@ -528,32 +512,7 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.TrackingFamilyDashboardHostedBoundary]: decodeDisplayText(
     'Hosted dashboard rollup rendering only; child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.'
   ),
-  [PortalDevTextToken.TrackingReportExportHostedUi]: decodeDisplayText('Report export read-model UI'),
-  [PortalDevTextToken.TrackingReportExportHostedUiBody]: decodeDisplayText(
-    'Hosted route renders redacted report/export packet rows from existing read-model proof refs without exposing raw location payloads or claiming product-ready export.'
-  ),
-  [PortalDevTextToken.TrackingReportExportRedactedReport]: decodeDisplayText('Redacted report packet'),
-  [PortalDevTextToken.TrackingReportExportRetentionAudit]: decodeDisplayText('Retention audit export packet'),
-  [PortalDevTextToken.TrackingReportExportFamilySummary]: decodeDisplayText('Family dashboard summary packet'),
-  [PortalDevTextToken.TrackingReportExportPolicyDrillIn]: decodeDisplayText('Policy drill-in export packet'),
-  [PortalDevTextToken.TrackingReportExportReadModelReady]: decodeDisplayText('report-export-read-model-ready'),
-  [PortalDevTextToken.TrackingReportExportRedactedCustody]: decodeDisplayText('parent-owned-redacted-report'),
-  [PortalDevTextToken.TrackingReportExportLocalCustody]: decodeDisplayText('parent-owned-local-export'),
-  [PortalDevTextToken.TrackingReportExportRedactedReportEvidence]: decodeDisplayText(
-    'tracking-report-export-evidence-redacted-report'
-  ),
-  [PortalDevTextToken.TrackingReportExportRetentionAuditEvidence]: decodeDisplayText(
-    'tracking-report-export-evidence-retention-audit'
-  ),
-  [PortalDevTextToken.TrackingReportExportFamilySummaryEvidence]: decodeDisplayText(
-    'tracking-report-export-evidence-family-dashboard'
-  ),
-  [PortalDevTextToken.TrackingReportExportPolicyDrillInEvidence]: decodeDisplayText(
-    'tracking-report-export-evidence-policy-drill-in'
-  ),
-  [PortalDevTextToken.TrackingReportExportHostedBoundary]: decodeDisplayText(
-    'Hosted report/export packet rendering only; raw location payload export, service mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, and product readiness remain unclaimed.'
-  ),
+  ...PortalDevTrackingReportText,
   [PortalDevTextToken.TrackingNotificationParentSurfaceHostedUi]: decodeDisplayText('Notification history intent UI'),
   [PortalDevTextToken.TrackingNotificationParentSurfaceHostedUiBody]: decodeDisplayText(
     'Hosted route renders parent notification history, manual action, and provider unavailable rows from existing tracking notification proof refs without claiming provider delivery or receipt runtime.'

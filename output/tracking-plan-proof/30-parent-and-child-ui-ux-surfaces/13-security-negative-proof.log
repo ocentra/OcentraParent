@@ -1,8 +1,10 @@
-checkedAt=2026-06-06T23:31:10.599Z
+checkedAt=2026-06-07T06:53:48.723Z
 asserted=no browser console or page errors
 asserted=no product-ready or physical-device-proved route copy
 asserted=family dashboard rollup rows render from existing proof refs without product-ready claim
 asserted=family dashboard rollup screenshot captured
+asserted=report policy consumer rows render stored journal/read-model refs without product-ready claim
+asserted=report policy consumer screenshot captured
 asserted=report export packet rows render from existing read-model proof refs without product-ready claim
 asserted=report export packet screenshot captured
 asserted=notification parent-surface history rows render from existing notification proof refs without provider delivery or receipt runtime claims

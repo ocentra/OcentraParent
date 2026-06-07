@@ -40,6 +40,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `28-report-export-read-model-proof.json`
 - `30-ai-stored-ref-consumer-proof.json`
 - `31-hosted-storage-default-boundary-proof.json`
+- `32-report-policy-consumer-hosted-ui-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -102,6 +103,10 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       refs before report/policy use without claiming AI execution, portal
       completion, platform runtime, device delivery, provider delivery,
       authority, or product-ready behavior.
+- [x] Render the report/policy consumer rows on the hosted parent route without
+      claiming AI execution, product policy mutation, platform runtime,
+      child-device delivery, provider delivery, notification receipt ingestion,
+      physical-device proof, authority, production, or product-ready behavior.
 - [x] Require AI parent-report, policy-drill-in, and metadata-fallback consumer
       rows to cite stored journal refs, stored read-model row refs, provider
       route proof refs, and report/policy consumer proof refs before AI
@@ -158,6 +163,17 @@ command records the stored-ref row counts in
 while keeping AI execution, portal completion, platform runtime, child-device
 delivery, provider delivery, notification receipt, physical-device, authority,
 production, and product-ready claims false.
+The hosted parent `policy-tracking` route now renders those same report/policy
+consumer rows as a read-only proof card, captures
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-policy-consumer.png`,
+and records
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/25-report-policy-consumer-hosted-ui-proof.json`
+plus
+`output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/32-report-policy-consumer-hosted-ui-proof.json`
+without claiming AI execution, product policy mutation, platform runtime,
+child-device delivery, provider delivery, notification receipt ingestion,
+physical-device, authority, production, or product-ready report/policy
+behavior.
 The AI stored-ref consumer proof now requires AI parent-report context,
 policy-drill-in context, and metadata-fallback context rows to carry stored
 journal refs, stored read-model row refs, provider-route proof refs, and

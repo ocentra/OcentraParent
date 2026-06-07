@@ -114,18 +114,33 @@ expose location or device-status features. Parents expect this category.
   real Rust service against a seeded temporary ActivityStore SQLite database,
   drives the React parent route through Playwright, renders the service-data
   coverage card, explicit service-backed citation detail card, read-only
-  evidence drawer card, family dashboard rollup card, and retention settings
-  read/write preflight card beside the service read-model summary, captures
+  evidence drawer card, family dashboard rollup card, report/policy consumer
+  card, and retention settings read/write preflight card beside the service
+  read-model summary, captures
   desktop, mobile, hosted service-backed citation detail, hosted evidence
   drawer, hosted child-safe check-in, hosted child-runtime UI, hosted family
-  dashboard rollup, hosted retention settings, hosted parent action readiness,
-  hosted missing-device state, and unsupported/manual platform render-state
-  proof screenshots, writes accessibility summary output, proves
+  dashboard rollup, hosted report/policy consumer, hosted retention settings,
+  hosted parent action readiness, hosted missing-device state, and
+  unsupported/manual platform render-state proof screenshots, writes
+  accessibility summary output, proves
   calm child check-in copy/actions plus child disclosure, safe/help response,
   location-share consent copy, typed retention settings write-preflight command
   rendering, and manual-required/unavailable/authority-required unsupported
   platform rows inside the hosted route only, and keeps
   `productClaimReady=false`.
+- WP32 hosted report/policy consumer rendering proof now exists through
+  `npm run test:tracking-plan-hosted-ui-proof`. It renders parent report
+  summary, policy evidence drill-in, and retention audit export consumer rows
+  that cite stored journal refs and stored read-model refs, captures
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-policy-consumer.png`,
+  and writes
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/25-report-policy-consumer-hosted-ui-proof.json`
+  plus
+  `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/32-report-policy-consumer-hosted-ui-proof.json`
+  while keeping AI execution, product policy mutation, platform runtime,
+  child-device delivery, provider delivery, notification receipt ingestion,
+  physical-device proof, authority, production, and product-ready tracking
+  unclaimed.
 - WP31 platform extension inventory proof now exists through
   `node scripts/test/tracking-platform-extension-inventory-proof.mjs`. It
   verifies the existing Android emulator/status/manual-required artifacts, iOS
