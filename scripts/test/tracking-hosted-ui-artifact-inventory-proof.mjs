@@ -160,6 +160,9 @@ async function buildProof() {
   const unsupportedManualProof = await readJson(
     'output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui-proof.json'
   );
+  const childRuntimeBoundaryProof = await readJson(
+    'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/26-child-runtime-delivery-boundary-proof.json'
+  );
   const accessibilitySummary = await readJson('test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json');
   const screenshots = await Promise.all(requiredScreenshots.map(readScreenshot));
 
@@ -177,6 +180,7 @@ async function buildProof() {
       hostedProof: proofSummary(hostedProof),
       evidenceDrawerProof: proofSummary(evidenceDrawerProof),
       unsupportedManualProof: proofSummary(unsupportedManualProof),
+      childRuntimeBoundaryProof: childRuntimeBoundaryProofSummary(childRuntimeBoundaryProof),
       accessibilitySummary: accessibilitySummarySummary(accessibilitySummary),
     },
     screenshots,
@@ -192,6 +196,8 @@ async function buildProof() {
       wp33Proof:
         'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/28-hosted-ui-artifact-inventory-proof.json',
       accessibilitySummary: 'test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json',
+      childRuntimeBoundaryProof:
+        'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/26-child-runtime-delivery-boundary-proof.json',
     },
     nonClaims: {
       fullParentChildUiClaimed: false,
@@ -236,6 +242,18 @@ function assertProof(proof) {
   if (proof.sourceProofs.unsupportedManualProof.productClaimReady !== false) {
     throw new Error('Unsupported/manual platform proof must keep productClaimReady=false.');
   }
+  if (
+    proof.sourceProofs.childRuntimeBoundaryProof.productReadyClaimed !== false ||
+    proof.sourceProofs.childRuntimeBoundaryProof.childDeviceExecutionRuntimeClaimed !== false ||
+    proof.sourceProofs.childRuntimeBoundaryProof.physicalDeviceProofClaimed !== false ||
+    proof.sourceProofs.childRuntimeBoundaryProof.authorityProofClaimed !== false
+  ) {
+    throw new Error(
+      `Child runtime boundary proof overclaimed runtime/device behavior: ${JSON.stringify(
+        proof.sourceProofs.childRuntimeBoundaryProof
+      )}`
+    );
+  }
   const missingAssertions = requiredAssertions.filter(
     (assertion) => !proof.sourceProofs.accessibilitySummary.assertions.includes(assertion)
   );
@@ -275,6 +293,19 @@ function proofSummary(proof) {
     currentProofTier: proof.currentProofTier,
     currentStatus: proof.currentStatus,
     productClaimReady: proof.productClaimReady,
+  };
+}
+
+function childRuntimeBoundaryProofSummary(proof) {
+  return {
+    proofMode: proof.proofLabels?.[0] ?? proof.workpackId,
+    currentProofTier: proof.currentProofTier,
+    currentStatus: proof.status,
+    rowCount: proof.readModel?.rows?.length ?? 0,
+    childDeviceExecutionRuntimeClaimed: proof.productClaims?.childDeviceExecutionRuntimeClaimed,
+    physicalDeviceProofClaimed: proof.productClaims?.physicalDeviceProofClaimed,
+    authorityProofClaimed: proof.productClaims?.authorityProofClaimed,
+    productReadyClaimed: proof.productClaims?.productReadyClaimed,
   };
 }
 
@@ -326,7 +357,7 @@ function sourceSnapshot(proof) {
     `- Branch: ${proof.branch}`,
     `- Base commit at generation: ${proof.baseCommitAtGeneration}`,
     '- Source proof: existing hosted UI Playwright proof artifacts, accessibility summary, and layout geometry.',
-    '- Scope: verify stored hosted screenshots, evidence drawer proof, unsupported/manual platform proof, accessibility assertions, and no-overlap layout boxes for WP30/WP33 handoff.',
+    '- Scope: verify stored hosted screenshots, evidence drawer proof, unsupported/manual platform proof, child-runtime delivery boundary proof, accessibility assertions, and no-overlap layout boxes for WP30/WP33 handoff.',
     '- Boundary: inventory proof only; parent portal shell screenshots are proved, while child-device runtime, physical-device proof, authority, provider delivery, full product parent/child UI, production proof, and product-ready tracking remain unclaimed.',
     '',
   ].join('\n');

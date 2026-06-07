@@ -3,7 +3,7 @@
   "proofMode": "tracking-hosted-ui-artifact-inventory-proof",
   "generatedAt": "2026-06-06T23:45:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "e183247e90d84479ae2e4a380172004afc211be0",
+  "baseCommitAtGeneration": "85aa7b11ae475b974a86a60212c41458284f3779",
   "requiredProofTier": "P2_HOSTED_CI",
   "currentProofTier": "P2_HOSTED_CI",
   "currentStatus": "proved",
@@ -26,6 +26,16 @@
       "currentProofTier": "P2_HOSTED_CI",
       "currentStatus": "proved",
       "productClaimReady": false
+    },
+    "childRuntimeBoundaryProof": {
+      "proofMode": "tracking-child-runtime.hosted-copy-only",
+      "currentProofTier": "P2_HOSTED_CI",
+      "currentStatus": "proved",
+      "rowCount": 5,
+      "childDeviceExecutionRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productReadyClaimed": false
     },
     "accessibilitySummary": {
       "route": "#/policy-tracking",
@@ -339,7 +349,8 @@
     "evidence": "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
     "workpack30Proof": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/21-hosted-ui-artifact-inventory-proof.json",
     "wp33Proof": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/28-hosted-ui-artifact-inventory-proof.json",
-    "accessibilitySummary": "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+    "accessibilitySummary": "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json",
+    "childRuntimeBoundaryProof": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/26-child-runtime-delivery-boundary-proof.json"
   },
   "nonClaims": {
     "fullParentChildUiClaimed": false,
