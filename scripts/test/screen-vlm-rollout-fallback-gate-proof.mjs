@@ -138,7 +138,7 @@ const proof = {
   },
   completedChecklistClaims: [
     'current Windows local VLM rollout gate allows Qwen2-VL only within the measured local image/resource envelope',
-    'real public video, school/productivity, browser game, and shopping crop categories are covered before selecting the current Windows local VLM route',
+    'real public video, school/productivity, browser game, shopping, and public social/feed crop categories are covered before selecting the current Windows local VLM route',
     'runtime-missing, oversized-input, over-budget, and authenticated-social-unproved states fall back to OCR/manual-required instead of remote AI',
   ],
   openChecklistClaims: [

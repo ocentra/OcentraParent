@@ -1,14 +1,15 @@
 {
   "proof": "screen-vlm-live-crop-quality-proof",
-  "generatedAt": "2026-06-07T10:31:34.631Z",
+  "generatedAt": "2026-06-07T11:58:50.711Z",
   "proofTier": "P2_REAL_LIVE_MANAGED_BROWSER_CROP_LOCAL_VLM_QUALITY_MATRIX",
-  "scenarioCount": 4,
-  "passedScenarioCount": 4,
+  "scenarioCount": 5,
+  "passedScenarioCount": 5,
   "requiredScenarioGroups": [
     "public-video",
     "public-school",
     "public-game",
-    "public-shopping"
+    "public-shopping",
+    "public-social-feed"
   ],
   "scenarios": [
     {
@@ -32,7 +33,7 @@
       },
       "cropCapture": {
         "cdpMethod": "Page.captureScreenshot",
-        "targetIdHash": "sha256:b36765b45c3efea3db9e71a4b1ea4f60a5936fa9276194ea5b6aab504f0846e2",
+        "targetIdHash": "sha256:a373e3e8f424ece2d0091825a589823621d3e70a1376fd87044b68b74b6ef885",
         "crop": {
           "x": 0,
           "y": 0,
@@ -43,8 +44,8 @@
         "imageWidth": 900,
         "imageHeight": 560,
         "imagePixelCount": 504000,
-        "imageByteSize": 352396,
-        "imageDigest": "sha256:ba01616998c7796d96301406c3b02f7a2992bb9f0363cce6f94847acb047b8b2",
+        "imageByteSize": 332920,
+        "imageDigest": "sha256:aaf1d690cdc6c22840092351f5482655211fed5b4dcf046bf9bbb1e3acc475c1",
         "rawTempPathRedacted": true,
         "rawImageRetained": false,
         "remoteUploadAllowed": false,
@@ -55,19 +56,20 @@
         "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
         "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
         "promptOrTemplateVersion": "screen-vlm-live-crop-quality-v2",
-        "wallMs": 28046,
+        "wallMs": 27144,
         "parsedResult": {
           "primary_category": "video",
           "visible_text": [
             "Your videos, your way",
-            "Vimeo's ad-free platform provides everything you need to host, manage, and share high-quality videos."
+            "Vimeo's ad-free platform provides everything you need to host, manage, and share high-quality videos",
+            "Join free"
           ],
           "risk_signals": [],
           "confidence": 1
         },
         "normalizedResult": {
           "primary_category": "video",
-          "visible_text": "Your videos, your way Vimeo's ad-free platform provides everything you need to host, manage, and share high-quality videos.",
+          "visible_text": "Your videos, your way Vimeo's ad-free platform provides everything you need to host, manage, and share high-quality videos Join free",
           "risk_signals": [],
           "confidence": 1
         },
@@ -84,8 +86,8 @@
           "vimeo",
           "video"
         ],
-        "stdoutPreview": " ```json { \"primary_category\": \"video\", \"visible_text\": [ \"Your videos, your way\", \"Vimeo's ad-free platform provides everything you need to host, manage, and share high-quality videos.\" ], \"risk_signals\": [], \"confidence\": 1 } ``` ",
-        "stderrPreview": "0.00.791.702 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.02.241.986 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.02.245.876 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
+        "stdoutPreview": " ```json { \"primary_category\": \"video\", \"visible_text\": [ \"Your videos, your way\", \"Vimeo's ad-free platform provides everything you need to host, manage, and share high-quality videos\", \"Join free\" ], \"risk_signals\": [], \"confidence\": 1 } ``` ",
+        "stderrPreview": "0.00.525.443 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.01.556.251 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.01.560.053 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
       },
       "deletion": {
         "rawCropDeleted": true,
@@ -126,7 +128,7 @@
       },
       "cropCapture": {
         "cdpMethod": "Page.captureScreenshot",
-        "targetIdHash": "sha256:45473977dd2f25d802780eb7b55fb02bdea2519ab59b6553f9803e9e322fee97",
+        "targetIdHash": "sha256:ffc51945180ab1632ce250dca9d615b6821b8268ea5f56ec6e638895721eb1e5",
         "crop": {
           "x": 0,
           "y": 0,
@@ -149,7 +151,7 @@
         "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
         "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
         "promptOrTemplateVersion": "screen-vlm-live-crop-quality-v2",
-        "wallMs": 19439,
+        "wallMs": 17483,
         "parsedResult": {
           "primary_category": "school",
           "visible_text": "Wikipedia: The Free Encyclopedia",
@@ -178,7 +180,7 @@
           "encyclopedia"
         ],
         "stdoutPreview": " ```json { \"primary_category\": \"school\", \"visible_text\": \"Wikipedia: The Free Encyclopedia\", \"risk_signals\": [], \"confidence\": 1 } ``` ",
-        "stderrPreview": "0.00.475.436 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.01.448.533 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.01.452.534 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
+        "stderrPreview": "0.00.448.643 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.01.445.573 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.01.449.330 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
       },
       "deletion": {
         "rawCropDeleted": true,
@@ -219,7 +221,7 @@
       },
       "cropCapture": {
         "cdpMethod": "Page.captureScreenshot",
-        "targetIdHash": "sha256:b69044312151337f7b020f5178704f34ca2fe085e33ee34878e74f392cbcb77c",
+        "targetIdHash": "sha256:d919834c268dc1083621b37b58983fe2ddcfae42caf8795be6fdf523029d2bc8",
         "crop": {
           "x": 0,
           "y": 0,
@@ -242,7 +244,7 @@
         "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
         "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
         "promptOrTemplateVersion": "screen-vlm-live-crop-quality-v2",
-        "wallMs": 28360,
+        "wallMs": 39761,
         "parsedResult": {
           "primary_category": "game",
           "visible_text": "Consent to Cookies & Data processing",
@@ -275,7 +277,7 @@
           "game"
         ],
         "stdoutPreview": " ```json { \"primary_category\": \"game\", \"visible_text\": \"Consent to Cookies & Data processing\", \"risk_signals\": [ \"The website uses cookies and similar functions to store and/or access information on a device\", \"The processing is used for purposes such as personalization, statistical analysis/measurement, and integration of social media\" ], \"confidence\": 0.95 } ``` ",
-        "stderrPreview": "0.00.455.310 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.01.412.093 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.01.415.540 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
+        "stderrPreview": "0.00.599.078 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.01.639.848 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.01.643.807 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
       },
       "deletion": {
         "rawCropDeleted": true,
@@ -306,8 +308,8 @@
         "finalUrlLength": 21,
         "titleHash": "sha256:53d224b9308195a16882a39d057185da070a00683ef95be4c05b5ff43fb00ffd",
         "titleLength": 54,
-        "visibleTextHash": "sha256:4e6ecb0cfa982c205f11e7c7e78622131bd8b4af22e4b349ce49c5246a79a0b6",
-        "visibleTextLength": 6873,
+        "visibleTextHash": "sha256:c230c53a2f62bfe448370b2df4cef2ecdae085a62ef0682f623a39eb2a1e6459",
+        "visibleTextLength": 6767,
         "readinessTermsMatched": [
           "ebay",
           "shop",
@@ -316,7 +318,7 @@
       },
       "cropCapture": {
         "cdpMethod": "Page.captureScreenshot",
-        "targetIdHash": "sha256:3a03c1fc1ddef3dec01bfa56bb16ff2c8672a3c4555ab56628a4e1866ad6a0d2",
+        "targetIdHash": "sha256:8f73e14446707a22cd5698914391a6fd1839c0f0cf4f73183137dba1436867a9",
         "crop": {
           "x": 0,
           "y": 0,
@@ -327,8 +329,8 @@
         "imageWidth": 900,
         "imageHeight": 560,
         "imagePixelCount": 504000,
-        "imageByteSize": 80975,
-        "imageDigest": "sha256:0c1a3e5a78c21e4e449c85b81de4a1c3e67bfe21c25b8fdd592fe08ae7f07906",
+        "imageByteSize": 90769,
+        "imageDigest": "sha256:e8cb02ce8dd2895dd258245718a0cf293ef5e6574e4314023f7ccca36e8c2832",
         "rawTempPathRedacted": true,
         "rawImageRetained": false,
         "remoteUploadAllowed": false,
@@ -339,19 +341,20 @@
         "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
         "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
         "promptOrTemplateVersion": "screen-vlm-live-crop-quality-v2",
-        "wallMs": 32677,
+        "wallMs": 33377,
         "parsedResult": {
           "primary_category": "shopping",
           "visible_text": [
-            "Complete your set. Your way.",
-            "Choose how you collect non-sport cards from your favorite series."
+            "Score Nike at up to 60% off",
+            "Sport style and comfort with big savings on athletic clothing",
+            "Shop now"
           ],
           "risk_signals": [],
           "confidence": 1
         },
         "normalizedResult": {
           "primary_category": "shopping",
-          "visible_text": "Complete your set. Your way. Choose how you collect non-sport cards from your favorite series.",
+          "visible_text": "Score Nike at up to 60% off Sport style and comfort with big savings on athletic clothing Shop now",
           "risk_signals": [],
           "confidence": 1
         },
@@ -368,8 +371,105 @@
         "vlmTermsMatched": [
           "shop"
         ],
-        "stdoutPreview": " ```json { \"primary_category\": \"shopping\", \"visible_text\": [ \"Complete your set. Your way.\", \"Choose how you collect non-sport cards from your favorite series.\" ], \"risk_signals\": [], \"confidence\": 1 } ``` ",
-        "stderrPreview": "0.00.700.831 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.02.233.243 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.02.237.687 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
+        "stdoutPreview": " ```json { \"primary_category\": \"shopping\", \"visible_text\": [ \"Score Nike at up to 60% off\", \"Sport style and comfort with big savings on athletic clothing\", \"Shop now\" ], \"risk_signals\": [], \"confidence\": 1 } ``` ",
+        "stderrPreview": "0.00.706.271 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.02.147.561 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.02.152.742 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
+      },
+      "deletion": {
+        "rawCropDeleted": true,
+        "tempDirDeleted": true,
+        "rawImageRetained": false
+      },
+      "assertions": {
+        "realLivePageLoaded": true,
+        "managedBrowserCropCaptured": true,
+        "localVlmExecuted": true,
+        "parseableNormalizedJson": true,
+        "expectedTermsDetectedByVlm": true,
+        "expectedCategoryMatched": true,
+        "rawCropDeleted": true,
+        "noRemoteAiUsed": true,
+        "noRawImageRetained": true
+      }
+    },
+    {
+      "groupId": "public-social-feed",
+      "status": "passed",
+      "scenario": {
+        "scenarioId": "bluesky-public-discover-feed-crop",
+        "sourceKind": "public-live-url",
+        "finalHost": "bsky.app",
+        "requestedLiveUrlHash": "sha256:4ce13482e5b691459805e6599c4bc31ebb78e189e4079a163068a75a1737c84d",
+        "finalUrlHash": "sha256:4ce13482e5b691459805e6599c4bc31ebb78e189e4079a163068a75a1737c84d",
+        "finalUrlLength": 17,
+        "titleHash": "sha256:8ed26d7492030d5acf17352702884e508715d1572f750ecc270e311898424ed2",
+        "titleLength": 18,
+        "visibleTextHash": "sha256:872ad9668095ceb1515e11f252f207d53058b9994914039e87103935c638ea31",
+        "visibleTextLength": 10427,
+        "readinessTermsMatched": [
+          "social",
+          "conversations",
+          "feeds"
+        ]
+      },
+      "cropCapture": {
+        "cdpMethod": "Page.captureScreenshot",
+        "targetIdHash": "sha256:0985911b8679fb1fb9a191d946f1050346212fd06d32f6716d67cf478aab8517",
+        "crop": {
+          "x": 0,
+          "y": 0,
+          "width": 900,
+          "height": 640,
+          "scale": 1
+        },
+        "imageWidth": 900,
+        "imageHeight": 640,
+        "imagePixelCount": 576000,
+        "imageByteSize": 329504,
+        "imageDigest": "sha256:db7aa08e64d97e970bd50736064c5cb2621d5415f71efc46914674d26bbbfd39",
+        "rawTempPathRedacted": true,
+        "rawImageRetained": false,
+        "remoteUploadAllowed": false,
+        "desktopCaptureAttempted": false
+      },
+      "localVlmAnalysis": {
+        "runtimeBinary": "%USERPROFILE%\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+        "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+        "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
+        "promptOrTemplateVersion": "screen-vlm-live-crop-quality-v2",
+        "wallMs": 35193,
+        "parsedResult": {
+          "primary_category": "chat",
+          "visible_text": [
+            "Real people.",
+            "Real conversations.",
+            "Social media you control."
+          ],
+          "risk_signals": [],
+          "confidence": 1
+        },
+        "normalizedResult": {
+          "primary_category": "chat",
+          "visible_text": "Real people. Real conversations. Social media you control.",
+          "risk_signals": [],
+          "confidence": 1
+        },
+        "expectedCategory": "chat",
+        "acceptedCategories": [
+          "chat",
+          "productivity"
+        ],
+        "categoryMatched": true,
+        "expectedTerms": [
+          "social",
+          "conversations",
+          "feeds"
+        ],
+        "vlmTermsMatched": [
+          "social",
+          "conversations"
+        ],
+        "stdoutPreview": " ```json { \"primary_category\": \"chat\", \"visible_text\": [ \"Real people.\", \"Real conversations.\", \"Social media you control.\" ], \"risk_signals\": [], \"confidence\": 1 } ``` ",
+        "stderrPreview": "0.00.690.928 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.02.127.675 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.02.132.634 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
       },
       "deletion": {
         "rawCropDeleted": true,
@@ -390,7 +490,7 @@
     }
   ],
   "summary": {
-    "passedScenarioCount": 4,
+    "passedScenarioCount": 5,
     "allRawCropsDeleted": true,
     "allCategoriesMatched": true,
     "allTermsDetected": true,
@@ -398,13 +498,15 @@
       "video",
       "school",
       "game",
-      "shopping"
+      "shopping",
+      "chat"
     ],
     "publicHostsCovered": [
       "vimeo.com",
       "www.wikipedia.org",
       "play2048.co",
-      "www.ebay.com"
+      "www.ebay.com",
+      "bsky.app"
     ]
   },
   "assertions": {
@@ -420,6 +522,7 @@
   },
   "completedChecklistClaims": [
     "real public video, school/productivity, browser game, and shopping managed-browser crops are analyzed by local Qwen2-VL",
+    "real public social/forum feed managed-browser crop is analyzed by local Qwen2-VL without authenticated account access",
     "each public live crop records expected visible terms and a meaningful category without remote AI",
     "raw crop images are deleted after local VLM analysis and are not retained in proof artifacts"
   ],

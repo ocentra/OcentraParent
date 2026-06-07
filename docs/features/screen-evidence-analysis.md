@@ -640,8 +640,8 @@ only with explicit parent settings.
   evidence. It also records
   `output/screen-plan-proof/36-vlm-rollout-fallback-gate/proof-summary.json`,
   which allows that Windows route only inside the measured local image/resource
-  envelope after public live video/school/game/shopping crop quality passes,
-  and proves runtime-missing, oversized-input, over-budget, and
+  envelope after public live video/school/game/shopping/social-feed crop quality
+  passes, and proves runtime-missing, oversized-input, over-budget, and
   authenticated-social-unproved states fall back to OCR/manual-required instead
   of remote AI or raw screenshot retention. It still does not claim
   authenticated-account social proof, broader rollout thresholds across more
@@ -862,8 +862,9 @@ parity, and UI remain separate proof gates.
   and the retained proof-image runtime measurement records per-sample wall time,
   sampled CPU seconds, peak working set, and normalized local VLM output.
   The public-live crop quality proof verifies real Vimeo, Wikipedia, 2048
-  browser game, and eBay CDP crops with local Qwen2-VL category/text matches
-  and deletion. The current-route model selection proof chooses cached local
+  browser game, eBay, and Bluesky public social/feed CDP crops with local
+  Qwen2-VL category/text matches and deletion. The current-route model
+  selection proof chooses cached local
   llama.cpp/Qwen2-VL for the Windows proof path, and
   the measured fallback gate blocks runtime-missing, oversized-input,
   over-budget, and authenticated-social-unproved states before remote AI.

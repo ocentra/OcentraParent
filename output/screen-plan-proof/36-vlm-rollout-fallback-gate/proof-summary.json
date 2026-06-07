@@ -1,6 +1,6 @@
 {
   "proof": "screen-vlm-rollout-fallback-gate-proof",
-  "generatedAt": "2026-06-07T10:31:49.069Z",
+  "generatedAt": "2026-06-07T11:59:04.736Z",
   "proofTier": "P2_CURRENT_WINDOWS_VLM_ROLLOUT_FALLBACK_GATE",
   "claim": "The current Windows local VLM route is allowed only inside the measured image/resource/local-custody envelope; missing runtime, oversized inputs, over-budget resources, or unproved authenticated-social quality fall back to OCR/manual-required instead of using a remote provider or retaining raw screenshots.",
   "sourceEvidence": {
@@ -12,18 +12,20 @@
     "runtimeMeasurementPresent": true,
     "liveCropQuality": "output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json",
     "liveCropQualityPresent": true,
-    "liveCropQualityScenarioCount": 4,
+    "liveCropQualityScenarioCount": 5,
     "liveCropQualityCategoriesCovered": [
       "video",
       "school",
       "game",
-      "shopping"
+      "shopping",
+      "chat"
     ],
     "liveCropQualityHostsCovered": [
       "vimeo.com",
       "www.wikipedia.org",
       "play2048.co",
-      "www.ebay.com"
+      "www.ebay.com",
+      "bsky.app"
     ]
   },
   "measuredEnvelope": {
@@ -133,7 +135,7 @@
   },
   "completedChecklistClaims": [
     "current Windows local VLM rollout gate allows Qwen2-VL only within the measured local image/resource envelope",
-    "real public video, school/productivity, browser game, and shopping crop categories are covered before selecting the current Windows local VLM route",
+    "real public video, school/productivity, browser game, shopping, and public social/feed crop categories are covered before selecting the current Windows local VLM route",
     "runtime-missing, oversized-input, over-budget, and authenticated-social-unproved states fall back to OCR/manual-required instead of remote AI"
   ],
   "openChecklistClaims": [

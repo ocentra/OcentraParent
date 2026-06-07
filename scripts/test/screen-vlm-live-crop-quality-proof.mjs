@@ -51,6 +51,26 @@ const livePageScenarioGroups = [
       crop: { x: 0, y: 0, width: 900, height: 560, scale: 1 },
     }),
   ]),
+  publicScenario('public-social-feed', [
+    candidate('bluesky-public-discover-feed-crop', 'https://bsky.app/', 'chat', ['social', 'conversations', 'feeds'], {
+      acceptedCategories: ['chat', 'productivity'],
+      crop: { x: 0, y: 0, width: 900, height: 640, scale: 1 },
+    }),
+    candidate('threads-public-home-feed-crop', 'https://www.threads.net/', 'chat', ['threads', 'home', 'follow'], {
+      acceptedCategories: ['chat', 'productivity'],
+      crop: { x: 0, y: 0, width: 900, height: 640, scale: 1 },
+    }),
+    candidate(
+      'mastodon-public-explore-feed-crop',
+      'https://mastodon.social/explore',
+      'chat',
+      ['mastodon', 'trending', 'fediverse'],
+      {
+        acceptedCategories: ['chat', 'productivity'],
+        crop: { x: 0, y: 0, width: 900, height: 640, scale: 1 },
+      }
+    ),
+  ]),
 ];
 
 mkdirSync(outputDir, { recursive: true });
@@ -127,6 +147,7 @@ async function runProof() {
     },
     completedChecklistClaims: [
       'real public video, school/productivity, browser game, and shopping managed-browser crops are analyzed by local Qwen2-VL',
+      'real public social/forum feed managed-browser crop is analyzed by local Qwen2-VL without authenticated account access',
       'each public live crop records expected visible terms and a meaningful category without remote AI',
       'raw crop images are deleted after local VLM analysis and are not retained in proof artifacts',
     ],
