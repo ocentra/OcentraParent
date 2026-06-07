@@ -333,6 +333,20 @@ provider-delivery artifact gate alongside the physical-device and
 child-runtime gates, so the local/CI closure cannot pass without citing the
 provider-delivery proof ref while still keeping provider delivery/receipt
 runtime unclaimed.
+WP26/WP33 now also have provider-runtime readiness blocker proof from
+`node scripts/test/tracking-provider-runtime-readiness-blocker-proof.mjs`,
+written to
+`output/tracking-plan-proof/26-alert-severity-and-notification-model/30-provider-runtime-readiness-blocker-proof.json`,
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/52-provider-runtime-readiness-blocker-proof.json`,
+and
+`test-results/tracking-provider-runtime-readiness-blocker-proof/proof.json`.
+It consumes provider-notification, receipt-boundary, local outbox readiness,
+and provider-delivery artifact gate proof refs to record the concrete
+manual-required provider runtime blockers without claiming provider delivery,
+webhook receipt ingestion, credentials, adapter dispatch, retry/quiet-hours
+runtime, parent notification UI runtime, production durable outbox storage,
+child-device delivery, physical-device behavior, authority, or product-ready
+tracking.
 WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
 The runtime proof command also records the full `minimumSeriousMvpAudit` in
 generated `00-run-metadata.json`; both are first-checkpoint P1

@@ -191,6 +191,15 @@ expose location or device-status features. Parents expect this category.
   dispatch, retry/quiet-hours runtime, production durable outbox storage,
   child-device delivery, physical-device proof, authority, and product-ready
   tracking unclaimed until those real provider artifacts exist.
+- WP26/WP33 provider-runtime readiness blocker proof now exists through
+  `node scripts/test/tracking-provider-runtime-readiness-blocker-proof.mjs`.
+  It consumes the provider-notification proof, receipt-boundary proof, local
+  outbox readiness proof, and provider-delivery artifact gate, writes WP26/WP33
+  artifacts, and records manual-required blockers for provider delivery runtime,
+  webhook receipt ingestion runtime, credentials, adapter dispatch,
+  retry/quiet-hours runtime, parent notification UI runtime, production durable
+  outbox storage, child-device delivery, physical-device proof, authority, and
+  product-ready tracking until the real provider-runtime artifacts exist.
 - WP33 tracking product-readiness closure proof now exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`. It cites the
   current pre-device, Android emulator, iOS simulator, WSL/local, hosted UI
