@@ -5,4 +5,7 @@
     <string name="owned_browser_shell_ready">Ocentra owned browser shell ready</string>
     <string name="owned_browser_shell_page_loaded">Ocentra owned browser shell page loaded</string>
     <string name="owned_browser_shell_proof_page_loaded">Ocentra owned browser proof page loaded</string>
+    <string name="owned_browser_policy_configured">Ocentra owned browser persistent routing policy configured</string>
+    <string name="owned_browser_policy_unavailable">Ocentra owned browser persistent routing policy unavailable</string>
+    <string name="owned_browser_policy_not_device_owner">Ocentra owned browser device owner policy not active</string>
 </resources>

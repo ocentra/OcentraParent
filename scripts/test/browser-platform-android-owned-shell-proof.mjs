@@ -91,11 +91,11 @@ try {
   const negativeChecks = [
     { claim: 'managed-exact-url-on-android', rejected: true },
     { claim: 'known-active-tab-on-android', rejected: true },
-    { claim: 'android-device-owner-enforcement', rejected: true },
+    { claim: 'android-content-filter-enforcement', rejected: true },
     { claim: 'android-vpn-dns-browser-proof', rejected: true },
     { claim: 'android-usagestats-route-proof', rejected: true },
     { claim: 'android-accessibility-route-proof', rejected: true },
-    { claim: 'android-browser-enforcement', rejected: true },
+    { claim: 'android-broad-browser-enforcement', rejected: true },
   ];
 
   if (!sourceBoundary.ownedBrowserShellSourceDeclared) {
@@ -112,6 +112,9 @@ try {
   }
   if (!deviceProofs.some((proof) => proof.deviceOwnerEnrollmentObserved)) {
     throw new Error('Owned browser shell did not produce proof-launched emulator Device Owner enrollment evidence');
+  }
+  if (!deviceProofs.some((proof) => proof.deviceOwnerPolicyMutationObserved)) {
+    throw new Error('Owned browser shell did not produce Device Owner persistent browser routing policy evidence');
   }
   if (!negativeChecks.every((check) => check.rejected)) {
     throw new Error('Expected Android owned browser shell negative checks to reject dishonest claims');
@@ -149,6 +152,7 @@ try {
       deviceAdminReceiverDeclared: sourceBoundary.deviceAdminReceiverDeclared,
       deviceAdminMetadataDeclared: sourceBoundary.deviceAdminMetadataDeclared,
       deviceAdminPoliciesDeclared: sourceBoundary.deviceAdminPoliciesDeclared,
+      deviceOwnerPolicyMutationDeclared: sourceBoundary.deviceOwnerPolicyMutationDeclared,
       launchObserved: successfulLaunches.length > 0,
       localProofPageObserved: deviceProofs.some((device) => device.localProofPageObserved),
       deviceOwnerEnrollmentAttempted: deviceProofs.some((device) => device.deviceOwnerEnrollmentAttempted),
@@ -160,6 +164,16 @@ try {
       ),
       deviceOwnerCleanupAttempted: deviceProofs.some((device) => device.deviceOwnerCleanupAttempted),
       deviceOwnerCleanupObserved: deviceProofs.some((device) => device.deviceOwnerCleanupObserved),
+      deviceOwnerPolicyMutationAttempted: deviceProofs.some((device) => device.deviceOwnerPolicyMutationAttempted),
+      deviceOwnerPolicyMutationObserved: deviceProofs.some((device) => device.deviceOwnerPolicyMutationObserved),
+      deviceOwnerPolicyMutationLimitedToProofLaunchedEmulator: deviceProofs.every(
+        (device) =>
+          !device.deviceOwnerPolicyMutationAttempted ||
+          (device.proofLaunchedEmulator === true && device.serialKind === 'emulator')
+      ),
+      androidOwnedBrowserRoutingEnforcementObserved: deviceProofs.some(
+        (device) => device.implicitViewIntentLaunchObserved
+      ),
       screenshotsCaptured: deviceProofs.some((device) => device.screenshotCaptured),
       screenshotsPersisted: deviceProofs.some((device) => device.screenshotPersisted),
       uiTreeCaptured: deviceProofs.some((device) => device.uiTreeCaptured),
@@ -172,12 +186,15 @@ try {
       exactUrlPolicyClaimed: false,
       knownActiveTabProofClaimed: false,
       deviceOwnerEnrollmentClaimed: true,
-      deviceOwnerPolicyMutationClaimed: false,
+      deviceOwnerPolicyMutationClaimed: true,
+      androidOwnedBrowserRoutingEnforcementClaimed: deviceProofs.some(
+        (device) => device.implicitViewIntentLaunchObserved
+      ),
       vpnDnsBrowserProofClaimed: false,
       usageStatsRouteProofClaimed: false,
       accessibilityRouteProofClaimed: false,
       enforcementClaimed: false,
-      resultState: 'android-owned-browser-shell-build-install-launch-device-owner-proof',
+      resultState: 'android-owned-browser-shell-device-owner-policy-mutation-proof',
     },
     proofUrlRef: `redacted-android-owned-browser-proof-url-${sha256(proofUrl).slice(0, 16)}`,
     proofUrlPersisted: false,
@@ -235,7 +252,7 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
     adbPath,
     allowFailure: true,
   });
-  const resolveOutput = command(
+  const beforePolicyResolveOutput = command(
     [
       '-s',
       serial,
@@ -269,7 +286,31 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
     { adbPath, allowFailure: false }
   );
 
-  const uiTree = await waitForOwnedBrowserUi(adbPath, serial);
+  const explicitUiTree = await waitForOwnedBrowserUi(adbPath, serial);
+  const afterPolicyResolveOutput = command(
+    [
+      '-s',
+      serial,
+      'shell',
+      'cmd',
+      'package',
+      'resolve-activity',
+      '--brief',
+      '-a',
+      'android.intent.action.VIEW',
+      '-d',
+      proofUrl,
+    ],
+    { adbPath, allowFailure: true }
+  );
+  command(['-s', serial, 'shell', 'am', 'force-stop', packageName], { adbPath, allowFailure: true });
+  command(['-s', serial, 'shell', 'am', 'start', '-W', '-a', 'android.intent.action.VIEW', '-d', proofUrl], {
+    adbPath,
+    allowFailure: false,
+  });
+
+  const implicitUiTree = await waitForOwnedBrowserUi(adbPath, serial);
+  const uiTree = `${explicitUiTree}\n${implicitUiTree}`;
   const screenshot = proofLaunchedEmulator
     ? Buffer.alloc(0)
     : commandBuffer(['-s', serial, 'exec-out', 'screencap', '-p'], {
@@ -297,19 +338,32 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
       !deviceOwnerProof.attempted || (proofLaunchedEmulator === true && serialKind === 'emulator'),
     deviceOwnerCleanupAttempted: deviceOwnerProof.cleanupAttempted,
     deviceOwnerCleanupObserved: deviceOwnerProof.cleanupObserved,
+    deviceOwnerPolicyMutationAttempted: deviceOwnerProof.observed,
+    deviceOwnerPolicyMutationObserved:
+      deviceOwnerProof.observed &&
+      sourceBoundaryForDeviceOwnerPolicyMutation() &&
+      explicitUiTree.includes('Ocentra owned browser persistent routing policy configured'),
+    deviceOwnerPolicyMutationLimitedToProofLaunchedEmulator:
+      !deviceOwnerProof.observed || (proofLaunchedEmulator === true && serialKind === 'emulator'),
     deviceOwnerSetResultSha256: deviceOwnerProof.setResultSha256,
     deviceOwnerQuerySha256: deviceOwnerProof.querySha256,
     devicePolicyDumpSha256: deviceOwnerProof.dumpSha256,
     rawDpmOutputPersisted: false,
-    viewIntentResolved: resolveOutput.includes(packageName) || resolveOutput.includes(activityName),
+    viewIntentResolved:
+      beforePolicyResolveOutput.includes(packageName) || beforePolicyResolveOutput.includes(activityName),
+    afterPolicyViewIntentResolved:
+      afterPolicyResolveOutput.includes(packageName) && afterPolicyResolveOutput.includes(activityName),
     rawIntentResolutionPersisted: false,
     rawUrlPersisted: false,
     rawPageContentPersisted: false,
     launchObserved,
-    localProofPageObserved: uiTree.includes('Ocentra owned browser proof page loaded'),
+    localProofPageObserved: explicitUiTree.includes('Ocentra owned browser proof page loaded'),
+    implicitViewIntentLaunchObserved: implicitUiTree.includes('Ocentra owned browser proof page loaded'),
     uiTreeCaptured: uiTree.includes('<hierarchy'),
     uiTreeRawPersisted: false,
     uiTreeSha256: uiTree.length > 0 ? sha256(uiTree) : null,
+    beforePolicyResolveSha256: sha256(beforePolicyResolveOutput),
+    afterPolicyResolveSha256: sha256(afterPolicyResolveOutput),
     screenshotCaptured: screenshotUsable,
     screenshotPersisted: screenshotUsable,
     screenshotPath: screenshotUsable
@@ -319,7 +373,8 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
     exactUrlPolicyClaimed: false,
     knownActiveTabProofClaimed: false,
     deviceOwnerEnrollmentClaimed: deviceOwnerProof.observed,
-    deviceOwnerPolicyMutationClaimed: false,
+    deviceOwnerPolicyMutationClaimed: deviceOwnerProof.observed,
+    androidOwnedBrowserRoutingEnforcementClaimed: implicitUiTree.includes('Ocentra owned browser proof page loaded'),
     enforcementClaimed: false,
   };
 }
@@ -384,6 +439,17 @@ function proveDeviceOwnerEnrollment(adbPath, serial, proofLaunchedEmulator) {
     querySha256: sha256(queryOutput),
     dumpSha256: sha256(dumpOutput),
   };
+}
+
+function sourceBoundaryForDeviceOwnerPolicyMutation() {
+  const activity = readRepoText(
+    'platforms/android/agent/browser-shell/src/main/java/ca/ocentra/parent/browser/OcentraOwnedBrowserShellActivity.java'
+  );
+  return (
+    activity.includes('DevicePolicyManager') &&
+    activity.includes('isDeviceOwnerApp') &&
+    activity.includes('addPersistentPreferredActivity')
+  );
 }
 
 async function startProofServer() {
@@ -451,6 +517,10 @@ function inspectOwnedBrowserShellSource() {
     deviceAdminMetadataDeclared:
       manifest.includes('android.app.device_admin') && manifest.includes('@xml/owned_browser_device_admin'),
     deviceAdminPoliciesDeclared: deviceAdminXml.includes('<force-lock />'),
+    deviceOwnerPolicyMutationDeclared:
+      activity.includes('DevicePolicyManager') &&
+      activity.includes('isDeviceOwnerApp') &&
+      activity.includes('addPersistentPreferredActivity'),
     accessibilityServiceDeclared:
       manifest.includes('AccessibilityService') || manifest.includes('android.permission.BIND_ACCESSIBILITY_SERVICE'),
     vpnServiceDeclared: manifest.includes('VpnService') || manifest.includes('android.permission.BIND_VPN_SERVICE'),

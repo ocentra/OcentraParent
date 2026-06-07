@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-plan-closure-audit-proof",
-  "generatedAt": "2026-06-07T11:12:53.884Z",
+  "generatedAt": "2026-06-07T11:42:40.187Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "sourceCommitAtGeneration": "1d89f650d7ea3dc883de42a556568fc4327506cf",
-  "baseCommit": "6836f05e6630499c8e77cf7377b11ab1ad610417",
+  "sourceCommitAtGeneration": "93c8693fda75c2ecb62762cc1a824a6b416ca06a",
+  "baseCommit": "188336c71100d18c875020799d1791a26802a7fd",
   "checklist": "docs/plans/browser-plan/implementation-checklist.md",
   "summary": {
     "checklistRows": 97,
@@ -22,7 +22,7 @@
       "title": "Cross-platform inventory matrix",
       "blocker": {
         "reason": "cross-platform-inventory-real-platform-proof-required",
-        "requiredEvidence": "macOS desktop browser proof, positive Linux desktop browser proof, Android policy mutation/enforcement proof, and iOS device/entitlement proof"
+        "requiredEvidence": "macOS desktop browser proof, positive Linux desktop browser proof, Android implicit browser routing enforcement proof, and iOS device/entitlement proof"
       }
     },
     {
@@ -62,6 +62,8 @@
         "unsupportedRows": 6,
         "androidDeviceOwnerEnrollmentObserved": true,
         "androidDeviceOwnerProofLimitedToProofLaunchedEmulator": true,
+        "androidDeviceOwnerPolicyMutationObserved": true,
+        "androidOwnedBrowserRoutingEnforcementObserved": false,
         "androidEnforcementClaimed": false
       },
       "expectations": {
@@ -71,6 +73,8 @@
         "unsupportedRows": 6,
         "androidDeviceOwnerEnrollmentObserved": true,
         "androidDeviceOwnerProofLimitedToProofLaunchedEmulator": true,
+        "androidDeviceOwnerPolicyMutationObserved": true,
+        "androidOwnedBrowserRoutingEnforcementObserved": false,
         "androidEnforcementClaimed": false
       },
       "failures": []
@@ -137,7 +141,8 @@
     "product-checklist-upgrade-not-claimed",
     "macos-desktop-browser-proof-required",
     "linux-desktop-browser-positive-proof-required",
-    "android-policy-mutation-enforcement-proof-required",
+    "android-implicit-routing-enforcement-proof-required",
+    "android-broad-content-filter-enforcement-not-claimed",
     "ios-familycontrols-managedsettings-device-proof-required",
     "social-provider-report-delivery-not-claimed",
     "social-final-policy-execution-not-claimed",

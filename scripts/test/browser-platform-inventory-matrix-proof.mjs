@@ -85,7 +85,7 @@ async function main() {
         ? 'android-browser-package-visibility-proof-present'
         : 'android-owned-browser-shell-manual-required',
       androidOwnedShellProof
-        ? 'android-owned-browser-shell-emulator-device-owner-proof-present-enforcement-still-manual-required'
+        ? 'android-owned-browser-shell-emulator-device-owner-policy-mutation-proof-present-routing-enforcement-still-manual-required'
         : 'android-owned-browser-shell-build-install-launch-proof-required',
       windowsHostProof
         ? 'windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed'
@@ -236,7 +236,7 @@ function markdownFor(proof) {
       ? 'Android emulator package-visibility proof is present; exact URL, active tab, device-owner policy, and enforcement remain unclaimed.'
       : 'Android owned browser shell/device proof remains manual-required.',
     proof.androidOwnedShellProof
-      ? 'Android owned browser shell build/install/launch proof plus proof-launched emulator Device Owner enrollment evidence is present, but exact URL policy, known active tab, Device Owner policy mutation, VPN/DNS, UsageStats, Accessibility, and enforcement remain unclaimed.'
+      ? 'Android owned browser shell build/install/launch proof plus proof-launched emulator Device Owner enrollment and persistent HTTP/HTTPS routing policy mutation evidence is present, but implicit browser routing enforcement, content-filter policy, known active tab, VPN/DNS, UsageStats, Accessibility, physical-device behavior, and broad enforcement remain unclaimed unless observed in the proof.'
       : 'Android owned browser shell build/install/launch proof remains manual-required.',
     proof.linuxHostProof
       ? 'Linux WSL package/PATH/desktop-entry boundary proof is present, but Linux desktop browser adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.'
@@ -295,7 +295,15 @@ async function readAndroidOwnedShellProof() {
     deviceOwnerEnrollmentObserved: proof.hostProofSummary?.deviceOwnerEnrollmentObserved === true,
     deviceOwnerProofLimitedToProofLaunchedEmulator:
       proof.hostProofSummary?.deviceOwnerProofLimitedToProofLaunchedEmulator === true,
+    deviceOwnerPolicyMutationAttempted: proof.hostProofSummary?.deviceOwnerPolicyMutationAttempted === true,
+    deviceOwnerPolicyMutationObserved: proof.hostProofSummary?.deviceOwnerPolicyMutationObserved === true,
+    deviceOwnerPolicyMutationLimitedToProofLaunchedEmulator:
+      proof.hostProofSummary?.deviceOwnerPolicyMutationLimitedToProofLaunchedEmulator === true,
+    androidOwnedBrowserRoutingEnforcementObserved:
+      proof.hostProofSummary?.androidOwnedBrowserRoutingEnforcementObserved === true,
     deviceOwnerPolicyMutationClaimed: proof.hostProofSummary?.deviceOwnerPolicyMutationClaimed === true,
+    androidOwnedBrowserRoutingEnforcementClaimed:
+      proof.hostProofSummary?.androidOwnedBrowserRoutingEnforcementClaimed === true,
     exactUrlPolicyClaimed: proof.hostProofSummary?.exactUrlPolicyClaimed === true,
     knownActiveTabProofClaimed: proof.hostProofSummary?.knownActiveTabProofClaimed === true,
     deviceOwnerEnrollmentClaimed: proof.hostProofSummary?.deviceOwnerEnrollmentClaimed === true,
@@ -460,7 +468,7 @@ function validateAndroidOwnedShellProof(proof) {
   }
 
   const failures = [];
-  if (proof.resultState !== 'android-owned-browser-shell-build-install-launch-device-owner-proof') {
+  if (proof.resultState !== 'android-owned-browser-shell-device-owner-policy-mutation-proof') {
     failures.push(`Android owned shell proof has unexpected resultState: ${proof.resultState}`);
   }
   if (!proof.ownedBrowserShellPackageInstalled) {
@@ -483,15 +491,26 @@ function validateAndroidOwnedShellProof(proof) {
     failures.push('Android owned shell proof did not observe proof-launched emulator Device Owner enrollment evidence');
   }
   if (
+    !proof.deviceOwnerPolicyMutationAttempted ||
+    !proof.deviceOwnerPolicyMutationObserved ||
+    !proof.deviceOwnerPolicyMutationLimitedToProofLaunchedEmulator
+  ) {
+    failures.push(
+      'Android owned shell proof did not observe proof-launched emulator Device Owner persistent browser routing policy mutation evidence'
+    );
+  }
+  if (
     proof.exactUrlPolicyClaimed ||
     proof.knownActiveTabProofClaimed ||
-    proof.deviceOwnerPolicyMutationClaimed ||
+    !proof.deviceOwnerPolicyMutationClaimed ||
     proof.vpnDnsBrowserProofClaimed ||
     proof.usageStatsRouteProofClaimed ||
     proof.accessibilityRouteProofClaimed ||
     proof.enforcementClaimed
   ) {
-    failures.push('Android owned shell proof made exact URL, active tab, platform policy, or enforcement claims');
+    failures.push(
+      'Android owned shell proof made dishonest exact URL/active tab/VPN/UsageStats/Accessibility/broad enforcement claims or failed to claim the narrow policy mutation proof'
+    );
   }
   if (proof.rawUrlPersisted || proof.rawPageContentPersisted) {
     failures.push('Android owned shell proof persisted raw URL or raw page content');

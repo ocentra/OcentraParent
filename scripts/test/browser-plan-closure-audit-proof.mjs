@@ -16,7 +16,7 @@ const expectedPartialRows = new Map([
     {
       reason: 'cross-platform-inventory-real-platform-proof-required',
       requiredEvidence:
-        'macOS desktop browser proof, positive Linux desktop browser proof, Android policy mutation/enforcement proof, and iOS device/entitlement proof',
+        'macOS desktop browser proof, positive Linux desktop browser proof, Android implicit browser routing enforcement proof, and iOS device/entitlement proof',
     },
   ],
   [
@@ -55,6 +55,8 @@ const proofArtifacts = [
       unsupportedRows: 6,
       androidDeviceOwnerEnrollmentObserved: true,
       androidDeviceOwnerProofLimitedToProofLaunchedEmulator: true,
+      androidDeviceOwnerPolicyMutationObserved: true,
+      androidOwnedBrowserRoutingEnforcementObserved: false,
       androidEnforcementClaimed: false,
     },
   },
@@ -140,7 +142,8 @@ async function main() {
       'product-checklist-upgrade-not-claimed',
       'macos-desktop-browser-proof-required',
       'linux-desktop-browser-positive-proof-required',
-      'android-policy-mutation-enforcement-proof-required',
+      'android-implicit-routing-enforcement-proof-required',
+      'android-broad-content-filter-enforcement-not-claimed',
       'ios-familycontrols-managedsettings-device-proof-required',
       'social-provider-report-delivery-not-claimed',
       'social-final-policy-execution-not-claimed',
@@ -220,6 +223,10 @@ function observedValues(key, proof) {
       androidDeviceOwnerEnrollmentObserved: proof.androidOwnedShellProof?.deviceOwnerEnrollmentObserved === true,
       androidDeviceOwnerProofLimitedToProofLaunchedEmulator:
         proof.androidOwnedShellProof?.deviceOwnerProofLimitedToProofLaunchedEmulator === true,
+      androidDeviceOwnerPolicyMutationObserved:
+        proof.androidOwnedShellProof?.deviceOwnerPolicyMutationObserved === true,
+      androidOwnedBrowserRoutingEnforcementObserved:
+        proof.androidOwnedShellProof?.androidOwnedBrowserRoutingEnforcementObserved === true,
       androidEnforcementClaimed: proof.androidOwnedShellProof?.enforcementClaimed === true,
     };
   }

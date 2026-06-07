@@ -61,11 +61,13 @@ area.
   `platforms/android/agent/browser-shell` APK, creates a disposable AOSP ATD
   emulator, installs `com.ocentra.parent.browser`, launches a local proof page
   through a `VIEW`/`BROWSABLE` WebView shell, observes Device Owner enrollment
-  for the shell's `DeviceAdminReceiver`, deletes the temporary AVD, and records
-  redacted UI-tree, APK, source, Device Policy Manager, and device refs. It does
-  not claim exact URL policy, known active tab, Device Owner policy mutation,
-  VPN/DNS, UsageStats, Accessibility, browser blocking, enforcement,
-  physical-device behavior, Play signing, or release readiness.
+  for the shell's `DeviceAdminReceiver`, observes the Device Owner app
+  configuring persistent HTTP/HTTPS browser routing policy, deletes the
+  temporary AVD, and records redacted UI-tree, APK, source, Device Policy
+  Manager, and device refs. It does not claim exact URL policy, known active tab,
+  implicit routing enforcement, VPN/DNS, UsageStats, Accessibility, browser
+  blocking, broad content-filter enforcement, physical-device behavior, Play
+  signing, or release readiness.
 
 ## Gaps To Fill
 

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofId": "browser-platform-android-owned-shell-proof",
-  "generatedAt": "2026-06-07T11:11:12.949Z",
+  "generatedAt": "2026-06-07T11:40:26.270Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "1d89f650d7ea3dc883de42a556568fc4327506cf",
-  "baseCommit": "6836f05e6630499c8e77cf7377b11ab1ad610417",
+  "commit": "93c8693fda75c2ecb62762cc1a824a6b416ca06a",
+  "baseCommit": "188336c71100d18c875020799d1791a26802a7fd",
   "hostProofSummary": {
     "adbInstalled": true,
     "adbPathPersisted": false,
@@ -30,6 +30,7 @@
     "deviceAdminReceiverDeclared": true,
     "deviceAdminMetadataDeclared": true,
     "deviceAdminPoliciesDeclared": true,
+    "deviceOwnerPolicyMutationDeclared": true,
     "launchObserved": true,
     "localProofPageObserved": true,
     "deviceOwnerEnrollmentAttempted": true,
@@ -37,6 +38,10 @@
     "deviceOwnerProofLimitedToProofLaunchedEmulator": true,
     "deviceOwnerCleanupAttempted": true,
     "deviceOwnerCleanupObserved": false,
+    "deviceOwnerPolicyMutationAttempted": true,
+    "deviceOwnerPolicyMutationObserved": true,
+    "deviceOwnerPolicyMutationLimitedToProofLaunchedEmulator": true,
+    "androidOwnedBrowserRoutingEnforcementObserved": false,
     "screenshotsCaptured": false,
     "screenshotsPersisted": false,
     "uiTreeCaptured": true,
@@ -49,19 +54,20 @@
     "exactUrlPolicyClaimed": false,
     "knownActiveTabProofClaimed": false,
     "deviceOwnerEnrollmentClaimed": true,
-    "deviceOwnerPolicyMutationClaimed": false,
+    "deviceOwnerPolicyMutationClaimed": true,
+    "androidOwnedBrowserRoutingEnforcementClaimed": false,
     "vpnDnsBrowserProofClaimed": false,
     "usageStatsRouteProofClaimed": false,
     "accessibilityRouteProofClaimed": false,
     "enforcementClaimed": false,
-    "resultState": "android-owned-browser-shell-build-install-launch-device-owner-proof"
+    "resultState": "android-owned-browser-shell-device-owner-policy-mutation-proof"
   },
-  "proofUrlRef": "redacted-android-owned-browser-proof-url-af3ee47a112b28fd",
+  "proofUrlRef": "redacted-android-owned-browser-proof-url-26265c2b46300b08",
   "proofUrlPersisted": false,
   "apk": {
     "path": "platforms/android/agent/browser-shell/build/outputs/apk/debug/browser-shell-debug.apk",
     "exists": true,
-    "sha256": "5b94c2ab6a63f1f29714c03a441ad42225ca6239e15ca9600ace2f37d932bfdf"
+    "sha256": "2c893eaff5833565afb3af419e2fd47691142349d0bf3b37bbdc313ff52c445d"
   },
   "devices": [
     {
@@ -74,19 +80,26 @@
       "deviceOwnerProofLimitedToProofLaunchedEmulator": true,
       "deviceOwnerCleanupAttempted": true,
       "deviceOwnerCleanupObserved": false,
+      "deviceOwnerPolicyMutationAttempted": true,
+      "deviceOwnerPolicyMutationObserved": true,
+      "deviceOwnerPolicyMutationLimitedToProofLaunchedEmulator": true,
       "deviceOwnerSetResultSha256": "f2fa0a3f495c0db737c45046f0db949943aa0ed21d1bf3564008debf0f657d79",
       "deviceOwnerQuerySha256": "6924b0045b2c9973a150fe8f40184794a2754a1f0ad169c2b9fb61833ec3b4cd",
-      "devicePolicyDumpSha256": "41aaad9327254e364021543369a55e2951b75bca6569750156e8f61f032c5f8b",
+      "devicePolicyDumpSha256": "0f388dc6822f3cdc9885665698de7b255045e1189a42c2d1a451322f85dbef01",
       "rawDpmOutputPersisted": false,
       "viewIntentResolved": false,
+      "afterPolicyViewIntentResolved": false,
       "rawIntentResolutionPersisted": false,
       "rawUrlPersisted": false,
       "rawPageContentPersisted": false,
       "launchObserved": true,
       "localProofPageObserved": true,
+      "implicitViewIntentLaunchObserved": false,
       "uiTreeCaptured": true,
       "uiTreeRawPersisted": false,
-      "uiTreeSha256": "e24961257ac4811a01ca7f485a857bd7a45d5a0409b408c615498bbeeba7ddd4",
+      "uiTreeSha256": "55cbcdd7501a2ebd8afaa85cc0600caaa888ed11f9d377f2ed7a1ba27d4b0e75",
+      "beforePolicyResolveSha256": "ed9540e9692998e32f05105d9cee0ee7345382c8d97a2585c1672930598aa5b1",
+      "afterPolicyResolveSha256": "ed9540e9692998e32f05105d9cee0ee7345382c8d97a2585c1672930598aa5b1",
       "screenshotCaptured": false,
       "screenshotPersisted": false,
       "screenshotPath": null,
@@ -94,7 +107,8 @@
       "exactUrlPolicyClaimed": false,
       "knownActiveTabProofClaimed": false,
       "deviceOwnerEnrollmentClaimed": true,
-      "deviceOwnerPolicyMutationClaimed": false,
+      "deviceOwnerPolicyMutationClaimed": true,
+      "androidOwnedBrowserRoutingEnforcementClaimed": false,
       "enforcementClaimed": false
     }
   ],
@@ -104,7 +118,7 @@
     "manifestPath": "platforms/android/agent/browser-shell/src/main/AndroidManifest.xml",
     "manifestSha256": "5af409909243487b17395f2e7ed54582823bbe4f4591e92950ce5a5e50a177d9",
     "activityPath": "platforms/android/agent/browser-shell/src/main/java/ca/ocentra/parent/browser/OcentraOwnedBrowserShellActivity.java",
-    "activitySha256": "d8deae4fe0005f4958e2ed2f5500a895b73edbd62de6d52d55ca846efa4633fb",
+    "activitySha256": "80aac96e7a2bd7785578ef231d114f91e43df33630cd3a4d21d0c6baabb05267",
     "receiverPath": "platforms/android/agent/browser-shell/src/main/java/ca/ocentra/parent/browser/OcentraOwnedBrowserDeviceAdminReceiver.java",
     "receiverSha256": "ac8599951bc7743d3eece2edf72087566e35c25ee814e651091dba70faf53e85",
     "deviceAdminXmlPath": "platforms/android/agent/browser-shell/src/main/res/xml/owned_browser_device_admin.xml",
@@ -120,6 +134,7 @@
     "deviceAdminReceiverDeclared": true,
     "deviceAdminMetadataDeclared": true,
     "deviceAdminPoliciesDeclared": true,
+    "deviceOwnerPolicyMutationDeclared": true,
     "accessibilityServiceDeclared": false,
     "vpnServiceDeclared": false,
     "usageStatsPermissionDeclared": false,
@@ -135,7 +150,7 @@
       "rejected": true
     },
     {
-      "claim": "android-device-owner-enforcement",
+      "claim": "android-content-filter-enforcement",
       "rejected": true
     },
     {
@@ -151,7 +166,7 @@
       "rejected": true
     },
     {
-      "claim": "android-browser-enforcement",
+      "claim": "android-broad-browser-enforcement",
       "rejected": true
     }
   ]
