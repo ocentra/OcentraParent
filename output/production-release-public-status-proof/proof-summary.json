@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
+  "proofMode": "production-release-public-status-proof",
+  "packageExport": "deferred-packages-parent-domain-package-json-locked-by-e-b",
+  "surfaceCount": 6,
+  "surfaces": [
+    "public-download",
+    "release-status",
+    "update-status",
+    "account-status",
+    "subscription-status",
+    "support-status"
+  ],
+  "manualProofGapCount": 6,
+  "manualProofGaps": [
+    "windows-signing",
+    "macos-notarization",
+    "android-play-store",
+    "ios-testflight-app-store",
+    "production-publishing-promotion",
+    "support-backend-upload"
+  ],
+  "output": "test-results/production-release-public-status-proof/proof.json",
+  "knownGaps": [
+    "family.ocentra.ca public runtime",
+    "account backend runtime",
+    "billing provider runtime",
+    "production publishing promotion",
+    "signing notarization store proof",
+    "updater execution",
+    "support backend upload",
+    "child activity custody exclusion"
+  ]
+}

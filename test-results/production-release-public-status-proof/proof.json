@@ -1,9 +1,11 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T04:24:26.107Z",
-  "commit": "be47797025fe2e140d4cdf6c91df1b8526e04463",
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
   "proofMode": "production-release-public-status-proof",
+  "packageExport": "deferred-packages-parent-domain-package-json-locked-by-e-b",
   "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/schema-domain",
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/production-release-public-status-proof.test.ts"
   ],
@@ -17,7 +19,8 @@
       "docs/expectations/cloud.md",
       "docs/expectations/billing.md"
     ],
-    "output": "test-results/production-release-public-status-proof/proof.json"
+    "proofOutput": "test-results/production-release-public-status-proof/proof.json",
+    "summaryOutput": "output/production-release-public-status-proof/proof-summary.json"
   },
   "surfaces": [
     {
