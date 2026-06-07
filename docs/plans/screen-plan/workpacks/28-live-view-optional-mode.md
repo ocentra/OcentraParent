@@ -23,6 +23,16 @@ separate gates.
 Android MediaProjection proof records explicit OS capture consent for the
 Android child-agent capture adapter, but it is not live-view permission-prompt
 proof and does not close this workpack's live-view runtime gate.
+`ScreenLiveViewPlatformPermissionGateSchema` and
+`scripts/test/screen-live-view-platform-permission-proof.mjs` now add a
+fail-closed platform-permission gate. The proof consumes the existing real
+Android MediaProjection capture-consent artifact and records it as
+`screen-capture-only`, proving it cannot mark live view product-ready without a
+live-view permission prompt proof, viewer audit, live transport proof, no frame
+retention, and no remote input. This closes the missing gate-artifact slot but
+does not implement or claim real live transport, relay/cache execution, service
+live-view sessions, parent UI persistence, platform screenshots, or
+privacy/legal approval.
 
 ## Checklist
 
@@ -33,7 +43,8 @@ proof and does not close this workpack's live-view runtime gate.
 - [x] Define retention/no-retention behavior.
 - [x] Define viewer audit.
 - [x] Add separate contract/preflight proof.
-- [ ] Add real platform permission proof.
+- [x] Add fail-closed platform permission gate proof.
+- [ ] Add real live-view platform prompt and transport proof.
 
 ## Proof
 
@@ -41,5 +52,6 @@ proof and does not close this workpack's live-view runtime gate.
 - Tests proving local-summary opt-in does not enable live view.
 - `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`.
 - `output/screen-plan-proof/27-28-optional-retention-live-preflight/proof-summary.json`.
+- `output/screen-plan-proof/live-view-platform-permission/proof-summary.json`.
 - Capture-adapter platform consent reference:
   `output/screen-plan-proof/android-mediaprojection/proof-summary.json`.

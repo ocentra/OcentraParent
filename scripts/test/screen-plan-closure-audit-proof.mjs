@@ -41,7 +41,7 @@ const workpacks = [
     label: 'Live view optional mode',
     status: workpackStatus('28 Live view optional mode'),
     requiredProof: 'output/screen-plan-proof/live-view-platform-permission/proof-summary.json',
-    gate: 'Requires real platform permission and live transport proof; current proof is contract/preflight only.',
+    gate: 'Fail-closed platform permission gate exists; real live-view platform prompt screenshots, service session runtime, and live transport proof remain.',
   },
   {
     id: '30',
@@ -131,7 +131,7 @@ const summary = {
     noProductCompleteClaim: true,
   },
   nonClaims: [
-    'This audit does not complete macOS, Linux, Android parity, iOS, live-view transport, current PP-OCRv5 resolution/production OCR selection, or live VLM provider/runtime quality gates.',
+    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/transport/session runtime, current PP-OCRv5 resolution/production OCR selection, or live VLM provider/runtime quality gates.',
     'This audit does not replace real device/runtime proof for remaining partial rows.',
     'This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied.',
   ],
