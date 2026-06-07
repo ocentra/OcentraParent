@@ -157,6 +157,10 @@
       "import": "./dist/app-install-purchase-windows-package-source-adapter-evidence.js",
       "types": "./dist/app-install-purchase-windows-package-source-adapter-evidence.d.ts"
     },
+    "./app-install-purchase-provider-store-platform-evidence-proof": {
+      "import": "./dist/app-install-purchase-provider-store-platform-evidence-proof.js",
+      "types": "./dist/app-install-purchase-provider-store-platform-evidence-proof.d.ts"
+    },
     "./billing-entitlement": {
       "import": "./dist/billing-entitlement.js",
       "types": "./dist/billing-entitlement.d.ts"

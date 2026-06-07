@@ -303,6 +303,13 @@ mobile readiness, and control catalogs.
   integration, platform interception, production platform adapter, child-device
   delivery, portal approval/report UI, app blocking, child activity data, or
   hosted custody claims.
+- App install/purchase provider/store platform evidence proof contracts that
+  link provider/store execution preflight rows with Windows package-source
+  runtime handoff rows and record exact missing provider/store, platform
+  adapter, and child-device artifacts before any product claim while keeping
+  provider/store execution, store integration, production platform adapters,
+  runtime writer delivery, child delivery, portal UI, app blocking, child
+  activity data, and hosted custody unclaimed.
 - App install/purchase package-source capture status proof contracts that link
   child package-source artifact refs and store status handoff rows to captured,
   blocked, manual-required, and unavailable capture rows with artifact, audit,
