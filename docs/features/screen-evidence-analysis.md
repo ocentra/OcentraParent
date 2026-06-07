@@ -528,14 +528,15 @@ only with explicit parent settings.
   boundary. The gate separates `startupPermitted` from actual worker execution,
   refuses startup permission unless the runtime is product-ready and real
   live-view prompt artifacts, relay/cache execution when needed, physical-device
-  parity, and privacy/legal approval are all present, and still records no
-  production worker execution in the current proof. The proof consumes the
-  existing real loopback frame transport/deletion, runtime, and parent UI
-  persistence artifacts, writes
-  `output/screen-plan-proof/live-view-worker-startup/proof-summary.json`, and
-  keeps `productionWorkerStarted: false`. Startup permission is not treated as
-  a real platform prompt screenshot, relay/cache execution, physical-device
-  live-view parity, privacy/legal approval, a started worker, or product-complete
+  parity, and privacy/legal approval are all present, and now proves a separate
+  service-owned worker execution record can set `workerStarted:true` only after
+  that gate and no raw-frame cache, session recording, or remote input are
+  present. The proof consumes the existing real loopback frame
+  transport/deletion, runtime, and parent UI persistence artifacts and writes
+  `output/screen-plan-proof/live-view-worker-startup/proof-summary.json`.
+  Controlled worker execution is still not treated as a live platform prompt
+  screenshot, relay/cache execution, physical-device live-view parity,
+  privacy/legal approval, live platform worker session, or product-complete
   live view.
 - `ScreenManagedBrowserCdpScreenshotRequestSchema`,
   `ScreenManagedBrowserCdpScreenshotArtifactSchema`, and

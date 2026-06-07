@@ -17,6 +17,18 @@ pub(crate) enum ScreenLiveViewWorkerStartupBlockReason {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum ScreenLiveViewWorkerExecutionState {
+    NotStarted,
+    Started,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum ScreenLiveViewWorkerExecutionBlockReason {
+    StartupNotPermitted,
+    UnsafeRetentionOrControl,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct ScreenLiveViewWorkerStartupInput {
     pub(crate) mode: ScreenLiveViewRuntimeMode,
     pub(crate) runtime_decision: ScreenLiveViewRuntimeDecision,
@@ -30,6 +42,23 @@ pub(crate) struct ScreenLiveViewWorkerStartupInput {
 pub(crate) struct ScreenLiveViewWorkerStartupDecision {
     pub(crate) startup_state: ScreenLiveViewWorkerStartupState,
     pub(crate) block_reason: Option<ScreenLiveViewWorkerStartupBlockReason>,
+    pub(crate) startup_permitted: bool,
+    pub(crate) worker_started: bool,
+    pub(crate) product_live_view_ready: bool,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct ScreenLiveViewWorkerExecutionInput {
+    pub(crate) startup_decision: ScreenLiveViewWorkerStartupDecision,
+    pub(crate) cache_raw_frames: bool,
+    pub(crate) session_recording_allowed: bool,
+    pub(crate) remote_input_control_allowed: bool,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct ScreenLiveViewWorkerExecutionRecord {
+    pub(crate) execution_state: ScreenLiveViewWorkerExecutionState,
+    pub(crate) block_reason: Option<ScreenLiveViewWorkerExecutionBlockReason>,
     pub(crate) startup_permitted: bool,
     pub(crate) worker_started: bool,
     pub(crate) product_live_view_ready: bool,
@@ -79,9 +108,46 @@ pub(crate) fn evaluate_screen_live_view_worker_startup(
     }
 }
 
+pub(crate) fn start_screen_live_view_worker(
+    input: ScreenLiveViewWorkerExecutionInput,
+) -> ScreenLiveViewWorkerExecutionRecord {
+    if !input.startup_decision.startup_permitted {
+        return worker_not_started(ScreenLiveViewWorkerExecutionBlockReason::StartupNotPermitted);
+    }
+
+    if input.cache_raw_frames
+        || input.session_recording_allowed
+        || input.remote_input_control_allowed
+    {
+        return worker_not_started(
+            ScreenLiveViewWorkerExecutionBlockReason::UnsafeRetentionOrControl,
+        );
+    }
+
+    ScreenLiveViewWorkerExecutionRecord {
+        execution_state: ScreenLiveViewWorkerExecutionState::Started,
+        block_reason: None,
+        startup_permitted: true,
+        worker_started: true,
+        product_live_view_ready: input.startup_decision.product_live_view_ready,
+    }
+}
+
 fn blocked(reason: ScreenLiveViewWorkerStartupBlockReason) -> ScreenLiveViewWorkerStartupDecision {
     ScreenLiveViewWorkerStartupDecision {
         startup_state: ScreenLiveViewWorkerStartupState::Blocked,
+        block_reason: Some(reason),
+        startup_permitted: false,
+        worker_started: false,
+        product_live_view_ready: false,
+    }
+}
+
+fn worker_not_started(
+    reason: ScreenLiveViewWorkerExecutionBlockReason,
+) -> ScreenLiveViewWorkerExecutionRecord {
+    ScreenLiveViewWorkerExecutionRecord {
+        execution_state: ScreenLiveViewWorkerExecutionState::NotStarted,
         block_reason: Some(reason),
         startup_permitted: false,
         worker_started: false,

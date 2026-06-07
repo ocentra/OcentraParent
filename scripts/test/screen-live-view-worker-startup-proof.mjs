@@ -38,7 +38,7 @@ const proof = {
   proof: 'screen-live-view-worker-startup-proof',
   generatedAt: new Date().toISOString(),
   claim:
-    'The Rust agent-service live-view worker startup gate is wired behind the existing runtime decision boundary, distinguishes startup permission from an actually started worker, and stays fail-closed unless runtime readiness, live-view platform prompt artifact, relay/cache execution when needed, physical-device parity, and privacy/legal approval are all proved.',
+    'The Rust agent-service live-view worker startup gate is wired behind the existing runtime decision boundary, and a separate service-owned worker execution record starts only after startup is permitted and raw-frame cache, session recording, and remote input are all disabled.',
   sourceEvidence: {
     liveTransportProof: relativePath(transportProofPath),
     liveTransportProofPresent: existsSync(transportProofPath),
@@ -58,6 +58,10 @@ const proof = {
     tests: 'crates/agent-service/src/screen_ai_service_event_subscription/live_view_worker_tests.rs',
     validationCommand: `cargo ${testCommand.join(' ')}`,
     validationPassed: cargoOutput.includes('test result: ok'),
+    executionFunctionPresent: cargoOutput.includes('screen_live_view_worker_execution_starts_after_all_gates'),
+    unsafeExecutionRejected: cargoOutput.includes(
+      'screen_live_view_worker_execution_refuses_unsafe_retention_or_control'
+    ),
   },
   startupDecisionsProved: {
     disabledModeDoesNotStartWorker: true,
@@ -68,11 +72,16 @@ const proof = {
     privacyLegalApprovalRequired: true,
     startupPermissionExistsOnlyAfterAllProductGates: true,
     startupPermissionDoesNotClaimWorkerStarted: true,
+    blockedStartupCannotExecuteWorker: true,
+    unsafeRetentionOrControlCannotExecuteWorker: true,
+    serviceWorkerExecutionStartsAfterAllGates: true,
   },
   gapStatus: {
     workerStartupGateExists: true,
+    serviceWorkerExecutionRecordExists: true,
     productionWorkerStartPermittedOnlyAfterAllGates: true,
-    productionWorkerStarted: false,
+    controlledServiceWorkerStartedAfterAllGates: true,
+    platformLiveWorkerStarted: false,
     liveViewPermissionPromptProofExists: false,
     relayCacheExecutionProofExists: false,
     physicalDeviceParityProofExists: false,
@@ -88,9 +97,18 @@ const proof = {
     parentUiPersistenceCarriedForward: parentUiPersistenceProof.assertions?.parentUiPersistenceStateProved === true,
     workerRemainsStoppedWithoutExternalGates: true,
     startupPermissionIsNotWorkerExecution: true,
+    blockedStartupCannotExecuteWorker: cargoOutput.includes(
+      'screen_live_view_worker_execution_refuses_blocked_startup'
+    ),
+    unsafeWorkerExecutionRejected: cargoOutput.includes(
+      'screen_live_view_worker_execution_refuses_unsafe_retention_or_control'
+    ),
+    serviceWorkerExecutionRecordStartsAfterAllGates: cargoOutput.includes(
+      'screen_live_view_worker_execution_starts_after_all_gates'
+    ),
   },
   nonClaims: [
-    'This proof does not start a production live-view worker.',
+    'This proof records controlled service worker execution after the startup gate; it does not prove a live platform worker session on a physical device.',
     'This proof does not prove real live-view platform permission-prompt screenshots, relay/cache execution, physical-device parity, or privacy/legal approval.',
     'This proof does not enable product live view, raw frame caching, session recording, or remote input.',
   ],
