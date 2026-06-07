@@ -412,4 +412,5 @@ consumes the same results.
 - [x] AI mesh event topology proof run:
       `node --check scripts/test/household-mesh-event-bridge-proof.mjs` and
       `node scripts/test/household-mesh-event-bridge-proof.mjs`.
-- [ ] `npm run validate` or explicit approved omission.
+- [x] `npm run validate` passed after rebasing
+      `codex/screen-ai-full-scope-b` onto `origin/main` `c3328c891`.
