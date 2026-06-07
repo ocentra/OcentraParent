@@ -33,6 +33,7 @@ pub struct TrackingRetentionSettingsWriteResult {
     pub remote_ai_enabled: bool,
     pub local_service_state_revision: Option<u64>,
     pub local_service_state_snapshot_ref: String,
+    pub durable_settings_store_ref: String,
     pub durable_settings_persisted: bool,
     pub command_transport_claimed: bool,
     pub service_write_preflight_claimed: bool,

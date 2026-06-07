@@ -84,10 +84,16 @@ function assertProof(proof) {
     throw new Error(`Expected 1 retention durable settings row, got ${proof.rows.length}`);
   }
   const [row] = proof.rows;
-  if (row.durableSettingsPersisted !== false || row.durablePersistenceRequired !== true) {
+  if (
+    row.durableSettingsPersisted !== true ||
+    row.durableSettingsStoreRef !== 'agent-service-local-retention-settings-durable-json' ||
+    row.durablePersistenceRequired !== true ||
+    row.durabilityFailureVisible !== false
+  ) {
     throw new Error(`Unexpected durable settings state: ${JSON.stringify(row)}`);
   }
-  if (Object.values(proof.productClaims).some((claim) => claim !== false)) {
+  const { durableSettingsPersisted, ...remainingProductClaims } = proof.productClaims;
+  if (!durableSettingsPersisted || Object.values(remainingProductClaims).some((claim) => claim !== false)) {
     throw new Error(
       `Retention durable settings proof overclaimed product behavior: ${JSON.stringify(proof.productClaims)}`
     );

@@ -33,7 +33,8 @@ export const TrackingRetentionLocalServiceStateWriteResultSchema = withParser(
     remoteAiEnabled: Schema.Literal(false),
     localServiceStateRevision: Schema.Number.pipe(Schema.int(), Schema.positive()),
     localServiceStateSnapshotRef: TrackingRetentionLocalServiceStateSnapshotRefSchema,
-    durableSettingsPersisted: Schema.Literal(false),
+    durableSettingsStoreRef: TrackingRetentionLocalServiceStateSnapshotRefSchema,
+    durableSettingsPersisted: Schema.Boolean,
     commandTransportClaimed: Schema.Literal(true),
     serviceMutationExecuted: Schema.Literal(true),
     platformRuntimeClaimed: Schema.Literal(false),
@@ -54,6 +55,11 @@ export const TrackingRetentionLocalServiceStateWriteResultSchema = withParser(
         (result) => result.sourceMutationProofRefs.length > 0 || 'Local state proof needs source mutation refs'
       )
     )
+    .pipe(
+      Schema.filter(
+        (result) => result.durableSettingsPersisted || 'Local state proof needs durable settings persistence'
+      )
+    )
 );
 
 export const TrackingRetentionLocalServiceStateRowSchema = withParser(
@@ -69,6 +75,7 @@ export const TrackingRetentionLocalServiceStateRowSchema = withParser(
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
     localServiceStateRevision: Schema.Number.pipe(Schema.int(), Schema.positive()),
     localServiceStateSnapshotRef: TrackingRetentionLocalServiceStateSnapshotRefSchema,
+    durableSettingsStoreRef: TrackingRetentionLocalServiceStateSnapshotRefSchema,
     appliedRetentionWindowHours: Schema.Union(Schema.Number.pipe(Schema.int(), Schema.positive()), Schema.Null),
     appliedDeleteAfterAlertResolved: Schema.Boolean,
     parentExportPrepared: Schema.Boolean,
@@ -77,7 +84,7 @@ export const TrackingRetentionLocalServiceStateRowSchema = withParser(
     writeCommandAccepted: Schema.Literal(true),
     serviceMutationExecuted: Schema.Literal(true),
     localServiceStateReadbackClaimed: Schema.Literal(true),
-    durableSettingsPersisted: Schema.Literal(false),
+    durableSettingsPersisted: Schema.Boolean,
     platformRuntimeClaimed: Schema.Literal(false),
     childDeviceDeliveryClaimed: Schema.Literal(false),
     providerDeliveryClaimed: Schema.Literal(false),
@@ -108,9 +115,10 @@ export const TrackingRetentionLocalServiceStateProofSchema = withParser(
       serviceMutationExecuted: Schema.Literal(true),
       localServiceStateRevisionRecorded: Schema.Literal(true),
       localServiceStateReadbackClaimed: Schema.Literal(true),
+      durableSettingsPersisted: Schema.Literal(true),
     }),
     productClaims: Schema.Struct({
-      durableSettingsPersisted: Schema.Literal(false),
+      durableSettingsPersisted: Schema.Literal(true),
       platformRuntimeClaimed: Schema.Literal(false),
       childDeviceDeliveryClaimed: Schema.Literal(false),
       providerDeliveryClaimed: Schema.Literal(false),
@@ -144,9 +152,10 @@ export function buildTrackingRetentionLocalServiceStateProof(
       serviceMutationExecuted: true,
       localServiceStateRevisionRecorded: true,
       localServiceStateReadbackClaimed: true,
+      durableSettingsPersisted: true,
     },
     productClaims: {
-      durableSettingsPersisted: false,
+      durableSettingsPersisted: true,
       platformRuntimeClaimed: false,
       childDeviceDeliveryClaimed: false,
       providerDeliveryClaimed: false,
@@ -175,6 +184,7 @@ function localStateRow(
     auditRefs: [`${writeResult.commandId}-local-state-readback-audit`],
     localServiceStateRevision: writeResult.localServiceStateRevision,
     localServiceStateSnapshotRef: writeResult.localServiceStateSnapshotRef,
+    durableSettingsStoreRef: writeResult.durableSettingsStoreRef,
     appliedRetentionWindowHours: writeResult.appliedRetentionWindowHours,
     appliedDeleteAfterAlertResolved: writeResult.appliedDeleteAfterAlertResolved,
     parentExportPrepared: writeResult.parentExportPrepared,
@@ -183,7 +193,7 @@ function localStateRow(
     writeCommandAccepted: true,
     serviceMutationExecuted: true,
     localServiceStateReadbackClaimed: true,
-    durableSettingsPersisted: false,
+    durableSettingsPersisted: writeResult.durableSettingsPersisted,
     platformRuntimeClaimed: false,
     childDeviceDeliveryClaimed: false,
     providerDeliveryClaimed: false,

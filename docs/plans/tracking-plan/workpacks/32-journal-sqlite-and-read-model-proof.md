@@ -103,17 +103,18 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       rows while preserving remote-sync disabled, remote-AI disabled, and no
       platform/device/product-ready claims.
 - [x] Add typed service transport proof for a retention settings write
-      command local-execution result while preserving no durable product UI,
-      platform, device, provider, authority, notification receipt, or
-      product-ready claims.
+      command local-execution result with a local durable settings store ref
+      while preserving no writable product UI, platform, device, provider,
+      authority, notification receipt, or product-ready claims.
 - [x] Render the service-backed retention write result in hosted portal proof
       from the typed command response, including local service state revision
-      evidence, without claiming durable product settings, platform, device,
+      evidence and durable store ref, without claiming writable product settings, platform, device,
       provider, authority, notification receipt, or product-ready behavior.
 - [x] Derive retention local service state readback rows from the accepted
       write-command proof, including applied values, service state revision, and
-      snapshot ref, without claiming durable product settings, platform, device,
-      provider, authority, notification receipt, or product-ready behavior.
+      snapshot ref plus durable store ref, without claiming writable product
+      settings, platform, device, provider, authority, notification receipt, or
+      product-ready behavior.
 - [x] Add redacted report/export read-model packet rows that compose service
       read-model, report/policy consumer, family dashboard rollup, and
       retention settings proof refs without claiming raw location payload
@@ -249,16 +250,16 @@ The retention settings write-command proof adds a typed
 `agent.activity.tracking.retention-settings.write` command and matching service
 WebSocket response payload, validates the TypeScript request/result parsers,
 Rust protocol serialization, and Rust service response, and now carries the
-applied local retention values from the typed request. It keeps durable writable
-UI, product-ready service behavior, platform runtime, child-device delivery,
+applied local retention values from the typed request plus a local durable
+settings store ref. It keeps writable product UI, product-ready service behavior, platform runtime, child-device delivery,
 provider delivery, notification receipt, physical-device, authority,
 production, and product-ready claims false.
 The retention local service state proof derives a parent-domain readback row from
 that accepted write-command result, requiring the local service state revision,
-snapshot ref, source read-model refs, source mutation refs, and applied
-retention values while keeping durable product settings, platform runtime,
-child-device delivery, provider delivery, notification receipt, physical-device,
-authority, production, and product-ready claims false.
+snapshot ref, durable store ref, source read-model refs, source mutation refs,
+and applied retention values while keeping writable product settings, platform
+runtime, child-device delivery, provider delivery, notification receipt,
+physical-device, authority, production, and product-ready claims false.
 The hosted parent route now renders those retention settings read-model rows as
 a narrow proof card and captures
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
@@ -322,11 +323,11 @@ This workpack can be assigned independently, implemented against the owning doma
 - Retention settings read-model and mutation rows are not writable product UI or
   live retention UI proof.
 - Retention settings write-command proof is local service execution plus local
-  service state revision proof, not durable writable UI, production persistence,
-  or product-ready service execution proof.
+  service state revision and durable store-ref proof, not writable product UI,
+  production hardening, or product-ready service execution proof.
 - Retention local service state readback proof is a derived parent-domain
-  evidence row from the accepted write command, not durable persistence or
-  platform/device runtime proof.
+  evidence row from the accepted write command, not platform/device runtime
+  proof.
 - Report/export read-model proof is redacted evidence-ref packet readiness plus
   hosted packet rendering only, not raw location payload export, service
   mutation, platform runtime, child-device/runtime execution, or product-ready
@@ -566,7 +567,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, and WP32 updated; central product capability checklist
       remains hub/primary sequenced.
-- [x] Known gaps/manual-required states: durable product settings, platform
+- [x] Known gaps/manual-required states: writable product settings, platform
       runtime, child-device delivery, Android/iOS physical proof, authority,
       provider delivery, notification receipts, production workers, and
       product-ready retention behavior remain proof-gated.
@@ -587,11 +588,10 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, and WP32 updated; central product capability checklist
       remains hub/primary sequenced because E-B owns the lock.
-- [x] Known gaps/manual-required states: production durable settings
-      persistence, product-ready writable settings, platform runtime,
-      child-device delivery, Android/iOS physical proof, authority, provider
-      delivery, notification receipts, production workers, and product-ready
-      retention behavior remain proof-gated.
+- [x] Known gaps/manual-required states: product-ready writable settings,
+      platform runtime, child-device delivery, Android/iOS physical proof,
+      authority, provider delivery, notification receipts, production workers,
+      and product-ready retention behavior remain proof-gated.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: parent-domain retention settings mutation proof source and
@@ -662,7 +662,7 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
       checklist remains hub/primary sequenced.
 - [x] Known gaps/manual-required states: hosted route consumes and renders the
       typed local service execution response with local service state revision.
-      Durable product settings, applied product-ready service mutation
+      Writable product settings, applied product-ready service mutation
       execution, platform replay/runtime, child-device delivery/runtime
       execution, Android/iOS physical-device proof, authority, provider delivery,
       notification receipt ingestion,

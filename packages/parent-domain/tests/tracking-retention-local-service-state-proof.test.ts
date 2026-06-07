@@ -20,12 +20,13 @@ describe('tracking retention local service state readback proof', () => {
       serviceMutationExecuted: true,
       localServiceStateRevisionRecorded: true,
       localServiceStateReadbackClaimed: true,
+      durableSettingsPersisted: true,
     });
     expect(proof.rows).toHaveLength(1);
     expectLocalStateRow(proof);
   });
 
-  it('rejects missing revision, durable persistence, and product claims', () => {
+  it('rejects missing revision, missing durable persistence, and product claims', () => {
     const acceptedResult = writeResult();
 
     expect(
@@ -37,7 +38,7 @@ describe('tracking retention local service state readback proof', () => {
     expect(
       TrackingRetentionLocalServiceStateWriteResultSchema.safeParse({
         ...acceptedResult,
-        durableSettingsPersisted: true,
+        durableSettingsPersisted: false,
       }).success
     ).toBe(false);
     expect(
@@ -72,6 +73,7 @@ function expectLocalStateRow(proof: TrackingRetentionLocalServiceStateProof): vo
   );
   expect(row.localServiceStateRevision).toBe(1);
   expect(row.localServiceStateSnapshotRef).toBe('agent-service-local-retention-settings-state');
+  expect(row.durableSettingsStoreRef).toBe('agent-service-local-retention-settings-durable-json');
   expect(row.appliedRetentionWindowHours).toBe(168);
   expect(row.remoteSyncEnabled).toBe(false);
   expect(row.remoteAiEnabled).toBe(false);
@@ -82,7 +84,7 @@ function expectLocalStateRow(proof: TrackingRetentionLocalServiceStateProof): vo
 }
 
 function expectNoProductClaims(row: {
-  readonly durableSettingsPersisted: false;
+  readonly durableSettingsPersisted: boolean;
   readonly platformRuntimeClaimed: false;
   readonly childDeviceDeliveryClaimed: false;
   readonly providerDeliveryClaimed: false;
@@ -91,7 +93,7 @@ function expectNoProductClaims(row: {
   readonly authorityClaimed: false;
   readonly productClaimReady: false;
 }): void {
-  expect(row.durableSettingsPersisted).toBe(false);
+  expect(row.durableSettingsPersisted).toBe(true);
   expect(row.platformRuntimeClaimed).toBe(false);
   expect(row.childDeviceDeliveryClaimed).toBe(false);
   expect(row.providerDeliveryClaimed).toBe(false);
@@ -122,7 +124,8 @@ function writeResult(): unknown {
     remoteAiEnabled: false,
     localServiceStateRevision: 1,
     localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
-    durableSettingsPersisted: false,
+    durableSettingsStoreRef: 'agent-service-local-retention-settings-durable-json',
+    durableSettingsPersisted: true,
     commandTransportClaimed: true,
     serviceMutationExecuted: true,
     platformRuntimeClaimed: false,

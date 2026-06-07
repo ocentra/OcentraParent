@@ -21,10 +21,11 @@
       ],
       "localServiceStateRevision": 1,
       "localServiceStateSnapshotRef": "agent-service-local-retention-settings-state",
-      "durableStoreRef": "retention-settings-durable-store-required",
-      "durableSettingsPersisted": false,
+      "durableSettingsStoreRef": "agent-service-local-retention-settings-durable-json",
+      "durableStoreRef": "agent-service-local-retention-settings-durable-json",
+      "durableSettingsPersisted": true,
       "durablePersistenceRequired": true,
-      "durabilityFailureVisible": true,
+      "durabilityFailureVisible": false,
       "productSettingsWritable": false,
       "platformRuntimeClaimed": false,
       "childDeviceDeliveryClaimed": false,
@@ -38,10 +39,11 @@
   "proofClaims": {
     "localServiceStateReadbackClaimed": true,
     "durablePersistenceRequirementVisible": true,
-    "durabilityFailureVisible": true
+    "localDurableSettingsPersisted": true,
+    "durabilityFailureVisible": false
   },
   "productClaims": {
-    "durableSettingsPersisted": false,
+    "durableSettingsPersisted": true,
     "productSettingsWritable": false,
     "platformRuntimeClaimed": false,
     "childDeviceDeliveryClaimed": false,
@@ -52,8 +54,8 @@
     "productClaimReady": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "a36b8dcbe1b81777c8185e94deff6ae09e02f9c6",
-  "gitStatusShort": "M output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/33-retention-local-service-state-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/34-retention-durable-settings-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/40-retention-local-service-state-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/41-retention-durable-settings-proof.json\n M test-results/tracking-retention-durable-settings-proof/proof.json\n M test-results/tracking-retention-local-service-state-proof/proof.json",
+  "baseCommitAtGeneration": "d2a54fa371ef2a0382661030de4ca05e1140f0b0",
+  "gitStatusShort": "",
   "commands": [
     {
       "command": "node scripts/test/tracking-retention-local-service-state-proof.mjs",
@@ -70,7 +72,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-durable-settings-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-retention-durable-settings-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  06:19:49\n   Duration  807ms (transform 137ms, setup 0ms, import 575ms, tests 15ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-retention-durable-settings-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  07:01:36\n   Duration  791ms (transform 134ms, setup 0ms, import 569ms, tests 16ms, environment 0ms)",
       "stderr": ""
     }
   ],
