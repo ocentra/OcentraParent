@@ -13,6 +13,10 @@
       "import": "./dist/app-game-control-authority.js",
       "types": "./dist/app-game-control-authority.d.ts"
     },
+    "./app-game-adapter-capability-status-handoff": {
+      "import": "./dist/app-game-adapter-capability-status-handoff.js",
+      "types": "./dist/app-game-adapter-capability-status-handoff.d.ts"
+    },
     "./app-game-notification-intent": {
       "import": "./dist/app-game-notification-intent.js",
       "types": "./dist/app-game-notification-intent.d.ts"

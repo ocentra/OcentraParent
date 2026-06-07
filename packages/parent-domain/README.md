@@ -17,6 +17,11 @@ mobile readiness, and control catalogs.
   app and native game decisions into read-only parent preview rows while
   keeping evaluator runtime, timers, child delivery, adapter dispatch, broad
   blocking, and platform enforcement unclaimed.
+- App/game adapter capability status handoff contracts that project existing
+  supported-adapter runtime and cross-platform capability proof rows into
+  separate native app/native game status rows for Windows, macOS, Linux,
+  Android, and iOS while keeping broad blocking, platform enforcement, adapter
+  dispatch, and child delivery unclaimed.
 - App/game source-gated policy preview timer-handoff contracts that consume the
   redacted source-gated read model, identify future timer sequencing candidates,
   and keep manual rows blocked before timer runtime without service, UI,
@@ -509,6 +514,11 @@ flowchart LR
 - Supported-adapter and integrity runtime audit proof remain contract/read-model
   proof; broad app/domain/browser blocking, notification delivery, tamper
   resistance, mobile enforcement, stealth/persistence, and privilege escalation
+  remain unclaimed.
+- App/game adapter capability status handoff proof remains contract/read-model
+  proof; Windows is ready only for owned-process time-limit runtime proof, while
+  broad installed-app blocking, macOS/Linux/Android/iOS adapter execution,
+  platform enforcement, adapter dispatch, portal rendering, and child delivery
   remain unclaimed.
 - Integrity alert/status bridge proof remains notification intent/status and
   audit drill-in proof only; provider delivery, UI, anti-tamper resistance,

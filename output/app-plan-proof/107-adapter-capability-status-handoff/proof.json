@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-adapter-capability-status-handoff",
+  "checkedAt": "2026-06-07T05:54:33.925Z",
+  "commit": "328cbc0a0cf4d74064eb3d6e03722712c325e6fc",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-adapter-capability-status-handoff v0-8-supported-adapter-runtime-proof v0-8-cross-platform-enforcement-capability-proof"
+  ],
+  "evidence": {
+    "contract": "packages/parent-domain/src/app-game-adapter-capability-status-handoff.ts",
+    "test": "packages/parent-domain/tests/app-game-adapter-capability-status-handoff.test.ts",
+    "harness": "scripts/test/app-game-adapter-capability-status-handoff-proof.mjs",
+    "featureDoc": "docs/features/app-game-control.md",
+    "appGameWorkpack": "docs/plans/app-game-plan/workpacks/107-adapter-capability-status-handoff.md",
+    "appGameProofDir": "output/app-game-plan-proof/107-adapter-capability-status-handoff",
+    "appPlanProofDir": "output/app-plan-proof/107-adapter-capability-status-handoff"
+  },
+  "counts": {
+    "rows": 10,
+    "byPlatform": {
+      "windows": 2,
+      "macos": 2,
+      "linux": 2,
+      "android": 2,
+      "ios": 2
+    },
+    "byTarget": {
+      "native-app": 5,
+      "native-game": 5
+    },
+    "byAdapterStatus": {
+      "runtime-boundary-ready": 2,
+      "scaffold-only": 2,
+      "unavailable": 2,
+      "manual-required": 4
+    },
+    "byBroadBlockingStatus": {
+      "manual-required": 8,
+      "unavailable": 2
+    },
+    "adapterDispatchClaimed": 0,
+    "broadBlockingClaimed": 0,
+    "platformEnforcementClaimed": 0,
+    "childDeliveryClaimed": 0
+  },
+  "claimsProved": [
+    "Adapter capability status handoff projects native app and native game rows for Windows, macOS, Linux, Android, and iOS",
+    "Windows rows expose owned-process time-limit runtime-boundary readiness while broad installed-app blocking stays manual-required",
+    "macOS rows are scaffold/manual-required, Linux rows are unavailable, and Android/iOS rows are manual-required",
+    "Every row keeps adapter dispatch, broad blocking, platform enforcement, and child delivery claims false"
+  ],
+  "claimsNotProved": [
+    "broad installed-app blocking",
+    "macOS adapter execution",
+    "Linux adapter execution",
+    "Android privileged child-device adapter execution",
+    "iOS Family Controls or DeviceActivity execution",
+    "portal runtime rendering",
+    "child-device delivery"
+  ]
+}

@@ -1018,8 +1018,14 @@ mobile UI, or prove platform support.
       and not-claimed proof requirements. Platform-extension routing now maps
       every MAC, IOS, ANDROID, and LINUX row to proof packs and handoffs, and
       WP73 proof-pack readiness rows keep macOS, iOS, Android, and Linux
-      native-app/native-game proof requirements visible. Runtime adapter
-      capability/UI proof remains.
+      native-app/native-game proof requirements visible. WP107 now projects the
+      existing supported-adapter runtime and cross-platform capability proof
+      rows into separate native app/native game adapter status rows for
+      Windows, macOS, Linux, Android, and iOS: Windows is ready only for
+      owned-process time-limit runtime proof, macOS stays scaffold/manual,
+      Linux stays unavailable, Android/iOS stay manual-required, and broad
+      blocking/platform enforcement/adapter dispatch/child delivery remain
+      unclaimed. Runtime adapter capability UI proof remains.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,
