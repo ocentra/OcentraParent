@@ -1,0 +1,12 @@
+
+running 5 tests
+test tests::zeek::zeek_generator_produces_conn_dns_http_tls_and_ssl_rows_with_matching_comparisons ... ok
+test tests::zeek::zeek_generator_preserves_unknown_missing_and_ambiguous_states_without_guessing ... ok
+test tests::zeek::zeek_generator_rejects_network_only_content_signature_live_and_authority_claims ... ok
+test tests::zeek::zeek_generator_rejects_missing_or_mismatched_comparison_artifacts ... ok
+test tests::zeek::zeek_generator_rejects_empty_refs_and_visible_value_mismatch ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 208 filtered out; finished in 0.00s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running unittests src\lib.rs (target\debug\deps\ocentra_network_evidence-36610952c1128119.exe)

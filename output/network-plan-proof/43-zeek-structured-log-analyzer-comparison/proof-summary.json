@@ -1,0 +1,54 @@
+{
+  "proof": "network-zeek-analyzer-comparison",
+  "checkedAt": "2026-06-07T01:21:27.718Z",
+  "branch": "codex/network-analyzer-proof-artifacts",
+  "sourceCommit": "c69ff10324701e7b3941ab087089d76862f565af",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
+  "originMain": "8c8fad79a50e914922fbc84984878211e127897e",
+  "mergeBase": "8c8fad79a50e914922fbc84984878211e127897e",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\43-zeek-structured-log-analyzer-comparison",
+  "testRoot": "test-results\\network-zeek-analyzer-comparison-proof",
+  "commands": [
+    {
+      "name": "network-zeek-generator-tests",
+      "command": "cargo test -p ocentra-network-evidence zeek_generator",
+      "status": 0,
+      "log": "output\\network-plan-proof\\43-zeek-structured-log-analyzer-comparison\\zeek-generator-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\43-zeek-structured-log-analyzer-comparison\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\43-zeek-structured-log-analyzer-comparison\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "approvedComparisonFixture": "output\\network-plan-proof\\43-zeek-structured-log-analyzer-comparison\\approved-zeek-comparison-fixture.json",
+    "proofSummary": "output\\network-plan-proof\\43-zeek-structured-log-analyzer-comparison\\proof-summary.json",
+    "testProof": "test-results\\network-zeek-analyzer-comparison-proof\\proof.json"
+  },
+  "provenRows": [
+    "43 Zeek-style structured log generator and analyzer comparison proof"
+  ],
+  "provenLogKinds": [
+    "conn",
+    "dns",
+    "http",
+    "tls",
+    "ssl"
+  ],
+  "notClaimed": [
+    "live Zeek, TShark, or Wireshark process invocation",
+    "live Npcap/libpcap capture",
+    "Suricata or Snort-compatible signature alert ingestion",
+    "exact URL, page content, message, search query, or decrypted payload visibility",
+    "policy, adapter, or enforcement command authority"
+  ]
+}
