@@ -355,6 +355,11 @@ control with better evidence and local audit.
   child UX states, while manual-required and unavailable states stay blocked
   before queued records and child delivery/provider/scheduler/UI/adapter/
   platform claims remain false.
+- Timer parent-surface child UX local outbox rows now bridge into existing
+  deterministic scheduler JSONL records for deliverable native app/native game
+  child UX states, while manual-required and unavailable states remain
+  unscheduled and child delivery/provider/retry/quiet-hours/UI/adapter/platform
+  claims remain false.
 - The App/Game Sessions portal route now has a route-level app/game
   notification parent-surface panel that projects the live service
   notification-readiness read-model event into schema-backed manual/unavailable
@@ -1172,9 +1177,12 @@ diagnostics, or raw private source rows.
       and the timer parent-surface service/portal read model now renders
       artifact record counts, skipped counts, artifact refs, and structured
       parent-safe artifact records with source result ids, target domains, and
-      child reason/status refs; live child UI, notifications, durable service
-      persistence/export, package export, adapter dispatch, and platform
-      execution remain.
+      child reason/status refs. Deliverable child UX artifact rows now bridge
+      to parent-owned local outbox JSONL records and then deterministic
+      scheduler JSONL rows, while manual-required and unavailable rows stay
+      blocked/unscheduled; live child UI, provider delivery, retry execution,
+      quiet-hours runtime, durable service persistence/export, package export,
+      adapter dispatch, and platform execution remain.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps
