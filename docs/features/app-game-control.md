@@ -365,6 +365,11 @@ control with better evidence and local audit.
   setup before delivery can be claimed, while manual-required and unavailable
   rows remain blocked and provider delivery/receipt/UI/runtime/adapter/platform
   claims remain false.
+- Timer parent-surface child UX provider-preflight rows now bridge into the
+  existing V0.8 provider-status boundary as manual-required or unavailable rows,
+  preserving scheduler/outbox/channel/readiness refs while provider delivery,
+  receipt, credential, parent UI, child delivery, adapter, and platform claims
+  remain false.
 - The App/Game Sessions portal route now has a route-level app/game
   notification parent-surface panel that projects the live service
   notification-readiness read-model event into schema-backed manual/unavailable
@@ -1186,10 +1191,12 @@ diagnostics, or raw private source rows.
       to parent-owned local outbox JSONL records and then deterministic
       scheduler JSONL rows, then provider-preflight rows that require adapter,
       credential, and smoke-proof setup before any delivery claim, while
-      manual-required and unavailable rows stay blocked/unscheduled; live child
-      UI, provider delivery/receipt ingestion, retry execution, quiet-hours
-      runtime, durable service persistence/export, package export, adapter
-      dispatch, and platform execution remain.
+      manual-required and unavailable rows stay blocked/unscheduled. Child UX
+      provider-preflight rows now bridge into the existing V0.8 provider-status
+      boundary as manual-required or unavailable rows; live child UI, provider
+      delivery/receipt ingestion, retry execution, quiet-hours runtime, durable
+      service persistence/export, package export, adapter dispatch, and
+      platform execution remain.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps
