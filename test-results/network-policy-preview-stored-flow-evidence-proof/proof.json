@@ -2,7 +2,7 @@
   "proof": "network-policy-preview-stored-flow-evidence-proof",
   "proofRevision": "network-policy-preview-stored-flow-evidence-proof/v2",
   "checkedAt": "deterministic:network-policy-preview-stored-flow-evidence-proof/v2",
-  "sourceFingerprint": "source-tree:cf4a41584531b1e55d47c21d13d4d1206e6dc03ff2a19351d209ea09812e94c3",
+  "sourceFingerprint": "source-tree:05cbe256fd29cc071f8a9b55852288d028320faee48dac7f0d589244f9b9eaf3",
   "sourceRefs": [
     "scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs",
     "crates/agent-core/Cargo.toml",
@@ -113,7 +113,7 @@
   "provenBoundaries": [
     "agent-core policy preview consumes a stored ActivityStore network flow row and maps destinationDomain into a domain policy target",
     "agent-core policy preview resolves a local parent-rule context only when the parent rule cites the stored network activity event ref",
-    "agent-core policy preview suppresses retention-deleted network flow evidence before parent-rule matching or dry-run decisions",
+    "agent-core policy preview suppresses retention-deleted network flow evidence before preview limits, parent-rule matching, or dry-run decisions",
     "agent-core policy preview excludes parent-rule contexts whose device or child scope does not match the stored event source",
     "agent-core policy preview excludes future, expired, and scheduled-without-proof parent rules from preview rows",
     "agent-core policy preview applies the shared row34 evidence-grade mapper so grade-B network block requests become parent-review ask-parent decisions",

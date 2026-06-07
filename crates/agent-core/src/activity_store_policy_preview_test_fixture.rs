@@ -55,6 +55,10 @@ pub(crate) fn active_window_event() -> ActivityEvent {
 }
 
 pub(crate) fn network_flow_event() -> ActivityEvent {
+    network_flow_event_at(constants::activity_store::TEST_FIRST_OBSERVED_AT, 0)
+}
+
+pub(crate) fn network_flow_event_at(observed_at: &str, sequence_index: usize) -> ActivityEvent {
     network_observation_event(
         NetworkObservation {
             status: ActivityCaptureCapabilityStatus::Available,
@@ -71,12 +75,22 @@ pub(crate) fn network_flow_event() -> ActivityEvent {
             process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
             associated_pid_count: 1,
         },
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        0,
+        observed_at,
+        sequence_index,
     )
 }
 
 pub(crate) fn network_retention_deleted_event(deleted_event_id: &str) -> ActivityEvent {
+    network_retention_deleted_event_at(
+        deleted_event_id,
+        constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT,
+    )
+}
+
+pub(crate) fn network_retention_deleted_event_at(
+    deleted_event_id: &str,
+    observed_at: &str,
+) -> ActivityEvent {
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
@@ -84,16 +98,13 @@ pub(crate) fn network_retention_deleted_event(deleted_event_id: &str) -> Activit
     );
     fields.insert(
         constants::field::DELETED_AT.to_string(),
-        LogFieldValue::String(
-            constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT.to_string(),
-        ),
+        LogFieldValue::String(observed_at.to_string()),
     );
 
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
         event_id: constants::activity_store::TEST_NETWORK_RETENTION_DELETE_EVENT_ID.to_string(),
-        observed_at: constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT
-            .to_string(),
+        observed_at: observed_at.to_string(),
         source: ActivitySource {
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
             platform: std::env::consts::OS.to_string(),

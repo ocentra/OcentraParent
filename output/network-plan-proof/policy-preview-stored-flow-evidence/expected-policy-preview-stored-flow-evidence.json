@@ -17,7 +17,7 @@
   ],
   "evidenceBoundary": [
     "policy preview evidence references include the stored ActivityEvent ref",
-    "retention tombstones suppress deleted network flow evidence before preview decisions",
+    "retention tombstones suppress deleted network flow evidence before preview limit and decisions",
     "wrong-device or wrong-child parent rule contexts are excluded before preview decisions",
     "future, expired, or scheduled-without-proof parent rules are excluded before preview decisions",
     "this slice does not invent query-store, journal, AI, adapter, or enforcement refs",

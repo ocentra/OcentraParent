@@ -5,7 +5,8 @@ use ocentra_parent_agent_protocol::{
 
 use super::{
     activity_store_policy_preview_test_fixture::{
-        browser_event, network_flow_event, network_retention_deleted_event, parent_rule_context,
+        browser_event, network_flow_event, network_flow_event_at, network_retention_deleted_event,
+        network_retention_deleted_event_at, parent_rule_context,
     },
     ActivityStore,
 };
@@ -159,6 +160,44 @@ fn policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombston
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT,
         )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert_eq!(read_model.returned, 0);
+    assert_eq!(read_model.rows.len(), 0);
+    assert_eq!(
+        read_model.capability_status,
+        policy::PREVIEW_CAPABILITY_NO_EVIDENCE
+    );
+}
+
+#[test]
+fn policy_preview_read_model_applies_retention_tombstones_before_limit() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let event = network_flow_event_at(constants::activity_store::TEST_THIRD_OBSERVED_AT, 1);
+    let deleted_event_id = event.event_id.clone();
+    let tombstone = network_retention_deleted_event_at(
+        &deleted_event_id,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
+    );
+    store
+        .ingest_events(&[tombstone, event])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    store
+        .replace_parent_rule_contexts(&[parent_rule_context(
+            PolicyTarget {
+                target_id: constants::activity_store::TEST_NETWORK_EVENT_ID.to_string(),
+                target_type: PolicyTargetType::Domain,
+                target_value: constants::activity_store::TEST_NETWORK_DOMAIN.to_string(),
+            },
+            policy::TEST_BLOCK_RULE_ID,
+            PolicyAction::Block,
+            policy::TEST_REASON_PARENT_BLOCK,
+            vec![deleted_event_id],
+        )])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+
+    let read_model = store
+        .policy_preview_read_model(1, constants::activity_store::TEST_THIRD_OBSERVED_AT)
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 0);

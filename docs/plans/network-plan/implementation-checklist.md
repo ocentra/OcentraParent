@@ -287,8 +287,8 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       domain policy target, resolves a parent-rule context only when the
       parent-rule evidence refs cite the stored network activity event and the
       context matches the event source device/platform scope, suppresses
-      retention-deleted flow rows before parent-rule matching, excludes stale,
-      future, or scheduled-without-proof parent-rule contexts, consumes the
+      retention-deleted flow rows before preview limits and parent-rule matching,
+      excludes stale, future, or scheduled-without-proof parent-rule contexts, consumes the
       row34 shared evidence-grade mapper so grade-B network block requests
       downgrade to parent-review ask-parent, and serializes the latest dry-run
       decision with disabled enforcement handoff.

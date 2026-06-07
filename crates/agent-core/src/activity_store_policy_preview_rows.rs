@@ -20,33 +20,43 @@ pub(crate) fn policy_preview_rows(
     connection: &Connection,
     limit: u64,
 ) -> Result<Vec<PolicyPreviewStoreRow>, ActivityStoreError> {
+    if limit == 0 {
+        return Ok(Vec::new());
+    }
+
+    let deleted_ids = deleted_evidence_reference_ids(connection)?;
     let mut statement = connection.prepare(constants::sqlite::SELECT_POLICY_PREVIEW_ACTIVITY)?;
-    let rows = statement.query_map(params![limit as i64], |row| {
-        Ok((
-            row.get::<_, String>(0)?,
-            row.get::<_, String>(1)?,
-            row.get::<_, String>(2)?,
-            row.get::<_, String>(3)?,
-            row.get::<_, String>(4)?,
-            row.get::<_, String>(5)?,
-            row.get::<_, String>(6)?,
-            row.get::<_, Option<String>>(7)?,
-            row.get::<_, String>(8)?,
-            row.get::<_, String>(9)?,
-        ))
-    })?;
+    let rows = statement.query_map(
+        params![constants::activity_event_kind::NETWORK_RETENTION_DELETED],
+        |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+                row.get::<_, String>(4)?,
+                row.get::<_, String>(5)?,
+                row.get::<_, String>(6)?,
+                row.get::<_, Option<String>>(7)?,
+                row.get::<_, String>(8)?,
+                row.get::<_, String>(9)?,
+            ))
+        },
+    )?;
 
     let mut results = Vec::new();
     for row in rows {
-        results.push(store_row_from_sqlite(row?)?);
+        let store_row = store_row_from_sqlite(row?)?;
+        if row_deleted(&store_row, &deleted_ids) {
+            continue;
+        }
+        results.push(store_row);
+        if results.len() >= limit as usize {
+            break;
+        }
     }
 
-    let deleted_ids = deleted_evidence_reference_ids(&results);
-    Ok(results
-        .into_iter()
-        .filter(|row| !is_retention_tombstone(row))
-        .filter(|row| !row_deleted(row, &deleted_ids))
-        .collect())
+    Ok(results)
 }
 
 fn store_row_from_sqlite(
@@ -89,10 +99,6 @@ fn store_row_from_sqlite(
     })
 }
 
-fn is_retention_tombstone(row: &PolicyPreviewStoreRow) -> bool {
-    row.kind == constants::activity_event_kind::NETWORK_RETENTION_DELETED
-}
-
 fn row_deleted(row: &PolicyPreviewStoreRow, deleted_ids: &[String]) -> bool {
     deleted_ids.iter().any(|id| id == &row.event_id)
         || row
@@ -101,16 +107,28 @@ fn row_deleted(row: &PolicyPreviewStoreRow, deleted_ids: &[String]) -> bool {
             .any(|reference| deleted_ids.iter().any(|id| id == &reference.evidence_id))
 }
 
-fn deleted_evidence_reference_ids(rows: &[PolicyPreviewStoreRow]) -> Vec<String> {
+fn deleted_evidence_reference_ids(
+    connection: &Connection,
+) -> Result<Vec<String>, ActivityStoreError> {
+    let mut statement =
+        connection.prepare(constants::sqlite::SELECT_NETWORK_RETENTION_DELETED_ACTIVITY)?;
+    let rows = statement.query_map(
+        params![constants::activity_event_kind::NETWORK_RETENTION_DELETED],
+        |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
+    )?;
+
     let mut ids = Vec::new();
-    for row in rows.iter().filter(|row| is_retention_tombstone(row)) {
-        for id in evidence_reference_ids(&row.fields, &row.evidence) {
+    for row in rows {
+        let (fields_json, evidence_json) = row?;
+        let fields = serde_json::from_str::<LogFields>(&fields_json)?;
+        let evidence = serde_json::from_str::<Vec<ActivityEvidenceRef>>(&evidence_json)?;
+        for id in evidence_reference_ids(&fields, &evidence) {
             if !ids.iter().any(|existing| existing == &id) {
                 ids.push(id);
             }
         }
     }
-    ids
+    Ok(ids)
 }
 
 fn evidence_reference_ids(fields: &LogFields, evidence: &[ActivityEvidenceRef]) -> Vec<String> {

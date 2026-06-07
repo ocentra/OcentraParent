@@ -216,8 +216,9 @@ compete on control while staying clear about attribution confidence and privacy.
   flow rows now feed the existing policy-preview read model, map
   `destinationDomain` to a domain policy target, resolve parent-rule contexts
   only when they cite the stored network activity event ref and match the event
-  source device/platform scope, suppress retention-deleted flow rows, exclude
-  stale/future/scheduled-without-proof contexts, apply the shared row34
+  source device/platform scope, suppress retention-deleted flow rows before
+  preview limits and rule matching, exclude stale/future/scheduled-without-proof
+  contexts, apply the shared row34
   evidence-grade mapper so grade-B network block requests become parent-review
   ask-parent decisions, and serialize the latest dry-run decision through the
   service payload. The proof writes
@@ -692,7 +693,7 @@ UI rendering remain open.
       Stored ActivityStore network flow rows now feed the existing
       policy-preview read model and service payload with parent-rule evidence
       refs, source-device-scoped context filtering, stale/future/scheduled
-      context rejection, retention-deleted flow row suppression, row34
+      context rejection, pre-limit retention-deleted flow row suppression, row34
       evidence-grade mapping that downgrades grade-B block requests to
       parent-review ask-parent, dry-run decision state, and disabled enforcement
       handoff. Proof:

@@ -1,5 +1,5 @@
 
-running 11 tests
+running 12 tests
 test activity_store_policy_preview_parent_rule_tests::policy_preview_read_model_rejects_future_or_expired_rule_windows ... ok
 test activity_store_policy_preview_parent_rule_tests::policy_preview_read_model_rejects_partially_grounded_parent_rule_context ... ok
 test activity_store_policy_preview_parent_rule_tests::policy_preview_read_model_rejects_scheduled_rule_without_schedule_proof ... ok
@@ -7,12 +7,13 @@ test activity_store_policy_preview_parent_rule_tests::policy_preview_read_model_
 test activity_store_policy_preview_parent_rule_tests::policy_preview_read_model_resolves_app_rule_from_active_window_alias ... ok
 test activity_store_policy_preview_parent_rule_tests::policy_preview_read_model_resolves_local_parent_rule_context_for_matching_evidence ... ok
 test activity_store_policy_preview_parent_rule_tests::policy_preview_read_model_resolves_site_rule_from_browser_url_alias ... ok
+test activity_store_policy_preview_tests::policy_preview_read_model_applies_retention_tombstones_before_limit ... ok
 test activity_store_policy_preview_tests::policy_preview_read_model_evaluates_stored_browser_evidence_without_enforcement ... ok
 test activity_store_policy_preview_tests::policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enforcement ... ok
 test activity_store_policy_preview_tests::policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombstone ... ok
 test activity_store_policy_preview_tests::policy_preview_read_model_reports_empty_store_without_inventing_rows ... ok
 
-test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 262 filtered out; finished in <duration>
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 262 filtered out; finished in <duration>
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
      Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_core-9cb1b877e0051382.exe)
