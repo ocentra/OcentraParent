@@ -278,9 +278,11 @@ expose location or device-status features. Parents expect this category.
   provider-runtime readiness blocker, escalation-runtime readiness blocker, and
   retention product-readiness blocker proof refs, writes
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
-  and keeps Android/iOS physical background, actual child-device runtime,
-  full product parent/child UI, authority, provider delivery/receipt,
-  production workers, and product-ready tracking unclaimed.
+  explicitly enumerates retention writable-settings and platform-enforcement
+  blockers from the retention product-readiness proof, and keeps Android/iOS
+  physical background, actual child-device runtime, full product parent/child
+  UI, authority, provider delivery/receipt, production workers, and
+  product-ready tracking unclaimed.
 - WP31/WP33 authority-runtime readiness blocker proof now exists through
   `node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`.
   It consumes the existing authority-enrollment manual-required proof rows,

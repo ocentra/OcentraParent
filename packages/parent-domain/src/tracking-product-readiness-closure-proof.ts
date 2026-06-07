@@ -66,6 +66,8 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
 export const TrackingProductReadinessClosureBlockerSchema = Schema.Literal(
   'android-physical-background-proof-required',
   'ios-physical-region-proof-required',
+  'retention-writable-product-settings-required',
+  'retention-platform-runtime-enforcement-required',
   'actual-child-device-runtime-required',
   'full-product-parent-child-ui-required',
   'authority-enrollment-proof-required',
@@ -76,6 +78,8 @@ export const TrackingProductReadinessClosureBlockerSchema = Schema.Literal(
 export const RequiredTrackingProductReadinessClosureBlockers = [
   'android-physical-background-proof-required',
   'ios-physical-region-proof-required',
+  'retention-writable-product-settings-required',
+  'retention-platform-runtime-enforcement-required',
   'actual-child-device-runtime-required',
   'full-product-parent-child-ui-required',
   'authority-enrollment-proof-required',

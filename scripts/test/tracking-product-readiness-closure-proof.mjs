@@ -180,7 +180,7 @@ function sourceSnapshot(proof) {
     '- currentProofTier: P3_LOCAL_DEV_MACHINE',
     '- status: proved',
     '- proves local/CI proof accounting is closed for current tracking continuation scope',
-    '- does not prove physical-device, authority, provider-delivery, production, or product-ready tracking behavior',
+    '- does not prove retention product settings, physical-device, authority, provider-delivery, production, or product-ready tracking behavior',
     '- proof module: packages/parent-domain/src/tracking-product-readiness-closure-proof.ts',
     '- proof tests: packages/parent-domain/tests/tracking-product-readiness-closure-proof.test.ts',
     '- proof harness: scripts/test/tracking-product-readiness-closure-proof.mjs',
@@ -192,7 +192,7 @@ function securityNegativeProof() {
   return [
     'workpack=33-proof-gates-fixtures-rollout-and-pr-gate',
     'Closure rows cite existing local/CI proof refs and enumerate remaining product blockers.',
-    'Rows do not claim Android/iOS physical background behavior, authority enrollment, provider delivery/receipt runtime, production workers, actual child-device runtime, or product readiness.',
+    'Rows do not claim writable retention product settings, platform retention enforcement, Android/iOS physical background behavior, authority enrollment, provider delivery/receipt runtime, production workers, actual child-device runtime, or product readiness.',
     '',
   ].join('\n');
 }

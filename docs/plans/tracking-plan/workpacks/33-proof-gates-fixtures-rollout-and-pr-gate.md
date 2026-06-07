@@ -131,6 +131,9 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   product UI runtime artifact gate and production worker runtime artifact gate:
   `59-full-product-ui-runtime-artifact-gate-proof.json`,
   `58-production-worker-runtime-artifact-gate-proof.json`
+- Refreshed tracking product-readiness closure proof also enumerates the
+  retention product-readiness blocker proof's writable-settings and platform
+  retention enforcement blockers in the aggregate remaining-blocker row.
 - Tracking escalation-runtime readiness blocker proof:
   `53-escalation-runtime-readiness-blocker-proof.json`
 - Tracking notification preference status handoff proof:
