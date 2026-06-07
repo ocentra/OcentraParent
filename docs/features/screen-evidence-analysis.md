@@ -613,11 +613,17 @@ only with explicit parent settings.
 - Product-complete retention controls and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
+- `scripts/test/screen-optional-visibility-capability-status-proof.mjs` now
+  proves optional raw-retention/live-view parent opt-in readiness rows. Disabled
+  modes stay unavailable, approved raw retention remains manual-required until
+  runtime and deletion proof exist, and approved live view remains blocked when
+  the only platform evidence is capture consent. This is child/device
+  capability status proof, not raw retention runtime or live transport.
 
 ## Current Gap
 
-Parent retention controls, optional raw-retention runtime enablement,
-live-view transport/relay/cache,
+Product-complete parent retention controls, optional raw-retention runtime
+enablement, live-view transport/relay/cache,
 platform permission prompt proof, child-agent disclosure runtime deployment,
 privacy/legal approval, authenticated-account
 social proof beyond public/live surface proof, production OCR/VLM quality beyond
@@ -687,6 +693,9 @@ parity, and UI remain separate proof gates.
       live view, and raw remote upload by default.
 - [x] Optional raw-retention/live-view preflight contract requires explicit
       opt-in, custody, audit, deletion/no-retention, and platform-proof gates.
+- [x] Optional raw-retention/live-view capability status records disabled,
+      manual-required, and blocked child/device readiness rows and rejects
+      product readiness without runtime/deletion or live-view transport proof.
 - [x] Local AI resource scheduler prevents multiple heavy OCR/VLM jobs and
       prioritizes policy-blocking screen analysis.
 - [x] Detector-specific prompt packs replace open-ended screen descriptions and

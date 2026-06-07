@@ -32,6 +32,10 @@ Shared activity and evidence contracts for child-device observations.
   screen-capture permission proof from satisfying live view readiness unless
   live-view permission evidence, viewer audit, live transport proof,
   no-frame-retention custody, and no-remote-input boundaries are present.
+- Screen optional visibility capability status contracts that expose disabled,
+  manual-required, blocked, and ready rows for optional raw screenshot retention
+  and live view while rejecting readiness without runtime/deletion proof or
+  live-view permission/transport proof.
 - Screen evidence settings UI proof contracts that build disabled, observe-only,
   and strict dry-run parent intent drafts from the real settings schemas without
   claiming child-agent persistence.
@@ -159,6 +163,10 @@ flowchart LR
   service live-view session runtime, platform prompt screenshots, parent UI
   persistence, relay/cache execution, privacy/legal approval, and production
   adapters remain open.
+- Screen optional visibility capability status now has
+  `screen-optional-visibility-capability-status-proof`; runtime raw retention
+  enablement, live transport/relay/cache, parent UI persistence, platform prompt
+  screenshots, and privacy/legal approval remain open.
 - Screen child disclosure now has `screen-child-disclosure-proof`; rendered
   child-agent delivery, platform-specific screenshots, and product-complete
   child UX remain separate proof gates.

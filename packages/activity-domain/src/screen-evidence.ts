@@ -15,5 +15,7 @@ export * from './screen-evidence-family-hub-routing';
 export * from './screen-vlm-worker';
 export * from './screen-intelligence-router';
 export * from './screen-optional-visibility-mode';
+export * from './screen-optional-visibility-capability-status';
+export * from './screen-optional-visibility-capability-proof';
 export * from './screen-live-view-platform-permission';
 export * from './screen-managed-browser-cdp-capture';
