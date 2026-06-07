@@ -71,6 +71,11 @@ control with better evidence and local audit.
   permission-required, manual-required, and not-claimed app/game states remain
   visible through dashboard rows, capability summaries, and policy-readiness
   route details instead of being hidden or upgraded into adapter/policy claims.
+- The raw executable path UI leak gate now proves the App/Game Sessions
+  dashboard can receive service rows carrying private Windows executable-path
+  refs while the parent-visible intent and SVG dashboard omit the raw path and
+  `executablePathRef` field, rendering only labels, state, counts, capability,
+  durations, and evidence refs.
 - App/game unknown approval contracts now represent new inventory apps, unknown
   runtime processes, portable/installer candidates, launcher-game candidates,
   unknown game-like executables, child status/reason refs, parent response

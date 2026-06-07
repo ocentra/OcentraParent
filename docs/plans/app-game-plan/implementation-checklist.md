@@ -171,7 +171,7 @@ Required files:
 - [x] Session duration changes after journal replay.
 - [x] Portal hides stale, permission-limited, manual-required, or not-claimed
       states.
-- [ ] Raw private executable paths leak into parent UI.
+- [x] Raw private executable paths leak into parent UI.
 - [ ] Malicious app/game metadata causes XSS or layout breakage.
 
 ## Platform Extension Checklist
