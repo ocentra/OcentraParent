@@ -28,7 +28,7 @@ use crate::{
     activity_capture::{record_activity_events_to_paths, ActivityCaptureError},
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
     fields::fields_from_pairs,
-    screen_ai_service_event_bridge::publish_screen_deletion_event_for_queue_job,
+    screen_ai_retention_sweeper_deletion_events::publish_screen_retention_deletion_events,
     time::timestamp_now,
 };
 
@@ -84,14 +84,12 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
             expired_entries, ..
         }) = outcome
         {
-            for entry in &expired_entries {
-                let _ = publish_screen_deletion_event_for_queue_job(
-                    &config.store_path,
-                    &entry.queue_job_id,
-                    &observed_at,
-                )
-                .await;
-            }
+            let _ = publish_screen_retention_deletion_events(
+                &config.store_path,
+                &expired_entries,
+                &observed_at,
+            )
+            .await;
             sweep_count += 1;
         }
         if config.max_sweeps.is_some_and(|max| sweep_count >= max) {
@@ -287,6 +285,10 @@ fn expired_entry_fields(
         string_field(
             constants::field::SCREEN_IMAGE_DELETION_STATE,
             SCREEN_DELETION_EXPIRED_DELETED,
+        ),
+        string_field(
+            constants::field::SCREEN_DELETION_REASONS,
+            entry.deletion_proof_ref.clone(),
         ),
         bool_field(constants::field::SCREEN_POLICY_ELIGIBLE, false),
         string_field(

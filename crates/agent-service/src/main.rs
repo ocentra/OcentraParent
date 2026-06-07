@@ -229,6 +229,9 @@ mod screen_ai_foreground_runtime;
 mod screen_ai_foreground_runtime_config;
 #[cfg(test)]
 mod screen_ai_foreground_runtime_tests;
+mod screen_ai_retention_sweeper_deletion_events;
+#[cfg(test)]
+mod screen_ai_retention_sweeper_deletion_events_tests;
 mod screen_ai_retention_sweeper_runtime;
 #[cfg(test)]
 mod screen_ai_retention_sweeper_runtime_tests;

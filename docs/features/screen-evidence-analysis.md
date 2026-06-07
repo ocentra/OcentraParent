@@ -758,9 +758,8 @@ production local vision adapter quality beyond
 the service proof adapter, service-owned live trigger event producers beyond the
 timed cadence
 loop and native active-window foreground watcher capture/queue event producer
-and retention sweeper deletion event producer, startup wiring for remaining live
-producers beyond the service capture/deletion and analysis row-ready handoffs,
-physical
+startup wiring for remaining live producers beyond the service capture/deletion,
+retention sweeper deletion-event, and analysis row-ready handoffs, physical
 Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
 browser-trigger artifact closure,
 browser/network/mobile/broad block action adapters from screen-derived

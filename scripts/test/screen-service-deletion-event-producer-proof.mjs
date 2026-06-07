@@ -46,6 +46,7 @@ async function main() {
       serviceBridge: 'crates/agent-service/src/screen_ai_service_event_bridge.rs',
       serviceBridgeTests: 'crates/agent-service/src/screen_ai_service_event_bridge_tests.rs',
       retentionRuntime: 'crates/agent-service/src/screen_ai_retention_sweeper_runtime.rs',
+      retentionProducer: 'crates/agent-service/src/screen_ai_retention_sweeper_deletion_events.rs',
       retentionTests: 'crates/agent-service/src/screen_ai_retention_sweeper_runtime_tests.rs',
       proofHarness: 'scripts/test/screen-service-deletion-event-producer-proof.mjs',
       screenProofSummary: 'output/screen-plan-proof/screen-service-deletion-event-producer/proof-summary.json',
@@ -62,6 +63,7 @@ async function main() {
       'core screen runtime can publish a deletion-committed event without policy or action claims',
       'service Activity Screen rows map into deletion event payloads with raw-image-retained rejection and deletion proof requirement',
       'service retention sweeper runtime publishes deletion events after expired queue removal',
+      'service retention sweeper rows preserve deletion proof refs before deletion event publication',
       'the deletion producer reuses the existing screen event runtime path instead of adding a second event bus',
     ],
     claimsNotProved: [
@@ -88,6 +90,8 @@ async function assertSourceContracts() {
   const serviceBridge = await readText('crates/agent-service/src/screen_ai_service_event_bridge.rs');
   const serviceTests = await readText('crates/agent-service/src/screen_ai_service_event_bridge_tests.rs');
   const retentionRuntime = await readText('crates/agent-service/src/screen_ai_retention_sweeper_runtime.rs');
+  const retentionProducer = await readText('crates/agent-service/src/screen_ai_retention_sweeper_deletion_events.rs');
+  const retentionTests = await readText('crates/agent-service/src/screen_ai_retention_sweeper_runtime_tests.rs');
   const screenChecklist = await readText('docs/plans/screen-plan/implementation-checklist.md');
   const screenFeature = await readText('docs/features/screen-evidence-analysis.md');
 
@@ -119,8 +123,23 @@ async function assertSourceContracts() {
   );
   assertIncludes(
     retentionRuntime,
-    'publish_screen_deletion_event_for_queue_job',
+    'publish_screen_retention_deletion_events',
     'retention runtime publishes deletion events'
+  );
+  assertIncludes(
+    retentionRuntime,
+    'SCREEN_DELETION_REASONS',
+    'retention runtime keeps deletion proof refs on Activity Screen rows'
+  );
+  assertIncludes(
+    retentionProducer,
+    'publish_screen_deletion_event_for_queue_job',
+    'retention producer reuses deletion event bridge'
+  );
+  assertIncludes(
+    retentionTests,
+    'assert_sweep_deletion_events',
+    'retention tests assert deletion event producer outcome'
   );
   assertIncludes(
     screenChecklist,
