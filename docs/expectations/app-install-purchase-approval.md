@@ -235,6 +235,16 @@ Expected contract families:
   implementation, child-device delivery, runtime report delivery, real
   interception, app blocking, child activity data custody, or Ocentra-hosted
   family data custody.
+- External runtime writer transport preflight proof rows consume external
+  runtime writer readiness rows and classify transport-preflight-ready,
+  parent-owned queue-ref-ready, and manual-required states while requiring
+  external writer transport, queue, child-device transport, platform adapter,
+  and provider/store proof refs before any delivery claim without claiming
+  external runtime writer execution, external runtime writer delivery, parent
+  action runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity data custody,
+  or Ocentra-hosted family data custody.
 - Provider/store execution preflight proof rows link provider/store execution
   readiness rows and runtime writer execution delivery receipts into
   parent-owned execution-ready, manual-required, and unavailable preflight states
@@ -681,6 +691,12 @@ Expected contract families:
   delivery, provider API execution, store integration, platform interception,
   platform adapter implementation, child-device delivery, runtime report
   delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat external runtime writer transport preflight proof refs as
+  external runtime writer execution, external runtime writer delivery, parent
+  action runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity custody, or
   Ocentra-hosted family data custody.
 - Do not treat provider/store execution preflight proof refs as Google Play,
   Apple App Store, Microsoft Store, billing provider execution/contact,

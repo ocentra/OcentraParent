@@ -488,6 +488,21 @@ generic app blocking covers this concern.
   `test-results/app-install-purchase-external-runtime-writer-readiness-proof/proof.json`
   when run, validates the public parent-domain package export, and records the
   product checklist row update.
+- `packages/parent-domain/src/app-install-purchase-external-runtime-writer-transport-preflight-proof.ts`
+  consumes external runtime writer readiness rows and classifies external
+  writer transport preflight plus parent-owned queue refs for approve, deny,
+  and time-box while keeping review-needed manual-required. It requires
+  external writer transport, queue, child-device transport, platform adapter,
+  and provider/store proof refs before any external writer delivery claim and
+  preserves no external runtime writer execution/delivery, parent action
+  runtime delivery, provider/store execution, platform interception/adapters,
+  child-device delivery, runtime report delivery, app blocking, child activity
+  data, or Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-external-runtime-writer-transport-preflight-proof.mjs`
+  records that external runtime writer transport preflight proof under
+  `test-results/app-install-purchase-external-runtime-writer-transport-preflight-proof/proof.json`
+  when run, validates the public parent-domain package export, and records the
+  product checklist row update.
 - `packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts`
   links provider/store execution readiness rows and runtime writer execution
   delivery receipts into parent-owned provider/store execution preflight ready,
@@ -726,6 +741,14 @@ Ocentra-hosted family data custody.
 - [x] External runtime writer readiness proof classifying external runtime
       device delivery evidence rows into writer-handoff-ready/manual-required
       rows with preflight, readiness receipt, target, audit, and report refs
+      without external runtime writer execution/delivery, parent action runtime
+      delivery, provider/store execution, platform interception/adapters,
+      child-device delivery, runtime report delivery, app blocking, child
+      activity data, or hosted family data custody claims.
+- [x] External runtime writer transport preflight proof consuming external
+      runtime writer readiness rows into transport-preflight-ready/
+      manual-required rows with required external writer transport, queue,
+      child-device transport, platform adapter, and provider/store proof refs
       without external runtime writer execution/delivery, parent action runtime
       delivery, provider/store execution, platform interception/adapters,
       child-device delivery, runtime report delivery, app blocking, child
