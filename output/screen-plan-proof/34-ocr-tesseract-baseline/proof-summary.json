@@ -1,6 +1,6 @@
 {
   "proof": "screen-ocr-tesseract-baseline",
-  "generatedAt": "2026-06-06T23:28:18.305Z",
+  "generatedAt": "2026-06-07T02:31:49.996Z",
   "officialSourceSnapshot": {
     "project": "https://github.com/tesseract-ocr/tesseract",
     "documentation": "https://tesseract-ocr.github.io/tessdoc/",
@@ -17,29 +17,74 @@
     "platform": "win32",
     "whereTesseractStatus": 1,
     "whereTesseractOutput": "INFO: Could not find files for the given pattern(s).",
-    "tesseractVersionStatus": 1,
-    "tesseractVersionOutput": "'tesseract' is not recognized as an internal or external command, operable program or batch file.",
-    "tesseractInstalled": false
+    "resolvedTesseractCommand": "C:\\Program Files\\Tesseract-OCR\\tesseract.exe",
+    "tesseractVersionStatus": 0,
+    "tesseractVersionOutput": "tesseract v5.5.0.20241111 leptonica-1.85.0 libgif 5.2.2 : libjpeg 8d (libjpeg-turbo 3.0.4) : libpng 1.6.44 : libtiff 4.7.0 : zlib 1.3.1 : libwebp 1.4.0 : libopenjp2 2.5.2 Found AVX2 Found AVX Found FMA Found SSE4.1 Found libarchive 3.7.7 zlib/1.3.1 liblzma/5.6.3 bz2lib/1.0.8 liblz4/1.10.0 libzstd/1.5.6 Found libcurl/8.11.0 Schannel zlib/1.3.1 brotli/1.1.0 zstd/1.5.6 libidn2/2.3.7 libpsl/0.21.5 libssh2/1.11.0",
+    "tesseractInstalled": true
+  },
+  "extractionProof": {
+    "sourceImage": "output/browser-plan-proof/social-14-managed-browser-feed-short-video-gate/06-live-screenshots/vimeo-public-video.png",
+    "sourceImageKind": "retained real managed-browser public Vimeo screenshot artifact",
+    "sourceImageExists": true,
+    "commandStatus": 0,
+    "durationMs": 719,
+    "outputArtifact": "output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-tesseract-output.txt",
+    "outputCharacterCount": 469,
+    "matchedTerms": [
+      "vimeo",
+      "video",
+      "player"
+    ],
+    "expectedTerms": [
+      "vimeo",
+      "video",
+      "player"
+    ],
+    "localExtractionProofComplete": true
   },
   "baselineReadiness": {
-    "status": "runtime-unavailable",
-    "windowsPackagingProofComplete": false,
-    "localExtractionProofComplete": false,
+    "status": "runtime-extraction-proved",
+    "windowsPackagingProofComplete": true,
+    "localExtractionProofComplete": true,
+    "runtimeMeasured": true,
     "cpuMemoryRuntimeMeasured": false,
     "failureModesRecorded": false,
     "comparedAgainstPaddleOcr": false,
-    "reason": "Tesseract is not available on PATH in this Windows lane; install/package proof must happen before extraction or quality claims."
+    "reason": "Tesseract is installed and extracted expected text from a retained real public Vimeo screenshot artifact."
+  },
+  "assertions": {
+    "sourceImageExists": true,
+    "tesseractInstalled": true,
+    "extractionSucceeded": true,
+    "expectedTextMatched": true,
+    "localExtractionProofComplete": true,
+    "noProductionQualityClaim": true
+  },
+  "packageInstallEvidence": {
+    "installCommand": "winget install --id tesseract-ocr.tesseract --exact --source winget --accept-package-agreements --accept-source-agreements --disable-interactivity",
+    "packageId": "tesseract-ocr.tesseract",
+    "packageVersionObserved": "5.5.0.20241111",
+    "installedPathObserved": "C:\\Program Files\\Tesseract-OCR\\tesseract.exe",
+    "pathRefreshRequired": true
+  },
+  "openMeasurements": {
+    "cpuMemoryRuntimeMeasured": false,
+    "smallFontFailureModesRecorded": false,
+    "messyUiFailureModesRecorded": false,
+    "paddleOcrComparisonComplete": false,
+    "reason": "This proof measures command duration and extraction output only; CPU/memory, small-font/messy-UI failure modes, and PaddleOCR comparison remain follow-up gates."
   },
   "nonClaims": [
-    "This proof does not install Tesseract or language data.",
-    "This proof does not run OCR extraction or measure quality, CPU, memory, or latency.",
-    "This proof does not select Tesseract as the production OCR runtime.",
+    "This proof installed and invoked Tesseract locally, but it does not select Tesseract as the production OCR runtime.",
+    "This proof runs OCR over a retained real public browser screenshot artifact; it does not create a new screen capture.",
+    "This proof records extraction duration and matched text terms, but it does not claim OCR quality, CPU, memory, or production latency suitability.",
     "This proof does not compare Tesseract against PaddleOCR/PP-OCR."
   ],
   "validationCommands": [
     "node --check scripts/test/screen-ocr-tesseract-baseline-proof.mjs",
     "node scripts/test/screen-ocr-tesseract-baseline-proof.mjs",
     "where.exe tesseract",
+    "\"C:\\Program Files\\Tesseract-OCR\\tesseract.exe\" --version",
     "tesseract --version"
   ]
 }

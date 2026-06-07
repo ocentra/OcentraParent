@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T02:17:35.934Z",
+  "generatedAt": "2026-06-07T02:31:49.083Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -109,7 +109,7 @@
       "status": "~",
       "requiredProof": "output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json",
       "proofPresent": true,
-      "gate": "Local tesseract binary and language data are not installed/proved in this Windows lane."
+      "gate": "Local Tesseract extraction is proved; CPU/memory measurement, failure-mode capture, and PaddleOCR comparison remain open."
     },
     {
       "id": "35",
@@ -153,7 +153,7 @@
     "noProductCompleteClaim": true
   },
   "nonClaims": [
-    "This audit does not complete macOS, Linux, Android parity, iOS, live-view transport, Tesseract runtime, PaddleOCR runtime, or live VLM quality gates.",
+    "This audit does not complete macOS, Linux, Android parity, iOS, live-view transport, Tesseract CPU/memory/failure-mode comparison, PaddleOCR runtime, or live VLM quality gates.",
     "This audit does not replace real device/runtime proof for remaining partial rows.",
     "This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied."
   ]
