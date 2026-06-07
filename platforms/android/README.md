@@ -59,9 +59,13 @@ area.
 - `test:tracking-plan-android-emulator-proof` covers tracking-plan Android
   emulator package mechanics: debug APK build, install, launch, foreground
   service observation, UI tree, screenshot, logcat, battery dump, and
-  connectivity dump. It records foreground location, background/geofence,
-  notification delivery, physical-device, Device Owner, and managed-profile
-  behavior as not claimed/manual-required.
+  connectivity dump. It records foreground location, background permission,
+  foreground-service-backed background sample storage, app-owned local geofence
+  enter/exit rows, `LocationManager.addProximityAlert` registration metadata,
+  active geofence-limit representation, and Android status-gap bridge proof
+  while keeping Android system geofence delivery, dwell, notification delivery,
+  physical-device, Device Owner, and managed-profile behavior not
+  claimed/manual-required.
 - `browser-platform-android-owned-shell-proof` covers the browser-plan WP05
   owned-browser-shell package boundary. It builds the separate
   `platforms/android/agent/browser-shell` APK, creates a disposable AOSP ATD

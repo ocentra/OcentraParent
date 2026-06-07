@@ -21,6 +21,10 @@ public final class TrackingAndroidGeofenceTransitionReceiver extends BroadcastRe
     public static final String FIELD_SOURCE = "source";
     public static final String FIELD_HAS_INSIDE_STATE = "hasInsideState";
     public static final String FIELD_INSIDE_STATE = "insideState";
+    public static final String FIELD_SYSTEM_PROXIMITY_REGISTERED = "systemProximityRegistered";
+    public static final String FIELD_SYSTEM_PROXIMITY_REGISTRATION_EPOCH_MILLIS =
+        "systemProximityRegistrationEpochMillis";
+    public static final String FIELD_SYSTEM_PROXIMITY_REGISTRATION_SOURCE = "systemProximityRegistrationSource";
     public static final String TRANSITION_ENTER = "enter";
     public static final String TRANSITION_EXIT = "exit";
     public static final String SOURCE_ANDROID_PROXIMITY_ALERT = "android-location-manager-proximity-alert";

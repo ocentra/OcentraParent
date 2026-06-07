@@ -69,6 +69,9 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 - [x] Record active app-owned local geofence count against Android's documented
       100 geofences per app per device user limit while preserving no Android
       system geofencing, no dwell, and no physical-device claims.
+- [x] Record Android `LocationManager.addProximityAlert` registration separately
+      from app-owned local listener transitions while preserving no Android
+      system delivery, no dwell, and no physical-device claims.
 - [x] Cross-reference WP10 low-power, app-killed/restarted, pending-upload, and
       manual-required status-gap rows from the WP09 geofence proof while
       preserving no Android system geofencing, no dwell, and no physical-device
@@ -101,8 +104,13 @@ The same proof writes
 `test-results/tracking-plan-android-emulator-proof/25-active-geofence-limit-proof.json`
 and compares the one app-owned local geofence row against Android's documented
 100-geofence per-app/per-device-user limit. That is an active limit
-representation artifact only, not Android system geofence registration or
-delivery proof.
+representation artifact only, not Android system geofence delivery proof.
+The same proof now preserves Android `LocationManager.addProximityAlert`
+registration metadata separately as `systemProximityRegistration` in
+`05-geofence-transition-proof.json`. That proves the emulator registration call
+and source metadata only; Android system geofence delivery, dwell transition,
+physical-device background behavior, authority, provider delivery, production
+upload worker, and product-ready Android tracking remain unclaimed.
 The same proof now embeds a `backgroundDegradedStatusProof` bridge to
 `output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/17-status-gap-proof.json`.
 That bridge covers low-power degraded, app-killed/restarted, pending-upload,

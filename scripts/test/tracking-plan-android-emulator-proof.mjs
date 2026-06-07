@@ -72,8 +72,8 @@ async function main() {
     preGrantPermissionState
   );
   await grantBackgroundLocationPermission(tools, selectedSerial, preGrantPermissionState);
-  await adb(tools, selectedSerial, ['shell', 'input', 'keyevent', '224']);
-  await adb(tools, selectedSerial, ['shell', 'wm', 'dismiss-keyguard']);
+  await wakeAndDismissKeyguardForProof(tools, selectedSerial, path.join(resultDir, '02-wake-before-proof-drive.txt'));
+  await forceStopPackageForProof(tools, selectedSerial);
   await resetGeofenceTransitionProof(tools, selectedSerial);
   await resetBackgroundLocationSampleProof(tools, selectedSerial);
 
@@ -96,11 +96,8 @@ async function main() {
     longitude: '-122.090',
     latitude: '37.427',
   });
-  await adb(tools, selectedSerial, ['shell', 'am', 'start', '-n', expectedActivity], {
-    artifact: path.join(resultDir, '03-launch-activity.txt'),
-  });
-  await adb(tools, selectedSerial, ['shell', 'input', 'keyevent', '224']);
-  await adb(tools, selectedSerial, ['shell', 'wm', 'dismiss-keyguard']);
+  await launchActivityForProof(tools, selectedSerial, path.join(resultDir, '03-launch-activity.txt'));
+  await wakeAndDismissKeyguardForProof(tools, selectedSerial, path.join(resultDir, '03-launch-activity.txt'));
   await seedEmulatorForegroundLocation(tools, selectedSerial, preGrantPermissionState);
   await driveBackgroundLocationSample(tools, selectedSerial, preGrantPermissionState);
   await driveEmulatorGeofenceTransitions(tools, selectedSerial, preGrantPermissionState);
@@ -119,10 +116,60 @@ async function main() {
     foregroundPermissionUx,
     backgroundSettingsPage,
   });
+  assertFocusedProofStrength(proof);
   await writeProofFiles(proof);
 
   console.log('tracking-plan-android-emulator-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);
+}
+
+function assertFocusedProofStrength(proof) {
+  const foregroundProof = proof.workpackProof['08-android-foreground-location-adapter'];
+  const backgroundProof = proof.workpackProof['09-android-background-location-and-geofence-adapter'];
+  const statusProof = proof.workpackProof['10-android-battery-connectivity-and-status-adapter'];
+  const failures = [];
+  if (!proof.runtime.activity.packageFocused) {
+    failures.push('package launch/focus was not observed during final runtime collection');
+  }
+  if (!proof.runtime.service.isForeground) {
+    failures.push('foreground service was not observed during final runtime collection');
+  }
+  if (proof.runtime.backgroundLocationSample.sampleCount <= 0) {
+    failures.push('background location sample storage was not observed');
+  }
+  if (
+    proof.runtime.geofenceTransitions.enterCount <= 0 ||
+    proof.runtime.geofenceTransitions.exitCount <= 0 ||
+    proof.runtime.geofenceTransitions.transitionCount <= 0
+  ) {
+    failures.push('local geofence enter/exit transition rows were not observed');
+  }
+  if (!proof.runtime.geofenceTransitions.systemProximityRegistered) {
+    failures.push('Android LocationManager addProximityAlert registration metadata was not observed');
+  }
+  if (!proof.runtime.activeGeofenceLimit.observed || !proof.runtime.activeGeofenceLimit.withinDocumentedLimit) {
+    failures.push('active geofence limit representation was not observed within the documented limit');
+  }
+  if (!backgroundDegradedStatusProof().observed) {
+    failures.push('WP10 degraded-status bridge proof was not observed');
+  }
+  if (
+    ![
+      'foreground_permission_granted_current_sample_observed',
+      'foreground_permission_ux_current_sample_raw_coordinate_observed',
+      'foreground_permission_granted_current_sample_raw_coordinate_observed',
+    ].includes(foregroundProof.status) ||
+    !backgroundProof.status.includes('system_registration_and_degraded_status_observed') ||
+    statusProof.reason !==
+      'Emulator package launch, foreground service state, battery dump, and connectivity dump were collected.'
+  ) {
+    failures.push(
+      `workpack statuses regressed: WP08=${foregroundProof.status}; WP09=${backgroundProof.status}; WP10=${statusProof.status}`
+    );
+  }
+  if (failures.length > 0) {
+    throw new Error(`Tracking Android emulator proof regressed:\n- ${failures.join('\n- ')}`);
+  }
 }
 
 async function collectForegroundPermissionUx(tools, serial, permissionState) {
@@ -306,6 +353,14 @@ async function resetGeofenceTransitionProof(tools, serial) {
   );
 }
 
+async function forceStopPackageForProof(tools, serial) {
+  const result = await adbMaybe(tools, serial, ['shell', 'am', 'force-stop', packageName]);
+  await writeText(
+    path.join(resultDir, '02-force-stop-before-proof-drive.txt'),
+    `${result.exitCode === 0 ? 'PASS' : 'FAIL'} am force-stop ${packageName} before clearing proof storage\n${result.output.trim()}`
+  );
+}
+
 async function resetBackgroundLocationSampleProof(tools, serial) {
   const result = await adbMaybe(tools, serial, [
     'shell',
@@ -340,11 +395,8 @@ async function driveBackgroundLocationSample(tools, serial, permissionState) {
     `${result.exitCode === 0 ? 'PASS' : 'FAIL'} background-activity adb emu geo fix -122.083 37.421\n${result.output.trim()}`
   );
   await delay(5_000);
-  await adb(tools, serial, ['shell', 'am', 'start', '-n', expectedActivity], {
-    artifact: path.join(resultDir, '23-relaunch-after-background-sample.txt'),
-  });
-  await adb(tools, serial, ['shell', 'input', 'keyevent', '224']);
-  await adb(tools, serial, ['shell', 'wm', 'dismiss-keyguard']);
+  await launchActivityForProof(tools, serial, path.join(resultDir, '23-relaunch-after-background-sample.txt'));
+  await wakeAndDismissKeyguardForProof(tools, serial, path.join(resultDir, '23-relaunch-after-background-sample.txt'));
   await delay(2_000);
 }
 
@@ -357,34 +409,42 @@ async function driveEmulatorGeofenceTransitions(tools, serial, permissionState) 
     return;
   }
 
-  await delay(3_000);
   await seedEmulatorGeofenceLocation(tools, serial, {
     label: 'outside-geofence-after-registration',
     artifact: '16-geofence-transition-route.txt',
     longitude: '-122.090',
     latitude: '37.427',
   });
-  await delay(3_000);
-  await seedEmulatorGeofenceLocation(tools, serial, {
-    label: 'inside-geofence-enter',
-    artifact: '16-geofence-transition-route.txt',
-    longitude: '-122.084',
-    latitude: '37.422',
-  });
-  await delay(3_000);
-  await seedEmulatorGeofenceLocation(tools, serial, {
-    label: 'outside-geofence-exit',
-    artifact: '16-geofence-transition-route.txt',
-    longitude: '-122.090',
-    latitude: '37.427',
-  });
-  await delay(3_000);
-  await seedEmulatorGeofenceLocation(tools, serial, {
-    label: 'inside-geofence-second-enter',
-    artifact: '16-geofence-transition-route.txt',
-    longitude: '-122.084',
-    latitude: '37.422',
-  });
+  await waitForGeofenceState(tools, serial, 'outside-geofence-baseline', (prefs) => prefs.hasInsideState);
+  for (let attempt = 1; attempt <= 4; attempt += 1) {
+    await seedEmulatorGeofenceLocation(tools, serial, {
+      label: `inside-geofence-enter-${attempt}`,
+      artifact: '16-geofence-transition-route.txt',
+      longitude: '-122.084',
+      latitude: '37.422',
+    });
+    const entered = await waitForGeofenceState(
+      tools,
+      serial,
+      `inside-geofence-enter-${attempt}`,
+      (prefs) => prefs.enterCount > 0
+    );
+    await seedEmulatorGeofenceLocation(tools, serial, {
+      label: `outside-geofence-exit-${attempt}`,
+      artifact: '16-geofence-transition-route.txt',
+      longitude: '-122.090',
+      latitude: '37.427',
+    });
+    const exited = await waitForGeofenceState(
+      tools,
+      serial,
+      `outside-geofence-exit-${attempt}`,
+      (prefs) => prefs.exitCount > 0
+    );
+    if (entered && exited) {
+      return;
+    }
+  }
 }
 
 async function seedEmulatorGeofenceLocation(tools, serial, { label, artifact, longitude, latitude }) {
@@ -392,11 +452,27 @@ async function seedEmulatorGeofenceLocation(tools, serial, { label, artifact, lo
     await appendText(path.join(resultDir, artifact), `SKIP ${label} requires an Android emulator.\n`);
     return;
   }
+  await launchActivityForProof(tools, serial, path.join(resultDir, '16-geofence-transition-launches.txt'));
   const result = await adbMaybe(tools, serial, ['emu', 'geo', 'fix', longitude, latitude]);
   await appendText(
     path.join(resultDir, artifact),
     `${result.exitCode === 0 ? 'PASS' : 'FAIL'} ${label} adb emu geo fix ${longitude} ${latitude}\n${result.output.trim()}\n`
   );
+}
+
+async function waitForGeofenceState(tools, serial, label, predicate) {
+  for (let attempt = 1; attempt <= 6; attempt += 1) {
+    await delay(2_000);
+    const prefs = await readGeofenceTransitionPrefs(tools, serial);
+    await appendText(
+      path.join(resultDir, '16-geofence-transition-route.txt'),
+      `POLL ${label} attempt ${attempt} transitionCount=${prefs.parsed.transitionCount} enterCount=${prefs.parsed.enterCount} exitCount=${prefs.parsed.exitCount} insideState=${String(prefs.parsed.insideState)}\n`
+    );
+    if (predicate(prefs.parsed)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 async function refreshActivityAfterGeofenceRoute(tools, serial) {
@@ -405,23 +481,58 @@ async function refreshActivityAfterGeofenceRoute(tools, serial) {
     'SKIP force-stop before refresh; preserve foreground-service proof state after Settings-page capture.\n'
   );
   await delay(1_000);
-  const relaunch = await adbMaybe(tools, serial, ['shell', 'am', 'start', '-n', expectedActivity]);
-  let relaunchLog = `${relaunch.exitCode === 0 ? 'PASS' : 'WARN'} adb shell am start -n ${expectedActivity}\n${relaunch.output.trim()}`;
-  if (relaunch.exitCode !== 0) {
-    const fallback = await adbMaybe(tools, serial, [
+  await launchActivityForProof(tools, serial, path.join(resultDir, '19-relaunch-activity-after-geofence-route.txt'));
+  await wakeAndDismissKeyguardForProof(
+    tools,
+    serial,
+    path.join(resultDir, '19-relaunch-activity-after-geofence-route.txt')
+  );
+}
+
+async function wakeAndDismissKeyguardForProof(tools, serial, artifactPath) {
+  const wake = await adbMaybe(tools, serial, ['shell', 'input', 'keyevent', '224']);
+  const dismiss = await adbMaybe(tools, serial, ['shell', 'wm', 'dismiss-keyguard']);
+  await appendText(
+    artifactPath,
+    `${commandResultLog(wake, 'non-claiming screen wake keyevent 224')}\n${commandResultLog(
+      dismiss,
+      'non-claiming dismiss keyguard'
+    )}\n`
+  );
+}
+
+function commandResultLog(result, label) {
+  const output = result.output.trim();
+  return `${result.exitCode === 0 ? 'PASS' : 'WARN'} ${label}${output.length > 0 ? `\n${output}` : ''}`;
+}
+
+async function launchActivityForProof(tools, serial, artifactPath) {
+  const attempts = [];
+  for (let attempt = 1; attempt <= 12; attempt += 1) {
+    const relaunch = await adbMaybe(tools, serial, ['shell', 'am', 'start', '-n', expectedActivity]);
+    attempts.push(
+      `${relaunch.exitCode === 0 ? 'PASS' : 'WARN'} attempt ${attempt} adb shell am start -n ${expectedActivity}\n${relaunch.output.trim()}`
+    );
+    if (relaunch.exitCode === 0) {
+      await writeText(artifactPath, attempts.join('\n\n'));
+      await delay(2_000);
+      return;
+    }
+    const resolved = await adbMaybe(tools, serial, [
       'shell',
-      'monkey',
-      '-p',
+      'cmd',
+      'package',
+      'resolve-activity',
+      '--brief',
       packageName,
-      '-c',
-      'android.intent.category.LAUNCHER',
-      '1',
     ]);
-    relaunchLog = `${relaunchLog}\n\n${fallback.exitCode === 0 ? 'PASS' : 'FAIL'} fallback launcher monkey\n${fallback.output.trim()}`;
+    attempts.push(
+      `${resolved.exitCode === 0 ? 'INFO' : 'WARN'} attempt ${attempt} resolve-activity ${packageName}\n${resolved.output.trim()}`
+    );
+    await delay(5_000);
   }
-  await writeText(path.join(resultDir, '19-relaunch-activity-after-geofence-route.txt'), relaunchLog);
-  await adb(tools, serial, ['shell', 'input', 'keyevent', '224']);
-  await adb(tools, serial, ['shell', 'wm', 'dismiss-keyguard']);
+  await writeText(artifactPath, attempts.join('\n\n'));
+  throw new Error(`Unable to launch ${expectedActivity} after retrying; see ${relativePath(artifactPath)}`);
 }
 
 function resolveAndroidTools() {
@@ -789,6 +900,9 @@ function parseGeofenceTransitionPrefs(raw) {
   return {
     registered: parseXmlBoolean(raw, 'registered'),
     source: parseXmlString(raw, 'source'),
+    systemProximityRegistered: parseXmlBoolean(raw, 'systemProximityRegistered'),
+    systemProximityRegistrationEpochMillis: parseXmlLong(raw, 'systemProximityRegistrationEpochMillis'),
+    systemProximityRegistrationSource: parseXmlString(raw, 'systemProximityRegistrationSource'),
     hasInsideState: parseXmlBoolean(raw, 'hasInsideState'),
     insideState: parseXmlBoolean(raw, 'insideState'),
     transitionCount: parseXmlInt(raw, 'transitionCount'),
@@ -814,11 +928,31 @@ function activeGeofenceLimitProof(geofenceTransitions) {
         ? 'app-owned-local-geofence-count-compared-to-android-documented-limit-only'
         : 'no-active-app-owned-local-geofence-observed',
     nonClaims: [
-      'android-system-geofencing-registration',
+      'android-geofencing-api-limit-registration',
       'android-system-geofencing-delivery',
       'dwell-transition-delivery',
       'physical-device-behavior',
       'authority-enrolled-device-behavior',
+    ],
+  };
+}
+
+function systemProximityRegistrationProof(geofenceTransitions) {
+  return {
+    observed: geofenceTransitions.systemProximityRegistered,
+    source: geofenceTransitions.systemProximityRegistrationSource,
+    registeredAtEpochMillis: geofenceTransitions.systemProximityRegistrationEpochMillis,
+    proofBoundary: geofenceTransitions.systemProximityRegistered
+      ? 'android-location-manager-add-proximity-alert-registration-only'
+      : 'no-android-system-proximity-registration-observed',
+    nonClaims: [
+      'android-system-geofencing-delivery',
+      'android-system-geofencing-dwell-transition',
+      'physical-device-behavior',
+      'authority-enrolled-device-behavior',
+      'provider-delivery',
+      'production-upload-worker',
+      'product-ready-android-tracking',
     ],
   };
 }
@@ -1267,6 +1401,7 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
     runtime.geofenceTransitions.enterCount > 0 && runtime.geofenceTransitions.exitCount > 0;
   const activeGeofenceLimitObserved =
     runtime.activeGeofenceLimit.observed && runtime.activeGeofenceLimit.withinDocumentedLimit;
+  const systemProximityRegistrationObserved = runtime.geofenceTransitions.systemProximityRegistered;
   const backgroundSampleObserved =
     runtime.backgroundLocationSample.sampleCount > 0 &&
     runtime.backgroundLocationSample.provider !== null &&
@@ -1314,30 +1449,38 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
         geofenceEnterExitObserved &&
         backgroundSampleObserved &&
         activeGeofenceLimitObserved &&
+        systemProximityRegistrationObserved &&
         backgroundDegradedStatusObserved
-          ? 'background_settings_page_permission_granted_emulator_sample_enter_exit_limit_and_degraded_status_observed'
+          ? 'background_settings_page_permission_granted_emulator_sample_enter_exit_limit_system_registration_and_degraded_status_observed'
           : backgroundSettingsPage.observed &&
               permissionState.backgroundLocationPermissionGranted &&
               geofenceEnterExitObserved &&
               backgroundSampleObserved &&
-              activeGeofenceLimitObserved
-            ? 'background_settings_page_permission_granted_emulator_sample_enter_exit_and_limit_observed'
+              activeGeofenceLimitObserved &&
+              backgroundDegradedStatusObserved
+            ? 'background_settings_page_permission_granted_emulator_sample_enter_exit_limit_and_degraded_status_observed'
             : backgroundSettingsPage.observed &&
                 permissionState.backgroundLocationPermissionGranted &&
                 geofenceEnterExitObserved &&
-                backgroundSampleObserved
-              ? 'background_settings_page_permission_granted_emulator_sample_and_enter_exit_observed'
-              : permissionState.backgroundLocationPermissionGranted &&
+                backgroundSampleObserved &&
+                activeGeofenceLimitObserved
+              ? 'background_settings_page_permission_granted_emulator_sample_enter_exit_and_limit_observed'
+              : backgroundSettingsPage.observed &&
+                  permissionState.backgroundLocationPermissionGranted &&
                   geofenceEnterExitObserved &&
                   backgroundSampleObserved
-                ? 'background_permission_granted_emulator_sample_and_enter_exit_transition_observed'
-                : permissionState.backgroundLocationPermissionGranted && geofenceEnterExitObserved
-                  ? 'background_permission_granted_emulator_enter_exit_transition_observed'
-                  : permissionState.backgroundLocationPermissionGranted
-                    ? 'background_permission_granted_geofence_transition_manual_required'
-                    : permissionState.backgroundLocationPermissionRequested
-                      ? 'background_permission_declared_geofence_transition_manual_required'
-                      : 'manual_required',
+                ? 'background_settings_page_permission_granted_emulator_sample_and_enter_exit_observed'
+                : permissionState.backgroundLocationPermissionGranted &&
+                    geofenceEnterExitObserved &&
+                    backgroundSampleObserved
+                  ? 'background_permission_granted_emulator_sample_and_enter_exit_transition_observed'
+                  : permissionState.backgroundLocationPermissionGranted && geofenceEnterExitObserved
+                    ? 'background_permission_granted_emulator_enter_exit_transition_observed'
+                    : permissionState.backgroundLocationPermissionGranted
+                      ? 'background_permission_granted_geofence_transition_manual_required'
+                      : permissionState.backgroundLocationPermissionRequested
+                        ? 'background_permission_declared_geofence_transition_manual_required'
+                        : 'manual_required',
       proofArtifact:
         'output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json',
       reason:
@@ -1346,30 +1489,38 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
         geofenceEnterExitObserved &&
         backgroundSampleObserved &&
         activeGeofenceLimitObserved &&
+        systemProximityRegistrationObserved &&
         backgroundDegradedStatusObserved
-          ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+          ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, Android LocationManager addProximityAlert registration, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed; Android system geofence delivery, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
           : backgroundSettingsPage.observed &&
               permissionState.backgroundLocationPermissionGranted &&
               geofenceEnterExitObserved &&
               backgroundSampleObserved &&
-              activeGeofenceLimitObserved
-            ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, and app-owned active geofence count within the Android documented per-app/per-device-user limit were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+              activeGeofenceLimitObserved &&
+              backgroundDegradedStatusObserved
+            ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
             : backgroundSettingsPage.observed &&
                 permissionState.backgroundLocationPermissionGranted &&
                 geofenceEnterExitObserved &&
-                backgroundSampleObserved
-              ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
-              : permissionState.backgroundLocationPermissionGranted &&
+                backgroundSampleObserved &&
+                activeGeofenceLimitObserved
+              ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, and app-owned active geofence count within the Android documented per-app/per-device-user limit were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+              : backgroundSettingsPage.observed &&
+                  permissionState.backgroundLocationPermissionGranted &&
                   geofenceEnterExitObserved &&
                   backgroundSampleObserved
-                ? 'Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
-                : permissionState.backgroundLocationPermissionGranted && geofenceEnterExitObserved
-                  ? 'Background location permission grant and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; background sample collection, Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, and product-ready tracking remain unclaimed.'
-                  : permissionState.backgroundLocationPermissionGranted
-                    ? 'Background location permission grant state was observed on the emulator package, but no background location sample, geofence transition, physical-device behavior, authority, or product-ready tracking is claimed.'
-                    : permissionState.backgroundLocationPermissionRequested
-                      ? 'Background permission is declared, but no background permission grant or geofence transition was observed.'
-                      : 'No background location/geofence permission or transition adapter is present in the current scaffold.',
+                ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+                : permissionState.backgroundLocationPermissionGranted &&
+                    geofenceEnterExitObserved &&
+                    backgroundSampleObserved
+                  ? 'Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+                  : permissionState.backgroundLocationPermissionGranted && geofenceEnterExitObserved
+                    ? 'Background location permission grant and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; background sample collection, Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, and product-ready tracking remain unclaimed.'
+                    : permissionState.backgroundLocationPermissionGranted
+                      ? 'Background location permission grant state was observed on the emulator package, but no background location sample, geofence transition, physical-device behavior, authority, or product-ready tracking is claimed.'
+                      : permissionState.backgroundLocationPermissionRequested
+                        ? 'Background permission is declared, but no background permission grant or geofence transition was observed.'
+                        : 'No background location/geofence permission or transition adapter is present in the current scaffold.',
     },
     '10-android-battery-connectivity-and-status-adapter': {
       status: 'emulator_scaffold_observed',
@@ -1480,6 +1631,7 @@ function geofenceProof(proof) {
   const backgroundSample = proof.runtime.backgroundLocationSample;
   const activeGeofenceLimit = proof.runtime.activeGeofenceLimit;
   const backgroundDegradedStatus = backgroundDegradedStatusProof();
+  const systemProximityRegistration = systemProximityRegistrationProof(geofenceTransitions);
   return {
     schemaVersion: 1,
     checkedAt: proof.checkedAt,
@@ -1513,6 +1665,8 @@ function geofenceProof(proof) {
     geofenceLastTransition: geofenceTransitions.lastTransition,
     geofenceSource: geofenceTransitions.source,
     geofenceRegistered: geofenceTransitions.registered,
+    systemProximityRegistrationObserved: systemProximityRegistration.observed,
+    systemProximityRegistration,
     geofenceHasInsideState: geofenceTransitions.hasInsideState,
     geofenceInsideState: geofenceTransitions.insideState,
     activeGeofenceCount: activeGeofenceLimit.activeGeofenceCount,

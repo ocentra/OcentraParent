@@ -7,7 +7,7 @@
   "documentedLimitSourceUrl": "https://developer.android.com/develop/sensors-and-location/location/geofencing",
   "proofBoundary": "app-owned-local-geofence-count-compared-to-android-documented-limit-only",
   "nonClaims": [
-    "android-system-geofencing-registration",
+    "android-geofencing-api-limit-registration",
     "android-system-geofencing-delivery",
     "dwell-transition-delivery",
     "physical-device-behavior",
