@@ -280,6 +280,15 @@ function expectedRows() {
         expectedState: 'live-android-ios-host-proof-present',
       };
     }
+    if (rowNumber === 24) {
+      return {
+        rowNumber,
+        rowId,
+        expectedStatus: '[x]',
+        expectedOwner: 'codex-d',
+        expectedState: 'rollout-label-proof-present',
+      };
+    }
     if (rowNumber >= 22) {
       return {
         rowNumber,
@@ -420,6 +429,7 @@ function markdownFor(manifest) {
     'GAME-21 live journal/SQLite read-model shape proof is present.',
     'GAME-22 live rendered child intervention proof is present.',
     'GAME-23 live Android host emulator proof is present.',
+    'GAME-24 rollout/manual-required label proof is present.',
     'Product checklist upgrade is not claimed.',
     'Final policy decisions, notification or approval delivery, cloud-streamed',
     'frame analysis, native game control, enforcement, release readiness, and',

@@ -1510,9 +1510,8 @@ worker messages before code changes. Do not mix all 24 into one PR.
   live-parent-dashboard-ux-proof-present, GAME-21 as
   live-journal-sqlite-read-model-proof-present, GAME-22 as
   live-rendered-child-intervention-proof-present, GAME-23 as
-  live-android-ios-host-proof-present,
-  GAME-24 as partial/manual-required, and no browser-game rows as
-  open/manual-required.
+  live-android-ios-host-proof-present, GAME-24 as
+  rollout-label-proof-present, and no browser-game rows as open/manual-required.
   Product checklist upgrade is not claimed, and final policy decisions,
   notification or approval delivery, parent dashboard runtime UI,
   cloud-streamed frame analysis, native game control, and enforcement remain

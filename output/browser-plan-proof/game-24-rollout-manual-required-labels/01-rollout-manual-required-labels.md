@@ -1,10 +1,10 @@
 # GAME-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-07T00:10:14.845Z
+Generated: 2026-06-07T00:45:18.552Z
 
 Rows checked: 24
-Proof-present rows: 23
-Partial/manual-required rows: 1
+Proof-present rows: 24
+Partial/manual-required rows: 0
 Open/manual-required rows: 0
 Rollout state: partial/manual-required
 Product claimed: false
@@ -34,7 +34,7 @@ Product claimed: false
 | GAME-21 | live-journal-sqlite-read-model-proof-present | [x] |
 | GAME-22 | live-rendered-child-intervention-proof-present | [x] |
 | GAME-23 | live-android-ios-host-proof-present | [x] |
-| GAME-24 | partial-manual-required | [~] |
+| GAME-24 | rollout-label-proof-present | [x] |
 
 GAME rollout state: partial/manual-required.
 GAME-02 live route contract proof is present.
@@ -59,6 +59,7 @@ GAME-20 live parent dashboard UX proof is present.
 GAME-21 live journal/SQLite read-model shape proof is present.
 GAME-22 live rendered child intervention proof is present.
 GAME-23 live Android host emulator proof is present.
+GAME-24 rollout/manual-required label proof is present.
 Product checklist upgrade is not claimed.
 Final policy decisions, notification or approval delivery, cloud-streamed
 frame analysis, native game control, enforcement, release readiness, and

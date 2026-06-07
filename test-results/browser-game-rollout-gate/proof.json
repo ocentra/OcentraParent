@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-game-rollout-gate",
-  "generatedAt": "2026-06-07T00:10:14.845Z",
+  "generatedAt": "2026-06-07T00:45:18.552Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -213,17 +213,17 @@
     {
       "rowNumber": 24,
       "rowId": "GAME-24",
-      "expectedStatus": "[~]",
+      "expectedStatus": "[x]",
       "expectedOwner": "codex-d",
-      "expectedState": "partial-manual-required",
-      "state": "partial-manual-required",
+      "expectedState": "rollout-label-proof-present",
+      "state": "rollout-label-proof-present",
       "failures": []
     }
   ],
   "summary": {
     "totalRows": 24,
-    "completeRows": 23,
-    "partialRows": 1,
+    "completeRows": 24,
+    "partialRows": 0,
     "openRows": 0,
     "failures": 0,
     "rolloutState": "partial/manual-required",
