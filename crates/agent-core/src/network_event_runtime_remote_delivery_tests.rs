@@ -4,10 +4,12 @@ use ocentra_eventing::{
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::{
+    prove_network_runtime_remote_delivery_receipt_ledger,
     prove_network_runtime_remote_delivery_status, prove_network_runtime_remote_event_chain_journal,
-    NetworkRuntimeRemoteDeliveryState, NetworkRuntimeRemoteDeliveryStatusError,
-    NetworkRuntimeRemoteDeliveryStatusReport, NetworkRuntimeRemoteEventChainJournalError,
-    NetworkRuntimeRemoteEventChainJournalReport,
+    NetworkRuntimeRemoteDeliveryReceiptLedgerError,
+    NetworkRuntimeRemoteDeliveryReceiptLedgerReport, NetworkRuntimeRemoteDeliveryState,
+    NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
+    NetworkRuntimeRemoteEventChainJournalError, NetworkRuntimeRemoteEventChainJournalReport,
 };
 
 #[tokio::test]
@@ -191,6 +193,104 @@ async fn network_runtime_remote_event_chain_journal_rejects_delivery_and_content
     assert!(!report.family_hub_delivery_implemented);
     assert!(!report.policy_authority);
     assert!(!report.side_effect_authority);
+    assert_eq!(report.enforcement_command_event_count, 0);
+    assert_eq!(report.adapter_action_executed_count, 0);
+    assert_eq!(report.exact_url_available_count, 0);
+    assert_eq!(report.decrypted_payload_available_count, 0);
+    assert_eq!(report.page_content_available_count, 0);
+}
+
+#[tokio::test]
+async fn network_runtime_remote_delivery_receipt_ledger_preserves_local_ack_boundary_without_transport(
+) {
+    let proof_result: Result<
+        NetworkRuntimeRemoteDeliveryReceiptLedgerReport,
+        NetworkRuntimeRemoteDeliveryReceiptLedgerError,
+    > = prove_network_runtime_remote_delivery_receipt_ledger().await;
+    let report =
+        proof_result.expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_RECEIPT_LEDGER);
+
+    assert_eq!(
+        report.event_chain_journal_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_JOURNAL_REF
+    );
+    assert_eq!(
+        report.event_chain_export_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_EXPORT_REF
+    );
+    assert_eq!(
+        report.receipt_ledger_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_LEDGER_REF
+    );
+    assert_eq!(
+        report.local_receipt_ack_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF
+    );
+    assert_eq!(
+        report.receipt_replay_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_REPLAY_REF
+    );
+    assert_eq!(
+        report.receipt_support_status_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_SUPPORT_STATUS_REF
+    );
+    assert_eq!(
+        report.remote_delivery_status.family_hub_status,
+        NetworkRuntimeRemoteDeliveryState::RequirementsSatisfiedButNotImplemented
+    );
+    assert!(report.receipt_ledger_ready);
+    assert!(report.receipt_replay_ready);
+    assert!(report.receipt_records_match_projection);
+    assert!(report.receipt_record_count > 0);
+    assert_eq!(
+        report.source_projection_replay_record_count,
+        report.receipt_record_count
+    );
+    assert_eq!(report.local_receipt_ack_count, report.receipt_record_count);
+    assert_eq!(report.ordered_sequence_count, report.receipt_record_count);
+    assert_eq!(report.unique_event_id_count, report.receipt_record_count);
+    assert_eq!(report.unique_correlation_id_count, 1);
+    assert_eq!(
+        report.exported_event_type_count,
+        report.receipt_record_count
+    );
+    assert_eq!(report.projection_replay_mode, ReplayMode::ProjectionOnly);
+    assert_eq!(
+        report.replay_cursor_next_sequence,
+        report.receipt_record_count as u64 + 1
+    );
+    for receipt in &report.receipts {
+        assert_eq!(
+            receipt.event_chain_journal_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_EVENT_CHAIN_JOURNAL_REF
+        );
+        assert_eq!(
+            receipt.local_receipt_ack_ref.as_str(),
+            constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF
+        );
+    }
+}
+
+#[tokio::test]
+async fn network_runtime_remote_delivery_receipt_ledger_rejects_transport_action_and_content_claims(
+) {
+    let report = prove_network_runtime_remote_delivery_receipt_ledger()
+        .await
+        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_RECEIPT_LEDGER);
+
+    assert_eq!(
+        report.local_receipt_ack_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF
+    );
+    assert!(!report.broker_delivery_implemented);
+    assert!(!report.family_hub_delivery_implemented);
+    assert!(!report.remote_delivery_ack_implemented);
+    assert!(!report.policy_authority);
+    assert!(!report.side_effect_authority);
+    assert_eq!(report.receipt_sequence_gap_count, 0);
+    assert_eq!(report.receipt_event_id_mismatch_count, 0);
+    assert_eq!(report.receipt_event_type_mismatch_count, 0);
+    assert_eq!(report.receipt_correlation_mismatch_count, 0);
     assert_eq!(report.enforcement_command_event_count, 0);
     assert_eq!(report.adapter_action_executed_count, 0);
     assert_eq!(report.exact_url_available_count, 0);

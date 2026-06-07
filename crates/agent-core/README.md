@@ -52,6 +52,10 @@ service shell.
   event-chain envelopes through the reusable eventing NDJSON journal and replay
   projection while keeping live delivery, policy authority, adapter execution,
   exact URL, decrypted payload, and page content claims false.
+- Network remote receipt ledger proof that builds local acknowledgement records
+  from event-chain projection replay rows while preserving sequence, event id,
+  event type, correlation id, journal refs, and local receipt-ack refs without
+  claiming live remote acknowledgement delivery.
 
 ## Must Not Own
 
@@ -102,3 +106,7 @@ flowchart LR
   broker/family-hub delivery, child-device/provider transport, remote
   retention/delete/export propagation, and receipt acknowledgements remain
   separate gaps.
+- Network receipt ledgers are local acknowledgement records only; remote
+  provider acknowledgements, child-device acknowledgements, remote
+  retention/delete/export propagation, and delivery retries remain separate
+  gaps.
