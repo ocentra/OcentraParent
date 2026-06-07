@@ -148,6 +148,18 @@ compete on control while staying clear about attribution confidence and privacy.
   side-effect authority, adapter execution, enforcement-command publication,
   raw PCAP, exact URL, decrypted payload, page content, video content,
   private-message content, search-query content, and host filtering false.
+- E-D added row10h remote delivery outbox status bridge proof across
+  `agent-protocol`, `agent-service`, and `agent-protocol-domain`: the existing
+  `agent.network.remote-delivery.status.get` /
+  `agent.network.remote-delivery.status.reported` path now exposes row10g
+  prepared outbox refs, handoff refs, replay/support refs, prepared candidate
+  counts, duplicate rejection, and zero dispatch/ack counters as a typed
+  read-only status. The TypeScript parser rejects stale outbox refs, nonzero
+  dispatch attempts, nonzero remote acknowledgements, mismatched prepared counts,
+  live/product-ready delivery, policy authority, side-effect authority, adapter
+  execution, enforcement-command publication, raw PCAP, exact URL, decrypted
+  payload, page content, video content, private-message content, search-query
+  content, and host filtering claims.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,

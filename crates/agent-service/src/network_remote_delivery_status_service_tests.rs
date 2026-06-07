@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[tokio::test]
-async fn network_remote_delivery_status_payload_serializes_row10f_bridge() {
+async fn network_remote_delivery_status_payload_serializes_row10h_outbox_bridge() {
     let payload = network_remote_delivery_status_payload()
         .await
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -42,7 +42,7 @@ async fn websocket_network_remote_delivery_status_command_reports_payload() {
 fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(
         status.status_ref,
-        constants::network_flow::TEST_REMOTE_DELIVERY_STATUS_BRIDGE_REF
+        constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_STATUS_BRIDGE_REF
     );
     assert_eq!(
         status.broker_status,
@@ -75,6 +75,44 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     );
     assert!(status.durable_envelope_ready);
     assert_eq!(status.durable_envelope_missing_artifact_count, 0);
+    assert_remote_delivery_outbox_status(status);
+    assert_remote_delivery_non_claims(status);
+}
+
+fn assert_remote_delivery_outbox_status(status: &NetworkRemoteDeliveryStatus) {
+    assert_eq!(
+        status.outbox_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_REF
+    );
+    assert_eq!(
+        status.outbox_handoff_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF
+    );
+    assert_eq!(
+        status.outbox_replay_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_REPLAY_REF
+    );
+    assert_eq!(
+        status.outbox_support_status_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_SUPPORT_STATUS_REF
+    );
+    assert_eq!(
+        status.outbox_candidate_count,
+        status.prepared_not_dispatched_count
+    );
+    assert!(status.outbox_candidate_count > 0);
+    assert_eq!(status.dispatch_attempt_count, 0);
+    assert_eq!(status.remote_ack_count, 0);
+    assert!(status.duplicate_durable_envelope_rejected);
+    assert!(status.outbox_candidates_match_durable_envelopes);
+    assert!(status.outbox_candidates_match_receipts);
+    assert_eq!(status.sequence_gap_count, 0);
+    assert_eq!(status.event_id_mismatch_count, 0);
+    assert_eq!(status.event_type_mismatch_count, 0);
+    assert_eq!(status.correlation_mismatch_count, 0);
+}
+
+fn assert_remote_delivery_non_claims(status: &NetworkRemoteDeliveryStatus) {
     assert!(!status.broker_delivery_implemented);
     assert!(!status.family_hub_delivery_implemented);
     assert!(!status.remote_delivery_ack_implemented);

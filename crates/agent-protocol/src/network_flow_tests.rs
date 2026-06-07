@@ -127,7 +127,7 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
 }
 
 #[test]
-fn network_remote_delivery_status_serializes_row10f_bridge_without_product_claims() {
+fn network_remote_delivery_status_serializes_row10h_outbox_bridge_without_product_claims() {
     let serialized = serde_json::to_value(remote_delivery_status_fixture())
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
@@ -140,6 +140,19 @@ fn network_remote_delivery_status_serializes_row10f_bridge_without_product_claim
         constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_ENVELOPE_REF
     );
     assert_eq!(serialized["durableEnvelopeReady"], true);
+    assert_eq!(
+        serialized["outboxRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_REF
+    );
+    assert_eq!(
+        serialized["outboxHandoffRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF
+    );
+    assert_eq!(serialized["outboxCandidateCount"], 3);
+    assert_eq!(serialized["preparedNotDispatchedCount"], 3);
+    assert_eq!(serialized["dispatchAttemptCount"], 0);
+    assert_eq!(serialized["remoteAckCount"], 0);
+    assert_eq!(serialized["duplicateDurableEnvelopeRejected"], true);
     assert_eq!(serialized["remoteDeliveryAckImplemented"], false);
     assert_eq!(serialized["productReadyRemoteDelivery"], false);
     assert_eq!(serialized["enforcementCommandEventCount"], 0);
@@ -149,24 +162,26 @@ fn network_remote_delivery_status_serializes_row10f_bridge_without_product_claim
 }
 
 fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
+    use constants::network_flow as flow;
+
     NetworkRemoteDeliveryStatus {
-        status_ref: constants::network_flow::TEST_REMOTE_DELIVERY_STATUS_BRIDGE_REF.to_string(),
+        status_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_STATUS_BRIDGE_REF.to_string(),
         broker_status:
             NetworkRemoteDeliveryStatusState::FixtureRequirementsRecordedButNotImplemented,
         family_hub_status:
             NetworkRemoteDeliveryStatusState::FixtureRequirementsRecordedButNotImplemented,
-        custody_proof_ref: constants::network_flow::TEST_BROKER_CUSTODY_PROOF_REF.to_string(),
-        publisher_auth_ref: constants::network_flow::TEST_BROKER_PUBLISHER_AUTH_REF.to_string(),
-        subscriber_auth_ref: constants::network_flow::TEST_BROKER_SUBSCRIBER_AUTH_REF.to_string(),
-        encryption_ref: constants::network_flow::TEST_BROKER_ENCRYPTION_REF.to_string(),
-        retention_policy_ref: constants::network_flow::TEST_BROKER_RETENTION_POLICY_REF.to_string(),
-        replay_plan_ref: constants::network_flow::TEST_BROKER_REPLAY_PLAN_REF.to_string(),
-        deletion_plan_ref: constants::network_flow::TEST_BROKER_DELETION_PLAN_REF.to_string(),
-        offset_policy_ref: constants::network_flow::TEST_BROKER_OFFSET_POLICY_REF.to_string(),
-        dedupe_policy_ref: constants::network_flow::TEST_BROKER_DEDUPE_POLICY_REF.to_string(),
-        transport_config_ref: constants::network_flow::TEST_BROKER_CONFIG_REF.to_string(),
-        relay_identity_ref: constants::network_flow::TEST_FAMILY_HUB_IDENTITY_REF.to_string(),
-        relay_policy_ref: constants::network_flow::TEST_FAMILY_HUB_RELAY_POLICY_REF.to_string(),
+        custody_proof_ref: flow::TEST_BROKER_CUSTODY_PROOF_REF.to_string(),
+        publisher_auth_ref: flow::TEST_BROKER_PUBLISHER_AUTH_REF.to_string(),
+        subscriber_auth_ref: flow::TEST_BROKER_SUBSCRIBER_AUTH_REF.to_string(),
+        encryption_ref: flow::TEST_BROKER_ENCRYPTION_REF.to_string(),
+        retention_policy_ref: flow::TEST_BROKER_RETENTION_POLICY_REF.to_string(),
+        replay_plan_ref: flow::TEST_BROKER_REPLAY_PLAN_REF.to_string(),
+        deletion_plan_ref: flow::TEST_BROKER_DELETION_PLAN_REF.to_string(),
+        offset_policy_ref: flow::TEST_BROKER_OFFSET_POLICY_REF.to_string(),
+        dedupe_policy_ref: flow::TEST_BROKER_DEDUPE_POLICY_REF.to_string(),
+        transport_config_ref: flow::TEST_BROKER_CONFIG_REF.to_string(),
+        relay_identity_ref: flow::TEST_FAMILY_HUB_IDENTITY_REF.to_string(),
+        relay_policy_ref: flow::TEST_FAMILY_HUB_RELAY_POLICY_REF.to_string(),
         broker_missing_artifact_count: 0,
         family_hub_missing_artifact_count: 0,
         accepted_event_type_count: 3,
@@ -174,24 +189,32 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
         dropped_event_dead_letter_count: 1,
         queued_duplicate_rejected: true,
         completed_duplicate_rejected: true,
-        event_chain_journal_ref: constants::network_flow::TEST_REMOTE_EVENT_CHAIN_JOURNAL_REF
+        event_chain_journal_ref: flow::TEST_REMOTE_EVENT_CHAIN_JOURNAL_REF.to_string(),
+        receipt_ledger_ref: flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_LEDGER_REF.to_string(),
+        local_receipt_ack_ref: flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF.to_string(),
+        durable_envelope_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_ENVELOPE_REF.to_string(),
+        durable_store_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_STORE_REF.to_string(),
+        durable_replay_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_REPLAY_REF.to_string(),
+        durable_delete_export_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_DELETE_EXPORT_REF.to_string(),
+        durable_support_status_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF
             .to_string(),
-        receipt_ledger_ref: constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_LEDGER_REF
-            .to_string(),
-        local_receipt_ack_ref: constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF
-            .to_string(),
-        durable_envelope_ref: constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_ENVELOPE_REF
-            .to_string(),
-        durable_store_ref: constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_STORE_REF
-            .to_string(),
-        durable_replay_ref: constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_REPLAY_REF
-            .to_string(),
-        durable_delete_export_ref:
-            constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_DELETE_EXPORT_REF.to_string(),
-        durable_support_status_ref:
-            constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF.to_string(),
         durable_envelope_ready: true,
         durable_envelope_missing_artifact_count: 0,
+        outbox_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_REF.to_string(),
+        outbox_handoff_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF.to_string(),
+        outbox_replay_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_REPLAY_REF.to_string(),
+        outbox_support_status_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_SUPPORT_STATUS_REF.to_string(),
+        outbox_candidate_count: 3,
+        prepared_not_dispatched_count: 3,
+        dispatch_attempt_count: 0,
+        remote_ack_count: 0,
+        duplicate_durable_envelope_rejected: true,
+        outbox_candidates_match_durable_envelopes: true,
+        outbox_candidates_match_receipts: true,
+        sequence_gap_count: 0,
+        event_id_mismatch_count: 0,
+        event_type_mismatch_count: 0,
+        correlation_mismatch_count: 0,
         broker_delivery_implemented: false,
         family_hub_delivery_implemented: false,
         remote_delivery_ack_implemented: false,
