@@ -195,13 +195,23 @@ rows. They record execution boundary, backend secret-store preflight, rotation
 preflight, revocation preflight, operator approval, manual execution, and
 support-safe audit export states with custody status, preflight, operator,
 manual proof, and audit refs.
+## Provider Secret Rotation Revocation Status Contract
 
-This contract is metadata-only. It does not claim provider secrets, payment
+`src/provider-secret-rotation-revocation-status.ts` owns the logging-domain
+schema proof for provider-secret rotation and revocation status rows, while
+`src/provider-secret-rotation-revocation-status-read-model.ts` owns the current
+fixture rows. They record rotation requested, rotation preflight-ready, rotation
+manual-required, revocation requested, revocation preflight-ready, revocation
+manual-required, and audit-export-ready states with custody status, execution
+readiness, backend secret-store preflight, operator approval, manual proof, and
+audit refs.
+
+These contracts are metadata-only. They do not claim provider secrets, payment
 provider tokens, raw child activity, raw support bundle payloads, account
 lookup results, billing provider contact records, remote support transcripts,
 backend secret store execution, rotation execution, revocation execution,
-provider-secret execution delivery, support backend upload execution, account
-lookup execution, billing provider contact execution, remote support session
+provider-secret delivery, support backend upload execution, account lookup
+execution, billing provider contact execution, remote support session
 execution, production SLA, or default Ocentra-hosted family data.
 
 ## Privacy Legal Disclosure Status Contract
