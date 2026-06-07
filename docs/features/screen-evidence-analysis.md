@@ -842,9 +842,11 @@ parity, and UI remain separate proof gates.
       emits schema-valid screen analysis evidence, feeds policy dry-run, and
       deletes raw temp images.
 - [~] Tesseract baseline source/license/runtime extraction, CPU/memory
-  measurement, and derived failure-mode scenarios are recorded against a
+  measurement, derived failure-mode scenarios, and same-image comparison
+  against the isolated local PaddleOCR 2.x fallback are recorded against a
   retained real public Vimeo screenshot artifact; Tesseract is a measured
-  fallback while the current Windows service OCR route is WinRT.
+  fallback while the current Windows service OCR route is WinRT and current
+  PP-OCRv5 still extracts zero text.
 - [~] PaddleOCR/PP-OCR candidate readiness records current package availability,
   current PP-OCRv5 local execution with zero extracted text from the retained
   Vimeo screenshot and deleted preprocessing variants, and a pinned local

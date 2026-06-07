@@ -63,7 +63,7 @@ const workpacks = [
     label: 'OCR Tesseract baseline',
     status: workpackStatus('34 OCR Tesseract baseline'),
     requiredProof: 'output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json',
-    gate: 'Local Tesseract extraction, CPU/memory measurement, and derived failure-mode capture are proved; Tesseract is retained as a measured fallback while the current Windows service OCR route is WinRT. Cross-platform OCR parity, broad language coverage, and final production quality remain open.',
+    gate: 'Local Tesseract extraction, CPU/memory measurement, derived failure-mode capture, and same-image comparison against the isolated local PaddleOCR 2.x fallback are proved; Tesseract is retained as a measured fallback while the current Windows service OCR route is WinRT and current PP-OCRv5 still extracts zero text. Cross-platform OCR parity, broad language coverage, and final production quality remain open.',
   },
   {
     id: '35',
