@@ -481,6 +481,17 @@ command events remain zero. It does not claim a new portal visual surface, AI
 execution, policy execution, browser mutation, child intervention execution, or
 enforcement.
 
+WP13 event-chain ref addendum: `browser-runtime-event-chain-ref-proof` tightens
+the browser runtime event chain so each payload `previousPhaseRef` points at the
+previous published browser event ref, and skipped intervention phases do not
+become hidden refs for manual-required rows. Evidence:
+`test-results/browser-runtime-event-chain-ref-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-event-chain-ref-proof/01-browser-runtime-event-chain-ref-proof.md`.
+The proof validates exact previous-event refs for managed and manual-required
+chains while preserving event names and payload shape. It does not claim portal
+UI, AI execution, policy execution, browser mutation, child intervention
+execution, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

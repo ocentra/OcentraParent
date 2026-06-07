@@ -7,7 +7,7 @@ use ocentra_eventing::{
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
-use crate::BrowserRuntimePhase;
+use crate::{browser_event_runtime_refs::previous_phase_ref, BrowserRuntimePhase};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BrowserRuntimeInput {
@@ -219,7 +219,10 @@ impl BrowserRuntimeSpine {
     }
 }
 
-fn should_publish_phase(phase: BrowserRuntimePhase, input: &BrowserRuntimeInput) -> bool {
+pub(crate) fn should_publish_phase(
+    phase: BrowserRuntimePhase,
+    input: &BrowserRuntimeInput,
+) -> bool {
     match phase {
         BrowserRuntimePhase::AiAnalysisRequested => input.ai_request_ref.is_some(),
         BrowserRuntimePhase::AiAnalysisCompleted => input.ai_analysis_ref.is_some(),
@@ -273,32 +276,13 @@ fn event_custody(input: &BrowserRuntimeInput) -> EventCustody {
         .expect(constants::eventing_source::ERROR_EVENT_CUSTODY_CONSTANT_PARSES)
 }
 
-fn previous_phase_ref(phase: BrowserRuntimePhase, input: &BrowserRuntimeInput) -> Option<String> {
-    match phase {
-        BrowserRuntimePhase::EvidenceObserved => None,
-        BrowserRuntimePhase::EvidenceJournaled => Some(input.evidence_ref.clone()),
-        BrowserRuntimePhase::AiAnalysisRequested => input.journal_ref.clone(),
-        BrowserRuntimePhase::AiAnalysisCompleted => input.ai_request_ref.clone(),
-        BrowserRuntimePhase::PolicyEvaluationRequested => input.ai_analysis_ref.clone(),
-        BrowserRuntimePhase::PolicyDecisionCompleted => input.policy_evaluation_ref.clone(),
-        BrowserRuntimePhase::InterventionCommandIssued => input.policy_decision_ref.clone(),
-        BrowserRuntimePhase::InterventionResultObserved => input.intervention_command_ref.clone(),
-        BrowserRuntimePhase::AuditEntryCommitted => input
-            .intervention_result_ref
-            .clone()
-            .or_else(|| input.policy_decision_ref.clone())
-            .or_else(|| input.journal_ref.clone()),
-        BrowserRuntimePhase::ReadModelProjected => input.audit_entry_ref.clone(),
-    }
-}
-
 fn browser_aggregate_key(source_ref: &str) -> String {
     let mut value = String::from(constants::browser::AGGREGATE_BROWSER_RUNTIME_PREFIX);
     value.push_str(source_ref);
     value
 }
 
-fn browser_correlation_id(input: &BrowserRuntimeInput) -> String {
+pub(crate) fn browser_correlation_id(input: &BrowserRuntimeInput) -> String {
     let mut value = String::from(constants::browser::CORRELATION_BROWSER_RUNTIME_PREFIX);
     value.push_str(&input.evidence_ref);
     value.push(constants::delimiter::HYPHEN);

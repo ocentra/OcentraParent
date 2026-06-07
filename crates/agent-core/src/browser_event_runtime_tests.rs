@@ -2,6 +2,7 @@ use crate::{
     publish_browser_runtime_chain_for_input, BrowserRuntimeEventPayload, BrowserRuntimeInput,
     BrowserRuntimePhase, BrowserRuntimeReport,
 };
+use ocentra_parent_agent_protocol::constants;
 
 #[tokio::test]
 async fn browser_runtime_chain_publishes_ordered_managed_decision_phases() {
@@ -19,6 +20,7 @@ async fn browser_runtime_chain_publishes_ordered_managed_decision_phases() {
         decoded_phases(&report),
         BrowserRuntimePhase::ordered_chain().to_vec()
     );
+    assert_previous_refs_follow_published_events(&report);
     assert!(report.intervention_command_published());
 }
 
@@ -37,6 +39,7 @@ async fn browser_runtime_chain_keeps_manual_required_rows_non_executing() {
     assert!(!phases.contains(&BrowserRuntimePhase::InterventionCommandIssued));
     assert!(!phases.contains(&BrowserRuntimePhase::InterventionResultObserved));
     assert!(!report.intervention_command_published());
+    assert_previous_refs_follow_published_events(&report);
 
     let policy_event = decoded_payloads(&report)
         .into_iter()
@@ -45,6 +48,27 @@ async fn browser_runtime_chain_keeps_manual_required_rows_non_executing() {
     assert!(!policy_event.ai_authority);
     assert!(!policy_event.policy_authority);
     assert!(!policy_event.intervention_command_allowed);
+}
+
+fn assert_previous_refs_follow_published_events(report: &BrowserRuntimeReport) {
+    let decoded = decoded_payloads(report);
+    assert_eq!(decoded.first().unwrap().previous_phase_ref, None);
+
+    for pair in decoded.windows(2) {
+        let previous = &pair[0];
+        let current = &pair[1];
+        assert_eq!(current.previous_phase_ref, Some(event_ref(previous)));
+    }
+}
+
+fn event_ref(payload: &BrowserRuntimeEventPayload) -> String {
+    let mut value = String::from(constants::browser::CORRELATION_BROWSER_RUNTIME_PREFIX);
+    value.push_str(&payload.evidence_ref);
+    value.push(constants::delimiter::HYPHEN);
+    value.push_str(&payload.observed_at);
+    value.push(constants::delimiter::HYPHEN);
+    value.push_str(payload.phase.event_type());
+    value
 }
 
 fn decoded_phases(report: &BrowserRuntimeReport) -> Vec<BrowserRuntimePhase> {

@@ -35,6 +35,7 @@ mod browser_bridge_native_host;
 mod browser_bridge_poll;
 mod browser_event_runtime;
 mod browser_event_runtime_phase;
+mod browser_event_runtime_refs;
 #[cfg(test)]
 mod browser_event_runtime_tests;
 mod browser_intervention_event;

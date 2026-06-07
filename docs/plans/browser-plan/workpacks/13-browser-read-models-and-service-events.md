@@ -166,3 +166,25 @@ The proof validates that manual-required rows remain visible to portal state and
 intervention command events remain zero. It does not claim a new portal visual
 surface, AI execution, policy execution, browser mutation, child intervention
 execution, or enforcement.
+
+## Event-Chain Ref Addendum - 2026-06-07
+
+`browser-runtime-event-chain-ref-proof` tightens the browser runtime event-chain
+audit path so each payload `previousPhaseRef` points at the previous published
+browser event ref instead of a source/evidence/policy business ref. When
+intervention phases are skipped for manual-required rows, the following audit and
+read-model phases point to the last actually published event.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime.rs`
+- `crates/agent-core/src/browser_event_runtime_refs.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `scripts/test/browser-runtime-event-chain-ref-proof.mjs`
+- `test-results/browser-runtime-event-chain-ref-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-event-chain-ref-proof/01-browser-runtime-event-chain-ref-proof.md`
+- `cargo test -p ocentra-parent-agent-core browser_event_runtime --quiet`
+
+This does not change event names, protocol payload fields, service WebSocket
+routing, portal UI, AI execution, policy execution, browser mutation, child
+intervention execution, or enforcement.
