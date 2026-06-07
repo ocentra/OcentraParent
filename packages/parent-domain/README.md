@@ -251,6 +251,14 @@ mobile readiness, and control catalogs.
   child-device delivery, runtime report delivery, install/purchase
   interception, app blocking, child activity data, and Ocentra-hosted family
   data custody unclaimed.
+- App install/purchase external runtime writer delivery boundary proof
+  contracts that consume external runtime delivery handoff rows and record
+  required external writer transport, platform adapter, provider/store, and
+  child-device delivery proof refs while keeping external runtime writer
+  execution/delivery, parent action runtime delivery, provider/store execution,
+  platform interception/adapters, child-device delivery, runtime report
+  delivery, install/purchase interception, app blocking, child activity data,
+  and Ocentra-hosted family data custody unclaimed.
 - App install/purchase runtime report writer delivery proof contracts that link
   runtime writer execution delivery receipts and report-runtime compiler output
   rows into parent-owned report delivery-ready rows and report receipts while
@@ -410,10 +418,11 @@ flowchart LR
   delivery readiness proof plus provider/store execution readiness and
   approval/report domain proofs plus runtime writer execution delivery proof
   plus external runtime device delivery evidence, external runtime writer
-  readiness, external runtime writer transport preflight, and runtime report
-  writer delivery proof; Windows package-source
-  adapter evidence proof now records sanitized local host command evidence for
-  the Windows row without claiming Microsoft Store/provider execution or a
+  readiness, external runtime delivery handoff proof, external runtime writer
+  transport preflight proof, external runtime writer delivery boundary proof,
+  and runtime report writer delivery proof; Windows package-source adapter
+  evidence proof now records sanitized local host command evidence for the
+  Windows row without claiming Microsoft Store/provider execution or a
   production platform adapter;
   platform/store provider execution, actual provider contact, actual platform
   adapters, production child-device package capture, production package-source

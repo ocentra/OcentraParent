@@ -155,6 +155,17 @@ runtime writer device delivery, child delivery, provider/store execution,
 portal approval/report UI, and platform adapter proof before any app-install
 product claim can be upgraded.
 
+External runtime writer delivery boundary proof now consumes external runtime
+delivery handoff rows and records required external writer transport, platform
+adapter, provider/store, and child-device delivery proof refs before any
+external writer delivery claim. External runtime writer execution/delivery,
+parent action runtime delivery, provider/store execution, platform
+interception/adapters, child-device delivery, runtime report delivery, app
+blocking, child activity data, and hosted custody remain unclaimed. The next
+gap remains real external runtime writer transport delivery, child delivery,
+provider/store execution, portal approval/report UI, and platform adapter proof
+before any app-install product claim can be upgraded.
+
 Windows package-source adapter evidence proof now links platform adapter
 evidence gap rows and package-source adapter execution rows to a local Windows
 host command probe artifact for package-source inspection readiness. The proof
