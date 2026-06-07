@@ -339,6 +339,11 @@ compete on control while staying clear about attribution confidence and privacy.
   unavailable, weak-evidence, and invalid terminate-target states stay
   non-result, and live host mutation or enforcement-command publication is
   rejected.
+- E-D added a manual/deferred follow-up owner ledger proof for network gaps:
+  broker/family-hub delivery, raw-capture retention, live analyzer/model/policy,
+  host-adapter execution, portal rendering, production signoff, and UI
+  screenshot N/A items carry a reason, owner, source refs, follow-up path, and
+  no-claim boundary before any product-ready upgrade.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
