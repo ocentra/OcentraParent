@@ -55,9 +55,11 @@ proof artifacts with unsupported/manual-required gaps recorded.
   intelligence, social signup/account/feed, and browser-game/cloud-gaming
   because existing route/screenshot artifacts do not prove model/provider,
   parent decision, runtime-signal, or cloud-session behavior.
-- The generated manifest records manual-required rows for bridge disconnect
-  stale service proof, unsupported Firefox/later-adapter state, and
-  macOS/Linux/Android/iOS matrices until those real artifacts exist.
+- Bridge disconnect stale state and unsupported Firefox/later-adapter state now
+  have runtime/read-model/protocol proof in
+  `browser-runtime-stale-unsupported-proof`; real cross-platform browser support
+  and macOS/Linux/Android/iOS matrices remain manual-required until those real
+  artifacts exist.
 
 ## AI Worker Checklist
 
@@ -91,4 +93,7 @@ support.
 
 WP23 records those gaps in a generated manifest instead of treating missing
 cross-platform, model/provider, parent-decision, runtime-signal, and
-cloud-session artifacts as proof.
+cloud-session artifacts as proof. The stale/unsupported runtime proof narrows
+only the service/read-model/protocol gap; it does not upgrade real browser
+platform support, host blocking, exact active-tab enforcement, browser mutation,
+child intervention execution, final policy execution, or enforcement.

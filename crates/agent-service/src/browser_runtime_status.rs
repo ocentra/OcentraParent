@@ -129,7 +129,7 @@ pub fn bridge_disconnected_status(
 ) -> BrowserManagedSessionStatus {
     let mut status = base_managed_status(checked_at);
     status.managed_state = BrowserManagedState::BridgeDisconnected;
-    status.capability_status = BrowserCapabilityStatus::BridgeMissing;
+    status.capability_status = BrowserCapabilityStatus::Stale;
     status.degraded_reason = Some(reason.to_string());
     status
 }

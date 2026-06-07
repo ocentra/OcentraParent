@@ -472,3 +472,33 @@ Evidence:
 This is delivery-decision proof only. It does not add external transport,
 relay delivery, adapter dispatch, browser mutation, child intervention
 execution, final policy execution, or enforcement.
+
+## Stale Unsupported Runtime Addendum - 2026-06-07
+
+`browser-runtime-stale-unsupported-proof` closes the runtime/read-model proof gap
+for bridge-disconnected stale state and unsupported later-adapter rows. The
+managed status helper now reports bridge disconnect as explicit `stale`
+capability instead of conflating it with launch/connect-pending bridge-missing
+state. Inventory/read-model tests prove stale bridge rows stay
+manual-required, unsupported later-adapter rows stay unsupported/not-claimed, and
+runtime delivery plus service stream tests keep both rows parent-visible with
+zero exact URL rows, zero intervention command events, zero adapter execution,
+zero child intervention execution, and zero enforcement execution.
+
+Evidence:
+
+- `crates/agent-service/src/browser_runtime_status.rs`
+- `crates/agent-service/src/browser_runtime_tests.rs`
+- `crates/agent-service/src/browser_inventory_read_model_tests.rs`
+- `crates/agent-service/src/browser_runtime_delivery_tests.rs`
+- `crates/agent-service/src/browser_runtime_stream_tests.rs`
+- `packages/agent-protocol-domain/tests/browser-runtime-events.test.ts`
+- `scripts/test/browser-runtime-stale-unsupported-proof.mjs`
+- `test-results/browser-runtime-stale-unsupported-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-stale-unsupported/01-browser-runtime-stale-unsupported-proof.md`
+- `cmd /c node scripts/test/browser-runtime-stale-unsupported-proof.mjs`
+
+This is stale/unsupported runtime proof only. It does not claim real non-Windows
+platform support, exact active-tab enforcement, host blocking, browser mutation,
+child intervention execution, final policy execution, AI authority, or
+enforcement.

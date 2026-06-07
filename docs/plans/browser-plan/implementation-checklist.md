@@ -641,6 +641,20 @@ dedupe/transport artifacts exist. It does not add external transport, relay
 delivery, adapter dispatch, browser mutation, child intervention execution,
 final policy execution, or enforcement.
 
+WP13 stale/unsupported runtime addendum:
+`browser-runtime-stale-unsupported-proof` proves bridge-disconnected rows as
+explicit stale browser runtime/read-model state and unsupported later-adapter
+rows as unsupported/manual-required rows through the existing service stream and
+protocol parser. Evidence:
+`test-results/browser-runtime-stale-unsupported-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-stale-unsupported/01-browser-runtime-stale-unsupported-proof.md`.
+The proof validates stale inventory/manual-required mapping, unsupported
+later-adapter unsupported/not-claimed mapping, zero exact URL rows, zero
+intervention command events, and zero dispatch/adapter/child-intervention/
+enforcement counters. It does not claim real non-Windows browser support, host
+blocking, exact active-tab enforcement, browser mutation, child intervention
+execution, final policy execution, AI authority, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

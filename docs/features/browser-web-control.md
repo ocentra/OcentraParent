@@ -119,6 +119,11 @@ control while being more honest about managed versus unmanaged sources.
   unavailable context without a degraded reason before the portal exposes the
   stream as state. This is event-chain context only; it does not execute AI,
   execute policy, mutate the browser, execute child intervention, or enforce.
+- Browser-plan WP13 now also proves bridge-disconnected rows as explicit stale
+  browser runtime/read-model state and unsupported later-adapter rows as
+  unsupported/manual-required stream rows. Those rows stay parent-visible,
+  exact URL rows remain zero, and dispatch/adapter/child-intervention/
+  enforcement counters remain zero.
 - Browser-plan WP13 now carries dry-run policy/action handoff context through
   the same event chain: policy preview id, parent action-intent id, `dryRun`,
   and `adapterDispatchClaimed`. The protocol parser rejects dry-run rows that
@@ -344,11 +349,11 @@ budget evaluator behavior, but release performance remains manual-required until
 hardware-specific runs, portal stress timing, URL/video provider behavior, local
 AI queue behavior, browser-game runtime signals, and cloud-gaming heuristics are
 separately measured through real runtime artifacts.
-Browser evidence artifact coverage is now indexed, but missing or partial rows
-remain gaps: bridge disconnect stale proof, unsupported/later-adapter proof,
-macOS/Linux/Android/iOS matrices, URL/video model/provider classification,
-social parent-decision/audit flow, browser-game runtime signals, and
-cloud-gaming session heuristics are not upgraded by the manifest.
+Browser evidence artifact coverage is now indexed, and bridge-disconnect stale
+plus unsupported/later-adapter runtime rows now have service/read-model/protocol
+proof. Missing or partial rows remain gaps for real cross-platform browser
+matrices, URL/video model/provider classification, social parent-decision/audit
+flow, browser-game runtime signals, and cloud-gaming session heuristics.
 Browser-plan WP24 now records the base workpack rollout gate. It closes the
 base browser-plan proof/checklist path only; AI, social/video, and browser-game
 enhancement tracks remain open/manual-required until their separate contracts,

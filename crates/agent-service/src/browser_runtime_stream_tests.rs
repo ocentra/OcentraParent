@@ -179,6 +179,63 @@ async fn service_browser_runtime_stream_keeps_unavailable_rows_manual_required()
 }
 
 #[tokio::test]
+async fn service_browser_runtime_stream_keeps_stale_and_unsupported_rows_parent_visible() {
+    let report = stream_browser_runtime_event_chain_for_read_model(&read_model(vec![
+        stale_row(),
+        unsupported_row(),
+    ]))
+    .await;
+    let payload = browser_runtime_event_chain_stream_payload(&report);
+    let entries = stream_entries(&payload);
+
+    assert_eq!(report.observed_rows, 2);
+    assert_eq!(report.exact_url_rows, 0);
+    assert_eq!(report.manual_required_rows, 2);
+    assert_eq!(report.intervention_command_events, 0);
+    assert_eq!(report.action_intent_candidates, 0);
+    assert_eq!(report.action_intent_dispatch_attempts, 0);
+    assert_eq!(report.action_intent_adapter_executions, 0);
+    assert_eq!(report.action_intent_child_intervention_executions, 0);
+    assert_eq!(report.action_intent_enforcement_executions, 0);
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_EXACT_URL_ROWS),
+        Some(&LogFieldValue::Number(0.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_MANUAL_REQUIRED_ROWS),
+        Some(&LogFieldValue::Number(2.0))
+    );
+
+    let stale_entry =
+        first_entry_with_capability(&entries, constants::browser::CAPABILITY_STATUS_STALE);
+    assert_eq!(
+        stale_entry[constants::field::PAYLOAD][constants::field::EXACT_URL_CLAIMED],
+        false
+    );
+    assert_eq!(
+        stale_entry[constants::field::PAYLOAD][constants::field::DEGRADED_REASON],
+        constants::value::BROWSER_BRIDGE_STALE_SESSION
+    );
+
+    let unsupported_entry = first_entry_with_capability(
+        &entries,
+        constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER,
+    );
+    assert_eq!(
+        unsupported_entry[constants::field::PAYLOAD][constants::field::EXACT_URL_CLAIMED],
+        false
+    );
+    assert_eq!(
+        unsupported_entry[constants::field::PAYLOAD][constants::field::QUERY_VISIBILITY],
+        constants::browser::QUERY_VISIBILITY_UNAVAILABLE
+    );
+    assert_eq!(
+        unsupported_entry[constants::field::PAYLOAD][constants::field::DEGRADED_REASON],
+        constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER
+    );
+}
+
+#[tokio::test]
 async fn websocket_browser_runtime_stream_command_reports_store_backed_chain() {
     let _guard = REPORT_ENV_LOCK.lock().await;
     let store_path = temp_path(constants::activity_store::TEST_CAPTURE_BROWSER_STORE_SUFFIX);
@@ -287,6 +344,27 @@ fn unavailable_row() -> BrowserTabEvidence {
     }
 }
 
+fn stale_row() -> BrowserTabEvidence {
+    BrowserTabEvidence {
+        capability_status: BrowserCapabilityStatus::Stale,
+        degraded_reason: Some(constants::value::BROWSER_BRIDGE_STALE_SESSION.to_string()),
+        ..managed_row()
+    }
+}
+
+fn unsupported_row() -> BrowserTabEvidence {
+    BrowserTabEvidence {
+        browser_family: BrowserFamily::Firefox,
+        browser_channel: BrowserChannel::Stable,
+        capability_status: BrowserCapabilityStatus::UnsupportedBrowser,
+        query_visibility: BrowserQueryVisibilityLabel::Unavailable,
+        degraded_reason: Some(
+            constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER.to_string(),
+        ),
+        ..managed_row()
+    }
+}
+
 fn browser_activity_event() -> ActivityEvent {
     browser_tab_observation_event(
         BrowserBridgeTargetObservation {
@@ -340,6 +418,15 @@ fn stream_entries(payload: &LogFields) -> Vec<Value> {
         }
         _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
     }
+}
+
+fn first_entry_with_capability<'a>(entries: &'a [Value], capability: &str) -> &'a Value {
+    entries
+        .iter()
+        .find(|entry| {
+            entry[constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS] == capability
+        })
+        .expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn temp_path(suffix: &str) -> std::path::PathBuf {

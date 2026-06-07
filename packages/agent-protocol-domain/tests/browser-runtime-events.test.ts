@@ -58,6 +58,21 @@ const ReadModelProjectedPayload = {
   previousPhaseRef: 'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.audit-entry.committed',
 } as const;
 
+const StaleBridgePayload = {
+  ...EvidenceObservedPayload,
+  capabilityStatus: AgentBrowserRuntimeCapabilityStatus.Stale,
+  degradedReason: 'browser-bridge-stale-session',
+  exactUrlClaimed: false,
+} as const;
+
+const UnsupportedLaterAdapterPayload = {
+  ...EvidenceObservedPayload,
+  capabilityStatus: AgentBrowserRuntimeCapabilityStatus.UnsupportedBrowser,
+  queryVisibility: AgentBrowserRuntimeQueryVisibility.Unavailable,
+  degradedReason: 'windows-unsupported-later-adapter',
+  exactUrlClaimed: false,
+} as const;
+
 const PolicyDecisionPayload = {
   ...EvidenceObservedPayload,
   phase: AgentBrowserRuntimePhase.PolicyDecisionCompleted,
@@ -248,6 +263,36 @@ function specifyRuntimePayloadRejections() {
       ])
     ).ok
   ).toBe(true);
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields([entry(AgentBrowserRuntimeEventType.EvidenceObserved, StaleBridgePayload)])
+    ).ok
+  ).toBe(true);
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields([entry(AgentBrowserRuntimeEventType.EvidenceObserved, UnsupportedLaterAdapterPayload)])
+    ).ok
+  ).toBe(true);
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields([
+        entry(AgentBrowserRuntimeEventType.EvidenceObserved, {
+          ...StaleBridgePayload,
+          exactUrlClaimed: true,
+        }),
+      ])
+    )
+  ).toEqual({ ok: false, reason: 'invalid-entry' });
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields([
+        entry(AgentBrowserRuntimeEventType.EvidenceObserved, {
+          ...UnsupportedLaterAdapterPayload,
+          exactUrlClaimed: true,
+        }),
+      ])
+    )
+  ).toEqual({ ok: false, reason: 'invalid-entry' });
 }
 
 function specifyActionIntentOverclaimRejections() {
