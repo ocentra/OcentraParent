@@ -157,6 +157,15 @@ expose location or device-status features. Parents expect this category.
   retention card, and manual-required/unavailable/authority-required unsupported
   platform rows inside the hosted route only, and keeps
   `productClaimReady=false`.
+- WP30 child-runtime delivery boundary proof now exists through
+  `node scripts/test/tracking-child-runtime-delivery-boundary-proof.mjs`. It
+  links hosted child-runtime disclosure proof refs to WP18 child check-in
+  timeout rows, records required child-device runtime proof refs for waiting,
+  safe, help, call-parent, and timeout states, writes WP30/WP33 artifacts, and
+  keeps actual child-device delivery/execution, rendered child-device runtime
+  UI, provider delivery, notification receipt ingestion, live location runtime,
+  physical-device proof, authority, production workers, and product-ready
+  claims false.
 - WP32 hosted report/policy consumer rendering proof now exists through
   `npm run test:tracking-plan-hosted-ui-proof`. It renders parent report
   summary, policy evidence drill-in, and retention audit export consumer rows

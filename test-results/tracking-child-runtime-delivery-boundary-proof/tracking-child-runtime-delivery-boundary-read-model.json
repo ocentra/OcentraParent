@@ -1,0 +1,277 @@
+{
+  "schemaVersion": "v0.5-tracking",
+  "readinessId": "tracking-child-runtime-delivery-boundary-proof",
+  "generatedAt": "2026-06-07T14:10:00.000Z",
+  "sourceTimeoutReadinessId": "tracking-child-check-in-timeout-escalation-proof",
+  "sourceTimeoutGeneratedAt": "2026-06-07T14:05:00.000Z",
+  "sourceContractRefs": [
+    "packages/parent-domain/src/tracking-child-check-in-timeout-escalation-proof.ts",
+    "packages/parent-domain/src/tracking-child-runtime-delivery-boundary-proof.ts",
+    "apps/portal/src/tracking-child-check-in-proof.ts",
+    "apps/portal/e2e/tracking-hosted-ui-proof.spec.ts",
+    "docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md"
+  ],
+  "hostedUiProofRefs": [
+    "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+    "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png",
+    "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+  ],
+  "rows": [
+    {
+      "rowId": "tracking-child-runtime-delivery-boundary-tracking-check-in-waiting",
+      "sourceCheckInId": "tracking-check-in-waiting",
+      "sourceResolutionState": "waiting-for-child",
+      "boundaryState": "hosted-copy-only-waiting",
+      "hostedUiState": "delivery-disclosure",
+      "hostedUiProofRefs": [
+        "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+        "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png",
+        "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+      ],
+      "sourceEvidenceRefs": [
+        "tracking-child-runtime-evidence-1",
+        "tracking-child-runtime-evidence-1"
+      ],
+      "sourceAuditRefs": [
+        "tracking-child-runtime-request-tracking-check-in-waiting",
+        "child-check-in-waiting",
+        "tracking-child-check-in-timeout-waiting-for-child"
+      ],
+      "requiredRuntimeProofRefs": [
+        "child-device-delivery-runtime-proof-required-tracking-check-in-waiting",
+        "child-device-execution-runtime-proof-required-tracking-check-in-waiting",
+        "rendered-child-device-ui-runtime-proof-required-tracking-check-in-waiting",
+        "physical-device-proof-required-tracking-check-in-waiting",
+        "authority-proof-required-tracking-check-in-waiting"
+      ],
+      "parentVisibleStatusRefs": [
+        "hosted-child-runtime-disclosure-tracking-check-in-waiting",
+        "child-device-runtime-proof-required",
+        "rendered-child-device-ui-proof-required"
+      ],
+      "childDeviceDeliveryRuntimeClaimed": false,
+      "childDeviceExecutionRuntimeClaimed": false,
+      "renderedChildDeviceUiRuntimeClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptIngestionClaimed": false,
+      "liveLocationRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productionWorkerClaimed": false,
+      "productReadyClaimed": false
+    },
+    {
+      "rowId": "tracking-child-runtime-delivery-boundary-tracking-check-in-safe",
+      "sourceCheckInId": "tracking-check-in-safe",
+      "sourceResolutionState": "safe-response-recorded",
+      "boundaryState": "hosted-copy-only-safe-response",
+      "hostedUiState": "safe-response-disclosure",
+      "hostedUiProofRefs": [
+        "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+        "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png",
+        "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+      ],
+      "sourceEvidenceRefs": [
+        "tracking-child-runtime-evidence-1",
+        "tracking-child-check-in-safe-location",
+        "tracking-child-runtime-evidence-1"
+      ],
+      "sourceAuditRefs": [
+        "tracking-child-runtime-request-tracking-check-in-safe",
+        "tracking-child-runtime-response-tracking-check-in-safe",
+        "child-check-in-answered",
+        "tracking-child-check-in-timeout-safe-response-recorded"
+      ],
+      "requiredRuntimeProofRefs": [
+        "child-device-delivery-runtime-proof-required-tracking-check-in-safe",
+        "child-device-execution-runtime-proof-required-tracking-check-in-safe",
+        "rendered-child-device-ui-runtime-proof-required-tracking-check-in-safe",
+        "physical-device-proof-required-tracking-check-in-safe",
+        "authority-proof-required-tracking-check-in-safe"
+      ],
+      "parentVisibleStatusRefs": [
+        "hosted-child-runtime-disclosure-tracking-check-in-safe",
+        "child-device-runtime-proof-required",
+        "rendered-child-device-ui-proof-required"
+      ],
+      "childDeviceDeliveryRuntimeClaimed": false,
+      "childDeviceExecutionRuntimeClaimed": false,
+      "renderedChildDeviceUiRuntimeClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptIngestionClaimed": false,
+      "liveLocationRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productionWorkerClaimed": false,
+      "productReadyClaimed": false
+    },
+    {
+      "rowId": "tracking-child-runtime-delivery-boundary-tracking-check-in-help",
+      "sourceCheckInId": "tracking-check-in-help",
+      "sourceResolutionState": "help-response-escalation-ready",
+      "boundaryState": "hosted-copy-only-escalation-ready",
+      "hostedUiState": "help-response-disclosure",
+      "hostedUiProofRefs": [
+        "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+        "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png",
+        "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+      ],
+      "sourceEvidenceRefs": [
+        "tracking-child-runtime-evidence-1",
+        "tracking-child-check-in-help-location",
+        "tracking-child-runtime-evidence-1"
+      ],
+      "sourceAuditRefs": [
+        "tracking-child-runtime-request-tracking-check-in-help",
+        "tracking-child-runtime-response-tracking-check-in-help",
+        "child-check-in-answered",
+        "tracking-child-check-in-timeout-help-response-escalation-ready"
+      ],
+      "requiredRuntimeProofRefs": [
+        "child-device-delivery-runtime-proof-required-tracking-check-in-help",
+        "child-device-execution-runtime-proof-required-tracking-check-in-help",
+        "rendered-child-device-ui-runtime-proof-required-tracking-check-in-help",
+        "physical-device-proof-required-tracking-check-in-help",
+        "authority-proof-required-tracking-check-in-help"
+      ],
+      "parentVisibleStatusRefs": [
+        "hosted-child-runtime-disclosure-tracking-check-in-help",
+        "tracking-parent-review-child-check-in-tracking-check-in-help",
+        "child-device-delivery-proof-required",
+        "provider-delivery-proof-required",
+        "timeout-worker-proof-required",
+        "physical-device-proof-required"
+      ],
+      "childDeviceDeliveryRuntimeClaimed": false,
+      "childDeviceExecutionRuntimeClaimed": false,
+      "renderedChildDeviceUiRuntimeClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptIngestionClaimed": false,
+      "liveLocationRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productionWorkerClaimed": false,
+      "productReadyClaimed": false
+    },
+    {
+      "rowId": "tracking-child-runtime-delivery-boundary-tracking-check-in-call-parent",
+      "sourceCheckInId": "tracking-check-in-call-parent",
+      "sourceResolutionState": "call-parent-response-escalation-ready",
+      "boundaryState": "hosted-copy-only-escalation-ready",
+      "hostedUiState": "help-response-disclosure",
+      "hostedUiProofRefs": [
+        "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+        "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png",
+        "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+      ],
+      "sourceEvidenceRefs": [
+        "tracking-child-runtime-evidence-1",
+        "tracking-child-runtime-evidence-1"
+      ],
+      "sourceAuditRefs": [
+        "tracking-child-runtime-request-tracking-check-in-call-parent",
+        "tracking-child-runtime-response-tracking-check-in-call-parent",
+        "child-check-in-answered",
+        "tracking-child-check-in-timeout-call-parent-response-escalation-ready"
+      ],
+      "requiredRuntimeProofRefs": [
+        "child-device-delivery-runtime-proof-required-tracking-check-in-call-parent",
+        "child-device-execution-runtime-proof-required-tracking-check-in-call-parent",
+        "rendered-child-device-ui-runtime-proof-required-tracking-check-in-call-parent",
+        "physical-device-proof-required-tracking-check-in-call-parent",
+        "authority-proof-required-tracking-check-in-call-parent"
+      ],
+      "parentVisibleStatusRefs": [
+        "hosted-child-runtime-disclosure-tracking-check-in-call-parent",
+        "tracking-parent-review-child-check-in-tracking-check-in-call-parent",
+        "child-device-delivery-proof-required",
+        "provider-delivery-proof-required",
+        "timeout-worker-proof-required",
+        "physical-device-proof-required"
+      ],
+      "childDeviceDeliveryRuntimeClaimed": false,
+      "childDeviceExecutionRuntimeClaimed": false,
+      "renderedChildDeviceUiRuntimeClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptIngestionClaimed": false,
+      "liveLocationRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productionWorkerClaimed": false,
+      "productReadyClaimed": false
+    },
+    {
+      "rowId": "tracking-child-runtime-delivery-boundary-tracking-check-in-expired",
+      "sourceCheckInId": "tracking-check-in-expired",
+      "sourceResolutionState": "expired-timeout-escalation-ready",
+      "boundaryState": "hosted-copy-only-escalation-ready",
+      "hostedUiState": "timeout-disclosure",
+      "hostedUiProofRefs": [
+        "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json",
+        "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png",
+        "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+      ],
+      "sourceEvidenceRefs": [
+        "tracking-child-runtime-evidence-1",
+        "tracking-child-runtime-evidence-1"
+      ],
+      "sourceAuditRefs": [
+        "tracking-child-runtime-request-tracking-check-in-expired",
+        "child-check-in-expired",
+        "tracking-child-check-in-timeout-expired-timeout-escalation-ready"
+      ],
+      "requiredRuntimeProofRefs": [
+        "child-device-delivery-runtime-proof-required-tracking-check-in-expired",
+        "child-device-execution-runtime-proof-required-tracking-check-in-expired",
+        "rendered-child-device-ui-runtime-proof-required-tracking-check-in-expired",
+        "physical-device-proof-required-tracking-check-in-expired",
+        "authority-proof-required-tracking-check-in-expired"
+      ],
+      "parentVisibleStatusRefs": [
+        "hosted-child-runtime-disclosure-tracking-check-in-expired",
+        "tracking-parent-review-child-check-in-tracking-check-in-expired",
+        "child-device-delivery-proof-required",
+        "provider-delivery-proof-required",
+        "timeout-worker-proof-required",
+        "physical-device-proof-required"
+      ],
+      "childDeviceDeliveryRuntimeClaimed": false,
+      "childDeviceExecutionRuntimeClaimed": false,
+      "renderedChildDeviceUiRuntimeClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptIngestionClaimed": false,
+      "liveLocationRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "productionWorkerClaimed": false,
+      "productReadyClaimed": false
+    }
+  ],
+  "hostedCopyOnlyCount": 5,
+  "safeResponseDisclosureCount": 1,
+  "escalationDisclosureCount": 3,
+  "manualRuntimeProofRequiredCount": 0,
+  "requiredRuntimeProofRefCount": 25,
+  "readinessNonClaims": [
+    "no-child-device-delivery-runtime",
+    "no-child-device-execution-runtime",
+    "no-rendered-child-device-ui-runtime",
+    "no-provider-delivery",
+    "no-notification-receipt-ingestion",
+    "no-live-location-runtime",
+    "no-physical-device-proof",
+    "no-authority-proof",
+    "no-production-worker",
+    "no-product-ready-claim"
+  ],
+  "childDeviceDeliveryRuntimeClaimed": false,
+  "childDeviceExecutionRuntimeClaimed": false,
+  "renderedChildDeviceUiRuntimeClaimed": false,
+  "providerDeliveryClaimed": false,
+  "notificationReceiptIngestionClaimed": false,
+  "liveLocationRuntimeClaimed": false,
+  "physicalDeviceProofClaimed": false,
+  "authorityProofClaimed": false,
+  "productionWorkerClaimed": false,
+  "productReadyClaimed": false
+}
