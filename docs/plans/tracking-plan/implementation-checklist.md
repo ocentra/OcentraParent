@@ -79,6 +79,12 @@ Every checked item must cite one or more proof artifacts.
       `output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json`
       and
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json`.
+      Local service state readback proof now derives a parent-domain row from
+      that accepted write-command result in
+      `output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json`,
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/33-retention-local-service-state-proof.json`,
+      and
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/40-retention-local-service-state-proof.json`.
       The hosted route now renders those read-model rows and sends/renders the
       typed local service execution command result with a local service state
       revision and snapshot ref; durable product settings and product-ready
@@ -485,9 +491,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       retention settings mutation proof now applies those five write intents
       while preserving remote sync and remote AI disabled. The service transport
       now has a typed retention settings write command local-execution result
-      proof; hosted route command/result rendering now exists. Durable writable
-      product settings, platform runtime, and product-ready retention behavior
-      remain pending.
+      proof, and local service state readback proof now preserves the accepted
+      write result's applied values, service state revision, and snapshot ref;
+      hosted route command/result rendering now exists. Durable writable product
+      settings, platform runtime, and product-ready retention behavior remain
+      pending.
 - [x] Tracking service read-model command has P2 proof for SQLite tracking rows,
       citation IDs through `trackingReadModel`, retention-delete tombstone
       replay with deleted evidence citation summaries, and narrow parent portal
@@ -517,6 +525,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       snapshot remote upload, remote sync, remote AI, portal UI, service
       mutation, platform runtime, device delivery, authority, production, and
       product-ready claims remain false.
+      Retention local service state readback proof now adds
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/33-retention-local-service-state-proof.json`
+      as a derived read-model evidence row from the accepted write-command proof
+      while keeping durable product settings, platform runtime, device delivery,
+      authority, production, and product-ready claims false.
 - [x] Tracking report/policy consumer hosted UI proof renders parent report
       summary, policy evidence drill-in, and retention audit export rows from
       the stored-ref consumer proof on the hosted parent `policy-tracking`
