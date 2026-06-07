@@ -75,6 +75,10 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/45-child-runtime-product-readiness-blocker-proof.json'
   ),
   sourceProof(
+    'full-product-ui-readiness-blocker',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/56-full-product-ui-readiness-blocker-proof.json'
+  ),
+  sourceProof(
     'retention-product-readiness-blocker',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json'
   ),

@@ -180,6 +180,18 @@ expose location or device-status features. Parents expect this category.
   physical-device proof, authority, provider delivery, production workers, and
   product-ready tracking unclaimed until those real child-device artifacts
   exist.
+- WP30/WP33 full product UI readiness blocker proof now exists through
+  `node scripts/test/tracking-full-product-ui-readiness-blocker-proof.mjs`. It
+  consumes the hosted UI artifact inventory and child-runtime artifact gate,
+  writes WP30/WP33 artifacts, and records manual-required blockers for the
+  hosted-route-only boundary, full parent overview/device-detail runtime UI,
+  parent notification history/preferences runtime, retention settings production
+  UI, rendered child-device runtime UI, parent receipt UI, cross-surface
+  accessibility regression proof, physical-device UI proof, authority-gated UI
+  proof, provider-delivery UI proof, production product UI, and product-ready
+  tracking UI. Hosted-route evidence stays acknowledged, but full product
+  parent/child UI, child-device runtime UI, physical-device, authority,
+  provider delivery, production, and product-ready claims remain false.
 - WP26/WP33 provider-delivery artifact gate proof now exists through
   `node scripts/test/tracking-provider-delivery-artifact-gate-proof.mjs`. It
   checks the provider-delivery proof root for the required real runtime
@@ -215,7 +227,8 @@ expose location or device-status features. Parents expect this category.
   artifact inventory, iOS privacy disclosure release gate, Android system
   geofence blocker, notification receipt boundary, notification preference
   preflight, notification local outbox readiness, authority-enrollment
-  manual-required, child-runtime blocker, child-runtime artifact gate,
+  manual-required, child-runtime blocker, child-runtime artifact gate, full
+  product UI readiness blocker,
   physical-device artifact gate, provider-delivery artifact gate,
   provider-runtime readiness blocker, escalation-runtime readiness blocker, and
   retention product-readiness blocker proof refs, writes
