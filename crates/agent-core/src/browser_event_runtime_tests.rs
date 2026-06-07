@@ -1,6 +1,6 @@
 use crate::{
     browser_runtime_action_intent_status_topology_manifest,
-    publish_browser_runtime_chain_for_input,
+    browser_runtime_chain_topology_manifest, publish_browser_runtime_chain_for_input,
     request_browser_runtime_action_intent_status_for_input, BrowserRuntimeEventPayload,
     BrowserRuntimeInput, BrowserRuntimePhase, BrowserRuntimeReport,
 };
@@ -217,6 +217,32 @@ fn browser_runtime_action_intent_topology_covers_named_event_and_subscriber() {
         subscriber.target_handler.as_str(),
         constants::browser::TARGET_BROWSER_ACTION_INTENT_STATUS
     );
+}
+
+#[test]
+fn browser_runtime_chain_topology_covers_ordered_event_spine() {
+    let manifest = browser_runtime_chain_topology_manifest().unwrap();
+    assert_eq!(manifest.unready_entries().len(), 0);
+    assert_eq!(
+        manifest.entries().len(),
+        BrowserRuntimePhase::ordered_chain().len()
+    );
+
+    for phase in BrowserRuntimePhase::ordered_chain() {
+        let entry = manifest
+            .entries()
+            .iter()
+            .find(|entry| entry.contract.event_type.as_str() == phase.event_type())
+            .unwrap();
+        assert_eq!(entry.status, EventTopologyStatus::Covered);
+        assert_eq!(
+            entry.publishers.first().unwrap().as_str(),
+            constants::browser::RUNTIME_COMPONENT_BROWSER_SPINE
+        );
+        let subscriber = entry.subscribers.first().unwrap();
+        assert_eq!(subscriber.subscriber_id.as_str(), phase.subscriber_id());
+        assert_eq!(subscriber.target_handler.as_str(), phase.target_handler());
+    }
 }
 
 fn assert_all_payloads_preserve_browser_context(

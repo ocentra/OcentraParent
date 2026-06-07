@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 
 mod action_handoff;
 mod action_status;
+mod topology;
 
 use crate::{browser_event_runtime_refs::previous_phase_ref, BrowserRuntimePhase};
 
@@ -17,6 +18,7 @@ pub use action_status::{
     request_browser_runtime_action_intent_status_for_input, BrowserRuntimeActionIntentStatusReport,
     BrowserRuntimeActionIntentStatusResponse,
 };
+pub use topology::browser_runtime_chain_topology_manifest;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BrowserRuntimeInput {

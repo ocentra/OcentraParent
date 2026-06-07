@@ -1,0 +1,107 @@
+{
+  "proofName": "browser-runtime-chain-topology-proof",
+  "branchHead": "a565b689f Register browser action intent event topology",
+  "sourceChecks": {
+    "registersRuntimeContracts": true,
+    "buildsTopologyManifest": true,
+    "declaresRuntimePublishers": true,
+    "declaresRuntimeSubscribers": true,
+    "iteratesOrderedChain": true,
+    "runtimeModuleExportsTopology": true,
+    "exportsTopologyHelper": true,
+    "focusedTopologyTestExists": true,
+    "testAssertsCoveredStatus": true,
+    "docsMentionTopologyProof": true,
+    "workpackMentionsTopologyProof": true,
+    "allExpectedEventsMentioned": true
+  },
+  "commands": [
+    "cargo test -p ocentra-parent-agent-core browser_runtime_chain_topology_covers_ordered_event_spine --quiet"
+  ],
+  "topology": [
+    {
+      "eventType": "browser.evidence.observed",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-evidence-observer",
+      "target": "browser-evidence-observer",
+      "status": "covered"
+    },
+    {
+      "eventType": "browser.evidence.journaled",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-evidence-journal",
+      "target": "browser-evidence-journal",
+      "status": "covered"
+    },
+    {
+      "eventType": "browser.ai.analysis.requested",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-ai-request",
+      "target": "browser-ai-analyzer",
+      "status": "covered"
+    },
+    {
+      "eventType": "browser.ai.analysis.completed",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-ai-complete",
+      "target": "browser-ai-analyzer",
+      "status": "covered"
+    },
+    {
+      "eventType": "browser.policy.evaluation.requested",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-policy-request",
+      "target": "browser-policy-engine",
+      "status": "covered"
+    },
+    {
+      "eventType": "browser.policy.decision.completed",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-policy-decision",
+      "target": "browser-policy-engine",
+      "status": "covered"
+    },
+    {
+      "eventType": "browser.intervention.command.issued",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-intervention-command",
+      "target": "browser-intervention-adapter",
+      "status": "covered"
+    },
+    {
+      "eventType": "browser.intervention.result.observed",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-intervention-result",
+      "target": "browser-intervention-adapter",
+      "status": "covered"
+    },
+    {
+      "eventType": "browser.audit.entry.committed",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-audit-entry",
+      "target": "browser-audit-writer",
+      "status": "covered"
+    },
+    {
+      "eventType": "browser.read-model.projected",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-read-model",
+      "target": "browser-read-model",
+      "status": "covered"
+    }
+  ],
+  "verified": {
+    "reusableEventingTopologyManifestUsed": true,
+    "orderedBrowserRuntimeChainRegistered": true,
+    "namedPublishersDeclared": true,
+    "namedSubscribersDeclared": true,
+    "noUnreadyTopologyEntries": true,
+    "newEventBusCreated": false,
+    "externalTransportClaimed": false,
+    "adapterDispatchClaimed": false,
+    "browserMutationClaimed": false,
+    "childInterventionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  }
+}

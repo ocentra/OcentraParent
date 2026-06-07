@@ -1050,6 +1050,13 @@ browser-runtime-spine publisher and browser-action-intent-status subscriber,
 but this is topology proof only: no external transport, adapter dispatch,
 browser mutation, child intervention execution, final policy execution, or
 enforcement is claimed.
+WP13 now also registers the existing ordered browser runtime event chain in the
+same reusable Rust eventing topology manifest. The ten current phases from
+browser evidence observed through read-model projected are covered by the
+browser-runtime-spine publisher and their named subscribers/targets. This is
+chain topology proof only: it adds no external transport, adapter dispatch,
+browser mutation, child intervention execution, final policy execution, or
+enforcement.
 
 ## Checklist
 

@@ -616,6 +616,18 @@ subscriber/target. Evidence:
 This does not add another browser bus, external transport, browser mutation,
 child intervention execution, final policy execution, or enforcement.
 
+WP13 runtime-chain topology addendum:
+`browser-runtime-chain-topology-proof` registers the existing ordered browser
+runtime event chain in the reusable `ocentra-eventing` contract registry and
+topology manifest. The topology marks all ten browser runtime phases from
+`browser.evidence.observed` through `browser.read-model.projected` covered by
+the `browser-event-runtime-spine` publisher and their named subscribers/targets.
+Evidence:
+`test-results/browser-runtime-chain-topology-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-chain-topology/01-browser-runtime-chain-topology-proof.md`.
+This does not add external transport, adapter dispatch, browser mutation, child
+intervention execution, final policy execution, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

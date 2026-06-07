@@ -295,6 +295,7 @@ parallel source.
 Evidence:
 
 - `crates/agent-core/src/browser_event_runtime.rs`
+- `crates/agent-core/src/browser_event_runtime/topology.rs`
 - `crates/agent-core/src/browser_event_runtime_tests.rs`
 - `scripts/test/browser-runtime-action-intent-outbox-handoff-proof.mjs`
 - `test-results/browser-runtime-action-intent-outbox-handoff-proof/proof.json`
@@ -425,4 +426,26 @@ Evidence:
 
 This is topology/registry proof only. It does not add another browser bus,
 external transport, adapter dispatch, browser mutation, child intervention
+execution, final policy execution, or enforcement.
+
+## Runtime Chain Topology Addendum - 2026-06-07
+
+`browser-runtime-chain-topology-proof` registers the existing ordered browser
+runtime chain with the reusable `ocentra-eventing` contract registry and
+topology manifest. The manifest covers the ten current browser runtime phases
+from evidence observed through read-model projected, all published by
+`browser-event-runtime-spine` and all subscribed by their named phase
+subscribers/targets.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `scripts/test/browser-runtime-chain-topology-proof.mjs`
+- `test-results/browser-runtime-chain-topology-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-chain-topology/01-browser-runtime-chain-topology-proof.md`
+- `cargo test -p ocentra-parent-agent-core browser_runtime_chain_topology_covers_ordered_event_spine --quiet`
+
+This is topology/registry proof for the existing local chain only. It does not
+add external transport, adapter dispatch, browser mutation, child intervention
 execution, final policy execution, or enforcement.
