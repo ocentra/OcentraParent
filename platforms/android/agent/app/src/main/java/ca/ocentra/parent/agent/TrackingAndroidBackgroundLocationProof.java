@@ -172,6 +172,10 @@ public final class TrackingAndroidBackgroundLocationProof {
             Context.MODE_PRIVATE
         );
         int transitionCount = prefs.getInt(TrackingAndroidGeofenceTransitionReceiver.FIELD_TRANSITION_COUNT, 0);
+        int systemProximityTransitionCount = prefs.getInt(
+            TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_TRANSITION_COUNT,
+            0
+        );
         Bundle status = new Bundle();
         status.putString("schemaVersion", SCHEMA_VERSION);
         status.putString(
@@ -180,11 +184,13 @@ public final class TrackingAndroidBackgroundLocationProof {
         );
         status.putString(
             FIELD_BACKGROUND_GEOFENCE_STATE,
-            transitionCount > 0 ? BACKGROUND_GEOFENCE_TRANSITION_OBSERVED : BACKGROUND_GEOFENCE_MANUAL_REQUIRED
+            transitionCount > 0 || systemProximityTransitionCount > 0
+                ? BACKGROUND_GEOFENCE_TRANSITION_OBSERVED
+                : BACKGROUND_GEOFENCE_MANUAL_REQUIRED
         );
         status.putString("proofBoundary", BACKGROUND_LOCATION_PROOF_BOUNDARY);
         status.putBoolean("backgroundLocationPermissionGranted", permissionGranted);
-        status.putBoolean("backgroundGeofenceTransitionCaptured", transitionCount > 0);
+        status.putBoolean("backgroundGeofenceTransitionCaptured", transitionCount > 0 || systemProximityTransitionCount > 0);
         status.putInt(FIELD_BACKGROUND_GEOFENCE_TRANSITION_COUNT, transitionCount);
         status.putInt(
             FIELD_BACKGROUND_GEOFENCE_ENTER_COUNT,
@@ -218,6 +224,32 @@ public final class TrackingAndroidBackgroundLocationProof {
             prefs.getString(
                 TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_REGISTRATION_SOURCE,
                 "not-registered"
+            )
+        );
+        status.putInt(
+            TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_TRANSITION_COUNT,
+            systemProximityTransitionCount
+        );
+        status.putInt(
+            TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_ENTER_COUNT,
+            prefs.getInt(TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_ENTER_COUNT, 0)
+        );
+        status.putInt(
+            TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_EXIT_COUNT,
+            prefs.getInt(TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_EXIT_COUNT, 0)
+        );
+        status.putString(
+            TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_LAST_TRANSITION,
+            prefs.getString(
+                TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_LAST_TRANSITION,
+                "none"
+            )
+        );
+        status.putLong(
+            TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_LAST_TRANSITION_EPOCH_MILLIS,
+            prefs.getLong(
+                TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_LAST_TRANSITION_EPOCH_MILLIS,
+                0L
             )
         );
         return status;

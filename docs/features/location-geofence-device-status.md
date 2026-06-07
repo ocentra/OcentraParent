@@ -178,13 +178,16 @@ expose location or device-status features. Parents expect this category.
   100 geofences per app per device user limit, bridges to the WP10
   low-power/app-restart/pending-upload/manual-required status-gap rows, records
   Android `LocationManager.addProximityAlert` registration metadata separately,
-  and preserves the final app UI/manual-required boundary separately from the
-  app-owned proof storage rows. The generated proof lives at
+  now splits Android proximity-alert broadcast transition counters from
+  app-owned local listener transition counters, and preserves the final app
+  UI/manual-required boundary separately from the app-owned proof storage rows.
+  The generated proof lives at
   `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json`.
-  This is local emulator proof only; Android system geofence delivery, dwell
-  transitions, physical-device behavior, authority, provider delivery,
-  production upload workers, and product-ready Android tracking remain
-  unclaimed.
+  This is local emulator proof only. Android system geofence delivery remains
+  unclaimed unless the separate system-proximity broadcast transition count is
+  nonzero; dwell transitions, physical-device behavior, authority, provider
+  delivery, production upload workers, and product-ready Android tracking
+  remain unclaimed.
 - P1 evidence-quality gate proof now exists through
   `npm run test:tracking-plan-evidence-quality-gate-proof`. It validates
   location UI evidence refs, geofence rule/source refs, nearby-place provider

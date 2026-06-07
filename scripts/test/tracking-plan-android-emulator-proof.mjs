@@ -904,6 +904,11 @@ function parseGeofenceTransitionPrefs(raw) {
     systemProximityRegistered: parseXmlBoolean(raw, 'systemProximityRegistered'),
     systemProximityRegistrationEpochMillis: parseXmlLong(raw, 'systemProximityRegistrationEpochMillis'),
     systemProximityRegistrationSource: parseXmlString(raw, 'systemProximityRegistrationSource'),
+    systemProximityTransitionCount: parseXmlInt(raw, 'systemProximityTransitionCount'),
+    systemProximityEnterCount: parseXmlInt(raw, 'systemProximityEnterCount'),
+    systemProximityExitCount: parseXmlInt(raw, 'systemProximityExitCount'),
+    systemProximityLastTransition: parseXmlString(raw, 'systemProximityLastTransition'),
+    systemProximityLastTransitionEpochMillis: parseXmlLong(raw, 'systemProximityLastTransitionEpochMillis'),
     hasInsideState: parseXmlBoolean(raw, 'hasInsideState'),
     insideState: parseXmlBoolean(raw, 'insideState'),
     transitionCount: parseXmlInt(raw, 'transitionCount'),
@@ -939,15 +944,24 @@ function activeGeofenceLimitProof(geofenceTransitions) {
 }
 
 function systemProximityRegistrationProof(geofenceTransitions) {
+  const transitionObserved = geofenceTransitions.systemProximityTransitionCount > 0;
   return {
     observed: geofenceTransitions.systemProximityRegistered,
     source: geofenceTransitions.systemProximityRegistrationSource,
     registeredAtEpochMillis: geofenceTransitions.systemProximityRegistrationEpochMillis,
+    transitionObserved,
+    transitionCount: geofenceTransitions.systemProximityTransitionCount,
+    enterCount: geofenceTransitions.systemProximityEnterCount,
+    exitCount: geofenceTransitions.systemProximityExitCount,
+    lastTransition: geofenceTransitions.systemProximityLastTransition,
+    lastTransitionEpochMillis: geofenceTransitions.systemProximityLastTransitionEpochMillis,
     proofBoundary: geofenceTransitions.systemProximityRegistered
-      ? 'android-location-manager-add-proximity-alert-registration-only'
+      ? transitionObserved
+        ? 'android-location-manager-add-proximity-alert-registration-and-broadcast-transition-observed'
+        : 'android-location-manager-add-proximity-alert-registration-only-no-broadcast-transition-observed'
       : 'no-android-system-proximity-registration-observed',
     nonClaims: [
-      'android-system-geofencing-delivery',
+      ...(transitionObserved ? [] : ['android-system-geofencing-delivery']),
       'android-system-geofencing-dwell-transition',
       'physical-device-behavior',
       'authority-enrolled-device-behavior',
@@ -1492,7 +1506,7 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
         activeGeofenceLimitObserved &&
         systemProximityRegistrationObserved &&
         backgroundDegradedStatusObserved
-          ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, Android LocationManager addProximityAlert registration, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed; Android system geofence delivery, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+          ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, Android LocationManager addProximityAlert registration, separate Android system proximity broadcast counters, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed; Android system geofence delivery remains unclaimed unless the separate system counter is nonzero, and dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
           : backgroundSettingsPage.observed &&
               permissionState.backgroundLocationPermissionGranted &&
               geofenceEnterExitObserved &&
@@ -1674,6 +1688,11 @@ function geofenceProof(proof) {
     geofenceRegistered: geofenceTransitions.registered,
     systemProximityRegistrationObserved: systemProximityRegistration.observed,
     systemProximityRegistration,
+    systemProximityTransitionObserved: systemProximityRegistration.transitionObserved,
+    systemProximityTransitionCount: systemProximityRegistration.transitionCount,
+    systemProximityEnterCount: systemProximityRegistration.enterCount,
+    systemProximityExitCount: systemProximityRegistration.exitCount,
+    systemProximityTransitionBoundary: systemProximityRegistration.proofBoundary,
     geofenceHasInsideState: geofenceTransitions.hasInsideState,
     geofenceInsideState: geofenceTransitions.insideState,
     activeGeofenceCount: activeGeofenceLimit.activeGeofenceCount,
@@ -1812,6 +1831,8 @@ This proof was generated by \`npm run test:tracking-plan-android-emulator-proof\
 - Background geofence enter count: ${String(proof.runtime.geofenceTransitions.enterCount)}.
 - Background geofence exit count: ${String(proof.runtime.geofenceTransitions.exitCount)}.
 - Background geofence source: ${proof.runtime.geofenceTransitions.source ?? 'not-observed'}.
+- Android system proximity broadcast transition count: ${String(proof.runtime.geofenceTransitions.systemProximityTransitionCount)}.
+- Android system proximity broadcast source: ${proof.runtime.geofenceTransitions.systemProximityRegistrationSource ?? 'not-observed'}.
 - Active app-owned local geofence count: ${String(proof.runtime.activeGeofenceLimit.activeGeofenceCount)} of documented Android per-app/per-device-user limit ${String(proof.runtime.activeGeofenceLimit.documentedLimitPerAppPerDeviceUser)}.
 - Battery and connectivity dumps collected.
 - UI tree collected and contains scaffold/manual-consent text: ${String(proof.runtime.ui.hasLaunchText)}.

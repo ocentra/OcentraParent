@@ -62,10 +62,11 @@ area.
   connectivity dump. It records foreground location, background permission,
   foreground-service-backed background sample storage, app-owned local geofence
   enter/exit rows, `LocationManager.addProximityAlert` registration metadata,
-  active geofence-limit representation, and Android status-gap bridge proof
-  while keeping Android system geofence delivery, dwell, notification delivery,
-  physical-device, Device Owner, and managed-profile behavior not
-  claimed/manual-required.
+  separate Android proximity-alert broadcast transition counters, active
+  geofence-limit representation, and Android status-gap bridge proof while
+  keeping Android system geofence delivery unclaimed unless those separate
+  system counters are nonzero. Dwell, notification delivery, physical-device,
+  Device Owner, and managed-profile behavior are not claimed/manual-required.
 - `browser-platform-android-owned-shell-proof` covers the browser-plan WP05
   owned-browser-shell package boundary. It builds the separate
   `platforms/android/agent/browser-shell` APK, creates a disposable AOSP ATD
