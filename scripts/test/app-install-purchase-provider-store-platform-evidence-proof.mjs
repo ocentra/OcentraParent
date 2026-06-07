@@ -15,6 +15,7 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
+  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
   await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   await runCommand('cmd', [
     '/c',

@@ -6,6 +6,10 @@
   "baseMainState": "after-pr514-and-pr520-merged",
   "commands": [
     {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/schema-domain",
+      "exitCode": 0
+    },
+    {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
       "exitCode": 0
     },
