@@ -18,10 +18,18 @@ public final class TrackingAndroidForegroundLocationProof {
     public static final String FIELD_FOREGROUND_LOCATION_OBSERVED_AT_EPOCH_MILLIS =
         "foregroundLocationObservedAtEpochMillis";
     public static final String FIELD_FOREGROUND_LOCATION_ACCURACY_METERS = "foregroundLocationAccuracyMeters";
+    public static final String FIELD_FOREGROUND_LOCATION_LATITUDE = "foregroundLocationLatitude";
+    public static final String FIELD_FOREGROUND_LOCATION_LONGITUDE = "foregroundLocationLongitude";
+    public static final String FIELD_FOREGROUND_LOCATION_SAMPLE_SOURCE = "foregroundLocationSampleSource";
     public static final String FOREGROUND_LOCATION_PERMISSION_GRANTED = "foreground-location-permission-granted";
     public static final String FOREGROUND_LOCATION_PERMISSION_REQUIRED = "foreground-location-permission-required";
     public static final String FOREGROUND_LOCATION_SAMPLE_LAST_KNOWN = "last-known-location-sample-observed";
+    public static final String FOREGROUND_LOCATION_SAMPLE_CURRENT =
+        "current-location-sample-observed-emulator-location-manager";
     public static final String FOREGROUND_LOCATION_SAMPLE_MANUAL_REQUIRED = "foreground-location-sample-manual-required";
+    public static final String FOREGROUND_LOCATION_SAMPLE_SOURCE_LAST_KNOWN = "android-location-manager-last-known";
+    public static final String FOREGROUND_LOCATION_SAMPLE_SOURCE_CURRENT =
+        "android-location-manager-current-listener-emulator";
     public static final String FOREGROUND_LOCATION_PROOF_BOUNDARY =
         "permission-readiness-only-no-background-geofence-or-product-claim";
     public static final int REQUEST_FOREGROUND_LOCATION = 4478;
@@ -58,7 +66,7 @@ public final class TrackingAndroidForegroundLocationProof {
         boolean permissionGranted = hasForegroundLocationPermission(context);
         Location lastKnown = permissionGranted ? readLastKnownLocation(context) : null;
 
-        return createForegroundLocationBundle(context, lastKnown);
+        return createForegroundLocationBundle(context, lastKnown, FOREGROUND_LOCATION_SAMPLE_SOURCE_LAST_KNOWN);
     }
 
     public static void requestForegroundLocationSample(
@@ -77,7 +85,9 @@ public final class TrackingAndroidForegroundLocationProof {
         LocationListener listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                callback.onForegroundLocationProof(createForegroundLocationBundle(context, location));
+                callback.onForegroundLocationProof(
+                    createForegroundLocationBundle(context, location, FOREGROUND_LOCATION_SAMPLE_SOURCE_CURRENT)
+                );
                 manager.removeUpdates(this);
             }
         };
@@ -95,8 +105,10 @@ public final class TrackingAndroidForegroundLocationProof {
         }
     }
 
-    private static Bundle createForegroundLocationBundle(Context context, Location lastKnown) {
+    private static Bundle createForegroundLocationBundle(Context context, Location location, String sampleSource) {
         boolean permissionGranted = hasForegroundLocationPermission(context);
+        boolean locationObserved = location != null;
+        boolean currentSample = locationObserved && FOREGROUND_LOCATION_SAMPLE_SOURCE_CURRENT.equals(sampleSource);
 
         Bundle status = new Bundle();
         status.putString("schemaVersion", SCHEMA_VERSION);
@@ -106,24 +118,31 @@ public final class TrackingAndroidForegroundLocationProof {
         );
         status.putString(
             FIELD_FOREGROUND_LOCATION_SAMPLE_STATE,
-            lastKnown == null ? FOREGROUND_LOCATION_SAMPLE_MANUAL_REQUIRED : FOREGROUND_LOCATION_SAMPLE_LAST_KNOWN
+            locationObserved
+                ? currentSample ? FOREGROUND_LOCATION_SAMPLE_CURRENT : FOREGROUND_LOCATION_SAMPLE_LAST_KNOWN
+                : FOREGROUND_LOCATION_SAMPLE_MANUAL_REQUIRED
         );
         status.putString(
             FIELD_FOREGROUND_LOCATION_STATE,
-            permissionGranted && lastKnown != null
-                ? "foreground-location-last-known-observed"
+            permissionGranted && locationObserved
+                ? currentSample
+                    ? "foreground-location-current-observed-emulator"
+                    : "foreground-location-last-known-observed"
                 : "foreground-location-sample-manual-required"
         );
         status.putString("proofBoundary", FOREGROUND_LOCATION_PROOF_BOUNDARY);
         status.putBoolean("foregroundLocationPermissionGranted", permissionGranted);
-        status.putBoolean("foregroundLocationSampleCaptured", lastKnown != null);
-        if (lastKnown != null) {
-            status.putString(FIELD_FOREGROUND_LOCATION_PROVIDER, lastKnown.getProvider());
-            status.putLong(FIELD_FOREGROUND_LOCATION_OBSERVED_AT_EPOCH_MILLIS, lastKnown.getTime());
+        status.putBoolean("foregroundLocationSampleCaptured", locationObserved);
+        status.putString(FIELD_FOREGROUND_LOCATION_SAMPLE_SOURCE, locationObserved ? sampleSource : "none");
+        if (locationObserved) {
+            status.putString(FIELD_FOREGROUND_LOCATION_PROVIDER, location.getProvider());
+            status.putLong(FIELD_FOREGROUND_LOCATION_OBSERVED_AT_EPOCH_MILLIS, location.getTime());
             status.putFloat(
                 FIELD_FOREGROUND_LOCATION_ACCURACY_METERS,
-                lastKnown.hasAccuracy() ? lastKnown.getAccuracy() : -1.0f
+                location.hasAccuracy() ? location.getAccuracy() : -1.0f
             );
+            status.putDouble(FIELD_FOREGROUND_LOCATION_LATITUDE, location.getLatitude());
+            status.putDouble(FIELD_FOREGROUND_LOCATION_LONGITUDE, location.getLongitude());
         }
         return status;
     }

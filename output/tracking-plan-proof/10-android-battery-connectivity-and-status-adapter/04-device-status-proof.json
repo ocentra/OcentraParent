@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T01:52:44.667Z",
-  "commit": "698601c6d88f6b0968f628182c9ac124cc02bdb0",
+  "checkedAt": "2026-06-07T02:32:28.783Z",
+  "commit": "62c45fb2de2b87ce529023685de63bd3c0e17831",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "emulator_scaffold_observed",
@@ -58,10 +58,13 @@
   "ui": {
     "hasLaunchText": true,
     "foregroundLocationPermissionStateText": "foreground-location-permission-granted",
-    "foregroundLocationSampleStateText": "last-known-location-sample-observed",
+    "foregroundLocationSampleStateText": "current-location-sample-observed-emulator-location-manager",
     "foregroundLocationProvider": "gps",
-    "foregroundLocationObservedAtEpochMillis": 1780797158282,
+    "foregroundLocationObservedAtEpochMillis": 1780799541682,
     "foregroundLocationAccuracyMeters": 5,
+    "foregroundLocationSampleSource": "android-location-manager-current-listener-emulator",
+    "foregroundLocationLatitude": 37.421998333333335,
+    "foregroundLocationLongitude": -122.084,
     "backgroundLocationPermissionStateText": "background-location-permission-granted",
     "backgroundGeofenceStateText": "background-geofence-transition-observed-emulator",
     "backgroundGeofenceTransitionCount": 3,
@@ -72,11 +75,11 @@
     "backgroundLocationSampleStateText": "background-location-sample-observed-emulator-foreground-service",
     "backgroundLocationSampleCount": 14,
     "backgroundLocationSampleProvider": "gps",
-    "backgroundLocationSampleObservedAtEpochMillis": 1780797158282,
+    "backgroundLocationSampleObservedAtEpochMillis": 1780799541682,
     "backgroundLocationSampleAccuracyMeters": 5,
     "backgroundLocationSampleSource": "android-location-manager-gps-listener-foreground-service",
     "backgroundLocationSampleActivityBackgrounded": true,
-    "text": "\n\n\nOcentra Parent Agent service scaffold is running.\npackage-local-scaffold\npackage-local-scaffold\ndeclared-started-by-package\npackage-local-scaffold\npackage-local-scaffold\nmanual-consent-required\nforeground-location-permission-granted\nlast-known-location-sample-observed\nbackground-location-permission-granted\nbackground-geofence-transition-observed-emulator\nbackgroundGeofenceTransitionCount:3\nbackgroundGeofenceEnterCount:2\nbackgroundGeofenceExitCount:1\nbackgroundGeofenceLastTransition:enter\nbackgroundGeofenceSource:android-location-manager-gps-listener-local-geofence\nbackground-location-sample-observed-emulator-foreground-service\nbackgroundLocationSampleCount:14\nbackgroundLocationSampleProvider:gps\nbackgroundLocationSampleObservedAtEpochMillis:1780797158282\nbackgroundLocationSampleAccuracyMeters:5.0\nbackgroundLocationSampleSource:android-location-manager-gps-listener-foreground-service\nbackgroundLocationSampleActivityBackgrounded:true\nforegroundLocationProvider:gps\nforegroundLocationObservedAtEpochMillis:1780797158282\nforegroundLocationAccuracyMeters:5.0"
+    "text": "\n\n\nOcentra Parent Agent service scaffold is running.\npackage-local-scaffold\npackage-local-scaffold\ndeclared-started-by-package\npackage-local-scaffold\npackage-local-scaffold\nmanual-consent-required\nforeground-location-permission-granted\ncurrent-location-sample-observed-emulator-location-manager\nbackground-location-permission-granted\nbackground-geofence-transition-observed-emulator\nbackgroundGeofenceTransitionCount:3\nbackgroundGeofenceEnterCount:2\nbackgroundGeofenceExitCount:1\nbackgroundGeofenceLastTransition:enter\nbackgroundGeofenceSource:android-location-manager-gps-listener-local-geofence\nbackground-location-sample-observed-emulator-foreground-service\nbackgroundLocationSampleCount:14\nbackgroundLocationSampleProvider:gps\nbackgroundLocationSampleObservedAtEpochMillis:1780799541682\nbackgroundLocationSampleAccuracyMeters:5.0\nbackgroundLocationSampleSource:android-location-manager-gps-listener-foreground-service\nbackgroundLocationSampleActivityBackgrounded:true\nforegroundLocationProvider:gps\nforegroundLocationObservedAtEpochMillis:1780799541682\nforegroundLocationAccuracyMeters:5.0\nforegroundLocationSampleSource:android-location-manager-current-listener-emulator\nforegroundLocationLatitude:37.421998333333335\nforegroundLocationLongitude:-122.084"
   },
   "screenshotInspection": {
     "schemaVersion": 1,
