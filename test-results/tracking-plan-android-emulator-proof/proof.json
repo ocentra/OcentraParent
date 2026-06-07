@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T03:16:06.824Z",
-  "commit": "db73b52b09f5edcc35d19757963286fe38bd5a70",
+  "checkedAt": "2026-06-07T03:40:55.818Z",
+  "commit": "6d535c1b97b3b34ef06c5eca9c90aeca5914a78c",
   "proofMode": "tracking-plan-android-emulator-proof",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -52,32 +52,13 @@
     "backgroundLocationPermissionGranted": true
   },
   "foregroundPermissionUx": {
-    "observed": true,
-    "permissionControllerObserved": true,
-    "foregroundLocationCopyObserved": true,
-    "allowWhileUsingOptionObserved": true,
-    "onlyThisTimeOptionObserved": true,
-    "denyOptionObserved": true,
-    "text": [
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "Allow Ocentra Parent Agent to access this device’s location?",
-      "",
-      "",
-      "Precise",
-      "Approximate",
-      "",
-      "While using the app",
-      "Only this time",
-      "Don’t allow"
-    ],
+    "observed": false,
+    "permissionControllerObserved": false,
+    "foregroundLocationCopyObserved": false,
+    "allowWhileUsingOptionObserved": false,
+    "onlyThisTimeOptionObserved": false,
+    "denyOptionObserved": false,
+    "text": [],
     "resetArtifact": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-ux-reset.txt",
     "launchArtifact": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-ux-launch.txt",
     "uiArtifact": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-ux.xml"
@@ -98,8 +79,8 @@
     "windowArtifact": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page-window.txt"
   },
   "runtime": {
-    "pid": "4519",
-    "packageDump": "Activity Resolver Table:\r\n  Non-Data Actions:\r\n      android.intent.action.MAIN:\r\n        5232ec3 ca.ocentra.parent.agent/.MainActivity filter 60c8340\r\n          Action: \"android.intent.action.MAIN\"\r\n          Category: \"android.intent.category.LAUNCHER\"\r\n\r\nDomain verification status:\r\n\r\nKey Set Manager:\r\n  [ca.ocentra.parent.agent]\r\n      Signing KeySets: 64\r\n\r\nPackages:\r\n  Package [ca.ocentra.parent.agent] (7dcc3e3):\r\n    appId=10212\r\n    pkg=Package{b8c106b ca.ocentra.parent.agent}\r\n    codePath=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==\r\n    resourcePath=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==\r\n    legacyNativeLibraryDir=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/lib\r\n    extractNativeLibs=false\r\n    primaryCpuAbi=null\r\n    secondaryCpuAbi=null\r\n    cpuAbiOverride=null\r\n    versionCode=2 minSdk=26 targetSdk=35\r\n    minExtensionVersions=[]\r\n    versionName=0.1.1\r\n    hiddenApiEnforcementPolicy=2\r\n    usesNonSdkApi=false\r\n    splits=[base]\r\n    apkSigningVersion=2\r\n    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]\r\n    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]\r\n    forceQueryable=false\r\n    scannedAsStoppedSystemApp=false\r\n    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]\r\n    timeStamp=2026-06-06 23:15:11\r\n    lastUpdateTime=2026-06-06 23:15:12\r\n    installerPackageName=null\r\n    installerPackageUid=-1\r\n    initiatingPackageName=com.android.shell\r\n    originatingPackageName=null\r\n    packageSource=1\r\n    appMetadataFilePath=null\r\n    appMetadataSource=0\r\n    signatures=PackageSignatures{565c7c8 version:2, signatures:[9f56ad0e], past signatures:[]}\r\n    installPermissionsFixed=false\r\n    pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]\r\n    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]\r\n    apexModuleName=null\r\n    requested permissions:\r\n      android.permission.POST_NOTIFICATIONS\r\n      android.permission.ACCESS_FINE_LOCATION\r\n      android.permission.FOREGROUND_SERVICE\r\n      android.permission.ACCESS_COARSE_LOCATION\r\n      android.permission.FOREGROUND_SERVICE_DATA_SYNC\r\n      android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION\r\n      android.permission.ACCESS_BACKGROUND_LOCATION\r\n    install permissions:\r\n      android.permission.FOREGROUND_SERVICE: granted=true\r\n      android.permission.FOREGROUND_SERVICE_DATA_SYNC: granted=true\r\n      android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION: granted=true\r\n    User 0: ceDataInode=344812 deDataInode=49803 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false\r\n      installReason=0\r\n      dataDir=/data/user/0/ca.ocentra.parent.agent\r\n      firstInstallTime=2026-06-06 23:15:12\r\n      uninstallReason=0\r\n      overlay paths:\r\n        /product/overlay/EmulationPixel9ProXL/EmulationPixel9ProXLOverlay.apk\r\n        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk\r\n        /data/resource-cache/com.android.systemui-neutral-pSk7.frro\r\n        /data/resource-cache/com.android.systemui-accent-tZUw.frro\r\n        /data/resource-cache/com.android.systemui-dynamic-ZgPT.frro\r\n      legacy overlay paths:\r\n        /product/overlay/EmulationPixel9ProXL/EmulationPixel9ProXLOverlay.apk\r\n        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk\r\n      runtime permissions:\r\n        android.permission.POST_NOTIFICATIONS: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]\r\n        android.permission.ACCESS_FINE_LOCATION: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]\r\n        android.permission.ACCESS_COARSE_LOCATION: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]\r\n        android.permission.ACCESS_BACKGROUND_LOCATION: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]\r\n\r\nQueries:\r\n  system apps queryable: false\r\n  queries via forceQueryable:\r\n  queries via package name:\r\n  queries via component:\r\n    com.google.android.as:\r\n      ca.ocentra.parent.agent\r\n    com.google.android.settings.intelligence:\r\n      ca.ocentra.parent.agent\r\n  queryable via interaction:\r\n    User 0:\r\n      [com.android.keychain,android,com.android.dynsystem,com.android.DeviceAsWebcam,com.android.location.fused,com.android.providers.settings,com.android.emulator.multidisplay,com.android.settings,com.android.localtransport,com.android.inputdevices,com.android.server.telecom]:\r\n        ca.ocentra.parent.agent\r\n      com.google.android.inputmethod.latin:\r\n        ca.ocentra.parent.agent\r\n      com.google.android.permissioncontroller:\r\n        ca.ocentra.parent.agent\r\n  queryable via uses-library:\r\n\r\nDexopt state:\r\n  [ca.ocentra.parent.agent]\r\n    path: /data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.apk\r\n      x86_64: [status=run-from-apk] [reason=unknown] [primary-abi]\r\n        [location is error]\r\n\r\nCompiler stats:\r\n  [ca.ocentra.parent.agent]\r\n    (No recorded stats)\r\n",
+    "pid": "4511",
+    "packageDump": "Activity Resolver Table:\r\n  Non-Data Actions:\r\n      android.intent.action.MAIN:\r\n        402293 ca.ocentra.parent.agent/.MainActivity filter 689b2d0\r\n          Action: \"android.intent.action.MAIN\"\r\n          Category: \"android.intent.category.LAUNCHER\"\r\n\r\nDomain verification status:\r\n\r\nKey Set Manager:\r\n  [ca.ocentra.parent.agent]\r\n      Signing KeySets: 64\r\n\r\nPackages:\r\n  Package [ca.ocentra.parent.agent] (6ff0ee5):\r\n    appId=10212\r\n    pkg=Package{55b5577 ca.ocentra.parent.agent}\r\n    codePath=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==\r\n    resourcePath=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==\r\n    legacyNativeLibraryDir=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/lib\r\n    extractNativeLibs=false\r\n    primaryCpuAbi=null\r\n    secondaryCpuAbi=null\r\n    cpuAbiOverride=null\r\n    versionCode=2 minSdk=26 targetSdk=35\r\n    minExtensionVersions=[]\r\n    versionName=0.1.1\r\n    hiddenApiEnforcementPolicy=2\r\n    usesNonSdkApi=false\r\n    splits=[base]\r\n    apkSigningVersion=2\r\n    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]\r\n    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]\r\n    forceQueryable=false\r\n    scannedAsStoppedSystemApp=false\r\n    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]\r\n    timeStamp=2026-06-06 23:40:00\r\n    lastUpdateTime=2026-06-06 23:40:01\r\n    installerPackageName=null\r\n    installerPackageUid=-1\r\n    initiatingPackageName=com.android.shell\r\n    originatingPackageName=null\r\n    packageSource=1\r\n    appMetadataFilePath=null\r\n    appMetadataSource=0\r\n    signatures=PackageSignatures{cf7d5e4 version:2, signatures:[9f56ad0e], past signatures:[]}\r\n    installPermissionsFixed=false\r\n    pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]\r\n    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]\r\n    apexModuleName=null\r\n    requested permissions:\r\n      android.permission.POST_NOTIFICATIONS\r\n      android.permission.ACCESS_FINE_LOCATION\r\n      android.permission.FOREGROUND_SERVICE\r\n      android.permission.ACCESS_COARSE_LOCATION\r\n      android.permission.FOREGROUND_SERVICE_DATA_SYNC\r\n      android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION\r\n      android.permission.ACCESS_BACKGROUND_LOCATION\r\n    install permissions:\r\n      android.permission.FOREGROUND_SERVICE: granted=true\r\n      android.permission.FOREGROUND_SERVICE_DATA_SYNC: granted=true\r\n      android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION: granted=true\r\n    User 0: ceDataInode=344746 deDataInode=49803 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false\r\n      installReason=0\r\n      dataDir=/data/user/0/ca.ocentra.parent.agent\r\n      firstInstallTime=2026-06-06 23:40:01\r\n      uninstallReason=0\r\n      overlay paths:\r\n        /product/overlay/EmulationPixel9ProXL/EmulationPixel9ProXLOverlay.apk\r\n        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk\r\n        /data/resource-cache/com.android.systemui-neutral-HIGk.frro\r\n        /data/resource-cache/com.android.systemui-accent-GiuQ.frro\r\n        /data/resource-cache/com.android.systemui-dynamic-ZksS.frro\r\n      legacy overlay paths:\r\n        /product/overlay/EmulationPixel9ProXL/EmulationPixel9ProXLOverlay.apk\r\n        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk\r\n      runtime permissions:\r\n        android.permission.POST_NOTIFICATIONS: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]\r\n        android.permission.ACCESS_FINE_LOCATION: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]\r\n        android.permission.ACCESS_COARSE_LOCATION: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]\r\n        android.permission.ACCESS_BACKGROUND_LOCATION: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]\r\n\r\nQueries:\r\n  system apps queryable: false\r\n  queries via forceQueryable:\r\n  queries via package name:\r\n  queries via component:\r\n    com.google.android.as:\r\n      ca.ocentra.parent.agent\r\n    com.google.android.settings.intelligence:\r\n      ca.ocentra.parent.agent\r\n  queryable via interaction:\r\n    User 0:\r\n      [com.android.inputdevices,com.android.emulator.multidisplay,com.android.server.telecom,com.android.dynsystem,com.android.keychain,com.android.settings,com.android.localtransport,com.android.DeviceAsWebcam,com.android.providers.settings,com.android.location.fused,android]:\r\n        ca.ocentra.parent.agent\r\n      com.google.android.inputmethod.latin:\r\n        ca.ocentra.parent.agent\r\n      com.google.android.permissioncontroller:\r\n        ca.ocentra.parent.agent\r\n  queryable via uses-library:\r\n\r\nDexopt state:\r\n  [ca.ocentra.parent.agent]\r\n    path: /data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.apk\r\n      x86_64: [status=run-from-apk] [reason=unknown] [primary-abi]\r\n        [location is error]\r\n\r\nCompiler stats:\r\n  [ca.ocentra.parent.agent]\r\n    (No recorded stats)\r\n",
     "service": {
       "serviceRecordPresent": true,
       "isForeground": true,
@@ -108,8 +89,8 @@
     },
     "activity": {
       "packageFocused": true,
-      "currentFocus": "Window{d0a0d9a u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}",
-      "resumedActivity": "ActivityRecord{a40917b u0 ca.ocentra.parent.agent/.MainActivity t28}"
+      "currentFocus": "Window{ca9f188 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}",
+      "resumedActivity": "ActivityRecord{705a9db u0 ca.ocentra.parent.agent/.MainActivity t28}"
     },
     "battery": {
       "Current_Battery_Service_state": "",
@@ -133,7 +114,7 @@
     },
     "connectivitySummary": [
       "Active default network: 100",
-      "  NetworkAgentInfo{network{100}  handle{432902426637}  ni{WIFI CONNECTED extra: } created=2026-03-14T18:03:41.815Z Score(Policies : TRANSPORT_PRIMARY&EVER_EVALUATED&IS_UNMETERED&EVER_VALIDATED&IS_VALIDATED ; KeepConnected : 0)  created 36708 firstValidated 38615 lastValidated 38615  lp{{InterfaceName: wlan0 LinkAddresses: [ fe80::c9e6:ec3e:8bdb:7859/64,fec0::bb04:dc5e:a79f:f27/64,fec0::70c1:cf8a:35b5:f3f9/64,10.0.2.16/24 ] DnsAddresses: [ /10.0.2.3 ] Domains: null MTU: 0 ServerAddress: /10.0.2.2 TcpBufferSizes: 524288,1048576,2097152,262144,524288,1048576 Routes: [ fe80::/64 -> :: wlan0 mtu 0,::/0 -> fe80::2 wlan0 mtu 0,fec0::/64 -> :: wlan0 mtu 0,10.0.2.0/24 -> 0.0.0.0 wlan0 mtu 0,0.0.0.0/0 -> 10.0.2.2 wlan0 mtu 0 ]}}  nc{[ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED LinkUpBandwidth>=12000Kbps LinkDnBandwidth>=30000Kbps Specifier: <WifiNetworkAgentSpecifier [WifiConfiguration=, SSID=\"AndroidWifi\", BSSID=00:13:10:85:fe:01, band=1, mMatchLocalOnlySpecifiers=false]> TransportInfo: <SSID: \"AndroidWifi\", BSSID: 00:13:10:85:fe:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 2Mbps, Tx Link speed: 2Mbps, Max Supported Tx Link speed: 11Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 11Mbps, Frequency: 2447MHz, Net ID: 0, Metered hint: false, score: 60, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>\"AndroidWifi\"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>> SignalStrength: -50 OwnerUid: 10174 AdminUids: [10174] SSID: \"AndroidWifi\" UnderlyingNetworks: Null]}  factorySerialNumber=5}",
+      "  NetworkAgentInfo{network{100}  handle{432902426637}  ni{WIFI CONNECTED extra: } created=2026-03-14T18:03:41.815Z Score(Policies : TRANSPORT_PRIMARY&EVER_EVALUATED&IS_UNMETERED&EVER_VALIDATED&IS_VALIDATED ; KeepConnected : 0)  created 36708 firstValidated 38615 lastValidated 38615  lp{{InterfaceName: wlan0 LinkAddresses: [ fe80::c9e6:ec3e:8bdb:7859/64,fec0::bb04:dc5e:a79f:f27/64,fec0::70c1:cf8a:35b5:f3f9/64,10.0.2.16/24 ] DnsAddresses: [ /10.0.2.3 ] Domains: null MTU: 0 ServerAddress: /10.0.2.2 TcpBufferSizes: 524288,1048576,2097152,262144,524288,1048576 Routes: [ fe80::/64 -> :: wlan0 mtu 0,::/0 -> fe80::2 wlan0 mtu 0,fec0::/64 -> :: wlan0 mtu 0,10.0.2.0/24 -> 0.0.0.0 wlan0 mtu 0,0.0.0.0/0 -> 10.0.2.2 wlan0 mtu 0 ]}}  nc{[ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED LinkUpBandwidth>=12000Kbps LinkDnBandwidth>=30000Kbps Specifier: <WifiNetworkAgentSpecifier [WifiConfiguration=, SSID=\"AndroidWifi\", BSSID=00:13:10:85:fe:01, band=1, mMatchLocalOnlySpecifiers=false]> TransportInfo: <SSID: \"AndroidWifi\", BSSID: 00:13:10:85:fe:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 11Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 11Mbps, Frequency: 2447MHz, Net ID: 0, Metered hint: false, score: 60, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>\"AndroidWifi\"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>> SignalStrength: -50 OwnerUid: 10174 AdminUids: [10174] SSID: \"AndroidWifi\" UnderlyingNetworks: Null]}  factorySerialNumber=5}",
       "      NetworkRequest [ REQUEST id=1, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
       "      NetworkRequest [ LISTEN id=5, [ Capabilities: FOREGROUND RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
       "      NetworkRequest [ TRACK_DEFAULT id=6, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 1000 RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
@@ -163,7 +144,7 @@
       "foregroundLocationPermissionStateText": "foreground-location-permission-granted",
       "foregroundLocationSampleStateText": "current-location-sample-observed-emulator-location-manager",
       "foregroundLocationProvider": "gps",
-      "foregroundLocationObservedAtEpochMillis": 1780802141186,
+      "foregroundLocationObservedAtEpochMillis": 1780803631089,
       "foregroundLocationAccuracyMeters": 5,
       "foregroundLocationSampleSource": "android-location-manager-current-listener-emulator",
       "foregroundLocationLatitude": 37.42099833333333,
@@ -175,14 +156,14 @@
       "backgroundGeofenceExitCount": 0,
       "backgroundGeofenceLastTransition": "none",
       "backgroundGeofenceSource": "android-location-manager-proximity-alert",
-      "backgroundLocationSampleStateText": "background-location-sample-manual-required",
-      "backgroundLocationSampleCount": 0,
-      "backgroundLocationSampleProvider": "none",
-      "backgroundLocationSampleObservedAtEpochMillis": 0,
-      "backgroundLocationSampleAccuracyMeters": -1,
-      "backgroundLocationSampleSource": "none",
-      "backgroundLocationSampleActivityBackgrounded": false,
-      "text": "\n\n\nOcentra Parent Agent service scaffold is running.\npackage-local-scaffold\npackage-local-scaffold\ndeclared-started-by-package\npackage-local-scaffold\npackage-local-scaffold\nmanual-consent-required\nforeground-location-permission-granted\ncurrent-location-sample-observed-emulator-location-manager\nbackground-location-permission-granted\nbackground-geofence-transition-manual-required\nbackgroundGeofenceTransitionCount:0\nbackgroundGeofenceEnterCount:0\nbackgroundGeofenceExitCount:0\nbackgroundGeofenceLastTransition:none\nbackgroundGeofenceSource:android-location-manager-proximity-alert\nbackground-location-sample-manual-required\nbackgroundLocationSampleCount:0\nbackgroundLocationSampleProvider:none\nbackgroundLocationSampleObservedAtEpochMillis:0\nbackgroundLocationSampleAccuracyMeters:-1.0\nbackgroundLocationSampleSource:none\nbackgroundLocationSampleActivityBackgrounded:false\nforegroundLocationProvider:gps\nforegroundLocationObservedAtEpochMillis:1780802141186\nforegroundLocationAccuracyMeters:5.0\nforegroundLocationSampleSource:android-location-manager-current-listener-emulator\nforegroundLocationLatitude:37.42099833333333\nforegroundLocationLongitude:-122.08299833333334"
+      "backgroundLocationSampleStateText": "background-location-sample-observed-emulator-foreground-service",
+      "backgroundLocationSampleCount": 1,
+      "backgroundLocationSampleProvider": "gps",
+      "backgroundLocationSampleObservedAtEpochMillis": 1780803631089,
+      "backgroundLocationSampleAccuracyMeters": 5,
+      "backgroundLocationSampleSource": "android-location-manager-gps-listener-foreground-service",
+      "backgroundLocationSampleActivityBackgrounded": true,
+      "text": "\n\n\nOcentra Parent Agent service scaffold is running.\npackage-local-scaffold\npackage-local-scaffold\ndeclared-started-by-package\npackage-local-scaffold\npackage-local-scaffold\nmanual-consent-required\nforeground-location-permission-granted\ncurrent-location-sample-observed-emulator-location-manager\nbackground-location-permission-granted\nbackground-geofence-transition-manual-required\nbackgroundGeofenceTransitionCount:0\nbackgroundGeofenceEnterCount:0\nbackgroundGeofenceExitCount:0\nbackgroundGeofenceLastTransition:none\nbackgroundGeofenceSource:android-location-manager-proximity-alert\nbackground-location-sample-observed-emulator-foreground-service\nbackgroundLocationSampleCount:1\nbackgroundLocationSampleProvider:gps\nbackgroundLocationSampleObservedAtEpochMillis:1780803631089\nbackgroundLocationSampleAccuracyMeters:5.0\nbackgroundLocationSampleSource:android-location-manager-gps-listener-foreground-service\nbackgroundLocationSampleActivityBackgrounded:true\nforegroundLocationProvider:gps\nforegroundLocationObservedAtEpochMillis:1780803631089\nforegroundLocationAccuracyMeters:5.0\nforegroundLocationSampleSource:android-location-manager-current-listener-emulator\nforegroundLocationLatitude:37.42099833333333\nforegroundLocationLongitude:-122.08299833333334"
     },
     "geofenceTransitions": {
       "registered": true,
@@ -193,13 +174,29 @@
       "enterCount": 2,
       "exitCount": 1,
       "lastTransition": "enter",
-      "lastTransitionEpochMillis": 1780802155385,
-      "registrationEpochMillis": 1780802136903
+      "lastTransitionEpochMillis": 1780803644428,
+      "registrationEpochMillis": 1780803627067
+    },
+    "activeGeofenceLimit": {
+      "observed": true,
+      "source": "android-location-manager-gps-listener-local-geofence",
+      "activeGeofenceCount": 1,
+      "documentedLimitPerAppPerDeviceUser": 100,
+      "withinDocumentedLimit": true,
+      "documentedLimitSourceUrl": "https://developer.android.com/develop/sensors-and-location/location/geofencing",
+      "proofBoundary": "app-owned-local-geofence-count-compared-to-android-documented-limit-only",
+      "nonClaims": [
+        "android-system-geofencing-registration",
+        "android-system-geofencing-delivery",
+        "dwell-transition-delivery",
+        "physical-device-behavior",
+        "authority-enrolled-device-behavior"
+      ]
     },
     "backgroundLocationSample": {
-      "sampleCount": 28,
+      "sampleCount": 27,
       "provider": "gps",
-      "observedAtEpochMillis": 1780802164200,
+      "observedAtEpochMillis": 1780803653104,
       "accuracyMeters": 5,
       "source": "android-location-manager-gps-listener-foreground-service",
       "activityBackgrounded": true
@@ -248,6 +245,7 @@
       "backgroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/15-background-location-permission-grant.txt",
       "geofenceTransitionRoute": "test-results/tracking-plan-android-emulator-proof/16-geofence-transition-route.txt",
       "geofenceTransitionPrefs": "test-results/tracking-plan-android-emulator-proof/17-geofence-transition-prefs.xml",
+      "activeGeofenceLimitProof": "test-results/tracking-plan-android-emulator-proof/25-active-geofence-limit-proof.json",
       "backgroundLocationSamplePrefs": "test-results/tracking-plan-android-emulator-proof/20-background-location-sample-prefs.xml",
       "backgroundActivityForSample": "test-results/tracking-plan-android-emulator-proof/21-background-activity-for-sample.txt",
       "backgroundLocationSampleRoute": "test-results/tracking-plan-android-emulator-proof/22-background-location-sample-route.txt",
@@ -261,14 +259,14 @@
   },
   "workpackProof": {
     "08-android-foreground-location-adapter": {
-      "status": "foreground_permission_ux_current_sample_raw_coordinate_observed",
+      "status": "foreground_permission_granted_current_sample_raw_coordinate_observed",
       "proofArtifact": "output/tracking-plan-proof/08-android-foreground-location-adapter/03-runtime-location-evidence.json",
-      "reason": "Foreground location permission UX dialog, permission grant, app-emitted emulator current LocationManager sample, provider, observed timestamp, accuracy, source, and raw latitude/longitude were observed on the emulator package; fused provider, background/geofence, physical-device, authority, provider delivery, and product-ready tracking remain unclaimed."
+      "reason": "Foreground location permission grant, app-emitted emulator current LocationManager sample, provider, observed timestamp, accuracy, source, and raw latitude/longitude were observed on the emulator package; fused provider, background/geofence, physical-device, authority, provider delivery, and product-ready tracking remain unclaimed."
     },
     "09-android-background-location-and-geofence-adapter": {
-      "status": "background_settings_page_permission_granted_emulator_sample_and_enter_exit_observed",
+      "status": "background_settings_page_permission_granted_emulator_sample_enter_exit_and_limit_observed",
       "proofArtifact": "output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json",
-      "reason": "Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed."
+      "reason": "Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, and app-owned active geofence count within the Android documented per-app/per-device-user limit were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed."
     },
     "10-android-battery-connectivity-and-status-adapter": {
       "status": "emulator_scaffold_observed",
@@ -603,7 +601,7 @@
       "artifact": null
     },
     {
-      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe -s emulator-5554 logcat --pid 4519 -d",
+      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe -s emulator-5554 logcat --pid 4511 -d",
       "exitCode": 0,
       "artifact": null
     },

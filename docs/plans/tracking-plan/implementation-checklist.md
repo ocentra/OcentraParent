@@ -96,6 +96,8 @@ Every checked item must cite one or more proof artifacts.
       `ACCESS_BACKGROUND_LOCATION`, app UI background permission text, app
       details Settings activity/window routing, app-owned background sample storage with
       provider/timestamp/accuracy, app-owned local geofence transition rows,
+      active app-owned geofence count within Android's documented per-app/per-device-user
+      limit,
       and an outside/inside/outside emulator `geo fix` route under
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`;
       WP08/WP09 parent-domain manual-required proof rows also exist under
@@ -122,7 +124,8 @@ Every checked item must cite one or more proof artifacts.
       export, background
       location permission grant state, Android app Settings page routing,
       foreground-service-backed background-activity sample storage, emulator
-      local-geofence enter/exit rows, UI tree, headless screenshot inspection,
+      local-geofence enter/exit rows, active geofence-limit representation,
+      UI tree, headless screenshot inspection,
       logcat, battery, and connectivity dumps are captured without claiming
       fused provider capture,
       Android system geofencing, dwell transitions, notification delivery,
@@ -311,8 +314,9 @@ permission grant, app-reported current `LocationManager`
 provider/timestamp/accuracy/source metadata plus raw coordinate proof export,
 background location permission grant state, Android app Settings page routing,
 foreground-service-backed background-activity sample storage, app-owned
-GPS-listener local-geofence enter/exit rows, and status scaffold behavior only;
-fused provider capture, Android system geofencing, dwell transitions,
+GPS-listener local-geofence enter/exit rows, active geofence-limit
+representation, and status scaffold behavior only; fused provider capture,
+Android system geofencing, dwell transitions,
 notification delivery, physical-device, and authority claims remain
 manual-required.
 WP08/WP09 additionally have parent-domain manual-required proof from
@@ -425,8 +429,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       current `LocationManager` sample metadata plus raw coordinate proof export,
       background location permission grant state, Android app Settings page
       routing, foreground-service-backed background-activity sample storage,
-      local-geofence enter/exit rows, battery, and connectivity status proof
-      exists at P3 local-dev tier;
+      local-geofence enter/exit rows, active geofence-limit representation,
+      battery, and connectivity status proof exists at P3 local-dev tier;
       fused provider location, physical-device behavior, Android system
       geofencing, and dwell behavior are not claimed by it.
 - [x] iOS simulator package proof harness exists and is wired to macOS
@@ -454,8 +458,9 @@ Every implementation workpack must update, or explicitly justify not updating:
 - [ ] Android background/geofence proof is not complete. The emulator proof now
       records background permission grant state, Android app Settings page
       routing, foreground-service-backed background-activity sample storage,
-      and local-geofence enter/exit rows, but Android system geofencing, dwell
-      transitions, physical-device proof, authority, and product-ready tracking
+      local-geofence enter/exit rows, and active geofence-limit representation,
+      but Android system geofencing, dwell transitions, physical-device proof,
+      authority, and product-ready tracking
       remain manual-required.
 - [ ] iOS background/region proof is not complete. Parent-domain manual-required
       rows exist, but real Core Location authorization, region monitoring,

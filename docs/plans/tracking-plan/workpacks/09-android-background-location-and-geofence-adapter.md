@@ -34,7 +34,7 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 - [ ] Prove Android 10+ background permission where claimed.
 - [x] Prove Android 11+ settings-page background permission flow.
 - [ ] Prove Android system enter, exit, and dwell transitions.
-- [ ] Represent active geofence limit.
+- [x] Represent active geofence limit.
 - [ ] Add battery/background degraded proof before claims.
 - [x] Record emulator package permission-grant proof for
       `ACCESS_BACKGROUND_LOCATION` while preserving no geofence-transition and
@@ -52,6 +52,9 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
       from app-owned `LocationManager` GPS listener proof storage while
       preserving no Android system background delivery, no physical-device, and
       no product-ready tracking claims.
+- [x] Record active app-owned local geofence count against Android's documented
+      100 geofences per app per device user limit while preserving no Android
+      system geofencing, no dwell, and no physical-device claims.
 
 ## Where We Are
 
@@ -76,6 +79,12 @@ storage with `geofenceTransitionCount: 3`, `geofenceEnterCount: 2`, and
 boundary while the proof storage preserves the local emulator sample/geofence
 rows. This proves emulator foreground-service/backgrounded activity sample rows
 and emulator `LocationManager` GPS-listener local-geofence enter/exit rows only.
+The same proof writes
+`test-results/tracking-plan-android-emulator-proof/25-active-geofence-limit-proof.json`
+and compares the one app-owned local geofence row against Android's documented
+100-geofence per-app/per-device-user limit. That is an active limit
+representation artifact only, not Android system geofence registration or
+delivery proof.
 The same proof now launches the Android app details
 settings page for `ca.ocentra.parent.agent` and records Settings
 activity/window routing as the Android 11+ background-location settings-page
@@ -134,8 +143,8 @@ This workpack can be assigned independently, implemented against the owning doma
       update remains a hub/primary-owned doc delta.
 - [x] Known gaps/manual-required states: Android app settings-page routing,
       background permission grant, foreground-service-backed background sample,
-      and app-owned local geofence enter/exit are locally observed. Android
-      system geofencing, dwell transition delivery, active geofence-limit
-      runtime, physical-device proof, authority, provider delivery,
+      app-owned local geofence enter/exit, and active geofence-limit
+      representation are locally observed. Android system geofencing, dwell
+      transition delivery, physical-device proof, authority, provider delivery,
       notification delivery, production upload workers, and product-ready
       Android tracking remain unclaimed.
