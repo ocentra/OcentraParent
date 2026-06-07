@@ -457,8 +457,13 @@ only with explicit parent settings.
   credential, raw image retention, and remote AI. The service WinRT OCR proof now
   proves bounded OCR snippets and the structured `redactionNotes` array persist
   from adapter output into the service-backed Activity Screen read model. A real
-  service-emitted portal screenshot with actually redacted sensitive text remains
-  a separate gate.
+  service-emitted redaction proof now captures a local Chrome text surface as
+  pixels, runs WinRT OCR through the service queue, applies service-side local
+  OCR redaction before event persistence, drains the queue, deletes adapter temp
+  image material, and screenshots the real `#/screen-analysis` portal route with
+  `[redacted-email]`, `[redacted-phone]`, `piiLikeTextRedacted`, and
+  `credentialLikeTextRedacted` while omitting raw sensitive text. Parent-persisted
+  redaction setting selection remains separate.
 - `scripts/test/screen-local-ocr-vision-runtime-model-proof.mjs` now aggregates
   the existing WinRT OCR worker, service OCR, guided VLM worker, VLM execution
   readiness, VLM journal/read-model, and local resource scheduler artifacts into
@@ -593,6 +598,9 @@ parity, and UI remain separate proof gates.
       retention, or remote AI.
 - [x] Service WinRT OCR read model persists bounded OCR snippets and the
       structured redaction-note array shape from real service adapter output.
+- [x] Service WinRT OCR redaction proof applies local sensitive-text redaction
+      before event persistence and screenshots the real Screen Analysis portal
+      route from the service-emitted row.
 - [x] Policy decision references summary evidence.
 - [x] Service WinRT OCR row feeds a typed parent policy dry-run without raw
       image retention.
