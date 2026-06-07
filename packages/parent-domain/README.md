@@ -70,6 +70,12 @@ mobile readiness, and control catalogs.
   implementation, service event emission, read API implementation or response
   implementation, rendered UI, durable audit storage, rollback execution, or
   timer scheduling.
+- App/game child UX runtime-audit handoff contracts that consume child-facing UX
+  cards, separate native app/native game target domains, require child reason
+  and child status refs before future audit proof, block missing reason/status
+  rows, and keep manual-required rows no-adapter without child runtime delivery,
+  request UI rendering, status persistence, runtime audit persistence, adapter
+  dispatch, platform enforcement, or private diagnostics.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.

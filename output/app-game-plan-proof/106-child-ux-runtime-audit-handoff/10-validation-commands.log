@@ -1,0 +1,19 @@
+cmd /c npm run build --workspace @ocentra-parent/parent-domain
+exit=0
+
+> @ocentra-parent/parent-domain@0.1.1 build
+> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-child-ux-runtime-audit-handoff app-game-child-facing-ux
+exit=0
+
+> @ocentra-parent/parent-domain@0.1.1 test
+> vitest run app-game-child-ux-runtime-audit-handoff app-game-child-facing-ux
+
+
+ RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-c/OcentraParent/packages/parent-domain
+
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  01:59:59
+   Duration  767ms (transform 191ms, setup 0ms, import 1.06s, tests 25ms, environment 0ms)

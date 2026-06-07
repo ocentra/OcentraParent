@@ -1011,8 +1011,12 @@ mobile UI, or prove platform support.
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,
       time-limit, request, manual-required, and unavailable states with
-      evidence/child refs and no diagnostics; live child UI, notifications,
-      service persistence, and platform execution remain.
+      evidence/child refs and no diagnostics. WP106 now projects those cards
+      into a runtime-audit handoff that requires child reason refs and child
+      status refs before future audit proof, blocks missing reason/status rows,
+      and keeps manual-required rows no-adapter; live child UI, notifications,
+      service persistence, runtime audit persistence, and platform execution
+      remain.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

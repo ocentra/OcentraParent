@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "v0.6",
+  "childUxRuntimeAuditHandoffId": "app-game-child-ux-runtime-audit-handoff-proof",
+  "generatedAt": "2026-06-07T05:20:00Z",
+  "sourceContractRefs": [
+    "app-game-child-facing-ux",
+    "docs/expectations/app-game-evidence.md",
+    "docs/expectations/enforcement.md"
+  ],
+  "rows": [
+    {
+      "schemaVersion": "v0.6",
+      "rowId": "app-game-child-ux-runtime-audit-handoff-proof-row-1",
+      "sourceChildUxStateId": "child-ux-runtime-audit-ready-app",
+      "targetDomain": "native-app",
+      "targetRef": "target-native-app-study-game",
+      "runtimeAuditHandoffState": "runtime-audit-ready",
+      "inheritedChildReasonReferences": [
+        "child-reason-runtime-audit-limit-reached"
+      ],
+      "inheritedChildStatusReferences": [
+        "child-status-runtime-audit-limit-reached"
+      ],
+      "requiredRuntimeAuditProofRefs": [
+        "future-app-game-child-ux-runtime-audit-persistence-proof"
+      ],
+      "childRuntimeDelivered": false,
+      "childRequestUiRendered": false,
+      "childStatusRuntimePersisted": false,
+      "runtimeAuditPersisted": false,
+      "adapterDispatchClaimed": false,
+      "platformEnforcementClaimed": false,
+      "privateDiagnosticsExposed": false,
+      "generatedAt": "2026-06-07T05:20:00Z"
+    },
+    {
+      "schemaVersion": "v0.6",
+      "rowId": "app-game-child-ux-runtime-audit-handoff-proof-row-2",
+      "sourceChildUxStateId": "child-ux-runtime-audit-missing-reason-game",
+      "targetDomain": "native-game",
+      "targetRef": "target-native-game-study",
+      "runtimeAuditHandoffState": "blocked-missing-child-reason",
+      "inheritedChildReasonReferences": [],
+      "inheritedChildStatusReferences": [
+        "child-status-runtime-audit-limit-reached"
+      ],
+      "requiredRuntimeAuditProofRefs": [],
+      "childRuntimeDelivered": false,
+      "childRequestUiRendered": false,
+      "childStatusRuntimePersisted": false,
+      "runtimeAuditPersisted": false,
+      "adapterDispatchClaimed": false,
+      "platformEnforcementClaimed": false,
+      "privateDiagnosticsExposed": false,
+      "generatedAt": "2026-06-07T05:20:00Z"
+    },
+    {
+      "schemaVersion": "v0.6",
+      "rowId": "app-game-child-ux-runtime-audit-handoff-proof-row-3",
+      "sourceChildUxStateId": "child-ux-runtime-audit-missing-status-unknown-app",
+      "targetDomain": "native-app",
+      "targetRef": "target-unknown-app-review",
+      "runtimeAuditHandoffState": "blocked-missing-child-status",
+      "inheritedChildReasonReferences": [
+        "child-reason-runtime-audit-new-app"
+      ],
+      "inheritedChildStatusReferences": [],
+      "requiredRuntimeAuditProofRefs": [],
+      "childRuntimeDelivered": false,
+      "childRequestUiRendered": false,
+      "childStatusRuntimePersisted": false,
+      "runtimeAuditPersisted": false,
+      "adapterDispatchClaimed": false,
+      "platformEnforcementClaimed": false,
+      "privateDiagnosticsExposed": false,
+      "generatedAt": "2026-06-07T05:20:00Z"
+    },
+    {
+      "schemaVersion": "v0.6",
+      "rowId": "app-game-child-ux-runtime-audit-handoff-proof-row-4",
+      "sourceChildUxStateId": "child-ux-runtime-audit-manual-launcher",
+      "targetDomain": "native-game",
+      "targetRef": "target-launcher-game-candidate",
+      "runtimeAuditHandoffState": "manual-required-no-adapter",
+      "inheritedChildReasonReferences": [
+        "child-reason-runtime-audit-limit-reached"
+      ],
+      "inheritedChildStatusReferences": [
+        "child-status-runtime-audit-limit-reached"
+      ],
+      "requiredRuntimeAuditProofRefs": [],
+      "childRuntimeDelivered": false,
+      "childRequestUiRendered": false,
+      "childStatusRuntimePersisted": false,
+      "runtimeAuditPersisted": false,
+      "adapterDispatchClaimed": false,
+      "platformEnforcementClaimed": false,
+      "privateDiagnosticsExposed": false,
+      "generatedAt": "2026-06-07T05:20:00Z"
+    }
+  ],
+  "nativeAppRowCount": 2,
+  "nativeGameRowCount": 2,
+  "runtimeAuditReadyCount": 1,
+  "blockedMissingChildReasonCount": 1,
+  "blockedMissingChildStatusCount": 1,
+  "manualRequiredNoAdapterCount": 1,
+  "runtimeAuditHandoffNonClaims": [
+    "no-child-runtime-delivery",
+    "no-child-request-ui-rendering",
+    "no-child-status-runtime-persistence",
+    "no-runtime-audit-persistence",
+    "no-adapter-dispatch",
+    "no-platform-enforcement",
+    "no-private-diagnostics"
+  ],
+  "childRuntimeDelivered": false,
+  "childRequestUiRendered": false,
+  "childStatusRuntimePersisted": false,
+  "runtimeAuditPersisted": false,
+  "adapterDispatchClaimed": false,
+  "platformEnforcementClaimed": false,
+  "privateDiagnosticsExposed": false
+}
