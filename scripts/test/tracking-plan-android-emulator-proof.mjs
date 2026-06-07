@@ -57,6 +57,9 @@ async function main() {
   await adb(tools, selectedSerial, ['install', '-r', apkPath], {
     artifact: path.join(resultDir, '01-adb-install.txt'),
   });
+  const preGrantPackageDump = await adbText(tools, selectedSerial, ['shell', 'dumpsys', 'package', packageName]);
+  const preGrantPermissionState = parsePermissionState(preGrantPackageDump);
+  await grantForegroundLocationPermissions(tools, selectedSerial, preGrantPermissionState);
   await adb(tools, selectedSerial, ['shell', 'input', 'keyevent', '224']);
   await adb(tools, selectedSerial, ['shell', 'wm', 'dismiss-keyguard']);
 
@@ -87,6 +90,26 @@ async function main() {
 
   console.log('tracking-plan-android-emulator-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);
+}
+
+async function grantForegroundLocationPermissions(tools, serial, permissionState) {
+  if (!permissionState.locationPermissionRequested) {
+    await writeText(
+      path.join(resultDir, '13-foreground-location-permission-grant.txt'),
+      'SKIP foreground location permissions are not declared by the package.\n'
+    );
+    return;
+  }
+
+  const grantLog = [];
+  for (const permission of ['android.permission.ACCESS_FINE_LOCATION', 'android.permission.ACCESS_COARSE_LOCATION']) {
+    if (permissionState.requested.includes(permission)) {
+      const result = await adbMaybe(tools, serial, ['shell', 'pm', 'grant', packageName, permission]);
+      const status = result.exitCode === 0 ? 'PASS' : 'FAIL';
+      grantLog.push(`${status} pm grant ${permission}\n${result.output.trim()}`);
+    }
+  }
+  await writeText(path.join(resultDir, '13-foreground-location-permission-grant.txt'), grantLog.join('\n\n'));
 }
 
 function resolveAndroidTools() {
@@ -267,6 +290,9 @@ function parsePermissionState(packageDump) {
         permission === 'android.permission.ACCESS_FINE_LOCATION' ||
         permission === 'android.permission.ACCESS_COARSE_LOCATION'
     ),
+    foregroundLocationPermissionGranted:
+      grants['android.permission.ACCESS_FINE_LOCATION'] === true ||
+      grants['android.permission.ACCESS_COARSE_LOCATION'] === true,
     backgroundLocationPermissionRequested: requested.includes('android.permission.ACCESS_BACKGROUND_LOCATION'),
   };
 }
@@ -296,6 +322,16 @@ function parseUiState(uiDump) {
   const text = [...uiDump.matchAll(/text="([^"]*)"/gu)].map((match) => decodeXmlText(match[1])).join('\n');
   return {
     hasLaunchText: text.includes(appLaunchText),
+    foregroundLocationPermissionStateText: text.includes('foreground-location-permission-granted')
+      ? 'foreground-location-permission-granted'
+      : text.includes('foreground-location-permission-required')
+        ? 'foreground-location-permission-required'
+        : null,
+    foregroundLocationSampleStateText: text.includes('last-known-location-sample-observed')
+      ? 'last-known-location-sample-observed'
+      : text.includes('foreground-location-sample-manual-required')
+        ? 'foreground-location-sample-manual-required'
+        : null,
     text,
   };
 }
@@ -575,6 +611,9 @@ function runtimeArtifactPaths() {
     screenshot: relativePath(path.join(resultDir, '10-screen.png')),
     logcat: relativePath(path.join(resultDir, '11-logcat.txt')),
     screenshotInspection: relativePath(path.join(resultDir, '12-screenshot-inspection.json')),
+    foregroundLocationPermissionGrant: relativePath(
+      path.join(resultDir, '13-foreground-location-permission-grant.txt')
+    ),
   };
 }
 
@@ -606,7 +645,7 @@ function buildProof({ device, packageDump, permissionState, resolvedActivity, ru
     workpackProof: workpackProofState(permissionState, runtime),
     commands,
     nonClaims: [
-      'This proof does not claim Android foreground location sample capture.',
+      'This proof does not claim Android fused/current foreground location sample capture.',
       'This proof does not claim Android background location behavior.',
       'This proof does not claim Android geofence enter, exit, or dwell transitions.',
       'This proof does not claim notification delivery or alert provider behavior.',
@@ -617,14 +656,26 @@ function buildProof({ device, packageDump, permissionState, resolvedActivity, ru
 }
 
 function workpackProofState(permissionState, runtime) {
+  const foregroundSampleObserved =
+    runtime.ui.foregroundLocationSampleStateText === 'last-known-location-sample-observed';
   return {
     '08-android-foreground-location-adapter': {
-      status: 'manual_required',
+      status:
+        permissionState.foregroundLocationPermissionGranted && foregroundSampleObserved
+          ? 'foreground_permission_granted_last_known_sample_observed'
+          : permissionState.foregroundLocationPermissionGranted
+            ? 'foreground_permission_granted_sample_manual_required'
+            : 'manual_required',
       proofArtifact:
         'output/tracking-plan-proof/08-android-foreground-location-adapter/03-runtime-location-evidence.json',
-      reason: permissionState.locationPermissionRequested
-        ? 'Package launched on emulator, but no runtime foreground location evidence was emitted.'
-        : 'Package launched on emulator, but the current scaffold does not request foreground location permission.',
+      reason:
+        permissionState.foregroundLocationPermissionGranted && foregroundSampleObserved
+          ? 'Foreground location permission grant and app-emitted last-known sample state were observed on the emulator package; fused/current sample, background/geofence, physical-device, and product-ready tracking remain unclaimed.'
+          : permissionState.foregroundLocationPermissionGranted
+            ? 'Foreground location permission grant was observed on the emulator package, but no app-emitted foreground location sample was captured.'
+            : permissionState.locationPermissionRequested
+              ? 'Package launched on emulator, but foreground location permission was not granted and no runtime foreground location evidence was emitted.'
+              : 'Package launched on emulator, but the current scaffold does not request foreground location permission.',
     },
     '09-android-background-location-and-geofence-adapter': {
       status: 'manual_required',
@@ -695,17 +746,25 @@ function sourceSnapshotMarkdown(proof) {
 }
 
 function foregroundLocationProof(proof) {
+  const foregroundSampleObserved =
+    proof.runtime.ui.foregroundLocationSampleStateText === 'last-known-location-sample-observed';
   return {
     schemaVersion: 1,
     checkedAt: proof.checkedAt,
     commit: proof.commit,
     requiredProofTier: 'P3_LOCAL_DEV_MACHINE',
     currentProofTier: 'P3_LOCAL_DEV_MACHINE',
-    currentStatus: 'manual_required',
+    currentStatus: proof.workpackProof['08-android-foreground-location-adapter'].status,
     packageLaunchObserved: proof.runtime.activity.packageFocused,
     foregroundServiceObserved: proof.runtime.service.isForeground,
-    locationEvidenceCaptured: false,
+    locationEvidenceCaptured: foregroundSampleObserved,
+    locationEvidenceBoundary: foregroundSampleObserved
+      ? 'app-ui-reported-last-known-sample-state-without-raw-coordinate-export'
+      : 'no-app-emitted-location-sample-observed',
     foregroundLocationPermissionRequested: proof.permissionState.locationPermissionRequested,
+    foregroundLocationPermissionGranted: proof.permissionState.foregroundLocationPermissionGranted,
+    foregroundLocationPermissionStateText: proof.runtime.ui.foregroundLocationPermissionStateText,
+    foregroundLocationSampleStateText: proof.runtime.ui.foregroundLocationSampleStateText,
     missingProofReason: proof.workpackProof['08-android-foreground-location-adapter'].reason,
     device: proof.device,
     artifacts: proof.runtime.artifacts,
@@ -769,6 +828,7 @@ ${proof.permissionState.requested.length === 0 ? '_No requested Android permissi
 ## Tracking claim boundary
 
 - Foreground location permission requested: ${String(proof.permissionState.locationPermissionRequested)}
+- Foreground location permission granted: ${String(proof.permissionState.foregroundLocationPermissionGranted)}
 - Background location permission requested: ${String(proof.permissionState.backgroundLocationPermissionRequested)}
 - Foreground service observed: ${String(proof.runtime.service.isForeground)}
 - Product location/geofence claim ready: false
@@ -786,6 +846,9 @@ This proof was generated by \`npm run test:tracking-plan-android-emulator-proof\
 - Launcher activity resolved and launched.
 - Package process observed with pid ${proof.runtime.pid}.
 - Foreground service observed: ${String(proof.runtime.service.isForeground)}.
+- Foreground location permission granted: ${String(proof.permissionState.foregroundLocationPermissionGranted)}.
+- Foreground location state text: ${proof.runtime.ui.foregroundLocationPermissionStateText ?? 'not-observed'}.
+- Foreground sample state text: ${proof.runtime.ui.foregroundLocationSampleStateText ?? 'not-observed'}.
 - Battery and connectivity dumps collected.
 - UI tree collected and contains scaffold/manual-consent text: ${String(proof.runtime.ui.hasLaunchText)}.
 - Screenshot visual contrast observed: ${String(proof.runtime.screenshotInspection.visualClaimReady)}.
@@ -806,6 +869,10 @@ async function adb(tools, serial, args, options = {}) {
     await writeText(options.artifact, result.output);
   }
   return result.output;
+}
+
+async function adbMaybe(tools, serial, args) {
+  return runCommand(tools.adbPath, ['-s', serial, ...args], { capture: true, allowFailure: true });
 }
 
 async function adbText(tools, serial, args) {
@@ -851,7 +918,7 @@ async function runCommand(command, args, options = {}) {
   const exitCode = await waitForExit(child);
   const commandLine = [command, ...args].join(' ');
   commands.push({ command: commandLine, exitCode, artifact: null });
-  if (exitCode !== 0) {
+  if (exitCode !== 0 && options.allowFailure !== true) {
     throw new Error(`${commandLine} exited with ${exitCode}`);
   }
   return { exitCode, output: output.join('') };

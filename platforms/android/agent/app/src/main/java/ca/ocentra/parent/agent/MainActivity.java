@@ -68,6 +68,13 @@ public final class MainActivity extends Activity {
             AppGameAndroidChildRuntimeDeliveryProof.createChildRuntimeDeliveryBundle(this);
         Bundle appGameChildRuntimeNotificationRequestQueue =
             AppGameAndroidChildRuntimeNotificationRequestQueueProof.createRequestQueueBundle(this);
+        if (TrackingAndroidForegroundLocationProof.shouldRequestForegroundLocationPermission(this)) {
+            requestPermissions(
+                TrackingAndroidForegroundLocationProof.foregroundLocationPermissions(),
+                TrackingAndroidForegroundLocationProof.REQUEST_FOREGROUND_LOCATION
+            );
+        }
+        Bundle foregroundLocationProof = TrackingAndroidForegroundLocationProof.createForegroundLocationBundle(this);
 
         TextView status = new TextView(this);
         String statusText = getString(R.string.agent_status) +
@@ -192,6 +199,14 @@ public final class MainActivity extends Activity {
             "\n" +
             appGameChildRuntimeNotificationRequestQueue.getString(
                 AppGameAndroidChildRuntimeNotificationRequestQueueProof.FIELD_REQUEST_DRAIN_STATE
+            ) +
+            "\n" +
+            foregroundLocationProof.getString(
+                TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_PERMISSION_STATE
+            ) +
+            "\n" +
+            foregroundLocationProof.getString(
+                TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_SAMPLE_STATE
             );
         status.setText(statusText);
         status.setBackgroundColor(Color.rgb(249, 250, 251));

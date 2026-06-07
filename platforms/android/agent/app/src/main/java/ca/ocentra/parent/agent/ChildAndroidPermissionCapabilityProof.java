@@ -65,12 +65,18 @@ public final class ChildAndroidPermissionCapabilityProof {
             new String[] {
                 "android.permission.FOREGROUND_SERVICE",
                 "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
-                "android.permission.POST_NOTIFICATIONS"
+                "android.permission.POST_NOTIFICATIONS",
+                "android.permission.ACCESS_COARSE_LOCATION",
+                "android.permission.ACCESS_FINE_LOCATION"
             }
         );
         status.putStringArray(
             "manualRuntimePermissions",
-            new String[] { "android.permission.POST_NOTIFICATIONS" }
+            new String[] {
+                "android.permission.POST_NOTIFICATIONS",
+                "android.permission.ACCESS_COARSE_LOCATION",
+                "android.permission.ACCESS_FINE_LOCATION"
+            }
         );
         status.putStringArray(
             "settingsGrantRequiredPermissions",
