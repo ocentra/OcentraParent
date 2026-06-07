@@ -381,6 +381,11 @@ control with better evidence and local audit.
   refs while parent preference mutation, parent UI, provider delivery, child
   delivery, retry, quiet-hours runtime, adapter, and platform claims remain
   false.
+- Timer parent-surface child UX provider-status and preference-status rows now
+  combine into redacted parent-surface intent rows with drill-in, audit,
+  scheduler/outbox, provider, preference, quiet-hours, and manual-proof refs,
+  while rendered parent UI, preference mutation, provider delivery, child
+  delivery, runtime, adapter dispatch, and platform claims remain false.
 - The App/Game Sessions portal route now has a route-level app/game
   notification parent-surface panel that projects the live service
   notification-readiness read-model event into schema-backed manual/unavailable

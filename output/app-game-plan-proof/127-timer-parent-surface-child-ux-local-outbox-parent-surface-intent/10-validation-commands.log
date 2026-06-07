@@ -1,0 +1,8 @@
+PASS cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-child-facing-ux-local-outbox-parent-surface-intent
+PASS cmd /c npm run build --workspace @ocentra-parent/parent-domain
+PASS cmd /c npx prettier --check packages/parent-domain/src/app-game-child-facing-ux-local-outbox-parent-surface-intent.ts packages/parent-domain/tests/app-game-child-facing-ux-local-outbox-parent-surface-intent.test.ts docs/features/app-game-control.md docs/plans/app-game-plan/implementation-checklist.md docs/plans/app-game-plan/workpacks/README.md docs/plans/app-game-plan/workpacks/127-timer-parent-surface-child-ux-local-outbox-parent-surface-intent.md output/app-game-plan-proof/127-timer-parent-surface-child-ux-local-outbox-parent-surface-intent/00-summary.md output/app-game-plan-proof/127-timer-parent-surface-child-ux-local-outbox-parent-surface-intent/10-validation-commands.log test-results/app-game-timer-parent-surface-child-ux-local-outbox-parent-surface-intent/handoff.json
+PASS cmd /c node scripts/check-no-test-doubles.mjs
+PASS cmd /c node scripts/check-source-shape.mjs with existing advisory warnings only
+PASS git diff --check
+PASS cmd /c npm run lanes:guard
+PASS cmd /c npm run hub:guard
