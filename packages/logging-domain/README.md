@@ -195,6 +195,7 @@ rows. They record execution boundary, backend secret-store preflight, rotation
 preflight, revocation preflight, operator approval, manual execution, and
 support-safe audit export states with custody status, preflight, operator,
 manual proof, and audit refs.
+
 ## Provider Secret Rotation Revocation Status Contract
 
 `src/provider-secret-rotation-revocation-status.ts` owns the logging-domain
