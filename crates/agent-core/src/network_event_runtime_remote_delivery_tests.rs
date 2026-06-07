@@ -6,6 +6,8 @@ use ocentra_parent_agent_protocol::constants;
 use crate::network_event_runtime::{
     prove_network_runtime_remote_delivery_dispatch_readiness,
     prove_network_runtime_remote_delivery_durable_envelope,
+    prove_network_runtime_remote_delivery_no_enforcement_invariant,
+    prove_network_runtime_remote_delivery_no_enforcement_invariant_from_dispatch_readiness,
     prove_network_runtime_remote_delivery_outbox_handoff,
     prove_network_runtime_remote_delivery_receipt_ledger,
     prove_network_runtime_remote_delivery_status, prove_network_runtime_remote_event_chain_journal,
@@ -14,7 +16,10 @@ use crate::network_event_runtime::{
     NetworkRuntimeRemoteDeliveryDispatchReadinessState,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
-    NetworkRuntimeRemoteDeliveryOutboxHandoffError,
+    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError,
+    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,
+    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantState,
+    NetworkRuntimeRemoteDeliveryNoEnforcementStage, NetworkRuntimeRemoteDeliveryOutboxHandoffError,
     NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryOutboxState,
     NetworkRuntimeRemoteDeliveryReceiptLedgerError,
     NetworkRuntimeRemoteDeliveryReceiptLedgerReport, NetworkRuntimeRemoteDeliveryState,
@@ -212,6 +217,101 @@ async fn network_runtime_remote_event_chain_journal_rejects_delivery_and_content
     assert_eq!(report.video_content_available_count, 0);
     assert_eq!(report.private_message_content_available_count, 0);
     assert_eq!(report.search_query_available_count, 0);
+}
+
+#[tokio::test]
+async fn network_runtime_remote_delivery_no_enforcement_invariant_accepts_available_metadata() {
+    let proof_result: Result<
+        NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,
+        NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError,
+    > = prove_network_runtime_remote_delivery_no_enforcement_invariant().await;
+    let report = proof_result
+        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_NO_ENFORCEMENT_INVARIANT);
+
+    assert_eq!(
+        report.invariant_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_NO_ENFORCEMENT_INVARIANT_REF
+    );
+    assert_eq!(
+        report.available_metadata_ref.as_str(),
+        constants::network_flow::TEST_REMOTE_DELIVERY_AVAILABLE_METADATA_REF
+    );
+    assert_eq!(
+        report.state,
+        NetworkRuntimeRemoteDeliveryNoEnforcementInvariantState::AvailableMetadataNonEnforcing
+    );
+    assert_eq!(report.remote_metadata_stage_count, 6);
+    assert_eq!(report.stages.len(), report.remote_metadata_stage_count);
+    assert!(report
+        .stages
+        .contains(&NetworkRuntimeRemoteDeliveryNoEnforcementStage::RemoteDeliveryStatus));
+    assert!(report
+        .stages
+        .contains(&NetworkRuntimeRemoteDeliveryNoEnforcementStage::EventChainJournal));
+    assert!(report
+        .stages
+        .contains(&NetworkRuntimeRemoteDeliveryNoEnforcementStage::ReceiptLedger));
+    assert!(report
+        .stages
+        .contains(&NetworkRuntimeRemoteDeliveryNoEnforcementStage::DurableEnvelope));
+    assert!(report
+        .stages
+        .contains(&NetworkRuntimeRemoteDeliveryNoEnforcementStage::OutboxHandoff));
+    assert!(report
+        .stages
+        .contains(&NetworkRuntimeRemoteDeliveryNoEnforcementStage::DispatchReadiness));
+    assert_eq!(
+        report.available_metadata_ref_count,
+        report.available_metadata_refs.len()
+    );
+    assert!(report.available_metadata_ref_count >= 31);
+    assert_eq!(
+        report.manual_required_candidate_count,
+        report
+            .dispatch_readiness
+            .outbox_handoff
+            .outbox_candidate_count
+    );
+    assert_eq!(report.dispatch_ready_candidate_count, 0);
+    assert_eq!(report.dispatch_attempt_count, 0);
+    assert_eq!(report.remote_ack_count, 0);
+    assert!(!report.broker_delivery_implemented);
+    assert!(!report.family_hub_delivery_implemented);
+    assert!(!report.remote_delivery_ack_implemented);
+    assert!(!report.provider_delivery_implemented);
+    assert!(!report.child_device_delivery_implemented);
+    assert!(!report.remote_delete_export_propagation_implemented);
+    assert!(!report.product_ready_remote_delivery);
+    assert!(!report.policy_authority);
+    assert!(!report.side_effect_authority);
+    assert_eq!(report.enforcement_command_event_count, 0);
+    assert_eq!(report.adapter_action_executed_count, 0);
+    assert_eq!(report.raw_pcap_available_count, 0);
+    assert_eq!(report.exact_url_available_count, 0);
+    assert_eq!(report.decrypted_payload_available_count, 0);
+    assert_eq!(report.page_content_available_count, 0);
+    assert_eq!(report.video_content_available_count, 0);
+    assert_eq!(report.private_message_content_available_count, 0);
+    assert_eq!(report.search_query_available_count, 0);
+}
+
+#[tokio::test]
+async fn network_runtime_remote_delivery_no_enforcement_invariant_rejects_remote_action_claims() {
+    let mut dispatch_readiness = prove_network_runtime_remote_delivery_dispatch_readiness()
+        .await
+        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DISPATCH_READINESS);
+    dispatch_readiness.enforcement_command_event_count = 1;
+    dispatch_readiness.dispatch_attempt_count = 1;
+
+    let proof_result =
+        prove_network_runtime_remote_delivery_no_enforcement_invariant_from_dispatch_readiness(
+            dispatch_readiness,
+        );
+
+    assert!(matches!(
+        proof_result,
+        Err(NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError::UnsupportedClaim)
+    ));
 }
 
 #[tokio::test]

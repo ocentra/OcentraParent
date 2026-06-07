@@ -106,6 +106,10 @@ pub const TEST_REMOTE_DELIVERY_BROKER_DISPATCH_GATE_REF: &str =
     "network.remote-delivery.broker-dispatch-gate.10i";
 pub const TEST_REMOTE_DELIVERY_FAMILY_HUB_DISPATCH_GATE_REF: &str =
     "network.remote-delivery.family-hub-dispatch-gate.10i";
+pub const TEST_REMOTE_DELIVERY_NO_ENFORCEMENT_INVARIANT_REF: &str =
+    "network.remote-delivery.no-enforcement-invariant.10j";
+pub const TEST_REMOTE_DELIVERY_AVAILABLE_METADATA_REF: &str =
+    "network.remote-delivery.available-metadata.10j";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_PATH_PREFIX: &str =
     "ocentra-network-remote-event-chain-journal";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION: &str = "ndjson";
@@ -172,3 +176,5 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_STATUS_BRIDGE: &str =
     "network runtime remote outbox status bridge proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_DISPATCH_READINESS: &str =
     "network runtime remote dispatch readiness proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_NO_ENFORCEMENT_INVARIANT: &str =
+    "network runtime remote no-enforcement invariant proof";

@@ -118,7 +118,7 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       decrypted payload, page content, video content, private-message content,
       search-query content, and host filtering unimplemented for the row10d
       remote projection fixture. Full available-metadata remote no-enforcement
-      invariant proof remains a row10 follow-up.
+      invariant proof is now covered by row10j.
 - [x] `10e-remote-delivery-durable-envelope-status`: local durable envelope,
       durable store, replay, delete/export readiness, and support-status
       boundary declaration for replayed receipt-ledger records. Row10e proof
@@ -200,6 +200,21 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       raw PCAP, exact URL, decrypted payload, page content, video content,
       private-message content, search-query content, and host filtering
       unimplemented.
+- [x] `10j-remote-delivery-no-enforcement-invariant`: full available-metadata
+      remote no-enforcement invariant over the row10b through row10i chain.
+      Row10j proof writes
+      `output/network-plan-proof/10j-remote-delivery-no-enforcement-invariant/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-no-enforcement-invariant-proof/proof.json`
+      and proves broker/family-hub requirement refs, event-chain journal/export
+      refs, receipt-ledger/local-ack refs, durable envelope/store/delete-export
+      refs, outbox handoff refs, and dispatch-readiness refs remain
+      non-enforcing available metadata. The proof rejects nonzero dispatch
+      attempts, remote acknowledgements, live broker/family-hub delivery,
+      product-ready delivery, policy authority, side-effect authority, adapter
+      execution, enforcement-command publication, raw PCAP, exact URL, decrypted
+      payload, page content, video content, private-message content,
+      search-query content, and host filtering claims.
 - [x] `11-manual-platform-proof.md`: OS/device/permission details, exact manual
       steps, screenshots/logs, and manual-required labels for platform claims.
       E-D row11 proof now writes
@@ -358,7 +373,9 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
   cross-process durable replay, raw PCAP/live-capture retention and remote
   delete/export propagation, live analyzer/model/policy execution, adapter
   execution, provider/child-device delivery, product-ready remote delivery, and
-  host filtering remain open.
+  host filtering remain open. Row10j now proves available remote metadata across
+  the row10b through row10i chain stays non-enforcing until those artifacts
+  exist.
 - [x] TypeScript Effect Schema contracts land before Rust/service/portal
       consumers where TypeScript domain boundaries are touched. Workpack 03
       added the `activity-domain` network contracts before Rust protocol parity.
