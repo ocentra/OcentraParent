@@ -49,7 +49,8 @@ Proof root: `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 - [ ] Prove fused/current sample.
 - [x] Prove emulator foreground permission grant and app-reported last-known
       sample state.
-- [ ] Preserve accuracy and timestamp from provider.
+- [x] Preserve provider, accuracy, and timestamp metadata in emulator
+      foreground proof without exporting raw coordinates.
 - [x] Document emulator device, OS version, app build, foreground service
       scaffold, and proof commands without claiming fused/current,
       physical-device, or product-ready location behavior.
@@ -73,13 +74,14 @@ location runtime permissions, captures foreground-service state, UI tree,
 headless screenshot inspection, logcat, package permission state, device
 metadata, battery/connectivity dumps, and writes
 `03-runtime-location-evidence.json` as
-`foreground_permission_granted_last_known_sample_observed` when the app UI
-reports `foreground-location-permission-granted` and
-`last-known-location-sample-observed`. This proves emulator foreground
-permission readiness plus app-emitted last-known sample state; it does not
-prove fused/current sample collection, raw coordinate export, physical Android
-device behavior, background/geofence transitions, authority, provider delivery,
-or product-ready Android tracking.
+`foreground_permission_granted_last_known_sample_metadata_observed` when the
+app UI reports `foreground-location-permission-granted`,
+`last-known-location-sample-observed`, provider `gps`, observed epoch millis,
+and accuracy meters. This proves emulator foreground permission readiness plus
+app-emitted last-known sample metadata; it does not prove fused/current sample
+collection, raw coordinate export, physical Android device behavior,
+background/geofence transitions, authority, provider delivery, or
+product-ready Android tracking.
 
 `node scripts/test/tracking-android-permission-background-proof.mjs` now records
 WP08 parent-domain manual-required rows for the foreground permission grant and
@@ -123,7 +125,7 @@ This workpack can be assigned independently, implemented against the owning doma
       `node scripts/test/tracking-android-permission-background-proof.mjs`
       passed locally for manual-required rows;
       `npm run test:tracking-plan-android-emulator-proof` passed locally for
-      the emulator foreground permission and last-known sample-state proof.
+      the emulator foreground permission and last-known sample metadata proof.
 - [x] Proof artifacts under
       `output/tracking-plan-proof/08-android-foreground-location-adapter/`,
       including `02-platform-permission-proof.md`,
@@ -133,10 +135,10 @@ This workpack can be assigned independently, implemented against the owning doma
       checklist, and this workpack doc updated for the local manual-required
       foreground permission/sample proof; central capability row update remains
       a hub/primary-owned doc delta.
-- [x] Known gaps/manual-required states: foreground permission grant and
-      app-reported last-known sample state are now observed on emulator;
-      foreground permission UX dialog proof, fused/current provider sample, raw
-      coordinate export, provider accuracy/timestamp artifact export,
+- [x] Known gaps/manual-required states: foreground permission grant,
+      app-reported last-known sample state, provider, timestamp, and accuracy
+      metadata are now observed on emulator; foreground permission UX dialog
+      proof, fused/current provider sample, raw coordinate export,
       physical-device proof, authority, provider delivery, notification
       delivery, background/geofence transitions, and product-ready Android
       tracking remain unclaimed.
