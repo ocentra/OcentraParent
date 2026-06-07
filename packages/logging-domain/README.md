@@ -189,12 +189,16 @@ execution, production SLA, or default Ocentra-hosted family data.
 ## Privacy Legal Disclosure Status Contract
 
 `src/privacy-legal-disclosure-status.ts` owns the logging-domain schema proof
-for production support privacy/legal disclosure status rows, while
+for production support privacy/legal disclosure status rows,
+`src/privacy-legal-disclosure-status-guards.ts` owns the sensitive-data and
+overclaim rejection guards, and
 `src/privacy-legal-disclosure-status-read-model.ts` owns the current fixture
-rows. They record disclosure requested, parent-authorized, legal-review queued,
-legal-review running, parent-notification ready, publication-ready, failed, and
-manual-required states with parent consent, privacy policy, legal review,
-publication, support runbook, audit, failure, and manual proof refs.
+rows. `scripts/test/production-support-privacy-legal-disclosure-status-proof.mjs`
+regenerates the deterministic proof artifacts. They record disclosure requested,
+parent-authorized, legal-review queued, legal-review running, parent-notification
+ready, publication-ready, failed, and manual-required states with parent consent,
+privacy policy, legal review, publication, support runbook, audit, failure, and
+manual proof refs.
 
 This contract is metadata-only. It does not claim legal disclosure execution,
 public runtime execution, support backend upload execution, account lookup,

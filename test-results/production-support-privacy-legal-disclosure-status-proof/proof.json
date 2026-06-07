@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T09:35:23.490Z",
-  "commit": "e834f78c5d8c217a0e5ed1198989ed67dfb1608a",
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
   "proofMode": "production-support-privacy-legal-disclosure-status-proof",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/logging-domain",
@@ -12,9 +12,11 @@
     "guards": "packages/logging-domain/src/privacy-legal-disclosure-status-guards.ts",
     "readModel": "packages/logging-domain/src/privacy-legal-disclosure-status-read-model.ts",
     "contractTest": "packages/logging-domain/tests/privacy-legal-disclosure-status.test.ts",
-    "proofOutput": "test-results\\production-support-privacy-legal-disclosure-status-proof\\proof.json",
-    "summaryOutput": "output\\production-support-privacy-legal-disclosure-status-proof\\proof-summary.json",
+    "proofHarness": "scripts/test/production-support-privacy-legal-disclosure-status-proof.mjs",
+    "proofOutput": "test-results/production-support-privacy-legal-disclosure-status-proof/proof.json",
+    "summaryOutput": "output/production-support-privacy-legal-disclosure-status-proof/proof-summary.json",
     "featureDoc": "docs/features/production-distribution-support.md",
+    "packageReadme": "packages/logging-domain/readme.md",
     "expectations": [
       "docs/expectations/data-custody.md",
       "docs/expectations/release-installer.md"
@@ -33,7 +35,7 @@
     "support backend upload execution",
     "account lookup execution",
     "billing provider contact execution",
-    "remote support sessions",
+    "remote support session execution",
     "production SLA",
     "provider secrets",
     "child activity custody"
