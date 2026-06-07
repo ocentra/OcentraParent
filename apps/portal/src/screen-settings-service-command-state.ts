@@ -17,12 +17,13 @@ import {
 } from '@ocentra-parent/agent-protocol-domain/screen-settings-adapter';
 import { type ScreenEvidenceSettingsUiProof } from '@ocentra-parent/activity-domain/screen-evidence';
 
+export type ScreenSettingsServiceRequestId = ReturnType<typeof createScreenSettingsPortalRequestId>;
+
 export type ScreenSettingsServiceCommandDraft = {
   readonly command: AgentCommandName;
   readonly payload: AgentProtocolLogFields;
-  readonly requestId: string;
+  readonly requestId: ScreenSettingsServiceRequestId;
 };
-export type ScreenSettingsServiceRequestId = ScreenSettingsServiceCommandDraft['requestId'];
 
 export function createScreenSettingsGetCommandDraft(sequence: number): ScreenSettingsServiceCommandDraft {
   const requestId = createScreenSettingsPortalRequestId(sequence);
@@ -84,7 +85,7 @@ export function screenSettingsServiceStatusText(input: {
   readonly pendingRequestId: ScreenSettingsServiceRequestId | null;
   readonly proof: ScreenEvidenceSettingsUiProof;
   readonly response: ScreenSettingsUpdateResponse | null;
-}): string {
+}) {
   if (!input.commandEnabled) {
     return input.proof.serviceDisconnectedStatus;
   }

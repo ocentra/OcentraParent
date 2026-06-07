@@ -88,48 +88,80 @@ export const ScreenAndroidMediaProjectionCapabilityProofSchema = withParser(
 export function screenAndroidMediaProjectionCapabilityRowIsConsistent(
   value: ScreenAndroidMediaProjectionCapabilityRowInput
 ): boolean {
-  if (value.silentBackgroundCaptureClaimed || value.rawFrameRemoteUploadAllowed || value.rawFrameRetentionDefault) {
+  if (!androidRawFrameClaimsAreSafe(value)) {
     return false;
   }
 
   if (value.mode === 'notClaimed') {
-    return (
-      value.captureState === 'notClaimed' &&
-      value.proofState === 'sourceDocsVerified' &&
-      value.emulatorProofRef === null &&
-      value.physicalDeviceProofRef === null &&
-      value.deletionProofRef === null &&
-      !value.productAndroidCaptureReady
-    );
+    return androidNotClaimedRowIsConsistent(value);
   }
 
-  if (
-    !value.requiresUserConsentPerSession ||
-    !value.requiresForegroundServiceType ||
-    !value.requiresStopCallbackOnUserStop
-  ) {
+  if (!androidConsentRequirementsArePresent(value)) {
     return false;
   }
 
   if (value.mode === 'emulatorMediaProjection') {
-    return (
-      value.captureState === 'provedEmulator' &&
-      value.proofState === 'emulatorVerified' &&
-      value.emulatorProofRef !== null &&
-      value.deletionProofRef !== null &&
-      value.physicalDeviceProofRef === null &&
-      !value.productAndroidCaptureReady
-    );
+    return androidEmulatorRowIsConsistent(value);
   }
 
-  if (value.mode === 'android14AppWindowSharing' && !value.supportsAppWindowSelection) {
+  if (!androidAppWindowSelectionIsConsistent(value)) {
     return false;
   }
 
   if (!value.productAndroidCaptureReady) {
-    return value.captureState === 'manualRequired' && value.proofState === 'physicalDeviceMissing';
+    return androidManualRequiredRowIsConsistent(value);
   }
 
+  return androidReadyRowIsConsistent(value);
+}
+
+function androidRawFrameClaimsAreSafe(value: ScreenAndroidMediaProjectionCapabilityRowInput): boolean {
+  return [
+    value.silentBackgroundCaptureClaimed,
+    value.rawFrameRemoteUploadAllowed,
+    value.rawFrameRetentionDefault,
+  ].every((claimed) => claimed === false);
+}
+
+function androidNotClaimedRowIsConsistent(value: ScreenAndroidMediaProjectionCapabilityRowInput): boolean {
+  return (
+    value.captureState === 'notClaimed' &&
+    value.proofState === 'sourceDocsVerified' &&
+    value.emulatorProofRef === null &&
+    value.physicalDeviceProofRef === null &&
+    value.deletionProofRef === null &&
+    !value.productAndroidCaptureReady
+  );
+}
+
+function androidConsentRequirementsArePresent(value: ScreenAndroidMediaProjectionCapabilityRowInput): boolean {
+  return [
+    value.requiresUserConsentPerSession,
+    value.requiresForegroundServiceType,
+    value.requiresStopCallbackOnUserStop,
+  ].every((required) => required === true);
+}
+
+function androidEmulatorRowIsConsistent(value: ScreenAndroidMediaProjectionCapabilityRowInput): boolean {
+  return (
+    value.captureState === 'provedEmulator' &&
+    value.proofState === 'emulatorVerified' &&
+    value.emulatorProofRef !== null &&
+    value.deletionProofRef !== null &&
+    value.physicalDeviceProofRef === null &&
+    !value.productAndroidCaptureReady
+  );
+}
+
+function androidAppWindowSelectionIsConsistent(value: ScreenAndroidMediaProjectionCapabilityRowInput): boolean {
+  return value.mode !== 'android14AppWindowSharing' || value.supportsAppWindowSelection;
+}
+
+function androidManualRequiredRowIsConsistent(value: ScreenAndroidMediaProjectionCapabilityRowInput): boolean {
+  return value.captureState === 'manualRequired' && value.proofState === 'physicalDeviceMissing';
+}
+
+function androidReadyRowIsConsistent(value: ScreenAndroidMediaProjectionCapabilityRowInput): boolean {
   return (
     value.captureState === 'ready' &&
     value.proofState === 'physicalDeviceVerified' &&

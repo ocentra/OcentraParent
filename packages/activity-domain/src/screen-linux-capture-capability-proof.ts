@@ -103,57 +103,94 @@ export const ScreenLinuxCaptureCapabilityProofSchema = withParser(
 );
 
 export function screenLinuxCaptureCapabilityRowIsConsistent(value: ScreenLinuxCaptureCapabilityRowInput): boolean {
-  if (value.rootDisplayClaimed || value.rawFrameRemoteUploadAllowed || value.rawFrameRetentionDefault) {
+  if (!linuxRawFrameClaimsAreSafe(value)) {
     return false;
   }
 
-  if (value.mode === 'wslgX11SelectedWindow') {
-    return (
-      value.captureState === 'provedWslgSelectedWindow' &&
-      value.proofState === 'x11WslgVerified' &&
-      value.compositor === 'wslgX11' &&
-      value.x11CommandBackendRequired &&
-      !value.waylandPortalRequired &&
-      !value.pipeWireRequired &&
-      value.wslgProofRef !== null &&
-      value.deletionProofRef !== null &&
-      value.nativeSessionProofRef === null &&
-      !value.productLinuxCaptureReady
-    );
-  }
-
-  if (value.mode === 'unsupportedCompositor') {
-    return (
-      value.captureState === 'unsupported' &&
-      value.proofState === 'sourceDocsVerified' &&
-      value.compositor === 'unsupported' &&
-      value.wslgProofRef === null &&
-      value.nativeSessionProofRef === null &&
-      value.deletionProofRef === null &&
-      !value.productLinuxCaptureReady
-    );
-  }
-
-  if (value.mode === 'waylandPortalPipeWire') {
-    if (!value.waylandPortalRequired || !value.pipeWireRequired || !value.userMediatedSelectionRequired) {
-      return false;
-    }
-  }
-
-  if (value.mode === 'nativeX11SelectedWindow' || value.mode === 'nativeX11RootDisplay') {
-    if (!value.x11CommandBackendRequired || value.waylandPortalRequired || value.pipeWireRequired) {
-      return false;
-    }
+  const modeConsistency = linuxModeSpecificConsistency(value);
+  if (modeConsistency !== null) {
+    return modeConsistency;
   }
 
   if (!value.productLinuxCaptureReady) {
-    return (
-      value.captureState === 'manualRequired' &&
-      value.proofState === 'nativeSessionMissing' &&
-      value.nativeSessionProofRef === null
-    );
+    return linuxManualRequiredRowIsConsistent(value);
   }
 
+  return linuxReadyRowIsConsistent(value);
+}
+
+function linuxRawFrameClaimsAreSafe(value: ScreenLinuxCaptureCapabilityRowInput): boolean {
+  return [value.rootDisplayClaimed, value.rawFrameRemoteUploadAllowed, value.rawFrameRetentionDefault].every(
+    (claimed) => claimed === false
+  );
+}
+
+function linuxModeSpecificConsistency(value: ScreenLinuxCaptureCapabilityRowInput): boolean | null {
+  if (value.mode === 'wslgX11SelectedWindow') {
+    return linuxWslgRowIsConsistent(value);
+  }
+
+  if (value.mode === 'unsupportedCompositor') {
+    return linuxUnsupportedRowIsConsistent(value);
+  }
+
+  if (value.mode === 'waylandPortalPipeWire') {
+    return linuxWaylandRequirementsArePresent(value) ? null : false;
+  }
+
+  if (value.mode === 'nativeX11SelectedWindow' || value.mode === 'nativeX11RootDisplay') {
+    return linuxNativeX11RequirementsArePresent(value) ? null : false;
+  }
+
+  return null;
+}
+
+function linuxWslgRowIsConsistent(value: ScreenLinuxCaptureCapabilityRowInput): boolean {
+  return (
+    value.captureState === 'provedWslgSelectedWindow' &&
+    value.proofState === 'x11WslgVerified' &&
+    value.compositor === 'wslgX11' &&
+    value.x11CommandBackendRequired &&
+    !value.waylandPortalRequired &&
+    !value.pipeWireRequired &&
+    value.wslgProofRef !== null &&
+    value.deletionProofRef !== null &&
+    value.nativeSessionProofRef === null &&
+    !value.productLinuxCaptureReady
+  );
+}
+
+function linuxUnsupportedRowIsConsistent(value: ScreenLinuxCaptureCapabilityRowInput): boolean {
+  return (
+    value.captureState === 'unsupported' &&
+    value.proofState === 'sourceDocsVerified' &&
+    value.compositor === 'unsupported' &&
+    value.wslgProofRef === null &&
+    value.nativeSessionProofRef === null &&
+    value.deletionProofRef === null &&
+    !value.productLinuxCaptureReady
+  );
+}
+
+function linuxWaylandRequirementsArePresent(value: ScreenLinuxCaptureCapabilityRowInput): boolean {
+  return [value.waylandPortalRequired, value.pipeWireRequired, value.userMediatedSelectionRequired].every(
+    (required) => required === true
+  );
+}
+
+function linuxNativeX11RequirementsArePresent(value: ScreenLinuxCaptureCapabilityRowInput): boolean {
+  return value.x11CommandBackendRequired && !value.waylandPortalRequired && !value.pipeWireRequired;
+}
+
+function linuxManualRequiredRowIsConsistent(value: ScreenLinuxCaptureCapabilityRowInput): boolean {
+  return (
+    value.captureState === 'manualRequired' &&
+    value.proofState === 'nativeSessionMissing' &&
+    value.nativeSessionProofRef === null
+  );
+}
+
+function linuxReadyRowIsConsistent(value: ScreenLinuxCaptureCapabilityRowInput): boolean {
   return (
     value.captureState === 'ready' &&
     value.proofState === 'nativeSessionVerified' &&

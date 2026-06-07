@@ -165,27 +165,39 @@ function disabledLiveViewPermissionGateIsConsistent(value: ScreenLiveViewPlatfor
 }
 
 function enabledLiveViewPermissionGateIsConsistent(value: ScreenLiveViewPlatformPermissionGateInput): boolean {
-  if (
-    value.permissionEvidenceKind !== 'live-view-permission' ||
-    value.platformProofState !== 'operatorVerified' ||
-    value.platformProofRef === null ||
-    value.viewerAuditRef === null ||
-    value.frameRetentionBehavior !== 'noFrameRetention' ||
-    value.liveTransportProofRef === null ||
-    !value.explicitViewerDisclosure
-  ) {
+  if (!enabledLiveViewProofInputsAreReady(value)) {
     return !value.productLiveViewReady;
   }
 
   if (value.liveViewMode === 'lanOnlyView') {
-    return (
-      value.transportMode === 'lanMutualAuth' &&
-      value.sourceLabel === 'liveView' &&
-      value.custodyState === 'live-lan-child-agent' &&
-      value.productLiveViewReady
-    );
+    return lanLiveViewPermissionGateIsConsistent(value);
   }
 
+  return relayLiveViewPermissionGateIsConsistent(value);
+}
+
+function enabledLiveViewProofInputsAreReady(value: ScreenLiveViewPlatformPermissionGateInput): boolean {
+  return (
+    value.permissionEvidenceKind === 'live-view-permission' &&
+    value.platformProofState === 'operatorVerified' &&
+    value.platformProofRef !== null &&
+    value.viewerAuditRef !== null &&
+    value.frameRetentionBehavior === 'noFrameRetention' &&
+    value.liveTransportProofRef !== null &&
+    value.explicitViewerDisclosure
+  );
+}
+
+function lanLiveViewPermissionGateIsConsistent(value: ScreenLiveViewPlatformPermissionGateInput): boolean {
+  return (
+    value.transportMode === 'lanMutualAuth' &&
+    value.sourceLabel === 'liveView' &&
+    value.custodyState === 'live-lan-child-agent' &&
+    value.productLiveViewReady
+  );
+}
+
+function relayLiveViewPermissionGateIsConsistent(value: ScreenLiveViewPlatformPermissionGateInput): boolean {
   return (
     value.transportMode === 'relayEndToEndEncrypted' &&
     value.sourceLabel === 'relay' &&

@@ -31,8 +31,8 @@ fn screen_live_view_runtime_blocks_capture_only_permission() {
         capture_only_permission.block_reason,
         Some(ScreenLiveViewRuntimeBlockReason::MissingLiveViewPermission)
     );
-    assert_eq!(missing_permission.product_live_view_ready, false);
-    assert_eq!(capture_only_permission.product_live_view_ready, false);
+    assert!(!missing_permission.product_live_view_ready);
+    assert!(!capture_only_permission.product_live_view_ready);
 }
 
 #[test]
@@ -56,8 +56,8 @@ fn screen_live_view_runtime_requires_transport_and_deletion_proof() {
         missing_deletion.block_reason,
         Some(ScreenLiveViewRuntimeBlockReason::MissingRawFrameDeletionProof)
     );
-    assert_eq!(missing_transport.product_live_view_ready, false);
-    assert_eq!(missing_deletion.product_live_view_ready, false);
+    assert!(!missing_transport.product_live_view_ready);
+    assert!(!missing_deletion.product_live_view_ready);
 }
 
 #[test]
@@ -82,7 +82,7 @@ fn screen_live_view_runtime_rejects_frame_cache_recording_and_remote_input() {
             decision.block_reason,
             Some(ScreenLiveViewRuntimeBlockReason::UnsafeRetentionOrControl)
         );
-        assert_eq!(decision.product_live_view_ready, false);
+        assert!(!decision.product_live_view_ready);
     }
 }
 
@@ -101,7 +101,7 @@ fn screen_live_view_runtime_can_be_service_ready_without_product_ready() {
         decision.block_reason,
         Some(ScreenLiveViewRuntimeBlockReason::MissingParentUiPersistence)
     );
-    assert_eq!(decision.product_live_view_ready, false);
+    assert!(!decision.product_live_view_ready);
 }
 
 #[test]
@@ -123,9 +123,9 @@ fn screen_live_view_runtime_requires_relay_cache_for_relay_mode() {
         missing_relay_cache.block_reason,
         Some(ScreenLiveViewRuntimeBlockReason::MissingRelayCacheProof)
     );
-    assert_eq!(missing_relay_cache.product_live_view_ready, false);
+    assert!(!missing_relay_cache.product_live_view_ready);
     assert_eq!(relay_ready.block_reason, None);
-    assert_eq!(relay_ready.product_live_view_ready, true);
+    assert!(relay_ready.product_live_view_ready);
 }
 
 fn lan_input() -> ScreenLiveViewRuntimeInput {

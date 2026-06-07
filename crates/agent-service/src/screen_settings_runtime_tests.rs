@@ -24,13 +24,13 @@ async fn screen_settings_runtime_reports_disabled_default_without_persistence() 
     let setting = response
         .setting
         .expect(constants::screen_settings::TEST_SETTING_RETURNED);
-    assert_eq!(setting.screen_analysis_enabled, false);
-    assert_eq!(setting.cadence_capture_enabled, false);
-    assert_eq!(setting.trigger_capture_enabled, false);
-    assert_eq!(setting.policy_use_enabled, false);
-    assert_eq!(setting.retain_raw_image, false);
-    assert_eq!(setting.delete_after_success, true);
-    assert_eq!(setting.delete_after_expiry, true);
+    assert!(!setting.screen_analysis_enabled);
+    assert!(!setting.cadence_capture_enabled);
+    assert!(!setting.trigger_capture_enabled);
+    assert!(!setting.policy_use_enabled);
+    assert!(!setting.retain_raw_image);
+    assert!(setting.delete_after_success);
+    assert!(setting.delete_after_expiry);
 }
 
 #[tokio::test]
@@ -40,7 +40,7 @@ async fn screen_settings_runtime_persists_parent_opt_in_across_reload() {
     let strict = strict_dry_run_setting(2);
 
     let accepted = runtime
-        .handle_request(ScreenSettingsUpdateRequest::Replace(
+        .handle_request(ScreenSettingsUpdateRequest::Replace(Box::new(
             ScreenSettingsReplaceRequest {
                 schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
                 request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
@@ -48,7 +48,7 @@ async fn screen_settings_runtime_persists_parent_opt_in_across_reload() {
                 base_setting_version: None,
                 setting: strict.clone(),
             },
-        ))
+        )))
         .await;
 
     assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
@@ -84,7 +84,7 @@ async fn screen_settings_runtime_accepts_parent_approved_short_ttl_raw_retention
     setting.reason = Some(constants::screen_settings::RAW_RETENTION_LOCAL_TTL_REASON.to_string());
 
     let accepted = runtime
-        .handle_request(ScreenSettingsUpdateRequest::Replace(
+        .handle_request(ScreenSettingsUpdateRequest::Replace(Box::new(
             ScreenSettingsReplaceRequest {
                 schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
                 request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
@@ -92,7 +92,7 @@ async fn screen_settings_runtime_accepts_parent_approved_short_ttl_raw_retention
                 base_setting_version: None,
                 setting: setting.clone(),
             },
-        ))
+        )))
         .await;
 
     assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
@@ -107,7 +107,7 @@ async fn screen_settings_runtime_rejects_unsafe_raw_image_retention() {
     setting.temporary_image_ttl_seconds = constants::screen_settings::DEFAULT_TTL_SECONDS;
 
     let rejected = runtime
-        .handle_request(ScreenSettingsUpdateRequest::Replace(
+        .handle_request(ScreenSettingsUpdateRequest::Replace(Box::new(
             ScreenSettingsReplaceRequest {
                 schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
                 request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
@@ -115,7 +115,7 @@ async fn screen_settings_runtime_rejects_unsafe_raw_image_retention() {
                 base_setting_version: None,
                 setting,
             },
-        ))
+        )))
         .await;
 
     assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);
@@ -133,7 +133,7 @@ async fn screen_settings_runtime_rejects_observe_only_policy_use() {
     setting.analysis_mode = constants::screen_settings::ANALYSIS_MODE_OBSERVE_ONLY.to_string();
 
     let rejected = runtime
-        .handle_request(ScreenSettingsUpdateRequest::Replace(
+        .handle_request(ScreenSettingsUpdateRequest::Replace(Box::new(
             ScreenSettingsReplaceRequest {
                 schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
                 request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
@@ -141,7 +141,7 @@ async fn screen_settings_runtime_rejects_observe_only_policy_use() {
                 base_setting_version: None,
                 setting,
             },
-        ))
+        )))
         .await;
 
     assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);
@@ -155,7 +155,7 @@ async fn screen_settings_runtime_rejects_observe_only_policy_use() {
 async fn screen_settings_runtime_rejects_stale_base_setting_version() {
     let runtime = ScreenSettingsRuntime::in_memory();
     let accepted = runtime
-        .handle_request(ScreenSettingsUpdateRequest::Replace(
+        .handle_request(ScreenSettingsUpdateRequest::Replace(Box::new(
             ScreenSettingsReplaceRequest {
                 schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
                 request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
@@ -163,12 +163,12 @@ async fn screen_settings_runtime_rejects_stale_base_setting_version() {
                 base_setting_version: None,
                 setting: strict_dry_run_setting(2),
             },
-        ))
+        )))
         .await;
     assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
 
     let rejected = runtime
-        .handle_request(ScreenSettingsUpdateRequest::Replace(
+        .handle_request(ScreenSettingsUpdateRequest::Replace(Box::new(
             ScreenSettingsReplaceRequest {
                 schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
                 request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
@@ -176,7 +176,7 @@ async fn screen_settings_runtime_rejects_stale_base_setting_version() {
                 base_setting_version: Some(1),
                 setting: strict_dry_run_setting(3),
             },
-        ))
+        )))
         .await;
 
     assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);

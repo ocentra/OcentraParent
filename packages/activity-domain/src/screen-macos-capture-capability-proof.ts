@@ -81,33 +81,59 @@ export const ScreenMacosCaptureCapabilityProofSchema = withParser(
 );
 
 export function screenMacosCaptureCapabilityRowIsConsistent(value: ScreenMacosCaptureCapabilityRowInput): boolean {
-  if (value.silentBackgroundCaptureClaimed || value.rawFrameRemoteUploadAllowed || value.rawFrameRetentionDefault) {
+  if (!macosRawFrameClaimsAreSafe(value)) {
     return false;
   }
 
-  if (value.mode === 'pppcMdmManaged' && !value.requiresPppcMdmReview) {
+  if (!macosPppcRequirementsAreConsistent(value)) {
     return false;
   }
 
-  if (value.mode !== 'pppcMdmManaged' && value.requiresPppcMdmReview) {
+  if (!macosScreenCaptureKitRequirementsAreConsistent(value)) {
     return false;
-  }
-
-  if (value.mode === 'screenCaptureKitDisplay' || value.mode === 'screenCaptureKitWindow') {
-    if (!value.requiresScreenRecordingPermission || !value.requiresScreenCaptureKitContentFilter) {
-      return false;
-    }
   }
 
   if (!value.productMacosCaptureReady) {
-    return (
-      value.captureState === 'manualRequired' &&
-      value.proofState !== 'liveSessionVerified' &&
-      value.liveSessionProofRef === null &&
-      value.deletionProofRef === null
-    );
+    return macosManualRequiredRowIsConsistent(value);
   }
 
+  return macosReadyRowIsConsistent(value);
+}
+
+function macosRawFrameClaimsAreSafe(value: ScreenMacosCaptureCapabilityRowInput): boolean {
+  return [
+    value.silentBackgroundCaptureClaimed,
+    value.rawFrameRemoteUploadAllowed,
+    value.rawFrameRetentionDefault,
+  ].every((claimed) => claimed === false);
+}
+
+function macosPppcRequirementsAreConsistent(value: ScreenMacosCaptureCapabilityRowInput): boolean {
+  if (value.mode === 'pppcMdmManaged') {
+    return value.requiresPppcMdmReview;
+  }
+
+  return !value.requiresPppcMdmReview;
+}
+
+function macosScreenCaptureKitRequirementsAreConsistent(value: ScreenMacosCaptureCapabilityRowInput): boolean {
+  if (value.mode !== 'screenCaptureKitDisplay' && value.mode !== 'screenCaptureKitWindow') {
+    return true;
+  }
+
+  return value.requiresScreenRecordingPermission && value.requiresScreenCaptureKitContentFilter;
+}
+
+function macosManualRequiredRowIsConsistent(value: ScreenMacosCaptureCapabilityRowInput): boolean {
+  return (
+    value.captureState === 'manualRequired' &&
+    value.proofState !== 'liveSessionVerified' &&
+    value.liveSessionProofRef === null &&
+    value.deletionProofRef === null
+  );
+}
+
+function macosReadyRowIsConsistent(value: ScreenMacosCaptureCapabilityRowInput): boolean {
   return (
     value.captureState === 'ready' &&
     value.proofState === 'liveSessionVerified' &&

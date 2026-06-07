@@ -26,9 +26,9 @@ fn screen_live_view_worker_startup_stays_disabled_when_live_view_is_disabled() {
         decision.startup_state,
         ScreenLiveViewWorkerStartupState::Disabled
     );
-    assert_eq!(decision.startup_permitted, false);
-    assert_eq!(decision.worker_started, false);
-    assert_eq!(decision.product_live_view_ready, false);
+    assert!(!decision.startup_permitted);
+    assert!(!decision.worker_started);
+    assert!(!decision.product_live_view_ready);
 }
 
 #[test]
@@ -49,8 +49,8 @@ fn screen_live_view_worker_startup_requires_runtime_readiness() {
         decision.block_reason,
         Some(ScreenLiveViewWorkerStartupBlockReason::RuntimeNotReady)
     );
-    assert_eq!(decision.startup_permitted, false);
-    assert_eq!(decision.worker_started, false);
+    assert!(!decision.startup_permitted);
+    assert!(!decision.worker_started);
 }
 
 #[test]
@@ -64,8 +64,8 @@ fn screen_live_view_worker_startup_requires_platform_prompt_artifact() {
         decision.block_reason,
         Some(ScreenLiveViewWorkerStartupBlockReason::MissingPlatformPromptArtifact)
     );
-    assert_eq!(decision.startup_permitted, false);
-    assert_eq!(decision.worker_started, false);
+    assert!(!decision.startup_permitted);
+    assert!(!decision.worker_started);
 }
 
 #[test]
@@ -86,9 +86,9 @@ fn screen_live_view_worker_startup_requires_relay_cache_for_relay_mode() {
         decision.block_reason,
         Some(ScreenLiveViewWorkerStartupBlockReason::MissingRelayCacheExecution)
     );
-    assert_eq!(decision.startup_permitted, false);
-    assert_eq!(decision.worker_started, false);
-    assert_eq!(decision.product_live_view_ready, false);
+    assert!(!decision.startup_permitted);
+    assert!(!decision.worker_started);
+    assert!(!decision.product_live_view_ready);
 }
 
 #[test]
@@ -112,10 +112,10 @@ fn screen_live_view_worker_startup_requires_physical_parity_and_privacy_approval
         missing_privacy.block_reason,
         Some(ScreenLiveViewWorkerStartupBlockReason::MissingPrivacyLegalApproval)
     );
-    assert_eq!(missing_physical_parity.startup_permitted, false);
-    assert_eq!(missing_privacy.startup_permitted, false);
-    assert_eq!(missing_physical_parity.worker_started, false);
-    assert_eq!(missing_privacy.worker_started, false);
+    assert!(!missing_physical_parity.startup_permitted);
+    assert!(!missing_privacy.startup_permitted);
+    assert!(!missing_physical_parity.worker_started);
+    assert!(!missing_privacy.worker_started);
 }
 
 #[test]
@@ -127,9 +127,9 @@ fn screen_live_view_worker_startup_can_be_permitted_only_after_all_product_gates
         ScreenLiveViewWorkerStartupState::ReadyToStart
     );
     assert_eq!(decision.block_reason, None);
-    assert_eq!(decision.startup_permitted, true);
-    assert_eq!(decision.worker_started, false);
-    assert_eq!(decision.product_live_view_ready, true);
+    assert!(decision.startup_permitted);
+    assert!(!decision.worker_started);
+    assert!(decision.product_live_view_ready);
 }
 
 #[test]
@@ -149,8 +149,8 @@ fn screen_live_view_worker_execution_refuses_blocked_startup() {
         record.block_reason,
         Some(ScreenLiveViewWorkerExecutionBlockReason::StartupNotPermitted)
     );
-    assert_eq!(record.worker_started, false);
-    assert_eq!(record.product_live_view_ready, false);
+    assert!(!record.worker_started);
+    assert!(!record.product_live_view_ready);
 }
 
 #[test]
@@ -179,8 +179,8 @@ fn screen_live_view_worker_execution_refuses_unsafe_retention_or_control() {
             record.block_reason,
             Some(ScreenLiveViewWorkerExecutionBlockReason::UnsafeRetentionOrControl)
         );
-        assert_eq!(record.worker_started, false);
-        assert_eq!(record.product_live_view_ready, false);
+        assert!(!record.worker_started);
+        assert!(!record.product_live_view_ready);
     }
 }
 
@@ -193,9 +193,9 @@ fn screen_live_view_worker_execution_starts_after_all_gates() {
         ScreenLiveViewWorkerExecutionState::Started
     );
     assert_eq!(record.block_reason, None);
-    assert_eq!(record.startup_permitted, true);
-    assert_eq!(record.worker_started, true);
-    assert_eq!(record.product_live_view_ready, true);
+    assert!(record.startup_permitted);
+    assert!(record.worker_started);
+    assert!(record.product_live_view_ready);
 }
 
 fn ready_startup_decision() -> ScreenLiveViewWorkerStartupDecision {

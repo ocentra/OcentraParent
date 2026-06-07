@@ -51,7 +51,7 @@ pub enum ScreenSettingsRejectionReason {
 #[serde(untagged)]
 pub enum ScreenSettingsUpdateRequest {
     Get(ScreenSettingsGetRequest),
-    Replace(ScreenSettingsReplaceRequest),
+    Replace(Box<ScreenSettingsReplaceRequest>),
 }
 
 impl ScreenSettingsUpdateRequest {

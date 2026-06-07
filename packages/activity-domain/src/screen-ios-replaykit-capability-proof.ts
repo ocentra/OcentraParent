@@ -79,40 +79,64 @@ export const ScreenIosReplayKitCapabilityProofSchema = withParser(
 );
 
 export function screenIosReplayKitCapabilityRowIsConsistent(value: ScreenIosReplayKitCapabilityRowInput): boolean {
-  if (value.arbitraryBackgroundOtherAppCaptureClaimed) {
-    return false;
-  }
-
-  if (value.rawFrameRemoteUploadAllowed || value.rawFrameRetentionDefault) {
+  if (!iosRawFrameClaimsAreSafe(value)) {
     return false;
   }
 
   if (value.mode === 'notClaimed') {
-    return (
-      value.captureState === 'notClaimed' &&
-      value.proofState === 'sourceDocsVerified' &&
-      value.physicalDeviceProofRef === null &&
-      value.deletionProofRef === null &&
-      !value.productCaptureReady
-    );
+    return iosNotClaimedRowIsConsistent(value);
   }
 
-  if (value.mode === 'broadcastUploadExtension' && !value.requiresBroadcastUploadExtension) {
+  if (!iosReplayKitModeRequirementsAreConsistent(value)) {
     return false;
   }
 
-  if (value.mode === 'inAppReplayKitSession' && value.requiresBroadcastUploadExtension) {
-    return false;
-  }
-
-  if (!value.requiresExplicitUserStart || !value.requiresReplayKitUi) {
+  if (!iosExplicitStartRequirementsArePresent(value)) {
     return false;
   }
 
   if (!value.productCaptureReady) {
-    return value.captureState === 'manualRequired' && value.proofState === 'physicalDeviceMissing';
+    return iosManualRequiredRowIsConsistent(value);
   }
 
+  return iosReadyRowIsConsistent(value);
+}
+
+function iosRawFrameClaimsAreSafe(value: ScreenIosReplayKitCapabilityRowInput): boolean {
+  return [
+    value.arbitraryBackgroundOtherAppCaptureClaimed,
+    value.rawFrameRemoteUploadAllowed,
+    value.rawFrameRetentionDefault,
+  ].every((claimed) => claimed === false);
+}
+
+function iosNotClaimedRowIsConsistent(value: ScreenIosReplayKitCapabilityRowInput): boolean {
+  return (
+    value.captureState === 'notClaimed' &&
+    value.proofState === 'sourceDocsVerified' &&
+    value.physicalDeviceProofRef === null &&
+    value.deletionProofRef === null &&
+    !value.productCaptureReady
+  );
+}
+
+function iosReplayKitModeRequirementsAreConsistent(value: ScreenIosReplayKitCapabilityRowInput): boolean {
+  if (value.mode === 'broadcastUploadExtension') {
+    return value.requiresBroadcastUploadExtension;
+  }
+
+  return value.mode !== 'inAppReplayKitSession' || !value.requiresBroadcastUploadExtension;
+}
+
+function iosExplicitStartRequirementsArePresent(value: ScreenIosReplayKitCapabilityRowInput): boolean {
+  return [value.requiresExplicitUserStart, value.requiresReplayKitUi].every((required) => required === true);
+}
+
+function iosManualRequiredRowIsConsistent(value: ScreenIosReplayKitCapabilityRowInput): boolean {
+  return value.captureState === 'manualRequired' && value.proofState === 'physicalDeviceMissing';
+}
+
+function iosReadyRowIsConsistent(value: ScreenIosReplayKitCapabilityRowInput): boolean {
   return (
     value.captureState === 'ready' &&
     value.proofState === 'physicalDeviceVerified' &&
