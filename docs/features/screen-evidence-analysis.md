@@ -105,6 +105,13 @@ only with explicit parent settings.
   calls the shared producer after queue removal. This closes the TTL deletion
   event producer hop without claiming parent retention UI persistence, final
   enforcement, a new live capture run, or model quality.
+- `scripts/test/screen-delete-failed-read-model-proof.mjs` now proves Rust
+  protocol/read-model parity for `deleteFailed` screen custody rows. The
+  ActivityStore screen summary reports failed queue-health status and
+  `deleteFailedCount` for delete-failed rows instead of collapsing every screen
+  row to deleted status. This is contract/read-model surfacing, not an OS
+  filesystem deletion-failure simulation, and it does not weaken
+  delete-after-success/delete-after-expiry defaults.
 - `scripts/test/screen-ai-degraded-portal-proof.mjs` now proves the real Rust
   service plus parent portal Screen Analysis route can render degraded Activity
   Screen OCR/VLM read-model rows from the local activity store. The proof fixes

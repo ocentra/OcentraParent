@@ -3,7 +3,8 @@ use ocentra_parent_agent_protocol::{
     ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
     LogFields, SCREEN_CAPABILITY_READY, SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST,
     SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CATEGORY_SCHOOL, SCREEN_CUSTODY_JOURNAL,
-    SCREEN_DELETION_DELETED, SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_VISION,
+    SCREEN_DELETION_DELETED, SCREEN_DELETION_DELETE_FAILED, SCREEN_POLICY_CONFIDENCE_READY,
+    SCREEN_PROVIDER_LOCAL_VISION, SCREEN_QUEUE_STATUS_FAILED,
 };
 
 use super::ActivityStore;
@@ -95,6 +96,33 @@ fn activity_store_reports_empty_screen_summary_without_inventing_results() {
 }
 
 #[test]
+fn activity_store_surfaces_screen_delete_failed_queue_health() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+
+    store
+        .ingest_events(&[delete_failed_screen_summary_event()])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    let summary = store
+        .screen_evidence_recent_summary(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert_eq!(summary.returned, 1);
+    assert_eq!(summary.queue_health.delete_failed_count, 1);
+    assert_eq!(
+        summary.queue_health.latest_status,
+        Some(SCREEN_QUEUE_STATUS_FAILED.to_string())
+    );
+    assert_eq!(
+        summary.latest_image_deletion_state,
+        Some(SCREEN_DELETION_DELETE_FAILED.to_string())
+    );
+    assert_eq!(summary.latest_policy_eligible, Some(false));
+}
+
+#[test]
 fn activity_store_skips_incomplete_screen_summary_rows() {
     let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
 
@@ -123,6 +151,24 @@ fn screen_summary_event() -> ActivityEvent {
     insert_screen_summary_core_fields(&mut fields);
     insert_screen_summary_capture_fields(&mut fields);
     insert_screen_summary_policy_fields(&mut fields);
+
+    screen_event(fields)
+}
+
+fn delete_failed_screen_summary_event() -> ActivityEvent {
+    let mut fields = LogFields::new();
+    insert_screen_summary_core_fields(&mut fields);
+    insert_screen_summary_capture_fields(&mut fields);
+    insert_log_field(
+        &mut fields,
+        constants::field::SCREEN_IMAGE_DELETION_STATE,
+        LogFieldValue::String(SCREEN_DELETION_DELETE_FAILED.to_string()),
+    );
+    insert_log_field(
+        &mut fields,
+        constants::field::SCREEN_POLICY_ELIGIBLE,
+        LogFieldValue::Boolean(false),
+    );
 
     screen_event(fields)
 }
