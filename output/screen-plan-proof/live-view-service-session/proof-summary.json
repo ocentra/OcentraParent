@@ -1,7 +1,7 @@
 {
   "proof": "screen-live-view-service-session-proof",
-  "generatedAt": "2026-06-07T08:31:46.343Z",
-  "claim": "The real loopback live-frame transport artifact can be represented as a non-product-ready service-session readiness row, while product live view remains blocked until service runtime, live-view platform prompt evidence, parent UI persistence, and no-retention/no-input gates are proven.",
+  "generatedAt": "2026-06-07T09:49:22.334Z",
+  "claim": "The real loopback live-frame transport artifact and parent UI persistence proof can be represented as a non-product-ready service-session readiness row, while product live view remains blocked until service runtime, live-view platform prompt evidence, and no-retention/no-input gates are proven.",
   "sourceEvidence": {
     "transportProof": "output/screen-plan-proof/live-view-session-transport/proof-summary.json",
     "transportProofPresent": true,
@@ -10,7 +10,11 @@
     "rawFrameDeletedAfterTransport": true,
     "platformPermissionProof": "output/screen-plan-proof/live-view-platform-permission/proof-summary.json",
     "platformPermissionProofPresent": true,
-    "platformGateLiveViewProductReady": false
+    "platformGateLiveViewProductReady": false,
+    "parentUiPersistenceProof": "output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json",
+    "parentUiPersistenceProofPresent": true,
+    "parentUiPersistenceStateProved": true,
+    "parentUiPersistenceKeepsProductBlocked": true
   },
   "currentRows": [
     {
@@ -29,7 +33,7 @@
       "transportMode": "lanMutualAuth",
       "permissionEvidenceKind": "screen-capture-only",
       "serviceSessionState": "loopbackTransportOnly",
-      "parentUiPersistenceState": "missing",
+      "parentUiPersistenceState": "proved",
       "relayCacheState": "notUsed",
       "liveTransportProofRef": "screen-live-view-loopback-transport-proof",
       "rawFrameDeletedAfterTransport": true,
@@ -87,13 +91,14 @@
   "gapStatus": {
     "loopbackTransportProofExists": true,
     "serviceSessionRuntimeProofExists": false,
-    "parentUiPersistenceProofExists": false,
+    "parentUiPersistenceProofExists": true,
     "relayCacheProofExists": false,
     "liveViewProductReady": false
   },
   "assertions": {
     "realLoopbackTransportArtifactConsumed": true,
     "rawFrameDeletionCarriedForward": true,
+    "parentUiPersistenceCarriedForward": true,
     "loopbackTransportRemainsNonProductReady": true,
     "productReadinessOverclaimRejected": true,
     "noRemoteInputNoRecordingNoFrameCache": true
@@ -101,6 +106,6 @@
   "nonClaims": [
     "This proof does not implement production service live-view session workers.",
     "This proof does not claim platform live-view permission-prompt screenshots or privacy/legal approval.",
-    "This proof does not claim parent UI persistence, relay/cache execution, session recording, remote input, or product-complete live view."
+    "This proof does not claim relay/cache execution, session recording, remote input, or product-complete live view."
   ]
 }

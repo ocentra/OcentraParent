@@ -21,6 +21,13 @@ const serviceSessionProofPath = join(
   'live-view-service-session',
   'proof-summary.json'
 );
+const parentUiPersistenceProofPath = join(
+  repoRoot,
+  'output',
+  'screen-plan-proof',
+  'live-view-parent-ui-persistence',
+  'proof-summary.json'
+);
 
 const testCommand = ['test', '-p', 'ocentra-parent-agent-service', 'screen_live_view_runtime', '--', '--nocapture'];
 
@@ -31,12 +38,13 @@ const cargoOutput = execFileSync('cargo', testCommand, {
 });
 const transportProof = readJson(transportProofPath);
 const serviceSessionProof = readJson(serviceSessionProofPath);
+const parentUiPersistenceProof = readJson(parentUiPersistenceProofPath);
 
 const proof = {
   proof: 'screen-live-view-runtime-proof',
   generatedAt: new Date().toISOString(),
   claim:
-    'The Rust agent-service now has a bounded live-view runtime decision boundary that consumes live-frame transport/deletion evidence, rejects capture-only permission, refuses frame cache/session recording/remote input, and keeps product readiness blocked unless live-view permission, service runtime, parent UI persistence, and relay/cache requirements are all satisfied.',
+    'The Rust agent-service has a bounded live-view runtime decision boundary that consumes live-frame transport/deletion evidence and parent UI persistence evidence, rejects capture-only permission, refuses frame cache/session recording/remote input, and keeps product readiness blocked unless live-view permission, service runtime, and relay/cache requirements are all satisfied.',
   sourceEvidence: {
     liveTransportProof: relativePath(transportProofPath),
     liveTransportProofPresent: existsSync(transportProofPath),
@@ -45,7 +53,10 @@ const proof = {
     rawFrameDeletedAfterTransport: transportProof.assertions.rawFrameDeletedAfterTransport === true,
     serviceSessionProof: relativePath(serviceSessionProofPath),
     serviceSessionProofPresent: existsSync(serviceSessionProofPath),
-    previousServiceSessionRuntimeProofExists: serviceSessionProof.gapStatus.serviceSessionRuntimeProofExists === false,
+    serviceSessionRuntimeStillMissing: serviceSessionProof.gapStatus.serviceSessionRuntimeProofExists === false,
+    parentUiPersistenceProof: relativePath(parentUiPersistenceProofPath),
+    parentUiPersistenceProofPresent: existsSync(parentUiPersistenceProofPath),
+    parentUiPersistenceStateProved: parentUiPersistenceProof.assertions.parentUiPersistenceStateProved === true,
   },
   rustRuntime: {
     module: 'crates/agent-service/src/screen_ai_service_event_subscription/live_view_runtime.rs',
@@ -64,7 +75,7 @@ const proof = {
   gapStatus: {
     serviceRuntimeDecisionBoundaryExists: true,
     liveViewPermissionPromptProofExists: false,
-    parentUiPersistenceProofExists: false,
+    parentUiPersistenceProofExists: parentUiPersistenceProof.assertions.parentUiPersistenceStateProved === true,
     relayCacheProofExists: false,
     privacyLegalApprovalExists: false,
     liveViewProductReady: false,
@@ -73,12 +84,14 @@ const proof = {
     rustRuntimeValidationPassed: cargoOutput.includes('test result: ok'),
     realLoopbackTransportArtifactConsumed: transportProof.assertions.localTransportDeliveredFrame === true,
     rawFrameDeletionCarriedForward: transportProof.assertions.rawFrameDeletedAfterTransport === true,
-    previousReadinessProofDidNotClaimRuntime: serviceSessionProof.gapStatus.serviceSessionRuntimeProofExists === false,
+    serviceSessionReadinessProofDoesNotClaimRuntime:
+      serviceSessionProof.gapStatus.serviceSessionRuntimeProofExists === false,
+    parentUiPersistenceCarriedForward: parentUiPersistenceProof.assertions.parentUiPersistenceStateProved === true,
     productReadinessStillBlocked: true,
   },
   nonClaims: [
     'This proof does not start a production live-view worker in the agent service.',
-    'This proof does not claim platform live-view permission-prompt screenshots, parent UI persistence, relay/cache execution, privacy/legal approval, or physical-device parity.',
+    'This proof does not claim platform live-view permission-prompt screenshots, relay/cache execution, privacy/legal approval, or physical-device parity.',
     'This proof does not allow raw frame caching, session recording, or remote input control.',
   ],
 };

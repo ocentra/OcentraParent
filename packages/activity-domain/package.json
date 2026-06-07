@@ -233,6 +233,10 @@
       "import": "./dist/screen-live-view-service-session.js",
       "types": "./dist/screen-live-view-service-session.d.ts"
     },
+    "./screen-live-view-parent-ui-persistence": {
+      "import": "./dist/screen-live-view-parent-ui-persistence.js",
+      "types": "./dist/screen-live-view-parent-ui-persistence.d.ts"
+    },
     "./tracking": {
       "import": "./dist/tracking.js",
       "types": "./dist/tracking.d.ts"

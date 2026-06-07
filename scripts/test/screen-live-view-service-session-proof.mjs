@@ -21,6 +21,13 @@ const platformPermissionProofPath = join(
   'live-view-platform-permission',
   'proof-summary.json'
 );
+const parentUiPersistenceProofPath = join(
+  repoRoot,
+  'output',
+  'screen-plan-proof',
+  'live-view-parent-ui-persistence',
+  'proof-summary.json'
+);
 
 run('npm', ['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
 
@@ -31,6 +38,7 @@ const liveView = await import(
 const generatedAt = new Date().toISOString();
 const transportProof = readJson(transportProofPath);
 const platformPermissionProof = readJson(platformPermissionProofPath);
+const parentUiPersistenceProof = readJson(parentUiPersistenceProofPath);
 
 const disabled = sessionGate('disabled', {
   reason: 'live view is disabled by default',
@@ -44,9 +52,9 @@ const loopbackTransportOnly = sessionGate('lanOnlyView', {
   viewerAuditRef: transportProof.session.viewerAuditRef,
   liveTransportProofRef: transportProof.session.transportProofRef,
   serviceSessionState: 'loopbackTransportOnly',
-  parentUiPersistenceState: 'missing',
+  parentUiPersistenceState: 'proved',
   reason:
-    'Real loopback frame transport proof exists, but production service session runtime, live-view platform prompt proof, and parent UI persistence are still missing.',
+    'Real loopback frame transport proof and parent UI persistence proof exist, but production service session runtime and live-view platform prompt proof are still missing.',
 });
 const productionLanReadyReference = sessionGate('lanOnlyView', {
   transportMode: 'lanMutualAuth',
@@ -131,7 +139,7 @@ const proof = {
   proof: 'screen-live-view-service-session-proof',
   generatedAt,
   claim:
-    'The real loopback live-frame transport artifact can be represented as a non-product-ready service-session readiness row, while product live view remains blocked until service runtime, live-view platform prompt evidence, parent UI persistence, and no-retention/no-input gates are proven.',
+    'The real loopback live-frame transport artifact and parent UI persistence proof can be represented as a non-product-ready service-session readiness row, while product live view remains blocked until service runtime, live-view platform prompt evidence, and no-retention/no-input gates are proven.',
   sourceEvidence: {
     transportProof: relativePath(transportProofPath),
     transportProofPresent: existsSync(transportProofPath),
@@ -141,6 +149,10 @@ const proof = {
     platformPermissionProof: relativePath(platformPermissionProofPath),
     platformPermissionProofPresent: existsSync(platformPermissionProofPath),
     platformGateLiveViewProductReady: platformPermissionProof.gapStatus.liveViewProductReady === true,
+    parentUiPersistenceProof: relativePath(parentUiPersistenceProofPath),
+    parentUiPersistenceProofPresent: existsSync(parentUiPersistenceProofPath),
+    parentUiPersistenceStateProved: parentUiPersistenceProof.assertions.parentUiPersistenceStateProved === true,
+    parentUiPersistenceKeepsProductBlocked: parentUiPersistenceProof.assertions.productLiveViewStillBlocked === true,
   },
   currentRows: currentRows.map((row) => ({
     liveViewMode: row.liveViewMode,
@@ -167,13 +179,14 @@ const proof = {
   gapStatus: {
     loopbackTransportProofExists: transportProof.assertions.localTransportDeliveredFrame === true,
     serviceSessionRuntimeProofExists: false,
-    parentUiPersistenceProofExists: false,
+    parentUiPersistenceProofExists: parentUiPersistenceProof.assertions.parentUiPersistenceStateProved === true,
     relayCacheProofExists: false,
     liveViewProductReady: false,
   },
   assertions: {
     realLoopbackTransportArtifactConsumed: transportProof.assertions.localTransportDeliveredFrame === true,
     rawFrameDeletionCarriedForward: transportProof.assertions.rawFrameDeletedAfterTransport === true,
+    parentUiPersistenceCarriedForward: parentUiPersistenceProof.assertions.parentUiPersistenceStateProved === true,
     loopbackTransportRemainsNonProductReady: currentRows[1].productLiveViewReady === false,
     productReadinessOverclaimRejected: negativeChecks.every((check) => check.rejected),
     noRemoteInputNoRecordingNoFrameCache:
@@ -184,7 +197,7 @@ const proof = {
   nonClaims: [
     'This proof does not implement production service live-view session workers.',
     'This proof does not claim platform live-view permission-prompt screenshots or privacy/legal approval.',
-    'This proof does not claim parent UI persistence, relay/cache execution, session recording, remote input, or product-complete live view.',
+    'This proof does not claim relay/cache execution, session recording, remote input, or product-complete live view.',
   ],
 };
 

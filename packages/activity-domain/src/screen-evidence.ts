@@ -18,4 +18,6 @@ export * from './screen-optional-visibility-mode';
 export * from './screen-optional-visibility-capability-status';
 export * from './screen-optional-visibility-capability-proof';
 export * from './screen-live-view-platform-permission';
+export * from './screen-live-view-service-session';
+export * from './screen-live-view-parent-ui-persistence';
 export * from './screen-managed-browser-cdp-capture';

@@ -86,6 +86,11 @@ alternative.
   The UI proof shows disabled, manual-required, blocked, and capture-only
   permission evidence without enabling raw retention, live view, live
   transport, relay/cache, remote input, or privacy/legal approval.
+- `ScreenLiveViewParentUiPersistenceProofSchema` and
+  `scripts/test/screen-live-view-parent-ui-persistence-proof.mjs` now prove the
+  parent Settings command/readiness evidence can be carried into live-view
+  service-session and Rust runtime decisions as persisted parent opt-in state
+  while still keeping product live view false.
 - Raw screen control settings are preserved as design inputs for both summary
   and live-view decisions.
 
@@ -93,10 +98,11 @@ alternative.
 
 Need runtime product implementation for optional screenshots or live view. The
 contract preflight, parent opt-in/device status, and fail-closed
-platform-permission gate exist, and parent Settings can render readiness rows.
-Service runtime enablement, writable parent retention/live-view persistence,
-actual live-view permission prompts, live transport, relay/cache execution,
-platform screenshots, and privacy/legal approval remain before any
+platform-permission gate exist, parent Settings can render readiness rows, and
+live-view parent UI persistence is carried into service/runtime proofs. Service
+runtime enablement, optional raw-retention persistence/runtime, actual live-view
+permission prompts, live transport, relay/cache execution, platform screenshots,
+physical-device parity, and privacy/legal approval remain before any
 product-complete claim.
 
 ## Checklist
@@ -110,10 +116,13 @@ product-complete claim.
 - [x] Remote route/custody model if away-from-home.
 - [x] Parent Settings route renders optional raw-retention/live-view readiness
       rows without enabling those modes.
+- [x] Parent UI persistence proof carries live-view opt-in state into
+      service-session/runtime decisions without enabling product live view.
 - [~] Platform permission proof gate exists; real live-view prompt/platform
   screenshots remain.
-- [ ] Runtime enablement, writable live/retention settings persistence, live
-      transport, and platform prompt proof before product claim.
+- [ ] Runtime enablement, optional raw-retention persistence/runtime, live
+      transport, relay/cache, physical parity, and platform prompt proof before
+      product claim.
 - [ ] Privacy/legal review before public claim.
 
 ## Next AI Instructions
