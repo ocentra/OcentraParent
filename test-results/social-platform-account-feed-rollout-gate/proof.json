@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-07T05:18:50.779Z",
+  "generatedAt": "2026-06-07T05:41:36.641Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -221,6 +221,7 @@
     "social-live-evidence-decision-memory-proof-present",
     "social-alert-report-intent-proof-present",
     "social-alert-report-intent-ui-proof-present",
+    "social-alert-report-provider-preflight-proof-present",
     "social-report-writer-delivery-proof-present",
     "social-applied-schedule-time-budget-proof-present",
     "social-schedule-time-budget-compiler-proof-present",
@@ -250,6 +251,14 @@
     },
     {
       "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-provider-preflight-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md",
       "present": true
     }
   ],

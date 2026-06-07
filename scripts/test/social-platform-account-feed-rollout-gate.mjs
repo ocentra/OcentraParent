@@ -11,6 +11,8 @@ const requiredRolloutProofFiles = [
   'output/browser-plan-proof/social-alert-report-intent-ui-proof/07-rendered-alert-report-ui-proof.json',
   'output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png',
   'output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png',
+  'test-results/social-alert-report-provider-preflight-proof/proof.json',
+  'output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md',
 ];
 
 const rolloutGuards = [
@@ -152,6 +154,7 @@ function manifestFor(rows, failures) {
       'social-live-evidence-decision-memory-proof-present',
       'social-alert-report-intent-proof-present',
       'social-alert-report-intent-ui-proof-present',
+      'social-alert-report-provider-preflight-proof-present',
       'social-report-writer-delivery-proof-present',
       'social-applied-schedule-time-budget-proof-present',
       'social-schedule-time-budget-compiler-proof-present',
@@ -210,6 +213,7 @@ function markdownFor(manifest) {
     'Live SOCIAL-19 evidence-bound decision memory proof is present.',
     'Ref-only social alert/report intent proof is present.',
     'Service-backed social alert/report intent UI proof is present for the real Browser route.',
+    'Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.',
     'Parent-owned report writer delivery-readiness proof is present.',
     'Parent-owned schedule/time-budget application-readiness proof is present.',
     'Schedule/time-budget compiler proof and parent sensitivity',

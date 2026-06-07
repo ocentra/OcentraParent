@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-07T05:18:50.673Z",
+  "generatedAt": "2026-06-07T05:41:36.611Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -422,6 +422,7 @@
     "liveEvidenceDecisionMemoryBoundary": "proof-present",
     "alertReportIntent": "proof-present",
     "alertReportIntentUi": "service-backed-browser-route-proof-present",
+    "alertReportProviderPreflight": "provider-adapter-required-proof-present",
     "reportWriterDelivery": "parent-owned-proof-present",
     "appliedScheduleTimeBudget": "parent-owned-proof-present",
     "scheduleTimeBudgetCompiler": "proof-present",
@@ -451,6 +452,14 @@
     },
     {
       "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-ui-playwright.log",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-provider-preflight-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md",
       "present": true
     }
   ]

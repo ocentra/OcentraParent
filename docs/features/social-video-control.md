@@ -393,8 +393,10 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
       enforcement remain unproved.
 - [ ] Alert and report integration. Alert/report intent proof exists with
       ref-only local-outbox/report linkage plus service-backed Browser-route
-      rendering; provider delivery, rendered notification UI delivery, report
-      delivery, final policy, and enforcement remain.
+      rendering. Provider preflight proof now requires adapter, credential, and
+      smoke proof refs before delivery can be claimed; provider delivery,
+      rendered notification UI delivery, report delivery execution, final
+      policy, and enforcement remain.
 - [ ] Policy schedule/time-budget integration. Compiler contract proof now
       requires explicit schedule and time-budget refs/states; runtime policy
       execution, applied schedules/budgets, and enforcement remain.

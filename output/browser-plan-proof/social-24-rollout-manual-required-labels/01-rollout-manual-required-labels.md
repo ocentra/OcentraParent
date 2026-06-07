@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-07T05:18:50.779Z
+Generated: 2026-06-07T05:41:36.641Z
 
 Rows checked: 23
 Proof-present rows: 21
@@ -53,6 +53,7 @@ Live SOCIAL-18 public connector boundary proof is present.
 Live SOCIAL-19 evidence-bound decision memory proof is present.
 Ref-only social alert/report intent proof is present.
 Service-backed social alert/report intent UI proof is present for the real Browser route.
+Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.
 Parent-owned report writer delivery-readiness proof is present.
 Parent-owned schedule/time-budget application-readiness proof is present.
 Schedule/time-budget compiler proof and parent sensitivity

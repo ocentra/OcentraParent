@@ -438,6 +438,19 @@ It does not claim provider dispatch/receipt, parent notification UI delivery,
 report delivery, final policy execution, connector/native runtime, or
 enforcement.
 
+The follow-up `social-alert-report-provider-preflight-proof` adds
+`packages/parent-domain/src/social-alert-report-provider-preflight-proof.ts`
+and
+`packages/parent-domain/tests/social-alert-report-provider-preflight-proof.test.ts`.
+It consumes parsed social alert/report intents and turns local-outbox rows into
+provider-adapter-required preflight rows with adapter, credential, and provider
+smoke proof requirements. The proof writes
+`test-results/social-alert-report-provider-preflight-proof/proof.json` and
+`output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md`.
+It does not claim provider dispatch, receipt ingestion, parent notification UI
+delivery, report delivery execution, final policy execution, connector/native
+runtime, or enforcement.
+
 The follow-up `social-parent-sensitivity-settings-proof` adds
 `packages/parent-domain/src/social-parent-sensitivity-settings-values.ts`,
 `packages/parent-domain/src/social-parent-sensitivity-settings.ts`, and

@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-alert-report-provider-preflight-proof",
+  "generatedAt": "2026-06-07T05:30:00Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "a8d7b6234aa7831cae61c3cde9f1efabbae55259",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-alert-report-provider-preflight-proof.test.ts",
+      "exitCode": 0
+    }
+  ],
+  "checks": [
+    {
+      "label": "packages/parent-domain/src/social-alert-report-provider-preflight-proof.ts exists",
+      "pass": true
+    },
+    {
+      "label": "packages/parent-domain/tests/social-alert-report-provider-preflight-proof.test.ts exists",
+      "pass": true
+    },
+    {
+      "label": "scripts/test/social-alert-report-provider-preflight-proof.mjs exists",
+      "pass": true
+    },
+    {
+      "label": "provider delivery non-claim guard",
+      "pass": true
+    },
+    {
+      "label": "final policy non-claim guard",
+      "pass": true
+    },
+    {
+      "label": "enforcement non-claim guard",
+      "pass": true
+    },
+    {
+      "label": "provider delivery rejection test",
+      "pass": true
+    },
+    {
+      "label": "dishonest count rejection test",
+      "pass": true
+    },
+    {
+      "label": "social feature alert/report UI proof note",
+      "pass": true
+    },
+    {
+      "label": "social README alert/report UI proof note",
+      "pass": true
+    }
+  ],
+  "summary": {
+    "totalRows": 3,
+    "providerAdapterRequiredCount": 1,
+    "manualRequiredCount": 1,
+    "unavailableCount": 1,
+    "providerDeliveryRuntimeClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "nonClaims": {
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "providerCredentialsClaimed": false,
+    "cloudRoutingClaimed": false,
+    "parentNotificationUiDeliveryClaimed": false,
+    "reportDeliveryExecutionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "rows": [
+    {
+      "preflightRowId": "social-provider-preflight-social-provider-preflight-high-risk",
+      "sourceIntentRef": "social-provider-preflight-high-risk",
+      "status": "provider-adapter-required",
+      "sourceLocalOutboxRecordRef": "local-outbox-social-provider-preflight",
+      "adapterRequirementRefs": [
+        "provider-adapter-required-social-provider-preflight-high-risk",
+        "provider-credentials-required-social-provider-preflight-high-risk",
+        "provider-smoke-proof-required-social-provider-preflight-high-risk"
+      ],
+      "manualProofRequirements": [
+        "provider-adapter-required-social-provider-preflight-high-risk",
+        "provider-credentials-required-social-provider-preflight-high-risk",
+        "provider-smoke-proof-required-social-provider-preflight-high-risk"
+      ]
+    },
+    {
+      "preflightRowId": "social-provider-preflight-social-provider-preflight-manual-required",
+      "sourceIntentRef": "social-provider-preflight-manual-required",
+      "status": "manual-required",
+      "sourceLocalOutboxRecordRef": null,
+      "adapterRequirementRefs": [
+        "manual-proof-social-provider-preflight-required"
+      ],
+      "manualProofRequirements": [
+        "manual-proof-social-provider-preflight-required"
+      ]
+    },
+    {
+      "preflightRowId": "social-provider-preflight-social-provider-preflight-unavailable",
+      "sourceIntentRef": "social-provider-preflight-unavailable",
+      "status": "unavailable",
+      "sourceLocalOutboxRecordRef": null,
+      "adapterRequirementRefs": [
+        "manual-proof-social-provider-capability-unavailable"
+      ],
+      "manualProofRequirements": [
+        "manual-proof-social-provider-capability-unavailable"
+      ]
+    }
+  ],
+  "proofPaths": {
+    "source": "packages/parent-domain/src/social-alert-report-provider-preflight-proof.ts",
+    "test": "packages/parent-domain/tests/social-alert-report-provider-preflight-proof.test.ts",
+    "harness": "scripts/test/social-alert-report-provider-preflight-proof.mjs",
+    "evidence": "test-results/social-alert-report-provider-preflight-proof/proof.json",
+    "manifest": "output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md"
+  },
+  "failures": []
+}
