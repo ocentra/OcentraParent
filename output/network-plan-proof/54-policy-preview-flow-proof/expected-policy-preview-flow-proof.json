@@ -1,0 +1,28 @@
+{
+  "storedEvidenceSource": "ActivityStore activity.domain.observed rows from the Windows network observer",
+  "policyPreviewPath": [
+    "network_observation_event",
+    "ActivityStore.ingest_events",
+    "ActivityStore.policy_preview_read_model",
+    "evaluate_policy_dry_run",
+    "policy_preview_read_model_payload"
+  ],
+  "authorityBoundary": "dry-run policy preview with disabled enforcement handoff",
+  "supportedTargets": [
+    "domain",
+    "process alias from network flow metadata"
+  ],
+  "requiredRefs": [
+    "source event id",
+    "parent rule ref",
+    "policy decision ref",
+    "network evidence ref"
+  ],
+  "unsupportedClaimsRejected": [
+    "exact URL from network-only evidence",
+    "page content",
+    "decrypted payload",
+    "adapter execution",
+    "enforcement command publication"
+  ]
+}

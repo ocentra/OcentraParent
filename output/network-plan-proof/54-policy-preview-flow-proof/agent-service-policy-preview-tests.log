@@ -1,0 +1,16 @@
+
+running 9 tests
+test policy_preview_tests::policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement ... ok
+test parent_assistant_runtime_tests::parent_assistant_request_prepares_policy_preview_without_enforcement_or_api_ai ... ok
+test browser_policy_api_tests::browser_policy_preview_rejects_exact_url_without_managed_proof_or_fallback ... ok
+test browser_policy_compiler_tests::browser_policy_preview_reports_policy_writer_as_manual_required_capability ... ok
+test browser_policy_compiler_tests::browser_policy_preview_keeps_ai_candidate_only_and_parent_policy_authoritative ... ok
+test browser_policy_compiler_tests::browser_policy_preview_dry_run_and_observe_do_not_execute_adapters ... ok
+test browser_policy_api_tests::browser_policy_preview_compiles_without_persisting_policy_state ... ok
+test browser_policy_compiler_tests::browser_policy_preview_requires_adapter_proof_for_blocking_actions ... ok
+test browser_policy_compiler_tests::browser_policy_preview_labels_compiler_target_requirements ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 254 filtered out; finished in 0.09s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+     Running unittests src\main.rs (target\debug\deps\ocentra_parent_agent_service-f9b64d6b8709d212.exe)

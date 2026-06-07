@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "proof": "network-policy-preview-flow-proof",
+  "checkedAt": "2026-06-07T03:05:06.908Z",
+  "branch": "codex/network-policy-preview-flow-proof",
+  "sourceCommit": "0d2287df192b6fa2b770f8c181fb4eb865883c4f",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
+  "originMain": "05018555053df0e52ea9b0149c28885d3a5838b2",
+  "mergeBase": "05018555053df0e52ea9b0149c28885d3a5838b2",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\54-policy-preview-flow-proof",
+  "testRoot": "test-results\\network-policy-preview-flow-proof",
+  "commands": [
+    {
+      "name": "agent-core-policy-preview-tests",
+      "command": "cargo test -p ocentra-parent-agent-core policy_preview_read_model",
+      "status": 0,
+      "log": "output\\network-plan-proof\\54-policy-preview-flow-proof\\agent-core-policy-preview-tests.log"
+    },
+    {
+      "name": "agent-service-policy-preview-tests",
+      "command": "cargo test -p ocentra-parent-agent-service policy_preview",
+      "status": 0,
+      "log": "output\\network-plan-proof\\54-policy-preview-flow-proof\\agent-service-policy-preview-tests.log"
+    },
+    {
+      "name": "agent-core-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\54-policy-preview-flow-proof\\agent-core-clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\54-policy-preview-flow-proof\\source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\54-policy-preview-flow-proof\\git-diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "expectedPolicyPreviewFlowProof": "output\\network-plan-proof\\54-policy-preview-flow-proof\\expected-policy-preview-flow-proof.json",
+    "proofSummary": "output\\network-plan-proof\\54-policy-preview-flow-proof\\proof-summary.json",
+    "testProof": "test-results\\network-policy-preview-flow-proof\\proof.json"
+  },
+  "evidence": {
+    "corePolicyPreviewFixture": "crates/agent-core/src/activity_store_policy_preview_test_fixture.rs",
+    "corePolicyPreviewTests": [
+      "crates/agent-core/src/activity_store_policy_preview_tests.rs",
+      "crates/agent-core/src/activity_store_policy_preview_parent_rule_tests.rs"
+    ],
+    "corePolicyPreviewBuilder": "crates/agent-core/src/activity_store_policy_preview.rs",
+    "corePolicyPreviewTargets": "crates/agent-core/src/activity_store_policy_preview_targets.rs",
+    "servicePolicyPreviewApi": "crates/agent-service/src/policy_preview_api.rs",
+    "servicePolicyPreviewPayload": "crates/agent-service/src/policy_preview_payload.rs",
+    "portalPolicyPreviewParser": "apps/portal/src/policy-preview-read-model.ts"
+  },
+  "claimsProved": [
+    "stored network flow evidence feeds the existing ActivityStore policy preview read model",
+    "network domain evidence can match a parent domain rule and produce a dry-run block decision",
+    "network process metadata can match a parent process rule alias and produce a dry-run ask-parent decision",
+    "network policy preview decisions preserve source event and parent-rule evidence refs",
+    "network policy preview keeps enforcement handoff disabled and does not execute adapters",
+    "network policy preview does not create an exact URL, page-content, or decrypted-payload claim"
+  ],
+  "notClaimed": [
+    "full policy engine runtime execution",
+    "portal rule authoring UX",
+    "adapter execution, host filtering, process termination, or command invocation",
+    "published enforcement commands",
+    "live packet capture driver invocation",
+    "broker or family-hub delivery",
+    "exact URL, page content, private message, search query, or decrypted payload availability from network-only evidence"
+  ]
+}
