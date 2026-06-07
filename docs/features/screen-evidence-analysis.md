@@ -480,13 +480,15 @@ only with explicit parent settings.
   through the standard Windows install path, and extracts expected visible
   terms from a retained real public Vimeo screenshot artifact. CPU/memory,
   failure-mode, production-quality, and PaddleOCR comparison remain open.
-- `scripts/test/screen-ocr-paddleocr-evaluation-proof.mjs` refreshes the
-  PaddleOCR/PP-OCR candidate readiness check against current local package
-  availability and PyPI candidate versions. It keeps remote OCR disabled by
-  default and records the preferred next host as child-device or trusted
-  household mesh only after install/runtime proof. It does not install
-  packages, download models, run OCR inference, compare quality against
-  Tesseract, or select a production OCR runtime.
+- `scripts/test/screen-ocr-paddleocr-evaluation-proof.mjs` now records the
+  PaddleOCR/PP-OCR candidate readiness and Windows runtime blocker. It verifies
+  current PyPI versions, installed `paddleocr` 3.6.0 and `paddlepaddle` 3.3.1,
+  Tesseract baseline availability, local official PP-OCRv5 model-cache custody,
+  and an explicit local inference attempt against the retained real public Vimeo
+  screenshot. The runtime attempt fails before text extraction with
+  `ConvertPirAttribute2RuntimeAttribute not support [pir::ArrayAttribute<pir::DoubleAttribute>]`,
+  so PaddleOCR is not selected for production and Tesseract/WinRT remain the only
+  runtime-proved local OCR paths in this lane.
 - `scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs` records the
   small guided VLM classifier readiness boundary for screen-plan WP36 by
   reusing the typed execution-readiness proof. It proves local-only custody,
