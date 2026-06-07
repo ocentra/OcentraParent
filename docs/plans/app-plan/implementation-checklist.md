@@ -199,8 +199,8 @@ Block `DONE`, PR-ready, or merge if any of these are true:
 - [ ] Session duration changes after journal replay.
 - [ ] Portal hides stale, permission-limited, manual-required, or not-claimed
       states.
-- [ ] Raw private executable paths leak into parent UI.
-- [ ] Malicious app metadata causes XSS or layout breakage.
+- [x] Raw private executable paths leak into parent UI.
+- [x] Malicious app metadata causes XSS or layout breakage.
 
 ## Main Execution Gates
 
