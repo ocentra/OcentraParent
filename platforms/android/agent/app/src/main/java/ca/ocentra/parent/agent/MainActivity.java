@@ -147,6 +147,24 @@ public final class MainActivity extends Activity {
             ":" +
             foregroundLocationProof.getFloat(
                 TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_ACCURACY_METERS
+            ) +
+            "\n" +
+            TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_SAMPLE_SOURCE +
+            ":" +
+            foregroundLocationProof.getString(
+                TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_SAMPLE_SOURCE
+            ) +
+            "\n" +
+            TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_LATITUDE +
+            ":" +
+            foregroundLocationProof.getDouble(
+                TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_LATITUDE
+            ) +
+            "\n" +
+            TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_LONGITUDE +
+            ":" +
+            foregroundLocationProof.getDouble(
+                TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_LONGITUDE
             )
             : "";
         return getString(R.string.agent_status) +

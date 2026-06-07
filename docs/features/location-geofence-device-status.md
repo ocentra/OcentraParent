@@ -152,13 +152,14 @@ expose location or device-status features. Parents expect this category.
   the debug APK on `Pixel_9_Pro_XL_API_35`, observes foreground-service state,
   grants declared foreground location runtime permissions, and captures app UI
   text for `foreground-location-permission-granted` plus
-  `last-known-location-sample-observed` with provider `gps`, observed epoch
-  millis, and accuracy meters in
+  `current-location-sample-observed-emulator-location-manager` with provider
+  `gps`, source `android-location-manager-current-listener-emulator`, observed
+  epoch millis, accuracy meters, and raw latitude/longitude export in
   `output/tracking-plan-proof/08-android-foreground-location-adapter/03-runtime-location-evidence.json`.
-  This is local emulator proof only; fused/current sample collection, raw
-  coordinate export, background/geofence transitions, physical-device behavior,
-  authority, provider delivery, production upload workers, and product-ready
-  Android tracking remain unclaimed.
+  This is local emulator proof only; fused provider capture, foreground
+  permission UX dialog proof, background/geofence transitions, physical-device
+  behavior, authority, provider delivery, production upload workers, and
+  product-ready Android tracking remain unclaimed.
 - WP09 Android emulator background permission, foreground-service-backed
   background-activity sample, and local-geofence enter/exit proof now exists
   through `npm run test:tracking-plan-android-emulator-proof`. It declares
@@ -426,6 +427,13 @@ expose location or device-status features. Parents expect this category.
   permission, foreground sample, background permission, background runtime,
   geofence runtime, physical-device, authority, notification delivery, provider
   delivery, and product-ready Android tracking claims false.
+- WP08 Android emulator proof now records foreground permission grant,
+  app-emitted current `LocationManager` provider/timestamp/accuracy/source
+  metadata, and raw latitude/longitude proof export under
+  `output/tracking-plan-proof/08-android-foreground-location-adapter/03-runtime-location-evidence.json`.
+  This is emulator-only proof; fused provider collection, foreground permission
+  UX dialog proof, physical Android device behavior, authority, provider
+  delivery, notification delivery, and product-ready tracking remain unclaimed.
 - WP10 Android status proof now exists through
   `node scripts/test/tracking-android-status-proof.mjs`. It records
   parent-domain rows for low-power degradation, app killed/restarted
@@ -566,9 +574,8 @@ accessibility beyond the hosted parent route are proved.
       foreground-service-backed background-activity sample, plus local-geofence
       enter/exit proof now exist, and WP08/WP09 parent-domain manual-required
       proof rows still preserve the remaining Android system geofencing, dwell,
-      settings-flow, and device gaps; fused/current sample collection, raw
-      coordinate export, Android 11+ settings-page flow, and physical-device
-      proof remain pending.
+      settings-flow, and device gaps; fused provider foreground capture,
+      Android 11+ settings-page flow, and physical-device proof remain pending.
 - [x] Android emulator package launch, foreground-service scaffold, battery,
       and connectivity proof. This is not foreground location or geofence
       proof.
@@ -735,11 +742,12 @@ accessibility beyond the hosted parent route are proved.
       claiming full parent/child UI, child-device runtime, physical-device
       proof, authority, provider delivery, production proof, or product-ready
       tracking.
-- [x] WP08 Android emulator foreground permission and app-reported last-known
-      sample metadata proof. This is local emulator evidence only;
-      fused/current sample collection, raw coordinate export,
-      background/geofence, physical-device, authority, provider delivery,
-      production workers, and product-ready Android tracking remain unclaimed.
+- [x] WP08 Android emulator foreground permission and app-reported current
+      `LocationManager` sample metadata plus raw coordinate proof export. This
+      is local emulator evidence only; fused provider foreground capture,
+      foreground permission UX dialog proof, background/geofence,
+      physical-device, authority, provider delivery, production workers, and
+      product-ready Android tracking remain unclaimed.
 - [x] WP09 Android emulator background permission,
       foreground-service-backed background-activity sample, and local-geofence
       enter/exit proof. This is local emulator evidence only; Android system
@@ -763,7 +771,7 @@ presence as hints only. The pre-device proof gate is now repeatable; the next
 implementation layers are broader tracking journal/read-model product surfaces,
 applied/product-ready retention settings execution beyond hosted preflight
 rendering, full portal UI snapshots/accessibility beyond the hosted route,
-remaining Android fused/current foreground-location, Android system
+remaining Android fused provider foreground-location proof, Android system
 geofencing/dwell/settings-flow proof, iOS Core Location/region proof beyond
 simulator package launch, then physical Android/iOS proof and authority proof
 only when matching devices are enrolled.

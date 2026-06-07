@@ -3,11 +3,11 @@
     <boolean name="hasInsideState" value="true" />
     <boolean name="insideState" value="true" />
     <int name="exitCount" value="1" />
-    <long name="lastTransitionEpochMillis" value="1780797158289" />
+    <long name="lastTransitionEpochMillis" value="1780799541688" />
     <boolean name="registered" value="true" />
     <string name="lastTransition">enter</string>
     <string name="source">android-location-manager-gps-listener-local-geofence</string>
     <int name="transitionCount" value="3" />
     <int name="enterCount" value="2" />
-    <long name="registrationEpochMillis" value="1780797154148" />
+    <long name="registrationEpochMillis" value="1780799537703" />
 </map>
