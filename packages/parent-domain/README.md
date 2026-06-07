@@ -144,6 +144,15 @@ mobile readiness, and control catalogs.
   retry-worker execution, audit persistence, public runtime, provider
   execution, production SLA, legal execution, provider-secret custody, status
   backend payload custody, and child activity custody unclaimed.
+- `production-support-status-backend-runtime-closure-proof` contracts that close
+  the status-backend runtime proof chain by linking runtime execution,
+  queue/audit persistence, dead-letter, payload-custody, redaction-manifest, and
+  public follow-through proof refs for support runbook, incident, public
+  contact, support upload, privacy/legal, and account/billing rows while keeping
+  durable queue storage, retry execution, audit persistence, dead-letter
+  payload custody, status-backend payload custody, redaction execution, real
+  status backend execution, public runtime, provider execution, support upload,
+  legal/SLA, provider-secret custody, and child activity custody unclaimed.
 - Parent-owned sync/export and stateless report compiler status contracts for
   parent-authorized remote compilation from parent-owned storage, source
   connector/cursor refs, requested data classes and time windows, temp TTL and
@@ -485,6 +494,15 @@ flowchart LR
   execution, account lookup, billing provider contact, legal disclosure
   execution, remote support sessions, production SLA, provider-secret custody,
   status backend payload custody, and child activity custody remain unclaimed.
+- `production-support-status-backend-runtime-closure-proof` remains
+  contract/read-model closure proof only; it links the local status-backend
+  runtime, queue/audit, dead-letter, payload-custody, redaction-manifest, and
+  public follow-through proof refs but does not implement real backend
+  execution, durable queue storage, retry workers, audit persistence,
+  dead-letter payload custody, status-backend payload custody, redaction
+  execution, public runtime, provider execution, support backend upload, account
+  lookup, billing provider contact, legal execution, remote support, production
+  SLA, provider-secret custody, or child activity custody.
 - Parent-owned sync/export and stateless report compiler proofs remain
   contract/status proof only; real compiler runtime/cloud worker, connector
   OAuth/provider APIs, portal controls/UI, upload/download, deletion execution,

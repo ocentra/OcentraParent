@@ -289,6 +289,17 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   production SLA commitments, durable status backend payload storage, payload
   deletion execution, retry worker execution, audit persistence execution, or
   default Ocentra-hosted family data.
+- `production-support-status-backend-runtime-closure-proof` may summarize
+  source-backed closure refs for status backend runtime execution,
+  queue/audit persistence, dead-letter, payload custody, redaction manifest,
+  and public-runtime follow-through rows, but it must not include raw child
+  activity, raw support bundles, provider secrets, account lookup results,
+  billing contact records, backend upload payloads, status backend payloads,
+  public runtime payloads, legal execution payloads, remote support transcripts,
+  production SLA commitments, durable queue payloads, retry worker payloads,
+  audit persistence payloads, dead-letter payloads, durable status backend
+  payload storage, payload deletion execution, retry worker execution, audit
+  persistence execution, or default Ocentra-hosted family data.
 - `production-support-privacy-legal-disclosure-status-proof` may summarize
   parent-authorized privacy/legal disclosure requested, legal-review
   queued/running, parent-notification-ready, publication-ready, failed, and
