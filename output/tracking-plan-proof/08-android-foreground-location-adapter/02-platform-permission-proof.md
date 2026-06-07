@@ -1,7 +1,7 @@
 # Android foreground permission proof
 
-- Checked at: 2026-06-07T00:33:09.320Z
-- Commit: e6825871ab8918f68d44e69c443aff8239c65049
+- Checked at: 2026-06-07T00:50:34.078Z
+- Commit: 5e83cd0a2d6064d6c09bd4005bbe602e22da7d85
 - Device: sdk_gphone64_x86_64 / Android 15 API 35
 - Package: ca.ocentra.parent.agent
 - Resolved activity: priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
@@ -15,12 +15,14 @@ ca.ocentra.parent.agent/.MainActivity
 - android.permission.ACCESS_COARSE_LOCATION: granted=true
 - android.permission.FOREGROUND_SERVICE_DATA_SYNC: granted=true
 - android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION: granted=true
+- android.permission.ACCESS_BACKGROUND_LOCATION: granted=true
 
 
 ## Tracking claim boundary
 
 - Foreground location permission requested: true
 - Foreground location permission granted: true
-- Background location permission requested: false
+- Background location permission requested: true
+- Background location permission granted: true
 - Foreground service observed: true
 - Product location/geofence claim ready: false

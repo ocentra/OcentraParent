@@ -146,6 +146,17 @@ expose location or device-status features. Parents expect this category.
   coordinate export, background/geofence transitions, physical-device behavior,
   authority, provider delivery, production upload workers, and product-ready
   Android tracking remain unclaimed.
+- WP09 Android emulator background permission-state proof now exists through
+  `npm run test:tracking-plan-android-emulator-proof`. It declares
+  `ACCESS_BACKGROUND_LOCATION`, grants it on the API 35 emulator, renders
+  `background-location-permission-granted` and
+  `background-geofence-transition-manual-required` in the app UI, and records
+  those fields in
+  `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json`.
+  This is local emulator background permission-state proof only; background
+  sample collection, geofence transitions, Android 11+ settings-page flow,
+  physical-device behavior, authority, provider delivery, production upload
+  workers, and product-ready Android tracking remain unclaimed.
 - P1 evidence-quality gate proof now exists through
   `npm run test:tracking-plan-evidence-quality-gate-proof`. It validates
   location UI evidence refs, geofence rule/source refs, nearby-place provider
@@ -532,11 +543,13 @@ accessibility beyond the hosted parent route are proved.
       provider delivery, receipt ingestion runtime, child-device delivery,
       physical-device, authority, production storage, adapter dispatch, or
       product-ready notification behavior.
-- [ ] Android permission/background runtime proof. WP08/WP09 parent-domain
-      manual-required proof rows now exist for foreground permission,
-      foreground sample, background permission, and geofence transition gaps;
-      real permission grant/sample/transition runtime and physical-device proof
-      remain pending.
+- [ ] Android permission/background runtime proof. WP08 emulator foreground
+      permission/sample metadata and WP09 emulator background permission-state
+      proof now exist, and WP08/WP09 parent-domain manual-required proof rows
+      still preserve the remaining background sample/geofence transition gaps;
+      fused/current sample collection, raw coordinate export, geofence
+      transition runtime, Android 11+ settings-page flow, and physical-device
+      proof remain pending.
 - [x] Android emulator package launch, foreground-service scaffold, battery,
       and connectivity proof. This is not foreground location or geofence
       proof.
@@ -705,6 +718,11 @@ accessibility beyond the hosted parent route are proved.
       fused/current sample collection, raw coordinate export,
       background/geofence, physical-device, authority, provider delivery,
       production workers, and product-ready Android tracking remain unclaimed.
+- [x] WP09 Android emulator background permission-state proof. This is local
+      emulator evidence only; background sample collection,
+      enter/exit/dwell geofence transitions, Android 11+ settings-page flow,
+      physical-device, authority, provider delivery, production workers, and
+      product-ready Android tracking remain unclaimed.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence
       source refs, nearby-place context fields, AI no-final-action constraints,
       alert policy-decision refs, and retention before/after proof. This is not

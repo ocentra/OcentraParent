@@ -1,15 +1,18 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T00:33:09.320Z",
-  "commit": "e6825871ab8918f68d44e69c443aff8239c65049",
+  "checkedAt": "2026-06-07T00:50:34.078Z",
+  "commit": "5e83cd0a2d6064d6c09bd4005bbe602e22da7d85",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
-  "currentStatus": "manual_required",
+  "currentStatus": "background_permission_granted_geofence_transition_manual_required",
   "packageLaunchObserved": true,
   "foregroundServiceObserved": true,
-  "backgroundLocationPermissionRequested": false,
+  "backgroundLocationPermissionRequested": true,
+  "backgroundLocationPermissionGranted": true,
+  "backgroundLocationPermissionStateText": "background-location-permission-granted",
+  "backgroundGeofenceStateText": "background-geofence-transition-manual-required",
   "geofenceTransitionCount": 0,
-  "missingProofReason": "No background location/geofence permission or transition adapter is present in the current scaffold.",
+  "missingProofReason": "Background location permission grant state was observed on the emulator package, but no background location sample, geofence transition, physical-device behavior, authority, or product-ready tracking is claimed.",
   "device": {
     "serial": "emulator-5554",
     "androidRelease": "15",
@@ -31,6 +34,7 @@
     "logcat": "test-results/tracking-plan-android-emulator-proof/11-logcat.txt",
     "screenshotInspection": "test-results/tracking-plan-android-emulator-proof/12-screenshot-inspection.json",
     "foregroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-grant.txt",
-    "foregroundLocationSeed": "test-results/tracking-plan-android-emulator-proof/14-foreground-location-seed.txt"
+    "foregroundLocationSeed": "test-results/tracking-plan-android-emulator-proof/14-foreground-location-seed.txt",
+    "backgroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/15-background-location-permission-grant.txt"
   }
 }

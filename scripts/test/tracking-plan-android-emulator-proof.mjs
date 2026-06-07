@@ -60,6 +60,7 @@ async function main() {
   const preGrantPackageDump = await adbText(tools, selectedSerial, ['shell', 'dumpsys', 'package', packageName]);
   const preGrantPermissionState = parsePermissionState(preGrantPackageDump);
   await grantForegroundLocationPermissions(tools, selectedSerial, preGrantPermissionState);
+  await grantBackgroundLocationPermission(tools, selectedSerial, preGrantPermissionState);
   await adb(tools, selectedSerial, ['shell', 'input', 'keyevent', '224']);
   await adb(tools, selectedSerial, ['shell', 'wm', 'dismiss-keyguard']);
 
@@ -111,6 +112,23 @@ async function grantForegroundLocationPermissions(tools, serial, permissionState
     }
   }
   await writeText(path.join(resultDir, '13-foreground-location-permission-grant.txt'), grantLog.join('\n\n'));
+}
+
+async function grantBackgroundLocationPermission(tools, serial, permissionState) {
+  if (!permissionState.backgroundLocationPermissionRequested) {
+    await writeText(
+      path.join(resultDir, '15-background-location-permission-grant.txt'),
+      'SKIP background location permission is not declared by the package.\n'
+    );
+    return;
+  }
+
+  const permission = 'android.permission.ACCESS_BACKGROUND_LOCATION';
+  const result = await adbMaybe(tools, serial, ['shell', 'pm', 'grant', packageName, permission]);
+  await writeText(
+    path.join(resultDir, '15-background-location-permission-grant.txt'),
+    `${result.exitCode === 0 ? 'PASS' : 'FAIL'} pm grant ${permission}\n${result.output.trim()}`
+  );
 }
 
 async function seedEmulatorForegroundLocation(tools, serial, permissionState) {
@@ -311,6 +329,7 @@ function parsePermissionState(packageDump) {
       grants['android.permission.ACCESS_FINE_LOCATION'] === true ||
       grants['android.permission.ACCESS_COARSE_LOCATION'] === true,
     backgroundLocationPermissionRequested: requested.includes('android.permission.ACCESS_BACKGROUND_LOCATION'),
+    backgroundLocationPermissionGranted: grants['android.permission.ACCESS_BACKGROUND_LOCATION'] === true,
   };
 }
 
@@ -352,6 +371,14 @@ function parseUiState(uiDump) {
     foregroundLocationProvider: parseTextField(text, 'foregroundLocationProvider'),
     foregroundLocationObservedAtEpochMillis: parseNumberTextField(text, 'foregroundLocationObservedAtEpochMillis'),
     foregroundLocationAccuracyMeters: parseNumberTextField(text, 'foregroundLocationAccuracyMeters'),
+    backgroundLocationPermissionStateText: text.includes('background-location-permission-granted')
+      ? 'background-location-permission-granted'
+      : text.includes('background-location-permission-required')
+        ? 'background-location-permission-required'
+        : null,
+    backgroundGeofenceStateText: text.includes('background-geofence-transition-manual-required')
+      ? 'background-geofence-transition-manual-required'
+      : null,
     text,
   };
 }
@@ -648,6 +675,9 @@ function runtimeArtifactPaths() {
       path.join(resultDir, '13-foreground-location-permission-grant.txt')
     ),
     foregroundLocationSeed: relativePath(path.join(resultDir, '14-foreground-location-seed.txt')),
+    backgroundLocationPermissionGrant: relativePath(
+      path.join(resultDir, '15-background-location-permission-grant.txt')
+    ),
   };
 }
 
@@ -680,7 +710,7 @@ function buildProof({ device, packageDump, permissionState, resolvedActivity, ru
     commands,
     nonClaims: [
       'This proof does not claim Android fused/current foreground location sample capture.',
-      'This proof does not claim Android background location behavior.',
+      'This proof does not claim Android background location sample behavior.',
       'This proof does not claim Android geofence enter, exit, or dwell transitions.',
       'This proof does not claim notification delivery or alert provider behavior.',
       'This proof does not claim physical Android device behavior.',
@@ -721,12 +751,18 @@ function workpackProofState(permissionState, runtime) {
                 : 'Package launched on emulator, but the current scaffold does not request foreground location permission.',
     },
     '09-android-background-location-and-geofence-adapter': {
-      status: 'manual_required',
+      status: permissionState.backgroundLocationPermissionGranted
+        ? 'background_permission_granted_geofence_transition_manual_required'
+        : permissionState.backgroundLocationPermissionRequested
+          ? 'background_permission_declared_geofence_transition_manual_required'
+          : 'manual_required',
       proofArtifact:
         'output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json',
-      reason: permissionState.backgroundLocationPermissionRequested
-        ? 'Background permission is declared, but no geofence transition was emitted.'
-        : 'No background location/geofence permission or transition adapter is present in the current scaffold.',
+      reason: permissionState.backgroundLocationPermissionGranted
+        ? 'Background location permission grant state was observed on the emulator package, but no background location sample, geofence transition, physical-device behavior, authority, or product-ready tracking is claimed.'
+        : permissionState.backgroundLocationPermissionRequested
+          ? 'Background permission is declared, but no background permission grant or geofence transition was observed.'
+          : 'No background location/geofence permission or transition adapter is present in the current scaffold.',
     },
     '10-android-battery-connectivity-and-status-adapter': {
       status: 'emulator_scaffold_observed',
@@ -824,10 +860,13 @@ function geofenceProof(proof) {
     commit: proof.commit,
     requiredProofTier: 'P3_LOCAL_DEV_MACHINE',
     currentProofTier: 'P3_LOCAL_DEV_MACHINE',
-    currentStatus: 'manual_required',
+    currentStatus: proof.workpackProof['09-android-background-location-and-geofence-adapter'].status,
     packageLaunchObserved: proof.runtime.activity.packageFocused,
     foregroundServiceObserved: proof.runtime.service.isForeground,
     backgroundLocationPermissionRequested: proof.permissionState.backgroundLocationPermissionRequested,
+    backgroundLocationPermissionGranted: proof.permissionState.backgroundLocationPermissionGranted,
+    backgroundLocationPermissionStateText: proof.runtime.ui.backgroundLocationPermissionStateText,
+    backgroundGeofenceStateText: proof.runtime.ui.backgroundGeofenceStateText,
     geofenceTransitionCount: 0,
     missingProofReason: proof.workpackProof['09-android-background-location-and-geofence-adapter'].reason,
     device: proof.device,
@@ -876,6 +915,7 @@ ${proof.permissionState.requested.length === 0 ? '_No requested Android permissi
 - Foreground location permission requested: ${String(proof.permissionState.locationPermissionRequested)}
 - Foreground location permission granted: ${String(proof.permissionState.foregroundLocationPermissionGranted)}
 - Background location permission requested: ${String(proof.permissionState.backgroundLocationPermissionRequested)}
+- Background location permission granted: ${String(proof.permissionState.backgroundLocationPermissionGranted)}
 - Foreground service observed: ${String(proof.runtime.service.isForeground)}
 - Product location/geofence claim ready: false
 `;
@@ -895,6 +935,9 @@ This proof was generated by \`npm run test:tracking-plan-android-emulator-proof\
 - Foreground location permission granted: ${String(proof.permissionState.foregroundLocationPermissionGranted)}.
 - Foreground location state text: ${proof.runtime.ui.foregroundLocationPermissionStateText ?? 'not-observed'}.
 - Foreground sample state text: ${proof.runtime.ui.foregroundLocationSampleStateText ?? 'not-observed'}.
+- Background location permission granted: ${String(proof.permissionState.backgroundLocationPermissionGranted)}.
+- Background location state text: ${proof.runtime.ui.backgroundLocationPermissionStateText ?? 'not-observed'}.
+- Background geofence state text: ${proof.runtime.ui.backgroundGeofenceStateText ?? 'not-observed'}.
 - Battery and connectivity dumps collected.
 - UI tree collected and contains scaffold/manual-consent text: ${String(proof.runtime.ui.hasLaunchText)}.
 - Screenshot visual contrast observed: ${String(proof.runtime.screenshotInspection.visualClaimReady)}.

@@ -36,6 +36,9 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 - [ ] Prove enter, exit, and dwell transitions.
 - [ ] Represent active geofence limit.
 - [ ] Add battery/background degraded proof before claims.
+- [x] Record emulator package permission-grant proof for
+      `ACCESS_BACKGROUND_LOCATION` while preserving no geofence-transition and
+      no physical-device claims.
 - [x] Record emulator package/service scaffold proof and explicit
       no-geofence-transition state before physical-device work.
 - [x] Generate the Android Studio/local and physical-device proof artifact plan
@@ -53,11 +56,14 @@ required before any Android background/geofence claim. Background runtime and
 product-complete behavior are still not claimed.
 
 `npm run test:tracking-plan-android-emulator-proof` now fills the local
-emulator scaffold layer for this workpack. The generated
-`05-geofence-transition-proof.json` records package launch and foreground
-service observation while keeping `geofenceTransitionCount` at `0` and
-`currentStatus` as `manual_required` when background permission and transition
-adapters are absent. This is not Android background/geofence proof.
+emulator background-permission layer for this workpack. The generated
+`05-geofence-transition-proof.json` records package launch, foreground service
+observation, declared `ACCESS_BACKGROUND_LOCATION`, emulator grant state, app UI
+text for `background-location-permission-granted`, and
+`background-geofence-transition-manual-required` while keeping
+`geofenceTransitionCount` at `0`. This proves emulator background permission
+state only; it is not background sample collection, geofence transition,
+physical-device, authority, or product-ready Android tracking proof.
 
 `node scripts/test/tracking-android-permission-background-proof.mjs` now records
 WP09 parent-domain manual-required rows for the background permission grant and
@@ -108,8 +114,8 @@ This workpack can be assigned independently, implemented against the owning doma
       checklist, and this workpack doc updated for the local manual-required
       background permission/geofence transition proof; central capability row
       update remains a hub/primary-owned doc delta.
-- [x] Known gaps/manual-required states: Android 10+ background permission,
-      Android 11+ settings-page background permission flow, enter/exit/dwell
+- [x] Known gaps/manual-required states: Android 11+ settings-page background
+      permission flow, background sample collection, enter/exit/dwell
       transition delivery, active geofence-limit runtime, physical-device
       proof, authority, provider delivery, notification delivery, and
       product-ready Android tracking remain unclaimed.
