@@ -1,0 +1,54 @@
+{
+  "proof": "network-ai-audit-narrative-proof",
+  "checkedAt": "2026-06-07T02:10:15.334Z",
+  "branch": "codex/network-ai-proof-artifacts",
+  "sourceCommit": "b192adc3f8dc45b027deef14916f7081b3f2ec25",
+  "artifactCommit": "see the enclosing git commit for generated proof artifacts",
+  "originMain": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "mergeBase": "b62671a4f6efda4f24fccab20572131453fd8cb3",
+  "sourceStatusShort": "",
+  "proofRoot": "output\\network-plan-proof\\47-ai-audit-narrative-proof",
+  "testRoot": "test-results\\network-ai-audit-narrative-proof",
+  "commands": [
+    {
+      "name": "network-ai-audit-narrative-tests",
+      "command": "cargo test -p ocentra-network-evidence ai_audit",
+      "status": 0,
+      "log": "output\\network-plan-proof\\47-ai-audit-narrative-proof\\ai-audit-narrative-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\47-ai-audit-narrative-proof\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\47-ai-audit-narrative-proof\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedAiAuditNarrativeBoundary": "output\\network-plan-proof\\47-ai-audit-narrative-proof\\expected-ai-audit-narrative-boundary.json",
+    "proofSummary": "output\\network-plan-proof\\47-ai-audit-narrative-proof\\proof-summary.json",
+    "testProof": "test-results\\network-ai-audit-narrative-proof\\proof.json"
+  },
+  "provenRows": [
+    "47 AI audit narrative and recommendation proof"
+  ],
+  "provenBoundaries": [
+    "parent-readable narrative with cited evidence refs",
+    "advisory recommendation refs",
+    "uncertainty confirmation route",
+    "unsupported-claim rejection"
+  ],
+  "notClaimed": [
+    "remote AI provider invocation",
+    "raw PCAP, page content, exact URL, private message, search query, or decrypted payload in AI audit input",
+    "policy decision authority",
+    "adapter action, blocking, termination, or enforcement command authorization",
+    "portal AI audit UI rendering",
+    "production model quality or hosted audit workflow"
+  ]
+}
