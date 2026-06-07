@@ -134,6 +134,20 @@ compete on control while staying clear about attribution confidence and privacy.
   enforcement-command publication, raw PCAP, exact URL, decrypted payload, page
   content, video content, private-message content, search-query content, and
   host filtering claims.
+- E-D added row10g remote delivery outbox handoff proof in `agent-core`: local
+  durable envelope records now produce deterministic prepared outbox candidates
+  that preserve sequence, event id, event type, correlation id, durable-envelope
+  refs, durable-store refs, receipt-ledger refs, local receipt-ack refs, outbox
+  refs, handoff refs, replay refs, and support-status refs while rejecting
+  duplicate durable envelope candidates before outbox preparation. The proof writes
+  `output/network-plan-proof/10g-remote-delivery-outbox-handoff/proof-summary.json`
+  and `test-results/network-remote-delivery-outbox-handoff-proof/proof.json`
+  while keeping transport dispatch attempts, remote acknowledgements, live
+  broker/family-hub delivery, provider/child-device delivery, remote
+  delete/export propagation, product-ready remote delivery, policy authority,
+  side-effect authority, adapter execution, enforcement-command publication,
+  raw PCAP, exact URL, decrypted payload, page content, video content,
+  private-message content, search-query content, and host filtering false.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,

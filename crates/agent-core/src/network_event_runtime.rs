@@ -29,6 +29,8 @@ mod remote_delivery_durable_envelope_types;
 mod remote_delivery_event_chain_journal;
 mod remote_delivery_event_chain_journal_types;
 mod remote_delivery_event_chain_store;
+mod remote_delivery_outbox_handoff;
+mod remote_delivery_outbox_handoff_types;
 mod remote_delivery_receipt_ledger;
 mod remote_delivery_receipt_ledger_types;
 mod remote_delivery_status;
@@ -60,6 +62,11 @@ pub(crate) use remote_delivery_event_chain_journal::prove_network_runtime_remote
 pub use remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalError;
 #[cfg(test)]
 pub(crate) use remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalReport;
+pub use remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff;
+pub use remote_delivery_outbox_handoff_types::{
+    NetworkRuntimeRemoteDeliveryOutboxHandoffError,
+    NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryOutboxState,
+};
 pub use remote_delivery_receipt_ledger::prove_network_runtime_remote_delivery_receipt_ledger;
 pub use remote_delivery_receipt_ledger_types::{
     NetworkRuntimeRemoteDeliveryReceiptLedgerError, NetworkRuntimeRemoteDeliveryReceiptLedgerReport,

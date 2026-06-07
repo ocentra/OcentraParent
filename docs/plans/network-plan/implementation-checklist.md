@@ -151,6 +151,24 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       adapter execution, enforcement commands, raw PCAP, exact URL, decrypted
       payload, page content, video content, private-message content,
       search-query content, and host filtering unimplemented.
+- [x] `10g-remote-delivery-outbox-handoff`: local prepared outbox/handoff
+      boundary declaration for row10e durable envelope records. Row10g proof
+      writes
+      `output/network-plan-proof/10g-remote-delivery-outbox-handoff/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-outbox-handoff-proof/proof.json`
+      and preserves durable envelope sequence, event id, event type,
+      correlation id, durable-envelope refs, durable-store refs,
+      receipt-ledger refs, local receipt-ack refs, outbox refs, handoff refs,
+      replay refs, and support-status refs while rejecting duplicate durable
+      envelope candidates before outbox preparation. The proof keeps transport dispatch
+      attempts, remote acknowledgement implementation, live broker delivery,
+      live family-hub relay delivery, provider delivery, child-device delivery,
+      remote delete/export propagation, product-ready remote delivery, policy
+      authority, side-effect authority, adapter execution, enforcement
+      commands, raw PCAP, exact URL, decrypted payload, page content, video
+      content, private-message content, search-query content, and host
+      filtering unimplemented.
 - [x] `11-manual-platform-proof.md`: OS/device/permission details, exact manual
       steps, screenshots/logs, and manual-required labels for platform claims.
       E-D row11 proof now writes
