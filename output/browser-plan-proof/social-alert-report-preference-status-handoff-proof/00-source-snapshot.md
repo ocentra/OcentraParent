@@ -1,24 +1,17 @@
 # Social Alert/Report Preference Status Handoff Source Snapshot
 
 - Branch: codex/browser-child-intervention-endpoint-flow
-- Commit: 82d86afff746b964e9f8e111c188972d00976a10
+- Commit: 1ac6a9ee1b302f3b1ad6416d798b1bac938a761e
 - Git status at proof generation:
 
 ```text
-M docs/expectations/notifications.md
- M docs/expectations/social-video-control.md
- M docs/features/social-video-control.md
- M docs/plans/browser-plan/implementation-checklist.md
- M docs/plans/browser-plan/social-platform-account-feed/README.md
- M output/browser-plan-proof/social-23-tests-fixtures-playwright-manual-proof/01-social-proof-artifact-manifest.md
- M output/browser-plan-proof/social-24-rollout-manual-required-labels/01-rollout-manual-required-labels.md
- M scripts/test/social-platform-account-feed-proof-artifacts.mjs
- M scripts/test/social-platform-account-feed-rollout-gate.mjs
+M output/browser-plan-proof/social-17-ios-screentime-managedsettings-matrix/11-ios-host-tooling-proof.json
+ M output/browser-plan-proof/social-alert-report-preference-preflight-proof/00-source-snapshot.md
+ M output/browser-plan-proof/social-alert-report-scheduler-bridge-proof/00-source-snapshot.md
+ M test-results/social-alert-report-preference-preflight-proof/proof.json
+ M test-results/social-alert-report-scheduler-bridge-proof/proof.json
+ M test-results/social-ios-screen-time-host-proof/proof.json
  M test-results/social-platform-account-feed-proof-artifacts/proof.json
- M test-results/social-platform-account-feed-rollout-gate/proof.json
-?? packages/parent-domain/src/social-alert-report-preference-status-handoff.ts
-?? packages/parent-domain/tests/social-alert-report-preference-status-handoff.test.ts
-?? scripts/test/social-alert-report-preference-status-handoff-proof.mjs
 ```
 
 - Scope: social alert/report preference-preflight rows to V3 notification preference and quiet-hours status entries.

@@ -3,7 +3,7 @@
   "proofMode": "social-alert-report-preference-preflight-proof",
   "generatedAt": "2026-06-07T08:27:00Z",
   "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "645ef5e79c3ee95966ab5690852ac271a168d3ab",
+  "commit": "1ac6a9ee1b302f3b1ad6416d798b1bac938a761e",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
