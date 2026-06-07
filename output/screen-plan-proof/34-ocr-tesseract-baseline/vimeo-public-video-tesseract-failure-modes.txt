@@ -1,0 +1,29 @@
+# alternate-page-segmentation
+description=Same retained real screenshot with sparse-text OCR segmentation.
+source=output/browser-plan-proof/social-14-managed-browser-feed-short-video-gate/06-live-screenshots/vimeo-public-video.png
+status=0
+durationMs=702
+cpuTimeMs=359
+peakWorkingSetMiB=44
+matchedTerms=vimeo,video,player
+extractedPreview=vimeo & Search all of Vimeo ® Pricing Login ie + This video is processing... You'll be able to view it as soon as it's done. The New Vimeo Player (You Know, For Videos) ‘12 years ago It may look (mostly) the same on the surface, but under t
+
+# downscaled-small-text
+description=Same retained real screenshot downscaled before OCR to simulate small text sensitivity.
+source=output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-downscaled.png
+status=0
+durationMs=545
+cpuTimeMs=172
+peakWorkingSetMiB=31.7
+matchedTerms=vimeo,video,player
+extractedPreview=vimmen Soochow © coo tan EO v This video is processing... The New Vimeo Player (You Know, For Videos)
+
+# cropped-player-ui
+description=Same retained real screenshot cropped to the lower player/control region before OCR.
+source=output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-player-crop.png
+status=0
+durationMs=667
+cpuTimeMs=250
+peakWorkingSetMiB=37.9
+matchedTerms=vimeo,video,player
+extractedPreview=The New Vimeo Player (You Know, For Videos) 12 years ago It may look (mostly) the same on the surface, but under the hood we totally rebuilt our player. Here’s a quick rundown of some of the coolest new features: + Lightning fast playback +

@@ -478,8 +478,11 @@ only with explicit parent settings.
   Tesseract OCR baseline runtime extraction check. It verifies the upstream
   project/docs/license direction, installs/invokes local Tesseract 5.5.0
   through the standard Windows install path, and extracts expected visible
-  terms from a retained real public Vimeo screenshot artifact. CPU/memory,
-  failure-mode, production-quality, and PaddleOCR comparison remain open.
+  terms from a retained real public Vimeo screenshot artifact. It also records
+  extraction duration, CPU time, peak working set, and three derived
+  failure-mode scenarios from the same real screenshot: sparse page
+  segmentation, downscaled small text, and cropped player UI. Production OCR
+  selection and PaddleOCR comparison remain open.
 - `scripts/test/screen-ocr-paddleocr-evaluation-proof.mjs` now records the
   PaddleOCR/PP-OCR candidate readiness and Windows runtime blocker. It verifies
   current PyPI versions, installed `paddleocr` 3.6.0 and `paddlepaddle` 3.3.1,
@@ -650,9 +653,10 @@ parity, and UI remain separate proof gates.
 - [x] Windows WinRT OCR worker analyzes real browser/native captured pixels,
       emits schema-valid screen analysis evidence, feeds policy dry-run, and
       deletes raw temp images.
-- [~] Tesseract baseline source/license/runtime extraction is recorded against a
-  retained real public Vimeo screenshot artifact, but CPU/memory,
-  failure-mode, production-quality, and PaddleOCR comparison remain open.
+- [~] Tesseract baseline source/license/runtime extraction, CPU/memory
+  measurement, and derived failure-mode scenarios are recorded against a
+  retained real public Vimeo screenshot artifact, but production-quality
+  selection and PaddleOCR comparison remain open.
 - [~] PaddleOCR/PP-OCR candidate readiness records current package availability
   and local-only/household-mesh routing non-claims, but install/runtime,
   quality, and resource comparison remain open.
