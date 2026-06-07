@@ -10,14 +10,37 @@ const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', proofSlu
 const appProofDir = join(repoRoot, 'output', 'app-plan-proof', proofSlug);
 const timestamp = '2026-06-06T14:25:00Z';
 const commands = [];
-const initialGitStatusShort = gitOutput(['status', '--short']);
+const buildWorkspaces = [
+  ['@ocentra-parent/schema-domain', 'schema-domain'],
+  ['@ocentra-parent/logging-domain', 'logging-domain'],
+  ['@ocentra-parent/parent-domain', 'parent-domain'],
+];
+const proofChainStatusPaths = [
+  'scripts/test/app-game-timer-service-event-handoff-proof.mjs',
+  'scripts/test/app-game-timer-service-read-api-handoff-proof.mjs',
+  'scripts/test/app-game-timer-service-read-api-response-handoff-proof.mjs',
+  'scripts/test/app-game-timer-service-read-api-response-consumer-handoff-proof.mjs',
+  'output/app-game-plan-proof/104-timer-service-event',
+  'output/app-game-plan-proof/105-timer-service-read-api',
+  'output/app-game-plan-proof/106-timer-service-read-api-response',
+  'output/app-game-plan-proof/107-timer-service-read-api-response-consumer',
+  'output/app-plan-proof/104-timer-service-event',
+  'output/app-plan-proof/105-timer-service-read-api',
+  'output/app-plan-proof/106-timer-service-read-api-response',
+  'output/app-plan-proof/107-timer-service-read-api-response-consumer',
+  'test-results/app-game-timer-service-event-handoff-proof',
+  'test-results/app-game-timer-service-read-api-handoff-proof',
+  'test-results/app-game-timer-service-read-api-response-handoff-proof',
+  'test-results/app-game-timer-service-read-api-response-consumer-handoff-proof',
+];
+const initialGitStatusShort = filteredGitStatusShort();
 
 for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await rm(path, { recursive: true, force: true });
   await mkdir(path, { recursive: true });
 }
 
-run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+await buildRequiredWorkspaces();
 run('cmd', [
   '/c',
   'npm',
@@ -164,6 +187,13 @@ async function writeJson(path, value) {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
 }
 
+async function buildRequiredWorkspaces() {
+  for (const [workspace, packageDir] of buildWorkspaces) {
+    await rm(join(repoRoot, 'packages', packageDir, 'tsconfig.tsbuildinfo'), { force: true });
+    run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', workspace]);
+  }
+}
+
 async function writeProofPack(dir, proof, label) {
   await writeFile(
     join(dir, '00-source-snapshot.md'),
@@ -195,4 +225,15 @@ function gitOutput(args) {
     throw new Error(`git ${args.join(' ')} failed: ${result.stderr}`);
   }
   return result.stdout.trim();
+}
+
+function filteredGitStatusShort() {
+  return gitOutput(['status', '--short'])
+    .split('\n')
+    .filter(Boolean)
+    .filter((line) => {
+      const path = line.replace(/^[ MADRCU?!]{1,2}\s+/, '').replaceAll('\\', '/');
+      return !proofChainStatusPaths.some((proofPath) => path === proofPath || path.startsWith(`${proofPath}/`));
+    })
+    .join('\n');
 }
