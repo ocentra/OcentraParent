@@ -55,6 +55,24 @@ fn adapter_capability_status_rejects_unsafe_platform_manifest_entries() {
 }
 
 #[test]
+fn adapter_capability_status_rejects_adapter_authorization_on_non_ready_rows() {
+    let mut non_ready_manifest = manifest();
+    non_ready_manifest.entries[0].claim_state = NetworkPlatformClaimState::DryRun;
+    non_ready_manifest.entries[0].adapter_authorized_by_proof = true;
+    non_ready_manifest.ready_claims = 0;
+    non_ready_manifest.dry_run_claims = 1;
+
+    assert_eq!(
+        build_network_adapter_capability_status(input_with_manifest(non_ready_manifest)),
+        Err(
+            NetworkAdapterCapabilityStatusError::PlatformEntryAuthorizesNonReadyAdapter(
+                NetworkPlatformClaimTarget::WindowsFirewall
+            )
+        )
+    );
+}
+
+#[test]
 fn adapter_capability_status_rejects_stale_platform_manifest_summary() {
     let mut count_mismatch_manifest = manifest();
     count_mismatch_manifest.ready_claims = 0;

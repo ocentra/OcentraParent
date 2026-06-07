@@ -80,6 +80,13 @@ pub(crate) fn normalize_ref(value: &str) -> Option<String> {
 fn validate_platform_entry(
     entry: &NetworkPlatformClaimEntry,
 ) -> Result<(), NetworkAdapterCapabilityStatusError> {
+    if entry.adapter_authorized_by_proof && entry.claim_state != NetworkPlatformClaimState::Ready {
+        return Err(
+            NetworkAdapterCapabilityStatusError::PlatformEntryAuthorizesNonReadyAdapter(
+                entry.target,
+            ),
+        );
+    }
     if entry.enforcement_command_published {
         return Err(
             NetworkAdapterCapabilityStatusError::PlatformEntryPublishedEnforcementCommand(

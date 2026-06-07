@@ -658,8 +658,9 @@ UI rendering remain open.
       VpnService, Apple Network Extension macOS/iOS, and Linux nftables/eBPF/TUN
       gates into exact OS/device/permission claim rows, records manual
       follow-ups for missing artifacts, and rejects generic platform support,
-      live adapter execution, UI policy authority, and enforcement-command
-      claims. E-D portal status proof now renders service-backed network
+      live adapter execution, non-ready adapter authorization, UI policy
+      authority, and enforcement-command claims. E-D portal status proof now
+      renders service-backed network
       platform/capability state, active/tombstone/exportable row counts,
       retention delete refs, and degraded adapter state in the Activity network
       drawer while keeping policy, adapter, AI, exact URL, and enforcement refs
@@ -709,6 +710,9 @@ UI rendering remain open.
       Row52 platform manifest instead of a duplicate matrix. Proof:
       `output/network-plan-proof/adapter-capability-status/proof-summary.json`
       and `test-results/network-adapter-capability-status-proof/proof.json`.
+      It rejects adapter authorization on non-ready status rows so dry-run,
+      research-only, manual-required, and unavailable states cannot contradict
+      their non-executable status.
       This proof keeps live adapter execution, host filtering, production
       platform support, broader platform capability UX, UI policy authority,
       and enforcement-command publication unclaimed.

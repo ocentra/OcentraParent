@@ -69,6 +69,8 @@ const proof = {
     'Apple Network Extension macOS/iOS ready maps to Apple-device-ready status',
     'Linux nftables/eBPF/TUN ready maps to distro-ready status',
     'manual-required and unavailable rows preserve missing-artifact follow-ups',
+    'Row52 platform manifest rejects non-ready adapter authorization before status projection',
+    'adapter authorization is rejected on dry-run, research-only, manual-required, or unavailable status rows',
     'portal drawer renders service-backed capability/platform status for the current network read model',
     'generic platform support, live adapter execution, broader platform capability UX, UI policy authority, and enforcement command publication claims are rejected',
   ],
@@ -104,6 +106,7 @@ function expectedAdapterCapabilityStatus() {
       LinuxTun: 'distro-ready',
     },
     reportableNonReadyStates: ['dry-run', 'research-only', 'manual-required', 'unavailable'],
+    authorizationInvariant: 'adapter_authorized_by_proof is accepted only for Row52 ready claim rows',
     requiredRefs: [
       'platform manifest ref',
       'adapter capability refs or missing-artifact follow-ups',

@@ -93,6 +93,7 @@ pub enum NetworkAdapterCapabilityStatusError {
     PlatformEntryMissingPlatformRef(NetworkPlatformClaimTarget),
     PlatformEntryMissingCapabilityOrFollowup(NetworkPlatformClaimTarget),
     PlatformEntryMissingAuditRef(NetworkPlatformClaimTarget),
+    PlatformEntryAuthorizesNonReadyAdapter(NetworkPlatformClaimTarget),
     PlatformEntryPublishedEnforcementCommand(NetworkPlatformClaimTarget),
 }
 

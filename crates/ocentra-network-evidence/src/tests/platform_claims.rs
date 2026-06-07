@@ -175,6 +175,27 @@ fn platform_claim_manifest_rejects_proof_source_that_publishes_enforcement_comma
     );
 }
 
+#[test]
+fn platform_claim_manifest_rejects_non_ready_adapter_authorization() {
+    let mut proof = plan_network_windows_firewall_adapter_proof(windows_firewall_input())
+        .expect("complete Windows Firewall input should build proof");
+    proof.proof_state = crate::NetworkWindowsFirewallProofState::DryRun;
+    proof.adapter_apply_authorized = true;
+
+    assert_eq!(
+        build_network_platform_claim_manifest(NetworkPlatformClaimManifestInput {
+            manifest_ref: "network-platform-manifest-52".to_owned(),
+            proof_sources: vec![NetworkPlatformClaimProofSource::WindowsFirewall(proof)],
+            unsupported_claims: no_unsupported_claims(),
+        }),
+        Err(
+            NetworkPlatformClaimManifestError::ProofSourceAuthorizesNonReadyAdapter(
+                NetworkPlatformClaimTarget::WindowsFirewall
+            )
+        )
+    );
+}
+
 fn complete_platform_sources() -> Vec<NetworkPlatformClaimProofSource> {
     vec![
         NetworkPlatformClaimProofSource::WindowsFirewall(

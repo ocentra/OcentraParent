@@ -16,6 +16,7 @@
     "manual-required",
     "unavailable"
   ],
+  "authorizationInvariant": "adapter_authorized_by_proof is accepted only for Row52 ready claim rows",
   "requiredRefs": [
     "platform manifest ref",
     "adapter capability refs or missing-artifact follow-ups",

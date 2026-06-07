@@ -14,6 +14,7 @@
     "every platform claim names exact OS/device refs",
     "every ready claim names permission, entitlement, capability, or manual follow-up refs",
     "manual-required and unavailable states remain reportable without live execution",
+    "adapter authorization is accepted only on ready platform claim rows",
     "UI has no policy authority",
     "no proof source publishes enforcement commands"
   ],

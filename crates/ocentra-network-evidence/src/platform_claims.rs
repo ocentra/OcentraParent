@@ -109,6 +109,7 @@ pub enum NetworkPlatformClaimManifestError {
     LiveAdapterExecutionClaimRejected,
     EnforcementCommandClaimRejected,
     UiPolicyAuthorityClaimRejected,
+    ProofSourceAuthorizesNonReadyAdapter(NetworkPlatformClaimTarget),
     ProofSourcePublishedEnforcementCommand(NetworkPlatformClaimTarget),
 }
 
@@ -125,6 +126,15 @@ pub fn build_network_platform_claim_manifest(
     let mut entries = Vec::new();
     for source in input.proof_sources {
         let entry = entry_from_source(source);
+        if entry.adapter_authorized_by_proof
+            && entry.claim_state != NetworkPlatformClaimState::Ready
+        {
+            return Err(
+                NetworkPlatformClaimManifestError::ProofSourceAuthorizesNonReadyAdapter(
+                    entry.target,
+                ),
+            );
+        }
         if entry.enforcement_command_published {
             return Err(
                 NetworkPlatformClaimManifestError::ProofSourcePublishedEnforcementCommand(

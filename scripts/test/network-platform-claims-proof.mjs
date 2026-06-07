@@ -32,6 +32,7 @@ writeFileSync(
         'every platform claim names exact OS/device refs',
         'every ready claim names permission, entitlement, capability, or manual follow-up refs',
         'manual-required and unavailable states remain reportable without live execution',
+        'adapter authorization is accepted only on ready platform claim rows',
         'UI has no policy authority',
         'no proof source publishes enforcement commands',
       ],
@@ -96,6 +97,7 @@ const proof = {
     'platform claims name exact OS/device/permission refs',
     'manual-required missing artifacts have explicit follow-up entries',
     'unavailable platform rows remain visible without adapter authorization',
+    'proof sources cannot authorize adapters unless the platform claim row is ready',
     'generic platform support and live adapter execution claims are rejected',
     'proof sources cannot publish enforcement commands',
     'UI policy authority remains rejected',
@@ -148,6 +150,7 @@ Manual-required and unavailable labels:
 
 - Missing WFP administrator permission records manual follow-up label \`windows-wfp.administrator-permission\`.
 - Unavailable Linux TUN rows remain visible, do not authorize adapter apply, and record follow-up label \`linux-adapter.permission\` when permission proof is absent.
+- Non-ready platform rows cannot carry adapter authorization, so dry-run, research-only, manual-required, and unavailable states remain non-executable.
 
 Screenshots/logs:
 
