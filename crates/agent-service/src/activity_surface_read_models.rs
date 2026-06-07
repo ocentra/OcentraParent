@@ -151,6 +151,8 @@ pub(crate) fn activity_screen_row_from_result(
         parent_explanation_refs: result.parent_explanation_refs,
         explanation_reasons: result.explanation_reasons,
         deletion_reasons: result.deletion_reasons,
+        ocr_text_snippets: result.ocr_text_snippets,
+        redaction_notes: result.redaction_notes,
     }
 }
 

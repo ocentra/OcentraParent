@@ -1,4 +1,5 @@
 use serde_json::{Map, Value};
+use std::path::Path;
 
 use ocentra_parent_agent_protocol::{
     constants, LocalAiChatGenerationResult, LocalAiGenerationState, SCREEN_CATEGORY_SCHOOL,
@@ -9,7 +10,7 @@ use ocentra_parent_agent_protocol::{
     SCREEN_WINRT_OCR_TEMPLATE_VERSION,
 };
 
-use super::adapter::parsed_generation_output;
+use super::{adapter::parsed_generation_output, adapter_process::is_windows_batch_adapter};
 
 #[test]
 fn parsed_generation_output_preserves_local_ocr_runtime_metadata() {
@@ -25,6 +26,14 @@ fn parsed_generation_output_preserves_local_ocr_runtime_metadata() {
         parsed.prompt_or_template_version,
         SCREEN_WINRT_OCR_TEMPLATE_VERSION
     );
+    assert_eq!(
+        parsed.ocr_text_snippets,
+        vec![constants::activity_store::TEST_SCREEN_OCR_SNIPPET_WIKIPEDIA.to_string()]
+    );
+    assert_eq!(
+        parsed.redaction_notes,
+        vec![constants::activity_store::TEST_SCREEN_REDACTION_NOTE_PII.to_string()]
+    );
     assert_eq!(parsed.confidence, SCREEN_POLICY_CONFIDENCE_READY);
     assert!(parsed.policy_eligible);
 }
@@ -36,6 +45,19 @@ fn parsed_generation_output_rejects_unknown_provider_kind() {
     )));
 
     assert_eq!(parsed, None);
+}
+
+#[test]
+fn adapter_launch_detects_windows_batch_wrappers() {
+    assert!(is_windows_batch_adapter(Path::new(
+        constants::local_ai_runtime::TEST_SCREEN_SERVICE_WINRT_OCR_ADAPTER_CMD
+    )));
+    assert!(is_windows_batch_adapter(Path::new(
+        constants::local_ai_runtime::TEST_SCREEN_SERVICE_WINRT_OCR_ADAPTER_BAT
+    )));
+    assert!(!is_windows_batch_adapter(Path::new(
+        constants::local_ai_runtime::TEST_SCREEN_SERVICE_WINRT_OCR_ADAPTER_EXE
+    )));
 }
 
 fn adapter_output_text(provider_kind: &str) -> String {
@@ -71,6 +93,18 @@ fn adapter_output_text(provider_kind: &str) -> String {
     output.insert(
         constants::field::SCREEN_TEMPLATE_VERSION.to_string(),
         Value::from(SCREEN_WINRT_OCR_TEMPLATE_VERSION),
+    );
+    output.insert(
+        constants::field::SCREEN_OCR_TEXT_SNIPPETS.to_string(),
+        Value::from(vec![
+            constants::activity_store::TEST_SCREEN_OCR_SNIPPET_WIKIPEDIA,
+        ]),
+    );
+    output.insert(
+        constants::field::SCREEN_REDACTION_NOTES.to_string(),
+        Value::from(vec![
+            constants::activity_store::TEST_SCREEN_REDACTION_NOTE_PII,
+        ]),
     );
     Value::Object(output).to_string()
 }
