@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "screen-ai-browser-trigger-proof",
+  "generatedAt": "2026-06-07T20:42:18.482Z",
+  "proofContract": "@ocentra-parent/activity-domain/screen-ai-browser-trigger-proof",
+  "localAiContextBuilder": "@ocentra-parent/parent-domain/local-ai-context-builder",
+  "rows": [
+    {
+      "rowId": "screen-ai-browser-trigger-managed-url",
+      "surface": "managed-browser-url",
+      "triggerReason": "managedBrowserUrlChange",
+      "triggerState": "ready",
+      "browserContentKind": "article",
+      "browserCategory": "educational",
+      "screenCapabilityStatus": "ready",
+      "screenPolicyEligible": true,
+      "localAiExpectedState": "ready",
+      "mobileParityState": "not-in-scope",
+      "noClaimFlags": {
+        "rawBrowserStateIncluded": false,
+        "rawScreenFrameStored": false,
+        "remoteAiRequired": false,
+        "finalPolicyClaimed": false,
+        "enforcementClaimed": false,
+        "liveExternalAccountClaimed": false,
+        "mobileBrowserParityClaimed": false,
+        "cloudFrameAnalysisClaimed": false
+      }
+    },
+    {
+      "rowId": "screen-ai-browser-trigger-video",
+      "surface": "browser-like-video",
+      "triggerReason": "managedBrowserUrlChange",
+      "triggerState": "ready",
+      "browserContentKind": "video",
+      "browserCategory": "entertainment",
+      "screenCapabilityStatus": "ready",
+      "screenPolicyEligible": true,
+      "localAiExpectedState": "ready",
+      "mobileParityState": "not-in-scope",
+      "noClaimFlags": {
+        "rawBrowserStateIncluded": false,
+        "rawScreenFrameStored": false,
+        "remoteAiRequired": false,
+        "finalPolicyClaimed": false,
+        "enforcementClaimed": false,
+        "liveExternalAccountClaimed": false,
+        "mobileBrowserParityClaimed": false,
+        "cloudFrameAnalysisClaimed": false
+      }
+    },
+    {
+      "rowId": "screen-ai-browser-trigger-social-manual",
+      "surface": "browser-like-social",
+      "triggerReason": "managedBrowserUrlChange",
+      "triggerState": "manual-required",
+      "browserContentKind": "social-feed",
+      "browserCategory": "social",
+      "screenCapabilityStatus": "ready",
+      "screenPolicyEligible": false,
+      "localAiExpectedState": "partial",
+      "mobileParityState": "scaffold-only",
+      "noClaimFlags": {
+        "rawBrowserStateIncluded": false,
+        "rawScreenFrameStored": false,
+        "remoteAiRequired": false,
+        "finalPolicyClaimed": false,
+        "enforcementClaimed": false,
+        "liveExternalAccountClaimed": false,
+        "mobileBrowserParityClaimed": false,
+        "cloudFrameAnalysisClaimed": false
+      }
+    },
+    {
+      "rowId": "screen-ai-browser-trigger-cloud-game-unavailable",
+      "surface": "browser-like-cloud-game",
+      "triggerReason": "browserGameDetected",
+      "triggerState": "unavailable",
+      "browserContentKind": "cloud-gaming",
+      "browserCategory": "gaming",
+      "screenCapabilityStatus": "protectedSurface",
+      "screenPolicyEligible": false,
+      "localAiExpectedState": "partial",
+      "mobileParityState": "scaffold-only",
+      "noClaimFlags": {
+        "rawBrowserStateIncluded": false,
+        "rawScreenFrameStored": false,
+        "remoteAiRequired": false,
+        "finalPolicyClaimed": false,
+        "enforcementClaimed": false,
+        "liveExternalAccountClaimed": false,
+        "mobileBrowserParityClaimed": false,
+        "cloudFrameAnalysisClaimed": false
+      }
+    }
+  ],
+  "localAiRows": [
+    {
+      "rowId": "screen-ai-browser-trigger-managed-url",
+      "surface": "managed-browser-url",
+      "triggerState": "ready",
+      "expectedState": "ready",
+      "actualState": "ready",
+      "browserEvidenceRefs": [
+        "screen-ai-browser-trigger-managed-url-local-ai-browser-ref"
+      ],
+      "screenSummaryRefs": [
+        "screen-ai-browser-trigger-managed-url-local-ai-screen-ref"
+      ],
+      "localModelRuntimeRefs": [
+        "screen-ai-browser-trigger-managed-url-local-model-runtime"
+      ],
+      "missingEvidenceKinds": [],
+      "degradedReasons": [],
+      "degradedSourceRefs": [],
+      "custodyBoundarySummary": "context uses only child-device or parent-owned stored evidence",
+      "validationGateSummary": "ready stored-evidence context for local-only model input",
+      "browserRefId": "screen-ai-browser-trigger-managed-url-local-ai-browser-ref",
+      "screenRefId": "screen-ai-browser-trigger-managed-url-local-ai-screen-ref"
+    },
+    {
+      "rowId": "screen-ai-browser-trigger-video",
+      "surface": "browser-like-video",
+      "triggerState": "ready",
+      "expectedState": "ready",
+      "actualState": "ready",
+      "browserEvidenceRefs": [
+        "screen-ai-browser-trigger-video-local-ai-browser-ref"
+      ],
+      "screenSummaryRefs": [
+        "screen-ai-browser-trigger-video-local-ai-screen-ref"
+      ],
+      "localModelRuntimeRefs": [
+        "screen-ai-browser-trigger-video-local-model-runtime"
+      ],
+      "missingEvidenceKinds": [],
+      "degradedReasons": [],
+      "degradedSourceRefs": [],
+      "custodyBoundarySummary": "context uses only child-device or parent-owned stored evidence",
+      "validationGateSummary": "ready stored-evidence context for local-only model input",
+      "browserRefId": "screen-ai-browser-trigger-video-local-ai-browser-ref",
+      "screenRefId": "screen-ai-browser-trigger-video-local-ai-screen-ref"
+    },
+    {
+      "rowId": "screen-ai-browser-trigger-social-manual",
+      "surface": "browser-like-social",
+      "triggerState": "manual-required",
+      "expectedState": "partial",
+      "actualState": "partial",
+      "browserEvidenceRefs": [
+        "screen-ai-browser-trigger-social-manual-local-ai-browser-ref"
+      ],
+      "screenSummaryRefs": [
+        "screen-ai-browser-trigger-social-manual-local-ai-screen-ref"
+      ],
+      "localModelRuntimeRefs": [],
+      "missingEvidenceKinds": [],
+      "degradedReasons": [
+        "browser-active-tab-unknown",
+        "model-unavailable"
+      ],
+      "degradedSourceRefs": [],
+      "custodyBoundarySummary": "context uses only child-device or parent-owned stored evidence",
+      "validationGateSummary": "partial context built with explicit missing evidence kinds",
+      "browserRefId": "screen-ai-browser-trigger-social-manual-local-ai-browser-ref",
+      "screenRefId": "screen-ai-browser-trigger-social-manual-local-ai-screen-ref"
+    },
+    {
+      "rowId": "screen-ai-browser-trigger-cloud-game-unavailable",
+      "surface": "browser-like-cloud-game",
+      "triggerState": "unavailable",
+      "expectedState": "partial",
+      "actualState": "partial",
+      "browserEvidenceRefs": [
+        "screen-ai-browser-trigger-cloud-game-unavailable-local-ai-browser-ref"
+      ],
+      "screenSummaryRefs": [],
+      "localModelRuntimeRefs": [],
+      "missingEvidenceKinds": [
+        "screen-summary"
+      ],
+      "degradedReasons": [
+        "browser-active-tab-unknown",
+        "custody-unavailable",
+        "model-unavailable"
+      ],
+      "degradedSourceRefs": [
+        "screen-ai-browser-trigger-cloud-game-unavailable-local-ai-screen-ref"
+      ],
+      "custodyBoundarySummary": "evidence custody was not allowed by context request",
+      "validationGateSummary": "partial context built with explicit missing evidence kinds",
+      "browserRefId": "screen-ai-browser-trigger-cloud-game-unavailable-local-ai-browser-ref",
+      "screenRefId": "screen-ai-browser-trigger-cloud-game-unavailable-local-ai-screen-ref"
+    }
+  ],
+  "summary": {
+    "totalRows": 4,
+    "readyRows": 2,
+    "manualRequiredRows": 1,
+    "unavailableRows": 1,
+    "localAiReadyRows": 2,
+    "localAiPartialRows": 2,
+    "productClaimed": false,
+    "enforcementClaimed": false,
+    "remoteAiRequired": false,
+    "localAiContextRows": 4,
+    "failures": 0,
+    "checklistStatusChanged": false
+  },
+  "nonClaims": [
+    "no portal UI proof",
+    "no broad browser enforcement proof",
+    "no live authenticated social account proof",
+    "no cloud-streamed frame analysis proof",
+    "no mobile browser parity proof",
+    "no remote AI child-safety path"
+  ],
+  "failures": []
+}
