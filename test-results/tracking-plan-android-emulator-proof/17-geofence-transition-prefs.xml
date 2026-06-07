@@ -1,8 +1,16 @@
 <?xml version='1.0' encoding='utf-8' standalone='yes' ?>
 <map>
     <boolean name="hasInsideState" value="true" />
-    <boolean name="insideState" value="false" />
+    <int name="exitCount" value="2" />
+    <string name="systemProximityRegistrationSource">android-location-manager-proximity-alert</string>
     <boolean name="registered" value="true" />
     <string name="source">android-location-manager-gps-listener-local-geofence</string>
-    <long name="registrationEpochMillis" value="1780804565346" />
+    <int name="transitionCount" value="3" />
+    <boolean name="insideState" value="false" />
+    <long name="systemProximityRegistrationEpochMillis" value="1780807665428" />
+    <long name="lastTransitionEpochMillis" value="1780807677143" />
+    <string name="lastTransition">exit</string>
+    <int name="enterCount" value="1" />
+    <boolean name="systemProximityRegistered" value="true" />
+    <long name="registrationEpochMillis" value="1780807665428" />
 </map>

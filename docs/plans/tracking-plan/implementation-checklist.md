@@ -99,12 +99,13 @@ Every checked item must cite one or more proof artifacts.
       active app-owned geofence count within Android's documented per-app/per-device-user
       limit,
       WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge,
+      separate `LocationManager.addProximityAlert` registration metadata,
       and an outside/inside/outside emulator `geo fix` route under
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`;
       WP08/WP09 parent-domain manual-required proof rows also exist under
       `output/tracking-plan-proof/08-android-foreground-location-adapter/` and
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`;
-      Android system geofencing, dwell transition delivery, and physical-device
+      Android system geofence delivery, dwell transition delivery, and physical-device
       proof remain required before this can be checked.
 - [ ] iOS background/region claims have real device permission/background
       proof. WP11/WP12 parent-domain manual-required proof rows now keep
@@ -431,9 +432,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       background location permission grant state, Android app Settings page
       routing, foreground-service-backed background-activity sample storage,
       local-geofence enter/exit rows, active geofence-limit representation,
+      `LocationManager.addProximityAlert` registration metadata,
       battery/connectivity status proof, and WP10 degraded status-gap bridge exists at P3 local-dev tier;
       fused provider location, physical-device behavior, Android system
-      geofencing, and dwell behavior are not claimed by it.
+      geofence delivery, and dwell behavior are not claimed by it.
 - [x] iOS simulator package proof harness exists and is wired to macOS
       package-preview artifacts; local non-macOS proof records
       `manual_required` instead of claiming simulator execution. Core Location,

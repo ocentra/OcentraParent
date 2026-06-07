@@ -1,2 +1,7 @@
+PASS attempt 1 adb shell am start -n ca.ocentra.parent.agent/.MainActivity
 Starting: Intent { cmp=ca.ocentra.parent.agent/.MainActivity }
 Warning: Activity not started, its current task has been brought to the front
+WARN non-claiming screen wake keyevent 224
+cmd: Can't find service: input
+WARN non-claiming dismiss keyguard
+cmd: Can't find service: window

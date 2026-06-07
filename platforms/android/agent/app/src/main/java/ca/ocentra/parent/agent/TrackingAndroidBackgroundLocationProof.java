@@ -9,6 +9,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 
 public final class TrackingAndroidBackgroundLocationProof {
     public static final String SCHEMA_VERSION = "tracking-android-background-location-proof";
@@ -67,11 +68,21 @@ public final class TrackingAndroidBackgroundLocationProof {
                 TrackingAndroidGeofenceTransitionReceiver.PREFS_NAME,
                 Context.MODE_PRIVATE
             );
+            long registrationEpochMillis = System.currentTimeMillis();
             android.content.SharedPreferences.Editor editor = prefs.edit()
                 .putBoolean(TrackingAndroidGeofenceTransitionReceiver.FIELD_REGISTERED, true)
+                .putBoolean(TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_REGISTERED, true)
                 .putLong(
                     TrackingAndroidGeofenceTransitionReceiver.FIELD_REGISTRATION_EPOCH_MILLIS,
-                    System.currentTimeMillis()
+                    registrationEpochMillis
+                )
+                .putLong(
+                    TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_REGISTRATION_EPOCH_MILLIS,
+                    registrationEpochMillis
+                )
+                .putString(
+                    TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_REGISTRATION_SOURCE,
+                    TrackingAndroidGeofenceTransitionReceiver.SOURCE_ANDROID_PROXIMITY_ALERT
                 );
             if (prefs.getInt(TrackingAndroidGeofenceTransitionReceiver.FIELD_TRANSITION_COUNT, 0) == 0) {
                 editor.putString(
@@ -93,7 +104,13 @@ public final class TrackingAndroidBackgroundLocationProof {
         Context appContext = context.getApplicationContext();
         emulatorProofListener = location -> recordLocalGeofenceObservation(appContext, location);
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0.0f, emulatorProofListener);
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                0L,
+                0.0f,
+                emulatorProofListener,
+                Looper.getMainLooper()
+            );
         } catch (SecurityException ignored) {
             emulatorProofListener = null;
         } catch (IllegalArgumentException ignored) {
@@ -184,6 +201,24 @@ public final class TrackingAndroidBackgroundLocationProof {
         status.putString(
             FIELD_BACKGROUND_GEOFENCE_SOURCE,
             prefs.getString(TrackingAndroidGeofenceTransitionReceiver.FIELD_SOURCE, "not-registered")
+        );
+        status.putBoolean(
+            TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_REGISTERED,
+            prefs.getBoolean(TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_REGISTERED, false)
+        );
+        status.putLong(
+            TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_REGISTRATION_EPOCH_MILLIS,
+            prefs.getLong(
+                TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_REGISTRATION_EPOCH_MILLIS,
+                0L
+            )
+        );
+        status.putString(
+            TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_REGISTRATION_SOURCE,
+            prefs.getString(
+                TrackingAndroidGeofenceTransitionReceiver.FIELD_SYSTEM_PROXIMITY_REGISTRATION_SOURCE,
+                "not-registered"
+            )
         );
         return status;
     }

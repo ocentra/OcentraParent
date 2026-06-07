@@ -163,11 +163,12 @@ expose location or device-status features. Parents expect this category.
   app-owned `LocationManager` GPS-listener local-geofence transition rows,
   records the active app-owned local geofence count against Android's documented
   100 geofences per app per device user limit, bridges to the WP10
-  low-power/app-restart/pending-upload/manual-required status-gap rows, and
-  preserves the final app UI/manual-required boundary separately from the
+  low-power/app-restart/pending-upload/manual-required status-gap rows, records
+  Android `LocationManager.addProximityAlert` registration metadata separately,
+  and preserves the final app UI/manual-required boundary separately from the
   app-owned proof storage rows. The generated proof lives at
   `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json`.
-  This is local emulator proof only; Android system geofencing, dwell
+  This is local emulator proof only; Android system geofence delivery, dwell
   transitions, physical-device behavior, authority, provider delivery,
   production upload workers, and product-ready Android tracking remain
   unclaimed.
@@ -750,8 +751,9 @@ accessibility beyond the hosted parent route are proved.
       Android 11+ app settings-page routing,
       foreground-service-backed background-activity sample, and local-geofence
       enter/exit proof plus active geofence-limit representation and WP10
-      status-gap bridge. This is local emulator evidence only; Android system
-      geofencing, dwell transitions, physical-device, authority, provider
+      status-gap bridge plus separate proximity-alert registration metadata.
+      This is local emulator evidence only; Android system geofence delivery,
+      dwell transitions, physical-device, authority, provider
       delivery, production workers, and product-ready Android tracking remain
       unclaimed.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence

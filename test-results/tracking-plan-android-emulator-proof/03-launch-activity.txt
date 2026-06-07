@@ -1,2 +1,5 @@
+PASS attempt 1 adb shell am start -n ca.ocentra.parent.agent/.MainActivity
 Starting: Intent { cmp=ca.ocentra.parent.agent/.MainActivity }
 Warning: Activity not started, intent has been delivered to currently running top-most instance.
+PASS non-claiming screen wake keyevent 224
+PASS non-claiming dismiss keyguard
