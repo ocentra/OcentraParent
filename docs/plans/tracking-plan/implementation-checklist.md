@@ -99,14 +99,17 @@ Every checked item must cite one or more proof artifacts.
       active app-owned geofence count within Android's documented per-app/per-device-user
       limit,
       WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge,
-      separate `LocationManager.addProximityAlert` registration metadata,
+      separate `LocationManager.addProximityAlert` registration metadata plus
+      separate Android system proximity broadcast counters that remain distinct
+      from app-owned local listener transition counters,
       and an outside/inside/outside emulator `geo fix` route under
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`;
       WP08/WP09 parent-domain manual-required proof rows also exist under
       `output/tracking-plan-proof/08-android-foreground-location-adapter/` and
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`;
-      Android system geofence delivery, dwell transition delivery, and physical-device
-      proof remain required before this can be checked.
+      Android system geofence delivery remains unclaimed unless the system
+      proximity broadcast counter is nonzero; dwell transition delivery and
+      physical-device proof remain required before this can be checked.
 - [ ] iOS background/region claims have real device permission/background
       proof. WP11/WP12 parent-domain manual-required proof rows now keep
       authorization, sample, degraded-state, Always/background, region,

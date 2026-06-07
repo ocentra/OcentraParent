@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T05:01:54.682Z",
-  "commit": "fe2df7d6f1ea95492102241b3c7a3942da14bcf8",
+  "checkedAt": "2026-06-07T05:32:47.281Z",
+  "commit": "75512da0c07beffec43ca687517c7929dceed912",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "background_settings_page_permission_granted_emulator_sample_enter_exit_limit_system_registration_and_degraded_status_observed",
@@ -77,9 +77,9 @@
   "backgroundLocationPermissionStateText": "background-location-permission-granted",
   "backgroundLocationSampleStateText": "background-location-sample-observed-emulator-foreground-service",
   "backgroundLocationSampleCaptured": true,
-  "backgroundLocationSampleCount": 33,
+  "backgroundLocationSampleCount": 31,
   "backgroundLocationSampleProvider": "gps",
-  "backgroundLocationSampleObservedAtEpochMillis": 1780808511328,
+  "backgroundLocationSampleObservedAtEpochMillis": 1780810364140,
   "backgroundLocationSampleAccuracyMeters": 5,
   "backgroundLocationSampleSource": "android-location-manager-gps-listener-foreground-service",
   "backgroundLocationSampleActivityBackgrounded": true,
@@ -95,8 +95,14 @@
   "systemProximityRegistration": {
     "observed": true,
     "source": "android-location-manager-proximity-alert",
-    "registeredAtEpochMillis": 1780808486744,
-    "proofBoundary": "android-location-manager-add-proximity-alert-registration-only",
+    "registeredAtEpochMillis": 1780810340740,
+    "transitionObserved": false,
+    "transitionCount": 0,
+    "enterCount": 0,
+    "exitCount": 0,
+    "lastTransition": null,
+    "lastTransitionEpochMillis": null,
+    "proofBoundary": "android-location-manager-add-proximity-alert-registration-only-no-broadcast-transition-observed",
     "nonClaims": [
       "android-system-geofencing-delivery",
       "android-system-geofencing-dwell-transition",
@@ -107,6 +113,11 @@
       "product-ready-android-tracking"
     ]
   },
+  "systemProximityTransitionObserved": false,
+  "systemProximityTransitionCount": 0,
+  "systemProximityEnterCount": 0,
+  "systemProximityExitCount": 0,
+  "systemProximityTransitionBoundary": "android-location-manager-add-proximity-alert-registration-only-no-broadcast-transition-observed",
   "geofenceHasInsideState": true,
   "geofenceInsideState": false,
   "activeGeofenceCount": 1,
@@ -137,7 +148,7 @@
     ]
   },
   "geofenceTransitionBoundary": "emulator-location-manager-gps-listener-local-geofence-enter-exit-only",
-  "missingProofReason": "Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, Android LocationManager addProximityAlert registration, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed; Android system geofence delivery, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.",
+  "missingProofReason": "Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, Android LocationManager addProximityAlert registration, separate Android system proximity broadcast counters, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed; Android system geofence delivery remains unclaimed unless the separate system counter is nonzero, and dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.",
   "device": {
     "serial": "emulator-5554",
     "androidRelease": "15",

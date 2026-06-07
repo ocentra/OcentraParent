@@ -47,12 +47,13 @@ Location/geofence Android emulator addendum: WP09 now records background
 permission, Android app Settings routing, foreground-service-backed background
 sample storage, app-owned local geofence enter/exit rows, active geofence-limit
 representation, separate `LocationManager.addProximityAlert` registration
-metadata, and a WP10 low-power/app-restart/pending-upload/manual-required
-status-gap bridge under
+metadata, separate Android proximity-alert broadcast transition counters, and a
+WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge under
 `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json`.
-This remains local emulator evidence only; Android system geofence delivery, dwell,
-physical-device behavior, authority, provider delivery, production workers, and
-product-ready Android tracking remain proof-gated.
+This remains local emulator evidence only; Android system geofence delivery
+remains unclaimed unless the separate system-proximity broadcast transition count
+is nonzero. Dwell, physical-device behavior, authority, provider delivery,
+production workers, and product-ready Android tracking remain proof-gated.
 
 Location/geofence report/policy consumer addendum: WP32 report/policy consumer
 rows now require stored journal refs and stored read-model row refs for parent

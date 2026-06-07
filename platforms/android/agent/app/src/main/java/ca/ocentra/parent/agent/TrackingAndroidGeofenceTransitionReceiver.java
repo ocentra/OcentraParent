@@ -25,6 +25,12 @@ public final class TrackingAndroidGeofenceTransitionReceiver extends BroadcastRe
     public static final String FIELD_SYSTEM_PROXIMITY_REGISTRATION_EPOCH_MILLIS =
         "systemProximityRegistrationEpochMillis";
     public static final String FIELD_SYSTEM_PROXIMITY_REGISTRATION_SOURCE = "systemProximityRegistrationSource";
+    public static final String FIELD_SYSTEM_PROXIMITY_TRANSITION_COUNT = "systemProximityTransitionCount";
+    public static final String FIELD_SYSTEM_PROXIMITY_ENTER_COUNT = "systemProximityEnterCount";
+    public static final String FIELD_SYSTEM_PROXIMITY_EXIT_COUNT = "systemProximityExitCount";
+    public static final String FIELD_SYSTEM_PROXIMITY_LAST_TRANSITION = "systemProximityLastTransition";
+    public static final String FIELD_SYSTEM_PROXIMITY_LAST_TRANSITION_EPOCH_MILLIS =
+        "systemProximityLastTransitionEpochMillis";
     public static final String TRANSITION_ENTER = "enter";
     public static final String TRANSITION_EXIT = "exit";
     public static final String SOURCE_ANDROID_PROXIMITY_ALERT = "android-location-manager-proximity-alert";
@@ -41,17 +47,18 @@ public final class TrackingAndroidGeofenceTransitionReceiver extends BroadcastRe
         String transition = entering ? TRANSITION_ENTER : TRANSITION_EXIT;
         long observedAtEpochMillis = System.currentTimeMillis();
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        int transitionCount = prefs.getInt(FIELD_TRANSITION_COUNT, 0) + 1;
-        int enterCount = prefs.getInt(FIELD_ENTER_COUNT, 0) + (entering ? 1 : 0);
-        int exitCount = prefs.getInt(FIELD_EXIT_COUNT, 0) + (entering ? 0 : 1);
+        int transitionCount = prefs.getInt(FIELD_SYSTEM_PROXIMITY_TRANSITION_COUNT, 0) + 1;
+        int enterCount = prefs.getInt(FIELD_SYSTEM_PROXIMITY_ENTER_COUNT, 0) + (entering ? 1 : 0);
+        int exitCount = prefs.getInt(FIELD_SYSTEM_PROXIMITY_EXIT_COUNT, 0) + (entering ? 0 : 1);
         prefs.edit()
             .putBoolean(FIELD_REGISTERED, true)
+            .putBoolean(FIELD_SYSTEM_PROXIMITY_REGISTERED, true)
             .putString(FIELD_SOURCE, SOURCE_ANDROID_PROXIMITY_ALERT)
-            .putInt(FIELD_TRANSITION_COUNT, transitionCount)
-            .putInt(FIELD_ENTER_COUNT, enterCount)
-            .putInt(FIELD_EXIT_COUNT, exitCount)
-            .putString(FIELD_LAST_TRANSITION, transition)
-            .putLong(FIELD_LAST_TRANSITION_EPOCH_MILLIS, observedAtEpochMillis)
+            .putInt(FIELD_SYSTEM_PROXIMITY_TRANSITION_COUNT, transitionCount)
+            .putInt(FIELD_SYSTEM_PROXIMITY_ENTER_COUNT, enterCount)
+            .putInt(FIELD_SYSTEM_PROXIMITY_EXIT_COUNT, exitCount)
+            .putString(FIELD_SYSTEM_PROXIMITY_LAST_TRANSITION, transition)
+            .putLong(FIELD_SYSTEM_PROXIMITY_LAST_TRANSITION_EPOCH_MILLIS, observedAtEpochMillis)
             .apply();
         Log.i(
             LOG_TAG,
