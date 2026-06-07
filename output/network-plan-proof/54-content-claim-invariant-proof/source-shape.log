@@ -152,6 +152,8 @@ packages/parent-domain/src/app-install-purchase-platform-adapter-boundary-proof.
 packages/parent-domain/src/app-install-purchase-platform-artifact-proof.ts:1 file has 332 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-platform-limitation-action-proof.ts:1 file has 285 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-product-claim-gate-proof.ts:1 file has 325 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-product-claim-platform-limitation-fallback-proof.ts:1 file has 419 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-product-claim-platform-limitation-fallback-proof.ts:221 function has 68 lines; warning starts at 64 of 80
 packages/parent-domain/src/app-install-purchase-product-claim-platform-preclaim-proof.ts:1 file has 360 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts:1 file has 273 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-product-claim-provider-store-proof.ts:1 file has 363 lines; crossed 250-line advisory band; maximum is 1000
