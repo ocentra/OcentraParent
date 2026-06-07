@@ -16,6 +16,10 @@ const sourceProofs = [
   sourceProof('pre-device-gate', 'output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json'),
   sourceProof('android-emulator-proof', 'test-results/tracking-plan-android-emulator-proof/proof.json'),
   sourceProof('ios-simulator-proof', 'test-results/tracking-plan-ios-simulator-proof/proof.json'),
+  sourceProof(
+    'ios-privacy-disclosure-release-gate',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/47-ios-privacy-disclosure-release-proof.json'
+  ),
   sourceProof('wsl-local-replay', 'output/tracking-plan-proof/wsl-local-replay/proof.json'),
   sourceProof('hosted-ui-artifact-inventory', 'test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json'),
   sourceProof(
@@ -23,8 +27,24 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/44-android-system-geofence-blocker-proof.json'
   ),
   sourceProof(
+    'notification-receipt-boundary',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/22-notification-receipt-boundary-proof.json'
+  ),
+  sourceProof(
+    'notification-preference-preflight',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/24-notification-preference-preflight-proof.json'
+  ),
+  sourceProof(
+    'notification-local-outbox-readiness',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/42-notification-local-outbox-readiness-proof.json'
+  ),
+  sourceProof(
     'authority-enrollment-manual-required',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/48-authority-enrollment-manual-required-proof.json'
+  ),
+  sourceProof(
+    'child-runtime-artifact-gate',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json'
   ),
   sourceProof(
     'physical-device-artifact-gate',

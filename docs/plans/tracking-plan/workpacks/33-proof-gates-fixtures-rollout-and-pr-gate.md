@@ -281,9 +281,11 @@ notification behavior unclaimed.
 
 This branch adds `node scripts/test/tracking-product-readiness-closure-proof.mjs`,
 which verifies the current local/CI proof accounting bundle after the
-pre-device, Android emulator, iOS simulator, WSL/local, hosted artifact
-inventory, Android system geofence blocker, authority-enrollment
-manual-required proof, child-runtime product-readiness blocker,
+pre-device, Android emulator, iOS simulator, iOS privacy disclosure release
+gate, WSL/local, hosted artifact inventory, Android system geofence blocker,
+notification receipt boundary, notification preference preflight, notification
+local outbox readiness, authority-enrollment manual-required proof,
+child-runtime product-readiness blocker, child-runtime artifact gate,
 physical-device artifact gate, provider-delivery artifact gate,
 provider-runtime readiness blocker, escalation-runtime readiness blocker, and
 retention product-readiness blocker proofs. It writes
@@ -910,5 +912,27 @@ test:tracking-plan-hosted-ui-proof` passed.
 - [x] Known gaps/manual-required states: closure now requires the
       authority-enrollment manual-required proof ref too, but real enrolled
       authority state, hard-control runtime, physical-device behavior, provider
+      delivery, production workers, and product-ready tracking remain
+      proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: product-readiness closure proof model, closure harness,
+      owning tracking feature doc, implementation checklist, this proof-gate
+      doc, and refreshed closure proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-product-readiness-closure-proof.mjs` passed.
+- [x] Proof artifacts: refreshed
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
+      `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
+      and `test-results/tracking-product-readiness-closure-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and WP33 updated. Central
+      `docs/product-capability-checklist.md` update remains hub/primary
+      sequenced through doc delta instead of editing the shared checklist
+      directly.
+- [x] Known gaps/manual-required states: closure now also requires iOS
+      release-gate, notification receipt/preference/outbox, and child-runtime
+      artifact gate proof refs, but real notification runtime, child-device
+      delivery, physical-device behavior, authority enrollment, provider
       delivery, production workers, and product-ready tracking remain
       proof-gated.

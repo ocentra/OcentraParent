@@ -22,6 +22,12 @@
       "proofTier": "P3_LOCAL_DEV_MACHINE"
     },
     {
+      "coverageTag": "ios-privacy-disclosure-release-gate",
+      "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/47-ios-privacy-disclosure-release-proof.json",
+      "status": "proved",
+      "proofTier": "P3_LOCAL_DEV_MACHINE"
+    },
+    {
       "coverageTag": "wsl-local-replay",
       "proofRef": "output/tracking-plan-proof/wsl-local-replay/proof.json",
       "status": "present",
@@ -40,10 +46,34 @@
       "proofTier": "P3_LOCAL_DEV_MACHINE"
     },
     {
+      "coverageTag": "notification-receipt-boundary",
+      "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/22-notification-receipt-boundary-proof.json",
+      "status": "proved",
+      "proofTier": "P3_LOCAL_DEV_MACHINE"
+    },
+    {
+      "coverageTag": "notification-preference-preflight",
+      "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/24-notification-preference-preflight-proof.json",
+      "status": "proved",
+      "proofTier": "P3_LOCAL_DEV_MACHINE"
+    },
+    {
+      "coverageTag": "notification-local-outbox-readiness",
+      "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/42-notification-local-outbox-readiness-proof.json",
+      "status": "proved",
+      "proofTier": "P3_LOCAL_DEV_MACHINE"
+    },
+    {
       "coverageTag": "authority-enrollment-manual-required",
       "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/48-authority-enrollment-manual-required-proof.json",
       "status": "authority_required",
       "proofTier": "P0_CONTRACT"
+    },
+    {
+      "coverageTag": "child-runtime-artifact-gate",
+      "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json",
+      "status": "manual_required",
+      "proofTier": "P3_LOCAL_DEV_MACHINE"
     },
     {
       "coverageTag": "physical-device-artifact-gate",
@@ -91,10 +121,15 @@
         "output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json",
         "test-results/tracking-plan-android-emulator-proof/proof.json",
         "test-results/tracking-plan-ios-simulator-proof/proof.json",
+        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/47-ios-privacy-disclosure-release-proof.json",
         "output/tracking-plan-proof/wsl-local-replay/proof.json",
         "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/44-android-system-geofence-blocker-proof.json",
+        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/22-notification-receipt-boundary-proof.json",
+        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/24-notification-preference-preflight-proof.json",
+        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/42-notification-local-outbox-readiness-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/48-authority-enrollment-manual-required-proof.json",
+        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/51-provider-delivery-artifact-gate-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/52-provider-runtime-readiness-blocker-proof.json",
@@ -145,7 +180,7 @@
     "productReadyClaimed": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "891efaaed6a37adaa40534675b37d94cee33679e",
+  "baseCommitAtGeneration": "73a2968cf9f78a665b9eba644a2f16436ed5992b",
   "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M packages/parent-domain/src/tracking-product-readiness-closure-proof.ts\n M scripts/test/tracking-product-readiness-closure-proof.mjs",
   "commands": [
     {
@@ -157,7 +192,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-product-readiness-closure-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  16:48:57\n   Duration  748ms (transform 119ms, setup 0ms, import 538ms, tests 14ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  17:05:08\n   Duration  809ms (transform 126ms, setup 0ms, import 574ms, tests 15ms, environment 0ms)",
       "stderr": ""
     }
   ],
