@@ -1,0 +1,16 @@
+{
+  "observed": true,
+  "source": "android-location-manager-gps-listener-local-geofence",
+  "activeGeofenceCount": 1,
+  "documentedLimitPerAppPerDeviceUser": 100,
+  "withinDocumentedLimit": true,
+  "documentedLimitSourceUrl": "https://developer.android.com/develop/sensors-and-location/location/geofencing",
+  "proofBoundary": "app-owned-local-geofence-count-compared-to-android-documented-limit-only",
+  "nonClaims": [
+    "android-system-geofencing-registration",
+    "android-system-geofencing-delivery",
+    "dwell-transition-delivery",
+    "physical-device-behavior",
+    "authority-enrolled-device-behavior"
+  ]
+}

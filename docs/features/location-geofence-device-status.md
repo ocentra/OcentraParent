@@ -173,8 +173,10 @@ expose location or device-status features. Parents expect this category.
   11+ background-location settings-page flow artifact,
   records app-owned background sample proof storage with provider/timestamp/
   accuracy, drives an outside/inside/outside emulator `geo fix` route, records
-  app-owned `LocationManager` GPS-listener local-geofence transition rows, and
-  preserves the final app UI/manual-required boundary separately from the
+  app-owned `LocationManager` GPS-listener local-geofence transition rows,
+  records the active app-owned local geofence count against Android's documented
+  100 geofences per app per device user limit, and preserves the final app
+  UI/manual-required boundary separately from the
   app-owned proof storage rows. The generated proof lives at
   `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json`.
   This is local emulator proof only; Android system geofencing, dwell
@@ -759,7 +761,8 @@ accessibility beyond the hosted parent route are proved.
 - [x] WP09 Android emulator background permission,
       Android 11+ app settings-page routing,
       foreground-service-backed background-activity sample, and local-geofence
-      enter/exit proof. This is local emulator evidence only; Android system
+      enter/exit proof plus active geofence-limit representation. This is local
+      emulator evidence only; Android system
       geofencing, dwell transitions, physical-device, authority, provider
       delivery, production workers, and product-ready Android tracking remain
       unclaimed.
