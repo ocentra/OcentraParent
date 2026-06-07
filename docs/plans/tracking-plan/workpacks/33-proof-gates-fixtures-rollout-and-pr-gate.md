@@ -106,6 +106,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `40-child-runtime-snapshot-requirements-proof.json`
 - WP30 child-runtime product-readiness blocker proof:
   `45-child-runtime-product-readiness-blocker-proof.json`
+- Tracking product-readiness closure proof:
+  `46-product-readiness-closure-proof.json`
 
 ## Merge Blockers
 
@@ -231,6 +233,17 @@ receipt ingestion runtime, credentials, cloud routing, parent notification UI,
 retry/quiet-hours workers, child-device delivery, authority, physical-device
 proof, production durable outbox storage, adapter dispatch, and product-ready
 notification behavior unclaimed.
+
+This branch adds `node scripts/test/tracking-product-readiness-closure-proof.mjs`,
+which verifies the current local/CI proof accounting bundle after the
+pre-device, Android emulator, iOS simulator, WSL/local, hosted artifact
+inventory, Android system geofence blocker, child-runtime product-readiness
+blocker, and retention product-readiness blocker proofs. It writes
+`46-product-readiness-closure-proof.json` and
+`test-results/tracking-product-readiness-closure-proof/proof.json` while
+keeping Android/iOS physical background behavior, actual child-device runtime,
+full product parent/child UI, authority enrollment, provider delivery/receipt
+runtime, production workers, and product-ready tracking unclaimed.
 
 This branch refreshes
 `node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`, which

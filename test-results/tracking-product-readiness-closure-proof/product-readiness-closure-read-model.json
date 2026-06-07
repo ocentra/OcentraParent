@@ -1,0 +1,38 @@
+[
+  {
+    "schemaVersion": "v0.5-tracking",
+    "closureProofId": "tracking-product-readiness-closure-local-ci-accounting",
+    "generatedAt": "2026-06-07T16:30:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json",
+      "test-results/tracking-plan-android-emulator-proof/proof.json",
+      "test-results/tracking-plan-ios-simulator-proof/proof.json",
+      "output/tracking-plan-proof/wsl-local-replay/proof.json",
+      "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
+      "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/44-android-system-geofence-blocker-proof.json",
+      "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/45-child-runtime-product-readiness-blocker-proof.json",
+      "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json"
+    ],
+    "auditRefs": [
+      "tracking-product-readiness-closure-audit"
+    ],
+    "remainingBlockers": [
+      "android-physical-background-proof-required",
+      "ios-physical-region-proof-required",
+      "actual-child-device-runtime-required",
+      "full-product-parent-child-ui-required",
+      "authority-enrollment-proof-required",
+      "provider-delivery-receipt-runtime-required",
+      "production-durable-workers-required"
+    ],
+    "localCiProofAccountingReady": true,
+    "physicalAndroidBackgroundClaimed": false,
+    "physicalIosBackgroundClaimed": false,
+    "childDeviceRuntimeClaimed": false,
+    "fullProductUiClaimed": false,
+    "authorityClaimed": false,
+    "providerDeliveryReceiptClaimed": false,
+    "productionWorkersClaimed": false,
+    "productReadyClaimed": false
+  }
+]
