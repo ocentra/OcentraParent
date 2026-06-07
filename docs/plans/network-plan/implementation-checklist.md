@@ -186,6 +186,20 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       commands, raw PCAP, exact URL, decrypted payload, page content, video
       content, private-message content, search-query content, and host filtering
       unimplemented.
+- [x] `10i-remote-delivery-dispatch-readiness`: core dispatch-readiness gate
+      for row10g prepared outbox candidates. Row10i proof writes
+      `output/network-plan-proof/10i-remote-delivery-dispatch-readiness/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-dispatch-readiness-proof/proof.json`
+      and proves broker/family-hub dispatch gates preserve eventing
+      required-artifact refs and fixture-satisfied state while staying
+      manual-required because live transport implementation remains false.
+      Dispatch-ready candidates, dispatch attempts, and remote acknowledgement
+      counts remain zero, and the proof keeps product-ready delivery, policy
+      authority, side-effect authority, adapter execution, enforcement commands,
+      raw PCAP, exact URL, decrypted payload, page content, video content,
+      private-message content, search-query content, and host filtering
+      unimplemented.
 - [x] `11-manual-platform-proof.md`: OS/device/permission details, exact manual
       steps, screenshots/logs, and manual-required labels for platform claims.
       E-D row11 proof now writes

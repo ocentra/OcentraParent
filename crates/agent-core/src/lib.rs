@@ -140,9 +140,13 @@ pub use journal_error::JournalError;
 pub use network_capture::{collect_network_snapshot, NetworkObservation};
 pub use network_capture_event::{network_observation_event, network_snapshot_events};
 pub use network_event_runtime::{
+    prove_network_runtime_remote_delivery_dispatch_readiness,
     prove_network_runtime_remote_delivery_durable_envelope,
     prove_network_runtime_remote_delivery_outbox_handoff,
     publish_network_runtime_chain_for_observation, NetworkRuntimeEventPayload,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessError,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessState,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
     NetworkRuntimeRemoteDeliveryOutboxHandoffError,

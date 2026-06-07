@@ -1,0 +1,10 @@
+checkedAt=deterministic:network-remote-delivery-dispatch-readiness-proof/v1
+asserted=no exact URL/page/video/message/search claim from network-only evidence
+asserted=no decrypted payload or raw PCAP without custody claim
+asserted=no live broker/family-hub dispatch claim
+asserted=no transport dispatch attempt claim
+asserted=no remote acknowledgement claim
+asserted=no remote provider or child-device delivery claim
+asserted=no remote delete/export propagation implementation claim
+asserted=no product-ready remote delivery claim
+asserted=no policy authority, side-effect authority, adapter action, host filtering, or enforcement command publication

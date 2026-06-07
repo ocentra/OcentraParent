@@ -23,6 +23,8 @@ use crate::{
 mod broker_delivery;
 mod queue;
 mod refs;
+mod remote_delivery_dispatch_readiness;
+mod remote_delivery_dispatch_readiness_types;
 mod remote_delivery_durable_envelope;
 mod remote_delivery_durable_envelope_types;
 #[cfg(test)]
@@ -52,6 +54,12 @@ pub(crate) use queue::{
     queue_network_runtime_flow_rejects_duplicate_idempotency,
 };
 use refs::NetworkRuntimeChainRefs;
+pub use remote_delivery_dispatch_readiness::prove_network_runtime_remote_delivery_dispatch_readiness;
+pub use remote_delivery_dispatch_readiness_types::{
+    NetworkRuntimeRemoteDeliveryDispatchReadinessError,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessState,
+};
 pub use remote_delivery_durable_envelope::prove_network_runtime_remote_delivery_durable_envelope;
 pub use remote_delivery_durable_envelope_types::{
     NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
