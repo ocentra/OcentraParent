@@ -309,11 +309,16 @@ provider-adapter-required preflight rows with adapter, credential, and provider
 smoke proof requirements. Evidence:
 `test-results/social-alert-report-provider-preflight-proof/proof.json` and
 `output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md`.
-This advances provider-readiness proof without claiming provider dispatch,
-receipt ingestion, parent notification UI delivery, report delivery execution,
-final policy execution, connector/native runtime, or enforcement. Package
-subpath export is deferred while `packages/parent-domain/package.json` is locked
-by codex-c.
+`social-alert-report-provider-status-handoff-proof` maps those preflight rows
+into the existing V0.8 notification provider status boundary as
+manual-required/unavailable rows. Evidence:
+`test-results/social-alert-report-provider-status-handoff-proof/proof.json` and
+`output/browser-plan-proof/social-alert-report-provider-status-handoff-proof/01-social-alert-report-provider-status-handoff-proof.md`.
+This advances provider-readiness/status proof without claiming provider
+dispatch, receipt ingestion, parent notification UI delivery, report delivery
+execution, final policy execution, connector/native runtime, or enforcement.
+Package subpath exports are deferred while `packages/parent-domain/package.json`
+is locked by codex-c.
 
 ## Worker Report Template
 

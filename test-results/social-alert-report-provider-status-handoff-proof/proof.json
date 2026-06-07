@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-alert-report-provider-status-handoff-proof",
+  "generatedAt": "2026-06-07T05:46:00Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "5f7a7cf07194780d6fda52ce0dae3e8a049f3abd",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-alert-report-provider-status-handoff-proof.test.ts",
+      "exitCode": 0
+    }
+  ],
+  "checks": [
+    {
+      "label": "packages/parent-domain/src/social-alert-report-provider-status-handoff-proof.ts exists",
+      "pass": true
+    },
+    {
+      "label": "packages/parent-domain/tests/social-alert-report-provider-status-handoff-proof.test.ts exists",
+      "pass": true
+    },
+    {
+      "label": "scripts/test/social-alert-report-provider-status-handoff-proof.mjs exists",
+      "pass": true
+    },
+    {
+      "label": "provider delivery non-claim guard",
+      "pass": true
+    },
+    {
+      "label": "provider receipt non-claim guard",
+      "pass": true
+    },
+    {
+      "label": "final policy non-claim guard",
+      "pass": true
+    },
+    {
+      "label": "enforcement non-claim guard",
+      "pass": true
+    },
+    {
+      "label": "provider delivery rejection test",
+      "pass": true
+    },
+    {
+      "label": "boundary coverage rejection test",
+      "pass": true
+    },
+    {
+      "label": "social feature provider preflight note",
+      "pass": true
+    },
+    {
+      "label": "social README provider preflight note",
+      "pass": true
+    }
+  ],
+  "summary": {
+    "rows": 3,
+    "providerStatusManualRequiredCount": 2,
+    "providerStatusUnavailableCount": 1,
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "nonClaims": {
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "providerCredentialsClaimed": false,
+    "cloudRoutingClaimed": false,
+    "parentNotificationUiDeliveryClaimed": false,
+    "reportDeliveryExecutionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "connectorNativeRuntimeClaimed": false,
+    "enforcementClaimed": false
+  },
+  "rows": [
+    {
+      "handoffRowId": "social-provider-status-handoff-social-provider-preflight-social-provider-status-high-risk",
+      "sourcePreflightRowId": "social-provider-preflight-social-provider-status-high-risk",
+      "sourceIntentRef": "social-provider-status-high-risk",
+      "sourcePreflightStatus": "provider-adapter-required",
+      "providerStatus": "manual-required",
+      "statusProofState": "manual-action-required",
+      "readinessRefs": [
+        "provider-adapter-required-social-provider-status-high-risk",
+        "provider-credentials-required-social-provider-status-high-risk",
+        "provider-smoke-proof-required-social-provider-status-high-risk"
+      ],
+      "providerReceiptRefs": []
+    },
+    {
+      "handoffRowId": "social-provider-status-handoff-social-provider-preflight-social-provider-status-manual-required",
+      "sourcePreflightRowId": "social-provider-preflight-social-provider-status-manual-required",
+      "sourceIntentRef": "social-provider-status-manual-required",
+      "sourcePreflightStatus": "manual-required",
+      "providerStatus": "manual-required",
+      "statusProofState": "manual-action-required",
+      "readinessRefs": [
+        "manual-proof-social-provider-status-required"
+      ],
+      "providerReceiptRefs": []
+    },
+    {
+      "handoffRowId": "social-provider-status-handoff-social-provider-preflight-social-provider-status-unavailable",
+      "sourcePreflightRowId": "social-provider-preflight-social-provider-status-unavailable",
+      "sourceIntentRef": "social-provider-status-unavailable",
+      "sourcePreflightStatus": "unavailable",
+      "providerStatus": "unavailable",
+      "statusProofState": "provider-unavailable-contract",
+      "readinessRefs": [
+        "social-provider-readiness-unavailable"
+      ],
+      "providerReceiptRefs": []
+    }
+  ],
+  "proofPaths": {
+    "source": "packages/parent-domain/src/social-alert-report-provider-status-handoff-proof.ts",
+    "test": "packages/parent-domain/tests/social-alert-report-provider-status-handoff-proof.test.ts",
+    "harness": "scripts/test/social-alert-report-provider-status-handoff-proof.mjs",
+    "evidence": "test-results/social-alert-report-provider-status-handoff-proof/proof.json",
+    "readModel": "test-results/social-alert-report-provider-status-handoff-proof/provider-status-handoff-read-model.json",
+    "manifest": "output/browser-plan-proof/social-alert-report-provider-status-handoff-proof/01-social-alert-report-provider-status-handoff-proof.md"
+  },
+  "failures": []
+}

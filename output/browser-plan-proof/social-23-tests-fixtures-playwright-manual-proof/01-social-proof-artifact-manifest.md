@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-07T05:41:36.611Z
+Generated: 2026-06-07T05:54:28.250Z
 
 Rows checked: 22
 Proof-present rows: 21
@@ -53,6 +53,7 @@ Live-evidence decision memory proof is present for SOCIAL-19 ref-only cache snap
 Ref-only social alert/report intent proof is present.
 Service-backed social alert/report intent UI proof is present for the real Browser route.
 Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.
+Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.
 Parent-owned social report writer delivery-readiness proof is present.
 Parent-owned social schedule/time-budget application-readiness proof is present.
 Schedule/time-budget compiler contract proof is present.

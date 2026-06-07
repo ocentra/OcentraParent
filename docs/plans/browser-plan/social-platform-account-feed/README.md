@@ -451,6 +451,19 @@ It does not claim provider dispatch, receipt ingestion, parent notification UI
 delivery, report delivery execution, final policy execution, connector/native
 runtime, or enforcement.
 
+The follow-up `social-alert-report-provider-status-handoff-proof` adds
+`packages/parent-domain/src/social-alert-report-provider-status-handoff-proof.ts`
+and
+`packages/parent-domain/tests/social-alert-report-provider-status-handoff-proof.test.ts`.
+It maps parsed social alert/report provider-preflight rows into the existing
+V0.8 notification provider status boundary as manual-required or unavailable.
+The proof writes
+`test-results/social-alert-report-provider-status-handoff-proof/proof.json` and
+`output/browser-plan-proof/social-alert-report-provider-status-handoff-proof/01-social-alert-report-provider-status-handoff-proof.md`.
+It does not claim provider dispatch, delivered notification receipts, parent
+notification UI delivery, report delivery execution, final policy execution,
+connector/native runtime, or enforcement.
+
 The follow-up `social-parent-sensitivity-settings-proof` adds
 `packages/parent-domain/src/social-parent-sensitivity-settings-values.ts`,
 `packages/parent-domain/src/social-parent-sensitivity-settings.ts`, and

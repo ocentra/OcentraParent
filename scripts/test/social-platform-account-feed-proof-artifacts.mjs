@@ -15,6 +15,8 @@ const requiredSupplementalProofFiles = [
   'output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-ui-playwright.log',
   'test-results/social-alert-report-provider-preflight-proof/proof.json',
   'output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md',
+  'test-results/social-alert-report-provider-status-handoff-proof/proof.json',
+  'output/browser-plan-proof/social-alert-report-provider-status-handoff-proof/01-social-alert-report-provider-status-handoff-proof.md',
 ];
 
 if (!existsSync(proofRoot)) {
@@ -191,6 +193,7 @@ function manifestFor(rows, failures) {
       alertReportIntent: 'proof-present',
       alertReportIntentUi: 'service-backed-browser-route-proof-present',
       alertReportProviderPreflight: 'provider-adapter-required-proof-present',
+      alertReportProviderStatusHandoff: 'provider-status-boundary-proof-present',
       reportWriterDelivery: 'parent-owned-proof-present',
       appliedScheduleTimeBudget: 'parent-owned-proof-present',
       scheduleTimeBudgetCompiler: 'proof-present',
@@ -247,6 +250,7 @@ function markdownFor(manifest) {
     'Ref-only social alert/report intent proof is present.',
     'Service-backed social alert/report intent UI proof is present for the real Browser route.',
     'Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.',
+    'Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.',
     'Parent-owned social report writer delivery-readiness proof is present.',
     'Parent-owned social schedule/time-budget application-readiness proof is present.',
     'Schedule/time-budget compiler contract proof is present.',
