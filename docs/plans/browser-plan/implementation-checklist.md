@@ -240,6 +240,23 @@ WebView, VIEW handler, AccessibilityService, VpnService, DeviceAdminReceiver,
 UsageStats permission, or privileged browser enforcement adapter is currently
 declared. WP05 remains partial/manual-required.
 
+WP05 Windows managed CDP addendum:
+`scripts/test/browser-platform-windows-managed-cdp-proof.mjs` launches a real
+Windows Chromium-family browser with a temporary Ocentra-owned managed profile
+and loopback CDP, observes the exact local proof URL, captures a CDP
+screenshot, and deletes the temporary profile. Evidence:
+`test-results/browser-platform-windows-managed-cdp-proof/proof.json`,
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/14-windows-managed-cdp-proof.json`,
+and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/14-windows-managed-cdp-screenshot.png`.
+`scripts/test/browser-platform-inventory-matrix-proof.mjs` now requires that
+artifact and rejects raw executable path, raw profile path, raw CDP payload, raw
+page content, active-tab enforcement, final policy execution, and enforcement
+claims. WP05 remains partial/manual-required because non-Windows platform
+adapters, owned Android browser shell/device policy, iOS managed browser proof,
+browser blocking, and exact active-tab enforcement are still unproved. No
+product capability checklist upgrade is claimed.
+
 SOCIAL-23/SOCIAL-24 addendum: `test:social-alert-report-intent-ui-proof`
 now covers the service-backed Browser-route alert/report intent panel plus
 provider-status boundary rows through the real Rust WebSocket command

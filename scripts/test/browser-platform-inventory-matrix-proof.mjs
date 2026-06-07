@@ -12,6 +12,7 @@ const manifestPath = join(outputDirectory, '11-proof-gate-manifest.md');
 const androidHostProofPath = join(outputDirectory, '11-android-host-device-proof.json');
 const linuxHostProofPath = join(outputDirectory, '12-linux-host-package-proof.json');
 const windowsHostProofPath = join(outputDirectory, '13-windows-host-browser-proof.json');
+const windowsManagedCdpProofPath = join(outputDirectory, '14-windows-managed-cdp-proof.json');
 
 const requiredProofFiles = [
   '00-source-snapshot.md',
@@ -44,10 +45,12 @@ async function main() {
   const androidHostProof = await readAndroidHostProof();
   const linuxHostProof = await readLinuxHostProof();
   const windowsHostProof = await readWindowsHostProof();
+  const windowsManagedCdpProof = await readWindowsManagedCdpProof();
   const failures = [
     ...validateMatrix(matrix.entries),
     ...proofFiles.filter((file) => !file.exists).map((file) => `missing proof artifact: ${file.path}`),
     ...validateWindowsHostProof(windowsHostProof),
+    ...validateWindowsManagedCdpProof(windowsManagedCdpProof),
   ];
   const proof = {
     schemaVersion: 1,
@@ -81,6 +84,9 @@ async function main() {
       windowsHostProof
         ? 'windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed'
         : 'windows-host-browser-inventory-proof-required',
+      windowsManagedCdpProof
+        ? 'windows-managed-cdp-exact-url-proof-present-final-enforcement-still-unclaimed'
+        : 'windows-managed-cdp-proof-required',
       'ios-familycontrols-safari-extension-manual-required',
       'firefox-bidi-extension-later-adapter',
       'portal-ui-not-changed',
@@ -89,6 +95,7 @@ async function main() {
     androidHostProof,
     linuxHostProof,
     windowsHostProof,
+    windowsManagedCdpProof,
     failures,
   };
 
@@ -209,6 +216,7 @@ function markdownFor(proof) {
     `Android host proof: ${proof.androidHostProof?.resultState ?? 'not-present'}`,
     `Linux host proof: ${proof.linuxHostProof?.resultState ?? 'not-present'}`,
     `Windows host proof: ${proof.windowsHostProof?.resultState ?? 'not-present'}`,
+    `Windows managed CDP proof: ${proof.windowsManagedCdpProof?.resultState ?? 'not-present'}`,
     '',
     '| Platform | Browser | Product | Proof State | Exact URL | Active Tab | Reason |',
     '| --- | --- | --- | --- | --- | --- | --- |',
@@ -225,6 +233,9 @@ function markdownFor(proof) {
     proof.windowsHostProof
       ? 'Windows host browser executable proof and default URL handler association boundary evidence are present, but managed launch, bridge custody, exact URL, active tab, and enforcement remain unclaimed.'
       : 'Windows host browser inventory proof remains required.',
+    proof.windowsManagedCdpProof
+      ? 'Windows managed CDP proof is present for an Ocentra-launched managed browser profile reaching the exact local proof URL and capturing a CDP screenshot, but active-tab enforcement, final policy execution, browser blocking, and non-Windows support remain unclaimed.'
+      : 'Windows managed CDP proof remains required.',
   ].join('\n');
 }
 
@@ -290,6 +301,36 @@ async function readWindowsHostProof() {
   };
 }
 
+async function readWindowsManagedCdpProof() {
+  if (!existsSync(windowsManagedCdpProofPath)) {
+    return null;
+  }
+
+  const proof = JSON.parse(await readFile(windowsManagedCdpProofPath, 'utf8'));
+  return {
+    path: relativePath(windowsManagedCdpProofPath),
+    proofId: proof.proofId,
+    resultState: proof.hostProofSummary?.resultState ?? 'unknown',
+    windowsHost: proof.hostProofSummary?.windowsHost === true,
+    realManagedBrowserLaunched: proof.hostProofSummary?.realManagedBrowserLaunched === true,
+    loopbackCdpEndpointResponded: proof.hostProofSummary?.loopbackCdpEndpointResponded === true,
+    cdpVersionEndpointResponded: proof.hostProofSummary?.cdpVersionEndpointResponded === true,
+    cdpTabListEndpointResponded: proof.hostProofSummary?.cdpTabListEndpointResponded === true,
+    exactManagedUrlObserved: proof.hostProofSummary?.exactManagedUrlObserved === true,
+    activeTabKnownByTargetSelection: proof.hostProofSummary?.activeTabKnownByTargetSelection === true,
+    cdpScreenshotCaptured: proof.hostProofSummary?.cdpScreenshotCaptured === true,
+    managedProfileCreated: proof.hostProofSummary?.managedProfileCreated === true,
+    managedProfileDeletedAfterProof: proof.hostProofSummary?.managedProfileDeletedAfterProof === true,
+    rawExecutablePathPersisted: proof.hostProofSummary?.rawExecutablePathPersisted === true,
+    rawProfilePathPersisted: proof.hostProofSummary?.rawProfilePathPersisted === true,
+    rawCdpPayloadPersisted: proof.hostProofSummary?.rawCdpPayloadPersisted === true,
+    rawPageContentPersisted: proof.hostProofSummary?.rawPageContentPersisted === true,
+    activeTabEnforcementClaimed: proof.hostProofSummary?.activeTabEnforcementClaimed === true,
+    finalPolicyExecutionClaimed: proof.hostProofSummary?.finalPolicyExecutionClaimed === true,
+    enforcementClaimed: proof.hostProofSummary?.enforcementClaimed === true,
+  };
+}
+
 function validateWindowsHostProof(proof) {
   if (proof === null) {
     return [
@@ -314,6 +355,49 @@ function validateWindowsHostProof(proof) {
     proof.enforcementClaimed
   ) {
     failures.push('Windows host proof made managed launch, exact URL, active tab, or enforcement claims');
+  }
+  return failures;
+}
+
+function validateWindowsManagedCdpProof(proof) {
+  if (proof === null) {
+    return [
+      'missing Windows managed CDP proof artifact: output/browser-plan-proof/05-cross-platform-inventory-matrix/14-windows-managed-cdp-proof.json',
+    ];
+  }
+
+  const failures = [];
+  if (!proof.windowsHost) {
+    failures.push('Windows managed CDP proof was not captured on a Windows host');
+  }
+  if (proof.resultState !== 'windows-managed-cdp-exact-url-proof') {
+    failures.push(`Windows managed CDP proof has unexpected resultState: ${proof.resultState}`);
+  }
+  if (!proof.realManagedBrowserLaunched || !proof.loopbackCdpEndpointResponded) {
+    failures.push('Windows managed CDP proof did not launch a real managed browser with a loopback CDP endpoint');
+  }
+  if (!proof.cdpVersionEndpointResponded || !proof.cdpTabListEndpointResponded) {
+    failures.push('Windows managed CDP proof lacks CDP version/list endpoint evidence');
+  }
+  if (!proof.exactManagedUrlObserved || !proof.activeTabKnownByTargetSelection) {
+    failures.push('Windows managed CDP proof lacks exact managed URL and target-selection evidence');
+  }
+  if (!proof.cdpScreenshotCaptured) {
+    failures.push('Windows managed CDP proof did not capture a CDP screenshot');
+  }
+  if (!proof.managedProfileCreated || !proof.managedProfileDeletedAfterProof) {
+    failures.push('Windows managed CDP proof did not create and clean up the temporary managed profile');
+  }
+  if (
+    proof.rawExecutablePathPersisted ||
+    proof.rawProfilePathPersisted ||
+    proof.rawCdpPayloadPersisted ||
+    proof.rawPageContentPersisted
+  ) {
+    failures.push('Windows managed CDP proof persisted raw executable/profile/CDP/page content data');
+  }
+  if (proof.activeTabEnforcementClaimed || proof.finalPolicyExecutionClaimed || proof.enforcementClaimed) {
+    failures.push('Windows managed CDP proof made active-tab enforcement, final policy, or enforcement claims');
   }
   return failures;
 }

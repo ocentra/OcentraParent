@@ -150,6 +150,15 @@ control while being more honest about managed versus unmanaged sources.
   manual-required/unsupported boundaries, but macOS, Linux, Android, and iOS
   support remain partial until real host/device artifacts prove those platform
   adapters.
+- Browser-plan WP05 now adds Windows managed-CDP proof for an
+  Ocentra-launched temporary managed browser profile. The proof launches real
+  Edge/Chrome-family browser infrastructure on Windows, connects through
+  loopback CDP, observes the exact local proof URL, captures a screenshot, and
+  deletes the temporary profile while preserving no-raw-path, no-raw-CDP, and
+  no-page-content boundaries. This upgrades only the Windows local managed-launch,
+  bridge-custody, and exact-local-URL proof boundary; exact active-tab
+  enforcement, final policy execution, browser blocking, and non-Windows
+  managed CDP support remain unclaimed.
 - Browser-plan WP14 now surfaces the browser inventory read model in the parent
   portal route through service-backed inventory, exact URL capability, active-tab
   proof, and unmanaged fallback rows. The visible route shows inventory, exact
@@ -251,8 +260,10 @@ upgrade exact URL, unmanaged exact evidence, or host domain blocking claims.
 Policy dispatch and supported-adapter runtime proof preserve the report-only or
 not-claimed boundary, not active tab enforcement. The integrity runtime audit
 adds proof that dry-run, observe-only, rejected, unavailable, and manual-required
-states stay non-executing, but it still does not prove managed exact URL or
-active-tab enforcement.
+states stay non-executing. WP05 now proves a Windows local Ocentra-launched
+managed browser can reach an exact local proof URL through CDP, but it still
+does not prove exact active-tab enforcement, final policy execution, browser
+blocking, or non-Windows managed CDP support.
 Timer recovery and unmanaged fallback now have focused V0.8 proof, including
 parent-visible next-check/failure states and process-scoped fallback outcomes,
 but that proof does not upgrade exact page evidence, host domain blocking,

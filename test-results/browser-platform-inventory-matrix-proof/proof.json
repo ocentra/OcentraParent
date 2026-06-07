@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-platform-inventory-matrix-proof",
-  "generatedAt": "2026-06-07T07:45:44.722Z",
+  "generatedAt": "2026-06-07T09:21:08.915Z",
   "proofContract": "packages/activity-domain/src/browser-platform-inventory-matrix.ts",
   "sourceWorkpack": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
   "rows": [
@@ -248,6 +248,7 @@
     "linux-wsl-package-inventory-boundary-proof-present-desktop-adapter-still-manual-required",
     "android-browser-package-visibility-proof-present-owned-shell-still-manual-required",
     "windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed",
+    "windows-managed-cdp-exact-url-proof-present-final-enforcement-still-unclaimed",
     "ios-familycontrols-safari-extension-manual-required",
     "firefox-bidi-extension-later-adapter",
     "portal-ui-not-changed",
@@ -289,6 +290,28 @@
     "managedLaunchClaimed": false,
     "exactUrlProofClaimed": false,
     "knownActiveTabProofClaimed": false,
+    "enforcementClaimed": false
+  },
+  "windowsManagedCdpProof": {
+    "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/14-windows-managed-cdp-proof.json",
+    "proofId": "browser-platform-windows-managed-cdp-proof",
+    "resultState": "windows-managed-cdp-exact-url-proof",
+    "windowsHost": true,
+    "realManagedBrowserLaunched": true,
+    "loopbackCdpEndpointResponded": true,
+    "cdpVersionEndpointResponded": true,
+    "cdpTabListEndpointResponded": true,
+    "exactManagedUrlObserved": true,
+    "activeTabKnownByTargetSelection": true,
+    "cdpScreenshotCaptured": true,
+    "managedProfileCreated": true,
+    "managedProfileDeletedAfterProof": true,
+    "rawExecutablePathPersisted": false,
+    "rawProfilePathPersisted": false,
+    "rawCdpPayloadPersisted": false,
+    "rawPageContentPersisted": false,
+    "activeTabEnforcementClaimed": false,
+    "finalPolicyExecutionClaimed": false,
     "enforcementClaimed": false
   },
   "failures": []

@@ -72,6 +72,22 @@ The matrix gate reads that artifact and reports host-observed Windows rows, but
 managed launch, bridge custody, exact URL, active tab, managed profile repair,
 and enforcement remain unclaimed.
 
+2026-06-07 codex-d continuation: `scripts/test/browser-platform-windows-managed-cdp-proof.mjs`
+now launches a real Windows Chromium-family browser through an Ocentra-owned
+temporary managed profile and loopback CDP endpoint. The proof opens a local
+proof page, verifies `/json/version` and `/json/list`, observes the exact
+managed URL through CDP, captures a screenshot through the CDP WebSocket, cleans
+up the temporary profile, and writes
+`test-results/browser-platform-windows-managed-cdp-proof/proof.json`,
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/14-windows-managed-cdp-proof.json`,
+and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/14-windows-managed-cdp-screenshot.png`.
+This upgrades only Windows Ocentra-launched managed browser launch/bridge
+custody/exact managed URL proof for the local proof page. It does not claim
+exact active-tab enforcement, final policy execution, browser blocking,
+non-Windows managed CDP support, raw path persistence, raw CDP payload
+persistence, or raw page content capture.
+
 ## Where We Want To Be
 
 The browser inventory/read model can show platform-specific capability states
@@ -96,10 +112,12 @@ without claiming desktop CDP where it does not apply.
 - `scripts/test/browser-platform-android-host-proof.mjs`
 - `scripts/test/browser-platform-linux-host-proof.mjs`
 - `scripts/test/browser-platform-windows-host-proof.mjs`
+- `scripts/test/browser-platform-windows-managed-cdp-proof.mjs`
 - `test-results/browser-platform-inventory-matrix-proof/`
 - `test-results/browser-platform-android-host-proof/`
 - `test-results/browser-platform-linux-host-proof/`
 - `test-results/browser-platform-windows-host-proof/`
+- `test-results/browser-platform-windows-managed-cdp-proof/`
 - `output/browser-plan-proof/05-cross-platform-inventory-matrix/`
 - platform README/docs when implementation starts.
 
@@ -109,6 +127,7 @@ without claiming desktop CDP where it does not apply.
 - Fixture tests for platform states.
 - `node scripts/test/browser-platform-inventory-matrix-proof.mjs`
 - `node scripts/test/browser-platform-windows-host-proof.mjs`
+- `node scripts/test/browser-platform-windows-managed-cdp-proof.mjs`
 - `node scripts/test/browser-platform-android-host-proof.mjs`
 - `node scripts/test/browser-platform-linux-host-proof.mjs`
 - Manual platform proof tables when platform work starts.
@@ -125,11 +144,11 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service/portal parity updated only after contracts exist; no Rust/service/portal surface changed in this contract-only slice.
 - [x] Raw evidence artifacts captured or marked N/A: this slice is a platform support matrix contract and has no bridge/CDP, journal, SQLite, policy, or action runtime evidence.
-- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Windows host browser executable proof and default URL handler association boundary evidence, Android emulator package-visibility proof, and WSL Linux package/PATH boundary proof are present, while managed launch/bridge custody/exact URL/active tab, live macOS/Linux desktop/owned-shell Android/iOS fixtures, and manual proof remain manual-required.
+- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Windows host browser executable proof and default URL handler association boundary evidence, Windows Ocentra-launched managed CDP proof for an exact local proof URL, Android emulator package-visibility proof, and WSL Linux package/PATH boundary proof are present, while exact active-tab enforcement, final policy execution, browser blocking, live macOS/Linux desktop/owned-shell Android/iOS fixtures, and manual proof remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured: non-Windows entries reject managed exact-URL and known-active claims; iOS remains unsupported; unsupported entries cannot keep exact URL available.
-- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility, UI-tree/logcat hash evidence, and source-backed no-owned-shell/no-WebView/no-privileged-browser-adapter boundary evidence are captured in `11-android-host-device-proof.json`, WSL Linux package/PATH boundary evidence is captured in `12-linux-host-package-proof.json`, Windows host browser executable proof and default URL handler association boundary evidence are captured in `13-windows-host-browser-proof.json`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
+- [x] Manual platform proof captured for real browser/OS claims; Android emulator browser package/default-handler visibility, UI-tree/logcat hash evidence, and source-backed no-owned-shell/no-WebView/no-privileged-browser-adapter boundary evidence are captured in `11-android-host-device-proof.json`, WSL Linux package/PATH boundary evidence is captured in `12-linux-host-package-proof.json`, Windows host browser executable proof and default URL handler association boundary evidence are captured in `13-windows-host-browser-proof.json`, Windows managed CDP exact-local-URL proof and screenshot evidence are captured in `14-windows-managed-cdp-proof.json` and `14-windows-managed-cdp-screenshot.png`, and `09-manual-platform-proof.md` records the remaining manual-required boundaries.
 - [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md), including `test-results/browser-platform-inventory-matrix-proof/proof.json` and `output/browser-plan-proof/05-cross-platform-inventory-matrix/11-proof-gate-manifest.md`.
 - [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
@@ -139,8 +158,11 @@ Fill this before reporting `DONE` or PR-ready:
 No browser product claim until real platform proof exists for the exact
 capability being upgraded.
 Windows host browser executable proof and default URL handler association
-boundary evidence are now captured, but managed launch, bridge custody, exact
-URL, active-tab, managed profile repair, and enforcement remain unclaimed.
+boundary evidence are now captured. Windows managed CDP proof also launches an
+Ocentra-owned temporary managed browser profile, observes the exact local proof
+URL, and captures a CDP screenshot, but exact active-tab enforcement, final
+policy execution, browser blocking, managed profile repair, and non-Windows
+managed CDP support remain unclaimed.
 Android emulator package visibility and source-backed Android agent boundary
 evidence are now proved, but the owned browser shell, exact URL, active-tab,
 device-owner policy, VPN/DNS browser proof, UsageStats/Accessibility route

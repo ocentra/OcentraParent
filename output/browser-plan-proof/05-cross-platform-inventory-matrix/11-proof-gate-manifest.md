@@ -1,6 +1,6 @@
 # WP05 Platform Inventory Matrix Proof Gate
 
-Generated: 2026-06-07T07:45:44.722Z
+Generated: 2026-06-07T09:21:08.915Z
 
 Rows checked: 12
 Host-observed rows: 2
@@ -11,6 +11,7 @@ Product claimed: false
 Android host proof: android-browser-package-visibility-proof
 Linux host proof: linux-wsl-package-inventory-boundary-proof
 Windows host proof: windows-host-browser-inventory-boundary-proof
+Windows managed CDP proof: windows-managed-cdp-exact-url-proof
 
 | Platform | Browser | Product | Proof State | Exact URL | Active Tab | Reason |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -32,3 +33,4 @@ Non-Windows managed exact URL and known-active tab support remain manual-require
 Android emulator package-visibility proof is present, but owned browser shell custody, exact URL, active tab, device-owner policy, and enforcement remain unclaimed.
 Linux WSL package/PATH/desktop-entry boundary proof is present, but Linux desktop browser adapter, managed profile, exact URL, active tab, and enforcement remain unclaimed.
 Windows host browser executable proof and default URL handler association boundary evidence are present, but managed launch, bridge custody, exact URL, active tab, and enforcement remain unclaimed.
+Windows managed CDP proof is present for an Ocentra-launched managed browser profile reaching the exact local proof URL and capturing a CDP screenshot, but active-tab enforcement, final policy execution, browser blocking, and non-Windows support remain unclaimed.

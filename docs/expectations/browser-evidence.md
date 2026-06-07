@@ -341,6 +341,17 @@ Browser evidence must not record unless a later milestone explicitly approves it
 
 The Windows Rust agent should follow this procedure for browser URL/tab evidence:
 
+WP05 proof status: `scripts/test/browser-platform-windows-managed-cdp-proof.mjs`
+now proves the local Windows managed-browser procedure through a temporary
+Ocentra-owned profile and loopback CDP endpoint for a local proof page. The
+artifact records that a real Chromium-family browser launched, `/json/version`
+and `/json/list` responded, the exact local managed proof URL was observed, a
+CDP screenshot was captured, and the temporary profile was removed. This is not
+yet a product-complete active-tab enforcement, final policy execution, browser
+blocking, or non-Windows support claim, and the artifact must not persist raw
+executable paths, raw profile paths, raw CDP payloads, raw page content, or
+browser secrets.
+
 1. Inventory installed browsers.
 
    Detect Chrome, Edge, Brave, Firefox, Opera, and other browser-like executables

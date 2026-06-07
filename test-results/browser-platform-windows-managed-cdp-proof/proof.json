@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "proofId": "browser-platform-windows-managed-cdp-proof",
+  "generatedAt": "2026-06-07T09:20:50.180Z",
+  "branch": "codex/browser-child-intervention-endpoint-flow",
+  "commit": "6e55d0eca1b4806b509b70c984a5173ce3d9833e",
+  "baseCommit": "5a754dc17a1743a69085b5e39cc826b3979d9edb",
+  "hostProofSummary": {
+    "platform": "win32",
+    "windowsHost": true,
+    "browserFamily": "edge",
+    "browserChannel": "stable",
+    "executableRef": "windows-managed-browser-executable-0647cf87e7e9c48a",
+    "managedProfileRef": "windows-managed-browser-profile-d80c1101387e8765",
+    "loopbackCdpEndpointRef": "windows-managed-cdp-loopback-07f0ce6370b82b4a",
+    "proofUrlRef": "windows-managed-cdp-proof-url-bb7fe539fc31cde6",
+    "targetRef": "managed-cdp-target-ae49a1022bef5a06",
+    "realManagedBrowserLaunched": true,
+    "loopbackCdpEndpointResponded": true,
+    "cdpVersionEndpointResponded": true,
+    "cdpTabListEndpointResponded": true,
+    "exactManagedUrlObserved": true,
+    "activeTabKnownByTargetSelection": true,
+    "cdpScreenshotCaptured": true,
+    "managedProfileCreated": true,
+    "managedProfileDeletedAfterProof": true,
+    "rawExecutablePathPersisted": false,
+    "rawProfilePathPersisted": false,
+    "rawCdpPayloadPersisted": false,
+    "rawPageContentPersisted": false,
+    "providerOrCloudUsed": false,
+    "activeTabEnforcementClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false,
+    "resultState": "windows-managed-cdp-exact-url-proof"
+  },
+  "cdpEvidence": {
+    "browserVersionRef": "windows-managed-cdp-browser-version-7baee471aa125605",
+    "protocolVersionRef": "windows-managed-cdp-protocol-version-9c193c604ad7de94",
+    "targetCount": 6,
+    "pageTargetType": "page",
+    "pageTargetUrlRef": "windows-managed-cdp-page-url-bb7fe539fc31cde6",
+    "runtimeLocationHrefRef": "windows-managed-cdp-runtime-location-bb7fe539fc31cde6",
+    "pageTitleRef": "windows-managed-cdp-title-76d7ea8f37344491",
+    "screenshotRef": "windows-managed-cdp-screenshot-d5a1cae1ce835896",
+    "screenshotPath": "output/browser-plan-proof/05-cross-platform-inventory-matrix/14-windows-managed-cdp-screenshot.png"
+  },
+  "negativeChecks": [
+    {
+      "claim": "raw-executable-path-persisted",
+      "rejected": true
+    },
+    {
+      "claim": "raw-profile-path-persisted",
+      "rejected": true
+    },
+    {
+      "claim": "raw-cdp-payload-persisted",
+      "rejected": true
+    },
+    {
+      "claim": "active-tab-enforcement",
+      "rejected": true
+    },
+    {
+      "claim": "final-policy-execution",
+      "rejected": true
+    },
+    {
+      "claim": "browser-enforcement",
+      "rejected": true
+    },
+    {
+      "claim": "non-windows-managed-cdp-support",
+      "rejected": true
+    }
+  ]
+}
