@@ -422,6 +422,11 @@ control with better evidence and local audit.
   heuristic category/risk labels stay manual-review candidates; and the
   App/Game Sessions dashboard renders unknown-process and possible-game rows as
   manual-required review state instead of known native-game usage.
+- The iOS process scan/kill merge-blocking gate is now backed by
+  `output/app-game-plan-proof/merge-gates/ios-no-process-scan-kill`: iOS
+  process enumeration and terminate-process behavior remain not-claimed,
+  not-dispatched, and blocked from adapter calls unless real FamilyControls,
+  ManagedSettings, or supervised MDM proof exists.
 
 ## Current Gap
 
