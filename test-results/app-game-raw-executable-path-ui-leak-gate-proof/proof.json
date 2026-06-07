@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-raw-executable-path-ui-leak-gate-proof",
+  "generatedAt": "deterministic-proof-artifact",
+  "branch": "codex/app-game-raw-executable-path-ui-leak-gate-proof-split",
+  "commit": "branch-head-validated-by-harness",
+  "commitMetadata": "This proof intentionally avoids embedding HEAD because a committed artifact cannot contain its own final commit hash.",
+  "gitStatusShort": "validated-by-explicit-handoff-status-check",
+  "commands": [
+    "cmd /c npm run build:contracts\nexit=0\n\n> @ocentra-parent/workspace@0.1.1 build:contracts\n> npm run build --workspace @ocentra-parent/schema-domain && npm run build --workspace @ocentra-parent/logging-domain && npm run build --workspace @ocentra-parent/parent-domain && npm run build --workspace @ocentra-parent/activity-domain && npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain\n\n\n> @ocentra-parent/schema-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/logging-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/parent-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/activity-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/agent-protocol-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/text-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/portal-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/portal -- activity-ui-app-game-dashboard-intent.test.ts\nexit=0\n\n> @ocentra-parent/portal@0.1.1 test\n> vitest run tests activity-ui-app-game-dashboard-intent.test.ts\n\n\n RUN  v4.1.6 <repo-root>/apps/portal\n\n\n Test Files  16 passed (16)\n      Tests  70 passed (70)\n   Start at <normalized>\n   Duration <normalized>\n\n\u001b[2m<normalized>\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `esbuild` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `oxc` instead.\u001b[39m\n\u001b[2m<normalized>\u001b[22m \u001b[33m\u001b[1m[vite]\u001b[22m\u001b[39m \u001b[33mwarning: `optimizeDeps.esbuildOptions` option was specified by \"vite:react-babel\" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.\u001b[39m\n\u001b[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.\u001b[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`\n"
+  ],
+  "gate": "Raw private executable paths leak into parent UI.",
+  "gateState": "prevented-by-dashboard-intent-redaction-and-render-source-proof",
+  "evidence": {
+    "dashboardTest": "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts feeds Windows-looking executablePathRef values into app/game rows and proves the serialized parent dashboard omits the raw paths and executablePathRef field.",
+    "dashboardIntent": "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts maps parent-visible labels, state, counts, durations, capability, and evidence refs, but does not map executablePathRef.",
+    "dashboardSurface": "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx renders the app/game dashboard rows and metric lists without executable path fields."
+  },
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "rawPrivateExecutablePathExposed": false,
+    "executablePathRefRendered": false,
+    "evidenceRefsRendered": true,
+    "browserGameWorkDuplicated": false,
+    "adapterDispatchClaimed": false,
+    "policyExecutionClaimed": false,
+    "packageExportsChanged": false
+  },
+  "proofPaths": {
+    "proof": "test-results/app-game-raw-executable-path-ui-leak-gate-proof/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/merge-gates/raw-executable-path-ui-leak",
+    "harness": "scripts/test/app-game-raw-executable-path-ui-leak-gate-proof.mjs"
+  }
+}
