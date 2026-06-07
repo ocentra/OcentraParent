@@ -66,6 +66,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `test-results/tracking-plan-ios-simulator-proof/proof.json`
 - iOS privacy disclosure release gate proof:
   `47-ios-privacy-disclosure-release-proof.json`
+- Authority enrollment manual-required proof:
+  `48-authority-enrollment-manual-required-proof.json`
 - Hosted parent route screenshot/accessibility proof:
   `18-hosted-ui-accessibility-proof.json`
 - Evidence quality gate proof:
@@ -179,6 +181,14 @@ background location, region monitoring, notification, data custody, App Store
 review, and privacy label evidence rows. It blocks release and product-ready
 iOS tracking claims until disclosure, Apple review, entitlement,
 TestFlight/device, and runtime Core Location artifacts exist.
+
+This branch adds
+`node scripts/test/tracking-authority-enrollment-manual-required-proof.mjs`,
+which writes WP31/WP33 proof artifacts for Android device-owner, Android
+managed-profile, iOS Family Controls entitlement, iOS App Review approval, and
+desktop managed-policy authority evidence requirements. It keeps authority
+enrollment, hard-control runtime, physical-device behavior, provider delivery,
+production workers, and product-ready tracking unclaimed.
 
 This branch adds `npm run test:tracking-plan-hosted-ui-proof`, which starts the
 real Rust service against a seeded temporary ActivityStore SQLite database and
@@ -309,6 +319,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - scripts/test/tracking-plan-hosted-ui-proof.mjs
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
 - scripts/test/tracking-ios-privacy-disclosure-release-proof.mjs
+- scripts/test/tracking-authority-enrollment-manual-required-proof.mjs
 - scripts/test/tracking-plan-evidence-quality-gate-proof.mjs
 - scripts/test/tracking-notification-preference-preflight-proof.mjs
 - packages/activity-domain/src/tracking-evidence-quality-gate.ts
@@ -725,3 +736,22 @@ test:tracking-plan-hosted-ui-proof` passed.
       Core Location runtime, background delivery, region runtime, notification
       delivery, entitlement, TestFlight/device, physical-device behavior,
       authority proof, and product-ready iOS tracking remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain authority enrollment proof/test, focused
+      proof script, owning tracking feature doc, implementation checklist,
+      WP31, WP33, generated WP31/WP33 proof artifacts, and hub doc delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-authority-enrollment-manual-required-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/21-authority-enrollment-manual-required-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/48-authority-enrollment-manual-required-proof.json`,
+      and `test-results/tracking-authority-enrollment-manual-required-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP31, and WP33 updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta instead of editing the shared checklist directly.
+- [x] Known gaps/manual-required states: real enrolled-device authority state,
+      hard-control runtime, physical-device behavior, provider delivery,
+      production workers, and product-ready tracking remain proof-gated.
